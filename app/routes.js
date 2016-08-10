@@ -28,7 +28,7 @@ module.exports = function(app) {
     })
     require('./api/api-routes.js')(app);
 
-    
+
     // =====================================
     // ACCOUNT PAGE =====================
     // =====================================
@@ -1684,7 +1684,7 @@ module.exports = function(app) {
         // what aura to embed
         var wagoID = req.params.wagoID
 
-        Wago.findOneAndUpdate({ "_id" :  auraID, "private": false, type:"WEAKAURAS2" }, { $inc: { 'popularity.embeds': 1 }, "last_accessed": Date.now() }, function(err, aura) {
+        Wago.findOneAndUpdate({ "_id" :  wagoID, "private": false, type:"WEAKAURAS2" }, { $inc: { 'popularity.embeds': 1 }, "last_accessed": Date.now() }, function(err, aura) {
             // if there are any errors, return the error before anything else
             if (err)
                 return done(err);
