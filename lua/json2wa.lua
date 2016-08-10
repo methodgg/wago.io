@@ -1,0 +1,17 @@
+dofile( "./wago.lua" )
+local JSON = (loadfile "./json.lua")()
+
+local t
+if string.find(arg[1], "/tmp/wagoimport") == nil then
+    t = JSON:decode(arg[1])
+else
+    local f = io.open(arg[1], "r")
+    t = f:read()
+    f:close()
+    t = JSON:decode(t)
+end
+
+local s = TableToString(t)
+if (s) then
+    print(s)
+end

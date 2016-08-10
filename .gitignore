@@ -1,3 +1,14 @@
+# Node NPM includes
+node_modules/
+hexo/node_modules
+
+# Wago media
+mywago/media/
+public/img/wow-icons/
+                                                                                          z
+#wago ssl creds
+ssl/
+
 # Logs
 logs
 *.log

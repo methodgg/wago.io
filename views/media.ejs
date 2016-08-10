@@ -1,0 +1,94 @@
+<% include static/header %>
+<body id="page-media">
+<% include static/top-nav %>
+
+<div class="container">
+    <div class="row content">
+        <div class="col-sm-6">
+            <% if (message & message.length > 0) { %>
+                <div class="alert alert-danger"><%= message %></div>
+            <% } %>
+            <h3>Upload your artwork/media here.</h3>
+            <p>Supported image media types: .blp, .jpg, .tga, .png. Fonts and audio soon.</p>
+            <div class="well">WoW has restrictions for all image files and must be followed or your image will not load in the game:
+            <br>1. The height and width of the image must be a power a 2. (Ex: 16x16, 64x64, 128x256)<br>2. The height and width of the image can be no larger than 1024 pixels.</div>
+            <form action="/media/upload" method="post" enctype="multipart/form-data">
+                <div id="media_upload">
+                    <input type="file" name="mediafile" id="media_file_input" />
+                    <label for="media_file_input" class="btn btn-danger btn-lg"><span class="glyphicon glyphicon-upload"></span> Select file</label>
+                    <div id="media_preview"></div>
+                </div>
+                <div class="input-group" style="width:100%">
+                    <span class="input-group-addon">Media Title</span>
+                    <input type="text" class="form-control" name="name" id="media-name">
+                </div>
+                <div class="input-group" style="width:60%; float:left">
+                    <span class="input-group-addon">Image Type</span>
+                    <button type="button" id="image-type-button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="width:100%; border-top-left-radius: 0; border-bottom-left-radius: 0;">Aura Texture <span class="caret"></span></button>
+                    <ul class="dropdown-menu dropdown-menu-right" id="image-type-select">
+                          <li><a href="#">Aura Texture</a></li>
+                          <li><a href="#">Background</a></li>
+                          <li><a href="#">Border</a></li>
+                          <li><a href="#">Progress Bar</a></li>
+                          <li><a href="#">Sprite Sheet</a></li>
+                    </ul>
+                    <input type="hidden" id="image-type" name='imagetype' value="Aura Texture" />                                  
+                </div>
+                <small class='pull-left' style="display:block;margin:.75em 0 0 .75em"><a data-toggle="htmltooltip" style="cursor:help" title="<p>The type of image determines where your media is selectable in-game.</p><p> Backgrounds, Borders and Progress Bars all have their own standard media libraries that many addons use. WoW's default interface also uses media from from these libraries.</p><p>Aura Textures require WeakAuras2 and will be available in the Texture selection. Sprite Sheets require WeakAuras2 and are available to Stop Motion auras.</p><p>Regardless of what you select, you can always use custom code and load any image with the file path.">What do these image types mean?</a></small>
+                <div class="spritesheet-only" style="clear:both;display:none"">
+                    <strong>Sprite Sheet Structure</strong> <small><a data-toggle="htmltooltip" style="cursor:help" title="<p>Sprite Sheets are used in Stop Motion WeakAuras and can create animations. Additional data is required to structure the animation correctly.</p><p>Each frame within the Sprite Sheet should be in the order of Left to Right, Top to Bottom. Each frame needs to have the same dimensions but they don't have to be square.</p><p><em># Rows</em> refers to the number of horizontal rows in your sheet; <em># Columns</em> refers to vertical columns. You could have one row with twenty columns or four rows with five columns.</p><p>You can have blank frames at the end, just enter the total frames so we know when to loop the animation.</p>">Sprite Sheet Info</a></small> <br>
+                    <div class="input-group" style="width:30%;float:left;margin-right:1em">
+                        <span class="input-group-addon" style="min-width:auto"># Rows</span>
+                        <input type="text" class="form-control text-right" name='spriterows' value="0" />
+                    </div>
+                    <div class="input-group" style="width:30%;float:left;margin-right:1em">
+                        <span class="input-group-addon" style="min-width:auto"># Columns</span>
+                        <input type="text" class="form-control text-right" name='spritecols' value="0" />
+                    </div>
+                    <div class="input-group" style="width:30%;float:left">
+                        <span class="input-group-addon" style="min-width:auto">Total Frames</span>
+                        <input type="text" class="form-control text-right" name='spriteframes' value="0" />
+                    </div>
+                </div>
+                <div class="input-group" style="width:60%; float:left">
+                    <span class="input-group-addon">Media Visibility</span>
+                    <button type="button" id="media-visibility-button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="width:100%; border-top-left-radius: 0; border-bottom-left-radius: 0;"><%= user && user.account ? user.account.default_aura_visibility : "Public" %> <span class="caret"></span></button>
+                    <ul class="dropdown-menu dropdown-menu-right" id="media-visibility-select">
+                          <li><a href="#">Public</a></li>
+                          <li><a href="#">Hidden</a></li>
+                          <% if (user && user.account) { %><li id="import-visibility-private"><a href="#">Private</a></li><% } %>
+                    </ul>
+                    <input type="hidden" id="media-visibility" name='mediavisibility' value="<%= user && user.account ? user.account.default_aura_visibility : "Public" %>" />
+                </div>
+                <% if (user && user.account) { %>
+                    <br style="clear:both"><div class="input-group" style="width:60%; float:left">
+                        <span class="input-group-addon">Upload as</span>
+                        <button type="button" id="import-as-anon-button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="width:100%; border-top-left-radius: 0; border-bottom-left-radius: 0;"><%= user.account.username %> <span class="caret"></span></button>
+                        <ul class="dropdown-menu dropdown-menu-right" id="import-as-anon-select">
+                              <li><a href="#"><%= user.account.username %></a></li>
+                              <li><a href="#">Anonymous guest</a></li>
+                        </ul>
+                        <input type="hidden" id="import-as-anon" name='anon' value="<%= user.account.username %>" />
+                    </div>
+                <% } %>
+                <br style="clear:both"><button type="submit" class="btn btn-danger btn-lg">Submit</button>
+                <p><small>* Do not upload any copyrighted material in which you do not own the rights.</small></p>
+            </form>
+        </div>
+        <div class="col-sm-6" style="padding-top:2.1em">
+            <strong>Latest</strong> <small>
+            <ul class="list-unstyled" id="recent_medias">
+                <% for (var k in latest) {
+                    if (latest[k].image && latest[k].image[latest[k].image.length-1].files) {
+                        %>
+                        <li><a href="/<%= latest[k]._id %>"><img src="/mywago/media/<%= latest[k].image[latest[k].image.length-1].files.png || latest[k].image[latest[k].image.length-1].files.jpg %>" alt="" /></a></li>
+                        <%
+                    }
+                }
+                %>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<% include static/footer %>

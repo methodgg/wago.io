@@ -1,0 +1,413 @@
+<% include static/header %>
+<body id="page-aura">
+<% include static/top-nav %>
+<div id="aura_id" style="display:none"><%= aura._id %></div>
+<div class="container">
+    <div class="row content" id="aura_top">
+        <div class="col-md-12">
+            <h2><%= aura.meta.name %></h2>
+        </div>
+    </div>
+    <div class="row content">
+        <div id="aurainfo">
+            <% if (aura.meta.can_edit) { %>
+                <div class="pull-left btn-group">
+                    <button class="btn btn-sm btn-default" type="button" data-toggle="modal" data-target="#modify_aura_modal"><span class="glyphicon glyphicon-cog"></span> Edit details</button>
+                    <button class="btn btn-sm btn-default" type="button" data-toggle="modal" data-target="#screenshot_modal"><span class="glyphicon glyphicon-camera"></span> Screenshots</button>
+                    <button class="btn btn-sm btn-default" type="button" data-toggle="modal" data-target="#import_new_modal"><span class="glyphicon glyphicon-tree-conifer"></span> New version</button>
+                </div>
+            <% } %>
+
+            <div class="pull-left btn-group">
+                <button class="btn btn-sm btn-default" type="button" data-clipboard-text="https://wago.io/<%= aura._id %>" id="copyurl"><span class="glyphicon glyphicon-flash"></span> https://wago.io/<%= aura._id %></button>
+                <% if (aura.meta.userlink) { %>
+                    <button class="btn btn-sm btn-default" type="button" onclick="window.location='/profile/<%= aura.meta.username %>'"><span class="glyphicon glyphicon-user"></span> <%= aura.meta.username %></button>
+                <% } else { %>
+                    <span class="input-group-addon pull-left" style="margin-left:-1px"><span class="glyphicon glyphicon-user"></span> <%= aura.meta.username %></span>
+                <% } %>
+                <span class="input-group-addon pull-left" style="border-left:0"><span class="glyphicon glyphicon-calendar"></span> <%= aura.meta.display_date %> (WoW <%= aura.meta.wow_patch %>)</span>
+                <% if (aura.versions.length>1) { %>
+                    <button class="btn btn-sm btn-default pull-left" type="button" data-toggle="modal" data-target="#previous_versions_modal" style="margin-left:-1px"><span class="glyphicon glyphicon-time"></span> Previous versions</button>
+                <% } %>
+                <% if (!aura.meta.private && !aura.blacklist) { %>
+                    <button class="btn btn-sm btn-default pull-left" type="button" data-toggle="modal" data-target="#embed_modal" style="margin-left:-1px"><span class="glyphicon glyphicon-cloud"></span> Embed</button>
+                <% } %>
+            </div>
+
+            <div class="pull-right btn-group" style="clear:right">
+                <span class="input-group-addon pull-left"><span class="glyphicon glyphicon-eye-open"></span> <%= aura.popularity.views.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") %></span>
+                <button class="btn btn-sm btn-default <%= aura.attnComments ? 'btn-comment-alert':'' %>" type="button" id="commentjump"><span class="glyphicon glyphicon-comment"></span> <span id="comment_count"><%= aura.comments.length.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") %></span></button>
+                <button class="btn btn-sm btn-default btn-favorite" type="button" id="<%= user && user.account ? 'toggle_favorite':'' %>"><span class="glyphicon glyphicon-star<%= aura.popularity.myfave ? '':'-empty' %>"></span> <span id="star_count"><%= aura.popularity.favorites.length.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") %></span></button>
+            </div>
+        </div>
+    </div>
+
+    <div class="row content" id="aura-main">
+        <div class="col-md-12">
+            <%
+            if (aura.meta.hidden) {
+                %>
+                <div class="alert alert-info" role="alert">This WeakAura is hidden and can only be viewed with the link. Please respect the authors choice to hide this WeakAura.</div>
+                <%
+            }
+            else if (aura.meta.private) {
+                %>
+                <div class="alert alert-info" role="alert">This WeakAura is private and can only be viewed by you.</div>
+                <%
+            }
+            if (aura.blacklist) {
+                %>
+                <div class="alert alert-danger"><strong>WARNING! Blacklisted functions detected.</strong><br>
+                WeakAuras normally blocks these, but combined with malicious addons or running a /script or /run command, these counter-measures can be overwritten.<br>
+                Please review the code or ask an expert on the <a href="https://discord.gg/0xib36UukL2DHlxb">Unofficial WeakAura Discord</a> before importing.
+                <pre><%
+                    for(i=0; i<aura.blacklist.length; i++) {
+                        %><%= aura.blacklist[i]+"\n" %><%
+                    }
+                    %></pre>
+                </div>
+                <%
+            }
+            %>
+        </div>
+        <div class="col-md-6" id="aura-content">
+            <%
+            if (aura.meta.categories.length) {
+                for (k=0;k<aura.meta.categories.length;k++) {
+                    for (i=0;i<categories.length;i++) {
+                        if (aura.meta.categories[k]==categories[i].id) {
+                            %><span class="label label-default <%= categories[i].cls %>"><%= categories[i].text %></span><%
+                        }
+                    }
+                }
+            }
+            if (aura.code.updated.getTime()!=aura.latest_version.getTime()) {
+                %><div class="alert alert-danger" role="alert">Warning, this is <strong>NOT</strong> the most recent version of this WeakAura.<br>
+                    View the most recent update <a href="/<%= aura._id %>">here</a>.
+                </div><%
+            }
+            %>
+            <address>
+                <strong>Description</strong><br>
+                <div><%- xbb.process({text: aura.meta.description, human: aura.meta.authorHuman }).html %></div>
+            </address>
+        </div>
+        <div class="col-md-6">
+            <div id="screenshots_container" <% if (Object.keys(aura.screens).length<1) { %>style="display:none"<% } %>>
+                <strong>Screenshots</strong>
+                <div id="screenshots_wrapper">
+                    <%
+                    for (i=0;i<Object.keys(aura.screens).length;i++) {
+                        %><a href="<%= aura.screens[i].url.original %>" data-lightbox="screenshots" data-title="<%= aura.screens[i].caption || "" %>" id="ss_<%= aura.screens[i]._id %>"><img src="<%= aura.screens[i].url.original %>" /></a><%
+                    }
+                    %>
+                </div>
+            </div>
+            <% if (custom_func.length>0) {
+                %><p class='text-danger'><strong>This Weak Aura includes custom functions.</strong></p><%
+            } %>
+            <strong>Import String</strong><br>
+            <button type="button" class="btn btn-default btn-danger btn-xs" id="copyaura" data-clipboard-target="#wa_string">Copy</button>
+            <textarea id="wa_string"><%= aura.code.encoded %></textarea>
+        </div>
+    </div>
+    <div class="row content">
+        <div id="editor-options">
+            <div class="btn-group">
+                <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Edit: <span id="current_func">Table Data</span> <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu" id="select_func">
+                    <li><a href="#" data-fn="datatable">Table Data</a></li>
+                    <% for (var i=0; i<custom_func.length; i++) { %>
+                        <li><a href="#" data-fn="<%= custom_func[i].path %>"><%= custom_func[i].name %></a></li>
+                    <% } if (custom_func.length==0) { %>
+                        <li class="disabled"><a href="#">No custom functions detected.</a></li>
+                    <% } %>
+                </ul>
+            </div>
+            <div class="pull-right btn-group">
+                <% if (aura.meta.can_edit) { %>
+                    <button type="button" class="btn btn-default btn-sm" id="save-wa">
+                        <span class="glyphicon glyphicon-save" aria-hidden="true"></span> Save
+                    </button>
+                <% } else { %>
+                    <button type="button" class="btn btn-default btn-sm" id="export-wa">
+                        <span class="glyphicon glyphicon-export" aria-hidden="true"></span> Export
+                    </button>
+                <% } %>
+                <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <span class="caret"></span>
+                    <span class="sr-only">Toggle Dropdown</span>
+                </button>
+                <ul class="dropdown-menu">
+                    <% if (aura.meta.can_edit) { %>
+                        <li><a href="#" id="export-wa" data-toggle="tooltip" data-placement="right" title="Generate a WA Import string without saving">Export</a></li>
+                    <% } %>
+                    <li><a href="#" id="fork-wa" data-toggle="tooltip" data-placement="right" title="Save your edits as a new WA">Clone</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="row content">
+        <div id="lua-editor"></div>
+    </div>
+
+    <div class="row content" id="comments_container">
+        <div class="col-md-12" id="comments">
+            <strong>Comments</strong>
+            <% if (aura.comments.length==0) { %>
+                <p>No comments yet. Be the first!</p>
+            <% } else {
+                for (var i=0; i<aura.comments.length; i++) { %>
+                    <div class="comment <%= aura.comments[i].attn ? 'comment-new':'' %>">
+                        <div class="commentheader">
+                            Posted by <%= aura.comments[i].authorName %> <%= aura.comments[i].timeago %>. <small class="pull-right localize-time"><%= moment(aura.comments[i].postDate).format('YYYY-MM-DD HH:mm') %></small>
+                            <% if (aura.meta.can_edit) { %>
+                                <div class="btn-group pull-right">
+                                    <button class="btn btn-default btn-sm dropdown-toggle btn-comment-moderate" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        Moderate <span class="caret"></span>
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li><a href="#" class="delete-comment" data-comment="<%= aura.comments[i]._id %>" data-aura="<%= aura._id %>">Delete</a></li>
+                                    </ul>
+                                </div>
+                            <% } %>
+                        </div>
+                        <div class="commenttext">
+                            <%- xbb.process({text: aura.comments[i].commentText, human: aura.comments[i].authorVerifiedHuman }).html %>
+                        </div>
+                    </div>
+                <% }
+            } %>
+            <% if (user) {
+                %>
+                <form action="/<%= aura._id %>/postcomment" method="post">
+                    <div id="inreplyto"></div>
+                    <input type="hidden" name="inreplyto" id="inreplytoid" />
+                    <textarea class="form-control" name="commentText" style="width:100%;height:8em"></textarea>
+                    <input type="submit" class="btn btn-sm btn-danger" value="Post Comment" /> <small>Some BB code is available: [b], [i], [u], [s], [code], [color=#123456], [size=(4-40)], <% if (user && user.account.verified_human) { %>[url], <% } %> [ul], [ol], [li] or [*], [table], [tr], [td]</small>
+                    <br><small>Hint: Use @Username in your text to draw someone's attention.</small>
+                </form>
+                <%
+            }
+            %>
+        </div>
+    </div>
+
+</div>
+
+
+<% if (aura.meta.can_edit) { %>
+    <!-- modify aura modal -->
+    <div class="modal" id="modify_aura_modal" tabindex="-1" role="dialog" aria-labelledby="modify_aura_modal">
+        <div class="modal-dialog modal-lg" role="document">
+            <form class="modal-content" method="post" action="/<%= aura._id %>/modify">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="modify_aura_modal_label">Modify Aura Details</h4>
+                </div>
+                <div class="modal-body">
+                    <strong>Title</strong>
+                    <input class="form-control" name="name" value="<%= aura.meta.name %>" />
+                </div>
+                <div class="modal-body">
+                    <strong>Description</strong> <small>Some BB code is available: [b], [i], [u], [s], [code], [color=#123456], [size=(4-40)], <% if (user && user.account.verified_human) { %>[url], <% } %> [ul], [ol], [li] or [*], [table], [tr], [td]</small>
+                    <textarea class="form-control" id="cke_description" name="description" style="height:10em"><%= aura.meta.description.replace(/<(?:.|\n)*?>/gm, '') %></textarea>
+                </div>
+                <div class="modal-body">
+                    <strong>Categories</strong>
+                    <select id="select-categories" name="categories[]" multiple placeholder="Select..."></select>
+                </div>
+                <div class="modal-body" style="width:30%">
+                    <div class="input-group">
+                        <span class="input-group-addon">Aura Visibility</span>
+                        <button type="button" id="aura-visibility-button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="width:100%; border-top-left-radius: 0; border-bottom-left-radius: 0;"><%= aura.meta.visibility %> <span class="caret"></span></button>
+                        <ul class="dropdown-menu dropdown-menu-right" id="aura-visibility-select">
+                              <li><a href="#">Public</a></li>
+                              <li><a href="#">Hidden</a></li>
+                              <li><a href="#">Private</a></li>
+                        </ul>
+                        <input type="hidden" id="aura-visibility" name='auravisibility' value="<%= aura.meta.visibility %>" />
+                    </div>
+                </div>
+                <% if (static.beta_option || aura.meta.wow_beta) { %>
+                    <div class="modal-body" style="width:30%">
+                        <div class="input-group">
+                            <span class="input-group-addon">WoW Version</span>
+                            <button type="button" id="aura-beta-button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="width:100%; border-top-left-radius: 0; border-bottom-left-radius: 0;"><%= aura.meta.wow_beta ? static.beta_option.name || aura.meta.display_date : 'Live' %> <span class="caret"></span></button>
+                            <ul class="dropdown-menu dropdown-menu-right" id="aura-beta-select">
+                                  <li><a href="#">Live</a></li>
+                                  <li><a href="#"><%= static.beta_option.name || aura.meta.display_date %></a></li>
+                            </ul>
+                            <input type="hidden" id="aura-beta" name='beta' value="<%= aura.meta.wow_beta ? static.beta_option.name || aura.meta.display_date : 'Live' %>" />
+                        </div>
+                    </div>
+                <% } %>
+                <div class="modal-footer">
+                    <span class="pull-left">
+                        <small style="opacity:.3"><span class="glyphicon glyphicon-remove"></span> <a href="#" id="delete_aura">Delete</a></small>
+                        <small><a href="#" id="delete_aura_confirm" style="display:none">Confirm Delete</a></small>
+                    </span>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <input type="submit" class="btn btn-danger" value="Save changes" />
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- screenshot manager modal -->
+    <div class="modal" id="screenshot_modal" tabindex="-1" role="dialog" aria-labelledby="screenshot_modal">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="modify_aura_modal_label">Screenshot Manager</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row content">
+                        <div class="col-sm-8">
+                            <strong>Image list</strong>
+                            <div id="ss_list">
+                                <%
+                                for (i=0;i<aura.screens.length;i++) {
+                                    %><img src="<%= aura.screens[i].url.original %>" id="sst_<%= aura.screens[i]._id %>" data-fullsize="<%= aura.screens[i].url.original %>" data-caption="<%= aura.screens[i].caption %>" data-id="<%= aura.screens[i]._id %>" data-filename="<%= aura.screens[i].url.original.split(/[\\/]/).pop() %>" /><%
+                                }
+                                %>
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <form id="ss_prop" method="post" action="/<%= aura._id %>/setcaption">
+                                <input type="hidden" id="ss_id" name="screenshot" value="" />
+                                <div class="text-center">
+                                    <span id="ss_filename"></span><br>
+                                    <a href="#" data-lightbox="selected_ss"><img src="" /></a>
+                                </div><br>
+                                <strong>Caption</strong>
+                                <input class="form-control" id="ss_caption" name="caption" value="" />
+                                <input type="submit" class="btn btn-xs pull-right" value="Save"><br><br>
+                                <p class="pull-right">
+                                    <small><a href="#" id="delete_ss_confirm" style="display:none">Confirm Delete</a></small>
+                                    <small style="opacity:.3"><span class="glyphicon glyphicon-remove"></span> <a href="#" id="delete_ss">Delete</a></small>
+                                </p><br style="clear:both">
+                            </form>
+                            <div id="ss_upload">
+                                <input type="file" name="file" id="screenshot_file_input" accept="image/*" multiple="" />
+                                <label for="screenshot_file_input" class="btn btn-danger btn-lg"><span class="glyphicon glyphicon-upload"></span> Upload file(s)</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- import new version modal -->
+    <div class="modal" id="import_new_modal" tabindex="-1" role="dialog" aria-labelledby="import_new_modal_label">
+        <div class="modal-dialog modal-lg" role="document">
+            <form class="modal-content" method="post" action="/<%= aura._id %>/replace">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="import_new_modal_label">Import New Version</h4>
+                </div>
+                <div class="modal-body">
+                    <p>Update your WeakAura without changing the URL. Previous versions of the WeakAura will be available.</p>
+                    <strong>Paste your WeakAura export string here</strong>
+                    <textarea class="form-control" id="importwa" name="importwa"></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-danger">Save changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+<% } %>
+
+<% if (aura.versions.length>1) { %>
+    <div class="modal" id="previous_versions_modal" tabindex="-1" role="dialog" aria-labelledby="export_modal_label">
+      <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="import_new_modal_label">Previous Versions of this Weak Aura</h4>
+          </div>
+          <div class="modal-body">
+            <% for(i=0;i<aura.versions.length;i++) { %>
+                <a href="/<%= aura._id %>/<%= aura.versions.length-i %>">
+                <div class="panel panel-default">
+                  <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-4">Version <%= aura.versions.length-i %> <% if (i==0) { %> (Latest) <% } %></div>
+                        <div class="col-md-4"><%= moment(aura.versions[i].updated).format('MMMM Do YYYY, h:mm:ss a') %></div>
+                        <div class="col-md-4"><%= aura.versions[i].json.length.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") %> bytes</div>
+                    </div>
+                  </div>
+                </div>
+                </a>
+            <% } %>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+<% } %>
+
+
+<div class="modal" id="export_modal" tabindex="-1" role="dialog" aria-labelledby="export_modal_label">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="import_new_modal_label">Export Weak Aura</h4>
+      </div>
+      <div class="modal-body">
+        <p>Your modified code in importable string format:</p>
+        <button type="button" class="btn btn-default btn-danger btn-xs" id="copyaura_export" data-clipboard-target="#exportwa">Copy</button>
+        <textarea class="form-control" id="exportwa"></textarea>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<% if (!aura.meta.private && !aura.blacklist) { %>
+    <div class="modal" id="embed_modal" tabindex="-1" role="dialog" aria-labelledby="embed_modal_label">
+      <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="import_new_modal_label">Embed this code in your website.</h4>
+          </div>
+          <div class="modal-body">
+            <p>Copy the following code and place anywhere on your website.</p>
+            <div class="well">&lt;script src="//wago.io/<%=aura._id %>/embed.js"&gt;&lt;/script&gt;</div>
+            <p>This will render the following output. It will always show the most recent version.</p>
+            <script type="text/javascript"><% include aura-embed %> </script>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+<% } %>
+
+<%- CDN([ '/js/ace-1.2.3/ace.js']) %>
+<script type="text/javascript">
+var WA_table = <%- aura.code.json %>
+var wago_categories = <%- JSON.stringify(categories) %>
+var aura_categories = <%- JSON.stringify(aura.meta.categories) %>
+var aura_fave = <%= aura.popularity.myfave ? 'true':'false' %>
+<%= (aura._id=='EJVb2hWQW') ? "var testJS=1": "" %>
+</script>
+
+
+<% include static/footer %>

@@ -1,0 +1,91 @@
+<% include static/header %>
+<body id="page-index">
+<% include static/top-nav %>
+
+<div class="container">
+    <div class="row content">
+        <div class="col-sm-6">
+            <% if (flashMsg && flashMsg.length > 0) { %>
+                <div class="alert alert-danger"><%= flashMsg %></div>
+            <% } %>
+            <h3><span class="pull-left">Paste your</span>
+                <span class="pull-left" style="padding:0 .3em;text-align:center;font-size: 70%;margin-top: -.3em;">WeakAura<br>ElvUI</span>
+                <span class="pull-left">export string here</span></h3>
+            <form action="/import" method="post">
+                <textarea class="form-control" id="importwa" name="importwa" spellcheck="false"></textarea>
+                <div class="input-group import-snippet-only" style="width:100%;display:none">
+                    <span class="input-group-addon">Snippet Name</span>                                                                                                                                                                                                                         
+                    <input type="text" class="form-control" name="name" id="import-name">
+                </div>
+                <div class="input-group" style="width:50%; float:left">
+                    <span class="input-group-addon"><span class="importauraname">Aura</span> Visibility</span>
+                    <button type="button" id="aura-visibility-button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="width:100%; border-top-left-radius: 0; border-bottom-left-radius: 0;"><%= user && user.account ? user.account.default_aura_visibility : "Public" %> <span class="caret"></span></button>
+                    <ul class="dropdown-menu dropdown-menu-right" id="aura-visibility-select">
+                          <li><a href="#">Public</a></li>
+                          <li><a href="#">Hidden</a></li>
+                          <% if (user && user.account) { %><li id="import-visibility-private"><a href="#">Private</a></li><% } %>
+                    </ul>
+                    <input type="hidden" id="aura-visibility" name='auravisibility' value="<%= user && user.account ? user.account.default_aura_visibility : "Public" %>" />
+                </div>
+                <% if (user && user.account) { %>
+                    <br style="clear:both"><div class="input-group" style="width:50%; float:left">
+                        <span class="input-group-addon">Import as</span>
+                        <button type="button" id="import-as-anon-button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="width:100%; border-top-left-radius: 0; border-bottom-left-radius: 0;"><%= user.account.username %> <span class="caret"></span></button>
+                        <ul class="dropdown-menu dropdown-menu-right" id="import-as-anon-select">
+                              <li><a href="#"><%= user.account.username %></a></li>
+                              <li><a href="#">Anonymous guest</a></li>
+                        </ul>
+                        <input type="hidden" id="import-as-anon" name='anon' value="<%= user.account.username %>" />
+                    </div>
+                <% } %>
+                <% if (static.beta_option ) { %>
+                    <br style="clear:both"><div class="input-group import-wa-only" style="width:50%; float:left">
+                        <span class="input-group-addon">WoW Version</span>
+                        <button type="button" id="aura-beta-button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="width:100%; border-top-left-radius: 0; border-bottom-left-radius: 0;">Live <span class="caret"></span></button>
+                        <ul class="dropdown-menu dropdown-menu-right" id="aura-beta-select">
+                              <li><a href="#">Live</a></li>
+                              <li><a href="#"><%= static.beta_option.name %></a></li>
+                        </ul>
+                        <input type="hidden" id="aura-beta" name='beta' value="Live" />
+                    </div>
+                <% } %>
+                <br style="clear:both"><button type="submit" class="btn btn-danger btn-lg">Submit</button>
+            </form>
+        </div>
+        <div class="col-sm-2" style="padding-top:2.1em">
+            <strong>Favorites</strong> <small><a href="/search/stars">More</a></small><hr>
+            <ul class="list-unstyled" id="recent_auras">
+                <% for (var k in lists.stars) {
+                    %>
+                    <li><a href="/<%= lists.stars[k]._id %>"><%= lists.stars[k].name %></a></li>
+                    <%
+                }
+                %>
+            </ul>
+        </div>
+        <div class="col-sm-2" style="padding-top:2.1em">
+            <strong>Latest updates</strong> <small><a href="/search/updates">More</a></small><hr>
+            <ul class="list-unstyled" id="recent_auras">
+                <% for (var k in lists.updates) {
+                    %>
+                    <li><a href="/<%= lists.updates[k]._id %>"><%= lists.updates[k].name %></a></li>
+                    <%
+                }
+                %>
+            </ul>
+        </div>
+        <div class="col-sm-2" style="padding-top:2.1em">
+            <strong>Newest imports</strong> <small><a href="/search/newest">More</a></small><hr>
+            <ul class="list-unstyled" id="recent_auras">
+                <% for (var k in lists.newest) {
+                    %>
+                    <li><a href="/<%= lists.newest[k]._id %>"><%= lists.newest[k].name %></a></li>
+                    <%
+                }
+                %>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<% include static/footer %>

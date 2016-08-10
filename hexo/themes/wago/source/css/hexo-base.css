@@ -1,0 +1,172 @@
+/**
+ * Base Hexo and Theme styles
+ *
+ * This stylesheet is meant to give a baseline style
+ * for the built-in Hexo tags and theme markdown. They shouldn't need
+ * to change as often as the styles in `custom.css` (in theory).
+ */
+
+/* Globals */
+
+.left, .alignleft {
+  float: left;
+}
+.right, .alignright {
+  float: right;
+}
+
+/* Sidebar */
+
+.sidebar-module-list-count {
+  padding-left: 5px;
+}
+.sidebar-module-list-count:before { content: "("; }
+.sidebar-module-list-count:after { content: ")"; }
+
+/* Articles */
+
+.article-entry {
+  overflow: hidden; /* fixes problems on small width devices */
+}
+
+.article-meta {
+  margin-bottom: 20px;
+}
+.article-meta > * {
+  display: inline-block;
+  margin-right: 15px;
+}
+
+.article-date:before,
+.article-author:before,
+.article-category-link:before {
+  display: inline-block;
+  font-family: FontAwesome;
+  margin-right: 0.25em;
+  text-rendering: auto;
+  -webkit-font-smoothing: antialiased;
+}
+.article-date:before { content: "\f073"; }
+.article-author:before { content: "\f007"; }
+.article-category-link:before { content: "\f07b"; }
+
+/* blockquote */
+.article-entry blockquote footer cite {
+  display: inline-block;
+}
+.article-entry blockquote footer cite::before {
+  content: "~";
+  padding: 0px 0.5em;
+}
+
+.article-entry .pullquote.right {
+  margin-right: 0.5em;
+  margin-left: 1em;
+}
+.article-entry .pullquote {
+  text-align: left;
+  width: 45%;
+  margin: 0;
+}
+
+/* article tags */
+.article-tag-list {
+  margin: 0;
+  padding: 0;
+  list-style-type: none;
+}
+.article-tag-list-item {
+  display: inline-block;
+  margin-right: 15px;
+}
+.article-tag-list-link:before {
+  display: inline-block;
+  font-family: FontAwesome;
+  content: "\f02b";
+  margin-right: 0.25em;
+  text-rendering: auto;
+  -webkit-font-smoothing: antialiased;
+}
+
+.article-footer {
+  border-top: 1px solid #eee;
+  padding-top: 15px;
+}
+
+.article-comment-link { display: inline-block; }
+.article-share-link {
+  cursor: pointer;
+  float: right;
+  margin-left: 20px;
+}
+
+/* prev/next navigation between articles */
+#article-nav {
+  margin-top: 30px;
+}
+#article-nav>li {
+  padding: 2px;
+  font-size: 0.8em;
+}
+#article-nav>li>a {
+  border: 1px solid #337ab7;
+}
+#article-nav>li>a:hover {
+  border: 1px solid #23527c;
+}
+.article-nav-link-wrap .fa {
+  margin: 4px 0;
+}
+
+/* article media */
+
+.article-entry img,
+.article-entry video {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: auto;
+}
+.article-entry .caption {
+  color: #999;
+  display: block;
+  font-size: 0.9em;
+  margin-top: 0.5em;
+  position: relative;
+  text-align: center;
+}
+.article-entry .video-container {
+  position: relative;
+  padding-top: 56.25%;
+  height: 0;
+  overflow: hidden;
+}
+.article-entry .video-container iframe,
+.article-entry .video-container object,
+.article-entry .video-container embed {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  margin-top: 0;
+}
+
+.article-gallery {
+  padding-top: 15px;
+  border-top: 1px solid #eee;
+}
+
+/* Archives */
+
+.archive-year-wrap {
+  border-bottom: 1px solid #eee;
+  font-size: 2em;
+}
+.archive-article {
+  margin: 30px 0;
+}
+.archive-article h1 {
+  margin: 0;
+  font-size: 1.3em;
+}

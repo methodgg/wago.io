@@ -1,0 +1,67 @@
+<div id="aura-list" class="aura-listv2">
+    <%
+    for (i=0; i<auralist.list.length; i++) {
+        var ss = ""
+        if (auralist.list[i].thumb) {
+            ss = "<img src='https://"+auralist.list[i].thumb.s3Server+"/"+auralist.list[i].thumb.original_bucket+"/"+encodeURIComponent(auralist.list[i].thumb.s3Key).replace(/\-/g, "%2D").replace(/\_/g, "%5F").replace(/\./g, "%2E").replace(/\!/g, "%21").replace(/\~/g, "%7E").replace(/\*/g, "%2A").replace(/\'/g, "%27").replace(/\(/g, "%28").replace(/\)/g, "%29")+"' class='aura-img'/>"
+        }
+        else if (auralist.list[i].type=="IMAGE" && auralist.list[i].image && auralist.list[i].image[0].files.png) {
+            ss = "<img src='/mywago/media/" + auralist.list[i].image[0].files.png + "' class='aura-img'/>"
+        }
+        else if (auralist.list[i].type=="IMAGE" && auralist.list[i].image && auralist.list[i].image[0].files.jpg) {
+            ss = "<img src='/mywago/media/" + auralist.list[i].image[0].files.jpg + "' class='aura-img'/>"
+        }
+
+        if (auralist.list[i].type=="COLLECTION" && ss=="") {
+            ss = CDN('/img/collection-default.png')
+        }
+
+        if (ss=="") {
+            ss = CDN('/img/red-thunder.png')
+        }
+        %>
+        <div class="aura-container">
+            <a href="/<%= auralist.list[i]._id %>" class="row aura">
+                <div class="aura-image col-md-1"><%- ss %></div>
+                <div class="aura-data col-md-9">
+                    <div class="aura-title"><%= auralist.list[i].name %></div>
+                    <div class="aura-desc"><%- auralist.list[i].description %></div>
+                    <% if (auralist.list[i].categories) { %>
+                        <div class="aura-categories">
+                            <%
+                            for (var key in auralist.list[i].categories) {
+                                if(!auralist.list[i].categories.hasOwnProperty(key)) continue;
+                                %><span class="label label-default <%= auralist.list[i].categories[key].cls %>"><%= auralist.list[i].categories[key].text %></span><%
+                            }
+                            %>
+                        </div>
+                    <% } %>
+                </div>
+                <div class="col-md-2">
+                    <div class="aura-stats">
+                        <div class="aura-type"><%= auralist.list[i].type %></div>
+                        <div class="aura-date"><%= auralist.list[i].date %></div>
+                        <% if (auralist.list[i].unreadComments>0) { %><span class="comment-alert glyphicon glyphicon-comment" aria-hidden="true"></span> <%= auralist.list[i].unreadComments %><% } %>
+                        <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span> <%= auralist.list[i].popularity.views %>
+                        <span class="glyphicon glyphicon-comment" aria-hidden="true"></span> <%= auralist.list[i].commentCount %>
+                        <span class="glyphicon glyphicon-star<%= auralist.list[i].myfave? '':'-empty' %>" aria-hidden="true"></span> <%= auralist.list[i].popularity.favorites.length %>
+                        <br>
+                        <span class="glyphicon glyphicon-user" aria-hidden="true"></span> <%= auralist.list[i].user %>
+                        <div class="aura-visibility"><%- auralist.list[i].private ? 'Visibility: Private':'' %><%- auralist.list[i].hidden ? 'Visibility: Hidden':'' %></div>
+                    </div>
+                </div>
+            </a>
+            <% if (auralist.list[i].code && auralist.list[i].code.encoded) { %>
+                <button type="button" class="btn btn-danger btn-xs aura-quickexport" data-clipboard-text="<%= auralist.list[i].code.encoded %>" id="export<%= auralist.list[i]._id %>">Export</button>
+            <% } %>
+        </div>
+        <%
+    }
+    %>
+</div>
+
+<% if (auralist.more) { %>
+<script type="text/javascript">
+var scroll_list=<%- JSON.stringify(auralist.more) %>
+</script>
+<% } %>

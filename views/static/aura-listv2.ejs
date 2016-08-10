@@ -1,0 +1,45 @@
+<div id="aura-list" class="aura-listv2">
+    <%
+    for (i=0; i<auralist.list.length; i++) {
+        var ss = ""
+        if (auralist.list[i].screens && auralist.list[i].screens.length>0) {
+            ss = "<img src='https://"+auralist.list[i].screens[0].s3Server+"/"+auralist.list[i].screens[0].original_bucket+"/"+auralist.list[i].screens[0].s3Key+"' class='aura-img'/>"
+        }
+        %>
+        <div class="aura-container">
+            <a href="/<%= auralist.list[i]._id %>" class="row aura">
+                <div class="aura-image col-md-1"><%- ss %></div>
+                <div class="aura-data col-md-9">
+                    <% if (auralist.list[i].categories) { %>
+                        <div class="aura-categories">
+                            <%
+                            for (var key in auralist.list[i].categories) {
+                                if(!auralist.list[i].categories.hasOwnProperty(key)) continue;
+                                %><span class="label label-default <%= auralist.list[i].categories[key].cls %>"><%= auralist.list[i].categories[key].text %></span><%
+                            }
+                            %>
+                        </div>
+                    <% } %>
+                    <div class="aura-title"><%= auralist.list[i].meta.name %></div>
+                    <div class="aura-desc"><%- auralist.list[i].meta.description %></div>
+                </div>
+                <div class="col-md-2">
+                    <div class="aura-stats">
+                        <div class="aura-date"><%= auralist.list[i].date %></div>
+                        <% if (auralist.list[i].unreadComments>0) { %><span class="comment-alert glyphicon glyphicon-comment" aria-hidden="true"></span> <%= auralist.list[i].unreadComments %><% } %>
+                        <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span> <%= auralist.list[i].popularity.views %>
+                        <span class="glyphicon glyphicon-star<%= auralist.list[i].myfave? '':'-empty' %>" aria-hidden="true"></span> <%= auralist.list[i].popularity.favorites.length %><br>
+                        <span class="glyphicon glyphicon-user" aria-hidden="true"></span> <%= auralist.list[i].user %>
+                        <div class="aura-visibility"><%- auralist.list[i].meta.private ? 'Visibility: Private':'' %><%- auralist.list[i].meta.hidden ? 'Visibility: Hidden':'' %></div>
+                    </div>
+                </div>
+            </a>
+            <button type="button" class="btn btn-danger btn-xs aura-quickexport" data-clipboard-text="<%= auralist.list[i].code.encoded %>" id="export<%= auralist.list[i]._id %>">Export</button>
+        </div>
+        <%
+    }
+    %>
+</div>
+<% if (auralist.more) { %>
+<script type="text/javascript">var scroll_list=<%- JSON.stringify(auralist.more) %></script>
+<% } %>

@@ -1,0 +1,13 @@
+{
+  "name": "WAGO.IO",
+  "version": "1.0.0",
+  "description": "API for wago.io",
+  "apidoc": "0.2.0",
+  "sampleUrl": false,
+  "generator": {
+    "name": "apidoc",
+    "time": "2016-06-16T14:11:50.141Z",
+    "url": "http://apidocjs.com",
+    "version": "0.16.1"
+  }
+}

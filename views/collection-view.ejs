@@ -1,0 +1,182 @@
+<% include static/header %>
+<body id="page-collection">
+<% include static/top-nav %>
+<div id="wago_id" style="display:none"><%= collection._id %></div>
+<div class="container">
+    <div class="row content" id="aura_top">
+        <div class="col-md-12" style="margin-bottom:.2em">
+            <h2><%= collection.name %></h2>
+            <small>Updated by <span class="glyphicon glyphicon-user"></span>
+                <% if (collection.userlink) { %>
+                    <a href="/profile/<%= collection.username %>"><%= collection.username %></a>
+                <% } else { %>
+                    <%= collection.username %>
+                <% } %>
+                about <span style="border-bottom:1px dashed #570000" data-toggle="tooltip" title="<%= collection.display_date %>"><%= collection.display_date_ago %></span>.
+            </small>
+        </div>
+    </div>
+    <div class="row content">
+        <div id="aurainfo">
+            <% if (collection.can_edit) { %>
+                <div class="btn-group">
+                    <button class="btn btn-sm btn-default" type="button" data-toggle="modal" data-target="#modify_collection_modal"><span class="glyphicon glyphicon-cog"></span> Edit details</button>
+                    <button class="btn btn-sm btn-default" type="button" data-toggle="modal" data-target="#screenshot_modal"><span class="glyphicon glyphicon-camera"></span> Screenshots</button>
+                    <% if (collection._id=='4J2IYe3vZ') { %>
+                    <button class="btn btn-sm btn-default" type="button" data-toggle="modal" data-target="#video_modal"><span class="glyphicon glyphicon-film"></span> Video</button>
+                    <% } %>
+                </div>
+            <% } %>
+
+            <div class="btn-group">
+                <button class="btn btn-sm btn-default" type="button" data-clipboard-text="https://wago.io/<%= collection._id %>" id="copyurl"><span class="glyphicon glyphicon-flash"></span> https://wago.io/<%= collection._id %></button>
+            </div>
+
+            <div class="pull-right btn-group" style="clear:right">
+                <span class="input-group-addon pull-left"><span class="glyphicon glyphicon-eye-open"></span> <%= collection.popularity.views.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") %></span>
+                <button class="btn btn-sm btn-default <%= collection.attnComments ? 'btn-comment-alert':'' %>" type="button" id="commentjump"><span class="glyphicon glyphicon-comment"></span> <span id="comment_count"><%= collection.comments.length.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") %></span></button>
+                <button class="btn btn-sm btn-default btn-favorite" type="button" id="<%= user && user.account ? 'toggle_favorite':'' %>"><span class="glyphicon glyphicon-star<%= collection.popularity.myfave ? '':'-empty' %>"></span> <span id="star_count"><%= collection.popularity.favorites.length.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") %></span></button>
+            </div>
+        </div>
+    </div>
+
+    <div class="row content" id="aura-main">
+        <%
+        if (collection.hidden) {
+            %>
+            <div class="alert alert-info" role="alert">This Collection is hidden and can only be viewed with the link. Please respect the authors choice to hide this Collection.</div>
+            <%
+        }
+        else if (collection.private) {
+            %>
+            <div class="alert alert-info" role="alert">This Collection is private and can only be viewed by you.</div>
+            <%
+        }
+        %>
+        <div class="col-md-<%=(Object.keys(collection.screens).length>0)?6:12 %>" id="aura-content">
+            <address>
+                <strong>Description</strong><br>
+                <div><%- xbb.process({text: collection.description, human: collection.authorHuman, parseWago: true }).html %></div>
+            </address>
+        </div>
+
+        <div class="col-md-6">
+            <div id="screenshots_container" <% if (Object.keys(collection.screens).length<1) { %>style="display:none"<% } %>>
+                <strong>Screenshots</strong>
+                <div id="screenshots_wrapper">
+                    <%
+                    for (i=0;i<Object.keys(collection.screens).length;i++) {
+                        %><a href="<%= collection.screens[i].url.original %>" data-lightbox="screenshots" data-title="<%= collection.screens[i].caption || "" %>" id="ss_<%= collection.screens[i]._id %>"><img src="<%= collection.screens[i].url.original %>" /></a><%
+                    }
+                    %>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <% if (auralist.count>0) { %>
+        <div class="row content">
+            <p><strong><%= collection.name %></strong> collection includes the following:</p>
+            <% include static/aura-list %>
+        </div>
+    <% } %>
+</div>
+
+<% if (collection.can_edit) { %>
+    <!-- modify collection modal -->
+    <div class="modal" id="modify_collection_modal" tabindex="-1" role="dialog" aria-labelledby="modify_collection_modal">
+        <div class="modal-dialog modal-lg" role="document">
+            <form class="modal-content" method="post" action="/collection/<%= collection._id %>/modify">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="modify_aura_modal_label">Modify Aura Details</h4>
+                </div>
+                <div class="modal-body">
+                    <strong>Title</strong>
+                    <input class="form-control" name="name" value="<%= collection.name %>" />
+                </div>
+                <div class="modal-body">
+                    <strong>Description</strong> <small>Some BB code is available: [b], [i], [u], [s], [code], [color=#123456], [size=(4-40)], <% if (user && user.account.verified_human) { %>[url], <% } %> [ul], [ol], [li] or [*], [table], [tr], [td]</small>
+                    <textarea class="form-control" id="cke_description" name="description" style="height:10em"><%= collection.description.replace(/<(?:.|\n)*?>/gm, '') %></textarea>
+                </div>
+                <div class="modal-body" style="width:30%">
+                    <div class="input-group">
+                        <span class="input-group-addon">Collection Visibility</span>
+                        <button type="button" id="collection-visibility-button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="width:100%; border-top-left-radius: 0; border-bottom-left-radius: 0;"><%= collection.visibility %> <span class="caret"></span></button>
+                        <ul class="dropdown-menu dropdown-menu-right" id="collection-visibility-select">
+                            <li><a href="#">Public</a></li>
+                            <li><a href="#">Hidden</a></li>
+                            <li><a href="#">Private</a></li>
+                        </ul>
+                        <input type="hidden" id="collection-visibility" name='collectionvisibility' value="<%= collection.visibility %>" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <span class="pull-left">
+                        <small style="opacity:.3"><span class="glyphicon glyphicon-remove"></span> <a href="#" id="delete_collection">Delete</a></small>
+                        <small><a href="#" id="delete_collection_confirm" style="display:none">Confirm Delete</a></small>
+                    </span>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <input type="submit" class="btn btn-danger" value="Save changes" />
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- screenshot manager modal -->
+    <div class="modal" id="screenshot_modal" tabindex="-1" role="dialog" aria-labelledby="screenshot_modal">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="modify_aura_modal_label">Screenshot Manager</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row content">
+                        <div class="col-sm-8">
+                            <strong>Image list</strong>
+                            <div id="ss_list">
+                                <%
+                                for (i=0;i<collection.screens.length;i++) {
+                                    %><img src="<%= collection.screens[i].url.original %>" id="sst_<%= collection.screens[i]._id %>" data-fullsize="<%= collection.screens[i].url.original %>" data-caption="<%= collection.screens[i].caption %>" data-id="<%= collection.screens[i]._id %>" data-filename="<%= collection.screens[i].url.original.split(/[\\/]/).pop() %>" /><%
+                                }
+                                %>
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <form id="ss_prop" method="post" action="/<%= collection._id %>/setcaption">
+                                <input type="hidden" id="ss_id" name="screenshot" value="" />
+                                <div class="text-center">
+                                    <span id="ss_filename"></span><br>
+                                    <a href="#" data-lightbox="selected_ss"><img src="" /></a>
+                                </div><br>
+                                <strong>Caption</strong>
+                                <input class="form-control" id="ss_caption" name="caption" value="" />
+                                <input type="submit" class="btn btn-xs pull-right" value="Save"><br><br>
+                                <p class="pull-right">
+                                    <small><a href="#" id="delete_ss_confirm" style="display:none">Confirm Delete</a></small>
+                                    <small style="opacity:.3"><span class="glyphicon glyphicon-remove"></span> <a href="#" id="delete_ss">Delete</a></small>
+                                </p><br style="clear:both">
+                            </form>
+                            <div id="ss_upload">
+                                <input type="file" name="file" id="screenshot_file_input" accept="image/*" multiple="" />
+                                <label for="screenshot_file_input" class="btn btn-danger btn-lg"><span class="glyphicon glyphicon-upload"></span> Upload file(s)</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+<% } %>
+
+<script type="text/javascript">
+var aura_fave = <%= collection.popularity.myfave ? 'true':'false' %>
+var wagoID = "<%= collection._id %>"
+</script>
+
+
+<% include static/footer %>

@@ -1,0 +1,39 @@
+<div id="aura-list">
+    <%
+    for (i=0; i<auralist.list.length; i++) {
+        var ss = ""
+        if (auralist.list[i].screens && auralist.list[i].screens.length>0) {
+            ss = "<img src='https://"+auralist.list[i].screens[0].s3Server+"/"+auralist.list[i].screens[0].original_bucket+"/"+auralist.list[i].screens[0].s3Key+"' class='aura-img'/>"
+        }
+        %>
+        <a href="/<%= auralist.list[i]._id %>" class="aura">
+            <div class="aura-top">
+                <div class="aura-stats">
+                    <% if (auralist.list[i].unreadComments>0) { %><span class="comment-alert glyphicon glyphicon-comment" aria-hidden="true"></span> <%= auralist.list[i].unreadComments %><% } %>
+                    <span class="glyphicon glyphicon-star<%= auralist.list[i].myfave? '':'-empty' %>" aria-hidden="true"></span> <%= auralist.list[i].popularity.favorites.length %>
+                    <span class="glyphicon glyphicon-user" aria-hidden="true"></span> <%= auralist.list[i].user %> <%- auralist.list[i].meta.private ? '<small>(Private)</small>':'' %><%- auralist.list[i].meta.hidden ? '<small>(Hidden)</small>':'' %>
+                </div>
+                <div class="aura-title"><%= auralist.list[i].meta.name %></div>
+            </div>
+
+            <div class="aura-desc"><%- ss + auralist.list[i].meta.description %></div>
+
+            <div class="aura-bottom">
+                <div class="aura-date"><%= auralist.list[i].date %></div>
+                <div class="aura-categories">
+                    <%
+                    for (var key in auralist.list[i].categories) {
+                        if(!auralist.list[i].categories.hasOwnProperty(key)) continue;
+                        %><span class="label label-default <%= auralist.list[i].categories[key].cls %>"><%= auralist.list[i].categories[key].text %></span><%
+                    }
+                    %>
+                </div>
+            </div>
+        </a>
+        <%
+    }
+    %>
+</div>
+<% if (auralist.more) { %>
+<script type="text/javascript">var scroll_list=<%- JSON.stringify(auralist.more) %></script>
+<% } %>

@@ -1,0 +1,51 @@
+<% include static/header %>
+<body id="page-login">
+<% include static/top-nav %>
+
+<div class="container">
+        <div class="row content" style="margin-top:5em">
+            <div class="col-sm-6 text-center">
+
+                <p><span class="fa fa-sign-in"></span> Create WAGO account</p>
+
+                <!-- show any messages that come back with authentication -->
+                <% if (message.length > 0) { %>
+                    <div class="alert alert-danger"><%= message %></div>
+                <% } %>
+
+                <!-- LOGIN FORM -->
+                <form action="/signup" method="post">
+                    <div class="input-group">
+                        <span class="input-group-addon">User Name</span>
+                        <input type="text" class="form-control" aria-label="User Name" name="username" maxlength="22">
+                    </div>
+                    <div class="input-group">
+                        <span class="input-group-addon">Password</span>
+                        <input type="password" class="form-control" name="password">
+                    </div>
+                    <div class="input-group">
+                        <span class="input-group-addon">Confirm</span>
+                        <input type="password" class="form-control" name="password2">
+                    </div>
+
+                    <input type="submit" class="btn btn-danger" value="Create Account"></button>
+                </form>
+
+            </div>
+            <div class="col-sm-6 text-center">
+                <p>Already have an account? <a href="/login">Log in</a></p>
+
+                <p>Or sign in through any of these social accounts.</p>
+
+                <a href="/auth/bnet" class="btn bg-battlenet"><span class="waic waic-battlenet"></span> Battle.net</a>
+                <a href="/auth/facebook" class="btn btn-primary"><span class="fa fa-facebook"></span> Facebook</a>
+            	<a href="/auth/twitter" class="btn btn-info"><span class="fa fa-twitter"></span> Twitter</a>
+            	<a href="/auth/google" class="btn btn-danger"><span class="fa fa-google-plus"></span> Google</a>
+            </div>
+
+    </div>
+</div>
+
+<% include static/footer %>    
+
+

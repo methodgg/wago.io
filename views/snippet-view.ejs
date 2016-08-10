@@ -1,0 +1,257 @@
+<% include static/header %>
+<body id="page-snippet">
+<% include static/top-nav %>
+<div id="aura_id" style="display:none"><%= snippet._id %></div>
+<div class="container">
+    <div class="row content" id="aura_top">
+        <div class="col-md-12" style="margin-bottom:.2em">
+            <h2><%= snippet.name %></h2>
+            <small>Created by
+                <span class="glyphicon glyphicon-user"></span>
+                <% if (snippet.userlink) { %>
+                    <a href="/profile/<%= snippet.username %>"><%= snippet.username %></a>
+                <% } else { %>
+                    <%= snippet.username %>
+                <% } %>
+                about <span style="border-bottom:1px dashed #570000" data-toggle="tooltip" title="<%= snippet.display_date %>"><%= snippet.display_date_ago %></span>
+            </small>
+        </div>
+    </div>
+    <div class="row content">
+        <div id="aurainfo">
+            <% if (snippet.can_edit) { %>
+                <div class="btn-group">
+                    <button class="btn btn-sm btn-default" type="button" data-toggle="modal" data-target="#modify_aura_modal"><span class="glyphicon glyphicon-cog"></span> Edit details</button>
+                </div>
+            <% } %>
+
+            <div class="btn-group">
+                <button class="btn btn-sm btn-default" type="button" data-clipboard-text="https://wago.io/<%= snippet._id %>" id="copyurl"><span class="glyphicon glyphicon-flash"></span> https://wago.io/<%= snippet._id %></button>
+                <% if (snippet.versions.length>1) { %>
+                    <button class="btn btn-sm btn-default pull-left" type="button" data-toggle="modal" data-target="#previous_versions_modal" style="margin-left:-1px"><span class="glyphicon glyphicon-time"></span> Previous versions</button>
+                <% } %>     
+            </div>
+
+            <div class="pull-right btn-group" style="clear:right">
+                <span class="input-group-addon pull-left"><span class="glyphicon glyphicon-eye-open"></span> <%= snippet.popularity.views.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") %></span>
+                <button class="btn btn-sm btn-default <%= snippet.attnComments ? 'btn-comment-alert':'' %>" type="button" id="commentjump"><span class="glyphicon glyphicon-comment"></span> <span id="comment_count"><%= snippet.comments.length.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") %></span></button>
+                <button class="btn btn-sm btn-default btn-favorite" type="button" id="<%= user && user.account ? 'toggle_favorite':'' %>"><span class="glyphicon glyphicon-star<%= snippet.popularity.myfave ? '':'-empty' %>"></span> <span id="star_count"><%= snippet.popularity.favorites.length.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") %></span></button>
+            </div>
+        </div>
+    </div>
+
+    <div class="row content" id="aura-main">
+        <div class="col-md-12">
+            <%
+            if (snippet.hidden) {
+                %>
+                <div class="alert alert-info" role="alert">This Snippet is hidden and can only be viewed with the link. Please respect the authors choice to hide this Snippet.</div>
+                <%
+            }
+            else if (snippet.private) {
+                %>
+                <div class="alert alert-info" role="alert">This Snippet is private and can only be viewed by you.</div>
+                <%
+            }
+            %>
+        </div>
+        <div class="col-md-12" id="aura-content">
+            <%
+            for (var key in snippet.categoryData) {
+                if(!snippet.categoryData.hasOwnProperty(key)) continue;
+                %><span class="label label-default <%= snippet.categoryData[key].cls %>"><%= snippet.categoryData[key].text %></span><%
+            }
+            if (snippet.code.updated.getTime()!=snippet.latest_version.getTime()) {
+                %><div class="alert alert-danger" role="alert">Warning, this is <strong>NOT</strong> the most recent version of this snippet.<br>
+                    View the most recent update <a href="/<%= snippet._id %>">here</a>.
+                </div><%
+            }
+            %>
+            <address>
+                <strong>Description</strong><br>
+                <div><%- xbb.process({text: snippet.description, human: snippet.authorHuman }).html %></div>
+            </address>
+        </div>
+    </div>
+    <div class="row content">
+        <div id="editor-options">
+            <div class="pull-right btn-group">
+                <% if (snippet.can_edit) { %>
+                    <button type="button" class="btn btn-default btn-sm" id="save-wa">
+                        <span class="glyphicon glyphicon-save" aria-hidden="true"></span> Save
+                    </button>
+                    <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <span class="caret"></span>
+                        <span class="sr-only">Toggle Dropdown</span>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a href="#" id="fork-wa" data-toggle="tooltip" data-placement="right" title="Save your edits as a new Snippet">Clone</a></li>
+                    </ul>
+                <% } else { %>
+                    <button type="button" class="btn btn-default btn-sm" id="fork-wa">
+                        <span class="glyphicon glyphicon-export" aria-hidden="true"></span> Clone
+                    </button>
+                <% } %>
+            </div>
+        </div>
+    </div>
+    <div class="row content">
+        <div id="lua-editor"><%= snippet.code.lua %></div>
+    </div>
+
+    <div class="row content" id="comments_container">
+        <div class="col-md-12" id="comments">
+            <strong>Comments</strong>
+            <% if (snippet.comments.length==0) { %>
+                <p>No comments yet. Be the first!</p>
+            <% } else {
+                for (var i=0; i<snippet.comments.length; i++) { %>
+                    <div class="comment <%= snippet.comments[i].attn ? 'comment-new':'' %>">
+                        <div class="commentheader">
+                            Posted by <%= snippet.comments[i].authorName %> <%= snippet.comments[i].timeago %>. <small class="pull-right localize-time"><%= moment(snippet.comments[i].postDate).format('YYYY-MM-DD HH:mm') %></small>
+                            <% if (snippet.can_edit) { %>
+                                <div class="btn-group pull-right">
+                                    <button class="btn btn-default btn-sm dropdown-toggle btn-comment-moderate" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        Moderate <span class="caret"></span>
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li><a href="#" class="delete-comment" data-comment="<%= snippet.comments[i]._id %>" data-aura="<%= snippet._id %>">Delete</a></li>
+                                    </ul>
+                                </div>
+                            <% } %>
+                        </div>
+                        <div class="commenttext">
+                            <%- xbb.process({text: snippet.comments[i].commentText, human: snippet.comments[i].authorVerifiedHuman }).html %>
+                        </div>
+                    </div>
+                <% }
+            } %>
+            <% if (user) {
+                %>
+                <form action="/postcomment" method="post">
+                    <input type="hidden" name="wagoID" value="<%= snippet._id %>" />
+                    <div id="inreplyto"></div>
+                    <input type="hidden" name="inreplyto" id="inreplytoid" />
+                    <textarea class="form-control" name="commentText" style="width:100%;height:8em"></textarea>
+                    <input type="submit" class="btn btn-sm btn-danger" value="Post Comment" /> <small>Some BB code is available: [b], [i], [u], [s], [code], [color=#123456], [size=(4-40)], <% if (user && user.account.verified_human) { %>[url], <% } %> [ul], [ol], [li] or [*], [table], [tr], [td]</small>
+                    <br><small>Hint: Use @Username in your text to draw someone's attention.</small>
+                </form>
+                <%
+            }
+            %>
+        </div>
+    </div>
+
+</div>
+
+
+<% if (snippet.can_edit) { %>
+    <!-- modify aura modal -->
+    <div class="modal" id="modify_aura_modal" tabindex="-1" role="dialog" aria-labelledby="modify_aura_modal">
+        <div class="modal-dialog modal-lg" role="document">
+            <form class="modal-content" method="post" action="/<%= snippet._id %>/modify">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="modify_aura_modal_label">Modify Aura Details</h4>
+                </div>
+                <div class="modal-body">
+                    <strong>Title</strong>
+                    <input class="form-control" name="name" id="snippet-name-input" value="<%= snippet.name %>" />
+                </div>
+                <div class="modal-body">
+                    <strong>Description</strong> <small>Some BB code is available: [b], [i], [u], [s], [code], [color=#123456], [size=(4-40)], <% if (user && user.account.verified_human) { %>[url], <% } %> [ul], [ol], [li] or [*], [table], [tr], [td]</small>
+                    <textarea class="form-control" id="cke_description" name="description" style="height:10em"><%= snippet.description.replace(/<(?:.|\n)*?>/gm, '') %></textarea>
+                </div>
+                <div class="modal-body">
+                    <strong>Categories</strong>
+                    <select id="select-categories" name="categories[]" multiple placeholder="Select..."></select>
+                </div>
+                <div class="modal-body" style="width:30%">
+                    <div class="input-group">
+                        <span class="input-group-addon">Snippet Visibility</span>
+                        <button type="button" id="aura-visibility-button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="width:100%; border-top-left-radius: 0; border-bottom-left-radius: 0;"><%= snippet.visibility %> <span class="caret"></span></button>
+                        <ul class="dropdown-menu dropdown-menu-right" id="aura-visibility-select">
+                              <li><a href="#">Public</a></li>
+                              <li><a href="#">Hidden</a></li>
+                              <li><a href="#">Private</a></li>
+                        </ul>
+                        <input type="hidden" id="aura-visibility" name='auravisibility' value="<%= snippet.visibility %>" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <span class="pull-left">
+                        <small style="opacity:.3"><span class="glyphicon glyphicon-remove"></span> <a href="#" id="delete_aura">Delete</a></small>
+                        <small><a href="#" id="delete_aura_confirm" style="display:none">Confirm Delete</a></small>
+                    </span>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <input type="submit" class="btn btn-danger" value="Save changes" />
+                </div>
+            </form>
+        </div>
+    </div>
+<% } %>
+
+<% if (snippet.versions.length>1) { %>
+    <div class="modal" id="previous_versions_modal" tabindex="-1" role="dialog" aria-labelledby="export_modal_label">
+      <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="import_new_modal_label">Previous Versions of this Snippet</h4>
+          </div>
+          <div class="modal-body">
+            <% for(i=0;i<snippet.versions.length;i++) { %>
+                <a href="/<%= snippet._id %>/<%= snippet.versions.length-i %>">
+                <div class="panel panel-default">
+                  <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-4">Version <%= snippet.versions.length-i %> <% if (i==0) { %> (Latest) <% } %></div>
+                        <div class="col-md-4"><%= moment(snippet.versions[i].updated).format('MMMM Do YYYY, h:mm:ss a') %></div>
+                        <div class="col-md-4"><%= snippet.versions[i].lua.length.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") %> bytes</div>
+                    </div>
+                  </div>
+                </div>
+                </a>
+            <% } %>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+<% } %>
+
+
+<% if (1==0 && !snippet.private && !snippet.blacklist) { %>
+    <div class="modal" id="embed_modal" tabindex="-1" role="dialog" aria-labelledby="embed_modal_label">
+      <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="import_new_modal_label">Embed this code in your website.</h4>
+          </div>
+          <div class="modal-body">
+            <p>Copy the following code and place anywhere on your website.</p>
+            <div class="well">&lt;script src="//wago.io/<%=snippet._id %>/embed.js"&gt;&lt;/script&gt;</div>
+            <p>This will render the following output. It will always show the most recent version.</p>
+            <script type="text/javascript"><% include aura-embed %> </script>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+<% } %>
+
+<%- CDN([ '/js/ace-1.2.3/ace.js']) %>
+<script type="text/javascript">
+var wago_categories = <%- JSON.stringify(categories) %>
+var aura_categories = <%- JSON.stringify(snippet.categories) %>
+var aura_fave = <%= snippet.popularity.myfave ? 'true':'false' %>
+var wagoID = "<%= snippet._id %>"
+</script>
+
+
+<% include static/footer %>

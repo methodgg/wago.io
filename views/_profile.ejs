@@ -1,0 +1,28 @@
+<% include static/header %>
+<body id="page-profile">
+
+
+<div class="container">
+    <% if (profile.visible=='private') { %>
+        <div class="alert alert-danger">This profile is set to private and can not be viewed.</div>
+    <% } else { %>
+        <% if (profile.visible=="my-private") { %>
+            <div class="alert alert-danger">Your profile is set to private and can not be viewed by other users.</div>
+        <% } %>
+
+        <div class="row content" id="aura_top">
+            <div class="col-sm-12">
+                <h2><%= profile.name %></h2>
+                <p class="text-muted">
+                    <small><span class="glyphicon glyphicon-flash"></span> <%= auralist.length %> auras</small>
+                </p>
+            </div>
+        </div>
+
+        <div class="row content">
+            <% include static/aura-list %>
+        </div>
+    <% } %>
+</div>
+
+<% include static/footer %>

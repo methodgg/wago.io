@@ -1,0 +1,23 @@
+<% include static/header %>
+<body id="page-categories">
+<% include static/top-nav %>
+
+<div class="container">
+    <div class="row content" id="aura_top">
+        <div class="col-sm-12">
+            <h2><%= pageinfo.name %></h2>
+            <p class="text-muted">
+                <small>
+                    <span class="glyphicon glyphicon-flash"></span> <%= pageinfo.name %> found in <%= auralist.count %> collections.
+                </small>
+            </p>
+        </div>
+    </div>
+
+    <div class="row content">
+        <% include static/aura-list %>
+    </div>
+</div>
+
+
+<% include static/footer %>
