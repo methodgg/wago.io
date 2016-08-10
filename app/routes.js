@@ -1,27 +1,3 @@
-/*
--- alpha --
-advanced search page
-include all custom functions
-icon sprite sheet? https://draeton.github.io/stitches/
-
--- beta --
-version changelog
-custom version numbers; possibly with https://github.com/npm/node-semver
-extract functions
-tutorial Snippets
-profile avatars
-category auto-detect
-package auras together in collection
-fix thumbnails
-wago type icon base http://findicons.com/pack/2338/reflection
-
--- post launch --
-upload and convert custom graphics/font/audio
-
-wow lua ide? http://humbletim.github.io/ljs/demo/codemirror.html or http://moonshinejs.org/
-*/
-
-
 // app/routes.js
 module.exports = function(app) {
     app.use(require('./wago_lib').collectVars);
@@ -52,103 +28,7 @@ module.exports = function(app) {
     })
     require('./api/api-routes.js')(app);
 
-    // =====================================
-    // FIXING THINGS OVER HTTPS ============
-    // =====================================
-    app.get('/batch', function(req, res) {
-        if (req.user.account.username!='Ora') return next()
-        var Wago = require('./models/wagoitem')
-        var async = require('async')
-        var mongoose = require('mongoose')
-        var fs = require('fs')
-
-        var TESTFILE=0
-
-        fs.readFile(__dirname + '/../batch-upload/file-list.json', function(err, filelist) {
-            if (err) res.send(err)
-            var Files = JSON.parse(filelist)
-            async.forEachOfSeries(Files.tree, function(file, key, cb) {
-                if (file.mode!='100644') return cb()
-
-                var svg = file.path.split('/').reverse()[0];
-                var tga = svg.replace('.svg', '.tga')
-
-                fs.exists(__dirname + '/../batch-upload/'+tga, function(exists) {
-                    if (!exists) {
-                        console.error('not found', __dirname + '/../batch-upload/'+tga)
-                        return cb()
-                    }
-
-                    console.error('adding', tga)
-
-                    var Media = new Wago()
-                    Media.batch_import = 'Crelam-July-28'
-                    Media.type="IMAGE"
-                    Media.subtype = 'Aura Texture'
-
-                    Media._userId = "57926afb7278a86a6878016a"
-                    Media.name = svg.slice(0, -4).replace('-', ' ').replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();}).trim()
-
-                    var authorname = file.path.split('/')[0].replace('-', ' ').replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
-                    var url = 'http://game-icons.net/'+(file.path.replace('.svg', '.html').replace('/svg/', '/'))
-                    Media.description = "From "+url+"\nby "+authorname+" under CC BY 3.0"
-
-                    var root_dir = __dirname + '/../mywago/media/'
-                    var media_dir = Media._id+'/'
-                    var media_dir1 = media_dir + (new Date).getTime()+'/'
-                    var file_paths = {}
-
-                    var async = require('async')
-                    async.series([
-                        // create media directory
-                        function(cb2) {
-                            fs.mkdir(root_dir+media_dir, cb2)
-                        },
-
-                        // create media version directory
-                        function(cb2) {
-                            fs.mkdir(root_dir+media_dir1, cb2)
-                        },
-
-                        // convert to png
-                        function(cb2) {
-                            fs.rename(__dirname + '/../batch-upload/'+tga, root_dir+media_dir1+tga, function(err) {
-                                if (err) throw err;
-                                file_paths.tga = media_dir1+tga
-                                async.parallel([
-                                    // convert to png format
-                                    function(cb3) {
-                                        require('./convert-media')('png', root_dir+media_dir1+tga, function(err, pngfile) {
-                                            if (err) { res.send(err); cb(err) }
-                                            file_paths.png = pngfile
-                                            cb3()
-                                        })
-                                    }
-                                ], function(err, name) {
-                                    if (err) return err
-                                    cb2()
-                                })
-                            })
-                        }
-
-                    ], function(err) {
-                        if (err) throw err
-                        version = {files: file_paths, original: 'tga', sprite: {}}
-                        Media.image.push(version)
-                        Media.save(function() {
-                            console.log('saved', Media)
-                            cb()
-                        })
-                    })
-                })
-            }, function(err) {
-                // forEachOf callback
-
-                res.send('done')
-            })
-        })
-    })
-
+    
     // =====================================
     // ACCOUNT PAGE =====================
     // =====================================
@@ -307,36 +187,6 @@ module.exports = function(app) {
         }
     })
 
-    // =====================================
-    // COMING SOON =========================
-    // =====================================
-    app.get('/comingsoon', function(req, res) {
-        res.render('comingsoon.ejs');
-    })
-
-
-    // =====================================
-    // TESTING PAGE ========================
-    // =====================================
-    /*app.get('/test', isLoggedIn, function(req, res) {
-        if (req.user.account.username!='Ora') return next()
-
-        var fs = require('fs'), gm = require('gm').subClass({imageMagick: true});
-
-        gm('/home/mark/wago.io/public/test/INV_Misc_Roses_01.png').write('/home/mark/wago.io/public/test/image.jpg', function (err) {
-            if (!err) console.log('done1')
-            else console.error("CONVERT BLP ERROR1: ", err)
-
-
-        });
-
-        gm('/home/mark/wago.io/public/test/INV_Jewelcrafting_Nightseye_02.blp').write('/home/mark/wago.io/public/test/image.png', function (err) {
-            if (!err) console.log('done2')
-            else console.error("CONVERT BLP ERROR2: ", err)
-
-            res.send('done')
-        });
-    })*/
 
     // =====================================
     // COLLECTIONS =============================
