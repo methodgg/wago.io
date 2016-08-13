@@ -744,7 +744,7 @@ module.exports = function(app) {
         })
     })
 
-    app.get('/media/:mediaID/:extension(blp|tga|png|jpg)/:version?', function(req, res) {
+    app.get('/media/:mediaID/:extension(blp|tga|png|jpg|original)/:version?', function(req, res) {
         var mediaID = req.params.mediaID
 
         // what version, do some verification
@@ -779,6 +779,18 @@ module.exports = function(app) {
                 filestream.pipe(res)
             }
 
+            else if (extension=='original') { // use original file name
+                extension = media.image[media.image.length-1].original
+                var path = require('path')
+                var fs = require('fs')
+
+                var file = __dirname + '/../mywago/media/'+media.file[extension]
+                var filename = path.basename(file)
+
+                res.setHeader('Content-disposition', 'attachment; filename="' + filename+'"')
+                var filestream = fs.createReadStream(file)
+                filestream.pipe(res)
+            }
         })
     })
 

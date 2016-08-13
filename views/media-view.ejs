@@ -84,8 +84,8 @@
             </address>
             <div id="downloads_container">
                 <strong>Files</strong>
-                <ul>
-                    <li>Star <span class="glyphicon glyphicon-star"></span> this file to include it in MyWago<%= (!user || !user.account) ? ' (requires user account)':'' %>.<br>
+                <ul><li><a href="/media/<%= media._id %>/original">Download original file</a></li>
+                    <li>Or star <span class="glyphicon glyphicon-star"></span> this file to include it in MyWago<%= (!user || !user.account) ? ' (requires user account)':'' %>.<br>
                         <pre>Interface\Addons\MyWago\<%
                         if (media.subtype=="Aura Texture") { %>textures<% }
                         else if(media.subtype=="Background") { %>backgrounds<% }
