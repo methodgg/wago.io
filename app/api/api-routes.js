@@ -189,6 +189,59 @@ module.exports = function(app) {
 
 
 
+    app.post('/api/v1/import', is_apikey_valid, function(req, res) {
+        var apikey = req.body.apikey
+        var input = req.body.importString.trim()
+        var Snippet = input.match(/\b(and|break|do|else|elseif|end|false|for|if|in|local|nil|not|repeat|return|then|true|until|while|_G|_VERSION|getfenv|getmetatable|ipairs|load|module|next|pairs|pcall|print|rawequal|rawget|rawset|select|setfenv|setmetatable|tonumber|tostring|type|unpack|xpcall|coroutine|debug|math|package|string|table|SetAttribute|SetAllPoints|CreateFrame|unit|player|target)\b/g)
+
+        // if pastebin link is imported
+        if ((m = /http[s]?:\/\/pastebin.com\/([\w]+)/.exec(input)) !== null) {
+            var request = require('request')
+            request.get('http://pastebin.com/raw/'+m[1], function(error, response, content) {
+                if (!error && response.statusCode == 200) {
+                    importWago = {string: content.replace(/[\s]/g, '')}
+                    if (/[^a-zA-Z0-9\(\)]/.exec(importWago.string)) {  // if not weakaura encoding
+                        if (/[^a-zA-Z0-9=\+\/]/.exec(importWago.string)) { // if not elvui encoding
+                            res.send({error: 'InvalidImport'})
+                            return
+                        }
+
+                        // elvui string detected
+                        importWago.type = 'ELVUI'
+                        return require('../wago_lib').processImport(req, res, importWago, 'APICREATE')
+                    }
+
+                    // weakaura string detected
+                    importWago.type = 'WEAKAURAS2'
+                    return require('../wago_lib').processImport(req, res, importWago, 'APICREATE')
+                }
+                else {
+                    res.send({error: 'InvalidImport'})
+                    res.end()
+                }
+            })
+        }
+
+        else {
+            var importWago = {string: input}
+            if (/[^a-zA-Z0-9\(\)]/.exec(importWago.string)) {  // if not weakaura encoding
+                if (/[^a-zA-Z0-9=\+\/]/.exec(importWago.string)) { // if not elvui encoding
+                    res.send({error: 'InvalidImport'})
+                    return
+                }
+
+                // elvui string detected
+                importWago.type = 'ELVUI'
+                return require('../wago_lib').processImport(req, res, importWago, 'APICREATE')
+            }
+
+            // weakaura string detected
+            importWago.type = 'WEAKAURAS2'
+            return require('../wago_lib').processImport(req, res, importWago, 'APICREATE')
+        }
+    })
+
+
     /**
     * @api {get} /data/categories/:apikey Categories
     * @apiSampleRequest https://wago.io/api/v1/data/categories
@@ -207,7 +260,6 @@ module.exports = function(app) {
     */
     app.get('/api/v1/data/categories/:apikey?', is_apikey_valid, function(req, res) {
         var apikey = req.params.apikey || req.query.apikey
-//        if (apikey=="DEMO-KEY" && req.headers.referer=='')
         var categories = require('../models/categories')
         var async = require('async')
         var output = []
@@ -224,7 +276,7 @@ module.exports = function(app) {
 
 // route middleware to make sure a user is logged in
 function is_apikey_valid(req, res, next) {
-    var apikey = req.params.apikey || req.query.apikey
+    var apikey = req.params.apikey || req.query.apikey || req.body.apikey
     apikey = apikey.split('-')
     var userID = apikey.shift()
     apikey = apikey.join('-')
@@ -234,8 +286,10 @@ function is_apikey_valid(req, res, next) {
     // look for key
     User.findOneAndUpdate({"_id": userID, "api.public_key": apikey}, { $inc: { 'api.requests': 1 } }, function(err, user) {
         // if key is valid and user is found, carry on
-        if (user)
+        if (user) {
+            req.user = user
             return next();
+        }
 
         // if they aren't redirect them to the login page
         res.status(403)

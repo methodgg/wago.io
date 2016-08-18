@@ -888,7 +888,7 @@ module.exports = function(app) {
                             }
                             else if (media.subtype=="Sprite Sheet") {
                                 sprites.file(saveFile, data)
-                                included_files.sprites.push({zippedName: saveFile, title: media.name, spriteData: file.sprite})
+                                included_files.sprites.push({zippedName: saveFile, title: media.name, spriteData: media.image[0].sprite})
                             }
                             else
                                 console.error("UNKNOWN SUBTYPE", media.subtype, media)
@@ -896,7 +896,7 @@ module.exports = function(app) {
                         });
 
                     }, function() {
-                        var ejs = require('ejs')
+                        var ejs = require('ejs')             
                         ejs.renderFile(__dirname + '/../mywago/MyWagoLua.ejs', {media: included_files}, function(err, lua_file){
                             zip.file('MyWago/MyWago.lua', lua_file)
                             zip.generateAsync({type:"nodebuffer"}).then(function(content) {
@@ -2028,11 +2028,11 @@ module.exports = function(app) {
                     var height = dimensions.height
                     var width = dimensions.width
 
-                    if (height>1024 || width > 1024)
+                    if (height>8192 || width > 8192)
                         wago.invalid_img = true
-                    else if (height!=2 && height!=4 && height!=8 && height!=16 && height!=32 && height!=64 && height!=128 && height!=256 && height!=512 && height!=1024)
+                    else if (height!=2 && height!=4 && height!=8 && height!=16 && height!=32 && height!=64 && height!=128 && height!=256 && height!=512 && height!=1024 && height!=2048 && height!=4096 && height!=8192)
                         wago.invalid_img = true
-                    else if (width!=2 && width!=4 && width!=8 && width!=16 && width!=32 && width!=64 && width!=128 && width!=256 && width!=512 && width!=1024)
+                    else if (width!=2 && width!=4 && width!=8 && width!=16 && width!=32 && width!=64 && width!=128 && width!=256 && width!=512 && width!=1024 && width!=2048 && width!=4096 && width!=8192)
                         wago.invalid_img = true
                     else
                         wago.invalid_img = false
@@ -2440,7 +2440,7 @@ function processImport(req, res, importWago, action, auraID) {
                             AuraCode.save(function(err, aura) {
                                 if (err)
                                     throw err;
-                                if (action=='CLONE') {
+                                if (action=='CLONE' || action=='APICREATE') {
                                     res.setHeader('Content-Type', 'application/json')
                                     res.send('{"wago":"'+AuraCode.auraID+'"}')
                                 }
