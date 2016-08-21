@@ -196,14 +196,19 @@ wagofn = {
                             if (req.body.expires && req.body.expires!="never") {
                                 var expires = new Date()
                                 switch (req.body.expire) {
+                                    case '15 Minutes'
                                         expires.setTime(expires.getTime()+15*60*1000)
                                         break
+                                    case '3 Hours':
                                         expires.setTime(expires.getTime()+3*60*60*1000)
                                         break
+                                    case '1 Week'
                                         expires.setTime(expires.getTime()+7*24*60*60*1000)
                                         break
+                                    case '1 Month'
                                         expires.setTime(expires.getTime()+30*24*60*60*1000)
                                         break
+                                    case '3 Months'
                                         expires.setTime(expires.getTime()+6*30*24*60*60*1000)
                                         break
                                     default:
