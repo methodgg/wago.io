@@ -202,13 +202,13 @@ wagofn = {
                                     case '3 Hours':
                                         expires.setTime(expires.getTime()+3*60*60*1000)
                                         break
-                                    case '1 Week'
+                                    case '1 Week':
                                         expires.setTime(expires.getTime()+7*24*60*60*1000)
                                         break
-                                    case '1 Month'
+                                    case '1 Month':
                                         expires.setTime(expires.getTime()+30*24*60*60*1000)
                                         break
-                                    case '3 Months'
+                                    case '3 Months':
                                         expires.setTime(expires.getTime()+6*30*24*60*60*1000)
                                         break
                                     default:
