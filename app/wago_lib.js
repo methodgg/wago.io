@@ -68,7 +68,7 @@ wagofn = {
                 }
                 importWago.file = file
 
-                return processImport(req, res, importWago, action, auraID)
+                return this.processImport(req, res, importWago, action, auraID)
             })
         }
         else {
@@ -148,18 +148,20 @@ wagofn = {
                                 return
                             }
 
-                            /*if (importWago.type=='ELVUI' && !objWago.v) {
-                                console.error("INVALID WEAKAURAS2 IMPORT", objWago)
-                                req.flash('indexMsg', "Invalid string entered.")
-                                res.redirect('/')
-                                return
-                            } */
-
                             var Wago = new _WagoItem();
                             Wago.aura.code = AuraCode._id
 
-                            if (importWago.type=='WEAKAURAS2')
+                            if (importWago.type=='WEAKAURAS2') {
                                 Wago.name = objWago.d.id.trim()
+
+                                if (!Wago.categories.length) {
+                                    var autocats = require('./auto-categories')(objWago.d.load)
+                                    if (autocats.length>0) {
+                                        Wago.categories_auto = true
+                                        Wago.categories = autocats
+                                    }
+                                }
+                            }
                             else
                                 Wago.name = "ElvUI Import"
 
