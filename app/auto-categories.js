@@ -30,9 +30,9 @@ module.exports = function(load) {
     // if multi-select class is used
     else if (load.use_class && load['class'] && load['class'].multi) {
         var list = []
-        for (var classKey in multiClasses) {
-            if (!multiClasses.hasOwnProperty(classKey)) continue
-            if (multiClasses[multiClasses]) {
+        for (var classKey in load['class'].multi) {
+            if (!load['class'].multi.hasOwnProperty(classKey)) continue
+            if (load['class'].multi[classKey]) {
                 class_id = getClassCategory(load['class'].single)
                 if (class_id) {
                     categories.push(class_id)
@@ -138,4 +138,3 @@ function getEncounterCategory(id) {
             return 'raidnh10'
     }
 }
-                    
