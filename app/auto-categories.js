@@ -60,13 +60,14 @@ module.exports = function(load) {
 
     // check load-on-encounter ID
     if (load.use_encounterid && load.encounterid>0) {
-        var raid = getEncounterCategory(id)
-        if (raid.indexOf('raiden')==0)
+        var raid = getEncounterCategory(load.encounterid)
+        if (raid && raid.indexOf('raiden')==0)
             categories.push('raiden')
-        else if (raid.indexOf('raidnh')==0)
+        else if (raid && raid.indexOf('raidnh')==0)
             categories.push('raidnh')
 
-        categories.push(raid)
+        if (raid)
+            categories.push(raid)
     }
 
 
@@ -105,6 +106,7 @@ function getClassCategory(str) {
 }
 
 function getEncounterCategory(id) {
+    id = parseInt(id)
     switch (id) {
         case 1853:
             return 'raiden1'
@@ -141,4 +143,5 @@ function getEncounterCategory(id) {
         case 1866:
             return 'raidnh10'
     }
+    return false
 }
