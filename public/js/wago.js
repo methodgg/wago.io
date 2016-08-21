@@ -70,6 +70,14 @@ $(document).ready(function ($) {
             }
 
         })
+        $('#expires-select a').click(function(e) {
+            e.preventDefault()
+
+            val = $(this).text()
+            $('#expires').val(val)
+            $('#expires-button').html(val+' <span class="caret"></span>')
+        })
+
         $('#aura-visibility-select a').click(function(e) {
             e.preventDefault()
 
@@ -77,6 +85,7 @@ $(document).ready(function ($) {
             $('#aura-visibility').val(val)
             $('#aura-visibility-button').html(val+' <span class="caret"></span>')
         })
+
         $('#aura-beta-select a').click(function(e) {
             e.preventDefault()
 

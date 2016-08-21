@@ -38,6 +38,21 @@
                         <input type="hidden" id="import-as-anon" name='anon' value="<%= user.account.username %>" />
                     </div>
                 <% } %>
+
+                <br style="clear:both"><div class="input-group" style="width:50%; float:left">
+                    <span class="input-group-addon">Expire after</span>
+                    <button type="button" id="expires-button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="width:100%; border-top-left-radius: 0; border-bottom-left-radius: 0;"><%= (user && user.account)?'Never':'3 Months' %> <span class="caret"></span></button>
+                    <ul class="dropdown-menu dropdown-menu-right" id="expires-select">
+                          <li><a href="#">Never</a></li>
+                          <li><a href="#">3 Months</a></li>
+                          <li><a href="#">1 Month</a></li>
+                          <li><a href="#">1 Week</a></li>
+                          <li><a href="#">3 Hours</a></li>
+                          <li><a href="#">15 Minutes</a></li>
+                    </ul>
+                    <input type="hidden" id="expires" name='expires' value="<%= (user && user.account)?'Never':'3 Months' %>" />
+                </div>
+
                 <% if (static.beta_option ) { %>
                     <br style="clear:both"><div class="input-group import-wa-only" style="width:50%; float:left">
                         <span class="input-group-addon">WoW Version</span>

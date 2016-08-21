@@ -19,6 +19,7 @@ var itemSchema = mongoose.Schema({
 
     created : { type: Date, default: Date.now },
     last_accessed : { type: Date, default: Date.now },
+    expires_at : Date,
     modified : Date,
     display_date : String,
     wow_patch : String,

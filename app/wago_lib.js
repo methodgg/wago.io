@@ -193,6 +193,25 @@ wagofn = {
                             if (action=='CLONE' && auraID)
                                 Wago.clone_of = auraID
 
+                            if (req.body.expires && req.body.expires!="never") {
+                                var expires = new Date()
+                                switch (req.body.expire) {
+                                        expires.setTime(expires.getTime()+15*60*1000)
+                                        break
+                                        expires.setTime(expires.getTime()+3*60*60*1000)
+                                        break
+                                        expires.setTime(expires.getTime()+7*24*60*60*1000)
+                                        break
+                                        expires.setTime(expires.getTime()+30*24*60*60*1000)
+                                        break
+                                        expires.setTime(expires.getTime()+6*30*24*60*60*1000)
+                                        break
+                                    default:
+                                        expires = null
+                                }
+                                Wago.expires_at = null
+                            }
+
                             Wago.save(function(err) {
                                 if (err)
                                     throw err;
