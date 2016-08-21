@@ -214,7 +214,7 @@ wagofn = {
                                     default:
                                         expires = null
                                 }
-                                Wago.expires_at = null
+                                Wago.expires_at = expires
                             }
 
                             Wago.save(function(err) {
