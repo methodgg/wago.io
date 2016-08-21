@@ -30,10 +30,14 @@ module.exports = function(load) {
     // if multi-select class is used
     else if (load.use_class && load['class'] && load['class'].multi) {
         var list = []
+        console.error('aa')
         for (var classKey in load['class'].multi) {
+        console.error('key', classKey)
             if (!load['class'].multi.hasOwnProperty(classKey)) continue
+
+        console.error('has class',classKey)
             if (load['class'].multi[classKey]) {
-                class_id = getClassCategory(load['class'].single)
+                class_id = getClassCategory(classKey)
                 if (class_id) {
                     categories.push(class_id)
                     list.push(class_id)
