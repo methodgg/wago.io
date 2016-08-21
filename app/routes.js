@@ -394,6 +394,7 @@ module.exports = function(app) {
             criteria.sort[sortBy] = -1
 
         criteria.page = search.page || 0
+        criteria.searchProperties = search
 
         require("./search2")(criteria, req, res, function(err, results) {
             if (results.count>=14)
@@ -2298,4 +2299,3 @@ function find_custom_functions(data, callback) {
 
     callback(fn)
 }
-                 
