@@ -34,7 +34,7 @@ module.exports = function(criteria, req, res, searchCallback) {
     }
 
     // user search?
-    if (criteria.searchProperties.searchUsers) {
+    if (criteria.searchProperties && criteria.searchProperties.searchUsers) {
         if (criteria.searchProperties.caseSensitive)
             var queryRegExp = new RegExp(criteria.searchProperties.cleanedQuery)
         else
@@ -107,7 +107,7 @@ function wagoSearch(criteria, results, req, res, sort, page, max_results, skip, 
 
         results = results.concat(foundResults)
 
-        async.forEachOf(results, function (wago, async_key, cb) {
+        async.forEachOf(results, function (wago, async_key, cb) {      
             // parse owner
             if (wago.owner && wago.owner.account && wago.owner.account.username)
                 results[async_key].user = wago.owner.account.username
