@@ -372,7 +372,7 @@ $(document).ready(function ($) {
             }
             // save code to data table
             else {
-                custom_fn = custom_fn./*replace(/^[\s]*function[\s]*wago[\s]*\(m/, "function (").*/replace(/\\/g, '\\\\').replace(/\n/g, '\\n').replace(/"/g, '\\"');
+                custom_fn = custom_fn.replace(/\\/g, '\\\\').replace(/\r\n|\n|\r/g, '\\n').replace(/"/g, '\\"')
                 eval("wago_table."+current_func+"=\""+custom_fn+"\"")
             }
 
