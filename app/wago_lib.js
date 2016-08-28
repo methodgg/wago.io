@@ -68,7 +68,7 @@ wagofn = {
                 }
                 importWago.file = file
 
-                return this.processImport(req, res, importWago, action, auraID)
+                return require('./wago_lib').processImport(req, res, importWago, action, auraID)
             })
         }
         else {

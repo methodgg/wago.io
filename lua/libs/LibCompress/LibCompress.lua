@@ -5,12 +5,12 @@
 -- Authors: jjsheets and Galmok of European Stormrage (Horde)
 -- Email : sheets.jeff@gmail.com and galmok@gmail.com
 -- Licence: GPL version 2 (General Public License)
--- Revision: $Revision: 60 $
--- Date: $Date: 2015-01-16 16:11:11 +0000 (Fri, 16 Jan 2015) $
+-- Revision: $Revision: 72 $
+-- Date: $Date: 2016-08-28 14:36:27 +0000 (Sun, 28 Aug 2016) $
 ----------------------------------------------------------------------------------
 
 
-local LibCompress = LibStub:NewLibrary("LibCompress", 90000 + tonumber(("$Revision: 60 $"):match("%d+")))
+local LibCompress = LibStub:NewLibrary("LibCompress", 90000 + tonumber(("$Revision: 72 $"):match("%d+")))
 
 if not LibCompress then return end
 
@@ -24,10 +24,12 @@ if not LibCompress then return end
 -- local is faster than global
 local CreateFrame = CreateFrame
 local type = type
+local tostring = tostring
 local select = select
 local next = next
 local loadstring = loadstring
 local setmetatable = setmetatable
+local rawset = rawset
 local assert = assert
 local table_insert = table.insert
 local table_remove = table.remove
@@ -260,6 +262,9 @@ local function escape_code(code, length)
 		escaped_code = bit_lshift(escaped_code, 1 + b) + b
 		l = l + b
 	end
+	if length + l > 32 then
+		return nil, "escape overflow ("..(length + l)..")"
+	end
 	return escaped_code, length + l
 end
 
@@ -273,7 +278,7 @@ local function addBits(tbl, code, length)
 	remainder = remainder + bit_lshift(code, remainder_length)
 	remainder_length = length + remainder_length
 	if remainder_length > 32 then
-		return true -- Bits lost due to too long code-words.
+		return nil, "addBits overflow ("..remainder_length..")"
 	end
 	
 	while remainder_length >= 8 do
@@ -282,6 +287,7 @@ local function addBits(tbl, code, length)
 		remainder = bit_rshift(remainder, 8)
 		remainder_length = remainder_length -8
 	end
+	return true
 end
 
 -- word size for this huffman algorithm is 8 bits (1 byte). This means the best compression is representing 1 byte with 1 bit, i.e. compress to 0.125 of original size.
@@ -436,11 +442,20 @@ function LibCompress:CompressHuffman(uncompressed)
 	compressed_size = 5
 	
 	-- create symbol/code map
+	local escaped_code, escaped_code_len, success, msg
 	for symbol, leaf in pairs(symbols) do
-		addBits(compressed, symbol, 8)
-		if addBits(compressed, escape_code(leaf.bcode, leaf.blength)) then
+		success, msg = addBits(compressed, symbol, 8)
+		if not success then
+			return nil, msg
+		end
+		escaped_code, escaped_code_len = escape_code(leaf.bcode, leaf.blength)
+		if not escaped_code then
+			return nil, escaped_code_len
+		end
+		success, msg = addBits(compressed, escaped_code, escaped_code_len)
+		if not success then
 			-- code word too long. Needs new revision to be able to handle more than 32 bits
-			return string_char(0)..uncompressed
+			return nil, msg
 		end
 		addBits(compressed, 3, 2)
 	end
@@ -454,7 +469,10 @@ function LibCompress:CompressHuffman(uncompressed)
 		
 		for sub_i = i, ulimit do
 			c = string_byte(uncompressed, sub_i)
-			addBits(compressed, symbols[c].bcode, symbols[c].blength)
+			success, msg = addBits(compressed, symbols[c].bcode, symbols[c].blength)
+			if not success then
+				return nil, msg
+			end
 		end
 		
 		large_compressed_size = large_compressed_size + 1
@@ -498,18 +516,68 @@ setmetatable(lshiftMinusOneMask, {
 	end
 })
 
-local function getCode(bitfield, field_len)
+local function bor64(valueA_high, valueA, valueB_high, valueB)
+	return bit_bor(valueA_high, valueB_high),
+		bit_bor(valueA, valueB)
+end
+
+local function band64(valueA_high, valueA, valueB_high, valueB)
+	return bit_band(valueA_high, valueB_high),
+		bit_band(valueA, valueB)
+end
+
+local function lshift64(value_high, value, lshift_amount)
+	if lshift_amount == 0 then
+		return value_high, value
+	end
+	if lshift_amount >= 64 then
+		return 0, 0
+	end
+	if lshift_amount < 32 then
+		return bit_bor(bit_lshift(value_high, lshift_amount), bit_rshift(value, 32-lshift_amount)), 
+			bit_lshift(value, lshift_amount)
+	end
+	-- 32-63 bit shift
+	return bit_lshift(value, lshift_amount), -- builtin modulus 32 on shift amount
+		0
+end
+
+local function rshift64(value_high, value, rshift_amount)
+	if rshift_amount == 0 then
+		return value_high, value
+	end
+	if rshift_amount >= 64 then
+		return 0, 0
+	end
+	if rshift_amount < 32 then
+		return bit_rshift(value_high, rshift_amount),
+			bit_bor(bit_lshift(value_high, 32-rshift_amount), bit_rshift(value, rshift_amount))
+	end
+	-- 32-63 bit shift
+	return 0,
+		bit_rshift(value_high, rshift_amount)
+end
+
+local function getCode2(bitfield_high, bitfield, field_len)
 	if field_len >= 2 then
-		local b
-		local p = 0
-		for i = 0, field_len -1 do
-			b = bit_band(bitfield, lshiftMask[i])
-			if not (p == 0) and not (b == 0) then
-				-- found 2 bits set right after each other (stop bits)
-				return bit_band( bitfield, lshiftMinusOneMask[i - 1]), i - 1, 
-					bit_rshift(bitfield, i + 1), field_len -  i - 1
+		-- [bitfield_high..bitfield]: bit 0 is right most in bitfield. bit <field_len-1> is left most in bitfield_high
+		local b1, b2, remainder_high, remainder
+		for i = 0, field_len - 2 do
+			b1 = i <= 31 and bit_band(bitfield, bit_lshift(1, i)) or bit_band(bitfield_high, bit_lshift(1, i)) -- for shifts, 32 = 0 (5 bit used)
+			b2 = (i+1) <= 31 and bit_band(bitfield, bit_lshift(1, i+1)) or bit_band(bitfield_high, bit_lshift(1, i+1))
+			if not (b1 == 0) and not (b2 == 0) then
+				-- found 2 bits set right after each other (stop bits) with i pointing at the first stop bit
+				-- return the two bitfields separated by the two stopbits (3 values for each: bitfield_high, bitfield, field_len)
+				-- bits left: field_len - (i+2)
+				remainder_high, remainder = rshift64(bitfield_high, bitfield, i+2)
+				-- first bitfield is the lower part
+				return (i-1) >= 32 and bit_band(bitfield_high, bit_lshift(1, i) - 1) or 0,
+					i >= 32 and bitfield or bit_band(bitfield, bit_lshift(1, i) - 1),
+					i,
+					remainder_high,
+					remainder,
+					field_len-(i+2)
 			end
-			p = b
 		end
 	end
 	return nil
@@ -536,7 +604,7 @@ tables.Huffman_uncompressed = {}
 tables.Huffman_large_uncompressed = {} -- will always be as big as the largest string ever decompressed. Bad, but clearing it every time takes precious time.
 
 function LibCompress:DecompressHuffman(compressed)
-	if not type(uncompressed) == "string" then
+	if not type(compressed) == "string" then
 		return nil, "Can only uncompress strings"
 	end
 
@@ -562,6 +630,7 @@ function LibCompress:DecompressHuffman(compressed)
 
 	-- decode code -> symbol map
 	local bitfield = 0
+	local bitfield_high = 0
 	local bitfield_len = 0
 	local map = {} -- only table not reused in Huffman decode.
 	setmetatable(map, {
@@ -576,7 +645,7 @@ function LibCompress:DecompressHuffman(compressed)
 	local c, cl
 	local minCodeLen = 1000
 	local maxCodeLen = 0
-	local symbol, code, code_len, _bitfield, _bitfield_len
+	local symbol, code_high, code, code_len, temp_high, temp
 	local n = 0
 	local state = 0 -- 0 = get symbol (8 bits),  1 = get code (varying bits, ends with 2 bits set)
 	while n < num_symbols do
@@ -585,18 +654,22 @@ function LibCompress:DecompressHuffman(compressed)
 		end
 
 		c = string_byte(compressed, i)
-		bitfield = bit_bor(bitfield, bit_lshift(c, bitfield_len))
+		temp_high, temp = lshift64(0, c, bitfield_len)
+		bitfield_high, bitfield = bor64(bitfield_high, bitfield, temp_high, temp)
 		bitfield_len = bitfield_len + 8
 		
 		if state == 0 then
 			symbol = bit_band(bitfield, 255)
-			bitfield = bit_rshift(bitfield, 8)
+			bitfield_high, bitfield = rshift64(bitfield_high, bitfield, 8)
 			bitfield_len = bitfield_len - 8
 			state = 1 -- search for code now
 		else
-			code, code_len, _bitfield, _bitfield_len = getCode(bitfield, bitfield_len)
-			if code then
-				bitfield, bitfield_len = _bitfield, _bitfield_len
+			code_high, code, code_len, _bitfield_high, _bitfield, _bitfield_len = getCode2(bitfield_high, bitfield, bitfield_len)
+			if code_high then
+				bitfield_high, bitfield, bitfield_len = _bitfield_high, _bitfield, _bitfield_len
+				if code_len > 32 then
+					return nil, "Unsupported symbol code length ("..code_len..")"
+				end
 				c, cl = unescape_code(code, code_len)
 				map[cl][c] = string_char(symbol)
 				minCodeLen = cl < minCodeLen and cl or minCodeLen
@@ -678,11 +751,18 @@ end
 --------------------------------------------------------------------------------
 -- Generic codec interface
 
+function LibCompress:Store(uncompressed)
+	if type(uncompressed) ~= "string" then
+		return nil, "Can only compress strings"
+	end
+	return "\001"..uncompressed
+end
+
 function LibCompress:DecompressUncompressed(data)
 	if type(data) ~= "string" then
 		return nil, "Can only handle strings"
 	end
-	if string.byte(data) ~= 1 then
+	if string_byte(data) ~= 1 then
 		return nil, "Can only handle uncompressed data"
 	end
 	return data:sub(2)
@@ -716,7 +796,7 @@ function LibCompress:Compress(data)
 end
 
 function LibCompress:Decompress(data)
-	local header_info = string.byte(data)
+	local header_info = string_byte(data)
 	if decompression_methods[header_info] then
 		return decompression_methods[header_info](self, data)
 	else
@@ -800,12 +880,12 @@ function LibCompress:GetEncodeTable(reservedChars, escapeChars, mapChars)
 	end
 	
 	-- list of characters that must be encoded
-	encodeBytes = reservedChars..escapeChars..mapChars
+	local encodeBytes = reservedChars..escapeChars..mapChars
 	
 	-- build list of bytes not available as a suffix to a prefix byte
 	local taken = {}
-	for i = 1, strlen(encodeBytes) do 
-		taken[string.sub(encodeBytes, i, i)] = true
+	for i = 1, string_len(encodeBytes) do 
+		taken[string_sub(encodeBytes, i, i)] = true
 	end
 	
 	-- allocate a table to hold encode/decode strings/functions
@@ -816,77 +896,79 @@ function LibCompress:GetEncodeTable(reservedChars, escapeChars, mapChars)
 	
 	local encode_search = {}
 	local encode_translate = {}
+	local encode_func
 	local decode_search = {}
 	local decode_translate = {}
+	local decode_func
 	local c, r, i, to, from
-	local escapeCharIndex = 0
+	local escapeCharIndex, escapeChar = 0
 	
 	-- map single byte to single byte
 	if #mapChars > 0 then
 		for i = 1, #mapChars do
-			from = string.sub(reservedChars, i, i)
-			to = string.sub(mapChars, i, i)
+			from = string_sub(reservedChars, i, i)
+			to = string_sub(mapChars, i, i)
 			encode_translate[from] = to
-			table.insert(encode_search, from)
+			table_insert(encode_search, from)
 			decode_translate[to] = from
-			table.insert(decode_search, to)
+			table_insert(decode_search, to)
 		end
-		codecTable["decode_search"..tostring(escapeCharIndex)] = "([".. escape_for_gsub(table.concat(decode_search)).."])"
+		codecTable["decode_search"..tostring(escapeCharIndex)] = "([".. escape_for_gsub(table_concat(decode_search)).."])"
 		codecTable["decode_translate"..tostring(escapeCharIndex)] = decode_translate
-		tinsert(decode_func_string, "str = str:gsub(self.decode_search"..tostring(escapeCharIndex)..", self.decode_translate"..tostring(escapeCharIndex)..");")
+		table_insert(decode_func_string, "str = str:gsub(self.decode_search"..tostring(escapeCharIndex)..", self.decode_translate"..tostring(escapeCharIndex)..");")
 
 	end
 	
 	-- map single byte to double-byte
 	escapeCharIndex = escapeCharIndex + 1
-	escapeChar = string.sub(escapeChars, escapeCharIndex, escapeCharIndex)
+	escapeChar = string_sub(escapeChars, escapeCharIndex, escapeCharIndex)
 	r = 0 -- suffix char value to the escapeChar
 	decode_search = {}
 	decode_translate = {}
-	for i = 1, strlen(encodeBytes) do
-		c = string.sub(encodeBytes, i, i)
+	for i = 1, string_len(encodeBytes) do
+		c = string_sub(encodeBytes, i, i)
 		if not encode_translate[c] then
 			-- this loop will update escapeChar and r
-			while r < 256 and taken[string.char(r)] do
+			while r < 256 and taken[string_char(r)] do
 				r = r + 1
 				if r > 255 then -- switch to next escapeChar
 					if escapeChar == "" then -- we are out of escape chars and we need more!
 						return nil, "Out of escape characters"
 					end
 					
-					codecTable["decode_search"..tostring(escapeCharIndex)] = escape_for_gsub(escapeChar).."([".. escape_for_gsub(table.concat(decode_search)).."])"
+					codecTable["decode_search"..tostring(escapeCharIndex)] = escape_for_gsub(escapeChar).."([".. escape_for_gsub(table_concat(decode_search)).."])"
 					codecTable["decode_translate"..tostring(escapeCharIndex)] = decode_translate
-					tinsert(decode_func_string, "str = str:gsub(self.decode_search"..tostring(escapeCharIndex)..", self.decode_translate"..tostring(escapeCharIndex)..");")
+					table_insert(decode_func_string, "str = str:gsub(self.decode_search"..tostring(escapeCharIndex)..", self.decode_translate"..tostring(escapeCharIndex)..");")
 					
 					escapeCharIndex  = escapeCharIndex + 1
-					escapeChar = string.sub(escapeChars, escapeCharIndex, escapeCharIndex)
+					escapeChar = string_sub(escapeChars, escapeCharIndex, escapeCharIndex)
 					
 					r = 0
 					decode_search = {}
 					decode_translate = {}
 				end
 			end
-			encode_translate[c] = escapeChar..string.char(r)
-			table.insert(encode_search, c)
-			decode_translate[string.char(r)] = c
-			table.insert(decode_search, string.char(r))
+			encode_translate[c] = escapeChar..string_char(r)
+			table_insert(encode_search, c)
+			decode_translate[string_char(r)] = c
+			table_insert(decode_search, string_char(r))
 			r = r + 1
 		end
 	end
-
+	
 	if r > 0 then
-		codecTable["decode_search"..tostring(escapeCharIndex)] = escape_for_gsub(escapeChar).."([".. escape_for_gsub(table.concat(decode_search)).."])"
+		codecTable["decode_search"..tostring(escapeCharIndex)] = escape_for_gsub(escapeChar).."([".. escape_for_gsub(table_concat(decode_search)).."])"
 		codecTable["decode_translate"..tostring(escapeCharIndex)] = decode_translate
-		tinsert(decode_func_string, "str = str:gsub(self.decode_search"..tostring(escapeCharIndex)..", self.decode_translate"..tostring(escapeCharIndex)..");")
+		table_insert(decode_func_string, "str = str:gsub(self.decode_search"..tostring(escapeCharIndex)..", self.decode_translate"..tostring(escapeCharIndex)..");")
 	end
 	
 	-- change last line from "str = ...;" to "return ...;";
 	decode_func_string[#decode_func_string] = decode_func_string[#decode_func_string]:gsub("str = (.*);", "return %1;")
-	decode_func_string = "return function(self, str) "..table.concat(decode_func_string).." end"
+	decode_func_string = "return function(self, str) "..table_concat(decode_func_string).." end"
 	
-	encode_search = "([".. escape_for_gsub(table.concat(encode_search)).."])"
-	decode_search = escape_for_gsub(escapeChars).."([".. escape_for_gsub(table.concat(decode_search)).."])"
-
+	encode_search = "([".. escape_for_gsub(table_concat(encode_search)).."])"
+	decode_search = escape_for_gsub(escapeChars).."([".. escape_for_gsub(table_concat(decode_search)).."])"
+	
 	encode_func = assert(loadstring("return function(self, str) return str:gsub(self.encode_search, self.encode_translate); end"))()
 	decode_func = assert(loadstring(decode_func_string))()
 	
@@ -936,10 +1018,10 @@ function LibCompress:GetChatEncodeTable(reservedChars, escapeChars, mapChars)
 	local r = {}
 	
 	for i = 128, 255 do
-		table.insert(r, string.char(i))
+		table_insert(r, string_char(i))
 	end
 	
-	reservedChars = "sS\000\010\013\124%"..table.concat(r)..(reservedChars or "")
+	reservedChars = "sS\000\010\013\124%"..table_concat(r)..(reservedChars or "")
 	if escapeChars == "" then
 		escapeChars = "\029\031"
 	end
@@ -966,7 +1048,7 @@ function LibCompress:Encode7bit(str)
 	local encoded_size = 0
 	local length = #str
 	for i = 1, length do
-		code = string.byte(str, i)
+		local code = string_byte(str, i)
 		remainder = remainder + bit_lshift(code, remainder_length)
 		remainder_length = 8 + remainder_length
 		while remainder_length >= 7 do
@@ -982,7 +1064,7 @@ function LibCompress:Encode7bit(str)
 		tbl[encoded_size] = string_char(remainder)
 	end
 	setCleanupTables("encode7bit")
-	return table.concat(tbl, "", 1, encoded_size)
+	return table_concat(tbl, "", 1, encoded_size)
 end
 
 tables.decode8bit = {}
@@ -998,7 +1080,7 @@ function LibCompress:Decode7bit(str)
 	while true do
 		if bitfield_len >= 8 then
 			decoded_size = decoded_size + 1
-			bit8[decoded_size] = string_char(bit.band(bitfield, 255))
+			bit8[decoded_size] = string_char(bit_band(bitfield, 255))
 			bitfield = bit_rshift(bitfield, 8)
 			bitfield_len = bitfield_len - 8
 		end
@@ -1011,7 +1093,7 @@ function LibCompress:Decode7bit(str)
 		i = i + 1
 	end
 	setCleanupTables("decode8bit")
-	return table.concat(bit8, "", 1, decoded_size)
+	return table_concat(bit8, "", 1, decoded_size)
 end
 
 ----------------------------------------------------------------------
