@@ -87,44 +87,15 @@ module.exports = function(app) {
         var Wago = require('./models/wagoitem');
 
         var async = require('async')
+        var fs = require('fs')
         var lists = {}
 
-        async.parallel([
-            // newest auras
-            function(cb) {
-                Wago.find({ 'hidden' : false, 'private': false, $or: [{type: "WEAKAURAS2"}, {type: 'ELVUI'}], modified: null }).limit(9).sort('-created').exec(function(err, auras) {
-                    if (err)
-                        throw err;
-                    lists.newest = auras
-                    cb()
-                })
-            },
-
-            // latest updates
-            function(cb) {
-                Wago.find({ 'hidden' : false, 'private': false, $or: [{type: "WEAKAURAS2"}, {type: 'ELVUI'}], modified: { $ne: null } }).limit(9).sort('-modified').exec(function(err, auras) {
-                    if (err)
-                        throw err;
-                    lists.updates = auras
-                    cb()
-
-                })
-            },
-
-            // most stars
-            function(cb) {
-                Wago.aggregate().match({ 'hidden' : false, 'private': false, $or: [{type: "WEAKAURAS2"}, {type: 'ELVUI'}] }).project({ '_id': 1, 'name': 1, 'popularity.views': 1, 'stars': { '$size': '$popularity.favorites'}})
-                  .sort({'stars':-1, 'popularity.views':-1}).limit(9).exec(function(err, auras) {
-                    if (err)
-                        throw err;
-                    lists.stars = auras
-                    cb()
-                })
-            }
-        ], function() {
-            var flashMsg = req.flash('indexMsg')[0]
-            res.render('index.ejs', { flashMsg: flashMsg, lists: lists, moment: require('moment') });
-        })
+        lists.newest = JSON.parse(fs.readFileSync('./static/newest.json', 'utf8'));
+        lists.updates = JSON.parse(fs.readFileSync('./static/updated.json', 'utf8'));
+        lists.stars = JSON.parse(fs.readFileSync('./static/popular.json', 'utf8'));
+        
+        var flashMsg = req.flash('indexMsg')[0]
+        res.render('index.ejs', { flashMsg: flashMsg, lists: lists, moment: require('moment') });
     });
 
 

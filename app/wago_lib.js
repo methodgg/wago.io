@@ -2,6 +2,7 @@ wagofn = {
     // collect user and global variables
     collectVars: function(req, res, next) {
         var async = require('async');
+        var fs = require('fs');
 
         async.parallel([
             function(cb) {  // find unread comments
@@ -35,21 +36,9 @@ wagofn = {
                 res.locals.xbb = require('./xbbcode')
 
                 res.locals.aura = {}
-                res.locals.static = require('./static_vars');
-
-                var Aura = require('./models/wagoitem');
-                res.locals.category_menu = require('./models/categories')
-
-                async.forEachOf(res.locals.category_menu, function (item, key, cb2) {
-                    Aura.count({ 'categories' : item.id, 'private':0, 'hidden':0 }, function(err, count) {
-                        if (err) return callback(err);
-                        res.locals.category_menu[key].count = count
-                        cb2()
-                    })
-
-                }, function(err) {
-                    cb()
-                })
+                res.locals["static"] = require('./static_vars');
+                res.locals.category_menu = JSON.parse(fs.readFileSync('./static/categories.json', 'utf8'));
+                cb()
             }
 
         ], function() {
