@@ -8,6 +8,7 @@ public/img/wow-icons/
                                                                                           z
 #wago ssl creds
 ssl/
+config/
 
 # Logs
 logs

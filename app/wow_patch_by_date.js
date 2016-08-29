@@ -7,6 +7,9 @@ module.exports = function(ddate, beta) {
             return "7.0.1 Legion Alpha";
     }
 
+    if (ddate.isAfter('2016-08-30T00:00:00Z'))
+        return "7.0.3 Legion";
+
     if (ddate.isAfter('2016-07-19T03:00:00Z'))
         return "7.0.3 Legion Pre-patch";
 

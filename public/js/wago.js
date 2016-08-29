@@ -20,6 +20,12 @@ $(document).ready(function ($) {
         e.clearSelection();
     });
 
+    $('.comment-reply').click(function(e) {
+        e.preventDefault()
+        var tag = $(this).attr('data-tag')
+        $('#commenttext').val('@'+tag+' ').focus()
+    })
+
 
     if (typeof scroll_list == "object") {
         var win = $(window);
@@ -355,7 +361,7 @@ $(document).ready(function ($) {
         $('#select_func li a').click(function(e) {
             e.preventDefault()
             ident = $(this).attr('data-fn')
-            if (!ident) return
+            if (!ident || !wago_table) return
             custom_fn = editor.getValue()
 
             // if we're leaving the data table

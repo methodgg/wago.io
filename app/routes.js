@@ -1304,18 +1304,16 @@ module.exports = function(app) {
     app.post('/aura/save', isLoggedIn, function(req, res) {
         var Aura = require('./models/wagoitem');
 
-        if (req.body.json) {
-            var json = JSON.parse(req.body.json)
-            if (!json) {
-                res.send('{"err": "Invalid data entered."}')
-                return
-            }
-        }
-
         Aura.findOne({ '_id' :  req.body.auraID }, function(err, aura) {
             if (req.user && req.user._id.equals(aura._userId)) {
                 // if saving a WA
                 if (aura.type=="WEAKAURAS2") {
+                    var json = JSON.parse(req.body.json)
+                    if (!json) {
+                        res.send('{"err": "Invalid data entered."}')
+                        return
+                    }
+
                     if (aura.wow_beta && !require('./static_vars').beta_option) {
                         aura.wow_beta = false
                         aura.save()
@@ -1330,6 +1328,11 @@ module.exports = function(app) {
                     });
                 }
                 else if (aura.type=="ELVUI") {
+                    var json = JSON.parse(req.body.json)
+                    if (!json) {
+                        res.send('{"err": "Invalid data entered."}')
+                        return
+                    }
                     if (aura.wow_beta && !require('./static_vars').beta_option) {
                         aura.wow_beta = false
                         aura.save()
@@ -1352,7 +1355,7 @@ module.exports = function(app) {
                     _Snippet = require('./models/aura-code');
                     var snippet = new _Snippet();
 
-                    snippet.lua = req.body.lua
+                    snippet.lua = req.body.json // not actually json
                     snippet.auraID = req.body.auraID
                     snippet.save(function(err, aura) {
                         if (err)
@@ -1555,8 +1558,15 @@ module.exports = function(app) {
                 if (user_matches.length>0) {
                     var async = require('async')
                     var User = require('./models/user')
+                    var ObjectId = require('mongoose').Types.ObjectId
+
                     async.forEachOf(user_matches, function (taggedUsername, key, cb) {
-                        User.findOne({'account.username': taggedUsername}).exec(function(err, foundUser) {
+                        var taggedUserID
+                        if ((m = /User-(.*)+/.exec(taggedUsername)) !== null) {
+                            taggedUserID = new ObjectId(m[1])
+                            console.error("query", { $or: [ {'account.username': taggedUsername} , {_id: taggedUserID } ] })
+                        }
+                        User.findOne({ $or: [ {'account.username': taggedUsername} , {_id: taggedUserID } ] }).exec(function(err, foundUser) {
                             if (foundUser) {
                                 Comment.usersTagged.pull({userID: foundUser._id})
                                 Comment.usersTagged.push({userID: foundUser._id})
@@ -1612,7 +1622,7 @@ module.exports = function(app) {
             wagoIds.push(res.locals.unreadComments[i].wagoID)
         }
 
-        var search = { "_id": { $in: wagoIds}, "private": false, page: req.query.page}
+        var search = { "_id": { $in: wagoIds}, "hidden": "allow", page: req.query.page}
 
         require('./search2')(search, req, res, function(err, results) {
             if (results.count>=14)
@@ -1929,7 +1939,11 @@ module.exports = function(app) {
                     Comments.find({'wagoID': wagoID}).sort('-postDate').exec(function(err, comments) {
                         async.forEachOf(comments, function (comment, commentkey, cb2) {
                             User.findById(comment.authorID, function(err, user) {
-                                comments[commentkey].authorName = user.account.username
+                                if (user.account.username)
+                                    comments[commentkey].authorName = user.account.username
+                                else
+                                    comments[commentkey].authorName = 'User-'+user._id
+
                                 comments[commentkey].authorVerifiedHuman = user.account.verified_human
                                 var ddate = moment(comments[commentkey].postDate)
                                 comments[commentkey].timeago = ddate.fromNow()
@@ -2027,8 +2041,13 @@ module.exports = function(app) {
                                 return cb(err);
 
                             // check to see if theres already a user with that email
-                            if (user) {
+                            if (user && user.account.username) {
                                 wago.username = user.account.username
+                                wago.userlink = !user.account.hidden
+                                wago.authorHuman = user.account.verified_human
+                            }
+                            else if (user) {
+                                wago.username = 'User-'+user._id
                                 wago.userlink = !user.account.hidden
                                 wago.authorHuman = user.account.verified_human
                             } else {

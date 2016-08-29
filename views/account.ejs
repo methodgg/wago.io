@@ -20,7 +20,7 @@
                 <form action="/account/update/profile" method="post">
                     <div class="input-group">
                         <span class="input-group-addon">User Name</span>
-                        <input type="text" class="form-control" aria-label="User Name" name="profilename" placeholder="Anonymous user" value="<%= user.account.username %>" maxlength="22">
+                        <input type="text" class="form-control" aria-label="User Name" name="profilename" placeholder="Anonymous user" value="<%= user.account.username || 'User-'+user._id %>" maxlength="22">
                     </div>
                     <div class="input-group" style="width:50%; float:left">
                         <span class="input-group-addon">Profile Visibility</span>

@@ -17,18 +17,6 @@ module.exports = function(criteria, req, res, searchCallback) {
     var max_results = parseInt(criteria.max) || 100000; delete criteria.max
     var mywago = criteria.mywago || false; delete criteria.mywago
 
-    criteria.deleted = false
-
-    if (!criteria.anonymous)
-        criteria.owner = {$exists: 1}
-    else
-        delete criteria.anonymous
-
-    // setup hidden/private
-    delete criteria.hidden
-    delete criteria["private"]
-
-
     if (mywago=='count' || mywago=='zip') {
         criteria.type = { $in: ['IMAGE', 'FONT', 'AUDIO'] }
     }
@@ -87,10 +75,22 @@ module.exports = function(criteria, req, res, searchCallback) {
 function wagoSearch(criteria, results, req, res, sort, page, max_results, skip, limit, mywago, callback) {
     delete criteria.searchProperties
 
-    if (req.user)
+    criteria.deleted = false
+
+    if (!criteria.anonymous)
+        criteria.owner = {$exists: 1}
+    else
+        delete criteria.anonymous
+
+    // setup hidden/private
+    if (req.user && criteria.hidden=='allow')
+        var privacyFilter = { $or: [{ 'owner._id': req.user._id }, { 'private': false }] }
+    else if (req.user && criteria.hidden=='allow')
         var privacyFilter = { $or: [{ 'owner._id': req.user._id }, { 'private': false, 'hidden': false }] }
     else
         var privacyFilter = { 'private': false, 'hidden': false }
+    delete criteria.hidden
+    delete criteria["private"]
 
     Wago.aggregate([
       {$lookup: { from: "auracodes", localField: "aura.code", foreignField: "_id", as: "code" }},

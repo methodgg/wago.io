@@ -30,12 +30,12 @@
                 <% if (user && user.account) { %>
                     <br style="clear:both"><div class="input-group" style="width:50%; float:left">
                         <span class="input-group-addon">Import as</span>
-                        <button type="button" id="import-as-anon-button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="width:100%; border-top-left-radius: 0; border-bottom-left-radius: 0;"><%= user.account.username %> <span class="caret"></span></button>
+                        <button type="button" id="import-as-anon-button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="width:100%; border-top-left-radius: 0; border-bottom-left-radius: 0;"><%= user.account.username || 'User-'+user._id %> <span class="caret"></span></button>
                         <ul class="dropdown-menu dropdown-menu-right" id="import-as-anon-select">
-                              <li><a href="#"><%= user.account.username %></a></li>
+                              <li><a href="#"><%= user.account.username || 'User-'+user._id %></a></li>
                               <li><a href="#">Anonymous guest</a></li>
                         </ul>
-                        <input type="hidden" id="import-as-anon" name='anon' value="<%= user.account.username %>" />
+                        <input type="hidden" id="import-as-anon" name='anon' value="<%= user.account.username || 'User-'+user._id %>" />
                     </div>
                 <% } %>
 

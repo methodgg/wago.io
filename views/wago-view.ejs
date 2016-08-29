@@ -237,7 +237,7 @@
                     %>
                     <div class="comment <%= wago.comments[i].attn ? 'comment-new':'' %>">
                         <div class="commentheader">
-                            Posted by <%= wago.comments[i].authorName %> <%= wago.comments[i].timeago %>. <small class="pull-right localize-time"><%= moment(wago.comments[i].postDate).format('YYYY-MM-DD HH:mm') %></small>
+                            Posted by <%= wago.comments[i].authorName %> <%= wago.comments[i].timeago %>. <small><a href="#reply" class="comment-reply" data-tag="<%= wago.comments[i].authorName %>">Reply</a></small> <small class="pull-right localize-time"><%= moment(wago.comments[i].postDate).format('YYYY-MM-DD HH:mm') %></small>
                             <% if (wago.can_edit) { %>
                                 <div class="btn-group pull-right">
                                     <button class="btn btn-default btn-sm dropdown-toggle btn-comment-moderate" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -263,7 +263,7 @@
                     <input type="hidden" name="wagoID" value="<%= wago._id %>" />
                     <div id="inreplyto"></div>
                     <input type="hidden" name="inreplyto" id="inreplytoid" />
-                    <textarea class="form-control" name="commentText" style="width:100%;height:8em"></textarea>
+                    <textarea class="form-control" name="commentText" style="width:100%;height:8em" id="commenttext"></textarea>
                     <input type="submit" class="btn btn-sm btn-danger" value="Post Comment" /> <small>Some BB code is available: [b], [i], [u], [s], [code], [color=#123456], [size=(4-40)], <% if (user && user.account.verified_human) { %>[url], <% } %> [ul], [ol], [li] or [*], [table], [tr], [td]</small>
                     <br><small>Hint: Use @Username in your text to draw someone's attention.</small>
                 </form>
