@@ -83,9 +83,7 @@ function wagoSearch(criteria, results, req, res, sort, page, max_results, skip, 
         delete criteria.anonymous
 
     // setup hidden/private
-    if (req.user && criteria.hidden=='allow')
-        var privacyFilter = { $or: [{ 'owner._id': req.user._id }, { 'private': false }] }
-    else if (req.user && criteria.hidden=='allow')
+    if (req.user)
         var privacyFilter = { $or: [{ 'owner._id': req.user._id }, { 'private': false, 'hidden': false }] }
     else
         var privacyFilter = { 'private': false, 'hidden': false }
@@ -107,7 +105,7 @@ function wagoSearch(criteria, results, req, res, sort, page, max_results, skip, 
 
         results = results.concat(foundResults)
 
-        async.forEachOf(results, function (wago, async_key, cb) {      
+        async.forEachOf(results, function (wago, async_key, cb) {
             // parse owner
             if (wago.owner && wago.owner.account && wago.owner.account.username)
                 results[async_key].user = wago.owner.account.username
