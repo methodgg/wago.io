@@ -60,6 +60,7 @@ app.all('*', function(req, res, next){ // force https
 });
 
 app.use('/assets', express.static('public'));
+app.use('/screenshots', express.static('screenshots'));
 app.use('/mywago', express.static('mywago'));
 app.use('/api/docs', express.static('public/apidocs'));
 

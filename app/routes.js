@@ -928,7 +928,7 @@ module.exports = function(app) {
                 profile.visible = 'show'
 
             if (req.user && lookup._id.equals(req.user._id))
-                var search = { 'owner._id': lookup._id, page: req.query.page }
+                var search = { 'owner._id': lookup._id, page: req.query.page, hidden: 'allow' }
             else
                 var search = { 'owner._id': lookup._id, 'private': false, 'hidden': false, page: req.query.page }
 
@@ -1418,9 +1418,15 @@ module.exports = function(app) {
     // =====================================
     app.post('/aura/export', function(req, res) {
         // FIXME: is this still even used?
-        var valid = JSON.parse(req.body.json)
-        if (!valid) {
-            res.send('Error parsing Table Data')
+        try {
+            var valid = JSON.parse(req.body.json)
+            if (!valid) {
+                res.send('Error parsing Table Data')
+                return
+            }
+        }
+        catch (e) {
+            res.send('Error parsing Data')
             return
         }
 

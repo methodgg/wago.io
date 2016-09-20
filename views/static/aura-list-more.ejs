@@ -2,7 +2,7 @@
 for (i=0; i<auralist.list.length; i++) {
     var ss = ""
     if (auralist.list[i].type=="WEAKAURA" && auralist.list[i].thumb) {
-        ss = "<img src='https://"+auralist.list[i].thumb.s3Server+"/"+auralist.list[i].thumb.original_bucket+"/"+encodeURIComponent(auralist.list[i].thumb.s3Key)+"' class='aura-img'/>"
+        ss = "<img src='"+auralist.list[i].thumb+"' class='aura-img'/>"
     }
     else if (auralist.list[i].type=="IMAGE" && auralist.list[i].image && auralist.list[i].image[0].files.png) {
         ss = "<img src='/mywago/media/" + auralist.list[i].image[0].files.png + "' class='aura-img'/>"

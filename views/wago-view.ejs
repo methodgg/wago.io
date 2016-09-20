@@ -125,14 +125,16 @@
                 <strong>Preview</strong>
                 <div id="screenshots_wrapper">
                     <%
-                    if (wago.screens && wago.screens[0]) {
-                        %><a href="<%= wago.screens[0].url.original %>" data-lightbox="screenshots" data-title="<%= wago.screens[0].caption || "" %>" id="ss_<%= wago.screens[0]._id %>"><img src="<%= wago.screens[0].url.original %>" /></a><%
-                    }
                     for (i=0;i<Object.keys(wago.videos).length;i++) {
                         %><a href="<%= wago.videos[i].thumbnail %>" class="playvideo" data-video="<%= wago.videos[i].embed %>" id="vidt_<%= wago.videos[i]._id %>"><img src="<%= wago.videos[i].thumbnail %>" /><span></span></a><%
                     }
-                    for (i=1;i<Object.keys(wago.screens).length;i++) {
-                        %><a href="<%= wago.screens[i].url.original %>" data-lightbox="screenshots" data-title="<%= wago.screens[i].caption || "" %>" id="ss_<%= wago.screens[i]._id %>"><img src="<%= wago.screens[i].url.original %>" /></a><%
+                    for (i=0;i<Object.keys(wago.screens).length;i++) {
+                        if (wago.screens[i].localFile) {
+                            %><a href="/screenshots/<%= wago._id %>/<%= wago.screens[i].localFile %>" data-lightbox="screenshots" data-title="<%= wago.screens[i].caption || "" %>" id="ss_<%= wago.screens[i]._id %>"><img src="/screenshots/<%= wago._id %>/<%= wago.screens[i].localFile %>" /></a><%
+                        }
+                        else {
+                            %><a href="<%= wago.screens[i].url.original %>" data-lightbox="screenshots" data-title="<%= wago.screens[i].caption || "" %>" id="ss_<%= wago.screens[i]._id %>"><img src="<%= wago.screens[i].url.original %>" /></a><%
+                        }
                     }
                     %>
                 </div>
@@ -468,7 +470,16 @@
                     <div class="row">
                         <div class="col-md-4">Version <%= wago.versions.length-i %> <% if (i==0) { %> (Latest) <% } %></div>
                         <div class="col-md-4"><%= moment(wago.versions[i].updated).format('MMMM Do YYYY, h:mm:ss a') %></div>
-                        <div class="col-md-4"><%= (wago.versions[i].json || wago.versions[i].lua).length.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") %> bytes</div>
+                        <div class="col-md-4">
+                            <%
+                            if (wago.versions[i].json) {
+                                %><%= wago.versions[i].json.length.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") %> bytes<%
+                            }
+                            else if ( wago.versions[i].lua) {
+                                %><%= wago.versions[i].lua.length.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") %> bytes<%
+                            }
+                            %>
+                        </div>
                     </div>
                   </div>
                 </div>

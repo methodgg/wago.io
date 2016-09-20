@@ -105,7 +105,7 @@ function wagoSearch(criteria, results, req, res, sort, page, max_results, skip, 
 
         results = results.concat(foundResults)
 
-        async.forEachOf(results, function (wago, async_key, cb) {
+        async.forEachOf(results, function (wago, async_key, cb) {      
             // parse owner
             if (wago.owner && wago.owner.account && wago.owner.account.username)
                 results[async_key].user = wago.owner.account.username
@@ -163,7 +163,12 @@ function wagoSearch(criteria, results, req, res, sort, page, max_results, skip, 
             }
 
             if (results[async_key].screens && results[async_key].screens.length>0) {
-                results[async_key].thumb = results[async_key].screens[0]
+                var t = results[async_key].screens[0]
+                if (t.localFile)
+                    results[async_key].thumb = "/screenshots/"+wago._id+'/'+encodeURIComponent(t.localFile)
+                else
+                    results[async_key].thumb = "https://"+t.s3Server+"/"+t.original_bucket+"/"+encodeURIComponent(t.s3Key)
+                                                     
                 delete results[async_key].screens
             }
 
