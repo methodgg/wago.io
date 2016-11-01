@@ -6,11 +6,22 @@ wagofn = {
 
         async.parallel([
             function(cb) {  // find unread comments
+                res.locals.unreadComments = []
                 if (req.user) {
-                    var Comment = require('./models/comment');
-                    Comment.find({usersTagged: {$elemMatch: {userID: req.user._id, read: false}}}).exec(function(err, comments) {
-                        res.locals.unreadComments = comments
-                        cb()
+                    var Comment = require('./models/comment');                 
+                    Comment.find({usersTagged: {$elemMatch: {userID: req.user._id}}}).exec(function(err, comments) {
+                        res.locals.mentions = comments
+                        async.forEachOf(comments, function(comment, key, cb2) {
+                            for (i=0; i<comment.usersTagged.length; i++) {
+                                if (req.user._id==comment.usersTagged[i].userID && !comment.usersTagged[i].read) {
+                                    res.locals.unreadComments.push(comment)
+                                }
+                            }
+                            cb2()
+
+                        }, function() { // foreachof callback
+                            cb()
+                        })
                     })
                 }
                 else cb()
@@ -26,19 +37,53 @@ wagofn = {
                 else cb()
             },
             function(cb) { // setup helpers
+                res.locals.body = {id: "", theme: ""}
+
+                if (req.user && req.user.config && req.user.config.theme)
+                    res.locals.body.theme = req.user.config.theme
+
                 if (req.user && req.user.account && !req.user.account.username)
                     req.user.account.username = ""
 
                 res.locals.user = req.user;
                 res.locals.site = {title: "WAGO", description: "Database of WeakAuras"}
+                res.locals.pageinfo = res.locals.site
 
                 // bb code parser
                 res.locals.xbb = require('./xbbcode')
 
                 res.locals.aura = {}
-                res.locals["static"] = require('./static_vars');
-                res.locals.category_menu = JSON.parse(fs.readFileSync('./static/categories.json', 'utf8'));
-                cb()
+                res.locals.cache = {}
+                var md5File = require('md5-file')
+
+                async.parallel([
+                    function(parallel_cb) {
+                        res.locals["static"] = require('./static_vars');
+                        parallel_cb()
+                    },
+                    function(parallel_cb) {
+                        res.locals.category_menu = JSON.parse(fs.readFileSync('./static/categories.json', 'utf8'));
+                        parallel_cb()
+                    },
+                    function(parallel_cb) {
+                        res.locals.WagoOfTheMoment = JSON.parse(fs.readFileSync('./static/WagoOfTheMoment.json', 'utf8'));
+                        parallel_cb()
+                    },
+                    function(parallel_cb) {
+                        res.locals.cache.js = md5File.sync('./public/wago.js')
+                        parallel_cb()
+                    },
+                    function(parallel_cb) {
+                        res.locals.cache.css = md5File.sync('./public/wago.css')
+                        parallel_cb()
+                    }
+                ],
+
+                // parallel_cb()
+                function(err) {
+                    cb()
+                })
+
             }
 
         ], function() {
@@ -173,11 +218,11 @@ wagofn = {
                             }
 
                             if (req.body.beta!="Live" && require('./static_vars').beta_option) {
-                                Wago.wow_beta = true
+                                Wago.aura.wow_beta = true
                                 Wago.categories = [require('./static_vars').beta_option.key]
                             }
                             else
-                                Wago.wow_beta = false
+                                Wago.aura.wow_beta = false
 
                             if (action=='CLONE' && auraID)
                                 Wago.clone_of = auraID

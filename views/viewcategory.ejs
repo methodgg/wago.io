@@ -1,11 +1,9 @@
 <% include static/header %>
-<body id="page-categories">
-<% include static/top-nav %>
 
-<div class="container">
-    <div class="row content" id="aura_top">
-        <div class="col-sm-12">
-            <h2><%= pageinfo.name %></h2>
+<div class="row" id="aura_top">
+    <div class="col-xs-12">
+        <div class="block">
+            <h4><%= pageinfo.name %></h4>
             <p class="text-muted">
                 <small>
                     <span class="glyphicon glyphicon-flash"></span> <%= auralist.count %> auras
@@ -13,9 +11,7 @@
                 </small>
             </p>
         </div>
-    </div>
-
-    <div class="row content">
+        <br>
         <% include static/aura-list %>
     </div>
 </div>

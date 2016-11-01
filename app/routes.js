@@ -44,12 +44,45 @@ module.exports = function(app) {
                 user.save()
             })
         }
+
+        res.locals.body.id = "page-account"
         res.render('account.ejs', {
             profileMsg: req.flash('profileMsg'),
             accountMsg: req.flash('accountMsg'),
         });
     });
 
+
+
+    // =====================================
+    // DEV TOOLS ===========================
+    // =====================================
+    /*app.get('/devtools/table2wa', function(req, res) {
+        res.render('devtools/table2wa.ejs');
+    });
+    app.post('/devtools/table2wa', function(req, res) {
+        table = req.body.table.trim()
+        if (table.length>112000) {
+            var fs = require('fs')
+            var file = "/tmp/wagoexport_"+Date.now()
+            fs.writeFile(file, table, function(err) {
+                if(err) {
+                    req.flash('indexMsg', "Could not save file.")
+                    res.redirect('/')
+                }
+                require('child_process').exec('luajit ./table2wa.lua "'+file+'"'
+                 , {cwd: '/home/mark/wago.io/lua', maxBuffer: 1024 * 1024 * 5}, function(err, EncodedString) {
+                    res.send(EncodedString)
+                })
+            })
+        }
+        else {
+            require('child_process').exec('luajit ./table2wa.lua "'+table+'"'
+             , {cwd: '/home/mark/wago.io/lua', maxBuffer: 1024 * 1024 * 5}, function(err, EncodedString) {
+                res.send(EncodedString)
+            })
+        }
+    });  */
 
 
     // =====================================
@@ -93,9 +126,12 @@ module.exports = function(app) {
         lists.newest = JSON.parse(fs.readFileSync('./static/newest.json', 'utf8'));
         lists.updates = JSON.parse(fs.readFileSync('./static/updated.json', 'utf8'));
         lists.stars = JSON.parse(fs.readFileSync('./static/popular.json', 'utf8'));
-        
+        sitenews = fs.readFileSync('./hexo/public/index.html', 'utf8');
+
+        res.locals.body.id = "page-index"
+
         var flashMsg = req.flash('indexMsg')[0]
-        res.render('index.ejs', { flashMsg: flashMsg, lists: lists, moment: require('moment') });
+        res.render('index.ejs', { flashMsg: flashMsg, lists: lists, sitenews: sitenews, moment: require('moment') });
     });
 
 
@@ -103,30 +139,10 @@ module.exports = function(app) {
     // CATEGORIES ==========================
     // =====================================
     app.get('/categories', function(req, res) {
-        var categories = require('./models/categories')
-        var Wago = require('./models/wagoitem');
-        var async = require('async');
-
-        async.forEachOf(categories, function (item, key, cb) {
-            async.parallel([
-                function(cb2) {
-                    Wago.count({ 'categories' : item.id, 'hidden' : false, 'private': false }, function(err, count) {
-                        if (err) return callback(err);
-                        categories[key].count = count
-                        cb2()
-                    })
-                }
-            ], function(err, results) {
-                cb()
-            })
-
-        }, function(err) {
-            console.log("ERROR", err)
-            res.render('categories.ejs', {categories: categories})
-        })
+        res.redirect('/')
     })
 
-    app.get('/categories/:category?/:subcategory?/:subsubcategory?', function(req, res) {
+    app.get('/weakauras/:category?/:subcategory?/:subsubcategory?', function(req, res) {
         var categories = require('./models/categories')
 
         var selected_category = req.params.category
@@ -144,18 +160,190 @@ module.exports = function(app) {
 
         for (i=0;i<categories.length;i++) {
             if (categories[i].slug==selected_category) {
-                var pageinfo = { name: categories[i].text }
-                require("./search2")({ 'hidden' : false, 'private': false, $or: search_categories, page: req.query.page }, req, res, function(err, results) {
-                    if (results.count>=14)
-                        results.more = { lookup: "/categories/"+selected_category, page: 1 }
+                var pageinfo = { name: categories[i].text, type: 'WeakAuras' }
+                if (req.query.sort=='stars') {
+                    pageinfo.sort='Stars'
+                }
+                else if (req.query.sort=='views') {
+                    pageinfo.sort='Views'
+                }
+                else if (req.query.sort=='comments') {
+                    pageinfo.sort='Comments'
+                }
+                else if (req.query.sort=='commentdate') {
+                    pageinfo.sort='Comment Date'
+                }
+                else { // date
+                    pageinfo.sort='Date'
+                }
+
+                require("./search3")({type: 'WEAKAURAS2', 'hidden' : false, 'private': false, $or: search_categories, page: req.query.page, sort: pageinfo.sort }, req, res, function(err, results) {
+                    if (results.total > 14)
+                        results.more = { lookup: "/weakauras/"+selected_category, page: 1, sort: pageinfo.sort.toLowerCase() }
 
                     if (req.query.fetch=="more")
-                        res.render('static/aura-list-more.ejs', { auralist: results });
+                        res.render('static/aura-list.ejs', { auralist: results });
                     else
-                        res.render('viewcategory.ejs', { pageinfo: pageinfo, auralist: results });
+                        res.render('searchv3.ejs', { pageinfo: pageinfo, auralist: results });
                 })
             }
         }
+    })
+
+    app.get('/elvui/:category?/:subcategory?/:subsubcategory?', function(req, res) {
+        var categories = require('./models/categories')
+
+        var selected_category = req.params.category
+        if (req.params.subcategory)
+            selected_category = selected_category + "/" + req.params.subcategory
+        if (req.params.subsubcategory)
+            selected_category = selected_category + "/" + req.params.subsubcategory
+
+        var search_categories = []
+        for (i=0;i<categories.length;i++) {
+            if (categories[i].slug.indexOf(selected_category)>-1) {
+                search_categories.push({'categories': categories[i].id})
+            }
+        }
+
+        for (i=0;i<categories.length;i++) {
+            if (categories[i].slug==selected_category) {
+                var pageinfo = { name: categories[i].text, type: 'ElvUI' }
+                if (req.query.sort=='stars') {
+                    pageinfo.sort='Stars'
+                }
+                else if (req.query.sort=='views') {
+                    pageinfo.sort='Views'
+                }
+                else if (req.query.sort=='comments') {
+                    pageinfo.sort='Comments'
+                }
+                else if (req.query.sort=='commentdate') {
+                    pageinfo.sort='Comment Date'
+                }
+                else { // date
+                    pageinfo.sort='Date'
+                }
+
+                require("./search3")({type: 'ELVUI', 'hidden' : false, 'private': false, $or: search_categories, page: req.query.page, sort: pageinfo.sort }, req, res, function(err, results) {
+                    if (results.total > 14)
+                        results.more = { lookup: "/elvui/"+selected_category, page: 1, ort: pageinfo.sort.toLowerCase() }
+
+                    if (req.query.fetch=="more")
+                        res.render('static/aura-list.ejs', { auralist: results });
+                    else
+                        res.render('searchv3.ejs', { pageinfo: pageinfo, auralist: results });
+                })
+            }
+        }
+    })
+
+    app.get('/collections/:category?/:subcategory?/:subsubcategory?', function(req, res) {
+        var categories = require('./models/categories')
+
+        var selected_category = req.params.category
+        if (req.params.subcategory)
+            selected_category = selected_category + "/" + req.params.subcategory
+        if (req.params.subsubcategory)
+            selected_category = selected_category + "/" + req.params.subsubcategory
+
+        var search_categories = []
+        for (i=0;i<categories.length;i++) {
+            if (categories[i].slug.indexOf(selected_category)>-1) {
+                search_categories.push({'categories': categories[i].id})
+            }
+        }
+
+        for (i=0;i<categories.length;i++) {
+            if (categories[i].slug==selected_category) {
+                var pageinfo = { name: categories[i].text, type: 'Collection' }
+                if (req.query.sort=='stars') {
+                    pageinfo.sort='Stars'
+                }
+                else if (req.query.sort=='views') {
+                    pageinfo.sort='Views'
+                }
+                else if (req.query.sort=='comments') {
+                    pageinfo.sort='Comments'
+                }
+                else if (req.query.sort=='commentdate') {
+                    pageinfo.sort='Comment Date'
+                }
+                else { // date
+                    pageinfo.sort='Date'
+                }
+
+                require("./search3")({type: 'COLLECTION', 'hidden' : false, 'private': false, $or: search_categories, page: req.query.page, sort: pageinfo.sort }, req, res, function(err, results) {
+                    if (results.total > 14)
+                        results.more = { lookup: "/collections/"+selected_category, page: 1, ort: pageinfo.sort.toLowerCase() }
+
+                    if (req.query.fetch=="more")
+                        res.render('static/aura-list.ejs', { auralist: results });
+                    else
+                        res.render('searchv3.ejs', { pageinfo: pageinfo, auralist: results });
+                })
+            }
+        }
+    })
+
+    app.get('/snippets/:category?/:subcategory?/:subsubcategory?', function(req, res) {
+        var categories = require('./models/categories')
+
+        var selected_category = req.params.category
+        if (req.params.subcategory)
+            selected_category = selected_category + "/" + req.params.subcategory
+        if (req.params.subsubcategory)
+            selected_category = selected_category + "/" + req.params.subsubcategory
+
+        var search_categories = []
+        for (i=0;i<categories.length;i++) {
+            if (categories[i].slug.indexOf(selected_category)>-1) {
+                search_categories.push({'categories': categories[i].id})
+            }
+        }
+
+        for (i=0;i<categories.length;i++) {
+            if (categories[i].slug==selected_category) {
+                var pageinfo = { name: categories[i].text, type: 'Snippet' }
+                if (req.query.sort=='stars') {
+                    pageinfo.sort='Stars'
+                }
+                else if (req.query.sort=='views') {
+                    pageinfo.sort='Views'
+                }
+                else if (req.query.sort=='comments') {
+                    pageinfo.sort='Comments'
+                }
+                else if (req.query.sort=='commentdate') {
+                    pageinfo.sort='Comment Date'
+                }
+                else { // date
+                    pageinfo.sort='Date'
+                }
+
+                require("./search3")({type: 'SNIPPET', 'hidden' : false, 'private': false, $or: search_categories, page: req.query.page, sort: pageinfo.sort }, req, res, function(err, results) {
+                    if (results.total > 14)
+                        results.more = { lookup: "/collections/"+selected_category, page: 1, ort: pageinfo.sort.toLowerCase() }
+
+                    if (req.query.fetch=="more")
+                        res.render('static/aura-list.ejs', { auralist: results });
+                    else
+                        res.render('searchv3.ejs', { pageinfo: pageinfo, auralist: results });
+                })
+            }
+        }
+    })
+
+    app.get('/categories/:category?/:subcategory?/:subsubcategory?', function(req, res) {
+        var categories = require('./models/categories')
+
+        var selected_category = req.params.category
+        if (req.params.subcategory)
+            selected_category = selected_category + "/" + req.params.subcategory
+        if (req.params.subsubcategory)
+            selected_category = selected_category + "/" + req.params.subsubcategory
+
+        res.redirect('/weakauras/'+selected_category)
     })
 
 
@@ -285,7 +473,7 @@ module.exports = function(app) {
     // =====================================
     function advancedSearch(search, req, res) {
         if (!search.q || search.q=="") {
-            res.render('search.ejs', { options: {}, auralist: {count:0} });
+            res.render('search.ejs', { options: {}, auralist: {count:0}, pageinfo: {title: 'Search', sort: 'Date' } });
             return
         }
 
@@ -339,42 +527,48 @@ module.exports = function(app) {
         }
 
         var criteria = {}
-        if (queryCategories.length>0 && search.searchAllCategories)
-            criteria["$and"] = [{$or : queryFields}, {$or : queryTypes}, {$and : queryCategories}]
-        else if (queryCategories.length>0)
-            criteria["$and"] = [{$or : queryFields}, {$or : queryTypes}, {$or : queryCategories}]
-        else
-            criteria["$and"] = [{$or : queryFields}, {$or : queryTypes}]
+        if (queryCategories.length>0 || queryTypes.length>0 || queryFields.length>0) {
+            criteria["$and"] = []
+            if (queryCategories.length>0)
+                criteria["$and"].push({"$or": queryCategories})
+            if (queryTypes.length>0)
+                criteria["$and"].push({"$or": queryTypes})
+            if (queryFields.length>0)
+                criteria["$and"].push({"$or": queryFields})
+        }
 
         if (search.searchAnonymous)
             criteria.anonymous = true
 
-        var sortBy = 'orderByDate' // orderByDate uses update date, or create date if there is no update date
-        if (search.sortBy=='created')
-            sortBy = 'created'
-        else if (search.sortBy=='name')
-            sortBy = 'name'
-        else if (search.sortBy=='stars')
-            sortBy = 'stars'
-
-
-        criteria.sort = {}
-        if (search.sortDirection=='ASC')
-            criteria.sort[sortBy] = 1
-        else
-            criteria.sort[sortBy] = -1
-
         criteria.page = search.page || 0
         criteria.searchProperties = search
 
-        require("./search2")(criteria, req, res, function(err, results) {
-            if (results.count>=14)
-                results.more = { lookup: "/search?q="+search.q, page: 1 }
+        if (req.query.sort=='stars') {
+            criteria.sort='Stars'
+        }
+        else if (req.query.sort=='views') {
+            criteria.sort='Views'
+        }
+        else if (req.query.sort=='comments') {
+            criteria.sort='Comments'
+        }
+        else if (req.query.sort=='commentdate') {
+            criteria.sort='Comment Date'
+        }
+        else { // date
+            criteria.sort='Date'
+        }
+
+        var pageinfo = {title: 'Search', sort: criteria.sort }
+
+        require("./search3")(criteria, req, res, function(err, results) {
+            if (results.total>=14)
+                results.more = { lookup: "/search?q="+search.q, page: 1, sort: criteria.sort }
 
             if (search.fetch=="more")
-                res.render('static/aura-list-more.ejs', { auralist: results });
+                res.render('static/aura-list.ejs', { auralist: results });
             else
-                res.render('search.ejs', { options: search, auralist: results });
+                res.render('search.ejs', { options: search, auralist: results, pageinfo: pageinfo });
         })
     }
 
@@ -399,16 +593,50 @@ module.exports = function(app) {
         return advancedSearch(req.body, req, res)
     })
 
+    app.get('/media/browse', function(req, res) {
+        pageinfo = {}
+        if (req.query.sort=='stars') {
+            pageinfo.sort='Stars'
+        }
+        else if (req.query.sort=='views') {
+            pageinfo.sort='Views'
+        }
+        else if (req.query.sort=='comments') {
+            pageinfo.sort='Comments'
+        }
+        else if (req.query.sort=='commentdate') {
+            pageinfo.sort='Comment Date'
+        }
+        else { // date
+            pageinfo.sort='Date'
+        }
 
-    app.get('/search/stars', function(req, res) {
+        var search = { type: "IMAGE", page: req.query.page, sort: pageinfo.sort }
+
+        require("./search3")(search, req, res, function(err, results) {
+            if (results.total>=14)
+                results.more = { lookup: "/media/browse", page: 1, sort: pageinfo.sort.toLowerCase() }
+
+            if (req.query.fetch=="more")
+                res.render('static/aura-list.ejs', { auralist: results });
+            else {
+                pageinfo.name = 'Media'
+                pageinfo.type = ''
+                res.render('searchv3.ejs', { auralist: results, pageinfo: pageinfo });
+            }
+        })
+    })
+
+
+    /*app.get('/search/stars', function(req, res) {
         var search = { sort: {'stars':-1, 'popularity.views':-1}, page: req.query.page, max: 200 }
 
         require("./search2")(search, req, res, function(err, results) {
-            if (results.count>=14)
+            if (results.total>=14)
                 results.more = { lookup: "/search/stars", page: 1 }
 
             if (req.query.fetch=="more")
-                res.render('static/aura-list-more.ejs', { auralist: results });
+                res.render('static/aura-list.ejs', { auralist: results });
             else
                 res.render('search-standard.ejs', { type:"Popular favorites", auralist: results });
         })
@@ -418,11 +646,11 @@ module.exports = function(app) {
         var search = { 'private': false, 'hidden': false, sort: {'modified': -1}, page: req.query.page, max: 200 }
 
         require("./search2")(search, req, res, function(err, results) {
-            if (results.count>=14)
+            if (results.total>=14)
                 results.more = { lookup: "/search/updates", page: 1 }
 
             if (req.query.fetch=="more")
-                res.render('static/aura-list-more.ejs', { auralist: results });
+                res.render('static/aura-list.ejs', { auralist: results });
             else
                 res.render('search-standard.ejs', { type:"Latest updates", auralist: results });
         })
@@ -432,30 +660,50 @@ module.exports = function(app) {
         var search = { 'private': false, 'hidden': false, sort: {'created':-1}, page: req.query.page, max: 200 }
 
         require("./search2")(search, req, res, function(err, results) {
-            if (results.count>=14)
+            if (results.total>=14)
                 results.more = { lookup: "/search/newest", page: 1 }
 
             if (req.query.fetch=="more")
-                res.render('static/aura-list-more.ejs', { auralist: results });
+                res.render('static/aura-list.ejs', { auralist: results });
             else
                 res.render('search-standard.ejs', { type:"Latest updates", auralist: results });
         })
-    })
+    }) */
 
     // =====================================
     // FAVORITES ===========================
     // =====================================
-    app.get('/my-stars', isLoggedIn, function(req, res) {
-        var search = { "popularity.favorites": req.user._id, $or:[{"private": false}, {"_userId": req.user._id}], page: req.query.page }
+    app.get('/my/stars', isLoggedIn, function(req, res) {
+        pageinfo = {}
+        if (req.query.sort=='stars') {
+            pageinfo.sort='Stars'
+        }
+        else if (req.query.sort=='views') {
+            pageinfo.sort='Views'
+        }
+        else if (req.query.sort=='comments') {
+            pageinfo.sort='Comments'
+        }
+        else if (req.query.sort=='commentdate') {
+            pageinfo.sort='Comment Date'
+        }
+        else { // date
+            pageinfo.sort='Date'
+        }
 
-        require("./search2")(search, req, res, function(err, results) {
-            if (results.count>=14)
-                results.more = { lookup: "/my-stars", page: 1 }
+        var search = { "popularity.favorites": req.user._id, page: req.query.page, sort: pageinfo.sort }
+
+        require("./search3")(search, req, res, function(err, results) {
+            if (results.total>=14)
+                results.more = { lookup: "/my-stars", page: 1, ort: pageinfo.sort.toLowerCase() }
 
             if (req.query.fetch=="more")
-                res.render('static/aura-list-more.ejs', { auralist: results });
-            else
-                res.render('favorites.ejs', { auralist: results });
+                res.render('static/aura-list.ejs', { auralist: results });
+            else {
+                pageinfo.name = 'My stars'
+                pageinfo.type = ''
+                res.render('searchv3.ejs', { auralist: results, pageinfo: pageinfo });
+            }
         })
     })
 
@@ -466,11 +714,30 @@ module.exports = function(app) {
     app.get('/media', function(req, res) {
         // ./nconvert/nconvert -out png /home/mark/wago.io/public/test/*.blp
 
+        res.locals.body.id = "page-media"
+
         var Media = require('./models/wagoitem')
-        Media.find({ 'hidden' : false, 'private': false, $or: [{type: 'IMAGE'}, {type: 'FONT'}, {type: 'AUDIO'}] }).limit(9).sort('-created').exec(function(err, media) {
+        Media.find({ 'hidden' : false, 'private': false, $or: [{type: 'IMAGE'}] }).limit(24).sort('-created').exec(function(err, media) {
             if (err)
                 throw err;
-            res.render('media.ejs', { message: req.flash('mediaMsg'), latest: media });
+
+            var sizeOf = require('image-size');
+            var async = require('async')
+            async.forEachOf(media, function(item, key, cb) {
+                var img = item.image[item.image.length-1]
+                if (img.dimensions.width>0 && img.dimensions.height>0)
+                    return cb()
+
+                var imagefile = __dirname + '/../mywago/media/'+ (img.files.png || img.files.jpg || img.files.gif)
+                var dimensions = sizeOf(imagefile);
+                media[key].image[item.image.length-1].dimensions.width = dimensions.width
+                media[key].image[item.image.length-1].dimensions.height = dimensions.height
+                media[key].save()
+                cb()
+
+            }, function() {
+                res.render('media.ejs', { message: req.flash('mediaMsg'), latest: media });
+            })
         })
     })
 
@@ -548,7 +815,7 @@ module.exports = function(app) {
     })
 
     app.post('/media/upload', upload.single('mediafile'), function(req, res) {
-        if (!req.file) {
+        if (!req.file || !req.file.originalname) {
             res.send('No file uploaded')
         }
         var _Media = require('./models/wagoitem')
@@ -791,18 +1058,17 @@ module.exports = function(app) {
     // MY WAGO =============================
     // =====================================
     app.get('/mywago', isLoggedIn, function(req, res) {
-        var search = { $or: [{ "_userId": req.user._id}, {$and: [{"popularity.favorites": req.user._id, "private": false}] }], mywago: "count" }
-
-        require('./search2')(search, req, res, function(err, media) {
-            res.render('mywago.ejs', { mywagofiles: media.list.length });
+        var Wago = require('./models/wagoitem');
+        Wago.count({ $or: [{ "_userId": req.user._id}, {"popularity.favorites": req.user._id}], type: 'IMAGE', deleted: false}, function(err, num) {
+            res.render('mywago.ejs', { mywagofiles: num });
         })
     })
 
     app.get('/mywago/download', isLoggedIn, function(req, res) {
-        var search = { $or: [{ "_userId": req.user._id}, {$and: [{"popularity.favorites": req.user._id, "private": false}] }], mywago: "zip" }
+        var search = { $or: [{ "_userId": req.user._id}, {"popularity.favorites": req.user._id}], type: 'IMAGE', deleted: false}
 
-        require('./search2')(search, req, res, function(err, _media) {
-            if (_media.list.length==0) return res.send("NO FILES")
+        require('./search3')(search, req, res, function(err, _media) {
+            if (_media.count==0) return res.send("Error: No files found. MyWago Download will only download media files you have uploaded yourself plus any others that you have starred.")
 
             var async = require('async')
             var fs = require('fs')
@@ -826,7 +1092,7 @@ module.exports = function(app) {
             require("fs").readFile(__dirname + '/../mywago/MyWagoBase.zip', function (err, data) {
                 if (err) throw err;
                 zip.loadAsync(data).then(
-                    async.forEachOf(_media.list, function(media, key, cb) {
+                    async.forEachOf(_media.results, function(media, key, cb) {
                         if (media.type=='IMAGE') {
                             var image = media.image[media.image.length-1]
                             if (image.files.blp) {
@@ -868,7 +1134,7 @@ module.exports = function(app) {
                         });
 
                     }, function() {
-                        var ejs = require('ejs')             
+                        var ejs = require('ejs')
                         ejs.renderFile(__dirname + '/../mywago/MyWagoLua.ejs', {media: included_files}, function(err, lua_file){
                             zip.file('MyWago/MyWago.lua', lua_file)
                             zip.generateAsync({type:"nodebuffer"}).then(function(content) {
@@ -903,7 +1169,7 @@ module.exports = function(app) {
     })
 
     app.get('/p/:user', function(req, res) {
-        var site = {}
+        var pageinfo = {}
         var profile = {}
         var User = require('./models/user');
 
@@ -927,21 +1193,59 @@ module.exports = function(app) {
             else
                 profile.visible = 'show'
 
-            if (req.user && lookup._id.equals(req.user._id))
-                var search = { 'owner._id': lookup._id, page: req.query.page, hidden: 'allow' }
-            else
-                var search = { 'owner._id': lookup._id, 'private': false, 'hidden': false, page: req.query.page }
+            pageinfo.title = profile.name
+            pageinfo.description = "Profile page for "+profile.name
 
-            site.title = profile.name
-            site.description = "Profile page for "+profile.name
+            if (req.query.sort=='stars') {
+                pageinfo.sort='Stars'
+            }
+            else if (req.query.sort=='views') {
+                pageinfo.sort='Views'
+            }
+            else if (req.query.sort=='comments') {
+                pageinfo.sort='Comments'
+            }
+            else if (req.query.sort=='commentdate') {
+                pageinfo.sort='Comment Date'
+            }
+            else { // date
+                pageinfo.sort='Date'
+            }
 
-            require("./search2")(search, req, res, function(err, results) {
-                if (results.count>=14)
-                    results.more = { lookup: "/p/"+profile.name, page: 1 }
-                if (req.query.fetch=="more")
-                    res.render('static/aura-list-more.ejs', { auralist: results });
-                else
-                    res.render('profile.ejs', { profile: profile, auralist: results, site: site });
+            require("./search3")({ _userId: lookup._id, page: req.query.page, sort: pageinfo.sort }, req, res, function(err, results) {
+                if (results.total>=14)
+                    results.more = { lookup: "/p/"+profile.name, page: 1, sort: pageinfo.sort.toLowerCase() }
+
+                // if viewing own profile, do additional checks
+                if (req.user && lookup._id.equals(req.user._id)) {
+                    var async = require('async')
+
+                    // check each wago and look for patch 7.1 breakage
+                    var brokenSevenOne = /(GetPlayerMapPosition|UnitCameraFacing|UnitDistanceSquared|UnitFacing|UnitPosition|SetNamePlateOtherSize|GetNamePlateOtherSize)/
+                    var Code = require('./models/aura-code')
+                    async.forEachOf(results.results, function(wago, key, cb) {
+                        Code.findOne({auraID: wago._id}).sort({updated: -1}).select({json: 1}).exec(function(err, code) {          
+                            if (code && code.json && (m = brokenSevenOne.exec(code.json)) !== null) {
+                                results.results[key].brokenSevenOne = true
+                            }
+                            cb()
+                        })
+
+                    }, function() {
+                        if (req.query.fetch=="more")
+                            res.render('static/aura-list.ejs', { auralist: results });
+                        else
+                            res.render('profile.ejs', { profile: profile, auralist: results, pageinfo: pageinfo });
+                    })
+                }
+
+                // viewing someone elses profile
+                else {
+                    if (req.query.fetch=="more")
+                        res.render('static/aura-list.ejs', { auralist: results });
+                    else
+                        res.render('profile.ejs', { profile: profile, auralist: results, pageinfo: pageinfo });
+                }
             })
         })
     })
@@ -1226,38 +1530,53 @@ module.exports = function(app) {
     // =====================================
     app.post('/aura/fork', function(req, res) {
         var wagoID = req.body.wagoID
-        var Wago = require('./models/wagoitem');
+        var Wago = require('./models/wagoitem')
+        var json = ""
 
         if (req.body.json) {
-            var json = JSON.parse(req.body.json)
-            if (!json) {
+            json = JSON.parse(req.body.json)
+            if (!json || json.length==0) {
                 res.send('{"err": "Invalid data entered."}')
                 return
             }
+            var strJSON = JSON.stringify(json).replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim()
         }
 
         Wago.findOne({ '_id' :  wagoID }, function(err, wago) {
-            if (!wago.type) {
+            if (!wago || !wago.type) {
                 console.error('Error forking:', req, res)
                 res.send('Error could not fork.')
                 return false
             }
-            if (wago.type=='WEAKAURAS2') {
-                // convert json to WA export string, then process like normal.
-                require('child_process').exec('luajit ./json2wa.lua "'+JSON.stringify(json).replace(/\\/g, '\\\\').replace(/"/g, '\\"')+'"'
-                 , {cwd: '/home/mark/wago.io/lua', maxBuffer: 1024 * 1024 * 5}, function(err, WeakAuraString) {
-                    var importWago = {string: WeakAuraString, type: 'WEAKAURAS2'}
-                    return require('./wago_lib').processImport(req, res, importWago, 'CLONE')
-                })
-            }
+            if (wago.type=='WEAKAURAS2' || wago.type=='ELVUI') {
+                if (wago.type=='WEAKAURAS2')
+                    var luaEncode = 'json2wa.lua'
+                else if (wago.type=='ELVUI')
+                    var luaEncode = 'json2elv.lua'
 
-            else if (wago.type=='ELVUI') {
                 // convert json to WA export string, then process like normal.
-                require('child_process').exec('luajit ./json2elv.lua "'+JSON.stringify(json).replace(/\\/g, '\\\\').replace(/"/g, '\\"')+'"'
-                 , {cwd: '/home/mark/wago.io/lua', maxBuffer: 1024 * 1024 * 5}, function(err, WeakAuraString) {
-                    var importWago = {string: WeakAuraString, type: 'WEAKAURAS2'}
-                    return require('./wago_lib').processImport(req, res, importWago, 'CLONE')
-                })
+                if (strJSON.length>112000) {
+                    var fs = require('fs')
+                    var file = "/tmp/wagoexport_"+Date.now()
+                    fs.writeFile(file, strJSON, function(err) {
+                        if(err) {
+                            req.flash('indexMsg', "Could not save file.")
+                            res.redirect('/')
+                        }
+                        require('child_process').exec('luajit ./'+luaEncode+' "'+file+'"'
+                         , {cwd: '/home/mark/wago.io/lua', maxBuffer: 1024 * 1024 * 5}, function(err, EncodedString) {
+                            var importWago = {string: EncodedString, type: wago.type}
+                            return require('./wago_lib').processImport(req, res, importWago, 'CLONE')
+                        })
+                    })
+                }
+                else {
+                    require('child_process').exec('luajit ./'+luaEncode+' "'+strJSON+'"'
+                     , {cwd: '/home/mark/wago.io/lua', maxBuffer: 1024 * 1024 * 5}, function(err, EncodedString) {
+                        var importWago = {string: EncodedString, type: wago.type}
+                        return require('./wago_lib').processImport(req, res, importWago, 'CLONE')
+                    })
+                }
             }
 
             else if (wago.type=='SNIPPET' && req.body.lua) {
@@ -1307,7 +1626,7 @@ module.exports = function(app) {
         Aura.findOne({ '_id' :  req.body.auraID }, function(err, aura) {
             if (req.user && req.user._id.equals(aura._userId)) {
                 // if saving a WA
-                if (aura.type=="WEAKAURAS2") {
+                if (aura.type=='WEAKAURAS2' || aura.type=='ELVUI') {
                     var json = JSON.parse(req.body.json)
                     if (!json) {
                         res.send('{"err": "Invalid data entered."}')
@@ -1319,35 +1638,37 @@ module.exports = function(app) {
                         aura.save()
                     }
 
-                    var JSON_str = JSON.stringify(json)
+                    var strJSON = JSON.stringify(json).replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim()
 
-                    require('child_process').exec('luajit ./json2wa.lua "'+JSON_str.replace(/\\/g, '\\\\').replace(/"/g, '\\"')+'"',
-                     {cwd: '/home/mark/wago.io/lua', maxBuffer: 1024 * 1024 * 5}, function(err, importString) {
-                        var importWago = {string: importString, type: aura.type}
-                        return require('./wago_lib').processImport(req, res, importWago, 'SAVE', req.body.auraID)
-                    });
-                }
-                else if (aura.type=="ELVUI") {
-                    var json = JSON.parse(req.body.json)
-                    if (!json) {
-                        res.send('{"err": "Invalid data entered."}')
-                        return
+                    if (aura.type=='WEAKAURAS2')
+                        var luaEncode = 'json2wa.lua'
+                    else if (aura.type=='ELVUI')
+                        var luaEncode = 'json2elv.lua'
+
+
+                    // convert json to WA export string, then process like normal.
+                    if (strJSON.length>112000) {
+                        var fs = require('fs')
+                        var file = "/tmp/wagoexport_"+Date.now()
+                        fs.writeFile(file, strJSON, function(err) {
+                            if(err) {
+                                req.flash('indexMsg', "Could not save file.")
+                                res.redirect('/')
+                            }
+                            require('child_process').exec('luajit ./'+luaEncode+' "'+file+'"'
+                             , {cwd: '/home/mark/wago.io/lua', maxBuffer: 1024 * 1024 * 5}, function(err, EncodedString) {
+                                var importWago = {string: EncodedString, type: aura.type}
+                                return require('./wago_lib').processImport(req, res, importWago, 'SAVE', req.body.auraID)
+                            })
+                        })
                     }
-                    if (aura.wow_beta && !require('./static_vars').beta_option) {
-                        aura.wow_beta = false
-                        aura.save()
+                    else {
+                        require('child_process').exec('luajit ./'+luaEncode+' "'+strJSON+'"'
+                         , {cwd: '/home/mark/wago.io/lua', maxBuffer: 1024 * 1024 * 5}, function(err, EncodedString) {
+                            var importWago = {string: EncodedString, type: aura.type}
+                            return require('./wago_lib').processImport(req, res, importWago, 'SAVE', req.body.auraID)
+                        })
                     }
-
-                    var JSON_str = JSON.stringify(json)
-                    console.error(json.auras)
-                    console.error('LUA: ', 'luajit ./json2elv.lua "'+JSON_str.replace(/\\/g, '\\\\').replace(/"/g, '\\"')+'"')
-
-                    require('child_process').exec('luajit ./json2elv.lua "'+JSON_str.replace(/\\/g, '\\\\').replace(/"/g, '\\"')+'"',
-                     {cwd: '/home/mark/wago.io/lua', maxBuffer: 1024 * 1024 * 5}, function(err, importString) {
-                        console.error(importString)
-                        var importWago = {string: importString, type: aura.type}
-                        return require('./wago_lib').processImport(req, res, importWago, 'SAVE', req.body.auraID)
-                    });
                 }
 
                 // if saving a snippet
@@ -1392,7 +1713,7 @@ module.exports = function(app) {
                 res.redirect('/')
                 return
             }
-                                                            
+
             // elvui string detected
             importType = 'ELVUI'
         }
@@ -1417,6 +1738,9 @@ module.exports = function(app) {
     // AURA EXPORT CODE ====================
     // =====================================
     app.post('/aura/export', function(req, res) {
+        res.send('E160')
+        res.end()
+        return
         // FIXME: is this still even used?
         try {
             var valid = JSON.parse(req.body.json)
@@ -1523,6 +1847,8 @@ module.exports = function(app) {
                 if (req.body.star=="1")
                     aura.popularity.favorites.push(req.user._id)
 
+                aura.popularity.favorite_count = aura.popularity.favorites.length
+
                 aura.save()
                 res.setHeader('Content-Type', 'application/json')
                 res.send('{"updated":true}')
@@ -1548,6 +1874,12 @@ module.exports = function(app) {
                 var _Comment = require('./models/comment');
                 var Comment = new _Comment()
 
+
+                // update the total comment count on this wago
+                wago.popularity.comments_count++
+                wago.last_comment = Date.now()
+                wago.save()
+
                 Comment.wagoID = wagoID
                 Comment.authorID = req.user._id
                 Comment.commentText = commentText
@@ -1570,7 +1902,6 @@ module.exports = function(app) {
                         var taggedUserID
                         if ((m = /User-(.*)+/.exec(taggedUsername)) !== null) {
                             taggedUserID = new ObjectId(m[1])
-                            console.error("query", { $or: [ {'account.username': taggedUsername} , {_id: taggedUserID } ] })
                         }
                         User.findOne({ $or: [ {'account.username': taggedUsername} , {_id: taggedUserID } ] }).exec(function(err, foundUser) {
                             if (foundUser) {
@@ -1613,7 +1944,15 @@ module.exports = function(app) {
                     return false
                 }
 
-                Comment.find({"_id": commentID, wagoID: wagoID}).remove().exec()
+                wago.popularity.comments_count--
+
+                Comment.find({"_id": commentID, wagoID: wagoID}).remove().exec(function() {
+                    Comment.findOne({wagoID: wagoID}).sort({"postDate": -1}).exec(function(err, comment) {
+                        if (comment) wago.last_comment = comment.postDate
+                        else wago.last_comment = null
+                        wago.save()
+                    })
+                })
                 res.send('{"result": "Deleted"}')
             })
         }
@@ -1622,25 +1961,48 @@ module.exports = function(app) {
     // =====================================
     // COMMENTS AT ME ======================
     // =====================================
-    app.get('/comments-at-me', isLoggedIn, function(req, res) {
+    app.get('/my/mentions', isLoggedIn, function(req, res) {
         var wagoIds=[]
-        for (i=0; i<res.locals.unreadComments.length; i++) {
-            wagoIds.push(res.locals.unreadComments[i].wagoID)
+        for (i=0; i<res.locals.mentions.length; i++) {
+            wagoIds.push(res.locals.mentions[i].wagoID)
         }
 
-        var search = { "_id": { $in: wagoIds}, "hidden": "allow", page: req.query.page}
+        var pageinfo = {}
 
-        require('./search2')(search, req, res, function(err, results) {
-            if (results.count>=14)
-                results.more = { lookup: "/comments-at-me", page: 1 }
+        if (req.query.sort=='stars') {
+            pageinfo.sort='Stars'
+        }
+        else if (req.query.sort=='views') {
+            pageinfo.sort='Views'
+        }
+        else if (req.query.sort=='comments') {
+            pageinfo.sort='Comments'
+        }
+        else if (req.query.sort=='commentdate') {
+            pageinfo.sort='Comment Date'
+        }
+        else if (req.query.sort=='date') {
+            pageinfo.sort='Date'
+        }
+        else { // date
+            pageinfo.sort='Comment Date'
+        }
+
+        var search = { "_id": { $in: wagoIds}, page: req.query.page, sort: pageinfo.sort}
+
+        require('./search3')(search, req, res, function(err, results) {
+            if (results.total>=14)
+                results.more = { lookup: "/my/mentions", page: 1, ort: pageinfo.sort.toLowerCase() }
+
+            pageinfo.name = "My Mentions"
+            pageinfo.type = ""
 
             if (req.query.fetch=="more")
-                res.render('static/aura-list-more.ejs', { auralist: results });
+                res.render('static/aura-list.ejs', { auralist: results });
             else
-                res.render('comments-at-me.ejs', { auralist: results });
+                res.render('searchv3.ejs', { auralist: results, pageinfo: pageinfo });
         })
     })
-
 
 
     // =====================================
@@ -1655,19 +2017,36 @@ module.exports = function(app) {
         else
             var private_user_id = null
 
+        var pageinfo = {}
+
         Wago.findOneAndUpdate({ '_id' :  wagoID, $or:[{"private": false}, {"_userId": private_user_id}] }, { "last_accessed": Date.now() }, function(err, wago) {
             if (!wago || wago==null) {
                 req.flash('indexMsg', "Could not find that wago *"+wagoID+"*")
                 res.redirect('/')
                 return
             }
+            if (req.query.sort=='stars') {
+                pageinfo.sort='Stars'
+            }
+            else if (req.query.sort=='views') {
+                pageinfo.sort='Views'
+            }
+            else if (req.query.sort=='comments') {
+                pageinfo.sort='Comments'
+            }
+            else if (req.query.sort=='commentdate') {
+                pageinfo.sort='Comment Date'
+            }
+            else { // date
+                pageinfo.sort='Date'
+            }
 
-            require("./search2")({ 'hidden' : false, 'private': false, collect: wagoID, page: req.query.page }, req, res, function(err, results) {
-                if (results.count>=14)
-                    results.more = { lookup: "/"+wagoID+"/collections", page: 1 }
+            require("./search3")({ collect: wagoID, page: req.query.page, sort: pageinfo.sort }, req, res, function(err, results) {
+                if (results.total>=14)
+                    results.more = { lookup: "/"+wagoID+"/collections", page: 1, ort: pageinfo.sort.toLowerCase() }
 
                 if (req.query.fetch=="more")
-                    res.render('static/aura-list-more.ejs', { auralist: results });
+                    res.render('static/aura-list.ejs', { auralist: results });
                 else
                     res.render('wago-in-collections.ejs', { pageinfo: wago, auralist: results });
             })
@@ -1763,15 +2142,78 @@ module.exports = function(app) {
         })
     })
 
+    // WAGO JSON
+    app.get('/:wagoID/raw', function(req, res) {
+
+        var Wago = require('./models/wagoitem')
+
+        // what wago
+        var wagoID = req.params.wagoID
+
+        if (req.user) {
+            var privacyFilter = { $or: [{ '_userId': req.user._id }, { 'private': false, 'hidden': false }, { 'private': false, "popularity.favorites": req.user._id }] }
+        }
+        else {
+            var privacyFilter = { 'private': false, 'hidden': false }
+        }
+        res.setHeader('Content-Type', 'text/plain')
+
+        Wago.findOneAndUpdate({ $and: [ { "_id" : wagoID, deleted: false }, privacyFilter ]}, { "last_accessed": Date.now() }, function(err, wago) {
+            // if there are any errors, return the error before anything else
+            if (err) {
+                res.send("Error: Could not load that wago")
+                res.end()
+                return done(err);
+            }
+
+            // if no wago is found, return the message
+            if (!wago || wago==null) {
+                res.send("Error: Could not find that wago")
+                res.end()
+                return
+            }
+
+            var async = require('async')
+
+            var AuraCode = require('./models/aura-code');
+            var opts = { "limit": 1, "sort": "-updated" }
+
+            AuraCode.findOne({'auraID': wagoID}, "auraID encoded", opts, function(err, auraCode) {
+                if (err)
+                    throw err
+
+                if (!auraCode) {
+                    res.send("Error: Could not find that wago")
+                    res.end()
+                    return
+                }
+
+                var json = JSON.stringify(auraCode)
+
+                var blocked_fn = /((getfenv|setfenv|loadstring|pcall|SendMail|SetTradeMoney|AddTradeMoney|PickupTradeMoney|PickupPlayerMoney|TradeFrame|MailFrame|EnumerateFrames|RunScript|AcceptTrade|SetSendMailMoney|EditMacro|SlashCmdList|DevTools_DumpCommand|hash_SlashCmdList|CreateMacro|SetBindingMacro)([\s]*\([^\)]*\))?)/g;
+                while ((m = blocked_fn.exec(json)) !== null) {
+                    res.send("Error: Blacklisted code found. Quick-Copy disabled. Please view this Wago for details.")
+                    res.end()
+                    return
+                }
+
+                res.send(auraCode.encoded)
+                return
+            })
+        })
+    })
+
+
     // =====================================
-    // SELECTED WEAKAURA ===================
+    // SELECTED GROUPED WEAKAURA ===========
     // =====================================
-    app.get('/:wagoID/:version([0-9]*)?', function(req, res) {
-        // prep site vars
-        var site = {}
+    app.get('/:wagoID/g/:subname/:version([0-9]*)?', function(req, res) {
+        // prep page vars
+        var pageinfo = {}
 
         // what wago to view
         var wagoID = req.params.wagoID
+        var subWago = req.params.subname
 
         // what version, do some verification
         var loadVersion = parseInt(req.params.version)
@@ -1801,8 +2243,6 @@ module.exports = function(app) {
                 return
             }
 
-
-
             var User = require('./models/user');
             var async = require('async')
             var ent = require('ent')
@@ -1815,6 +2255,8 @@ module.exports = function(app) {
             wago.display_date = ddate.format("MMM Do YYYY")
             wago.display_date_ago = ddate.fromNow()
             wago.wow_patch = require('./wow_patch_by_date')(ddate, wago.wow_beta)
+
+            var selectizeCategories = []
 
             async.parallel({
                 versions: function(cb) {
@@ -1832,14 +2274,16 @@ module.exports = function(app) {
                     var Categories = require('./models/categories')
                     var realcats = {}
 
-                    if (wago.categories) {
-                        for(k=0;k<Categories.length;k++) {
-                            for(j=0;j<wago.categories.length;j++) {
-                                if (wago.categories[j]==Categories[k].id) {
-                                    realcats[Categories[k].id] = Categories[k]
-                                    if (Categories[k].parent)
-                                        delete realcats[Categories[k].parent]
-                                }
+                    for(k=0;k<Categories.length;k++) {
+
+                        if ((Categories[k]['WeakAuras2'] && wago.type=='WEAKAURAS2') || (Categories[k]['ElvUI'] && wago.type=='ELVUI') || (Categories[k]['WeakAuras2'] && wago.type=='COLLECTION') || (Categories[k]['Snippet'] && wago.type=='SNIPPET') || (Categories[k]['Media'] && wago.type=='IMAGE'))
+                            selectizeCategories.push(Categories[k])
+
+                        for(j=0;j<wago.categories.length;j++) {
+                            if (wago.categories[j]==Categories[k].id) {
+                                realcats[Categories[k].id] = Categories[k]
+                                if (Categories[k].parent)
+                                    delete realcats[Categories[k].parent]
                             }
                         }
                     }
@@ -1867,10 +2311,27 @@ module.exports = function(app) {
                             res.end()
                         }
                         wago.code=auraCode
+                        var data_subgroup
 
                         if (wago.type=="WEAKAURAS2") {
                             data = JSON.parse(wago.code.json)
                             delete data.lua_table
+
+                            wago.code.json = JSON.stringify(data)
+
+                            if (data.c && data.c.length>1) {
+                                wago.code.groups = []
+                                for (var i=0;i<data.c.length;i++) {
+                                    if (subWago==data.c[i].id) {
+                                        wago.code.json = JSON.stringify(data.c[i])
+                                        wago.subgroup = subWago
+                                        data_subgroup = data
+                                    }
+                                    wago.code.groups.push(data.c[i].id)
+                                }
+                            }
+
+                            if (data_subgroup) data = data_subgroup
 
                             wago.customfunc = false
                             wago.preview = "<div class='alert alert-danger' role='alert'>Generated preview function coming.</div>"
@@ -1904,22 +2365,20 @@ module.exports = function(app) {
                                 //    wago.preview = "<img src='/assets/img/wow-icons/"+ent.encode(icon[1].toLowerCase())+".png' />"
                             }
 
-                            if (data.c && data.c.length>1) {
-                                wago.code.groups = []
-                                for (var i=0;i<data.c.length;i++) {
-                                    wago.code.groups.push(data.c[i].id)
-                                }
-                            }
 
-                            wago.code.json = JSON.stringify(data)
+
+
 
                             var blocked_fn = /((getfenv|setfenv|loadstring|pcall|SendMail|SetTradeMoney|AddTradeMoney|PickupTradeMoney|PickupPlayerMoney|TradeFrame|MailFrame|EnumerateFrames|RunScript|AcceptTrade|SetSendMailMoney|EditMacro|SlashCmdList|DevTools_DumpCommand|hash_SlashCmdList|CreateMacro|SetBindingMacro)([\s]*\([^\)]*\))?)/g;
                             while ((m = blocked_fn.exec(wago.code.json)) !== null) {
                                 if (!wago.blacklist) wago.blacklist = []
-
                                 wago.blacklist.push(m[1])
                             }
 
+                            var brokenSevenOne = /(GetPlayerMapPosition|UnitCameraFacing|UnitDistanceSquared|UnitFacing|UnitPosition|SetNamePlateOtherSize|GetNamePlateOtherSize)/;
+                            if ((m = brokenSevenOne.exec(wago.code.json)) !== null) {
+                                wago.brokenSevenOne = true
+                            }
                             // find custom functions
                             find_custom_functions(data, function(fn) {
                                 custom_func = fn
@@ -2076,29 +2535,412 @@ module.exports = function(app) {
                 }
                 if (err) return done(err)
 
+                if (wago.type=='WEAKAURAS2') wago.type = 'WEAKAURA'
 
-                site.title = wago.name
-                site.description = wago.description.replace(/<(?:.|\n)*?>/gm, '').substring(0, 240)
+                pageinfo.title = wago.name
+                pageinfo.description = wago.description.replace(/<(?:.|\n)*?>/gm, '').replace(/\n/g, ' ').substring(0, 240)
+                res.locals.body.id = "page-wago"
 
                 // wago found, display it
                 if (wago.type=="COLLECTION") {
-                    require("./search2")({ _id: { $in: wago.collect} }, req, res, function(err, results) {
-                        if (results.count>=14)
-                            results.more = { lookup: "/collection/"+wago._id, page: 1 }
+                    if (req.query.sort=='stars') {
+                        pageinfo.sort='Stars'
+                    }
+                    else if (req.query.sort=='views') {
+                        pageinfo.sort='Views'
+                    }
+                    else if (req.query.sort=='comments') {
+                        pageinfo.sort='Comments'
+                    }
+                    else if (req.query.sort=='commentdate') {
+                        pageinfo.sort='Comment Date'
+                    }
+                    else { // date
+                        pageinfo.sort='Date'
+                    }
+                    require("./search3")({ _id: { $in: wago.collect} }, req, res, function(err, results) {
+                        if (results.total>=14)
+                            results.more = { lookup: "/collection/"+wago._id, page: 1, ort: pageinfo.sort.toLowerCase() }
 
                         if (req.query.fetch=="more")
-                            res.render('static/aura-list-more.ejs', { auralist: results });
+                            res.render('static/aura-list.ejs', { auralist: results });
                         else
-                            res.render('wago-view.ejs', {wago: wago, auralist: results, moment: require('moment'), custom_func: false, site: site, categories: require('./models/categories')  });
+                            res.render('wago-view.ejs', {wago: wago, auralist: results, pageinfo: pageinfo, moment: require('moment'), custom_func: false, pageinfo: pageinfo, categories: selectizeCategories  });
                     })
                 }
-                else if (wago.type=="IMAGE")
-                    res.render('media-view.ejs', { media: wago, moment: require('moment'), site: site, categories: require('./models/categories')  });
+                else if (wago.type=="IMAGE") {
+                    res.locals.body.id = "page-media"
+                    res.render('media-view.ejs', { wago: wago, moment: require('moment'), pageinfo: pageinfo, categories: selectizeCategories  });
+                }
 
-                //else if (wago._id=="EJVb2hWQW")
-                //    res.render('test-view.ejs', { wago: wago, auralist: false, custom_func: custom_func, moment: require('moment'), site: site, categories: require('./models/categories')  });
-                else
-                    res.render('wago-view.ejs', { wago: wago, auralist: false, custom_func: custom_func, moment: require('moment'), site: site, categories: require('./models/categories')  });
+                else {
+                    res.render('wago-view.ejs', { wago: wago, auralist: false, custom_func: custom_func, moment: require('moment'), pageinfo: pageinfo, categories: selectizeCategories  });
+                }
+
+            })
+        });
+    });
+
+
+    // =====================================
+    // SELECTED WEAKAURA ===================
+    // =====================================
+    app.get('/:wagoID/:version([0-9]*)?', function(req, res) {
+        // prep page vars
+        var pageinfo = {}
+
+        // what wago to view
+        var wagoID = req.params.wagoID
+
+        // what version, do some verification
+        var loadVersion = parseInt(req.params.version)
+        if (!Number.isInteger(loadVersion)) {
+            loadVersion=-1
+        }
+
+        loadVersion = parseInt(loadVersion)
+        var Wago = require('./models/wagoitem')
+
+        if (req.user && req.user._id)
+            var private_user_id = req.user._id
+        else
+            var private_user_id = null
+
+        Wago.findOneAndUpdate({ '_id' :  wagoID}, { $inc: { 'popularity.views': 1 }, "last_accessed": Date.now() }, function(err, wago) {
+            // if there are any errors, return the error before anything else
+            if (err) {
+                console.error('selected wago error', err)
+                res.end()
+            }
+
+            // if no wago is found, return the message
+            else if (!wago || wago==null || (wago.private && (!req.user || !req.user._id || !req.user._id.equals(wago._userId)))) {
+                req.flash('indexMsg', "Could not find that wago *"+wagoID+"*")
+                res.redirect('/')
+                return
+            }
+
+            var User = require('./models/user');
+            var async = require('async')
+            var ent = require('ent')
+            var fs = require("fs")
+            var moment = require("moment")
+
+            var custom_func = []
+
+            var ddate = moment(wago.modified || wago.created)
+            wago.display_date = ddate.format("MMM Do YYYY")
+            wago.display_date_ago = ddate.fromNow()
+            wago.wow_patch = require('./wow_patch_by_date')(ddate, wago.wow_beta)
+
+            var selectizeCategories = []
+
+            async.parallel({
+                versions: function(cb) {
+                    wago.versions = []
+                    wago.latest_version = null
+                    var AuraCode = require('./models/aura-code');
+                    AuraCode.find({'auraID': wagoID}, "json lua updated", {sort: '-updated', limit: 8}).stream().on("data", function(ver) {
+                        wago.versions.push(ver)
+                        if (!wago.latest_version) wago.latest_version = ver.updated
+                    }).on("end", function() {
+                        cb(null, true)
+                    })
+                },
+                categories: function(cb) {
+                    var Categories = require('./models/categories')
+                    var realcats = {}
+
+                    for(k=0;k<Categories.length;k++) {
+
+                        if ((Categories[k]['WeakAuras2'] && wago.type=='WEAKAURAS2') || (Categories[k]['ElvUI'] && wago.type=='ELVUI') || (Categories[k]['WeakAuras2'] && wago.type=='COLLECTION') || (Categories[k]['Snippet'] && wago.type=='SNIPPET') || (Categories[k]['Media'] && wago.type=='IMAGE'))
+                            selectizeCategories.push(Categories[k])
+
+                        for(j=0;j<wago.categories.length;j++) {
+                            if (wago.categories[j]==Categories[k].id) {
+                                realcats[Categories[k].id] = Categories[k]
+                                if (Categories[k].parent)
+                                    delete realcats[Categories[k].parent]
+                            }
+                        }
+                    }
+                    wago.categoryData = realcats
+                    cb()
+                },
+                code: function(cb){
+                    if (wago.type!="WEAKAURAS2" && wago.type!='SNIPPET' && wago.type!='ELVUI') return cb()
+
+                    var AuraCode = require('./models/aura-code');
+                    var opts = { "limit": 1 }
+                    if (loadVersion>0) {
+                        opts.skip = loadVersion-1
+                        opts.sort = "updated"
+                    }
+                    else
+                        opts.sort = "-updated"
+
+                    AuraCode.findOne({'auraID': wagoID}, "auraID encoded json updated lua", opts, function(err, auraCode) {
+                        if (err)
+                            throw err
+
+                        if (!auraCode) {
+                            res.send('Error loading wago code')
+                            res.end()
+                        }
+                        wago.code=auraCode
+
+                        if (wago.type=="WEAKAURAS2") {
+                            data = JSON.parse(wago.code.json)
+                            delete data.lua_table
+
+                            wago.customfunc = false
+                            wago.preview = "<div class='alert alert-danger' role='alert'>Generated preview function coming.</div>"
+
+                            if (wago.description == "" && data.c) {
+                                wago.generated=1
+                                wago.description = "This is a collection of "+(data.c.length)+" auras:\n\n"
+                                for(var k in data.c){
+                                    caura = data.c[k]
+                                    if (caura.id && caura.regionType)
+                                        wago.description = wago.description + ent.encode(caura.id)+" ("+ent.encode(caura.regionType)+")\n"
+                                }
+                            }
+                            else if (wago.description == "" && data.d) {
+                                wago.generated=1
+                                wago.description = "This is "+a_or_an(data.d.regionType)+" "+ent.encode(data.d.regionType)+" type aura."
+                                if (data.d.desc)
+                                    wago.description = wago.description + "\n\n" + ent.encode(data.d.desc)
+                            }
+
+                            if (/function[\\s]*\(/.test(wago.code.lua)) {
+                                wago.customfunc = true
+                            }
+
+                            if (wago.customfunc) {
+                                wago.preview = "<div class='alert alert-danger' role='alert'><strong>This WA includes custom functions.</strong><br>Generated preview is not available.</div>"
+                            }
+                            else if (data.i) {
+                                //icon = data.i.match(/Interface\\Icons\\(\w*)/)
+                                //if (icon && icon[1])
+                                //    wago.preview = "<img src='/assets/img/wow-icons/"+ent.encode(icon[1].toLowerCase())+".png' />"
+                            }
+
+                            if (data.c && data.c.length>1) {
+                                wago.code.groups = []
+                                for (var i=0;i<data.c.length;i++) {
+                                    wago.code.groups.push(data.c[i].id)
+                                }
+                            }
+
+                            wago.code.json = JSON.stringify(data)
+
+                            var blocked_fn = /((getfenv|setfenv|loadstring|pcall|SendMail|SetTradeMoney|AddTradeMoney|PickupTradeMoney|PickupPlayerMoney|TradeFrame|MailFrame|EnumerateFrames|RunScript|AcceptTrade|SetSendMailMoney|EditMacro|SlashCmdList|DevTools_DumpCommand|hash_SlashCmdList|CreateMacro|SetBindingMacro)([\s]*\([^\)]*\))?)/g;
+                            while ((m = blocked_fn.exec(wago.code.json)) !== null) {
+                                if (!wago.blacklist) wago.blacklist = []
+                                wago.blacklist.push(m[1])
+                            }
+
+                            var brokenSevenOne = /(GetPlayerMapPosition|UnitCameraFacing|UnitDistanceSquared|UnitFacing|UnitPosition|SetNamePlateOtherSize|GetNamePlateOtherSize)/;
+                            if ((m = brokenSevenOne.exec(wago.code.json)) !== null) {
+                                wago.brokenSevenOne = true
+                            }
+                            // find custom functions
+                            find_custom_functions(data, function(fn) {
+                                custom_func = fn
+                                cb(null, true)
+                            })
+                        }
+                        else if (wago.type=="SNIPPET") {
+                            if (wago.description == "") {
+                                wago.description = "Lua Code Snippet"
+                            }
+                            cb(null, true)
+                        }
+                        else if (wago.type=="ELVUI") {
+                            if (wago.description == "") {
+                                wago.description = "ElvUI Profile"
+                            }
+                            cb(null, true)
+                        }
+                    })
+                },
+                getComments: function(cb){
+                    var Comments = require('./models/comment')
+                    Comments.find({'wagoID': wagoID}).sort('-postDate').exec(function(err, comments) {
+                        async.forEachOf(comments, function (comment, commentkey, cb2) {
+                            User.findById(comment.authorID, function(err, user) {
+                                if (user.account.username)
+                                    comments[commentkey].authorName = user.account.username
+                                else
+                                    comments[commentkey].authorName = 'User-'+user._id
+
+                                comments[commentkey].authorVerifiedHuman = user.account.verified_human
+                                var ddate = moment(comments[commentkey].postDate)
+                                comments[commentkey].timeago = ddate.fromNow()
+
+                                if (req.user) {
+                                    for (j=0; j<comments[commentkey].usersTagged.length; j++) {
+                                        if (req.user._id == comments[commentkey].usersTagged[j].userID && !comments[commentkey].usersTagged[j].read) {
+                                            comments[commentkey].attn = true
+                                            wago.attnComments = true
+                                            Comments.findOneAndUpdate({'_id': comments[commentkey]._id, 'usersTagged.userID': comments[commentkey].usersTagged[j].userID, 'usersTagged.read': false }, {$set: {'usersTagged.$': {"userID": comments[commentkey].usersTagged[j].userID, "read": true  }}},
+                                                function(e, d) { }) // this doesn't seem to work without the callback?
+                                        }
+                                    }
+                                }
+                                cb2()
+                            })
+                        }, function() {
+                            wago.comments = comments
+                            cb()
+                        })
+                    })
+                },
+                favorite: function(cb){
+                    wago.popularity.myfave = false
+                    if (!req.user) {
+                        return cb(null, true)
+                    }
+
+                    for (var i=0; i<wago.popularity.favorites.length; i++) {
+                        if (wago.popularity.favorites[i].equals(req.user._id)) {
+                            wago.popularity.myfave = true
+                            return cb(null, true)
+                        }
+                    }
+                    cb(null, true)
+                },
+                foundInCollections: function(cb) {
+                    Wago.count({ 'collect' : wagoID, 'hidden' : false, 'private': false }, function(err, count) {
+                        wago.collectCount = count
+                        cb()
+                    })
+                },
+                screenshot: function(cb){
+                    var Screenshots = require('./models/aura-screenshot');
+                    Screenshots.find({'auraID': wagoID}, function(err, screens) {
+                        wago.screens = screens
+                        cb()
+                    })
+                },
+                video: function(cb){
+                    var Videos = require('./models/wago-video');
+                    Videos.find({'wagoID': wagoID}, function(err, videos) {
+                        wago.videos = videos
+                        cb()
+                    })
+                },
+                image: function(cb) {
+                    if (wago.type!='IMAGE') return cb()
+
+                    if (loadVersion>0 && wago.image[loadVersion-1])
+                        wago.load = wago.image[loadVersion-1]
+                    else
+                        wago.load = wago.image[wago.image.length-1]
+
+                    var imagefile = __dirname + '/../mywago/media/'+ (wago.load.files.jpg || wago.load.files.png)
+                    var sizeOf = require('image-size');
+                    var dimensions = sizeOf(imagefile);
+                    var height = dimensions.height
+                    var width = dimensions.width
+
+                    if (height>8192 || width > 8192)
+                        wago.invalid_img = true
+                    else if (height!=2 && height!=4 && height!=8 && height!=16 && height!=32 && height!=64 && height!=128 && height!=256 && height!=512 && height!=1024 && height!=2048 && height!=4096 && height!=8192)
+                        wago.invalid_img = true
+                    else if (width!=2 && width!=4 && width!=8 && width!=16 && width!=32 && width!=64 && width!=128 && width!=256 && width!=512 && width!=1024 && width!=2048 && width!=4096 && width!=8192)
+                        wago.invalid_img = true
+                    else
+                        wago.invalid_img = false
+
+                    var fstats = fs.statSync(__dirname + '/../mywago/media/'+ (wago.load.files.tga || wago.load.files.blp))
+                    wago.fileSize = (""+(fstats["size"] / 1000)).replace(/\B(?=(\d{3})+(?!\d))/g, ",") // kilobytes
+
+                    cb()
+                },
+                user: function(cb){
+                    if (req.user && req.user._id.equals(wago._userId))
+                        wago.can_edit = true
+                    else
+                        wago.can_edit = false
+
+                    if (wago._userId!=null) {
+                        User.findById(wago._userId, function(err, user) {
+                        // if there are any errors, return the error
+                            if (err)
+                                return cb(err);
+
+                            // check to see if theres already a user with that email
+                            if (user && user.account.username) {
+                                wago.username = user.account.username
+                                wago.userlink = !user.account.hidden
+                                wago.authorHuman = user.account.verified_human
+                            }
+                            else if (user) {
+                                wago.username = 'User-'+user._id
+                                wago.userlink = !user.account.hidden
+                                wago.authorHuman = user.account.verified_human
+                            } else {
+                                wago.username = "a guest"
+                                wago.userlink = false
+                                wago.authorHuman = false
+                            }
+                            cb(null, true)
+                        })
+                    }
+                    else {
+                        wago.username = "a guest"
+                        cb(null, true)
+                    }
+                }
+            }, function(err, x) {
+                if (err && err.redirect) {
+                    res.redirect(err.redirect)
+                    return
+                }
+                if (err) return done(err)
+
+                if (wago.type=='WEAKAURAS2') wago.type = 'WEAKAURA'
+
+                pageinfo.title = wago.name
+                pageinfo.description = wago.description.replace(/<(?:.|\n)*?>/gm, '').replace(/\n/g, ' ').substring(0, 240)
+                res.locals.body.id = "page-wago"
+
+                // wago found, display it
+                if (wago.type=="COLLECTION") {
+                    if (req.query.sort=='stars') {
+                        pageinfo.sort='Stars'
+                    }
+                    else if (req.query.sort=='views') {
+                        pageinfo.sort='Views'
+                    }
+                    else if (req.query.sort=='comments') {
+                        pageinfo.sort='Comments'
+                    }
+                    else if (req.query.sort=='commentdate') {
+                        pageinfo.sort='Comment Date'
+                    }
+                    else { // date
+                        pageinfo.sort='Date'
+                    }
+                    require("./search3")({ _id: { $in: wago.collect} }, req, res, function(err, results) {
+                        if (results.total>=14)
+                            results.more = { lookup: "/collection/"+wago._id, page: 1, ort: pageinfo.sort.toLowerCase() }
+
+                        if (req.query.fetch=="more")
+                            res.render('static/aura-list.ejs', { auralist: results });
+                        else
+                            res.render('wago-view.ejs', {wago: wago, auralist: results, pageinfo: pageinfo, moment: require('moment'), custom_func: false, pageinfo: pageinfo, categories: selectizeCategories  });
+                    })
+                }
+                else if (wago.type=="IMAGE") {
+                    res.locals.body.id = "page-media"
+                    res.render('media-view.ejs', { wago: wago, moment: require('moment'), pageinfo: pageinfo, categories: selectizeCategories  });
+                }
+
+                else {
+                    res.render('wago-view.ejs', { wago: wago, auralist: false, custom_func: custom_func, moment: require('moment'), pageinfo: pageinfo, categories: selectizeCategories  });
+                }
 
             })
         });
@@ -2130,12 +2972,12 @@ module.exports = function(app) {
                 // TODO: filter/verify categories input
                 aura.categories = req.body.categories || []
 
-                if (req.body.wagovisibility=="Hidden")
+                if (req.body.auravisibility=="Hidden")
                     aura.hidden = true
                 else
                     aura.hidden = false
 
-                if (req.body.wagovisibility=="Private")
+                if (req.body.auravisibility=="Private")
                     aura.private = true
                 else
                     aura.private = false

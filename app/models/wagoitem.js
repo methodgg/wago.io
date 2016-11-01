@@ -12,6 +12,7 @@ var itemSchema = mongoose.Schema({
 
    	name : String,
     description : { type: String, default: "" },
+    description_format : { type: Number, default: 1 }, // 1=BBcode, 2=Markdown
     type : String,
     subtype : String,
 	categories : Array,
@@ -20,7 +21,8 @@ var itemSchema = mongoose.Schema({
     created : { type: Date, default: Date.now },
     last_accessed : { type: Date, default: Date.now },
     expires_at : Date,
-    modified : Date,
+    modified : { type: Date, default: Date.now },
+    last_comment : Date,
     display_date : String,
     wow_patch : String,
     batch_import : String,
@@ -35,7 +37,9 @@ var itemSchema = mongoose.Schema({
         views : { type: Number, default: 0 },
         embeds : { type: Number, default: 0 },
         downloads : { type: Number, default: 0 },
-        favorites : Array
+        favorites : Array,
+        favorite_count : { type: Number, default: 0 },  // this should always match the length of favorites
+        comments_count : { type: Number, default: 0 }
     },
 
     // type=WEAKAURAS2
@@ -88,7 +92,16 @@ itemSchema.virtual('visibility').get(function() {
     else return "Public"
 })
 
-// methods ======================
+itemSchema.statics.random = function(callback) {
+  this.count({"hidden": false, "private": false, "deleted": false, $or:[{type: 'WEAKAURAS2'}, {type: 'ELVUI'}]}, function(err, count) {
+    if (err) {
+      return callback(err);
+    }
+    var rand = Math.floor(Math.random() * count);
+    this.findOne({"hidden": false, "private": false, "deleted": false, $or:[{type: 'WEAKAURAS2'}, {type: 'ELVUI'}]}).skip(rand).exec(callback);
+  }.bind(this));
+};
+                       
 
 
 // create the model for aura and expose it to our app

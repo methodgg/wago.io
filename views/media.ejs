@@ -1,17 +1,15 @@
 <% include static/header %>
-<body id="page-media">
-<% include static/top-nav %>
 
-<div class="container">
-    <div class="row content">
-        <div class="col-sm-6">
+<div class="row">
+    <div class="col-xs-12 col-md-12 col-lg-12 col-xl-7 col-xl-left">
+        <div class="block">
             <% if (message & message.length > 0) { %>
                 <div class="alert alert-danger"><%= message %></div>
             <% } %>
             <h3>Upload your artwork/media here.</h3>
             <p>Supported image media types: .blp, .jpg, .tga, .png. Fonts and audio soon.</p>
             <div class="well">WoW has restrictions for all image files and must be followed or your image will not load in the game:
-            <br>1. The height and width of the image must be a power a 2. (Ex: 16x16, 64x64, 128x256)<br>2. The height and width of the image can be no larger than 1024 pixels.</div>
+            <br>1. The height and width of the image must be a power a 2. (Ex: 16x16, 64x64, 128x256)<br>2. The height and width of the image can be no larger than 8192 pixels.</div>
             <form action="/media/upload" method="post" enctype="multipart/form-data">
                 <div id="media_upload">
                     <input type="file" name="mediafile" id="media_file_input" />
@@ -75,20 +73,38 @@
                 <p><small>* Do not upload any copyrighted material in which you do not own the rights.</small></p>
             </form>
         </div>
-        <div class="col-sm-6" style="padding-top:2.1em">
+    </div>
+    <div class="col-xs-12 col-md-12 col-lg-12 col-xl-5">
+        <div class="block">
             <strong>Latest</strong>
             <ul class="list-unstyled" id="recent_medias">
                 <% for (var k in latest) {
                     if (latest[k].image && latest[k].image[latest[k].image.length-1].files) {
                         %>
-                        <li><a href="/<%= latest[k]._id %>"><img src="/mywago/media/<%= latest[k].image[latest[k].image.length-1].files.png || latest[k].image[latest[k].image.length-1].files.jpg %>" alt="" /></a></li>
+                        <a href="/<%= latest[k]._id %>"><img class="media-item" src="/mywago/media/<%= latest[k].image[latest[k].image.length-1].files.png || latest[k].image[latest[k].image.length-1].files.jpg %>" alt="" style="width:<%= latest[k].image[latest[k].image.length-1].dimensions.width %>px;height:<%= latest[k].image[latest[k].image.length-1].dimensions.height %>px;" /></a>
                         <%
                     }
                 }
                 %>
-            </ul>
+            </ul><br style="clear:both">
         </div>
     </div>
 </div>
+
+<script src="/assets/js/masonry.min.js"></script>
+<script type="text/javascript">
+var msnry = new Masonry( '#recent_medias', {
+  // options
+  itemSelector: '.media-item',
+  columnWidth: 64,
+  gutter: 4,
+  fitWidth : true,
+  transitionDuration: 0
+})
+msnry.imagesLoaded().progress( function() {
+  msnry.masonry('layout');
+});
+</script>
+
 
 <% include static/footer %>

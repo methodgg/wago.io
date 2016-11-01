@@ -2,7 +2,7 @@ dofile( "./wago.lua" )
 local JSON = (loadfile "./json.lua")()
 
 local t
-if string.find(arg[1], "/tmp/wagoimport") == nil then
+if string.find(arg[1], "/tmp/") == nil then
     t = JSON:decode(arg[1])
 else
     local f = io.open(arg[1], "r")

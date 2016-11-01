@@ -1,162 +1,178 @@
 <% include static/header %>
-<body id="page-media">
-<% include static/top-nav %>
-<div id="media_id" style="display:none"><%= media._id %></div>
-<div class="container">
-    <div class="row content" id="aura_top">
-        <div class="col-md-12">
-            <h2><%= media.name %></h2>
-            <small>Uploaded by
-                <span class="glyphicon glyphicon-user"></span>
-                <% if (media.userlink) { %>
-                    <a href="/profile/<%= media.username %>"><%= media.username %></a>
+
+<div class="row" id="aura_top">
+    <div class="col-xs-12">
+        <div class="block">
+            <div class="meta"><%= wago.type %></div>
+            <h4><%= wago.name %>
+                <button class="btn btn-sm btn-default hidden-xs-down hidden-xl-up" type="button" id="copywago2" data-clipboard-target="#wa_string" style="margin-top:-2px;float:right"><span class="icon-copy"></span> Copy Import String</button></h4>
+            <span class="meta">
+                <span class="icon-clock"></span> <strong><%= (wago.versions && wago.versions.length>1)?'Updated':'Imported' %></strong> <%= wago.display_date %>
+            </span>
+            <span class="meta">
+                <span class="icon-sphere"></span> <strong>WoW</strong> <%= wago.wow_patch %>
+            </span>
+            <span class="meta">
+                <span class="icon-user"></span> <strong>User</strong>
+                <% if (wago.userlink) { %>
+                    <a href="/profile/<%= wago.username %>"><%= wago.username %></a>
                 <% } else { %>
-                    <%= media.username %>
+                    <%= wago.username %>
                 <% } %>
-                about <span style="border-bottom:1px dashed #570000" data-toggle="tooltip" title="<%= media.display_date %>"><%= media.display_date_ago %></span>.
-            </small>
-        </div>
-    </div>
-    <div class="row content">
-        <div id="aurainfo">
-            <% if (media.can_edit) { %>
-                <div class="btn-group">
-                    <button class="btn btn-sm btn-default" type="button" data-toggle="modal" data-target="#modify_media_modal"><span class="glyphicon glyphicon-cog"></span> Edit details</button>
-                    <button class="btn btn-sm btn-default" type="button" data-toggle="modal" data-target="#import_new_modal"><span class="glyphicon glyphicon-tree-conifer"></span> New version</button>
-                </div>
+            </span>
+            <span class="meta">
+                <span class="icon-eye"></span> <strong>Views</strong> <%= wago.popularity.views.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") %>
+            </span>
+            <span class="meta">
+                <span class="icon-bubble"></span> <strong>Comments</strong> <%= wago.comments.length.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") %>
+            </span>
+            <span class="meta">
+                <span class="icon-star-full"></span> <strong>Stars</strong> <%= wago.popularity.favorites.length.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") %>
+            </span>
+            <% if (wago.collectCount>0) { %>
+                <span class="meta">
+                    <span class="icon-database"></span> <strong>Collections</strong> <a href="/<%= wago._id %>/collections"><%= wago.collectCount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") %></a>
+                </span>
             <% } %>
+            <span class="meta">
+                <span class="icon-link"></span> <strong>Link</strong> <a href="#" data-clipboard-text="https://wago.io/<%= wago._id %>" id="copyurl">https://wago.io/<%= wago._id %></a>
+            </span>
+            
+            <% if(user) { %>
+                <button class="btn btn-sm btn-default float-right" type="button" id="toggle_favorite"><span class="icon-star<%= wago.popularity.myfave ? '-full':'-empty' %>"></span> Favorite</button>
+            <% } %>
+            <br>
+            <%
+            for (var key in wago.categoryData) {
+                if(!wago.categoryData.hasOwnProperty(key)) continue;
+                %><span class="label label-default <%= wago.categoryData[key].cls %>"><%= wago.categoryData[key].text %></span><%
+            }
+            %>
 
-            <div class="btn-group">
-                <button class="btn btn-sm btn-default" type="button" data-clipboard-text="https://wago.io/media/<%= media._id %>" id="copyurl"><span class="glyphicon glyphicon-flash"></span> https://wago.io/media/<%= media._id %></button>
-
-                <% if (media.image.length>1) { %>
-                    <button class="btn btn-sm btn-default pull-left" type="button" data-toggle="modal" data-target="#previous_versions_modal" style="margin-left:-1px"><span class="glyphicon glyphicon-time"></span> Previous versions</button>
-                <% } %>
-            </div>
-
-            <div class="pull-right btn-group" style="clear:right">
-                <span class="input-group-addon pull-left"><span class="glyphicon glyphicon-download-alt"></span> <%= media.popularity.downloads.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") %></span>
-                <span class="input-group-addon pull-left"><span class="glyphicon glyphicon-eye-open"></span> <%= media.popularity.views.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") %></span>
-                <button class="btn btn-sm btn-default <%= media.attnComments ? 'btn-comment-alert':'' %>" type="button" id="commentjump"><span class="glyphicon glyphicon-comment"></span> <span id="comment_count"><%= media.comments.length.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") %></span></button>
-                <button class="btn btn-sm btn-default btn-favorite" type="button" id="<%= user && user.account ? 'toggle_favorite':'' %>"><span class="glyphicon glyphicon-star<%= media.popularity.myfave ? '':'-empty' %>"></span> <span id="star_count"><%= media.popularity.favorites.length.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") %></span></button>
-            </div>
         </div>
     </div>
-
-    <div class="row content" id="aura-main">
-        <div class="col-md-12">
-            <%
-            if (media.hidden) {
-                %>
-                <div class="alert alert-info" role="alert">This media file is hidden and can only be viewed with the link. Please respect the authors choice to hide this media.</div>
-                <%
-            }
-            else if (media.private) {
-                %>
-                <div class="alert alert-info" role="alert">This media file is private and can only be viewed by you.</div>
-                <%
-            }
+</div><br>
+<div class="row">
+    <div class="col-xs-12 col-md-12 col-lg-12 col-xl-8 col-xl-left">
+        <%
+        if (wago.code && wago.code.updated.getTime()!=wago.latest_version.getTime()) {
             %>
-        </div>
-        <div class="col-md-6" id="aura-content">
-            <%
-            for (var key in media.categoryData) {
-                if(!media.categoryData.hasOwnProperty(key)) continue;
-                %><span class="label label-default <%= media.categoryData[key].cls %>"><%= media.categoryData[key].text %></span><%
-            }
-            if (1==0 && media.code.updated.getTime()!=aura.latest_version.getTime()) {
-                %><div class="alert alert-danger" role="alert">Warning, this is <strong>NOT</strong> the most recent version of this Media.<br>
-                    View the most recent update <a href="/<%= media._id %>">here</a>.
-                </div><%
-            }
-
-            if (media.invalid_img) {
-                %>
-                <div class="alert alert-danger"><strong>Warning. Invalid file.</strong> WoW has restrictions for all image files and must be followed or your image will not load in the game:
-                    <br>1. The height and width of the image must be a power a 2. (Ex: 16x16, 64x64, 128x256)<br>2. The height and width of the image can be no larger than 8192 pixels.
-                </div>
-                <%
-            }
-            %>
-            <address>
-                <strong>Description</strong><br>
-                <div><%- xbb.process({text: media.description, human: media.authorHuman }).html %></div>
-            </address>
-            <div id="downloads_container">
-                <strong>Files</strong>
-                <ul><li><a href="/media/<%= media._id %>/original">Download original file</a></li>
-                    <li>Or star <span class="glyphicon glyphicon-star"></span> this file to include it in MyWago<%= (!user || !user.account) ? ' (requires user account)':'' %>.<br>
-                        <pre>Interface\Addons\MyWago\<%
-                        if (media.subtype=="Aura Texture") { %>textures<% }
-                        else if(media.subtype=="Background") { %>backgrounds<% }
-                        else if(media.subtype=="Border") { %>borders<% }
-                        else if(media.subtype=="Progress Bar") { %>bars<% }
-                        else if(media.subtype=="Sprite Sheet") { %>sprites<% }
-                        -%>\<%= media._id %>.<%= media.load.files.blp ? 'blp':'tga' %></pre></li>
-                    <% if (media.load.files.blp) { %><li><a href="/media/<%= media._id %>/blp">Download .blp</a></li> <% } %>
-                    <% if (media.load.files.tga) { %><li><a href="/media/<%= media._id %>/tga">Download .tga</a></a></li> <% } %>
-                    <% if (media.load.files.png) { %><li><a href="/media/<%= media._id %>/png">Download .png</a></a></li> <% } %>
-                    <% if (media.load.files.jpg) { %><li><a href="/media/<%= media._id %>/jpg">Download .jpg</a></a></li> <% } %>
-                </ul>
+            <div class="alert alert-warning" role="alert">Warning, this is <strong>NOT</strong> the most recent version.<br>
+                View the most recent update <a href="/<%= wago._id %>">here</a>.
             </div>
-        </div>
-        <div class="col-md-6">
+            <%
+        }
+
+        if (wago.hidden) {
+            %>
+            <div class="alert alert-info" role="alert"><strong>This Wago is hidden</strong> and can only be viewed with the link. Please respect the authors choice to hide this Wago.</div>
+            <%
+        }
+        else if (wago.private) {
+            %>
+            <div class="alert alert-info" role="alert"><strong>This Wago is private</strong> and can only be viewed by you.</div>
+            <%
+        }
+
+        if (wago.invalid_img) {
+            %>
+            <div class="alert alert-danger"><strong>Warning. Invalid file.</strong> WoW has restrictions for all image files and must be followed or your image will not load in the game:
+                <br>1. The height and width of the image must be a power a 2. (Ex: 16x16, 64x64, 128x256)<br>2. The height and width of the image can be no larger than 8192 pixels.
+            </div>
+            <%
+        }
+        %>
+        <div class="block">
             <div id="media-preview" class="bg-checkered">
-                <img src="/mywago/media/<%= media.load.files.png || media.load.files.jpg %>" alt="" />
-                <button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" id="media-preview-bgselect">
-                    Change Background <span class="caret"></span>
-                </button>
-                <ul class="dropdown-menu">
-                    <li><a href="#" data-class="bg-checkered">Checkered</a></li>
-                    <li><a href="#" data-class="bg-light">Light</a></li>
-                    <li><a href="#" data-class="bg-dark">Dark</a></li>
-                    <!--<li role="separator" class="divider"></li>
-                    <li><a href="#" data-class="bg-bootybay">Booty Bay</a></li>-->
-                </ul>
-                <button class="btn btn-default btn-sm" type="button" aria-expanded="false" id="media_preview-togglesprite" style="display:none">
+                <img src="/mywago/media/<%= wago.load.files.png || wago.load.files.jpg %>" alt="" />
+                <div class="btn-group" id="media-preview-bgselect">
+                    <button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Change Background <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a href="#" data-class="bg-checkered">Checkered</a></li>
+                        <li><a href="#" data-class="bg-light">Light</a></li>
+                        <li><a href="#" data-class="bg-dark">Dark</a></li>
+                        <!--<li role="separator" class="divider"></li>
+                        <li><a href="#" data-class="bg-bootybay">Booty Bay</a></li>-->
+                    </ul>
+                </div>
+                <button class="btn btn-default btn-sm" type="button" aria-expanded="false" id="media-preview-togglesprite" style="display:none">
                     Toggle Animation/Sheet
                 </button>
-                <div id="media_preview-fps" style="display:none">
+                <div id="media-preview-fps" style="display:none">
                     <input id="spritefps" type="text" data-slider-min="3" data-slider-max="60" data-slider-step="3" data-slider-value="24"/>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="row content" id="comments_container">
-        <div class="col-md-12" id="comments">
+    <div class="col-xs-12 col-md-12 col-lg-12 col-xl-4">
+        <div class="block">
+            <strong>Files:</strong><br>
+            <ul><li><a href="/media/<%= wago._id %>/original">Download original file</a></li>
+                <li>Or star <span class="glyphicon glyphicon-star"></span> this file to include it in MyWago<%= (!user || !user.account) ? ' (requires user account)':'' %>.<br>
+                    <pre>Interface\Addons\MyWago\<%
+                    if (wago.subtype=="Aura Texture") { %>textures<% }
+                    else if(wago.subtype=="Background") { %>backgrounds<% }
+                    else if(wago.subtype=="Border") { %>borders<% }
+                    else if(wago.subtype=="Progress Bar") { %>bars<% }
+                    else if(wago.subtype=="Sprite Sheet") { %>sprites<% }
+                    -%>\<%= wago._id %>.<%= wago.load.files.blp ? 'blp':'tga' %></pre></li>
+                <% if (wago.load.files.blp) { %><li><a href="/media/<%= wago._id %>/blp">Download .blp</a></li> <% } %>
+                <% if (wago.load.files.tga) { %><li><a href="/media/<%= wago._id %>/tga">Download .tga</a></a></li> <% } %>
+                <% if (wago.load.files.png) { %><li><a href="/media/<%= wago._id %>/png">Download .png</a></a></li> <% } %>
+                <% if (wago.load.files.jpg) { %><li><a href="/media/<%= wago._id %>/jpg">Download .jpg</a></a></li> <% } %>
+            </ul>
+        </div><br>
+
+        <%
+        if (wago.description!='') {
+            %>
+            <div class="block">
+                <strong>Description:</strong><br>
+                <%- xbb.process({text: wago.description, human: wago.authorHuman }).html %>
+            </div><br>
+            <%
+        }
+        %>
+
+        <div class="block">
             <strong>Comments</strong>
-            <% if (media.comments.length==0) { %>
+            <% if (wago.comments && wago.comments.length==0) { %>
                 <p>No comments yet. Be the first!</p>
             <% } else {
-                for (var i=0; i<media.comments.length; i++) { %>
-                    <div class="comment <%= media.comments[i].attn ? 'comment-new':'' %>">
+                for (var i=0; i<wago.comments.length; i++) {
+                    %>
+                    <div class="comment <%= wago.comments[i].attn ? 'comment-new':'' %>">
                         <div class="commentheader">
-                            Posted by <%= media.comments[i].authorName %> <%= media.comments[i].timeago %>. <small class="pull-right localize-time"><%= moment(media.comments[i].postDate).format('YYYY-MM-DD HH:mm') %></small>
-                            <% if (media.can_edit) { %>
-                                <div class="btn-group pull-right">
+                            <small>Posted by <strong><%= wago.comments[i].authorName %></strong> <%= wago.comments[i].timeago %>. <a href="#reply" class="comment-reply" data-tag="<%= wago.comments[i].authorName %>">Reply</a> <span class="float-right localize-time"><%= moment(wago.comments[i].postDate).format('YYYY-MM-DD HH:mm') %></span></small>
+                            <% if (wago.can_edit) { %>
+                                <div class="btn-group float-right">
                                     <button class="btn btn-default btn-sm dropdown-toggle btn-comment-moderate" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                         Moderate <span class="caret"></span>
                                     </button>
                                     <ul class="dropdown-menu">
-                                        <li><a href="#" class="delete-comment" data-comment="<%= media.comments[i]._id %>" data-media="<%= media._id %>">Delete</a></li>
+                                        <li><a href="#" class="delete-comment" data-comment="<%= wago.comments[i]._id %>" data-wago="<%= wago._id %>">Delete</a></li>
                                     </ul>
                                 </div>
                             <% } %>
                         </div>
                         <div class="commenttext">
-                            <%- xbb.process({text: media.comments[i].commentText, human: media.comments[i].authorVerifiedHuman }).html %>
+                            <%- xbb.process({text: wago.comments[i].commentText, human: wago.comments[i].authorVerifiedHuman }).html %>
                         </div>
                     </div>
-                <% }
-            } %>
-            <% if (user) {
+                    <%
+                }
+            }
+
+            if (user) {
                 %>
                 <form action="/postcomment" method="post">
-                    <input type="hidden" name="wagoID" value="<%= media._id %>" />
+                    <input type="hidden" name="wagoID" value="<%= wago._id %>" />
                     <div id="inreplyto"></div>
                     <input type="hidden" name="inreplyto" id="inreplytoid" />
-                    <textarea class="form-control" name="commentText" style="width:100%;height:8em"></textarea>
+                    <textarea class="form-control" name="commentText" style="width:100%;height:8em" id="commenttext"></textarea>
                     <input type="submit" class="btn btn-sm btn-danger" value="Post Comment" /> <small>Some BB code is available: [b], [i], [u], [s], [code], [color=#123456], [size=(4-40)], <% if (user && user.account.verified_human) { %>[url], <% } %> [ul], [ol], [li] or [*], [table], [tr], [td]</small>
                     <br><small>Hint: Use @Username in your text to draw someone's attention.</small>
                 </form>
@@ -165,33 +181,32 @@
             %>
         </div>
     </div>
-
 </div>
 
 
-<% if (media.can_edit) { %>
+<% if (wago.can_edit) { %>
     <!-- modify media modal -->
     <div class="modal" id="modify_media_modal" tabindex="-1" role="dialog" aria-labelledby="modify_media_modal">
         <div class="modal-dialog modal-lg" role="document">
-            <form class="modal-content" method="post" action="/media/<%= media._id %>/modify">
+            <form class="modal-content" method="post" action="/media/<%= wago._id %>/modify">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                     <h4 class="modal-title" id="modify_media_modal_label">Modify Image Details</h4>
                 </div>
                 <div class="modal-body">
                     <strong>Title</strong>
-                    <input class="form-control" name="name" value="<%= media.name %>" />
+                    <input class="form-control" name="name" value="<%= wago.name %>" />
                 </div>
                 <div class="modal-body">
                     <strong>Description</strong> <small>Some BB code is available: [b], [i], [u], [s], [code], [color=#123456], [size=(4-40)], <% if (user && user.account.verified_human) { %>[url], <% } %> [ul], [ol], [li] or [*], [table], [tr], [td]</small>
-                    <textarea class="form-control" id="cke_description" name="description" style="height:10em"><%= media.description.replace(/<(?:.|\n)*?>/gm, '') %></textarea>
+                    <textarea class="form-control" id="cke_description" name="description" style="height:10em"><%= wago.description.replace(/<(?:.|\n)*?>/gm, '') %></textarea>
                 </div>
                 <%
-                if (media.type=="IMAGE") { %>
+                if (wago.type=="IMAGE") { %>
                     <div class="modal-body">
                         <div class="input-group" style="width:30%;float:left">
                             <span class="input-group-addon">Image Type</span>
-                            <button type="button" id="image-type-button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="width:100%; border-top-left-radius: 0; border-bottom-left-radius: 0;"><%= media.subtype %> <span class="caret"></span></button>
+                            <button type="button" id="image-type-button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="width:100%; border-top-left-radius: 0; border-bottom-left-radius: 0;"><%= wago.subtype %> <span class="caret"></span></button>
                             <ul class="dropdown-menu dropdown-menu-right" id="image-type-select">
                                   <li><a href="#">Aura Texture</a></li>
                                   <li><a href="#">Background</a></li>
@@ -199,23 +214,23 @@
                                   <li><a href="#">Progress Bar</a></li>
                                   <li><a href="#">Sprite Sheet</a></li>
                             </ul>
-                            <input type="hidden" id="image-type" name='imagetype' value="<%= media.subtype %>" />
+                            <input type="hidden" id="image-type" name='imagetype' value="<%= wago.subtype %>" />
                         </div>
                         <small class='pull-left' style="display:block;margin:.75em 0 0 .75em"><a data-toggle="htmltooltip" style="cursor:help" title="<p>The type of image determines where your media is selectable in-game.</p><p> Backgrounds, Borders and Progress Bars all have their own standard media libraries that many addons use. WoW's default interface also uses media from from these libraries.</p><p>Aura Textures require WeakAuras2 and will be available in the Texture selection. Sprite Sheets require WeakAuras2 and are available to Stop Motion auras.</p><p>Regardless of what you select, you can always use custom code and load any image with the file path.">What do these image types mean?</a></small>
                     </div>
-                    <div class="modal-body spritesheet-only" style="clear:both;<%= media.subtype=="Sprite Sheet" ? '':'display:none"' %>">
+                    <div class="modal-body spritesheet-only" style="clear:both;<%= wago.subtype=="Sprite Sheet" ? '':'display:none"' %>">
                         <strong>Sprite Sheet Structure</strong> <small><a data-toggle="htmltooltip" style="cursor:help" title="<p>Sprite Sheets are used in Stop Motion WeakAuras and can create animations. Additional data is required to structure the animation correctly.</p><p>Each frame within the Sprite Sheet should be in the order of Left to Right, Top to Bottom. Each frame needs to have the same dimensions but they don't have to be square.</p><p><em># Rows</em> refers to the number of horizontal rows in your sheet; <em># Columns</em> refers to vertical columns. You could have one row with twenty columns or four rows with five columns.</p><p>You can have blank frames at the end, just enter the total frames so we know when to loop the animation.</p>">Sprite Sheet Info</a></small> <br>
                         <div class="input-group" style="width:25%;float:left;margin-right:1em">
                             <span class="input-group-addon"># Rows</span>
-                            <input type="text" class="form-control text-right" name='spriterows' value="<%= media.load.sprite.rows %>" />
+                            <input type="text" class="form-control text-right" name='spriterows' value="<%= wago.load.sprite.rows %>" />
                         </div>
                         <div class="input-group" style="width:25%;float:left;margin-right:1em">
                             <span class="input-group-addon"># Columns</span>
-                            <input type="text" class="form-control text-right" name='spritecols' value="<%= media.load.sprite.columns %>" />
+                            <input type="text" class="form-control text-right" name='spritecols' value="<%= wago.load.sprite.columns %>" />
                         </div>
                         <div class="input-group" style="width:25%;float:left">
                             <span class="input-group-addon">Total Frames</span>
-                            <input type="text" class="form-control text-right" name='spriteframes' value="<%= media.load.sprite.framecount %>" />
+                            <input type="text" class="form-control text-right" name='spriteframes' value="<%= wago.load.sprite.framecount %>" />
                         </div>
                     </div>
                 <% } %>
@@ -226,13 +241,13 @@
                 <div class="modal-body" style="width:30%">
                     <div class="input-group">
                         <span class="input-group-addon">Media Visibility</span>
-                        <button type="button" id="media-visibility-button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="width:100%; border-top-left-radius: 0; border-bottom-left-radius: 0;"><%= media.visibility %> <span class="caret"></span></button>
+                        <button type="button" id="media-visibility-button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="width:100%; border-top-left-radius: 0; border-bottom-left-radius: 0;"><%= wago.visibility %> <span class="caret"></span></button>
                         <ul class="dropdown-menu dropdown-menu-right" id="media-visibility-select">
                               <li><a href="#">Public</a></li>
                               <li><a href="#">Hidden</a></li>
                               <li><a href="#">Private</a></li>
                         </ul>
-                        <input type="hidden" id="media-visibility" name='mediavisibility' value="<%= media.visibility %>" />
+                        <input type="hidden" id="media-visibility" name='mediavisibility' value="<%= wago.visibility %>" />
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -250,7 +265,7 @@
     <!-- import new version modal -->
     <div class="modal" id="import_new_modal" tabindex="-1" role="dialog" aria-labelledby="import_new_modal_label">
         <div class="modal-dialog modal-lg" role="document">
-            <form class="modal-content" method="post" action="/<%= media._id %>/replace">
+            <form class="modal-content" method="post" action="/<%= wago._id %>/replace">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                     <h4 class="modal-title" id="import_new_modal_label">Import New Version</h4>
@@ -268,7 +283,7 @@
     </div>
 <% } %>
 
-<% if (media.image.length>1) { %>
+<% if (wago.image.length>1) { %>
     <div class="modal" id="previous_versions_modal" tabindex="-1" role="dialog" aria-labelledby="export_modal_label">
       <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
@@ -277,14 +292,14 @@
             <h4 class="modal-title" id="import_new_modal_label">Previous Versions of this media</h4>
           </div>
           <div class="modal-body">
-            <% for(i=0;i<media.image.length;i++) { %>
-                <a href="/<%= media._id %>/<%= media.image.length-i %>">
+            <% for(i=0;i<wago.image.length;i++) { %>
+                <a href="/<%= wago._id %>/<%= wago.image.length-i %>">
                 <div class="panel panel-default">
                   <div class="panel-body">
                     <div class="row">
-                        <div class="col-md-4">Version <%= media.image.length-i %> <% if (i==0) { %> (Latest) <% } %></div>
-                        <div class="col-md-4"><%= moment(media.image[i].updated).format('MMMM Do YYYY, h:mm:ss a') %></div>
-                        <div class="col-md-4"><%= media.fileSize %> KB</div>
+                        <div class="col-md-4">Version <%= wago.image.length-i %> <% if (i==0) { %> (Latest) <% } %></div>
+                        <div class="col-md-4"><%= moment(wago.image[i].updated).format('MMMM Do YYYY, h:mm:ss a') %></div>
+                        <div class="col-md-4"><%= wago.fileSize %> KB</div>
                     </div>
                   </div>
                 </div>
@@ -300,12 +315,12 @@
 <% } %>
 
 <script type="text/javascript">
-<% if (media.subtype=="Sprite Sheet") { %>
-var sprite = <%- JSON.stringify(media.load.sprite) %>
+<% if (wago.subtype=="Sprite Sheet") { %>
+var sprite = <%- JSON.stringify(wago.load.sprite) %>
 <% } %>
-var media_fave = <%= media.popularity.myfave ? 'true':'false' %>
+var media_fave = <%= wago.popularity.myfave ? 'true':'false' %>
 <%= (aura._id=='EJVb2hWQW') ? "var testJS=1": "" %>
-var wagoID = "<%= media._id %>"
+var wagoID = "<%= wago._id %>"
 </script>
 
 

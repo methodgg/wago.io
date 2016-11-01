@@ -43,6 +43,9 @@ var userSchema = mongoose.Schema({
         name : String,
         region: String,
         characters : Array
+    },
+    config: {
+        theme : String
     }
 });
 

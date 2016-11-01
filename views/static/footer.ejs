@@ -1,27 +1,10 @@
-<div class="container" id="footer">
-    <div class="row content">
-        <div class="col-sm-6">
-            &copy; 2016 wago.io | <a href="/terms-of-service">Terms of Service</a> | <a href="/privacy-policy">Privacy Policy</a>
-        </div>
-        <div class="col-sm-6 text-right">
-            Hosted by <a href="http://postapoc.shivtr.com">Post Apocalypse</a> |
-            <a href="https://github.com/oratory/wago.io">GitHub</a> |
-            <a href="/apidoc">API</a>
         </div>
     </div>
 </div>
 
-<%- CDN([ 
-      '/js/jquery.min.js',
-      '/libraries/clipboard.min.js',
-	  '/libraries/lightbox2/dist/js/lightbox.min.js', 
-  	  '/libraries/mousewheel.min.js', 
-	  '/libraries/bootstrap-custom.min.js',
-	  '/libraries/selectize/js/standalone/selectize.js',
-	  '/js/bootstrap-slider.js',
-	  '/js/spritespin.js',
-	  '/js/moment.min.js',
-	  '/js/wago.js' ]).replace(/\+/g, '%2B') %>
+
+<script src="/assets/wago.js?v=<%= cache.js %>"></script>
+
 <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
   (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),

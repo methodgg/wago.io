@@ -10,7 +10,7 @@ nav.navbar, #media_preview-fps .slider-handle { /* Permalink - use to edit and s
     background: linear-gradient(to bottom, #70021c 0%,#5f0117 44%,#480011 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
     filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#70021c', endColorstr='#480011',GradientType=0 ); /* IE6-9 */
 }
-nav.navbar {max-height:51px}
+nav.navbar {max-height:51px}                                     
 
 @media only screen and (max-device-width: 720px) {
   #main-nav { background:#545454 }

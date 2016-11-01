@@ -1,27 +1,509 @@
-<!doctype html>
-<html>
-<head>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
     <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="<%= site.description %>">
-    <meta property="og:site_name" content="WAGO" >
-    <meta property="og:title" content="<%= site.title %>">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+
+    <meta name="description" content="<%= pageinfo&&pageinfo.description ? pageinfo.description : site.description %>">
+    <meta property="og:site_name" content="Wago.io" >
+    <meta property="og:title" content="<%= pageinfo&&pageinfo.title ? pageinfo.title : site.title %>">
     <%
     if (aura && aura.screens && aura.screens.length>0) {
         %><meta property="og:image" content="<%= aura.screens[0].url.original  %>"><%
     }
     %>
     <link rel="shortcut icon" href="/assets/img/favicon.ico" />
+    <title><%= site.title || 'Wago.io'%></title>
+                                                                                                                   
+    <link rel="stylesheet" href="/assets/wago.css?v=<%= cache.css %>">
 
-    <title><%= site.title || 'WAGO.IO '%></title>
+  </head>
+  <body id="<%= body.id %>" class="<%= body.theme %>" >
+    <div class="container-fluid">
+        <div class="row" id="header">
+            <div class="col-xs-12 col-md-2" id="logo"><a href="/"><span class="icon-power"></span> Wago.io</a></div>
+            <div class="col-xs-12 col-md-10" id="navigation">
+                <ul class="nav nav-inline">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/">Import</a>
+                    </li>
+                    <li class="nav-item mega-dropdown dropdown">
+                        <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#">WeakAuras</a>
+                        <div class="dropdown-menu">
+                            <strong>View WeakAuras by category</strong>
+                            <ul class="mega-dropdown-menu row">
+                                <li>
+                                    <%
+                                    for(c=0; c<category_menu.length; c++) {
+                                        if (category_menu[c].menucol==1 && category_menu[c+1].count_WA>0) {
+                                            %>
+                                            <div class="dropdown-header-level1 <%= category_menu[c].cls %>"><%= category_menu[c].text %></div>
+                                            <%
+                                            for(d=0; d<category_menu.length; d++) {
+                                                if (category_menu[c].id==category_menu[d].parent && !category_menu[d].menucol) {
+                                                    %>
+                                                    <div class="dropdown-header-level2 <%= category_menu[d].cls %>">
+                                                        <% if (!category_menu[d].noselect) { %><a href="/weakauras/<%= category_menu[d].slug %>"><% } %>
+                                                        <%= category_menu[d].text %>
+                                                        <%- category_menu[d].count_WA>0 ? '<span class="badge">'+category_menu[d].count_WA+'</span>':'' %>
+                                                        <% if (!category_menu[d].noselect) { %></a><% } %>
+                                                    </div>
+                                                    <%
+                                                    for(e=0; e<category_menu.length; e++) {
+                                                        if (category_menu[d].id==category_menu[e].parent) {
+                                                            %>
+                                                            <div class="dropdown-header-level3 <%= category_menu[e].cls %>">
+                                                                <a href="/weakauras/<%= category_menu[e].slug %>"><%= category_menu[e].text.replace(category_menu[d].text, '') %> <%- category_menu[e].count_WA>0 ? '<span class="badge">'+category_menu[e].count_WA+'</span>':'' %></a>
+                                                            </div>
+                                                            <%
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                    %>
+                                </li>
+                                <li>
+                                    <%
+                                    var class_count=0
+                                    for(c=0; c<category_menu.length; c++) {
+                                        if (category_menu[c].menucol==2 && category_menu[c+1].count_WA>0) {
+                                            %>
+                                            <div class="dropdown-header-level1 <%= category_menu[c].cls %>"><%= category_menu[c].text %></div>
+                                            <%
+                                            for(d=0; d<category_menu.length; d++) {
+                                                if (category_menu[c].id==category_menu[d].parent && !category_menu[d].menucol) {
+                                                    if (class_count==0) {
+                                                        %>
+                                                        <div style="width:50%;float:left">
+                                                        <%
+                                                    }
+                                                    else if (class_count==6) {
+                                                        %>
+                                                        </div><div style="width:50%;float:left">
+                                                        <%
+                                                    }
+                                                    class_count++
+                                                    %>
+                                                    <div class="dropdown-header-level2 <%= category_menu[d].cls %>">
+                                                        <% if (!category_menu[d].noselect) { %><a href="/weakauras/<%= category_menu[d].slug %>"><% } %>
+                                                        <%= category_menu[d].text %>
+                                                        <%- category_menu[d].count_WA>0 ? '<span class="badge">'+category_menu[d].count_WA+'</span>':'' %>
+                                                        <% if (!category_menu[d].noselect) { %></a><% } %>
+                                                    </div>
+                                                    <%
+                                                    for(e=0; e<category_menu.length; e++) {
+                                                        if (category_menu[d].id==category_menu[e].parent) {
+                                                            %>
+                                                            <div class="dropdown-header-level3 <%= category_menu[e].cls %>">
+                                                                <a class="<%= category_menu[e].cls %>" href="/weakauras/<%= category_menu[e].slug %>"><%= category_menu[e].text.replace(category_menu[d].text, '') %> <%- category_menu[e].count_WA>0 ? '<span class="badge">'+category_menu[e].count_WA+'</span>':'' %></a>
+                                                            </div>
+                                                            <%
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                    %>
+                                    </div>
+                                </li>
+                                <li style="width:20%">
+                                    <%
+                                    for(c=0; c<category_menu.length; c++) {
+                                        if (category_menu[c].menucol==3 && category_menu[c+1].count_WA>0) {
+                                            %>
+                                            <div class="dropdown-header-level1 <%= category_menu[c].cls %>"><%= category_menu[c].text %></div>
+                                            <%
+                                            for(d=0; d<category_menu.length; d++) {
+                                                if (category_menu[c].id==category_menu[d].parent && !category_menu[d].menucol) {
+                                                    %>
+                                                    <div class="dropdown-header-level2 <%= category_menu[d].cls %>">
+                                                        <% if (!category_menu[d].noselect) { %><a href="/weakauras/<%= category_menu[d].slug %>"><% } %>
+                                                        <%= category_menu[d].text %>
+                                                        <%- category_menu[d].count_WA>0 ? '<span class="badge">'+category_menu[d].count_WA+'</span>':'' %>
+                                                        <% if (!category_menu[d].noselect) { %></a><% } %>
+                                                    </div>
+                                                    <%
+                                                    for(e=0; e<category_menu.length; e++) {
+                                                        if (category_menu[d].id==category_menu[e].parent) {
+                                                            %>
+                                                            <div class="dropdown-header-level3 <%= category_menu[e].cls %>">
+                                                                <a href="/weakauras/<%= category_menu[e].slug %>"><%= category_menu[e].text.replace(category_menu[d].text, '') %> <%- category_menu[e].count_WA>0 ? '<span class="badge">'+category_menu[e].count_WA+'</span>':'' %></a>
+                                                            </div>
+                                                            <%
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                    %>
+                                </li>
+                                <li style="width:17%">
+                                    <%
+                                    for(c=0; c<category_menu.length; c++) {
+                                        if (category_menu[c].menucol==4 && category_menu[c+1].count_WA>0) {
+                                            %>
+                                            <div class="dropdown-header-level1 <%= category_menu[c].cls %>"><%= category_menu[c].text %></div>
+                                            <%
+                                            for(d=0; d<category_menu.length; d++) {
+                                                if (category_menu[c].id==category_menu[d].parent && !category_menu[d].menucol) {
+                                                    %>
+                                                    <div class="dropdown-header-level2 <%= category_menu[d].cls %>">
+                                                        <% if (!category_menu[d].noselect) { %><a href="/weakauras/<%= category_menu[d].slug %>"><% } %>
+                                                        <%= category_menu[d].text %>
+                                                        <%- category_menu[d].count_WA>0 ? '<span class="badge">'+category_menu[d].count_WA+'</span>':'' %>
+                                                        <% if (!category_menu[d].noselect) { %></a><% } %>
+                                                    </div>
+                                                    <%
+                                                    for(e=0; e<category_menu.length; e++) {
+                                                        if (category_menu[d].id==category_menu[e].parent) {
+                                                            %>
+                                                            <div class="dropdown-header-level3 <%= category_menu[e].cls %>">
+                                                                <a href="/weakauras/<%= category_menu[e].slug %>"><%= category_menu[e].text.replace(category_menu[d].text, '') %> <%- category_menu[e].count_WA>0 ? '<span class="badge">'+category_menu[e].count_WA+'</span>':'' %></a>
+                                                            </div>
+                                                            <%
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                    %>
+                                </li>
+                                <li style="width:17%">
+                                    <%
+                                    for(c=0; c<category_menu.length; c++) {
+                                        if (category_menu[c].menucol==5 && category_menu[c+1].count_WA>0) {
+                                            %>
+                                            <div class="dropdown-header-level1 <%= category_menu[c].cls %>"><%= category_menu[c].text %></div>
+                                            <%
+                                            for(d=0; d<category_menu.length; d++) {
+                                                if (category_menu[c].id==category_menu[d].parent && !category_menu[d].menucol) {
+                                                    %>
+                                                    <div class="dropdown-header-level2 <%= category_menu[d].cls %>">
+                                                        <% if (!category_menu[d].noselect) { %><a href="/weakauras/<%= category_menu[d].slug %>"><% } %>
+                                                        <%= category_menu[d].text %>
+                                                        <%- category_menu[d].count_WA>0 ? '<span class="badge">'+category_menu[d].count_WA+'</span>':'' %>
+                                                        <% if (!category_menu[d].noselect) { %></a><% } %>
+                                                    </div>
+                                                    <%
+                                                    for(e=0; e<category_menu.length; e++) {
+                                                        if (category_menu[d].id==category_menu[e].parent) {
+                                                            %>
+                                                            <div class="dropdown-header-level3 <%= category_menu[e].cls %>">
+                                                                <a href="/weakauras/<%= category_menu[e].slug %>"><%= category_menu[e].text.replace(category_menu[d].text, '') %> <%- category_menu[e].count_WA>0 ? '<span class="badge">'+category_menu[e].count_WA+'</span>':'' %></a>
+                                                            </div>
+                                                            <%
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                    %>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li class="nav-item mega-dropdown dropdown">
+                        <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#">ElvUI</a>
+                        <div class="dropdown-menu" style="width:800px">
+                            <strong>View ElvUI Profiles by category</strong>
+                            <ul class="mega-dropdown-menu row">
+                                <li style="width:100%">
+                                    <%
+                                    var class_count=0
+                                    for(d=0; d<category_menu.length; d++) {
+                                        if ("cl0"==category_menu[d].parent && !category_menu[d].menucol && category_menu[d].count_elvui>0) {
+                                            if (class_count==0) {
+                                                %>
+                                                <div style="width:25%;float:left">
+                                                <%
+                                            }
+                                            else if (class_count%3==0) {
+                                                %>
+                                                </div><div style="width:25%;float:left">
+                                                <%
+                                            }
+                                            class_count++
+                                            %>
+                                            <div class="dropdown-header-level2 <%= category_menu[d].cls %>">
+                                                <% if (!category_menu[d].noselect) { %><a href="/elvui/<%= category_menu[d].slug %>"><% } %>
+                                                <%= category_menu[d].text %>
+                                                <%- category_menu[d].count_elvui>0 ? '<span class="badge">'+category_menu[d].count_elvui+'</span>':'' %>
+                                                <% if (!category_menu[d].noselect) { %></a><% } %>
+                                            </div>
+                                            <%
+                                        }
+                                    }
+                                    %>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li class="nav-item mega-dropdown dropdown">
+                        <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#">Collections</a>
+                        <div class="dropdown-menu" style="width:850px">
+                            <strong>View Collections by category</strong>
+                            <ul class="mega-dropdown-menu row">
+                                <li style="width:22%">
+                                    <%
+                                    for(c=0; c<category_menu.length; c++) {
+                                        if (category_menu[c].menucol==1 && category_menu[c+1].count_collection>0) {
+                                            %>
+                                            <div class="dropdown-header-level1 <%= category_menu[c].cls %>"><%= category_menu[c].text %></div>
+                                            <%
+                                            for(d=0; d<category_menu.length; d++) {
+                                                if (category_menu[c].id==category_menu[d].parent && !category_menu[d].menucol) {
+                                                    %>
+                                                    <div class="dropdown-header-level2 <%= category_menu[d].cls %>">
+                                                        <% if (!category_menu[d].noselect) { %><a href="/collections/<%= category_menu[d].slug %>"><% } %>
+                                                        <%= category_menu[d].text %>
+                                                        <%- category_menu[d].count_collection>0 ? '<span class="badge">'+category_menu[d].count_collection+'</span>':'' %>
+                                                        <% if (!category_menu[d].noselect) { %></a><% } %>
+                                                    </div>
+                                                    <%
+                                                    for(e=0; e<category_menu.length; e++) {
+                                                        if (category_menu[d].id==category_menu[e].parent) {
+                                                            %>
+                                                            <div class="dropdown-header-level3 <%= category_menu[e].cls %>">
+                                                                <a class="<%= category_menu[e].cls %>" "href="/collections/<%= category_menu[e].slug %>"><%= category_menu[e].text.replace(category_menu[d].text, '') %> <%- category_menu[e].count_collection>0 ? '<span class="badge">'+category_menu[e].count_collection+'</span>':'' %></a>
+                                                            </div>
+                                                            <%
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                    %>
+                                </li>
+                                <li style="width:50%">
+                                    <%
+                                    var class_count=0
+                                    for(c=0; c<category_menu.length; c++) {
+                                        if (category_menu[c].menucol==2 && category_menu[c+1].count_collection>0) {
+                                            %>
+                                            <div class="dropdown-header-level1 <%= category_menu[c].cls %>"><%= category_menu[c].text %></div>
+                                            <%
+                                            for(d=0; d<category_menu.length; d++) {
+                                                if (category_menu[c].id==category_menu[d].parent && !category_menu[d].menucol) {
+                                                    if (class_count==0) {
+                                                        %>
+                                                        <div style="width:50%;float:left">
+                                                        <%
+                                                    }
+                                                    else if (class_count==6) {
+                                                        %>
+                                                        </div><div style="width:50%;float:left">
+                                                        <%
+                                                    }
+                                                    class_count++
+                                                    %>
+                                                    <div class="dropdown-header-level2 <%= category_menu[d].cls %>">
+                                                        <% if (!category_menu[d].noselect) { %><a href="/collections/<%= category_menu[d].slug %>"><% } %>
+                                                        <%= category_menu[d].text %>
+                                                        <%- category_menu[d].count_collection>0 ? '<span class="badge">'+category_menu[d].count_collection+'</span>':'' %>
+                                                        <% if (!category_menu[d].noselect) { %></a><% } %>
+                                                    </div>
+                                                    <%
+                                                    for(e=0; e<category_menu.length; e++) {
+                                                        if (category_menu[d].id==category_menu[e].parent) {
+                                                            %>
+                                                            <div class="dropdown-header-level3 <%= category_menu[e].cls %>">
+                                                                <a class="<%= category_menu[e].cls %>" href="/collections/<%= category_menu[e].slug %>"><%= category_menu[e].text.replace(category_menu[d].text, '') %> <%- category_menu[e].count_collection>0 ? '<span class="badge">'+category_menu[e].count_collection+'</span>':'' %></a>
+                                                            </div>
+                                                            <%
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                    %>
+                                    </div>
+                                </li>
+                                <li style="width:28%">
+                                    <%
+                                    for(c=0; c<category_menu.length; c++) {
+                                        if (category_menu[c].menucol==3 && category_menu[c+1].count_collection>0) {
+                                            %>
+                                            <div class="dropdown-header-level1 <%= category_menu[c].cls %>"><%= category_menu[c].text %></div>
+                                            <%
+                                            for(d=0; d<category_menu.length; d++) {
+                                                if (category_menu[c].id==category_menu[d].parent && !category_menu[d].menucopl && !category_menu[d].noselect) {
+                                                    %>
+                                                    <div class="dropdown-header-level2 <%= category_menu[d].cls %>">
+                                                        <% if (!category_menu[d].noselect) { %><a href="/collections/<%= category_menu[d].slug %>"><% } %>
+                                                        <%= category_menu[d].text %>
+                                                        <%- category_menu[d].count_collection>0 ? '<span class="badge">'+category_menu[d].count_collection+'</span>':'' %>
+                                                        <% if (!category_menu[d].noselect) { %></a><% } %>
+                                                    </div>
+                                                    <%
+                                                }
+                                            }
+                                        }
+                                    }
+                                    for(c=0; c<category_menu.length; c++) {
+                                        if (category_menu[c].menucol==4 && category_menu[c+1].count_collection>0) {
+                                            %>
+                                            <div class="dropdown-header-level1 <%= category_menu[c].cls %>"><%= category_menu[c].text %></div>
+                                            <%
+                                            for(d=0; d<category_menu.length; d++) {
+                                                if (category_menu[c].id==category_menu[d].parent && !category_menu[d].menucol) {
+                                                    %>
+                                                    <div class="dropdown-header-level2 <%= category_menu[d].cls %>">
+                                                        <% if (!category_menu[d].noselect) { %><a href="/collections/<%= category_menu[d].slug %>"><% } %>
+                                                        <%= category_menu[d].text %>
+                                                        <%- category_menu[d].count_collection>0 ? '<span class="badge">'+category_menu[d].count_collection+'</span>':'' %>
+                                                        <% if (!category_menu[d].noselect) { %></a><% } %>
+                                                    </div>
+                                                    <%
+                                                }
+                                            }
+                                        }
+                                    }
+                                    for(c=0; c<category_menu.length; c++) {
+                                        if (category_menu[c].menucol==5 && category_menu[c+1].count_collection>0) {
+                                            %>
+                                            <div class="dropdown-header-level1 <%= category_menu[c].cls %>"><%= category_menu[c].text %></div>
+                                            <%
+                                            for(d=0; d<category_menu.length; d++) {
+                                                if (category_menu[c].id==category_menu[d].parent && !category_menu[d].menucol) {
+                                                    %>
+                                                    <div class="dropdown-header-level2 <%= category_menu[d].cls %>">
+                                                        <% if (!category_menu[d].noselect) { %><a href="/collections/<%= category_menu[d].slug %>"><% } %>
+                                                        <%= category_menu[d].text %>
+                                                        <%- category_menu[d].count_collection>0 ? '<span class="badge">'+category_menu[d].count_collection+'</span>':'' %>
+                                                        <% if (!category_menu[d].noselect) { %></a><% } %>
+                                                    </div>
+                                                    <%
+                                                }
+                                            }
+                                        }
+                                    }
+                                    %>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li class="nav-item mega-dropdown dropdown">
+                        <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#">Code Snippets</a>
+                        <div class="dropdown-menu" style="width:200px;margin-left:0">
+                            <strong>View Code Snippets category</strong>
+                            <ul class="mega-dropdown-menu row">
+                                <li style="width:100%">
+                                    <%
+                                    var class_count=0
+                                    for(d=0; d<category_menu.length; d++) {
+                                        if (category_menu[d].id=="snip0") {
+                                            %>
+                                            <div class="dropdown-header-level2 <%= category_menu[d].cls %>">
+                                                <% if (!category_menu[d].noselect) { %><a href="/snippets/<%= category_menu[d].slug %>"><% } %>
+                                                <%= category_menu[d].text %>
+                                                <%- category_menu[d].count_snippet>0 ? '<span class="badge">'+category_menu[d].count_snippet+'</span>':'' %>
+                                                <% if (!category_menu[d].noselect) { %></a><% } %>
+                                            </div>
+                                            <%
+                                            for(e=0; e<category_menu.length; e++) {
+                                                if (category_menu[d].id==category_menu[e].parent) {
+                                                    %>
+                                                    <div class="dropdown-header-level3 <%= category_menu[e].cls %>">
+                                                        <a class="<%= category_menu[e].cls %>" href="/snippets/<%= category_menu[e].slug %>"><%= category_menu[e].text.replace(category_menu[d].text, '') %> <%- category_menu[e].count_snippet>0 ? '<span class="badge">'+category_menu[e].count_snippet+'</span>':'' %></a>
+                                                    </div>
+                                                    <%
+                                                }
+                                            }
+                                        }
+                                    }
+                                    %>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/media">Media</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/mywago">MyWago Addon</a>
+                    </li>
+                    <li class="nav-item mega-dropdown dropdown">
+                        <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" id="open-header-search"><span class="icon-search"></span> Search</a>
+                        <div class="dropdown-menu" style="width:250px;margin-left:0">
+                            <form action="/search" class="header-search">
+                                <div class="input-group">
+                                    <input type="text" class="form-control" placeholder="Search..." name="q" id="header-search-field">
+                                    <span class="input-group-btn">
+                                        <button class="btn btn-default" type="submit">Wago!</button>
+                                    </span>
+                                </div>
+                            </form>
+                        </div>
+                    </li>
+                    <!--<li class="nav-item" style="float:right">
+                        <span class="icon-contrast float-right" style="color:#111" onclick="SetSiteTheme('dark')"></span>
+                        <span class="icon-contrast float-right" style="color:#EEE" onclick="SetSiteTheme('light')"></span>
+                    </li>-->
+                </ul>
 
-    <%- CDN([ '/css/bootstrap.css', 
-	'/css/font-awesome.min.css', 
-	'/libraries/lightbox2/dist/css/lightbox.min.css',
-	'/libraries/selectize/css/selectize.bootstrap3.css',
-	'/css/bootstrap-slider.css',
-	'/css/wago.css', 
-	'/css/wago-ic.css']).replace(/\+/g, '%2B') %>
-    <link href='https://fonts.googleapis.com/css?family=Roboto:400,700' rel='stylesheet' type='text/css'>
-</head>
+            </div>
+        </div>
+        <div class="row" id="main">
+            <div class="col-xs-12 col-md-2" id="sidebar">
+                <div id="user-profile">
+                    <%
+                    if (user) {
+                        %>
+                        Welcome! You are viewing Wago.io as <strong><%= user.account.username || 'User-'+user._id %></strong><br><a href="/logout">Logout</a>
+                        <%
+                    }
+                    else {
+                        %>
+                        Welcome! You are viewing Wago.io as a guest.<br>Please <a href="/login">Login</a> for additional options.
+                        <%
+                    }
+                    %>
+                </div>
+                <% if (user) { %>
+                    <div id="my-lists">
+                        <strong>View my...</strong>
+                        <nav class="nav nav-pills nav-stacked">
+                            <% if (user.account.username) { %>
+                                <a class="nav-link" href="/p/<%= user.account.username %>">Profile</a>
+                            <% } %>
+                            <a class="nav-link" href="/my/mentions">Mentions <% if (unreadComments.length>0) {
+                                %><span class="tag tag-alert"><%= unreadComments.length %> unread</span><%
+                            } %></a>
+
+                            <a class="nav-link" href="/my/stars">Stars</a>
+                            <a class="nav-link" href="/account">Account Settings</a>
+                        </nav>
+                    </div>
+                    <hr>
+                <% } %>
+                <div id="spotlight">
+                    <strong>Wago of the Minute</strong><br>
+                    <div>
+                        <a href="/<%= WagoOfTheMoment._id %>">
+                            <%= WagoOfTheMoment.name %><br>
+                            <img src="<%= WagoOfTheMoment.screenshot %>" />
+                        </a>
+                    </div>
+                </div>
+                <hr>
+                <div id="legal-info">
+                    &copy; 2016 wago.io<br>
+                    - <a href="/terms-of-service">Terms of Service</a><br>
+                    - <a href="/privacy-policy">Privacy Policy</a><br><br>
+                    Hosted by <a href="http://postapoc.shivtr.com">Post Apocalypse</a><br>
+                    - <a href="https://discord.me/wa2">Discord</a><br>
+                    - <a href="https://github.com/oratory/wago.io">GitHub</a><br>
+                    - <a href="/apidoc">API</a>
+                </div>
+            </div>
+            <div class="col-xs-12 col-md-10" id="content">

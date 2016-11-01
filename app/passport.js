@@ -279,7 +279,10 @@ module.exports = function(passport) {
                         newUser.battlenet.token      = profile.token; // we will save the token that bnet provides to the user
                         newUser.battlenet.name       = profile.battletag; // look at the passport user profile to see how names are returned
                         newUser.battlenet.region     = profile.region
-                        newUser.battlenet.characters = profile.characters;
+                        if (profile.characters)
+                            newUser.battlenet.characters = profile.characters;
+                        else
+                            newUser.battlenet.characters = []
 
                         for (i=0;i<newUser.battlenet.characters.length;i++) {
                             if (newUser.battlenet.characters[i].level>=100 && newUser.battlenet.characters[i].achievementPoints>=800) {
