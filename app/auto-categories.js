@@ -1,4 +1,6 @@
 module.exports = function(load) {
+    if (!load) return []
+    
     var categories = []
 
     // setup vars
