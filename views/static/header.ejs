@@ -14,7 +14,7 @@
     }
     %>
     <link rel="shortcut icon" href="/assets/img/favicon.ico" />
-    <title><%= site.title || 'Wago.io'%></title>
+    <title><%= (site.title || 'Wago.io') + (pageinfo && pageinfo.title ? (" | " + pageinfo.title) : "") %></title>
                                                                                                                    
     <link rel="stylesheet" href="/assets/wago.css?v=<%= cache.css %>">
 
