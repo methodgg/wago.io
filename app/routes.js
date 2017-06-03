@@ -2185,7 +2185,7 @@ module.exports = function(app) {
                 Comment.authorID = req.user._id
                 Comment.commentText = commentText
                 Comment.inReplyTo = inReplyTo
-                if (wago._userId && wago._userId!=req.user._id) {
+                if (wago._userId && !wago._userId.equals(req.user._id)) {
                     Comment.usersTagged.push({userID: wago._userId})
                     require('./wago_lib').SendWagoBotMessageFromUserId(wago._userId, 'messageOnComment', req.user.account.username+" has posted a comment on your Wago **"+wago.name+"**.\n"+wago.url+"\n\n"+commentText)
                 }
