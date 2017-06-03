@@ -32,10 +32,12 @@ module.exports = function(app, passport) {
     });
 
     // process the signup form
-    app.post('/signup', passport.authenticate('local'), function (req, res) {
-        // req.user is now defined
-        res.redirect('/account')
-    })
+    app.post('/signup', passport.authenticate('local', {
+        successRedirect : '/account', // redirect to the secure account section
+        failureRedirect : '/signup', // redirect back to the signup page if there is an error
+        failureFlash : true // allow flash messages
+        })
+    )
 
     // =====================================
     // ACCOUNT SECTION =====================
@@ -137,6 +139,53 @@ module.exports = function(app, passport) {
         })
     })
 
+    app.post('/account/update/option', isLoggedIn, function(req, res) {
+        var User = require('./models/user');
+
+        User.findById(req.user._id, function(err, user) {
+            if (err || !user) {
+                req.flash('profileMsg', "Yikes! An error occurred.")
+                res.redirect('/account')
+                return
+            }
+
+            switch (req.body.field) {
+                case 'discord-messageOnFaveUpdate':
+                    if (req.body.value)
+                        user.discord.options.messageOnFaveUpdate = true
+                    else
+                        user.discord.options.messageOnFaveUpdate = false
+                break
+
+                case 'discord-messageOnComment':
+                    if (req.body.value)
+                        user.discord.options.messageOnComment = true
+                    else
+                        user.discord.options.messageOnComment = false
+                break
+
+                case 'discord-webhook':
+                    if (req.body.value.match(/^https:\/\/discordapp\.com\/api\/webhooks\//) || req.body.value=='')
+                        user.discord.webhooks.onCreate = req.body.value
+
+                break
+
+                default:
+                    res.send({'msg': 'nothing to update'})
+                    return false
+            }
+
+            // save the user
+            user.save(function(err) {
+                if (err)
+                    throw err;
+
+                res.send({'msg': 'option updated'})
+                return false
+            });
+        })
+    })
+
     // Connect local account to existing social account
     app.get('/connect/local', function(req, res) {
         res.render('connect-local.ejs', { message: req.flash('loginMessage') });
@@ -146,6 +195,8 @@ module.exports = function(app, passport) {
         failureRedirect : '/account', // redirect back to the signup page if there is an error
         failureFlash : true // allow flash messages
     }));
+
+
 
 
     // =====================================
@@ -312,6 +363,94 @@ module.exports = function(app, passport) {
             });
         })
     })
+
+
+
+    // =====================================
+    // PATREON ROUTES ======================
+    // =====================================
+    // send to patreon to do the authentication
+    // profile gets us their basic information including their name
+    // email gets their emails
+    app.get('/auth/patreon', passport.authenticate('patreon'));
+
+    // the callback after patreon has authenticated the user
+    app.get('/auth/patreon/callback',
+        passport.authenticate('patreon', {
+                successRedirect : '/account',
+                failureRedirect : '/'
+        }));
+
+    // send to patreon to do the authentication
+    app.get('/connect/patreon', passport.authorize('patreon'));
+
+    // the callback after patreon has authorized the user
+    app.get('/connect/patreon/callback',
+        passport.authorize('patreon', {
+            successRedirect : '/account',
+            failureRedirect : '/'
+        }));
+
+    app.get('/unlink/patreon', isLoggedIn, function(req, res) {
+        var User = require('./models/user');
+        User.findById(req.user._id, function(err, user) {
+            if (err || !user) {
+                req.flash('profileMsg', "Yikes! An error occurred.")
+                res.redirect('/account')
+                return
+            }
+            user.patreon = undefined
+            user.roles.subscriber = false
+            user.roles.gold_subscriber = false
+            user.save(function(err) {
+                if (err)
+                    throw err;
+                res.redirect('/account')
+            });
+        })
+    })
+
+
+    // =====================================
+    // DISCORD ROUTES =======================
+    // =====================================
+    // send to discord to do the authentication
+    app.get('/auth/discord', passport.authenticate('discord', { scope : ['identify'] }));
+
+    // the callback after discord has authenticated the user
+    app.get('/auth/discord/callback',
+        passport.authenticate('discord', {
+                successRedirect : '/account',
+                failureRedirect : '/'
+        }));
+
+    // send to discord to do the authentication
+    app.get('/connect/discord', passport.authorize('discord', { scope : ['identify'] }));
+
+    // the callback after discord has authorized the user
+    app.get('/connect/discord/callback',
+        passport.authorize('discord', {
+            successRedirect : '/account',
+            failureRedirect : '/'
+        }));
+
+    app.get('/unlink/discord', isLoggedIn, function(req, res) {
+        var User = require('./models/user');
+        User.findById(req.user._id, function(err, user) {
+            if (err || !user) {
+                req.flash('profileMsg', "Yikes! An error occurred.")
+                res.redirect('/account')
+                return
+            }
+            user.discord = undefined
+            user.save(function(err) {
+                if (err)
+                    throw err;
+                res.redirect('/account')
+            });
+        })
+    })
+
 
     // =====================================
     // LOGOUT ==============================

@@ -5,8 +5,13 @@ hexo/node_modules
 # Wago media
 mywago/media/
 public/img/wow-icons/
-                                                                                          z
-#wago ssl creds
+screenshots/
+lua/addons/WeakAuras-2/
+hexo/
+static/
+nconvert/
+                                                                                       
+#wago creds
 ssl/
 config/
 
@@ -14,6 +19,7 @@ config/
 logs
 *.log
 npm-debug.log*
+dump/
 
 # Runtime data
 pids
@@ -47,5 +53,8 @@ jspm_packages
 
 # Optional REPL history
 .node_repl_history
+
+# testing things
+blizzard/
 app/models/blizzard-item.js
 app/models/blizzard-spell.js

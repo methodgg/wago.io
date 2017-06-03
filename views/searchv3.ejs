@@ -3,7 +3,7 @@
 <div class="row" id="aura_top">
     <div class="col-xs-12">
         <div class="block">
-            <h4><%= pageinfo.name %> <%= pageinfo.type %></h4>
+            <h4><%= pageinfo.name %> <%= pageinfo.searchtype?pageinfo.searchtype:'' %></h4>
             <div class="text-muted">
                 <%= auralist.total %> results found.
                 <div class="btn-group">
@@ -11,13 +11,19 @@
                         Sort by <%= pageinfo.sort %> <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu" id="sortby-select">
-                        <li><a href="?sort=date" class="sortresults" data-sort="date">Sort by Date</a></li>
-                        <li><a href="?sort=stars" class="sortresults" data-sort="stars">Sort by Stars</a></li>
-                        <li><a href="?sort=views" class="sortresults" data-sort="views">Sort by Views</a></li>
-                        <li><a href="?sort=comments" class="sortresults" data-sort="comments">Sort by # of Comments</a></li>
-                        <li><a href="?sort=commentdate" class="sortresults" data-sort="commentdate">Sort by Comment Date</a></li>
+                        <li><a href="?sort=date<%= pageinfo.anon?'&amp;anon=1':'' %>" class="sortresults" data-sort="date">Sort by Date</a></li>
+                        <li><a href="?sort=stars<%= pageinfo.anon?'&amp;anon=1':'' %>" class="sortresults" data-sort="stars">Sort by Stars</a></li>
+                        <li><a href="?sort=views<%= pageinfo.anon?'&amp;anon=1':'' %>" class="sortresults" data-sort="views">Sort by Views</a></li>
+                        <li><a href="?sort=comments<%= pageinfo.anon?'&amp;anon=1':'' %>" class="sortresults" data-sort="comments">Sort by # of Comments</a></li>
+                        <li><a href="?sort=commentdate<%= pageinfo.anon?'&amp;anon=1':'' %>" class="sortresults" data-sort="commentdate">Sort by Comment Date</a></li>
                     </ul>
                 </div>
+                <div class="fake-button">
+                    <a href="?sort=<%= pageinfo.sort.replace(/\s*/g, '').toLowerCase() %><%= pageinfo.anon?'':'&amp;anon=1' %>">
+                        <input type="checkbox" <%= pageinfo.anon?'checked':'' %>>
+                        Include anonymous imports
+                    </a>
+                </div>    
             </div>
         </div>
         <br>

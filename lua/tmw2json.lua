@@ -92,7 +92,7 @@ end
 
 
 if (t) then
-    tmp = table.show(t)
-    --t["lua_table"] = tmp
+    --local luaformat = table.show(t[1])
+
     print(JSON:encode(t))
 end

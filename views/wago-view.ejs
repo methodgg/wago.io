@@ -7,7 +7,7 @@
             <h4><%= wago.subgroup ? wago.subgroup : wago.name %>
                 <button class="btn btn-sm btn-default hidden-xs-down hidden-xl-up" type="button" id="copywago2" data-clipboard-target="#wa_string" style="margin-top:-2px;float:right"><span class="icon-copy"></span> Copy Import String</button></h4>
             <span class="meta">
-                <span class="icon-clock"></span> <strong><%= (wago.versions && wago.versions.length>1)?'Updated':'Imported' %></strong> <%= wago.display_date %>
+                <span class="icon-clock"></span> <strong><%= wago.type=='COLLECTION'?'Date':(wago.versions && wago.versions.length>1)?'Updated':'Imported' %></strong> <%= wago.display_date %>
             </span>
             <span class="meta">
                 <span class="icon-sphere"></span> <strong>WoW</strong> <%= wago.wow_patch %>
@@ -15,9 +15,9 @@
             <span class="meta">
                 <span class="icon-user"></span> <strong>User</strong>
                 <% if (wago.userlink) { %>
-                    <a href="/profile/<%= wago.username %>"><%= wago.username %></a>
+                    <a href="/profile/<%= wago.username %>" class="<%= wago.userclass %>"><%= wago.username %></a>
                 <% } else { %>
-                    <%= wago.username %>
+                    <span class="<%= wago.userclass %>"><%= wago.username %></span>
                 <% } %>
             </span>
             <span class="meta">
@@ -31,11 +31,11 @@
             </span>
             <% if (wago.collectCount>0) { %>
                 <span class="meta">
-                    <span class="icon-database"></span> <strong>Collections</strong> <a href="/<%= wago._id %>/collections"><%= wago.collectCount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") %></a>
+                    <span class="icon-database"></span> <strong>Collections</strong> <a href="/<%= wago.slug %>/collections"><%= wago.collectCount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") %></a>
                 </span>
             <% } %>
             <span class="meta">
-                <span class="icon-link"></span> <strong>Link</strong> <a href="#" data-clipboard-text="https://wago.io/<%= wago._id %>" id="copyurl">https://wago.io/<%= wago._id %></a>
+                <span class="icon-link"></span> <strong>Link</strong> <a href="#" data-clipboard-text="https://wago.io/<%= wago.slug %>" id="copyurl">https://wago.io/<%= wago.slug %></a>
             </span>
             <br>
             <%
@@ -50,17 +50,23 @@
 <div class="row">
     <div class="col-xs-12 col-md-12 col-lg-12 col-xl-8 col-xl-left">
         <%
+        if (versionMsg && versionMsg.length>0) {
+            %>
+            <div class="alert alert-danger" role="alert"><%- versionMsg %></div>
+            <%
+        }
+
         if (wago.subgroup) {
             %>
-            <div class="alert alert-warning" role="alert"><strong>Attention</strong>: You are viewing a WeakAura that is part of a WeakAura group <strong><%= wago.name %></strong>. By itself, this may not work as expected. The complete WeakAura can be found <a href="/<%= wago._id %>">here</a>.<br>With the exception of the import string and the table data below, other content on this page is reflective of the group's content.
+            <div class="alert alert-warning" role="alert"><strong>Attention</strong>: You are viewing a WeakAura that is part of a WeakAura group <strong><%= wago.name %></strong>. By itself, this may not work as expected. The complete WeakAura can be found <a href="/<%= wago.slug %>">here</a>.<br>With the exception of the import string and the table data below, other content on this page is reflective of the group's content.
             </div>
             <%
         }
 
-        if (wago.code && wago.code.updated.getTime()!=wago.latest_version.getTime()) {
+        if (wago.code && wago.latest_version && wago.code.updated && wago.code.updated.getTime()!=wago.latest_version.getTime()) {
             %>
             <div class="alert alert-warning" role="alert">Warning, this is <strong>NOT</strong> the most recent version.<br>
-                View the most recent update <a href="/<%= wago._id %>">here</a>.
+                View the most recent update <a href="/<%= wago.slug %>">here</a>.
             </div>
             <%
         }
@@ -78,8 +84,8 @@
         if (wago.blacklist) {
             %>
             <div class="alert alert-danger"><strong>WARNING! Blacklisted functions detected.</strong><br>
-            WeakAuras normally blocks these, but combined with malicious addons or running a /script or /run command, these counter-measures can be overwritten.<br>
-            Please review the code or ask an expert on the <a href="https://discord.gg/0xib36UukL2DHlxb">Official WeakAura Discord</a> before importing.
+            WeakAuras normally blocks these, but combined with malicious addons or by running a /script or /run command, these counter-measures can be overwritten.<br>
+            Please review the code or ask an expert on the <a href="https://discord.gg/wa2">Official WeakAura Discord</a> before importing.
             <pre><%
                 for(i=0; i<wago.blacklist.length; i++) {
                     %><%= wago.blacklist[i]+"\n" %><%
@@ -104,18 +110,18 @@
                 <%
                 if (wago.can_edit) { %>
                     <button class="btn btn-sm btn-default" type="button" data-toggle="modal" data-target="#modify_wago_modal"><span class="icon-wrench"></span> Edit details</button>
-                    <% if (wago.type=='WEAKAURA' || wago.type=='ELVUI' || wago.type=='COLLECTION') { %>
+                    <% if (wago.type=='WEAKAURA' || wago.type=='ELVUI' || wago.type=='VUHDO' || wago.type=='COLLECTION') { %>
                         <button class="btn btn-sm btn-default" type="button" data-toggle="modal" data-target="#screenshot_modal"><span class="icon-images"></span> Screenshots</button>
                         <button class="btn btn-sm btn-default" type="button" data-toggle="modal" data-target="#video_modal"><span class="icon-film"></span> Videos</button>
                     <% } %>
-                    <% if (wago.type=='WEAKAURA' || wago.type=='ELVUI') { %>
+                    <% if (wago.type=='WEAKAURA' || wago.type=='ELVUI' || wago.type=='VUHDO') { %>
                         <button class="btn btn-sm btn-default" type="button" data-toggle="modal" data-target="#import_new_modal"><span class="icon-pencil"></span> New version</button>
                     <% } %>
                 <% } %>
                 <% if (wago.versions && wago.versions.length>1) { %>
                     <button class="btn btn-sm btn-default pull-left" type="button" data-toggle="modal" data-target="#previous_versions_modal"><span class="icon-history"></span> Previous versions</button>
                 <% } %>
-                <% if (!wago.private && !wago.blacklist && (wago.type=='WEAKAURA' || wago.type=='ELVUI')) { %>
+                <% if (!wago.private && !wago.blacklist && (wago.type=='WEAKAURA' || wago.type=='ELVUI' || wago.type=='VUHDO')) { %>
                     <button class="btn btn-sm btn-default" type="button" data-toggle="modal" data-target="#embed_modal"><span class="icon-cloud"></span> Embed</button>
                 <% } %>
 
@@ -181,69 +187,96 @@
             %>
             <div class="block">
                 <div id="editor-options">
-                    <div class="btn-group">
-                        <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            Edit: <span id="current_func">Table Data</span> <span class="caret"></span>
-                        </button>
-                        <ul class="dropdown-menu" id="select_func">
-                            <li><a href="#" data-fn="datatable">Table Data</a></li>
-                            <% for (var i=0; i<custom_func.length; i++) { %>
-                                <li><a href="#" data-fn="<%= custom_func[i].path %>"><%= custom_func[i].name %></a></li>
-                            <% } if (custom_func && custom_func.length==0) { %>
-                                <li class="disabled"><a href="#">No custom functions detected.</a></li>
-                            <% } %>
-                        </ul>
-                    </div>
-                    <div class="float-right btn-group">
-                        <% if (wago.can_edit) { %>
-                            <button type="button" class="btn btn-default btn-sm" id="save-wago">
-                                <span class="glyphicon glyphicon-save" aria-hidden="true"></span> Save
+                    <% if (wago.type=="WEAKAURA") { %>
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" id="select-lua-editor">
+                                Edit: <span id="current_func">Table Data</span> <span class="caret"></span>
                             </button>
-                        <% } else if (wago.type=='WEAKAURA' || wago.type=='ELVUI') { %>
-                            <button type="button" class="btn btn-default btn-sm" id="export-wago">
-                                <span class="glyphicon glyphicon-export" aria-hidden="true"></span> Export
-                            </button>
-                        <% } else if (wago.type=='SNIPPET') { %>
-                            <button type="button" class="btn btn-default btn-sm" id="export-wago" data-toggle="tooltip" data-placement="right" title="Save your edits as a new snippet">
-                                <span class="glyphicon glyphicon-export" aria-hidden="true"></span> Clone
-                            </button>
-                        <% } %>
-                        <% if (wago.can_edit || wago.type=='WEAKAURA') { %>
-                            <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <span class="caret"></span>
-                                <span class="sr-only">Toggle Dropdown</span>
-                            </button>
-                            <ul class="dropdown-menu">
-                                <% if (wago.can_edit && (wago.type=='WEAKAURA' || wago.type=='ELVUI')) { %>
-                                    <li><a href="#" id="export-wago" data-toggle="tooltip" data-placement="right" title="Generate an import string without saving">Export</a></li>
-                                    <li><a href="#" id="fork-wago" data-toggle="tooltip" data-placement="right" title="Save your edits as a new import">Clone</a></li>
-                                <% } %>
-                                <% if (wago.can_edit && wago.type=='SNIPPET') { %>
-                                    <li><a href="#" id="fork-wago" data-toggle="tooltip" data-placement="right" title="Save your edits as a new snippet">Clone</a></li>
-                                <% } %>
-
-                                <% if (wago.type=='WEAKAURA') { %>
-                                    <li id="extract-fn" style="display:none"><a href="#" id="extract-wago" data-toggle="tooltip" data-placement="right" title="Extract this function as a code snippet">
-                                    Extract Function</a></li>
+                            <ul class="dropdown-menu" id="select_func">
+                                <li><a href="#" data-fn="datatable">Table Data</a></li>
+                                <% for (var i=0; i<custom_func.length; i++) { %>
+                                    <li><a href="#" data-fn="<%= custom_func[i].path %>"><%= custom_func[i].name %></a></li>
+                                <% } if (custom_func && custom_func.length==0) { %>
+                                    <li class="disabled"><a href="#">No custom functions detected.</a></li>
                                 <% } %>
                             </ul>
+                        </div>
+                        <% if (user && user.access.beta) { %>
+                            <button type="button" class="btn btn-default btn-sm" onclick="WA_Load_Options()" id="select-load-editor">
+                                Load Options
+                            </button>
                         <% } %>
-                    </div>
+                    <% } %>
+                    <% if (wago.type!="WeakAuras.lua") { %>
+                        <div class="float-right btn-group">
+                            <% if (wago.can_edit) { %>
+                                <button type="button" class="btn btn-default btn-sm" id="save-wago">
+                                    <span class="glyphicon glyphicon-save" aria-hidden="true"></span> Save
+                                </button>
+                            <% } else if (wago.type=='WEAKAURA' || wago.type=='ELVUI' || wago.type=='VUHDO') { %>
+                                <button type="button" class="btn btn-default btn-sm" id="export-wago">
+                                    <span class="glyphicon glyphicon-export" aria-hidden="true"></span> Export
+                                </button>
+                            <% } else if (wago.type=='SNIPPET') { %>
+                                <button type="button" class="btn btn-default btn-sm" id="export-wago" data-toggle="tooltip" data-placement="right" title="Save your edits as a new snippet">
+                                    <span class="glyphicon glyphicon-export" aria-hidden="true"></span> Clone
+                                </button>
+                            <% } %>
+                            <% if (wago.can_edit || wago.type=='WEAKAURA') { %>
+                                <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <span class="caret"></span>
+                                    <span class="sr-only">Toggle Dropdown</span>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <% if (wago.can_edit && (wago.type=='WEAKAURA' || wago.type=='ELVUI' || wago.type=='VUHDO')) { %>
+                                        <li><a href="#" id="export-wago" data-toggle="tooltip" data-placement="right" title="Generate an import string without saving">Export</a></li>
+                                        <li><a href="#" id="fork-wago" data-toggle="tooltip" data-placement="right" title="Save your edits as a new import">Clone</a></li>
+                                    <% } %>
+                                    <% if (wago.can_edit && wago.type=='SNIPPET') { %>
+                                        <li><a href="#" id="fork-wago" data-toggle="tooltip" data-placement="right" title="Save your edits as a new snippet">Clone</a></li>
+                                    <% } %>
+
+                                    <% if (wago.type=='WEAKAURA') { %>
+                                        <li id="extract-fn" style="display:none"><a href="#" id="extract-wago" data-toggle="tooltip" data-placement="right" title="Extract this function as a code snippet">
+                                        Extract Function</a></li>
+                                    <% } %>
+                                </ul>
+                            <% } %>
+                        </div>
+
+                    <% } else if (wago.type=="WeakAuras.lua") { %>
+                        <div class="float-right btn-group">
+                            <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Extract <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <% for (var i=0; i<wago.extractable.length; i++) { %>
+                                    <li><a href="/<%= wago._id %>/extract/<%= encodeURIComponent(wago.extractable[i]) %>" data-ident="<%= i %>"><%= wago.extractable[i] %></a></li>
+                                <% } %>
+                            </ul>
+                        </div>
+                    <% } %>
 
                     <% if (wago.code && wago.code.groups && wago.code.groups.length>1) { %>
                         <div class="float-right btn-group" style="margin-right:1em">
                             <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <span class="glyphicon glyphicon-new-window" aria-hidden="true"></span> Extract from group <span class="caret"></span>
                             </button>
-                            <ul class="dropdown-menu" id="extract_single_wa">
+                            <ul class="dropdown-menu">
                                 <% for (var i=0; i<wago.code.groups.length; i++) { %>
-                                    <li><a href="#" data-ident="<%= i %>"><%= wago.code.groups[i] %></a></li>
+                                    <li><a href="/<%= wago._id %>/g/<%= encodeURIComponent(wago.code.groups[i]) %>" data-ident="<%= i %>"><%= wago.code.groups[i] %></a></li>
                                 <% } %>
                             </ul>
                         </div>
                     <% } %>
                 </div>
-                <div id="lua-editor"><%= wago.type=='SNIPPET'?wago.code.lua:'' %></div>
+                <div class="clearfix"></div>
+                <div id="lua-editor" class="editor-panel"><%= wago.type=='SNIPPET'?wago.code.lua:'' %></div>
+                <% if (user && user.access.beta) { %>
+                    <div id="load-editor" class="row editor-panel" style="display:none; margin-top:1em">
+                        <div class="col-sm-12"><strong>Load when...</strong></div>
+                    </div>
+                <% } %>
             </div>
             <%
         }
@@ -257,36 +290,58 @@
             }
             %>
             <div class="block">
-                <% if (wago.type=='WEAKAURA' || wago.type=='ELVUI') {%>
-                    <button class="btn btn-sm btn-default" type="button" id="copywago" data-clipboard-target="#wa_string"><span class="icon-copy"></span> Copy Import String</button><br>
-                    <textarea id="wa_string" spellcheck="false"><%= wago.code.encoded %></textarea>
+                <%
+                if (wago.type=='WEAKAURA' || wago.type=='ELVUI' || wago.type=='VUHDO') { %>
+                    <button class="btn btn-sm btn-default" type="button" id="copywago" data-clipboard-target="#wa_string"><span class="icon-copy"></span> Copy Import String</button>
+                    <%
+                    if (user && user.access.alpha) {
+                        %>
+                        <button class="btn btn-sm btn-default" type="button" data-toggle="modal" data-target="#generate_nowa" onclick="GetWagoImportNoWACode()">
+                            <span class="icon-copy"></span> Generate No-WA code</button>
+                        <%
+                    }
+                    %>
+                    <br><textarea id="wa_string" spellcheck="false"><%= wago.code.encoded %></textarea>
                 <% } %>
+            </div><br>
+            <%
+        } else if (wago.code && wago.code.json) { %>
+            <div class="block">
+                <button class="btn btn-sm btn-default" type="button" onclick="window.location.href='/<%= wago.slug %>/lua'"><span class="icon-download"></span> Download .lua file</button>
+            </div><br>
+            <%
+        }
+
+        if (wago.screens || wago.videos) {
+            %>
+            <div id="screenshots_container" <% if ((!Object.keys(wago.screens) || Object.keys(wago.screens).length<1) && (!Object.keys(wago.videos) || Object.keys(wago.videos).length<1)) { %>style="display:none"<% } %>>
+                <div class="block">
+                    <strong>Preview</strong>
+                    <div id="screenshots_wrapper">
+                        <%
+                        if (wago.videos) {
+                            for (i=0;i<Object.keys(wago.videos).length;i++) {
+                                %><a href="<%= wago.videos[i].thumbnail %>" class="playvideo" data-toggle="lightbox" data-type="url" data-remote="<%= wago.videos[i].url %>" id="vidt_<%= wago.videos[i]._id %>"><img src="<%= wago.videos[i].thumbnail %>" /><span></span></a><%
+                            }
+                        }
+                        if (wago.screens) {
+                            for (i=0;i<Object.keys(wago.screens).length;i++) {
+                                if (wago.screens[i].localFile) {
+                                    %><a href="/screenshots/<%= wago._id %>/<%= wago.screens[i].localFile %>" data-toggle="lightbox" data-gallery="preview" data-footer="<%= wago.screens[i].caption || "" %>" id="ss_<%= wago.screens[i]._id %>"><img src="/screenshots/<%= wago._id %>/<%= wago.screens[i].localFile %>" /></a><%
+                                }
+                                else {
+                                    %><a href="<%= wago.screens[i].url.original %>" data-toggle="lightbox" data-gallery="preview" data-footer="<%= wago.screens[i].caption || "" %>" id="ss_<%= wago.screens[i]._id %>"><img src="<%= wago.screens[i].url.original %>" /></a><%
+                                }
+                            }
+                        }
+                        %>
+                    </div>
+                </div>
+                <br>
             </div>
-            <br>
             <%
         }
         %>
-        <div id="screenshots_container" <% if ((!Object.keys(wago.screens) || Object.keys(wago.screens).length<1) && (!Object.keys(wago.videos) || Object.keys(wago.videos).length<1)) { %>style="display:none"<% } %>>
-            <div class="block">
-                <strong>Preview</strong>
-                <div id="screenshots_wrapper">
-                    <%
-                    for (i=0;i<Object.keys(wago.videos).length;i++) {
-                        %><a href="<%= wago.videos[i].thumbnail %>" class="playvideo" data-video="<%= wago.videos[i].embed %>" id="vidt_<%= wago.videos[i]._id %>"><img src="<%= wago.videos[i].thumbnail %>" /><span></span></a><%
-                    }
-                    for (i=0;i<Object.keys(wago.screens).length;i++) {
-                        if (wago.screens[i].localFile) {
-                            %><a href="/screenshots/<%= wago._id %>/<%= wago.screens[i].localFile %>" data-toggle="lightbox" data-gallery="preview" data-footer="<%= wago.screens[i].caption || "" %>" id="ss_<%= wago.screens[i]._id %>"><img src="/screenshots/<%= wago._id %>/<%= wago.screens[i].localFile %>" /></a><%
-                        }
-                        else {
-                            %><a href="<%= wago.screens[i].url.original %>" data-toggle="lightbox" data-gallery="preview" data-footer="<%= wago.screens[i].caption || "" %>" id="ss_<%= wago.screens[i]._id %>"><img src="<%= wago.screens[i].url.original %>" /></a><%
-                        }
-                    }
-                    %>
-                </div>
-            </div>
-            <br>
-        </div>
         <div class="block">
             <strong>Comments</strong>
             <% if (wago.comments && wago.comments.length==0) { %>
@@ -333,7 +388,28 @@
     </div>
 </div>
 
-
+<% if (user && user.access.alpha) { %>
+    <div class="modal" id="generate_nowa">
+        <div class="modal-dialog modal-md" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="modify_wago_modal_label">Import Code</h4>
+                </div>
+                <div class="modal-body">
+                    <p>Wago.io allows you to import any WeakAura into your game interface <em>without</em> having the WeakAuras addon installed.
+                    The caveat here is that you can not customize anything in-game, and it is only temporary - reloading your UI or logging out will remove anything you add by this method.</p>
+                    <p><strong>Part 1.</strong> Run the following script by pasting into your standard chat box. This will open a larger box that will allow importing a much larger set of code.
+                    <button class="btn btn-sm btn-default" type="button" data-clipboard-target="#nowa1"><span class="icon-copy"></span> Copy Part 1</button></p>
+                    <input id="nowa1" value='/run WF=CreateFrame("ScrollFrame","WF",UIParent,"InputScrollFrameTemplate");WF:SetSize(250,100);WF:SetPoint("CENTER");WG=WF.EditBox;WG:SetSize(250,100);WG:SetFocus();WF.CharCount:Hide();WG:SetScript("OnKeyUp",function(s)loadstring(s:GetText())();end)'/>
+                    <br><br>
+                    <p><strong>Part 2.</strong> Now copy the following code into the new box that appears.
+                    <textarea id="nowa_luacode" onshow="GetWagoImportNoWACode()">Loading...</textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+<% } %>
 
 <% if (wago.can_edit) { %>
     <!-- modify wago modal -->
@@ -348,14 +424,29 @@
                     <strong>Title</strong>
                     <input class="form-control" name="name" value="<%= wago.name %>" />
                 </div>
+                <%
+                if (user && user.access.custom_slug) {
+                    %>
+                    <div class="modal-body">
+                        <strong>Custom URL</strong> <small>Must be between 7 and 64 characters long.</small> <small id="customslugmsg"></small>
+                        <div class="input-group">
+                            <span class="input-group-addon" id="basic-addon3">https://wago.io/</span>
+                            <input class="form-control" name="customurl" id="customurl" value="<%= wago.slug %>" />
+                        </div>
+                    </div>
+                    <%
+                }
+                %>
                 <div class="modal-body">
                     <strong>Description</strong> <small>Some BB code is available: [b], [i], [u], [s], [code], [color=#123456], [size=(4-40)], <% if (user && user.account.verified_human) { %>[url], <% } %> [ul], [ol], [li] or [*], [table], [tr], [td]</small>
                     <textarea class="form-control" id="cke_description" name="description" style="height:10em"><%= wago.description.replace(/<(?:.|\n)*?>/gm, '') %></textarea>
                 </div>
-                <div class="modal-body">
-                    <strong>Categories</strong>
-                    <select id="select-categories" name="categories[]" multiple placeholder="Select..."></select>
-                </div>
+                <% if (categories.length>0) { %>
+                    <div class="modal-body">
+                        <strong>Categories</strong>
+                        <select id="select-categories" name="categories[]" multiple placeholder="Select..."></select>
+                    </div>
+                <% } %>
                 <div class="modal-body float-left">
                     <div class="dropdown" id="visibilityDropdown">
                         <a class="btn btn-secondary dropdown-toggle" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -369,7 +460,7 @@
                         </div>
                     </div>
                 </div>
-                <% if ((static.beta_option || wago.wow_beta) && (wago.type=='WEAKAURA' || wago.type=='ELVUI')) { %>
+                <% if ((static.beta_option || wago.wow_beta) && (wago.type=='WEAKAURA' || wago.type=='ELVUI' || wago.type=='VUHDO')) { %>
                     <div class="modal-body float-left">
                         <div class="dropdown" id="gameVersionDropdown">
                             <a class="btn btn-secondary dropdown-toggle" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -396,7 +487,7 @@
         </div>
     </div>
 
-    <% if (wago.type=='WEAKAURA' || wago.type=='ELVUI' || wago.type=='COLLECTION') { %>
+    <% if (wago.type=='WEAKAURA' || wago.type=='ELVUI' || wago.type=='VUHDO' || wago.type=='COLLECTION') { %>
         <!-- screenshot manager modal -->
         <div class="modal" id="screenshot_modal" tabindex="-1" role="dialog" aria-labelledby="screenshot_modal">
             <div class="modal-dialog modal-lg" role="document">
@@ -411,8 +502,10 @@
                                 <strong>Image list</strong>
                                 <div id="ss_list">
                                     <%
-                                    for (i=0;i<wago.screens.length;i++) {
-                                        %><img src="<%= wago.screens[i].url.original %>" id="sst_<%= wago.screens[i]._id %>" data-fullsize="<%= wago.screens[i].url.original %>" data-caption="<%= wago.screens[i].caption %>" data-id="<%= wago.screens[i]._id %>" data-filename="<%= wago.screens[i].url.original.split(/[\\/]/).pop() %>" /><%
+                                    if (wago.screens) {
+                                        for (i=0;i<wago.screens.length;i++) {
+                                            %><img src="<%= wago.screens[i].url.original %>" id="sst_<%= wago.screens[i]._id %>" data-fullsize="<%= wago.screens[i].url.original %>" data-caption="<%= wago.screens[i].caption %>" data-id="<%= wago.screens[i]._id %>" data-filename="<%= wago.screens[i].url.original.split(/[\\/]/).pop() %>" /><%
+                                        }
                                     }
                                     %>
                                 </div>
@@ -460,8 +553,10 @@
                                 <strong>Video list</strong>
                                 <div id="video_list">
                                     <%
-                                    for (i=0;i<wago.videos.length;i++) {
-                                        %><img src="<%= wago.videos[i].thumbnail %>" id="vid_<%= wago.videos[i]._id %>" data-id="<%= wago.videos[i]._id %>" data-embed="<%= wago.videos[i].embed %>" /><%
+                                    if (wago.videos) {
+                                        for (i=0;i<wago.videos.length;i++) {
+                                            %><img src="<%= wago.videos[i].thumbnail %>" id="vid_<%= wago.videos[i]._id %>" data-id="<%= wago.videos[i]._id %>" data-embed="<%= wago.videos[i].embed %>" /><%
+                                        }
                                     }
                                     %>
                                 </div>
@@ -491,7 +586,7 @@
         </div>
     <% } %>
 
-    <% if (wago.type=='WEAKAURA' || wago.type=='ELVUI') { %>
+    <% if (wago.type=='WEAKAURA' || wago.type=='ELVUI' || wago.type=='VUHDO') { %>
         <!-- import new version modal -->
         <div class="modal" id="import_new_modal" tabindex="-1" role="dialog" aria-labelledby="import_new_modal_label">
             <div class="modal-dialog modal-lg" role="document">
@@ -525,7 +620,7 @@
           </div>
           <div class="modal-body">
             <% for(i=0;i<wago.versions.length;i++) { %>
-                <a href="/<%= wago._id %>/<%= wago.versions.length-i %>">
+                <a href="/<%= wago.slug %>/<%= wago.versions.length-i %>">
                 <div class="panel panel-default">
                   <div class="panel-body">
                     <div class="row">
@@ -583,7 +678,7 @@
     </div>
 <% } %>
 
-<% if (wago.type=='WEAKAURA' || wago.type=='ELVUI') { %>
+<% if (wago.type=='WEAKAURA' || wago.type=='ELVUI' || wago.type=='VUHDO') { %>
     <div class="modal" id="export_modal" tabindex="-1" role="dialog" aria-labelledby="export_modal_label">
       <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
@@ -625,7 +720,7 @@
 </div>
 <% } %>
 
-<% if (!wago.private && !wago.blacklist && (wago.type=='WEAKAURA' || wago.type=='ELVUI')) { %>
+<% if (!wago.private && !wago.blacklist && (wago.type=='WEAKAURA' || wago.type=='ELVUI' || wago.type=='VUHDO')) { %>
     <div class="modal" id="embed_modal" tabindex="-1" role="dialog" aria-labelledby="embed_modal_label">
       <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
@@ -659,6 +754,42 @@ var wago_categories = <%- JSON.stringify(wago.categories) %>
 var wago_fave = <%= wago.popularity.myfave ? 'true':'false' %>
 var wagoID = "<%= wago._id %>"
 <%= (wago._id=='EJVb2hWQW') ? "var testJS=1": "" %>
+<% if (auralist.more) { %>
+var scroll_list=<%- JSON.stringify(auralist.more) %>
+<% } %>
+
 </script>
 
 <% include static/footer %>
+
+<% if (user && user.access.beta) { %>
+
+    <script src="/assets/js/lua.vm.js"></script>
+    <script type="text/lua">
+    require "https://wago.io/assets/lua/WeakAurasWago.lua?v=<%= cache.wa_lua %>a"
+    </script>
+
+    <script type="text/javascript">
+
+    emscripten.print = function(x) {
+        console.log(x)
+    }
+
+
+    var LoadOptions=false
+    function WA_Load_Options() {
+        if (!LoadOptions) {
+            L.execute("Wago.SetupLoadOptions(WeakAuras)")
+
+            $('#load-editor .input-multiselect').selectize({
+                maxItems: null,
+                plugins: ['remove_button']
+            })
+            LoadOptions=true
+        }
+        showPanel('load-editor')
+    }
+
+    </script>
+
+<% } %>

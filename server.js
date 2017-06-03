@@ -55,7 +55,7 @@ app.use(flash()); // use connect-flash for flash messages stored in session
 
 // routes ======================================================================
 app.all('*', function(req, res, next){ // force https
-  if (req.secure) { return next(); };
+  if (req.secure || req.host=='localhost') { return next(); };
   res.redirect('https://wago.io'+req.url);
 });
 

@@ -1,10 +1,10 @@
 @font-face {
   font-family: 'icomoon';
-  src:  url('style/fonts/icomoon.eot?24253b');
-  src:  url('style/fonts/icomoon.eot?24253b#iefix') format('embedded-opentype'),
-    url('style/fonts/icomoon.ttf?24253b') format('truetype'),
-    url('style/fonts/icomoon.woff?24253b') format('woff'),
-    url('style/fonts/icomoon.svg?24253b#icomoon') format('svg');
+  src:  url('style/fonts/icomoon.eot?201705c');
+  src:  url('style/fonts/icomoon.eot?201705c#iefix') format('embedded-opentype'),
+    url('style/fonts/icomoon.ttf?201705c') format('truetype'),
+    url('style/fonts/icomoon.woff?201705c') format('woff'),
+    url('style/fonts/icomoon.svg?201705c#icomoon') format('svg');
   font-weight: normal;
   font-style: normal;
 }
@@ -1499,5 +1499,12 @@
 }
 .icon-battlenet:before {
   content: "\e900";
+}
+.icon-discord {
+    vertical-align:middle
+}
+.icon-discord:before {
+  content: "\eaec";
+  font-size:120%;
 }
 

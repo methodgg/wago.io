@@ -1,7 +1,7 @@
 dofile( "./wowhelpers.lua" )
 
 pcall(function() dofile( "./libs/LibStub/LibStub.lua" ) end)
-dofile( "./libs/LibBase64-1.0/LibBase64-1.0.lua" )
+dofile( "./libs/LibBase64-1.0-Elv/LibBase64-1.0.lua" )
 dofile( "./libs/AceSerializer-3.0/AceSerializer-3.0.lua" )
 dofile( "./libs/LibCompress/LibCompress.lua" )
 

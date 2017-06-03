@@ -26,6 +26,13 @@ wagoVideoSchema.virtual('embed').get(function() {
     }
 })
 
+wagoVideoSchema.virtual('url').get(function() {
+    switch(this.source) {
+        case 'youtube': return 'https://www.youtube.com/embed/'+this.videoID+'?autoplay=1'
+        case 'twitch': return 'https://player.twitch.tv/?video=v'+this.videoID
+    }
+})
+
 
 
 

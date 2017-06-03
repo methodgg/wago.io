@@ -128,12 +128,13 @@ var XBBCODE = (function() {
 
         "code": {
             openTag: function(params,content) {
-                return '<span class=\'xbbcode-code\'>';
+                return '<span class=\'xbbcode-code\'>'+content.replace(/\n/g, '^NEWLINE^')
             },
             closeTag: function(params,content) {
                 return '</span>';
             },
-            noParse: true
+            noParse: true,
+            displayContent: false
         },
         "color": {
             openTag: function(params,content) {
@@ -785,6 +786,8 @@ var XBBCODE = (function() {
         config.text = config.text.replace(/</g, "["); // escape ['s that aren't apart of tags
         config.text = config.text.replace(/>/g, "]"); // escape ['s that aren't apart of tags
 
+       // config.text = config.text.replace(/\[(\/?td|\/?tr|\/?table)\](\s)*\[(\/?td|\/?tr|\/?table)\]/g).replace("[$1][$3]")
+
         // process tags that don't have their content parsed
         while ( config.text !== (config.text = config.text.replace(pbbRegExp2, function(matchStr, tagName, tagParams, tagContents) {
             tagContents = tagContents.replace(/\[/g, "&#91;");
@@ -805,13 +808,11 @@ var XBBCODE = (function() {
             errQueue.push("Some tags appear to be misaligned.");
         }
 
-        //if (config.removeMisalignedTags) {
-            ret.html = ret.html.replace(/\[.*?\]/g,"");
-        //}
-        //if (config.addInLineBreaks) {
-        //    ret.html = '<div style="white-space:pre-wrap;">' + ret.html + '</div>';
-        //}
+        ret.html = ret.html.replace(/\[.*?\]/g,"");
         ret.html = ret.html.replace(/\n/g, '<br>')
+        ret.html = ret.html.replace(/\^NEWLINE\^/g, '\n') // hack for [code] tags
+
+        ret.html = ret.html.replace(/>\s*<br>\s*<(\/?tr|\/?td|\/?th|\/?thead|\/?tbody|\/?table)/g, "><$1")
 
 		if (!config.escapeHtml) {
 			ret.html = ret.html.replace("&#91;", "["); // put ['s back in

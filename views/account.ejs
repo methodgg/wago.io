@@ -7,7 +7,7 @@
             <div class="alert alert-danger"><%= profileMsg %></div>
         <% } %>
         <div class="block">
-            <strong>Profile Settings</strong>
+            <h3>Profile Settings</h3>
             <p>Create or edit your username, profile visibility and your import default visibility here. Your profile currently lists all your public imports and uploads. In the future there will be more information you'll be able to add here.</p>
             <form action="/account/update/profile" method="post">
                 <strong>User Name</strong>
@@ -43,14 +43,29 @@
                 <input type="submit" class="btn btn-default" value="Submit"></button>
             </form>
         </div><br>
+
+        <%
+        if (user) {
+            %>
+            <div class="block">
+                <h3>Site Options</h3>
+                <strong>Select site theme</strong>
+                <div id="theme_select">
+                    <div class="classic">Classic</div>
+                    <div class="dark">Dark</div>
+                </div>
+            </div><br>
+            <%
+        }
+        %>
         <% if (accountMsg && accountMsg.length > 0) { %>
             <div class="alert alert-danger"><%= accountMsg %></div>
         <% } %>
         <div class="block">
-            <strong>Account Settings</strong>
+            <h3>Wago Account</h3>
             <% if (user.account.password) {
                 %>
-                <p>You may change your WAGO account password here. <br>WAGO does not collect e-mail addresses so there is no password recovery feature. You can always log in with your linked social accounts as an alternative.</p>
+                <p>You may change your Wago account password here. <br>Wago does not collect e-mail addresses so there is no password recovery feature. You can always log in with your linked social accounts as an alternative.</p>
                 <form action="/account/update/password" method="post">
                     <strong>New Password</strong>
                     <input type="password" class="form-control" name="password">
@@ -64,7 +79,7 @@
             }
             else {
                 %>
-                <p>You do not have a WAGO account. You can always log in with your linked social accounts, or create a WAGO account here.</p>
+                <p>You do not have a Wago account. You can always log in with your linked social accounts, or create a Wago account here.</p>
                 <form action="/signup" method="post">
                     <strong>User Name</strong>
                     <input type="text" class="form-control" aria-label="User Name" name="username" placeholder="Anonymous user" value="<%= user.account.username %>" maxlength="22">
@@ -79,21 +94,17 @@
                 </form>
                 <%
             } %>
-
         </div>
     </div>
 
     <div class="col-xs-12 col-sm-6">
         <%
-        if (user.battlenet.id || user.twitter.id || user.facebook.id || user.google.id) {
+        if (user.battlenet.id || user.twitter.id || user.facebook.id || user.google.id || user.discord.id) {
             %>
             <div class="block" id="linked_accounts">
                 <h3>Linked Social Accounts</h3>
                 <% if (user.battlenet.id) { %>
                     <div class="input-group">
-                        <% if (!user.account.verified_human) { %>
-                            <a href="/auth/bnet" style="position: absolute;right: 4em;top: .5em;color: #6a021a;z-index: 999;">Update</a>
-                        <% } %>
                         <span class="input-group-addon bg-battlenet"><span class="icon-battlenet"></span> Battle.net</span>
                         <input type="text" class="form-control" value="<%=user.battlenet.name %>" readonly>
                         <% if (user.account.total_accounts>1) { %>
@@ -101,6 +112,49 @@
                                 <a class="btn tag-alert" type="button" href="/unlink/bnet"><span class="icon-cross"></span></a>
                             </span>
                         <% } %>
+                    </div>
+                    <div class="account-options">
+                        <% if (!user.account.verified_human) { %>
+                            Battle.net is used to verify your humanity. If you have a level 100+ character with at least 800 achievement points,
+                            Wago will determine that you are a human and any URLs used in Wago descriptions will be turned into links.
+                            <br><a href="/auth/bnet">Refresh from Battle.net</a>
+                        <% } else { %>
+                            Battle.net is used to verify your humanity. You have been detected as a human.<br>Any URLs used in your Wago descriptions will be turned into links.
+                        <% } %>
+                    </div><br>
+                <% } %>
+
+                <% if (user.discord.id) { %>
+                    <div class="input-group">
+                        <span class="input-group-addon bg-discord"><span class="icon-discord"></span> Discord</span>
+                        <input type="text" class="form-control" value="<%=user.discord.name %>#<%=user.discord.discriminator %>" readonly>
+                        <% if (user.account.total_accounts>1) { %>
+                            <span class="input-group-btn">
+                                <a class="btn tag-alert" type="button" href="/unlink/discord"><span class="icon-cross"></span></a>
+                            </span>
+                        <% } %>
+                    </div>
+                    <div class="account-options">
+                        <div class="form-check">
+                            <label class="form-check-label">
+                                <input type="checkbox" class="form-check-input account-option" data-field="discord-messageOnFaveUpdate" <%= user.discord.options.messageOnFaveUpdate?'checked':'' %>>
+                                Recieve a private message on Discord whenever something you have starred is updated.
+                            </label>
+                        </div>
+
+                        <div class="form-check">
+                            <label class="form-check-label">
+                                <input type="checkbox" class="form-check-input account-option" data-field="discord-messageOnComment" <%= user.discord.options.messageOnComment?'checked':'' %>>
+                                Recieve a private message on Discord whenever you recieve a comment.<br>
+                                <small>Discord permissions will by-default block messages from the bot unless you are in a shared server -
+                                be sure to join the <a href="https://discord.gg/wa2">WeakAuras Discord!</a></small>
+                            </label>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="webhookinput">Have your own Discord server?<br>Create a webhook to broadcast to your selected channel whenever you create or update a Wago.</label>
+                            <input type="text" id="webhookinput" class="form-control form-control-sm account-option" data-field="discord-webhook" value="<%= user.discord.webhooks.onCreate?user.discord.webhooks.onCreate:'' %>"placeholder="https://discordapp.com/api/webhooks/123456789">
+                        </div>
                     </div><br>
                 <% } %>
 
@@ -143,14 +197,19 @@
             <%
         }
 
-        if (!(user.battlenet.id && user.twitter.id && user.facebook.id && user.google.id)) {
+        if (!(user.battlenet.id && user.twitter.id && user.facebook.id && user.google.id && user.discord.id)) {
             %>
             <div class="block">
                 <h3>Available Social Accounts</h3>
-                <p>The following accounts are available be linked.</p>
+                <p>The following accounts are available to be linked.</p>
                 <!-- BATTLENET INFORMATION -->
                 <% if (!user.battlenet.id) { %>
                     <a href="/auth/bnet" class="btn bg-battlenet"><span class="icon-battlenet"></span> Battle.net</a>
+                <% } %>
+
+                <!-- DISCORD INFORMATION -->
+                <% if (!user.discord.id && user && user.access.beta) { %>
+                    <a href="/auth/discord" class="btn bg-discord"><span class="icon-discord"></span> Discord</a>
                 <% } %>
 
                 <!-- TWITTER INFORMATION -->
@@ -170,6 +229,58 @@
             </div><br>
             <%
         }
+
+        %>
+        <div class="block" id="patreon-block">
+            <h3>Patreon Subscription</h3>
+            <%
+            if (user.roles.subscriber || user.roles.goldsubscriber) {
+                %>
+                <p>Thank you for subscribing! Your support means a lot.</p>
+                <%
+                if (user.roles.goldsubscriber) {
+                    %>
+                    <p>Your <span class="user-goldsub">Gold Subscriber</span> benefits are activated.</p>
+                    <%
+                }
+                else if (user.roles.subscriber) {
+                    %>
+                    <p>Your <span class="user-sub">Subscriber</span> benefits are activated.</p>
+                    <%
+                }
+                else if (user.patreon && user.patron.declined_since) {
+                    %>
+                    <p>There appears to be a problem with your Patreon subscription, and your payment was declined. Please check with Patreon to see what the problem might me.</p>
+                    <%
+                }
+
+                if (user.account.total_accounts>1) {
+                    %>
+                    <p>To unlink your Patreon account and disable your subscriber benefits you may click the X below.</p>
+                    <div class="input-group">
+                        <span class="input-group-addon bg-patreon"><span class="icon-patreon"></span> Patreon</span>
+                        <input type="text" class="form-control" value="<%=user.patreon.profile.name %>" readonly>
+                        <span class="input-group-btn">
+                            <a class="btn tag-alert" type="button" href="/unlink/patreon"><span class="icon-cross"></span></a>
+                        </span>
+                    </div>
+                    <%
+                }
+                else {
+                    %>
+                    <p>To unlink your Patreon account, and disable your subscriber benefits, you must first create a Wago account or link a different social account first.</p>
+                    <%
+                }
+            }
+            else {
+                %>
+                <p>If you have subscribed to Wago.io's Patreon then please link your Patreon account to activate your subscriber benefits.</p>
+                <a href="/auth/patreon" class="btn bg-patreon"><span class="socicon socicon-patreon"></span> Patreon</a>
+                <%
+            }
+            %>
+        </div><br>
+        <%
 
         if (user.api.public_key!='') {
             %>

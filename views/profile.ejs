@@ -9,9 +9,9 @@
                 <div class="alert alert-danger">Your profile is set to private and can not be viewed by other users.</div>
             <% } %>
             <div class="block">
-                <h4><%= profile.name %>'s Profile</h4>
+                <h4><span class="<%= profile.userclass %>"><%= profile.name %></span>'s Profile</h4>
                 <div class="text-muted">
-                    <%= auralist.total %> results found.
+                    <%= auralist.total || '0' %> results found.
                     <div class="btn-group">
                         <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             Sort by <%= pageinfo.sort %> <span class="caret"></span>
@@ -31,7 +31,7 @@
     </div>
 </div>
 
-<% if (auralist.more) { %>
+<% if (auralist && auralist.more) { %>
 <script type="text/javascript">
 var scroll_list=<%- JSON.stringify(auralist.more) %>
 </script>

@@ -15,9 +15,9 @@
             <span class="meta">
                 <span class="icon-user"></span> <strong>User</strong>
                 <% if (wago.userlink) { %>
-                    <a href="/profile/<%= wago.username %>"><%= wago.username %></a>
+                    <a href="/profile/<%= wago.username %>" class="<%= wago.userclass %>"><%= wago.username %></a>
                 <% } else { %>
-                    <%= wago.username %>
+                    <span class="<%= wago.userclass %>"><%= wago.username %></span>
                 <% } %>
             </span>
             <span class="meta">

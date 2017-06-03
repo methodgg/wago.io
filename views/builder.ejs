@@ -1,0 +1,881 @@
+<% include static/header %>
+
+<div class="row" id="aura_top">
+    <div class="col-xs-12">
+        <div class="block">
+            <div class="meta">WEAKAURA</div>
+            <h4>Wago Test Aura
+                <button class="btn btn-sm btn-default hidden-xs-down hidden-xl-up" type="button" id="copywago2" data-clipboard-target="#wa_string" style="margin-top:-2px;float:right"><span class="icon-copy"></span> Copy Import String</button></h4>
+            <span class="meta">
+                <span class="icon-clock"></span> <strong>Updated</strong> Nov 19th 2016
+            </span>
+            <span class="meta">
+                <span class="icon-sphere"></span> <strong>WoW</strong> 7.1
+            </span>
+            <span class="meta">
+                <span class="icon-user"></span> <strong>User</strong>
+                    <a href="/profile/Ora">Ora</a>
+            </span>
+            <span class="meta">
+                <span class="icon-eye"></span> <strong>Views</strong> 1,034
+            </span>
+            <span class="meta">
+                <span class="icon-bubble"></span> <strong>Comments</strong> 3
+            </span>
+            <span class="meta">
+                <span class="icon-star-full"></span> <strong>Stars</strong> <span id="star_count">1</span>
+            </span>
+
+            <span class="meta">
+                <span class="icon-link"></span> <strong>Link</strong> <a href="#" data-clipboard-text="https://wago.io/testing" id="copyurl">https://wago.io/testing</a>
+            </span>
+            <br>
+            <span class="label label-default questing">Questing</span><span class="label label-default noncombat">Non-Combat</span><span class="label label-default prof prof-herb">Skinning</span><span class="label label-default prof prof-alch">Alchemy</span><span class="label label-default prof prof-archeology">Archeology</span><span class="label label-default cl-deathknight">Death Knight</span><span class="label label-default raid">PvE Utility</span><span class="label label-default nighthold">The Nighthold</span><span class="label label-default emeraldnightmare">The Emerald Nightmare</span><span class="label label-default pvp">PvP Utility</span><span class="label label-default pvp">Battlegrounds</span><span class="label label-default development">Testing</span>
+        </div>
+    </div>
+</div><br>
+<div class="row">
+    <div class="col-xs-12 col-md-12 col-lg-12 col-xl-8 col-xl-left">
+
+            <div class="alert alert-info" role="alert"><strong>This Wago is private</strong> and can only be viewed by you.</div>
+
+            <div class="block">
+
+                    <button class="btn btn-sm btn-default" type="button" data-toggle="modal" data-target="#modify_wago_modal"><span class="icon-wrench"></span> Edit details</button>
+
+                        <button class="btn btn-sm btn-default" type="button" data-toggle="modal" data-target="#screenshot_modal"><span class="icon-images"></span> Screenshots</button>
+                        <button class="btn btn-sm btn-default" type="button" data-toggle="modal" data-target="#video_modal"><span class="icon-film"></span> Videos</button>
+
+
+                        <button class="btn btn-sm btn-default" type="button" data-toggle="modal" data-target="#import_new_modal"><span class="icon-pencil"></span> New version</button>
+
+
+
+                    <button class="btn btn-sm btn-default pull-left" type="button" data-toggle="modal" data-target="#previous_versions_modal"><span class="icon-history"></span> Previous versions</button>
+
+
+
+
+                    <div class="float-right btn-group">
+                        <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <span class="glyphicon glyphicon-folder-open" aria-hidden="true"></span>&nbsp; My Collections <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu" id="collection-select">
+                            <li><a href="#" class="removefromcollection" data-collection="4J2IYe3vZ">Test Collection</a></li><li><a href="#" class="addtocollection" data-collection="4kGy-1MOM">Ora&#39;s Auras</a></li><li role="separator" class="divider"></li>
+                            <li><a href="#" class="newcollection">Create collection</a></li>
+                        </ul>
+                    </div>
+
+
+
+                    <button class="btn btn-sm btn-default float-right" type="button" id="toggle_favorite"><span class="icon-star-full"></span> Favorite</button>
+
+                <br style="clear:both">
+            </div>
+            <br>
+
+        <div class="block">
+            <strong>Description:</strong><br>
+            This is my test WeakAura. Isn't it just <span class='xbbcode-b'>lovely</span>?
+<br>
+<br>Shows a giant icon while casting Fists of Fury.
+        </div><br>
+
+            <div class="block">
+                <div id="editor-options">
+
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Text Editor: <span id="current_func">Table Data</span> <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu" id="select_func">
+                                <li><a href="#" data-fn="datatable">Table Data</a></li>
+                                <li class="disabled"><a href="#">No custom functions detected.</a></li>
+                            </ul>
+                        </div>
+
+                        <button type="button" class="btn btn-default btn-sm" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" onclick="WA_Load_Options()">
+                            Load Options
+                        </button>
+
+                        <div class="float-right btn-group">
+
+                                <button type="button" class="btn btn-default btn-sm" id="save-wago">
+                                    <span class="glyphicon glyphicon-save" aria-hidden="true"></span> Save
+                                </button>
+
+
+                                <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <span class="caret"></span>
+                                    <span class="sr-only">Toggle Dropdown</span>
+                                </button>
+                                <ul class="dropdown-menu">
+
+                                        <li><a href="#" id="export-wago" data-toggle="tooltip" data-placement="right" title="Generate an import string without saving">Export</a></li>
+                                        <li><a href="#" id="fork-wago" data-toggle="tooltip" data-placement="right" title="Save your edits as a new import">Clone</a></li>
+
+
+
+
+                                        <li id="extract-fn" style="display:none"><a href="#" id="extract-wago" data-toggle="tooltip" data-placement="right" title="Extract this function as a code snippet">
+                                        Extract Function</a></li>
+
+                                </ul>
+
+                        </div><br>
+
+
+
+
+                </div>
+                <div id="lua-editor"></div>
+                <div id="wa-load-editor" class="row" style="display:none">
+                    <div class="col-sm-12"><strong>Load when...</strong></div>
+                </div>
+            </div>
+
+    </div>
+    <div class="col-xs-12 col-md-12 col-lg-12 col-xl-4">
+
+            <div class="block">
+
+                    <button class="btn btn-sm btn-default" type="button" id="copywago" data-clipboard-target="#wa_string"><span class="icon-copy"></span> Copy Import String</button><br>
+                    <textarea id="wa_string" spellcheck="false">daJjcaGAQuAxIQ2gsnBkDtKuUnf2jjzVWUvY(Ps1pfvgMi(nvmyHWWfQdsLWXu05iPwOq0IPsXYjLhsLKNI6XIYZfmvIMmPA6QUSKRtvBuHombBwP2Uu1FjHVsLuttkFNkrptiTmcnAKKXJKQtJ4wk4AKOZlv(gfnoK4ZI0ycjydW6G1HeSoj4w)k7K(cSG1cwi7K(sQrstlnQ5Oxq1Wmb81iPPLgKG9HsrMq4YU4cUbCiUSwWJKWdUhHZ29ig9ADG9HsriUSwej4QVwhSRechSFv916Gf83bSpuk8lYrKGFxCboCH7d4GPQiPuDmsthnruTYe10MuOv3Ayp0uc26iOdj4lyR1HeSH3EcK44G1j7njZBFhKGn82tGehhSMJTGeSH3EcK44GJ7JVGTwhsWgE7jqIJdwtiRGeSH3EcK44G3czN4SGeSH3EcK444G1QuIZs2fxGjzolWKf5kYCmIT1lDOAcMOdwvox7cfYkCWUKOFQWOzcDsur1IrBtA1uusJ9qtj4L3qQrstlTaunb3LBVd1XOYMz0PiT40SnPntAyp0AGPEU9ouhJdumPPnnNIusAMuetOG9qRHdoawmVyEX8tW9q1SjoXba</textarea>
+
+            </div><br>
+
+            <div id="screenshots_container" >
+                <div class="block">
+                    <strong>Preview</strong>
+                    <div id="screenshots_wrapper">
+                        <a href="https://static-cdn.jtvnw.net/s3_vods/d0fa485a65_oraro_19634520784_402518589//thumb/thumb46457542-320x240.jpg" class="playvideo" data-toggle="lightbox" data-type="url" data-remote="https://player.twitch.tv/?video=v46457542" id="vidt_5799af9350224bc154d2eb06"><img src="https://static-cdn.jtvnw.net/s3_vods/d0fa485a65_oraro_19634520784_402518589//thumb/thumb46457542-320x240.jpg" /><span></span></a><a href="/screenshots/EJVb2hWQW/1469199621572-W-0001.jpg" data-toggle="lightbox" data-gallery="preview" data-footer="" id="ss_57923506287c27e645134d61"><img src="/screenshots/EJVb2hWQW/1469199621572-W-0001.jpg" /></a>
+                    </div>
+                </div>
+                <br>
+            </div>
+
+        <div class="block">
+            <strong>Comments</strong>
+
+                    <div class="comment ">
+                        <div class="commentheader">
+                            <small>Posted by <strong>Ora</strong> a month ago. <a href="#reply" class="comment-reply" data-tag="Ora">Reply</a> <span class="float-right localize-time">2017-01-11 08:07</span></small>
+
+                                <div class="btn-group float-right">
+                                    <button class="btn btn-default btn-sm dropdown-toggle btn-comment-moderate" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        Moderate <span class="caret"></span>
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li><a href="#" class="delete-comment" data-comment="58765836510f10344b249ed3" data-wago="EJVb2hWQW">Delete</a></li>
+                                    </ul>
+                                </div>
+
+                        </div>
+                        <div class="commenttext">
+                            Hello?
+                        </div>
+                    </div>
+
+                    <div class="comment ">
+                        <div class="commentheader">
+                            <small>Posted by <strong>Ora</strong> 3 months ago. <a href="#reply" class="comment-reply" data-tag="Ora">Reply</a> <span class="float-right localize-time">2016-11-10 08:30</span></small>
+
+                                <div class="btn-group float-right">
+                                    <button class="btn btn-default btn-sm dropdown-toggle btn-comment-moderate" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        Moderate <span class="caret"></span>
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li><a href="#" class="delete-comment" data-comment="5824a09d7d338b2c2ce1becf" data-wago="EJVb2hWQW">Delete</a></li>
+                                    </ul>
+                                </div>
+
+                        </div>
+                        <div class="commenttext">
+                            <span class='comment-tagged-user'>@Ora</span> hello
+                        </div>
+                    </div>
+
+                    <div class="comment ">
+                        <div class="commentheader">
+                            <small>Posted by <strong>Ora</strong> 3 months ago. <a href="#reply" class="comment-reply" data-tag="Ora">Reply</a> <span class="float-right localize-time">2016-11-10 08:11</span></small>
+
+                                <div class="btn-group float-right">
+                                    <button class="btn btn-default btn-sm dropdown-toggle btn-comment-moderate" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        Moderate <span class="caret"></span>
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li><a href="#" class="delete-comment" data-comment="58249c237d338b2c2ce1beca" data-wago="EJVb2hWQW">Delete</a></li>
+                                    </ul>
+                                </div>
+
+                        </div>
+                        <div class="commenttext">
+                            Testing.
+                        </div>
+                    </div>
+
+                <form action="/postcomment" method="post">
+                    <input type="hidden" name="wagoID" value="EJVb2hWQW" />
+                    <div id="inreplyto"></div>
+                    <input type="hidden" name="inreplyto" id="inreplytoid" />
+                    <textarea class="form-control" name="commentText" style="width:100%;height:8em" id="commenttext"></textarea>
+                    <input type="submit" class="btn btn-sm btn-default" value="Post Comment" /> <small>Some BB code is available: [b], [i], [u], [s], [code], [color=#123456], [size=(4-40)], [url],  [ul], [ol], [li] or [*], [table], [tr], [td]</small>
+                    <br><small>Hint: Use @Username in your text to draw someone's attention.</small>
+                </form>
+
+        </div>
+    </div>
+</div>
+
+
+
+
+    <!-- modify wago modal -->
+    <div class="modal" id="modify_wago_modal" tabindex="-1" role="dialog" aria-labelledby="modify_wago_modal">
+        <div class="modal-dialog modal-lg" role="document">
+            <form class="modal-content" method="post" action="/EJVb2hWQW/modify">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="modify_wago_modal_label">Modify Details</h4>
+                </div>
+                <div class="modal-body">
+                    <strong>Title</strong>
+                    <input class="form-control" name="name" value="Wago Test Aura" />
+                </div>
+
+                    <div class="modal-body">
+                        <strong>Custom URL</strong> <small>Must be between 7 and 64 characters long.</small> <small id="customslugmsg"></small>
+                        <div class="input-group">
+                            <span class="input-group-addon" id="basic-addon3">https://wago.io/</span>
+                            <input class="form-control" name="customurl" id="customurl" value="testing" />
+                        </div>
+                    </div>
+
+                <div class="modal-body">
+                    <strong>Description</strong> <small>Some BB code is available: [b], [i], [u], [s], [code], [color=#123456], [size=(4-40)], [url],  [ul], [ol], [li] or [*], [table], [tr], [td]</small>
+                    <textarea class="form-control" id="cke_description" name="description" style="height:10em">This is my test WeakAura. Isn&#39;t it just [b]lovely[/b]?
+
+Shows a giant icon while casting Fists of Fury.</textarea>
+                </div>
+
+                    <div class="modal-body">
+                        <strong>Categories</strong>
+                        <select id="select-categories" name="categories[]" multiple placeholder="Select..."></select>
+                    </div>
+
+                <div class="modal-body float-left">
+                    <div class="dropdown" id="visibilityDropdown">
+                        <a class="btn btn-secondary dropdown-toggle" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Visibility: <span class="dropdownValue">Private</span>
+                            <input name="auravisibility" type="hidden" value="Private" class="inputValue" />
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="visibilityDropdown">
+                            <a class="dropdown-item" href="#" data-val="Public">Public</a>
+                            <a class="dropdown-item" href="#" data-val="Hidden">Hidden (only viewable with link)</a>
+                            <a class="dropdown-item" href="#" data-val="Private">Private (only you may view)</a>
+                        </div>
+                    </div>
+                </div>
+
+                    <div class="modal-body float-left">
+                        <div class="dropdown" id="gameVersionDropdown">
+                            <a class="btn btn-secondary dropdown-toggle" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Game Version: <span class="dropdownValue">Live</span>
+                                <input name="beta" type="hidden" value="Live" class="inputValue" />
+                            </a>
+                            <div class="dropdown-menu" aria-labelledby="gameVersionDropdown">
+                                <a class="dropdown-item" href="#" data-val="Live">Live</a>
+                                <a class="dropdown-item" href="#" data-val="Beta">Legion 7.2 PTR</a>
+                            </div>
+                        </div>
+                    </div>
+
+                <br style="clear:both">
+                <div class="modal-footer">
+                    <span class="float-left">
+                        <small style="opacity:.3"><span class="glyphicon glyphicon-remove"></span> <a href="#" id="delete_wago">Delete</a></small>
+                        <small><a href="#" id="delete_wago_confirm" style="display:none">Confirm Delete</a></small>
+                    </span>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <input type="submit" class="btn btn-default" value="Save changes" />
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+        <!-- screenshot manager modal -->
+        <div class="modal" id="screenshot_modal" tabindex="-1" role="dialog" aria-labelledby="screenshot_modal">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title" id="modify_wago_modal_label">Screenshot Manager</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row content">
+                            <div class="col-sm-8">
+                                <strong>Image list</strong>
+                                <div id="ss_list">
+                                    <img src="/screenshots/EJVb2hWQW/1469199621572-W-0001.jpg" id="sst_57923506287c27e645134d61" data-fullsize="/screenshots/EJVb2hWQW/1469199621572-W-0001.jpg" data-caption="" data-id="57923506287c27e645134d61" data-filename="1469199621572-W-0001.jpg" />
+                                </div>
+                            </div>
+                            <div class="col-sm-4">
+                                <form id="ss_prop" method="post" action="/EJVb2hWQW/setcaption">
+                                    <input type="hidden" id="ss_id" name="screenshot" value="" />
+                                    <div class="text-center">
+                                        <span id="ss_filename"></span><br>
+                                        <a href="#" data-lightbox="selected_ss"><img src="" /></a>
+                                    </div><br>
+                                    <strong>Caption</strong>
+                                    <input class="form-control" id="ss_caption" name="caption" value="" />
+                                    <input type="submit" class="btn btn-xs float-right" value="Save"><br><br>
+                                    <p class="float-right">
+                                        <small><a href="#" id="delete_ss_confirm" style="display:none">Confirm Delete</a></small>
+                                        <small style="opacity:.3"><span class="glyphicon glyphicon-remove"></span> <a href="#" id="delete_ss">Delete</a></small>
+                                    </p><br style="clear:both">
+                                </form>
+                                <div id="ss_upload">
+                                    <input type="file" name="file" id="screenshot_file_input" accept="image/*" multiple="" />
+                                    <label for="screenshot_file_input" class="btn btn-default btn-lg"><span class="glyphicon glyphicon-upload"></span> Upload file(s)</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- video manager modal -->
+        <div class="modal" id="video_modal" tabindex="-1" role="dialog" aria-labelledby="video_modal">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title" id="modify_wago_modal_label">Video Manager</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row content">
+                            <div class="col-sm-8">
+                                <strong>Video list</strong>
+                                <div id="video_list">
+                                    <img src="https://static-cdn.jtvnw.net/s3_vods/d0fa485a65_oraro_19634520784_402518589//thumb/thumb46457542-320x240.jpg" id="vid_5799af9350224bc154d2eb06" data-id="5799af9350224bc154d2eb06" data-embed="&lt;iframe src=&quot;https://player.twitch.tv/?video=v46457542&quot; frameborder=&quot;0&quot; scrolling=&quot;no&quot;&gt;&lt;/iframe&gt;" />
+                                </div>
+                            </div>
+                            <div class="col-sm-4">
+                                <form id="video_prop" method="post" action="/EJVb2hWQW/editvid">
+                                    <div id="video_preview"></div>
+                                    <input type="hidden" id="video_id" name="video" value="" />
+                                    <p class="float-right">
+                                        <small><a href="#" id="delete_vid_confirm" style="display:none">Confirm Delete</a></small>
+                                        <small style="opacity:.3"><span class="glyphicon glyphicon-remove"></span> <a href="#" id="delete_vid">Delete</a></small>
+                                    </p><br style="clear:both">
+                                </form>
+                                <div id="video_upload">
+                                    <p>Enter the URL to your video.
+                                    <br><small>Currently supported: Twitch, YouTube.</small></p>
+                                    <input type="text" name="video_url" id="video_url_input" style="width:100%;border: 1px solid #555;"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+        <!-- import new version modal -->
+        <div class="modal" id="import_new_modal" tabindex="-1" role="dialog" aria-labelledby="import_new_modal_label">
+            <div class="modal-dialog modal-lg" role="document">
+                <form class="modal-content" method="post" action="/EJVb2hWQW/replace">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title" id="import_new_modal_label">Import New Version</h4>
+                    </div>
+                    <div class="modal-body">
+                        <p>Update your WeakAura without changing the URL. Previous versions of the WeakAura will be available.</p>
+                        <strong>Paste your WeakAura export string here</strong>
+                        <textarea class="form-control" id="importwa" name="importwa" spellcheck="false"></textarea>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-default">Save changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+
+
+
+    <div class="modal" id="previous_versions_modal" tabindex="-1" role="dialog" aria-labelledby="export_modal_label">
+      <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="import_new_modal_label">Previous Versions of this Weak Aura</h4>
+          </div>
+          <div class="modal-body">
+
+                <a href="/EJVb2hWQW/20">
+                <div class="panel panel-default">
+                  <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-4">Version 20  (Latest) </div>
+                        <div class="col-md-4">November 19th 2016, 12:38:08 pm</div>
+                        <div class="col-md-4">
+                            540 bytes
+                        </div>
+                    </div>
+                  </div>
+                </div>
+                </a>
+
+                <a href="/EJVb2hWQW/19">
+                <div class="panel panel-default">
+                  <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-4">Version 19 </div>
+                        <div class="col-md-4">November 8th 2016, 5:08:03 pm</div>
+                        <div class="col-md-4">
+                            3,865 bytes
+                        </div>
+                    </div>
+                  </div>
+                </div>
+                </a>
+
+                <a href="/EJVb2hWQW/18">
+                <div class="panel panel-default">
+                  <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-4">Version 18 </div>
+                        <div class="col-md-4">October 25th 2016, 8:21:25 am</div>
+                        <div class="col-md-4">
+                            5,474 bytes
+                        </div>
+                    </div>
+                  </div>
+                </div>
+                </a>
+
+                <a href="/EJVb2hWQW/17">
+                <div class="panel panel-default">
+                  <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-4">Version 17 </div>
+                        <div class="col-md-4">October 25th 2016, 8:21:00 am</div>
+                        <div class="col-md-4">
+                            5,427 bytes
+                        </div>
+                    </div>
+                  </div>
+                </div>
+                </a>
+
+                <a href="/EJVb2hWQW/16">
+                <div class="panel panel-default">
+                  <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-4">Version 16 </div>
+                        <div class="col-md-4">October 16th 2016, 10:16:59 pm</div>
+                        <div class="col-md-4">
+                            96,997 bytes
+                        </div>
+                    </div>
+                  </div>
+                </div>
+                </a>
+
+                <a href="/EJVb2hWQW/15">
+                <div class="panel panel-default">
+                  <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-4">Version 15 </div>
+                        <div class="col-md-4">October 16th 2016, 10:12:12 pm</div>
+                        <div class="col-md-4">
+                            5,426 bytes
+                        </div>
+                    </div>
+                  </div>
+                </div>
+                </a>
+
+                <a href="/EJVb2hWQW/14">
+                <div class="panel panel-default">
+                  <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-4">Version 14 </div>
+                        <div class="col-md-4">August 24th 2016, 11:09:29 am</div>
+                        <div class="col-md-4">
+                            5,426 bytes
+                        </div>
+                    </div>
+                  </div>
+                </div>
+                </a>
+
+                <a href="/EJVb2hWQW/13">
+                <div class="panel panel-default">
+                  <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-4">Version 13 </div>
+                        <div class="col-md-4">July 28th 2016, 10:44:07 am</div>
+                        <div class="col-md-4">
+                            5,420 bytes
+                        </div>
+                    </div>
+                  </div>
+                </div>
+                </a>
+
+                <a href="/EJVb2hWQW/12">
+                <div class="panel panel-default">
+                  <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-4">Version 12 </div>
+                        <div class="col-md-4">July 27th 2016, 10:20:01 pm</div>
+                        <div class="col-md-4">
+                            5,420 bytes
+                        </div>
+                    </div>
+                  </div>
+                </div>
+                </a>
+
+                <a href="/EJVb2hWQW/11">
+                <div class="panel panel-default">
+                  <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-4">Version 11 </div>
+                        <div class="col-md-4">July 24th 2016, 9:09:27 am</div>
+                        <div class="col-md-4">
+                            5,421 bytes
+                        </div>
+                    </div>
+                  </div>
+                </div>
+                </a>
+
+                <a href="/EJVb2hWQW/10">
+                <div class="panel panel-default">
+                  <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-4">Version 10 </div>
+                        <div class="col-md-4">July 24th 2016, 8:59:12 am</div>
+                        <div class="col-md-4">
+                            5,421 bytes
+                        </div>
+                    </div>
+                  </div>
+                </div>
+                </a>
+
+                <a href="/EJVb2hWQW/9">
+                <div class="panel panel-default">
+                  <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-4">Version 9 </div>
+                        <div class="col-md-4">July 16th 2016, 8:02:56 am</div>
+                        <div class="col-md-4">
+                            5,421 bytes
+                        </div>
+                    </div>
+                  </div>
+                </div>
+                </a>
+
+                <a href="/EJVb2hWQW/8">
+                <div class="panel panel-default">
+                  <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-4">Version 8 </div>
+                        <div class="col-md-4">July 2nd 2016, 2:12:31 pm</div>
+                        <div class="col-md-4">
+                            5,420 bytes
+                        </div>
+                    </div>
+                  </div>
+                </div>
+                </a>
+
+                <a href="/EJVb2hWQW/7">
+                <div class="panel panel-default">
+                  <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-4">Version 7 </div>
+                        <div class="col-md-4">July 1st 2016, 9:02:04 pm</div>
+                        <div class="col-md-4">
+                            5,420 bytes
+                        </div>
+                    </div>
+                  </div>
+                </div>
+                </a>
+
+                <a href="/EJVb2hWQW/6">
+                <div class="panel panel-default">
+                  <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-4">Version 6 </div>
+                        <div class="col-md-4">July 1st 2016, 8:53:39 pm</div>
+                        <div class="col-md-4">
+                            5,420 bytes
+                        </div>
+                    </div>
+                  </div>
+                </div>
+                </a>
+
+                <a href="/EJVb2hWQW/5">
+                <div class="panel panel-default">
+                  <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-4">Version 5 </div>
+                        <div class="col-md-4">July 1st 2016, 8:05:58 pm</div>
+                        <div class="col-md-4">
+                            5,352 bytes
+                        </div>
+                    </div>
+                  </div>
+                </div>
+                </a>
+
+                <a href="/EJVb2hWQW/4">
+                <div class="panel panel-default">
+                  <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-4">Version 4 </div>
+                        <div class="col-md-4">July 1st 2016, 7:00:57 pm</div>
+                        <div class="col-md-4">
+                            5,691 bytes
+                        </div>
+                    </div>
+                  </div>
+                </div>
+                </a>
+
+                <a href="/EJVb2hWQW/3">
+                <div class="panel panel-default">
+                  <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-4">Version 3 </div>
+                        <div class="col-md-4">July 1st 2016, 8:29:30 am</div>
+                        <div class="col-md-4">
+                            721 bytes
+                        </div>
+                    </div>
+                  </div>
+                </div>
+                </a>
+
+                <a href="/EJVb2hWQW/2">
+                <div class="panel panel-default">
+                  <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-4">Version 2 </div>
+                        <div class="col-md-4">June 21st 2016, 5:27:15 pm</div>
+                        <div class="col-md-4">
+                            722 bytes
+                        </div>
+                    </div>
+                  </div>
+                </div>
+                </a>
+
+                <a href="/EJVb2hWQW/1">
+                <div class="panel panel-default">
+                  <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-4">Version 1 </div>
+                        <div class="col-md-4">May 27th 2016, 3:40:35 pm</div>
+                        <div class="col-md-4">
+                            438 bytes
+                        </div>
+                    </div>
+                  </div>
+                </div>
+                </a>
+
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+
+    <div class="modal" id="modal_new_collection" tabindex="-1" role="dialog" aria-labelledby="modal_new_collection">
+      <div class="modal-dialog modal-lg" role="document">
+        <form class="modal-content" method="post" action="/collection/new">
+            <input type="hidden" name="wagoID" value="EJVb2hWQW" />
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="import_new_modal_label">Create New Collection</h4>
+              </div>
+              <div class="modal-body">
+                  <strong>Collection Name</strong>
+                  <input class="form-control" name="name" />
+              </div>
+              <div class="modal-body">
+                  <strong>Description</strong> <small>Some BB code is available: [b], [i], [u], [s], [code], [color=#123456], [size=(4-40)], [url],  [ul], [ol], [li] or [*], [table], [tr], [td]</small>
+                  <textarea class="form-control" id="cke_description" name="description" style="height:10em"></textarea>
+               </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-default">Save collection</button>
+              </div>
+            </div>
+        </form>
+      </div>
+    </div>
+
+
+
+    <div class="modal" id="export_modal" tabindex="-1" role="dialog" aria-labelledby="export_modal_label">
+      <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="import_new_modal_label">Export</h4>
+          </div>
+          <div class="modal-body">
+            <p>Your modified code in importable string format:</p>
+            <button type="button" class="btn btn-default btn-xs" id="copywago_export" data-clipboard-target="#exportwago">Copy</button>
+            <textarea class="form-control" id="exportwago" spellcheck="false"></textarea>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+
+<div class="modal" id="extract1_modal" tabindex="-1" role="dialog" aria-labelledby="extract1_modal_label">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="import_new_modal_label">Extract <span id="extract1_name"></span></h4>
+      </div>
+      <div class="modal-body">
+        <p>Your extracted import string:</p>
+        <button type="button" class="btn btn-default btn-xs" id="copyaura_extract1wa" data-clipboard-target="#extract1wa">Copy</button>
+        <textarea class="form-control" id="extract1wa" spellcheck="false"></textarea>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+<script type="text/javascript" src='/assets/js/ace-1.2.3/ace.js'></script>
+<script type="text/javascript">
+
+var wago_table = {"d":{"yOffset":311.11120605469,"width":200.66662597656,"id":"NOWA_Test","xOffset":-498.33325195312,"disjunctive":"all","regionType":"icon","activeTriggerMode":-10,"init_completed":1,"load":{"difficulty":{"multi":[]},"role":{"multi":[]},"faction":{"multi":[]},"race":{"multi":[]},"talent":{"multi":[]},"pvptalent":{"multi":[]}},"trigger":{"type":"status","use_spell":true,"event":"Cast","use_unit":true,"spell":"Fists of Fury","use_castType":false,"unevent":"auto"},"height":188.44432067871,"numTriggers":1},"m":"d","s":"2.2.2.1","v":1421}
+var all_categories = [{"id":"gen0","slug":"_general","cls":"","text":"General","menucol":1,"noselect":true,"WeakAuras2":true},{"id":"gen1","slug":"general","cls":"misc","text":"General Utility","parent":"gen0","WeakAuras2":true},{"id":"legen","slug":"legendaries","cls":"questing","text":"Legendaries","parent":"gen0","WeakAuras2":true},{"id":"gen7","slug":"achievements","cls":"questing","text":"Achievements","parent":"gen0","WeakAuras2":true},{"id":"gen2","slug":"questing","cls":"questing","text":"Questing","parent":"gen0","WeakAuras2":true},{"id":"gen6","slug":"non-combat","cls":"noncombat","text":"Non-Combat","parent":"gen0","WeakAuras2":true},{"id":"role0","slug":"roles","cls":"","text":"Group Roles","menucol":1,"noselect":true,"WeakAuras2":true,"Vuhdo":true},{"id":"role4","slug":"roles/raid-lead","cls":"role-leader","text":"Raid Leading","parent":"role0","WeakAuras2":true},{"id":"role1","slug":"roles/damage","cls":"role-dps","text":"Damage Dealing","parent":"role0","WeakAuras2":true,"Vuhdo":true},{"id":"role2","slug":"roles/healing","cls":"role-heal","text":"Healing","parent":"role0","WeakAuras2":true,"Vuhdo":true},{"id":"role3","slug":"roles/tanking","cls":"role-tank","text":"Tanking","parent":"role0","WeakAuras2":true,"Vuhdo":true},{"id":"prof0","slug":"professions","cls":"prof","text":"Professions","menucol":1,"noselect":true,"WeakAuras2":true},{"id":"prof1","slug":"professions/gathering","cls":"prof","text":"Gathering","parent":"prof0","WeakAuras2":true},{"id":"prof2","slug":"professions/gathering/herbalism","cls":"prof prof-herb","text":"Herbalism","parent":"prof1","WeakAuras2":true},{"id":"prof3","slug":"professions/gathering/mining","cls":"prof prof-herb","text":"Mining","parent":"prof1","WeakAuras2":true},{"id":"prof4","slug":"professions/gathering/skinning","cls":"prof prof-herb","text":"Skinning","parent":"prof1","WeakAuras2":true},{"id":"prof5","slug":"professions/crafting","cls":"prof","text":"Crafting","parent":"prof0","WeakAuras2":true},{"id":"prof6","slug":"professions/crafting/alchemy","cls":"prof prof-alch","text":"Alchemy","parent":"prof5","WeakAuras2":true},{"id":"prof7","slug":"professions/crafting/blacksmithing","cls":"prof prof-blacksmith","text":"Blacksmithing","parent":"prof5","WeakAuras2":true},{"id":"prof8","slug":"professions/crafting/enchanting","cls":"prof prof-enchanting","text":"Enchanting","parent":"prof5","WeakAuras2":true},{"id":"prof9","slug":"professions/crafting/engineering","cls":"prof prof-engineering","text":"Engineering","parent":"prof5","WeakAuras2":true},{"id":"prof10","slug":"professions/crafting/inscription","cls":"prof prof-inscription","text":"Inscription","parent":"prof5","WeakAuras2":true},{"id":"prof11","slug":"professions/crafting/jewelcrafting","cls":"prof prof-jewelcrafting","text":"Jewelcrafting","parent":"prof5","WeakAuras2":true},{"id":"prof12","slug":"professions/crafting/leatherworking","cls":"prof prof-leatherworking","text":"Leatherworking","parent":"prof5","WeakAuras2":true},{"id":"prof13","slug":"professions/crafting/tailoring","cls":"prof prof-tailoring","text":"Tailoring","parent":"prof5","WeakAuras2":true},{"id":"prof14","slug":"professions/secondary","cls":"prof","text":"Secondary","parent":"prof0","WeakAuras2":true},{"id":"prof15","slug":"professions/secondary/archeology","cls":"prof prof-archeology","text":"Archeology","parent":"prof14","WeakAuras2":true},{"id":"prof16","slug":"professions/secondary/cooking","cls":"prof prof-cooking","text":"Cooking","parent":"prof14","WeakAuras2":true},{"id":"prof17","slug":"professions/secondary/first-aid","cls":"prof prof-firstaid","text":"First Aid","parent":"prof14","WeakAuras2":true},{"id":"prof18","slug":"professions/secondary/fishing","cls":"prof prof-fishing","text":"Fishing","parent":"prof14","WeakAuras2":true},{"id":"cl0","slug":"classes","cls":"","text":"Classes","menucol":2,"noselect":true,"WeakAuras2":true,"ElvUI":true,"Vuhdo":true},{"id":"cl6","slug":"classes/death-knight","cls":"cl-deathknight","text":"Death Knight","parent":"cl0","WeakAuras2":true,"ElvUI":true,"Vuhdo":true},{"id":"cl6-1","slug":"classes/death-knight/blood","cls":"cl-deathknight cl-deathknight-blood","text":"Blood Death Knight","parent":"cl6","WeakAuras2":true,"ElvUI":true,"Vuhdo":true},{"id":"cl6-2","slug":"classes/death-knight/frost","cls":"cl-deathknight cl-deathknight-frost","text":"Frost Death Knight","parent":"cl6","WeakAuras2":true,"ElvUI":true,"Vuhdo":true},{"id":"cl6-3","slug":"classes/death-knight/unholy","cls":"cl-deathknight cl-deathknight-unholy","text":"Unholy Death Knight","parent":"cl6","WeakAuras2":true,"ElvUI":true,"Vuhdo":true},{"id":"cl12","slug":"classes/demon-hunter","cls":"cl-demonhunter","text":"Demon Hunter","parent":"cl0","WeakAuras2":true,"ElvUI":true,"Vuhdo":true},{"id":"cl12-1","slug":"classes/demon-hunter/havoc","cls":"cl-demonhunter cl-demonhunter-havoc","text":"Havoc Demon Hunter","parent":"cl12","WeakAuras2":true,"ElvUI":true,"Vuhdo":true},{"id":"cl12-2","slug":"classes/demon-hunter/vengeance","cls":"cl-demonhunter cl-demonhunter-vengeance","text":"Vengeance Demon Hunter","parent":"cl12","WeakAuras2":true,"ElvUI":true,"Vuhdo":true},{"id":"cl11","slug":"classes/druid","cls":"cl-druid","text":"Druid","parent":"cl0","WeakAuras2":true,"ElvUI":true,"Vuhdo":true},{"id":"cl11-1","slug":"classes/druid/balance","cls":"cl-druid cl-druid-balance","text":"Balance Druid","parent":"cl11","WeakAuras2":true,"ElvUI":true,"Vuhdo":true},{"id":"cl11-2","slug":"classes/druid/feral","cls":"cl-druid cl-druid-feral","text":"Feral Druid","parent":"cl11","WeakAuras2":true,"ElvUI":true,"Vuhdo":true},{"id":"cl11-3","slug":"classes/druid/guardian","cls":"cl-druid cl-druid-guardian","text":"Guardian Druid","parent":"cl11","WeakAuras2":true,"ElvUI":true,"Vuhdo":true},{"id":"cl11-4","slug":"classes/druid/restoration","cls":"cl-druid cl-druid-restoration","text":"Restoration Druid","parent":"cl11","WeakAuras2":true,"ElvUI":true,"Vuhdo":true},{"id":"cl3","slug":"classes/hunter","cls":"cl-hunter","text":"Hunter","parent":"cl0","WeakAuras2":true,"ElvUI":true,"Vuhdo":true},{"id":"cl3-1","slug":"classes/hunter/beast-mastery","cls":"cl-hunter cl-hunter-beastmastery","text":"Beast Mastery Hunter","parent":"cl3","WeakAuras2":true,"ElvUI":true,"Vuhdo":true},{"id":"cl3-2","slug":"classes/hunter/marksmanship","cls":"cl-hunter cl-hunter-marksmanship","text":"Marksmanship Hunter","parent":"cl3","WeakAuras2":true,"ElvUI":true,"Vuhdo":true},{"id":"cl3-3","slug":"classes/hunter/survival","cls":"cl-hunter cl-hunter-survival","text":"Survival Hunter","parent":"cl3","WeakAuras2":true,"ElvUI":true,"Vuhdo":true},{"id":"cl8","slug":"classes/mage","cls":"cl-mage","text":"Mage","parent":"cl0","WeakAuras2":true,"ElvUI":true,"Vuhdo":true},{"id":"cl8-1","slug":"classes/mage/arcane","cls":"cl-mage cl-mage-arcane","text":"Arcane Mage","parent":"cl8","WeakAuras2":true,"ElvUI":true,"Vuhdo":true},{"id":"cl8-2","slug":"classes/mage/fire","cls":"cl-mage cl-mage-fire","text":"Fire Mage","parent":"cl8","WeakAuras2":true,"ElvUI":true,"Vuhdo":true},{"id":"cl8-3","slug":"classes/mage/frost","cls":"cl-mage cl-mage-frost","text":"Frost Mage","parent":"cl8","WeakAuras2":true,"ElvUI":true,"Vuhdo":true},{"id":"cl10","slug":"classes/monk","cls":"cl-monk","text":"Monk","parent":"cl0","WeakAuras2":true,"ElvUI":true,"Vuhdo":true},{"id":"cl10-1","slug":"classes/monk/brewmaster","cls":"cl-monk cl-monk-brewmaster","text":"Brewmaster Monk","parent":"cl10","WeakAuras2":true,"ElvUI":true,"Vuhdo":true},{"id":"cl10-2","slug":"classes/monk/mistweaver","cls":"cl-monk cl-monk-mistweaver","text":"Mistweaver Monk","parent":"cl10","WeakAuras2":true,"ElvUI":true,"Vuhdo":true},{"id":"cl10-3","slug":"classes/monk/windwalker","cls":"cl-monk cl-monk-windwalker","text":"Windwalker Monk","parent":"cl10","WeakAuras2":true,"ElvUI":true,"Vuhdo":true},{"id":"cl2","slug":"classes/paladin","cls":"cl-paladin","text":"Paladin","parent":"cl0","WeakAuras2":true,"ElvUI":true,"Vuhdo":true},{"id":"cl2-1","slug":"classes/paladin/holy","cls":"cl-paladin cl-paladin-holy","text":"Holy Paladin","parent":"cl2","WeakAuras2":true,"ElvUI":true,"Vuhdo":true},{"id":"cl2-2","slug":"classes/paladin/protection","cls":"cl-paladin cl-paladin-protection","text":"Protection Paladin","parent":"cl2","WeakAuras2":true,"ElvUI":true,"Vuhdo":true},{"id":"cl2-3","slug":"classes/paladin/retribution","cls":"cl-paladin cl-paladin-retribution","text":"Retribution Paladin","parent":"cl2","WeakAuras2":true,"ElvUI":true,"Vuhdo":true},{"id":"cl5","slug":"classes/priest","cls":"cl-priest","text":"Priest","parent":"cl0","WeakAuras2":true,"ElvUI":true,"Vuhdo":true},{"id":"cl5-1","slug":"classes/priest/discipline","cls":"cl-priest cl-priest-discipline","text":"Discipline Priest","parent":"cl5","WeakAuras2":true,"ElvUI":true,"Vuhdo":true},{"id":"cl5-2","slug":"classes/priest/holy","cls":"cl-priest cl-priest-holy","text":"Holy Priest","parent":"cl5","WeakAuras2":true,"ElvUI":true,"Vuhdo":true},{"id":"cl5-3","slug":"classes/priest/shadow","cls":"cl-priest cl-priest-shadow","text":"Shadow Priest","parent":"cl5","WeakAuras2":true,"ElvUI":true,"Vuhdo":true},{"id":"cl4","slug":"classes/rogue","cls":"cl-rogue","text":"Rogue","parent":"cl0","WeakAuras2":true,"ElvUI":true,"Vuhdo":true},{"id":"cl4-1","slug":"classes/rogue/assassination","cls":"cl-rogue cl-rogue-assassination","text":"Assassination Rogue","parent":"cl4","WeakAuras2":true,"ElvUI":true,"Vuhdo":true},{"id":"cl4-2","slug":"classes/rogue/outlaw","cls":"cl-rogue cl-rogue-outlaw","text":"Outlaw Rogue","parent":"cl4","WeakAuras2":true,"ElvUI":true,"Vuhdo":true},{"id":"cl4-3","slug":"classes/rogue/subtlety","cls":"cl-rogue cl-rogue-subtlety","text":"Subtlety Rogue","parent":"cl4","WeakAuras2":true,"ElvUI":true,"Vuhdo":true},{"id":"cl7","slug":"classes/shaman","cls":"cl-shaman","text":"Shaman","parent":"cl0","WeakAuras2":true,"ElvUI":true,"Vuhdo":true},{"id":"cl7-1","slug":"classes/shaman/elemental","cls":"cl-shaman cl-shaman-elemental","text":"Elemental Shaman","parent":"cl7","WeakAuras2":true,"ElvUI":true,"Vuhdo":true},{"id":"cl7-2","slug":"classes/shaman/enhancement","cls":"cl-shaman cl-shaman-enhancement","text":"Enhancement Shaman","parent":"cl7","WeakAuras2":true,"ElvUI":true,"Vuhdo":true},{"id":"cl7-3","slug":"classes/shaman/restoration","cls":"cl-shaman cl-shaman-restoration","text":"Restoration Shaman","parent":"cl7","WeakAuras2":true,"ElvUI":true,"Vuhdo":true},{"id":"cl9","slug":"classes/warlock","cls":"cl-warlock","text":"Warlock","parent":"cl0","WeakAuras2":true,"ElvUI":true,"Vuhdo":true},{"id":"cl9-1","slug":"classes/warlock/affliction","cls":"cl-warlock cl-warlock-affliction","text":"Affliction Warlock","parent":"cl9","WeakAuras2":true,"ElvUI":true,"Vuhdo":true},{"id":"cl9-2","slug":"classes/warlock/demonology","cls":"cl-warlock cl-warlock-demonology","text":"Demonology Warlock","parent":"cl9","WeakAuras2":true,"ElvUI":true,"Vuhdo":true},{"id":"cl9-3","slug":"classes/warlock/destruction","cls":"cl-warlock cl-warlock-destruction","text":"Destruction Warlock","parent":"cl9","WeakAuras2":true,"ElvUI":true,"Vuhdo":true},{"id":"cl1","slug":"classes/warrior","cls":"cl-warrior","text":"Warrior","parent":"cl0","WeakAuras2":true,"ElvUI":true,"Vuhdo":true},{"id":"cl1-1","slug":"classes/warrior/arms","cls":"cl-warrior cl-warrior-arms","text":"Arms Warrior","parent":"cl1","WeakAuras2":true,"ElvUI":true,"Vuhdo":true},{"id":"cl1-2","slug":"classes/warrior/fury","cls":"cl-warrior cl-warrior-fury","text":"Fury Warrior","parent":"cl1","WeakAuras2":true,"ElvUI":true,"Vuhdo":true},{"id":"cl1-3","slug":"classes/warrior/protection","cls":"cl-warrior cl-warrior-protection","text":"Protection Warrior","parent":"cl1","WeakAuras2":true,"ElvUI":true,"Vuhdo":true},{"id":"pve","slug":"pve","cls":"","text":"PvE","menucol":3,"noselect":true,"WeakAuras2":true},{"id":"raid0","slug":"pve/utility","cls":"raid","text":"PvE Utility","parent":"pve","WeakAuras2":true},{"id":"raidnh","slug":"pve/nighthold","cls":"nighthold","text":"The Nighthold","parent":"pve","WeakAuras2":true},{"id":"raidnh1","slug":"pve/nighthold/skorpyron","cls":"nighthold","text":"Skorpyron","parent":"raidnh","WeakAuras2":true},{"id":"raidnh2","slug":"pve/nighthold/chronomatic-anomaly","cls":"nighthold","text":"Chronomatic Anomaly","parent":"raidnh","WeakAuras2":true},{"id":"raidnh3","slug":"pve/nighthold/trilliax","cls":"nighthold","text":"Trilliax","parent":"raidnh","WeakAuras2":true},{"id":"raidnh4","slug":"pve/nighthold/spellblade-aluriel","cls":"nighthold","text":"Spellblade Aluriel","parent":"raidnh","WeakAuras2":true},{"id":"raidnh5","slug":"pve/nighthold/tichondrius","cls":"nighthold","text":"Tichondrius","parent":"raidnh","WeakAuras2":true},{"id":"raidnh6","slug":"pve/nighthold/krosus","cls":"nighthold","text":"Krosus","parent":"raidnh","WeakAuras2":true},{"id":"raidnh7","slug":"pve/nighthold/high-botanist-telarn","cls":"nighthold","text":"High Botanist Tel'arn","parent":"raidnh","WeakAuras2":true},{"id":"raidnh8","slug":"pve/nighthold/star-augur-etraeus","cls":"nighthold","text":"Star Augur Etraeus","parent":"raidnh","WeakAuras2":true},{"id":"raidnh9","slug":"pve/nighthold/grand-magistrix-elisande","cls":"nighthold","text":"Grand Magistrix Elisande","parent":"raidnh","WeakAuras2":true},{"id":"raidnh10","slug":"pve/nighthold/guldan","cls":"nighthold","text":"Gul'dan","parent":"raidnh","WeakAuras2":true},{"id":"raidtomb","slug":"pve/tomb-of-sargeras","cls":"tombofsargeras","text":"Tomb of Sargeras","parent":"pve","WeakAuras2":true},{"id":"raidtomb1","slug":"pve/tomb-of-sargeras/goroth","cls":"tombofsargeras","text":"Goroth","parent":"raidtomb","WeakAuras2":true},{"id":"raidtomb2","slug":"pve/tomb-of-sargeras/demonic-inquisition","cls":"tombofsargeras","text":"Demonic Inquisition","parent":"raidtomb","WeakAuras2":true},{"id":"raidtomb3","slug":"pve/tomb-of-sargeras/harjatan-the-bludger","cls":"tombofsargeras","text":"Harjatan the Bludger","parent":"raidtomb","WeakAuras2":true},{"id":"raidtomb4","slug":"pve/tomb-of-sargeras/mistress-sasszine","cls":"tombofsargeras","text":"Mistress Sassz'ine","parent":"raidtomb","WeakAuras2":true},{"id":"raidtomb5","slug":"pve/tomb-of-sargeras/sisters-of-the-moon","cls":"tombofsargeras","text":"Sisters of the Moon","parent":"raidtomb","WeakAuras2":true},{"id":"raidtomb6","slug":"pve/tomb-of-sargeras/the-desolate-host","cls":"tombofsargeras","text":"The Desolate Host","parent":"raidtomb","WeakAuras2":true},{"id":"raidtomb7","slug":"pve/tomb-of-sargeras/maiden-of-vigilance","cls":"tombofsargeras","text":"Maiden of Vigilance","parent":"raidtomb","WeakAuras2":true},{"id":"raidtomb8","slug":"pve/tomb-of-sargeras/fallen-avatar","cls":"tombofsargeras","text":"Fallen Avatar","parent":"raidtomb","WeakAuras2":true},{"id":"raidtomb9","slug":"pve/tomb-of-sargeras/kiljaeden","cls":"tombofsargeras","text":"Kil'jaeden","parent":"raidtomb","WeakAuras2":true},{"id":"dungeon","slug":"pve/dungeons","cls":"dungeon","text":"Dungeons","parent":"pve","WeakAuras2":true},{"id":"dungeon3","slug":"pve/dungeons/arcway","cls":"dungeon","text":"Arcway","parent":"dungeon","WeakAuras2":true},{"id":"dungeon1","slug":"pve/dungeons/assault-on-violet-hold","cls":"dungeon","text":"Assault on Violet Hold","parent":"dungeon","WeakAuras2":true},{"id":"dungeon4","slug":"pve/dungeons/blackrook-hold","cls":"dungeon","text":"Blackrook Hold","parent":"dungeon","WeakAuras2":true},{"id":"dungeon12","slug":"pve/dungeons/cathedral-of-eternal-night","cls":"dungeon","text":"Cathedral of Eternal Night","parent":"dungeon","WeakAuras2":true},{"id":"dungeon2","slug":"pve/dungeons/court-of-stars","cls":"dungeon","text":"Court of Stars","parent":"dungeon","WeakAuras2":true},{"id":"dungeon5","slug":"pve/dungeons/darkheart-thicket","cls":"dungeon","text":"Darkheart Thicket","parent":"dungeon","WeakAuras2":true},{"id":"dungeon6","slug":"pve/dungeons/eye-of-azshara","cls":"dungeon","text":"Eye of Azshara","parent":"dungeon","WeakAuras2":true},{"id":"dungeon7","slug":"pve/dungeons/halls-of-valor","cls":"dungeon","text":"Halls of Valor","parent":"dungeon","WeakAuras2":true},{"id":"dungeon8","slug":"pve/dungeons/maw-of-souls","cls":"dungeon","text":"Maw of Souls","parent":"dungeon","WeakAuras2":true},{"id":"dungeon9","slug":"pve/dungeons/neltharions-lair","cls":"dungeon","text":"Neltharion's Lair","parent":"dungeon","WeakAuras2":true},{"id":"dungeon11","slug":"pve/dungeons/return-to-karazhan","cls":"dungeon","text":"Return to Karazhan","parent":"dungeon","WeakAuras2":true},{"id":"dungeon10","slug":"pve/dungeons/vault-of-the-wardens","cls":"dungeon","text":"Vault of the Wardens","parent":"dungeon","WeakAuras2":true},{"id":"oldraids","slug":"pve/legacy","cls":"","text":"Legacy Content","menucol":5,"noselect":true,"parent":"pve","WeakAuras2":true},{"id":"raiden","slug":"pve/emerald-nightmare","cls":"emeraldnightmare","text":"The Emerald Nightmare","parent":"oldraids","WeakAuras2":true},{"id":"raiden1","slug":"pve/emerald-nightmare/nythendra","cls":"emeraldnightmare","text":"Nythendra","parent":"raiden","WeakAuras2":true},{"id":"raiden2","slug":"pve/emerald-nightmare/ilgynoth","cls":"emeraldnightmare","text":"Il'gynoth","parent":"raiden","WeakAuras2":true},{"id":"raiden4","slug":"pve/emerald-nightmare/elerethe-renferal","cls":"emeraldnightmare","text":"Elerethe Renferal","parent":"raiden","WeakAuras2":true},{"id":"raiden5","slug":"pve/emerald-nightmare/ursoc","cls":"emeraldnightmare","text":"Ursoc","parent":"raiden","WeakAuras2":true},{"id":"raiden6","slug":"pve/emerald-nightmare/dragons-of-nightmare","cls":"emeraldnightmare","text":"Dragons of Nightmare","parent":"raiden","WeakAuras2":true},{"id":"raiden7","slug":"pve/emerald-nightmare/cenarius","cls":"emeraldnightmare","text":"Cenarius","parent":"raiden","WeakAuras2":true},{"id":"raiden8","slug":"pve/emerald-nightmare/xavius","cls":"emeraldnightmare","text":"Xavius","parent":"raiden","WeakAuras2":true},{"id":"raidtov","slug":"pve/trials-of-valor","cls":"nighthold","text":"Trials of Valor","parent":"oldraids","WeakAuras2":true},{"id":"raidtov1","slug":"pve/trials-of-valor/odyn","cls":"nighthold","text":"Odyn","parent":"raidtov","WeakAuras2":true},{"id":"raidtov2","slug":"pve/trials-of-valor/guarm","cls":"nighthold","text":"Guarm","parent":"raidtov","WeakAuras2":true},{"id":"raidtov3","slug":"pve/trials-of-valor/helya","cls":"nighthold","text":"Helya","parent":"raidtov","WeakAuras2":true},{"id":"raidhfc0","slug":"pve/hellfire-citadel","cls":"hellfirecitadel","text":"Hellfire Citadel","parent":"oldraids","WeakAuras2":true},{"id":"raidhfc1","slug":"pve/hellfire-citadel/assault","cls":"hellfirecitadel","text":"Hellfire Assault","parent":"raidhfc0","WeakAuras2":true,"hideFromMenu":true},{"id":"raidhfc2","slug":"pve/hellfire-citadel/iron-reaver","cls":"hellfirecitadel","text":"Iron Reaver","parent":"raidhfc0","WeakAuras2":true,"hideFromMenu":true},{"id":"raidhfc3","slug":"pve/hellfire-citadel/kormrok","cls":"hellfirecitadel","text":"Kormrok","parent":"raidhfc0","WeakAuras2":true,"hideFromMenu":true},{"id":"raidhfc4","slug":"pve/hellfire-citadel/kilrogg-deadeye","cls":"hellfirecitadel","text":"Kilrogg Deadeye","parent":"raidhfc0","WeakAuras2":true,"hideFromMenu":true},{"id":"raidhfc5","slug":"pve/hellfire-citadel/high-council","cls":"hellfirecitadel","text":"Hellfire High Council","parent":"raidhfc0","WeakAuras2":true,"hideFromMenu":true},{"id":"raidhfc6","slug":"pve/hellfire-citadel/gorefiend","cls":"hellfirecitadel","text":"Gorefiend","parent":"raidhfc0","WeakAuras2":true,"hideFromMenu":true},{"id":"raidhfc7","slug":"pve/hellfire-citadel/shadow-lord-iskar","cls":"hellfirecitadel","text":"Shadow-Lord Iskar","parent":"raidhfc0","WeakAuras2":true,"hideFromMenu":true},{"id":"raidhfc8","slug":"pve/hellfire-citadel/socrethar-the-eternal","cls":"hellfirecitadel","text":"Socrethar the Eternal","parent":"raidhfc0","WeakAuras2":true,"hideFromMenu":true},{"id":"raidhfc9","slug":"pve/hellfire-citadel/tyrant-velhari","cls":"hellfirecitadel","text":"Tyrant Velhari","parent":"raidhfc0","WeakAuras2":true,"hideFromMenu":true},{"id":"raidhfc10","slug":"pve/hellfire-citadel/fel-lord-zakuun","cls":"hellfirecitadel","text":"Fel Lord Zakuun","parent":"raidhfc0","WeakAuras2":true,"hideFromMenu":true},{"id":"raidhfc11","slug":"pve/hellfire-citadel/xhulhorac","cls":"hellfirecitadel","text":"Xhul'horac","parent":"raidhfc0","WeakAuras2":true,"hideFromMenu":true},{"id":"raidhfc12","slug":"pve/hellfire-citadel/mannoroth","cls":"hellfirecitadel","text":"Mannoroth","parent":"raidhfc0","WeakAuras2":true,"hideFromMenu":true},{"id":"raidhfc13","slug":"pve/hellfire-citadel/archimonde","cls":"hellfirecitadel","text":"Archimonde","parent":"raidhfc0","WeakAuras2":true,"hideFromMenu":true},{"id":"pvp","slug":"pvp","cls":"pvp","text":"PvP","menucol":4,"noselect":true,"WeakAuras2":true},{"id":"pvp0","slug":"pvp/utility","cls":"pvp","text":"PvP Utility","parent":"pvp","WeakAuras2":true},{"id":"arena","slug":"pvp/arena","cls":"pvp","text":"Arena","parent":"pvp","WeakAuras2":true},{"id":"arena1","slug":"pvp/arena/blades-edge","cls":"pvp","text":"Blade's Edge Arena","parent":"arena","WeakAuras2":true},{"id":"arena2","slug":"pvp/arena/blackrook-hold","cls":"pvp","text":"Blackrook Hold","parent":"arena","WeakAuras2":true},{"id":"arena3","slug":"pvp/arena/dalaran","cls":"pvp","text":"Dalaran Arena","parent":"arena","WeakAuras2":true},{"id":"arena4","slug":"pvp/arena/nagrand","cls":"pvp","text":"Nagrand Arena","parent":"arena","WeakAuras2":true},{"id":"arena5","slug":"pvp/arena/ruins-of-lordaeron","cls":"pvp","text":"Ruins of Lordaeron","parent":"arena","WeakAuras2":true},{"id":"arena6","slug":"pvp/arena/tigers-peak","cls":"pvp","text":"The Tiger's Peak","parent":"arena","WeakAuras2":true},{"id":"arena7","slug":"pvp/arena/ring-of-valor","cls":"pvp","text":"The Ring of Valor","parent":"arena","WeakAuras2":true},{"id":"arena8","slug":"pvp/arena/tolviron","cls":"pvp","text":"Tol'viron Arena","parent":"arena","WeakAuras2":true},{"id":"arena9","slug":"pvp/arena/valsharah","cls":"pvp","text":"Val'sharah Arena","parent":"arena","WeakAuras2":true},{"id":"bg","slug":"pvp/battlegrounds","cls":"pvp","text":"Battlegrounds","parent":"pvp","WeakAuras2":true},{"id":"bg1","slug":"pvp/battlegrounds/alterac-valley","cls":"pvp","text":"Alterac Valley","parent":"bg","WeakAuras2":true},{"id":"bg2","slug":"pvp/battlegrounds/areathi-basin","cls":"pvp","text":"Arathi Basin","parent":"bg","WeakAuras2":true},{"id":"bg3","slug":"pvp/battlegrounds/deepwind-gorge","cls":"pvp","text":"Deepwind Gorge","parent":"bg","WeakAuras2":true},{"id":"bg4","slug":"pvp/battlegrounds/eye-of-the-storm","cls":"pvp","text":"Eye of the Storm","parent":"bg","WeakAuras2":true},{"id":"bg5","slug":"pvp/battlegrounds/isle-of-conquest","cls":"pvp","text":"Isle of Conquest","parent":"bg","WeakAuras2":true},{"id":"bg6","slug":"pvp/battlegrounds/silvershard-mines","cls":"pvp","text":"Silvershard Mines","parent":"bg","WeakAuras2":true},{"id":"bg7","slug":"pvp/battlegrounds/strand-of-the-ancients","cls":"pvp","text":"Strand of the Ancients","parent":"bg","WeakAuras2":true},{"id":"bg8","slug":"pvp/battlegrounds/temple-of-kotmogu","cls":"pvp","text":"Temple of Kotmogu","parent":"bg","WeakAuras2":true},{"id":"bg9","slug":"pvp/battlegrounds/battle-for-gilneas","cls":"pvp","text":"The Battle for Gilneas","parent":"bg","WeakAuras2":true},{"id":"bg10","slug":"pvp/battlegrounds/twin-peaks","cls":"pvp","text":"Twin Peaks","parent":"bg","WeakAuras2":true},{"id":"bg11","slug":"pvp/battlegrounds/warsong-gulch","cls":"pvp","text":"Warsong Gulch","parent":"bg","WeakAuras2":true},{"id":"gen5","slug":"development","cls":"development","text":"Development","menucol":5,"noselect":true,"WeakAuras2":true},{"id":"gen3","slug":"development/testing","cls":"development","text":"Testing","parent":"gen5","WeakAuras2":true},{"id":"gen4","slug":"development/training","cls":"development","text":"WA Training","parent":"gen5","WeakAuras2":true},{"id":"beta2","slug":"development/legion-ptr7.2","cls":"development","text":"Legion 7.2 PTR","parent":"gen5","systemtag":true,"WeakAuras2":true}]
+var wago_categories = ["gen3","pvp0","raiden","raidnh","bg","raid0","gen2","gen6","prof6","prof4","prof15","cl6"]
+var wago_fave = true
+var wagoID = "EJVb2hWQW"
+var testJS=1
+
+
+</script>
+
+
+
+<script src="/assets/wago.js?v=e86a60b1c5fbde2d0ab008db4812db11"></script>
+
+</body>
+</html>
+<script src="/assets/js/lua.vm.js"></script>
+<script type="text/lua">
+require "https://wago.io/assets/lua/WeakAurasWago.lua"
+</script>
+
+<script type="text/javascript">
+
+emscripten.print = function(x) {
+    console.log(x)
+}
+
+function WA_Load_Options() {
+    $('#lua-editor').hide()
+    $('#wa-load-editor').show()
+    L.execute("Wago.SetupLoadOptions(WeakAuras)")
+
+    $('.input-multiselect').selectize({
+        maxItems: null,
+        plugins: ['remove_button']
+    })
+
+    $('#wa-load-editor').on('click', '.input-toggle', function() {
+        var field = $(this).data('field')
+        if ($(this).hasClass('checked')) {
+            $(this).removeClass('checked')
+            $('#'+field).val('')
+        }
+        else {
+            $(this).addClass('checked')
+            $('#opt_'+field).val('1')
+        }
+    })
+    $('#wa-load-editor').on('click', '.input-tristate', function() {
+        var field = $(this).data('field')
+        if ($(this).hasClass('checked')) {
+            $(this).removeClass('checked')
+            $(this).addClass('nope')
+            $('#'+field).val('-1')
+        }
+        else if ($(this).hasClass('nope')) {
+            $(this).removeClass('nope')
+            $('#'+field).val('')
+        }
+        else {
+            $(this).addClass('checked')
+            $('#opt_'+field).val('1')
+        }
+    })
+    $('#wa-load-editor').on('click', '.input-toggle-field', function() {
+        var field = $(this).data('field')
+        var textfield = $(this).data('textfield')
+        var selectfield = $(this).data('selectfield')
+        var opfield = $(this).data('opfield')
+
+        if ($(this).hasClass('checked')) {
+            $(this).removeClass('checked')
+            $('#opt_'+field).val('')
+            if (textfield) $('#opt_'+textfield).attr('disabled', true)
+            if (opfield) $('#opt_'+opfield).addClass('disabled')
+            if (selectfield) $('#opt_'+selectfield)[0].selectize.disable()
+        }
+        else {
+            $(this).addClass('checked')
+            $('#opt_'+field).val('1')
+            if (textfield) $('#opt_'+textfield).removeAttr('disabled').focus()
+            $('#opt_'+opfield).removeClass('disabled')
+            if (selectfield) {
+                $('#opt_'+selectfield)[0].selectize.enable()
+                $('#opt_'+selectfield)[0].selectize.focus()
+            }
+        }
+    })
+}
+
+</script>

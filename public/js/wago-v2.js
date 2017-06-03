@@ -1,13 +1,13 @@
+if (!wagoID) var wagoID = $('#wago_id').text()
 var editor
+var current_func
+var CurrentPanel = "lua-editor"
 $(document).ready(function ($) {
     $('.dropdown-toggle').dropdown()
     $('[data-toggle="tooltip"]').tooltip()
     $('[data-toggle="htmltooltip"]').tooltip({html: true})
-    $(document).on('click', '.mega-dropdown', function(e) {
+    $(document).on('click', '.mega-dropdown, .mega-wago-dropdown', function(e) {
         e.stopPropagation()
-    })
-    $('#open-header-search').click(function() {
-        setTimeout($('#header-search-field').focus(), 100)
     })
     $('body').append('<i id="cursor-tooltip" data-toggle="tooltip" data-placement="right" title="" data-html="true" data-animation="false" data-trigger="manual" style="position:absolute" />')
     $('[data-toggle="cursor-tooltip"]').on('mousemove', function(e) {
@@ -43,6 +43,11 @@ $(document).ready(function ($) {
             $(this).attr('title', 'Error could not quick-copy.').tooltip({placement: 'left'}).tooltip('show').mouseout(function() { $(this).tooltip('dispose') })
     })
 
+    $('input[type=file]').change(function() {
+        var id = $(this).attr('id')
+        $('#'+id+'_filename').text($(this).val().split('\\').pop())
+    })
+
 
     if (typeof scroll_list == "object") {
         var win = $(window);
@@ -71,6 +76,17 @@ $(document).ready(function ($) {
             }
         }).trigger('scroll')
     }
+
+    $('.dropdown-container .dropdown-item').click(function(e) {
+        e.preventDefault()
+        console.log($(this).text())
+
+        val = $(this).text()
+
+        drop = $(this).parents('.dropdown-container')
+        drop.find('input').val(val)
+        drop.find('.dropdownValue').html(val+' <span class="caret"></span>')
+    })
 
     // view index page
     if ($('body').is('#page-index')) {
@@ -159,6 +175,24 @@ $(document).ready(function ($) {
             $('#importDefaultDropdown input').val(val)
             $('#importDefaultDropdown .dropdownValue').html(val+' <span class="caret"></span>')
         })
+
+        $('#theme_select div').click(function() {
+            var theme = $(this).attr('class')
+            SetSiteTheme(theme)
+            $.post('/account/set/theme', {theme: theme})
+        })
+
+        $('.account-option').on('change', function() {
+
+            if ($(this).attr('type')=='checkbox') {
+                var val = $(this).is(':checked')?'on':''
+            }
+            else {
+                var val = $(this).val()
+            }
+
+            $.post('/account/update/option', {field: $(this).data('field'), value: val })
+        })
     }
 
     else if ($('body').is('#page-collection')) {
@@ -174,7 +208,7 @@ $(document).ready(function ($) {
             setTimeout(function(){ $('#delete_collection_confirm').fadeOut() }, 7500)
         })
         $('#delete_collection_confirm').click(function() {
-            $.post('/collection/'+$('#wago_id').text()+'/delete', function(r) {
+            $.post('/collection/'+wagoID+'/delete', function(r) {
                 if (r.wago)
                     window.location = "https://wago.io/"
             })
@@ -183,23 +217,24 @@ $(document).ready(function ($) {
             if (!aura_fave) {
                 var star='1'
                 aura_fave = true
-                $('#toggle_favorite .glyphicon').addClass('glyphicon-star').removeClass('glyphicon-star-empty')
+                $('#toggle_favorite span').addClass('icon-star-full').removeClass('icon-star-empty')
                 $('#star_count').text((parseInt($('#star_count').text().replace(',', ''))+1).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","))
             }
             else {
                 var star='0'
                 aura_fave = false
-                $('#toggle_favorite .glyphicon').removeClass('glyphicon-star').addClass('glyphicon-star-empty')
+                $('#toggle_favorite span').removeClass('icon-star-full').addClass('icon-star-empty')
                 $('#star_count').text((parseInt($('#star_count').text().replace(',', ''))-1).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","))
             }
             $(this).blur()
-            $.post('/star', {wagoID: $('#wago_id').text(), star: star})
+            $.post('/star', {wagoID: wagoID, star: star})
         })
     }
 
     // view wago page
     else if ($('body').is('#page-wago')){
         $(document).on('click', '[data-toggle="lightbox"]', function(event) {
+            console.log('light')
             event.preventDefault();
             $(this).ekkoLightbox();
         });
@@ -265,15 +300,15 @@ $(document).ready(function ($) {
 
         if ($('#lua-editor').length>0) {
             editor = ace.edit("lua-editor")
-            editor.setTheme("ace/theme/tomorrow")
+            editor.setTheme(GetAceTheme())
             editor.setAutoScrollEditorIntoView(true)
             editor.setOption("maxLines", 2000)
             editor.setShowPrintMargin(false)
 
             if (wago_table) {
-                editor.getSession().setMode("ace/mode/json")
                 editor.setValue(JSON.stringify(wago_table, null, 4), -1)
-                var current_func = 'datatable'
+                editor.getSession().setMode("ace/mode/json")
+                current_func = 'datatable'
             }
             else {
                 editor.getSession().setMode("ace/mode/lua")
@@ -382,12 +417,86 @@ $(document).ready(function ($) {
             $.post('/star', {wagoID: wagoID, star: star})
         })
 
+        $('#load-editor').on('click', '.input-toggle', function() {
+            var field = $(this).data('field')
+            if ($(this).hasClass('checked')) {
+                $(this).removeClass('checked')
+                $('#opt_'+field).val('').trigger('change')
+            }
+            else {
+                $(this).addClass('checked')
+                $('#opt_'+field).val('true').trigger('change')
+            }
+        })
+        $('#load-editor').on('click', '.input-tristate', function() {
+            var field = $(this).data('field')
+            if ($(this).hasClass('checked')) {
+                $(this).removeClass('checked')
+                $(this).addClass('nope')
+                $('#opt_'+field).val('false').trigger('change')
+            }
+            else if ($(this).hasClass('nope')) {
+                $(this).removeClass('nope')
+                $('#opt_'+field).val('').trigger('change')
+            }
+            else {
+                $(this).addClass('checked')
+                $('#opt_'+field).val('true').trigger('change')
+            }
+        })
+        $('#load-editor').on('click', '.input-toggle-field', function() {
+            var field = $(this).data('field')
+            var textfield = $(this).data('textfield')
+            var selectfield = $(this).data('selectfield')
+            var opfield = $(this).data('opfield')
+
+            if ($(this).hasClass('checked')) {
+                $(this).removeClass('checked')
+                $('#opt_'+field).val('').trigger('change')
+                if (textfield) $('#opt_'+textfield).attr('disabled', true)
+                if (opfield) $('#opt_'+opfield).addClass('disabled')
+                if (selectfield) $('#opt_'+selectfield)[0].selectize.disable()
+            }
+            else {
+                $(this).addClass('checked')
+                $('#opt_'+field).val('true').trigger('change')
+                if (textfield) $('#opt_'+textfield).removeAttr('disabled').focus()
+                $('#opt_'+opfield).removeClass('disabled')
+                if (selectfield) {
+                    $('#opt_'+selectfield)[0].selectize.enable()
+                    $('#opt_'+selectfield)[0].selectize.focus()
+                }
+            }
+        })
+        $('#load-editor').on('change', 'input', function() {
+            if (!wago_table.d.load) wago_table.d.load = {}
+
+            field = $(this).data('field')
+            val = $(this).val()
+            if (val!='') {
+                if (val=='true') val = true
+                else if (val=='false') val = false
+                wago_table.d.load[field] = val
+            }
+            else {
+                delete wago_table.d.load[field]
+            }
+
+
+            editor.setValue(JSON.stringify(wago_table, null, 4), -1)
+            console.log(field, val)
+        })
+
+        $('#select-lua-editor').click(function() {
+            showPanel('lua-editor')
+        })
+
         // if select function dropdown clicked
         $('#select_func li a').click(function(e) {
             e.preventDefault()
-            ident = $(this).attr('data-fn')
+            ident = $(this).data('fn')
             if (!ident || !wago_table) return
-            custom_fn = editor.getValue()
+            custom_fn = editor.getValue()+'\n'
 
             // if we're leaving the data table
             if (current_func=='datatable') {
@@ -420,7 +529,7 @@ $(document).ready(function ($) {
 
                 if (get_fn) {
                     get_fn = JSON.stringify(get_fn)
-                    get_fn = get_fn.replace(/^"|"$/g, '').replace(/([^\\\n])\\n/g, "$1\n").replace(/\\n\n|\\n$/g,"\n").replace(/\\"/g, "\"").replace(/\\\\/g, "\\").trim().replace(/^\\n/gm, '\n')
+                    get_fn = get_fn.replace(/^"|"$/g, '').replace(/([^\\\n])\\n/g, "$1\n").replace(/\\n\n|\\n$/g,"\n").replace(/\\"/g, "\"").replace(/\\\\/g, "\\").trim().replace(/^\\n/gm, '\n')+'\n'
                     //get_fn = get_fn.replace(/^[\s]*function[\s]*\(/m, "function wago(")
                     editor.setValue(get_fn, -1)
                     editor.getSession().setMode("ace/mode/lua")
@@ -431,6 +540,7 @@ $(document).ready(function ($) {
 
             $('#current_func').text($(this).text())
             current_func = ident
+            console.log(current_func)
             return true
         })
 
@@ -548,9 +658,34 @@ $(document).ready(function ($) {
                 $('#video_prop').hide()
             })
         })
-        $('.playvideo').click(function() {
-            $('#videoplayer').html($(this).attr('data-video')).show()
-            return false;
+
+        var initialURL = $('#customurl').val()
+        $('#customurl').change(function() {
+            val = $(this).val().replace(/[^a-zA-Z0-9_-]*/g, '')
+            $(this).val(val)
+
+            $('#customslugmsg').html('')
+            if (val=="" || val==wagoID || val==initialURL)
+                return
+
+            if (val.length<7)
+                $('#customslugmsg').html('<span class="alert alert-danger">Your custom URL is too short!</span>')
+            else if (val.length>64)
+                $('#customslugmsg').html('<span class="alert alert-danger">Your custom URL is too long!</span>')
+            else {
+                $('#customslugmsg').text('Validating...')
+                $.get('/lookup/exists/'+val, function(resp) {
+                    if (resp.query=="INUSE")
+                        $('#customslugmsg').html('<span class="alert alert-danger">Sorry, this custom URL is already in use! See <a href="/'+val+'" target="_blank">https://wago.io/'+val+'</a></span>')
+                    else if (resp.query=="CLEAR") {
+                        $(this).val('')
+                        $('#customslugmsg').html('')
+                    }
+                    else if (resp.query=="OK")
+                        $('#customslugmsg').html('<span class="alert alert-success">This custom URL looks OK to use.</span>')
+
+                }, 'json')
+            }
         })
     }
 
@@ -634,18 +769,18 @@ $(document).ready(function ($) {
         $('#toggle_favorite').click(function() {
             if (!media_fave) {
                 var star='1'
-                aura_fave = true
-                $('#toggle_favorite .glyphicon').addClass('glyphicon-star').removeClass('glyphicon-star-empty')
+                media_fave = true
+                $('#toggle_favorite span').addClass('icon-star-full').removeClass('icon-star-empty')
                 $('#star_count').text((parseInt($('#star_count').text().replace(',', ''))+1).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","))
             }
             else {
                 var star='0'
-                aura_fave = false
-                $('#toggle_favorite .glyphicon').removeClass('glyphicon-star').addClass('glyphicon-star-empty')
+                media_fave = false
+                $('#toggle_favorite span').removeClass('icon-star-full').addClass('icon-star-empty')
                 $('#star_count').text((parseInt($('#star_count').text().replace(',', ''))-1).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ","))
             }
             $(this).blur()
-            $.post('/star', {wagoID: $('#media_id').text(), star: star})
+            $.post('/star', {wagoID: wagoID, star: star})
         })
 
         // fix image preview container height
@@ -706,7 +841,7 @@ $(document).ready(function ($) {
             setTimeout(function(){ $('#delete_media_confirm').fadeOut() }, 7500)
         })
         $('#delete_media_confirm').click(function() {
-            $.post('/media/'+$('#media_id').text()+'/delete', function(r) {
+            $.post('/media/'+wagoID+'/delete', function(r) {
                 if (r.wago)
                     window.location = "https://wago.io/media/"
             })
@@ -914,6 +1049,18 @@ var generateID = (function() {
     }
 })();
 
+var noWACode
+function GetWagoImportNoWACode() {
+    if (noWACode) {
+        $('#nowa_luacode').val(noWACode)
+        return
+    }
+    $.get('/'+wagoID+'/import-nowa', function(txt) {
+        noWACode=txt
+        $('#nowa_luacode').val(noWACode)
+    })
+}
+
 function copyText(text) {
   var fakeElem = document.body.appendChild(document.createElement('input'));
   fakeElem.style.position = 'absolute';
@@ -941,8 +1088,88 @@ function SetSiteTheme(theme) {
       default:
         if (editor) editor.setTheme("ace/theme/tomorrow")
         $('body').removeAttr('class')
-
     }
 }
+function GetAceTheme() {
+    if ($('body').hasClass('dark'))
+        return "ace/theme/tomorrow_night"
 
+    else
+        return "ace/theme/tomorrow"
+}
 
+function showPanel(thisPanel) {
+    if (thisPanel==CurrentPanel) return
+
+    // if we're leaving the data table
+    if (CurrentPanel=='lua-editor') {
+        custom_fn = editor.getValue()+'\n'
+        // if we're leaving the data table
+        console.log('current_func', current_func)
+        if (current_func=='datatable') {
+            // make sure we can parse the data
+            try{
+                tmp=JSON.parse(custom_fn);
+            } catch(e) {
+                alert(e) // unable to parse
+                return false
+            }
+            wago_table = tmp
+            tmp = null
+        }
+        // save code to data table
+        else {
+            custom_fn = editor.getValue()+'\n'
+            custom_fn = custom_fn.replace(/\\/g, '\\\\').replace(/\r\n|\n|\r/g, '\\n').replace(/"/g, '\\"')
+            eval("wago_table."+current_func+"=\""+custom_fn+"\"")
+            console.log('done setting up json')
+        }
+
+        $('#current_func').text('Table Data')
+    }
+
+    if (thisPanel=='lua-editor') {
+        editor.setValue(JSON.stringify(wago_table, null, 4), -1)
+        editor.getSession().setMode("ace/mode/json")
+        current_func = 'datatable'
+    }
+
+    else if(thisPanel=='load-editor') {
+        if (!wago_table.d) wago_table.d={}
+        if (!wago_table.d.load) wago_table.d.load={}
+        $('#load-editor input').each(function() {
+            var field = $(this).data('field')
+            var fieldType = typeof wago_table.d.load[field]
+            if (fieldType === 'undefined') {
+                $(this).val('')
+                $('#chk_'+field).removeClass('checked nope')
+                $(this).siblings('input').attr('disabled', true)
+            }
+            else if (fieldType === 'boolean') {
+                $(this).siblings('input').removeAttr('disabled')
+                if (wago_table.d.load[field]) {
+                    $(this).val('true')
+                    $('#chk_'+field).removeClass('nope').addClass('checked')
+                }
+                else {
+                    $(this).val('false')
+                    $('#chk_'+field).removeClass('checked').addClass('nope')
+                }
+            }
+            else {
+                $(this).val(wago_table.d.load[field])
+            }
+        })
+    }
+
+    console.log('new panel')
+    $('.editor-panel').not("#"+thisPanel).hide()
+    $("#"+thisPanel).show()
+    CurrentPanel = thisPanel
+}
+
+// make pretty search querystrings
+if (history && history.replaceState) {
+    var newurl = window.location.protocol + "//" + window.location.host + window.location.pathname + decodeURIComponent(window.location.search);
+    history.replaceState({path:newurl},'',newurl);
+}

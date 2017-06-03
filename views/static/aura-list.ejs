@@ -3,13 +3,13 @@
     for (i=0; i<auralist.results.length; i++) {
         var ss = ""
         if (auralist.results[i].thumb) {
-            ss = "<img src='"+auralist.results[i].thumb+"' class='aura-img'/>"
+            ss = '<img src="'+auralist.results[i].thumb+'" class="aura-img"/>'
         }
         else if (auralist.results[i].type=="IMAGE" && auralist.results[i].image && auralist.results[i].image[0].files.png) {
-            ss = "<img src='/mywago/media/" + auralist.results[i].image[0].files.png + "' class='aura-img'/>"
+            ss = '<img src="/mywago/media/' + auralist.results[i].image[0].files.png + '" class="aura-img"/>'
         }
         else if (auralist.results[i].type=="IMAGE" && auralist.results[i].image && auralist.results[i].image[0].files.jpg) {
-            ss = "<img src='/mywago/media/" + auralist.results[i].image[0].files.jpg + "' class='aura-img'/>"
+            ss = '<img src="/mywago/media/' + auralist.results[i].image[0].files.jpg + '" class="aura-img"/>'
         }
 
         if (auralist.results[i].type=="COLLECTION" && ss=="") {
@@ -47,7 +47,7 @@
             %>
             <div class="wago-search-item block">
                 <div class="row">
-                <a href="/<%= auralist.results[i]._id %>">
+                <a href="/<%= auralist.results[i].slug %>">
                     <div class="wago-ss col-xs-1"><%- ss %></div>
                     <div class="wago-info col-xs-11">
                         <% if (auralist.results[i].type=='WEAKAURA' || auralist.results[i].type=='ELVUI') { %>
@@ -73,7 +73,7 @@
                                 <span class="icon-clock"></span> <strong>Updated</strong> <%= auralist.results[i].date %>
                             </span>
                             <span class="meta">
-                                <span class="icon-user"></span> <strong>User</strong> <%= auralist.results[i].username %>
+                                <span class="icon-user"></span> <strong>User</strong> <span class="<%= auralist.results[i].userclass %>"><%= auralist.results[i].username || 'Anonymous' %></span>
                             </span>
                             <span class="meta">
                                 <span class="icon-eye"></span>
@@ -98,9 +98,21 @@
                         <% if (auralist.results[i].categories) { %>
                             <div class="aura-categories">
                                 <%
+                                var n=0;
+                                var lastCat=null
                                 for (var key in auralist.results[i].categories) {
                                     if(!auralist.results[i].categories.hasOwnProperty(key) || !auralist.results[i].categories[key].text) continue;
-                                    %><span class="label label-default <%= auralist.results[i].categories[key].cls %>"><%= auralist.results[i].categories[key].text %></span><%
+                                    n++
+                                    lastCat = auralist.results[i].categories[key]
+                                    if (n<=6) {
+                                        %><span class="label label-default <%= auralist.results[i].categories[key].cls %>"><%= auralist.results[i].categories[key].text %></span><%
+                                    }
+                                }
+                                if (n==7) {
+                                    %><span class="label label-default <%= lastCat.cls %>"><%= lastCat.text %></span><%
+                                }
+                                else if (n>7) {
+                                    %><span class="label label-default misc"><%= (n-6) %> more categories</span><%
                                 }
                                 %>
                             </div>

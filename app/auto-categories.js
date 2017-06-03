@@ -110,40 +110,40 @@ function getClassCategory(str) {
 function getEncounterCategory(id) {
     id = parseInt(id)
     switch (id) {
-        case 1853:
-            return 'raiden1'
-        case 1876:
-            return 'raiden4'
-        case 1873:
-            return 'raiden2'
-        case 1841:
-            return 'raiden5'
-        case 1854:
-            return 'raiden6'
-        case 1877:
-            return 'raiden7'
-        case 1864:
-            return 'raiden8'
-        case 1849:
-            return 'raidnh1'
-        case 1865:
-            return 'raidnh2'
-        case 1867:
-            return 'raidnh3'
-        case 1871:
-            return 'raidnh4'
-        case 1862:
-            return 'raidnh5'
-        case 1842:
-            return 'raidnh6'
-        case 1886:
-            return 'raidnh7'
-        case 1863:
-            return 'raidnh8'
-        case 1872:
-            return 'raidnh9'
-        case 1866:
-            return 'raidnh10'
+        case 1853: return 'raiden1' // Nythendra
+        case 1876: return 'raiden4' // Elerethe
+        case 1873: return 'raiden2' // Ilgynoth
+        case 1841: return 'raiden5' // Ursoc
+        case 1854: return 'raiden6' // Dragons
+        case 1877: return 'raiden7' // Cenarius
+        case 1864: return 'raiden8' // Xavius
+
+        case 1849: return 'raidnh1' // Skorpyron
+        case 1865: return 'raidnh2' // Chronomatic Anomaly
+        case 1867: return 'raidnh3' // Trilliax
+        case 1871: return 'raidnh4' // Spellblade Aluriel
+        case 1862: return 'raidnh5' // Tichondrius
+        case 1842: return 'raidnh6' // Krosus
+        case 1886: return 'raidnh7' // High Botanist
+        case 1863: return 'raidnh8' // Star Augur
+        case 1872: return 'raidnh9' // Elisande
+        case 1866: return 'raidnh10' // Guldan
+
+        case 1958: return 'raidtov1' // Odyn
+        case 1962: return 'raidtov2' // Guarm
+        case 2008: return 'raidtov3' // Helya
+
+        case 2032: return 'raidtomb1' // Goroth
+        case 2048: return 'raidtomb2' // Demonic Inquisition
+        case 2036: return 'raidtomb3' // Harjatan
+        case 2037: return 'raidtomb4' // Mistress Sasszine
+        case 2050: return 'raidtomb5' // Sisters of the Moon
+        case 2054: return 'raidtomb6' // Desolate Host
+        case 2052: return 'raidtomb7' // Maiden of Vigilance
+        case 2038: return 'raidtomb8' // Fallen Avatar
+        case 2051: return 'raidtomb9' // Kiljaeden
     }
     return false
+
+
 }

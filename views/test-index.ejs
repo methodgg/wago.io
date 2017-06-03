@@ -1,0 +1,138 @@
+<% include static/header2 %>
+
+<div class="row">
+    <div class="col-xs-12 col-md-12 col-lg-12 col-xl-7 col-xl-left">
+        <% if (flashMsg && flashMsg.length > 0) { %>
+            <div class="alert alert-danger"><%= flashMsg %></div>
+        <% } %>
+        <div class="block">
+            <form action="/import" id="importform" method="post">
+                <div class="row flex-items-xs-top">
+                    <div class="col-sm-8 col-xs-12">
+                        <strong>Paste your import string here.</strong><br>
+                        <textarea id="importwa" name="importwa" spellcheck="false" placeholder="WeakAura, ElvUI and Vuhdo strings are supported as well as Lua code snippets."></textarea><br>
+                        <div class="input-group import-snippet-only" style="width:100%;display:none">
+                            <span class="input-group-addon">Snippet Name</span>
+                            <input type="text" class="form-control" name="name" id="import-name">
+                        </div>
+                        <input type="submit" class="btn" value="Submit" onclick="$(this).attr('disabled', 'disasbled').val('Processing...');$('#importform').submit()" />
+                    </div>
+                    <div class="col-sm-4 col-xs-12 ">
+                        <strong>Options</strong><br>
+                        <div class="dropdown" id="visibilityDropdown">
+                            <a class="btn btn-secondary dropdown-toggle" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Visibility: <span class="dropdownValue"><%= user && user.account ? user.account.default_aura_visibility : "Public" %></span>
+                                <input name="auravisibility" type="hidden" value="<%= user && user.account ? user.account.default_aura_visibility : "Public" %>" class="inputValue" />
+                            </a>
+                            <div class="dropdown-menu" aria-labelledby="visibilityDropdown">
+                                <a class="dropdown-item" href="#" data-val="Public">Public</a>
+                                <a class="dropdown-item" href="#" data-val="Hidden">Hidden (only viewable with link)</a>
+                                <% if (user && user.account) { %>
+                                    <a class="dropdown-item" href="#" data-val="Private">Private (only you may view)</a>
+                                <% } %>
+                            </div>
+                        </div>
+                        <% if (user && user.account) { %>
+                            <div class="dropdown" id="importAsDropdown">
+                                <a class="btn btn-secondary dropdown-toggle" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    Import as: <span class="dropdownValue"><%= user.account.username %></span>
+                                    <input name="anon" type="hidden" value="<%= user.account.username %>" class="inputValue" />
+                                </a>
+                                <div class="dropdown-menu" aria-labelledby="importAsDropdown">
+                                    <a class="dropdown-item" href="#" data-val="<%= user.account.username %>"><%= user.account.username %></a>
+                                    <a class="dropdown-item" href="#" data-val="Anonymous Guest">Anonymous Guest</a>
+                                </div>
+                            </div>
+                        <% } %>
+                        <div class="dropdown" id="expireInDropdown">
+                            <a class="btn btn-secondary dropdown-toggle" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Expire After: <span class="dropdownValue"><%= (user && user.account)?'Never':'3 Months' %></span>
+                                <input name="expires" type="hidden" value="<%= (user && user.account)?'Never':'3 Months' %>" class="inputValue" />
+                            </a>
+                            <div class="dropdown-menu" aria-labelledby="expireInDropdown">
+                                <a class="dropdown-item" href="#" data-val="Never">Never</a>
+                                <a class="dropdown-item" href="#" data-val="3 months">3 months</a>
+                                <a class="dropdown-item" href="#" data-val="1 month">1 month</a>
+                                <a class="dropdown-item" href="#" data-val="1 week">1 week</a>
+                                <a class="dropdown-item" href="#" data-val="3 hours">3 hours</a>
+                                <a class="dropdown-item" href="#" data-val="15 minutes">15 minutes</a>
+                            </div>
+                        </div>
+                        <% if (static.beta_option ) { %>
+                            <div class="dropdown" id="gameVersionDropdown">
+                                <a class="btn btn-secondary dropdown-toggle" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    Game Version: <span class="dropdownValue">Live</span>
+                                    <input name="beta" type="hidden" value="Live" class="inputValue" />
+                                </a>
+                                <div class="dropdown-menu" aria-labelledby="gameVersionDropdown">
+                                    <a class="dropdown-item" href="#" data-val="Live">Live</a>
+                                    <a class="dropdown-item" href="#" data-val="Beta"><%= static.beta_option.name %></a>
+                                </div>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <br>
+        <div class="block home-news">
+            <strong>Site News</strong>
+            <%- sitenews %>
+            <a href="/devlog">Read more articles</a>
+        </div>
+    </div>
+    <div class="col-xs-12 col-md-12 col-lg-12 col-xl-5">
+        <hr class="hidden-xl-up">
+        <div class="block">
+            <div class="container">
+                <div class="row" id="top10-auras">
+                    <div class="col-md-4">
+                        <strong>Favorites</strong><hr>
+                        <ul class="list-unstyled" id="favorite_auras">
+                            <%
+                            for (var k in lists.stars) {
+                                %>
+                                <li><a href="/<%= lists.stars[k]._id %>"><%= lists.stars[k].name %></a></li>
+                                <%
+                            }
+                            %>
+                        </ul>
+                    </div>
+                    <div class="col-md-4">
+                        <strong>Recently Updated</strong><hr>
+                        <ul class="list-unstyled" id="recent_auras">
+                            <%
+                            for (var k in lists.updates) {
+                                %>
+                                <li><a href="/<%= lists.updates[k]._id %>"><%= lists.updates[k].name %></a></li>
+                                <%
+                            }
+                            %>
+                        </ul>
+                    </div>
+                    <div class="col-md-4">
+                        <strong>Newest</strong><hr>
+                        <ul class="list-unstyled" id="newest_auras">
+                            <%
+                            for (var k in lists.newest) {
+                                %>
+                                <li><a href="/<%= lists.newest[k]._id %>"><%= lists.newest[k].name %></a></li>
+                                <%
+                            }
+                            %>
+                        </ul>
+                    </div>
+               </div>
+            </div>
+        </div>
+        <br>
+        <div class="block">
+            <strong>Information</strong><br>
+            <p>Wago.io is an online database to share WeakAuras, ElvUI profiles, Vuhdo Bouquets and potentially other sharable World of Warcraft addon elements.</p>
+            <p>Wago.io is a part of the Official WeakAuras Discord server. <a href="https://discord.me/wa2" target="_blank">Join us!</a></p>
+        </div>
+    </div>
+</div>
+
+
+<% include static/footer %>

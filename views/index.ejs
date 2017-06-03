@@ -10,12 +10,12 @@
                 <div class="row flex-items-xs-top">
                     <div class="col-sm-8 col-xs-12">
                         <strong>Paste your import string here.</strong><br>
-                        <textarea id="importwa" name="importwa" spellcheck="false" placeholder="WeakAura and ElvUI strings are supported as well as Lua code snippets."></textarea><br>
+                        <textarea id="importwa" name="importwa" spellcheck="false" placeholder="WeakAura, ElvUI and Vuhdo strings are supported as well as Lua code snippets."></textarea><br>
                         <div class="input-group import-snippet-only" style="width:100%;display:none">
                             <span class="input-group-addon">Snippet Name</span>
                             <input type="text" class="form-control" name="name" id="import-name">
                         </div>
-                        <input type="submit" class="btn" value="Submit" />
+                        <input type="submit" class="btn" value="Submit" onclick="$(this).attr('disabled', 'disasbled').val('Processing...');$('#importform').submit()" />
                     </div>
                     <div class="col-sm-4 col-xs-12 ">
                         <strong>Options</strong><br>
@@ -92,7 +92,7 @@
                             <%
                             for (var k in lists.stars) {
                                 %>
-                                <li><a href="/<%= lists.stars[k]._id %>"><%= lists.stars[k].name %></a></li>
+                                <li><a href="/<%= lists.stars[k].custom_slug || lists.stars[k]._id %>"><%= lists.stars[k].name %></a></li>
                                 <%
                             }
                             %>
@@ -104,7 +104,7 @@
                             <%
                             for (var k in lists.updates) {
                                 %>
-                                <li><a href="/<%= lists.updates[k]._id %>"><%= lists.updates[k].name %></a></li>
+                                <li><a href="/<%= lists.updates[k].custom_slug || lists.updates[k]._id %>"><%= lists.updates[k].name %></a></li>
                                 <%
                             }
                             %>
@@ -116,7 +116,7 @@
                             <%
                             for (var k in lists.newest) {
                                 %>
-                                <li><a href="/<%= lists.newest[k]._id %>"><%= lists.newest[k].name %></a></li>
+                                <li><a href="/<%= lists.newest[k].custom_slug || lists.newest[k]._id %>"><%= lists.newest[k].name %></a></li>
                                 <%
                             }
                             %>
@@ -128,8 +128,33 @@
         <br>
         <div class="block">
             <strong>Information</strong><br>
-            <p>Wago.io is an online database to share WeakAuras, ElvUI profiles and potentially other sharable World of Warcraft addon elements.</p>
-            <p>Wago.io is a part of the Official WeakAuras Discord server. <a href="https://discord.me/wa2" target="_blank">Join us!</a></p>
+            <p>Wago.io is an online database to share WeakAuras, ElvUI profiles, Vuhdo Bouquets and potentially other sharable World of Warcraft addon elements.</p>
+            <p>Wago.io is a part of the Official WeakAuras Discord server. <a href="https://discord.gg/wa2" target="_blank">Join us!</a></p>
+        </div>
+        <br>
+        <div class="block">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Latest Addons</th>
+                        <th>Type</th>
+                        <th>Version</th>
+                        <th>Date</th>
+                    </tr>
+                    <%
+                    for (var i=0; i<addons.length; i++) {
+                        %>
+                        <tr>
+                            <td><%= addons[i].addon.replace('-', ' ') %></td>
+                            <td><a href="<%= addons[i].url %>" target="_blank"><%= addons[i].phase %></a></td>
+                            <td><a href="<%= addons[i].url %>" target="_blank"><%= addons[i].gameVersion || addons[i].version %></a></td>
+                            <td><%= moment(addons[i].date).fromNow() %></td>
+                        </tr>
+                        <%
+                    }
+                    %>
+                </thead>
+            </table>
         </div>
     </div>
 </div>

@@ -1,4 +1,4 @@
-// app/models/auracode.js
+// app/models/aura-code.js
 
 var mongoose = require('mongoose');
 
@@ -9,7 +9,9 @@ var auraCodeSchema = mongoose.Schema({
     json : String,
     updated : { type: Date, default: Date.now },
     lua : String,
-    version: Number             
+    version: Number,
+    build: String,
+    changelog: String
 });
 
 // create the model for users and expose it to our app

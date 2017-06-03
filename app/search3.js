@@ -28,7 +28,7 @@ module.exports = function(criteria, req, res, searchCallback) {
         sort = { "modified": -1 }
     }
 
-    var page = parseInt(criteria.page) || 0; delete criteria.page
+    var page = parseInt(criteria.page) || parseInt(req.query.page) || 0; delete criteria.page
     var max_results = parseInt(criteria.max) || 100000; delete criteria.max
     var mywago = criteria.mywago || false; delete criteria.mywago
     var advancedSearch = criteria.advanced || false; delete criteria.advanced
@@ -98,8 +98,8 @@ function wagoSimpleSearch(criteria, results, req, res, sort, page, max_results, 
 
     if (!criteria._userId && !criteria.anonymous)
         criteria._userId = {$exists: true}
-    else
-        delete criteria.anonymous
+
+    delete criteria.anonymous
 
     // setup hidden/private
     if (req.user) {
@@ -110,7 +110,7 @@ function wagoSimpleSearch(criteria, results, req, res, sort, page, max_results, 
     }
 
     delete criteria["hidden"]
-    delete criteria["private"]               
+    delete criteria["private"]
 
     if (Object.keys(criteria).length>0)
         var search = { $and: [ criteria, privacyFilter, {deleted: false} ]}
@@ -131,7 +131,7 @@ function wagoSimpleSearch(criteria, results, req, res, sort, page, max_results, 
         // get paged results
         function(parallel_cb) {
             Wago.find(search).sort(sort).skip(14*page-skip).limit(14-limit).exec(function(err, foundResults) {
-                if (err) console.error('error finding results search3', err, criteria, req)
+                if (err) console.error('error finding results search3', err, criteria)
 
                 results = results.concat(foundResults)
                 if (!results)
@@ -141,10 +141,14 @@ function wagoSimpleSearch(criteria, results, req, res, sort, page, max_results, 
                     // parse owner
                     if (!results[async_key])
                         return cb()
-                    else if (results[async_key].owner && results[async_key].owner.account && results[async_key].owner.account.username)
+                    else if (results[async_key].owner && results[async_key].owner.account && results[async_key].owner.account.username) {
                         results[async_key].user = wago.owner.account.username
-                    else
+                    }
+                    else {
                         results[async_key].user = "a Guest"
+                    }
+
+
 
                     // parse latest version
                     var ddate = moment(results[async_key].modified || results[async_key].created)
@@ -234,6 +238,7 @@ function wagoSimpleSearch(criteria, results, req, res, sort, page, max_results, 
 
                                 results[async_key].userlink = !user.account.hidden
                                 results[async_key].username = user.account.username
+                                results[async_key].userclass = user.roleclass
                                 parallel_cb2()
                             })
                         }

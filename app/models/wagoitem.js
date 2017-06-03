@@ -8,6 +8,7 @@ var shortid = require('shortid');
 var itemSchema = mongoose.Schema({
 
     _id : { type: String, unique: true, default: shortid.generate },
+    custom_slug : String,
     _userId : { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
 
    	name : String,
@@ -92,6 +93,14 @@ itemSchema.virtual('visibility').get(function() {
     else return "Public"
 })
 
+itemSchema.virtual('slug').get(function() {
+    if (this.custom_slug) return this.custom_slug
+    else return this._id
+})
+itemSchema.virtual('url').get(function() {
+    return 'https://wago.io/'+this.slug
+})
+
 itemSchema.statics.random = function(callback) {
   this.count({"hidden": false, "private": false, "deleted": false, $or:[{type: 'WEAKAURAS2'}, {type: 'ELVUI'}]}, function(err, count) {
     if (err) {
@@ -101,7 +110,7 @@ itemSchema.statics.random = function(callback) {
     this.findOne({"hidden": false, "private": false, "deleted": false, $or:[{type: 'WEAKAURAS2'}, {type: 'ELVUI'}]}).skip(rand).exec(callback);
   }.bind(this));
 };
-                       
+                      
 
 
 // create the model for aura and expose it to our app

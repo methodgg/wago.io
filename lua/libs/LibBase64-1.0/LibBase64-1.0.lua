@@ -6,7 +6,7 @@ Description: A library to encode and decode Base64 strings
 License: MIT
 ]]
 
-local LibBase64 = LibStub:NewLibrary("LibBase64-1.0-ElvUI", 1)
+local LibBase64 = LibStub:NewLibrary("LibBase64-1.0", 1)
 
 if not LibBase64 then
     return
@@ -44,7 +44,7 @@ local t = {}
 -- @param lineEnding a string to end each line with. This is "\r\n" by default.
 -- @usage LibBase64.Encode("Hello, how are you doing today?") == "SGVsbG8sIGhvdyBhcmUgeW91IGRvaW5nIHRvZGF5Pw=="
 -- @return a Base64-encoded string
-function LibBase64:Encode(text, maxLineLength, lineEnding)
+function LibBase64.Encode(text, maxLineLength, lineEnding)
     if type(text) ~= "string" then
         error(("Bad argument #1 to `Encode'. Expected %q, got %q"):format("string", type(text)), 2)
     end
@@ -120,7 +120,7 @@ local t2 = {}
 -- @param text a Base64-encoded string
 -- @usage LibBase64.Encode("SGVsbG8sIGhvdyBhcmUgeW91IGRvaW5nIHRvZGF5Pw==") == "Hello, how are you doing today?"
 -- @return a bytestring
-function LibBase64:Decode(text)
+function LibBase64.Decode(text)
     if type(text) ~= "string" then
         error(("Bad argument #1 to `Decode'. Expected %q, got %q"):format("string", type(text)), 2)
     end
@@ -185,28 +185,4 @@ function LibBase64:Decode(text)
 	end
 	
 	return s
-end
-
-function LibBase64:IsBase64(text)
-	if type(text) ~= "string" then
-		error(("Bad argument #1 to `IsBase64'. Expected %q, got %q"):format("string", type(text)), 2)
-	end
-
-	if #text % 4 ~= 0 then
-		return false
-	end
-
-	for i = 1, #text do
-		local byte = text:byte(i)
-		if whitespace[byte] or byte == equals_byte then
-			-- do nothing
-		else
-			local num = byteToNum[byte]
-			if not num then
-				return false
-			end
-		end
-	end
-
-	return true
 end

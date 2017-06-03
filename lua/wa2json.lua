@@ -90,9 +90,8 @@ else
     t = StringToTable(t, false)
 end
 
-
+--print(t)
 if (t) then
-    tmp = table.show(t)
-    --t["lua_table"] = tmp
     print(JSON:encode(t))
 end
+

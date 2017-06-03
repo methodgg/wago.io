@@ -449,7 +449,11 @@ local function grok_string(self, text, start, etc)
    while i <= text_len do
       local c = text:sub(i,i)
       if c == '"' then
-         return VALUE, i + 1
+        if type(VALUE)=="number" then
+          return tonumber(VALUE), i + 1
+        else
+          return VALUE, i + 1
+        end
       end
       if c ~= '\\' then
          VALUE = VALUE .. c
@@ -733,12 +737,16 @@ local function object_or_array(self, T, etc)
       if type(key) == 'string' then
          table.insert(string_keys, key)
       elseif type(key) == 'number' then
-         table.insert(number_keys, key)
-         if key <= 0 or key >= math.huge then
-            number_keys_must_be_strings = true
-         elseif not maximum_number_key or key > maximum_number_key then
-            maximum_number_key = key
-         end
+        if key > 1000 then
+            table.insert(string_keys, key)
+        else
+            table.insert(number_keys, key)
+            if key <= 0 or key >= math.huge then
+                number_keys_must_be_strings = true
+            elseif not maximum_number_key or key > maximum_number_key then
+                maximum_number_key = key
+            end
+        end
       else
          self:onEncodeError("can't encode table with a key of type " .. type(key), etc)
       end

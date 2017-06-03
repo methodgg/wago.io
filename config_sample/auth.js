@@ -25,6 +25,19 @@ module.exports = {
         'clientID'      : '',
         'clientSecret'  : '',
         'callbackURL'   : 'https://wago.io/auth/bnet/callback'
+    },
+
+    'patreonAuth' : {
+        'clientID'      : '',
+        'clientSecret'  : '',
+        'callbackURL'   : 'https://wago.io/auth/patreon/callback'
+    },
+
+    'discordAuth' : {
+        'clientID'      : '',
+        'clientSecret'  : '',
+        'callbackURL'   : 'https://wago.io/auth/discord/callback'
     }
+
 
 };

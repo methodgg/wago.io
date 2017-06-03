@@ -38,7 +38,7 @@ function DeserializeDatum(string)
 			return DeserializeDatum(string.gsub("`", "~`"))
 		elseif spaceControl:find("~|") then
 			-- if pipe characters have been screwed up by blizzard's method of escaping things combined with AS-3.0's way of escaping things, try to fix them.
-			return DeserializeDatum(string.gsub("~||", "~|"))
+			-- return DeserializeDatum(string.gsub("~||", "~|"))
 		end
 	end
 
@@ -49,16 +49,6 @@ function DeserializeDatum(string)
 		version = 41403
 	end
 
-	if version <= 45809 and not type and data.Type then
-		-- 45809 was the last version to contain untyped data messages.
-		-- It only supported icon imports/exports, so the type has to be an icon.
-		type = "icon"
-	end
-
-	if version <= 60032 and type == "global" then
-		-- 60032 was the last version that used "global" as the identifier for "profile"
-		type = "profile"
-	end
 
 	-- finally, we have everything we need. create a result object and return it.
 	local result = {

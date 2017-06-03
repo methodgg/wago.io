@@ -62,6 +62,7 @@ hr { margin: 10px 0}
 
 #linked_accounts input[readonly], #api-keys input[readonly] { background: white; }
 .bg-battlenet { color: white; background-color: #0078B1 }
+.bg-discord { color: white; background-color: #7289DA }
 .btn.bg-battlenet:hover { color: white; background-color: #006999 }
 .bg-twitter { color: white; background: #5ABFDD }
 .bg-facebook { color: white; background: #337AB7 }
