@@ -1510,7 +1510,7 @@ module.exports = function(app) {
                     var Code = require('./models/aura-code')
                     async.forEachOf(results.results, function(wago, key, cb) {
                         Code.findOne({auraID: wago._id}).sort({updated: -1}).select({json: 1}).exec(function(err, code) {
-                            if (code && code.json && (m = brokenSevenOne.exec(code.json)) !== null) {
+                            if (code && code.json && (m = brokenSevenOne.exec(code.json.replace(/--\[\[(.|\n|\r)+--\]\]|--.+/g, ''))) !== null) {
                                 results.results[key].brokenSevenOne = true
                             }
                             cb()
@@ -2872,7 +2872,7 @@ module.exports = function(app) {
                             }
 
                             var brokenSevenOne = /(GetPlayerMapPosition|UnitCameraFacing|UnitDistanceSquared|UnitFacing|UnitPosition|SetNamePlateOtherSize|GetNamePlateOtherSize)/;
-                            if ((m = brokenSevenOne.exec(wago.code.json)) !== null) {
+                            if ((m = brokenSevenOne.exec(wago.code.json.replace(/--\[\[(.|\n|\r)+--\]\]|--.+/g, ''))) !== null) {
                                 wago.brokenSevenOne = true
                             }
                             // find custom functions
@@ -3226,7 +3226,7 @@ module.exports = function(app) {
                             }
 
                             var brokenSevenOne = /(GetPlayerMapPosition|UnitCameraFacing|UnitDistanceSquared|UnitFacing|UnitPosition|SetNamePlateOtherSize|GetNamePlateOtherSize)/;
-                            if ((m = brokenSevenOne.exec(wago.code.json)) !== null) {
+                            if ((m = brokenSevenOne.exec(wago.code.json.replace(/--\[\[(.|\n|\r)+--\]\]|--.+/g, ''))) !== null) {
                                 wago.brokenSevenOne = true
                             }
                             // find custom functions
@@ -3616,7 +3616,7 @@ module.exports = function(app) {
                             }
 
                             var brokenSevenOne = /(GetPlayerMapPosition|UnitCameraFacing|UnitDistanceSquared|UnitFacing|UnitPosition|SetNamePlateOtherSize|GetNamePlateOtherSize)/;
-                            if ((m = brokenSevenOne.exec(wago.code.json)) !== null) {
+                            if ((m = brokenSevenOne.exec(wago.code.json.replace(/--\[\[(.|\n|\r)+--\]\]|--.+/g, ''))) !== null) {
                                 wago.brokenSevenOne = true
                             }
                             // find custom functions
