@@ -9,6 +9,7 @@ wagofn = {
         async.parallel([
             function(cb) {  // find unread comments
                 res.locals.unreadComments = []
+                res.locals.unreadCommentCount = 0
                 if (req.user) {
                     var Comment = require('./models/comment');
                     Comment.find({usersTagged: {$elemMatch: {userID: req.user._id}}}).exec(function(err, comments) {
@@ -16,7 +17,8 @@ wagofn = {
                         async.forEachOf(comments, function(comment, key, cb2) {
                             for (i=0; i<comment.usersTagged.length; i++) {
                                 if (req.user._id==comment.usersTagged[i].userID && !comment.usersTagged[i].read) {
-                                    res.locals.unreadComments.push(comment)
+                                    //res.locals.unreadComments.push(comment)
+                                    res.locals.unreadComments++
                                 }
                             }
                             cb2()

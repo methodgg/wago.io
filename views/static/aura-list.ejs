@@ -6,10 +6,10 @@
             ss = '<img src="'+auralist.results[i].thumb+'" class="aura-img"/>'
         }
         else if (auralist.results[i].type=="IMAGE" && auralist.results[i].image && auralist.results[i].image[0].files.png) {
-            ss = '<img src="/mywago/media/' + auralist.results[i].image[0].files.png + '" class="aura-img"/>'
+            ss = '<img src="https://media.wago.io/images/' + auralist.results[i].image[0].files.png + '" class="aura-img"/>'
         }
         else if (auralist.results[i].type=="IMAGE" && auralist.results[i].image && auralist.results[i].image[0].files.jpg) {
-            ss = '<img src="/mywago/media/' + auralist.results[i].image[0].files.jpg + '" class="aura-img"/>'
+            ss = '<img src="https://media.wago.io/images/' + auralist.results[i].image[0].files.jpg + '" class="aura-img"/>'
         }
 
         if (auralist.results[i].type=="COLLECTION" && ss=="") {

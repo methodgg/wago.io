@@ -178,7 +178,13 @@ module.exports = function(app) {
 
         var fs = require('fs')
         fs.readFile(__dirname + '/../hexo/public'+path, function(err, blog) {
-            blog = blog.toString().replace(/\/devlog\/devlog/g, "/devlog")
+            try {
+                blog = blog.toString().replace(/\/devlog\/devlog/g, "/devlog")
+            }
+            catch(e) {
+                return res.send('Error 404')
+            }
+
             var pageinfo = res.locals.pageinfo
 
 
@@ -1273,7 +1279,10 @@ module.exports = function(app) {
 
         var extension = req.params.extension
 
-        Wago.findOneAndUpdate({ '_id' :  mediaID, $or:[{"private": false}, {"_userId": private_user_id}] }, { $inc: { 'popularity.downloads': 1 } }, function(err, media) {
+        Wago.findOne({ '_id' :  mediaID, $or:[{"private": false}, {"_userId": private_user_id}] }, function(err, media) {
+            media.popularity.downloads++
+            media.save()
+
             if (mediaVersion>0 && media.image[mediaVersion-1])
                 media.file = media.image[mediaVersion-1].files
             else
@@ -1342,6 +1351,7 @@ module.exports = function(app) {
     // MY WAGO =============================
     // =====================================
     app.get('/mywago', isLoggedIn, function(req, res) {
+        return res.redirect('/media')
         var Wago = require('./models/wagoitem');
         Wago.count({ $or: [{ "_userId": req.user._id}, {"popularity.favorites": req.user._id}], type: 'IMAGE', deleted: false}, function(err, num) {
             res.render('mywago.ejs', { mywagofiles: num });
@@ -2370,12 +2380,15 @@ module.exports = function(app) {
 
         var pageinfo = res.locals.pageinfo
 
-        Wago.findOneAndUpdate({ $and: [{$or:[{"_id": wagoID}, {"custom_slug": wagoID}]}, {$or:[{"private": false}, {"_userId": private_user_id}] }] }, { "last_accessed": Date.now() }, function(err, wago) {
+        Wago.findOne({ $and: [{$or:[{"_id": wagoID}, {"custom_slug": wagoID}]}, {$or:[{"private": false}, {"_userId": private_user_id}] }] }, function(err, wago) {
             if (!wago || wago==null) {
                 req.flash('indexMsg', "Could not find that wago *"+wagoID+"*")
                 res.redirect('/')
                 return
             }
+
+            wago.last_accessed = Date.now()
+
             if (req.query.sort=='stars') {
                 pageinfo.sort='Stars'
             }
@@ -2414,7 +2427,7 @@ module.exports = function(app) {
         // what aura to embed
         var wagoID = req.params.wagoID
 
-        Wago.findOneAndUpdate({ "_id" :  wagoID, "private": false, type:"WEAKAURAS2" }, { $inc: { 'popularity.embeds': 1 }, "last_accessed": Date.now() }, function(err, aura) {
+        Wago.findOne({ "_id" :  wagoID, "private": false, type:"WEAKAURAS2" }, function(err, aura) {
             // if there are any errors, return the error before anything else
             if (err)
                 return done(err);
@@ -2424,6 +2437,10 @@ module.exports = function(app) {
                 res.send("Could not find that weak aura *"+wagoID+"*")
                 return
             }
+
+            aura.popularity.embeds++
+            aura.last_accessed = Date.now()
+            aura.save()
 
             var async = require('async')
 
@@ -2508,7 +2525,7 @@ module.exports = function(app) {
         }
         res.setHeader('Content-Type', 'text/plain')
 
-        Wago.findOneAndUpdate({ $and: [ { "_id" : wagoID, deleted: false }, privacyFilter ]}, { "last_accessed": Date.now() }, function(err, wago) {
+        Wago.findOne({ $and: [ { "_id" : wagoID, deleted: false }, privacyFilter ]}, function(err, wago) {
             // if there are any errors, return the error before anything else
             if (err) {
                 res.send("Error: Could not load that wago")
@@ -2522,6 +2539,9 @@ module.exports = function(app) {
                 res.end()
                 return
             }
+
+            wago.last_accessed = Date.now()
+            wago.save()
 
             var async = require('async')
 
@@ -2566,7 +2586,7 @@ module.exports = function(app) {
             var privacyFilter = { 'private': false, 'hidden': false }
         }
 
-        Wago.findOneAndUpdate({ $and: [ { "_id" : wagoID, deleted: false }, privacyFilter ]}, { "last_accessed": Date.now() }, function(err, wago) {
+        Wago.findOne({ $and: [ { "_id" : wagoID, deleted: false }, privacyFilter ]}, function(err, wago) {
             // if there are any errors, return the error before anything else
             if (err) {
                 res.send("Error: Could not load that wago")
@@ -2580,6 +2600,9 @@ module.exports = function(app) {
                 res.end()
                 return
             }
+
+            wago.last_accessed = Date.now()
+            wago.save()
 
             var async = require('async')
 
@@ -2647,8 +2670,7 @@ module.exports = function(app) {
         var Wago = require('./models/wagoitem')
         var fs = require('fs')
 
-       // res.setHeader('Content-Type', 'text/plain')
-        Wago.findOneAndUpdate({ "$or": [{'_id' :  wagoID}, {custom_slug: wagoID}]}, { $inc: { 'popularity.views': 1 }, "last_accessed": Date.now() }, function(err, wago) {
+        Wago.findOne({ "$or": [{'_id' :  wagoID}, {custom_slug: wagoID}]}, function(err, wago) {
             // if there are any errors, return the error before anything else
             if (err) {
                 console.error('selected wago error', err)
@@ -2663,6 +2685,10 @@ module.exports = function(app) {
                 res.end()
                 return
             }
+
+            wago.last_accessed = Date.now()
+            wago.popularity.views++
+            wago.save()
 
             var AuraCode = require('./models/aura-code');
             var opts = { "limit": 1, "sort": "-updated" }
@@ -2720,7 +2746,7 @@ module.exports = function(app) {
         else
             var private_user_id = null
 
-        Wago.findOneAndUpdate({ "$or": [{'_id' :  wagoID}, {custom_slug: wagoID}]}, { $inc: { 'popularity.views': 1 }, "last_accessed": Date.now() }, function(err, wago) {
+        Wago.findOne({ "$or": [{'_id' :  wagoID}, {custom_slug: wagoID}]}, function(err, wago) {
             // if there are any errors, return the error before anything else
             if (err) {
                 console.error('selected wago error', err)
@@ -2733,6 +2759,10 @@ module.exports = function(app) {
                 res.redirect('/')
                 return
             }
+
+            wago.last_accessed = Date.now()
+            wago.popularity.views++
+            wago.save()
 
             var User = require('./models/user');
             var async = require('async')
@@ -2920,8 +2950,11 @@ module.exports = function(app) {
                                         if (req.user._id == comments[commentkey].usersTagged[j].userID && !comments[commentkey].usersTagged[j].read) {
                                             comments[commentkey].attn = true
                                             wago.attnComments = true
-                                            Comments.findOneAndUpdate({'_id': comments[commentkey]._id, 'usersTagged.userID': comments[commentkey].usersTagged[j].userID, 'usersTagged.read': false }, {$set: {'usersTagged.$': {"userID": comments[commentkey].usersTagged[j].userID, "read": true  }}},
-                                                function(e, d) { }) // this doesn't seem to work without the callback?
+                                            Comments.findOne({'_id': comments[commentkey]._id, 'usersTagged.userID': comments[commentkey].usersTagged[j].userID, 'usersTagged.read': false },
+                                                function(e, d) {
+                                                    d[commentkey].usersTagged[j].read = true
+                                                    d.save()
+                                                 })
                                         }
                                     }
                                 }
@@ -2957,8 +2990,8 @@ module.exports = function(app) {
                     var Screenshots = require('./models/aura-screenshot');
                     Screenshots.find({'auraID': wagoID}, function(err, screens) {
                         wago.screens = screens
-                        if (screens && screens[0] && screens[0].localFile) {
-                            pageinfo.image = "https://wago.io/screenshots/"+wagoID+"/"+screens[0].localFile
+                        if (screens && screens[0]) {
+                            pageinfo.image = screens[0].url.original
             			    pageinfo.type = "article"
             			}
                         cb()
@@ -3116,7 +3149,7 @@ module.exports = function(app) {
         else
             var private_user_id = null
 
-        Wago.findOneAndUpdate({ "$or": [{'_id' :  wagoID}, {custom_slug: wagoID}], "type": "WeakAuras.lua"}, { $inc: { 'popularity.views': 1 }, "last_accessed": Date.now() }, function(err, wago) {
+        Wago.findOne({ "$or": [{'_id' :  wagoID}, {custom_slug: wagoID}], "type": "WeakAuras.lua"}, function(err, wago) {
             // if there are any errors, return the error before anything else
             if (err) {
                 console.error('selected wago error', err)
@@ -3134,6 +3167,10 @@ module.exports = function(app) {
                 res.redirect("/"+wago.slug+"/"+extract )
                 return
             }
+
+            wago.last_accessed = Date.now()
+            wago.popularity.views++
+            wago.save()
 
             var User = require('./models/user');
             var async = require('async')
@@ -3271,8 +3308,11 @@ module.exports = function(app) {
                                         if (req.user._id == comments[commentkey].usersTagged[j].userID && !comments[commentkey].usersTagged[j].read) {
                                             comments[commentkey].attn = true
                                             wago.attnComments = true
-                                            Comments.findOneAndUpdate({'_id': comments[commentkey]._id, 'usersTagged.userID': comments[commentkey].usersTagged[j].userID, 'usersTagged.read': false }, {$set: {'usersTagged.$': {"userID": comments[commentkey].usersTagged[j].userID, "read": true  }}},
-                                                function(e, d) { }) // this doesn't seem to work without the callback?
+                                            Comments.findOne({'_id': comments[commentkey]._id, 'usersTagged.userID': comments[commentkey].usersTagged[j].userID, 'usersTagged.read': false },
+                                                function(e, d) {
+                                                    d[commentkey].usersTagged[j].read = true
+                                                    d.save()
+                                                 })
                                         }
                                     }
                                 }
@@ -3420,11 +3460,11 @@ module.exports = function(app) {
         else
             var private_user_id = null
 
-        Wago.findOneAndUpdate({ "$or": [{'_id' :  wagoID}, {custom_slug: wagoID}]}, { $inc: { 'popularity.views': 1 }, "last_accessed": Date.now() }, function(err, wago) {
+        Wago.findOne({ "$or": [{'_id' :  wagoID}, {custom_slug: wagoID}]}, function(err, wago) {
             // if there are any errors, return the error before anything else
             if (err) {
                 console.error('selected wago error', err)
-                res.end()
+                return res.end()
             }
 
             // if no wago is found, return the message
@@ -3438,6 +3478,16 @@ module.exports = function(app) {
                 res.redirect("/"+wago.slug )
                 return
             }
+
+            else if (wago.type=='IMAGE' || wago.type=='WAFFLE') {
+                res.redirect("/media" )
+                return
+            }
+
+
+            wago.popularity.views++
+            wago.last_accessed = Date.now()
+            wago.save()
 
             var User = require('./models/user');
             var async = require('async')
@@ -3479,7 +3529,7 @@ module.exports = function(app) {
                     wago.versions = []
                     wago.latest_version = null
                     var AuraCode = require('./models/aura-code');
-                    AuraCode.find({'auraID': wago._id}, "json lua updated", {sort: '-updated'}).stream().on("data", function(ver) {
+                    AuraCode.find({'auraID': wago._id}, "updated", {sort: '-updated'}).limit(50).stream().on("data", function(ver) {
                         wago.versions.push(ver)
                         if (!wago.latest_version) wago.latest_version = ver.updated
                     }).on("end", function() {
@@ -3539,7 +3589,7 @@ module.exports = function(app) {
                             wago.code.data = data
 
                             // if we need to add url to code data (only add to latest version)
-                            if (data.d && data.d.url!=wago.url && loadVersion<=0) {
+                            if (false && data.d && data.d.url!=wago.url && loadVersion<=0) {
                                 data.d.url = wago.url
                                 data.wagoID = wago._id
                                 strJSON = JSON.stringify(data)
@@ -3682,10 +3732,9 @@ module.exports = function(app) {
                                 if (req.user) {
                                     for (j=0; j<comments[commentkey].usersTagged.length; j++) {
                                         if (req.user._id == comments[commentkey].usersTagged[j].userID && !comments[commentkey].usersTagged[j].read) {
-                                            comments[commentkey].attn = true
-                                            wago.attnComments = true
-                                            Comments.findOneAndUpdate({'_id': comments[commentkey]._id, 'usersTagged.userID': comments[commentkey].usersTagged[j].userID, 'usersTagged.read': false }, {$set: {'usersTagged.$': {"userID": comments[commentkey].usersTagged[j].userID, "read": true  }}},
-                                                function(e, d) { }) // this doesn't seem to work without the callback?
+                                            comments[commentkey].usersTagged[j].read = true
+                                            res.locals.unreadComments--
+                                            comments[commentkey].save()
                                         }
                                     }
                                 }
@@ -3721,8 +3770,8 @@ module.exports = function(app) {
                     var Screenshots = require('./models/aura-screenshot');
                     Screenshots.find({'auraID': wago._id}, function(err, screens) {
                         wago.screens = screens
-                        if (screens && screens[0] && screens[0].localFile) {
-                            pageinfo.image = "https://wago.io/screenshots/"+wago._id+"/"+screens[0].localFile
+                        if (screens && screens[0]) {
+                            pageinfo.image = screens[0].url.original
             			    pageinfo.type = "article"
             			}
                         cb()
@@ -3737,6 +3786,7 @@ module.exports = function(app) {
                 },
                 image: function(cb) {
                     if (wago.type!='IMAGE' && wago.type!='WAFFLE') return cb()
+                    console.error('file type', wago.type)
 
                     if (loadVersion>0 && wago.image[loadVersion-1])
                         wago.load = wago.image[loadVersion-1]
@@ -3745,7 +3795,7 @@ module.exports = function(app) {
 
                     var imagefile = __dirname + '/../mywago/media/'+ (wago.load.files.jpg || wago.load.files.png)
                     pageinfo.image = "https://wago.io/mywago/media/" + (wago.load.files.jpg || wago.load.files.png)
-		    pageinfo.type = "article"
+		    		pageinfo.type = "article"
                     var sizeOf = require('image-size');
                     var dimensions = sizeOf(imagefile);
                     var height = dimensions.height
@@ -3805,8 +3855,7 @@ module.exports = function(app) {
                 }
             }, function(err, x) {
                 if (err && err.redirect) {
-                    res.redirect(err.redirect)
-                    return
+                    return res.redirect(err.redirect)
                 }
                 if (err) return
 

@@ -326,12 +326,7 @@
                         }
                         if (wago.screens) {
                             for (i=0;i<Object.keys(wago.screens).length;i++) {
-                                if (wago.screens[i].localFile) {
-                                    %><a href="/screenshots/<%= wago._id %>/<%= wago.screens[i].localFile %>" data-toggle="lightbox" data-gallery="preview" data-footer="<%= wago.screens[i].caption || "" %>" id="ss_<%= wago.screens[i]._id %>"><img src="/screenshots/<%= wago._id %>/<%= wago.screens[i].localFile %>" /></a><%
-                                }
-                                else {
-                                    %><a href="<%= wago.screens[i].url.original %>" data-toggle="lightbox" data-gallery="preview" data-footer="<%= wago.screens[i].caption || "" %>" id="ss_<%= wago.screens[i]._id %>"><img src="<%= wago.screens[i].url.original %>" /></a><%
-                                }
+                                %><a href="<%= wago.screens[i].url.original %>" data-toggle="lightbox" data-gallery="preview" data-footer="<%= wago.screens[i].caption || "" %>" id="ss_<%= wago.screens[i]._id %>"><img src="<%= wago.screens[i].url.original %>" /></a><%                
                             }
                         }
                         %>

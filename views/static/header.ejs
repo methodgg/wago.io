@@ -68,8 +68,8 @@
                             <% if (user.account.username) { %>
                                 <a class="nav-link" href="/p/<%= user.account.username %>">Profile</a>
                             <% } %>
-                            <a class="nav-link" href="/my/mentions">Mentions <% if (unreadComments.length>0) {
-                                %><span class="tag tag-alert"><%= unreadComments.length %> unread</span><%
+                            <a class="nav-link" href="/my/mentions">Mentions <% if (unreadCommentCount>0) {
+                                %><span class="tag tag-alert"><%= unreadCommentCount %> unread</span><%
                             } %></a>
 
                             <a class="nav-link" href="/my/stars">Stars</a>

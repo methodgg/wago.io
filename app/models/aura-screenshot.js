@@ -17,7 +17,7 @@ var auraScreenshotSchema = mongoose.Schema({
 // build URL to original image
 auraScreenshotSchema.virtual('url.original').get(function() {
     if (this.localFile)
-        return "/screenshots/"+this.auraID+'/'+encodeURIComponent(this.localFile)
+         return "https://media.wago.io/screenshots/"+this.auraID+'/'+encodeURIComponent(this.localFile)
     else
         return "https://"+this.s3Server+"/"+this.original_bucket+"/"+encodeURIComponent(this.s3Key)
 })
@@ -25,7 +25,7 @@ auraScreenshotSchema.virtual('url.original').get(function() {
 // build URL to thumbnail image
 auraScreenshotSchema.virtual('url.thumbnail').get(function() {
     if (this.localFile)
-        return "/screenshots/"+this.auraID+'/'+encodeURIComponent(this.localFile)
+        return "https://media.wago.io/screenshots/"+this.auraID+'/'+encodeURIComponent(this.localFile)
     else
         return "https://"+this.s3Server+"/"+this.original_bucket+"/"+encodeURIComponent(this.s3Key)
 })

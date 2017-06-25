@@ -31,7 +31,7 @@ var configCDN = require('./config/express-cdn.js');
 var CDN = require('express-cdn')(app, configCDN);
 
 // passport for authentication =================================================
-require('./app/passport')(passport); 
+require('./app/passport')(passport);
 
 // set up our express application ==============================================
 app.use(morgan('short')); // log every request to the console
@@ -65,7 +65,36 @@ app.use('/mywago', express.static('mywago'));
 app.use('/api/docs', express.static('public/apidocs'));
 
 require('./app/routes-account.js')(app, passport); // load our routes and pass in our app and fully configured passport
-require('./app/routes.js')(app); 
+require('./app/routes.js')(app);
+
+// setup logging
+var morgan = require('morgan')
+var path = require('path')
+var logDirectory = path.join(__dirname, 'errors')
+
+// ensure log directory exists
+fs.existsSync(logDirectory) || fs.mkdirSync(logDirectory)
+
+// create a rotating write stream
+var accessLogStream = fs.createWriteStream(logDirectory+'/errors.log', {flags: 'a'})
+
+// setup the logger
+app.use(morgan('combined', {
+    stream: accessLogStream,
+    skip: function (req, res) { return res.statusCode < 400 } // only log errors
+  }
+))
+
+// setup error handling
+app.use(function(err, req, res, next) {
+    res.status(err.status || 500);
+    //res.render('error', {
+    //    message: "Oopsie!", //err.message,
+    //    error: {}
+    //});
+    console.error("error at", req.protocol, req.get('host'), req.originalUrl)
+    res.send({status: err.status || 500, text: "Oopsie!"})
+});
 
 // setup SSL
 var https = require('https')

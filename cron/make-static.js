@@ -137,29 +137,39 @@ async.series([
 
     // download images from S3
     }, function(cb) {
+        var sequest = require('sequest')
+        var key = fs.readFileSync(process.env.HOME + '/.ssh/id_rsa')
+        var seq = sequest.connect('mark@wago-media-01', {
+            privateKey: key
+        })
+        var SSPath = '/mnt/wago-media/screenshots/'
         Screenshots.find({ 'localFile' : null}).limit(10).sort('-uploaded').exec(function(err, screens) {
-            async.forEachOf(screens, function (item, key, cb2) {
-                try {
-                    fs.mkdirSync(app_root+'/screenshots/'+item.auraID)
-                } catch (e) {
-
-                }
+            async.forEachOfSeries(screens, function (item, key, cb2) {
                 if (!item.s3Key) return cb2()
 
-                var imageURL = item.url.original.replace(/%2F/g, '/')
-                var localFile = item.s3Key.replace(item.auraID+'/', '').replace(/\//g, '-')
-    			var ws = fs.createWriteStream(app_root+'/screenshots/'+item.auraID+'/'+localFile)
-                request(imageURL).pipe(ws)
-    			ws.on('finish', function() {
-    				screens[key].localFile = localFile
-                    screens[key].save()
-                    cb2()
-        		})
-    			ws.on('error', function() {
-    			    console.error("Unable to save file from S3 "+imageURL+ ' -> '+localFile)
-                    cb2()
-        		})
-            }, function(err) { // forEachOf(categories) callback
+                seq('mkdir -p '+SSPath+item.auraID, function(e, out) {
+                    console.log('mkdir result', e, out, key)
+
+                    var imageURL = item.url.original.replace(/%2F/g, '/')
+                    var localFile = item.s3Key.replace(item.auraID+'/', '').replace(/\//g, '-')
+                    var writer = seq.put(SSPath+item.auraID+'/'+localFile)
+
+                    console.log('upload start', SSPath+item.auraID+'/'+localFile)
+                    request(imageURL).pipe(writer)
+        			writer.on('close', function() {
+        			    console.log('upload fin', SSPath+item.auraID+'/'+localFile)
+        				screens[key].localFile = localFile
+                        screens[key].save()
+                        cb2()
+            		})
+        			writer.on('error', function() {
+        			    console.error("Unable to save file from S3 "+imageURL+ ' -> '+localFile)
+                        cb2()
+            		})
+                 })
+
+            }, function(err) { // forEachOf(screenshots) callback
+                seq.end()
                 cb()
             })
         })
