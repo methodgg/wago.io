@@ -433,7 +433,7 @@ module.exports = function(app) {
 
         require("./search3")({type: 'VUHDO', 'hidden' : false, 'private': false, $or: search_categories, page: req.query.page, sort: pageinfo.sort }, req, res, function(err, results) {
             if (results.total > 14)
-                results.more = { lookup: "/vuhdo/"+selected_category, page: 1, ort: pageinfo.sort.toLowerCase() }
+                results.more = { lookup: "/vuhdo/"+selected_category, page: 1, sort: pageinfo.sort.toLowerCase() }
 
             if (req.query.fetch=="more")
                 res.render('static/aura-list.ejs', { auralist: results });
@@ -487,7 +487,7 @@ module.exports = function(app) {
 
         require("./search3")({type: 'COLLECTION', 'hidden' : false, 'private': false, $or: search_categories, page: req.query.page, sort: pageinfo.sort }, req, res, function(err, results) {
             if (results.total > 14)
-                results.more = { lookup: "/collections/"+selected_category, page: 1, ort: pageinfo.sort.toLowerCase() }
+                results.more = { lookup: "/collections/"+selected_category, page: 1, sort: pageinfo.sort.toLowerCase() }
 
             if (req.query.fetch=="more")
                 res.render('static/aura-list.ejs', { auralist: results });
@@ -541,7 +541,7 @@ module.exports = function(app) {
 
         require("./search3")({type: 'SNIPPET', 'hidden' : false, 'private': false, $or: search_categories, page: req.query.page, sort: pageinfo.sort }, req, res, function(err, results) {
             if (results.total > 14)
-                results.more = { lookup: "/collections/"+selected_category, page: 1, ort: pageinfo.sort.toLowerCase() }
+                results.more = { lookup: "/collections/"+selected_category, page: 1, sort: pageinfo.sort.toLowerCase() }
 
             if (req.query.fetch=="more")
                 res.render('static/aura-list.ejs', { auralist: results });
@@ -973,7 +973,7 @@ module.exports = function(app) {
 
         require("./search3")(search, req, res, function(err, results) {
             if (results.total>=14)
-                results.more = { lookup: "/my-stars", page: 1, ort: pageinfo.sort.toLowerCase() }
+                results.more = { lookup: "/my/stars", page: 1, sort: pageinfo.sort.toLowerCase() }
 
             if (req.query.fetch=="more")
                 res.render('static/aura-list.ejs', { auralist: results });
@@ -2407,7 +2407,7 @@ module.exports = function(app) {
 
             require("./search3")({ collect: wago._id, page: req.query.page, sort: pageinfo.sort }, req, res, function(err, results) {
                 if (results.total>=14)
-                    results.more = { lookup: "/"+wagoID+"/collections", page: 1, ort: pageinfo.sort.toLowerCase() }
+                    results.more = { lookup: "/"+wagoID+"/collections", page: 1, sort: pageinfo.sort.toLowerCase() }
 
                 if (req.query.fetch=="more")
                     res.render('static/aura-list.ejs', { auralist: results });
@@ -3103,7 +3103,7 @@ module.exports = function(app) {
                     }
                     require("./search3")({ _id: { $in: wago.collect} }, req, res, function(err, results) {
                         if (results.total>=14)
-                            results.more = { lookup: "/collection/"+wago._id, page: 1, ort: pageinfo.sort.toLowerCase() }
+                            results.more = { lookup: "/collection/"+wago._id, page: 1, sort: pageinfo.sort.toLowerCase() }
 
                         if (req.query.fetch=="more")
                             res.render('static/aura-list.ejs', { auralist: results });
