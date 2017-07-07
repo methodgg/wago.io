@@ -4109,6 +4109,10 @@ function find_custom_functions(data, callback) {
             if (data.c[k].untrigger && data.c[k].untrigger.custom && data.c[k].untrigger.custom.length>0)
                 fn.push({ name: data.c[k].id+': UnTrigger1', func: data.c[k].untrigger.custom, path: 'c['+k+'].untrigger.custom' })
 
+            // name
+            if (data.c[k].trigger && data.c[k].trigger.customName && data.c[k].trigger.customName.length>0)
+                fn.push({ name: data.c[k].id+': Name', func: data.c[k].trigger.customName, path: 'c['+k+'].trigger.customName' })
+                
             // icon
             if (data.c[k].trigger && data.c[k].trigger.customIcon && data.c[k].trigger.customIcon.length>0)
                 fn.push({ name: data.c[k].id+': Icon', func: data.c[k].trigger.customIcon, path: 'c['+k+'].trigger.customIcon' })
@@ -4120,6 +4124,10 @@ function find_custom_functions(data, callback) {
             // duration
             if (data.c[k].trigger && data.c[k].trigger.customDuration && data.c[k].trigger.customDuration.length>0)
                 fn.push({ name: data.c[k].id+': Duration', func: data.c[k].trigger.customDuration, path: 'c['+k+'].trigger.customDuration' })
+
+            // stacks
+            if (data.c[k].trigger && data.c[k].trigger.customStacks && data.c[k].trigger.customStacks.length>0)
+                fn.push({ name: data.c[k].id+': Stacks', func: data.c[k].trigger.customStacks, path: 'c['+k+'].trigger.customStacks' })
         }
 
         // additional triggers
@@ -4131,6 +4139,10 @@ function find_custom_functions(data, callback) {
                 if (data.c[k].additional_triggers[j].untrigger.custom && data.c[k].additional_triggers[j].untrigger.custom.length>0)
                     fn.push({ name: data.c[k].id+': UnTrigger'+(parseInt(j)+2), func: data.c[k].additional_triggers[j].untrigger.custom, path: 'c['+k+'].additional_triggers['+j+'].untrigger.custom' })
 
+                // name
+                if (data.c[k].additional_triggers[j].trigger && data.c[k].additional_triggers[j].trigger.customName && data.c[k].additional_triggers[j].trigger.customName.length>0)
+                    fn.push({ name: data.c[k].id+': Icon', func: data.c[k].additional_triggers[j].trigger.customName, path: 'c['+k+'].additional_triggers['+j+'].trigger.customName' })
+                
                 // icon
                 if (data.c[k].additional_triggers[j].trigger && data.c[k].additional_triggers[j].trigger.customIcon && data.c[k].additional_triggers[j].trigger.customIcon.length>0)
                     fn.push({ name: data.c[k].id+': Icon', func: data.c[k].additional_triggers[j].trigger.customIcon, path: 'c['+k+'].additional_triggers['+j+'].trigger.customIcon' })
@@ -4142,6 +4154,10 @@ function find_custom_functions(data, callback) {
                 // duration
                 if (data.c[k].additional_triggers[j].trigger && data.c[k].additional_triggers[j].trigger.customDuration && data.c[k].additional_triggers[j].trigger.customDuration.length>0)
                     fn.push({ name: data.c[k].id+': Duration', func: data.c[k].additional_triggers[j].trigger.customDuration, path: 'c['+k+'].additional_triggers['+j+'].trigger.customDuration' })
+
+                // stacks
+                if (data.c[k].additional_triggers[j].trigger && data.c[k].additional_triggers[j].trigger.customStacks && data.c[k].additional_triggers[j].trigger.customStacks.length>0)
+                    fn.push({ name: data.c[k].id+': Stacks', func: data.c[k].additional_triggers[j].trigger.customStacks, path: 'c['+k+'].additional_triggers['+j+'].trigger.customStacks' })
             }
         }
 
