@@ -2469,7 +2469,7 @@ module.exports = function(app) {
                         aura.display_date = ddate.format("MMM Do YYYY")
                         aura.wow_patch = require('./wow_patch_by_date')(ddate, aura.wow_beta)
 
-                        var blocked_fn = /((getfenv|setfenv|loadstring|pcall|SendMail|SetTradeMoney|AddTradeMoney|PickupTradeMoney|PickupPlayerMoney|TradeFrame|MailFrame|EnumerateFrames|RunScript|AcceptTrade|SetSendMailMoney|EditMacro|SlashCmdList|DevTools_DumpCommand|hash_SlashCmdList|CreateMacro|SetBindingMacro)([\s]*\([^\)]*\))?)/g;
+                        var blocked_fn = /((getfenv|setfenv|loadstring|pcall|SendMail|SetTradeMoney|AddTradeMoney|PickupTradeMoney|PickupPlayerMoney|TradeFrame|MailFrame|EnumerateFrames|RunScript|AcceptTrade|SetSendMailMoney|EditMacro|SlashCmdList|DevTools_DumpCommand|hash_SlashCmdList|CreateMacro|SetBindingMacro|GuildDisband|GuildUninvite)([\s]*\([^\)]*\))?)/g;
                         while ((m = blocked_fn.exec(aura.code.json)) !== null) {
                             res.send("Aura contains blacklisted code; disallowing embed.")
                             return
@@ -2560,7 +2560,7 @@ module.exports = function(app) {
 
                 var json = JSON.stringify(auraCode)
 
-                var blocked_fn = /((getfenv|setfenv|loadstring|pcall|SendMail|SetTradeMoney|AddTradeMoney|PickupTradeMoney|PickupPlayerMoney|TradeFrame|MailFrame|EnumerateFrames|RunScript|AcceptTrade|SetSendMailMoney|EditMacro|SlashCmdList|DevTools_DumpCommand|hash_SlashCmdList|CreateMacro|SetBindingMacro)([\s]*\([^\)]*\))?)/g;
+                var blocked_fn = /((getfenv|setfenv|loadstring|pcall|SendMail|SetTradeMoney|AddTradeMoney|PickupTradeMoney|PickupPlayerMoney|TradeFrame|MailFrame|EnumerateFrames|RunScript|AcceptTrade|SetSendMailMoney|EditMacro|SlashCmdList|DevTools_DumpCommand|hash_SlashCmdList|CreateMacro|SetBindingMacro|GuildDisband|GuildUninvite)([\s]*\([^\)]*\))?)/g;
                 while ((m = blocked_fn.exec(json)) !== null) {
                     res.send("Error: Blacklisted code found. Quick-Copy disabled. Please view this Wago for details.")
                     res.end()
@@ -2621,7 +2621,7 @@ module.exports = function(app) {
 
                 var json = auraCode.json
 
-                var blocked_fn = /((getfenv|setfenv|loadstring|pcall|SendMail|SetTradeMoney|AddTradeMoney|PickupTradeMoney|PickupPlayerMoney|TradeFrame|MailFrame|EnumerateFrames|RunScript|AcceptTrade|SetSendMailMoney|EditMacro|SlashCmdList|DevTools_DumpCommand|hash_SlashCmdList|CreateMacro|SetBindingMacro)([\s]*\([^\)]*\))?)/g;
+                var blocked_fn = /((getfenv|setfenv|loadstring|pcall|SendMail|SetTradeMoney|AddTradeMoney|PickupTradeMoney|PickupPlayerMoney|TradeFrame|MailFrame|EnumerateFrames|RunScript|AcceptTrade|SetSendMailMoney|EditMacro|SlashCmdList|DevTools_DumpCommand|hash_SlashCmdList|CreateMacro|SetBindingMacro|GuildDisband|GuildUninvite)([\s]*\([^\)]*\))?)/g;
                 while ((m = blocked_fn.exec(json)) !== null) {
                     res.send("Error: Blacklisted code found. Lua Export disabled. Please view this Wago for details.")
                     res.end()
@@ -2706,7 +2706,7 @@ module.exports = function(app) {
                 var json = JSON.parse(auraCode.json)
                 var strJSON = JSON.stringify(json.d)
 
-                var blocked_fn = /((getfenv|setfenv|loadstring|pcall|SendMail|SetTradeMoney|AddTradeMoney|PickupTradeMoney|PickupPlayerMoney|TradeFrame|MailFrame|EnumerateFrames|RunScript|AcceptTrade|SetSendMailMoney|EditMacro|SlashCmdList|DevTools_DumpCommand|hash_SlashCmdList|CreateMacro|SetBindingMacro)([\s]*\([^\)]*\))?)/g;
+                var blocked_fn = /((getfenv|setfenv|loadstring|pcall|SendMail|SetTradeMoney|AddTradeMoney|PickupTradeMoney|PickupPlayerMoney|TradeFrame|MailFrame|EnumerateFrames|RunScript|AcceptTrade|SetSendMailMoney|EditMacro|SlashCmdList|DevTools_DumpCommand|hash_SlashCmdList|CreateMacro|SetBindingMacro|GuildDisband|GuildUninvite)([\s]*\([^\)]*\))?)/g;
                 while ((m = blocked_fn.exec(strJSON)) !== null) {
                     res.send("Error blacklisted code found. No-WA import disallowed.")
                     res.end()
@@ -2891,14 +2891,16 @@ module.exports = function(app) {
                                 //    wago.preview = "<img src='/assets/img/wow-icons/"+ent.encode(icon[1].toLowerCase())+".png' />"
                             }
 
-
-
-
-
-                            var blocked_fn = /((getfenv|setfenv|loadstring|pcall|SendMail|SetTradeMoney|AddTradeMoney|PickupTradeMoney|PickupPlayerMoney|TradeFrame|MailFrame|EnumerateFrames|RunScript|AcceptTrade|SetSendMailMoney|EditMacro|SlashCmdList|DevTools_DumpCommand|hash_SlashCmdList|CreateMacro|SetBindingMacro)([\s]*\([^\)]*\))?)/g;
+                            var blocked_fn = /((getfenv|setfenv|loadstring|pcall|SendMail|SetTradeMoney|AddTradeMoney|PickupTradeMoney|PickupPlayerMoney|TradeFrame|MailFrame|EnumerateFrames|RunScript|AcceptTrade|SetSendMailMoney|EditMacro|SlashCmdList|DevTools_DumpCommand|hash_SlashCmdList|CreateMacro|SetBindingMacro|GuildDisband|GuildUninvite)([\s]*\([^\)]*\))?)/g;
                             while ((m = blocked_fn.exec(wago.code.json)) !== null) {
                                 if (!wago.blacklist) wago.blacklist = []
                                 wago.blacklist.push(m[1])
+                            }
+
+                            var malintent_fn = /((UninviteUnit)([\s]*\([^\)]*\))?)/g;
+                            while ((m = malintent_fn.exec(wago.code.json)) !== null) {
+                                if (!wago.malicious) wago.malicious = []
+                                wago.malicious.push(m[1])
                             }
 
                             var brokenSevenOne = /(GetPlayerMapPosition|UnitCameraFacing|UnitDistanceSquared|UnitFacing|UnitPosition|SetNamePlateOtherSize|GetNamePlateOtherSize)/;
@@ -3256,10 +3258,16 @@ module.exports = function(app) {
 
                             wago.code.json = JSON.stringify(data)
 
-                            var blocked_fn = /((getfenv|setfenv|loadstring|pcall|SendMail|SetTradeMoney|AddTradeMoney|PickupTradeMoney|PickupPlayerMoney|TradeFrame|MailFrame|EnumerateFrames|RunScript|AcceptTrade|SetSendMailMoney|EditMacro|SlashCmdList|DevTools_DumpCommand|hash_SlashCmdList|CreateMacro|SetBindingMacro)([\s]*\([^\)]*\))?)/g;
+                            var blocked_fn = /((getfenv|setfenv|loadstring|pcall|SendMail|SetTradeMoney|AddTradeMoney|PickupTradeMoney|PickupPlayerMoney|TradeFrame|MailFrame|EnumerateFrames|RunScript|AcceptTrade|SetSendMailMoney|EditMacro|SlashCmdList|DevTools_DumpCommand|hash_SlashCmdList|CreateMacro|SetBindingMacro|GuildDisband|GuildUninvite)([\s]*\([^\)]*\))?)/g;
                             while ((m = blocked_fn.exec(wago.code.json)) !== null) {
                                 if (!wago.blacklist) wago.blacklist = []
                                 wago.blacklist.push(m[1])
+                            }
+                            
+                            var malintent_fn = /((UninviteUnit)([\s]*\([^\)]*\))?)/g;
+                            while ((m = malintent_fn.exec(wago.code.json)) !== null) {
+                                if (!wago.malicious) wago.malicious = []
+                                wago.malicious.push(m[1])
                             }
 
                             var brokenSevenOne = /(GetPlayerMapPosition|UnitCameraFacing|UnitDistanceSquared|UnitFacing|UnitPosition|SetNamePlateOtherSize|GetNamePlateOtherSize)/;
@@ -3659,10 +3667,16 @@ module.exports = function(app) {
 
                             wago.code.json = JSON.stringify(data)
 
-                            var blocked_fn = /((getfenv|setfenv|loadstring|pcall|SendMail|SetTradeMoney|AddTradeMoney|PickupTradeMoney|PickupPlayerMoney|TradeFrame|MailFrame|EnumerateFrames|RunScript|AcceptTrade|SetSendMailMoney|EditMacro|SlashCmdList|DevTools_DumpCommand|hash_SlashCmdList|CreateMacro|SetBindingMacro)([\s]*\([^\)]*\))?)/g;
+                            var blocked_fn = /((getfenv|setfenv|loadstring|pcall|SendMail|SetTradeMoney|AddTradeMoney|PickupTradeMoney|PickupPlayerMoney|TradeFrame|MailFrame|EnumerateFrames|RunScript|AcceptTrade|SetSendMailMoney|EditMacro|SlashCmdList|DevTools_DumpCommand|hash_SlashCmdList|CreateMacro|SetBindingMacro|GuildDisband|GuildUninvite)([\s]*\([^\)]*\))?)/g;
                             while ((m = blocked_fn.exec(wago.code.json)) !== null) {
                                 if (!wago.blacklist) wago.blacklist = []
                                 wago.blacklist.push(m[1])
+                            }
+
+                            var malintent_fn = /((UninviteUnit)([\s]*\([^\)]*\))?)/g;
+                            while ((m = malintent_fn.exec(wago.code.json)) !== null) {
+                                if (!wago.malicious) wago.malicious = []
+                                wago.malicious.push(m[1])
                             }
 
                             var brokenSevenOne = /(GetPlayerMapPosition|UnitCameraFacing|UnitDistanceSquared|UnitFacing|UnitPosition|SetNamePlateOtherSize|GetNamePlateOtherSize)/;

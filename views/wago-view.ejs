@@ -95,6 +95,20 @@
             <%
         }
 
+        if (wago.malicious) {
+            %>
+            <div class="alert alert-danger"><strong>WARNING! Potentially malicious functions detected.</strong><br>
+            These could have legitimate uses but could potentially be used for malintent.<br>
+            Please review the code or ask an expert on the <a href="https://discord.gg/wa2">Official WeakAura Discord</a> before importing.
+            <pre><%
+                for(i=0; i<wago.malicious.length; i++) {
+                    %><%= wago.malicious[i]+"\n" %><%
+                }
+                %></pre>
+            </div>
+            <%
+        }
+
         if (wago.brokenSevenOne) {
             %>
             <div class="alert alert-danger"><strong>Attention!</strong><br>
