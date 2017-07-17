@@ -1560,7 +1560,7 @@ module.exports = function(app) {
             if (req.user && req.user._id.equals(aura._userId)) {
                 // AWS setup
                 var AWS = require('aws-sdk')
-                var AWS_Config = require('../config/aws.js')
+                var AWS_Config = require('../config').aws
                 AWS.config.update({accessKeyId: AWS_Config.accessKeyId, secretAccessKey: AWS_Config.secretAccessKey, region: AWS_Config.S3.region})
 
                 // S3 setup
@@ -1617,7 +1617,7 @@ module.exports = function(app) {
                 var SSRequest = require('./models/screenshot-request')
 
                 SSRequest.findOne({ '_id' :  req.body.verify, auraID : auraID }, function(err, SSReq) {
-                    var AWS_Config = require('../config/aws.js')
+                    var AWS_Config = require('../config').aws
 
                     var _ScreenShot = require('./models/aura-screenshot');
                     var ScreenShot = new _ScreenShot()
@@ -2081,7 +2081,7 @@ module.exports = function(app) {
             if (req.user && aura._userId && req.user._id.equals(aura._userId)) {
                 var Screenshots = require('./models/aura-screenshot');
                 var AWS = require('aws-sdk')
-                var AWS_Config = require('../config/aws.js')
+                var AWS_Config = require('../config').aws
                 AWS.config.update({accessKeyId: AWS_Config.accessKeyId, secretAccessKey: AWS_Config.secretAccessKey, region: AWS_Config.S3.region})
                 var s3 = new AWS.S3()
 
@@ -2121,7 +2121,7 @@ module.exports = function(app) {
                 Screenshots.findById(screenID, function(err, screen) {
                     if (!screen || screen.auraID!=auraID) return false
                     var AWS = require('aws-sdk')
-                    var AWS_Config = require('../config/aws.js')
+                    var AWS_Config = require('../config').aws
                     AWS.config.update({accessKeyId: AWS_Config.accessKeyId, secretAccessKey: AWS_Config.secretAccessKey, region: AWS_Config.S3.region})
                     var s3 = new AWS.S3()
 
@@ -2221,12 +2221,13 @@ module.exports = function(app) {
                                 console.error('invalid tagged user ID', m[1])
                             }
                         }
+
                         User.findOne({ $or: [ {'account.username': taggedUsername} , {_id: taggedUserID } ] }).exec(function(err, foundUser) {
                             if (foundUser) {
                                 Comment.usersTagged.pull({userID: foundUser._id})
                                 Comment.usersTagged.push({userID: foundUser._id})
                                 Comment.commentText = Comment.commentText.replace("@"+taggedUsername, "[taggeduser]@"+taggedUsername+"[/taggeduser]")
-                                if (foundUser._id!=wago._userid) {
+                                if (!wago._userId.equals(foundUser._id)) {
                                     require('./wago_lib').SendWagoBotMessageFromUserId(foundUser._id, 'messageOnComment', req.user.account.username+" has tagged you in a posted comment for Wago **"+wago.name+"**.\n"+wago.url+"\n\n"+commentText)
                                 }
                             }
@@ -2903,10 +2904,15 @@ module.exports = function(app) {
                                 wago.malicious.push(m[1])
                             }
 
-                            var brokenSevenOne = /(GetPlayerMapPosition|UnitCameraFacing|UnitDistanceSquared|UnitFacing|UnitPosition|SetNamePlateOtherSize|GetNamePlateOtherSize)/;
-                            if ((m = brokenSevenOne.exec(wago.code.json.replace(/--\[\[(.|\n|\r)+--\]\]|--.+/g, ''))) !== null) {
-                                wago.brokenSevenOne = true
+                            // if updated prior to 7.1's release then check for code removed in 7.1
+                            var codeUpdate = moment(auraCode.updated)
+                            if (!codeUpdate.isAfter('2016-10-25T03:00:00Z')) {
+                                var brokenSevenOne = /(GetPlayerMapPosition|UnitCameraFacing|UnitDistanceSquared|UnitFacing|UnitPosition|SetNamePlateOtherSize|GetNamePlateOtherSize)/;
+                                if ((m = brokenSevenOne.exec(wago.code.json)) !== null) {
+                                    wago.brokenSevenOne = true
+                                }
                             }
+
                             // find custom functions
                             find_custom_functions(data, function(fn) {
                                 custom_func = fn
@@ -3270,10 +3276,15 @@ module.exports = function(app) {
                                 wago.malicious.push(m[1])
                             }
 
-                            var brokenSevenOne = /(GetPlayerMapPosition|UnitCameraFacing|UnitDistanceSquared|UnitFacing|UnitPosition|SetNamePlateOtherSize|GetNamePlateOtherSize)/;
-                            if ((m = brokenSevenOne.exec(wago.code.json.replace(/--\[\[(.|\n|\r)+--\]\]|--.+/g, ''))) !== null) {
-                                wago.brokenSevenOne = true
+                            // if updated prior to 7.1's release then check for code removed in 7.1
+                            var codeUpdate = moment(auraCode.updated)
+                            if (!codeUpdate.updated.isAfter('2016-10-25T03:00:00Z')) {
+                                var brokenSevenOne = /(GetPlayerMapPosition|UnitCameraFacing|UnitDistanceSquared|UnitFacing|UnitPosition|SetNamePlateOtherSize|GetNamePlateOtherSize)/;
+                                if ((m = brokenSevenOne.exec(wago.code.json)) !== null) {
+                                    wago.brokenSevenOne = true
+                                }
                             }
+                            
                             // find custom functions
                             find_custom_functions(data, function(fn) {
                                 custom_func = fn
@@ -3679,10 +3690,15 @@ module.exports = function(app) {
                                 wago.malicious.push(m[1])
                             }
 
-                            var brokenSevenOne = /(GetPlayerMapPosition|UnitCameraFacing|UnitDistanceSquared|UnitFacing|UnitPosition|SetNamePlateOtherSize|GetNamePlateOtherSize)/;
-                            if ((m = brokenSevenOne.exec(wago.code.json.replace(/--\[\[(.|\n|\r)+--\]\]|--.+/g, ''))) !== null) {
-                                wago.brokenSevenOne = true
+                            // if updated prior to 7.1's release then check for code removed in 7.1
+                            var codeUpdate = moment(auraCode.updated)
+                            if (!codeUpdate.isAfter('2016-10-25T03:00:00Z')) {
+                                var brokenSevenOne = /(GetPlayerMapPosition|UnitCameraFacing|UnitDistanceSquared|UnitFacing|UnitPosition|SetNamePlateOtherSize|GetNamePlateOtherSize)/;
+                                if ((m = brokenSevenOne.exec(wago.code.json)) !== null) {
+                                    wago.brokenSevenOne = true
+                                }
                             }
+
                             // find custom functions
                             find_custom_functions(data, function(fn) {
                                 custom_func = fn
@@ -4165,36 +4181,64 @@ function find_custom_functions(data, callback) {
             fn.push({ name: data.c[k].id+': Trigger Logic', func: data.c[k].customTriggerLogic, path: 'c['+k+'].customTriggerLogic' })
 
         // start animation color
-        if (data.c[k].animation && data.c[k].animation.start && data.c[k].animation.start.colorType=='custom' && data.c[k].animation.start.colorFunc)
+        if (data.c[k].animation && data.c[k].animation.start && data.c[k].animation.start.use_color && data.c[k].animation.start.colorType=='custom' && data.c[k].animation.start.colorFunc)
             fn.push({ name: data.c[k].id+': Animation/Start Color', func: data.c[k].animation.start.colorFunc, path: 'c['+k+'].animation.start.colorFunc' })
 
         // start animation alpha
-        if (data.c[k].animation && data.c[k].animation.start && data.c[k].animation.start.alphaType=='custom' && data.c[k].animation.start.alphaFunc)
+        if (data.c[k].animation && data.c[k].animation.start && data.c[k].animation.start.use_alpha && data.c[k].animation.start.alphaType=='custom' && data.c[k].animation.start.alphaFunc)
             fn.push({ name: data.c[k].id+': Animation/Start Alpha', func: data.c[k].animation.start.alphaFunc, path: 'c['+k+'].animation.start.alphaFunc' })
 
         // start animation scale
-        if (data.c[k].animation && data.c[k].animation.start && data.c[k].animation.start.scaleType=='custom' && data.c[k].animation.start.scaleFunc)
+        if (data.c[k].animation && data.c[k].animation.start && data.c[k].animation.start.use_scale && data.c[k].animation.start.scaleType=='custom' && data.c[k].animation.start.scaleFunc)
             fn.push({ name: data.c[k].id+': Animation/Start Scale', func: data.c[k].animation.start.scaleFunc, path: 'c['+k+'].animation.start.scaleFunc' })
 
         // start animation translate
-        if (data.c[k].animation && data.c[k].animation.start && data.c[k].animation.start.translateType=='custom' && data.c[k].animation.start.translateFunc)
+        if (data.c[k].animation && data.c[k].animation.start && data.c[k].animation.start.use_translate && data.c[k].animation.start.translateType=='custom' && data.c[k].animation.start.translateFunc)
             fn.push({ name: data.c[k].id+': Animation/Start Translate', func: data.c[k].animation.start.translateFunc, path: 'c['+k+'].animation.start.translateFunc' })
 
+        // start animation translate
+        if (data.c[k].animation && data.c[k].animation.start && data.c[k].animation.start.use_rotate && data.c[k].animation.start.rotateType=='custom' && data.c[k].animation.start.rotateFunc)
+            fn.push({ name: data.c[k].id+': Animation/Start Rotate', func: data.c[k].animation.start.rotateFunc, path: 'c['+k+'].animation.start.rotateFunc' })
+
         // main animation color
-        if (data.c[k].animation && data.c[k].animation.main && data.c[k].animation.main.colorType=='custom' && data.c[k].animation.main.colorFunc)
+        if (data.c[k].animation && data.c[k].animation.main && data.c[k].animation.main.use_color && data.c[k].animation.main.colorType=='custom' && data.c[k].animation.main.colorFunc)
             fn.push({ name: data.c[k].id+': Animation/Main Color', func: data.c[k].animation.main.colorFunc, path: 'c['+k+'].animation.main.colorFunc' })
 
         // main animation alpha
-        if (data.c[k].animation && data.c[k].animation.main && data.c[k].animation.main.alphaType=='custom' && data.c[k].animation.main.alphaFunc)
+        if (data.c[k].animation && data.c[k].animation.main && data.c[k].animation.main.use_alpha && data.c[k].animation.main.alphaType=='custom' && data.c[k].animation.main.alphaFunc)
             fn.push({ name: data.c[k].id+': Animation/Main Alpha', func: data.c[k].animation.main.alphaFunc, path: 'c['+k+'].animation.main.alphaFunc' })
 
         // main animation scale
-        if (data.c[k].animation && data.c[k].animation.main && data.c[k].animation.main.scaleType=='custom' && data.c[k].animation.main.scaleFunc)
+        if (data.c[k].animation && data.c[k].animation.main && data.c[k].animation.main.use_scale && data.c[k].animation.main.scaleType=='custom' && data.c[k].animation.main.scaleFunc)
             fn.push({ name: data.c[k].id+': Animation/Main Scale', func: data.c[k].animation.main.scaleFunc, path: 'c['+k+'].animation.main.scaleFunc' })
 
         // main animation translate
-        if (data.c[k].animation && data.c[k].animation.main && data.c[k].animation.main.translateType=='custom' && data.c[k].animation.main.translateFunc)
+        if (data.c[k].animation && data.c[k].animation.main && data.c[k].animation.main.use_translate && data.c[k].animation.main.translateType=='custom' && data.c[k].animation.main.translateFunc)
             fn.push({ name: data.c[k].id+': Animation/Main Translate', func: data.c[k].animation.main.translateFunc, path: 'c['+k+'].animation.main.translateFunc' })
+
+        // main animation translate
+        if (data.c[k].animation && data.c[k].animation.main && data.c[k].animation.main.use_rotate && data.c[k].animation.main.rotateType=='custom' && data.c[k].animation.main.rotateFunc)
+            fn.push({ name: data.c[k].id+': Animation/Main Rotate', func: data.c[k].animation.main.rotateFunc, path: 'c['+k+'].animation.main.rotateFunc' })            
+
+        // finish animation color
+        if (data.c[k].animation && data.c[k].animation.finish && data.c[k].animation.finish.use_color && data.c[k].animation.finish.colorType=='custom' && data.c[k].animation.finish.colorFunc)
+            fn.push({ name: data.c[k].id+': Animation/Finish Color', func: data.c[k].animation.finish.colorFunc, path: 'c['+k+'].animation.finish.colorFunc' })
+
+        // finish animation alpha
+        if (data.c[k].animation && data.c[k].animation.finish && data.c[k].animation.finish.use_alpha && data.c[k].animation.finish.alphaType=='custom' && data.c[k].animation.finish.alphaFunc)
+            fn.push({ name: data.c[k].id+': Animation/Finish Alpha', func: data.c[k].animation.finish.alphaFunc, path: 'c['+k+'].animation.finish.alphaFunc' })
+
+        // finish animation scale
+        if (data.c[k].animation && data.c[k].animation.finish && data.c[k].animation.finish.use_scale && data.c[k].animation.finish.scaleType=='custom' && data.c[k].animation.finish.scaleFunc)
+            fn.push({ name: data.c[k].id+': Animation/Finish Scale', func: data.c[k].animation.finish.scaleFunc, path: 'c['+k+'].animation.finish.scaleFunc' })
+
+        // finish animation translate
+        if (data.c[k].animation && data.c[k].animation.finish && data.c[k].animation.finish.use_translate && data.c[k].animation.finish.translateType=='custom' && data.c[k].animation.finish.translateFunc)
+            fn.push({ name: data.c[k].id+': Animation/Finish Translate', func: data.c[k].animation.finish.translateFunc, path: 'c['+k+'].animation.finish.translateFunc' })
+
+        // finish animation translate
+        if (data.c[k].animation && data.c[k].animation.finish && data.c[k].animation.finish.use_rotate && data.c[k].animation.finish.rotateType=='custom' && data.c[k].animation.finish.rotateFunc)
+            fn.push({ name: data.c[k].id+': Animation/Finish Rotate', func: data.c[k].animation.finish.rotateFunc, path: 'c['+k+'].animation.finish.rotateFunc' })
     }
 
     if (single_aura) {
