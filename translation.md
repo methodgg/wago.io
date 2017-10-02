@@ -8,7 +8,7 @@ I'm using https://poeditor.com/ to organize and compile the translations so to s
 
 There are two things that show up in the strings to translate that use some code to determine what it is.
 
-1. A small number of strings use HTML such as <strong>bold words</strong>. The HTML should stay as-is but the actual text should be translated. In layman's terms, don't touch anything between < and >.
+1. A small number of strings use HTML such as &lt;strong&gt;bold words&lt;/strong&gt;. The HTML should stay as-is but the actual text should be translated. In layman's terms, don't touch anything between < and >.
 1. Some strings include variables denoted like [-count-]. These are generally numbers or names, not something that would need to be translated itself. Keep these as-is and just move them so that they make sense.
 
 The following is the status of supported and to-be-supported languages (as of this document's last update time). If you're still here and interested in helping out then give me a shout on the WeakAuras Discord.
