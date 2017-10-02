@@ -1,0 +1,107 @@
+.theme-dark {
+  $Background: #212121;
+  $Background2: #333333;
+  $Background3: #404040;
+  $Links: #c1272d;
+  $Text: #DDD;
+  $Text2: #B6B6B6;
+  $Text3: #999999;
+
+  background: $Background;
+  color: $Text;
+  h2, .md-subheader {
+    color: $Text;
+  }
+  .md-theme-default.md-list {
+    background: $Background;
+    color: $Text;
+  }
+  .md-theme-default.md-card, .md-card .md-theme-default.md-list, .md-theme-default.md-menu-content .md-list, .md-theme-default.md-select-content .md-menu-item.md-selected, .md-theme-default.md-select-content .md-menu-item.md-checked,
+  .md-whiteframe, .md-whiteframe .md-theme-default.md-list,
+  #full-sidebar .md-sidenav-content,  {
+    background: $Background2;
+    color: $Text;
+  }
+  #user-info, #gSearch, #usernav {
+    background: $Background3;
+  }
+  .md-theme-default.md-select-content .md-menu-item.md-selected, .md-theme-default.md-select-content .md-menu-item.md-checked {
+    background: $Background;
+  }
+  .md-list-text-container > :nth-child(2):not(:last-child), .md-theme-default.md-list .md-list-item .router-link-active.md-list-item-container {
+    color: $Text2;
+  }
+  .md-list-text-container > :nth-child(2), .md-list-text-container > :nth-child(3) {
+    color: $Text3;
+  }
+  .md-theme-default.md-button-toggle.md-accent .md-toggle {
+    color: white;
+  }
+
+  .md-input-container {
+    &:after {
+      background-color: $Text2;
+    }
+    &.md-has-value input, &.md-has-value textarea, input, textarea, label, .md-icon:not(.md-icon-delete), &.md-has-select {
+      color: $Text2;
+      -webkit-text-fill-color: $Text2;
+    }
+
+    input, textarea {
+      &::-webkit-input-placeholder { /* Chrome */ color: $Text2; }
+      &:-ms-input-placeholder { /* IE 10+ */ color: $Text2; }
+      &::-moz-placeholder { /* Firefox 19+ */ color: $Text2; opacity: 1; }
+      &:-moz-placeholder { /* Firefox 4 - 18 */ color: $Text2; opacity: 1; }
+    }
+
+    &.md-theme-default.md-input-focused {
+      label, .md-icon:not(.md-icon-delete), input, textarea {
+        color: $Text;
+        -webkit-text-fill-color: $Text;
+      }
+      &:after {
+        background-color: $Text;
+      }
+    }
+  }  
+
+  .md-theme-default.md-select:after, .md-select:not(.md-disabled):after, .md-button-toggle > .md-button:not([disabled]){
+    color: white;
+    -webkit-text-fill-color: white;
+  }
+
+  .md-button-toggle>.md-button:not([disabled]), .md-select:not(.md-disabled):after, .md-theme-default.md-select:after { 
+    color: white;
+  }
+  .md-table .md-table-head, .md-table .md-table-cell { 
+    color: $Text;
+  }
+  .md-table tbody .md-table-row:hover .md-table-cell { 
+    background-color: $Background3;
+  }
+  .md-list:after {
+    background-color: $Text3;
+  }
+  
+
+  .searchText > a {
+    color: $Links;
+  }
+
+  .user-default {
+    color: white!important;
+  }
+  .cl-priest, .cl-priest a {
+    color: white!important;
+  }
+  .cl-rogue, .cl-rogue a {
+    color: #FFF569!important;
+  }
+  .tombofsargeras, .tombofsargeras a {
+    color: #068a46!important;
+  }
+  .pvp-battleground md, .pvp-battleground md a {
+    color: #055fa0!important;
+  }
+
+}

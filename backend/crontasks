@@ -1,0 +1,3 @@
+# Cron tasks make a request to the local restify server and updates live in-memory data.
+# Update random wago of the moment every minute
+* * * * * wget -q http://localhost:3030/tasks/random -O /dev/null

@@ -1,0 +1,1153 @@
+<template>
+  <div id="view-wago">
+    <ui-loading v-if="!wagoExists"></ui-loading>
+    <div v-else>
+      <md-card id="wago-header" ref="header">
+        <div class="floating-header">
+          <h3>{{ wago.name }}</h3>
+          <md-subheader>{{ wago.type }}</md-subheader>
+        </div>
+        <md-card-header>
+          <md-avatar>
+            <ui-image :img="wago.user.avatar"></ui-image>
+          </md-avatar>
+          <div class="item">
+            <div class="md-title" v-if="wago.UID && wago.user.searchable" v-html="$t('Imported by [-URL-][-roleClass-][-name-]', {URL: '/p/' + encodeURIComponent(wago.user.name), roleClass: wago.user.roleClass, name: wago.user.name})"></div>
+            <div class="md-title" v-else-if="wago.UID" v-html="$t('Imported by [-roleClass-][-name-]', {roleClass: wago.user.roleClass, name: wago.user.name})"></div>
+            <div class="md-title" v-else>{{ $t("Imported by guest") }}</div>
+            <div class="md-subhead">{{ wago.date.modified | moment('MMM Do YYYY') }} [{{ wago.patch }}]</div>
+          </div>
+          <div class="item">
+            <div class="md-title">{{ $t("[-count-] star", { count: wago.favoriteCount }) }}</div>
+            <div class="md-subhead">{{ $t("[-count-] view", { count: wago.viewCount }) }}</div>
+          </div>
+          <div class="item">
+            <div class="md-title">{{ $t("Permalink") }}</div>
+            <div class="md-subhead has-link"><a :href="wago.url" @click.prevent="copyURL">{{ wago.url }}</a></div>
+          </div>
+          <div id="tags">
+            <template v-for="cat in wago.categories">
+              <md-chip :class="cat.cls" disabled v-if="cat.text">{{ cat.text }}</md-chip>
+            </template>            
+          </div>
+        </md-card-header>
+      </md-card>
+
+      <md-card id="wago-floating-header" v-if="showFloatingHeader">
+        <div class="floating-header">
+          <div>
+            <h3>{{ wago.name }}</h3>
+            <md-subheader>{{ wago.type }}</md-subheader>
+          </div>
+          <div>
+            <md-button @click="toTop"><md-icon>arrow_upward</md-icon> {{ $t("To top") }}</md-button>
+            <md-button v-if="wago.code && wago.code.encoded && !wago.alerts.blacklist" @click="copyEncoded"><md-icon>assignment</md-icon> {{ $t("Copy [-type-] import string", {type: wago.type}) }}</md-button>
+          </div>
+        </div>
+      </md-card>
+
+      <div id="wago-flex-container">
+        <div id="wago-col-main">
+
+          <!-- ACTIONS -->
+          <md-card-actions id="wago-actions">
+            <md-button v-if="User.UID" @click="toggleFavorite">
+              <md-icon v-if="wago.myfave">star</md-icon>
+              <md-icon v-else>star_border</md-icon> {{ $t("Favorite") }}
+            </md-button>
+            <md-button v-if="wago.code && wago.code.encoded && !wago.alerts.blacklist" @click="copyEncoded"><md-icon>assignment</md-icon> {{ $t("Copy [-type-] import string", {type: wago.type}) }}</md-button>
+          </md-card-actions>
+
+          <!-- FRAME TOGGLES -->
+          <md-button-toggle class="md-accent">
+            <md-button v-if="wago.user && User && wago.UID && wago.UID === User.UID" @click="toggleFrame('config')">{{ $t("Config") }}</md-button>
+            <md-button class="md-toggle" @click="toggleFrame('description')">{{ $t("Description") }}</md-button>
+            <md-button :class="{'md-toggle': initShowVersions}" v-if="wago.versions && wago.versions.total > 1" @click="toggleFrame('versions')" ref="versionsButton">{{ $t("[-count-] Versions", { count: wago.versions.total }) }}</md-button>
+            <md-button @click="toggleFrame('collections')">{{ $t("Collections") }}</md-button>
+            <md-button v-if="!wago.alerts.blacklist" @click="toggleFrame('embed')">{{ $t("Embed") }}</md-button>
+            <md-button :class="{'md-toggle': initShowEditor}" @click="toggleFrame('editor')">{{ $t("Editor") }}</md-button>
+          </md-button-toggle>
+
+          <ui-warning v-if="wago.expires" mode="info">
+            {{ $t("This import will expire in [-time-]", {time: this.$moment(wago.expires).fromNow() }) }}<br>
+          </ui-warning>
+
+          <ui-warning v-if="wago.fork && wago.fork._id" mode="info" :html="$t('This is a fork of [-id-][-name-]', {id: wago.fork._id, name: wago.fork.name})"></ui-warning>
+
+          <ui-warning v-if="wago.visibility && wago.visibility.private">
+            {{ $t("This import is private only you may view it") }}
+          </ui-warning>
+          <ui-warning v-else-if="wago.visibility && wago.visibility.hidden">
+            {{ $t("This import is hidden only those with the URL may view it") }}
+          </ui-warning>
+
+          <ui-warning v-if="wago.alerts.blacklist" mode="alert">
+            {{ $t("Blacklisted code detected") }}<br>
+            <div v-for="func in wago.alerts.blacklist">{{ func }}</div>
+          </ui-warning>
+          <ui-warning v-else-if="wago.alerts.malicious" mode="alert">
+            {{ $t("Possible malicious code detected") }}<br>
+            <div v-for="func in wago.alerts.malicious">{{ func }}</div>
+          </ui-warning>
+
+          <!-- CONFIG FRAME -->
+          <div id="wago-config-container" class="wago-container">
+            <md-card id="wago-config" v-if="showConfig">
+              <h2>{{ $t("Configuration") }}</h2>
+              <h3>{{ $t("Text setup")}}</h3>
+              <md-input-container :class="{ 'md-input-invalid': updateNameError, 'md-input-status': updateNameHasStatus }">
+                <label>{{ $t("Title") }}</label>
+                <md-input v-model="editName" @change="onUpdateName()" :debounce="600"></md-input>
+                <span class="md-error" v-if="updateNameStatus.length>0">{{ updateNameStatus }}</span>
+              </md-input-container>
+              <div v-if="User.access.customSlug">
+                <md-input-container :class="{ 'md-input-invalid': updateSlugError, 'md-input-status': updateSlugHasStatus, 'customSlug': true }">
+                  <label>{{ $t("Custom URL") }}</label>
+                  <span class="root">http://wago.io/</span>
+                  <md-input v-model="editSlug" @change="onUpdateSlug()" :debounce="600"></md-input>
+                <span class="md-error" v-if="updateSlugStatus.length>0">{{ updateSlugStatus }}</span>
+                </md-input-container>
+              </div>
+              <md-input-container :class="{ 'md-input-invalid': updateDescError, 'md-input-status': updateDescHasStatus }">
+                <label>{{ $t("Description") }}</label>
+                <md-textarea v-model="editDesc" @change="onUpdateDescription()" :debounce="600"></md-textarea>
+                <span class="md-error" v-if="updateDescStatus.length>0">{{ updateDescStatus }}</span>
+              </md-input-container>
+              <md-input-container :class="{ 'md-input-invalid': updateDescError, 'md-input-status': updateDescHasStatus, 'md-has-value': editCategories.length > 0 }">
+                <label>{{ $t("Categories") }}</label>
+                <multiselect v-model="editCategories" :options="categories" track-by="text" label="text" :multiple="true" :max="3" :close-on-select="false" :clear-on-select="false" :hide-selected="true" :preserve-search="true" :placeholder="$t('Select')" select-label="" @input="onUpdateCategories()">
+                  <template slot="tag" scope="props"><span :class="'custom__tag ' + props.option.cls">
+                    <span>{{ props.option.text }}</span><span class="multiselect_remove" @click="props.remove(props.option)">❌</span></span>
+                  </template>
+                  <template slot="option" scope="props">
+                    <div :class="'md-chip ' + props.option.cls"><span class="option__title">{{ props.option.text }}</span></div>
+                  </template>
+                </multiselect>
+              </md-input-container>
+              <h3>{{ $t("Preview setup")}}</h3>
+              <md-layout>
+                <md-layout md-flex="75">
+                  <md-input-container :class="{ 'md-input-invalid': pasteURLError, 'md-input-status': pasteURLHasStatus}">
+                    <label>{{ $t("Add an image or video by pasting an image directly or input a URL") }}</label>
+                    <md-input v-model="pasteURL" id="pasteURL" :readonly="pasteURLUploading"></md-input>
+                    <span class="md-error" v-if="pasteURLStatus">{{ pasteURLStatus }}</span>
+                  </md-input-container>
+                </md-layout>
+                <md-layout>
+                  <md-input-container>
+                    <md-file v-model="uploadImages" multiple accept="image/*" :placeholder="$t('Or click to upload image')" @selected="onUploadFile($event)"></md-file>
+                  </md-input-container>
+                </md-layout>
+              </md-layout>
+              <div v-if="wago.videos.length > 0">
+                <strong>{{ $t("Videos") }}</strong>
+                <vddl-list :list="wago.screens" :horizontal="true" :drop="onVideoMoved">
+                  <vddl-draggable v-for="(item, index) in wago.videos" :key="item._id" :draggable="item" :index="index" effect-allowed="move" :moved="onVideoMoveOut">
+                    <span class="vddl-delete" @click="onVideoDelete(index)">❌</span>
+                    <md-image :md-src="item.thumb"></md-image>
+                  </vddl-draggable>
+                </vddl-list>
+              </div>
+              <div v-if="wago.screens.length > 0" class="config-screenshots">
+                <strong>{{ $t("Screenshots") }}</strong>
+                <vddl-list :list="wago.screens" :horizontal="true" :drop="onScreenshotMoved">
+                  <vddl-draggable v-for="(item, index) in wago.screens" :key="item._id" :draggable="item" :index="index" effect-allowed="move" :moved="onScreenMoveOut">
+                    <span class="vddl-delete" @click="onScreenDelete(index)">❌</span>
+                    <md-image :md-src="item.src"></md-image>
+                  </vddl-draggable>
+                </vddl-list>
+              </div>
+
+              <md-card-actions>
+                <md-button id="deleteWago" @click="$refs['deleteWago'].open()">Delete</md-button>
+                <md-dialog md-open-from="#deleteWago" md-close-to="#deleteWago" ref="deleteWago">
+                  <md-dialog-title>{{ $t("Are you sure you want to delete this import?") }}</md-dialog-title>
+                  <md-dialog-content>{{ $t("There is no way to undo this action") }}</md-dialog-content>
+                  <md-dialog-actions>
+                    <md-button class="md-primary" @click="$refs['deleteWago'].close()">Cancel</md-button>
+                    <md-button class="md-primary" @click="onDeleteImport()">Delete</md-button>
+                  </md-dialog-actions>
+                </md-dialog>
+              </md-card-actions>        
+            </md-card>
+          </div>
+
+          <!-- DESCRIPTIONS FRAME -->
+          <div id="wago-description-container" class="wago-container">
+            <div id="wago-description" v-if="showDescription">
+              <h2 v-if="wago && (wago.screens && wago.screens.length>0) || (wago.videos && wago.videos.length>0)">{{ $t("Preview & Description") }}</h2>
+              <h2 v-else>{{ $t("Description") }}</h2>
+
+              <div id="thumbnails">
+                <template v-for="video in wago.videos">
+                  <a class="showvid" :href="video.url" @click.prevent="showVideo(video.embed)"><md-image :md-src="video.thumb"></md-image></a>
+                </template>
+                <lightbox id="mylightbox" :images="wago.screens"></lightbox>
+              </div>
+              <formatted-text :text="wago.description"></Formatted-text>
+            </div>
+          </div>
+
+          <!-- VERSIONS FRAME -->
+          <div id="wago-versions-container" class="wago-container">
+            <md-card id="wago-versions" v-if="showVersions">
+              <h2>{{ $t("Previous versions") }}</h2>
+              <md-table @select="selectVersion">
+                <md-table-header>
+                  <md-table-row>
+                    <md-table-head>{{ $t("Import Date") }}</md-table-head>
+                    <md-table-head md-numeric>{{ $t("Iteration") }}</md-table-head>
+                    <md-table-head md-numeric>{{ $t("Size") }}</md-table-head>
+                  </md-table-row>
+                </md-table-header>
+
+                <md-table-body>
+                  <md-table-row v-for="(ver, key) in wago.versions.versions" v-bind:key="key" :md-item="ver" md-auto-select md-selection>
+                    <md-table-cell>
+                      {{ ver.date | moment("dddd, MMMM Do YYYY, h:mm a") }}
+                      <md-chip v-if="key===0">{{ $t("Latest version") }}</md-chip>
+                      <md-chip v-if="ver.version===version || (!version && key===0)">{{ $t("Viewing this version") }}</md-chip>
+                    </md-table-cell>
+                    <md-table-cell md-numeric>
+                      {{ ver.version }}
+                    </md-table-cell>
+                    <md-table-cell md-numeric>
+                      {{ ver.size }}
+                    </md-table-cell>
+                  </md-table-row>
+                </md-table-body>
+              </md-table>
+              <md-button v-if="showMoreVersions" @click="loadMoreVersions"><md-icon>list</md-icon> {{ $t("Load more versions" )}}</md-button>
+            </md-card>
+          </div>
+
+          <!-- COLLECTIONS FRAME -->
+          <div id="wago-collections-container" class="wago-container">
+            <md-card id="wago-collections" v-if="showCollections">
+              <div v-if="wago.collections.length > 0">
+                <h2>{{ $t("This Wago is included in [-count-] public collections", {count: wago.collectionCount}) }}</h2>
+                <md-table @select="selectVersion">
+                  <md-table-header>
+                    <md-table-row>
+                      <md-table-head>{{ $t("Collection") }}</md-table-head>
+                      <md-table-head>{{ $t("Last Modified") }}</md-table-head>
+                      <md-table-head>{{ $t("User") }}</md-table-head>
+                    </md-table-row>
+                  </md-table-header>
+
+                  <md-table-body>
+                    <md-table-row v-for="(coll, key) in wago.collections" v-bind:key="key">
+                      <md-table-cell>
+                        <router-link :to="coll.slug">{{ coll.name }}</router-link>
+                      </md-table-cell>
+                      <md-table-cell>
+                        {{ coll.modified | moment("dddd, MMMM Do YYYY, h:mm a") }}
+                      </md-table-cell>
+                      <md-table-cell class="userlink">
+                        <md-avatar><md-image :md-src="coll.user.avatar" alt="Avatar"></md-image></md-avatar> 
+                        <router-link v-if="coll.user.profile" :to="coll.user.profile" :class="coll.user.class">{{ coll.user.name }}</router-link>
+                        <span v-else :class="coll.user.class">{{ coll.user.name }}</span>
+                      </md-table-cell>
+                    </md-table-row>
+                  </md-table-body>
+                </md-table>
+                <md-button v-if="showMoreCollections" @click="loadMoreCollections"><md-icon>list</md-icon> {{ $t("Load more collections" )}}</md-button>
+              </div>
+              <div v-else><strong>{{ $t("This WeakAura is not included in any public collections") }}</strong></div>
+            </md-card>
+          </div>
+
+          <!-- EMBED FRAME -->
+          <div id="wago-embed-container" class="wago-container">
+            <md-card id="wago-embed" v-if="showEmbed">
+              <h2>{{ $t("Embed script") }}</h2>
+              <div>{{ $t("Embed this wago on your own site") }}</div>
+              <div id="embed-content">
+                <div id="embed-inputs" class="field-group">
+                  <md-input-container>
+                    <label for="embedStyle">{{ $t("Button Style") }}</label>
+                    <md-select id="embedStyle" v-model="embedStyle">
+                      <md-option value="dark">{{ $t("Dark") }}</md-option>
+                      <md-option value="light">{{ $t("Light") }}</md-option>
+                      <md-option value="none">{{ $t("None") }}</md-option>
+                    </md-select>
+                    <md-button @click="copyEmbed()">{{ $t("Copy code") }}</md-button>
+                  </md-input-container>
+                  <md-input-container>
+                    <label>{{ $t("Embed code") }}</label>
+                    <md-input readonly :value="'<script src=&quot;https://wago.io/' + this.wago._id + '/embed.js?style=' + this.embedStyle + '&quot;></script>'"></md-input>
+                  </md-input-container>
+                </div>
+                <div id="embed-preview-container" :class="embedStyle">
+                  <md-subheader>{{ $t("Preview") }}</md-subheader>
+                  <div id="embed-preview">
+                    <span :id="'wago-'+wago._id" class="wagoEmbed">
+                      <a :href="wago.url" class='vr'><img src="https://wago.io/assets/favicon/apple-touch-icon-57x57.png"></a>
+                      <button @click="embedCopy(this, wago.code.encoded)" class="wagoCopyButton">
+                        <small class="clickToCopyWago">Click to copy import string from wago.io</small>
+                        <div class="wagoName">{{ wago.name }}</div>
+                      </button>
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div>{{ $t("The following HTML code will be generated when you place the embed script on your site") }}</div>
+              <editor v-model="embedHTML" @init="embedEditorInit" lang="html" :theme="editorTheme" width="100%" height="100" readonly></editor>
+            </md-card>
+          </div>
+
+          <!-- EDITOR FRAME -->
+          <div id="wago-editor-container" class="wago-container">
+            <div id="wago-editor" v-if="showEditor">
+              <edit-elvui v-if="wago.type=='ELVUI'"></edit-elvui>
+              <edit-snippet v-else-if="wago.type=='SNIPPET'"></edit-snippet>
+              <edit-vuhdo v-else-if="wago.type=='VUHDO'"></edit-vuhdo>
+              <edit-weakaura v-else-if="wago.type=='WEAKAURA'"></edit-weakaura>
+              <div v-else>{{ $t("Error unknown type [-type-]", {type: type}) }}</div>
+            </div>
+          </div>
+          <div class="border" v-if="showEditor"></div>
+
+          <div id="wago-importstring-container" class="wago-container">
+            <textarea id="wago-importstring">{{ wago.code.encoded }}</textarea>
+          </div>
+          
+        </div>
+
+        <!-- SIDE PANEL COMMENTS -->
+        <div id="wago-col-side">
+          <view-comments :comments="wago.comments" :commentTotal="wago.commentCount" :wagoID="wago._id"></view-comments>
+        </div>
+      </div>
+    </div>    
+
+    <div id="view-wago" v-if="!wagoExists">
+      <md-spinner></md-spinner>
+    </div>
+
+    <md-dialog ref="videoplayer" id="video-modal" @close="hideVideo">
+      <div class="video-wrapper" v-html="videoEmbedHTML"></div>
+    </md-dialog>
+  </div>
+</template>
+
+<script>
+function copyTextToClipboard (text) {
+  try {
+    var textArea = '<textarea id="copyMe" style="position:fixed;top:0;left:0;width:2em;height:2em;padding:0;margin:0;border:0;outline:none;box-shadow:none;background:white">' + text + '</textarea>'
+    document.getElementById('copyContainer').innerHTML = textArea
+    document.getElementById('copyMe').select()
+    var copied = document.execCommand('copy')
+    document.getElementById('copyContainer').innerHTML = ''
+    return copied
+  }
+  catch (err) {
+    document.body.removeChild(textArea)
+    return false
+  }
+}
+
+function setupPasteImage (vue) {
+  document.getElementById('pasteURL').onpaste = function (event) {
+    // use event.originalEvent.clipboard for newer chrome versions
+    var items = (event.clipboardData || event.originalEvent.clipboardData).items
+    // find pasted image among pasted items
+    var blob = null
+    for (var i = 0; i < items.length; i++) {
+      if (items[i].type.indexOf('image') === 0) {
+        blob = items[i].getAsFile()
+      }
+    }
+    // load image if there is a pasted image
+    if (blob !== null) {
+      var reader = new FileReader()
+      reader.onload = function (event) {
+        vue.http.post('/wago/upload/image/base64', {
+          wagoID: vue.wago._id,
+          image: event.target.result
+        }).then((res) => {
+          vue.$set(vue.wago.screens, vue.wago.screens.length, res)
+        })
+      }
+      reader.readAsDataURL(blob)
+    }
+  }
+}
+
+import Categories from '../libs/categories'
+import Lightbox from 'vue-simple-lightbox'
+import Multiselect from 'vue-multiselect'
+export default {
+  components: {
+    'view-comments': require('../UI/ViewComments.vue'),
+    'formatted-text': require('../UI/FormattedText.vue'),
+    Lightbox,
+    'edit-elvui': require('../UI/EditElvUI.vue'),
+    'edit-snippet': require('../UI/EditSnippet.vue'),
+    'edit-vuhdo': require('../UI/EditVuhdo.vue'),
+    'edit-weakaura': require('../UI/EditWeakAura.vue'),
+    editor: require('vue2-ace-editor'),
+    Multiselect
+  },
+  created: function () {
+    this.fetchWago()
+    window.addEventListener('scroll', this.watchScroll)
+  },
+  destroyed: function () {
+    window.removeEventListener('scroll', this.watchScroll)
+  },
+  data: function () {
+    return {
+      videoEmbedHTML: '',
+      showDescription: true,
+      showEditor: (window.innerWidth > 800),
+      showConfig: false,
+      showVersions: (parseInt(this.$route.params.version) > 0),
+      showMoreVersions: true,
+      showCollections: false,
+      showMoreCollections: true,
+      showEmbed: false,
+      embedStyle: 'dark',
+      version: this.$route.params.version,
+      showFloatingHeader: false,
+      editName: '',
+      updateNameHasStatus: false,
+      updateNameStatus: '',
+      updateNameError: false,
+      editSlug: '',
+      updateSlugHasStatus: false,
+      updateSlugStatus: '',
+      updateSlugError: false,
+      editDesc: '',
+      updateDescHasStatus: false,
+      updateDescStatus: '',
+      updateDescError: false,
+      editCategories: [],
+      doNotReloadWago: false,
+      pasteURL: '',
+      pasteURLStatus: '',
+      pasteURLHasStatus: false,
+      pasteURLError: false,
+      pasteURLUploading: false,
+      uploadImages: '',
+      uploadFileProgress: []
+    }
+  },
+  watch: {
+    '$route': 'fetchWago',
+    pasteURL: 'onUpdatePasteURL'
+  },
+  computed: {
+    wago () {
+      return this.$store.state.wago
+    },
+    wagoExists () {
+      if (this.$store.state.wago && this.$store.state.wago._id) {
+        return true
+      }
+      return false
+    },
+    categories () {
+      var arr = Categories.categories(this.$t)
+      var cats = []
+      arr.forEach((cat) => {
+        if (cat[this.wago.type] && !cat.noselect) {
+          cats.push(cat)
+        }
+      })
+      return cats
+    },
+    User () {
+      return this.$store.state.user
+    },
+    initShowEditor () {
+      return (window.innerWidth > 800) // init state for toggle button
+    },
+    initShowVersions () {
+      return (parseInt(this.$route.params.version) > 0)
+    },
+    embedHTML () {
+      if (this.embedStyle === 'none') {
+        return `<span id="wago-${this.wago._id}" class="wagoEmbed">
+  <button class="wagoCopyButton">
+    <small class="clickToCopyWago">Click to copy import string from wago.io</small>
+    <div class="wagoName">${this.wago.name}</div>
+  </button>
+</span>`
+      }
+      else {
+        var embedTheme = {}
+        if (this.embedStyle === 'light') {
+          embedTheme = {buttonBG: '#FFF', buttonHover: '#F4F4F4', textColor: 'rgba(0,0,0,.87)', logo: 'https://media.wago.io/assets/favicon/apple-touch-icon-57x57.png'}
+        }
+        else {
+          embedTheme = {buttonBG: '#000', buttonHover: '#040404', textColor: 'rgba(255,255,255,.87)', logo: 'https://media.wago.io/assets/favicon/apple-touch-icon-57x57.png'}
+        }
+        return `<span id="wago-${this.wago._id}" class="wagoEmbed">
+  <a href="https://wago.io/${this.wago.slug}">
+    <img src="${embedTheme.logo}">'
+  </a>
+  <button class="wagoCopyButton">
+    <small class="clickToCopyWago">Click to copy import string from wago.io</small>
+    <div class="wagoName">${this.wago.name}</div>
+  </button>
+</span>
+<style>
+#wago-${this.wago._id} a {display: inline; padding: 0 2px; margin: 0; border:0}
+#wago-${this.wago._id} img {display: inline; padding: 0; margin: 0; border: 0; height: 50px}
+#wago-${this.wago._id} button {display: inline; padding: 4px 16px; min-width: 130px; cursor: pointer; background-color: ${embedTheme.buttonBG}; color: ${embedTheme.textColor}; border: 0; text-align: center; vertical-align: top; border-radius: 6px}
+#wago-${this.wago._id} button:hover {background-color:${embedTheme.buttonHover}}
+#wago-${this.wago._id} .clickToCopy {display: block; padding: 0; margin: 0; font-size: 10px}
+#wago-${this.wago._id} .wagoName {display: block; padding: 0; margin: 4px 0; font-weight: bold; font-size: 13px}
+</style>`
+      }
+    },
+    editorTheme: function () {
+      if (!this.$store.state.user || !this.$store.state.user.config || !this.$store.state.user.config.editor) {
+        return 'tomorrow'
+      }
+      else {
+        return this.$store.state.user.config.editor || 'tomorrow'
+      }
+    }
+  },
+  methods: {
+    fetchWago () {
+      if (this.doNotReloadWago) {
+        return false
+      }
+      var vue = this
+      var wagoID = this.$route.params.wagoID
+      this.$store.commit('setWago', {})
+
+      // reset sections
+      this.showEditor = (window.innerWidth > 800)
+      this.showConfig = false
+      this.showVersions = (parseInt(this.$route.params.version) > 0)
+      this.showMoreVersions = true
+      this.showCollections = false
+      this.showMoreCollections = true
+      this.showEmbed = false
+
+      var params = {}
+      params.id = wagoID
+      this.version = parseInt(this.$route.params.version)
+      if (this.version) {
+        params.version = this.version
+      }
+
+      vue.http.get('/lookup/wago', params).then((res) => {
+        res.categories = res.categories.map((cat) => {
+          return Categories.match(cat, vue.$t)
+        })
+        if (res.code && res.code.json) {
+          res.code.obj = JSON.parse(res.code.json)
+          res.code.json = JSON.stringify(res.code.obj, null, 2)
+        }
+
+        if (res.versions.total > 10) {
+          vue.showMoreVersions = true
+        }
+        else {
+          vue.showMoreVersions = false
+        }
+
+        if (res.collectionCount > 10) {
+          vue.showMoreCollections = true
+        }
+        else {
+          vue.showMoreCollections = false
+        }
+
+        vue.$store.commit('setWago', res)
+        // initial config
+        this.editName = res.name
+        this.editSlug = res.slug
+        this.editDesc = res.description.text
+        this.editCategories = res.categories
+
+        vue.$store.commit('setPageInfo', {
+          title: res.name,
+          description: res.description.text,
+          image: res.screens && res.screens[0] && res.screens[0].src || false
+        })
+      })
+    },
+    copyEncoded () {
+      try {
+        document.getElementById('wago-importstring').select()
+        var copied = document.execCommand('copy')
+        if (copied) {
+          window.eventHub.$emit('showSnackBar', this.$t('Import string copied'))
+        }
+        else {
+          window.eventHub.$emit('showSnackBar', this.$t('Import string failed to copy please upgrade to a modern browser'))
+        }
+        return copied
+      }
+      catch (e) {
+        console.log(e)
+        window.eventHub.$emit('showSnackBar', this.$t('Import string failed to copy please upgrade to a modern browser'))
+      }
+    },
+    copyURL () {
+      if (copyTextToClipboard(this.$store.state.wago.url, this)) {
+        window.eventHub.$emit('showSnackBar', this.$t('URL copied'))
+      }
+      else {
+        window.eventHub.$emit('showSnackBar', this.$t('URL failed to copy please upgrade to a modern browser'))
+      }
+    },
+    copyEmbed () {
+      var stopEscaping = '<'
+      if (copyTextToClipboard(stopEscaping + 'script src="https://wago.io/' + this.wago._id + '/embed.js?style=' + this.embedStyle + '">' + stopEscaping + '/script>', this)) {
+        window.eventHub.$emit('showSnackBar', this.$t('Embed script copied'))
+      }
+      else {
+        window.eventHub.$emit('showSnackBar', this.$t('Embed script failed to copy please upgrade to a modern browser'))
+      }
+    },
+    toggleFavorite () {
+      var params = {}
+      params.wagoID = this.wago._id
+      params.addStar = !(this.wago.myfave)
+
+      var vue = this
+      this.http.post('/wago/star', params).then(function (res) {
+        vue.$set(vue.wago, 'myfave', params.addStar)
+        vue.$set(vue.wago, 'favoriteCount', res.count)
+      })
+    },
+    showVideo (embedHTML) {
+      this.videoEmbedHTML = embedHTML
+      this.$refs['videoplayer'].open()
+    },
+    hideVideo () {
+      this.videoEmbedHTML = ''
+    },
+    toggleFrame (frame) {
+      var div
+      /* eslint-disable no-cond-assign */
+      switch (frame) {
+        case 'description':
+          if (this.showDescription = !this.showDescription) {
+            div = '#wago-description-container'
+          }
+          break
+
+        case 'editor':
+          if (this.showEditor = !this.showEditor) {
+            div = '#wago-editor-container'
+          }
+          break
+
+        case 'config':
+          if (this.showConfig = !this.showConfig) {
+            div = '#wago-config-container'
+          }
+          if (this.showConfig) {
+            this.$nextTick(function () {
+              setupPasteImage(this)
+            })
+          }
+          break
+
+        case 'versions':
+          if (this.showVersions = !this.showVersions) {
+            div = '#wago-versions-container'
+          }
+          break
+
+        case 'collections':
+          if (this.showCollections = !this.showCollections) {
+            div = '#wago-collections-container'
+          }
+          break
+
+        case 'embed':
+          if (this.showEmbed = !this.showEmbed) {
+            div = '#wago-embed-container'
+          }
+          break
+      }
+
+      if (div) {
+        this.$scrollTo(div)
+      }
+    },
+    toTop () {
+      this.$scrollTo('#app')
+    },
+    watchScroll () {
+      var header = this.$refs.header
+      if (!header) {
+        this.showFloatingHeader = false
+      }
+      else {
+        var rect = header.$el.getBoundingClientRect()
+        var viewHeight = Math.max(document.documentElement.clientHeight, window.innerHeight)
+        this.showFloatingHeader = !!(rect.bottom < 0 || rect.top - viewHeight >= 0)
+      }
+    },
+    selectVersion (v) {
+      this.$router.push('/' + this.$store.state.wago.slug + '/' + v[0].version)
+    },
+    loadMoreVersions () {
+      this.http.get('/lookup/wago/versions', {params: {id: this.wago._id}}).then((res) => {
+        var v = this.wago.versions.versions.concat(res)
+        this.$set(this.wago.versions, 'versions', v)
+        this.showMoreVersions = false
+      })
+    },
+    loadMoreCollections () {
+      this.http.get('/lookup/wago/collections', {params: {id: this.wago._id}}).then((res) => {
+        var c = this.wago.collections.concat(res)
+        this.$set(this.wago, 'collections', c)
+        this.showMoreCollections = false
+      })
+    },
+    embedEditorInit (editor) {
+      this.aceEditor = editor
+      window.braceRequires()
+      editor.setOptions({
+        autoScrollEditorIntoView: true,
+        readOnly: true,
+        printMargin: false,
+        minLines: 1,
+        maxLines: 30
+      })
+      editor.session.setUseWorker(false)
+    },
+    embedCopy (e, o) {
+      var t = document.querySelector('.clickToCopyWago')
+      var n = document.createElement('textarea')
+      n.style.cssText = 'position:fixed;top:0;left:0;width:2em;height:2em;padding:0;border:0;outline:none;boxShadow:none;background:transparent'
+      n.value = o
+      document.body.appendChild(n)
+      n.select()
+      try {
+        document.execCommand('copy')
+        document.body.removeChild(n)
+        var label = t.textContent
+        t.textContent = 'Copied!'
+        setTimeout(function () {
+          t.textContent = label
+        }, 3e3)
+      }
+      catch (d) {
+        return document.body.removeChild(n)
+      }
+    },
+
+    onUpdateName () {
+      this.$nextTick(function () {
+        this.editName = this.editName.trim()
+        this.updateNameHasStatus = true
+        if (this.editName.length > 0) {
+          this.updateNameError = false
+          this.updateNameStatus = this.$t('Saving')
+          var vue = this
+          this.http.post('/wago/update/name', {
+            wagoID: vue.wago._id,
+            name: this.editName
+          }).then((res) => {
+            if (res.success) {
+              vue.updateNameStatus = vue.$t('Saved')
+              vue.$set(vue.wago, 'name', vue.editName)
+              vue.$store.commit('setPageInfo', {
+                title: vue.editName
+              })
+              setTimeout(function () {
+                vue.updateNameHasStatus = false
+              }, 600)
+            }
+            else {
+              this.updateNameStatus = this.$t('Error could not save')
+              this.updateNameError = true
+            }
+          })
+        }
+        else {
+          this.updateNameStatus = this.$t('Error invalid name')
+          this.updateNameError = true
+        }
+      })
+    },
+
+    onUpdateSlug () {
+      this.$nextTick(function () {
+        this.editSlug = this.editSlug.trim()
+        this.updateSlugHasStatus = true
+        if (this.editSlug === '') {
+          this.editSlug = this.wago._id
+        }
+        // %#/\\<> and white space are invalid characters. String must be 7 letters long or include unicode.
+        if (this.editSlug.match(/[\s%#/\\<>]/) || (this.editSlug.length < 7 && !this.editSlug.match(/[^\u0000-\u007F]/))) {
+          this.updateSlugStatus = this.$t('Custom URLs can not contain the following characters %#/\\<> or spaces and be at 7 characters long')
+          this.updateSlugError = true
+          return false
+        }
+
+        this.updateSlugError = false
+        this.updateSlugStatus = this.$t('Saving')
+        var vue = this
+        this.http.post('/wago/update/slug', {
+          wagoID: vue.wago._id,
+          slug: this.editSlug
+        }).then((res) => {
+          if (res.success) {
+            vue.updateSlugStatus = vue.$t('Saved')
+            vue.$set(vue.wago, 'slug', this.editSlug)
+            vue.$set(vue.wago, 'url', 'https://wago.io/' + this.editSlug)
+            // prevent page load from resetting the view and scrolling to the top
+            vue.doNotReloadWago = true
+            window.preventScroll = true
+            // update url
+            vue.$router.replace('/' + this.editSlug)
+            setTimeout(function () {
+              vue.updateSlugHasStatus = false
+              // allow page loads to reset view, once again
+              vue.doNotReloadWago = false
+              window.preventScroll = undefined
+            }, 600)
+          }
+          else if (res.exists) {
+            vue.updateSlugStatus = vue.$t('Error this URL is already in use')
+            this.updateSlugError = true
+          }
+          else {
+            this.updateSlugStatus = this.$t('Error could not save')
+            this.updateSlugError = true
+          }
+        }).catch((e) => {
+          this.updateSlugStatus = this.$t('Error could not save')
+          this.updateSlugError = true
+        })
+      })
+    },
+
+    onUpdateDescription () {
+      this.$nextTick(function () {
+        this.editDesc = this.editDesc.trim()
+        this.updateDescHasStatus = true
+        this.updateDescError = false
+        this.updateDescStatus = this.$t('Saving')
+        var vue = this
+        this.http.post('/wago/update/desc', {
+          wagoID: vue.wago._id,
+          desc: this.editDesc
+          // format: 'bbcode'
+        }).then((res) => {
+          if (res.success) {
+            vue.updateDescStatus = vue.$t('Saved')
+            vue.$set(vue.wago.description, 'text', vue.editDesc)
+            vue.$store.commit('setPageInfo', {
+              description: vue.editDesc
+            })
+            setTimeout(function () {
+              vue.updateDescHasStatus = false
+            }, 600)
+          }
+          else {
+            this.updateDescStatus = this.$t('Error could not save')
+            this.updateDescError = true
+          }
+        })
+      })
+    },
+
+    onUpdateCategories () {
+      var cats = []
+      this.editCategories.forEach((cat) => {
+        cats.push(cat.id)
+      })
+
+      this.updateCatHasStatus = true
+      this.updateCatError = false
+      this.updateCatStatus = this.$t('Saving')
+      var vue = this
+      this.http.post('/wago/update/categories', {
+        wagoID: vue.wago._id,
+        cats: cats.join(',')
+      }).then((res) => {
+        if (res.success) {
+          vue.updateCatStatus = vue.$t('Saved')
+          vue.$set(vue.wago, 'categories', vue.editCategories)
+          setTimeout(function () {
+            vue.updateDescHasStatus = false
+          }, 600)
+        }
+        else {
+          this.updateCatStatus = this.$t('Error could not save')
+          this.updateCatError = true
+        }
+      })
+    },
+
+    onUploadFile (files) {
+      var vue = this
+      for (var i = 0, file; file = files[i]; i++) {
+        vue.uploadFileProgress.push(0)
+        var uploadIndex = vue.uploadFileProgress.length - 1
+
+        var data = new FormData()
+        data.append('wagoID', vue.wago._id)
+        data.append('file', file)
+        var config = {
+          onUploadProgress: (progressEvent) => {
+            var percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total)
+            vue.uploadFileProgress[uploadIndex] = percentCompleted
+          }
+        }
+        vue.http.post('/wago/upload/image', data, config)
+          .then((res) => {
+            vue.uploadFileProgress[uploadIndex] = 100
+            vue.$set(vue.wago.screens, vue.wago.screens.length, res)
+          })
+          .catch((err) => {
+            console.log('Error uploading image', err)
+          })
+      }
+      this.uploadImages = ''
+    },
+
+    onUpdatePasteURL () {
+      this.pasteURL = this.pasteURL.trim().replace(/\s/g, '%20')
+      if (this.pasteURL === '') {
+        this.pasteURLHasStatus = false
+        this.pasteURLError = false
+        this.pasteURLUploading = false
+        return
+      }
+      // validate URL
+      if (!this.pasteURL.match(/^https?:\/\/[\w.-]+(?:\.[\w.-]+)/i)) {
+        this.pasteURLError = true
+        this.pasteURLStatus = this.$t('Input is not a valid URL')
+        this.pasteURLUploading = false
+        return
+      }
+      var vue = this
+      // valid URL, send to server
+      this.pasteURLHasStatus = true
+      this.pasteURLStatus = this.$t('Processing')
+      this.pasteURLUploading = true
+      vue.http.post('/wago/upload/image/url', {
+        wagoID: vue.wago._id,
+        url: this.pasteURL
+      }).then((res) => {
+        if (res.type === 'screenshot') {
+          vue.$set(vue.wago.screens, vue.wago.screens.length, res)
+        }
+        else if (res.type === 'video') {
+          vue.$set(vue.wago.videos, vue.wago.videos.length, res)
+        }
+        vue.pasteURLStatus = vue.$t('Saved')
+        vue.pasteURLUploading = false
+        vue.pasteURL = ''
+        setTimeout(function () {
+          vue.pasteURLHasStatus = false
+        }, 600)
+      })
+    },
+
+    onScreenMoveOut (index) {
+      this.wago.screens.splice(index, 1)
+    },
+
+    onScreenshotMoved (draggable) {
+      // insert video into dragged location
+      this.wago.screens.splice(draggable.index, 0, draggable.item)
+
+      // build sort list and send to server
+      var sort = []
+      this.wago.screens.forEach((screen) => {
+        if (sort.indexOf(screen._id) === -1) {
+          sort.push(screen._id)
+        }
+      })
+      var vue = this
+      this.http.post('/wago/update/sort/screenshots', {
+        wagoID: vue.wago._id,
+        screens: sort.join(',')
+      }).then((res) => {
+        // success, render is already up to date.
+      }).catch((err) => {
+        console.log(err)
+        window.eventHub.$emit('showSnackBar', vue.$t('Error could not save'))
+      })
+    },
+
+    onScreenDelete (index) {
+      this.http.post('/wago/update/delete/screenshot', {
+        wagoID: this.wago._id,
+        screen: this.wago.screens[index]._id
+      })
+      this.wago.screens.splice(index, 1)
+    },
+
+    onVideoMoveOut (index) {
+      this.wago.videos.splice(index, 1)
+    },
+
+    onVideoMoved (draggable) {
+      // insert video into dragged location
+      this.wago.videos.splice(draggable.index, 0, draggable.item)
+
+      // build sort list and send to server
+      var sort = []
+      this.wago.videos.forEach((video) => {
+        if (sort.indexOf(video._id) === -1) {
+          sort.push(video._id)
+        }
+      })
+      var vue = this
+      this.http.post('/wago/update/sort/videos', {
+        wagoID: vue.wago._id,
+        videos: sort.join(',')
+      }).then((res) => {
+        // success, render is already up to date.
+      }).catch((err) => {
+        console.log(err)
+        window.eventHub.$emit('showSnackBar', vue.$t('Error could not save'))
+      })
+    },
+
+    onVideoDelete (index) {
+      this.http.post('/wago/update/delete/video', {
+        wagoID: this.wago._id,
+        video: this.wago.videos[index]._id
+      })
+      this.wago.videos.splice(index, 1)
+    },
+
+    onDeleteImport () {
+      this.http.post('/wago/update/delete/confirm', {
+        wagoID: this.wago._id
+      })
+      this.$router.replace('/')
+    }
+  }
+}
+</script>
+
+<style src="vue-multiselect/dist/vue-multiselect.min.css"></style>
+<style>
+#copyFail textarea { max-height: 110px; min-height:110px }
+#copyFail .md-input-container { display: inline-block; position: relative}
+
+#view-wago > div { position: relative }
+#wago-header.md-card { padding-bottom:0!important; }
+#wago-header.md-card, #wago-floating-header.md-card { padding: 16px; margin: 16px }
+#wago-header.md-card h3, #wago-floating-header.md-card h3 { margin: 0 }
+#wago-header.md-card h3 + .md-subheader, #wago-floating-header.md-card h3 + .md-subheader { padding:0; min-height:0 }
+
+#wago-header .md-card-header, #wago-floating-header .md-card-header { padding-left: 0}
+#wago-header .md-card-header .item, #wago-floating-header .md-card-header .item { padding-left: 0!important; float: left; display: inline; margin-right: 16px; vertical-align: middle }
+@media (min-width: 601px) {
+  #wago-header .md-card-header .item+.item { margin-left: 16px; margin-right: 0 }
+}
+#wago-header .md-card-header .item .md-title { font-weight: 500; line-height: 20px; font-size: 14px }
+#wago-header .md-card-header .item .md-subhead { font-weight: 500; line-height: 20px; font-size: 14px; opacity: .54 }
+#wago-header .md-card-header .item .md-subhead.has-link { opacity: 1 }
+
+#wago-floating-header { position: fixed; top:-16px; right:0; left: 304px; z-index: 9; opacity: .95 }
+#wago-floating-header .floating-header { display: flex; justify-content: flex-start; align-content: stretch; align-items: flex-start}
+#wago-floating-header .floating-header div { flex: 0 1 auto; vertical-align:top; margin-right: 24px}
+#wago-floating-header button { margin-top: 0 }
+@media (max-width: 600px) {
+  #wago-floating-header { display: none!important}
+}
+
+#wago-actions {text-align: right; margin-right: 8px}
+#tags { display: block; clear: both; padding-top: 16px}
+#thumbnails { vertical-align: middle; white-space: nowrap; width: 100%; overflow-x: auto; overflow-y: hidden; }
+#thumbnails div, a.showvid { float: left; vertical-align: middle; display: inline }
+#thumbnails img { padding: 8px 16px 8px 0; max-width: 150px; max-height: 120px; vertical-align: middle }
+#thumbnails img + img { padding: 0 8px }
+a.showvid:hover img { transform: scale(1.05); }
+.sl-overlay { background-color: rgba(0, 0, 0, 0.54) }
+
+#video-modal { width: 70vw; height: 39.375vw; z-index:999; margin: auto; background: none; outline: none}
+#video-modal > .md-dialog {width: 100%; height: 100%; background: none; position: relative }
+.video-wrapper { position: relative; }
+.video-wrapper:before { display: block; content:""; width: 100%; padding-top: 56.25%}
+.video-wrapper iframe { position: absolute; top: 0;	left: 0; bottom: 0; right: 0; width:100%; height: 100% }
+.showvid { position: relative }
+.showvid:after { content: ""; position: absolute; top: 0; left:0; width: 130px; height: 120px; z-index: 2; background: transparent url(./../../assets/play-video.png) no-repeat center; pointer-events: none; opacity:.7 }
+.showvid:hover:after { opacity:1 }
+
+.md-button-toggle { padding: 0 16px 16px; flex-wrap: wrap; }
+
+.wago-container { padding: 0 16px; }
+.wago-container > div { margin: 0 0 16px; }
+.wago-container .border { border-bottom: 1px solid rgba(128, 128, 128, 0.5) }
+#wago-config, #wago-embed { background: rgba(128, 128, 128, 0.1); padding: 16px;}
+
+#wago-flex-container { display: flex; flex-direction: row; }
+#wago-col-main { flex: 1.5 0 0 }
+#wago-col-side { flex: 1 0 0 }
+
+#wago-versions .md-table .md-table-cell .md-table-cell-container { display: block }
+#wago-versions .md-table-row { cursor: pointer}
+#wago-versions .md-table-selection { display: none } /* hack to make md-table-row clickable */
+
+#embed-content { display: flex }
+#embed-inputs { flex: 2 1 auto }
+#embed-preview { flex: 1.5 1 auto }
+#embed-inputs .md-select { max-width: 200px}
+#embed-inputs .md-has-select.md-input-container {margin-bottom:0}
+#embed-inputs .md-has-select.md-input-container:after {height:0}
+
+
+#wago-collections .md-avatar { margin: 0 16px 0 0 }
+#wago-collections .userlink .md-table-cell-container { display: inline }
+
+@media (max-width: 600px) {
+  #wago-header.md-card { margin: 0}
+  #wago-flex-container { flex-direction: column; }
+}
+.my-gallery a img { width: 100% }
+
+/* embed preview */
+#embed-preview-container a{display:inline;padding:0 2px;margin:0;border:0}
+#embed-preview-container img{display:inline;padding:0;margin:0;border:0;height:42px}
+#embed-preview-container .clickToCopyWago{display:block;padding:0;margin:0;font-size:10px}
+#embed-preview-container .wagoName{display:block;padding:0;margin:4px 0;font-weight:bold;font-size:13px}
+
+#embed-preview-container{padding: 0 4px}
+#embed-preview-container.dark{background: white}
+#embed-preview-container.light .md-subheader{color:black}
+#embed-preview-container.dark button{display:inline;padding:4px 16px;min-width: 130px;background-color:#000;cursor:pointer;color:rgba(255,255,255,.87);border:0;text-align:center;vertical-align:top;border-radius:6px}
+#embed-preview-container.dark button:hover{background-color:#040404}
+#embed-preview-container.light{background: black}
+#embed-preview-container.light .md-subheader{color:white}
+#embed-preview-container.light button{display:inline;padding:4px 16px;min-width: 130px;background-color:#FFF;cursor:pointer;color:rgba(0,0,0,.87);border:0;text-align:center;vertical-align:top;border-radius:6px}
+#embed-preview-container.light button:hover{background-color:#F4F4F4}
+#embed-preview-container.none img {display: none}
+
+#wago-importstring { width:2em;height:2em;padding:0;margin:0;border:0;outline:none;box-shadow:none;background:transparent;color:transparent;overflow:hidden;resize:none }
+#wago-importstring::selection { color:transparent;background:transparent }
+#wago-importstring::-moz-selection { color:transparent;background:transparent }
+#wago-importstring::-webkit-selection { color:transparent;background:transparent }
+
+.customSlug .root { font-size:16px; line-height: 32px }
+.md-input-container.md-input-status .md-error { opacity: 1; transform: translate3d(0, 0, 0);}
+
+.multiselect { min-height: 0}
+.multiselect__tags { border-width: 0 0 1px 0; padding:5px 0; min-height: 16px; border: 0; background: none}
+.multiselect_remove { cursor: pointer }
+.md-input-container input.multiselect__input { display: inline }
+ul.multiselect__content { display: flex!important; flex-wrap: wrap }
+ul.multiselect__content .multiselect__element { flex: 1 1 25% }
+ul.multiselect__content .multiselect__element .multiselect__option { padding: 0; min-height: 0 }
+ul.multiselect__content .multiselect__element .multiselect__option .md-chip { border-radius: 0; display: block; font-size: 13.5px; text-outline: none; box-shadow: none }
+ul:not(.md-list) > li.multiselect__element + li { margin-top: 0 }
+
+.vddl-draggable { display: inline-block; cursor: move; position: relative; }
+.vddl-draggable img { max-height:120px; max-width: 150px; margin: 0 4px 4px 0 }
+.vddl-draggable .vddl-delete { position: absolute; top: 2px; right: 2px; z-index: 3; opacity: .2; cursor: pointer}
+.vddl-draggable:hover .vddl-delete { opacity: 1}
+
+.my-gallery a img { border-color: transparent }
+
+</style>

@@ -1,0 +1,185 @@
+#content a:not(.md-button) { color: #d7373d }
+
+/* Categories */
+.md-chip { color: #fff }
+.md-chip.cl-deathknight { background-color: #C41F3B!important }
+.cl-deathknight a, .cl-deathknight { color: #C41F3B!important }
+.md-chip.cl-demonhunter { background-color: #A330C9!important }
+.cl-demonhunter a, .cl-demonhunter { color: #A330C9!important }
+.md-chip.cl-druid { background-color: #FF7D0A!important }
+.cl-druid a, .cl-druid { color: #FF7D0A!important }
+.md-chip.cl-hunter { background-color: #ABD473!important }
+.cl-hunter a, .cl-hunter { color: #ABD473!important }
+.md-chip.cl-mage { background-color: #69CCF0!important }
+.cl-mage a, .cl-mage { color: #69CCF0!important }
+.md-chip.cl-monk { background-color: #00FF96!important }
+.cl-monk a, .cl-monk { color: #1dd489!important }
+.md-chip.cl-paladin { background-color: #F58CBA!important }
+.cl-paladin a, .cl-paladin { color: #F58CBA!important }
+.md-chip.cl-priest { background-color: #FFFFFF!important; color: black!important; box-shadow: 0 0 1px black }
+.cl-priest a, .cl-priest { color: #A9A9A9!important }
+.md-chip.cl-rogue { background-color: #FFF569!important; color: black!important; }
+.cl-rogue a, .cl-rogue { color: #e8d901!important }
+.md-chip.cl-shaman { background-color: #0070DE!important }
+.cl-shaman a, .cl-shaman { color: #0070DE!important }
+.md-chip.cl-warlock { background-color: #9482C9!important }
+.cl-warlock a, .cl-warlock { color: #9482C9!important }
+.md-chip.cl-warrior { background-color: #C79C6E!important }
+.cl-warrior a, .cl-warrior { color: #C79C6E!important }
+
+.md-chip.misc { background-color: #3474C7!important }
+.md-chip.questing { background-color: #DED528!important }
+.md-chip.noncombat { background-color: #C78AC4!important }
+.md-chip.prof { background-color: #AAC758!important }
+
+.md-chip.roles { background: #BED0C1!important; }
+.md-chip.pvp-arena { background: #ff0000!important; }
+.md-chip.pvp-battleground { background: #0735ef!important; }
+
+.md-chip.prof-gathering { background: #5E63B8!important; }
+.md-chip.prof-crafting { background: #B85E5F!important; }
+.md-chip.prof-secondary { background: #C4C4C4!important; }
+
+.md-chip.emeraldnightmare { background: #6b2100!important; }
+.emeraldnightmare a, .emeraldnightmare { color: #6b2100!important}
+
+.md-chip.trialofvalor { background: #8F0995!important; }
+.trialofvalor a, .trialofvalor { color: #8F0995!important}
+
+.md-chip.nighthold { background: #cb02b7!important; }
+.nighthold a, .nighthold { color: #cb02b7!important}
+
+.md-chip.tombofsargeras { background: #006d35!important; }
+.tombofsargeras a, .tombofsargeras { color: #006d35!important}
+
+.md-chip.antorus { background: #1978aa!important; }
+.antorus a, .antorus { color: #1978aa!important}
+
+.md-chip.hellfirecitadel { background: #689E12!important; }
+.hellfirecitadel a, .hellfirecitadel { color: #689E12!important}
+
+.md-chip.dungeon { background: #F5A623!important; }
+.dungeon a, .dungeon { color: #F5A623!important }
+
+.md-chip.development { font-family: monospace; background: #D27B61!important;}
+.development a, .development { color: #D27B61!important}
+
+.misc a, .misc { color: #D0B58B!important}
+.roles a, .roles { color: #BED0C1!important}
+.prof-gathering a, .prof-gathering { color: #5E63B8!important}
+.prof-crafting a, .prof-crafting { color: #B85E5F!important}
+.prof-secondary a, .prof-secondary { color: #C4C4C4!important}
+.snippets a, .snippets { color: #D18CF3!important}
+.pvp-battleground a, .pvp-battleground { color: #02518a!important}
+.pvp-arena a, .pvp-arena { color: #ed1b24!important}
+.vuhdo a, .vuhdo { color: #6BB85E!important }
+
+.md-chip { color: #fff!important }
+
+
+/* User roles */
+.user-admin, .user-admin:hover { font-weight: bold; color:#B80000!important; }
+.user-moderator, .user-moderator:hover { font-weight: bold; color:#C9097D!important; }
+.user-goldsub, .user-goldsub:hover, .user-ambassador, .user-ambassador:hover { font-weight: bold; color:#c09100!important; }
+.user-sub, .user-sub:hover { font-weight: bold; color:#9bbb59!important; }
+.user-default { color: rgba(0, 0, 0, 0.87)!important}
+
+
+/* XBBCode */
+.xbbcode-b {
+    font-weight:bold;
+}
+
+.xbbcode-center {
+    margin-left:auto;
+    margin-right:auto;
+    display: block;
+    text-align: center;
+}
+
+.xbbcode-code {
+    white-space: pre-wrap;
+    font-family: monospace;
+}
+
+.xbbcode-i {
+    font-style: italic;
+}
+
+.xbbcode-img {
+    max-height:30px;
+    max-width:100%;
+}
+
+.xbbcode-justify {
+	display: block;
+	text-align: justify;
+}
+
+.xbbcode-left {
+	display: block;
+	text-align: left;
+}
+
+.xbbcode-right {
+	display: block;
+	text-align: right;
+}
+
+.xbbcode-s {
+    text-decoration: line-through;
+}
+
+.xbbcode-size-4 {font-size:4px;}
+.xbbcode-size-5 {font-size:5px;}
+.xbbcode-size-6 {font-size:6px;}
+.xbbcode-size-7 {font-size:7px;}
+.xbbcode-size-8 {font-size:8px;}
+.xbbcode-size-9 {font-size:9px;}
+.xbbcode-size-10 {font-size:10px;}
+.xbbcode-size-11 {font-size:11px;}
+.xbbcode-size-12 {font-size:12px;}
+.xbbcode-size-13 {font-size:13px;}
+.xbbcode-size-14 {font-size:14px;}
+.xbbcode-size-15 {font-size:15px;}
+.xbbcode-size-16 {font-size:16px;}
+.xbbcode-size-17 {font-size:17px;}
+.xbbcode-size-18{font-size:18px;}
+.xbbcode-size-19 {font-size:19px;}
+.xbbcode-size-20 {font-size:20px;}
+.xbbcode-size-21 {font-size:21px;}
+.xbbcode-size-22 {font-size:22px;}
+.xbbcode-size-23 {font-size:23px;}
+.xbbcode-size-24 {font-size:24px;}
+.xbbcode-size-25 {font-size:25px;}
+.xbbcode-size-26 {font-size:26px;}
+.xbbcode-size-27 {font-size:27px;}
+.xbbcode-size-28 {font-size:28px;}
+.xbbcode-size-29 {font-size:29px;}
+.xbbcode-size-30 {font-size:30px;}
+.xbbcode-size-31 {font-size:31px;}
+.xbbcode-size-32 {font-size:32px;}
+.xbbcode-size-33 {font-size:33px;}
+.xbbcode-size-34 {font-size:34px;}
+.xbbcode-size-35 {font-size:35px;}
+.xbbcode-size-36 {font-size:36px;}
+.xbbcode-size-37 {font-size:37px;}
+.xbbcode-size-38 {font-size:38px;}
+.xbbcode-size-39 {font-size:39px;}
+.xbbcode-size-40 {font-size:40px;}
+
+.xbbcode-u {
+    text-decoration: underline;
+}
+
+.xbbcode-table {
+    border-collapse:collapse;
+}
+
+.xbbcode-table , .xbbcode-th, .xbbcode-td {
+    border: 1px solid #666;
+}
+
+.xbbcode-taggeduser {
+    font-weight: 300;
+}

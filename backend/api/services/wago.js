@@ -1,0 +1,532 @@
+// sets favorite for a wago
+server.post('/wago/star', (req, res, next) => {
+  if (!req.user) {
+    return res.send(403, {error: "forbidden"})
+  }
+
+  WagoItem.findById(req.body.wagoID).then((wago) => {
+    if (!wago) {
+      return res.send(404, {error: "no_wago"})
+    }
+
+    // remove user from favorites list (prevents doubles)
+    wago.popularity.favorites.pull(req.user._id)
+
+    // add user to favorite list
+    if (req.body.addStar) {
+      wago.popularity.favorites.push(req.user._id)
+    }
+
+    // update count
+    wago.popularity.favorite_count = wago.popularity.favorites.length
+
+    // update database and return
+    wago.save()
+    res.send({updated: true, count: wago.popularity.favorite_count })
+  })
+})
+
+// update wago name
+server.post('/wago/update/name', (req, res) => {
+  if (!req.user || !req.body.wagoID) {
+    return res.send(403, {error: "forbidden"})
+  }
+  else if (!req.body.name) {
+    return res.send(401, {error: "invalid input"})
+  }
+  WagoItem.findById(req.body.wagoID).then((wago) => {
+    if (!wago || !wago._userId.equals(req.user._id)) {
+      return res.send(404, {error: "no_wago"})
+    }
+
+    wago.name = req.body.name
+    wago.save().then(() => {
+      res.send({success: true})
+    })
+  })
+})
+
+// update wago slug
+server.post('/wago/update/slug', (req, res) => {
+  if (!req.user || !req.user.access.custom_slug || !req.body.wagoID) {
+    return res.send(403, {error: "forbidden"})
+  }
+  else if (!req.body.slug) {
+    req.body.slug = null
+  }
+  else if (req.body.slug.match(/[\s%#/\\<>]/) || (req.body.slug.length < 7 && !req.body.slug.match(/[^\u0000-\u007F]/))) {
+    return res.send(401, {error: "invalid input"})
+  }
+
+  WagoItem.findById(req.body.wagoID).then((wago) => {
+    if (!wago || !wago._userId.equals(req.user._id)) {
+      return res.send(404, {error: "no_wago"})
+    }
+
+    // if removing a custom slug
+    if (!req.body.slug) {
+      wago.custom_slug = null
+      wago.save().then(() => {
+        res.send({success: true})
+      })
+    }
+    else {
+      // make sure slug is unique
+      WagoItem.lookup(req.body.slug).then((doc) => {
+        if (!doc || doc._id === wago._id) {
+          wago.custom_slug = req.body.slug
+          wago.save().then(() => {
+            res.send({success: true})
+          })
+        }
+        else {
+          res.send({exists: true})
+        }
+      })
+    }
+  })
+})
+
+// update wago description
+server.post('/wago/update/desc', (req, res) => {
+  if (!req.user || !req.body.wagoID) {
+    return res.send(403, {error: "forbidden"})
+  }
+
+  WagoItem.findById(req.body.wagoID).then((wago) => {
+    if (!wago || !wago._userId.equals(req.user._id)) {
+      return res.send(404, {error: "no_wago"})
+    }
+
+    wago.description = req.body.desc || ''
+    wago.description_format = req.body.format || 1 // 1=BBcode, 2=Markdown
+    wago.save().then(() => {
+      res.send({success: true})
+    })
+  })
+})
+
+// update wago categories
+server.post('/wago/update/categories', (req, res) => {
+  if (!req.user || !req.body.wagoID) {
+    return res.send(403, {error: "forbidden"})
+  }
+
+  WagoItem.findById(req.body.wagoID).then((wago) => {
+    if (!wago || !wago._userId.equals(req.user._id)) {
+      return res.send(404, {error: "no_wago"})
+    }
+
+    if (!req.body.cats) {
+      wago.categories = []
+    }
+    else {
+      // TODO: verify categories (invalid ones won't be displayed but will still sit in the DB)
+      wago.categories = req.body.cats.split(',')
+    }
+    wago.save().then(() => {
+      res.send({success: true})
+    })
+  })
+})
+
+// upload image
+server.post('/wago/upload/image', (req, res) => {
+  if (!req.user || !req.body.wagoID || !req.files || !req.files.file) {
+    return res.send(403, {error: "forbidden"})
+  }
+
+  var img = req.files.file.name || ''
+  var match = img.match(/\.(png|jpg|gif|jpeg)$/i)
+  if (img && match) {
+    WagoItem.findById(req.body.wagoID).then((wago) => {
+      if (!wago || !wago._userId.equals(req.user._id)) {
+        return res.send(404, {error: "no_wago"})
+      }
+      
+      // setup database entry
+      var screen = new Screenshot()
+      screen.auraID = wago._id
+      screen.localFile = screen._id.toString() + '.' + match[1] // filename
+
+      // prepare save location
+      try {
+        fs.mkdirSync('/nfs/media/screenshots/' + wago._id)
+      }
+      catch (e) {
+        if (e.code !== 'EEXIST') {
+          console.error(err)
+          return res.send({error: 'could not save'})
+        }
+      }
+
+      // store image
+      // fs.rename fails on live servers because can not rename to a different drive
+      var mv = require('mv')
+      mv(req.files.file.path, '/nfs/media/screenshots/' + wago._id + '/' + screen.localFile, function(err) {
+        if (err) {
+          console.error(err)
+          res.send({error: 'could not save'})
+        }
+        else {
+          screen.save().then((doc) => {
+            res.send({success: true, _id: doc._id.toString(), src: doc.url})
+          })
+        }
+      })
+    })
+  }
+})
+
+// add image/video by URL
+server.post('/wago/upload/image/url', (req, res) => {
+  if (!req.user || !req.body.wagoID || !req.body.url) {
+    return res.send(403, {error: "forbidden"})
+  }
+
+  WagoItem.findById(req.body.wagoID).then((wago) => {
+    if (!wago || !wago._userId.equals(req.user._id)) {
+      return res.send(404, {error: "no_wago"})
+    }
+    
+    var isVideo = videoParser.parse(req.body.url)
+    // if youtube video detected
+    if (isVideo) {
+      var video = new Video()
+      video.wagoID = wago._id
+      video.source = isVideo.provider
+      video.videoID = isVideo.id
+      video.videoType = isVideo.mediaType
+
+      // if we need to check API for thumbnail
+      if (video.source === 'twitch') {
+        // get thumbnail twitch API
+        request.get('https://api.twitch.tv/kraken/videos/'+video.videoID, function(error, response, content) {
+          try {
+            var json = JSON.parse(content)
+            if (json && json.preview) {
+              var video = new Video()
+              video.thumb = json.preview
+              video.save().then((doc) => {
+                res.send({success: true, _id: doc._id.toString(), embed: doc.embed, thumb: doc.thumbnail, url: doc.url, type: 'video'})
+              })              
+            }
+            else {
+              res.send({error: 'invalid_twitch'})
+            }
+          }
+          catch(e) {
+            console.log('error fetching from twitch api', e)
+            res.send({error: 'invalid_twitch'})
+          }
+        })
+      }
+
+      else if (video.source === 'vimeo') {
+        request.get('https://vimeo.com/api/oembed.json?url=https://vimeo.com/'+video.videoID, function(error, response, content) {
+          console.log(content)
+          try {
+            var json = JSON.parse(content)
+            if (json && json.thumbnail_url) {
+              video.thumb = json.thumbnail_url.replace(/\.webp/, '.png')
+              video.save().then((doc) => {
+                res.send({success: true, _id: doc._id.toString(), embed: doc.embed, thumb: doc.thumbnail, url: doc.url, type: 'video'})
+              })              
+            }
+            else {
+              res.send({error: 'invalid_twitch'})
+            }
+          }
+          catch(e) {
+            console.log('error fetching from twitch api', e)
+            res.send({error: 'invalid_twitch'})
+          }
+        })
+      }
+      // else thumbnail can be generated from existing data
+      else {
+        video.save().then((doc) => {
+          res.send({success: true, _id: doc._id.toString(), embed: doc.embed, thumb: doc.thumbnail, url: doc.url, type: 'video'})
+        })
+      }
+    }
+
+    // must be regular image
+    else {
+      // check for imgur and giphy, others?
+      // otherwise default to regular image
+      request(req.body.url, {encoding: null}, function(err, resp, buffer) {
+        var mmm = require('mmmagic')
+        var magic = new mmm.Magic(mmm.MAGIC_MIME_TYPE)
+        magic.detect(buffer, (err, mime) => {
+          var match = mime.match(/^image\/(png|jpg|gif|jpeg)/)
+          // if image type detected then save file
+          if (match) {
+            if (match[1] === 'jpeg') {
+              match[1] = 'jpg'
+            }
+            // setup database entry
+            var screen = new Screenshot()
+            screen.auraID = wago._id
+            screen.localFile = screen._id.toString() + '.' + match[1] // filename
+
+            // prepare save location
+            try {
+              fs.mkdirSync('/nfs/media/screenshots/' + wago._id)
+            }
+            catch (e) {
+              if (e.code !== 'EEXIST') {
+                console.error(err)
+                return res.send({error: 'could not save'})
+              }
+            }
+
+            // store image
+            fs.writeFile('/nfs/media/screenshots/' + wago._id + '/' + screen.localFile, buffer, function(err) {
+              if (err) {
+                console.error(err)
+                res.send({error: 'could not save'})
+              }
+              else {
+                screen.save().then((doc) => {
+                  res.send({success: true, _id: doc._id.toString(), url: doc.url, type: 'screenshot'})
+                })
+              }
+            })
+          }
+          else {
+            console.log('unknown mime', mime)
+            res.send({error: 'unknown source'})
+          }
+        })
+      })
+    }
+  })
+})
+
+// add pasted image/base 64 format
+server.post('/wago/upload/image/base64', (req, res) => {
+  if (!req.user || !req.body.wagoID) {
+    return res.send(403, {error: "forbidden"})
+  }
+
+  WagoItem.findById(req.body.wagoID).then((wago) => {
+    if (!wago || !wago._userId.equals(req.user._id)) {
+      return res.send(404, {error: "no_wago"})
+    }
+
+    var img = req.body.image || ''
+    var match = img.match(/^data:image\/(png|jpg|gif|jpeg);base64,/i)
+    if (img && match) {
+      if (match[1] === 'jpeg') {
+        match[1] = 'jpg'
+      }
+      // prepare image
+      var data = img.replace(/^data:image\/\w+;base64,/, "")
+      var buffer = new Buffer(data, 'base64')
+
+      // setup database entry
+      var screen = new Screenshot()
+      screen.auraID = wago._id
+      screen.localFile = screen._id.toString() + '.' + match[1] // filename
+
+      // prepare save location
+      try {
+        fs.mkdirSync('/nfs/media/screenshots/' + wago._id)
+      }
+      catch (e) {
+        if (e.code !== 'EEXIST') {
+          console.error(err)
+          return res.send({error: 'could not save'})
+        }
+      }
+
+      // store image
+      fs.writeFile('/nfs/media/screenshots/' + wago._id + '/' + screen.localFile, buffer, (err) => {
+        if (err) {
+          console.error(err)
+          res.send({error: 'could not save'})
+        }
+        else {
+          screen.save().then(() => {
+            res.send({success: true, _id: doc._id.toString(), url: doc.url})
+          })
+        }
+      })
+    }
+  })
+})
+
+// delete screenshot
+server.post('/wago/update/delete/screenshot', (req, res) => {
+  if (!req.user || !req.body.wagoID || !req.body.screen) {
+    return res.send(403, {error: "forbidden"})
+  }
+
+  WagoItem.findById(req.body.wagoID).then((wago) => {
+    if (!wago || !wago._userId.equals(req.user._id)) {
+      return res.send(404, {error: "no_wago"})
+    }
+
+    Screenshot.findById(req.body.screen).then((screen) => {
+      if (screen) {
+        screen.remove().then(() => {
+          res.send({success: true}) 
+        })
+      }
+      else {
+        res.send({success: true})
+      }
+    })
+  })
+})
+
+// delete screenshot
+server.post('/wago/update/delete/video', (req, res) => {
+  if (!req.user || !req.body.wagoID || !req.body.video) {
+    return res.send(403, {error: "forbidden"})
+  }
+
+  WagoItem.findById(req.body.wagoID).then((wago) => {
+    if (!wago || !wago._userId.equals(req.user._id)) {
+      return res.send(404, {error: "no_wago"})
+    }
+
+    Video.findById(req.body.video).then((video) => {
+      if (video) {
+        video.remove().then(() => {
+          res.send({success: true}) 
+        })
+      }
+      else {
+        res.send({success: true})
+      }
+    })
+  })
+})
+
+// sort screenshots
+server.post('/wago/update/sort/screenshots', (req, res) => {
+  if (!req.user || !req.body.wagoID || !req.body.screens) {
+    return res.send(403, {error: "forbidden"})
+  }
+
+  WagoItem.findById(req.body.wagoID).then((wago) => {
+    if (!wago || !wago._userId.equals(req.user._id)) {
+      return res.send(404, {error: "no_wago"})
+    }
+
+    async.eachOfSeries(req.body.screens.split(','), (item, key, done) => {
+      Screenshot.findById(item).then((screen) => {
+        if (screen.auraID == wago._id) {
+          screen.sort = key
+          screen.save().then(() => {
+            done()
+          })
+        }
+        else {
+          done('noaccess')
+        }
+      })
+    }, (err) => {
+      if (err) {
+        return res.send(403, {error: "forbidden"})
+      }
+      else {
+        res.send({success: true})
+      }
+    })
+  })
+})
+
+// sort videos
+server.post('/wago/update/sort/videos', (req, res) => {
+  if (!req.user || !req.body.wagoID || !req.body.videos) {
+    return res.send(403, {error: "forbidden"})
+  }
+
+  WagoItem.findById(req.body.wagoID).then((wago) => {
+    if (!wago || !wago._userId.equals(req.user._id)) {
+      return res.send(404, {error: "no_wago"})
+    }
+
+    async.eachOfSeries(req.body.videos.split(','), (item, key, done) => {
+      Video.findById(item).then((video) => {
+        if (video.wagoID == wago._id) {
+          video.sort = key
+          video.save().then(() => {
+            done()
+          })
+        }
+        else {
+          done('noaccess')
+        }
+      })
+    }, (err) => {
+      if (err) {
+        return res.send(403, {error: "forbidden"})
+      }
+      else {
+        res.send({success: true})
+      }
+    })
+  })
+})
+
+// delete wago import
+server.post('/wago/update/delete/confirm', (req, res) => {
+  if (!req.user || !req.body.wagoID) {
+    return res.send(403, {error: "forbidden"})
+  }
+
+  WagoItem.findById(req.body.wagoID).then((wago) => {
+    if (!wago || !wago._userId.equals(req.user._id)) {
+      return res.send(404, {error: "no_wago"})
+    }
+
+    wago.remove().then(() => {
+      res.send({success: true})
+    })
+  })
+})
+
+
+
+// gets embed javascript
+server.get('/wago/embed', (req, res, next) => {
+  res.header('Content-Type', 'text/plain')
+  
+  WagoItem.lookup(req.params.id).then((wago) => {
+    if (!wago) {
+      return res.send(404, "document.write('Error. Wago not found.')")
+    }
+
+    if (wago.hidden || wago.private) {
+      return res.send(403, "document.write('Error. Not allowed to embed this Wago.')") 
+    }
+
+    WagoCode.lookup(wago._id).then((code) => {
+      if (!code) {
+        return res.send('No wago found.')
+      }
+      else if (code.json && code.json.match(commonRegex.WeakAuraBlacklist)) {
+        return res.send('This WeakAura includes blacklisted functions. Embedding is not allowed.')
+      }
+      var theme = {}
+      if (req.params.theme === 'white') {
+        var theme = {buttonBG: '#FFF', buttonHover: '#F4F4F4', textColor: 'rgba(0,0,0,.87)', logo: 'https://wago.io/assets/favicon/apple-touch-icon-57x57.png'}
+      }
+      else {
+        var theme = {buttonBG: '#000', buttonHover: '#040404', textColor: 'rgba(255,255,255,.87)', logo: 'https://wago.io/assets/favicon/apple-touch-icon-57x57.png'}
+      }
+
+      var js = `function wagoCopy(e,o){var t;e&&e.querySelector&&(t=e.querySelector(".clickToCopy"));var n=document.createElement("textarea");n.style.cssText="position:fixed;top:0;left:0;width:2em;height:2em;padding:0;border:0;outline:none;boxShadow:none;background:transparent",n.value=o,document.body.appendChild(n),n.select();try{return document.execCommand("copy"),document.body.removeChild(n),t&&(t.textContent="Copied!",setTimeout(function(){t.textContent="Click to copy"},3e3)),!0}catch(d){return document.body.removeChild(n),!1}}void 0===window.wagoCopy;`
+      if (req.params.theme !== 'none') {
+        js = js + `document.write('<style>#wago-${wago._id} a{display:inline;padding:0 2px;margin:0;border:0}#wago-${wago._id} img{display:inline;padding:0;margin:0;border:0;height:50px}#wago-${wago._id} button{display:inline;padding:4px 16px;min-width: 130px;background-color:${theme.buttonBG};cursor:pointer;color:${theme.textColor};border:0;text-align:center;vertical-align:top;border-radius:6px}#wago-${wago._id} button:hover{background-color:${theme.buttonHover}}#wago-${wago._id} .clickToCopy{display:block;padding:0;margin:0;font-size:10px}#wago-${wago._id} .wagoName{display:block;padding:0;margin:4px 0;font-weight:bold;font-size:13px}</style>');`
+      }
+      js = js + `document.write('<span id="wago-${wago._id}" class="wagoEmbed"><a href="${wago.url}"><img src="${theme.logo}"></a><button onclick="wagoCopy(this, \'${code.encoded}\')" class="wagoCopyButton"><small class="clickToCopyWago">Click to copy import string from wago.io<</small><div class="wagoName">${wago.name}</div></button></span>');`  
+
+      res.send(js)
+    })
+  })
+})

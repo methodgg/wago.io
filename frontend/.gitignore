@@ -1,0 +1,22 @@
+.DS_Store
+node_modules/
+dist/
+config/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+test/unit/coverage
+test/e2e/reports
+selenium-debug.log
+
+# Editor directories and files
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+#exceptions
+!node_modules/brace/mode/lua.js
+!node_modules/brace/worker/lua.js
+!node_modules/brace/worker/lua-wago.js
