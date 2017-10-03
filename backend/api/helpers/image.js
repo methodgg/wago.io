@@ -69,7 +69,7 @@ module.exports = {
         // save webp
         (gif, cb) => {
           webpc.gwebp(gif, saveToDirectory + '/' + avatarFormat + '-' + time + '.webp', '-q 90', (status) => {
-            if (status === 100) {
+            if (status.indexOf('100') > -1) {
               cb(null, gif, saveToDirectory + '/' + avatarFormat + '-' + time + '.webp')
             }
             else {
