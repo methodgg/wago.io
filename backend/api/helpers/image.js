@@ -82,7 +82,7 @@ module.exports = {
           return callback({error: err})
         }
         else {
-          callback({gif: webp.replace(/\.webp/, '.gif'), webp: webp})
+          callback(null, {gif: webp.replace(/\.webp/, '.gif'), webp: webp})
         }
       })
     }
