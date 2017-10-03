@@ -36,6 +36,7 @@
     "restify-errors": "^4.3.0",
     "sharp": "^0.18.4",
     "shortid": "^2.2.8",
+    "webp-converter": "^2.1.6",
     "winston": "^2.3.1",
     "winston-loggly-bulk": "^2.0.1"
   },

@@ -153,8 +153,12 @@ server.post('/account/upload/avatar', (req, res) => {
     // prepare image
     var data = img.replace(/^data:image\/\w+;base64,/, "")
     var buffer = new Buffer(data, 'base64')
+    var avatarFormat = 'custom'
+    if (match[1] === 'gif' && req.user.access.animatedAvatar) {
+      avatarFormat = 'animated'
+    }
 
-    image.avatarFromBuffer(buffer, req.user._id.toString(), 'custom', (img) => {
+    image.avatarFromBuffer(buffer, req.user._id.toString(), avatarFormat, (img) => {
       if (img.error) {
         return res.send(img)
       }

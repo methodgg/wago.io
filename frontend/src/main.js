@@ -10,7 +10,13 @@ window.setCookie = function (name, value, days) {
     date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000))
     expires = '; expires=' + date.toUTCString()
   }
-  document.cookie = name + '=' + value + expires + '; domain=.wago.io; path=/'
+  if (window.location.hostname.match(/wago\.io/)) {
+    document.cookie = name + '=' + value + expires + '; domain=.wago.io; path=/'
+  }
+  // if testing locally
+  else {
+    document.cookie = name + '=' + value + expires + '; path=/'
+  }
 }
 
 window.readCookie = function (name) {

@@ -15,6 +15,7 @@ const Schema = new mongoose.Schema({
   profile: {
     avatar: {
       png: String,
+      gif: String,
       webp: String
     },
     description: {
@@ -171,6 +172,12 @@ Schema.virtual('avatarURL').get(function() {
 Schema.virtual('access.custom_slug').get(function() {
   if (this.roles.super_admin) return true
   if (this.roles.admin || this.roles.gold_subscriber || this.roles.ambassador) return true
+
+  return false
+})
+Schema.virtual('access.animatedAvatar').get(function() {
+  if (this.roles.super_admin) return true
+  if (this.roles.admin || this.roles.gold_subscriber || this.roles.subscriber || this.roles.ambassador || this.roles.moderator) return true
 
   return false
 })
