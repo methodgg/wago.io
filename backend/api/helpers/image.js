@@ -63,7 +63,7 @@ module.exports = {
         // save gif
         (cb) => {
           fs.writeFile(saveToDirectory + '/' + avatarFormat + '-' + time + '.gif', file, (err) => {
-            cb(err, 'https://media.wago.io/avatars/' + userID + '/' + avatarFormat + '-' + time + '.gif')
+            cb(err, saveToDirectory + '/' + avatarFormat + '-' + time + '.gif')
           })
         },
         // save webp
@@ -82,7 +82,7 @@ module.exports = {
           return callback({error: err})
         }
         else {
-          callback({gif: gif, webp: webp})
+          callback({gif: webp.replace(/\.webp/, '.gif'), webp: webp})
         }
       })
     }
