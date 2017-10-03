@@ -63,14 +63,14 @@ module.exports = {
         // save gif
         (cb) => {
           fs.writeFile(saveToDirectory + '/' + avatarFormat + '-' + time + '.gif', file, (err) => {
-            cb(err, saveToDirectory + '/' + avatarFormat + '-' + time + '.gif')
+            cb(err, 'https://media.wago.io/avatars/' + userID + '/' + avatarFormat + '-' + time + '.gif')
           })
         },
         // save webp
         (gif, cb) => {
           webpc.gwebp(gif, saveToDirectory + '/' + avatarFormat + '-' + time + '.webp', '-q 90', (status) => {
             if (status.indexOf('100') > -1) {
-              cb(null, gif, saveToDirectory + '/' + avatarFormat + '-' + time + '.webp')
+              cb(null, gif, 'https://media.wago.io/avatars/' + userID + '/' + avatarFormat + '-' + time + '.webp')
             }
             else {
               cb('Unable to convert to webp ' + status)
