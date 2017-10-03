@@ -151,7 +151,7 @@ Schema.virtual('account.total_accounts').get(function() {
 
 // avatar url or default to adorable.io
 Schema.virtual('avatarURL').get(function() {
-  if (this.profile.avatar && this.profile.avatar.png) {
+  if (this.profile.avatar && this.profile.avatar.webp) {
     return this.profile.avatar
   }
   else {
