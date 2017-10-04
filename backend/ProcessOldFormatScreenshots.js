@@ -72,10 +72,10 @@ async.until(() => {
                 if (err) {
                   return cb(err)
                 }
-                item.fullsize.gif = 'thumb-' + time + '.gif'
+                item.original.gif = 'thumb-' + time + '.gif'
                 webpc.gwebp(saveToDirectory + '/thumb-' + time + '.gif', saveToDirectory + '/thumb-' + time + '.webp', '-q 90', (status) => {
                   if (status.indexOf('100') > -1) {
-                    item.fullsize.webp = 'thumb-' + time + '.webp'
+                    item.original.webp = 'thumb-' + time + '.webp'
                     cb()
                   }
                   else {
@@ -85,17 +85,17 @@ async.until(() => {
 
               })
             },
-            // process fullsize
+            // process original
             (cb) => {
               // optimize gif
               execFile(gifsicle, ['-o', saveToDirectory + '/original-' + time + '.gif', file], (err) => {
                 if (err) {
                   return cb(err)
                 }
-                item.fullsize.gif = 'original-' + time + '.gif'
+                item.original.gif = 'original-' + time + '.gif'
                 webpc.gwebp(saveToDirectory + '/original-' + time + '.gif', saveToDirectory + '/original-' + time + '.webp', '-q 90', (status) => {
                   if (status.indexOf('100') > -1) {
-                    item.fullsize.webp = 'original-' + time + '.webp'
+                    item.original.webp = 'original-' + time + '.webp'
                     cb()
                   }
                   else {
@@ -136,17 +136,17 @@ async.until(() => {
                 cb()
               })
             },
-            // process to webp fullsize
+            // process to webp original
             (cb) => {
               sharp(fileBuffer).toFormat('webp').toFile(saveToDirectory + '/original-' + time + '.webp').then(() => {
-                item.fullsize.webp = 'original-' + time + '.webp'
+                item.original.webp = 'original-' + time + '.webp'
                 cb()
               })
             },
-            // process to png fullsize
+            // process to png original
             (cb) => {
               sharp(fileBuffer).toFormat('png').toFile(saveToDirectory + '/original-' + time + '.png').then(() => {
-                item.fullsize.webp = 'original-' + time + '.png'
+                item.original.webp = 'original-' + time + '.png'
                 cb()
               })
             }], (err) => {
