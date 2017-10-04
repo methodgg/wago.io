@@ -84,7 +84,7 @@ async.until(() => {
                 })
 
               })
-            }
+            },
             // process fullsize
             (cb) => {
               // optimize gif
