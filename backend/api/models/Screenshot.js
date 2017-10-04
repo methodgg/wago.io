@@ -11,15 +11,17 @@ var Schema = mongoose.Schema({
     caption : { type: String, default: ""},
     original_bucket: { type: String, default: "ss1.wago.io"},
     thumb_bucket: { type: String, default: "ss2.wago.io"},
-    original: {
-      png: String,
-      webp: String,
-      gif: String
-    },
-    thumbnail: {
-      png: String,
-      webp: String,
-      gif: String 
+    file: {
+      original: {
+        png: String,
+        webp: String,
+        gif: String
+      },
+      thumbnail: {
+        png: String,
+        webp: String,
+        gif: String 
+      }
     }
 }, {timestamps: true})
 

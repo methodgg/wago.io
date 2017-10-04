@@ -34,7 +34,7 @@ async.until(() => {
   return !moreToDo
 
 }, (next) => {
-  Screenshot.find({"original.webp": {$exists: false}}).limit(10).then((screens) => {
+  Screenshot.find({"file.original.webp": {$exists: false}}).limit(10).then((screens) => {
     // if all screenshots are processed
     if (screens.length === 0) {
       moreToDo = false
@@ -45,14 +45,13 @@ async.until(() => {
       var file = '/nfs/media/screenshots/' + item.auraID + '/' + item.localFile
       var saveToDirectory = '/nfs/media/screenshots/' + item.auraID + '/'
       try {
-        var fileStat = fs.statSync(file)
         var fileBuffer = fs.readFileSync(file)
       }
       catch (e) {
         console.log('ERR can not read file', file, e)
         return callback()  
       }
-      var time = fileStat.mtime + 0
+      var time = item._id.toString()
       magic.detect(fileBuffer, (err, mime) => {
         var match = mime.match(/^image\/(png|jpg|gif|jpeg|webp)/)
         if (!match) {
