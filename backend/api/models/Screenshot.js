@@ -11,7 +11,7 @@ var Schema = mongoose.Schema({
     caption : { type: String, default: ""},
     original_bucket: { type: String, default: "ss1.wago.io"},
     thumb_bucket: { type: String, default: "ss2.wago.io"},
-    fullsize: {
+    original: {
       png: String,
       webp: String,
       gif: String

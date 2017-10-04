@@ -34,7 +34,7 @@ async.until(() => {
   return !moreToDo
 
 }, (next) => {
-  Screenshot.find({thumbnail: {$exists: false}}).limit(10).then((screens) => {
+  Screenshot.find({"original.webp": {$exists: false}}).limit(10).then((screens) => {
     // if all screenshots are processed
     if (screens.length === 0) {
       moreToDo = false
@@ -47,12 +47,14 @@ async.until(() => {
       try {
         var fileStat = fs.statSync(file)
         var fileBuffer = fs.readFileSync(file)
+        console.log(fileStat)
+        return
       }
       catch (e) {
         console.log('ERR can not read file', file, e)
         return callback()  
       }
-      var time = fileStat.m + 0
+      var time = fileStat.mtime + 0
       magic.detect(fileBuffer, (err, mime) => {
         var match = mime.match(/^image\/(png|jpg|gif|jpeg|webp)/)
         if (!match) {
