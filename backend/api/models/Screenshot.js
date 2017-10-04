@@ -11,6 +11,16 @@ var Schema = mongoose.Schema({
     caption : { type: String, default: ""},
     original_bucket: { type: String, default: "ss1.wago.io"},
     thumb_bucket: { type: String, default: "ss2.wago.io"},
+    fullsize: {
+      png: String,
+      webp: String,
+      gif: String
+    },
+    thumbnail: {
+      png: String,
+      webp: String,
+      gif: String 
+    }
 }, {timestamps: true})
 
 // build URL to original image

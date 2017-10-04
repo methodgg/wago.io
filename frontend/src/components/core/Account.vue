@@ -259,23 +259,16 @@ end`
 
     onUploadAvatar (files) {
       var vue = this
-      // const reader = new FileReader();
-      // vue.uploadFileProgress = '0%'
-
-      // var data = new FormData()
-      // data.append('file', file)
-      // var config = {
-      //   onUploadProgress: (progressEvent) => {
-      //     var percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total)
-      //     vue.uploadAvatarProgress = percentCompleted + '%'
-      //   }
-      // }
+      vue.uploadAvatarProgress = vue.$t('Uploading')
       vue.http.upload('/account/upload/avatar', files[0])
         .then((res) => {
           var user = this.$store.state.user
           user.avatar = res.avatar
           vue.$store.commit('setUser', user)
           vue.uploadAvatarProgress = vue.$t('Saved')
+          setTimeout(() => {
+            vue.uploadAvatarProgress = ''
+          }, 1000)
         })
         .catch((err) => {
           console.log('Error uploading image', err)
@@ -293,6 +286,9 @@ end`
           vue.$store.commit('setUser', user)
           vue.uploadAvatarProgress = vue.$t('Saved')
           vue.selectAvatar = ''
+          setTimeout(() => {
+            vue.uploadAvatarProgress = ''
+          }, 1000)
         })
         .catch((err) => {
           console.log('Error uploading image', err)

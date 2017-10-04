@@ -188,10 +188,6 @@ Schema.virtual('access.beta').get(function() {
 
   return false
 })
-Schema.virtual('access.alpha').get(function() {
-  if (this.roles.super_admin) return true
-  return false
-})
 
 Schema.virtual('roleclass').get(function() {
   if (this.roles.super_admin || this.roles.admin)

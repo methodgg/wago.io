@@ -79,6 +79,7 @@ function makeSession(req, res, token, user) {
           who.access = {}
           who.access.customSlug = user.access.custom_slug
           who.access.beta = user.access.beta
+          who.access.animatedAvatar = user.access.animatedAvatar
           
           who.config = user.config
       
