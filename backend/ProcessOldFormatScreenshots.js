@@ -47,8 +47,6 @@ async.until(() => {
       try {
         var fileStat = fs.statSync(file)
         var fileBuffer = fs.readFileSync(file)
-        console.log(fileStat)
-        return
       }
       catch (e) {
         console.log('ERR can not read file', file, e)
