@@ -259,10 +259,10 @@ end`
 
     onUploadAvatar (files) {
       var vue = this
+      var user = this.$store.state.user
       vue.uploadAvatarProgress = vue.$t('Uploading')
       vue.http.upload('/account/upload/avatar', files[0])
         .then((res) => {
-          var user = this.$store.state.user
           user.avatar = res.avatar
           vue.$store.commit('setUser', user)
           vue.uploadAvatarProgress = vue.$t('Saved')

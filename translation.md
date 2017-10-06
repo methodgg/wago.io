@@ -16,7 +16,7 @@ The following is the status of supported and to-be-supported languages (as of th
 | Language  	| Warcraft Terms  	| Complete  	| Contributor(s)  	|
 |---	|---	|---	|---	|
 | English  	| ✔️ Included 	    |  ✔️ 100%	|   Wago.io |
-| French  	|  😞 Not included	|  50% 	     |   Satron	 |
+| French  	|  😞 Not included	|  ✔️ 100%  |   Satron	 |
 | German  	| ✔️ Included 	    |  30%	|   Hamsda  |
 | Italian  	| ✔️ Included 	    |  30%	| ❌ No one    |
 | Korean  	| ✔️ Included 	    |  30%	| ❌ No one    |
