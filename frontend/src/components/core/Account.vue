@@ -78,45 +78,45 @@
           <p>{{ $t("Select editor theme") }}</p>
           <div v-if="selectTheme === 'classic'">
             <md-button-toggle md-single class="md-primary">
-              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'chrome'}" @click="setEditorTheme('chrome')">{{ $t("Chrome") }}</md-button>
-              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'clouds'}" @click="setEditorTheme('clouds')">{{ $t("Clouds") }}</md-button>
-              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'crimson_editor'}" @click="setEditorTheme('crimson_editor')">{{ $t("Crimson") }}</md-button>
-              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'dawn'}" @click="setEditorTheme('dawn')">{{ $t("Dawn") }}</md-button>
-              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'dreamweaver'}" @click="setEditorTheme('dreamweaver')">{{ $t("Dreamweaver") }}</md-button>
-              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'eclipse'}" @click="setEditorTheme('eclipse')">{{ $t("Eclipse") }}</md-button>
-              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'github'}" @click="setEditorTheme('github')">{{ $t("GitHub") }}</md-button>
-              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'iplastic'}" @click="setEditorTheme('iplastic')">{{ $t("IPlastic") }}</md-button>
-              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'solarized_light'}" @click="setEditorTheme('solarized_light')">{{ $t("Solarized Light") }}</md-button>
-              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'textmate'}" @click="setEditorTheme('textmate')">{{ $t("TextMate") }}</md-button>
-              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'tomorrow'}" @click="setEditorTheme('tomorrow')">{{ $t("Tomorrow") }}</md-button>
-              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'xcode'}" @click="setEditorTheme('xcode')">{{ $t("XCode") }}</md-button>
-              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'kuroir'}" @click="setEditorTheme('kuroir')">{{ $t("Kuroir") }}</md-button>
-              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'katzenmilch'}" @click="setEditorTheme('katzenmilch')">{{ $t("KatzenMilch") }}</md-button>
-              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'sqlserver'}" @click="setEditorTheme('sqlserver')">{{ $t("SQL Server") }}</md-button>
+              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'chrome'}" @click="setEditorTheme('chrome')">Chrome</md-button>
+              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'clouds'}" @click="setEditorTheme('clouds')">Clouds</md-button>
+              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'crimson_editor'}" @click="setEditorTheme('crimson_editor')">Crimson</md-button>
+              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'dawn'}" @click="setEditorTheme('dawn')">Dawn</md-button>
+              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'dreamweaver'}" @click="setEditorTheme('dreamweaver')">Dreamweaver</md-button>
+              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'eclipse'}" @click="setEditorTheme('eclipse')">Eclipse</md-button>
+              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'github'}" @click="setEditorTheme('github')">GitHub</md-button>
+              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'iplastic'}" @click="setEditorTheme('iplastic')">IPlastic</md-button>
+              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'solarized_light'}" @click="setEditorTheme('solarized_light')">Solarized Light</md-button>
+              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'textmate'}" @click="setEditorTheme('textmate')">TextMate</md-button>
+              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'tomorrow'}" @click="setEditorTheme('tomorrow')">Tomorrow</md-button>
+              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'xcode'}" @click="setEditorTheme('xcode')">XCode</md-button>
+              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'kuroir'}" @click="setEditorTheme('kuroir')">Kuroir</md-button>
+              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'katzenmilch'}" @click="setEditorTheme('katzenmilch')">KatzenMilch</md-button>
+              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'sqlserver'}" @click="setEditorTheme('sqlserver')">SQL Server</md-button>
             </md-button-toggle>      
           </div>
           <div></div>
           <div v-if="selectTheme === 'dark'">
             <md-button-toggle md-single class="md-primary">
-              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'ambiance'}" @click="setEditorTheme('ambiance')">{{ $t("Ambiance") }}</md-button>
-              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'chaos'}" @click="setEditorTheme('chaos')">{{ $t("Chaos") }}</md-button>
-              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'clouds_midnight'}" @click="setEditorTheme('clouds_midnight')">{{ $t("Clouds Midnight") }}</md-button>
-              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'cobalt'}" @click="setEditorTheme('cobalt')">{{ $t("Cobalt") }}</md-button>
-              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'idle_fingers'}" @click="setEditorTheme('idle_fingers')">{{ $t("Idle Fingers") }}</md-button>
-              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'kr_theme'}" @click="setEditorTheme('kr_theme')">{{ $t("krTheme") }}</md-button>
-              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'merbivore'}" @click="setEditorTheme('merbivore')">{{ $t("Merbivore") }}</md-button>
-              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'merbivore_soft'}" @click="setEditorTheme('merbivore_soft')">{{ $t("Merbivore Soft") }}</md-button>
-              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'mono_industrial'}" @click="setEditorTheme('mono_industrial')">{{ $t("Mono Industrial") }}</md-button>
-              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'monokai'}" @click="setEditorTheme('monokai')">{{ $t("Monokai") }}</md-button>
-              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'pastel_on_dark'}" @click="setEditorTheme('pastel_on_dark')">{{ $t("Pastel on Dark") }}</md-button>
-              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'solarized_dark'}" @click="setEditorTheme('solarized_dark')">{{ $t("Solarized Dark") }}</md-button>
-              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'terminal'}" @click="setEditorTheme('terminal')">{{ $t("Terminal") }}</md-button>
-              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'tomorrow_night'}" @click="setEditorTheme('tomorrow_night')">{{ $t("Tomorrow Night") }}</md-button>
-              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'tomorrow_night_blue'}" @click="setEditorTheme('tomorrow_night_blue')">{{ $t("Tomorrow Night Blue") }}</md-button>
-              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'tomorrow_night_bright'}" @click="setEditorTheme('tomorrow_night_bright')">{{ $t("Tomorrow Night Bright") }}</md-button>
-              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'tomorrow_night_eighties'}" @click="setEditorTheme('tomorrow_night_eighties')">{{ $t("Tomorrow Night Eighties") }}</md-button>
-              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'twilight'}" @click="setEditorTheme('twilight')">{{ $t("Twilight") }}</md-button>
-              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'vibrant_ink'}" @click="setEditorTheme('vibrant_ink')">{{ $t("Vibrant Ink") }}</md-button>
+              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'ambiance'}" @click="setEditorTheme('ambiance')">Ambiance</md-button>
+              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'chaos'}" @click="setEditorTheme('chaos')">Chaos</md-button>
+              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'clouds_midnight'}" @click="setEditorTheme('clouds_midnight')">Clouds Midnight</md-button>
+              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'cobalt'}" @click="setEditorTheme('cobalt')">Cobalt</md-button>
+              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'idle_fingers'}" @click="setEditorTheme('idle_fingers')">Idle Fingers</md-button>
+              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'kr_theme'}" @click="setEditorTheme('kr_theme')">krTheme</md-button>
+              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'merbivore'}" @click="setEditorTheme('merbivore')">Merbivore</md-button>
+              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'merbivore_soft'}" @click="setEditorTheme('merbivore_soft')">Merbivore Soft</md-button>
+              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'mono_industrial'}" @click="setEditorTheme('mono_industrial')">Mono Industrial</md-button>
+              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'monokai'}" @click="setEditorTheme('monokai')">Monokai</md-button>
+              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'pastel_on_dark'}" @click="setEditorTheme('pastel_on_dark')">Pastel on Dark</md-button>
+              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'solarized_dark'}" @click="setEditorTheme('solarized_dark')">Solarized Dark</md-button>
+              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'terminal'}" @click="setEditorTheme('terminal')">Terminal</md-button>
+              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'tomorrow_night'}" @click="setEditorTheme('tomorrow_night')">Tomorrow Night</md-button>
+              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'tomorrow_night_blue'}" @click="setEditorTheme('tomorrow_night_blue')">Tomorrow Night Blue</md-button>
+              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'tomorrow_night_bright'}" @click="setEditorTheme('tomorrow_night_bright')">Tomorrow Night Bright</md-button>
+              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'tomorrow_night_eighties'}" @click="setEditorTheme('tomorrow_night_eighties')">Tomorrow Night Eighties</md-button>
+              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'twilight'}" @click="setEditorTheme('twilight')">Twilight</md-button>
+              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'vibrant_ink'}" @click="setEditorTheme('vibrant_ink')">Vibrant Ink</md-button>
             </md-button-toggle>
           </div>
           <br>

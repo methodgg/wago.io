@@ -42,7 +42,7 @@
           <md-list-item class="md-inset misc">
             <category-image group="misc"></category-image>
             <div class="md-list-text-container">
-              <router-link to="/weakauras/general">{{ $t("General") }}</router-link>
+              <span class="parent-category">{{ $t("General") }}</span>
               <span>
                 <router-link v-for="item in misc" v-bind:key="item.id" :to="'/weakauras/' + item.slug">{{ item.text }}</router-link>
               </span>
@@ -52,7 +52,7 @@
           <md-list-item class="md-inset roles">
             <category-image group="role"></category-image>
             <div class="md-list-text-container">
-              <router-link to="/weakauras/roles">{{ $t("Class Roles") }}</router-link>
+              <span class="parent-category">{{ $t("Class Roles") }}</span>
               <span>
                 <router-link v-for="item in roles" v-bind:key="item.id" :to="'/weakauras/' + item.slug">{{ item.text }}</router-link>
               </span>
@@ -194,7 +194,7 @@ export default {
 #search-weakaura a { margin-right: 12px }
 #search-weakaura .md-list-item.md-inset .md-list-item-container { padding-left: 24px; flex-wrap: wrap; padding-bottom: 16px }
 #search-weakaura .md-list-text-container a { white-space: nowrap; display: inline-block }
-#search-weakaura .md-list-text-container > a { font-size: 18px; font-weight: bold; line-height: 19px; }
+#search-weakaura .md-list-text-container > a, #search-weakaura .md-list-text-container > .parent-category { font-size: 18px; font-weight: bold; line-height: 19px; }
 #search-weakaura .md-list-text-container span{ white-space: normal; line-height: 22px}
 #search-weakaura .md-layout { align-items: flex-start}
 

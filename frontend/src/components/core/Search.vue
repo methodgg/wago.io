@@ -159,7 +159,7 @@ export default {
 
     document.addEventListener('scroll', function (event) {
       if (vue.results && vue.results.total && vue.results.results && vue.results.total > vue.results.results.length && !vue.isSearching && !vue.isSearchingMore) {
-        if (document.body.scrollHeight - 600 <= document.body.scrollTop + window.innerHeight) {
+        if (document.body.scrollHeight - 600 <= document.body.scrollTop + window.innerHeight || document.body.scrollHeight - 600 <= document.documentElement.scrollTop + window.innerHeight) {
           vue.isSearchingMore = true
 
           // setup query

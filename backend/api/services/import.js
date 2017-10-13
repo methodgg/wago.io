@@ -13,13 +13,28 @@ const RegexElv = /^[a-zA-Z0-9=\+\/]*$/
 server.post('/import/scan', ScanImport)
 function ScanImport (req, res, next, test) {
   // validate the input
-  console.log('import', req.body.importString)
   if (!req.body || !req.body.importString || req.body.importString.length < 10) {
     return res.send({error: 'invalid_import'})
   }
 
   if (!test) {
     test = {}
+  }
+
+  // if only looking for a specific type
+  switch (req.body.type.toUpperCase()) {
+    case 'WEAKAURA':
+      test.notElvUI = true
+      test.notVuhdo = true
+      break
+    case 'ELVUI':
+      test.NotWeakAura = true
+      test.notVuhdo = true
+      break
+    case 'VUHDO':
+      test.NotWeakAura = true
+      test.notElvUI = true
+      break    
   }
 
   // if input is a pastebin URL
@@ -155,7 +170,7 @@ function ScanImport (req, res, next, test) {
         }
         else {
           // unknown import with weakaura encoding
-          return res.send({error: 'invalid_import'})
+          return res.send({error: 'invalid_import_wa'})
         }
       }
       catch (e) {
@@ -269,7 +284,6 @@ function ScanImport (req, res, next, test) {
 
 server.post('/import/submit', function(req, res) {
   var scanID = req.body.scanID
-  console.log('test', req.body)
 
   ImportScan.findById(scanID).then((scan) => {
     if (!scan) {
@@ -409,6 +423,22 @@ server.post('/import/submit', function(req, res) {
   })
 })
 
+server.post('/import/update', function (req, res) {
+  if (req.body.scanID) {
+    ImportScan.findById(req.body.scanID).then((scan) => {
+      if (scan.decoded) {
+        req.body.json = scan.decoded
+        SaveWagoVersion(req, res, 'update')
+      }
+      else {
+        res.send({error: 'Invalid scan'})
+      }
+    })
+  }
+  else {
+    res.send({error: 'Invalid scan ID'})
+  }
+})
 server.post('/import/json/save', function (req, res) {
   SaveWagoVersion(req, res, 'update')
 })
@@ -423,6 +453,7 @@ function SaveWagoVersion (req, res, mode) {
   if (!req.user && mode === 'update') {
     return res.send({error: 'invalid_user'})
   }
+
   try {
     var wagoID = req.body.wagoID
     var type = req.body.type.toUpperCase()

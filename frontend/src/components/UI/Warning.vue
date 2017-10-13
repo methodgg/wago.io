@@ -16,6 +16,7 @@ export default {
 <style>
 .warning-container { padding-right: 32px }
 .warning { border-top: 15px solid; font-weight: 500; margin: 10px 16px 0 16px; padding: 10px 0 0 0; width: 100%; }
+.md-card .warning { margin: 10px 0 }
 .warning { border-color: #afb42b; color: #afb42b; }
 .warning.alert { border-color: #c1272d; color: #c1272d; } 
 .warning.good { border-color: #388e3c; color: #388e3c; } 

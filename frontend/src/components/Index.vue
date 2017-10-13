@@ -51,16 +51,9 @@
           <md-input name="name" id="name" v-model="name"></md-input>
         </md-input-container>
 
-        <md-input-container v-if="scanID" class="md-has-value">
+        <md-input-container v-if="scanID" class="md-has-value has-category-select">
           <label>{{ $t("Categories") }}</label>
-          <multiselect v-model="setCategories" :options="categories" track-by="text" label="text" :multiple="true" :max="3" :close-on-select="false" :clear-on-select="false" :hide-selected="true" :preserve-search="true" :placeholder="$t('Select')" select-label="" @input="onUpdateCategories()">
-            <template slot="tag" scope="props"><span :class="'custom__tag ' + props.option.cls">
-              <span>{{ props.option.text }}</span><span class="multiselect_remove" @click="props.remove(props.option)">❌</span></span>
-            </template>
-            <template slot="option" scope="props">
-              <div :class="'md-chip ' + props.option.cls"><span class="option__title">{{ props.option.text }}</span></div>
-            </template>
-          </multiselect>
+          <category-select :selectedCategories="setCategories" :type="type.toUpperCase()" @update="cat => {setCategories = cat}" ></category-select>
         </md-input-container>
 
         <md-button class="md-raised" :disabled="disableSubmit" @click="submitImport()">Submit</md-button>
@@ -100,22 +93,12 @@
 #inputStringWrapper { width: 100%; position: relative; }
 #inputStringWrapper div  { position: absolute; top: 0; color: #a5a5a5; padding: 6px 0 0 0; pointer-events: none}
 
-.multiselect { min-height: 0}
-.multiselect--above { z-index: 8}
-.multiselect__tags { border-width: 0 0 1px 0; padding:5px 0; min-height: 16px; border: 0; background: none}
-.multiselect_remove { cursor: pointer }
-.md-input-container input.multiselect__input { display: inline }
-ul.multiselect__content { display: flex!important; flex-wrap: wrap }
-ul.multiselect__content .multiselect__element { flex: 1 1 25%; z-index:3 }
-ul.multiselect__content .multiselect__element .multiselect__option { padding: 0; min-height: 0 }
-ul.multiselect__content .multiselect__element .multiselect__option .md-chip { border-radius: 0; display: block; font-size: 13.5px; text-outline: none; box-shadow: none }
-ul:not(.md-list) > li.multiselect__element + li { margin-top: 0 }
+.has-category-select + .has-category-select { margin-top: -24px}
 
 </style>
 
 <script>
-import Categories from './libs/categories'
-import Multiselect from 'vue-multiselect'
+import CategorySelect from './UI/SelectCategory.vue'
 
 export default {
   name: 'app',
@@ -128,7 +111,8 @@ export default {
       importAs: 'Guest',
       expire: '3mo',
       name: '',
-      setCategories: null,
+      setCategories: [],
+      setCategories2: [],
       categories: [],
       type: '',
       isScanning: false,
@@ -137,7 +121,7 @@ export default {
     }
   },
   components: {
-    Multiselect
+    CategorySelect
   },
   computed: {
     user () {
@@ -163,7 +147,7 @@ export default {
         importAs: this.importAs,
         expireAfter: this.expire,
         name: this.name,
-        categories: JSON.stringify(this.setCategories)
+        categories: JSON.stringify(this.setCategories.concat(this.setCategories2))
       }
       var vue = this
       this.http.post('/import/submit', post).then((res) => {
@@ -217,15 +201,7 @@ export default {
           // build category select
           vue.categories = []
           vue.setCategories = []
-          var typeFilter = vue.type.toUpperCase()
-          Categories.categories(this.$t).forEach((cat) => {
-            if (cat[typeFilter] && !cat.noselect) {
-              vue.categories.push(cat)
-            }
-            if (res.categories.indexOf(cat.id) > -1) {
-              vue.setCategories.push(cat)
-            }
-          })
+          vue.setCategories2 = []
 
           // set scanID after other data is assigned
           vue.scanID = res.scan

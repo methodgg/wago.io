@@ -41,8 +41,8 @@
           </div>
           <div>
             <md-button @click="toTop"><md-icon>arrow_upward</md-icon> {{ $t("To top") }}</md-button>
-            <md-button v-if="wago.code && wago.code.encoded && !wago.alerts.blacklist" @click="copyEncoded"><md-icon>assignment</md-icon> {{ $t("Copy [-type-] import string", {type: wago.type}) }}</md-button>
           </div>
+          <md-button v-if="wago.code && wago.code.encoded && !wago.alerts.blacklist" @click="copyEncoded" class="copy-import-button"><md-icon>assignment</md-icon> {{ $t("Copy [-type-] import string", {type: wago.type}) }}</md-button>
         </div>
       </md-card>
 
@@ -55,14 +55,32 @@
               <md-icon v-if="wago.myfave">star</md-icon>
               <md-icon v-else>star_border</md-icon> {{ $t("Favorite") }}
             </md-button>
-            <md-button v-if="wago.code && wago.code.encoded && !wago.alerts.blacklist" @click="copyEncoded"><md-icon>assignment</md-icon> {{ $t("Copy [-type-] import string", {type: wago.type}) }}</md-button>
+            <md-button v-if="wago.user && User && wago.UID && wago.UID === User.UID" @click="$refs['newImportDialog'].open()" id="newImportButton"><md-icon>input</md-icon> {{ $t("Import new string") }}</md-button>
+            <md-button v-if="wago.code && wago.code.encoded && !wago.alerts.blacklist" @click="copyEncoded" class="copy-import-button"><md-icon>assignment</md-icon> {{ $t("Copy [-type-] import string", {type: wago.type}) }}</md-button>
           </md-card-actions>
+          <md-dialog v-if="wago.user && User && wago.UID && wago.UID === User.UID" md-open-from="#newImportButton" md-close-to="#newImportButton" ref="newImportDialog" id="newImportDialog">
+            <md-dialog-title>{{ $t("Import new string") }}</md-dialog-title>
+
+            <md-dialog-content>
+              <md-input-container :class="{ 'md-input-invalid': newImportString && newImportStringStatus.indexOf('Invalid') >= 0, 'md-input-status': newImportStringStatus }">
+                <label>{{ $t("Paste a new [-type-] string to update this Wago", {type: wago.type.toLowerCase() }) }}</label>
+                <md-input v-model.trim="newImportString"></md-input>
+                <span class="md-error" v-if="newImportStringStatus.length>0">{{ newImportStringStatus }}</span>
+              </md-input-container>
+            </md-dialog-content>
+
+            <md-dialog-actions>
+              <md-button class="md-primary" @click="onUpdateImportString()" :disabled="!newImportString || newImportStringStatus.indexOf('Invalid') >= 0">{{ $t("Update") }}</md-button>
+              <md-button class="md-primary" @click="$refs['newImportDialog'].close()">{{ $t("Cancel") }}</md-button>
+            </md-dialog-actions>
+          </md-dialog>
 
           <!-- FRAME TOGGLES -->
           <md-button-toggle class="md-accent">
             <md-button v-if="wago.user && User && wago.UID && wago.UID === User.UID" @click="toggleFrame('config')">{{ $t("Config") }}</md-button>
             <md-button class="md-toggle" @click="toggleFrame('description')">{{ $t("Description") }}</md-button>
-            <md-button :class="{'md-toggle': initShowVersions}" v-if="wago.versions && wago.versions.total > 1" @click="toggleFrame('versions')" ref="versionsButton">{{ $t("[-count-] Versions", { count: wago.versions.total }) }}</md-button>
+            <md-button class="md-toggle" @click="toggleFrame('comments')">{{ $t("[-count-] comment", {count: wago.commentCount }) }}</md-button>
+            <md-button :class="{'md-toggle': initShowVersions}" v-if="wago.versions && wago.versions.total > 1" @click="toggleFrame('versions')" ref="versionsButton">{{ $t("[-count-] version", { count: wago.versions.total }) }}</md-button>
             <md-button @click="toggleFrame('collections')">{{ $t("Collections") }}</md-button>
             <md-button v-if="!wago.alerts.blacklist" @click="toggleFrame('embed')">{{ $t("Embed") }}</md-button>
             <md-button :class="{'md-toggle': initShowEditor}" @click="toggleFrame('editor')">{{ $t("Editor") }}</md-button>
@@ -113,16 +131,12 @@
                 <md-textarea v-model="editDesc" @change="onUpdateDescription()" :debounce="600"></md-textarea>
                 <span class="md-error" v-if="updateDescStatus.length>0">{{ updateDescStatus }}</span>
               </md-input-container>
-              <md-input-container :class="{ 'md-input-invalid': updateDescError, 'md-input-status': updateDescHasStatus, 'md-has-value': editCategories.length > 0 }">
+              <ui-warning v-if="invalidCategories" mode="alert">
+                Invalid categories. Category selection has changed to require a more specific selection to make browsing the categories more meaningful. This import's categories will be changed to follow suit on December 1 or soon after.
+              </ui-warning>
+              <md-input-container class="md-has-value has-category-select">
                 <label>{{ $t("Categories") }}</label>
-                <multiselect v-model="editCategories" :options="categories" track-by="text" label="text" :multiple="true" :max="3" :close-on-select="false" :clear-on-select="false" :hide-selected="true" :preserve-search="true" :placeholder="$t('Select')" select-label="" @input="onUpdateCategories()">
-                  <template slot="tag" scope="props"><span :class="'custom__tag ' + props.option.cls">
-                    <span>{{ props.option.text }}</span><span class="multiselect_remove" @click="props.remove(props.option)">❌</span></span>
-                  </template>
-                  <template slot="option" scope="props">
-                    <div :class="'md-chip ' + props.option.cls"><span class="option__title">{{ props.option.text }}</span></div>
-                  </template>
-                </multiselect>
+                <category-select :selectedCategories="editCategories" @update="onUpdateCategories" :type="wago.type.toUpperCase()"></category-select>
               </md-input-container>
               <h3>{{ $t("Preview setup")}}</h3>
               <md-layout>
@@ -188,6 +202,12 @@
             </div>
           </div>
 
+          <div id="wago-comments-container" class="wago-container">
+            <div id="wago-comments" v-if="showComments">
+              <view-comments :comments="wago.comments" :commentTotal="wago.commentCount" :wagoID="wago._id"></view-comments>
+            </div>
+          </div>
+
           <!-- VERSIONS FRAME -->
           <div id="wago-versions-container" class="wago-container">
             <md-card id="wago-versions" v-if="showVersions">
@@ -224,8 +244,25 @@
           <!-- COLLECTIONS FRAME -->
           <div id="wago-collections-container" class="wago-container">
             <md-card id="wago-collections" v-if="showCollections">
+              <md-layout>
+                <md-layout>
+                  <div>{{ $t("Collections are sets of imports curated by users for a variety of purproses")}}</div>
+                </md-layout>
+                <md-layout md-align="end">
+                  <md-menu md-align-trigger md-size="7">
+                    <md-button md-menu-trigger><md-icon>note_add</md-icon> {{ $t("Add to collection") }}</md-button>
+
+                    <md-menu-content>
+                      <md-menu-item>My Collection 1</md-menu-item>
+                      <md-menu-item>My Collection 2</md-menu-item>
+                      <md-menu-item>My Collection 3</md-menu-item>
+                      <md-menu-item>{{ $t("Create new collection") }}</md-menu-item>
+                    </md-menu-content>
+                  </md-menu>
+                </md-layout>
+              </md-layout>
               <div v-if="wago.collections.length > 0">
-                <h2>{{ $t("This Wago is included in [-count-] public collections", {count: wago.collectionCount}) }}</h2>
+                <strong>{{ $t("This Wago is included in [-count-] collection", {count: wago.collectionCount}) }}</strong>
                 <md-table @select="selectVersion">
                   <md-table-header>
                     <md-table-row>
@@ -315,9 +352,8 @@
         </div>
 
         <!-- SIDE PANEL COMMENTS -->
-        <div id="wago-col-side">
-          <view-comments :comments="wago.comments" :commentTotal="wago.commentCount" :wagoID="wago._id"></view-comments>
-        </div>
+        <!--<div id="wago-col-side">
+        </div>-->
       </div>
     </div>    
 
@@ -377,6 +413,8 @@ function setupPasteImage (vue) {
 import Categories from '../libs/categories'
 import Lightbox from 'vue-simple-lightbox'
 import Multiselect from 'vue-multiselect'
+import CategorySelect from '../UI/SelectCategory.vue'
+
 export default {
   components: {
     'view-comments': require('../UI/ViewComments.vue'),
@@ -387,7 +425,8 @@ export default {
     'edit-vuhdo': require('../UI/EditVuhdo.vue'),
     'edit-weakaura': require('../UI/EditWeakAura.vue'),
     editor: require('vue2-ace-editor'),
-    Multiselect
+    Multiselect,
+    CategorySelect
   },
   created: function () {
     this.fetchWago()
@@ -400,6 +439,7 @@ export default {
     return {
       videoEmbedHTML: '',
       showDescription: true,
+      showComments: true,
       showEditor: (window.innerWidth > 800),
       showConfig: false,
       showVersions: (parseInt(this.$route.params.version) > 0),
@@ -423,6 +463,7 @@ export default {
       updateDescStatus: '',
       updateDescError: false,
       editCategories: [],
+      invalidCategories: false,
       doNotReloadWago: false,
       pasteURL: '',
       pasteURLStatus: '',
@@ -430,12 +471,45 @@ export default {
       pasteURLError: false,
       pasteURLUploading: false,
       uploadImages: '',
-      uploadFileProgress: []
+      uploadFileProgress: [],
+      newImportString: '',
+      newImportStringStatus: ''
+
     }
   },
   watch: {
     '$route': 'fetchWago',
-    pasteURL: 'onUpdatePasteURL'
+    pasteURL: 'onUpdatePasteURL',
+    newImportString: function (val) {
+      var vue = this
+      vue.newImportStringStatus = ''
+      vue.scanID = ''
+
+      if (!val) {
+        return
+      }
+
+      // ignore short strings (probably unintentional keypress)
+      if (val.length < 10) {
+        this.importError = true
+        return
+      }
+
+      // send content to import scan
+      vue.newImportStringStatus = 'Verifying'
+      vue.http.post('/import/scan', { importString: val, type: vue.wago.type }).then((res) => {
+        vue.isScanning = false
+        if (res.error) {
+          vue.newImportStringStatus = vue.$t('Invalid [-type-]', {type: vue.wago.type.toLowerCase()})
+        }
+        else {
+          vue.newImportStringStatus = vue.$t('Import valid')
+
+          // set scanID after other data is assigned
+          vue.scanID = res.scan
+        }
+      })
+    }
   },
   computed: {
     wago () {
@@ -528,6 +602,8 @@ export default {
       this.showCollections = false
       this.showMoreCollections = true
       this.showEmbed = false
+      this.newImportString = ''
+      this.newImportStringStatus = ''
 
       var params = {}
       params.id = wagoID
@@ -564,7 +640,20 @@ export default {
         this.editName = res.name
         this.editSlug = res.slug
         this.editDesc = res.description.text
-        this.editCategories = res.categories
+        this.editCategories = []
+        this.invalidCategories = false
+        if (res.categories && res.categories.length > 0) {
+          var firstCatSet = res.categories[0].slug
+          res.categories.forEach(function (cat) {
+            if (cat.slug && cat.slug.indexOf(firstCatSet) > -1) {
+              firstCatSet = cat.slug
+              vue.editCategories.push(cat)
+            }
+            else {
+              vue.invalidCategories = true
+            }
+          })
+        }
 
         vue.$store.commit('setPageInfo', {
           title: res.name,
@@ -632,6 +721,12 @@ export default {
         case 'description':
           if (this.showDescription = !this.showDescription) {
             div = '#wago-description-container'
+          }
+          break
+
+        case 'comments':
+          if (this.showComments = !this.showComments) {
+            div = '#wago-comments-container'
           }
           break
 
@@ -856,8 +951,9 @@ export default {
       })
     },
 
-    onUpdateCategories () {
+    onUpdateCategories (newCats) {
       var cats = []
+      this.editCategories = newCats
       this.editCategories.forEach((cat) => {
         cats.push(cat.id)
       })
@@ -1025,6 +1121,26 @@ export default {
         wagoID: this.wago._id
       })
       this.$router.replace('/')
+    },
+
+    onUpdateImportString () {
+      var post = {}
+      post.wagoID = this.wago._id
+      post.type = this.wago.type
+      post.scanID = this.scanID
+      var vue = this
+      this.http.post('/import/update', post).then((res) => {
+        if (res.success) {
+          window.eventHub.$emit('showSnackBar', vue.$t('Wago saved successfully'))
+          location.reload()
+        }
+        else if (res && res.error) {
+          window.eventHub.$emit('showSnackBar', res.error)
+        }
+        else {
+          window.eventHub.$emit('showSnackBar', vue.$t('Unknown error could not save'))
+        }
+      })
     }
   }
 }
@@ -1059,6 +1175,9 @@ export default {
 }
 
 #wago-actions {text-align: right; margin-right: 8px}
+.copy-import-button { border: 2px solid #c1272d; border-radius: 25px; margin: 4px 28px }
+#wago-floating-header .copy-import-button { margin: -2px 0 0 auto }
+
 #tags { display: block; clear: both; padding-top: 16px}
 #thumbnails { vertical-align: middle; white-space: nowrap; width: 100%; overflow-x: auto; overflow-y: hidden; }
 #thumbnails div, a.showvid { float: left; vertical-align: middle; display: inline }
@@ -1149,5 +1268,7 @@ ul:not(.md-list) > li.multiselect__element + li { margin-top: 0 }
 .vddl-draggable:hover .vddl-delete { opacity: 1}
 
 .my-gallery a img { border-color: transparent }
+
+#newImportDialog > div { min-width: 30% }
 
 </style>

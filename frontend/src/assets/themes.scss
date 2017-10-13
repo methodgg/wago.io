@@ -12,7 +12,7 @@
   h2, .md-subheader {
     color: $Text;
   }
-  .md-theme-default.md-list {
+  .md-theme-default.md-list, .md-theme-default.md-dialog-container .md-dialog {
     background: $Background;
     color: $Text;
   }
@@ -34,8 +34,11 @@
   .md-list-text-container > :nth-child(2), .md-list-text-container > :nth-child(3) {
     color: $Text3;
   }
-  .md-theme-default.md-button-toggle.md-accent .md-toggle {
+  .md-theme-default.md-button-toggle.md-accent .md-toggle, .md-theme-default.md-button:not([disabled]).md-primary:not(.md-icon-button) {
     color: white;
+  }
+  .md-button[disabled] {
+    color: rgba(255, 255, 255, 0.25)
   }
 
   .md-input-container {
@@ -97,8 +100,8 @@
   .cl-rogue, .cl-rogue a {
     color: #FFF569!important;
   }
-  .tombofsargeras, .tombofsargeras a {
-    color: #068a46!important;
+  .md-chip.roles {
+    color: #444!important;
   }
   .pvp-battleground md, .pvp-battleground md a {
     color: #055fa0!important;
