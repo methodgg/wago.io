@@ -74,8 +74,16 @@
 .pvp-arena a, .pvp-arena { color: #ed1b24!important}
 .vuhdo a, .vuhdo { color: #6BB85E!important }
 
-.md-chip { color: #fff!important }
+.md-chip.equip { background-color: #7ED321!important }
+.equip a, .equip { color: #7ED321!important}
 
+.md-chip.mechanics { background-color: #F55F37!important }
+.mechanics a, .mechanics { color: #F55F37!important}
+
+.md-chip.pvp-world { background-color: #F5CD37!important }
+.pvp-world a, .pvp-world { color: #F5CD37!important}
+
+.md-chip { color: #fff!important }
 
 /* User roles */
 .user-admin, .user-admin:hover { font-weight: bold; color:#B80000!important; }

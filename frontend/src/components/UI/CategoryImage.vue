@@ -17,6 +17,9 @@
     <img src="./../../assets/menu-nighthold.png" v-else-if="group === 'nighthold'"/>
     <img src="./../../assets/menu-dungeon.png" v-else-if="group === 'dungeon'"/>
     <img src="./../../assets/menu-misc.png" v-else-if="group === 'misc'"/>
+    <img src="./../../assets/menu-equip.png" v-else-if="group === 'equip'"/>
+    <img src="./../../assets/menu-mechanics.png" v-else-if="group === 'mechanics'"/>
+    <img src="./../../assets/menu-wpvp.png" v-else-if="group === 'pvp-world'"/>
     <img src="./../../assets/menu-roles.png" v-else-if="group === 'role'"/>
     <img src="./../../assets/menu-bg.png" v-if="group === 'pvp-arena'"/>
     <img src="./../../assets/menu-arena.png" v-else-if="group === 'pvp-battleground'"/>

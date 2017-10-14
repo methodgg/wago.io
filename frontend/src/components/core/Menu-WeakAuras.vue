@@ -42,9 +42,29 @@
           <md-list-item class="md-inset misc">
             <category-image group="misc"></category-image>
             <div class="md-list-text-container">
-              <span class="parent-category">{{ $t("General") }}</span>
+              <router-link to='/weakauras/general'>{{ $t("General") }}</router-link>
               <span>
                 <router-link v-for="item in misc" v-bind:key="item.id" :to="'/weakauras/' + item.slug">{{ item.text }}</router-link>
+              </span>
+            </div>
+          </md-list-item>
+
+          <md-list-item class="md-inset mechanics">
+            <category-image group="mechanics"></category-image>
+            <div class="md-list-text-container">
+              <router-link to='/weakauras/combat-mechanics'>{{ $t("Combat Mechanics") }}</router-link>
+              <span>
+                <router-link v-for="item in mechanics" v-bind:key="item.id" :to="'/weakauras/' + item.slug">{{ item.text }}</router-link>
+              </span>
+            </div>
+          </md-list-item>
+
+          <md-list-item class="md-inset equip">
+            <category-image group="equip"></category-image>
+            <div class="md-list-text-container">
+              <router-link to='/weakauras/equipment'>{{ $t("Equipment") }}</router-link>
+              <span>
+                <router-link v-for="item in equip" v-bind:key="item.id" :to="'/weakauras/' + item.slug">{{ item.text }}</router-link>
               </span>
             </div>
           </md-list-item>
@@ -52,22 +72,9 @@
           <md-list-item class="md-inset roles">
             <category-image group="role"></category-image>
             <div class="md-list-text-container">
-              <span class="parent-category">{{ $t("Class Roles") }}</span>
+              <router-link to='/weakauras/class-roles'>{{ $t("Class Roles") }}</router-link>
               <span>
                 <router-link v-for="item in roles" v-bind:key="item.id" :to="'/weakauras/' + item.slug">{{ item.text }}</router-link>
-              </span>
-            </div>
-          </md-list-item>
-        </md-list>
-
-        <md-subheader>{{ $t("PvP") }}</md-subheader>
-        <md-list class="md-double-line md-dense">
-          <md-list-item v-for="item in pvp" v-bind:key="item.id" :class="item.cls + ' md-inset'">
-            <category-image :group="item.cls"></category-image>
-            <div class="md-list-text-container">
-              <router-link :to="'/weakauras/' + item.slug">{{ item.text }}</router-link>
-              <span>
-                <router-link v-for="zone in item.bosses" v-bind:key="zone.id" :to="'/weakauras/' + zone.slug">{{ zone.text }}</router-link>
               </span>
             </div>
           </md-list-item>
@@ -88,6 +95,19 @@
 
       </md-layout>
       <md-layout>
+        <md-subheader>{{ $t("PvP") }}</md-subheader>
+        <md-list class="md-double-line md-dense">
+          <md-list-item v-for="item in pvp" v-bind:key="item.id" :class="item.cls + ' md-inset'">
+            <category-image :group="item.cls"></category-image>
+            <div class="md-list-text-container">
+              <router-link :to="'/weakauras/' + item.slug">{{ item.text }}</router-link>
+              <span>
+                <router-link v-for="zone in item.bosses" v-bind:key="zone.id" :to="'/weakauras/' + zone.slug">{{ zone.text }}</router-link>
+              </span>
+            </div>
+          </md-list-item>
+        </md-list>
+
         <md-subheader>{{ $t("Custom Code") }}</md-subheader>
         <md-list class="md-double-line md-dense">
           <md-list-item class="md-inset development">
@@ -155,13 +175,19 @@ export default {
       return categories.raidCategories(['raidantorus', 'raidtomb', 'raidnh', 'dungeon'], this.$t)
     },
     misc: function () {
-      return categories.getCategories(['gen1', 'legen', 'gen7', 'gen2', 'gen6'], this.$t)
+      return categories.getCategories(['gen1', 'gen7', 'gen2', 'gen6', 'gen8', 'gen9', 'gen10', 'gen11'], this.$t)
     },
     roles: function () {
       return categories.getCategories(['role4', 'role1', 'role2', 'role3'], this.$t)
     },
     pvp: function () {
-      return categories.raidCategories(['arena', 'bg'], this.$t)
+      return categories.raidCategories(['arena', 'bg', 'wpvp'], this.$t)
+    },
+    mechanics: function () {
+      return categories.getCategories([/^mech[\d]+/], this.$t)
+    },
+    equip: function () {
+      return categories.getCategories([/^equip[\d]+/, 'legen'], this.$t)
     },
     professions: function () {
       return categories.professionCategories(this.$t)

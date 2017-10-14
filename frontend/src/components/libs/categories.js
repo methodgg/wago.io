@@ -62,22 +62,38 @@ module.exports = {
       {id: "cl1-2", slug: "classes/warrior/fury", cls:"cl-warrior", text: t("warcraft:classes.1-2"), WEAKAURA: true, ELVUI: true, VUHDO: true},
       {id: "cl1-3", slug: "classes/warrior/protection", cls:"cl-warrior", text: t("warcraft:classes.1-3"), WEAKAURA: true, ELVUI: true, VUHDO: true},
 
-      {id: "gen0", slug: "general", cls:"misc", text: t("Miscellaneous"), root: true, noselect: true, WEAKAURA: true},
-      {id: "legen", slug: "general/legendaries", cls:"misc", text: t("Legendaries"), WEAKAURA: true},
+      {id: "gen0", slug: "general", cls:"misc", text: t("General"), root: true, noselect: true, WEAKAURA: true},
       {id: "gen7", slug: "general/achievements", cls:"misc", text: t("Achievements"), WEAKAURA: true},
       {id: "gen2", slug: "general/questing", cls:"misc", text: t("Questing"), WEAKAURA: true},
       {id: "gen6", slug: "general/non-combat", cls:"misc", text: t("Non-Combat"), WEAKAURA: true},
+      {id: "gen8", slug: "general/holidays", cls:"misc", text: t("Holidays"), WEAKAURA: true},
+      {id: "gen9", slug: "general/currency", cls:"misc", text: t("Currency"), WEAKAURA: true},
+      {id: "gen10", slug: "general/reputation", cls:"misc", text: t("Reputation"), WEAKAURA: true},
+      {id: "gen11", slug: "general/collections", cls:"misc", text: t("Collections"), WEAKAURA: true},
+      
+      {id: "equip", slug: "equipment", cls:"equip", text: t("Equipment"), root: true, WEAKAURA: true},
+      {id: "legen", slug: "equipment/legendaries", cls:"equip", text: t("Legendaries"), WEAKAURA: true},
+      {id: "equip1", slug: "equipment/trinkets", cls:"equip", text: t("Trinkets"), WEAKAURA: true},
+      {id: "equip2", slug: "equipment/item-enhancements", cls:"equip", text: t("Item Enhancements"), WEAKAURA: true},
+      
+      {id: "mech", slug: "combat-mechanics", cls:"mechanics", text: t("Combat Mechanics"), root: true, WEAKAURA: true},
+      {id: "mech1", slug: "combat-mechanics/battle-resurrection", cls:"mechanics", text: t("Battle Resurrection"), WEAKAURA: true},
+      {id: "mech2", slug: "combat-mechanics/interrupts", cls:"mechanics", text: t("Interrupts"), WEAKAURA: true},
+      {id: "mech3", slug: "combat-mechanics/theorycrafting", cls:"mechanics", text: t("Theorycrafting"), WEAKAURA: true},
+      {id: "mech4", slug: "combat-mechanics/vehicles", cls:"mechanics", text: t("Vehicles"), WEAKAURA: true},
+      {id: "mech5", slug: "combat-mechanics/consumables", cls:"mechanics", text: t("Consumables"), WEAKAURA: true},
+      {id: "mech6", slug: "combat-mechanics/group-buffs", cls:"mechanics", text: t("Group Buffs"), WEAKAURA: true},
 
-      {id: "role0", slug: "roles", cls:"roles", text: t("Group Roles"), root: true, noselect: true, WEAKAURA: true, VUHDO: true},
-      {id: "role4", slug: "roles/raid-lead", cls:"roles", text: t("Raid Leading"), WEAKAURA: true},
-      {id: "role1", slug: "roles/damage", cls:"roles", text: t("Damage Dealing"), WEAKAURA: true, VUHDO: true},
-      {id: "role2", slug: "roles/healing", cls:"roles", text: t("Healing"), WEAKAURA: true, VUHDO: true},
-      {id: "role3", slug: "roles/tanking", cls:"roles", text: t("Tanking"), WEAKAURA: true, VUHDO: true},
+      {id: "role0", slug: "class-roles", cls:"roles", text: t("Group Roles"), root: true, noselect: true, WEAKAURA: true, VUHDO: true},
+      {id: "role4", slug: "class-roles/raid-leading", cls:"roles", text: t("Raid Leading"), WEAKAURA: true},
+      {id: "role1", slug: "class-roles/damage-dealing", cls:"roles", text: t("Damage Dealing"), WEAKAURA: true, VUHDO: true},
+      {id: "role2", slug: "class-roles/healing", cls:"roles", text: t("Healing"), WEAKAURA: true, VUHDO: true},
+      {id: "role3", slug: "class-roles/tanking", cls:"roles", text: t("Tanking"), WEAKAURA: true, VUHDO: true},
 
       {id: "vuhdo0", slug: "vuhdo", cls:"vuhdo", text: t("Vuhdo"), "systemtag": true, noselect: true, VUHDO: true},
-      {id: "vuhdo1", slug: "vuhdo/profiles", cls:"vuhdo", text: t("Vuhdo Profiles"), "systemtag": true, VUHDO: true},
-      {id: "vuhdo2", slug: "vuhdo/bouquets", cls:"vuhdo", text: t("Vuhdo Bouquets"), "systemtag": true, VUHDO: true},
-      {id: "vuhdo3", slug: "vuhdo/keylayouts", cls:"vuhdo", text: t("Vuhdo Key Layouts"), "systemtag": true, VUHDO: true},
+      {id: "vuhdo1", slug: "vuhdo/vuhdo-profiles", cls:"vuhdo", text: t("Vuhdo Profiles"), "systemtag": true, VUHDO: true},
+      {id: "vuhdo2", slug: "vuhdo/vuhdo-bouquets", cls:"vuhdo", text: t("Vuhdo Bouquets"), "systemtag": true, VUHDO: true},
+      {id: "vuhdo3", slug: "vuhdo/vuhdo-key-layouts", cls:"vuhdo", text: t("Vuhdo Key Layouts"), "systemtag": true, VUHDO: true},
 
       {id: "pve", slug: "pve", cls:"", text: t("PvE"), noselect: true, WEAKAURA: true},
       
@@ -157,6 +173,9 @@ module.exports = {
       // {id: "bg9", slug: "pvp/battlegrounds/battle-for-gilneas", cls:"pvp-battleground", text: t("The Battle for Gilneas"), WEAKAURA: true, "hideFromMenu": true},
       // {id: "bg10", slug: "pvp/battlegrounds/twin-peaks", cls:"pvp-battleground", text: t("Twin Peaks"), WEAKAURA: true, "hideFromMenu": true},
       // {id: "bg11", slug: "pvp/battlegrounds/warsong-gulch", cls:"pvp-battleground", text: t("Warsong Gulch"), WEAKAURA: true, "hideFromMenu": true},
+
+      {id: "wpvp", slug: "pvp/world-pvp", cls:"pvp-world", text: t("World PvP"), WEAKAURA: true},
+      {id: "wpvp1", slug: "pvp/duels", cls:"pvp-world", text: t("Duels"), WEAKAURA: true},
       
       {id: "prof0", slug: "professions", cls:"prof", text: t("Professions"), noselect: true, root: true, WEAKAURA: true},
       {id: "prof1", slug: "professions/gathering", cls:"prof-gathering", text: t("Gathering"), WEAKAURA: true},
@@ -211,7 +230,7 @@ module.exports = {
 
       {id: "gen5", slug: "development", cls:"development", text: t("Development"), root: true, noselect: true, WEAKAURA: true},
       {id: "gen3", slug: "development/testing", cls:"development", text: t("Testing"), WEAKAURA: true},
-      {id: "gen4", slug: "development/training", cls:"development", text: t("WA Training"), WEAKAURA: true},
+      {id: "gen4", slug: "development/wa-training", cls:"development", text: t("WA Training"), WEAKAURA: true},
       {id: "beta2", slug: "development/legion-ptr7.2", cls:"development", text: t("Legion 7.2 PTR"), noselect: true, "systemtag": true, WEAKAURA: true},
 
       {id: "snip0", slug: "snippets", cls:"snippets", text: t("Code Snippets"), "type": "snippet", "systemtag": true, "Snippet": true},
@@ -338,10 +357,22 @@ module.exports = {
     var selected = []
     ids.forEach((c) => {
       cats.forEach((cat) => {
-        if (c == cat.id) {
+        if (c instanceof RegExp && cat.id.match(c)) {
+          selected.push(cat) 
+        }
+        else if (c == cat.id) {
           selected.push(cat)
         }
       })
+    })
+
+    selected.sort(function (a, b) {
+      if (a.text < b.text) {
+        return -1
+      }
+      else {
+        return 1
+      }
     })
     return selected
   }

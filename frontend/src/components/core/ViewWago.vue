@@ -48,43 +48,48 @@
 
       <div id="wago-flex-container">
         <div id="wago-col-main">
+          <md-layout>
+            <md-layout>
+              <!-- FRAME TOGGLES -->
+              <md-button-toggle class="md-accent" md-single>
+                <md-button v-if="wago.user && User && wago.UID && wago.UID === User.UID" @click="toggleFrame('config')">{{ $t("Config") }}</md-button>
+                <md-button class="md-toggle" @click="toggleFrame('description')">{{ $t("Description") }}</md-button>
+                <md-button @click="toggleFrame('comments')">{{ $t("[-count-] comment", {count: wago.commentCount }) }}</md-button>
+                <md-button v-if="wago.versions && wago.versions.total > 1" @click="toggleFrame('versions')" ref="versionsButton">{{ $t("[-count-] version", { count: wago.versions.total }) }}</md-button>
+                <md-button @click="toggleFrame('collections')">{{ $t("Collections") }}</md-button>
+                <md-button v-if="!wago.alerts.blacklist" @click="toggleFrame('embed')">{{ $t("Embed") }}</md-button>
+                <md-button @click="toggleFrame('editor')">{{ $t("Editor") }}</md-button>
+              </md-button-toggle>
+            </md-layout>
 
-          <!-- ACTIONS -->
-          <md-card-actions id="wago-actions">
-            <md-button v-if="User.UID" @click="toggleFavorite">
-              <md-icon v-if="wago.myfave">star</md-icon>
-              <md-icon v-else>star_border</md-icon> {{ $t("Favorite") }}
-            </md-button>
-            <md-button v-if="wago.user && User && wago.UID && wago.UID === User.UID" @click="$refs['newImportDialog'].open()" id="newImportButton"><md-icon>input</md-icon> {{ $t("Import new string") }}</md-button>
-            <md-button v-if="wago.code && wago.code.encoded && !wago.alerts.blacklist" @click="copyEncoded" class="copy-import-button"><md-icon>assignment</md-icon> {{ $t("Copy [-type-] import string", {type: wago.type}) }}</md-button>
-          </md-card-actions>
-          <md-dialog v-if="wago.user && User && wago.UID && wago.UID === User.UID" md-open-from="#newImportButton" md-close-to="#newImportButton" ref="newImportDialog" id="newImportDialog">
-            <md-dialog-title>{{ $t("Import new string") }}</md-dialog-title>
+            <md-layout md-align="end">
+              <!-- ACTIONS -->
+              <md-card-actions id="wago-actions">
+                <md-button v-if="User.UID" @click="toggleFavorite">
+                  <md-icon v-if="wago.myfave">star</md-icon>
+                  <md-icon v-else>star_border</md-icon> {{ $t("Favorite") }}
+                </md-button>
+                <md-button v-if="wago.user && User && wago.UID && wago.UID === User.UID" @click="$refs['newImportDialog'].open()" id="newImportButton"><md-icon>input</md-icon> {{ $t("Import new string") }}</md-button>
+                <md-button v-if="wago.code && wago.code.encoded && !wago.alerts.blacklist" @click="copyEncoded" class="copy-import-button"><md-icon>assignment</md-icon> {{ $t("Copy [-type-] import string", {type: wago.type}) }}</md-button>
+              </md-card-actions>
+              <md-dialog v-if="wago.user && User && wago.UID && wago.UID === User.UID" md-open-from="#newImportButton" md-close-to="#newImportButton" ref="newImportDialog" id="newImportDialog">
+                <md-dialog-title>{{ $t("Import new string") }}</md-dialog-title>
 
-            <md-dialog-content>
-              <md-input-container :class="{ 'md-input-invalid': newImportString && newImportStringStatus.indexOf('Invalid') >= 0, 'md-input-status': newImportStringStatus }">
-                <label>{{ $t("Paste a new [-type-] string to update this Wago", {type: wago.type.toLowerCase() }) }}</label>
-                <md-input v-model.trim="newImportString"></md-input>
-                <span class="md-error" v-if="newImportStringStatus.length>0">{{ newImportStringStatus }}</span>
-              </md-input-container>
-            </md-dialog-content>
+                <md-dialog-content>
+                  <md-input-container :class="{ 'md-input-invalid': newImportString && newImportStringStatus.indexOf('Invalid') >= 0, 'md-input-status': newImportStringStatus }">
+                    <label>{{ $t("Paste a new [-type-] string to update this Wago", {type: wago.type.toLowerCase() }) }}</label>
+                    <md-input v-model.trim="newImportString"></md-input>
+                    <span class="md-error" v-if="newImportStringStatus.length>0">{{ newImportStringStatus }}</span>
+                  </md-input-container>
+                </md-dialog-content>
 
-            <md-dialog-actions>
-              <md-button class="md-primary" @click="onUpdateImportString()" :disabled="!newImportString || newImportStringStatus.indexOf('Invalid') >= 0">{{ $t("Update") }}</md-button>
-              <md-button class="md-primary" @click="$refs['newImportDialog'].close()">{{ $t("Cancel") }}</md-button>
-            </md-dialog-actions>
-          </md-dialog>
-
-          <!-- FRAME TOGGLES -->
-          <md-button-toggle class="md-accent">
-            <md-button v-if="wago.user && User && wago.UID && wago.UID === User.UID" @click="toggleFrame('config')">{{ $t("Config") }}</md-button>
-            <md-button class="md-toggle" @click="toggleFrame('description')">{{ $t("Description") }}</md-button>
-            <md-button class="md-toggle" @click="toggleFrame('comments')">{{ $t("[-count-] comment", {count: wago.commentCount }) }}</md-button>
-            <md-button :class="{'md-toggle': initShowVersions}" v-if="wago.versions && wago.versions.total > 1" @click="toggleFrame('versions')" ref="versionsButton">{{ $t("[-count-] version", { count: wago.versions.total }) }}</md-button>
-            <md-button @click="toggleFrame('collections')">{{ $t("Collections") }}</md-button>
-            <md-button v-if="!wago.alerts.blacklist" @click="toggleFrame('embed')">{{ $t("Embed") }}</md-button>
-            <md-button :class="{'md-toggle': initShowEditor}" @click="toggleFrame('editor')">{{ $t("Editor") }}</md-button>
-          </md-button-toggle>
+                <md-dialog-actions>
+                  <md-button class="md-primary" @click="onUpdateImportString()" :disabled="!newImportString || newImportStringStatus.indexOf('Invalid') >= 0">{{ $t("Update") }}</md-button>
+                  <md-button class="md-primary" @click="$refs['newImportDialog'].close()">{{ $t("Cancel") }}</md-button>
+                </md-dialog-actions>
+              </md-dialog>
+            </md-layout>
+          </md-layout>
 
           <ui-warning v-if="wago.expires" mode="info">
             {{ $t("This import will expire in [-time-]", {time: this.$moment(wago.expires).fromNow() }) }}<br>
@@ -109,9 +114,9 @@
           </ui-warning>
 
           <!-- CONFIG FRAME -->
-          <div id="wago-config-container" class="wago-container">
-            <md-card id="wago-config" v-if="showConfig">
-              <h2>{{ $t("Configuration") }}</h2>
+          <div id="wago-config-container" class="wago-container" v-if="showPanel=='config'">
+            <h2>{{ $t("Configuration") }}</h2>
+            <md-card id="wago-config">
               <h3>{{ $t("Text setup")}}</h3>
               <md-input-container :class="{ 'md-input-invalid': updateNameError, 'md-input-status': updateNameHasStatus }">
                 <label>{{ $t("Title") }}</label>
@@ -131,6 +136,15 @@
                 <md-textarea v-model="editDesc" @change="onUpdateDescription()" :debounce="600"></md-textarea>
                 <span class="md-error" v-if="updateDescStatus.length>0">{{ updateDescStatus }}</span>
               </md-input-container>
+              <md-input-container>
+                <label for="visibilty">{{ $t("Visibility") }}</label>
+                <md-select name="visibilty" id="visibilty" v-model="editVisibility" @selected="onUpdateVisibility()">
+                  <md-option value="Public" selected>{{ $t("Public") }}</md-option>
+                  <md-option value="Hidden">{{ $t("Hidden (only viewable with link)") }}</md-option>
+                  <md-option value="Private">{{ $t("Private (only you may view)") }}</md-option>
+                </md-select>
+              </md-input-container>
+              
               <ui-warning v-if="invalidCategories" mode="alert">
                 Invalid categories. Category selection has changed to require a more specific selection to make browsing the categories more meaningful. This import's categories will be changed to follow suit on December 1 or soon after.
               </ui-warning>
@@ -187,8 +201,8 @@
           </div>
 
           <!-- DESCRIPTIONS FRAME -->
-          <div id="wago-description-container" class="wago-container">
-            <div id="wago-description" v-if="showDescription">
+          <div id="wago-description-container" class="wago-container" v-if="showPanel=='description'">
+            <div id="wago-description">
               <h2 v-if="wago && (wago.screens && wago.screens.length>0) || (wago.videos && wago.videos.length>0)">{{ $t("Preview & Description") }}</h2>
               <h2 v-else>{{ $t("Description") }}</h2>
 
@@ -203,15 +217,15 @@
           </div>
 
           <div id="wago-comments-container" class="wago-container">
-            <div id="wago-comments" v-if="showComments">
+            <div id="wago-comments" v-if="showPanel=='comments'">
               <view-comments :comments="wago.comments" :commentTotal="wago.commentCount" :wagoID="wago._id"></view-comments>
             </div>
           </div>
 
           <!-- VERSIONS FRAME -->
-          <div id="wago-versions-container" class="wago-container">
-            <md-card id="wago-versions" v-if="showVersions">
-              <h2>{{ $t("Previous versions") }}</h2>
+          <div id="wago-versions-container" class="wago-container" v-if="showPanel=='versions'">
+            <h2>{{ $t("Previous versions") }}</h2>
+            <md-card id="wago-versions">
               <md-table @select="selectVersion">
                 <md-table-header>
                   <md-table-row>
@@ -242,25 +256,19 @@
           </div>
 
           <!-- COLLECTIONS FRAME -->
-          <div id="wago-collections-container" class="wago-container">
-            <md-card id="wago-collections" v-if="showCollections">
-              <md-layout>
-                <md-layout>
-                  <div>{{ $t("Collections are sets of imports curated by users for a variety of purproses")}}</div>
-                </md-layout>
-                <md-layout md-align="end">
-                  <md-menu md-align-trigger md-size="7">
-                    <md-button md-menu-trigger><md-icon>note_add</md-icon> {{ $t("Add to collection") }}</md-button>
+          <div id="wago-collections-container" class="wago-container" v-if="showPanel=='collections'">
+            <md-menu md-align-trigger md-size="6">
+              <md-button md-menu-trigger><md-icon>note_add</md-icon> {{ $t("Add to collection") }}</md-button>
 
-                    <md-menu-content>
-                      <md-menu-item>My Collection 1</md-menu-item>
-                      <md-menu-item>My Collection 2</md-menu-item>
-                      <md-menu-item>My Collection 3</md-menu-item>
-                      <md-menu-item>{{ $t("Create new collection") }}</md-menu-item>
-                    </md-menu-content>
-                  </md-menu>
-                </md-layout>
-              </md-layout>
+              <md-menu-content>
+                <md-menu-item>My Collection 1</md-menu-item>
+                <md-menu-item>My Collection 2</md-menu-item>
+                <md-menu-item>My Collection 3</md-menu-item>
+                <md-menu-item>{{ $t("Create new collection") }}</md-menu-item>
+              </md-menu-content>
+            </md-menu>
+            <md-card id="wago-collections">
+              <div>{{ $t("Collections are sets of imports curated by users for a variety of purproses")}}</div>
               <div v-if="wago.collections.length > 0">
                 <strong>{{ $t("This Wago is included in [-count-] collection", {count: wago.collectionCount}) }}</strong>
                 <md-table @select="selectVersion">
@@ -281,7 +289,7 @@
                         {{ coll.modified | moment("dddd, MMMM Do YYYY, h:mm a") }}
                       </md-table-cell>
                       <md-table-cell class="userlink">
-                        <md-avatar><md-image :md-src="coll.user.avatar" alt="Avatar"></md-image></md-avatar> 
+                        <md-avatar><ui-image :md-src="coll.user.avatar" alt="Avatar"></ui-image></md-avatar> 
                         <router-link v-if="coll.user.profile" :to="coll.user.profile" :class="coll.user.class">{{ coll.user.name }}</router-link>
                         <span v-else :class="coll.user.class">{{ coll.user.name }}</span>
                       </md-table-cell>
@@ -295,9 +303,9 @@
           </div>
 
           <!-- EMBED FRAME -->
-          <div id="wago-embed-container" class="wago-container">
-            <md-card id="wago-embed" v-if="showEmbed">
-              <h2>{{ $t("Embed script") }}</h2>
+          <div id="wago-embed-container" class="wago-container" v-if="showPanel=='embed'">
+            <h2>{{ $t("Embed script") }}</h2>
+            <md-card id="wago-embed">
               <div>{{ $t("Embed this wago on your own site") }}</div>
               <div id="embed-content">
                 <div id="embed-inputs" class="field-group">
@@ -334,8 +342,8 @@
           </div>
 
           <!-- EDITOR FRAME -->
-          <div id="wago-editor-container" class="wago-container">
-            <div id="wago-editor" v-if="showEditor">
+          <div id="wago-editor-container" class="wago-container" v-if="showPanel=='editor'">
+            <div id="wago-editor">
               <edit-elvui v-if="wago.type=='ELVUI'"></edit-elvui>
               <edit-snippet v-else-if="wago.type=='SNIPPET'"></edit-snippet>
               <edit-vuhdo v-else-if="wago.type=='VUHDO'"></edit-vuhdo>
@@ -440,6 +448,7 @@ export default {
       videoEmbedHTML: '',
       showDescription: true,
       showComments: true,
+      showPanel: 'description',
       showEditor: (window.innerWidth > 800),
       showConfig: false,
       showVersions: (parseInt(this.$route.params.version) > 0),
@@ -462,6 +471,7 @@ export default {
       updateDescHasStatus: false,
       updateDescStatus: '',
       updateDescError: false,
+      editVisibility: 'Public',
       editCategories: [],
       invalidCategories: false,
       doNotReloadWago: false,
@@ -595,6 +605,7 @@ export default {
       this.$store.commit('setWago', {})
 
       // reset sections
+      this.showPanel = 'description'
       this.showEditor = (window.innerWidth > 800)
       this.showConfig = false
       this.showVersions = (parseInt(this.$route.params.version) > 0)
@@ -640,6 +651,15 @@ export default {
         this.editName = res.name
         this.editSlug = res.slug
         this.editDesc = res.description.text
+        if (res.visibility.hidden) {
+          this.editVisibility = 'Hidden'
+        }
+        else if (res.visibility.private) {
+          this.editVisibility = 'Private'
+        }
+        else {
+          this.editVisibility = 'Public'
+        }
         this.editCategories = []
         this.invalidCategories = false
         if (res.categories && res.categories.length > 0) {
@@ -715,6 +735,10 @@ export default {
       this.videoEmbedHTML = ''
     },
     toggleFrame (frame) {
+      this.showPanel = frame
+      if (frame) {
+        return
+      }
       var div
       /* eslint-disable no-cond-assign */
       switch (frame) {
@@ -951,6 +975,20 @@ export default {
       })
     },
 
+    onUpdateVisibility () {
+      var vue = this
+      this.http.post('/wago/update/visibility', {
+        wagoID: vue.wago._id,
+        visibility: this.editVisibility
+      }).then((res) => {
+        vue.wago.visibility.private = res.private
+        vue.wago.visibility.hidden = res.hidden
+      }).catch((err) => {
+        console.log(err)
+        window.eventHub.$emit('showSnackBar', vue.$t('Error could not save'))
+      })
+    },
+
     onUpdateCategories (newCats) {
       var cats = []
       this.editCategories = newCats
@@ -1176,6 +1214,7 @@ export default {
 
 #wago-actions {text-align: right; margin-right: 8px}
 .copy-import-button { border: 2px solid #c1272d; border-radius: 25px; margin: 4px 28px }
+#wago-collections-container button { margin-left: -2px }
 #wago-floating-header .copy-import-button { margin: -2px 0 0 auto }
 
 #tags { display: block; clear: both; padding-top: 16px}
@@ -1198,7 +1237,8 @@ a.showvid:hover img { transform: scale(1.05); }
 .md-button-toggle { padding: 0 16px 16px; flex-wrap: wrap; }
 
 .wago-container { padding: 0 16px; }
-.wago-container > div { margin: 0 0 16px; }
+.wago-container > h2 { padding: 0 16px; }
+.wago-container > div { margin: 0; }
 .wago-container .border { border-bottom: 1px solid rgba(128, 128, 128, 0.5) }
 #wago-config, #wago-embed { background: rgba(128, 128, 128, 0.1); padding: 16px;}
 
@@ -1225,7 +1265,7 @@ a.showvid:hover img { transform: scale(1.05); }
   #wago-header.md-card { margin: 0}
   #wago-flex-container { flex-direction: column; }
 }
-.my-gallery a img { width: 100% }
+.my-gallery a img { width: auto }
 
 /* embed preview */
 #embed-preview-container a{display:inline;padding:0 2px;margin:0;border:0}

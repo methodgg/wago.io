@@ -106,6 +106,32 @@ server.post('/wago/update/desc', (req, res) => {
   })
 })
 
+// update wago visibility
+server.post('/wago/update/visibility', (req, res) => {
+  if (!req.user || !req.body.wagoID) {
+    return res.send(403, {error: "forbidden"})
+  }
+
+  WagoItem.findById(req.body.wagoID).then((wago) => {
+    if (!wago || !wago._userId.equals(req.user._id)) {
+      return res.send(404, {error: "no_wago"})
+    }
+
+    wago.hidden = false
+    wago.private = false
+    if (req.body.visibility === 'Hidden') {
+      wago.hidden = true
+    }
+    else if (req.body.visibility === 'Private') {
+      wago.private = true
+    }
+
+    wago.save().then(() => {
+      res.send({success: true, hidden: wago.hidden, private: wago.private})
+    })
+  })
+})
+
 // update wago categories
 server.post('/wago/update/categories', (req, res) => {
   if (!req.user || !req.body.wagoID) {
