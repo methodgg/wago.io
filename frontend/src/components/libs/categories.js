@@ -69,7 +69,7 @@ module.exports = {
       {id: "gen8", slug: "general/holidays", cls:"misc", text: t("Holidays"), WEAKAURA: true},
       {id: "gen9", slug: "general/currency", cls:"misc", text: t("Currency"), WEAKAURA: true},
       {id: "gen10", slug: "general/reputation", cls:"misc", text: t("Reputation"), WEAKAURA: true},
-      {id: "gen11", slug: "general/collections", cls:"misc", text: t("Collections"), WEAKAURA: true},
+      {id: "gen11", slug: "general/collectibles", cls:"misc", text: t("Collectibles"), WEAKAURA: true},
       
       {id: "equip", slug: "equipment", cls:"equip", text: t("Equipment"), root: true, WEAKAURA: true},
       {id: "legen", slug: "equipment/legendaries", cls:"equip", text: t("Legendaries"), WEAKAURA: true},

@@ -4,7 +4,7 @@
       <div class="flex-col flex-left">
         <md-input-container>
           <label for="customfn">{{ $t("Edit [-file-]", {file: editorFile}) }}</label>
-          <md-select name="customfn" id="customfn" v-model="editorSelected">
+          <md-select name="customfn" id="customfn" v-model="editorSelected" md-menu-class="customFn">
             <md-option value="tabledata" >{{ $t("Table data") }}</md-option>
             <template v-for="fn in customFn(tableData)">
               <md-subheader v-if="typeof fn === 'string'">{{ fn }}</md-subheader>
@@ -513,4 +513,5 @@ export default {
 #edit-weakaura .flex-left .md-input-container label { white-space: nowrap}
 #edit-weakaura .flex-right { order: 1; flex: 1 1 auto; text-align: right}
 #edit-weakaura .ace_editor { box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2), 0 2px 2px rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.12); }
+.customFn .md-subheader { color: #c0272e }
 </style>
