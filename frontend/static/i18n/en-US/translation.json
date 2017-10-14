@@ -310,5 +310,18 @@
   "This Wago is included in [-count-] collection": "This Wago is included in [-count-] collection",
   "This Wago is included in [-count-] collection_plural": "This Wago is included in [-count-] collections",
   "Invalid [-type-]": "Invalid [-type-]",
-  "Import valid": "Import is valid"
+  "Import valid": "Import is valid",
+  "Combat Mechanics": "Combat Mechanics",
+  "Equipment": "Equipment",
+  "Currency": "Currency",
+  "Reputation": "Reputation",
+  "Holidays": "Holidays",
+  "Trinkets": "Trinkets",
+  "Item Enhancements": "Item Enhancements",
+  "Battle Resurrection": "Battle Resurrection",
+  "Interrupts": "Interrupts",
+  "Theorycrafting": "Theorycrafting",
+  "Vehicles": "Vehicles",
+  "Consumables": "Consumables",
+  "Group Buffs": "Group Buffs"
 }

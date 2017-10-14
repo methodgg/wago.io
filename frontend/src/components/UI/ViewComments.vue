@@ -85,7 +85,7 @@ export default {
       }
     },
     loadMoreComments () {
-      this.http.get('/lookup/wago/comments', {params: {id: this.wagoID, page: this.page}}).then((res) => {
+      this.http.get('/lookup/wago/comments', {id: this.wagoID, page: this.page}).then((res) => {
         this.page++
         this.comments = this.comments.concat(res)
       })

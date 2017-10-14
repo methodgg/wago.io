@@ -812,14 +812,14 @@ export default {
       this.$router.push('/' + this.$store.state.wago.slug + '/' + v[0].version)
     },
     loadMoreVersions () {
-      this.http.get('/lookup/wago/versions', {params: {id: this.wago._id}}).then((res) => {
+      this.http.get('/lookup/wago/versions', {id: this.wago._id}).then((res) => {
         var v = this.wago.versions.versions.concat(res)
         this.$set(this.wago.versions, 'versions', v)
         this.showMoreVersions = false
       })
     },
     loadMoreCollections () {
-      this.http.get('/lookup/wago/collections', {params: {id: this.wago._id}}).then((res) => {
+      this.http.get('/lookup/wago/collections', {id: this.wago._id}).then((res) => {
         var c = this.wago.collections.concat(res)
         this.$set(this.wago, 'collections', c)
         this.showMoreCollections = false
