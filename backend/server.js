@@ -25,7 +25,7 @@ global.server = restify.createServer({
   version : config.version
 })
 
-require('./api/services/tasks') // localhost tasks
+var runTask = require('./api/services/tasks') // localhost tasks
 require('./api/services/status') // status monitor
 
 /**
@@ -143,6 +143,11 @@ server.listen(config.port, function() {
     var filename = model.split('.')[0]
     global[filename] = require('./api/models/' + filename)
   })
+
+  // build global vars on runtime
+  runTask('random')
+  runTask('top10')
+  runTask('addons')
 
   /**
    * Save site data into memory

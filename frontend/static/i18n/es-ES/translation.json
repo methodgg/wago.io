@@ -34,8 +34,6 @@
   "Categories": "Categorias",
   "[-count-] star": "[-count-] estrella",
   "[-count-] view": "[-count-] visita",
-  "[-count-] star_plural": "[-count-] estrellas",
-  "[-count-] view_plural": "[-count-] visitas",
   "Permalink": "Permalink",
   "Favorite": "Favorito",
   "Imported by [-URL-][-roleClass-][-name-]": "Importado por <a href=\"[-URL-]\" class=\"[-roleClass-] vr\">[-name-]</a>",
@@ -119,7 +117,6 @@
   "To top": "Hasta arriba",
   "Copy [-type-] import string": "Copiar string de importación [-type-]",
   "[-count-] version": "[-count-] versión",
-  "[-count-] version_plural": "[-count-] versiones",
   "Viewing this version": "Viendo esta versión",
   "Load more versions": "Cargar más versiones",
   "Collection": "Colección",
@@ -199,7 +196,6 @@
   "Browse Vuhdo imports": "Explorar importaciones de Vuhdo",
   "Browse WeakAura imports": "Explorar importaciones de WeakAura",
   "[-count-] comment": "[-count-] comentario",
-  "[-count-] comment_plural": "[-count-] comentarios",
   "No results found": "No se han encontrado resultados",
   "Your profile page is private no one else may view it or search your imports by your username": "Tu página de perfil es privada. Nadie más podrá verla o buscar tus importaciones por tu nombre de usuario",
   "This profile page is private": "Esta página de perfil es privada.",
@@ -307,5 +303,9 @@
   "Create new collection": "",
   "This Wago is included in [-count-] collection": "",
   "Invalid [-type-]": "",
-  "Import valid": ""
+  "Import valid": "",
+  "[-count-] star_plural": "[-count-] estrellas",
+  "[-count-] view_plural": "[-count-] visitas",
+  "[-count-] version_plural": "[-count-] versiones",
+  "[-count-] comment_plural": "[-count-] comentarios"
 }

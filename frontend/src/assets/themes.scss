@@ -34,7 +34,7 @@
   .md-list-text-container > :nth-child(2), .md-list-text-container > :nth-child(3) {
     color: $Text3;
   }
-  .md-theme-default.md-button-toggle.md-accent .md-toggle, .md-theme-default.md-button:not([disabled]).md-primary:not(.md-icon-button) {
+  .md-theme-default.md-button-toggle.md-accent .md-toggle, .md-theme-default.md-button:not([disabled]).md-primary:not(.md-icon-button), .md-list-item .md-icon {
     color: white;
   }
   .md-button[disabled] {

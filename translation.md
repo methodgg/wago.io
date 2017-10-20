@@ -16,14 +16,16 @@ The following is the status of supported and to-be-supported languages (as of th
 | Language  	| Warcraft Terms  	| Complete  	| Contributor(s)  	|
 |---	|---	|---	|---	|
 | English  	| ✔️ Included 	    |  ✔️ 100%	|   Wago.io |
-| French  	|  😞 Not included	|  ✔️ 100%  |   Satron	 |
-| German  	| ✔️ Included 	    |  30%	|   Hamsda  |
+| French  	|  😞 Not included	|   93%  |   Satron	 |
+| German  	| ✔️ Included 	    |  ✔️ 100%	|   Hamsda  |
+| German  	| 😞 Not included	    |   1%	|   Ipse  |
 | Italian  	| ✔️ Included 	    |  30%	| ❌ No one    |
 | Korean  	| ✔️ Included 	    |  30%	| ❌ No one    |
 | Portuguese  	| ✔️ Included 	    |  30%	| ❌ No one    |
-| Russian  	| ✔️ Included 	    |  ✔️ 100%	|   Translit  |
-| Traditional Chinese  	| ✔️ Included 	    | 30%	|   ❌ No one  |
-| Spanish  	| ✔️ Included 	    |  42%	|   Krich  |
+| Russian  	| ✔️ Included 	    |   94%	|   Translit  |
+| Simplified Chinese  	| ✔️ Included 	    | 30%	|   ❌ No one  |
+| Spanish  	| ✔️ Included 	    |  94%	|   Krich  |
+| Swedish  	| 😞 Not included 	    |  21%	|   Hukk  |
 
 Thanks for your time.
 

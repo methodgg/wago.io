@@ -106,24 +106,49 @@ server.get('/lookup/wago', (req, res, next) => {
         })
       },
       collectionLookup: (cb) => {
-        WagoItem.find({"type": "COLLECTION", "collect": wago._id.toString(), "deleted": false, "private": false, "hidden": false})
-          .sort('-modified').limit(10).populate('_userId').then((coll) => {
-            timing.findCollections = Date.now() - start
-            if (!coll) {
-              return cb(null)
-            }
-            var collections = []
-            coll.forEach((c) => {
-              collections.push({name: c.name, slug: c.slug, modified: c.modified, user: {name: c._userId.profile.name, class: c._userId.roleclass, avatar: c._userId.avatarURL, profile: c._userId.profile.url}})
-            })
-            cb(null, collections)
+        if (req.user) {
+          var search = WagoItem.find({"type": "COLLECTION", "collect": wago._id.toString(), "$or": [{ '_userId': req.user._id || null }, { private: false, hidden: false }]})
+        }
+        else {
+          var search = WagoItem.find({"type": "COLLECTION", "collect": wago._id.toString(), private: false, hidden: false})
+        }
+        
+        search.sort('-modified').limit(10).populate('_userId').then((coll) => {
+          timing.findCollections = Date.now() - start
+          if (!coll) {
+            return cb(null)
+          }
+          var collections = []
+          coll.forEach((c) => {
+            collections.push({name: c.name, _id: c._id, slug: c.slug, modified: c.modified, user: {name: c._userId.profile.name, class: c._userId.roleclass, avatar: c._userId.avatarURL, profile: c._userId.profile.url}})
+          })
+          cb(null, collections)
         })
       },
       collectionCount: (cb) => {
-        WagoItem.count({"type": "COLLECTION", "collect": wago._id.toString(), "deleted": false, "private": false, "hidden": false})
-          .then((count) => {
-            timing.countCollections = Date.now() - start
-            return cb(null, count)
+        if (req.user) {
+          var search = WagoItem.count({"type": "COLLECTION", "collect": wago._id.toString(), "$or": [{ '_userId': req.user._id || null }, { private: false, hidden: false }]})
+        }
+        else {
+          var search = WagoItem.count({"type": "COLLECTION", "collect": wago._id.toString(), private: false, hidden: false})
+        }
+        search.then((count) => {
+          timing.countCollections = Date.now() - start
+          return cb(null, count)
+        })
+      },
+      myCollections: (cb) => {
+        // find my collections that have the current wago included (necessary as a separate call because wago's we only pull 10 collections in collectionLookup)
+        if (!req.user || req.user.collections.length === 0) {
+          return cb(null, [])
+        }
+        
+        WagoItem.find({"type": "COLLECTION", "collect": wago._id, "_userId": req.user._id}).select('_id').then((coll) => {
+          var arr = []
+          coll.forEach((c) => {
+            arr.push(c._id)
+          })
+          cb(null, arr)
         })
       },
       codeLookup: (cb) => {
@@ -204,6 +229,7 @@ server.get('/lookup/wago', (req, res, next) => {
       wago.versions = data.versionsLookup
       wago.collectionCount = data.collectionCount
       wago.collections = data.collectionLookup
+      wago.myCollections = data.myCollections
       wago.user = data.userLookup
       wago.screens = data.screenshotLookup
       wago.videos = data.videoLookup
@@ -323,4 +349,11 @@ server.get('/lookup/profile', (req, res, next) => {
     }
     res.send(profile)
   })
+})
+
+/**
+ * Fetch static contents used on index page
+ */
+server.get('/lookup/index', (req, res) => {
+  res.send({top10: global.TopTenLists, news: global.newsPosts, addons: global.addonUpdates})
 })

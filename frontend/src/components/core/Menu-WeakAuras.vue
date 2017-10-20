@@ -175,7 +175,7 @@ export default {
       return categories.raidCategories(['raidantorus', 'raidtomb', 'raidnh', 'dungeon'], this.$t)
     },
     misc: function () {
-      return categories.getCategories(['gen1', 'gen7', 'gen2', 'gen6', 'gen8', 'gen9', 'gen10', 'gen11'], this.$t)
+      return categories.getCategories(['gen1', 'gen7', 'gen2', 'gen6', 'gen9', 'gen10', 'gen11', 'gen12', 'gen14', 'gen13', 'gen8'], this.$t)
     },
     roles: function () {
       return categories.getCategories(['role4', 'role1', 'role2', 'role3'], this.$t)

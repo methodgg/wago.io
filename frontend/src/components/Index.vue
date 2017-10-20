@@ -1,89 +1,170 @@
 <template>
   <div id="index">
-    <div id="col1">
-      <md-whiteframe id="importform">
-        <md-input-container :class="{ 'md-input-invalid': importError }">
-          <label>{{ $t("Paste your import string here") }}</label>
-          <div id="inputStringWrapper">
-            <md-textarea id="inputStringTextarea" name="importString" placeholder=" " v-model.trim="importString"></md-textarea>
-            <div v-if="!importString" v-html="$t('Paste your WeakAura, ElvUI or Vuhdo string here')"></div>
+    <md-layout md-gutter="32" md-column-small="true">
+      <md-layout id="col1" md-vertical-align="start">
+        <md-whiteframe id="importform">
+          <md-input-container :class="{ 'md-input-invalid': importError }">
+            <label>{{ $t("Paste your import string here") }}</label>
+            <div id="inputStringWrapper">
+              <md-textarea id="inputStringTextarea" name="importString" placeholder=" " v-model.trim="importString"></md-textarea>
+              <div v-if="!importString" v-html="$t('Paste your WeakAura, ElvUI or Vuhdo string here')"></div>
+            </div>
+            <span class="md-error">{{ importErrorMsg }}</span>
+          </md-input-container>
+
+          <div class="field-group">
+            <md-input-container>
+              <label for="visibilty">{{ $t("Visibility") }}</label>
+              <md-select name="visibilty" id="visibilty" v-model="visibility">
+                <md-option value="Public" selected>{{ $t("Public") }}</md-option>
+                <md-option value="Hidden">{{ $t("Hidden (only viewable with link)") }}</md-option>
+                <md-option v-if="user.name" value="Private">{{ $t("Private (only you may view)") }}</md-option>
+              </md-select>
+            </md-input-container>
+
+            <md-input-container v-if="user.UID || user.guest">
+              <label for="importAs">{{ $t("Import As") }}</label>
+              <md-select name="importAs" id="importAs" v-model="importAs">
+                <md-option value="User" v-if="user.UID">{{ user.name }}</md-option>
+                <md-option value="Guest">{{ $t("Anonymous Guest") }}</md-option>
+                <md-subheader v-if="!user.name" id="signinanon" v-html="$t('Sign in to keep track of your imports')"></md-subheader>
+              </md-select>
+            </md-input-container>
+
+            <md-input-container>
+              <label for="expire">{{ $t("Expire After") }}</label>
+              <md-select name="expire" id="expire" v-model="expire">
+                <md-option value="never">{{ $t("Never") }}</md-option>
+                <md-option value="3mo">{{ $t("3 months") }}</md-option>
+                <md-option value="1mo">{{ $t("1 month") }}</md-option>
+                <md-option value="1wk">{{ $t("1 week") }}</md-option>
+                <md-option value="3hr">{{ $t("3 hours") }}</md-option>
+                <md-option value="15m">{{ $t("15 minutes") }}</md-option>
+              </md-select>
+            </md-input-container>
           </div>
-          <span class="md-error">{{ importErrorMsg }}</span>
-        </md-input-container>
 
-        <div class="field-group">
-          <md-input-container>
-            <label for="visibilty">{{ $t("Visibility") }}</label>
-            <md-select name="visibilty" id="visibilty" v-model="visibility">
-              <md-option value="Public" selected>{{ $t("Public") }}</md-option>
-              <md-option value="Hidden">{{ $t("Hidden (only viewable with link)") }}</md-option>
-              <md-option v-if="user.name" value="Private">{{ $t("Private (only you may view)") }}</md-option>
-            </md-select>
+          <div v-if="isScanning"><md-spinner md-indeterminate></md-spinner></div>
+          <strong>{{ type }}</strong><br>
+
+          <md-input-container v-if="scanID">
+            <label for="name">{{ $t("Name") }}</label>
+            <md-input name="name" id="name" v-model="name"></md-input>
           </md-input-container>
 
-          <md-input-container v-if="user.UID || user.guest">
-            <label for="importAs">{{ $t("Import As") }}</label>
-            <md-select name="importAs" id="importAs" v-model="importAs">
-              <md-option value="User" v-if="user.UID">{{ user.name }}</md-option>
-              <md-option value="Guest">{{ $t("Anonymous Guest") }}</md-option>
-              <md-subheader v-if="!user.name" id="signinanon" v-html="$t('Sign in to keep track of your imports')"></md-subheader>
-            </md-select>
+          <md-input-container v-if="scanID" class="md-has-value has-category-select">
+            <label>{{ $t("Categories") }}</label>
+            <category-select :selectedCategories="setCategories" :type="type.toUpperCase()" @update="cat => {setCategories = cat}" ></category-select>
           </md-input-container>
 
-          <md-input-container>
-            <label for="expire">{{ $t("Expire After") }}</label>
-            <md-select name="expire" id="expire" v-model="expire">
-              <md-option value="never">{{ $t("Never") }}</md-option>
-              <md-option value="3mo">{{ $t("3 months") }}</md-option>
-              <md-option value="1mo">{{ $t("1 month") }}</md-option>
-              <md-option value="1wk">{{ $t("1 week") }}</md-option>
-              <md-option value="3hr">{{ $t("3 hours") }}</md-option>
-              <md-option value="15m">{{ $t("15 minutes") }}</md-option>
-            </md-select>
-          </md-input-container>
+          <md-button class="md-raised" :disabled="disableSubmit" @click="submitImport()">Submit</md-button>
+        </md-whiteframe>
+
+        <div v-for="(news, newsIndex) in latestBlogs">
+          <md-card>
+            <md-card-header-text>
+              <div class="md-title">{{ news.title }}</div>
+              <div class="md-subhead"><a :href="'/p/' + news.user.username" :class="news.user.css">{{ news.user.username }}</a>, {{ news.date | moment('MMM Do YYYY') }}</div>
+            </md-card-header-text>
+            <vue-markdown v-if="news.format=='markdown'">{{ news.content }}</vue-markdown>
+          </md-card>
         </div>
+      </md-layout>
 
-        <div v-if="isScanning"><md-spinner md-indeterminate></md-spinner></div>
-        <strong>{{ type }}</strong><br>
+      <md-layout id="col2" md-column-medium="true" md-vertical-align="start">
+        <md-whiteframe id="topwagos" v-if="top10Lists && top10Lists.faves">
+          <md-layout>
+            <md-layout>
+              <md-list class="md-dense">
+                <md-list-item>
+                  <strong>{{ $t("Popular This Week") }}</strong>
+                </md-list-item>
+                <md-list-item v-for="(item, index) in top10Lists.popThisWeek" :key="index" @click="$router.push('/' + item._id)">
+                  <div class="md-list-text-container">
+                    <span>{{ item.name }}</span>
+                    <span>{{ $t("[-count-] views", {count: item}) }}</span>
+                  </div>
+                </md-list-item>
+              </md-list>
+            </md-layout>
+            <md-layout>
+              <md-list class="md-dense">
+                <md-list-item>
+                  <strong>{{ $t("Favorites All Time") }}</strong>
+                </md-list-item>
+                <md-list-item v-for="(item, index) in top10Lists.faves" :key="index" @click="$router.push('/' + item._id)">
+                  <div class="md-list-text-container">
+                    <span>{{ item.name }}</span>
+                    <span>{{ $t("[-count-] stars", {count: item.popularity.favorite_count}) }}</span>
+                  </div>
+                </md-list-item>
+              </md-list>
+            </md-layout>
+          </md-layout>
+          <md-layout>
+            <md-layout>
+              <md-list class="md-dense">
+                <md-list-item>
+                  <strong>{{ $t("Recently Updated") }}</strong>
+                </md-list-item>
+                <md-list-item v-for="(item, index) in top10Lists.updates" :key="index" @click="$router.push('/' + item._id)">
+                  <div class="md-list-text-container">
+                    <span>{{ item.name }}</span>
+                    <span>{{ item.modified | moment('MMM Do YYYY LT') }}</span>
+                  </div>
+                </md-list-item>
+              </md-list>
+            </md-layout>
+            <md-layout>
+              <md-list class="md-dense">
+                <md-list-item>
+                  <strong>{{ $t("Newest Imports") }}</strong>
+                </md-list-item>
+                <md-list-item v-for="(item, index) in top10Lists.newest" :key="index" @click="$router.push('/' + item._id)">
+                  <div class="md-list-text-container">
+                    <span>{{ item.name }}</span>
+                    <span>{{ item.created | moment('MMM Do YYYY LT') }}</span>
+                  </div>
+                </md-list-item>
+              </md-list>
+            </md-layout>
+          </md-layout>
+        </md-whiteframe>
 
-        <md-input-container v-if="scanID">
-          <label for="name">{{ $t("Name") }}</label>
-          <md-input name="name" id="name" v-model="name"></md-input>
-        </md-input-container>
-
-        <md-input-container v-if="scanID" class="md-has-value has-category-select">
-          <label>{{ $t("Categories") }}</label>
-          <category-select :selectedCategories="setCategories" :type="type.toUpperCase()" @update="cat => {setCategories = cat}" ></category-select>
-        </md-input-container>
-
-        <md-button class="md-raised" :disabled="disableSubmit" @click="submitImport()">Submit</md-button>
-
-      </md-whiteframe>
-    </div>
-
-    <div id="col2">
-      <md-whiteframe id="topwagos">
-        <md-list class="md-dense">
-          <md-list-item>
-            <strong>Favorites</strong>
-          </md-list-item>
-        </md-list>
-      </md-whiteframe>
-    </div>
+        <md-table v-if="addonReleases.length > 0" id="addonReleases">
+          <md-table-header>
+            <md-table-row>
+              <md-table-head>{{ $t("Latest addons") }}</md-table-head>
+              <md-table-head>{{ $t("Type") }}</md-table-head>
+              <md-table-head>{{ $t("Version #") }}</md-table-head>
+              <md-table-head>{{ $t("Date") }}</md-table-head>
+            </md-table-row>
+          </md-table-header>
+          <md-table-body>
+            <md-table-row v-for="(addon, addonIndex) in addonReleases" :key="addonIndex">
+              <md-table-cell>{{ addon.addon }}</md-table-cell>
+              <md-table-cell><a :href="addon.url" target="_blank">{{ addon.phase }}</a></md-table-cell>
+              <md-table-cell><a :href="addon.url" target="_blank">{{ addon.version }}</a></md-table-cell>
+              <md-table-cell>{{ addon.date | moment('MMM Do YYYY') }}</md-table-cell>
+            </md-table-row>
+          </md-table-body>
+        </md-table>
+      </md-layout>
+    </md-layout>
   </div>
 </template>
 
 <style src="vue-multiselect/dist/vue-multiselect.min.css"></style>
 <style>
-#importform, #topwagos { padding: 16px }
+#importform, #topwagos, #addonReleases { padding: 16px; width:100% }
 #importform textarea { max-height: 110px; min-height:110px }
-#importform .field-group .md-input-container { display: inline-block; max-width: 25%; position: relative}
+#importform .field-group .md-input-container { display: inline-block; max-width: 32%; position: relative}
 .field-group2 .md-input-container, .field-group2 strong { display: inline-block; max-width: 49%;}
 #signinanon { padding-left: 32px;  margin-top: -8px; }
 
 @media (min-width: 1281px) {
-  #col1, #col2 { width: 59.5%; display:inline-block; vertical-align:top; padding: 16px }
-  #col2 { width: 40%; display:inline-block; vertical-align:top; padding: 16px 0 }
+  #col1, #col2 { padding: 16px }
+  #col2 { padding-left:0 }
 }
 
 @media (max-width: 600px) {
@@ -95,10 +176,13 @@
 
 .has-category-select + .has-category-select { margin-top: -24px}
 
+#topwagos .md-list-item { flex-wrap: wrap }
+
 </style>
 
 <script>
 import CategorySelect from './UI/SelectCategory.vue'
+import VueMarkdown from 'vue-markdown'
 
 export default {
   name: 'app',
@@ -117,11 +201,15 @@ export default {
       type: '',
       isScanning: false,
       scanID: '',
-      disableSubmit: true
+      disableSubmit: true,
+      top10Lists: {},
+      latestBlogs: [],
+      addonReleases: []
     }
   },
   components: {
-    CategorySelect
+    CategorySelect,
+    'vue-markdown': VueMarkdown
   },
   computed: {
     user () {
@@ -137,6 +225,19 @@ export default {
   mounted: function () {
     this.$store.commit('setPageInfo', {
       title: this.$t('Import')
+    })
+
+    var vue = this
+    this.http.get('/lookup/index').then((res) => {
+      if (res.top10) {
+        vue.top10Lists = JSON.parse(JSON.stringify(res.top10))
+      }
+      if (res.news) {
+        vue.latestBlogs = JSON.parse(JSON.stringify(res.news))
+      }
+      if (res.addons) {
+        vue.addonReleases = JSON.parse(JSON.stringify(res.addons))
+      }
     })
   },
   methods: {

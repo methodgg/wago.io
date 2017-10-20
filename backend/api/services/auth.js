@@ -82,11 +82,24 @@ function makeSession(req, res, token, user) {
           who.access.animatedAvatar = user.access.animatedAvatar
           
           who.config = user.config
+
+          async.parallel({
+            comments: (cb) => {
+              Comments.findUnread(user._id).then((mentions) => {
+                who.unreadMentions = mentions
+                cb()
+              })
+            },
       
-          Comments.findUnread(user._id).then((mentions) => {
-            who.unreadMentions = mentions
+            collections: (cb) => {
+              WagoItem.find({_userId: user._id, type: 'COLLECTION'}).select('_id name').sort('name').then((collections) => {
+                who.collections = collections
+                cb()
+              })
+            }
+          }, () => {
+            // return user info when finished
             var data = {login: true, token: token, user: who}
-            // return user info
             return res.send(200, data)
           })
         }

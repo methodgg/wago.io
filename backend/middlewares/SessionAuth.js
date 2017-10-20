@@ -32,8 +32,25 @@ module.exports = function(req, res, next) {
             req.user = doc
             req.user.SID = session.$__._id
 
-            Comments.findUnread(req.user._id).then((mentions) => {
-              req.user.unreadMentions = mentions
+            async.parallel({
+              comments: (cb) => {
+                Comments.findUnread(req.user._id).then((mentions) => {
+                  req.user.unreadMentions = mentions
+                  cb()
+                })
+              },
+        
+              collections: (cb) => {
+                WagoItem.find({_userId: req.user._id, type: 'COLLECTION'}).select('_id name').sort('name').then((collections) => {
+                  var arr = []
+                  collections.forEach((c) => {
+                    arr.push(c._id)
+                  })
+                  req.user.collections = arr
+                  cb()
+                })
+              }
+            }, () => {
               return next()
             })
           }

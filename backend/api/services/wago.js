@@ -516,6 +516,57 @@ server.post('/wago/update/delete/confirm', (req, res) => {
   })
 })
 
+// Add to collection
+server.post('/wago/collection/add', (req, res) => {
+  if (!req.user || !req.body.wagoID || !req.body.collectionID) {
+    return res.send(403, {error: "forbidden"})
+  }
+
+  WagoItem.findById(req.body.collectionID).then((wago) => {
+    if (!wago || !wago._userId.equals(req.user._id)) {
+      return res.send(404, {error: "no_collection"})
+    }
+
+    if (wago.collect.length === 0 || wago.collect.indexOf(req.body.wagoID) === -1) {
+      wago.collect.push(req.body.wagoID)
+      wago.save().then(() => {
+        res.send({success: true, added: true, name: wago.name, slug: wago.slug})
+      })
+    }
+    else {
+      res.send({error: 'Already in collection'})
+    }    
+  })
+})
+
+// Remove from collection
+server.post('/wago/collection/remove', (req, res) => {
+  if (!req.user || !req.body.wagoID || !req.body.collectionID) {
+    return res.send(403, {error: "forbidden"})
+  }
+
+  WagoItem.findById(req.body.collectionID).then((wago) => {
+    if (!wago || !wago._userId.equals(req.user._id)) {
+      return res.send(404, {error: "no_collection"})
+    }
+
+    if (wago.collect.length > 0) {
+      var i = wago.collect.indexOf(req.body.wagoID)
+      if (i > -1) {
+        wago.collect.splice(i, 1)
+        wago.save().then(() => {
+          res.send({success: true, removed: true})
+        })
+      }
+      else {
+        res.send({error: 'Not in collection'})
+      }
+    }
+    else {
+      res.send({error: 'Not in collection'})
+    }    
+  })
+})
 
 
 // gets embed javascript

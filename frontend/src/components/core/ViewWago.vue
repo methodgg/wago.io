@@ -56,7 +56,7 @@
                 <md-button class="md-toggle" @click="toggleFrame('description')">{{ $t("Description") }}</md-button>
                 <md-button @click="toggleFrame('comments')">{{ $t("[-count-] comment", {count: wago.commentCount }) }}</md-button>
                 <md-button v-if="wago.versions && wago.versions.total > 1" @click="toggleFrame('versions')" ref="versionsButton">{{ $t("[-count-] version", { count: wago.versions.total }) }}</md-button>
-                <md-button @click="toggleFrame('collections')">{{ $t("Collections") }}</md-button>
+                <md-button @click="toggleFrame('collections')">{{ $t("[-count-] collections", {count:  wago.collectionCount}) }}</md-button>
                 <md-button v-if="!wago.alerts.blacklist" @click="toggleFrame('embed')">{{ $t("Embed") }}</md-button>
                 <md-button @click="toggleFrame('editor')">{{ $t("Editor") }}</md-button>
               </md-button-toggle>
@@ -257,15 +257,35 @@
 
           <!-- COLLECTIONS FRAME -->
           <div id="wago-collections-container" class="wago-container" v-if="showPanel=='collections'">
-            <md-menu md-align-trigger md-size="6">
-              <md-button md-menu-trigger><md-icon>note_add</md-icon> {{ $t("Add to collection") }}</md-button>
+            <md-menu md-align-trigger md-size="7" v-if="User.UID">
+              <md-button md-menu-trigger id="addCollectionButton"><md-icon>library_add</md-icon> {{ $t("Add to collection") }}</md-button>
 
               <md-menu-content>
-                <md-menu-item>My Collection 1</md-menu-item>
-                <md-menu-item>My Collection 2</md-menu-item>
-                <md-menu-item>My Collection 3</md-menu-item>
-                <md-menu-item>{{ $t("Create new collection") }}</md-menu-item>
+                <md-menu-item v-for="coll in User.collections" :key="coll._id" @click="addToCollection(coll._id)">
+                  <md-icon v-if="wago.myCollections.length > 0 && wago.myCollections.indexOf(coll._id) > -1">check</md-icon>
+                  <md-icon v-else>add</md-icon>
+                  {{ coll.name }}
+                </md-menu-item>
+                <md-menu-item @click="$refs.addCollectionDialog.open()"><md-icon>add_box</md-icon>{{ $t("Create new collection") }}</md-menu-item>
               </md-menu-content>
+
+              <md-dialog md-open-from="#addCollectionButton" md-close-to="#addCollectionButton" ref="addCollectionDialog">
+                <md-dialog-title>{{ $t("Create new collection") }}</md-dialog-title>
+
+                <md-dialog-content>
+                  <form>
+                    <md-input-container>
+                      <label>{{ $t("Name") }}</label>
+                      <md-input v-model.focus="addCollectionName"></md-input>
+                    </md-input-container>
+                  </form>
+                </md-dialog-content>
+
+                <md-dialog-actions>
+                  <md-button @click="$refs.addCollectionDialog.close()">Cancel</md-button>
+                  <md-button class="md-primary" @click="CreateCollection()">Create</md-button>
+                </md-dialog-actions>
+              </md-dialog>
             </md-menu>
             <md-card id="wago-collections">
               <div>{{ $t("Collections are sets of imports curated by users for a variety of purproses")}}</div>
@@ -1168,16 +1188,65 @@ export default {
       post.scanID = this.scanID
       var vue = this
       this.http.post('/import/update', post).then((res) => {
-        if (res.success) {
+        if (res.error) {
+          window.eventHub.$emit('showSnackBar', res.error)
+        }
+        else {
           window.eventHub.$emit('showSnackBar', vue.$t('Wago saved successfully'))
           location.reload()
         }
-        else if (res && res.error) {
-          window.eventHub.$emit('showSnackBar', res.error)
+      }).catch((err) => {
+        console.log(err)
+        window.eventHub.$emit('showSnackBar', vue.$t('Unknown error could not save'))
+      })
+    },
+
+    // add to or remove from collection
+    addToCollection (collectionID) {
+      var post = {}
+      post.wagoID = this.wago._id
+      post.collectionID = collectionID
+      var promise
+      if (this.wago.myCollections.length > 0 && this.wago.myCollections.indexOf(collectionID) > -1) {
+        promise = this.http.post('/wago/collection/remove', post)
+      }
+      else {
+        promise = this.http.post('/wago/collection/add', post)
+      }
+      var vue = this
+      promise.then((res) => {
+        if (res.added) {
+          vue.wago.myCollections.push(collectionID)
+          vue.wago.collections.push({
+            modified: Date.now(),
+            name: res.name,
+            user: {
+              profile: (vue.User.profileVisibility === 'Public') ? '/p/' + encodeURIComponent(vue.User.name) : false,
+              class: vue.User.css,
+              name: vue.User.name,
+              avatar: vue.User.avatar},
+            slug: res.slug,
+            _id: collectionID
+          })
+          vue.wago.collectionCount++
+        }
+        else if (res.removed) {
+          var i = vue.wago.myCollections.indexOf(collectionID)
+          vue.wago.myCollections.splice(i, 1)
+          for (i = 0; i < vue.wago.collections.length; i++) {
+            if (vue.wago.collections[i]._id === collectionID) {
+              vue.wago.collections.splice(i, 1)
+              vue.wago.collectionCount--
+              break
+            }
+          }
         }
         else {
           window.eventHub.$emit('showSnackBar', vue.$t('Unknown error could not save'))
         }
+      }).catch((err) => {
+        console.log(err)
+        window.eventHub.$emit('showSnackBar', vue.$t('Unknown error could not save'))
       })
     }
   }
