@@ -5,7 +5,7 @@ const mongoose = require('mongoose'),
 const Schema = new mongoose.Schema({
   wagoID: { type: String, ref: 'WagoItem', index: true },
   authorID: { type: ObjectId, ref: 'Users', index: true},
-  commentText: String,
+  commentText: {type: String, index: 'text'},
   postDate: { type: Date, default: +new Date() },
   usersTagged: [{
     _id: false,

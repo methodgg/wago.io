@@ -1,7 +1,7 @@
 const mongoose = require('mongoose')
 
 const Schema = new mongoose.Schema({
-  addon: String,
+  addon: {type: String, index: true},
   phase: String,
   url: String,
   version: String,

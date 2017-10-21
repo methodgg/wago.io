@@ -6,7 +6,7 @@ const Schema = new mongoose.Schema({
 	encoded : String,
   json : String,
   updated : { type: Date, default: Date.now },
-  lua : String,
+  lua : { type: String, index: 'text' },
   version: Number,
   build: String,
   changelog: String

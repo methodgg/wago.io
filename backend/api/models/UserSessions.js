@@ -3,7 +3,7 @@ const mongoose = require('mongoose'),
 
 const Schema = new mongoose.Schema({
   // automatic _id
-  UID: { type: ObjectId, ref: 'Persons'},
+  UID: { type: ObjectId, ref: 'Persons', index: true},
   scopes: [String],
   expires: { type: Date, default: +new Date() + 90*24*60*60*1000 },
   forceUpdate: Boolean,
