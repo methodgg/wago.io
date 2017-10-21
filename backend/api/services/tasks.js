@@ -18,6 +18,7 @@ function RunTask (task) {
     case 'random': return MakeWagoOfTheMoment()
     case 'top10': return MakeTopTenLists()
     case 'addons': return GetLatestAddonReleases()
+    case 'popularity': return computeViewsThisWeek()
   }
 }
 
@@ -215,6 +216,18 @@ function GetLatestAddonReleases (req, res) {
     // now rebuild global addons table
     AddonRelease.find({active: true}).sort('-addon -phase').then((docs) => {
       global.addonUpdates = docs
+    })
+  })
+}
+
+/**
+ * Updates views this week for each wago.
+ * They are auto incremented on-the-fly but expired views from a week ago need to be pruned.
+*/
+function computeViewsThisWeek() {
+  WagoItem.aggregate({$group: { _id: '$wagoID', views: { $sum: 1 }}}).exec().then((pop) => {
+    pop.forEach((wago) => {
+      WagoItem.findByIdAndUpdate(wago._id, {$set: {'popularity.viewsThisWeek': wago.views}}).exec()
     })
   })
 }

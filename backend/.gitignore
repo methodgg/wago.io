@@ -9,7 +9,7 @@ test/e2e/reports
 selenium-debug.log
 ecosystem.json
 config.js
-lua/addons/*
+api/lua/addons/*
 
 # Editor directories and files
 .idea

@@ -568,6 +568,23 @@ server.post('/wago/collection/remove', (req, res) => {
   })
 })
 
+// create new collection
+server.post('/wago/collection/new', (req, res) => {
+  if (!req.user || !req.body.wagoID || !req.body.addCollectionName) {
+    return res.send(403, {error: "forbidden"})
+  }
+
+  var collection = new WagoItem()
+  collection.name = req.body.addCollectionName
+  collection._userId = req.user._id
+  collection.type = 'COLLECTION'
+  collection.collect.push(req.body.wagoID)
+
+  collection.save().then((doc) => {
+    res.send({success: true, name: doc.name, _id: wago._id})
+  })
+})
+
 
 // gets embed javascript
 server.get('/wago/embed', (req, res, next) => {

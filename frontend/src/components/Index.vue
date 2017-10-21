@@ -165,6 +165,9 @@
 @media (min-width: 1281px) {
   #col1, #col2 { padding: 16px }
   #col2 { padding-left:0 }
+  #topwagos > .md-layout > .md-layout { width: 50% }
+  #topwagos > .md-layout > .md-layout > ul { max-width: 100%; min-width: 100% }
+
 }
 
 @media (max-width: 600px) {
@@ -174,7 +177,7 @@
 #inputStringWrapper { width: 100%; position: relative; }
 #inputStringWrapper div  { position: absolute; top: 0; color: #a5a5a5; padding: 6px 0 0 0; pointer-events: none}
 
-.has-category-select + .has-category-select { margin-top: -24px}
+.has-category-select + .has-category-select {margin-top: -24px}
 
 #topwagos .md-list-item { flex-wrap: wrap }
 

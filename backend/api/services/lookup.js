@@ -20,7 +20,12 @@ server.get('/lookup/wago', (req, res, next) => {
     }
     
     doc.popularity.views++
+    doc.popularity.viewsThisWeek++
     doc.save()
+    
+    var pop = new ViewsThisWeek()
+    pop.wagoID = doc._id
+    pop.save()
 
     var wago = {}
     wago._id = doc._id
@@ -41,6 +46,7 @@ server.get('/lookup/wago', (req, res, next) => {
     wago.categories = doc.categories
     
     wago.viewCount = doc.popularity.views
+    wago.viewsThisWeek = doc.popularity.viewsThisWeek
     wago.commentCount = doc.popularity.comment_count
     wago.downloadCount = doc.popularity.downloads
     wago.embedCount = doc.popularity.embeds
@@ -126,6 +132,9 @@ server.get('/lookup/wago', (req, res, next) => {
         })
       },
       collectionCount: (cb) => {
+        if (wago.type === 'COLLECTION') {
+          return cb()
+        }
         if (req.user) {
           var search = WagoItem.count({"type": "COLLECTION", "collect": wago._id.toString(), "$or": [{ '_userId': req.user._id || null }, { private: false, hidden: false }]})
         }
@@ -138,6 +147,9 @@ server.get('/lookup/wago', (req, res, next) => {
         })
       },
       myCollections: (cb) => {
+        if (wago.type === 'COLLECTION') {
+          return cb()
+        }
         // find my collections that have the current wago included (necessary as a separate call because wago's we only pull 10 collections in collectionLookup)
         if (!req.user || req.user.collections.length === 0) {
           return cb(null, [])
@@ -149,6 +161,40 @@ server.get('/lookup/wago', (req, res, next) => {
             arr.push(c._id)
           })
           cb(null, arr)
+        })
+      },
+      collectedItems: (cb) => {
+        if (wago.type !== 'COLLECTION' || wago.collect.length === 0) {
+          return cb()
+        }
+        var items = []
+        WagoItems.find({_id: wago.collect}).then((docs) => {
+          async.each(docs, (item, done) => {
+            User.findById(item._userId).select('account profile roles').then((user) => {
+              var iUser = false
+              if (user) {
+                iUser = {}
+                iUser.name = user.account.username
+                iUser.css = user.roleclass
+                iUser.url = user.profile.url
+              }
+              items.push({
+                _id: item._id,
+                slug: item.slug,
+                name: item.name,
+                type: item.type,
+                user: iUser,
+                date: { created: doc.created, modified: doc.modified },
+                views: item.popularity.views,
+                viewsThisWeek: item.popularity.viewsThisWeek,
+                stars: item.popularity.favorite_count,
+                comments: item.popularity.comment_count,
+              })
+              done()
+            })
+          }, () => {
+            cb(null, items)
+          })    
         })
       },
       codeLookup: (cb) => {
@@ -229,6 +275,7 @@ server.get('/lookup/wago', (req, res, next) => {
       wago.versions = data.versionsLookup
       wago.collectionCount = data.collectionCount
       wago.collections = data.collectionLookup
+      wago.collectedItems = data.collectedItems
       wago.myCollections = data.myCollections
       wago.user = data.userLookup
       wago.screens = data.screenshotLookup
@@ -239,19 +286,21 @@ server.get('/lookup/wago', (req, res, next) => {
 
       // check for alerts
       // functions blocked by WeakAuras
-      while ((m = commonRegex.WeakAuraBlacklist.exec(wago.code.json)) !== null) {
-        if (!wago.alerts.blacklist) {
-          wago.alerts.blacklist = []
+      if (wago.code && wago.code.json) {
+        while ((m = commonRegex.WeakAuraBlacklist.exec(wago.code.json)) !== null) {
+          if (!wago.alerts.blacklist) {
+            wago.alerts.blacklist = []
+          }
+          wago.alerts.blacklist.push(m[1].replace(/\\"/g, '"'))
         }
-        wago.alerts.blacklist.push(m[1].replace(/\\"/g, '"'))
-      }
-      
-      // check for functions that could be used for malintent
-      while ((m = commonRegex.MaliciousCode.exec(wago.code.json)) !== null) {
-        if (!wago.alerts.malicious) {
-          wago.alerts.malicious = []
+        
+        // check for functions that could be used for malintent
+        while ((m = commonRegex.MaliciousCode.exec(wago.code.json)) !== null) {
+          if (!wago.alerts.malicious) {
+            wago.alerts.malicious = []
+          }
+          wago.alerts.malicious.push(m[1])
         }
-        wago.alerts.malicious.push(m[1])
       }
 
       if (req.params.timing) {

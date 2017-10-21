@@ -276,7 +276,7 @@
                   <form>
                     <md-input-container>
                       <label>{{ $t("Name") }}</label>
-                      <md-input v-model.focus="addCollectionName"></md-input>
+                      <md-input v-model.trim="addCollectionName"></md-input>
                     </md-input-container>
                   </form>
                 </md-dialog-content>
@@ -503,8 +503,8 @@ export default {
       uploadImages: '',
       uploadFileProgress: [],
       newImportString: '',
-      newImportStringStatus: ''
-
+      newImportStringStatus: '',
+      addCollectionName: ''
     }
   },
   watch: {
@@ -1247,6 +1247,33 @@ export default {
       }).catch((err) => {
         console.log(err)
         window.eventHub.$emit('showSnackBar', vue.$t('Unknown error could not save'))
+      })
+    },
+
+    CreateCollection () {
+      if (!this.addCollectionName) {
+        return
+      }
+      var vue = this
+      this.http.post('/wago/collection/new', {
+        name: this.addCollectionName,
+        wagoID: this.wago._id
+      }).then((res) => {
+        if (res.success && res.collectionID) {
+          vue.addCollectionName = ''
+          vue.wago.collections.push({
+            modified: Date.now(),
+            name: res.name,
+            user: {
+              profile: (vue.User.profileVisibility === 'Public') ? '/p/' + encodeURIComponent(vue.User.name) : false,
+              class: vue.User.css,
+              name: vue.User.name,
+              avatar: vue.User.avatar},
+            slug: res._id,
+            _id: res._id
+          })
+          vue.wago.collectionCount++
+        }
       })
     }
   }

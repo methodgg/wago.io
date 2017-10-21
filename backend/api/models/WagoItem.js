@@ -2,8 +2,8 @@ const mongoose = require('mongoose'),
       ObjectId = mongoose.Schema.Types.ObjectId,
       shortid = require('shortid')
 
-const Schema = new mongoose.Schema({    
-  _id : { type: String, unique: true, default: shortid.generate },
+const Schema = new mongoose.Schema({
+  _id : { type: String, default: shortid.generate },
   custom_slug : { type: String, index: true },
   _userId : { type: mongoose.Schema.Types.ObjectId, ref: 'Users' },
 
@@ -33,6 +33,7 @@ const Schema = new mongoose.Schema({
 
   popularity : {
       views : { type: Number, default: 0 },
+      viewsThisWeek : { type: Number, default: 0 },
       embeds : { type: Number, default: 0 },
       downloads : { type: Number, default: 0 },
       favorites : { type: Array, index: true },
