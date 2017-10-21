@@ -23,7 +23,7 @@ module.exports = function(req, res, next) {
         if (!session || session.requireLogin || session.expires < +new Date()) {
           console.log('sid not found')
           res.send({error: 'session_expired', requireLogin: true})
-          return next()
+          // return next()
         }
 
         // if session is found then lookup user and set req.user
@@ -56,7 +56,7 @@ module.exports = function(req, res, next) {
           }
           else {
             res.send({error: 'session_expired', requireLogin: true})
-            return next()
+            // return next()
           }
         })
       })
