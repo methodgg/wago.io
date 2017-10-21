@@ -6,13 +6,13 @@ const Schema = new mongoose.Schema({
 	encoded : String,
   json : String,
   updated : { type: Date, default: Date.now },
-  lua : { type: String, index: 'text' },
+  lua : { type: String },
   version: Number,
   build: String,
   changelog: String
 });
-
-Schema.index({json: 'text'})
+// compound text index
+Schema.index({json: 'text', lua: 'text'})
 
 /**
  * Statics
