@@ -31,6 +31,7 @@ module.exports = function(req, res, next) {
           if (doc) {
             req.user = doc
             req.user.SID = session.$__._id
+            req.user.admin = doc.roles.admin || doc.roles.super_admin
 
             async.parallel({
               comments: (cb) => {

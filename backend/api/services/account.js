@@ -73,6 +73,7 @@ server.get('/account/whoami', (req, res, next) => {
     who.access.customSlug = user.access.custom_slug
     who.access.beta = user.access.beta
     who.access.animatedAvatar = user.access.animatedAvatar
+    who.access.admin = user.roles.admin || user.roles.super_admin
     
     who.config = user.config
 

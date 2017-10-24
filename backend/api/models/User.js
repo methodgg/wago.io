@@ -102,7 +102,7 @@ const Schema = new mongoose.Schema({
     editor : String
   },
   search: {
-    username: String
+    username: {type: String, index: true}
   }
 }, { minimize: true });
 

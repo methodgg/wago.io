@@ -3,6 +3,7 @@ const Index = resolve => require(['@/components/Index.vue'], resolve)
 const Login = resolve => require(['@/components/core/Login.vue'], resolve)
 const Logout = resolve => require(['@/components/core/Logout.vue'], resolve)
 const Account = resolve => require(['@/components/core/Account.vue'], resolve)
+const Admin = resolve => require(['@/components/core/Admin.vue'], resolve)
 
 const MenuWeakAuras = resolve => require(['@/components/core/Menu-WeakAuras.vue'], resolve)
 const MenuElvUI = resolve => require(['@/components/core/Menu-ElvUI.vue'], resolve)
@@ -59,6 +60,7 @@ export default {
     { path: '/login', component: Login },
     { path: '/logout', component: Logout },
     { path: '/account', component: Account },
+    { path: '/admin', component: Admin },
 
     // menus/categories
     { path: '/weakauras', component: MenuWeakAuras },

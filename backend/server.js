@@ -89,6 +89,7 @@ server.use(require('./middlewares/SessionAuth')) // set req.user
  * Service requests
  */
 require('./api/services/account')
+require('./api/services/admin')
 require('./api/services/auth') // authentication service
 require('./api/services/comments') 
 require('./api/services/import') 
@@ -144,10 +145,13 @@ server.listen(config.port, function() {
     global[filename] = require('./api/models/' + filename)
   })
 
+  global['Categories'] = require('../frontend/src/components/libs/categories')
+
   // build global vars on runtime
   runTask('random')
   runTask('top10')
   runTask('addons')
+  runTask('news')
 
   /**
    * Save site data into memory

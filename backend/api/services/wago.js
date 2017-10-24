@@ -143,13 +143,20 @@ server.post('/wago/update/categories', (req, res) => {
       return res.send(404, {error: "no_wago"})
     }
 
+    // retain system tags
+    var systemTags = Categories.filterSystemTags(wago.categories)
+
     if (!req.body.cats) {
       wago.categories = []
     }
     else {
-      // TODO: verify categories (invalid ones won't be displayed but will still sit in the DB)
-      wago.categories = req.body.cats.split(',')
+      wago.categories = Categories.validateCategories(req.body.cats.split(','))
     }
+
+    // re-add system tags
+    wago.categories = wago.categories.concat(systemTags)
+
+    // check if this import should have any system tags applied
     wago.save().then(() => {
       res.send({success: true})
     })
@@ -570,18 +577,20 @@ server.post('/wago/collection/remove', (req, res) => {
 
 // create new collection
 server.post('/wago/collection/new', (req, res) => {
-  if (!req.user || !req.body.wagoID || !req.body.addCollectionName) {
+  if (!req.user || !req.body.wagoID || !req.body.name) {
     return res.send(403, {error: "forbidden"})
   }
 
-  var collection = new WagoItem()
-  collection.name = req.body.addCollectionName
-  collection._userId = req.user._id
-  collection.type = 'COLLECTION'
-  collection.collect.push(req.body.wagoID)
+  WagoItem.findById(req.body.wagoID).select('_id').then((wago) => {
+    var collection = new WagoItem()
+    collection.name = req.body.name
+    collection._userId = req.user._id
+    collection.type = 'COLLECTION'
+    collection.collect.push(req.body.wagoID)
 
-  collection.save().then((doc) => {
-    res.send({success: true, name: doc.name, _id: wago._id})
+    collection.save().then((doc) => {
+      res.send({success: true, name: doc.name, collectionID: doc._id})
+    })
   })
 })
 

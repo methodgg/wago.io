@@ -2,7 +2,7 @@ var mongoose = require('mongoose')
 
 // define the schema for our user model
 var Schema = mongoose.Schema({
-  wagoID : String,
+  wagoID : {type: String, index: true},
   source: String,  // youtube, twitch, etc
   videoID: String,  // youtube id, etc
   videoType: String,

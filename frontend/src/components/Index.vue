@@ -1,6 +1,6 @@
 <template>
   <div id="index">
-    <md-layout md-gutter="32" md-column-small="true">
+    <md-layout md-gutter="32" :md-column-small="true">
       <md-layout id="col1" md-vertical-align="start">
         <md-whiteframe id="importform">
           <md-input-container :class="{ 'md-input-invalid': importError }">
@@ -60,7 +60,7 @@
           <md-button class="md-raised" :disabled="disableSubmit" @click="submitImport()">Submit</md-button>
         </md-whiteframe>
 
-        <div v-for="(news, newsIndex) in latestBlogs">
+        <div v-for="(news, newsIndex) in latestBlogs" id="sitenews">
           <md-card>
             <md-card-header-text>
               <div class="md-title">{{ news.title }}</div>
@@ -71,7 +71,7 @@
         </div>
       </md-layout>
 
-      <md-layout id="col2" md-column-medium="true" md-vertical-align="start">
+      <md-layout id="col2" :md-column-medium="true" md-vertical-align="start">
         <md-whiteframe id="topwagos" v-if="top10Lists && top10Lists.faves">
           <md-layout>
             <md-layout>
@@ -79,10 +79,10 @@
                 <md-list-item>
                   <strong>{{ $t("Popular This Week") }}</strong>
                 </md-list-item>
-                <md-list-item v-for="(item, index) in top10Lists.popThisWeek" :key="index" @click="$router.push('/' + item._id)">
+                <md-list-item v-for="(item, index) in top10Lists.popular" :key="index" @click="$router.push('/' + item._id)">
                   <div class="md-list-text-container">
                     <span>{{ item.name }}</span>
-                    <span>{{ $t("[-count-] views", {count: item}) }}</span>
+                    <span>{{ $t("[-count-] views", {count: item.popularity.viewsThisWeek}) }}</span>
                   </div>
                 </md-list-item>
               </md-list>
@@ -180,6 +180,9 @@
 .has-category-select + .has-category-select {margin-top: -24px}
 
 #topwagos .md-list-item { flex-wrap: wrap }
+
+#sitenews { width: 100%}
+#sitenews .md-card {margin: 16px 0 0; width:100%}
 
 </style>
 

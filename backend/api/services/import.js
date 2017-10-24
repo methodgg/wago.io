@@ -22,19 +22,21 @@ function ScanImport (req, res, next, test) {
   }
 
   // if only looking for a specific type
-  switch (req.body.type.toUpperCase()) {
-    case 'WEAKAURA':
-      test.notElvUI = true
-      test.notVuhdo = true
-      break
-    case 'ELVUI':
-      test.NotWeakAura = true
-      test.notVuhdo = true
-      break
-    case 'VUHDO':
-      test.NotWeakAura = true
-      test.notElvUI = true
-      break    
+  if (req.body.type) {
+    switch (req.body.type.toUpperCase()) {
+      case 'WEAKAURA':
+        test.notElvUI = true
+        test.notVuhdo = true
+        break
+      case 'ELVUI':
+        test.NotWeakAura = true
+        test.notVuhdo = true
+        break
+      case 'VUHDO':
+        test.NotWeakAura = true
+        test.notElvUI = true
+        break    
+    }
   }
 
   // if input is a pastebin URL
@@ -370,8 +372,25 @@ server.post('/import/submit', function(req, res) {
         wago.type = scan.type
         if (req.body.categories && req.body.categories.length > 2) {
           wago.categories = JSON.parse(req.body.categories).map((c) => {
-            return c.id // TODO: needs validation
+            return c.id
           })
+          wago.categories = Categories.validateCategories(wago.categories)
+
+          // add system tags as necessary
+          if (wago.type === 'VUHDO') {
+            var vuhdo = JSON.parse(scan.decoded)
+            wago.categories.push('vuhdo0')
+          
+            if (vuhdo.bouquetName) {
+              wago.categories.push('vuhdo2')
+            }
+            else if (vuhdo.keyLayout) {
+              wago.categories.push('vuhdo3')
+            }
+            else { // vuhdo profile
+              wago.categories.push('vuhdo1') 
+            }
+          }
         }
         else {
           wago.categories = []

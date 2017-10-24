@@ -46,7 +46,7 @@ export default {
         this.categoryOptions = Categories.getChildren(values[values.length - 1], this.$t)
       }
       else {
-        this.categoryOptions = Categories.rootCategories(this.$t)
+        this.categoryOptions = Categories.rootCategories(this.$t, this.type)
       }
       if (this.categoryOptions.length > 0) {
         this.maxSelections = values.length + 1

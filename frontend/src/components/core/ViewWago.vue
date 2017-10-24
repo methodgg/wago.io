@@ -1,6 +1,14 @@
 <template>
   <div id="view-wago">
-    <ui-loading v-if="!wagoExists"></ui-loading>
+    <div v-if="!wagoExists && wago.error">
+      <ui-warning v-if="wago.error === 'page_not_found'" mode="alert">
+        {{ $t("404. Nothing is found here!") }}
+      </ui-warning>
+      <ui-warning v-else mode="alert">
+        Error: {{ wago.error }}
+      </ui-warning>
+    </div>
+    <ui-loading v-else-if="!wagoExists"></ui-loading>
     <div v-else>
       <md-card id="wago-header" ref="header">
         <div class="floating-header">
@@ -56,9 +64,9 @@
                 <md-button class="md-toggle" @click="toggleFrame('description')">{{ $t("Description") }}</md-button>
                 <md-button @click="toggleFrame('comments')">{{ $t("[-count-] comment", {count: wago.commentCount }) }}</md-button>
                 <md-button v-if="wago.versions && wago.versions.total > 1" @click="toggleFrame('versions')" ref="versionsButton">{{ $t("[-count-] version", { count: wago.versions.total }) }}</md-button>
-                <md-button @click="toggleFrame('collections')">{{ $t("[-count-] collections", {count:  wago.collectionCount}) }}</md-button>
-                <md-button v-if="!wago.alerts.blacklist" @click="toggleFrame('embed')">{{ $t("Embed") }}</md-button>
-                <md-button @click="toggleFrame('editor')">{{ $t("Editor") }}</md-button>
+                <md-button v-if="wago.type !== 'COLLECTION'" @click="toggleFrame('collections')">{{ $t("[-count-] collections", {count:  wago.collectionCount}) }}</md-button>
+                <md-button v-if="!wago.alerts.blacklist && wago.code && wago.code.encoded" @click="toggleFrame('embed')">{{ $t("Embed") }}</md-button>
+                <md-button v-if="wago.code" @click="toggleFrame('editor')">{{ $t("Editor") }}</md-button>
               </md-button-toggle>
             </md-layout>
 
@@ -266,7 +274,7 @@
                   <md-icon v-else>add</md-icon>
                   {{ coll.name }}
                 </md-menu-item>
-                <md-menu-item @click="$refs.addCollectionDialog.open()"><md-icon>add_box</md-icon>{{ $t("Create new collection") }}</md-menu-item>
+                <md-menu-item @click="openNewCollectionDialog()"><md-icon>add_box</md-icon>{{ $t("Create new collection") }}</md-menu-item>
               </md-menu-content>
 
               <md-dialog md-open-from="#addCollectionButton" md-close-to="#addCollectionButton" ref="addCollectionDialog">
@@ -276,7 +284,7 @@
                   <form>
                     <md-input-container>
                       <label>{{ $t("Name") }}</label>
-                      <md-input v-model.trim="addCollectionName"></md-input>
+                      <md-input v-model.trim="addCollectionName" ref="addCollectionNameInput"></md-input>
                     </md-input-container>
                   </form>
                 </md-dialog-content>
@@ -323,7 +331,7 @@
           </div>
 
           <!-- EMBED FRAME -->
-          <div id="wago-embed-container" class="wago-container" v-if="showPanel=='embed'">
+          <div id="wago-embed-container" class="wago-container" v-if="showPanel=='embed' && wago.code && wago.code.encoded">
             <h2>{{ $t("Embed script") }}</h2>
             <md-card id="wago-embed">
               <div>{{ $t("Embed this wago on your own site") }}</div>
@@ -373,9 +381,11 @@
           </div>
           <div class="border" v-if="showEditor"></div>
 
-          <div id="wago-importstring-container" class="wago-container">
+          <div id="wago-importstring-container" class="wago-container" v-if="wago.code && wago.code.encoded">
             <textarea id="wago-importstring">{{ wago.code.encoded }}</textarea>
           </div>
+
+          <search v-if="wago.type === 'COLLECTION'" :contextSearch="'Collection: ' + wago._id"></search>
           
         </div>
 
@@ -442,6 +452,7 @@ import Categories from '../libs/categories'
 import Lightbox from 'vue-simple-lightbox'
 import Multiselect from 'vue-multiselect'
 import CategorySelect from '../UI/SelectCategory.vue'
+import Search from '../core/Search.vue'
 
 export default {
   components: {
@@ -454,7 +465,8 @@ export default {
     'edit-weakaura': require('../UI/EditWeakAura.vue'),
     editor: require('vue2-ace-editor'),
     Multiselect,
-    CategorySelect
+    CategorySelect,
+    Search
   },
   created: function () {
     this.fetchWago()
@@ -644,6 +656,10 @@ export default {
       }
 
       vue.http.get('/lookup/wago', params).then((res) => {
+        if (res.error) {
+          this.$store.commit('setWago', res)
+          return
+        }
         res.categories = res.categories.map((cat) => {
           return Categories.match(cat, vue.$t)
         })
@@ -652,7 +668,7 @@ export default {
           res.code.json = JSON.stringify(res.code.obj, null, 2)
         }
 
-        if (res.versions.total > 10) {
+        if (res.versions && res.versions.total > 10) {
           vue.showMoreVersions = true
         }
         else {
@@ -1250,6 +1266,14 @@ export default {
       })
     },
 
+    openNewCollectionDialog () {
+      this.$refs.addCollectionDialog.open()
+      var vue = this
+      setTimeout(() => {
+        vue.$refs.addCollectionNameInput.$el.focus()
+      }, 370)
+    },
+
     CreateCollection () {
       if (!this.addCollectionName) {
         return
@@ -1261,7 +1285,7 @@ export default {
       }).then((res) => {
         if (res.success && res.collectionID) {
           vue.addCollectionName = ''
-          vue.wago.collections.push({
+          vue.wago.collections.unshift({
             modified: Date.now(),
             name: res.name,
             user: {
@@ -1269,9 +1293,14 @@ export default {
               class: vue.User.css,
               name: vue.User.name,
               avatar: vue.User.avatar},
-            slug: res._id,
-            _id: res._id
+            slug: res.collectionID,
+            _id: res.collectionID
           })
+          vue.wago.myCollections.push({
+            _id: res.collectionID,
+            name: res.name
+          })
+          vue.$refs.addCollectionDialog.close()
           vue.wago.collectionCount++
         }
       })

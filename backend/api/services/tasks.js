@@ -19,6 +19,7 @@ function RunTask (task) {
     case 'top10': return MakeTopTenLists()
     case 'addons': return GetLatestAddonReleases()
     case 'popularity': return computeViewsThisWeek()
+    case 'news': return GetLatestNews()
   }
 }
 
@@ -55,6 +56,12 @@ function MakeTopTenLists () {
     updates: (done) => {
       WagoItem.find({hidden: false, private: false, $where: "this.created.getTime() != this.modified.getTime()"}).sort({"modified": -1}).select('_id name modified').limit(10).then((updates) => {
         data.updates = updates
+        done()
+      })
+    },
+    viewsThisWeek: (done) => {
+      WagoItem.find({hidden: false, private: false}).sort("-popularity.viewsThisWeek").select('name popularity.viewsThisWeek').limit(10).then((popular) => {
+        data.popular = popular
         done()
       })
     },
@@ -229,6 +236,30 @@ function computeViewsThisWeek() {
     pop.forEach((wago) => {
       WagoItem.findByIdAndUpdate(wago._id, {$set: {'popularity.viewsThisWeek': wago.views}}).exec()
     })
+  })
+}
+
+/**
+ * Gets most recent news articles for front page
+ */
+function GetLatestNews() {
+  Blog.find({publishStatus: 'publish'}).sort('-date').limit(2).populate('_userId').then((docs) => {
+    var news = []
+    docs.forEach((item) => {
+      var post = {
+        content: item.content,
+        date: item.date,
+        format: item.format,
+        title: item.title,
+        _id: item._id,
+        user: {
+          username: item._userId.account.username,
+          css: item._userId.roleclass
+        }
+      }
+      news.push(post)
+    })
+    global.newsPosts = news
   })
 }
 

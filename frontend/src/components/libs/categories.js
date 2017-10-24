@@ -329,14 +329,37 @@ module.exports = {
     return [gathering, crafting, secondary]
   },
 
-  rootCategories: function (t) {
+  rootCategories: function (t, type) {
     var roots = []
     this.categories(t).forEach((cat) => {
-      if (cat.root) {
+      if (cat.root && (!type || cat[type])) {
         roots.push(cat)
       }
     })
     return roots
+  },
+
+  validateCategories: function (cats) {
+    var valid = []
+    var path = ''
+    this.categories(t).forEach((cat) => {
+      if (!cat.systemtag && cats.indexOf(cat.id) > -1 && (!path || cat.slug.indexOf(path) === 0)) {
+        path = cat.slug
+        valid.push(cat)
+      }
+    })
+    return valid
+  },
+
+
+  filterSystemTags: function (cats) {
+    var systemTags = []
+    this.categories(t).forEach((cat) => {
+      if (cats.indexOf(cat.id) > -1 && cat.systemtag) {
+        systemTags.push(cat)
+      }
+    })
+    return systemTags
   },
 
   getChildren: function (parent, t) {

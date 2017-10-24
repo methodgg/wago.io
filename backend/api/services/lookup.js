@@ -112,6 +112,9 @@ server.get('/lookup/wago', (req, res, next) => {
         })
       },
       collectionLookup: (cb) => {
+        if (doc.type === 'COLLECTION') {
+          return cb()
+        }
         if (req.user) {
           var search = WagoItem.find({"type": "COLLECTION", "collect": wago._id.toString(), "$or": [{ '_userId': req.user._id || null }, { private: false, hidden: false }]})
         }
@@ -132,7 +135,7 @@ server.get('/lookup/wago', (req, res, next) => {
         })
       },
       collectionCount: (cb) => {
-        if (wago.type === 'COLLECTION') {
+        if (doc.type === 'COLLECTION') {
           return cb()
         }
         if (req.user) {
@@ -147,10 +150,9 @@ server.get('/lookup/wago', (req, res, next) => {
         })
       },
       myCollections: (cb) => {
-        if (wago.type === 'COLLECTION') {
+        if (doc.type === 'COLLECTION') {
           return cb()
         }
-        // find my collections that have the current wago included (necessary as a separate call because wago's we only pull 10 collections in collectionLookup)
         if (!req.user || req.user.collections.length === 0) {
           return cb(null, [])
         }
@@ -163,41 +165,10 @@ server.get('/lookup/wago', (req, res, next) => {
           cb(null, arr)
         })
       },
-      collectedItems: (cb) => {
-        if (wago.type !== 'COLLECTION' || wago.collect.length === 0) {
+      codeLookup: (cb) => {
+        if (doc.type === 'COLLECTION') {
           return cb()
         }
-        var items = []
-        WagoItems.find({_id: wago.collect}).then((docs) => {
-          async.each(docs, (item, done) => {
-            User.findById(item._userId).select('account profile roles').then((user) => {
-              var iUser = false
-              if (user) {
-                iUser = {}
-                iUser.name = user.account.username
-                iUser.css = user.roleclass
-                iUser.url = user.profile.url
-              }
-              items.push({
-                _id: item._id,
-                slug: item.slug,
-                name: item.name,
-                type: item.type,
-                user: iUser,
-                date: { created: doc.created, modified: doc.modified },
-                views: item.popularity.views,
-                viewsThisWeek: item.popularity.viewsThisWeek,
-                stars: item.popularity.favorite_count,
-                comments: item.popularity.comment_count,
-              })
-              done()
-            })
-          }, () => {
-            cb(null, items)
-          })    
-        })
-      },
-      codeLookup: (cb) => {
         WagoCode.lookup(wago._id, req.params.version).then((code) => {
           timing.findCode = Date.now() - start
           if (!code) {
@@ -207,6 +178,9 @@ server.get('/lookup/wago', (req, res, next) => {
         })
       },
       versionsLookup: (cb) => {
+        if (doc.type === 'COLLECTION') {
+          return cb()
+        }
         WagoCode.find({auraID: wago._id}).select('json version updated').limit(10).sort({updated: -1}).then((versions) => {
           timing.findVersions = Date.now() - start
           if (!versions) {
@@ -254,7 +228,7 @@ server.get('/lookup/wago', (req, res, next) => {
         })
       },
       forkLookup: (cb) => {
-        if (!doc.fork_of) {
+        if (!doc.fork_of || wago.type === 'COLLECTION') {
           return cb()
         }
         WagoItem.findById(doc.fork_of).then((doc) => {
@@ -275,7 +249,6 @@ server.get('/lookup/wago', (req, res, next) => {
       wago.versions = data.versionsLookup
       wago.collectionCount = data.collectionCount
       wago.collections = data.collectionLookup
-      wago.collectedItems = data.collectedItems
       wago.myCollections = data.myCollections
       wago.user = data.userLookup
       wago.screens = data.screenshotLookup
@@ -397,6 +370,41 @@ server.get('/lookup/profile', (req, res, next) => {
       profile.mine = true
     }
     res.send(profile)
+  })
+})
+
+server.get('/lookup/blog', (req, res) => {
+  if (!req.query.id) {
+    return res.send(404, {error: "page_not_found"})
+  }
+
+  var query
+  if (req.user && req.user.admin) {
+    // allow fetching drafts for admins
+    query = {_id: req.query.id}
+  }
+  else {
+    query = {_id: req.query.id, publishStatus: 'publish'}
+  }
+
+  Blog.findOne(query).populate('_userId').then((doc) => {
+    if (doc) {
+      res.send({
+        content: doc.content,
+        date: doc.date,
+        format: doc.format,
+        title: doc.title,
+        _id: doc._id,
+        publishStatus: doc.publishStatus,
+        user: {
+          username: doc._userId.account.username,
+          css: doc._userId.roleclass
+        }
+      })
+    }
+    else {
+      return res.send(404, {error: "page_not_found"})
+    }
   })
 })
 

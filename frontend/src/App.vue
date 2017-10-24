@@ -14,10 +14,11 @@
           <span :class="User.css"><md-icon>person</md-icon> {{ User.name }}</span>
           <md-list-expand>
             <md-list>
-              <md-list-item><router-link :to="'/p/'+User.name">{{ $t("Profile") }}</router-link></md-list-item>
-              <md-list-item><router-link to="/my/mentions">{{ $t("Mentions") }}</router-link> <span class="unreadCount" v-if="User.unreadMentions > 0">{{ User.unreadMentions }}</span></md-list-item>
-              <md-list-item><router-link to="/my/stars">{{ $t("Stars") }}</router-link></md-list-item>
-              <md-list-item><router-link to="/account">{{ $t("Account") }}</router-link></md-list-item>
+              <md-list-item><router-link :to="'/p/'+User.name">{{ $t("My Profile") }}</router-link></md-list-item>
+              <md-list-item><router-link to="/my/mentions">{{ $t("My Mentions") }}</router-link> <span class="unreadCount" v-if="User.unreadMentions > 0">{{ User.unreadMentions }}</span></md-list-item>
+              <md-list-item><router-link to="/my/stars">{{ $t("My Favorites") }}</router-link></md-list-item>
+              <md-list-item><router-link to="/account">{{ $t("Account Settings") }}</router-link></md-list-item>
+              <md-list-item v-if="User.access.admin"><router-link to="/admin">Admin</router-link></md-list-item>
             </md-list>
           </md-list-expand>
         </md-list-item>
@@ -43,12 +44,12 @@
           </md-input-container>
         </form>
         <md-list v-if="LoggedIn" id="usernav">
-          <md-list-item><md-subheader>{{ $t("View my") }}</md-subheader></md-list-item>
-          <md-list-item><router-link :to="'/p/'+User.name">{{ $t("Profile") }}</router-link></md-list-item>
-          <md-list-item><router-link to="/my/mentions">{{ $t("Mentions") }}</router-link> <span class="unreadCount" v-if="User.unreadMentions > 0">{{ User.unreadMentions }}</span></md-list-item>
-          <md-list-item><router-link to="/my/stars">{{ $t("Stars") }}</router-link></md-list-item>
-          <md-list-item><router-link to="/account">{{ $t("Account") }}</router-link></md-list-item>
-        </md-list>        
+          <md-list-item><router-link :to="'/p/'+User.name">{{ $t("My Profile") }}</router-link></md-list-item>
+          <md-list-item><router-link to="/my/mentions">{{ $t("My Mentions") }}</router-link> <span class="unreadCount" v-if="User.unreadMentions > 0">{{ User.unreadMentions }}</span></md-list-item>
+          <md-list-item><router-link to="/my/stars">{{ $t("My Favorites") }}</router-link></md-list-item>
+          <md-list-item><router-link to="/account">{{ $t("Account Settings") }}</router-link></md-list-item>
+          <md-list-item v-if="User.access.admin"><router-link to="/admin">Admin</router-link></md-list-item>
+        </md-list>     
         <div v-if="WotM.name" id="wotm">
           <strong>{{ $t("Wago of the Minute") }}</strong><br>
           <router-link :to="'/' + WotM.slug"><strong>{{ WotM.name }}</strong></router-link><br>
@@ -283,7 +284,8 @@ export default {
     display: flex;
     flex-flow: column;
     overflow: hidden;
-    background: #ECECEC
+    background: #ECECEC;
+    z-index: 1
   }
   #content, #nav { padding-left: 304px; pointer-events: auto; position: relative }
   #logo { max-height: 72px; }
@@ -308,7 +310,7 @@ footer {
   min-height: 100px;
   background-color: black;
   color: white;
-  z-index:200
+  z-index:2
 }
 footer a { color: white; }
 footer .legal { font-size: 80%; padding-right: 16px; float: left }

@@ -5,7 +5,7 @@ server.get('/search', (req, res, skipSearch) => {
   var page = parseInt(req.query.page || req.body.page || 0)
 
   // set constants
-  const resultsPerPage = 20
+  const resultsPerPage = 20 // TODO: make this a global config
 
   // setup return object
   var Search = {}
@@ -17,6 +17,9 @@ server.get('/search', (req, res, skipSearch) => {
 
   // our lookup object
   var lookup = {}
+
+  // override settings
+  var defaultAnon = false
 
   // build criteria to search for
   async.series([
@@ -123,6 +126,31 @@ server.get('/search', (req, res, skipSearch) => {
       })
     },
 
+    // if search includes 'collection: id`
+    function(done) {
+      const regex = /\bcollection:\s*([a-zA-Z0-9\-_]+)|\bcollection:\s*"([^"]+)"/ig
+      var collectIDs = query.match(regex)
+      if (!collectIDs || collectIDs.length==0) return done()
+      lookup._id = []
+      async.each(collectIDs, function(_ids, cb) {
+        if ((collectMatch = regex.exec(_ids)) !== null) {
+          query = query.replace(collectMatch[0], '').replace(/\s{2,}/, ' ').trim()
+          WagoItem.findById([collectMatch[1], collectMatch[2]]).then((collection) => {
+            if (collection && collection.collect) {
+              defaultAnon = true // default anon items to on
+              lookup._id = lookup._id.concat(collection.collect)
+            }
+            cb()
+          })
+        }
+        else {
+          return cb()
+        }
+      }, function() {
+        done()
+      })
+    },
+
     // option for anonymous imports
     function(cb) {
       // ignore if we are searching a specific user
@@ -156,14 +184,30 @@ server.get('/search', (req, res, skipSearch) => {
             }
           })
         }
-        else {
+        else if (anonSearch[1]=='0' || anonSearch[1].toLowerCase()=='false') {
+          // do not exclude anonymous
+          lookup._userId = { "$exists": true }
+          Search.query.context.push({
+            query: anonSearch[0],
+            type: 'option',
+            option: {
+              name: 'anon',
+              enabled: false
+            }
+          })
+        }
+        
+        else if (!defaultAnon) {
           lookup._userId = { "$exists": true }
         }
 
         return cb()
       }
-      else {
+      else if (!defaultAnon) {
         lookup._userId = { "$exists": true }
+        return cb()
+      }
+      else {
         return cb()
       }
     },
