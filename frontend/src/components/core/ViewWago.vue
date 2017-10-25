@@ -2,7 +2,7 @@
   <div id="view-wago">
     <div v-if="!wagoExists && wago.error">
       <ui-warning v-if="wago.error === 'page_not_found'" mode="alert">
-        {{ $t("404. Nothing is found here!") }}
+        404 {{ $t("No results found") }}
       </ui-warning>
       <ui-warning v-else mode="alert">
         Error: {{ wago.error }}

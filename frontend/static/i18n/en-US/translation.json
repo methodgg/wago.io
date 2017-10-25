@@ -1,4 +1,7 @@
 {
+  "404": {
+    " Nothing is found here!": ""
+  },
   "Welcome! You are viewing Wago as [-roleclass-][-name-]": "Welcome!<br>You are viewing Wago.io as <strong class='[-roleclass-]'>[-name-].<br><a href='/logout' class='vr'>Logout</a>",
   "Welcome! You are viewing Wago as a guest": "Welcome!<br>You are viewing Wago.io as a guest.<br>Please <a href='/login' class='vr'>Login</a> for additional options.",
   "Account Settings": "Account Settings",
@@ -338,5 +341,8 @@
   "Version #": "",
   "Date": "",
   "[-count-] collections": "",
-  "[-count-] collections_plural": ""
+  "[-count-] collections_plural": "",
+  "My Profile": "",
+  "My Mentions": "",
+  "My Favorites": ""
 }

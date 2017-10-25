@@ -86,8 +86,11 @@
         </md-list>
       </md-card>
     </div>
-    <div v-else>{{ provider }}...
-      <ui-loading v-if="!wagoExists"></ui-loading>
+    <div v-else>
+      <ui-warning mode="ok">
+        {{ $t("Verifying authentication") }}
+      </ui-warning>
+      <ui-loading></ui-loading>
     </div>
   </div>
 </template>

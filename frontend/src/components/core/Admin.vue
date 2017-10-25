@@ -87,11 +87,11 @@ export default {
   methods: {
     LoadBlog (index) {
       if (index === -1) {
-        vue.blogTitle = ''
-        vue.blogContent = ''
-        vue.blogPublishStatus = 'draft'
-        vue.blogSelected = index
-        vue.blogID = false
+        this.blogTitle = ''
+        this.blogContent = ''
+        this.blogPublishStatus = 'draft'
+        this.blogSelected = index
+        this.blogID = false
       }
       else {
         var vue = this
@@ -149,4 +149,5 @@ export default {
 #admin .md-list-item.selected { background: rgba(0, 0, 0, .7)}
 #admin #blog-sidebar ul { width: 100% }
 #admin #blog-sidebar ul em { font-size: 80%; opacity: .8 }
+#admin .md-dialog p { margin: 1em 0}
 </style>

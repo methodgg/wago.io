@@ -4,6 +4,8 @@
 
  var wowPatches = require('../helpers/wowPatches')
 
+ function doNothing () {}
+
  /**
   * Wago lookup
   */
@@ -373,6 +375,9 @@ server.get('/lookup/profile', (req, res, next) => {
   })
 })
 
+/**
+ * Get a single blog post
+ */
 server.get('/lookup/blog', (req, res) => {
   if (!req.query.id) {
     return res.send(404, {error: "page_not_found"})
@@ -406,6 +411,68 @@ server.get('/lookup/blog', (req, res) => {
       return res.send(404, {error: "page_not_found"})
     }
   })
+})
+
+/**
+ * Get a page of blog posts.
+ * Also includes the first and last ID of overall blog posts.
+ */
+server.get('/lookup/blogs', (req, res) => {
+  if (!req.query.page) {
+    return res.send(404, {error: "page_not_found"})
+  }
+
+  var pageNum = parseInt(req.query.page)
+  if (pageNum <= 0) {
+    return res.send(404, {error: "page_not_found"})
+  }
+  // reduce to zero-index
+  pageNum--
+
+  var data = {}
+  async.parallel([
+    (done) => {
+      Blog.find({publishStatus: 'publish'}).populate('_userId').sort('-date').limit(3).skip(pageNum * 3).then((docs) => {
+        if (docs && docs.length > 0) {
+          var news = []
+          docs.forEach((doc) => {
+            news.push({
+              content: doc.content,
+              date: doc.date,
+              format: doc.format,
+              title: doc.title,
+              _id: doc._id,
+              publishStatus: doc.publishStatus,
+              user: {
+                username: doc._userId.account.username,
+                css: doc._userId.roleclass
+              }
+            })
+          })
+          data.news = news
+          done()
+        }
+        else {
+          data.error = 'no_news_found'
+          done()
+        }
+      })
+    },
+    (done) => {
+      Blog.findOne({publishStatus: 'publish'}).sort('date').select('_id').then((doc) => {
+        data.oldest = doc._id
+        done()
+      })
+    },
+    (done) => {
+      Blog.findOne({publishStatus: 'publish'}).sort('-date').select('_id').then((doc) => {
+        data.latest = doc._id
+        done()
+      })
+    }
+  ], () => {
+    res.send(data)
+  })  
 })
 
 /**

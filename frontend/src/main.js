@@ -241,6 +241,17 @@ router.beforeEach((to, from, next) => {
   // next(false)
 })
 
+import VueAnalytics from 'vue-ua'
+Vue.use(VueAnalytics, {
+  appName: 'wago.io',
+  appVersion: '3.0',
+  trackingId: 'UA-75437214-1',
+  vueRouter: router
+})
+router.afterEach((to, from) => {
+  Vue.analytics.trackView(to)
+})
+
 // setup vue-meta for header
 import Meta from 'vue-meta'
 Vue.use(Meta)
@@ -481,7 +492,7 @@ Vue.use(VueAuth, {
       return this.options.getUrl() + '/auth/facebook'
     },
     clientId: '136578416972916',
-    scope: 'public_profile'
+    scope: 'public_profile email'
   },
   googleData: {url: 'auth/google', method: 'POST', redirect: '/account'},
   googleOauth2Data: {

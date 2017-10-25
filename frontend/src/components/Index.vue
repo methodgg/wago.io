@@ -60,14 +60,8 @@
           <md-button class="md-raised" :disabled="disableSubmit" @click="submitImport()">Submit</md-button>
         </md-whiteframe>
 
-        <div v-for="(news, newsIndex) in latestBlogs" id="sitenews">
-          <md-card>
-            <md-card-header-text>
-              <div class="md-title">{{ news.title }}</div>
-              <div class="md-subhead"><a :href="'/p/' + news.user.username" :class="news.user.css">{{ news.user.username }}</a>, {{ news.date | moment('MMM Do YYYY') }}</div>
-            </md-card-header-text>
-            <vue-markdown v-if="news.format=='markdown'">{{ news.content }}</vue-markdown>
-          </md-card>
+        <div v-if="latestBlogs && latestBlogs.length > 0" id="sitenews">
+          <wago-news :posts="latestBlogs"></wago-news>
         </div>
       </md-layout>
 
@@ -183,11 +177,13 @@
 
 #sitenews { width: 100%}
 #sitenews .md-card {margin: 16px 0 0; width:100%}
+#sitenews .md-card .md-subhead { opacity: 1 }
 
 </style>
 
 <script>
 import CategorySelect from './UI/SelectCategory.vue'
+import WagoNews from './core/News.vue'
 import VueMarkdown from 'vue-markdown'
 
 export default {
@@ -215,7 +211,8 @@ export default {
   },
   components: {
     CategorySelect,
-    'vue-markdown': VueMarkdown
+    'vue-markdown': VueMarkdown,
+    'wago-news': WagoNews
   },
   computed: {
     user () {

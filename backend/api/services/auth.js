@@ -495,10 +495,11 @@ function oAuthLogin(req, res, provider, authUser) {
     break
   
   case 'facebook':
-    query = {"facebook.id": authUser.id}
+    query = {"facebook.email": authUser.email}
     profile = {
       id: authUser.id,
       name: authUser.name,
+      email: authUser.email
     }
     newAcctName = authUser.name
     avatarURL = authUser.picture

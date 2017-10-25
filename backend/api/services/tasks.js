@@ -42,7 +42,7 @@ function MakeTopTenLists () {
   var data = global.TopTenLists || {}
   async.parallel({
     favorites: (done) => {
-      WagoItem.find({hidden: false, private: false}).sort("-popularity.favorite_count").select('name popularity.favorite_count').limit(10).then((faves) => {
+      WagoItem.find({hidden: false, private: false}).sort("-popularity.favorite_count").select('_id name popularity.favorite_count').limit(10).then((faves) => {
         data.faves = faves
         done()
       })
@@ -60,7 +60,7 @@ function MakeTopTenLists () {
       })
     },
     viewsThisWeek: (done) => {
-      WagoItem.find({hidden: false, private: false}).sort("-popularity.viewsThisWeek").select('name popularity.viewsThisWeek').limit(10).then((popular) => {
+      WagoItem.find({hidden: false, private: false}).sort("-popularity.viewsThisWeek").select('_id name popularity.viewsThisWeek').limit(10).then((popular) => {
         data.popular = popular
         done()
       })

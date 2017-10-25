@@ -8,6 +8,7 @@ const Admin = resolve => require(['@/components/core/Admin.vue'], resolve)
 const MenuWeakAuras = resolve => require(['@/components/core/Menu-WeakAuras.vue'], resolve)
 const MenuElvUI = resolve => require(['@/components/core/Menu-ElvUI.vue'], resolve)
 const MenuVuhdo = resolve => require(['@/components/core/Menu-Vuhdo.vue'], resolve)
+// const MenuCollections = resolve => require(['@/components/core/Menu-Collections.vue'], resolve)
 
 const TermsOfService = resolve => require(['@/components/core/TermsOfService.vue'], resolve)
 const PrivacyPolicy = resolve => require(['@/components/core/PrivacyPolicy.vue'], resolve)
@@ -15,6 +16,7 @@ const PrivacyPolicy = resolve => require(['@/components/core/PrivacyPolicy.vue']
 const ViewWago = resolve => require(['@/components/core/ViewWago.vue'], resolve)
 const ViewProfile = resolve => require(['@/components/core/ViewProfile.vue'], resolve)
 
+const News = resolve => require(['@/components/core/News.vue'], resolve)
 const Search = resolve => require(['@/components/core/Search.vue'], resolve)
 
 const OAuth = resolve => require(['@/components/UI/WagoOauth.vue'], resolve)
@@ -78,6 +80,11 @@ export default {
     { path: '/vuhdo/:c1/:c2', component: Search, props: (route) => ({ contextSearch: 'Type: Vuhdo' + GetContextTag(route.params) }) },
     { path: '/vuhdo/:c1/:c2/:c3', component: Search, props: (route) => ({ contextSearch: 'Type: Vuhdo' + GetContextTag(route.params) }) },
     { path: '/vuhdo/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ contextSearch: 'Type: Vuhdo' + GetContextTag(route.params) }) },
+    // { path: '/collections', component: MenuCollections },
+    { path: '/collections/:c1', component: Search, props: (route) => ({ contextSearch: 'Type: Collection' + GetContextTag(route.params) }) },
+    { path: '/collections/:c1/:c2', component: Search, props: (route) => ({ contextSearch: 'Type: Collection' + GetContextTag(route.params) }) },
+    { path: '/collections/:c1/:c2/:c3', component: Search, props: (route) => ({ contextSearch: 'Type: Collection' + GetContextTag(route.params) }) },
+    { path: '/collections/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ contextSearch: 'Type: Collection' + GetContextTag(route.params) }) },
 
     { path: '/p/:profile', component: ViewProfile, props: true },
     { path: '/my/stars', component: Search, props: (route) => ({ contextSearch: 'Starred: True' }) },
@@ -89,6 +96,11 @@ export default {
 
     // search
     { path: '/search/:query', component: Search },
+
+    // news
+    { path: '/news', component: News },
+    { path: '/news/:newsID', component: News },
+    { path: '/news/:newsID/:sso', component: News },
 
     // SSO oauth callbacks
     { path: '/auth/:provider', component: OAuth },
