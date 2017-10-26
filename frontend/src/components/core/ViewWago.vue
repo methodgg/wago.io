@@ -818,62 +818,10 @@ export default {
     },
     toggleFrame (frame) {
       this.showPanel = frame
-      if (frame) {
-        return
-      }
-      var div
-      /* eslint-disable no-cond-assign */
-      switch (frame) {
-        case 'description':
-          if (this.showDescription = !this.showDescription) {
-            div = '#wago-description-container'
-          }
-          break
-
-        case 'comments':
-          if (this.showComments = !this.showComments) {
-            div = '#wago-comments-container'
-          }
-          break
-
-        case 'editor':
-          if (this.showEditor = !this.showEditor) {
-            div = '#wago-editor-container'
-          }
-          break
-
-        case 'config':
-          if (this.showConfig = !this.showConfig) {
-            div = '#wago-config-container'
-          }
-          if (this.showConfig) {
-            this.$nextTick(function () {
-              setupPasteImage(this)
-            })
-          }
-          break
-
-        case 'versions':
-          if (this.showVersions = !this.showVersions) {
-            div = '#wago-versions-container'
-          }
-          break
-
-        case 'collections':
-          if (this.showCollections = !this.showCollections) {
-            div = '#wago-collections-container'
-          }
-          break
-
-        case 'embed':
-          if (this.showEmbed = !this.showEmbed) {
-            div = '#wago-embed-container'
-          }
-          break
-      }
-
-      if (div) {
-        this.$scrollTo(div)
+      if (frame === 'config') {
+        this.$nextTick(function () {
+          setupPasteImage(this)
+        })
       }
     },
     toTop () {
@@ -1102,20 +1050,12 @@ export default {
 
     onUploadFile (files) {
       var vue = this
+      /* eslint-disable no-cond-assign */
       for (var i = 0, file; file = files[i]; i++) {
         vue.uploadFileProgress.push(0)
         var uploadIndex = vue.uploadFileProgress.length - 1
 
-        var data = new FormData()
-        data.append('wagoID', vue.wago._id)
-        data.append('file', file)
-        var config = {
-          onUploadProgress: (progressEvent) => {
-            var percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total)
-            vue.uploadFileProgress[uploadIndex] = percentCompleted
-          }
-        }
-        vue.http.post('/wago/upload/image', data, config)
+        vue.http.upload('/wago/upload/image/base64', file, {wagoID: vue.wago._id})
           .then((res) => {
             vue.uploadFileProgress[uploadIndex] = 100
             vue.$set(vue.wago.screens, vue.wago.screens.length, res)
@@ -1151,6 +1091,12 @@ export default {
         wagoID: vue.wago._id,
         url: this.pasteURL
       }).then((res) => {
+        if (res.error) {
+          vue.pasteURLError = true
+          vue.pasteURLStatus = vue.$t(res.error)
+          vue.pasteURLUploading = false
+          return
+        }
         if (res.type === 'screenshot') {
           vue.$set(vue.wago.screens, vue.wago.screens.length, res)
         }

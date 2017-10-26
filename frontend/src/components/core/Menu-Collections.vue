@@ -16,7 +16,7 @@
             <div class="md-list-text-container">
               <router-link :to="'/collections/' + cls.slug">{{ cls.text }}</router-link>
               <span>
-                <router-link  v-for="spec in cls.specs" v-bind:key="spec.id" :to="'/collections/' + spec.slug">{{ spec.text.replace(cls.text, '').trim() }}</router-link>
+                <router-link v-for="spec in cls.specs" v-bind:key="spec.id" :to="'/collections/' + spec.slug">{{ spec.text.replace(cls.text, '').trim() }}</router-link>
               </span>
             </div>
           </md-list-item>

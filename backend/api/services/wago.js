@@ -329,7 +329,7 @@ server.post('/wago/upload/image/url', (req, res) => {
           }
           else {
             console.log('unknown mime', mime)
-            res.send({error: 'unknown source'})
+            res.send({error: 'No image found'})
           }
         })
       })
@@ -348,7 +348,7 @@ server.post('/wago/upload/image/base64', (req, res) => {
       return res.send(404, {error: "no_wago"})
     }
 
-    var img = req.body.image || ''
+    var img = req.body.image || req.body.file || ''
     var match = img.match(/^data:image\/(png|jpg|gif|jpeg);base64,/i)
     if (img && match) {
       if (match[1] === 'jpeg') {
@@ -381,7 +381,7 @@ server.post('/wago/upload/image/base64', (req, res) => {
           res.send({error: 'could not save'})
         }
         else {
-          screen.save().then(() => {
+          screen.save().then((doc) => {
             res.send({success: true, _id: doc._id.toString(), url: doc.url})
           })
         }
