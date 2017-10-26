@@ -20,8 +20,10 @@
             <ui-image :img="wago.user.avatar"></ui-image>
           </md-avatar>
           <div class="item">
-            <div class="md-title" v-if="wago.UID && wago.user.searchable" v-html="$t('Imported by [-URL-][-roleClass-][-name-]', {URL: '/p/' + encodeURIComponent(wago.user.name), roleClass: wago.user.roleClass, name: wago.user.name})"></div>
-            <div class="md-title" v-else-if="wago.UID" v-html="$t('Imported by [-roleClass-][-name-]', {roleClass: wago.user.roleClass, name: wago.user.name})"></div>
+            <div class="md-title" v-if="wago.type === 'COLLECTION' && wago.UID && wago.user.searchable" v-html="$t('Collected by [-name-]', {name: `<a href='/p/${encodeURIComponent(wago.user.name)}' class='${wago.user.roleClass}'>${wago.user.name}</a>`, 'interpolation': {'escapeValue': false}})"></div>
+            <div class="md-title" v-else-if="wago.type === 'COLLECTION' && wago.UID" v-html="$t('Imported by [-name-]', {name: `<span class='${wago.user.roleClass}'>${wago.user.name}</span>`, 'interpolation': {'escapeValue': false}})"></div>
+            <div class="md-title" v-else-if="wago.UID && wago.user.searchable" v-html="$t('Imported by [-name-]', {name: `<a href='/p/${encodeURIComponent(wago.user.name)}' class='${wago.user.roleClass}'>${wago.user.name}</a>`, 'interpolation': {'escapeValue': false}})"></div>
+            <div class="md-title" v-else-if="wago.UID" v-html="$t('Imported by [-name-]', {name: `<span class='${wago.user.roleClass}'>${wago.user.name}</span>`, 'interpolation': {'escapeValue': false}})"></div>
             <div class="md-title" v-else>{{ $t("Imported by guest") }}</div>
             <div class="md-subhead">{{ wago.date.modified | moment('MMM Do YYYY') }} [{{ wago.patch }}]</div>
           </div>
@@ -682,11 +684,25 @@ export default {
           vue.showMoreCollections = false
         }
 
+        if (!res.description.text) {
+          res.description.text = this.MakeDefaultDescription(res)
+        }
+
         vue.$store.commit('setWago', res)
         // initial config
         this.editName = res.name
         this.editSlug = res.slug
         this.editDesc = res.description.text
+
+        vue.doNotReloadWago = true
+        window.preventScroll = true
+        // make sure we're using custom url
+        vue.$router.replace('/' + res.slug)
+        setTimeout(function () {
+          vue.doNotReloadWago = false
+          window.preventScroll = undefined
+        }, 600)
+
         if (res.visibility.hidden) {
           this.editVisibility = 'Hidden'
         }
@@ -717,6 +733,36 @@ export default {
           image: res.screens && res.screens[0] && res.screens[0].src || false
         })
       })
+    },
+    MakeDefaultDescription (wago) {
+      var desc = ''
+      switch (wago.type) {
+        case 'WEAKAURA':
+          if (wago.code && wago.code.json) {
+            var json = JSON.parse(wago.code.json)
+            if (json.c) {
+              for (var k in json.c) {
+                var caura = json.c[k]
+                if (caura.id && caura.regionType) {
+                  desc = desc + caura.id + ' (' + caura.regionType + ')\n'
+                }
+              }
+            }
+            else if (json.d) {
+              desc = desc + json.d.id + ' (' + json.d.regionType + ')\n'
+              if (json.d.desc) {
+                desc = desc + '\n\n' + json.d.desc
+              }
+            }
+          }
+          return desc
+
+        case 'ELVUI':
+        case 'VUHDO':
+        case 'COLLECTION':
+        case 'SNIPPET':
+          return ''
+      }
     },
     copyEncoded () {
       try {
@@ -1338,6 +1384,7 @@ export default {
 }
 
 #wago-actions {text-align: right; margin-right: 8px}
+#wago-actions button { margin-top: 0 }
 .copy-import-button { border: 2px solid #c1272d; border-radius: 25px; margin: 4px 28px }
 #wago-collections-container button { margin-left: -2px }
 #wago-floating-header .copy-import-button { margin: -2px 0 0 auto }

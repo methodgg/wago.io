@@ -43,7 +43,7 @@ export default {
   methods: {
     setOptions (values) {
       if (values && values.length > 0) {
-        this.categoryOptions = Categories.getChildren(values[values.length - 1], this.$t)
+        this.categoryOptions = Categories.getChildren(values[values.length - 1], this.type, this.$t)
       }
       else {
         this.categoryOptions = Categories.rootCategories(this.$t, this.type)

@@ -8,7 +8,7 @@ const Admin = resolve => require(['@/components/core/Admin.vue'], resolve)
 const MenuWeakAuras = resolve => require(['@/components/core/Menu-WeakAuras.vue'], resolve)
 const MenuElvUI = resolve => require(['@/components/core/Menu-ElvUI.vue'], resolve)
 const MenuVuhdo = resolve => require(['@/components/core/Menu-Vuhdo.vue'], resolve)
-// const MenuCollections = resolve => require(['@/components/core/Menu-Collections.vue'], resolve)
+const MenuCollections = resolve => require(['@/components/core/Menu-Collections.vue'], resolve)
 
 const TermsOfService = resolve => require(['@/components/core/TermsOfService.vue'], resolve)
 const PrivacyPolicy = resolve => require(['@/components/core/PrivacyPolicy.vue'], resolve)
@@ -80,7 +80,7 @@ export default {
     { path: '/vuhdo/:c1/:c2', component: Search, props: (route) => ({ contextSearch: 'Type: Vuhdo' + GetContextTag(route.params) }) },
     { path: '/vuhdo/:c1/:c2/:c3', component: Search, props: (route) => ({ contextSearch: 'Type: Vuhdo' + GetContextTag(route.params) }) },
     { path: '/vuhdo/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ contextSearch: 'Type: Vuhdo' + GetContextTag(route.params) }) },
-    // { path: '/collections', component: MenuCollections },
+    { path: '/collections', component: MenuCollections },
     { path: '/collections/:c1', component: Search, props: (route) => ({ contextSearch: 'Type: Collection' + GetContextTag(route.params) }) },
     { path: '/collections/:c1/:c2', component: Search, props: (route) => ({ contextSearch: 'Type: Collection' + GetContextTag(route.params) }) },
     { path: '/collections/:c1/:c2/:c3', component: Search, props: (route) => ({ contextSearch: 'Type: Collection' + GetContextTag(route.params) }) },

@@ -51,8 +51,8 @@ export default {
       return text.toString().toLowerCase().trim()
         .replace(/\s+/g, '-')           // Replace spaces with -
         .replace(/&/g, '-and-')         // Replace & with 'and'
-        .replace(/[^\w-]+/g, '')       // Remove all non-word chars
-        .replace(/-+/g, '-')           // Replace multiple - with single -
+        .replace(/[^\w-]+/g, '')        // Remove all non-word chars
+        .replace(/-+/g, '-')            // Replace multiple - with single -
     },
     fetchNews () {
       var newsID = this.$route.params.newsID
@@ -62,7 +62,7 @@ export default {
         this.blogs = JSON.parse(JSON.stringify(this.posts))
       }
       // if viewing a specific page
-      else if (newsID && parseInt(newsID) > 1) {
+      else if (newsID && parseInt(newsID) > 0) {
         this.LoadNewsPage(parseInt(newsID))
       }
       // if viewing a specific article
@@ -86,6 +86,7 @@ export default {
       }).then((res) => {
         if (res._id) {
           vue.blogs.push(res)
+          vue.$router.replace('/news/' + newsID + '/' + vue.slugify(res.title))
         }
         vue.loading = false
       })
