@@ -1,31 +1,60 @@
 <template>
-  <div>
-    <ui-warning v-if="requireBetaAccess">{{ $t("Wago beta server is only available to Patreon subscribers") }}</ui-warning>
-    <md-layout>
-      <form id="login-form" novalidate v-on:submit.prevent="doLogin">
-        <md-card><md-card-area>
+  <md-layout>
+    <md-layout md-column>
+      <md-card>
+        <md-card-area>
           <md-card-header>
             <h2>{{ $t("Log into Wago") }}</h2>
           </md-card-header>
-          
           <md-card-content>
+            <form id="login-form" novalidate v-on:submit.prevent="doLogin">
+              <md-input-container>
+                <label>{{ $t("Username") }}</label>
+                <md-input type="text" id="login-name"></md-input>
+              </md-input-container>
+              
+              <md-input-container>
+                <label>{{ $t("Password") }}</label>
+                <md-input type="password" id="login-password"></md-input>
+              </md-input-container>
+              
+              <md-button class="md-raised md-primary" type="submit" @click="doLogin">{{ $t("Log in") }}</md-button>
+            </form>
+          </md-card-content>
+        </md-card-area>
+      </md-card>
+      <md-card>
+        <h2>{{ $t("Create Account") }}</h2>
+        <md-card-content>
+          <p>{{ $t("Wago does not collect email addresses and therefore has no forgotten password function; we recommend using one of the social logins on the right") }}</p>
+          <form id="create-acct" novalidate v-on:submit.prevent="createAcct">
             <md-input-container>
               <label>{{ $t("Username") }}</label>
-              <md-input type="text" id="login-name"></md-input>
+              <md-input type="text" id="create-name"></md-input>
             </md-input-container>
-            
+
             <md-input-container>
               <label>{{ $t("Password") }}</label>
-              <md-input type="password" id="login-password"></md-input>
+              <md-input type="password" id="create-password"></md-input>
             </md-input-container>
-            
-            <md-button class="md-raised md-primary" type="submit">{{ $t("Log in") }}</md-button>
-          </md-card-content>
-        </md-card-area></md-card>
-      </form>
-      <wago-oauth :user="false"></wago-oauth>
+
+            <md-input-container>
+              <label>{{ $t("Confirm Password") }}</label>
+              <md-input type="password" id="create-password2"></md-input>
+            </md-input-container>
+
+            <md-button class="md-raised md-primary" type="submit" @click="createAcct">{{ $t("Create account") }}</md-button>
+          </form>
+        </md-card-content>
+      </md-card>
     </md-layout>
-  </div>
+    <md-layout md-column>
+      <md-card>
+        <h2>{{ $t("Account Status") }}</h2>
+      </md-card>
+      <wago-oauth></wago-oauth>
+    </md-layout>
+  </md-layout>   
 </template>
 
 <script>
@@ -35,17 +64,14 @@ export default {
   },
   methods: {
     doLogin: function () {
-      // var router = this.$router
       var vue = this
-      var username = document.getElementById('login-name').value
-      var password = document.getElementById('login-password').value
-
+      var username = document.getElementById('login-name').value.trim()
+      var password = document.getElementById('login-password').value.trim()
       // validate input
       if (!username.length || !password.length) {
-        window.eventHub.$emit('showSnackBar', vue.$t('error:Invalid Login'))
+        window.eventHub.$emit('showSnackBar', vue.$t('Invalid Login'))
         return
       }
-
       // attempt to login
       vue.http.post('/auth/login', {
         username: username,
@@ -55,11 +81,36 @@ export default {
         if (res.locale && vue.$store.state.locale !== res.locale) {
           vue.$store.commit('setLocale', res.locale)
         }
-
         // successful login is handled by http interceptor
         if (!res.login || !res.token || !res.user) {
-          window.eventHub.$emit('showSnackBar', vue.$t('error:Invalid Login'))
+          window.eventHub.$emit('showSnackBar', vue.$t('Invalid Login'))
         }
+      })
+    },
+    createAcct: function () {
+      var vue = this
+      var username = document.getElementById('create-name').value.trim()
+      var password = document.getElementById('create-password2').value.trim()
+      var password2 = document.getElementById('create-password2').value.trim()
+
+      if (!username) {
+        return window.eventHub.$emit('showSnackBar', vue.$t('Passwords do not match'))
+      }
+      else if (!password || password.length < 6) {
+        return window.eventHub.$emit('showSnackBar', vue.$t('Must set a password of at least six characters in length'))
+      }
+      else if (password !== password2) {
+        return window.eventHub.$emit('showSnackBar', vue.$t('Passwords do not match'))
+      }
+
+      vue.http.post('/auth/create', {
+        username: username,
+        password: password
+      }).then((res) => {
+        if (res.error) {
+          return window.eventHub.$emit('showSnackBar', res.error)
+        }
+        // success is handled by http interceptor
       })
     }
   },
@@ -90,5 +141,4 @@ export default {
 </script>
 
 <style>
-
 </style>

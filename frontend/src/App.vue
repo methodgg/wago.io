@@ -15,7 +15,7 @@
           <md-list-expand>
             <md-list>
               <md-list-item><router-link :to="'/p/'+User.name">{{ $t("My Profile") }}</router-link></md-list-item>
-              <md-list-item><router-link to="/my/mentions">{{ $t("My Mentions") }}</router-link> <span class="unreadCount" v-if="User.unreadMentions > 0">{{ User.unreadMentions }}</span></md-list-item>
+              <md-list-item><router-link to="/my/mentions">{{ $t("My Mentions") }} <span class="unreadCount" v-if="User.unreadMentions > 0">{{ User.unreadMentions }}</span></router-link></md-list-item>
               <md-list-item><router-link to="/my/stars">{{ $t("My Favorites") }}</router-link></md-list-item>
               <md-list-item><router-link to="/account">{{ $t("Account Settings") }}</router-link></md-list-item>
               <md-list-item v-if="User.access.admin"><router-link to="/admin">Admin</router-link></md-list-item>
@@ -45,7 +45,7 @@
         </form>
         <md-list v-if="LoggedIn" id="usernav">
           <md-list-item><router-link :to="'/p/'+User.name">{{ $t("My Profile") }}</router-link></md-list-item>
-          <md-list-item><router-link to="/my/mentions">{{ $t("My Mentions") }}</router-link> <span class="unreadCount" v-if="User.unreadMentions > 0">{{ User.unreadMentions }}</span></md-list-item>
+          <md-list-item><router-link to="/my/mentions">{{ $t("My Mentions") }} <span class="unreadCount" v-if="User.unreadMentions.length > 0">{{ User.unreadMentions.length }}</span></router-link></md-list-item>
           <md-list-item><router-link to="/my/stars">{{ $t("My Favorites") }}</router-link></md-list-item>
           <md-list-item><router-link to="/account">{{ $t("Account Settings") }}</router-link></md-list-item>
           <md-list-item v-if="User.access.admin"><router-link to="/admin">Admin</router-link></md-list-item>
@@ -322,6 +322,8 @@ footer .md-bottom-bar-item.md-active .md-icon, footer .md-bottom-bar-item.md-act
 
 #usernav { padding: 0; background-color: #ccc; padding-top: 8px}
 #usernav .md-subheader { padding-left: 0;}
+#usernav .md-list-item a { justify-content: start }
+#usernav .md-list-item a span { margin-left: 8px; line-height: 18px }
 .autoscroll { overflow: auto; margin-bottom: 100px }
 .md-sidenav h2 { background: black; margin:0; padding: 16px 24px; text-align: center}
 #user-info { background: #CCC; padding: 16px 16px 0 }
@@ -350,5 +352,5 @@ footer .md-bottom-bar-item.md-active .md-icon, footer .md-bottom-bar-item.md-act
 .md-card > h3 { margin: 0 }
 .md-card > h3 + .md-subheader { padding:0; min-height:0 }
 
-.unreadCount { background: #c1272d; color: white; padding: 2px; border-radius: 2px }
+.unreadCount { background: #c1272d; color: white; padding: 4px; border-radius: 2px;  }
 </style>

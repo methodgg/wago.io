@@ -279,14 +279,14 @@ server.get('/search', (req, res, skipSearch) => {
             }
             mentions.forEach((comment) => {
               // only include what the user has an alert on
-              if (alertSearch[1]=='1' || alertSearch[1]=='true') {
+              if (alertSearch[1]=='1' || alertSearch[1].toLowerCase()=='true') {
                 lookup._id = lookup._id || {"$in": []}
-                lookup._id["$in"].push(mentions.wagoID)
+                lookup._id["$in"].push(comment.wagoID)
               }
               // only include what the user has an alert on (why would anyone ever want to?)
               else {
                 lookup._id = lookup._id || {"$nin": []}
-                lookup._id["$nin"].push(mentions.wagoID)
+                lookup._id["$nin"].push(comment.wagoID)
               }
             })
             return cb()

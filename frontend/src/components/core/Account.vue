@@ -121,12 +121,73 @@
           </div>
           <br>
           <editor v-model="demoEditorContent" @init="editorInit" lang="lua" :theme="selectEditorTheme" width="100%" height="115"></editor>
+          <hr>
+          <p v-if="$store.state.user.localAcct">{{ $t("Change password") }}</p>
+          <p v-else>{{ $t("Create password") }}</p>
+          <p>{{ $t("Wago does not store emails or any other way of contacting users, and therefore has no password recovery system") }}</p>
+
+          <md-input-container v-if="$store.state.user.localAcct" :class="{ 'md-input-invalid': currentPasswordError.length > 0 }">
+            <label>{{ $t("Current password") }}</label>
+            <md-input v-model="currentPassword" type="password"></md-input>
+            <span class="md-error" v-if="currentPasswordError.length>0">{{ currentPasswordError }}</span>
+          </md-input-container>
+
+          <md-input-container :class="{ 'md-input-invalid': (newPassword.length>0 && newPassword.length < 6) }">
+            <label>{{ $t("New password") }}</label>
+            <md-input v-model="newPassword" type="password"></md-input>
+            <span class="md-error" v-if="newPassword.length>0 && newPassword.length < 6">{{ $t("Password must have at least 6 characters") }}</span>
+          </md-input-container>
+
+          <md-input-container :class="{ 'md-input-invalid': (newPassword.length>0 && newPassword.length < 6) }">
+            <label>{{ $t("Confirm password") }}</label>
+            <md-input v-model="confirmPassword" type="password"></md-input>
+            <span class="md-error" v-if="confirmPassword.length>0 && newPassword.length > 0 && confirmPassword !== newPassword">{{ $t("Password does not match") }}</span>
+          </md-input-container>
+
+          <md-button @click="onChangePassword">{{ $t("Submit") }}</md-button>
+
         </md-card-content>
       </md-card>
     </md-layout>
     <md-layout md-column>
       <md-card>
         <h2>{{ $t("Account Status") }}</h2>
+        <md-card-content>
+          <ui-warning v-if="User.access.human" mode="info">
+            {{ $t("Anti-spam") }}<br>
+            {{ $t("Your account is verified as belonging to a human, hyperlinks are allowed in your descriptions") }}
+          </ui-warning>
+          <ui-warning v-else>
+            {{ $t("Anti-spam") }}<br>
+            {{ $t("To enable hyperlinks in your descriptions, connect or update your Wago account with a Battlenet account with a max level character, or with a Patreon subscription") }}
+          </ui-warning>
+          <br>
+          <ui-warning v-if="User.access.goldSub || User.access.ambassador || User.access.translator" mode="gold">
+            <span v-if="User.access.goldSub">{{ $t("Gold Subscriber") }}</span>
+            <span v-else-if="User.access.admin">Wago.io Admin</span>
+            <span v-else-if="User.access.ambassador">Wago.io Ambassador</span>
+            <span v-else-if="User.access.translator">Wago.io Translator</span>
+            <br>{{ $t("Custom URLs are enabled") }}
+            <br>{{ $t("Animated avatars are enabled") }}
+            <br>{{ $t("Access to Wago beta server") }} <a href="https://t1000.wago.io/">https://t1000.wago.io/</a>
+          </ui-warning>
+          <ui-warning v-else-if="User.access.sub" mode="ok">
+            <span>{{ $t("Subscriber") }}</span>
+            <br>{{ $t("Animated avatars are enabled") }}
+            <br>{{ $t("Access to Wago beta server") }} <a href="https://t1000.wago.io/">https://t1000.wago.io/</a>
+          </ui-warning>
+
+          <div v-if="User.discord && User.discord.id">
+            <h2>Discord</h2>
+            <md-checkbox v-model="discordOptionFaveUpdateMsg" @change="onChangeDiscordOptions">{{ $t("Recieve a private message on Discord whenever a Wago you have starred is updated") }}</md-checkbox><br>
+            <md-checkbox v-model="discordOptionCommentMsg" @change="onChangeDiscordOptions">{{ $t("Recieve a private message on Discord whenever you recieve a comment") }}</md-checkbox><br>
+            <md-input-container>
+              <label>{{ $t("Have your own Discord server? Enter a webhook to broadcast to your selected channel whenever you create or update a Wago") }}</label>
+              <md-input v-model="discordOptionCreateWebhook" @change="onChangeDiscordOptions" :debounce="600"></md-input>
+              <span class="md-error" v-if="discordOptionCreateWebhookStatus.length > 0">{{ discordOptionCreateWebhookStatus }}</span>
+            </md-input-container>
+          </div>
+        </md-card-content>
       </md-card>
       <wago-oauth></wago-oauth>
     </md-layout>
@@ -161,7 +222,15 @@ function()
   if wago() then
     return true
   end
-end`
+end`,
+      currentPasswordError: '',
+      currentPassword: '',
+      newPassword: '',
+      confirmPassword: '',
+      discordOptionFaveUpdateMsg: this.$store.state.user.discord.options.faveUpdateMsg,
+      discordOptionCommentMsg: '',
+      discordOptionCreateWebhook: '',
+      discordOptionCreateWebhookStatus: ''
     }
   },
   computed: {
@@ -183,6 +252,9 @@ end`
       else if (this.importDefaultVisibility === 'Hidden') {
         return this.$t('Only viewable with link but will not show in search results')
       }
+    },
+    User () {
+      return this.$store.state.user
     }
   },
   watch: {
@@ -336,6 +408,51 @@ end`
       this.http.post('/account/update/theme', {
         theme: this.selectTheme,
         editor: theme
+      })
+    },
+
+    onChangePassword () {
+      if (this.$store.state.user.localAcct && !this.currentPassword) {
+        this.currentPasswordError = this.$t('Enter your current password')
+      }
+
+      if (this.newPassword.length >= 6 && this.confirmPassword >= 6 && this.newPassword === this.confirmPassword) {
+        var vue = this
+        this.http.post('/auth/changepass', {
+          newPass: this.newPassword,
+          password: this.currentPassword
+        }).then((res) => {
+          if (res.success) {
+            window.eventHub.$emit('showSnackBar', vue.$t('Password is saved'))
+            vue.currentPasswordError = ''
+            vue.currentPassword = ''
+            vue.newPassword = ''
+            vue.confirmPassword = ''
+          }
+          else {
+            this.currentPasswordError = vue.$t('Incorrect password')
+          }
+        }).catch((err) => {
+          console.log(err)
+          window.eventHub.$emit('showSnackBar', vue.$t('Error could not save'))
+        })
+      }
+    },
+
+    onChangeDiscordOptions () {
+      var params = {
+        msgOnFaveUpdate: this.discordOptionFaveUpdateMsg,
+        msgOnComment: this.discordOptionCommentMsg,
+        createWebhook: this.discordOptionCreateWebhook
+      }
+      var vue = this
+      this.http.post('/account/discord/options', params).then((res) => {
+        if (res.error) {
+          window.eventHub.$emit('showSnackBar', res.error)
+        }
+      }).catch((err) => {
+        console.log(err)
+        window.eventHub.$emit('showSnackBar', vue.$t('Error could not save'))
       })
     }
   }

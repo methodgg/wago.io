@@ -2,8 +2,6 @@ local bit = require("bit")
 WeakAuras = {}
 WeakAuras.L = {}
 
-
-
 function strmatch(a,b)
 	return string.match(a,b)
 end
@@ -35,9 +33,6 @@ end
 -- do nothing functions
 function ChatFrame_AddMessageEventFilter() end
 function hooksecurefunc() end
-
-
-
 
 function CreateFrame()
     frame = {}

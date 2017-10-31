@@ -377,6 +377,7 @@
               <edit-elvui v-if="wago.type=='ELVUI'"></edit-elvui>
               <edit-snippet v-else-if="wago.type=='SNIPPET'"></edit-snippet>
               <edit-vuhdo v-else-if="wago.type=='VUHDO'"></edit-vuhdo>
+              <edit-vuhdo v-else-if="wago.type=='GRID2'"></edit-vuhdo>
               <edit-weakaura v-else-if="wago.type=='WEAKAURA'"></edit-weakaura>
               <div v-else>{{ $t("Error unknown type [-type-]", {type: type}) }}</div>
             </div>

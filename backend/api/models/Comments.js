@@ -15,7 +15,7 @@ const Schema = new mongoose.Schema({
 })
 
 Schema.statics.findUnread = function(userID) {
-  return this.find({"usersTagged.userID": userID, read: false}).select('wagoID').exec()
+  return this.find({usersTagged: {$elemMatch: {userID: userID, read: false}}}).select('wagoID').exec()
 }
 
 const Comments = mongoose.model('Comments', Schema)

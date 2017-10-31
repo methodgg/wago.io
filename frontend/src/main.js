@@ -134,6 +134,17 @@ const store = new Vuex.Store({
       }
     },
 
+    userClearMention (state, commentID) {
+      if (!state.user || !state.user.UID) {
+        return
+      }
+      for (var i = 0; i < state.user.unreadMentions.length; i++) {
+        if (state.user.unreadMentions[i]._id === commentID) {
+          state.user.unreadMentions.splice(i, 1)
+        }
+      }
+    },
+
     setPageInfo (state, page) {
       if (!page.title) {
         page.title = state.pageInfo.title

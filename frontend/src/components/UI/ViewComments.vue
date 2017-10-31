@@ -14,6 +14,7 @@
     <div v-if="commentTotal>0">
       <md-card v-for="(comment, index) in comments" v-bind:key="index">
         <md-card-header>
+          <ui-warning v-if="User.UID && isUnread(comment)" mode="alert">{{ $t("Attention! Unread mention") }}</ui-warning>
           <md-avatar>
             <ui-image :img="comment.author.avatar"></ui-image>
           </md-avatar>
@@ -28,14 +29,15 @@
         <md-card-content v-html="parseCommentText(comment)"></md-card-content>
         <div v-if="User.UID" style="margin: 0 0 0 16px">
           <md-card-actions v-if="replyID != index">
+            <md-button v-if="isUnread(comment)" @click="clearAlert(index)">{{ $t("Clear alert") }}</md-button>
             <md-button @click="openReply(index)">{{ $t("Reply") }}</md-button>
           </md-card-actions>
           <div v-else>
             <md-input-container>
               <label>{{ $t('Post comment') }}</label>
               <md-textarea :id="'post-comment-' + index" v-focus v-model.trim="replyText"></md-textarea><br>
-              <md-button @click.once="submitComment()" :disabled="replyText == '@'+comment.author.name+' ' || replyText.length<5">{{ $t("Submit") }}</md-button>
             </md-input-container>
+            <md-button @click.once="submitComment()" :disabled="replyText == '@'+comment.author.name+' ' || replyText.length<5">{{ $t("Submit") }}</md-button>
           </div>
         </div>
       </md-card>
@@ -92,12 +94,18 @@ export default {
     },
     openReply (postID) {
       if (postID >= 0) {
+        this.clearAlert(postID)
         this.replyText = '@' + this.comments[postID].author.name + ' '
       }
       else {
         this.replyText = ' '
       }
       this.replyID = postID
+    },
+    clearAlert (postID) {
+      this.http.post('/comments/clear', {comment: this.comments[postID].cid}).then((res) => {
+        this.$store.commit('userClearMention', this.comments[postID].cid)
+      })
     },
     submitComment () {
       var params = {}
@@ -109,6 +117,14 @@ export default {
       this.http.post('/comments/new', params).then(function (res) {
         vue.comments = res.concat(vue.comments)
       })
+    },
+    isUnread (comment) {
+      for (var i = 0; i < this.User.unreadMentions.length; i++) {
+        if (this.User.unreadMentions[i]._id === comment.cid) {
+          return true
+        }
+      }
+      return false
     }
   },
   computed: {
@@ -123,9 +139,9 @@ export default {
 </script>
 
 <style>
-#comments .md-card { padding: 0; margin: 0 16px 0 0; }
-#comments button { margin-left: -2px}
-.md-card > p { padding: 16px}
+#comments .md-card { padding: 0; margin:0 0 16px 0 }
+#comments .md-card-actions { justify-content: start}
+#comments .md-card > p { padding: 16px}
 @media (max-width: 600px) {
   #comments .md-card { margin: 0 }
 }

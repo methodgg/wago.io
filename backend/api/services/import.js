@@ -5,6 +5,7 @@ const RegexLuaSnippet = /\b(and|break|do|else|elseif|end|false|for|if|in|local|n
 const RegexPasteBinLink = /^https?:\/\/pastebin.com\/([\w]+)$/
 const RegexWeakAura = /^[a-zA-Z0-9\(\)]*$/
 const RegexElv = /^[a-zA-Z0-9=\+\/]*$/
+const RegexGrid = /^\[=== (.*) profile ===\]\n[ABCDEF0-9\n]+\n\[===/m
 
 /**
  * Scans an import string and validates the input.
@@ -27,17 +28,27 @@ function ScanImport (req, res, next, test) {
       case 'WEAKAURA':
         test.notElvUI = true
         test.notVuhdo = true
+        test.notGrid2 = true
         break
       case 'ELVUI':
-        test.NotWeakAura = true
+        test.notWeakAura = true
         test.notVuhdo = true
+        test.notGrid2 = true
         break
       case 'VUHDO':
-        test.NotWeakAura = true
+        test.notWeakAura = true
         test.notElvUI = true
+        test.notGrid2 = true
+        break      
+      case 'GRID':
+        test.notWeakAura = true
+        test.notElvUI = true
+        test.notVuhdo = true
         break    
     }
   }
+
+  var match
 
   // if input is a pastebin URL
   var pastebinMatch = req.body.importString.match(RegexPasteBinLink)
@@ -61,8 +72,36 @@ function ScanImport (req, res, next, test) {
     })
   }
 
+  // if input looks like grid2 string (grid regex is first because it is most restrictive)
+  else if (!test.notGrid2 && req.body.importString.match(RegexGrid)) {
+    var m = RegexGrid.exec(req.body.importString)
+    var profileName = m[1] + ' profile'
+    var profileLine = "[=== " + profileName + " ===]"
+    var encoded = req.body.importString.replace(profileLine, '').replace(profileLine, '').trim()
+    lua.Grid2JSON(encoded.replace(/\n/g, "\\n"), (error, result) => {
+      if (error) {
+        return res.send({error: error})
+      }
+
+      var scan = new ImportScan()
+      try {
+        var data = JSON.parse(result.stdout)
+        scan.type = 'GRID2'
+        scan.input = req.body.importString
+        scan.decoded = result.stdout
+        scan.save().then((doc) => {
+          return res.send({scan: doc._id.toString(), type: 'Grid2', name: profileName})
+        })
+      }
+      catch(e) {
+        console.log(e)
+        return res.send({error: 'invalid_import'})
+      }
+    })
+  }
+
   // if input looks like a WeakAura string
-  else if (req.body.importString.match(RegexWeakAura) && !test.NotWeakAura) {
+  else if (!test.notWeakAura && req.body.importString.match(RegexWeakAura)) {
     // run lua and decode string into JSON
     lua.WeakAura2JSON(req.body.importString, (error, result) => {
       if (error) {
@@ -71,7 +110,7 @@ function ScanImport (req, res, next, test) {
       else if (result.stderr || result.stdout=='' || result.stdout.indexOf("Error deserializing Supplied data is not AceSerializer data")>-1 || result.stdout.indexOf("Unknown compression method")>-1) {
         // if this import string managed to match both WA and ElvUI encoding, then try ElvUI next
         if (req.body.importString.match(RegexElv)) {
-          return ScanImport(req, res, next, { NotWeakAura: true })
+          return ScanImport(req, res, next, { notWeakAura: true })
         }
         // otherwise, return error
         return res.send({error: 'invalid_import2'})

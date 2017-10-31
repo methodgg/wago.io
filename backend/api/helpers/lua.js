@@ -141,7 +141,7 @@ module.exports = {
       })
     })    
   },
-
+  
   JSON2Vuhdo: (obj, cb) => {
     if (!obj || (!obj.profile && !obj.bouquet && !obj.keyLayout)) {
       return cb('Invalid export')
@@ -164,5 +164,58 @@ module.exports = {
         cb(null, res)
       })
     })    
-  }
+  },
+
+  Grid2JSON: (str, cb) => {
+    // make sure there is nothing shady in WA str
+    if (!str || !str.match(/^[0123456789ABCDEF\\n]*$/)) {
+      return cb('Invalid import')
+    }
+
+    // generate lua file
+    var luaScript = 'dofile("./wago.lua"); Grid2JSON("' + str + '")'
+    var luaFile = tmpLuaFileName(str)
+    
+    fs.writeFile(luaFile, luaScript, (err) => {
+      if (err) {
+        return res.send({error: 'server_error'})
+      }
+
+      // run luajit and return output
+      execa('luajit', [luaFile], execaOptions).then((res) => {
+        console.log(res)
+        // delete the temp lua file. async - no need to wait for it
+        fs.unlink(luaFile)
+        cb(null, res)
+      })
+    })    
+  },
+
+  JSON2Grid: (obj, cb) => {
+    cb(null, {supported: false})
+    if (typeof obj === 'string') {
+      obj = JSON.parse(obj)
+    }
+    if (!obj || !obj.d || !obj.d.id) {
+      return cb('Invalid export')
+    }
+
+    // generate lua file
+    var str = JSON.stringify(obj)
+    var luaScript = 'dofile("./wago.lua"); JSON2WA(\'' + str.replace(/'/g, "\\'") + '\')'
+    var luaFile = tmpLuaFileName(str)
+
+    fs.writeFile(luaFile, luaScript, (err) => {
+      if (err) {
+        return cb(err)
+      }
+
+      // run luajit and return output
+      execa('luajit', [luaFile], execaOptions).then((res) => {
+        // delete the temp lua file. async - no need to wait for it
+        fs.unlink(luaFile)
+        cb(null, res)
+      })
+    })    
+  },
 }

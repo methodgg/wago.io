@@ -112,6 +112,37 @@ function makeSession(req, res, token, user) {
   }
 }
 
+// update password
+server.post('/auth/changepass', (req, res) => {
+  if (!req.user || !req.body.newPass) {
+    res.send(403, {error: 'forbidden'})
+  }
+  // if user does not currently have a password then we don't need further validation, just save and return
+  if (!req.user.account.password) {
+    bcrypt.hash(req.body.newPass, 10).then((pass) => {
+      req.user.account.password = pass
+      req.user.save().then(() => {
+        res.send({success: true})
+      })
+    })
+  }
+  else {
+    bcrypt.compare(req.body.password, req.user.account.password).then((auth) => {
+      if (auth) {
+        bcrypt.hash(req.body.newPass, 10).then((pass) => {
+          req.user.account.password = pass
+          req.user.save().then(() => {
+            res.send({success: true})
+          })
+        })
+      }
+      else {
+        res.send({error: 'Incorrect password'})
+      }
+    })
+  }
+})
+
 // Log out of Wago
 server.post('/auth/logout', Logout)
 server.get('/logout', Logout)
@@ -156,6 +187,10 @@ function doAuth (req, res, next) {
       localAuth(req, res)
       break
 
+    case 'create':
+      createUser(req, res)
+      break
+
     case 'user':
     case 'refresh':
       res.redirect('/account/whoami', next)
@@ -193,6 +228,32 @@ function localAuth (req, res) {
       }
     })
   })  
+}
+
+// create local user
+function createUser (req, res) {
+  if (!req.body.password || req.body.password.length < 6) {
+    return res.send(403, {error: 'bad password'})
+  }
+  // make sure username is not in use
+  User.findByUsername(req.body.username).then(function(user) {
+    if (user) {
+      return res.send(403, {error: "Error: Username already exists"})
+    }
+    var user = new User()
+    user.account.username = req.body.username
+    user.search.username = req.body.username.toLowerCase()
+    // check if password is a match
+    bcrypt.hash(req.body.password, 10).then((pass) => {
+      user.account.password = pass
+      user.save().then((user) => {
+        var who = {}
+        who.UID = user._id
+
+        return makeSession(req, res, who, user)
+      })
+    })
+  })
 }
 
 // Login through Blizzard Battle.net

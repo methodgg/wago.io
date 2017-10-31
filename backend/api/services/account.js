@@ -277,3 +277,15 @@ server.post('/account/update/theme', (req, res) => {
     res.send({success: true})
   })
 })
+
+/**
+ * Set Discord options
+ */
+server.post('/account/discord/options', (req, res) => {
+  if (!req.user || !req.user.discord || req.user.discord.id) {
+    res.send(403, {error: 'forbidden'})
+  }
+  req.user.discord.options.messageOnFaveUpdate = req.body.msgOnFaveUpdate
+  req.user.discord.options.messageOnComment  = req.body.msgOnComment
+  req.user.discord.webhooks.onCreate = req.body.createWebhook // TODO: add validation
+})

@@ -80,6 +80,8 @@ function GetLatestAddonReleases (req, res) {
   const request = require('request')
 
   const addonDir = __dirname + '/../lua/addons/'
+
+  // TODO: sub-fuctionalize this stuff to avoid repeating code. Curseforge and wowace use the same HTML source
   
   // for each addon we are looking for
   async.series([
@@ -152,6 +154,42 @@ function GetLatestAddonReleases (req, res) {
       var listedURLs = []
       var ThisAddon = 'Vuhdo'
       request('https://wow.curseforge.com/projects/vuhdo', (err, resp, body) => {
+        if (err) return cb(err)
+        if (resp && resp.statusCode!=200) return cb(err)
+
+        var scrape = cheerio.load(body)
+        async.forEachOf(scrape('ul.cf-recentfiles li.file-tag'), (file, key, cb2) => {
+          var release = {}
+          release.addon = ThisAddon
+          release.active = true
+
+          var phase = scrape(file).find('.e-project-file-phase-wrapper .e-project-file-phase')
+          release.phase = phase.attr('title')
+
+          var version = scrape(file).find('.project-file-name-container a')
+          release.url = "https://wow.curseforge.com"+version.attr('href')
+          release.version = version.text()
+
+          var date = scrape(file).find('abbr.standard-datetime')
+          release.date = new Date(date.attr('title'))
+
+          AddonRelease.findOneAndUpdate({addon: release.addon, url: release.url}, release, {"upsert": true}).then((doc) => {
+            listedURLs.push(release.url)
+            cb2()
+          })
+        }, () => {
+          AddonRelease.update({ addon: ThisAddon, url: { "$nin": listedURLs } }, { "$set": { active: false }}, {multi: true} ).then(() => {
+            cb()
+          })
+        })
+      })
+    },
+    
+    // get grid2 latest releases
+    function(cb) {
+      var listedURLs = []
+      var ThisAddon = 'Grid2'
+      request('https://wow.curseforge.com/projects/grid2', (err, resp, body) => {
         if (err) return cb(err)
         if (resp && resp.statusCode!=200) return cb(err)
 

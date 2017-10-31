@@ -23,12 +23,10 @@ server.post('/comments/new', (req, res, next) => {
 
     var tagged = []
 
-    console.log(wago._userId._id.equals(req.user._id))
-
-    if (wago._userId && wago._userId._id && wago._userId._id.equals(req.user._id)) {
-        tagged.push({userID: wago._userId._id})
-        comment.commentText = comment.commentText.replace('@' + wago._userId.profile.name, '[taggeduser]@' + wago._userId.profile.name + '[/taggeduser]')
-        discord.sendMessage(wago._userId, 'messageOnComment', req.user.profile.name+" has posted a comment on your Wago **"+wago.name+"**.\n"+wago.url+"\n\n"+comment.commentText)
+    if (wago._userId && wago._userId._id && !wago._userId._id.equals(req.user._id)) {
+      tagged.push({userID: wago._userId._id})
+      comment.commentText = comment.commentText.replace('@' + wago._userId.profile.name, '[taggeduser]@' + wago._userId.profile.name + '[/taggeduser]')
+      discord.sendMessage(wago._userId, 'messageOnComment', req.user.profile.name+" has posted a comment on your Wago **"+wago.name+"**.\n"+wago.url+"\n\n"+comment.commentText)
     }
 
     var re = /\b@([^.,\/@#!$%\^&\*;:{}=`~()\s]+)\b/g
@@ -67,6 +65,23 @@ server.post('/comments/new', (req, res, next) => {
         }]
         res.send(c)
       })
+    })
+  })
+})
+
+server.post('/comments/clear', (req, res) => {
+  if (!req.user || !req.user.unreadMentions || !req.body.comment) {
+    return res.send(403, {error: "forbidden"})
+  }
+
+  Comments.findById(req.body.comment).then((comment) => {
+    comment.usersTagged.forEach((tag, i) => {
+      if (tag.userID.equals(req.user._id) && !tag.read) {
+        comment.usersTagged[i].read = true
+        comment.save().then((doc) => {
+          res.send({success: true})
+        })
+      }
     })
   })
 })
