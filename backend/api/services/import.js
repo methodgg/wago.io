@@ -391,7 +391,8 @@ server.post('/import/submit', function(req, res) {
 
         WagoItem.findById(wago.fork_of).then((fork) => {
           if (!fork) {
-            return importReject({error: 'original_deleted'}) // this shouldn't normally happen
+            wago.fork_of = null
+            return importResolve(wago) // original no longer exists
           }
           if (!wago.name) {
             wago.name = fork.name
@@ -477,6 +478,8 @@ server.post('/import/submit', function(req, res) {
       }, (err) => {
         res.send(err)
       })
+    }).catch((e) => {
+      console.log('error', e)
     })
   })
 })

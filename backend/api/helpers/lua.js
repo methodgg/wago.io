@@ -1,7 +1,7 @@
 const execa = require('execa')
 const execaOptions = {
   cwd: __dirname+'/../lua',
-  timeout: 2500
+  timeout: 8000
 }
 
 const fs = require('fs')
@@ -53,7 +53,7 @@ module.exports = {
 
     // generate lua file
     var str = JSON.stringify(obj)
-    var luaScript = 'dofile("./wago.lua"); JSON2WA(\'' + str.replace(/'/g, "\\'") + '\')'
+    var luaScript = 'dofile("./wago.lua"); JSON2WA("' + str.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim() + '")'
     var luaFile = tmpLuaFileName(str)
 
     fs.writeFile(luaFile, luaScript, (err) => {
@@ -101,7 +101,7 @@ module.exports = {
 
     // generate lua file
     var str = JSON.stringify(obj)
-    var luaScript = 'dofile("./wago.lua"); JSON2Elv(\'' + str.replace(/'/g, "\\'") + '\')'
+    var luaScript = 'dofile("./wago.lua"); JSON2Elv("' + str.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim() + '")'
     var luaFile = tmpLuaFileName(str)
     
     fs.writeFile(luaFile, luaScript, (err) => {
@@ -149,7 +149,7 @@ module.exports = {
 
     // generate lua file
     var str = JSON.stringify(obj)
-    var luaScript = 'dofile("./wago.lua"); JSON2Vuhdo(\'' + str.replace(/'/g, "\\'") + '\')'
+    var luaScript = 'dofile("./wago.lua"); JSON2Vuhdo("' + str.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim() + '")'
     var luaFile = tmpLuaFileName(str)
     
     fs.writeFile(luaFile, luaScript, (err) => {
@@ -202,7 +202,7 @@ module.exports = {
 
     // generate lua file
     var str = JSON.stringify(obj)
-    var luaScript = 'dofile("./wago.lua"); JSON2WA(\'' + str.replace(/'/g, "\\'") + '\')'
+    var luaScript = 'dofile("./wago.lua"); JSON2WA("' + str.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim() + '")'
     var luaFile = tmpLuaFileName(str)
 
     fs.writeFile(luaFile, luaScript, (err) => {

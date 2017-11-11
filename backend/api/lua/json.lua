@@ -671,9 +671,7 @@ function OBJDEF:decode(text, etc)
 
    local success, value = pcall(grok_one, self, text, 1, etc)
 
-   return value
-
---[[   if success then
+   if success then
       return value
    else
       -- if JSON:onDecodeError() didn't abort out of the pcall, we'll have received the error message here as "value", so pass it along as an assert.
@@ -685,7 +683,6 @@ function OBJDEF:decode(text, etc)
       -- and if we're still here, return a nil and throw the error message on as a second arg
       return nil, value
    end
---]]
 end
 
 local function backslash_replacement_function(c)
