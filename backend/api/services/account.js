@@ -282,10 +282,21 @@ server.post('/account/update/theme', (req, res) => {
  * Set Discord options
  */
 server.post('/account/discord/options', (req, res) => {
-  if (!req.user || !req.user.discord || req.user.discord.id) {
+  if (!req.user || !req.user.discord || !req.user.discord.id) {
     res.send(403, {error: 'forbidden'})
   }
-  req.user.discord.options.messageOnFaveUpdate = req.body.msgOnFaveUpdate
-  req.user.discord.options.messageOnComment  = req.body.msgOnComment
-  req.user.discord.webhooks.onCreate = req.body.createWebhook // TODO: add validation
+  req.user.discord.options.messageOnFaveUpdate = req.body.msgOnFaveUpdate && true || false
+  req.user.discord.options.messageOnComment  = req.body.msgOnComment && true || false
+  if (req.body.createWebhook.match(/^https:\/\/ptb.discordapp.com\/api\/webhooks\/[^\s]+/)) {
+    req.user.discord.webhooks.onCreate = req.body.createWebhook
+  }
+  else {
+    req.user.discord.webhooks.onCreate = null
+  }
+
+  console.log(req.user.discord)
+
+  req.user.save().then((doc) => {
+    res.send({success: true})
+  })
 })

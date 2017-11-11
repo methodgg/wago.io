@@ -85,6 +85,11 @@ export default {
         id: newsID
       }).then((res) => {
         if (res._id) {
+          vue.$store.commit('setPageInfo', {
+            title: res.title,
+            description: res.content.substring(0, 120)
+          })
+
           vue.blogs.push(res)
           vue.$router.replace('/news/' + newsID + '/' + vue.slugify(res.title))
         }
@@ -92,7 +97,6 @@ export default {
       })
     },
     LoadNewsPage (pageNum) {
-      console.log('load page', pageNum)
       this.pageNum = pageNum
       this.blogs = []
       var vue = this
@@ -101,6 +105,10 @@ export default {
         page: pageNum
       }).then((res) => {
         if (res.news) {
+          vue.$store.commit('setPageInfo', {
+            title: res.news[0].title,
+            description: res.news[0].content.substring(0, 120)
+          })
           vue.blogs = vue.blogs.concat(res.news)
         }
         vue.oldest = res.oldest

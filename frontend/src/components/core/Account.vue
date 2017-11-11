@@ -152,7 +152,7 @@
     <md-layout md-column>
       <md-card>
         <h2>{{ $t("Account Status") }}</h2>
-        <md-card-content>
+        <!--<md-card-content>
           <ui-warning v-if="User.access.human" mode="info">
             {{ $t("Anti-spam") }}<br>
             {{ $t("Your account is verified as belonging to a human, hyperlinks are allowed in your descriptions") }}
@@ -187,7 +187,7 @@
               <span class="md-error" v-if="discordOptionCreateWebhookStatus.length > 0">{{ discordOptionCreateWebhookStatus }}</span>
             </md-input-container>
           </div>
-        </md-card-content>
+        </md-card-content>-->
       </md-card>
       <wago-oauth></wago-oauth>
     </md-layout>
@@ -227,9 +227,9 @@ end`,
       currentPassword: '',
       newPassword: '',
       confirmPassword: '',
-      discordOptionFaveUpdateMsg: this.$store.state.user.discord.options.faveUpdateMsg,
-      discordOptionCommentMsg: '',
-      discordOptionCreateWebhook: '',
+      discordOptionFaveUpdateMsg: this.$store.state.user.discord.options.messageOnFaveUpdate,
+      discordOptionCommentMsg: this.$store.state.user.discord.options.messageOnComment,
+      discordOptionCreateWebhook: this.$store.state.user.discord.webhooks.onCreate,
       discordOptionCreateWebhookStatus: ''
     }
   },
@@ -440,19 +440,21 @@ end`,
     },
 
     onChangeDiscordOptions () {
-      var params = {
-        msgOnFaveUpdate: this.discordOptionFaveUpdateMsg,
-        msgOnComment: this.discordOptionCommentMsg,
-        createWebhook: this.discordOptionCreateWebhook
-      }
       var vue = this
-      this.http.post('/account/discord/options', params).then((res) => {
-        if (res.error) {
-          window.eventHub.$emit('showSnackBar', res.error)
+      this.$nextTick(function () {
+        var params = {
+          msgOnFaveUpdate: this.discordOptionFaveUpdateMsg,
+          msgOnComment: this.discordOptionCommentMsg,
+          createWebhook: this.discordOptionCreateWebhook
         }
-      }).catch((err) => {
-        console.log(err)
-        window.eventHub.$emit('showSnackBar', vue.$t('Error could not save'))
+        this.http.post('/account/discord/options', params).then((res) => {
+          if (res.error) {
+            window.eventHub.$emit('showSnackBar', res.error)
+          }
+        }).catch((err) => {
+          console.log(err)
+          window.eventHub.$emit('showSnackBar', vue.$t('Error could not save'))
+        })
       })
     }
   }

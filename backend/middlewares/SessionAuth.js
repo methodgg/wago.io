@@ -10,14 +10,12 @@ module.exports = function(req, res, next) {
     validCookieToken = true 
   }
   if (!userToken || !req.headers.origin || !validCookieToken) {
-    console.log('no token', (!userToken), (!req.headers.origin), (userToken !== req.cookies.token))
     return next()
   }
   // verify the token and set req.user
   jwt.verify(userToken, config.jwtSecret, function(err, token) {
     if (!err && token) {
       var SID = token.$__._id
-      console.log('sid', SID)
       UserSessions.findById(SID).then(function(session) {
         // if session is expired or flagged as requiring a fresh login
         if (!session || session.requireLogin || session.expires < +new Date()) {

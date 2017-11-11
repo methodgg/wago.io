@@ -557,7 +557,7 @@ local function grok_object(self, text, start, etc)
       end
 
       if text:sub(i, i) ~= ',' then
-        print("EEEEEE --"..text:sub(i, i))
+        -- print("EEEEEE --"..text:sub(i, i))
         -- self:onDecodeError("expected comma or '}'", text, i, etc)
       end
 

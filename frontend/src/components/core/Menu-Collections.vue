@@ -28,7 +28,7 @@
           <md-list-item v-for="raid in raids" v-bind:key="raid.id" :class="raid.cls + ' md-inset'">
             <category-image :group="raid.cls"></category-image>
             <div class="md-list-text-container">
-              <router-link :to="'/weakauras/' + raid.slug">{{ raid.text }}</router-link>
+              <router-link :to="'/collections/' + raid.slug">{{ raid.text }}</router-link>
             </div>
           </md-list-item>
         </md-list>

@@ -73,11 +73,13 @@
                 <md-list-item>
                   <strong>{{ $t("Popular This Week") }}</strong>
                 </md-list-item>
-                <md-list-item v-for="(item, index) in top10Lists.popular" :key="index" @click="$router.push('/' + item._id)">
-                  <div class="md-list-text-container">
-                    <span>{{ item.name }}</span>
-                    <span>{{ $t("[-count-] views", {count: item.popularity.viewsThisWeek}) }}</span>
-                  </div>
+                <md-list-item v-for="(item, index) in top10Lists.popular" :key="index">
+                  <router-link :to="'/' + item._id">
+                    <div class="md-list-text-container">
+                      <span>{{ item.name }}</span>
+                      <span>{{ $t("[-count-] views", {count: item.popularity.viewsThisWeek}) }}</span>
+                    </div>
+                  </router-link>
                 </md-list-item>
               </md-list>
             </md-layout>
@@ -86,11 +88,13 @@
                 <md-list-item>
                   <strong>{{ $t("Favorites All Time") }}</strong>
                 </md-list-item>
-                <md-list-item v-for="(item, index) in top10Lists.faves" :key="index" @click="$router.push('/' + item._id)">
-                  <div class="md-list-text-container">
-                    <span>{{ item.name }}</span>
-                    <span>{{ $t("[-count-] stars", {count: item.popularity.favorite_count}) }}</span>
-                  </div>
+                <md-list-item v-for="(item, index) in top10Lists.faves" :key="index">
+                  <router-link :to="'/' + item._id">
+                    <div class="md-list-text-container">
+                      <span>{{ item.name }}</span>
+                      <span>{{ $t("[-count-] stars", {count: item.popularity.favorite_count}) }}</span>
+                    </div>
+                  </router-link>
                 </md-list-item>
               </md-list>
             </md-layout>
@@ -101,11 +105,13 @@
                 <md-list-item>
                   <strong>{{ $t("Recently Updated") }}</strong>
                 </md-list-item>
-                <md-list-item v-for="(item, index) in top10Lists.updates" :key="index" @click="$router.push('/' + item._id)">
-                  <div class="md-list-text-container">
-                    <span>{{ item.name }}</span>
-                    <span>{{ item.modified | moment('MMM Do YYYY LT') }}</span>
-                  </div>
+                <md-list-item v-for="(item, index) in top10Lists.updates" :key="index">
+                  <router-link :to="'/' + item._id">
+                    <div class="md-list-text-container">
+                      <span>{{ item.name }}</span>
+                      <span>{{ item.modified | moment('MMM Do YYYY LT') }}</span>
+                    </div>
+                  </router-link>
                 </md-list-item>
               </md-list>
             </md-layout>
@@ -114,11 +120,13 @@
                 <md-list-item>
                   <strong>{{ $t("Newest Imports") }}</strong>
                 </md-list-item>
-                <md-list-item v-for="(item, index) in top10Lists.newest" :key="index" @click="$router.push('/' + item._id)">
-                  <div class="md-list-text-container">
-                    <span>{{ item.name }}</span>
-                    <span>{{ item.created | moment('MMM Do YYYY LT') }}</span>
-                  </div>
+                <md-list-item v-for="(item, index) in top10Lists.newest" :key="index">
+                  <router-link :to="'/' + item._id">
+                    <div class="md-list-text-container">
+                      <span>{{ item.name }}</span>
+                      <span>{{ item.created | moment('MMM Do YYYY LT') }}</span>
+                    </div>
+                  </router-link>
                 </md-list-item>
               </md-list>
             </md-layout>

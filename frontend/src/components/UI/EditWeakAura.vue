@@ -3,7 +3,7 @@
     <div class="flex-container">
       <div class="flex-col flex-left">
         <md-input-container>
-          <label for="customfn">{{ $t("Edit [-file-]", {file: editorFile}) }}</label>
+          <label for="customfn" v-html="$t('Edit [-file-]', {file: editorFile})"></label>
           <md-select name="customfn" id="customfn" v-model="editorSelected" md-menu-class="customFn">
             <md-option value="tabledata" >{{ $t("Table data") }}</md-option>
             <template v-for="fn in customFn(tableData)">
