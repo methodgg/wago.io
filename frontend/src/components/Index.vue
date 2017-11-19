@@ -77,7 +77,7 @@
                   <router-link :to="'/' + item._id">
                     <div class="md-list-text-container">
                       <span>{{ item.name }}</span>
-                      <span>{{ $t("[-count-] views", {count: item.popularity.viewsThisWeek}) }}</span>
+                      <span>{{ $t("[-count-] view", {count: item.popularity.viewsThisWeek}) }}</span>
                     </div>
                   </router-link>
                 </md-list-item>
@@ -92,7 +92,7 @@
                   <router-link :to="'/' + item._id">
                     <div class="md-list-text-container">
                       <span>{{ item.name }}</span>
-                      <span>{{ $t("[-count-] stars", {count: item.popularity.favorite_count}) }}</span>
+                      <span>{{ $t("[-count-] star", {count: item.popularity.favorite_count}) }}</span>
                     </div>
                   </router-link>
                 </md-list-item>

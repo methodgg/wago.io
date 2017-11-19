@@ -66,7 +66,7 @@
                 <md-button class="md-toggle" @click="toggleFrame('description')">{{ $t("Description") }}</md-button>
                 <md-button @click="toggleFrame('comments')"><span v-if="hasUnreadComments && showPanel !== 'comments'" class="commentAttn">{{$t("NEW")}}!! </span>{{ $t("[-count-] comment", {count: wago.commentCount }) }}</md-button>
                 <md-button v-if="wago.versions && wago.versions.total > 1" @click="toggleFrame('versions')" ref="versionsButton">{{ $t("[-count-] version", { count: wago.versions.total }) }}</md-button>
-                <md-button v-if="wago.type !== 'COLLECTION'" @click="toggleFrame('collections')">{{ $t("[-count-] collections", {count:  wago.collectionCount}) }}</md-button>
+                <md-button v-if="wago.type !== 'COLLECTION'" @click="toggleFrame('collections')">{{ $t("[-count-] collection", {count:  wago.collectionCount}) }}</md-button>
                 <md-button v-if="!wago.alerts.blacklist && wago.code && wago.code.encoded" @click="toggleFrame('embed')">{{ $t("Embed") }}</md-button>
                 <md-button v-if="wago.code" @click="toggleFrame('editor')">{{ $t("Editor") }}</md-button>
               </md-button-toggle>
