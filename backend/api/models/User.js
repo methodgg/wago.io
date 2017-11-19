@@ -90,11 +90,11 @@ const Schema = new mongoose.Schema({
       webp: String
     },
     options : {
-        messageOnFaveUpdate : Boolean,
-        messageOnComment : Boolean
+      messageOnFaveUpdate : Boolean,
+      messageOnComment : Boolean
     },
     webhooks : {
-        onCreate : String
+      onCreate : String
     }
   },
   config: {

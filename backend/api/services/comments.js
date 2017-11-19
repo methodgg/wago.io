@@ -26,10 +26,10 @@ server.post('/comments/new', (req, res, next) => {
     if (wago._userId && wago._userId._id && !wago._userId._id.equals(req.user._id)) {
       tagged.push({userID: wago._userId._id})
       comment.commentText = comment.commentText.replace('@' + wago._userId.profile.name, '[taggeduser]@' + wago._userId.profile.name + '[/taggeduser]')
-      discord.sendMessage(wago._userId, 'messageOnComment', req.user.profile.name+" has posted a comment on your Wago **"+wago.name+"**.\n"+wago.url+"\n\n"+comment.commentText)
+      discord.onComment(req.user, wago._userId, wago)
     }
 
-    var re = /\b@([^.,\/@#!$%\^&\*;:{}=`~()\s]+)\b/g
+    var re = /@([^.,\/@#!$%\^&\*;:{}=`~()\s\[\]]+)/g
     mentions = []
     while ((m = re.exec(comment.commentText)) !== null) {
       mentions.push(m[1])
@@ -43,7 +43,7 @@ server.post('/comments/new', (req, res, next) => {
         else {
           comment.commentText = comment.commentText.replace('@' + user.profile.name, '[taggeduser]@' + user.profile.name + '[/taggeduser]')
           tagged.push(user._id)
-          discord.sendMessage(user, 'messageOnComment', req.user.profile.name+" has tagged you in a posted comment for Wago **"+wago.name+"**.\n"+wago.url+"\n\n"+comment.commentText)
+          discord.onComment(req.user, user, wago)
           return cb()
         }
       })

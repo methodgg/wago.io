@@ -1,5 +1,6 @@
-// load our lua libs and functions on app startup
+// load our libs and functions on app startup
 const lua = require('../helpers/lua')
+const discord = require('../helpers/discord')
 
 const RegexLuaSnippet = /\b(and|break|do|else|elseif|end|false|for|if|in|local|nil|not|repeat|return|then|true|until|while|_G|_VERSION|getfenv|getmetatable|ipairs|load|module|next|pairs|pcall|print|rawequal|rawget|rawset|select|setfenv|setmetatable|tonumber|tostring|type|unpack|xpcall|coroutine|debug|math|package|string|table|SetAttribute|SetAllPoints|CreateFrame|unit|player|target)\b/g
 const RegexPasteBinLink = /^https?:\/\/pastebin.com\/([\w]+)$/
@@ -473,6 +474,10 @@ server.post('/import/submit', function(req, res) {
         code.json = scan.decoded
         code.version = 1
         code.save().then((codeDoc) => {
+          // broadcast to discord webhook?
+          if (req.body.importAs === 'User' && req.user && !wago.hidden && !wago.private && req.user.discord && req.user.discord.webhooks.onCreate) {
+            discord.webhookOnCreate(req.user, wago)
+          }
           res.send({success: true, wagoID: doc._id})
         })
       }, (err) => {
@@ -607,6 +612,10 @@ function SaveWagoVersion (req, res, mode) {
         code.encoded = result.stdout
         
         code.save().then(() => {
+          if (mode === 'update') {
+            // look for any discord actions
+            discord.onUpdate(req.user, wago)
+          }
           res.send({success: true})
         })
       })
@@ -660,6 +669,10 @@ function SaveWagoVersion (req, res, mode) {
         code.encoded = result.stdout
         
         code.save().then(() => {
+          if (mode === 'update') {
+            // look for any discord actions
+
+          }
           res.send({success: true})
         })
       })
@@ -694,6 +707,10 @@ function SaveWagoVersion (req, res, mode) {
       code.lua = req.body.lua
       
       code.save().then(() => {
+        if (mode === 'update') {
+          // look for any discord actions
+
+        }
         res.send({success: true, wagoID: wago._id})
       })
     })
