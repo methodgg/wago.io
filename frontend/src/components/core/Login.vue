@@ -49,9 +49,6 @@
       </md-card>
     </md-layout>
     <md-layout md-column>
-      <md-card>
-        <h2>{{ $t("Account Status") }}</h2>
-      </md-card>
       <wago-oauth></wago-oauth>
     </md-layout>
   </md-layout>   

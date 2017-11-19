@@ -14,7 +14,7 @@
     <div v-if="commentTotal>0">
       <md-card v-for="(comment, index) in comments" v-bind:key="index">
         <md-card-header>
-          <ui-warning v-if="User.UID && isUnread(comment)" mode="alert">{{ $t("Attention! Unread mention") }}</ui-warning>
+          <ui-warning v-if="User.UID && isUnread(comment)" mode="alert">{{ $t("Attention! New mention") }}</ui-warning>
           <md-avatar>
             <ui-image :img="comment.author.avatar"></ui-image>
           </md-avatar>

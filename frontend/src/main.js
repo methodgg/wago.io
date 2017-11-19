@@ -377,7 +377,7 @@ const http = {
           return json
         }).catch((err) => {
           console.log(err)
-          window.eventHub.$emit('showSnackBar', Vue.$t('Error could not reach data server'))
+          window.eventHub.$emit('showSnackBar', i18next.t('Error could not reach data server'))
         })
       },
       upload: function (url, file, params) {

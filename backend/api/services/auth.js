@@ -444,85 +444,47 @@ function patreonAuth(req, res) {
 }
 
 // Login through Twitter
-oauthService = new OAuth.OAuth(
-  'https://api.twitter.com/oauth/request_token',
-  'https://api.twitter.com/oauth/access_token',
-  config.auth.twitter.clientID,
-  config.auth.twitter.clientSecret,
-  '1.0A',
-  null,
-  'HMAC-SHA1'
-)
+var Twitter = require("node-twitter-api")
+global.twitterRequestSecrets = {}
 function twitterAuth(req, res) {
-  console.log(config.auth.twitter)
+  var twitter = new Twitter({
+    consumerKey: config.auth.twitter.clientID,
+    consumerSecret: config.auth.twitter.clientSecret,
+    callback: req.headers.origin + '/auth/twitter',
+  })
   if (!req.body.oauth_token) {
-    oauthService.getOAuthRequestToken({ oauth_callback: req.body.redirectUri }, function (error, oauthToken, oauthTokenSecret, results) {
-      console.log('error', error)
-      console.log('oauthToken', oauthToken)
-      console.log('oauthTokenSecret', oauthTokenSecret)
-      console.log('results', results)
-      if (error) {
-        res.status(500, error)
-      } else {
-        res.send({
-          oauth_token: oauthToken,
-          oauth_token_secret: oauthTokenSecret
+    twitter.getRequestToken(function(err, requestToken, requestSecret) {
+      if (err)
+        res.status(500).send(err);
+      else {
+        twitterRequestSecrets[requestToken] = requestSecret;
+        res.send({requestToken: requestToken})
+        // delete from memory and invalidate this req token after 1 minute
+        setTimeout(function () {
+          delete twitterRequestSecrets[requestToken]
+        }, 60000)
+      }
+    })
+  }
+  else if (req.body.oauth_token && twitterRequestSecrets[req.body.oauth_token]) {
+    twitter.getAccessToken(req.body.oauth_token, twitterRequestSecrets[req.body.oauth_token], req.body.oauth_verifier, function(err, accessToken, accessSecret) {
+      if (err) {
+        res.status(500).send(err)
+      }
+      else {
+        twitter.verifyCredentials(accessToken, accessSecret, function(err, user) {
+          if (err) {
+            res.status(500).send(err);
+          }
+          else {
+            oAuthLogin(req, res, 'twitter', user)
+          }
         })
       }
     })
-  } else {
-    oauthService.getOAuthAccessToken(req.body.oauth_token, null, req.body.oauth_verifier, function (error, oauthAccessToken, oauthAccessTokenSecret, results) {
-      if (error) {
-        res.status(500, error)
-      } else {
-        var verifyCredentialsUrl = 'https://api.twitter.com/1.1/account/verify_credentials.json'
-        var parameters = {
-          oauth_consumer_key: config.auth.twitter.clientID,
-          oauth_token: oauthAccessToken,
-          oauth_nonce: ('vueauth-' + new Date().getTime()),
-          oauth_timestamp: Date.now() / 1000,
-          oauth_signature_method: 'HMAC-SHA1',
-          oauth_version: '1.0'
-        }
-
-        var signature = oauthSignature.generate('GET', verifyCredentialsUrl, parameters, config.auth.twitter.clientSecret, oauthAccessTokenSecret)
-
-        request({
-          url: 'https://api.twitter.com/1.1/account/verify_credentials.json',
-          headers: {
-            'Authorization':  'OAuth ' +
-              'oauth_consumer_key="' + config.auth.twitter.clientID + '",' +
-              'oauth_token="' + oauthAccessToken + '",' +
-              'oauth_nonce="' + parameters.oauth_nonce + '",' +
-              'oauth_timestamp="' + parameters.oauth_timestamp + '",' +
-              'oauth_signature_method="HMAC-SHA1",'+
-              'oauth_version="1.0",' +
-              'oauth_signature="' + signature + '"'
-            }
-          },
-          function (err, response, body) {
-            if (!err && response.statusCode==200) {
-              try {
-                var profile = JSON.parse(body)
-              }
-              catch (e) {
-                return res.send(403, {error: "invalid_twitter"})
-              }
-
-              if (!profile.id_str) {
-                return res.send(403, {error: "invalid_twitter"})
-              }
-
-              // success
-              oAuthLogin(req, res, 'twitter', profile)
-            }
-            else {
-              res.send(500, err, response, body)
-            }
-          }
-        )
-      }
-    })
+  }
+  else {
+    res.send({error: 'invalid_token'})
   }
 }
 
@@ -602,6 +564,16 @@ function oAuthLogin(req, res, provider, authUser) {
       paid = profile.amount_cents
     }
     break
+
+  case 'twitter':
+    query = {"twitter.id": authUser.id_str}
+    profile = {
+      id: authUser.id_str,
+      name: '@' + authUser.screen_name,
+    }
+    newAcctName = authUser.screen_name
+    avatarURL = authUser.profile_image_url_https
+  break
 
     // case 'twitter':
     //   query = {"twitter.id": authUser.id_str}

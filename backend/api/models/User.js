@@ -46,7 +46,7 @@ const Schema = new mongoose.Schema({
   },
   twitter : {
     id : String,
-    displayName : String,
+    name : String,
     avatar : {
       png: String,
       webp: String

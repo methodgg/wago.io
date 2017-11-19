@@ -107,12 +107,20 @@ export default {
   methods: {
     doAuth: function (provider) {
       if (provider === 'twitter') {
-        window.eventHub.$emit('showSnackBar', 'Twitter authentication currently not implemented.')
-        return
+        this.http.post('/auth/twitter')
+          .then((res) => {
+            window.twitterReqToken = res.requestToken
+            window.location.href = 'https://api.twitter.com/oauth/authenticate?oauth_token=' + res.requestToken
+          })
+          .catch((err) => {
+            console.log(err)
+          })
       }
-      this.$auth.oauth2({
-        provider: provider || this.provider
-      })
+      else {
+        this.$auth.oauth2({
+          provider: provider || this.provider
+        })
+      }
     }
   },
   computed: {
@@ -121,6 +129,17 @@ export default {
     }
   },
   mounted () {
+    if (this.provider === 'twitter' && this.$route.query.oauth_token && this.$route.query.oauth_verifier) {
+      this.http.post('/auth/twitter', {
+        oauth_token: this.$route.query.oauth_token,
+        oauth_verifier: this.$route.query.oauth_verifier
+      }).then((res) => {
+        console.log(res) // user?
+      })
+      .catch((err) => {
+        console.log(err)
+      })
+    }
     if (this.code) {
       this.$auth.oauth2({
         code: true,
