@@ -19,6 +19,6 @@ export default {
 .md-card .warning { margin: 10px 0 }
 .warning { border-color: #afb42b; color: #afb42b; }
 .warning.alert { border-color: #c1272d; color: #c1272d; } 
-.warning.good { border-color: #388e3c; color: #388e3c; } 
+.warning.good, .warning.ok { border-color: #388e3c; color: #388e3c; } 
 .warning.info { border-color: #0288d1; color: #0288d1; } 
 </style>

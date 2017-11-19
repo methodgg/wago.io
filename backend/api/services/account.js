@@ -73,6 +73,7 @@ server.get('/account/whoami', (req, res, next) => {
     who.profileVisibility = user.profile.visibility
 
     who.access = {}
+    who.access.human = user.account.verified_human
     who.access.customSlug = user.access.custom_slug
     who.access.beta = user.access.beta
     who.access.animatedAvatar = user.access.animatedAvatar
@@ -290,8 +291,12 @@ server.post('/account/discord/options', (req, res) => {
   }
   req.user.discord.options.messageOnFaveUpdate = req.body.msgOnFaveUpdate && true || false
   req.user.discord.options.messageOnComment  = req.body.msgOnComment && true || false
-  if (req.body.createWebhook.match(/^https:\/\/ptb.discordapp.com\/api\/webhooks\/[^\s]+/)) {
+  if (req.body.createWebhook && req.body.createWebhook.match(/^https:\/\/ptb.discordapp.com\/api\/webhooks\/[^\s]+/)) {
     req.user.discord.webhooks.onCreate = req.body.createWebhook
+  }
+  else if (req.body.createWebhook ) {
+    res.send({error: 'invalid web hook'})
+    return
   }
   else {
     req.user.discord.webhooks.onCreate = null

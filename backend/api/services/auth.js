@@ -80,6 +80,7 @@ function makeSession(req, res, token, user) {
           who.profileVisibility = user.profile.visibility
       
           who.access = {}
+          who.access.human = user.account.verified_human
           who.access.customSlug = user.access.custom_slug
           who.access.beta = user.access.beta
           who.access.animatedAvatar = user.access.animatedAvatar

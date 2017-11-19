@@ -152,21 +152,21 @@
     <md-layout md-column>
       <md-card>
         <h2>{{ $t("Account Status") }}</h2>
-        <!--<md-card-content>
-          <ui-warning v-if="User.access.human" mode="info">
+        <md-card-content>
+          <ui-warning v-if="User.access.human" mode="ok">
             {{ $t("Anti-spam") }}<br>
             {{ $t("Your account is verified as belonging to a human, hyperlinks are allowed in your descriptions") }}
           </ui-warning>
-          <ui-warning v-else>
+          <ui-warning v-else mode="alert">
             {{ $t("Anti-spam") }}<br>
             {{ $t("To enable hyperlinks in your descriptions, connect or update your Wago account with a Battlenet account with a max level character, or with a Patreon subscription") }}
           </ui-warning>
           <br>
-          <ui-warning v-if="User.access.goldSub || User.access.ambassador || User.access.translator" mode="gold">
-            <span v-if="User.access.goldSub">{{ $t("Gold Subscriber") }}</span>
-            <span v-else-if="User.access.admin">Wago.io Admin</span>
+          <ui-warning v-if="User.access.goldSub || User.access.ambassador || User.access.translator || User.access.admin" mode="gold">
+            <span v-if="User.access.admin">Wago.io Admin</span>
             <span v-else-if="User.access.ambassador">Wago.io Ambassador</span>
             <span v-else-if="User.access.translator">Wago.io Translator</span>
+            <span v-else-if="User.access.goldSub">{{ $t("Gold Subscriber") }}</span>
             <br>{{ $t("Custom URLs are enabled") }}
             <br>{{ $t("Animated avatars are enabled") }}
             <br>{{ $t("Access to Wago beta server") }} <a href="https://t1000.wago.io/">https://t1000.wago.io/</a>
@@ -176,18 +176,20 @@
             <br>{{ $t("Animated avatars are enabled") }}
             <br>{{ $t("Access to Wago beta server") }} <a href="https://t1000.wago.io/">https://t1000.wago.io/</a>
           </ui-warning>
-
-          <div v-if="User.discord && User.discord.id">
-            <h2>Discord</h2>
+        </md-card-content>
+        <div v-if="User.discord && User.discord.id">  
+          <h2>Discord</h2>
+          <md-card-content>
             <md-checkbox v-model="discordOptionFaveUpdateMsg" @change="onChangeDiscordOptions">{{ $t("Recieve a private message on Discord whenever a Wago you have starred is updated") }}</md-checkbox><br>
             <md-checkbox v-model="discordOptionCommentMsg" @change="onChangeDiscordOptions">{{ $t("Recieve a private message on Discord whenever you recieve a comment") }}</md-checkbox><br>
+            <p>{{ $t("Have your own Discord server? Enter a webhook to broadcast to your selected channel whenever you create or update a Wago") }}</p>
             <md-input-container>
-              <label>{{ $t("Have your own Discord server? Enter a webhook to broadcast to your selected channel whenever you create or update a Wago") }}</label>
+              <label>{{ $t("Webhook URL") }}</label>
               <md-input v-model="discordOptionCreateWebhook" @change="onChangeDiscordOptions" :debounce="600"></md-input>
               <span class="md-error" v-if="discordOptionCreateWebhookStatus.length > 0">{{ discordOptionCreateWebhookStatus }}</span>
             </md-input-container>
-          </div>
-        </md-card-content>-->
+          </md-card-content>
+        </div>
       </md-card>
       <wago-oauth></wago-oauth>
     </md-layout>
