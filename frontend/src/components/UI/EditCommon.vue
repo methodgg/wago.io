@@ -10,7 +10,7 @@
     </div>
     
     <editor v-model="editorContent" @init="editorInit" :lang="aceLanguage" :theme="editorTheme" width="100%" height="500"></editor>
-    <export-modal :lua="luaCode" :type="wago.type" :showExport="showExport" :wagoID="wago._id" @hideExport="hideExport"></export-modal>
+    <export-modal :json="tableString" :type="wago.type" :showExport="showExport" :wagoID="wago._id" @hideExport="hideExport"></export-modal>
   </div>
 </template>
 
@@ -19,9 +19,9 @@ export default {
   name: 'edit-common',
   data: function () {
     return {
-      luaCode: this.$store.state.wago.code.lua,
+      tableString: this.$store.state.wago.code.json,
       editorFile: '',
-      aceLanguage: 'lua',
+      aceLanguage: 'json',
       aceEditor: null,
       showExport: false
     }
@@ -30,7 +30,7 @@ export default {
   },
   components: {
     editor: require('vue2-ace-editor'),
-    'export-modal': require('./ExportLua.vue')
+    'export-modal': require('./ExportJSON.vue')
   },
   methods: {
     editorInit: function (editor) {
@@ -49,9 +49,9 @@ export default {
       var post = {}
       post.wagoID = this.wago._id
       post.type = this.wago.type
-      post.lua = this.aceEditor.getValue()
+      post.json = this.aceEditor.getValue()
       var vue = this
-      this.http.post('/import/lua/save', post).then((res) => {
+      this.http.post('/import/json/save', post).then((res) => {
         if (res.success) {
           window.eventHub.$emit('showSnackBar', this.$t('Wago saved successfully'))
           vue.$router.push('/' + vue.wago.slug)
@@ -65,7 +65,7 @@ export default {
       })
     },
     exportChanges: function () {
-      this.luaCode = this.aceEditor.getValue()
+      this.tableString = this.aceEditor.getValue()
       this.showExport = true
     },
     hideExport: function () {
@@ -75,7 +75,7 @@ export default {
   computed: {
     editorContent: {
       get: function () {
-        return this.$store.state.wago.code.lua
+        return this.$store.state.wago.code.json
       },
 
       set: function () {

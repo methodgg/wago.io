@@ -143,7 +143,7 @@
             </md-table-row>
           </md-table-header>
           <md-table-body>
-            <md-table-row v-for="(addon, addonIndex) in addonReleases" :key="addonIndex">
+            <md-table-row v-for="(addon, addonIndex) in addonReleases" :key="addonIndex" v-if="addon.addon !== 'Grid2'">
               <md-table-cell>{{ addon.addon }}</md-table-cell>
               <md-table-cell><a :href="addon.url" target="_blank">{{ addon.phase }}</a></md-table-cell>
               <md-table-cell><a :href="addon.url" target="_blank">{{ addon.version }}</a></md-table-cell>

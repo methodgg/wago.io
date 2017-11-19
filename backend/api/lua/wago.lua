@@ -294,14 +294,8 @@ function JSON2Elv(json)
   local serialData = Serializer:Serialize(t)
   if (serialData) then
     local exportString = string.format("%s::%s::%s", serialData, "profile", "profile")
-  end
-  if (exportString) then
     local compressedData = LibCompress:Compress(serialData)
-  end
-  if (compressedData) then
     local encodedData = LibBase64Elv:Encode(compressedData)
-  end
-  if (encodedData) then
     print(encodedData)
   end
 end

@@ -176,14 +176,19 @@ server.get('/lookup/wago', (req, res, next) => {
           if (!code) {
             return cb()
           }
-          cb(null, {json: code.json, encoded: code.encoded})
+          if (doc.type === 'SNIPPET') {
+            cb(null, {lua: code.lua})
+          }
+          else {
+            cb(null, {json: code.json, encoded: code.encoded})
+          }
         })
       },
       versionsLookup: (cb) => {
         if (doc.type === 'COLLECTION') {
           return cb()
         }
-        WagoCode.find({auraID: wago._id}).select('json version updated').limit(10).sort({updated: -1}).then((versions) => {
+        WagoCode.find({auraID: wago._id}).select('json lua version updated').limit(10).sort({updated: -1}).then((versions) => {
           timing.findVersions = Date.now() - start
           if (!versions) {
             return cb()
@@ -192,7 +197,7 @@ server.get('/lookup/wago', (req, res, next) => {
             timing.countVersions = Date.now() - start
             var v = []
             for (var i=0; i<versions.length; i++) {
-              v.push({version: count - i, size: versions[i].json.length, date: versions[i].updated})
+              v.push({version: count - i, size: (versions[i].json && versions[i].json.length || versions[i].lua.length), date: versions[i].updated})
             }
             cb(null, {total: count, versions: v})
           })

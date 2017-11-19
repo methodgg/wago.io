@@ -79,7 +79,7 @@
                   <md-icon v-if="wago.myfave">star</md-icon>
                   <md-icon v-else>star_border</md-icon> {{ $t("Favorite") }}
                 </md-button>
-                <md-button v-if="wago.user && User && wago.UID && wago.UID === User.UID" @click="$refs['newImportDialog'].open()" id="newImportButton"><md-icon>input</md-icon> {{ $t("Import new string") }}</md-button>
+                <md-button v-if="wago.user && User && wago.UID && wago.UID === User.UID && wago.code && wago.code.encoded" @click="$refs['newImportDialog'].open()" id="newImportButton"><md-icon>input</md-icon> {{ $t("Import new string") }}</md-button>
                 <md-button v-if="wago.code && wago.code.encoded && !wago.alerts.blacklist" @click="copyEncoded" class="copy-import-button"><md-icon>assignment</md-icon> {{ $t("Copy [-type-] import string", {type: wago.type}) }}</md-button>
               </md-card-actions>
               <md-dialog v-if="wago.user && User && wago.UID && wago.UID === User.UID" md-open-from="#newImportButton" md-close-to="#newImportButton" ref="newImportDialog" id="newImportDialog">
@@ -292,8 +292,8 @@
                 </md-dialog-content>
 
                 <md-dialog-actions>
-                  <md-button @click="$refs.addCollectionDialog.close()">Cancel</md-button>
-                  <md-button class="md-primary" @click="CreateCollection()">Create</md-button>
+                  <md-button @click="$refs.addCollectionDialog.close()">{{ $t("Cancel") }}</md-button>
+                  <md-button class="md-primary" @click="CreateCollection()">{{ $t("Create") }}</md-button>
                 </md-dialog-actions>
               </md-dialog>
             </md-menu>
@@ -374,18 +374,15 @@
           <!-- EDITOR FRAME -->
           <div id="wago-editor-container" class="wago-container" v-if="showPanel=='editor'">
             <div id="wago-editor">
-              <edit-elvui v-if="wago.type=='ELVUI'"></edit-elvui>
+              <edit-weakaura v-if="wago.type=='WEAKAURA'"></edit-weakaura>
               <edit-snippet v-else-if="wago.type=='SNIPPET'"></edit-snippet>
-              <edit-vuhdo v-else-if="wago.type=='VUHDO'"></edit-vuhdo>
-              <edit-vuhdo v-else-if="wago.type=='GRID2'"></edit-vuhdo>
-              <edit-weakaura v-else-if="wago.type=='WEAKAURA'"></edit-weakaura>
-              <div v-else>{{ $t("Error unknown type [-type-]", {type: type}) }}</div>
+              <edit-common v-else></edit-common>
             </div>
           </div>
           <div class="border" v-if="showEditor"></div>
 
           <div id="wago-importstring-container" class="wago-container" v-if="wago.code && wago.code.encoded">
-            <textarea id="wago-importstring">{{ wago.code.encoded }}</textarea>
+            <textarea id="wago-importstring" class="wago-importstring" spellcheck="false">{{ wago.code.encoded }}</textarea>
           </div>
 
           <search v-if="wago.type === 'COLLECTION'" :contextSearch="'Collection: ' + wago._id"></search>
@@ -462,9 +459,8 @@ export default {
     'view-comments': require('../UI/ViewComments.vue'),
     'formatted-text': require('../UI/FormattedText.vue'),
     Lightbox,
-    'edit-elvui': require('../UI/EditElvUI.vue'),
+    'edit-common': require('../UI/EditCommon.vue'),
     'edit-snippet': require('../UI/EditSnippet.vue'),
-    'edit-vuhdo': require('../UI/EditVuhdo.vue'),
     'edit-weakaura': require('../UI/EditWeakAura.vue'),
     editor: require('vue2-ace-editor'),
     Multiselect,
@@ -1403,10 +1399,10 @@ a.showvid:hover img { transform: scale(1.05); }
 #embed-preview-container.light button:hover{background-color:#F4F4F4}
 #embed-preview-container.none img {display: none}
 
-#wago-importstring { width:2em;height:2em;padding:0;margin:0;border:0;outline:none;box-shadow:none;background:transparent;color:transparent;overflow:hidden;resize:none }
-#wago-importstring::selection { color:transparent;background:transparent }
-#wago-importstring::-moz-selection { color:transparent;background:transparent }
-#wago-importstring::-webkit-selection { color:transparent;background:transparent }
+.wago-importstring { width:2em;height:2em;padding:0;margin:0;border:0;outline:none;box-shadow:none;background:transparent;color:transparent;overflow:hidden;resize:none }
+.wago-importstring::selection { color:transparent;background:transparent }
+.wago-importstring::-moz-selection { color:transparent;background:transparent }
+.wago-importstring::-webkit-selection { color:transparent;background:transparent }
 
 .customSlug .root { font-size:16px; line-height: 32px }
 .md-input-container.md-input-status .md-error { opacity: 1; transform: translate3d(0, 0, 0);}

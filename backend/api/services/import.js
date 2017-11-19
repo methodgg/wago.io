@@ -507,11 +507,36 @@ server.post('/import/json/fork', function (req, res) {
   SaveWagoVersion(req, res, 'fork')
 })
 server.post('/import/json/scan', function (req, res) {
-  SaveWagoVersion(req, res, 'scan') // scan for fork
+  SaveWagoVersion(req, res, 'scan')
+})
+server.post('/import/json/extract', function (req, res) {
+  SaveWagoVersion(req, res, 'extract')
+})
+
+server.post('/import/lua/save', function (req, res) {
+  if (!req.body || !req.body.lua || req.body.lua.length < 10) {
+    return res.send({error: 'invalid_import'})
+  }
+  req.body.json = "{}"
+  SaveWagoVersion(req, res, 'update')
+})
+server.post('/import/lua/fork', function (req, res) {
+  if (!req.body || !req.body.lua || req.body.lua.length < 10) {
+    return res.send({error: 'invalid_import'})
+  }
+  req.body.json = "{}"
+  SaveWagoVersion(req, res, 'fork')
+})
+server.post('/import/lua/extract', function (req, res) {
+  if (!req.body || !req.body.lua || req.body.lua.length < 10) {
+    return res.send({error: 'invalid_import'})
+  }
+  req.body.json = "{}"
+  SaveWagoVersion(req, res, 'extract')
 })
 
 function SaveWagoVersion (req, res, mode) {
-  if (!req.user && mode === 'update') {
+  if (!req.user && (mode === 'update' || mode === 'save')) {
     return res.send({error: 'invalid_user'})
   }
 
@@ -550,15 +575,20 @@ function SaveWagoVersion (req, res, mode) {
       }
       else if (mode === 'fork') {
         var wago = new WagoItem()
+        wago.type = 'WEAKAURAS2'
+        wago.name = json.d.id
+        wago.fork_of = wagoID
         if (req.user) {
           wago._userId = req.user._id
           wago.hidden = (req.user.default_aura_visibility === 'Hidden')
           wago.private = (req.user.default_aura_visibility === 'Private')
-          wago.type = 'WEAKAURAS2'
-          wago.name = json.d.id
-          wago.fork_of = wagoID
-          promise = wago.save.exec()
+          promise = wago.save()
         }
+      }
+      else if (mode === 'extract') {
+        // not actually saving anything here
+        res.send({success: true, extracted: result.stdout})
+        return
       }
 
       if (!promise) {
@@ -582,20 +612,20 @@ function SaveWagoVersion (req, res, mode) {
       })
     })
   }
-  else if (type=='ELVUI') {
+  else if ((type=='ELVUI' || type=='VUHDO' || type=='GRID2') && json) {
     lua.JSON2ElvUI(json, (error, result) => {
       if (error) {
         return res.send({error: error})
       }
       else if (result.stderr || result.stdout=='') {
-        return res.send({error: 'invalid_elv'})
+        return res.send({error: 'invalid_' + type})
       }
       
       var promise
       if (mode === 'scan') {
         var scan = new ImportScan()
         scan.fork = req.body.forkOf
-        scan.type = 'ELVUI'
+        scan.type = type
         scan.input = result.stdout
         scan.decoded = req.body.json
         scan.save().then((doc) => {
@@ -603,18 +633,18 @@ function SaveWagoVersion (req, res, mode) {
         })
       }
       else if (mode === 'update') {
-        promise = WagoItem.findOne({_id: wagoID, type: 'ELVUI', _userId: req.user._id}).exec()
+        promise = WagoItem.findOne({_id: wagoID, type: type, _userId: req.user._id}).exec()
       }
       else if (mode === 'fork') {
         var wago = new WagoItem()
+        wago.type = type
+        wago.name = 'FORKED ' + type
+        wago.fork_of = wagoID
         if (req.user) {
           wago._userId = req.user._id
           wago.hidden = (req.user.default_aura_visibility === 'Hidden')
           wago.private = (req.user.default_aura_visibility === 'Private')
-          wago.type = 'ELVUI'
-          wago.name = json.d.id
-          wago.fork_of = wagoID
-          promise = wago.save.exec()
+          promise = wago.save()
         }
       }
 
@@ -635,56 +665,36 @@ function SaveWagoVersion (req, res, mode) {
       })
     })
   }
-  else if (type=='VUHDO') {
-    lua.JSON2Vuhdo(json, (error, result) => {
-      if (error) {
-        return res.send({error: error})
+  else if (type === 'SNIPPET' && req.body.lua) {
+    var promise
+    if (mode === 'update') {
+      promise = WagoItem.findOne({_id: wagoID, type: type, _userId: req.user._id}).exec()
+    }
+    else if (mode === 'fork') {
+      var wago = new WagoItem()
+      wago.type = type
+      wago.name = 'Lua Snippet'
+      wago.fork_of = req.body.forkOf
+      if (req.user) {
+        wago._userId = req.user._id
+        wago.hidden = (req.user.default_aura_visibility === 'Hidden')
+        wago.private = (req.user.default_aura_visibility === 'Private')
+        promise = wago.save()
       }
-      else if (result.stderr || result.stdout=='') {
-        return res.send({error: 'invalid_vuhdo'})
+    }
+
+    promise.then((wago) => {  
+      if (!wago) {
+        return res.send({error: 'not_found'})
       }
+
+      // good to save
+      var code = new WagoCode()
+      code.auraID = wago._id
+      code.lua = req.body.lua
       
-      var promise
-      if (mode === 'scan') {
-        var scan = new ImportScan()
-        scan.fork = req.body.forkOf
-        scan.type = 'VUHDO'
-        scan.input = result.stdout
-        scan.decoded = req.body.json
-        scan.save().then((doc) => {
-          return res.send({scan: doc._id.toString(), type: doc.type, encoded: scan.input})
-        })
-      }
-      else if (mode === 'update') {
-        promise = WagoItem.findOne({_id: wagoID, type: 'VUHDO', _userId: req.user._id}).exec()
-      }
-      else if (mode === 'fork') {
-        var wago = new WagoItem()
-        if (req.user) {
-          wago._userId = req.user._id
-          wago.hidden = (req.user.default_aura_visibility === 'Hidden')
-          wago.private = (req.user.default_aura_visibility === 'Private')
-          wago.type = 'VUHDO'
-          wago.name = json.d.id
-          wago.fork_of = wagoID
-          promise = wago.save.exec()
-        }
-      }
-
-      promise.then((wago) => {  
-        if (!wago) {
-          return res.send({error: 'not_found'})
-        }
-
-        // good to save
-        var code = new WagoCode()
-        code.auraID = wago._id
-        code.json = JSON.stringify(json)
-        code.encoded = result.stdout
-        
-        code.save().then(() => {
-          res.send({success: true})
-        })
+      code.save().then(() => {
+        res.send({success: true, wagoID: wago._id})
       })
     })
   }

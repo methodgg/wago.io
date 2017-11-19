@@ -15,12 +15,33 @@
         </md-input-container>
       </div>
       <div class="flex-col flex-right">
+        <md-menu v-if="groupedWA" md-size="6" md-align-trigger>
+          <md-button md-menu-trigger id="extractFromGroupButton"><md-icon>call_missed_outgoing</md-icon> {{ $t("Extract from group") }}</md-button>
+          <md-menu-content>
+            <md-menu-item v-for="(wa, key) in groupedWA" @click="extractWA(wa)" :key="key">{{ wa }}</md-menu-item>
+          </md-menu-content>
+        </md-menu>        
         <md-button @click="exportChanges"><md-icon>open_in_new</md-icon> {{ $t("Export/Fork changes") }}</md-button>
         <md-button v-if="canEdit" @click="saveChanges"><md-icon>save</md-icon> {{ $t("Save changes") }}</md-button>
       </div>
     </div>
-    
+
     <editor v-model="editorContent" @init="editorInit" :lang="aceLanguage" :theme="editorTheme" width="100%" height="500"></editor>
+
+    <md-dialog md-open-from="#extractFromGroupButton" md-close-to="#extractFromGroupButton" ref="extractFromGroupDialog">
+      <md-dialog-title>{{ $t("Extract from group") }}</md-dialog-title>
+
+      <md-dialog-content>
+        <p v-if="extractData">{{ $t("Copy the WeakAura import string for \"[-groupedWA-]\"", {groupedWA: extractData.name}) }}</p>
+        <textarea v-if="extractData" class="wago-importstring" spellcheck="false" id="wago-extractString">{{ extractData.encoded }}</textarea>
+        <p v-else>{{ $t("Loading extraction string") }}</p>
+      </md-dialog-content>
+
+      <md-dialog-actions>
+        <md-button v-if="extractData" class="md-primary" @click="extractCopy()">{{ $t("Copy string") }}</md-button>
+        <md-button class="md-primary" @click="this.$refs.extractFromGroupDialog.close()">{{ $t("Close") }}</md-button>
+      </md-dialog-actions>
+    </md-dialog>
     <export-modal :json="tableString" :type="'WeakAura'" :showExport="showExport" :wagoID="wago._id" @hideExport="hideExport"></export-modal>
   </div>
 </template>
@@ -37,7 +58,8 @@ export default {
       editorFile: '',
       aceLanguage: 'json',
       aceEditor: null,
-      showExport: false
+      showExport: false,
+      extractData: false
     }
   },
   watch: {
@@ -452,6 +474,50 @@ export default {
         }, 50)
       }
     },
+    extractWA: function (wa) {
+      this.extractData = false
+      this.$refs.extractFromGroupDialog.open()
+      if (!this.tableData.d || !this.tableData.c) {
+        return
+      }
+      // copy table
+      var table = JSON.parse(JSON.stringify(this.tableData))
+      delete table.c
+      delete table.d
+
+      // loop through grouped auras and find the one we selected
+      for (var i = 0; i < this.tableData.c.length; i++) {
+        if (this.tableData.c[i].id === wa) {
+          table.d = this.tableData.c[i]
+          var vue = this
+          this.http.post('/import/json/extract', {wagoID: this.wago._id, type: 'WEAKAURA', json: JSON.stringify(table)}).then((res) => {
+            if (res.success) {
+              vue.extractData = {}
+              vue.extractData.encoded = res.extracted
+              vue.extractData.name = wa
+            }
+          })
+          break
+        }
+      }
+    },
+    extractCopy: function () {
+      try {
+        document.getElementById('wago-extractString').select()
+        var copied = document.execCommand('copy')
+        if (copied) {
+          window.eventHub.$emit('showSnackBar', this.$t('Import string copied'))
+        }
+        else {
+          window.eventHub.$emit('showSnackBar', this.$t('Import string failed to copy please upgrade to a modern browser'))
+        }
+        return copied
+      }
+      catch (e) {
+        console.log(e)
+        window.eventHub.$emit('showSnackBar', this.$t('Import string failed to copy please upgrade to a modern browser'))
+      }
+    },
     exportChanges: function () {
       if (this.editorSelected === 'tabledata') {
         this.tableString = this.aceEditor.getValue()
@@ -478,6 +544,21 @@ export default {
       set: function () {
 
       }
+    },
+    groupedWA: function () {
+      if (!this.tableData.c) {
+        return false
+      }
+
+      var auras = []
+
+      // loop through each aura in array
+      this.tableData.c.forEach((item, key) => {
+        if (item && item.id) {
+          auras.push(item.id)
+        }
+      })
+      return auras
     },
     wago: function () {
       return this.$store.state.wago

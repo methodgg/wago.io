@@ -123,7 +123,7 @@
           <editor v-model="demoEditorContent" @init="editorInit" lang="lua" :theme="selectEditorTheme" width="100%" height="115"></editor>
           <hr>
           <p v-if="$store.state.user.localAcct">{{ $t("Change password") }}</p>
-          <p v-else>{{ $t("Create password") }}</p>
+          <p v-else><strong>{{ $t("Create password") }}</strong></p>
           <p>{{ $t("Wago does not store emails or any other way of contacting users, and therefore has no password recovery system") }}</p>
 
           <md-input-container v-if="$store.state.user.localAcct" :class="{ 'md-input-invalid': currentPasswordError.length > 0 }">
