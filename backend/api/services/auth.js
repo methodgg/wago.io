@@ -72,6 +72,9 @@ function makeSession(req, res, token, user) {
           who.google = user.google || false
           who.patreon = user.patreon || false
           who.twitter = user.twitter || false
+          if (user.account.password) {
+            who.localAcct = true
+          }
       
           who.defaultImportVisibility = user.account.default_aura_visibility
           who.profileVisibility = user.profile.visibility
@@ -217,7 +220,7 @@ function localAuth (req, res) {
       // if password is a match return true
       if (auth) {
         var who = {}
-        who.UID = user._id
+        who.UID = user._id.toString()
 
         return makeSession(req, res, who, user)
       }
@@ -525,7 +528,6 @@ function twitterAuth(req, res) {
 function oAuthLogin(req, res, provider, authUser) {
   // oAuth JSON profile assumed good at this point, log user in, register social login to existing user, or register as new user
 
-  console.log(provider, authUser)
   var query
   var profile
   var newAcctName
@@ -566,39 +568,39 @@ function oAuthLogin(req, res, provider, authUser) {
     avatarURL = authUser.picture
     break
 
-    case 'google':
-      query = {"google.id": authUser.sub}
+  case 'google':
+    query = {"google.id": authUser.sub}
+    profile = {
+      id: authUser.sub,
+      name: authUser.name,
+    }
+    newAcctName = authUser.name
+    avatarURL = authUser.picture
+    break
+
+  case 'patreon':
+    query = {"patreon.id": authUser.data.id}
+    try {
       profile = {
-        id: authUser.sub,
-        name: authUser.name,
+        id: authUser.data.id,
+        name: authUser.data.attributes.vanity
       }
-      newAcctName = authUser.name
-      avatarURL = authUser.picture
-      break
+      avatarURL = authUser.data.attributes.thumb_url
+      if (authUser.data.relationships.pledges.data.length>0 && authUser.data.relationships.pledges.data[0].attributes) {
+        profile.amount_cents = authUser.data.relationships.pledges.data[0].attributes.amount_cents
+      }
+    }
+    catch (e) {
+      return res.send(500, {error: 'Could not read patreon data', error: e, auth: authUser})
+    }
+    newAcctName = profile.name
 
-    case 'patreon':
-      query = {"patreon.id": authUser.data.id}
-      try {
-        profile = {
-          id: authUser.data.id,
-          name: authUser.data.attributes.vanity
-        }
-        avatarURL = authUser.data.attributes.thumb_url
-        if (authUser.data.relationships.pledges.data.length>0 && authUser.data.relationships.pledges.data[0].attributes) {
-          profile.amount_cents = authUser.data.relationships.pledges.data[0].attributes.amount_cents
-        }
-      }
-      catch (e) {
-        return res.send(500, {error: 'Could not read patreon data', error: e, auth: authUser})
-      }
-      newAcctName = profile.name
-
-      // paid users are verified humans
-      if (profile.amount_cents > 0) {
-        humanDetected = true
-        paid = profile.amount_cents
-      }
-      break
+    // paid users are verified humans
+    if (profile.amount_cents > 0) {
+      humanDetected = true
+      paid = profile.amount_cents
+    }
+    break
 
     // case 'twitter':
     //   query = {"twitter.id": authUser.id_str}

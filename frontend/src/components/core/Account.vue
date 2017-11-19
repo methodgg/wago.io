@@ -414,9 +414,11 @@ end`,
     onChangePassword () {
       if (this.$store.state.user.localAcct && !this.currentPassword) {
         this.currentPasswordError = this.$t('Enter your current password')
+        return
       }
 
-      if (this.newPassword.length >= 6 && this.confirmPassword >= 6 && this.newPassword === this.confirmPassword) {
+      if (this.newPassword.length >= 6 && this.confirmPassword.length >= 6 && this.newPassword === this.confirmPassword) {
+        console.log('changing')
         var vue = this
         this.http.post('/auth/changepass', {
           newPass: this.newPassword,
@@ -431,11 +433,15 @@ end`,
           }
           else {
             this.currentPasswordError = vue.$t('Incorrect password')
+            window.eventHub.$emit('showSnackBar', vue.$t('Current password is incorrect'))
           }
         }).catch((err) => {
           console.log(err)
           window.eventHub.$emit('showSnackBar', vue.$t('Error could not save'))
         })
+      }
+      else {
+        window.eventHub.$emit('showSnackBar', this.$t('New password does not match confirmation or is too short'))
       }
     },
 

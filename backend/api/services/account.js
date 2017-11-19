@@ -65,6 +65,9 @@ server.get('/account/whoami', (req, res, next) => {
     who.google = user.google || false
     who.patreon = user.patreon || false
     who.twitter = user.twitter || false
+    if (user.account.password) {
+      who.localAcct = true
+    }
 
     who.defaultImportVisibility = user.account.default_aura_visibility
     who.profileVisibility = user.profile.visibility
