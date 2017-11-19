@@ -64,7 +64,7 @@
               <md-button-toggle class="md-accent" md-single>
                 <md-button v-if="wago.user && User && wago.UID && wago.UID === User.UID" @click="toggleFrame('config')">{{ $t("Config") }}</md-button>
                 <md-button class="md-toggle" @click="toggleFrame('description')">{{ $t("Description") }}</md-button>
-                <md-button @click="toggleFrame('comments')">{{ $t("[-count-] comment", {count: wago.commentCount }) }}</md-button>
+                <md-button @click="toggleFrame('comments')"><span v-if="hasUnreadComments && showPanel !== 'comments'" class="commentAttn">{{$t("NEW")}}!! </span>{{ $t("[-count-] comment", {count: wago.commentCount }) }}</md-button>
                 <md-button v-if="wago.versions && wago.versions.total > 1" @click="toggleFrame('versions')" ref="versionsButton">{{ $t("[-count-] version", { count: wago.versions.total }) }}</md-button>
                 <md-button v-if="wago.type !== 'COLLECTION'" @click="toggleFrame('collections')">{{ $t("[-count-] collections", {count:  wago.collectionCount}) }}</md-button>
                 <md-button v-if="!wago.alerts.blacklist && wago.code && wago.code.encoded" @click="toggleFrame('embed')">{{ $t("Embed") }}</md-button>
@@ -580,6 +580,17 @@ export default {
     },
     initShowVersions () {
       return (parseInt(this.$route.params.version) > 0)
+    },
+    hasUnreadComments () {
+      if (!this.User || this.User.unreadMentions.length === 0 || !this.wago) {
+        return false
+      }
+      for (var i = 0; i < this.User.unreadMentions.length; i++) {
+        if (this.User.unreadMentions[i].wagoID === this.wago._id) {
+          return true
+        }
+      }
+      return false
     },
     embedHTML () {
       if (this.embedStyle === 'none') {
@@ -1350,6 +1361,7 @@ a.showvid:hover img { transform: scale(1.05); }
 .showvid:hover:after { opacity:1 }
 
 .md-button-toggle { padding: 0 16px 16px; flex-wrap: wrap; }
+.md-button .commentAttn { color: #c2272e !important; -webkit-text-fill-color: #c2272e }
 
 .wago-container { padding: 0 16px; }
 .wago-container > h2 { padding: 0 16px; }

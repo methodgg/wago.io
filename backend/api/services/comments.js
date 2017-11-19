@@ -42,7 +42,7 @@ server.post('/comments/new', (req, res, next) => {
         }
         else {
           comment.commentText = comment.commentText.replace('@' + user.profile.name, '[taggeduser]@' + user.profile.name + '[/taggeduser]')
-          tagged.push(user._id)
+          tagged.push({userID: user._id})
           discord.onComment(req.user, user, wago)
           return cb()
         }
