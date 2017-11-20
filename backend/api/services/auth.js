@@ -648,7 +648,7 @@ function oAuthLogin(req, res, provider, authUser) {
         User.findByUsername(user.search.username).then((testUser) => {
           // if username exists then assign random name
           if (testUser) {
-            user.account.username = newAcctName + user[provider].id.substr(0, 6) // should be random enough?
+            user.account.username = newAcctName + user._id.toString()
             user.search.username = user.account.username.toLowerCase()
           }
 
