@@ -288,6 +288,7 @@ function battlenetAuth(req, res) {
         Authorization: 'Bearer ' + response.data.access_token
       }
     }).then((authRes) => {
+      console.log('bnet fetch = ', authRes)
       if (authRes.data.id) {
         authResponse.id = authRes.data.id
         authResponse.name = authRes.data.battletag
@@ -646,7 +647,7 @@ function oAuthLogin(req, res, provider, authUser) {
         User.findByUsername(user.search.username).then((testUser) => {
           // if username exists then assign random name
           if (testUser) {
-            user.account.username = newAcctName + user[provider].token.substr(0, 6) // should be random enough?
+            user.account.username = newAcctName + user[provider].id.substr(0, 6) // should be random enough?
             user.search.username = user.account.username.toLowerCase()
           }
 
