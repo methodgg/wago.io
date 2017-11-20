@@ -288,7 +288,6 @@ function battlenetAuth(req, res) {
         Authorization: 'Bearer ' + response.data.access_token
       }
     }).then((authRes) => {
-      console.log('bnet fetch = ', authRes)
       if (authRes.data.id) {
         authResponse.id = authRes.data.id
         authResponse.name = authRes.data.battletag
@@ -312,6 +311,7 @@ function battlenetAuth(req, res) {
             console.log('error:', err)
             return res.send(403, {error: "could not reach battle.net"})
           }
+          authResponse.region = results.region
           authResponse.maxLevel = results.maxLevel
           authResponse.avatar = results.avatar
           // success
@@ -501,7 +501,8 @@ function oAuthLogin(req, res, provider, authUser) {
   var humanDetected = false
   var paid = 0
   switch (provider) {
-    case 'battlenet':
+  case 'battlenet':
+    console.log('auth=', authUser)
     query = {"battlenet.id": authUser.id}
     profile = {
       id: authUser.id,
@@ -700,6 +701,7 @@ function getWoWProfile(region, token, callback) {
           }          
         }
       })
+      myCharacter.region = region
       console.log(myCharacter)
       callback(null, myCharacter)
     })
