@@ -311,7 +311,6 @@ function battlenetAuth(req, res) {
             console.log('error:', err)
             return res.send(403, {error: "could not reach battle.net"})
           }
-          console.log('done?', results)
           authResponse.maxLevel = results.maxLevel
           authResponse.avatar = results.avatar
           // success
