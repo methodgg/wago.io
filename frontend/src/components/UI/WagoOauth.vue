@@ -129,6 +129,7 @@ export default {
     }
   },
   mounted () {
+    var vue = this
     if (this.provider === 'twitter' && this.$route.query.oauth_token && this.$route.query.oauth_verifier) {
       this.http.post('/auth/twitter', {
         oauth_token: this.$route.query.oauth_token,
@@ -137,10 +138,12 @@ export default {
         console.log(res) // user?
       })
       .catch((err) => {
+        window.eventHub.$emit('showSnackBar', vue.$t('An error occurred'))
+        vue.$router.replace('/login')
         console.log(err)
       })
     }
-    if (this.code) {
+    else if (this.code) {
       this.$auth.oauth2({
         code: true,
         provider: this.provider,
@@ -151,6 +154,8 @@ export default {
           // console.log('success ' + this.context)
         },
         error: function (res) {
+          window.eventHub.$emit('showSnackBar', vue.$t('An error occurred'))
+          vue.$router.replace('/login')
           // console.log('error ' + this.context)
         }
       })

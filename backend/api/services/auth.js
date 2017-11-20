@@ -283,7 +283,8 @@ function battlenetAuth(req, res) {
     }
   }).then(function (response) {
     var authResponse = {}
-    Axios.get('https://eu.api.battle.net/account/user', {
+    console.log('test', response.data.access_token)
+    Axios.get('https://us.api.battle.net/account/user', {
       headers: {
         Authorization: 'Bearer ' + response.data.access_token
       }
