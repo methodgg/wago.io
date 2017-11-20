@@ -4,6 +4,7 @@
   "description": "Backend service for ePlan Advantage",
   "main": "server.js",
   "dependencies": {
+    "async": "^2.6.0",
     "axios": "^0.16.2",
     "bcrypt": "^1.0.2",
     "bcrypt-nodejs": "0.0.3",
