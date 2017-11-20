@@ -283,7 +283,6 @@ function battlenetAuth(req, res) {
     }
   }).then(function (response) {
     var authResponse = {}
-    console.log('test', response.data.access_token)
     Axios.get('https://us.api.battle.net/account/user', {
       headers: {
         Authorization: 'Bearer ' + response.data.access_token
@@ -308,13 +307,15 @@ function battlenetAuth(req, res) {
             getWoWProfile('kr', response.data.access_token, callback)
           }
         ], (err, results) => {
-          if (err || !results) {
+          if (err) {
             console.log('error:', err)
             return res.send(403, {error: "could not reach battle.net"})
           }
-          authResponse.region = results.region
-          authResponse.maxLevel = results.maxLevel
-          authResponse.avatar = results.avatar
+          if (results) {
+            authResponse.region = results.region
+            authResponse.maxLevel = results.maxLevel
+            authResponse.avatar = results.avatar
+          }
           // success
           oAuthLogin(req, res, 'battlenet', authResponse)
         })
