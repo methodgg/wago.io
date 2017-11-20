@@ -268,8 +268,8 @@ function battlenetAuth(req, res) {
     secret = config.auth.battlenet.betaClientSecret
   }
   else {
-    key = config.auth.battlenet.ClientID
-    secret = config.auth.battlenet.ClientSecret
+    key = config.auth.battlenet.clientID
+    secret = config.auth.battlenet.clientSecret
   }
   Axios.post('https://us.battle.net/oauth/token', querystring.stringify({
     code: req.body.code || req.query.code,
