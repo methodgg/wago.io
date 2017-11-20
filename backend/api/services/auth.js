@@ -307,9 +307,9 @@ function battlenetAuth(req, res) {
             getWoWProfile('kr', response.data.access_token, callback)
           }
         ], (err, results) => {
-          if (err) {
+          if (err || !results) {
             console.log('error:', err)
-            return res.send(403, {error: "invalid_battlenet"})
+            return res.send(403, {error: "could not reach battle.net"})
           }
           console.log('done?', results)
           authResponse.maxLevel = results.maxLevel
