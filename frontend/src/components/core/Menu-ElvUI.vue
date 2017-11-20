@@ -22,6 +22,21 @@
           </md-list-item>
         </md-list>
       </md-layout>
+      <md-layout>
+        <md-subheader>{{ $t("Class Roles") }}</md-subheader>
+        <md-list class="md-double-line md-dense">
+          
+          <md-list-item class="md-inset roles">
+            <category-image group="role"></category-image>
+            <div class="md-list-text-container">
+              <router-link to="/elvui/roles">{{ $t("Class Roles") }}</router-link>
+              <span>
+                <router-link v-for="(item, index) in roles" :to="'/elvui/' + item.slug" v-bind:key="index">{{ item.text }}</router-link>
+              </span>
+            </div>
+          </md-list-item>
+        </md-list>
+      </md-layout>
     </md-layout>
   </div>
 </template>
@@ -46,6 +61,9 @@ export default {
     aClasses: function () {
       var cats = categories.classCategories(this.$t)
       return [[cats[0], cats[1], cats[2], cats[3]], [cats[4], cats[5], cats[6], cats[7]], [cats[8], cats[9], cats[10], cats[11]]]
+    },
+    roles: function () {
+      return categories.getCategories(['role4', 'role1', 'role2', 'role3'], this.$t)
     }
   },
   mounted: function () {

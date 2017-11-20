@@ -156,7 +156,7 @@
               </md-input-container>
               
               <ui-warning v-if="invalidCategories" mode="alert">
-                Invalid categories. Category selection has changed to require a more specific selection to make browsing the categories more meaningful. This import's categories will be changed to follow suit on December 1 or soon after.
+                Invalid categories. Category selection has changed to require a more specific selection to make browsing the categories more meaningful. This import's categories will be changed to follow suit on December 15 or soon after.
               </ui-warning>
               <md-input-container class="md-has-value has-category-select">
                 <label>{{ $t("Categories") }}</label>
