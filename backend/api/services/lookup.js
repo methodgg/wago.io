@@ -197,7 +197,7 @@ server.get('/lookup/wago', (req, res, next) => {
             timing.countVersions = Date.now() - start
             var v = []
             for (var i=0; i<versions.length; i++) {
-              v.push({version: count - i, size: (versions[i].json && versions[i].json.length || versions[i].lua && versions[i].lua.length || 0), date: versions[i].updated})
+              v.push({version: count - i, size: (versions[i].json && versions[i].json.length || versions[i].lua && versions[i].lua.length || versions[i].encoded && versions[i].encoded.length || 0), date: versions[i].updated})
             }
             cb(null, {total: count, versions: v})
           })
