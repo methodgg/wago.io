@@ -1,5 +1,10 @@
 module.exports = {
   categories: function (t) {
+    if (!t) {
+      t = (s) => {
+        return s
+      }
+    }
     return [
       // {id: "cl0", slug: "classes", cls:"", text: t("Classes"), noselect: true, WEAKAURA: true, ELVUI: true, VUHDO: true},
       {id: "cl6", slug: "classes/death-knight", cls:"cl-deathknight", text: t("warcraft:classes.6"), root: true, WEAKAURA: true, ELVUI: true, VUHDO: true, COLLECTION: true},
@@ -343,7 +348,7 @@ module.exports = {
   validateCategories: function (cats) {
     var valid = []
     var path = ''
-    this.categories(t).forEach((cat) => {
+    this.categories().forEach((cat) => {
       if (!cat.systemtag && cats.indexOf(cat.id) > -1 && (!path || cat.slug.indexOf(path) === 0)) {
         path = cat.slug
         valid.push(cat)
@@ -355,7 +360,7 @@ module.exports = {
 
   filterSystemTags: function (cats) {
     var systemTags = []
-    this.categories(t).forEach((cat) => {
+    this.categories().forEach((cat) => {
       if (cats.indexOf(cat.id) > -1 && cat.systemtag) {
         systemTags.push(cat)
       }

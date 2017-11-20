@@ -1,5 +1,5 @@
 require('es6-promise').polyfill()
-
+window.prerenderReady = false
 /**
  * Setup global functions & variables in window
  */
@@ -169,6 +169,7 @@ const store = new Vuex.Store({
         page.image = 'https://wago.io/media/favicon/apple-touch-icon-180x180.png'
       }
       state.pageInfo = JSON.parse(JSON.stringify(page))
+      window.prerenderReady = true
     },
 
     initWotM (state, wotm) {

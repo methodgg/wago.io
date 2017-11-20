@@ -582,7 +582,7 @@ export default {
       return (parseInt(this.$route.params.version) > 0)
     },
     hasUnreadComments () {
-      if (!this.User || this.User.unreadMentions.length === 0 || !this.wago) {
+      if (!this.User || !this.User.unreadMentions || this.User.unreadMentions.length === 0 || !this.wago) {
         return false
       }
       for (var i = 0; i < this.User.unreadMentions.length; i++) {

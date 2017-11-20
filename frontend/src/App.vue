@@ -157,14 +157,14 @@ export default {
       }
 
       // if beta server and user does not have beta access
-      if (process.env.WEB_SERVER.match(/t1000/) && (res.guest || !res.user || !res.user.access || !res.user.access.beta)) {
-        window.requireBetaAccess = true
-        if (!vue.$route.path.match(/\/auth\//)) {
-          window.initPage = vue.$route.path
-          vue.$router.replace('/login')
-        }
-      }
-      else if (res.user) {
+      // if (process.env.WEB_SERVER.match(/t1000/) && (res.guest || !res.user || !res.user.access || !res.user.access.beta)) {
+      //   window.requireBetaAccess = true
+      //   if (!vue.$route.path.match(/\/auth\//)) {
+      //     window.initPage = vue.$route.path
+      //     vue.$router.replace('/login')
+      //   }
+      // }
+      if (res.user) {
         this.$store.commit('setUser', res.user)
         if (vue.$route.path === '/login') {
           vue.$router.replace('/account')
@@ -176,7 +176,7 @@ export default {
     }).catch((err) => {
       console.log('whoami error', err)
       window.initPage = vue.$route.path
-      vue.$router.replace('/login')
+      // vue.$router.replace('/login')
     })
 
     window.eventHub.$on('showSnackBar', this.showSnackBar)

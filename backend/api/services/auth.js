@@ -322,9 +322,12 @@ function battlenetAuth(req, res) {
         callback({error: 'no_account_found'})
       }
     }).catch((err) => {
-      winston.error('failed battlenet auth', err)
+      winston.error('failed battlenet user fetch', err)
       callback({error: 'no_account_found'})
     })
+  }).catch((err) => {
+    winston.error('failed battlenet auth', err)
+    callback({error: 'no_account_found'})
   })
 }
 
@@ -574,17 +577,6 @@ function oAuthLogin(req, res, provider, authUser) {
     newAcctName = authUser.screen_name
     avatarURL = authUser.profile_image_url_https
   break
-
-    // case 'twitter':
-    //   query = {"twitter.id": authUser.id_str}
-    //   profile = {
-    //     id: authUser.id_str,
-    //     token: token,
-    //     displayName: authUser.screen_name,
-    //     username: authUser.name
-    //   }
-    //   newAcctName = authUser.name
-    //   break
 
   }
   // if valid login
