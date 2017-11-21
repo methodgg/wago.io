@@ -351,7 +351,7 @@ module.exports = {
     this.categories().forEach((cat) => {
       if (!cat.systemtag && cats.indexOf(cat.id) > -1 && (!path || cat.slug.indexOf(path) === 0)) {
         path = cat.slug
-        valid.push(cat)
+        valid.push(cat.id)
       }
     })
     return valid

@@ -384,5 +384,7 @@
   "Current password is incorrect": "Current password is incorrect",
   "New password does not match confirmation or is too short": "New password does not match confirmation or is too short",
   "NEW": "NEW",
-  "Create": "Create"
+  "Create": "Create",
+  "An error occurred": "",
+  "Wago does not collect email addresses and therefore has no forgotten password function; we recommend using one of the social logins on the right": ""
 }

@@ -7,7 +7,7 @@
     </md-card-actions>
     <md-input-container v-else-if="User.UID">
       <label>{{ $t('Post comment') }}</label>
-      <md-textarea :id="'post-comment-new'" v-focus v-model.trim="replyText"></md-textarea><br>
+      <md-textarea :id="'post-comment-new'" v-focus v-model="replyText"></md-textarea><br>
       <md-button @click.once="submitComment()" :disabled="replyText.length<5">{{ $t("Submit") }}</md-button>
     </md-input-container>
     <p v-else v-html="$t('Sign in to post a comment')"></p>
@@ -110,7 +110,7 @@ export default {
     submitComment () {
       var params = {}
       params.wagoID = this.wagoID
-      params.text = this.replyText
+      params.text = this.replyText.trim()
       this.replyID = null
 
       var vue = this
