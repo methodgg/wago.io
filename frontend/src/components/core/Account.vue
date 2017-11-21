@@ -298,8 +298,8 @@ end`,
           this.editName = 'User-' + this.$store.state.user.UID
         }
         // %#/\\<> are invalid characters.
-        if (this.editName.match(/[%#/\\<>]/)) {
-          this.updateNameStatus = this.$t('Usernames can not contain the following characters %#/\\<>')
+        if (this.editName.match(/[%/\\<>]/)) {
+          this.updateNameStatus = this.$t('Usernames can not contain the following characters %/\\<>')
           this.updateNameError = true
           return false
         }

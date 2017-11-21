@@ -128,7 +128,7 @@ server.post('/account/update/username', (req, res) => {
   if (!req.user || !req.body.name) {
     return res.send(403, {error: "forbidden"})
   }
-  else if (req.body.name.match(/[%#/\\<>]/)) {
+  else if (req.body.name.match(/[%/\\<>]/)) {
     return res.send(401, {error: "invalid input"})
   }
   

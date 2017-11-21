@@ -51,7 +51,7 @@ server.get('/search', (req, res, skipSearch) => {
 
     // if search includes 'user: username'
     function(done) {
-      const regex = /\buser:\s*([\w\-]+)|\buser:\s*"([^"]+)"/ig
+      const regex = /\buser:\s*([^\s]+)|\buser:\s*"([^"]+)"/ig
       var userSearch = query.match(regex)
       if (!userSearch || userSearch.length==0) return done()
 

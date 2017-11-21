@@ -46,6 +46,9 @@ export default {
       var vue = this
       var who = this.$route.params.profile
       var params = {}
+      if (window.location.hash) {
+        who = who + window.location.hash
+      }
       params.user = who
 
       vue.http.get('/lookup/profile', params).then((res) => {
