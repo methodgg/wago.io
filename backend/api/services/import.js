@@ -613,6 +613,8 @@ function SaveWagoVersion (req, res, mode) {
         
         code.save().then(() => {
           if (mode === 'update') {
+            wago.modified = Date.now
+            wago.save().exec()
             // look for any discord actions
             discord.onUpdate(req.user, wago)
           }

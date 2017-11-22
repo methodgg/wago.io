@@ -40,7 +40,7 @@
         <search-meta v-if="results.query.context.length > 0" :meta="results.query.context" :tagMap="tagMap" :textSearch="results.query.textSearch" :sort="sortVal" @setSearch="setSearch"></search-meta>
       </md-layout>
     </md-layout>
-    <p v-if="!isSearching">{{ $t("No results found") }}</p>
+    <p v-if="!isSearching && results.total === 0">{{ $t("No results found") }}</p>
     <p v-if="isSearchingMore">{{ $t("Loading more") }}</p>
   </div>
 </template>
