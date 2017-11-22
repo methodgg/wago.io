@@ -1,42 +1,46 @@
 <template>
   <div>
-    <form novalidate @submit.stop.prevent="runSearch(searchString)" id="searchForm">
-      <md-input-container>
-        <label>{{ $t("Search") }}</label>
-        <md-input v-model="searchString" ref="searchInput"></md-input>
-        <md-button @click="runSearch(searchString)" :disabled="searchString.length<3">{{ $t("Search") }}</md-button>
-      </md-input-container>
-    </form>
-    <ui-loading v-if="isSearching"></ui-loading>
-    <md-layout id="searchLayout" v-if="!isSearching && results.total > 0">
-      <md-layout id="searchResults">
-        <div class="searchResult" template v-for="(result, index) in results.results" v-bind:key="index">
-          <div class="searchImg">
-            <md-image :md-src="result.thumbnail" v-if="result.thumbnail"></md-image>
-          </div>
-          <div class="searchText">
-            <router-link :to="'/' + result.slug">{{ result.name }}</router-link>
-            <md-subheader>
-              <span>{{ result.type }}</span>
-              <span>{{ result.date.modified || result.date.created | moment('LLL') }}</span>
-              <router-link v-if="result.user.searchable" :class="result.user.roleClass" :to="'/p/' + result.user.name">{{ result.user.name }}</router-link>
-              <span v-else :class="result.user.roleClass">{{ result.user.name }}</span>
-              <span>{{ $t("[-count-] view", { count: result.viewCount }) }}</span>
-              <span>{{ $t("[-count-] star", { count: result.favoriteCount }) }}</span>
-              <span>{{ $t("[-count-] comment", { count: result.commentCount }) }}</span>
-            </md-subheader>
-            <formatted-text :text="result.description" truncate="180" :plaintext="true"></Formatted-text>
-            <div class="searchTags">
-              <md-chip v-for="cat in result.categories" v-bind:key="cat.id" :class="cat.cls" disabled v-if="cat.text">{{ cat.text }}</md-chip>
+    <md-layout id="searchLayout">
+      <md-layout>
+        <form novalidate @submit.stop.prevent="runSearch(searchString)" id="searchForm">
+          <md-input-container>
+            <label>{{ $t("Search") }}</label>
+            <md-input v-model="searchString" ref="searchInput"></md-input>
+            <md-button @click="runSearch(searchString)" :disabled="searchString.length<3">{{ $t("Search") }}</md-button>
+          </md-input-container>
+        </form>
+
+        <ui-loading v-if="isSearching"></ui-loading>
+        <div v-else-if="!isSearching && results.total > 0">
+          <div class="searchResult" template v-for="(result, index) in results.results" v-bind:key="index">
+            <div class="searchImg">
+              <md-image :md-src="result.thumbnail" v-if="result.thumbnail"></md-image>
+            </div>
+            <div class="searchText">
+              <router-link :to="'/' + result.slug">{{ result.name }}</router-link>
+              <md-subheader>
+                <span>{{ result.type }}</span>
+                <span>{{ result.date.modified || result.date.created | moment('LLL') }}</span>
+                <router-link v-if="result.user.searchable" :class="result.user.roleClass" :to="'/p/' + result.user.name">{{ result.user.name }}</router-link>
+                <span v-else :class="result.user.roleClass">{{ result.user.name }}</span>
+                <span>{{ $t("[-count-] view", { count: result.viewCount }) }}</span>
+                <span>{{ $t("[-count-] star", { count: result.favoriteCount }) }}</span>
+                <span>{{ $t("[-count-] comment", { count: result.commentCount }) }}</span>
+              </md-subheader>
+              <formatted-text :text="result.description" truncate="180" :plaintext="true"></Formatted-text>
+              <div class="searchTags">
+                <md-chip v-for="cat in result.categories" v-bind:key="cat.id" :class="cat.cls" disabled v-if="cat.text">{{ cat.text }}</md-chip>
+              </div>
             </div>
           </div>
         </div>
-      </md-layout>
-      <md-layout id="searchMeta">
-        <search-meta v-if="results.query.context.length > 0" :meta="results.query.context" :tagMap="tagMap" :textSearch="results.query.textSearch"></search-meta>
+      </md-layout>   
+    
+      <md-layout id="searchMeta" v-if="results && results.query && results.query.context">
+        <search-meta v-if="results.query.context.length > 0" :meta="results.query.context" :tagMap="tagMap" :textSearch="results.query.textSearch" :sort="sortVal" @setSearch="setSearch"></search-meta>
       </md-layout>
     </md-layout>
-    <p v-else-if="!isSearching">{{ $t("No results found") }}</p>
+    <p v-if="!isSearching">{{ $t("No results found") }}</p>
     <p v-if="isSearchingMore">{{ $t("Loading more") }}</p>
   </div>
 </template>
@@ -53,7 +57,9 @@ export default {
       tagContext: [],
       tagMap: {},
       isSearching: false,
-      isSearchingMore: false
+      isSearchingMore: false,
+      sortVal: '',
+      uiSearchValue: false
     }
   },
   props: ['contextSearch'],
@@ -93,6 +99,29 @@ export default {
       }
 
       this.isSearching = true
+
+      // check if sort value needs to be added to query
+      var sort = query.match(/sort:\s?(-?\w+)/i)
+      if (sort && sort[1] !== this.sortVal && !this.uiSearchValue) {
+        // is entered value valid?
+        sort[1] = sort[1].toLowerCase()
+        if (sort[1] === 'date' || sort[1] === 'date' || sort[1] === 'stars' || sort[1] === 'stars' || sort[1] === 'views' || sort[1] === 'views') {
+          this.sortVal = sort[1]
+        }
+        else {
+          this.sortVal = 'date'
+        }
+        query = query.replace(/sort:\s?(-?\w+)/i, 'Sort: ' + this.sortVal)
+      }
+      else {
+        if (!this.sortVal) {
+          this.sortVal = 'date'
+        }
+        query = query.replace(/sort:\s?(-?\w+)/i, '')
+        query = query.trim() + ' Sort: ' + this.sortVal
+      }
+      this.searchString = query
+      this.uiSearchValue = false
 
       // check if we're searching for any localized tags
       const regex = /\btag:\s*([\w-]+)|\btag:\s*"([^"]+)"/ig
@@ -145,6 +174,11 @@ export default {
 
         this.isSearching = false
       })
+    },
+    setSearch: function (val) {
+      this.sortVal = val
+      this.uiSearchValue = true
+      this.runSearch()
     }
   },
   mounted: function () {
@@ -193,7 +227,7 @@ export default {
   #searchResults { order: 2 }
 }
 
-#searchForm { padding: 16px }
+#searchForm { padding: 16px; width: 100% }
 #searchForm button { margin-top: -3px }
 
 .searchResult { display: flex; padding: 0 8px }
@@ -208,5 +242,5 @@ export default {
 .searchTags .md-chip { height: auto; padding: 4px 6px }
 
 
-#searchMeta .md-whiteframe { padding: 8px}
+#searchMeta .md-whiteframe { padding: 8px; margin-top: 1.5em}
 </style>

@@ -35,7 +35,7 @@
           <div v-else>
             <md-input-container>
               <label>{{ $t('Post comment') }}</label>
-              <md-textarea :id="'post-comment-' + index" v-focus v-model.trim="replyText"></md-textarea><br>
+              <md-textarea :id="'post-comment-' + index" v-focus v-model="replyText"></md-textarea><br>
             </md-input-container>
             <md-button @click.once="submitComment()" :disabled="replyText == '@'+comment.author.name+' ' || replyText.length<5">{{ $t("Submit") }}</md-button>
           </div>

@@ -1,6 +1,18 @@
 <template>
   <div>
     <md-whiteframe id="queryInfo">
+      <strong>{{ $t("Options") }}</strong>
+      <div class="field-group">
+        <md-input-container>
+          <label for="sort">{{ $t("Sort") }}</label>
+          <md-select name="sort" id="sort" v-model="sortVal">
+            <md-option value="stars">{{ $t("Stars") }}</md-option>
+            <md-option value="views">{{ $t("Views") }}</md-option>
+            <md-option value="date">{{ $t("Date") }}</md-option>
+          </md-select>
+        </md-input-container>
+      </div>
+
       <strong>{{ $t("Query information") }}</strong>
       <md-list>
         <template v-for="(context, index) in meta">
@@ -81,7 +93,17 @@ export default {
   components: {
     'category-image': require('../UI/CategoryImage.vue')
   },
-  props: ['meta', 'textSearch', 'tagMap'],
+  props: ['meta', 'textSearch', 'tagMap', 'sort'],
+  computed: {
+    sortVal: {
+      get: function () {
+        return this.sort
+      },
+      set: function (v) {
+        this.$emit('setSearch', v)
+      }
+    }
+  },
   methods: {
     getCategory: function (catID) {
       return Categories.match(catID, this.$t)

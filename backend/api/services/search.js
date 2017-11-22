@@ -23,6 +23,33 @@ server.get('/search', (req, res, skipSearch) => {
 
   // build criteria to search for
   async.series([
+    // if search includes 'sort: sort' - valid sort options: date stars views
+    function(done) {
+      const regex = /\bsort:\s*"?(date|stars|views)"?/i
+      var sortType = query.match(regex)
+      if (!sortType || sortType.length==0) return done()
+
+      if ((sortMatch = regex.exec(sortType)) !== null) {
+        // valid sort option found. Remove tag from query and update lookup
+        query = query.replace(sortMatch[0], '').replace(/\s{2,}/, ' ').trim()
+        sortMatch[1] = sortMatch[1].toLowerCase()
+
+        if (sortMatch[1] === 'date') {
+          sort = '-modified'
+        }
+        else if (sortMatch[1] === 'stars') {
+          sort = '-popularity.favorite_count'
+        }
+        else if (sortMatch[1] === 'views') {
+          sort = '-popularity.views'
+        }
+        else if (sortMatch[1] === 'popular') {
+          sort = '-popularity.viewsThisWeek'
+        }
+      }
+      return done()
+    },
+
     // if search includes 'type: wagotype'
     function(done) {
       const regex = /\btype:\s*"?(weakauras?2?|elvui|vuhdo|collection|snippet|encounternotes|image|audio)"?/i
@@ -36,7 +63,7 @@ server.get('/search', (req, res, skipSearch) => {
 
         if (typeMatch[1] === 'WEAKAURA' || typeMatch[1] === 'WEAKAURA2' || typeMatch[1] === 'WEAKAURAS') {
           typeMatch[1] = 'WEAKAURAS2'
-        }        
+        } 
         lookup.type = typeMatch[1]
 
         Search.query.context.push({

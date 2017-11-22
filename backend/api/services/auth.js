@@ -308,7 +308,6 @@ function battlenetAuth(req, res) {
           }
         ], (err, results) => {
           if (err) {
-            console.log('error:', err)
             return res.send(403, {error: "could not reach battle.net"})
           }
           if (results) {
@@ -402,7 +401,6 @@ function googleAuth(req, res) {
   }).then((response) => {
     if (response.data && response.data.id_token){
       var profile = jwt.decode(response.data.id_token)
-      console.log(profile)
       oAuthLogin(req, res, 'google', profile)
     }
     else {
@@ -416,7 +414,6 @@ function googleAuth(req, res) {
 
 // Login through Patreon
 function patreonAuth(req, res) {
-  console.log('patreon authing')
   Axios.post('https://api.patreon.com/oauth2/token', querystring.stringify({
     code: req.query.code,
     client_id: config.auth.patreon.clientID,
@@ -438,7 +435,6 @@ function patreonAuth(req, res) {
         oAuthLogin(req, res, 'patreon', userResponse.data)
       })
       .catch(function (err) {
-        console.log(err, err.data, 'get user failed')
         res.send(500, err)
       })
     }    
@@ -504,7 +500,6 @@ function oAuthLogin(req, res, provider, authUser) {
   var paid = 0
   switch (provider) {
   case 'battlenet':
-    console.log('auth=', authUser)
     query = {"battlenet.id": authUser.id}
     profile = {
       id: authUser.id,
@@ -704,12 +699,9 @@ function getWoWProfile(region, token, callback) {
         }
       })
       myCharacter.region = region
-      console.log(myCharacter)
       callback(null, myCharacter)
     })
     .catch((err) => {
-      console.log(err)
-      console.log('Error fetching bnet characters', region)
       callback(err)
     })
 }

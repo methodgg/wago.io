@@ -31,7 +31,7 @@
             </md-input-container>
             <md-input-container>
               <label>Content</label>
-              <md-textarea v-model="blogContent"></md-textarea>
+              <md-textarea v-model="blogContent" id="blogEditor"></md-textarea>
             </md-input-container>
             <div>
               <md-radio v-model="blogPublishStatus" id="blogPublish1" name="blogPublish" md-value="publish">Publish</md-radio>
@@ -150,4 +150,5 @@ export default {
 #admin #blog-sidebar ul { width: 100% }
 #admin #blog-sidebar ul em { font-size: 80%; opacity: .8 }
 #admin .md-dialog p { margin: 1em 0}
+#blogEditor { min-height: 600px }
 </style>

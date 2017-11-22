@@ -45,3 +45,10 @@ server.post('/admin/blog', (req, res) => {
     })    
   }
 })
+
+/**
+ * loader.io verification
+ */
+server.get('/loaderio-ea4a5150f4d42634b2499beaf72f04a9', (req, res) => {
+  res.send('loaderio-ea4a5150f4d42634b2499beaf72f04a9')
+})
