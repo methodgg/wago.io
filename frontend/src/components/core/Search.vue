@@ -41,7 +41,7 @@
       </md-layout>
     </md-layout>
     <p v-if="!isSearching && results.total === 0">{{ $t("No results found") }}</p>
-    <p v-if="isSearchingMore">{{ $t("Loading more") }}</p>
+    <p v-else-if="isSearchingMore">{{ $t("Loading more") }}</p>
   </div>
 </template>
 
