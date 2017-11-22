@@ -50,5 +50,7 @@ server.post('/admin/blog', (req, res) => {
  * loader.io verification
  */
 server.get('/loaderio-ea4a5150f4d42634b2499beaf72f04a9.txt', (req, res) => {
+  res.contentType = 'text/plain'
+  res.header('Content-Type','text/plain')
   res.send('loaderio-ea4a5150f4d42634b2499beaf72f04a9')
 })
