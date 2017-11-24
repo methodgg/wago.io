@@ -522,6 +522,8 @@ function oAuthLogin(req, res, provider, authUser) {
     break
   
   case 'facebook':
+    console.log('fb test', authUser)
+    return
     if (authUser.email) {
       query = {"$or": {"facebook.email": authUser.email, "facebook.id": authUser.id}}
     }
