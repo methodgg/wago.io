@@ -523,10 +523,10 @@ function oAuthLogin(req, res, provider, authUser) {
   
   case 'facebook':
     if (authUser.email) {
-      query = {"facebook.email": authUser.email}
+      query = {"$or": {"facebook.email": authUser.email, "facebook.id": authUser.id}}
     }
     else {
-      query - {"_id": "error"}
+      query - {"facebook.id": authUser.id}
     }
     profile = {
       id: authUser.id, // not synced with previous version of wago, need to use email for lookups instead
