@@ -1,7 +1,7 @@
 {
-  "name": "eplan-backend",
-  "version": "1.0.0",
-  "description": "Backend service for ePlan Advantage",
+  "name": "wago.io",
+  "version": "3.0.0",
+  "description": "API server for wago.io",
   "main": "server.js",
   "dependencies": {
     "async": "^2.6.0",
@@ -48,6 +48,6 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "WPS Disaster Management Solutions",
-  "license": "ISC"
+  "author": "Mark Bosley",
+  "license": "MIT"
 }

@@ -522,15 +522,16 @@ function oAuthLogin(req, res, provider, authUser) {
     break
   
   case 'facebook':
-    if (authUser.email && authUser.email.length > 2) {
-      query = {"$or": {"facebook.email": authUser.email}}
+    // id is not synced with previous version of wago, prefer to use email for lookups instead but somehow email is not always provided...? FB option somewhere?
+    if (authUser.email) { 
+      query = {"facebook.email": authUser.email}
     }
     else {
       query = {"facebook.id": authUser.id}
     }
 
     profile = {
-      id: authUser.id, // not synced with previous version of wago, need to use email for lookups instead
+      id: authUser.id, 
       name: authUser.name,
       email: authUser.email
     }

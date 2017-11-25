@@ -274,8 +274,8 @@ function ScanImport (req, res, next, test) {
         }
       }
       catch (e) {
-        console.error('Error reading ElvUI JSON', e)
-        return res.send({error: 'invalid_import'})
+        console.error('Error reading ElvUI JSON', e, result.stdout)
+        return res.send({error: result.stdout})
       }      
     })
   }
@@ -673,8 +673,11 @@ function SaveWagoVersion (req, res, mode) {
         
         code.save().then(() => {
           if (mode === 'update') {
-            // look for any discord actions
-
+            wago.modified = new Date()
+            wago.save().then(() => {
+              // look for any discord actions
+              discord.onUpdate(req.user, wago)
+            })
           }
           res.send({success: true})
         })
@@ -711,8 +714,11 @@ function SaveWagoVersion (req, res, mode) {
       
       code.save().then(() => {
         if (mode === 'update') {
-          // look for any discord actions
-
+          wago.modified = new Date()
+          wago.save().then(() => {
+            // look for any discord actions
+            discord.onUpdate(req.user, wago)
+          })
         }
         res.send({success: true, wagoID: wago._id})
       })

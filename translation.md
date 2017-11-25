@@ -23,7 +23,7 @@ The following is the status of supported and to-be-supported languages (as of th
 | Korean  	| ✔️ Included 	    |  30%	| ❌ No one    |
 | Portuguese  	| ✔️ Included 	    |  30%	| ❌ No one    |
 | Russian  	| ✔️ Included 	    |   94%	|   Translit  |
-| Simplified Chinese  	| ✔️ Included 	    | 30%	|   ❌ No one  |
+| Simplified Chinese  	| ✔️ Included 	    | 100%	|    biggy0214  |
 | Spanish  	| ✔️ Included 	    |  94%	|   Krich  |
 | Swedish  	| 😞 Not included 	    |  21%	|   Hukk  |
 

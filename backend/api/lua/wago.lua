@@ -133,7 +133,7 @@ end
 
 -- elvui
 function Decode(dataString)
-	local profileType, profileKey, profileData, message
+  local profileInfo, profileType, profileKey, profileData, message
 	local stringType = GetImportStringType(dataString)
 
 	if stringType == "Base64" then
@@ -146,19 +146,38 @@ function Decode(dataString)
 		end
 
 		local serializedData, success
-		serializedData, profileType, profileKey = SplitString(decompressedData, "::")
+		serializedData, profileInfo = SplitString(decompressedData, "^^::") -- "^^" indicates the end of the AceSerializer string
+
+		if not profileInfo then
+			print("Error importing profile. String is invalid or corrupted!")
+			return
+		end
+
+		serializedData = string.format("%s%s", serializedData, "^^") --Add back the AceSerializer terminator
+		profileType, profileKey = SplitString(profileInfo, "::")
 		success, profileData = Serializer:Deserialize(serializedData)
+
 		if not success then
 			print("Error deserializing:", profileData)
 			return
 		end
 	elseif stringType == "Table" then
 		local profileDataAsString
-		profileDataAsString, profileType, profileKey = SplitString(dataString, "::")
+		profileDataAsString, profileInfo = SplitString(dataString, "}::") -- "}::" indicates the end of the table
+
+		if not profileInfo then
+			print("Error extracting profile info. Invalid import string!")
+			return
+		end
+
 		if not profileDataAsString then
 			print("Error extracting profile data. Invalid import string!")
 			return
 		end
+
+		profileDataAsString = string.format("%s%s", profileDataAsString, "}") --Add back the missing "}"
+		profileDataAsString = string.gsub(profileDataAsString, "\124\124", "\124") --Remove escape pipe characters
+		profileType, profileKey = SplitString(profileInfo, "::")
 
 		local profileToTable = loadstring(string.format("%s %s", "return", profileDataAsString))
 		if profileToTable then
@@ -172,7 +191,7 @@ function Decode(dataString)
 	end
 
 	--return profileType, profileKey, profileData
-    return profileData
+  return profileData
 
 end
 
