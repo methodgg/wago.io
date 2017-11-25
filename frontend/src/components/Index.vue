@@ -52,10 +52,17 @@
             <md-input name="name" id="name" v-model="name"></md-input>
           </md-input-container>
 
-          <md-input-container v-if="scanID" class="md-has-value has-category-select">
-            <label>{{ $t("Categories") }}</label>
-            <category-select :selectedCategories="setCategories" :type="type.toUpperCase()" @update="cat => {setCategories = cat}" ></category-select>
-          </md-input-container>
+          <div v-if="scanID">
+            <label id="categoryLabel">{{ $t("Categories") }}</label>
+            <md-button class="md-icon-button md-raised" @click="numCategorySets++">
+              <md-icon>add</md-icon>
+            </md-button>
+            <div v-for="n in numCategorySets">                
+              <div v-if="scanID" class="has-category-select">
+                <category-select :selectedCategories="setCategories[n-1]" :type="type.toUpperCase()" @update="cat => {setCategories[numCategorySets-1] = cat}" ></category-select>
+              </div>
+            </div>
+          </div>
 
           <md-button class="md-raised" :disabled="disableSubmit" @click="submitImport()">Submit</md-button>
         </md-whiteframe>
@@ -179,7 +186,17 @@
 #inputStringWrapper { width: 100%; position: relative; }
 #inputStringWrapper div  { position: absolute; top: 0; color: #a5a5a5; padding: 6px 0 0 0; pointer-events: none}
 
-.has-category-select + .has-category-select {margin-top: -24px}
+.has-category-select { position: relative}
+.has-category-select:after {
+    height: 1px;
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background-color: #B6B6B6;
+    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    content: " ";
+}
 
 #topwagos .md-list-item { flex-wrap: wrap }
 
@@ -187,12 +204,20 @@
 #sitenews .md-card {margin: 16px 0 0; width:100%}
 #sitenews .md-card .md-subhead { opacity: 1 }
 
+#categoryLabel { margin-top: 10px; display: inline-block}
+
 </style>
 
 <script>
 import CategorySelect from './UI/SelectCategory.vue'
 import WagoNews from './core/News.vue'
 import VueMarkdown from 'vue-markdown'
+
+function flatten (arr) {
+  return arr.reduce(function (flat, toFlatten) {
+    return flat.concat(Array.isArray(toFlatten) ? flatten(toFlatten) : toFlatten)
+  }, [])
+}
 
 export default {
   name: 'app',
@@ -206,7 +231,6 @@ export default {
       expire: '3mo',
       name: '',
       setCategories: [],
-      setCategories2: [],
       categories: [],
       type: '',
       isScanning: false,
@@ -214,7 +238,8 @@ export default {
       disableSubmit: true,
       top10Lists: {},
       latestBlogs: [],
-      addonReleases: []
+      addonReleases: [],
+      numCategorySets: 1
     }
   },
   components: {
@@ -259,7 +284,7 @@ export default {
         importAs: this.importAs,
         expireAfter: this.expire,
         name: this.name,
-        categories: JSON.stringify(this.setCategories.concat(this.setCategories2))
+        categories: JSON.stringify(flatten(this.setCategories))
       }
       var vue = this
       this.http.post('/import/submit', post).then((res) => {
@@ -313,7 +338,6 @@ export default {
           // build category select
           vue.categories = []
           vue.setCategories = []
-          vue.setCategories2 = []
 
           // set scanID after other data is assigned
           vue.scanID = res.scan

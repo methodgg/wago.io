@@ -1,89 +1,150 @@
 #content a:not(.md-button) { color: #d7373d }
 
-/* Categories */
-.md-chip { color: #fff }
-.md-chip.cl-deathknight { background-color: #C41F3B!important }
+/**************
+* CATEGORIES 
+***************/
+.md-chip { border-radius:4px; margin:0 6px 6px 0; padding-left:26px; background-repeat: no-repeat; background-position: 2px 5px; background-size: 22px 22px; text-shadow: 1px 1px rgba(0, 0, 0, 0.12); }
+.multiselect .md-chip { background-image: none!important; margin: 0}
+.md-chip.show_more { color: #FFF!important; padding-left: 8px; cursor:pointer }
+
+/* Classes */
+.md-chip.cl-deathknight { color: #C41F3B!important; background-image: url('menu-deathknight.png') }
 .cl-deathknight a, .cl-deathknight { color: #C41F3B!important }
-.md-chip.cl-demonhunter { background-color: #A330C9!important }
+.multiselect .md-chip.cl-deathknight { background-color: #C41F3B!important; color: black!important }
+
+.md-chip.cl-demonhunter { color: #A330C9!important; background-image: url('menu-demonhunter.png') }
 .cl-demonhunter a, .cl-demonhunter { color: #A330C9!important }
-.md-chip.cl-druid { background-color: #FF7D0A!important }
+.multiselect .md-chip.cl-demonhunter { background-color: #A330C9!important; color: black!important }
+
+.md-chip.cl-druid { color: #FF7D0A!important; background-image: url('menu-druid.png') }
 .cl-druid a, .cl-druid { color: #FF7D0A!important }
-.md-chip.cl-hunter { background-color: #ABD473!important }
+.multiselect .md-chip.cl-druid { background-color: #FF7D0A!important; color: black!important }
+
+.md-chip.cl-hunter { color: #ABD473!important; background-image: url('menu-hunter.png') }
 .cl-hunter a, .cl-hunter { color: #ABD473!important }
-.md-chip.cl-mage { background-color: #69CCF0!important }
+.multiselect .md-chip.cl-hunter { background-color: #ABD473!important; color: black!important }
+
+.md-chip.cl-mage { color: #69CCF0!important; background-image: url('menu-mage.png') }
 .cl-mage a, .cl-mage { color: #69CCF0!important }
-.md-chip.cl-monk { background-color: #00FF96!important }
-.cl-monk a, .cl-monk { color: #1dd489!important }
-.md-chip.cl-paladin { background-color: #F58CBA!important }
+.multiselect .md-chip.cl-mage { background-color: #69CCF0!important; color: black!important }
+
+.md-chip.cl-monk { color: #00FF96!important; background-image: url('menu-monk.png') }
+.cl-monk a, .cl-monk { color: #00FF96!important }
+.multiselect .md-chip.cl-monk { background-color: #00FF96!important; color: black!important }
+
+.md-chip.cl-paladin { color: #F58CBA!important; background-image: url('menu-paladin.png') }
 .cl-paladin a, .cl-paladin { color: #F58CBA!important }
-.md-chip.cl-priest { background-color: #FFFFFF!important; color: black!important; box-shadow: 0 0 1px black }
+.multiselect .md-chip.cl-paladin { background-color: #F58CBA!important; color: black!important }
+
+.md-chip.cl-priest { color: #FFFFFF!important; ; background-image: url('menu-priest.png') }
 .cl-priest a, .cl-priest { color: #A9A9A9!important }
-.md-chip.cl-rogue { background-color: #FFF569!important; color: black!important; }
+.multiselect .md-chip.cl-priest { background-color: #FFFFFF!important; color: black!important }
+
+.md-chip.cl-rogue { color: #FFF569!important; background-image: url('menu-rogue.png')}
 .cl-rogue a, .cl-rogue { color: #e8d901!important }
-.md-chip.cl-shaman { background-color: #0070DE!important }
+.multiselect .md-chip.cl-rogue { background-color: #FFF569!important; color: black!important }
+
+.md-chip.cl-shaman { color: #0070DE!important; background-image: url('menu-shaman.png') }
 .cl-shaman a, .cl-shaman { color: #0070DE!important }
-.md-chip.cl-warlock { background-color: #9482C9!important }
+.multiselect .md-chip.cl-shaman { background-color: #0070DE!important; color: black!important }
+
+.md-chip.cl-warlock { color: #9482C9!important; background-image: url('menu-warlock.png') }
 .cl-warlock a, .cl-warlock { color: #9482C9!important }
-.md-chip.cl-warrior { background-color: #C79C6E!important }
+.multiselect .md-chip.cl-warlock { background-color: #9482C9!important; color: black!important }
+
+.md-chip.cl-warrior { color: #C79C6E!important; background-image: url('menu-warrior.png') }
 .cl-warrior a, .cl-warrior { color: #C79C6E!important }
+.multiselect .md-chip.cl-warrior { background-color: #C79C6E!important; color: black!important }
 
-.md-chip.misc { background-color: #3474C7!important }
-.md-chip.questing { background-color: #DED528!important }
-.md-chip.noncombat { background-color: #C78AC4!important }
-.md-chip.prof { background-color: #AAC758!important }
-
-.md-chip.roles { background: #BED0C1!important; }
-.md-chip.pvp-arena { background: #ff0000!important; }
-.md-chip.pvp-battleground { background: #0735ef!important; }
-
-.md-chip.prof-gathering { background: #5E63B8!important; }
-.md-chip.prof-crafting { background: #B85E5F!important; }
-.md-chip.prof-secondary { background: #C4C4C4!important; }
-
-.md-chip.emeraldnightmare { background: #6b2100!important; }
-.emeraldnightmare a, .emeraldnightmare { color: #6b2100!important}
-
-.md-chip.trialofvalor { background: #8F0995!important; }
-.trialofvalor a, .trialofvalor { color: #8F0995!important}
-
-.md-chip.nighthold { background: #cb02b7!important; }
-.nighthold a, .nighthold { color: #cb02b7!important}
-
-.md-chip.tombofsargeras { background: #006d35!important; }
-.tombofsargeras a, .tombofsargeras { color: #006d35!important}
-
-.md-chip.antorus { background: #1978aa!important; }
-.antorus a, .antorus { color: #1978aa!important}
-
-.md-chip.hellfirecitadel { background: #689E12!important; }
-.hellfirecitadel a, .hellfirecitadel { color: #689E12!important}
-
-.md-chip.dungeon { background: #F5A623!important; }
-.dungeon a, .dungeon { color: #F5A623!important }
-
-.md-chip.development { font-family: monospace; background: #D27B61!important;}
-.development a, .development { color: #D27B61!important}
-
+/* misc */
+.md-chip.misc { color: #D0B58B!important; background-image: url('menu-misc.png') }
 .misc a, .misc { color: #D0B58B!important}
+.multiselect .md-chip.misc { background-color: #D0B58B!important; color: black!important }
+
+.md-chip.roles { color: #BED0C1!important; background-image: url('menu-roles.png') }
 .roles a, .roles { color: #BED0C1!important}
-.prof-gathering a, .prof-gathering { color: #5E63B8!important}
-.prof-crafting a, .prof-crafting { color: #B85E5F!important}
-.prof-secondary a, .prof-secondary { color: #C4C4C4!important}
-.snippets a, .snippets { color: #D18CF3!important}
-.pvp-battleground a, .pvp-battleground { color: #02518a!important}
-.pvp-arena a, .pvp-arena { color: #ed1b24!important}
-.vuhdo a, .vuhdo { color: #6BB85E!important }
+.multiselect .md-chip.roles { background-color: #BED0C1!important; color: black!important }
 
-.md-chip.equip { background-color: #7ED321!important }
+.md-chip.vuhdo { color: #6BB85E!important; background-image: url('menu-vuhdo.png') }
+.vuhdo a, .vuhdo { color: #6BB85E!important}
+.multiselect .md-chip.vuhdo { background-color: #6BB85E!important; color: black!important }
+
+.md-chip.equip { color: #7ED321!important; background-image: url('menu-equip.png') }
 .equip a, .equip { color: #7ED321!important}
+.multiselect .md-chip.equip { background-color: #7ED321!important; color: black!important }
 
-.md-chip.mechanics { background-color: #F55F37!important }
+.md-chip.mechanics { color: #F55F37!important; background-image: url('menu-mechanics.png') }
 .mechanics a, .mechanics { color: #F55F37!important}
+.multiselect .md-chip.mechanics { background-color: #F55F37!important; color: black!important }
 
-.md-chip.pvp-world { background-color: #F5CD37!important }
+.md-chip.development { color: #D27B61!important; font-family: monospace; background-image: url('menu-development.png') }
+.development a, .development { color: #D27B61!important}
+.multiselect .md-chip.development { background-color: #D27B61!important; color: black!important }
+
+.md-chip.snippets { color: #d18cf3!important; font-family: monospace; background-image: url('menu-snippets.png') }
+.snippets a, .snippets { color: #d18cf3!important}
+.multiselect .md-chip.snippets { background-color: #d18cf3!important; color: black!important }
+
+
+/* pvp */
+.md-chip.pvp-arena { color: #ed1b24!important; background-image: url('menu-arenas.png') }
+.pvp-arena a, .pvp-arena { color: #ed1b24!important}
+.multiselect .md-chip.pvp-arena { background-color: #ed1b24!important; color: black!important }
+
+.md-chip.pvp-battleground { color: #02518a!important; background-image: url('menu-battlegrounds.png') }
+.pvp-battleground a, .pvp-battleground { color: #02518a!important}
+.multiselect .md-chip.pvp-battleground { background-color: #02518a!important; color: black!important }
+
+.md-chip.pvp-world { color: #F5CD37!important; background-image: url('menu-wpvp.png') }
 .pvp-world a, .pvp-world { color: #F5CD37!important}
+.multiselect .md-chip.pvp-world { background-color: #F5CD37!important; color: black!important }
 
-.md-chip { color: #fff!important }
+/* professions */
+.md-chip.prof-gathering { color: #5E63B8!important; background-image: url('menu-gathering.png') }
+.prof-gathering a, .prof-gathering { color: #5E63B8!important}
+.multiselect .md-chip.prof-gathering { background-color: #5E63B8!important; color: black!important }
+
+.md-chip.prof-crafting { color: #B85E5F!important; background-image: url('menu-crafting.png') }
+.prof-crafting a, .prof-crafting { color: #B85E5F!important}
+.multiselect .md-chip.prof-crafting { background-color: #B85E5F!important; color: black!important }
+
+.md-chip.prof-secondary { color: #C4C4C4!important; background-image: url('menu-secondaryprof.png') }
+.prof-secondary a, .prof-secondary { color: #C4C4C4!important}
+.multiselect .md-chip.prof-secondary { background-color: #C4C4C4!important; color: black!important }
+
+/* raids */
+.md-chip.emeraldnightmare { color: #6b2100!important; background-image: url('menu-emeraldnightmare.png') }
+.emeraldnightmare a, .emeraldnightmare { color: #6b2100!important}
+.multiselect .md-chip.emeraldnightmare { background-color: #6b2100!important; color: black!important }
+
+.md-chip.trialofvalor { color: #8F0995!important; background-image: url('menu-trialofvalor.png') }
+.trialofvalor a, .trialofvalor { color: #8F0995!important}
+.multiselect .md-chip.trialofvalor { background-color: #8F0995!important; color: black!important }
+
+.md-chip.nighthold { color: #cb02b7!important; background-image: url('menu-nighthold.png') }
+.nighthold a, .nighthold { color: #cb02b7!important}
+.multiselect .md-chip.nighthold { background-color: #cb02b7!important; color: black!important }
+
+.md-chip.tombofsargeras { color: #006d35!important; background-image: url('menu-tombofsarg.png') }
+.tombofsargeras a, .tombofsargeras { color: #006d35!important}
+.multiselect .md-chip.tombofsargeras { background-color: #006d35!important; color: black!important }
+
+.md-chip.antorus { color: #1978aa!important; background-image: url('menu-antorus.png') }
+.antorus a, .antorus { color: #1978aa!important}
+.multiselect .md-chip.antorus { background-color: #1978aa!important; color: black!important }
+
+.md-chip.hellfirecitadel { color: #689E12!important; background-image: url('menu-hellfirecitadel.png') }
+.hellfirecitadel a, .hellfirecitadel { color: #689E12!important}
+.multiselect .md-chip.hellfirecitadel { background-color: #689E12!important; color: black!important }
+
+.md-chip.dungeon { color: #F5A623!important; background-image: url('menu-dungeon.png') }
+.dungeon a, .dungeon { color: #F5A623!important}
+.multiselect .md-chip.dungeon { background-color: #F5A623!important; color: black!important }
+
+/* ---- END CATEGORIES ---- */
+
+/* md fixes */
+.md-select { z-index: 0 }
 
 /* User roles */
 .user-admin, .user-admin:hover { font-weight: bold; color:#B80000!important; }

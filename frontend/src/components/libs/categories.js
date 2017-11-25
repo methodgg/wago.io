@@ -186,12 +186,12 @@ module.exports = {
       {id: "wpvp", slug: "pvp/world-pvp", cls:"pvp-world", text: t("World PvP"), WEAKAURA: true, COLLECTION: true},
       {id: "wpvp1", slug: "pvp/duels", cls:"pvp-world", text: t("Duels"), WEAKAURA: true},
       
-      {id: "prof0", slug: "professions", cls:"prof", text: t("Professions"), noselect: true, root: true, WEAKAURA: true, COLLECTION: true},
-      {id: "prof1", slug: "professions/gathering", cls:"prof-gathering", text: t("Gathering"), WEAKAURA: true, COLLECTION: true},
+      {id: "prof0", slug: "professions", cls:"prof", text: t("Professions"), noselect: true, WEAKAURA: true, COLLECTION: true},
+      {id: "prof1", slug: "professions/gathering", cls:"prof-gathering", text: t("Gathering Professions"), root: true, WEAKAURA: true, COLLECTION: true},
       {id: "prof2", slug: "professions/gathering/herbalism", cls:"prof-gathering", text: t("warcraft:professions.herbalism"), WEAKAURA: true},
       {id: "prof3", slug: "professions/gathering/mining", cls:"prof-gathering", text: t("warcraft:professions.mining"), WEAKAURA: true},
       {id: "prof4", slug: "professions/gathering/skinning", cls:"prof-gathering", text: t("warcraft:professions.skinning"), WEAKAURA: true},
-      {id: "prof5", slug: "professions/crafting", cls:"prof-crafting", text: t("Crafting"), WEAKAURA: true, COLLECTION: true},
+      {id: "prof5", slug: "professions/crafting", cls:"prof-crafting", text: t("Crafting Professions"), root: true, WEAKAURA: true, COLLECTION: true},
       {id: "prof6", slug: "professions/crafting/alchemy", cls:"prof-crafting", text: t("warcraft:professions.alchemy"), WEAKAURA: true},
       {id: "prof7", slug: "professions/crafting/blacksmithing", cls:"prof-crafting", text: t("warcraft:professions.blacksmith"), WEAKAURA: true},
       {id: "prof8", slug: "professions/crafting/enchanting", cls:"prof-crafting", text: t("warcraft:professions.enchanting"), WEAKAURA: true},
@@ -200,7 +200,7 @@ module.exports = {
       {id: "prof11", slug: "professions/crafting/jewelcrafting", cls:"prof-crafting", text: t("warcraft:professions.jewelcrafting"), WEAKAURA: true},
       {id: "prof12", slug: "professions/crafting/leatherworking", cls:"prof-crafting", text: t("warcraft:professions.leatherworking"), WEAKAURA: true},
       {id: "prof13", slug: "professions/crafting/tailoring", cls:"prof-crafting", text: t("warcraft:professions.tailoring"), WEAKAURA: true},
-      {id: "prof14", slug: "professions/secondary", cls:"prof-secondary", text: t("Secondary"), WEAKAURA: true, COLLECTION: true},
+      {id: "prof14", slug: "professions/secondary", cls:"prof-secondary", text: t("Secondary Professions"), root: true, WEAKAURA: true, COLLECTION: true},
       {id: "prof15", slug: "professions/secondary/archeology", cls:"prof-secondary", text: t("warcraft:professions.archeology"), WEAKAURA: true},
       {id: "prof16", slug: "professions/secondary/cooking", cls:"prof-secondary", text: t("warcraft:professions.cooking"), WEAKAURA: true},
       {id: "prof17", slug: "professions/secondary/first-aid", cls:"prof-secondary", text: t("warcraft:professions.firstaid"), WEAKAURA: true},
@@ -349,7 +349,7 @@ module.exports = {
     var valid = []
     var path = ''
     this.categories().forEach((cat) => {
-      if (!cat.systemtag && cats.indexOf(cat.id) > -1 && (!path || cat.slug.indexOf(path) === 0)) {
+      if (!cat.systemtag && cats.indexOf(cat.id) > -1) {
         path = cat.slug
         valid.push(cat.id)
       }
@@ -407,5 +407,23 @@ module.exports = {
       }
     })
     return selected
+  },
+
+  groupSets: function (cats) {
+    var groups = []
+    var current = []
+    cats.forEach((cat) => {
+      if (cat.root) {
+        if (current.length > 0) {
+          groups.push(current)
+        }
+        current = []
+      }
+      current.push(cat)
+    })
+    if (current.length > 0) {
+      groups.push(current)
+    }
+    return groups
   }
 }

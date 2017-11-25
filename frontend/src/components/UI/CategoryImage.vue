@@ -21,8 +21,8 @@
     <img src="./../../assets/menu-mechanics.png" v-else-if="group === 'mechanics'"/>
     <img src="./../../assets/menu-wpvp.png" v-else-if="group === 'pvp-world'"/>
     <img src="./../../assets/menu-roles.png" v-else-if="group === 'role'"/>
-    <img src="./../../assets/menu-bg.png" v-if="group === 'pvp-arena'"/>
-    <img src="./../../assets/menu-arena.png" v-else-if="group === 'pvp-battleground'"/>
+    <img src="./../../assets/menu-arenas.png" v-if="group === 'pvp-arena'"/>
+    <img src="./../../assets/menu-battlegrounds.png" v-else-if="group === 'pvp-battleground'"/>
     <img src="./../../assets/menu-gathering.png" v-if="group === 'prof-gathering'"/>
     <img src="./../../assets/menu-crafting.png" v-else-if="group === 'prof-crafting'"/>
     <img src="./../../assets/menu-secondaryprof.png" v-else-if="group === 'prof-secondary'"/>

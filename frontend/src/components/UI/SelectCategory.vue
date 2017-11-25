@@ -1,5 +1,5 @@
 <template>
-  <multiselect v-model="multiSelectValue" :options="categoryOptions" label="text" :multiple="true" :max="maxSelections" :close-on-select="false" :clear-on-select="false" :hide-selected="true" :placeholder="$t('Select')" select-label="" open-direction="top">
+  <multiselect v-model="multiSelectValue" :options="categoryOptions" label="text" :multiple="true" :max="maxSelections" :close-on-select="false" :clear-on-select="false" :hide-selected="true" :placeholder="selectText || ''" :searchable="false" select-label="" open-direction="top">
     <template slot="tag" scope="props"><span :class="'custom__tag ' + props.option.cls">
       <span>{{ props.option.text }}</span><span class="multiselect_remove" @click="props.remove(props.option)">❌</span></span>
     </template>
@@ -37,17 +37,45 @@ export default {
   data: function () {
     return {
       categoryOptions: [],
-      maxSelections: 2
+      maxSelections: 2,
+      selectText: ''
     }
   },
   methods: {
     setOptions (values) {
+      if (!values) {
+        values = []
+      }
+
+      this.selectText = this.$t('Select')
       if (values && values.length > 0) {
-        this.categoryOptions = Categories.getChildren(values[values.length - 1], this.type, this.$t)
+        this.selectText = ''
+        if (values[0].root) {
+          var children = Categories.getChildren(values[0], this.type, this.$t)
+          this.categoryOptions = []
+          // remove already selected categories
+          for (var i = 0; i < children.length; i++) {
+            var valid = true
+            for (var j = 0; j < values.length; j++) {
+              if (children[i].id === values[j].id) {
+                valid = false
+                break
+              }
+            }
+            if (valid) {
+              this.categoryOptions.push(children[i])
+            }
+          }
+        }
+        else {
+          this.categoryOptions = Categories.getChildren(values[values.length - 1], this.type, this.$t)
+        }
       }
       else {
         this.categoryOptions = Categories.rootCategories(this.$t, this.type)
       }
+
+      // change max selections so the multiselect knows when to put up the no categories error
       if (this.categoryOptions.length > 0) {
         this.maxSelections = values.length + 1
       }
@@ -63,9 +91,10 @@ export default {
 </script>
 
 <style>
-.multiselect { min-height: 0}
-.multiselect--above { z-index: 8}
-.multiselect__tags { border-width: 0 0 1px 0; padding:5px 0; min-height: 16px; border: 0; background: none}
+.multiselect { min-height: 0; cursor: pointer; margin-bottom: 16px }
+.multiselect__tags { padding-top: 14px}
+.multiselect__tags, .multiselect__single { border-width: 0 0 1px 0; border: 0; background: none; color: #B6B6B6;}
+.multiselect__single:empty { display: none }
 .multiselect_remove { cursor: pointer }
 ul.multiselect__content { display: flex!important; flex-wrap: wrap }
 ul.multiselect__content .multiselect__element { flex: 1 1 25%; z-index:3;}

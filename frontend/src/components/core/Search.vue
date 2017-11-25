@@ -239,7 +239,7 @@ export default {
 .searchText > a { font-weight: bold; text-decoration: underline!important }
 .searchText .md-subheader { padding: 0; min-height: 0}
 .searchText .md-subheader span, .searchText .md-subheader a { padding: 0 16px 0 0}
-.searchTags .md-chip { height: auto; padding: 4px 6px }
+.searchTags .md-chip { height: auto; padding: 4px 6px 4px 20px; background-size: 18px 18px; background-position: 2px 2px }
 
 
 #searchMeta .md-whiteframe { padding: 8px; margin-top: 1.5em}

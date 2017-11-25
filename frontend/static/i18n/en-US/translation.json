@@ -298,7 +298,7 @@
   "This is a fork of [-id-][-name-]": "This is a fork of <a href='/[-id-]' class='vr'>[-name-]</a>.",
   "Uploading": "Uploading",
   "Browse Vudho imports": "Browse Vudho imports",
-  "No additional categories can be added": "No additional categories can be added",
+  "No additional categories can be added": "No additional categories can be added. Click the + above to add another set of categories, however more sets will reduce the relevancy of this import in category searches.",
   "Import new string": "Import new string",
   "Paste a new [-type-] string to update this Wago": "Paste a new [-type-] string to update this Wago",
   "Update": "Update",

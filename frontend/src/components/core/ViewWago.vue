@@ -36,9 +36,8 @@
             <div class="md-subhead has-link"><a :href="wago.url" @click.prevent="copyURL">{{ wago.url }}</a></div>
           </div>
           <div id="tags">
-            <template v-for="cat in wago.categories">
-              <md-chip :class="cat.cls" disabled v-if="cat.text">{{ cat.text }}</md-chip>
-            </template>            
+            <md-chip v-for="(cat, n) in wago.categories" :key="n" :class="cat.cls" disabled v-if="cat.text && (n<5 || showMoreCategories)">{{ cat.text }}</md-chip>
+            <span @click="viewAllCategories()"><md-chip v-if="wago.categories.length > 5 && !showMoreCategories" class="show_more">{{ $t("[-count-] more", {count: wago.categories.length - 5}) }}</md-chip></span>
           </div>
         </md-card-header>
       </md-card>
@@ -154,14 +153,17 @@
                   <md-option value="Private">{{ $t("Private (only you may view)") }}</md-option>
                 </md-select>
               </md-input-container>
-              
-              <ui-warning v-if="invalidCategories" mode="alert">
-                Invalid categories. Category selection has changed to require a more specific selection to make browsing the categories more meaningful. This import's categories will be changed to follow suit on December 15 or soon after.
-              </ui-warning>
-              <md-input-container class="md-has-value has-category-select">
-                <label>{{ $t("Categories") }}</label>
-                <category-select :selectedCategories="editCategories" @update="onUpdateCategories" :type="wago.type.toUpperCase()"></category-select>
-              </md-input-container>
+              <div>
+                <label id="categoryLabel">{{ $t("Categories") }}</label>
+                <md-button class="md-icon-button md-raised" @click="numCategorySets++">
+                  <md-icon>add</md-icon>
+                </md-button>
+                <div v-for="n in numCategorySets">
+                  <div class="has-category-select">
+                    <category-select :selectedCategories="editCategories[n-1]" @update="cat => {editCategories[n-1] = cat; onUpdateCategories()}" :type="wago.type.toUpperCase()"></category-select>
+                  </div>
+                </div>
+              </div>
               <h3>{{ $t("Preview setup")}}</h3>
               <md-layout>
                 <md-layout md-flex="75">
@@ -454,6 +456,12 @@ import Multiselect from 'vue-multiselect'
 import CategorySelect from '../UI/SelectCategory.vue'
 import Search from '../core/Search.vue'
 
+function flatten (arr) {
+  return arr.reduce(function (flat, toFlatten) {
+    return flat.concat(Array.isArray(toFlatten) ? flatten(toFlatten) : toFlatten)
+  }, [])
+}
+
 export default {
   components: {
     'view-comments': require('../UI/ViewComments.vue'),
@@ -503,6 +511,7 @@ export default {
       updateDescStatus: '',
       updateDescError: false,
       editVisibility: 'Public',
+      showMoreCategories: false,
       editCategories: [],
       invalidCategories: false,
       doNotReloadWago: false,
@@ -515,7 +524,8 @@ export default {
       uploadFileProgress: [],
       newImportString: '',
       newImportStringStatus: '',
-      addCollectionName: ''
+      addCollectionName: '',
+      numCategorySets: 1
     }
   },
   watch: {
@@ -657,6 +667,8 @@ export default {
       this.showEmbed = false
       this.newImportString = ''
       this.newImportStringStatus = ''
+      this.numCategorySets = 1
+      this.showMoreCategories = false
 
       var params = {}
       params.id = wagoID
@@ -720,20 +732,8 @@ export default {
         else {
           this.editVisibility = 'Public'
         }
-        this.editCategories = []
-        this.invalidCategories = false
-        if (res.categories && res.categories.length > 0) {
-          var firstCatSet = res.categories[0].slug
-          res.categories.forEach(function (cat) {
-            if (cat.slug && cat.slug.indexOf(firstCatSet) > -1) {
-              firstCatSet = cat.slug
-              vue.editCategories.push(cat)
-            }
-            else {
-              vue.invalidCategories = true
-            }
-          })
-        }
+        this.editCategories = Categories.groupSets(res.categories)
+        this.numCategorySets = this.editCategories.length
 
         vue.$store.commit('setPageInfo', {
           title: res.name,
@@ -805,6 +805,10 @@ export default {
       else {
         window.eventHub.$emit('showSnackBar', this.$t('Embed script failed to copy please upgrade to a modern browser'))
       }
+    },
+    viewAllCategories () {
+      console.log('test')
+      this.showMoreCategories = true
     },
     toggleFavorite () {
       var params = {}
@@ -1027,11 +1031,10 @@ export default {
       })
     },
 
-    onUpdateCategories (newCats) {
-      var cats = []
-      this.editCategories = newCats
-      this.editCategories.forEach((cat) => {
-        cats.push(cat.id)
+    onUpdateCategories () {
+      var cats = flatten(this.editCategories)
+      var catIDs = cats.map((item) => {
+        return item.id
       })
 
       this.updateCatHasStatus = true
@@ -1040,11 +1043,11 @@ export default {
       var vue = this
       this.http.post('/wago/update/categories', {
         wagoID: vue.wago._id,
-        cats: cats.join(',')
+        cats: catIDs.join(',')
       }).then((res) => {
         if (res.success) {
           vue.updateCatStatus = vue.$t('Saved')
-          vue.$set(vue.wago, 'categories', vue.editCategories)
+          vue.$set(vue.wago, 'categories', cats)
           setTimeout(function () {
             vue.updateDescHasStatus = false
           }, 600)
@@ -1418,6 +1421,19 @@ a.showvid:hover img { transform: scale(1.05); }
 
 .customSlug .root { font-size:16px; line-height: 32px }
 .md-input-container.md-input-status .md-error { opacity: 1; transform: translate3d(0, 0, 0);}
+
+.has-category-select { position: relative}
+.has-category-select:after {
+    height: 1px;
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background-color: #B6B6B6;
+    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    content: " ";
+}
+#categoryLabel { margin-top: 10px; display: inline-block}
 
 .multiselect { min-height: 0}
 .multiselect__tags { border-width: 0 0 1px 0; padding:5px 0; min-height: 16px; border: 0; background: none}

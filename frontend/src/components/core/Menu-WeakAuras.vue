@@ -123,9 +123,9 @@
           <md-list-item class="md-inset snippets">
             <category-image group="snippets"></category-image>
             <div class="md-list-text-container">
-              <router-link to="/weakauras/snippets">{{ $t("Code Snippets") }}</router-link>
+              <router-link to="/snippets">{{ $t("Code Snippets") }}</router-link>
               <span>
-                <router-link v-for="item in snippets" v-bind:key="item.id" :to="'/weakauras/' + item.slug">{{ item.text }}</router-link>
+                <router-link v-for="item in snippets" v-bind:key="item.id" :to="'/' + item.slug">{{ item.text }}</router-link>
               </span>
             </div>
           </md-list-item>

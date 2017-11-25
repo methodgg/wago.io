@@ -692,15 +692,15 @@ var XBBCODE = (function() {
         if (config.enableURLs) {
             // check for wago links first
             var exp = /(^|\s)((?:https?|ftp):\/\/wago.io([a-zA-Z0-9-+&@#\/%?=~_|!:,.;]*[a-zA-Z0-9-+&@#\/%=~_|]))($|\s)/ig;
-            output = (' '+output.replace(exp," <a href='$3' class='vr'>$2</a>")).substring(1);
+            output = (' '+output.replace(exp, "$1<a href='$3' class='vr'>$2</a>")).substring(1);
 
             // then other links (no vr class)
             exp = /(^|\s)((?:https?|ftp):\/\/[a-zA-Z0-9-+&@#\/%?=~_|!:,.;]*[a-zA-Z0-9-+&@#\/%=~_|])($|\s)/ig;
-            output = (' '+output.replace(exp," <a href='$2'>$2</a>")).substring(1);
+            output = (' '+output.replace(exp, "$1<a href='$2' target='_blank'>$2</a>")).substring(1);
         }
-        else if (config.enableWagoURLs) {
+        else {
             var exp = /(^|\s)((?:https?|ftp):\/\/wago.io([a-zA-Z0-9-+&@#\/%?=~_|!:,.;]*[a-zA-Z0-9-+&@#\/%=~_|]))($|\s)/ig;
-            output = (' '+output.replace(exp," <a href='$3' class='vr'>$2</a>")).substring(1);
+            output = (' '+output.replace(exp, "$1<a href='$3' class='vr'>$2</a>")).substring(1);
         }
 
         return output.trim();
@@ -789,7 +789,7 @@ var XBBCODE = (function() {
             urlPattern = /^(?:https?|file|c):(?:\/{1,3}|\\{1})[-a-zA-Z0-9:;,@#%&()~_?\+=\/\\\.]*$/
         }
         // if disabled then only allow wago.io links
-        else if (config.enableWagoURLs) {
+        else {
             urlPattern = /^(?:https?|file|c):(?:\/{1,3}|\\{1})wago\.io[-a-zA-Z0-9:;,@#%&()~_?\+=\/\\\.]*$/  
         }
 
