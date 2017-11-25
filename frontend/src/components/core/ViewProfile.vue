@@ -14,7 +14,7 @@
         </md-card-content>-->
       </md-card>
 
-      <p v-if="!profile.public">{{ $t("Your profile page is private no one else may view it or search your imports by your username") }}</p>
+      <ui-warning mode="alert" v-if="!profile.public">{{ $t("Your profile page is private no one else may view it or search your imports by your username") }}</ui-warning>
 
       <wago-search :contextSearch="'User: ' + profile.name + ' '"></wago-search>
     </div>
