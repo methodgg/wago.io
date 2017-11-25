@@ -188,11 +188,10 @@ function Decode(dataString)
 			print("Error converting lua string to table:", message)
 			return
 		end
-	end
+  end
 
 	--return profileType, profileKey, profileData
   return profileData
-
 end
 
 function GetImportStringType(dataString)
@@ -312,7 +311,7 @@ function JSON2Elv(json)
 
   local serialData = Serializer:Serialize(t)
   if (serialData) then
-    local exportString = string.format("%s::%s::%s", serialData, "profile", "profile")
+    local exportString = string.format("%s::%s::%s", serialData, "profile", "my profile")
     local compressedData = LibCompress:Compress(serialData)
     local encodedData = LibBase64Elv:Encode(compressedData)
     print(encodedData)

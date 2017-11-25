@@ -494,6 +494,7 @@ server.post('/import/update', function (req, res) {
     ImportScan.findById(req.body.scanID).then((scan) => {
       if (scan.decoded) {
         req.body.json = scan.decoded
+        req.body.encoded = scan.input
         SaveWagoVersion(req, res, 'update')
       }
       else {
@@ -549,6 +550,7 @@ function SaveWagoVersion (req, res, mode) {
     var wagoID = req.body.wagoID
     var type = req.body.type.toUpperCase()
     var json = JSON.parse(req.body.json)
+    var encoded = req.body.encoded
   }
   catch(e) {
     console.log(e)
@@ -669,7 +671,12 @@ function SaveWagoVersion (req, res, mode) {
         var code = new WagoCode()
         code.auraID = wago._id
         code.json = JSON.stringify(json)
-        code.encoded = result.stdout
+        if (encoded) {
+          code.encoded = encoded
+        }
+        else {
+          code.encoded = result.stdout
+        }
         
         code.save().then(() => {
           if (mode === 'update') {
@@ -714,11 +721,8 @@ function SaveWagoVersion (req, res, mode) {
       
       code.save().then(() => {
         if (mode === 'update') {
-          wago.modified = new Date()
-          wago.save().then(() => {
-            // look for any discord actions
-            discord.onUpdate(req.user, wago)
-          })
+          // look for any discord actions
+
         }
         res.send({success: true, wagoID: wago._id})
       })
