@@ -1434,6 +1434,7 @@ a.showvid:hover img { transform: scale(1.05); }
     content: " ";
 }
 #categoryLabel { margin-top: 10px; display: inline-block}
+#tags .md-chip { padding-left:26px }
 
 .multiselect { min-height: 0}
 .multiselect__tags { border-width: 0 0 1px 0; padding:5px 0; min-height: 16px; border: 0; background: none}

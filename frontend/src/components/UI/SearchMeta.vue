@@ -11,6 +11,15 @@
             <md-option value="date">{{ $t("Date") }}</md-option>
           </md-select>
         </md-input-container>
+        
+        <!--<md-input-container>
+          <label for="relevancy">{{ $t("Category Relevancy") }}</label>
+          <md-select name="relevancy" id="relevancy" v-model="catRelevance">
+            <md-option value="lenient">{{ $t("Lenient") }}</md-option>
+            <md-option value="standard">{{ $t("Standard") }}</md-option>
+            <md-option value="strict">{{ $t("Strict") }}</md-option>
+          </md-select>
+        </md-input-container>-->
       </div>
 
       <strong>{{ $t("Query information") }}</strong>
@@ -93,7 +102,7 @@ export default {
   components: {
     'category-image': require('../UI/CategoryImage.vue')
   },
-  props: ['meta', 'textSearch', 'tagMap', 'sort'],
+  props: ['meta', 'textSearch', 'tagMap', 'sort', 'catRelevance'],
   computed: {
     sortVal: {
       get: function () {
@@ -102,6 +111,22 @@ export default {
       set: function (v) {
         this.$emit('setSearch', v)
       }
+    },
+    relevanceVal: {
+      get: function () {
+        return this.catRelevance
+      },
+      set: function (v) {
+        this.$emit('setCategoryRelevance', v)
+      }
+    },
+    hasCategories: function () {
+      for (var i = 0; i < this.meta.length; i++) {
+        if (this.meta[i].type === 'tag') {
+          return true
+        }
+      }
+      return false
     }
   },
   methods: {

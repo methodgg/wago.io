@@ -41,6 +41,12 @@ const Schema = new mongoose.Schema({
       comments_count : { type: Number, default: 0, index: true }
   },
 
+  // relevancy scores for searches
+  relevancy: {
+    standard: Number,
+    strict: Number
+  },
+
   // type=WEAKAURAS2
   aura : {
       wow_beta : Boolean,

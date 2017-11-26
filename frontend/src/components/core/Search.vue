@@ -120,7 +120,7 @@ export default {
         query = query.replace(/sort:\s?(-?\w+)/i, '')
         query = query.trim() + ' Sort: ' + this.sortVal
       }
-      this.searchString = query
+      this.searchString = query.trim() + ' '
       this.uiSearchValue = false
 
       // check if we're searching for any localized tags

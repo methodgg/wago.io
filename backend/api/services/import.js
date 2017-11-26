@@ -367,6 +367,7 @@ server.post('/import/submit', function(req, res) {
             wago.categories = JSON.parse(req.body.categories).map((c) => {
               return c.id // TODO: needs validation
             })
+            wago.relevancy = Categories.relevanceScores(wago.categories)
           }
           else {
             wago.categories = []

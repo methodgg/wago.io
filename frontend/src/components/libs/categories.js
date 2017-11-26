@@ -5,7 +5,7 @@ module.exports = {
         return s
       }
     }
-    return [
+    var cats = [
       // {id: "cl0", slug: "classes", cls:"", text: t("Classes"), noselect: true, WEAKAURA: true, ELVUI: true, VUHDO: true},
       {id: "cl6", slug: "classes/death-knight", cls:"cl-deathknight", text: t("warcraft:classes.6"), root: true, WEAKAURA: true, ELVUI: true, VUHDO: true, COLLECTION: true},
       {id: "cl6-1", slug: "classes/death-knight/blood", cls:"cl-deathknight", text: t("warcraft:classes.6-1"), WEAKAURA: true, ELVUI: true, VUHDO: true, COLLECTION: true},
@@ -104,7 +104,7 @@ module.exports = {
       {id: "vuhdo2", slug: "vuhdo/vuhdo-bouquets", cls:"vuhdo", text: t("Vuhdo Bouquets"), "systemtag": true, VUHDO: true},
       {id: "vuhdo3", slug: "vuhdo/vuhdo-key-layouts", cls:"vuhdo", text: t("Vuhdo Key Layouts"), "systemtag": true, VUHDO: true},
 
-      {id: "pve", slug: "pve", cls:"", text: t("PvE"), noselect: true, WEAKAURA: true},
+      // {id: "pve", slug: "pve", cls:"", text: t("PvE"), noselect: true, WEAKAURA: true},
       
       {id: "raidantorus", slug: "pve/antorus-the-burning-throne", cls:"antorus", text: t("warcraft:zones.8638"), root: true, WEAKAURA: true, COLLECTION: true},
       {id: "raidantorus1", slug: "pve/antorus-the-burning-throne/garothi-worldbreaker", cls:"antorus", text: t("warcraft:bosses.123371"), WEAKAURA: true},
@@ -246,6 +246,11 @@ module.exports = {
       {id: "snip1", slug: "snippets/libraries", cls:"snippets", text: t("Libraries"), "type": "snippet", "Snippet": true, COLLECTION: true},
       {id: "snip2", slug: "snippets/tutorials", cls:"snippets", text: t("Tutorials"), "type": "snippet", "Snippet": true, COLLECTION: true},
     ]
+    // add sortVal
+    for (var i = 0; i < cats.length; i++) {
+      cats[i].sortVal = i
+    }
+    return cats
   },
 
   // match category by ID
@@ -348,11 +353,28 @@ module.exports = {
   validateCategories: function (cats) {
     var valid = []
     var path = ''
-    this.categories().forEach((cat) => {
-      if (!cat.systemtag && cats.indexOf(cat.id) > -1) {
-        path = cat.slug
-        valid.push(cat.id)
+    for (var i = 0; i < cats.length; i++) {
+      var cat = this.getCategory(cats[i])[0]
+      // if not a valid category object then skip it
+      if (!cat || !cat.id || cat.systemtag) {
+        continue
       }
+
+      // category is valid, add both it and its root to valid[]
+      valid.push(cat.id)
+      if (!cat.root) {
+        var root = this.getRoot(cat)
+        if (!root.systemtag) { // to account for snippet parent
+          valid.push(root.id)
+        }
+      }
+    }
+    // valid is now an array of strings, remove duplicates, sort, and return
+    valid = valid.filter(filterArrayUnique)
+    valid.sort((a, b) => {
+      var oA = this.getCategory(a)[0]
+      var oB = this.getCategory(b)[0]
+      return oA.sortVal - oB.sortVal
     })
     return valid
   },
@@ -362,7 +384,7 @@ module.exports = {
     var systemTags = []
     this.categories().forEach((cat) => {
       if (cats.indexOf(cat.id) > -1 && cat.systemtag) {
-        systemTags.push(cat)
+        systemTags.push(cat.id)
       }
     })
     return systemTags
@@ -408,6 +430,16 @@ module.exports = {
     })
     return selected
   },
+  
+  getRoot: function (cat) {
+    var cats = this.categories()
+    for (var i = 0; i < cats.length; i++) {
+      if (cat.slug.indexOf(cats[i].slug) === 0) {
+        return cats[i]
+      }
+    }
+    return false
+  },
 
   groupSets: function (cats) {
     var groups = []
@@ -425,5 +457,27 @@ module.exports = {
       groups.push(current)
     }
     return groups
+  },
+  
+  relevanceScores: function (cats) {
+    var scores = {
+      standard: 0,
+      strict: 0
+    }
+    for (var i = 0; i < cats.length; i++) {
+      var cat = this.getCategory(cats[i])
+      if (!cat || !cat[0]) {
+        continue
+      }
+      scores.strict++
+      if (cat[0].root) {
+        scores.standard++
+      }
+    }
+    return scores
   }
+}
+
+function filterArrayUnique(value, index, self) { 
+  return self.indexOf(value) === index;
 }
