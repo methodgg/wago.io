@@ -417,6 +417,7 @@ server.post('/import/submit', function(req, res) {
             return c.id
           })
           wago.categories = Categories.validateCategories(wago.categories)
+          wago.relevancy = Categories.relevanceScores(wago.categories)
 
           // add system tags as necessary
           if (wago.type === 'VUHDO') {

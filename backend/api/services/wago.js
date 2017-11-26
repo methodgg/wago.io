@@ -152,6 +152,7 @@ server.post('/wago/update/categories', (req, res) => {
     else {
       wago.categories = Categories.validateCategories(req.body.cats.split(','))
     }
+    wago.relevancy = Categories.relevanceScores(wago.categories)
 
     // re-add system tags
     wago.categories = wago.categories.concat(systemTags)
