@@ -86,12 +86,12 @@ module.exports = {
       {id: "equip2", slug: "equipment/item-enhancements", cls:"equip", text: t("Item Enhancements"), WEAKAURA: true, COLLECTION: true},
       
       {id: "mech", slug: "combat-mechanics", cls:"mechanics", text: t("Combat Mechanics"), root: true, WEAKAURA: true, COLLECTION: true},
-      {id: "mech1", slug: "combat-mechanics/battle-resurrection", cls:"mechanics", text: t("Battle Resurrection"), WEAKAURA: true},
-      {id: "mech2", slug: "combat-mechanics/interrupts", cls:"mechanics", text: t("Interrupts"), WEAKAURA: true},
-      {id: "mech3", slug: "combat-mechanics/theorycrafting", cls:"mechanics", text: t("Theorycrafting"), WEAKAURA: true},
-      {id: "mech4", slug: "combat-mechanics/vehicles", cls:"mechanics", text: t("Vehicles"), WEAKAURA: true},
-      {id: "mech5", slug: "combat-mechanics/consumables", cls:"mechanics", text: t("Consumables"), WEAKAURA: true},
-      {id: "mech6", slug: "combat-mechanics/group-buffs", cls:"mechanics", text: t("Group Buffs"), WEAKAURA: true},
+      {id: "mech1", slug: "combat-mechanics/battle-resurrection", cls:"mechanics", text: t("Battle Resurrection"), WEAKAURA: true, COLLECTION: true},
+      {id: "mech2", slug: "combat-mechanics/interrupts", cls:"mechanics", text: t("Interrupts"), WEAKAURA: true, COLLECTION: true},
+      {id: "mech3", slug: "combat-mechanics/theorycrafting", cls:"mechanics", text: t("Theorycrafting"), WEAKAURA: true, COLLECTION: true},
+      {id: "mech4", slug: "combat-mechanics/vehicles", cls:"mechanics", text: t("Vehicles"), WEAKAURA: true, COLLECTION: true},
+      {id: "mech5", slug: "combat-mechanics/consumables", cls:"mechanics", text: t("Consumables"), WEAKAURA: true, COLLECTION: true},
+      {id: "mech6", slug: "combat-mechanics/group-buffs", cls:"mechanics", text: t("Group Buffs"), WEAKAURA: true, COLLECTION: true},
 
       {id: "role0", slug: "class-roles", cls:"roles", text: t("Group Roles"), root: true, noselect: true, WEAKAURA: true, ELVUI: true, VUHDO: true, COLLECTION: true},
       {id: "role4", slug: "class-roles/raid-leading", cls:"roles", text: t("Raid Leading"), WEAKAURA: true, COLLECTION: true},
