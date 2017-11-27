@@ -103,27 +103,27 @@ export default {
       this.isSearching = true
 
       // check if sort value needs to be added to query
+      console.log(query)
       var sort = query.match(/sort:\s?(-?\w+)/i)
-      if (sort && sort[1] !== this.sortVal && !this.uiSearchValue) {
-        // is entered value valid?
+      if (sort && sort[1] && !this.uiSearchValue) {
         sort[1] = sort[1].toLowerCase()
         if (sort[1] === 'date' || sort[1] === 'date' || sort[1] === 'stars' || sort[1] === 'stars' || sort[1] === 'views' || sort[1] === 'views') {
           this.sortVal = sort[1]
+          query = query.replace(/sort:\s?(-?\w+)/i, 'Sort: ' + this.sortVal)
         }
         else {
-          this.sortVal = 'date'
+          this.sortVal = 'standard'
+          query = query.replace(/sort:\s?(-?\w+)/i, 'Sort: ' + this.sortVal)
         }
-        query = query.replace(/sort:\s?(-?\w+)/i, 'Sort: ' + this.sortVal)
       }
       else {
         if (!this.sortVal) {
           this.sortVal = 'date'
-          query = query.trim() + ' Sort: ' + this.sortVal
         }
-        else {
-          query = query.replace(/sort:\s?(-?\w+)/i, 'Sort: ' + this.sortVal)
-        }
+        query = query.replace(/sort:\s?(-?\w+)/i, '')
+        query = query.trim() + ' sort: ' + this.sortVal
       }
+      console.log(query)
       this.uiSearchValue = false
 
       var relevance = query.match(/relevance:\s?(\w+)/i)
@@ -206,6 +206,7 @@ export default {
     },
     setSearch: function (val) {
       this.sortVal = val
+      console.log(this.sortVal)
       this.uiSearchValue = true
       this.runSearch()
     },
