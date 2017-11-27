@@ -43,7 +43,7 @@ server.get('/lookup/wago', (req, res, next) => {
     wago.visibility = { private: doc.private, hidden: doc.hidden, deleted: doc.deleted }
     wago.date = { created: doc.created, modified: doc.modified }
     wago.expires = doc.expires_at
-    wago.patch = wowPatches.patchByDate(wago.date)
+    wago.patch = wowPatches.patchByDate(doc.modified || doc.created)
     wago.description = { text: doc.description, format: 'bbcode' }
     wago.categories = doc.categories
     
