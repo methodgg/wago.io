@@ -50,6 +50,36 @@ server.get('/search', (req, res, skipSearch) => {
       return done()
     },
 
+    // check for relevancy search option to sort by relevancy scores
+    function(done) {
+      // only applies if category tags are included in search query
+      if (!query.match(/tag:/i)) {
+        return done()
+      }
+      const regex = /\brelevance:\s*"?(relaxed|strict)"?/i
+      var sortType = query.match(regex)
+      // if relaxed relevance 
+      if (sortType && sortType[1] === 'relaxed') {
+        // don't consider the number of categories
+        query = query.replace(sortType[0], '').replace(/\s{2,}/, ' ').trim()
+      }
+
+      // if strict relevance
+      else if (sortType && sortType[1] === 'strict') {
+        // strict score sorts by total number of categories with secondary sorting on number of root categories
+        sort = 'relevancy.strict relevancy.standard ' + sort
+        query = query.replace(sortType[0], '').replace(/\s{2,}/, ' ').trim()
+      }
+
+      // default 
+      else {
+        // standard score sorts by number of root categories
+        sort = 'relevancy.standard ' + sort
+      }
+
+      return done()
+    },
+
     // if search includes 'type: wagotype'
     function(done) {
       const regex = /\btype:\s*"?(weakauras?2?|elvui|vuhdo|collection|snippet|encounternotes|image|audio)"?/i

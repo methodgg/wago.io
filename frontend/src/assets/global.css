@@ -5,7 +5,7 @@
 ***************/
 .md-chip { border-radius:4px!important; margin:0 6px 6px 0; background-repeat: no-repeat; background-position: 2px 5px; background-size: 22px 22px; text-shadow: 1px 1px rgba(0, 0, 0, 0.12); }
 .multiselect .md-chip { background-image: none!important; margin: 0}
-.md-chip.show_more { color: #FFF!important; padding-left: 8px; cursor:pointer }
+.md-chip.show_more { color: #FFF!important; padding-left: 8px!important; cursor:pointer }
 
 /* Classes */
 .md-chip.cl-deathknight { color: #C41F3B!important; background-image: url('menu-deathknight.png') }

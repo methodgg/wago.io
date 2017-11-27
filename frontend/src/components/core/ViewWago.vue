@@ -1354,6 +1354,8 @@ export default {
 a.showvid:hover img { transform: scale(1.05); }
 .sl-overlay { background-color: rgba(0, 0, 0, 0.54) }
 
+#wago-config { padding-bottom: 10em!important}
+
 #video-modal { width: 70vw; height: 39.375vw; z-index:999; margin: auto; background: none; outline: none}
 #video-modal > .md-dialog {width: 100%; height: 100%; background: none; position: relative }
 .video-wrapper { position: relative; }

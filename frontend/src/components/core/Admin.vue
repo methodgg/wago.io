@@ -44,7 +44,7 @@
           </md-card>
         </md-layout>
       </md-layout>
-      <md-dialog ref="blogPreviewFrame">
+      <md-dialog ref="blogPreviewFrame" id="adminPreviewFrame">
         <md-dialog-title>Preview Content</md-dialog-title>
         <md-dialog-content>
           <vue-markdown :source="blogContent"></vue-markdown>
@@ -149,6 +149,6 @@ export default {
 #admin .md-list-item.selected { background: rgba(0, 0, 0, .7)}
 #admin #blog-sidebar ul { width: 100% }
 #admin #blog-sidebar ul em { font-size: 80%; opacity: .8 }
-#admin .md-dialog p { margin: 1em 0}
+#adminPreviewFrame .md-dialog p { margin: 12px 0}
 #blogEditor { min-height: 600px }
 </style>

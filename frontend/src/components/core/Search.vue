@@ -37,7 +37,7 @@
       </md-layout>   
     
       <md-layout id="searchMeta" v-if="results && results.query && results.query.context">
-        <search-meta v-if="results.query.context.length > 0" :meta="results.query.context" :tagMap="tagMap" :textSearch="results.query.textSearch" :sort="sortVal" @setSearch="setSearch"></search-meta>
+        <search-meta v-if="results.query.context.length > 0" :meta="results.query.context" :tagMap="tagMap" :textSearch="results.query.textSearch" :sort="sortVal" @setSearch="setSearch" :catRelevance="catRelevance" @setCategoryRelevance="setCategoryRelevance"></search-meta>
       </md-layout>
     </md-layout>
     <p v-if="!isSearching && results.total === 0">{{ $t("No results found") }}</p>
@@ -59,7 +59,9 @@ export default {
       isSearching: false,
       isSearchingMore: false,
       sortVal: '',
-      uiSearchValue: false
+      uiSearchValue: false,
+      catRelevance: 'standard',
+      uiRelevanceValue: false
     }
   },
   props: ['contextSearch'],
@@ -116,12 +118,35 @@ export default {
       else {
         if (!this.sortVal) {
           this.sortVal = 'date'
+          query = query.trim() + ' Sort: ' + this.sortVal
         }
-        query = query.replace(/sort:\s?(-?\w+)/i, '')
-        query = query.trim() + ' Sort: ' + this.sortVal
+        else {
+          query = query.replace(/sort:\s?(-?\w+)/i, 'Sort: ' + this.sortVal)
+        }
       }
-      this.searchString = query.trim() + ' '
       this.uiSearchValue = false
+
+      var relevance = query.match(/relevance:\s?(\w+)/i)
+      if (relevance && relevance[1] && !this.uiRelevanceValue) {
+        relevance[1] = relevance[1].toLowerCase()
+        if (relevance[1] === 'strict' || relevance[1] === 'relaxed') {
+          this.catRelevance = relevance[1]
+          query = query.replace(/relevance:\s?(-?\w+)/i, 'Relevance: ' + this.catRelevance)
+        }
+        else {
+          this.catRelevance = 'standard'
+          query = query.replace(/relevance:\s?(-?\w+)/i, 'Relevance: ' + this.catRelevance)
+        }
+      }
+      else {
+        query = query.replace(/relevance:\s?(\w+)/i, '')
+        if (this.catRelevance !== 'standard') {
+          query = query.trim() + ' Relevance: ' + this.catRelevance
+        }
+      }
+      this.uiRelevanceValue = false
+
+      this.searchString = query.trim() + ' '
 
       // check if we're searching for any localized tags
       const regex = /\btag:\s*([\w-]+)|\btag:\s*"([^"]+)"/ig
@@ -170,7 +195,11 @@ export default {
         vue.$set(vue.results, 'total', res.total)
         vue.$set(vue.results, 'query', res.query)
         vue.$set(vue.results, 'results', res.results)
-        vue.$set(vue.results, 'context', res.results.context)
+        vue.$set(vue.results, 'context', res.query.context)
+        // put text search at the end of the query
+        if (res.query && res.query.textSearch) {
+          this.searchString = this.searchString.replace(res.query.textSearch, '').replace(/\s+/g, ' ').trim() + ' ' + res.query.textSearch
+        }
 
         this.isSearching = false
       })
@@ -178,6 +207,11 @@ export default {
     setSearch: function (val) {
       this.sortVal = val
       this.uiSearchValue = true
+      this.runSearch()
+    },
+    setCategoryRelevance: function (val) {
+      this.catRelevance = val
+      this.uiRelevanceValue = true
       this.runSearch()
     }
   },

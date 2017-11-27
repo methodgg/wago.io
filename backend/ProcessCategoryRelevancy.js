@@ -16,7 +16,7 @@ global['Categories'] = require('../frontend/src/components/libs/categories')
 global['WagoItem'] = require('./api/models/WagoItem')
 
 console.log('starting...')
-WagoItem.find({"relevancy.strict": {"$exists": false}, "categories.0": {"$exists": true} }).then((docs) => {
+WagoItem.find({"relevancy.strict": {"$exists": false}, "categories.0": {"$exists": true} }).limit(5000).then((docs) => {
   docs.forEach((wago) => {
     // keep system tags
     var systemTags = Categories.filterSystemTags(wago.categories)

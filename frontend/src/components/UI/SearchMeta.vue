@@ -12,14 +12,14 @@
           </md-select>
         </md-input-container>
         
-        <!--<md-input-container>
+        <md-input-container v-if="hasCategories">
           <label for="relevancy">{{ $t("Category Relevancy") }}</label>
-          <md-select name="relevancy" id="relevancy" v-model="catRelevance">
-            <md-option value="lenient">{{ $t("Lenient") }}</md-option>
+          <md-select name="relevancy" id="relevancy" v-model="relevanceVal">
+            <md-option value="relaxed">{{ $t("Relaxed") }}</md-option>
             <md-option value="standard">{{ $t("Standard") }}</md-option>
             <md-option value="strict">{{ $t("Strict") }}</md-option>
           </md-select>
-        </md-input-container>-->
+        </md-input-container>
       </div>
 
       <strong>{{ $t("Query information") }}</strong>

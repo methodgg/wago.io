@@ -43,8 +43,8 @@ const Schema = new mongoose.Schema({
 
   // relevancy scores for searches
   relevancy: {
-    standard: Number,
-    strict: Number
+    standard: { type: Number, index: true },
+    strict: { type: Number, index: true }
   },
 
   // type=WEAKAURAS2

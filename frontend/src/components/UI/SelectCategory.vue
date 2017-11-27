@@ -1,5 +1,5 @@
 <template>
-  <multiselect v-model="multiSelectValue" :options="categoryOptions" label="text" :multiple="true" :max="maxSelections" :close-on-select="false" :clear-on-select="false" :hide-selected="true" :placeholder="selectText || ''" :searchable="false" select-label="" open-direction="top">
+  <multiselect v-model="multiSelectValue" :options="categoryOptions" label="text" :multiple="true" :max="maxSelections" :close-on-select="false" :clear-on-select="false" :hide-selected="true" :placeholder="selectText || ''" :searchable="false" select-label="" open-direction="bottom">
     <template slot="tag" scope="props"><span :class="'custom__tag ' + props.option.cls">
       <span>{{ props.option.text }}</span><span class="multiselect_remove" @click="props.remove(props.option)">❌</span></span>
     </template>

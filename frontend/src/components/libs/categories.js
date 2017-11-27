@@ -186,7 +186,7 @@ module.exports = {
       {id: "wpvp", slug: "pvp/world-pvp", cls:"pvp-world", text: t("World PvP"), WEAKAURA: true, COLLECTION: true},
       {id: "wpvp1", slug: "pvp/duels", cls:"pvp-world", text: t("Duels"), WEAKAURA: true},
       
-      {id: "prof0", slug: "professions", cls:"prof", text: t("Professions"), noselect: true, WEAKAURA: true, COLLECTION: true},
+      // {id: "prof0", slug: "professions", cls:"prof", text: t("Professions"), noselect: true, WEAKAURA: true, COLLECTION: true},
       {id: "prof1", slug: "professions/gathering", cls:"prof-gathering", text: t("Gathering Professions"), root: true, WEAKAURA: true, COLLECTION: true},
       {id: "prof2", slug: "professions/gathering/herbalism", cls:"prof-gathering", text: t("warcraft:professions.herbalism"), WEAKAURA: true},
       {id: "prof3", slug: "professions/gathering/mining", cls:"prof-gathering", text: t("warcraft:professions.mining"), WEAKAURA: true},
