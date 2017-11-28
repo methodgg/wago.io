@@ -5,6 +5,7 @@ var patches = [
   {date: moment('2016-05-12T09:00:00Z'), beta: true, patch: "Legion Beta 7.0.3"},
   {date: moment('2016-01-01T09:00:00Z'), beta: true, patch: "Legion Alpha 7.0.1"},
 
+  {date: moment('2017-10-24T03:00:00Z'), patch: "Legion 7.3.2"},
   {date: moment('2017-08-29T03:00:00Z'), patch: "Legion 7.3"},
   {date: moment('2017-06-13T03:00:00Z'), patch: "Legion 7.2.5"},
   {date: moment('2017-03-28T03:00:00Z'), patch: "Legion 7.2"},

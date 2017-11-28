@@ -242,9 +242,9 @@ module.exports = {
       {id: "gen4", slug: "development/wa-training", cls:"development", text: t("WA Training"), WEAKAURA: true, COLLECTION: true},
       {id: "beta2", slug: "development/legion-ptr7.2", cls:"development", text: t("Legion 7.2 PTR"), noselect: true, "systemtag": true, WEAKAURA: true},
 
-      {id: "snip0", slug: "snippets", cls:"snippets", text: t("Code Snippets"), "type": "snippet", "systemtag": true, "Snippet": true, COLLECTION: true},
-      {id: "snip1", slug: "snippets/libraries", cls:"snippets", text: t("Libraries"), "type": "snippet", "Snippet": true, COLLECTION: true},
-      {id: "snip2", slug: "snippets/tutorials", cls:"snippets", text: t("Tutorials"), "type": "snippet", "Snippet": true, COLLECTION: true},
+      {id: "snip0", slug: "snippets", cls:"snippets", text: t("Code Snippets"), root: true, "LUA SNIPPET": true, COLLECTION: true},
+      {id: "snip1", slug: "snippets/libraries", cls:"snippets", text: t("Libraries"), "LUA SNIPPET": true, COLLECTION: true},
+      {id: "snip2", slug: "snippets/tutorials", cls:"snippets", text: t("Tutorials"), "LUA SNIPPET": true, COLLECTION: true},
     ]
     // add sortVal
     for (var i = 0; i < cats.length; i++) {

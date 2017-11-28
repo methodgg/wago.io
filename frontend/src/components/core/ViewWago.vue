@@ -822,6 +822,10 @@ export default {
       })
     },
     showVideo (embedHTML) {
+      // hack to fix broken youtube embeds
+      if (embedHTML.indexOf('&') >= 0 && embedHTML.indexOf('?') < 0) {
+        embedHTML = embedHTML.replace(/&/, '?')
+      }
       this.videoEmbedHTML = embedHTML
       this.$refs['videoplayer'].open()
     },

@@ -472,8 +472,13 @@ server.post('/import/submit', function(req, res) {
       wago.save().then((doc) => {
         var code = new WagoCode()
         code.auraID = doc._id
-        code.encoded = scan.input
-        code.json = scan.decoded
+        if (wago.type === 'SNIPPET') {
+          code.lua = scan.input
+        }
+        else {
+          code.encoded = scan.input
+          code.json = scan.decoded
+        }        
         code.version = 1
         code.save().then((codeDoc) => {
           // broadcast to discord webhook?

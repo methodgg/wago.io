@@ -371,17 +371,7 @@ server.get('/search', (req, res, skipSearch) => {
 
       // remaining search query
       Search.query.textSearch = query
-
-      query.split(' ').forEach((word) => {
-        // create regex
-        var wordRegex = new RegExp('\\b'+word+'\\b', 'i')
-        // setup $or array
-        var textSearch = []
-        textSearch.push({"name": wordRegex})
-        textSearch.push({"description": wordRegex})
-        lookup["$and"].push({"$or": textSearch})
-        // results in { "$and": [ { "$or": [ {"name": "word"}, {"description": "word"} ] } ] }
-      })
+      lookup["$text"] = { "$search": query }
     }
 
     // limit lookup to what we have access to

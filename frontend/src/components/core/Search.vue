@@ -36,8 +36,8 @@
         </div>
       </md-layout>   
     
-      <md-layout id="searchMeta" v-if="results && results.query && results.query.context">
-        <search-meta v-if="results.query.context.length > 0" :meta="results.query.context" :tagMap="tagMap" :textSearch="results.query.textSearch" :sort="sortVal" @setSearch="setSearch" :catRelevance="catRelevance" @setCategoryRelevance="setCategoryRelevance"></search-meta>
+      <md-layout id="searchMeta" v-if="results && results.query">
+        <search-meta :meta="results.query.context" :tagMap="tagMap" :textSearch="results.query.textSearch" :sort="sortVal" @setSearch="setSearch" :catRelevance="catRelevance" @setCategoryRelevance="setCategoryRelevance"></search-meta>
       </md-layout>
     </md-layout>
     <p v-if="!isSearching && results.total === 0">{{ $t("No results found") }}</p>
