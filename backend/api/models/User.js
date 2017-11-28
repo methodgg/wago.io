@@ -24,9 +24,12 @@ const Schema = new mongoose.Schema({
     }
   },
   roles : {
-    super_admin : { type: Boolean, default: false },
-    admin : { type: Boolean, default: false },
-    moderator : { type: Boolean, default: false },
+    admin : { 
+      access: { type: Boolean, default: false },
+      super: { type: Boolean, default: false },
+      blog: { type: Boolean, default: false },
+      moderator : { type: Boolean, default: false }      
+    },
     subscriber : { type: Boolean, default: false },
     gold_subscriber : { type: Boolean, default: false },
     ambassador : { type: Boolean, default: false }

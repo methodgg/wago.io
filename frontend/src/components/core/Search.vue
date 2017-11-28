@@ -17,7 +17,9 @@
               <md-image :md-src="result.thumbnail" v-if="result.thumbnail"></md-image>
             </div>
             <div class="searchText">
-              <router-link :to="'/' + result.slug">{{ result.name }}</router-link>
+              <router-link :to="'/' + result.slug">{{ result.name }}</router-link> 
+              <span class="hidden-status" v-if="result.visibility.private">- Private -</span>
+              <span class="hidden-status" v-if="result.visibility.hidden">- Hidden -</span>
               <md-subheader>
                 <span>{{ result.type }}</span>
                 <span>{{ result.date.modified || result.date.created | moment('LLL') }}</span>
@@ -262,10 +264,11 @@ export default {
 #searchForm { padding: 16px; width: 100% }
 #searchForm button { margin-top: -3px }
 
-.searchResult { display: flex; padding: 0 8px }
+.searchResult { display: flex; padding: 0 8px; margin-bottom: 8px }
 .searchResult .searchImg { min-width: 120px; max-width: 120px; text-align: center }
 .searchResult .searchImg img { max-width: 100%; max-height: 6em; }
 .searchResult .searchText {  }
+.searchResult .hidden-status { font-weight: bold; margin-left: 8px; opacity: .7 }
 
 .searchText { padding: 0 8px 8px 8px; margin: 0 8px 8px 8px }
 .searchText > a { font-weight: bold; text-decoration: underline!important }
@@ -273,6 +276,6 @@ export default {
 .searchText .md-subheader span, .searchText .md-subheader a { padding: 0 16px 0 0}
 .searchTags .md-chip { height: auto; padding: 4px 6px 4px 20px; background-size: 18px 18px; background-position: 2px 2px }
 
-
 #searchMeta .md-whiteframe { padding: 8px; margin-top: 1.5em}
+
 </style>

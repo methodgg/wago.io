@@ -3,11 +3,11 @@
     <div id="admin" v-if="User && User.access.admin">
       <!-- FRAME TOGGLES -->
       <md-button-toggle class="md-accent" md-single>
-        <md-button class="md-toggle" @click="toggleFrame('blogpost')">Blog Posts</md-button>
+        <md-button v-if="User.access.admin.blog || User.access.admin.super" class="md-toggle" @click="toggleFrame('blogpost')">Blog Posts</md-button>
       </md-button-toggle>
     
       <!-- BLOG FRAME -->
-      <md-layout id="admin-blog-container" v-if="showPanel=='blogpost'">
+      <md-layout id="admin-blog-container" v-if="(User.access.admin.blog || User.access.admin.super) && showPanel=='blogpost'">
         <md-layout class="md-left" ref="blogSidebar" id="blog-sidebar" md-flex="15">
           <md-list class="md-double-line">
             <md-list-item @click="LoadBlog(-1)" v-bind:class="{selected: (blogSelected === -1)}">
