@@ -193,9 +193,9 @@ Schema.virtual('access.beta').get(function() {
 })
 
 Schema.virtual('roleclass').get(function() {
-  if (this.roles.super_admin || this.roles.admin)
+  if (this.roles.admin && this.roles.admin.super)
       return 'user-admin'
-  else if (this.roles.moderator)
+  else if (this.roles.admin && this.roles.admin.moderator)
       return 'user-moderator'
   else if (this.roles.gold_subscriber)
       return 'user-goldsub'
