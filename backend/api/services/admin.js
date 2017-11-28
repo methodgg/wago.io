@@ -5,9 +5,16 @@ server.get('/admin/blogs', (req, res) => {
   if (!req.user || !req.user.admin) {
     return res.send(403, {error: "forbidden"})
   }
-  Blog.find({}).select('_id title date publishStatus').sort('-date').then((docs) => {
-    res.send({blogs: docs})
-  })
+  if (req.user.admin.super) {
+    Blog.find({}).populate('_userId', 'account.username').select('_id title date publishStatus _userId').sort('-date').then((docs) => {
+      res.send({blogs: docs})
+    })
+  }
+  else if (req.user.admin.blog) {
+    Blog.find({_userId: req.user._id}).select('_id title date publishStatus').sort('-date').then((docs) => {
+      res.send({blogs: docs})
+    })
+  }
 })
 
 

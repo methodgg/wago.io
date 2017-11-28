@@ -18,6 +18,7 @@
             <md-list-item v-if="blogs.length > 0" v-for="(blog, index) in blogs" :key="index" @click="LoadBlog(index)" v-bind:class="{selected: (blogSelected === index)}">
               <div class="md-list-text-container">
                 <span>{{ blog.title }}  <em v-if="blog.publishStatus === 'draft'">Draft</em></span>
+                <span v-if="blog._userId">{{ blog._userId.account.username }}</span>
                 <span>{{ blog.date | moment('MMM Do YYYY LT') }}</span>
               </div>
             </md-list-item>
