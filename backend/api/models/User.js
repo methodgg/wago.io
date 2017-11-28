@@ -174,28 +174,28 @@ Schema.virtual('avatarURL').get(function() {
 
 Schema.virtual('access.custom_slug').get(function() {
   if (this.roles.super_admin) return true
-  if (this.roles.admin || this.roles.gold_subscriber || this.roles.ambassador) return true
+  if (this.roles.gold_subscriber || this.roles.ambassador) return true
 
   return false
 })
 Schema.virtual('access.animatedAvatar').get(function() {
-  if (this.roles.super_admin) return true
-  if (this.roles.admin || this.roles.gold_subscriber || this.roles.subscriber || this.roles.ambassador || this.roles.moderator) return true
+  if (this.roles.admin.super) return true
+  if (this.roles.gold_subscriber || this.roles.subscriber || this.roles.ambassador || this.roles.admin.moderator) return true
 
   return false
 })
 
 Schema.virtual('access.beta').get(function() {
-  if (this.roles.super_admin) return true
-  if (this.roles.admin || this.roles.gold_subscriber || this.roles.subscriber || this.roles.ambassador || this.roles.moderator) return true
+  if (this.roles.admin.super) return true
+  if (this.roles.gold_subscriber || this.roles.subscriber || this.roles.ambassador || this.roles.admin.moderator) return true
 
   return false
 })
 
 Schema.virtual('roleclass').get(function() {
-  if (this.roles.admin && this.roles.admin.super)
+  if (this.roles.admin.super)
       return 'user-admin'
-  else if (this.roles.admin && this.roles.admin.moderator)
+  else if (this.roles.admin.moderator)
       return 'user-moderator'
   else if (this.roles.gold_subscriber)
       return 'user-goldsub'
