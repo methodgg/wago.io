@@ -117,8 +117,14 @@ server.get('/lookup/wago', (req, res, next) => {
         if (doc.type === 'COLLECTION') {
           return cb()
         }
-        if (req.user) {
+        if (req.user && doc.hidden) {
+          var search = WagoItem.find({"type": "COLLECTION", "collect": wago._id.toString(), "$or": [{ '_userId': req.user._id || null }, { private: false }]})
+        }
+        else if (req.user) {
           var search = WagoItem.find({"type": "COLLECTION", "collect": wago._id.toString(), "$or": [{ '_userId': req.user._id || null }, { private: false, hidden: false }]})
+        }
+        else if (doc.hidden) {
+          var search = WagoItem.find({"type": "COLLECTION", "collect": wago._id.toString(), private: false })
         }
         else {
           var search = WagoItem.find({"type": "COLLECTION", "collect": wago._id.toString(), private: false, hidden: false})
