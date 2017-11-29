@@ -20,6 +20,7 @@ server.get('/search', (req, res, skipSearch) => {
 
   // override settings
   var defaultAnon = false
+  var allowHidden = false
 
   // build criteria to search for
   async.series([
@@ -195,6 +196,9 @@ server.get('/search', (req, res, skipSearch) => {
           WagoItem.findById([collectMatch[1], collectMatch[2]]).then((collection) => {
             if (collection && collection.collect) {
               defaultAnon = true // default anon items to on
+              if (collection.hidden) { // if collection is hidden then allow hidden imports to be shown
+                allowHidden = true
+              }
               lookup._id = lookup._id.concat(collection.collect)
             }
             cb()
@@ -376,12 +380,19 @@ server.get('/search', (req, res, skipSearch) => {
 
     // limit lookup to what we have access to
     lookup['deleted'] = false
-    if (req.user) {
+    
+    if (req.user && !allowHidden) {
       lookup['$or'] = [{ '_userId': req.user._id }, { private: false, hidden: false }]
     }
-    else {
+    else if (req.user) {
+      lookup['$or'] = [{ '_userId': req.user._id }, { private: false }]
+    }
+    else if (!allowHidden) {
       lookup['private'] = false
       lookup['hidden'] = false
+    }
+    else {      
+      lookup['private'] = false
     }
 
     // search wago for all of our criteria
