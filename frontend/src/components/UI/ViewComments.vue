@@ -31,6 +31,7 @@
           <md-card-actions v-if="replyID != index">
             <md-button v-if="isUnread(comment)" @click="clearAlert(index)">{{ $t("Clear alert") }}</md-button>
             <md-button @click="openReply(index)">{{ $t("Reply") }}</md-button>
+            <md-button v-if="comment.canMod" @click="openDelete(index)">{{ $t("Delete") }}</md-button>
           </md-card-actions>
           <div v-else>
             <md-input-container>
@@ -48,6 +49,7 @@
         <p>{{ $t("This Wago has no comments") }}</p>
       </md-card>
     </div>
+    <md-dialog-confirm :md-title="$t('Delete comment')" :md-content-html="deleteCommentConfirmHTML" :md-ok-text="$t('Delete')" :md-cancel-text="$t('Cancel')" ref="confirmDeleteComment" @close="onConfirmDelete"></md-dialog-confirm>
   </div>
 </template>
 
@@ -65,19 +67,28 @@ export default {
   props: [
     'comments',
     'commentTotal',
-    'wagoID'
+    'wagoID',
+    'isMod'
   ],
   data: function () {
     return {
       page: 1,
       replyID: null,
-      replyText: ''
+      replyText: '',
+      deleteComment: {
+        html: null,
+        id: null,
+        index: null
+      }
     }
   },
   directives: { focus },
   methods: {
     parseCommentText (comment) {
-      if (comment.format === 'bbcode') {
+      if (!comment) {
+        return ''
+      }
+      else if (comment.format === 'bbcode') {
         return XBBCode.process({
           text: comment.text,
           removeMisalignedTags: true,
@@ -92,19 +103,36 @@ export default {
         this.comments = this.comments.concat(res)
       })
     },
-    openReply (postID) {
-      if (postID >= 0) {
-        this.clearAlert(postID)
-        this.replyText = '@' + this.comments[postID].author.name + ' '
+    openReply (commentIndex) {
+      if (commentIndex >= 0) {
+        this.clearAlert(commentIndex)
+        this.replyText = '@' + this.comments[commentIndex].author.name + ' '
       }
       else {
         this.replyText = ' '
       }
-      this.replyID = postID
+      this.replyID = commentIndex
     },
-    clearAlert (postID) {
-      this.http.post('/comments/clear', {comment: this.comments[postID].cid}).then((res) => {
-        this.$store.commit('userClearMention', this.comments[postID].cid)
+    openDelete (commentIndex) {
+      if (commentIndex >= 0 && this.comments[commentIndex]) {
+        var comment = this.comments[commentIndex]
+        this.deleteComment.html = this.parseCommentText(comment)
+        this.deleteComment.id = comment.cid
+        this.deleteComment.index = commentIndex
+        this.$refs.confirmDeleteComment.open()
+      }
+    },
+    onConfirmDelete (confirm) {
+      if (confirm === 'ok') {
+        this.comments = this.comments.splice(this.deleteComment.id, 1)
+        this.http.post('/comments/delete', {comment: this.deleteComment.id}).then((res) => {
+          // this.comments = this.comments.splice(this.deleteComment.id, 1)
+        })
+      }
+    },
+    clearAlert (commentIndex) {
+      this.http.post('/comments/clear', {comment: this.comments[commentIndex].cid}).then((res) => {
+        this.$store.commit('userClearMention', this.comments[commentIndex].cid)
       })
     },
     submitComment () {
@@ -133,6 +161,9 @@ export default {
     },
     showMoreComments () {
       return (this.commentTotal - this.comments.length > 0)
+    },
+    deleteCommentConfirmHTML () {
+      return '<p>' + this.$t('The following comment will be irreversibly deleted.') + '</p><br>' + this.deleteComment.html
     }
   }
 }

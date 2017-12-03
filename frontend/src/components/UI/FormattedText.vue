@@ -1,5 +1,5 @@
 <template>
-  <div v-html="formatText()" v-bind:class="{ noFormat: truncate > 0 }"></div>
+  <div v-html="formatText()" v-bind:class="{ noFormat: truncate > 0 }" :class="'usertext ' + text.format "></div>
 </template>
 
 <script>
@@ -57,5 +57,7 @@ export default {
 .noFormat img, .noFormat table {
   display: none!important;
 }
+.usertext.bbcode ol, .usertext.bbcode ul { margin: 0}
+.usertext.bbcode ol, .usertext.bbcode ul, .usertext.bbcode li { white-space: normal}
 </style>
 

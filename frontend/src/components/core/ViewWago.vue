@@ -288,7 +288,7 @@
                   <form>
                     <md-input-container>
                       <label>{{ $t("Name") }}</label>
-                      <md-input v-model.trim="addCollectionName" ref="addCollectionNameInput"></md-input>
+                      <md-input v-model="addCollectionName" ref="addCollectionNameInput"></md-input>
                     </md-input-container>
                   </form>
                 </md-dialog-content>
@@ -906,7 +906,6 @@ export default {
 
     onUpdateName () {
       this.$nextTick(function () {
-        this.editName = this.editName.trim()
         this.updateNameHasStatus = true
         if (this.editName.length > 0) {
           this.updateNameError = false
@@ -914,7 +913,7 @@ export default {
           var vue = this
           this.http.post('/wago/update/name', {
             wagoID: vue.wago._id,
-            name: this.editName
+            name: this.editName.trim()
           }).then((res) => {
             if (res.success) {
               vue.updateNameStatus = vue.$t('Saved')
@@ -941,7 +940,6 @@ export default {
 
     onUpdateSlug () {
       this.$nextTick(function () {
-        this.editSlug = this.editSlug.trim()
         this.updateSlugHasStatus = true
         if (this.editSlug === '') {
           this.editSlug = this.wago._id
@@ -958,7 +956,7 @@ export default {
         var vue = this
         this.http.post('/wago/update/slug', {
           wagoID: vue.wago._id,
-          slug: this.editSlug
+          slug: this.editSlug.trim()
         }).then((res) => {
           if (res.success) {
             vue.updateSlugStatus = vue.$t('Saved')
@@ -993,14 +991,13 @@ export default {
 
     onUpdateDescription () {
       this.$nextTick(function () {
-        this.editDesc = this.editDesc.trim()
         this.updateDescHasStatus = true
         this.updateDescError = false
         this.updateDescStatus = this.$t('Saving')
         var vue = this
         this.http.post('/wago/update/desc', {
           wagoID: vue.wago._id,
-          desc: this.editDesc
+          desc: this.editDesc.trim()
           // format: 'bbcode'
         }).then((res) => {
           if (res.success) {
@@ -1287,7 +1284,7 @@ export default {
       }
       var vue = this
       this.http.post('/wago/collection/new', {
-        name: this.addCollectionName,
+        name: this.addCollectionName.trim(),
         wagoID: this.wago._id
       }).then((res) => {
         if (res.success && res.collectionID) {

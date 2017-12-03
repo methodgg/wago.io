@@ -171,7 +171,7 @@ export default {
               tagStrMatch = tagMatch[2]
             }
 
-            var tags = tagStrMatch.split(',')
+            var tags = tagStrMatch.split(';')
             tags.forEach((thisTag) => {
               var category = Categories.search(thisTag, this.$t)
               if (category) {
