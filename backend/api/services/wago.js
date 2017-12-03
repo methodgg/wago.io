@@ -323,7 +323,7 @@ server.post('/wago/upload/image/url', (req, res) => {
               }
               else {
                 screen.save().then((doc) => {
-                  res.send({success: true, _id: doc._id.toString(), url: doc.url, type: 'screenshot'})
+                  res.send({success: true, _id: doc._id.toString(), src: doc.url, type: 'screenshot'})
                 })
               }
             })
@@ -383,7 +383,7 @@ server.post('/wago/upload/image/base64', (req, res) => {
         }
         else {
           screen.save().then((doc) => {
-            res.send({success: true, _id: doc._id.toString(), url: doc.url})
+            res.send({success: true, _id: doc._id.toString(), src: doc.url})
           })
         }
       })
