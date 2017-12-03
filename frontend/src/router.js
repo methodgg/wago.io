@@ -21,12 +21,17 @@ const Search = resolve => require(['@/components/core/Search.vue'], resolve)
 
 const OAuth = resolve => require(['@/components/UI/WagoOauth.vue'], resolve)
 
+import Categories from './components/libs/categories'
+
 function GetContextTag (params) {
   var tag
+  var slug
   if (params.c4) {
     tag = params.c4
+    slug = params.c1 + '/' + params.c2 + '/' + params.c3 + '/' + params.c4
   }
   else if (params.c3) {
+    slug = params.c1 + '/' + params.c2 + '/' + params.c3
     if (params.c1 === 'classes') {
       tag = params.c3 + ' ' + params.c2
     }
@@ -36,9 +41,18 @@ function GetContextTag (params) {
   }
   else if (params.c2) {
     tag = params.c2
+    slug = params.c1 + '/' + params.c2
   }
   else if (params.c1) {
     tag = params.c1
+    slug = params.c1
+  }
+
+  if (slug) {
+    var cat = Categories.search(slug, window.i18next.t)
+    if (cat && cat.text) {
+      tag = cat.text
+    }
   }
 
   if (tag) {

@@ -264,12 +264,11 @@ module.exports = {
     return matched
   },
   
-  // find category by searching id or localized text. Normalized to work with URL slugs.
+  // find category by searching id, localized text or url slug
   search: function (str, t) {
-    str = str.replace(/^the /i, '').replace(/\s/g, '-').replace(/[^\w-]/g, '').toLowerCase().trim()
     var cats = this.categories(t)
     for (var i=0; i<cats.length; i++) {
-      if (cats[i].id === str || cats[i].text.replace(/^the /i, '').replace(/\s/g, '-').replace(/[^\w-]/g, '').toLowerCase().trim() === str) {
+      if (cats[i].id === str.toLowerCase().trim() || cats[i].text.toLowerCase().trim() === str.toLowerCase().trim() || cats[i].slug === str) {
         return cats[i]
       }
     }

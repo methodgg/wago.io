@@ -56,6 +56,7 @@ export default {
         total: 0
       },
       searchString: '',
+      searchOptions: 'sort: Date',
       tagContext: [],
       tagMap: {},
       isSearching: false,
@@ -78,24 +79,27 @@ export default {
   },
   methods: {
     runSearch: function (query) {
+      var opt = ''
       // if loaded via category menu
       if (this.contextSearch && !query) {
+        this.contextSearch = this.contextSearch.replace(this.searchOptions, '').trim()
         this.searchString = this.contextSearch
         query = this.contextSearch
       }
       // if loaded direct
       else if (!query && this.$route.params.query) {
-        query = this.$route.params.query.replace(/\+/g, ' ')
+        query = this.$route.params.query.replace(/\+/g, ' ').replace(this.searchOptions, '').trim()
         this.searchString = query
       }
       // if loaded as component from other file
       else if (typeof query === 'string' && query) {
+        query = query.replace(this.searchOptions, '').trim()
         this.$router.push('/search/' + query.replace(/\s+/g, '+'))
         this.searchString = query
       }
       // if navigating forward/back
       else if (this.$route.params.query) {
-        query = this.$route.params.query.replace('+', ' ')
+        query = this.$route.params.query.replace('+', ' ').replace(this.searchOptions, '').trim()
       }
       // something broke, no query found (empty string?)
       else {
@@ -105,51 +109,51 @@ export default {
       this.isSearching = true
 
       // check if sort value needs to be added to query
-      var sort = query.match(/sort:\s?(-?\w+)/i)
+      var sort = opt.match(/sort:\s?(-?\w+)/i)
       if (sort && sort[1] && !this.uiSearchValue) {
         sort[1] = sort[1].toLowerCase()
         if (sort[1] === 'date' || sort[1] === 'date' || sort[1] === 'stars' || sort[1] === 'stars' || sort[1] === 'views' || sort[1] === 'views') {
           this.sortVal = sort[1]
-          query = query.replace(/sort:\s?(-?\w+)/i, 'Sort: ' + this.sortVal)
+          opt = opt.replace(/sort:\s?(-?\w+)/i, 'Sort: ' + this.sortVal)
         }
         else {
           this.sortVal = 'standard'
-          query = query.replace(/sort:\s?(-?\w+)/i, 'Sort: ' + this.sortVal)
+          opt = opt.replace(/sort:\s?(-?\w+)/i, 'Sort: ' + this.sortVal)
         }
       }
       else {
         if (!this.sortVal) {
           this.sortVal = 'date'
         }
-        query = query.replace(/sort:\s?(-?\w+)/i, '')
-        query = query.trim() + ' sort: ' + this.sortVal
+        opt = opt.replace(/sort:\s?(-?\w+)/i, '')
+        opt = opt.trim() + ' sort: ' + this.sortVal
       }
       this.uiSearchValue = false
 
-      var relevance = query.match(/relevance:\s?(\w+)/i)
+      var relevance = opt.match(/relevance:\s?(\w+)/i)
       if (relevance && relevance[1] && !this.uiRelevanceValue) {
         relevance[1] = relevance[1].toLowerCase()
         if (relevance[1] === 'strict' || relevance[1] === 'relaxed') {
           this.catRelevance = relevance[1]
-          query = query.replace(/relevance:\s?(-?\w+)/i, 'Relevance: ' + this.catRelevance)
+          opt = opt.replace(/relevance:\s?(-?\w+)/i, 'Relevance: ' + this.catRelevance)
         }
         else {
           this.catRelevance = 'standard'
-          query = query.replace(/relevance:\s?(-?\w+)/i, 'Relevance: ' + this.catRelevance)
+          opt = opt.replace(/relevance:\s?(-?\w+)/i, 'Relevance: ' + this.catRelevance)
         }
       }
       else {
-        query = query.replace(/relevance:\s?(\w+)/i, '')
+        opt = opt.replace(/relevance:\s?(\w+)/i, '')
         if (this.catRelevance !== 'standard') {
-          query = query.trim() + ' Relevance: ' + this.catRelevance
+          opt = opt.trim() + ' Relevance: ' + this.catRelevance
         }
       }
       this.uiRelevanceValue = false
 
-      this.searchString = query.trim() + ' '
+      this.searchOptions = opt.trim() + ' '
 
       // check if we're searching for any localized tags
-      const regex = /\btag:\s*([\w-]+)|\btag:\s*"([^"]+)"/ig
+      const regex = /\btag:\s*"([^"]+)"|\btag:\s*([^\s]+)/ig
       var tagSearch = query.match(regex)
       if (tagSearch && tagSearch.length > 0) {
         this.tagContext = []
@@ -183,7 +187,7 @@ export default {
       this.$refs.searchInput.$el.focus()
 
       var vue = this
-      var params = { q: query }
+      var params = { q: query + ' ' + opt }
 
       vue.http.get('/search', params).then((res) => {
         for (var i = 0; i < res.results.length; i++) {
