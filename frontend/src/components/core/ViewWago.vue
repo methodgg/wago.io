@@ -122,6 +122,8 @@
             <div v-for="func in wago.alerts.malicious">{{ func }}</div>
           </ui-warning>
 
+          <ui-warning v-if="!isLatestVersion()" mode="info" :html="$t('A more recent version of this import is available view the latest version [-url-]', {url: '/' + $store.state.wago.slug})"></ui-warning>          
+
           <!-- CONFIG FRAME -->
           <div id="wago-config-container" class="wago-container" v-if="showPanel=='config'">
             <h2>{{ $t("Configuration") }}</h2>
@@ -717,7 +719,12 @@ export default {
         vue.doNotReloadWago = true
         window.preventScroll = true
         // make sure we're using custom url
-        vue.$router.replace('/' + res.slug)
+        if (vue.isLatestVersion()) {
+          vue.$router.replace('/' + res.slug)
+        }
+        else {
+          vue.$router.replace('/' + res.slug + '/' + vue.version)
+        }
         setTimeout(function () {
           vue.doNotReloadWago = false
           window.preventScroll = undefined
@@ -856,6 +863,9 @@ export default {
     },
     selectVersion (v) {
       this.$router.push('/' + this.$store.state.wago.slug + '/' + v[0].version)
+    },
+    isLatestVersion () {
+      return (!this.version || this.version === this.wago.versions.total)
     },
     loadMoreVersions () {
       this.http.get('/lookup/wago/versions', {id: this.wago._id}).then((res) => {

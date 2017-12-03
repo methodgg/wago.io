@@ -26,7 +26,7 @@
       <md-card>
         <h2>{{ $t("Create Account") }}</h2>
         <md-card-content>
-          <p>{{ $t("Wago does not collect email addresses and therefore has no forgotten password function; we recommend using one of the social logins on the right") }}</p>
+          <p>{{ $t("Wago does not collect email addresses and therefore has no forgotten password function; we recommend using one of the social logins") }}</p>
           <form id="create-acct" novalidate v-on:submit.prevent="createAcct">
             <md-input-container>
               <label>{{ $t("Username") }}</label>

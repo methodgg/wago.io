@@ -163,7 +163,7 @@ export default {
       return (this.commentTotal - this.comments.length > 0)
     },
     deleteCommentConfirmHTML () {
-      return '<p>' + this.$t('The following comment will be irreversibly deleted.') + '</p><br>' + this.deleteComment.html
+      return '<p>' + this.$t('The following comment will be irreversibly deleted') + '</p><br>' + this.deleteComment.html
     }
   }
 }

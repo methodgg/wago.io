@@ -385,6 +385,20 @@
   "New password does not match confirmation or is too short": "New password does not match confirmation or is too short",
   "NEW": "NEW",
   "Create": "Create",
-  "An error occurred": "",
-  "Wago does not collect email addresses and therefore has no forgotten password function; we recommend using one of the social logins on the right": ""
+  "An error occurred": "An error occurred.",
+  "Wago does not collect email addresses and therefore has no forgotten password function; we recommend using one of the social logins": "Wago does not collect email addresses and therefore has no forgotten password function; we recommend using one of the social logins.",
+  "Options": "Options",
+  "Sort": "Sort",
+  "Views": "Views",
+  "Category Relevancy": "Category Relevancy",
+  "Relaxed": "Relaxed",
+  "Standard": "Standard",
+  "Strict": "Strict",
+  "Delete": "Delete",
+  "Delete comment": "Delete comment",
+  "The following comment will be irreversibly deleted": "The following comment will be irreversibly deleted.",
+  "Usernames can not contain the following characters %/\\<>": "Usernames can not contain the following characters %/\\<>",
+  "[-count-] more": "[-count-] more",
+  "[-count-] more_plural": "[-count-] more",
+  "A more recent version of this import is available view the latest version [-url-]": "A more recent version of this import is available. <a href=\"[-url-]\" class=\"vr\">View the latest version</a>."
 }
