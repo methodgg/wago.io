@@ -95,7 +95,7 @@ module.exports = {
   },
 
   JSON2ElvUI: (obj, cb) => {
-    if (!obj || !obj.layoutSet) {
+    if (!obj || !obj.movers) {
       return cb('Invalid export')
     }
 
