@@ -292,6 +292,10 @@ export default {
             }
           }
 
+          if (func.indexOf(item.id) < 0) {
+            func.push(item.id)
+          }
+
           // trigger logic (must have at least 2 triggers)
           if (item.disjunctive === 'custom' && item.customTriggerLogic && item.customTriggerLogic.length > 0) {
             func.push({ name: this.$t('Trigger Logic'), ix: ix, path: 'customTriggerLogic' })
