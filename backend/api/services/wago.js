@@ -617,7 +617,7 @@ server.get('/wago/embed', (req, res, next) => {
         return res.send('This WeakAura includes blacklisted functions. Embedding is not allowed.')
       }
       var theme = {}
-      if (req.params.style === 'white') {
+      if (req.params.style === 'light') {
         var theme = {buttonBG: '#FFF', buttonHover: '#F4F4F4', textColor: 'rgba(0,0,0,.87)', logo: 'https://media.wago.io/favicon/apple-touch-icon-57x57.png'}
       }
       else if (req.params.style === 'dark') {
