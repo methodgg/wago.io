@@ -76,24 +76,16 @@ server.post('/comments/delete', (req, res) => {
   }
 
   Comments.findById(req.body.comment).then((comment) => {
-    // if user is moderator then allow delete
-    if (req.user.admin && (req.user.admin.super || req.user.admin.moderator)) {
-      comment.remove()
-      return res.send({success: true})
-    }
-
-    // if user is comment author then allow delete
-    if (req.user._id.equals(comment.authorID)) {
-      comment.remove()
-      return res.send({success: true})
-    }
-
     // if comment is on user's wago then allow delete
-    WagoItem.findById(comment.wagoID).select('_userId').then((wago) => {
-      if (req.user._id.equals(wago._userId)) {
+    WagoItem.findById(comment.wagoID).then((wago) => {      
+      // if user is moderator, comment author or wago owner then allow delete
+      if ((req.user.admin && (req.user.admin.super || req.user.admin.moderator)) || (req.user._id.equals(comment.authorID)) || (req.user._id.equals(wago._userId))) {
+        wago.popularity.comments_count--
+        wago.save()
         comment.remove()
         return res.send({success: true})
       }
+
       else {
         return res.send(403, {error: "forbidden"})
       }
