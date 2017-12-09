@@ -455,6 +455,18 @@ server.get('/search', (req, res, skipSearch) => {
 
           // get screenshot
           function (done) {
+            if (wago.image && wago.image[0]) {
+              if (wago.image[0].files.png) {
+                item.thumbnail = wago.image[0].files.png
+              }
+              if (wago.image[0].files.jpg) {
+                item.thumbnail = wago.image[0].files.jpg
+              }
+              if (item.thumbnail && item.thumbnail.indexOf(/https?:\/\//) < 0) {
+                item.thumbnail = 'https://media.wago.io/images/'  + item.thumbnail
+              }
+              return done()
+            }
             Screenshot.findOne({auraID: wago._id}).then((screen) => {
               if (!screen) return done()
 

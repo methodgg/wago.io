@@ -113,6 +113,20 @@ server.get('/lookup/wago', (req, res, next) => {
           cb(null, vids)
         })
       },
+      mediaLookup: (cb) => {
+        if (doc.type === 'IMAGE') {
+          wago.image = doc.image[0]
+          for (file in wago.image.files) {
+            if (!wago.image.files.hasOwnProperty(file)) {
+              continue
+            }
+            if (wago.image.files[file].indexOf(/https?:\/\//) < 0) {
+              wago.image.files[file] = 'https://media.wago.io/images/'  + wago.image.files[file]
+            }
+          }
+        }
+        cb(null)
+      },
       collectionLookup: (cb) => {
         if (doc.type === 'COLLECTION') {
           return cb()

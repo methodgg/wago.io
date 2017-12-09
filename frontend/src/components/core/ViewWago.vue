@@ -80,6 +80,7 @@
                 </md-button>
                 <md-button v-if="wago.user && User && wago.UID && wago.UID === User.UID && wago.code && wago.code.encoded" @click="$refs['newImportDialog'].open()" id="newImportButton"><md-icon>input</md-icon> {{ $t("Import new string") }}</md-button>
                 <md-button v-if="wago.code && wago.code.encoded && !wago.alerts.blacklist" @click="copyEncoded" class="copy-import-button"><md-icon>assignment</md-icon> {{ $t("Copy [-type-] import string", {type: wago.type}) }}</md-button>
+                <md-button v-if="wago.image && wago.image.files.tga" :href="wago.image.files.tga" class="copy-import-button"><md-icon>file_download</md-icon> {{ $t("Download .tga file") }}</md-button>
               </md-card-actions>
               <md-dialog v-if="wago.user && User && wago.UID && wago.UID === User.UID" md-open-from="#newImportButton" md-close-to="#newImportButton" ref="newImportDialog" id="newImportDialog">
                 <md-dialog-title>{{ $t("Import new string") }}</md-dialog-title>
@@ -126,7 +127,6 @@
 
           <!-- CONFIG FRAME -->
           <div id="wago-config-container" class="wago-container" v-if="showPanel=='config'">
-            <h2>{{ $t("Configuration") }}</h2>
             <md-card id="wago-config">
               <h3>{{ $t("Text setup")}}</h3>
               <md-input-container :class="{ 'md-input-invalid': updateNameError, 'md-input-status': updateNameHasStatus }">
@@ -155,49 +155,51 @@
                   <md-option value="Private">{{ $t("Private (only you may view)") }}</md-option>
                 </md-select>
               </md-input-container>
-              <div>
-                <label id="categoryLabel">{{ $t("Categories") }}</label>
-                <md-button class="md-icon-button md-raised" @click="numCategorySets++">
-                  <md-icon>add</md-icon>
-                </md-button>
-                <div v-for="n in numCategorySets">
-                  <div class="has-category-select">
-                    <category-select :selectedCategories="editCategories[n-1]" @update="cat => {editCategories[n-1] = cat; onUpdateCategories()}" :type="wago.type.toUpperCase()"></category-select>
+              <div v-if="!wago.image && !wago.audio">
+                <div>
+                  <label id="categoryLabel">{{ $t("Categories") }}</label>
+                  <md-button class="md-icon-button md-raised" @click="numCategorySets++">
+                    <md-icon>add</md-icon>
+                  </md-button>
+                  <div v-for="n in numCategorySets">
+                    <div class="has-category-select">
+                      <category-select :selectedCategories="editCategories[n-1]" @update="cat => {editCategories[n-1] = cat; onUpdateCategories()}" :type="wago.type.toUpperCase()"></category-select>
+                    </div>
                   </div>
                 </div>
-              </div>
-              <h3>{{ $t("Preview setup")}}</h3>
-              <md-layout>
-                <md-layout md-flex="75">
-                  <md-input-container :class="{ 'md-input-invalid': pasteURLError, 'md-input-status': pasteURLHasStatus}">
-                    <label>{{ $t("Add an image or video by pasting an image directly or input a URL") }}</label>
-                    <md-input v-model="pasteURL" id="pasteURL" :readonly="pasteURLUploading"></md-input>
-                    <span class="md-error" v-if="pasteURLStatus">{{ pasteURLStatus }}</span>
-                  </md-input-container>
-                </md-layout>
+                <h3>{{ $t("Preview setup")}}</h3>
                 <md-layout>
-                  <md-input-container>
-                    <md-file v-model="uploadImages" multiple accept="image/*" :placeholder="$t('Or click to upload image')" @selected="onUploadFile($event)"></md-file>
-                  </md-input-container>
+                  <md-layout md-flex="75">
+                    <md-input-container :class="{ 'md-input-invalid': pasteURLError, 'md-input-status': pasteURLHasStatus}">
+                      <label>{{ $t("Add an image or video by pasting an image directly or input a URL") }}</label>
+                      <md-input v-model="pasteURL" id="pasteURL" :readonly="pasteURLUploading"></md-input>
+                      <span class="md-error" v-if="pasteURLStatus">{{ pasteURLStatus }}</span>
+                    </md-input-container>
+                  </md-layout>
+                  <md-layout>
+                    <md-input-container>
+                      <md-file v-model="uploadImages" multiple accept="image/*" :placeholder="$t('Or click to upload image')" @selected="onUploadFile($event)"></md-file>
+                    </md-input-container>
+                  </md-layout>
                 </md-layout>
-              </md-layout>
-              <div v-if="wago.videos.length > 0">
-                <strong>{{ $t("Videos") }}</strong>
-                <vddl-list :list="wago.screens" :horizontal="true" :drop="onVideoMoved">
-                  <vddl-draggable v-for="(item, index) in wago.videos" :key="item._id" :draggable="item" :index="index" effect-allowed="move" :moved="onVideoMoveOut">
-                    <span class="vddl-delete" @click="onVideoDelete(index)">❌</span>
-                    <md-image :md-src="item.thumb"></md-image>
-                  </vddl-draggable>
-                </vddl-list>
-              </div>
-              <div v-if="wago.screens.length > 0" class="config-screenshots">
-                <strong>{{ $t("Screenshots") }}</strong>
-                <vddl-list :list="wago.screens" :horizontal="true" :drop="onScreenshotMoved">
-                  <vddl-draggable v-for="(item, index) in wago.screens" :key="item._id" :draggable="item" :index="index" effect-allowed="move" :moved="onScreenMoveOut">
-                    <span class="vddl-delete" @click="onScreenDelete(index)">❌</span>
-                    <md-image :md-src="item.src"></md-image>
-                  </vddl-draggable>
-                </vddl-list>
+                <div v-if="wago.videos.length > 0">
+                  <strong>{{ $t("Videos") }}</strong>
+                  <vddl-list :list="wago.screens" :horizontal="true" :drop="onVideoMoved">
+                    <vddl-draggable v-for="(item, index) in wago.videos" :key="item._id" :draggable="item" :index="index" effect-allowed="move" :moved="onVideoMoveOut">
+                      <span class="vddl-delete" @click="onVideoDelete(index)">❌</span>
+                      <md-image :md-src="item.thumb"></md-image>
+                    </vddl-draggable>
+                  </vddl-list>
+                </div>
+                <div v-if="wago.screens.length > 0" class="config-screenshots">
+                  <strong>{{ $t("Screenshots") }}</strong>
+                  <vddl-list :list="wago.screens" :horizontal="true" :drop="onScreenshotMoved">
+                    <vddl-draggable v-for="(item, index) in wago.screens" :key="item._id" :draggable="item" :index="index" effect-allowed="move" :moved="onScreenMoveOut">
+                      <span class="vddl-delete" @click="onScreenDelete(index)">❌</span>
+                      <md-image :md-src="item.src"></md-image>
+                    </vddl-draggable>
+                  </vddl-list>
+                </div>
               </div>
 
               <md-card-actions>
@@ -217,10 +219,8 @@
           <!-- DESCRIPTIONS FRAME -->
           <div id="wago-description-container" class="wago-container" v-if="showPanel=='description'">
             <div id="wago-description">
-              <h2 v-if="wago && (wago.screens && wago.screens.length>0) || (wago.videos && wago.videos.length>0)">{{ $t("Preview & Description") }}</h2>
-              <h2 v-else>{{ $t("Description") }}</h2>
-
-              <div id="thumbnails">
+              <ui-image v-if="wago.image" :img="wago.image.files"></ui-image>
+              <div v-else id="thumbnails">
                 <template v-for="video in wago.videos">
                   <a class="showvid" :href="video.url" @click.prevent="showVideo(video.embed)"><md-image :md-src="video.thumb"></md-image></a>
                 </template>
