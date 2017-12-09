@@ -44,7 +44,7 @@ module.exports = {
 }
 
 function sendChatMessage (profileID, message) {
-  Axios.post('http://discord:9999/sendtext', { profileID: profileID, message: message })
+  Axios.post('http://discordbot:9999/sendtext', { profileID: profileID, message: message })
   .then((res) => {
     // console.log(res)
   })

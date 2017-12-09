@@ -434,6 +434,7 @@ function patreonAuth(req, res) {
         }
       })
       .then((userResponse) => {
+        console.log(userResponse)
         oAuthLogin(req, res, 'patreon', userResponse.data)
       })
       .catch(function (err) {
