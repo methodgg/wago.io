@@ -467,7 +467,7 @@ server.get('/search', (req, res, skipSearch) => {
               }
               return done()
             }
-            Screenshot.findOne({auraID: wago._id}).then((screen) => {
+            Screenshot.findOne({auraID: wago._id}).sort({sort:1}).then((screen) => {
               if (!screen) return done()
 
               item.thumbnail = screen.url
