@@ -6,7 +6,7 @@
           <md-input-container :class="{ 'md-input-invalid': importError }">
             <label>{{ $t("Paste your import string here") }}</label>
             <div id="inputStringWrapper">
-              <md-textarea id="inputStringTextarea" name="importString" placeholder=" " v-model.trim="importString"></md-textarea>
+              <md-textarea id="inputStringTextarea" name="importString" placeholder=" " v-model="importString"></md-textarea>
               <div v-if="!importString" v-html="$t('Paste your WeakAura, ElvUI or Vuhdo string here')"></div>
             </div>
             <span class="md-error">{{ importErrorMsg }}</span>
@@ -206,6 +206,8 @@
 
 #categoryLabel { margin-top: 10px; display: inline-block}
 
+#inputStringTextarea { overflow-x: hidden!important; overflow-y: hidden!important }
+
 </style>
 
 <script>
@@ -303,6 +305,10 @@ export default {
   },
   watch: {
     importString: function (val) {
+      val = val.trim()
+      if (!val || val.match(/%SCAN%/)) {
+        return
+      }
       var vue = this
       vue.importError = false
       vue.importErrorMsg = ''
@@ -315,6 +321,9 @@ export default {
         this.importError = true
         return
       }
+      // clean up browser overhead
+      this.importString = val.substring(0, 500) + '%SCAN%'
+      document.getElementById('inputStringTextarea').scrollTop = 0
 
       // send content to import scan
       vue.isScanning = true
