@@ -152,10 +152,6 @@ server.post('/account/update/username', (req, res) => {
         res.send({exists: true})
       }
     })
-      Vue.http.post('/account/update/theme', {
-        theme: state.theme,
-        editor: state.editorTheme
-      })
   })
 })
 

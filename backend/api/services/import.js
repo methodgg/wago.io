@@ -129,6 +129,7 @@ function ScanImport (req, res, next, test) {
           scan.input = req.body.importString
           scan.decoded = result.stdout
           scan.save().then((doc) => {
+            console.log('scanned', doc._id)
             // check load conditions to set default categories
             var categories = []
             
@@ -206,8 +207,9 @@ function ScanImport (req, res, next, test) {
                   categories.push(raid)
               }
             }
+            console.log('returning', doc._id)
 
-            return res.send({scan: doc._id.toString(), type: 'WeakAura', name: data.d.id, categories: categories})
+            res.end({scan: doc._id.toString(), type: 'WeakAura', name: data.d.id, categories: categories})
           })
         }
         else {
@@ -499,7 +501,7 @@ server.post('/import/submit', function(req, res) {
 server.post('/import/update', function (req, res) {
   if (req.body.scanID) {
     ImportScan.findById(req.body.scanID).then((scan) => {
-      if (scan.decoded) {
+      if (scan && scan.decoded) {
         req.body.json = scan.decoded
         req.body.encoded = scan.input
         SaveWagoVersion(req, res, 'update')
