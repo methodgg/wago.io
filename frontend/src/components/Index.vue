@@ -322,8 +322,11 @@ export default {
         return
       }
       // clean up browser overhead
-      this.importString = val.substring(0, 500) + '%SCAN%'
-      document.getElementById('inputStringTextarea').scrollTop = 0
+      if (val.length > 500) {
+        this.importString = val.substring(0, 500) + '%SCAN%'
+        document.getElementById('inputStringTextarea').scrollTop = 0
+        document.getElementById('inputStringTextarea').blur()
+      }
 
       // send content to import scan
       vue.isScanning = true
