@@ -88,7 +88,7 @@
                 <md-dialog-content>
                   <md-input-container :class="{ 'md-input-invalid': newImportString && newImportStringStatus.indexOf('Invalid') >= 0, 'md-input-status': newImportStringStatus }">
                     <label>{{ $t("Paste a new [-type-] string to update this Wago", {type: wago.type.toLowerCase() }) }}</label>
-                    <md-input v-model.trim="newImportString"></md-input>
+                    <md-input v-model="newImportString"></md-input>
                     <span class="md-error" v-if="newImportStringStatus.length>0">{{ newImportStringStatus }}</span>
                   </md-input-container>
                 </md-dialog-content>
@@ -487,6 +487,8 @@ export default {
   data: function () {
     return {
       videoEmbedHTML: '',
+      scanID: '',
+      isScanning: false,
       showDescription: true,
       showComments: true,
       showPanel: 'description',
@@ -535,12 +537,20 @@ export default {
     pasteURL: 'onUpdatePasteURL',
     newImportString: function (val) {
       var vue = this
+
+      // if this just a trimmed string
+      if (val.length === 100 && (vue.scanID || vue.isScanning)) {
+        return
+      }
       vue.newImportStringStatus = ''
       vue.scanID = ''
+      val = val.trim()
 
       if (!val) {
         return
       }
+      vue.isScanning = true
+      this.newImportString = val.substring(0, 100) // reduce browser overhead
 
       // ignore short strings (probably unintentional keypress)
       if (val.length < 10) {
@@ -550,7 +560,10 @@ export default {
 
       // send content to import scan
       vue.newImportStringStatus = 'Verifying'
+      console.log('post')
       vue.http.post('/import/scan', { importString: val, type: vue.wago.type }).then((res) => {
+        console.log('result')
+
         vue.isScanning = false
         if (res.error) {
           vue.newImportStringStatus = vue.$t('Invalid [-type-]', {type: vue.wago.type.toLowerCase()})

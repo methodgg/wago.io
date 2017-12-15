@@ -32,31 +32,9 @@ require('./api/services/status') // status monitor
  * Logging
  */
 global.winston = require('winston');
-require('winston-loggly-bulk');
 const expressWinston = require('express-winston')
 
-winston.add(winston.transports.Loggly, {
-  token: "adc492ec-ea29-45a6-8403-17260b967c1f",
-  subdomain: "wago",
-  tags: ["API-Server"],
-  json: true,
-  timestamp: false
-})
 
-// then winston.error(thing)
-//      winston.info(stuff)
-//      winston.debug(whee)
-var errorLogger = new (winston.Logger)({
-  transports: [
-    new (winston.transports.Loggly)({
-      token: "adc492ec-ea29-45a6-8403-17260b967c1f",
-      subdomain: "wago",
-      tags: ["API-Error"],
-      json: true,
-      timestamp: false
-    })
-  ]
-})
 
 /**
  * CORS
@@ -101,10 +79,10 @@ require('./api/services/wago')
 /**
  * Error Handling
  */
-server.use(expressWinston.errorLogger({
-  winstonInstance: errorLogger,
-  statusLevels: true
-}))
+// server.use(expressWinston.errorLogger({
+//   winstonInstance: errorLogger,
+//   statusLevels: true
+// }))
 
 
 /**

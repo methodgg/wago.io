@@ -14,6 +14,7 @@ const RegexGrid = /^\[=== (.*) profile ===\]\n[ABCDEF0-9\n]+\n\[===/m
  */
 server.post('/import/scan', ScanImport)
 function ScanImport (req, res, next, test) {
+
   // validate the input
   if (!req.body || !req.body.importString || req.body.importString.length < 10) {
     return res.send({error: 'invalid_import'})
@@ -22,7 +23,7 @@ function ScanImport (req, res, next, test) {
   if (!test) {
     test = {}
   }
-
+  
   // if only looking for a specific type
   if (req.body.type) {
     switch (req.body.type.toUpperCase()) {
@@ -48,7 +49,7 @@ function ScanImport (req, res, next, test) {
         break    
     }
   }
-
+  
   var match
 
   // if input is a pastebin URL
@@ -207,9 +208,7 @@ function ScanImport (req, res, next, test) {
                   categories.push(raid)
               }
             }
-            console.log('returning', doc._id)
-
-            res.end({scan: doc._id.toString(), type: 'WeakAura', name: data.d.id, categories: categories})
+            res.send({scan: doc._id.toString(), type: 'WeakAura', name: data.d.id, categories: categories})
           })
         }
         else {

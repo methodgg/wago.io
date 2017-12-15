@@ -34,7 +34,7 @@
     "passport": "^0.3.2",
     "passport-facebook": "^2.1.1",
     "request": "^2.83.0",
-    "restify": "^4.3.1",
+    "restify": "^4.3.2",
     "restify-cookies": "^0.2.2",
     "restify-cors-middleware": "^1.0.1",
     "restify-errors": "^4.3.0",
