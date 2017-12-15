@@ -336,6 +336,26 @@ server.post('/import/submit', function(req, res) {
     var ImportPromise = new Promise((importResolve, importReject) => {
       var wago = new WagoItem()
       wago.type = scan.type
+      
+      switch (req.body.expireAfter) {
+        case '15m':
+          wago.expires_at = new Date().setTime(new Date().getTime()+15*60*1000)
+          break
+        case '3hr':
+          wago.expires_at = new Date().setTime(new Date().getTime()+3*60*60*1000)
+          break
+        case '1wk':
+          wago.expires_at = new Date().setTime(new Date().getTime()+7*24*60*60*1000)
+          break
+        case '1mo':
+          wago.expires_at = new Date().setTime(new Date().getTime()+30*24*60*60*1000)
+          break
+        case '3mo':
+          wago.expires_at = new Date().setTime(new Date().getTime()+3*30*24*60*60*1000)
+          break
+        default:
+          wago.expires_at = null
+      }
 
       // if forking then some fields will be copied from forked wago
       if (scan.fork) {
@@ -345,25 +365,6 @@ server.post('/import/submit', function(req, res) {
             wago._userId = req.user._id
           }
           wago.name = req.body.name
-          switch (req.body.expireAfter) {
-            case '15m':
-              wago.expires_at = new Date().setTime(new Date().getTime()+15*60*1000)
-              break
-            case '3hr':
-              wago.expires_at = new Date().setTime(new Date().getTime()+3*60*60*1000)
-              break
-            case '1wk':
-              wago.expires_at = new Date().setTime(new Date().getTime()+7*24*60*60*1000)
-              break
-            case '1mo':
-              wago.expires_at = new Date().setTime(new Date().getTime()+30*24*60*60*1000)
-              break
-            case '3mo':
-              wago.expires_at = new Date().setTime(new Date().getTime()+3*30*24*60*60*1000)
-              break
-            default:
-              wago.expires_at = null
-          }
           if (req.body.categories && req.body.categories.length > 2) {
             wago.categories = JSON.parse(req.body.categories).map((c) => {
               return c.id // TODO: needs validation
