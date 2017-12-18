@@ -309,9 +309,6 @@ function battlenetAuth(req, res) {
             getWoWProfile('kr', response.data.access_token, callback)
           }
         ], (err, results) => {
-          if (err) {
-            return res.send(403, {error: "could not reach battle.net"})
-          }
           if (results) {
             authResponse.region = results.region
             authResponse.maxLevel = results.maxLevel
@@ -553,6 +550,7 @@ function oAuthLogin(req, res, provider, authUser) {
     break
 
   case 'patreon':
+    console.log('patreon auth test', authUser)
     query = {"patreon.id": authUser.data.id}
     try {
       profile = {
