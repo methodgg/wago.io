@@ -550,7 +550,7 @@ function oAuthLogin(req, res, provider, authUser) {
     break
 
   case 'patreon':
-    console.log('patreon auth test', authUser)
+    console.log('patreon auth test', authUser.data.relationships.pledges)
     query = {"patreon.id": authUser.data.id}
     try {
       profile = {

@@ -333,6 +333,7 @@ server.post('/import/submit', function(req, res) {
       return res.send(401, {error: 'scan_expired'})
     }
 
+    var json = JSON.parse(scan.decoded)
     var ImportPromise = new Promise((importResolve, importReject) => {
       var wago = new WagoItem()
       wago.type = scan.type
@@ -423,13 +424,12 @@ server.post('/import/submit', function(req, res) {
 
           // add system tags as necessary
           if (wago.type === 'VUHDO') {
-            var vuhdo = JSON.parse(scan.decoded)
             wago.categories.push('vuhdo0')
           
-            if (vuhdo.bouquetName) {
+            if (json.bouquetName) {
               wago.categories.push('vuhdo2')
             }
-            else if (vuhdo.keyLayout) {
+            else if (json.keyLayout) {
               wago.categories.push('vuhdo3')
             }
             else { // vuhdo profile
@@ -480,15 +480,39 @@ server.post('/import/submit', function(req, res) {
         else {
           code.encoded = scan.input
           code.json = scan.decoded
-        }        
+        }
         code.version = 1
-        code.save().then((codeDoc) => {
-          // broadcast to discord webhook?
-          if (req.body.importAs === 'User' && req.user && !wago.hidden && !wago.private && req.user.discord && req.user.discord.webhooks.onCreate) {
-            discord.webhookOnCreate(req.user, wago)
+
+        // add additional fields to WA
+        if (wago.type === 'WEAKAURAS2') {
+          json.wagoID = doc._id
+          json.d.url = doc.url + '/1'
+          if (json.c) {
+            for (var i = 0; i < json.c.length; i++) {
+              json.c[i].url = doc.url + '/1'
+            }
           }
-          res.send({success: true, wagoID: doc._id})
-        })
+          lua.JSON2WeakAura(json, (error, result) => {
+            code.encoded = result.stdout
+            code.json = JSON.stringify(json)
+            code.save().then((codeDoc) => {
+              // broadcast to discord webhook?
+              if (req.body.importAs === 'User' && req.user && !wago.hidden && !wago.private && req.user.discord && req.user.discord.webhooks.onCreate) {
+                discord.webhookOnCreate(req.user, wago)
+              }
+              res.send({success: true, wagoID: doc._id})
+            })
+          })
+        }
+        else {
+          code.save().then((codeDoc) => {
+            // broadcast to discord webhook?
+            if (req.body.importAs === 'User' && req.user && !wago.hidden && !wago.private && req.user.discord && req.user.discord.webhooks.onCreate) {
+              discord.webhookOnCreate(req.user, wago)
+            }
+            res.send({success: true, wagoID: doc._id})
+          })
+        }
       }, (err) => {
         res.send(err)
       })
@@ -499,15 +523,40 @@ server.post('/import/submit', function(req, res) {
 })
 
 server.post('/import/update', function (req, res) {
-  if (req.body.scanID) {
+  if (req.body.scanID && req.user) {
     ImportScan.findById(req.body.scanID).then((scan) => {
       if (scan && scan.decoded) {
-        req.body.json = scan.decoded
         req.body.encoded = scan.input
-        SaveWagoVersion(req, res, 'update')
+
+        if (req.body.wagoID && scan.type.toUpperCase() === 'WEAKAURAS2') {
+          try {
+            var json = JSON.parse(scan.decoded)
+          }
+          catch (e) {
+            return res.send({error: 'invalid_wa', e: e})
+          }
+          WagoItem.findOne({_id: req.body.wagoID, type: 'WEAKAURAS2', _userId: req.user._id}).then((doc) => {
+            WagoCode.count({auraID: req.body.wagoID}).then((ver) => {
+              ver = ver + 1
+              json.d.url = doc.url + '/' + ver
+              json.wagoID = doc._id
+              if (json.c) {
+                for (var i = 0; i < json.c.length; i++) {
+                  json.c[i].url = doc.url + '/' + ver
+                }
+              }
+              req.body.json = JSON.stringify(json)
+              return SaveWagoVersion(req, res, 'update')
+            })
+          })
+        }
+        else {
+          req.body.json = scan.decoded
+          return SaveWagoVersion(req, res, 'update')
+        }
       }
       else {
-        res.send({error: 'Invalid scan'})
+        return res.send({error: 'Invalid scan'})
       }
     })
   }
@@ -516,7 +565,31 @@ server.post('/import/update', function (req, res) {
   }
 })
 server.post('/import/json/save', function (req, res) {
-  SaveWagoVersion(req, res, 'update')
+  if (req.user && req.body.wagoID && req.body.type.toUpperCase() === 'WEAKAURA') {
+    try {
+      var json = JSON.parse(req.body.json)
+    }
+    catch (e) {
+      return res.send({error: 'invalid_wa', e: e})
+    }
+    WagoItem.findOne({_id: req.body.wagoID, type: 'WEAKAURAS2', _userId: req.user._id}).then((doc) => {
+      WagoCode.count({auraID: req.body.wagoID}).then((ver) => {
+        ver = ver + 1
+        json.d.url = doc.url + '/' + ver
+        json.wagoID = doc._id
+        if (json.c) {
+          for (var i = 0; i < json.c.length; i++) {
+            json.c[i].url = doc.url + '/' + ver
+          }
+        }
+        req.body.json = JSON.stringify(json)
+        return SaveWagoVersion(req, res, 'update')
+      })
+    })
+  }
+  else {
+    SaveWagoVersion(req, res, 'update')
+  }
 })
 server.post('/import/json/fork', function (req, res) {
   SaveWagoVersion(req, res, 'fork')
@@ -567,15 +640,15 @@ function SaveWagoVersion (req, res, mode) {
   }
 
   if ((type=='WEAKAURA' || type=='WEAKAURAS2') && json && json.d && json.d.id) {
+    var promise
     lua.JSON2WeakAura(json, (error, result) => {
       if (error) {
         return res.send({error: error})
       }
       else if (result.stderr || result.stdout=='') {
-        return res.send({error: 'invalid_wa'})
+        return res.send({error: 'invalid_wa', res: result.stderr})
       }
-
-      var promise
+      
       if (mode === 'scan') {
         var scan = new ImportScan()
         scan.fork = req.body.forkOf
