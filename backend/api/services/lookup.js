@@ -230,7 +230,7 @@ server.get('/lookup/wago', (req, res, next) => {
               date: comments[i].postDate, 
               text: comments[i].commentText, 
               format: 'bbcode',
-              canMod: (req.user && ((req.user.admin && (req.user.admin.moderator || req.user.admin.super)) || req.user._id.equals(comments[i].authorID._id))),
+              canMod: (req.user && ((req.user.admin && (req.user.admin.moderator || req.user.admin.super)) || req.user._id.equals(comments[i].authorID._id) || req.user._id.equals(wago.UID))),
               author: { 
                 name: comments[i].authorID.account.username || 'User-' + comments[i].authorID._id.toString(),
                 avatar: comments[i].authorID.avatarURL,
