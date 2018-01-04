@@ -8,7 +8,7 @@ const Schema = new mongoose.Schema({
   _userId : { type: mongoose.Schema.Types.ObjectId, ref: 'Users' },
 
   name : { type: String, index: true },
-  description : { type: String, default: "", index: 'text' },
+  description : { type: String, default: "" },
   description_format : { type: Number, default: 1 }, // 1=BBcode, 2=Markdown
   type : { type: String, index: true },
   subtype : String,
