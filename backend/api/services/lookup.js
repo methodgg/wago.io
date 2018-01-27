@@ -75,6 +75,14 @@ server.get('/lookup/wago', (req, res, next) => {
         }
 
         User.findById(wago.UID).then((user) => {
+          if (!user) { // should always find a match
+            return cb(null, {            
+              name: null,
+              searchable: false,
+              roleClass: 'user-anon',
+              avatar: '/media/avatars/anon.png'
+            })
+          }
           timing.findUser = Date.now() - start
           var u = {}
           u.name = user.account.username
@@ -381,7 +389,10 @@ server.get('/lookup/profile', (req, res, next) => {
     return res.send(404, {error: "page_not_found"})
   }
 
-  User.findByUsername (req.params.user).then((user) => {
+  User.findByUsername(req.params.user).then((user) => {
+    if (!user) {
+      return res.send({})
+    }
     var profile = {}
     profile.public = !(user.account.hidden)
     profile.name = user.account.username

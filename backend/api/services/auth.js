@@ -114,6 +114,8 @@ function makeSession(req, res, token, user) {
           res.send(500, {error: "server_error"})
         }
       })
+    }).catch(e => {
+      return res.send(403, {error: 'unknown_user'})
     })
   }
 }

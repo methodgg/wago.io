@@ -276,7 +276,7 @@ function ScanImport (req, res, next, test) {
       }
       catch (e) {
         console.error('Error reading ElvUI JSON', e, result.stdout)
-        return res.send({error: result.stdout})
+        return res.send({error: "Invalid ElvUI detected."})
       }      
     })
   }
@@ -684,7 +684,7 @@ function SaveWagoVersion (req, res, mode) {
         return
       }
 
-      promise.then((wago) => {      
+      promise.then((wago) => {
         if (!wago) {
           return res.send({error: 'not_found'})
         }
@@ -705,6 +705,8 @@ function SaveWagoVersion (req, res, mode) {
           }
           res.send({success: true})
         })
+      }).catch(e => {
+        return res.send({error: 'not_found'})
       })
     })
   }
@@ -744,7 +746,7 @@ function SaveWagoVersion (req, res, mode) {
         }
       }
 
-      promise.then((wago) => {  
+      promise.then((wago) => {
         if (!wago) {
           return res.send({error: 'not_found'})
         }
@@ -770,6 +772,8 @@ function SaveWagoVersion (req, res, mode) {
           }
           res.send({success: true})
         })
+      }).catch(e => {
+        return res.send({error: 'not_found'})
       })
     })
   }
@@ -791,7 +795,7 @@ function SaveWagoVersion (req, res, mode) {
       }
     }
 
-    promise.then((wago) => {  
+    promise.then((wago) => {
       if (!wago) {
         return res.send({error: 'not_found'})
       }
@@ -808,6 +812,8 @@ function SaveWagoVersion (req, res, mode) {
         }
         res.send({success: true, wagoID: wago._id})
       })
+    }).catch(e => {
+      return res.send({error: 'not_found'})
     })
   }
   else {
