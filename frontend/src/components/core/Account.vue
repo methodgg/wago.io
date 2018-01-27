@@ -229,9 +229,9 @@ end`,
       currentPassword: '',
       newPassword: '',
       confirmPassword: '',
-      discordOptionFaveUpdateMsg: this.$store.state.user.discord.options.messageOnFaveUpdate,
-      discordOptionCommentMsg: this.$store.state.user.discord.options.messageOnComment,
-      discordOptionCreateWebhook: this.$store.state.user.discord.webhooks.onCreate,
+      discordOptionFaveUpdateMsg: this.$store.state.user.discord && this.$store.state.user.discord.options.messageOnFaveUpdate,
+      discordOptionCommentMsg: this.$store.state.user.discord && this.$store.state.user.discord.options.messageOnComment,
+      discordOptionCreateWebhook: this.$store.state.user.discord && this.$store.state.user.discord.webhooks.onCreate,
       discordOptionCreateWebhookStatus: ''
     }
   },

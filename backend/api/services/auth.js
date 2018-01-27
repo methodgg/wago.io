@@ -588,12 +588,22 @@ function oAuthLogin(req, res, provider, authUser) {
 
   }
   // if valid login
-  User.findOne(query).then((user) => {
-    // if not registered with this provider but is logged in with a different account type
-    if (req.user && user) {
+  User.findOne(query).then((oauthUser) => {
+    // if already logged in and oauth matches
+    // or if already logged in and oauth is new
+    // excludes if oauth matches a different user
+    if (req.user && ((oauthUser && req.user._id.equals(oauthUser._id)) || !oauthUser)) {
       image.avatarFromURL(avatarURL, req.user._id.toString(), provider, (img) => {
         if (!img.error) {
           profile.avatar = img
+        }
+
+        // update profile
+        if (oauthUser[provider] && oauthUser[provider].options) {
+          profile.options = oauthUser[provider].options
+        }
+        if (oauthUser[provider] && oauthUser[provider].webhooks) {
+          profile.webhooks = oauthUser[provider].webhooks
         }
         req.user[provider] = profile
         // if human detected then set verified flag
@@ -614,27 +624,8 @@ function oAuthLogin(req, res, provider, authUser) {
       })       
     }
 
-    // if user is registered in wago then log user in
-    else if (user) {
-      image.avatarFromURL(avatarURL, user._id.toString(), provider, (img) => {
-        if (!img.error) {
-          profile.avatar = img
-        }
-        var who = {}
-        who.UID = user._id
-        // update profile
-        user[provider] = profile
-
-        user.save().then((user) => {
-          var who = {}
-          who.UID = user._id
-          return makeSession(req, res, who, user)
-        })
-      })
-    }
-
-    // if not registered then register a new account
-    else {
+    // if not registered then create a new account
+    else if (!req.user && !oauthUser) {
       user = new User()
       image.avatarFromURL(avatarURL, user._id.toString(), provider, (img) => {
         if (!img.error) {
@@ -664,6 +655,31 @@ function oAuthLogin(req, res, provider, authUser) {
             who.UID = newuser._id
             return makeSession(req, res, who, newuser)
           })
+        })
+      })
+    }
+
+    // if oauth is registered in wago then update profile and log user in
+    else if (oauthUser) {
+      image.avatarFromURL(avatarURL, oauthUser._id.toString(), provider, (img) => {
+        if (!img.error) {
+          profile.avatar = img
+        }
+        var who = {}
+        who.UID = oauthUser._id
+        // update profile
+        if (oauthUser[provider] && oauthUser[provider].options) {
+          profile.options = oauthUser[provider].options
+        }
+        if (oauthUser[provider] && oauthUser[provider].webhooks) {
+          profile.webhooks = oauthUser[provider].webhooks
+        }
+        oauthUser[provider] = profile
+
+        oauthUser.save().then((user) => {
+          var who = {}
+          who.UID = user._id
+          return makeSession(req, res, who, user)
         })
       })
     }
