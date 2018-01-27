@@ -590,9 +590,7 @@ function oAuthLogin(req, res, provider, authUser) {
   // if valid login
   User.findOne(query).then((oauthUser) => {
     // if already logged in and oauth matches
-    // or if already logged in and oauth is new
-    // excludes if oauth matches a different user
-    if (req.user && ((oauthUser && req.user._id.equals(oauthUser._id)) || !oauthUser)) {
+    if (req.user && ((oauthUser && req.user._id.equals(oauthUser._id)))) {
       image.avatarFromURL(avatarURL, req.user._id.toString(), provider, (img) => {
         if (!img.error) {
           profile.avatar = img
@@ -625,8 +623,14 @@ function oAuthLogin(req, res, provider, authUser) {
     }
 
     // if not registered then create a new account
-    else if (!req.user && !oauthUser) {
-      user = new User()
+    else if (!oauthUser) {
+      var user
+      if (req.user) {
+        user = req.user
+      } 
+      else {
+        user = new User()
+      }
       image.avatarFromURL(avatarURL, user._id.toString(), provider, (img) => {
         if (!img.error) {
           profile.avatar = img
