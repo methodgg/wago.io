@@ -65,7 +65,7 @@ function ScanImport (req, res, next, test) {
   }
 
   // if input contains lua code
-  else if (req.body.importString.replace(/[()]/g, ' ').match(RegexLuaSnippet)) {
+  else if (req.body.importString.replace(/\)/g, '').match(RegexLuaSnippet)) {
     var scan = new ImportScan()
     scan.type = 'SNIPPET'
     scan.input = req.body.importString
