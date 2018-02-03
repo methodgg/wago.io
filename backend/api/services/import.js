@@ -330,10 +330,13 @@ server.post('/import/submit', function(req, res) {
 
   ImportScan.findById(scanID).then((scan) => {
     if (!scan) {
+      console.log('scan expired', scanID)
       return res.send(401, {error: 'scan_expired'})
     }
 
-    var json = JSON.parse(scan.decoded)
+    if (scan.decoded) {
+      var json = JSON.parse(scan.decoded)
+    }
     var ImportPromise = new Promise((importResolve, importReject) => {
       var wago = new WagoItem()
       wago.type = scan.type
