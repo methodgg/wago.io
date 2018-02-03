@@ -330,7 +330,6 @@ server.post('/import/submit', function(req, res) {
 
   ImportScan.findById(scanID).then((scan) => {
     if (!scan) {
-      console.log('scan expired', scanID)
       return res.send(401, {error: 'scan_expired'})
     }
 
