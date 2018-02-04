@@ -165,6 +165,7 @@
 
 <style src="vue-multiselect/dist/vue-multiselect.min.css"></style>
 <style>
+#importform { z-index: 3 }
 #importform, #topwagos, #addonReleases { padding: 16px; width:100% }
 #importform textarea { max-height: 110px; min-height:110px }
 #importform .field-group .md-input-container { display: inline-block; max-width: 32%; position: relative}
