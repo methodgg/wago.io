@@ -6,6 +6,20 @@
 
  function doNothing () {}
 
+//  server.get('/lookup/codereview', (res, res) => {
+//   WagoCode.lookup(wago._id, req.params.version).then((code) => {
+//     if (code && code.json) {
+//       // compile into wago compatible profile code
+//       const lua = require('../helpers/lua')
+//       var luaCode = ""
+
+//       lua.CodeReview(luaCode, (error, result) => {
+//         var review = {}
+//         res.send({review: review})
+//       })
+//     }
+//  })
+
  /**
   * Wago lookup
   */

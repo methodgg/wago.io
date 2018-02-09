@@ -385,6 +385,16 @@
           </div>
           <div class="border" v-if="showEditor"></div>
 
+          <!-- CODE REVIEW FRAME -->
+          <div id="wago-codereview-container" class="wago-container" v-if="showPanel=='codereview'">
+            <div id="wago-codereview" v-if="!wago.codeReview">
+              <button @click="loadCodeReview()">Run Code Review</button>
+            </div>
+            <div v-else>
+
+            </div>
+          </div>          
+
           <div id="wago-importstring-container" class="wago-container" v-if="wago.code && wago.code.encoded">
             <textarea id="wago-importstring" class="wago-importstring" spellcheck="false">{{ wago.code.encoded }}</textarea>
           </div>
@@ -663,6 +673,17 @@ export default {
     }
   },
   methods: {
+    loadCodeReview () {
+      var wagoID = this.$route.params.wagoID
+      var vue = this
+      vue.http.get('/lookup/codereview', {wagoID: wagoID}).then((res) => {
+        if (res.codeReview) {
+          this.wago.codeReview = res.codeReview
+        }
+      }).catch(e => {
+        console.error(e)
+      })
+    },
     fetchWago () {
       if (this.doNotReloadWago) {
         return false

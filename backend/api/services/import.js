@@ -275,6 +275,8 @@ function ScanImport (req, res, next, test) {
         }
       }
       catch (e) {
+        test.notElvUI = true
+        return ScanImport (req, res, next, test)
         console.error('Error reading ElvUI JSON', e, result.stdout)
         return res.send({error: "Invalid ElvUI detected."})
       }      
