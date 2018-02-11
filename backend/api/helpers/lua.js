@@ -495,6 +495,7 @@ function prepareCustomCode(code, label, nopcall) {
     code = wagoify(code.replace(/__Wago__/g, ''))
     code = code.replace('[================[', '[========================[').replace(']================]', ']========================]')
     label = label.replace('[================[', '[========================[').replace(']================]', ']========================]')
+    // if (label.match(/DISPLAY/)) console.log(code)
     code = `[================[--${label}\n${code} ]================]`
     return code
   }

@@ -273,8 +273,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 				
       if (options.makeIf) {
-        result = joinStatements('if(', result)
-        result = joinStatements(result, ')then end')
+        result = joinStatements('\nif(', result)
+        result = joinStatements(result, ')then end\n')
 			}
 
 		} else if (
@@ -374,7 +374,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 			}
 
 			if (options.makeIf) {
-				result = ' if(' + result + ')then end'
+				result = ' if(' + result + ')then end\n'
 			}
 
 		} else if (expressionType == 'CallExpression') {
@@ -390,8 +390,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
       result += ')';
       
       if (options.makeIf) {
-        result = joinStatements('if(', result)
-        result = joinStatements(result, ')then end')
+        result = joinStatements('\nif(', result)
+        result = joinStatements(result, ')then end\n')
       }
 
 		} else if (expressionType == 'TableCallExpression') {
@@ -400,8 +400,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 				formatExpression(expression.arguments);
 
 			if (options.makeIf) {
-				result = joinStatements('if(', result)
-				result = joinStatements(result, ')then end')
+				result = joinStatements('\nif(', result)
+				result = joinStatements(result, ')then end\n')
 			}
 
 		} else if (expressionType == 'StringCallExpression') {
@@ -410,8 +410,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 				formatExpression(expression.argument);
 
 			if (options.makeIf) {
-				result = joinStatements('if(', result)
-				result = joinStatements(result, ')then end')
+				result = joinStatements('\nif(', result)
+				result = joinStatements(result, ')then end\n')
 			}
 
 		} else if (expressionType == 'IndexExpression') {
@@ -420,8 +420,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 				formatExpression(expression.index) + ']';
 
 			if (options.makeIf) {
-				result = joinStatements('if(', result)
-				result = joinStatements(result, ')then end')
+				result = joinStatements('\nif(', result)
+				result = joinStatements(result, ')then end\n')
 			}
 
 		} else if (expressionType == 'MemberExpression') {
@@ -432,8 +432,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 				});
 
 			if (options.makeIf) {
-				result = joinStatements('if(', result)
-				result = joinStatements(result, ')then end')
+				result = joinStatements('\nif(', result)
+				result = joinStatements(result, ')then end\n')
 			}
 
 		} else if (expressionType == 'FunctionDeclaration') {
@@ -452,7 +452,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 			}
 			result += ')';
 			result = joinStatements(result, formatStatementList(expression.body));
-			result = joinStatements(result, 'end');
+			result = joinStatements(result, 'end\n');
 
 		} else if (expressionType == 'TableConstructorExpression') {
 
@@ -572,8 +572,8 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 		} else if (statementType == 'DoStatement') {
 
-			result = joinStatements('do', formatStatementList(statement.body));
-			result = joinStatements(result, 'end');
+			result = joinStatements('do\n', formatStatementList(statement.body));
+			result = joinStatements(result, 'end\n');
 
 		} else if (statementType == 'ReturnStatement') {
 
@@ -590,7 +590,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 		} else if (statementType == 'BreakStatement') {
 
-			result = 'break';
+			result = '\n';
 
 		} else if (statementType == 'RepeatStatement') {
 
@@ -621,7 +621,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 			result += ')';
 			result = joinStatements(result, formatStatementList(statement.body));
-			result = joinStatements(result, 'end');
+			result = joinStatements(result, 'end\n');
 
 		} else if (statementType == 'ForGenericStatement') {
 			// see also `ForNumericStatement`
@@ -666,9 +666,9 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
           result += ',' + formatExpression(statement.step);
         }
 
-        result = joinStatements(result, 'do');
+        result = joinStatements(result, 'do\n');
         result = joinStatements(result, formatStatementList(statement.body));
-        result = joinStatements(result, 'end');
+        result = joinStatements(result, 'end\n');
       }
 
       // not numbers, break it apart
