@@ -2,6 +2,7 @@
 env = {
   next = next,
   pairs = pairs,
+  ipairs = ipairs,
   pcall = pcall,
   print = tada,
   rawequal = nada,

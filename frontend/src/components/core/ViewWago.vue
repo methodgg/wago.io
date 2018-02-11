@@ -58,7 +58,7 @@
       <div id="wago-flex-container">
         <div id="wago-col-main">
           <md-layout>
-            <md-layout>
+            <md-layout id="wago-tabs">
               <!-- FRAME TOGGLES -->
               <md-button-toggle class="md-accent" md-single>
                 <md-button v-if="wago.user && User && wago.UID && wago.UID === User.UID" @click="toggleFrame('config')">{{ $t("Config") }}</md-button>
@@ -740,6 +740,7 @@ export default {
       this.newImportStringStatus = ''
       this.numCategorySets = 1
       this.showMoreCategories = false
+      this.codeReview = {}
 
       var params = {}
       params.id = wagoID
@@ -1422,6 +1423,8 @@ export default {
 @media (max-width: 600px) {
   #wago-floating-header { display: none!important}
 }
+
+#wago-tabs { flex: 0 1 auto }
 
 #wago-actions {text-align: right; margin-right: 8px}
 #wago-actions button { margin-top: 0 }
