@@ -11,9 +11,11 @@
     if (code && code.json) {
       const lua = require('../helpers/lua')
       var WeakAura = JSON.parse(code.json)
+      console.log(WeakAura.length)
 
       lua.CodeReview(WeakAura, (error, result) => {
         if (error) {
+          console.error(error)
           return res.send({error: "An error has occurred. Could not profile code."})
         }
         res.send(result)

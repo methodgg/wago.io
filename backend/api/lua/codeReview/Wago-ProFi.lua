@@ -242,7 +242,7 @@ end
 
 function ProFi:writeReportsToFilename( filename )
 	--local file, err = io.open( filename, 'w' )
-	assert( file, err )
+	--assert( file, err )
 	--self:writeBannerToFile( file )
 	if #self.reports > 0 then
 		self:writeProfilingReportsToFile( self.reports, file )
@@ -250,7 +250,7 @@ function ProFi:writeReportsToFilename( filename )
 	if #self.memoryReports > 0 then
 		self:writeMemoryReportsToFile( self.memoryReports, file )
 	end
-	file:close()
+	--file:close()
 end
 
 function ProFi:writeProfilingReportsToFile( reports, file )
