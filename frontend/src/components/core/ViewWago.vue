@@ -68,7 +68,7 @@
                 <md-button v-if="wago.type !== 'COLLECTION'" @click="toggleFrame('collections')">{{ $t("[-count-] collection", {count:  wago.collectionCount}) }}</md-button>
                 <md-button v-if="!wago.alerts.blacklist && wago.code && wago.code.encoded" @click="toggleFrame('embed')">{{ $t("Embed") }}</md-button>
                 <md-button v-if="wago.code" @click="toggleFrame('editor')">{{ $t("Editor") }}</md-button>
-                <md-button v-if="(User && User.access && (/*User.access.goldSub || User.access.ambassador || User.access.translator || */User.access.admin)) && wago.type === 'WEAKAURA' && wago.code" @click="toggleFrame('codereview')">{{ $t("Code Review") }}</md-button>
+                <md-button v-if="(User && User.access && (User.access.sub || User.access.goldSub || User.access.ambassador || User.access.translator || User.access.admin)) && wago.type === 'WEAKAURA' && wago.code" @click="toggleFrame('codereview')">{{ $t("Code Review") }}</md-button>
               </md-button-toggle>
             </md-layout>
 

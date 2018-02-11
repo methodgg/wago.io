@@ -468,6 +468,10 @@ module.exports = {
               continue
             }
 
+            if (m[1]=='Wago') {
+              m[1] = 'WoW'
+            }
+
             review.profile['Environment: '+m[1]] = review.profile['Environment: '+m[1]] || []
             review.profile['Environment: '+m[1]].push({ func: m[2], /*line: m[3],*/ time: m[4], calls: m[5] })
           }
