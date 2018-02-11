@@ -68,6 +68,7 @@
                 <md-button v-if="wago.type !== 'COLLECTION'" @click="toggleFrame('collections')">{{ $t("[-count-] collection", {count:  wago.collectionCount}) }}</md-button>
                 <md-button v-if="!wago.alerts.blacklist && wago.code && wago.code.encoded" @click="toggleFrame('embed')">{{ $t("Embed") }}</md-button>
                 <md-button v-if="wago.code" @click="toggleFrame('editor')">{{ $t("Editor") }}</md-button>
+                <md-button v-if="(User && User.access && (User.access.goldSub || User.access.ambassador || User.access.translator || User.access.admin)) && wago.type === 'WEAKAURA' && wago.code" @click="toggleFrame('codereview')">{{ $t("Code Review") }}</md-button>
               </md-button-toggle>
             </md-layout>
 
@@ -387,12 +388,45 @@
 
           <!-- CODE REVIEW FRAME -->
           <div id="wago-codereview-container" class="wago-container" v-if="showPanel=='codereview'">
-            <div id="wago-codereview" v-if="!wago.codeReview">
-              <button @click="loadCodeReview()">Run Code Review</button>
-            </div>
-            <div v-else>
+            <div v-if="codeReview && codeReview.profileRunTime">
+              Global variables defined: {{ codeReview.countGlobals }}.<br>
+              Profile runtime: {{ (parseFloat(codeReview.profileRunTime) * 1000).toFixed(2) }}ms.<br>
+              <div v-for="(errors, aura) in codeReview.errors" :key="aura">Error in {{aura}}: 
+                <div v-for="(err, index) in errors" :key="index" style="margin-left:12px">{{ err.block }}: {{err.message}}</div>
+              </div>
+              <md-table v-once>
+                <md-table-header>
+                  <md-table-row>
+                    <md-table-head>WeakAura</md-table-head>
+                    <md-table-head>Code Block</md-table-head>
+                    <md-table-head>Function</md-table-head>
+                    <md-table-head md-numeric>Called # Times</md-table-head>
+                    <md-table-head md-numeric>Processing Time</md-table-head>
+                  </md-table-row>
+                </md-table-header>
+
+                <md-table-body>
+                  <template v-for="(row, aura) in codeReview.profile">
+                    <md-table-row v-for="(code, index) in row" :key="index" v-if="!code.func">
+                      <md-table-cell>{{ aura }}</md-table-cell>
+                      <md-table-cell>{{ code.block }}</md-table-cell>
+                      <md-table-cell></md-table-cell>
+                      <md-table-cell md-numeric></md-table-cell>
+                      <md-table-cell md-numeric>{{ (parseFloat(code.time) * 1000).toFixed(2) }}ms</md-table-cell>
+                    </md-table-row>
+                    <md-table-row v-for="(code, index) in row" :key="index" v-if="code.func">
+                      <md-table-cell>{{ aura }}</md-table-cell>
+                      <md-table-cell>{{ code.block }}</md-table-cell>
+                      <md-table-cell>{{ code.func }}()</md-table-cell>
+                      <md-table-cell md-numeric>{{ code.calls }}</md-table-cell>
+                      <md-table-cell md-numeric>{{ (parseFloat(code.time) * 1000).toFixed(2) }}ms</md-table-cell>
+                    </md-table-row>
+                  </template>
+                </md-table-body>
+              </md-table>
 
             </div>
+            <div v-else>Loading...</div>
           </div>          
 
           <div id="wago-importstring-container" class="wago-container" v-if="wago.code && wago.code.encoded">
@@ -539,7 +573,8 @@ export default {
       newImportString: '',
       newImportStringStatus: '',
       addCollectionName: '',
-      numCategorySets: 1
+      numCategorySets: 1,
+      codeReview: {}
     }
   },
   watch: {
@@ -674,11 +709,11 @@ export default {
   },
   methods: {
     loadCodeReview () {
-      var wagoID = this.$route.params.wagoID
       var vue = this
-      vue.http.get('/lookup/codereview', {wagoID: wagoID}).then((res) => {
-        if (res.codeReview) {
-          this.wago.codeReview = res.codeReview
+      vue.http.get('/lookup/codereview', {wagoID: this.wago._id}).then((res) => {
+        if (res) {
+          console.log(res)
+          vue.codeReview = res
         }
       }).catch(e => {
         console.error(e)
@@ -879,6 +914,9 @@ export default {
         this.$nextTick(function () {
           setupPasteImage(this)
         })
+      }
+      else if (frame === 'codereview') {
+        this.loadCodeReview()
       }
     },
     toTop () {

@@ -13,6 +13,7 @@ const config        = require('./config'),
 global.async = require('async')
 global.fs = require('fs')
 global._ = require('lodash')
+global.keyd = require('keyd')
 global.request = require('request')
 global.videoParser = require('js-video-url-parser')
 global.commonRegex = require('./commonRegex')

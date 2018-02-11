@@ -17,6 +17,7 @@
     "express-winston": "^2.4.0",
     "js-video-url-parser": "^0.2.4",
     "jsonwebtoken": "^7.4.1",
+    "keyd": "^1.0.1",
     "locale": "^0.1.0",
     "lodash": "^4.17.4",
     "md5": "^2.2.1",

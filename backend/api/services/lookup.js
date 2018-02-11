@@ -6,19 +6,25 @@
 
  function doNothing () {}
 
-//  server.get('/lookup/codereview', (res, res) => {
-//   WagoCode.lookup(wago._id, req.params.version).then((code) => {
-//     if (code && code.json) {
-//       // compile into wago compatible profile code
-//       const lua = require('../helpers/lua')
-//       var luaCode = ""
+ server.get('/lookup/codereview', (req, res) => {
+  WagoCode.lookup(req.query.wagoID).then((code) => {
+    if (code && code.json) {
+      const lua = require('../helpers/lua')
+      var WeakAura = JSON.parse(code.json)
 
-//       lua.CodeReview(luaCode, (error, result) => {
-//         var review = {}
-//         res.send({review: review})
-//       })
-//     }
-//  })
+      lua.CodeReview(WeakAura, (error, result) => {
+        if (error) {
+          return res.send({error: "An error has occurred. Could not profile code."})
+        }
+        res.send(result)
+      })
+    }
+    else {
+      console.log(code)
+      res.send({error: 'could not load'})
+    }
+  })
+})
 
  /**
   * Wago lookup
