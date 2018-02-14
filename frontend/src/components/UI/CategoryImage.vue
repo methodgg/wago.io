@@ -17,7 +17,7 @@
     <img src="./../../assets/menu-nighthold.png" v-else-if="group === 'nighthold'"/>
     <img src="./../../assets/menu-dungeon.png" v-else-if="group === 'dungeon'"/>
     <img src="./../../assets/menu-misc.png" v-else-if="group === 'misc'"/>
-    <img src="./../../assets/menu-equip.png" v-else-if="group === 'equip'"/>
+    <img src="./../../assets/menu-equip.png" v-else-if="group === 'equip' || group === 'rpitem'"/>
     <img src="./../../assets/menu-mechanics.png" v-else-if="group === 'mechanics'"/>
     <img src="./../../assets/menu-wpvp.png" v-else-if="group === 'pvp-world'"/>
     <img src="./../../assets/menu-roles.png" v-else-if="group === 'role'"/>
@@ -32,10 +32,13 @@
     <img src="./../../assets/menu-emeraldnightmare.png" v-else-if="group === 'emeraldnightmare'"/>
     <img src="./../../assets/menu-hellfirecitadel.png" v-else-if="group === 'hellfirecitadel'"/>
     <img src="./../../assets/menu-vuhdo.png" v-else-if="group === 'vuhdo'"/>
+    <img src="./../../assets/menu-trpcamp.png" v-else-if="group === 'rpcampaign'"/>
+    <img src="./../../assets/menu-lang.png" v-else-if="group === 'rplang'"/>
 
     <img src="./../../assets/weakauras.png" v-else-if="group === 't-weakaura'"/>
     <img src="./../../assets/tukui.png" v-else-if="group === 't-elvui'"/>
     <img src="./../../assets/menu-vuhdo.png" v-else-if="group === 't-vuhdo'"/>
+    <img src="./../../assets/menu-trpcamp.png" v-else-if="group === 't-totalrp' || group === 't-totalrp3'"/>
   </div>
 </template>
 

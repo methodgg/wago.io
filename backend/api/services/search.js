@@ -83,7 +83,7 @@ server.get('/search', (req, res, skipSearch) => {
 
     // if search includes 'type: wagotype'
     function(done) {
-      const regex = /\btype:\s*"?(weakauras?2?|elvui|vuhdo|collection|snippet|encounternotes|image|audio)"?/i
+      const regex = /\btype:\s*"?(weakauras?2?|elvui|vuhdo|totalrp3?|collection|snippet|encounternotes|image|audio)"?/i
       var typeSearch = query.match(regex)
       if (!typeSearch || typeSearch.length==0) return done()
 
@@ -94,6 +94,9 @@ server.get('/search', (req, res, skipSearch) => {
 
         if (typeMatch[1] === 'WEAKAURA' || typeMatch[1] === 'WEAKAURA2' || typeMatch[1] === 'WEAKAURAS') {
           typeMatch[1] = 'WEAKAURAS2'
+        } 
+        else if (typeMatch[1] === 'TOTALRP') {
+          typeMatch[1] = 'TOTALRP3'
         } 
         lookup.type = typeMatch[1]
 

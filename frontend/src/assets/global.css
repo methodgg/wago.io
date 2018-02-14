@@ -69,9 +69,17 @@
 .vuhdo a, .vuhdo { color: #6BB85E!important}
 .multiselect .md-chip.vuhdo { background-color: #6BB85E!important; color: black!important }
 
-.md-chip.equip { color: #7ED321!important; background-image: url('menu-equip.png') }
-.equip a, .equip { color: #7ED321!important}
-.multiselect .md-chip.equip { background-color: #7ED321!important; color: black!important }
+.md-chip.rpcampaign { color: #C3793A!important; background-image: url('menu-trpcamp.png') }
+.rpcampaign a, .rpcampaign { color: #C3793A!important}
+.multiselect .md-chip.rpcampaign { background-color: #C3793A!important; color: black!important }
+
+.md-chip.rplang { color: #269C7D!important; background-image: url('menu-lang.png') }
+.rplang a, .rplang { color: #269C7D!important}
+.multiselect .md-chip.rplang { background-color: #269C7D!important; color: black!important }
+
+.md-chip.equip, .md-chip.rpitem { color: #7ED321!important; background-image: url('menu-equip.png') }
+.equip a, .equip, .rpitem a, .rpitem { color: #7ED321!important}
+.multiselect .md-chip.equip, .multiselect .md-chip.rpitem { background-color: #7ED321!important; color: black!important }
 
 .md-chip.mechanics { color: #F55F37!important; background-image: url('menu-mechanics.png') }
 .mechanics a, .mechanics { color: #F55F37!important}

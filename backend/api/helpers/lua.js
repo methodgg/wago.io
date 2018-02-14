@@ -219,6 +219,54 @@ module.exports = {
       })
     })    
   },
+  
+  TotalRP32JSON: (str, cb) => {
+    // make sure import string is valid format
+    if (!str || !str.match(/^\^.+\^\^$/)) {
+      return cb('Invalid import')
+    }
+
+    // generate lua file
+    var luaScript = `dofile("./wago.lua"); TotalRP32JSON("${str.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}")`
+    var luaFile = tmpLuaFileName(str)
+    
+    fs.writeFile(luaFile, luaScript, (err) => {
+      if (err) {
+        return res.send(err)
+      }
+
+      // run luajit and return output
+      execa('luajit', [luaFile], execaOptions).then((res) => {
+        // delete the temp lua file. async - no need to wait for it
+        fs.unlink(luaFile)
+        cb(null, res)
+      })
+    })    
+  },
+  
+  JSON2TotalRP3: (obj, cb) => {
+    if (!obj) {
+      return cb('Invalid export')
+    }
+
+    // generate lua file
+    var str = JSON.stringify(obj)
+    var luaScript = 'dofile("./wago.lua"); JSON2TotalRP3("' + str.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim() + '")'
+    var luaFile = tmpLuaFileName(str)
+    
+    fs.writeFile(luaFile, luaScript, (err) => {
+      if (err) {
+        return res.send(err)
+      }
+
+      // run luajit and return output
+      execa('luajit', [luaFile], execaOptions).then((res) => {
+        // delete the temp lua file. async - no need to wait for it
+        fs.unlink(luaFile)
+        cb(null, res)
+      })
+    })    
+  },
 
   CodeReview: (WeakAura, cb) => {
     var luaCode = ""

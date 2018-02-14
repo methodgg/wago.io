@@ -104,6 +104,26 @@ module.exports = {
       {id: "vuhdo2", slug: "vuhdo/vuhdo-bouquets", cls:"vuhdo", text: t("Vuhdo Bouquets"), "systemtag": true, VUHDO: true},
       {id: "vuhdo3", slug: "vuhdo/vuhdo-key-layouts", cls:"vuhdo", text: t("Vuhdo Key Layouts"), "systemtag": true, VUHDO: true},
 
+      {id: "totalrp0", slug: "totalrp", cls:"rpcampaign", text: t("Total RP3"), systemtag: true, noselect: true, TOTALRP3: true},
+      {id: "totalrp1", slug: "totalrp/campaigns", cls:"rpcampaign", text: t("Campaigns"), root: true, TOTALRP3: true},
+      {id: "totalrp2", slug: "totalrp/campaigns/alliance-campaigns", cls:"rpcampaign", text: t("Alliance Campaigns"), TOTALRP3: true},
+      {id: "totalrp3", slug: "totalrp/campaigns/horde-campaigns", cls:"rpcampaign", text: t("Horde Campaigns"), TOTALRP3: true},
+      {id: "totalrp4", slug: "totalrp/items", cls:"rpitem", text: t("Items"), root: true, TOTALRP3: true},
+      //{id: "totalrp5", slug: "totalrp/items/consumables", cls:"rpitem", text: t("Consumables"), TOTALRP3: true},
+      {id: "totalrp6", slug: "totalrp/items/containers", cls:"rpitem", text: t("Containers"), TOTALRP3: true},
+      {id: "totalrp7", slug: "totalrp/items/documents", cls:"rpitem", text: t("Documents"), TOTALRP3: true},
+      {id: "totalrp8", slug: "totalrp/items/equipment", cls:"rpitem", text: t("Equipment"), TOTALRP3: true},
+      {id: "totalrp9", slug: "totalrp/items/expert-mode", cls:"rpitem", text: t("Expert Mode"), TOTALRP3: true},
+      {id: "totalrp10", slug: "totalrp/items/normal-mode", cls:"rpitem", text: t("Normal Mode"), TOTALRP3: true},
+      {id: "totalrp11", slug: "totalrp/items/miscellaneous", cls:"rpitem", text: t("Miscellaneous"), TOTALRP3: true},
+      {id: "totalrp12", slug: "totalrp/items/toys", cls:"rpitem", text: t("Toys"), TOTALRP3: true},
+      
+      {id: "rplang1", slug: "totalrp/english", cls:"rplang", text: t("English"), root: true, TOTALRP3: true},
+      {id: "rplang2", slug: "totalrp/french", cls:"rplang", text: t("French"), root: true, TOTALRP3: true},
+      {id: "rplang3", slug: "totalrp/spanish", cls:"rplang", text: t("Spanish"), root: true, TOTALRP3: true},
+      {id: "rplang4", slug: "totalrp/german", cls:"rplang", text: t("German"), root: true, TOTALRP3: true},
+      
+
       // {id: "pve", slug: "pve", cls:"", text: t("PvE"), noselect: true, WEAKAURA: true},
       
       {id: "raidantorus", slug: "pve/antorus-the-burning-throne", cls:"antorus", text: t("warcraft:zones.8638"), root: true, WEAKAURA: true, COLLECTION: true},
@@ -444,6 +464,9 @@ module.exports = {
     var groups = []
     var current = []
     cats.forEach((cat) => {
+      if (cat.systemtag) {
+        return
+      }
       if (cat.root) {
         if (current.length > 0) {
           groups.push(current)

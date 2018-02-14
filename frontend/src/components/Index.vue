@@ -212,6 +212,7 @@
 </style>
 
 <script>
+import Categories from './libs/categories'
 import CategorySelect from './UI/SelectCategory.vue'
 import WagoNews from './core/News.vue'
 import VueMarkdown from 'vue-markdown'
@@ -349,8 +350,14 @@ export default {
           vue.type = res.type
           vue.disableSubmit = false
           // build category select
-          vue.categories = []
-          vue.setCategories = []
+          if (res.categories) {
+            vue.categories = Categories.getCategories(res.categories, vue.$t)
+            vue.setCategories = vue.categories
+          }
+          else {
+            vue.categories = []
+            vue.setCategories = []
+          }
 
           // set scanID after other data is assigned
           vue.scanID = res.scan

@@ -359,3 +359,17 @@ function JSON2Grid(json, title)
   local result = Compresser:CompressHuffman(Serializer:Serialize(t)) 
 	print(HexEncode(result, title))
 end
+
+function TotalRP32JSON(importStr)
+  local success, deserialized = Serializer:Deserialize(importStr);
+  if (success) then
+    print(JSON:encode(deserialized))
+    return
+  end
+  print("{}")
+end
+
+function JSON2TotalRP3(json)
+  local t = JSON:decode(json)
+  print(Serializer:Serialize(t))
+end

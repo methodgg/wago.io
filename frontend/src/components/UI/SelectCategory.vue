@@ -25,6 +25,7 @@ export default {
   computed: {
     multiSelectValue: {
       get: function () {
+        this.setOptions(this.selectedCategories)
         return this.selectedCategories
       },
       set: function (newValue) {
@@ -46,12 +47,16 @@ export default {
       if (!values) {
         values = []
       }
+      else if (!values[0]) {
+        values = [values]
+      }
 
       this.selectText = this.$t('Select')
       if (values && values.length > 0) {
         this.selectText = ''
         if (values[0].root) {
           var children = Categories.getChildren(values[0], this.type, this.$t)
+          console.log(children)
           this.categoryOptions = []
           // remove already selected categories
           for (var i = 0; i < children.length; i++) {
@@ -67,7 +72,7 @@ export default {
             }
           }
         }
-        else {
+        else if (!values[0].systemtag) {
           this.categoryOptions = Categories.getChildren(values[values.length - 1], this.type, this.$t)
         }
       }

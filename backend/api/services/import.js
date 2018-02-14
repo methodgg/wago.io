@@ -7,6 +7,7 @@ const RegexPasteBinLink = /^https?:\/\/pastebin.com\/([\w]+)$/
 const RegexWeakAura = /^[a-zA-Z0-9\(\)]*$/
 const RegexElv = /^[a-zA-Z0-9=\+\/]*$/
 const RegexGrid = /^\[=== (.*) profile ===\]\n[ABCDEF0-9\n]+\n\[===/m
+const RegexTotalRP3 = /^\^.+\^\^$/
 
 /**
  * Scans an import string and validates the input.
@@ -31,21 +32,30 @@ function ScanImport (req, res, next, test) {
         test.notElvUI = true
         test.notVuhdo = true
         test.notGrid2 = true
+        test.notRP3 = true
         break
       case 'ELVUI':
         test.notWeakAura = true
         test.notVuhdo = true
         test.notGrid2 = true
+        test.notRP3 = true
         break
       case 'VUHDO':
         test.notWeakAura = true
         test.notElvUI = true
         test.notGrid2 = true
+        test.notRP3 = true
         break      
       case 'GRID':
         test.notWeakAura = true
         test.notElvUI = true
         test.notVuhdo = true
+        test.notRP3 = true
+      case 'TOTALRP3':
+        test.notWeakAura = true
+        test.notElvUI = true
+        test.notVuhdo = true
+        test.notGrid2 = true
         break    
     }
   }
@@ -61,16 +71,6 @@ function ScanImport (req, res, next, test) {
       return ScanImport(req, res, next)
     }).catch((err) => {
       return res.send({error: 'invalid_url'})
-    })
-  }
-
-  // if input contains lua code
-  else if (req.body.importString.replace(/\)/g, '').match(RegexLuaSnippet)) {
-    var scan = new ImportScan()
-    scan.type = 'SNIPPET'
-    scan.input = req.body.importString
-    scan.save().then((doc) => {
-      return res.send({scan: doc._id.toString(), type: 'Lua Snippet', name: 'Code Snippet'})
     })
   }
 
@@ -321,6 +321,76 @@ function ScanImport (req, res, next, test) {
       }      
     })
   }
+
+  // if input looks like a TotalRP3 string
+  else if (req.body.importString.match(RegexTotalRP3) && !test.notRP3) {
+    lua.TotalRP32JSON(req.body.importString, (error, result) => {
+      if (error) {
+        return res.send({error: error})
+      }
+      else if (result.stderr || result.stdout=='' || result.stdout.indexOf("Error deserializing Supplied data is not AceSerializer data")>-1 || result.stdout.indexOf("Unknown compression method")>-1) {
+        return res.send({error: 'invalid_import'})
+      }
+
+      var scan = new ImportScan()
+      try {
+        var data = JSON.parse(result.stdout)
+        // if elvui fields found
+        if (data && data[2] && data[2].MD && data[2].MD.CD && data[2].MD.CD.match(/\d+\/\d+\/\d+\s\d+:\d+\d+/)) {
+          if (data.wagoID) {
+            scan.fork = data.wagoID
+          }
+          scan.type = 'TOTALRP3'
+          scan.input = req.body.importString
+          scan.decoded = result.stdout
+          var name = ''
+          var categories = []
+          switch (data[2].TY) {
+            case 'CA': 
+              name = 'Campaign'
+              categories.push('totalrp1')
+              break
+            case 'IT': 
+              name = 'Item'
+              categories.push('totalrp4')
+              break
+          }
+          if (data[2].BA.NA) {
+            if (name !== '') {
+              name = name + ': ' + data[2].BA.NA
+            }
+            else {
+              name = data[2].BA.NA
+            }
+          }
+          if (name === '') {
+            name = 'Total RP3 Import'
+          }
+          scan.save().then((doc) => {
+            return res.send({scan: doc._id.toString(), type: 'TOTALRP3', name: name, categories: categories})
+          })
+        }
+        else {
+          // unknown import with elvui/vuhdo encoding
+          return res.send({error: 'invalid_import'})
+        }
+      }
+      catch (e) {
+        console.error('Error reading ElvUI JSON', e)
+        return res.send({error: 'invalid_import'})
+      }     ``
+    })
+  }
+
+  // if input contains lua code and does not match anything above then it's probably a snippet
+  else if (req.body.importString.replace(/\)/g, '').match(RegexLuaSnippet)) {
+    var scan = new ImportScan()
+    scan.type = 'SNIPPET'
+    scan.input = req.body.importString
+    scan.save().then((doc) => {
+      return res.send({scan: doc._id.toString(), type: 'Lua Snippet', name: 'Code Snippet'})
+    })
+  }
   // this doesn't match anything!
   else {
     return res.send({error: 'invalid_import'})
@@ -419,34 +489,46 @@ server.post('/import/submit', function(req, res) {
 
         wago.name = req.body.name
         wago.type = scan.type
+        wago.categories = []
+        
+        // add system tags as necessary
+        if (wago.type === 'VUHDO') {
+          wago.categories.push('vuhdo0')
+        
+          if (json.bouquetName) {
+            wago.categories.push('vuhdo2')
+          }
+          else if (json.keyLayout) {
+            wago.categories.push('vuhdo3')
+          }
+          else { // vuhdo profile
+            wago.categories.push('vuhdo1') 
+          }
+        }
+        else if (wago.type === 'TOTALRP3') {
+          if (json[2].TY === 'CA') {
+            wago.categories.push('totalrp1')
+          }
+          else if (json[2].TY === 'IT') {
+            wago.categories.push('totalrp4')
+          }
+        }
+
         if (req.body.categories && req.body.categories.length > 2) {
           wago.categories = JSON.parse(req.body.categories).map((c) => {
             return c.id
           })
           wago.categories = Categories.validateCategories(wago.categories)
           wago.relevancy = Categories.relevanceScores(wago.categories)
+        }
 
-          // add system tags as necessary
-          if (wago.type === 'VUHDO') {
-            wago.categories.push('vuhdo0')
-          
-            if (json.bouquetName) {
-              wago.categories.push('vuhdo2')
-            }
-            else if (json.keyLayout) {
-              wago.categories.push('vuhdo3')
-            }
-            else { // vuhdo profile
-              wago.categories.push('vuhdo1') 
-            }
-          }
-        }
-        else {
-          wago.categories = []
-        }
         wago.hidden = (req.body.visibility === 'Hidden')
         wago.private = (req.body.visibility === 'Private')
         wago.expires = new Date()
+
+        if (wago.type === 'TOTALRP3' && json[2] && json[2].NT) {
+          wago.description = json[2].NT
+        }
 
         if (req.body.expireAfter) {
           switch (req.body.expireAfter) {
@@ -781,6 +863,73 @@ function SaveWagoVersion (req, res, mode) {
       })
     })
   }
+  else if ((type=='TOTALRP3') && json) {
+    lua.JSON2TotalRP3(json, (error, result) => {
+      if (error) {
+        return res.send({error: error})
+      }
+      else if (result.stderr || result.stdout=='') {
+        return res.send({error: 'invalid_' + type})
+      }
+      
+      var promise
+      if (mode === 'scan') {
+        var scan = new ImportScan()
+        scan.fork = req.body.forkOf
+        scan.type = type
+        scan.input = result.stdout
+        scan.decoded = req.body.json
+        scan.save().then((doc) => {
+          return res.send({scan: doc._id.toString(), type: doc.type, encoded: scan.input})
+        })
+      }
+      else if (mode === 'update') {
+        promise = WagoItem.findOne({_id: wagoID, type: type, _userId: req.user._id}).exec()
+      }
+      else if (mode === 'fork') {
+        var wago = new WagoItem()
+        wago.type = type
+        wago.name = 'FORKED ' + type
+        wago.fork_of = wagoID
+        if (req.user) {
+          wago._userId = req.user._id
+          wago.hidden = (req.user.default_aura_visibility === 'Hidden')
+          wago.private = (req.user.default_aura_visibility === 'Private')
+          promise = wago.save()
+        }
+      }
+
+      promise.then((wago) => {
+        if (!wago) {
+          return res.send({error: 'not_found'})
+        }
+
+        // good to save
+        var code = new WagoCode()
+        code.auraID = wago._id
+        code.json = JSON.stringify(json)
+        if (encoded) {
+          code.encoded = encoded
+        }
+        else {
+          code.encoded = result.stdout
+        }
+        
+        code.save().then(() => {
+          if (mode === 'update') {
+            wago.modified = new Date()
+            wago.save().then(() => {
+              // look for any discord actions
+              discord.onUpdate(req.user, wago)
+            })
+          }
+          res.send({success: true})
+        })
+      }).catch(e => {
+        return res.send({error: 'not_found'})
+      })
+    })
+  }
   else if (type === 'SNIPPET' && req.body.lua) {
     var promise
     if (mode === 'update') {
@@ -811,7 +960,7 @@ function SaveWagoVersion (req, res, mode) {
       
       code.save().then(() => {
         if (mode === 'update') {
-          // look for any discord actions
+          // look for any discord action 
 
         }
         res.send({success: true, wagoID: wago._id})
