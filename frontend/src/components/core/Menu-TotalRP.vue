@@ -25,7 +25,7 @@
         <md-list-item class="md-inset equip">
           <category-image group="equip"></category-image>
           <div class="md-list-text-container">
-            <router-link to="/items">Items</router-link>
+            <router-link to="/totalrp/items">Items</router-link>
             <span>
               <router-link v-for="(item, index) in items" :to="item.slug" v-bind:key="index">{{ item.text }}</router-link>
             </span>
@@ -37,7 +37,7 @@
         <md-list-item class="md-inset rplang">
           <category-image group="rplang"></category-image>
           <div class="md-list-text-container">
-            <router-link to="#">Languages</router-link>
+            <router-link to="/totalrp">Languages</router-link>
             <span>
               <router-link v-for="(item, index) in languages" :to="item.slug" v-bind:key="index">{{ item.text }}</router-link>
             </span>
