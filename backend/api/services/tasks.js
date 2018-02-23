@@ -3,23 +3,23 @@
  * Restrict all /tasks requests to localhost.
  */
 server.get('/tasks/:task', (req, res, next) => {
-  if (req.connection.remoteAddress !== '::ffff:127.0.0.1') {
-    return res.send(403, {error: 'invalid_access'})
-  }
+  // if (req.connection.remoteAddress !== '::ffff:127.0.0.1') {
+  //   return res.send(403, {error: 'invalid_access'})
+  // }
   
-  RunTask(req.params.task)
+  RunTask(req.params.task, req, res)
 })
 
 /**
  * Runs the requested task 
  */
-function RunTask (task) {
+function RunTask (task, req, res) {
   switch (task) {
-    case 'random': return MakeWagoOfTheMoment()
-    case 'top10': return MakeTopTenLists()
-    case 'addons': return GetLatestAddonReleases()
-    case 'popularity': return computeViewsThisWeek()
-    case 'news': return GetLatestNews()
+    case 'random': return MakeWagoOfTheMoment(req, res)
+    case 'top10': return MakeTopTenLists(req, res)
+    case 'addons': return GetLatestAddonReleases(req, res)
+    case 'popularity': return computeViewsThisWeek(req, res)
+    case 'news': return GetLatestNews(req, res)
   }
 }
 
@@ -38,7 +38,7 @@ function MakeWagoOfTheMoment (req, res) {
 /**
  * Builds top 10 lists for home page.
  */
-function MakeTopTenLists () {
+function MakeTopTenLists (req, res) {
   var data = global.TopTenLists || {}
   async.parallel({
     favorites: (done) => {
@@ -66,7 +66,8 @@ function MakeTopTenLists () {
       })
     },
   }, () => {
-    global['TopTenLists'] = data  
+    global['TopTenLists'] = data
+    res.send({done: true})
   })
 }
 
@@ -261,6 +262,7 @@ function GetLatestAddonReleases (req, res) {
     // now rebuild global addons table
     AddonRelease.find({active: true}).sort('-addon -phase').then((docs) => {
       global.addonUpdates = docs
+      res.send({done: true})
     })
   })
 }
@@ -269,18 +271,19 @@ function GetLatestAddonReleases (req, res) {
  * Updates views this week for each wago.
  * They are auto incremented on-the-fly but expired views from a week ago need to be pruned.
 */
-function computeViewsThisWeek() {
-  WagoItem.aggregate({$group: { _id: '$wagoID', views: { $sum: 1 }}}).exec().then((pop) => {
+function computeViewsThisWeek(req, res) {
+  ViewsThisWeek.aggregate({$group: { _id: '$wagoID', views: { $sum: 1 }}}).exec().then((pop) => {
     pop.forEach((wago) => {
       WagoItem.findByIdAndUpdate(wago._id, {$set: {'popularity.viewsThisWeek': wago.views}}).exec()
     })
+    res.send({done: true})
   })
 }
 
 /**
  * Gets most recent news articles for front page
  */
-function GetLatestNews() {
+function GetLatestNews(req, res) {
   Blog.find({publishStatus: 'publish'}).sort('-date').limit(2).populate('_userId').then((docs) => {
     var news = []
     docs.forEach((item) => {
@@ -298,6 +301,7 @@ function GetLatestNews() {
       news.push(post)
     })
     global.newsPosts = news
+    res.send({done: true})
   })
 }
 
