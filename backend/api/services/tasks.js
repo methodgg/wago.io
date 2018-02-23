@@ -3,9 +3,9 @@
  * Restrict all /tasks requests to localhost.
  */
 server.get('/tasks/:task', (req, res, next) => {
-  // if (req.connection.remoteAddress !== '::ffff:127.0.0.1') {
-  //   return res.send(403, {error: 'invalid_access'})
-  // }
+  if (req.connection.remoteAddress !== '::ffff:127.0.0.1') {
+    return res.send(403, {error: 'invalid_access'})
+  }
   
   RunTask(req.params.task, req, res)
 })
@@ -32,6 +32,7 @@ function MakeWagoOfTheMoment (req, res) {
     data = wago
     SiteData.findByIdAndUpdate('WagoOfTheMoment', {value: data}, {upsert: true}).exec()
     global['WagoOfTheMoment'] = data
+    res.send({done: true})
   })
 }
 
@@ -273,10 +274,12 @@ function GetLatestAddonReleases (req, res) {
 */
 function computeViewsThisWeek(req, res) {
   ViewsThisWeek.aggregate({$group: { _id: '$wagoID', views: { $sum: 1 }}}).exec().then((pop) => {
+    //console.log(pop)
     pop.forEach((wago) => {
+      console.log({find: wago._id, set: wago.views})
       WagoItem.findByIdAndUpdate(wago._id, {$set: {'popularity.viewsThisWeek': wago.views}}).exec()
     })
-    res.send({done: true})
+    res.send({done: pop})
   })
 }
 
