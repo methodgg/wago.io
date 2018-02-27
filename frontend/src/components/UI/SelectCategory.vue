@@ -1,12 +1,12 @@
 <template>
   <multiselect v-model="multiSelectValue" :options="categoryOptions" label="text" :multiple="true" :max="maxSelections" :close-on-select="false" :clear-on-select="false" :hide-selected="true" :placeholder="selectText || ''" :searchable="false" select-label="" open-direction="bottom">
-    <template slot="tag" scope="props"><span :class="'custom__tag ' + props.option.cls">
+    <template slot="tag" slot-scope="props"><span :class="'custom__tag ' + props.option.cls">
       <span>{{ props.option.text }}</span><span class="multiselect_remove" @click="props.remove(props.option)">❌</span></span>
     </template>
-    <template slot="option" scope="props">
+    <template slot="option" slot-scope="props">
       <div :class="'md-chip ' + props.option.cls"><div class="option__title">{{ props.option.text }}</div></div>
     </template>
-    <template slot="maxElements" scope="props">
+    <template slot="maxElements" slot-scope="props">
       {{ $t('No additional categories can be added') }}
     </template>
   </multiselect>
@@ -48,7 +48,7 @@ export default {
         values = []
       }
       else if (!values[0]) {
-        values = [values]
+        // values = [values]
       }
 
       this.selectText = this.$t('Select')
@@ -56,7 +56,6 @@ export default {
         this.selectText = ''
         if (values[0].root) {
           var children = Categories.getChildren(values[0], this.type, this.$t)
-          console.log(children)
           this.categoryOptions = []
           // remove already selected categories
           for (var i = 0; i < children.length; i++) {

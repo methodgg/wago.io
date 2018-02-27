@@ -274,9 +274,7 @@ function GetLatestAddonReleases (req, res) {
 */
 function computeViewsThisWeek(req, res) {
   ViewsThisWeek.aggregate({$group: { _id: '$wagoID', views: { $sum: 1 }}}).exec().then((pop) => {
-    //console.log(pop)
     pop.forEach((wago) => {
-      console.log({find: wago._id, set: wago.views})
       WagoItem.findByIdAndUpdate(wago._id, {$set: {'popularity.viewsThisWeek': wago.views}}).exec()
     })
     res.send({done: pop})
