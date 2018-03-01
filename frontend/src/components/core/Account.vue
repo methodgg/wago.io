@@ -150,10 +150,10 @@
       </md-card>
     </md-layout>
     <md-layout md-column>
-      <md-card>
+      <md-card v-if="User">
         <h2>{{ $t("Account Status") }}</h2>
         <md-card-content>
-          <ui-warning v-if="User && User.access && User.access.human" mode="ok">
+          <ui-warning v-if="User.access && User.access.human" mode="ok">
             {{ $t("Anti-spam") }}<br>
             {{ $t("Your account is verified as belonging to a human, hyperlinks are allowed in your descriptions") }}
           </ui-warning>
@@ -162,7 +162,7 @@
             {{ $t("To enable hyperlinks in your descriptions, connect or update your Wago account with a Battlenet account with a max level character, or with a Patreon subscription") }}
           </ui-warning>
           <br>
-          <ui-warning v-if="User.access.goldSub || User.access.ambassador || User.access.translator || User.access.admin" mode="gold">
+          <ui-warning v-if="User.access && (User.access.goldSub || User.access.ambassador || User.access.translator || User.access.admin)" mode="gold">
             <span v-if="User.access.admin">Wago.io Admin</span>
             <span v-else-if="User.access.ambassador">Wago.io Ambassador</span>
             <span v-else-if="User.access.translator">Wago.io Translator</span>
@@ -171,7 +171,7 @@
             <br>{{ $t("Animated avatars are enabled") }}
             <br>{{ $t("Access to Wago beta server") }} <a href="https://t1000.wago.io/">https://t1000.wago.io/</a>
           </ui-warning>
-          <ui-warning v-else-if="User.access.sub" mode="ok">
+          <ui-warning v-else-if="User.access && User.access.sub" mode="ok">
             <span>{{ $t("Subscriber") }}</span>
             <br>{{ $t("Animated avatars are enabled") }}
             <br>{{ $t("Access to Wago beta server") }} <a href="https://t1000.wago.io/">https://t1000.wago.io/</a>
