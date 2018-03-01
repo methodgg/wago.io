@@ -153,7 +153,7 @@
       <md-card>
         <h2>{{ $t("Account Status") }}</h2>
         <md-card-content>
-          <ui-warning v-if="User.access.human" mode="ok">
+          <ui-warning v-if="User && User.access && User.access.human" mode="ok">
             {{ $t("Anti-spam") }}<br>
             {{ $t("Your account is verified as belonging to a human, hyperlinks are allowed in your descriptions") }}
           </ui-warning>
@@ -229,9 +229,9 @@ end`,
       currentPassword: '',
       newPassword: '',
       confirmPassword: '',
-      discordOptionFaveUpdateMsg: this.$store.state.user.discord && this.$store.state.user.discord.options.messageOnFaveUpdate,
-      discordOptionCommentMsg: this.$store.state.user.discord && this.$store.state.user.discord.options.messageOnComment,
-      discordOptionCreateWebhook: this.$store.state.user.discord && this.$store.state.user.discord.webhooks.onCreate,
+      discordOptionFaveUpdateMsg: this.$store.state.user.discord && this.$store.state.user.discord.options && this.$store.state.user.discord.options.messageOnFaveUpdate,
+      discordOptionCommentMsg: this.$store.state.user.discord && this.$store.state.user.discord.options && this.$store.state.user.discord.options.messageOnComment,
+      discordOptionCreateWebhook: this.$store.state.user.discord && this.$store.state.user.discord.webhooks && this.$store.state.user.discord.options.onCreate,
       discordOptionCreateWebhookStatus: ''
     }
   },

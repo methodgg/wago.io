@@ -552,7 +552,6 @@ function oAuthLogin(req, res, provider, authUser) {
     break
 
   case 'patreon':
-    console.log('patreon auth test', authUser.data.relationships.pledges)
     query = {"patreon.id": authUser.data.id}
     try {
       profile = {
@@ -630,6 +629,8 @@ function oAuthLogin(req, res, provider, authUser) {
       } 
       else {
         user = new User()
+        user.account.username = newAcctName
+        user.search.username = newAcctName.toLowerCase()
       }
       image.avatarFromURL(avatarURL, user._id.toString(), provider, (img) => {
         if (!img.error) {
@@ -645,21 +646,31 @@ function oAuthLogin(req, res, provider, authUser) {
         if (paid>=400) {
           user.roles.gold_subscriber = true
         }
-        user.account.username = newAcctName
-        user.search.username = newAcctName.toLowerCase()
-        User.findByUsername(user.search.username).then((testUser) => {
-          // if username exists then assign random name
-          if (testUser) {
-            user.account.username = newAcctName + user._id.toString()
-            user.search.username = user.account.username.toLowerCase()
-          }
 
+        // if user exists but this is a new oauth then save it
+        if (req.user) {
           user.save().then((newuser) => {
             var who = {}
             who.UID = newuser._id
             return makeSession(req, res, who, newuser)
           })
-        })
+        }
+        else {
+          // if brand new user, check if we can use the username
+          User.findByUsername(newAcctName).then((testUser) => {
+            // if username exists then assign random name
+            if (!user.account.username && testUser) {
+              user.account.username = newAcctName + user._id.toString()
+              user.search.username = user.account.username.toLowerCase()
+            }
+
+            user.save().then((newuser) => {
+              var who = {}
+              who.UID = newuser._id
+              return makeSession(req, res, who, newuser)
+            })
+          })
+        }
       })
     }
 
