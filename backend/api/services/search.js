@@ -55,6 +55,7 @@ server.get('/search', (req, res, skipSearch) => {
           esSort.unshift({'popularity.viewsThisWeek': 'desc'})
         }
         else if (sortMatch[1] === 'bestmatch') {
+          esSort.push({'popularity.viewsThisWeek': 'desc'})
           esSort.push({modified: 'desc'})
         }
       }
