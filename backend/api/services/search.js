@@ -38,7 +38,7 @@ server.get('/search', (req, res, skipSearch) => {
         query = query.replace(sortMatch[0], '').replace(/\s{2,}/, ' ').trim()
         sortMatch[1] = sortMatch[1].toLowerCase()
 
-         if (sortMatch[1] === 'date') {
+        if (sortMatch[1] === 'date') {
           sort = '-modified'
           esSort.unshift({modified: 'desc'})
         }
@@ -53,6 +53,9 @@ server.get('/search', (req, res, skipSearch) => {
         else if (sortMatch[1] === 'popular') {
           sort = '-popularity.viewsThisWeek'
           esSort.unshift({'popularity.viewsThisWeek': 'desc'})
+        }
+        else if (sortMatch[1] === 'bestmatch') {
+          esSort.push({modified: 'desc'})
         }
       }
       return done()
