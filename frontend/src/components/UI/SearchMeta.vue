@@ -6,6 +6,7 @@
         <md-input-container>
           <label for="sort">{{ $t("Sort") }}</label>
           <md-select name="sort" id="sort" v-model="sortVal">
+            <md-option value="bestmatch">{{ $t("Best Match") }}</md-option>
             <md-option value="stars">{{ $t("Stars") }}</md-option>
             <md-option value="views">{{ $t("Views") }}</md-option>
             <md-option value="date">{{ $t("Date") }}</md-option>

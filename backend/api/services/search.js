@@ -1,8 +1,11 @@
 server.get('/search', (req, res, skipSearch) => {
   // get input
   var query = req.params.q || req.body.q || ""
-  var sort = req.params.sort || req.body.sort || '-modified'
+  var sort = req.params.sort || req.body.sort || 'elastic'
   var page = parseInt(req.query.page || req.body.page || 0)
+  var esFilter = []
+  var esSort = ['_score']
+  var esQuery = false
 
   // set constants
   const resultsPerPage = 20 // TODO: make this a global config
@@ -26,7 +29,7 @@ server.get('/search', (req, res, skipSearch) => {
   async.series([
     // if search includes 'sort: sort' - valid sort options: date stars views
     function(done) {
-      const regex = /\bsort:\s*"?(date|stars|views)"?/i
+      const regex = /\bsort:\s*"?(date|stars|views|bestmatch)"?/i
       var sortType = query.match(regex)
       if (!sortType || sortType.length==0) return done()
 
@@ -35,17 +38,21 @@ server.get('/search', (req, res, skipSearch) => {
         query = query.replace(sortMatch[0], '').replace(/\s{2,}/, ' ').trim()
         sortMatch[1] = sortMatch[1].toLowerCase()
 
-        if (sortMatch[1] === 'date') {
+         if (sortMatch[1] === 'date') {
           sort = '-modified'
+          esSort.unshift({modified: 'desc'})
         }
         else if (sortMatch[1] === 'stars') {
           sort = '-popularity.favorite_count'
+          esSort.unshift({'popularity.favorite_count': 'desc'})
         }
         else if (sortMatch[1] === 'views') {
           sort = '-popularity.views'
+          esSort.unshift({'popularity.views': 'desc'})
         }
         else if (sortMatch[1] === 'popular') {
           sort = '-popularity.viewsThisWeek'
+          esSort.unshift({'popularity.viewsThisWeek': 'desc'})
         }
       }
       return done()
@@ -70,12 +77,15 @@ server.get('/search', (req, res, skipSearch) => {
         // strict score sorts by total number of categories with secondary sorting on number of root categories
         sort = 'relevancy.strict relevancy.standard ' + sort
         query = query.replace(sortType[0], '').replace(/\s{2,}/, ' ').trim()
+        esSort.unshift('relevancy.standard')
+        esSort.unshift('relevancy.strict')
       }
 
       // default 
       else {
         // standard score sorts by number of root categories
         sort = 'relevancy.standard ' + sort
+        esSort.unshift('relevancy.standard')
       }
 
       return done()
@@ -106,6 +116,8 @@ server.get('/search', (req, res, skipSearch) => {
           wagoType: typeMatch[1]==='WEAKAURAS2' && 'WEAKAURA' || typeMatch[1],
           image: '/media/wagotypes/' + typeMatch[1] + '.png'
         })
+        esFilter.push({match: { type: typeMatch[1] } })
+        
       }
       return done()
     },
@@ -125,6 +137,7 @@ server.get('/search', (req, res, skipSearch) => {
             if (user) {
               lookup._userId = lookup._userId || {"$in": []}
               lookup._userId["$in"].push(user._id)
+              esFilter.push({term: { _userId: user._id } })
 
               Search.query.context.push({
                 query: userMatch[0],
@@ -165,6 +178,7 @@ server.get('/search', (req, res, skipSearch) => {
           tags.forEach((thisTag) => {
             lookup.categories = lookup.categories || {"$all": []}
             lookup.categories["$all"].push(thisTag)
+            esFilter.push({term: { categories: thisTag } })
 
             Search.query.context.push({
               query: tagMatch[0],
@@ -211,6 +225,9 @@ server.get('/search', (req, res, skipSearch) => {
           return cb()
         }
       }, function() {
+        if (lookup._id.length > 0) {
+          esFilter.push({ids: { values: lookup._id } })
+        }
         done()
       })
     },
@@ -247,9 +264,10 @@ server.get('/search', (req, res, skipSearch) => {
               enabled: false
             }
           })
+          esFilter.push({bool: { must_not: [{ exists: { field: "_userId" } }] } })
         }
         else if (anonSearch[1]=='0' || anonSearch[1].toLowerCase()=='false') {
-          // do not exclude anonymous
+          // exclude anonymous (default)
           lookup._userId = { "$exists": true }
           Search.query.context.push({
             query: anonSearch[0],
@@ -259,16 +277,19 @@ server.get('/search', (req, res, skipSearch) => {
               enabled: false
             }
           })
+          esFilter.push({exists: { field: "_userId" } })
         }
         
         else if (!defaultAnon) {
           lookup._userId = { "$exists": true }
+          esFilter.push({exists: { field: "_userId" } })
         }
 
         return cb()
       }
       else if (!defaultAnon) {
         lookup._userId = { "$exists": true }
+        esFilter.push({exists: { field: "_userId" } })
         return cb()
       }
       else {
@@ -296,6 +317,7 @@ server.get('/search', (req, res, skipSearch) => {
               enabled: true
             }
           })
+          esFilter.push({term: { 'popularity.favorites': req.user._id } })
         }
         else {
           // only include what user has NOT starred
@@ -308,6 +330,7 @@ server.get('/search', (req, res, skipSearch) => {
               enabled: false
             }
           })
+          //esFilter.push({must_not: {term: { 'popularity.favorites': req.user._id } } })
         }
 
         return cb()
@@ -347,7 +370,7 @@ server.get('/search', (req, res, skipSearch) => {
                 lookup._id = lookup._id || {"$in": []}
                 lookup._id["$in"].push(comment.wagoID)
               }
-              // only include what the user has an alert on (why would anyone ever want to?)
+              // only include what the user has no alert on (why would anyone ever want to?)
               else {
                 lookup._id = lookup._id || {"$nin": []}
                 lookup._id["$nin"].push(comment.wagoID)
@@ -357,6 +380,9 @@ server.get('/search', (req, res, skipSearch) => {
           })
         }
         else {
+          if (lookup._id["$in"]) {
+            esFilter.push({ids: { type: "_doc", values: lookup._id["$in"] } })
+          }
           return cb()
         }
       }
@@ -379,38 +405,96 @@ server.get('/search', (req, res, skipSearch) => {
       // remaining search query
       Search.query.textSearch = query
       lookup["$text"] = { "$search": query }
+      esQuery = query
     }
 
     // limit lookup to what we have access to
     lookup['deleted'] = false
+    esFilter.push({term: { deleted: false } })
     
+    var esShould = []
     if (req.user && !allowHidden) {
       lookup['$or'] = [{ '_userId': req.user._id }, { private: false, hidden: false }]
+      esShould.push({term: { _userId: req.user._id } })
+      esShould.push({bool: {filter: [{ term: { private: false } }, { term: { hidden: false } }] } })
     }
     else if (req.user) {
       lookup['$or'] = [{ '_userId': req.user._id }, { private: false }]
+      esShould.push({term: { _userId: req.user._id } })
+      esShould.push({term: { private: false } })
     }
     else if (!allowHidden) {
       lookup['private'] = false
       lookup['hidden'] = false
+      esFilter.push({term: { private: false } })
+      esFilter.push({term: { hidden: false } })
     }
     else {      
       lookup['private'] = false
+      esFilter.push({term: { private: false } })
     }
 
     // search wago for all of our criteria
-    WagoItem.find(lookup).sort(sort).skip(resultsPerPage*page).limit(resultsPerPage).then((docs) => {
+    if (esQuery) {
+      esQuery = [
+        {
+          simple_query_string: {
+            query: esQuery,
+            fields: ["description", "name^2", "custom_slug^2"],
+          },          
+        }
+      ]
+    }
+    else {
+      esQuery = []
+    } 
+    if (esShould.length > 0) {
+      // should = array of OR, add to filter
+      esFilter.push({bool: {should: esShould}})
+    }
+      
+    console.log('sorting', esSort)
+    var runSearch = new Promise((resolve, reject) => {
+      WagoItem.esSearch({
+        query: {
+          bool: {
+            must: esQuery,
+            filter: esFilter
+          }
+        },          
+      },
+      { hydrate: true, sort: esSort, size: resultsPerPage, from: resultsPerPage*page}, (err, results) => {
+        if (err) {
+          reject(err)
+        }
+        else {
+          resolve(results)
+        }
+      })
+    })
+    // else {
+    //   var runSearch = WagoItem.find(lookup).sort(sort).skip(resultsPerPage*page).limit(resultsPerPage)
+    // }
+    
+    runSearch.then((docs) => {
       if (!docs) {
         Search.total = 0
         Search.results = []
         return res.send(Search)
       }
-      
+
       // initialize results
-      Search.results = Array.apply(null, Array(docs.length)).map(function () {})
+      if (docs.hits && docs.hits.hits) {
+        Search.total = docs.hits.total
+        Search.results = docs.hits.hits
+      }
+      else {      
+        Search.results = docs // Array.apply(null, Array(docs.length)).map(function () {})
+      }
+
 
       // for each found result...
-      async.forEachOf(docs, function (wago, async_key, next) {
+      async.forEachOf(Search.results, function (wago, async_key, next) {
         // setup return object
         var item = {}
         item.name = wago.name
@@ -450,6 +534,9 @@ server.get('/search', (req, res, skipSearch) => {
         async.parallel([
           // count total results
           function (done) {
+            if (Search.total) {
+              return done()
+            }
             WagoItem.count(lookup).then((num) => {
               Search.total = num
               done()
@@ -509,7 +596,6 @@ server.get('/search', (req, res, skipSearch) => {
         // called once parallel is done
         if (page === 0) {
           WagoItem.count(lookup).then((count) => {
-            Search.total = count
             res.send(Search)
           })
         }

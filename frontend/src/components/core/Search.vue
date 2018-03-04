@@ -2,11 +2,11 @@
   <div>
     <md-layout id="searchLayout">
       <md-layout>
-        <form novalidate @submit.stop.prevent="runSearch(searchString)" id="searchForm">
+        <form novalidate @submit.stop.prevent="runSearch()" id="searchForm">
           <md-input-container>
             <label>{{ $t("Search") }}</label>
-            <md-input v-model="searchString" ref="searchInput"></md-input>
-            <md-button @click="runSearch(searchString)" :disabled="searchString.length<3">{{ $t("Search") }}</md-button>
+            <md-input v-model.trim="searchString" ref="searchInput"></md-input>
+            <md-button @click="runSearch()" :disabled="searchString.length<3">{{ $t("Search") }}</md-button>
           </md-input-container>
         </form>
 
@@ -61,7 +61,7 @@ export default {
       tagMap: {},
       isSearching: false,
       isSearchingMore: false,
-      sortVal: '',
+      sortVal: 'bestmatch',
       uiSearchValue: false,
       catRelevance: 'standard',
       uiRelevanceValue: false
@@ -74,11 +74,23 @@ export default {
   },
   watch: {
     '$route' (to, from) {
-      this.runSearch(false)
+      // this.runSearch(false)
     }
   },
   methods: {
     runSearch: function (query) {
+      if (!query && this.searchString) {
+        var _this = this
+        // super hacky but vue.nextTick isn't updating the input value if form is submitted too quickly after typing, so just wait
+        return setTimeout(function () {
+          console.log(_this.searchString)
+          if (!_this.searchString) {
+            return
+          }
+          _this.runSearch(_this.searchString)
+        }, 100)
+      }
+      console.log('after timeout')
       var opt = ''
       // if loaded via category menu
       if (this.contextSearch && !query) {
@@ -112,7 +124,7 @@ export default {
       var sort = opt.match(/sort:\s?(-?\w+)/i)
       if (sort && sort[1] && !this.uiSearchValue) {
         sort[1] = sort[1].toLowerCase()
-        if (sort[1] === 'date' || sort[1] === 'date' || sort[1] === 'stars' || sort[1] === 'stars' || sort[1] === 'views' || sort[1] === 'views') {
+        if (sort[1] === 'date' || sort[1] === 'date' || sort[1] === 'stars' || sort[1] === 'stars' || sort[1] === 'views' || sort[1] === 'views' || sort[1] === 'bestmatch') {
           this.sortVal = sort[1]
           opt = opt.replace(/sort:\s?(-?\w+)/i, 'Sort: ' + this.sortVal)
         }
@@ -123,7 +135,7 @@ export default {
       }
       else {
         if (!this.sortVal) {
-          this.sortVal = 'date'
+          this.sortVal = 'bestmatch'
         }
         opt = opt.replace(/sort:\s?(-?\w+)/i, '')
         opt = opt.trim() + ' sort: ' + this.sortVal
@@ -209,14 +221,18 @@ export default {
       })
     },
     setSearch: function (val) {
-      this.sortVal = val
-      this.uiSearchValue = true
-      this.runSearch()
+      if (val !== this.sortVal) {
+        this.sortVal = val
+        this.uiSearchValue = true
+        this.runSearch()
+      }
     },
     setCategoryRelevance: function (val) {
-      this.catRelevance = val
-      this.uiRelevanceValue = true
-      this.runSearch()
+      if (val !== this.catRelevance) {
+        this.catRelevance = val
+        this.uiRelevanceValue = true
+        this.runSearch()
+      }
     }
   },
   mounted: function () {

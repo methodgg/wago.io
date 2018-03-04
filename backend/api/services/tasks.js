@@ -32,7 +32,9 @@ function MakeWagoOfTheMoment (req, res) {
     data = wago
     SiteData.findByIdAndUpdate('WagoOfTheMoment', {value: data}, {upsert: true}).exec()
     global['WagoOfTheMoment'] = data
-    res.send({done: true})
+    if (res) {
+      res.send({done: true})
+    }
   })
 }
 
@@ -68,7 +70,9 @@ function MakeTopTenLists (req, res) {
     },
   }, () => {
     global['TopTenLists'] = data
-    res.send({done: true})
+    if (res) {
+      res.send({done: true})
+    }
   })
 }
 
@@ -263,7 +267,9 @@ function GetLatestAddonReleases (req, res) {
     // now rebuild global addons table
     AddonRelease.find({active: true}).sort('-addon -phase').then((docs) => {
       global.addonUpdates = docs
-      res.send({done: true})
+      if (res) {
+        res.send({done: true})
+      }
     })
   })
 }
@@ -277,7 +283,9 @@ function computeViewsThisWeek(req, res) {
     pop.forEach((wago) => {
       WagoItem.findByIdAndUpdate(wago._id, {$set: {'popularity.viewsThisWeek': wago.views}}).exec()
     })
-    res.send({done: pop})
+    if (res) {
+      res.send({done: pop})
+    }
   })
 }
 
@@ -302,7 +310,9 @@ function GetLatestNews(req, res) {
       news.push(post)
     })
     global.newsPosts = news
-    res.send({done: true})
+    if (res) {
+      res.send({done: true})
+    }
   })
 }
 

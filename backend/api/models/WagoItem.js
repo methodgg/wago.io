@@ -1,50 +1,51 @@
 const mongoose = require('mongoose'),
+      mongoosastic = require('mongoosastic'),
       ObjectId = mongoose.Schema.Types.ObjectId,
       shortid = require('shortid')
 
 const Schema = new mongoose.Schema({
   _id : { type: String, default: shortid.generate },
-  custom_slug : { type: String, index: true },
-  _userId : { type: mongoose.Schema.Types.ObjectId, ref: 'Users' },
+  custom_slug : { type: String, index: true, es_indexed: true },
+  _userId : { type: mongoose.Schema.Types.ObjectId, ref: 'Users', es_indexed: true },
 
-  name : { type: String, index: true },
-  description : { type: String, default: "" },
+  name : { type: String, index: true, es_indexed: true},
+  description : { type: String, default: "", es_indexed: true },
   description_format : { type: Number, default: 1 }, // 1=BBcode, 2=Markdown
-  type : { type: String, index: true },
+  type : { type: String, index: true, es_indexed: true },
   subtype : String,
-  categories : { type: Array, index: true },
+  categories : { type: Array, index: true, es_indexed: true },
   categories_auto : { type: Boolean, default: false },
 
   created : { type: Date, default: Date.now, index: true },
   last_accessed : { type: Date, default: Date.now },
   expires_at :  { type: Date, expires: 300 },
-  modified : { type: Date, default: Date.now, index: true },
+  modified : { type: Date, default: Date.now, index: true, es_indexed: true },
   last_comment : { type: Date, index: true },
   display_date : String,
   wow_patch : String,
   batch_import : String,
 
-  hidden : { type: Boolean, default: false, index: true },
-  private : { type: Boolean, default: false, index: true },
-  deleted : { type: Boolean, default: false, index: true },
+  hidden : { type: Boolean, default: false, index: true, es_indexed: true },
+  private : { type: Boolean, default: false, index: true, es_indexed: true },
+  deleted : { type: Boolean, default: false, index: true, es_indexed: true },
 
   clone_of : String,
   fork_of: String,
 
   popularity : {
-      views : { type: Number, default: 0 },
-      viewsThisWeek : { type: Number, default: 0 },
+      views : { type: Number, default: 0, es_indexed: true },
+      viewsThisWeek : { type: Number, default: 0, es_indexed: true },
       embeds : { type: Number, default: 0 },
       downloads : { type: Number, default: 0 },
-      favorites : { type: Array, index: true },
-      favorite_count : { type: Number, default: 0, index: true },  // this should always match the length of favorites
-      comments_count : { type: Number, default: 0, index: true }
+      favorites : { type: Array, index: true, es_indexed: true },
+      favorite_count : { type: Number, default: 0, index: true, es_indexed: true },  // this should always match the length of favorites
+      comments_count : { type: Number, default: 0, index: true, es_indexed: true }
   },
 
   // relevancy scores for searches
   relevancy: {
-    standard: { type: Number, index: true },
-    strict: { type: Number, index: true }
+    standard: { type: Number, index: true, es_indexed: true },
+    strict: { type: Number, index: true, es_indexed: true }
   },
 
   // type=WEAKAURAS2
@@ -85,7 +86,10 @@ const Schema = new mongoose.Schema({
   snippet : {
       code : mongoose.Schema.Types.ObjectId
   }
-});
+})
+
+// add Mongoosastic plugin (elastic search)
+Schema.plugin(mongoosastic)
 
 /**
  * Statics
@@ -134,4 +138,18 @@ Schema.statics.randomOfTheMoment = function(callback) {
 }
 
 const WagoItem = mongoose.model('WagoItem', Schema)
+
+var es_Stream = WagoItem.synchronize()
+var es_Count = 0
+
+es_Stream.on('error', function(err){
+  console.log('es index error', err);
+});
+es_Stream.on('data', function(err, doc){
+  es_Count++;
+});
+es_Stream.on('close', function(){
+  console.log('indexed ' + es_Count + ' documents!');
+});
+
 module.exports = WagoItem
