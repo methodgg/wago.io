@@ -182,7 +182,7 @@ server.get('/search', (req, res, skipSearch) => {
           tags.forEach((thisTag) => {
             lookup.categories = lookup.categories || {"$all": []}
             lookup.categories["$all"].push(thisTag)
-            esFilter.push({term: { categories: thisTag } })
+            esFilter.push({match_phrase: { categories: thisTag.replace(/-/g, ' ') } })
 
             Search.query.context.push({
               query: tagMatch[0],
@@ -201,6 +201,7 @@ server.get('/search', (req, res, skipSearch) => {
           return cb()
         }
       }, function() {
+        console.log(JSON.stringify(esFilter))
         done()
       })
     },
