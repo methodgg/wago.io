@@ -441,6 +441,7 @@ server.get('/search', (req, res, skipSearch) => {
           simple_query_string: {
             query: esQuery,
             fields: ["description", "name^2", "custom_slug^2"],
+            default_operator: "and"
           },          
         }
       ]
@@ -453,7 +454,6 @@ server.get('/search', (req, res, skipSearch) => {
       esFilter.push({bool: {should: esShould}})
     }
       
-    console.log('sorting', esSort)
     var runSearch = new Promise((resolve, reject) => {
       WagoItem.esSearch({
         query: {
