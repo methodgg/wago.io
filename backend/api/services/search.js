@@ -441,7 +441,7 @@ server.get('/search', (req, res, skipSearch) => {
           simple_query_string: {
             query: esQuery,
             fields: ["description", "name^2", "custom_slug^2"],
-            default_operator: "and"
+            minimum_should_match: "-25%"
           },          
         }
       ]
