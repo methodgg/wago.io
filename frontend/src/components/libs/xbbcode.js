@@ -514,7 +514,7 @@ var XBBCODE = (function() {
                     return myUrl.replace(wagoPattern, "<a href='$2' class='vr'>")
                 }
 
-                return '<a href="' + myUrl + '">';
+                return '<a target="_blank" href="' + myUrl + '">';
             },
             closeTag: function(params,content) {
                 return '</a>';
