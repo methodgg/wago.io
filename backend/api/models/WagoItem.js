@@ -2,6 +2,7 @@ const mongoose = require('mongoose'),
       mongoosastic = require('mongoosastic'),
       ObjectId = mongoose.Schema.Types.ObjectId,
       shortid = require('shortid')
+      config = require('../../config')
 
 const Schema = new mongoose.Schema({
   _id : { type: String, default: shortid.generate },
@@ -89,7 +90,9 @@ const Schema = new mongoose.Schema({
 })
 
 // add Mongoosastic plugin (elastic search)
-Schema.plugin(mongoosastic)
+Schema.plugin(mongoosastic, {
+  hosts: config.elasticServers
+})
 
 /**
  * Statics
