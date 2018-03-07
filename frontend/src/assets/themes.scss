@@ -41,6 +41,8 @@
     color: rgba(255, 255, 255, 0.25)
   }
 
+  #mobile-sidebar .md-sidenav-content, .md-theme-default.md-list .md-list-item-expand .md-list-item-container { background: #090909 }
+
   .md-input-container {
     &:after {
       background-color: $Text2;

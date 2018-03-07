@@ -1,15 +1,14 @@
 <template>
   <div>
+    <form novalidate @submit.stop.prevent="runSearch()" id="searchForm">
+      <md-input-container>
+        <label>{{ $t("Search") }}</label>
+        <md-input v-model.trim="searchString" ref="searchInput"></md-input>
+        <md-button @click="runSearch()" :disabled="searchString.length<3">{{ $t("Search") }}</md-button>
+      </md-input-container>
+    </form>
     <md-layout id="searchLayout">
       <md-layout>
-        <form novalidate @submit.stop.prevent="runSearch()" id="searchForm">
-          <md-input-container>
-            <label>{{ $t("Search") }}</label>
-            <md-input v-model.trim="searchString" ref="searchInput"></md-input>
-            <md-button @click="runSearch()" :disabled="searchString.length<3">{{ $t("Search") }}</md-button>
-          </md-input-container>
-        </form>
-
         <ui-loading v-if="isSearching"></ui-loading>
         <div v-else-if="!isSearching && results.total > 0">
           <div class="searchResult" template v-for="(result, index) in results.results" v-bind:key="index">
@@ -275,11 +274,6 @@ export default {
 </script>
 
 <style>
-@media (max-width: 600px) {
-  #searchLayout { flex-direction: column }
-  #searchMeta { order: 1 }
-  #searchResults { order: 2 }
-}
 
 #searchForm { padding: 16px; width: 100% }
 #searchForm button { margin-top: -3px }
@@ -296,6 +290,18 @@ export default {
 .searchText .md-subheader span, .searchText .md-subheader a { padding: 0 16px 0 0}
 .searchTags .md-chip { height: auto; padding: 4px 6px 4px 20px; background-size: 18px 18px; background-position: 2px 2px }
 
-#searchMeta .md-whiteframe { padding: 8px; margin-top: 1.5em}
+#searchMeta .md-whiteframe { padding: 8px;}
+
+
+@media (max-width: 600px) {
+  #searchLayout { flex-direction: column-reverse }
+  #searchForm { padding: 16px 16px 0 }
+  #searchMeta { order: 1; width: 100%; }
+  #searchMeta .md-whiteframe { margin: 0 16px 16px }
+  #searchMeta > div { width: 100%; }
+  #searchResults { order: 2 }
+  .searchResult { flex-direction: column; }
+  .searchResult .searchImg { max-width: 100%; text-align: left; padding-left: 16px }
+}
 
 </style>

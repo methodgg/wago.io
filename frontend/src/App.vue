@@ -216,6 +216,11 @@ export default {
       return this.$store.state.pageInfo
     }
   },
+  watch: {
+    $route (to, from) {
+      this.$refs.mobileSidebar.close()
+    }
+  },
   metaInfo () {
     return {
       titleTemplate: '%s | Wago.io',
