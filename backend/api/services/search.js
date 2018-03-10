@@ -257,7 +257,6 @@ server.get('/search', (req, res, skipSearch) => {
         }
         else if (anonSearch[1]=='force') {
           // ONLY return anonymous
-          lookup._userId = { "$exists": false }
           Search.query.context.push({
             query: anonSearch[0],
             type: 'option',
@@ -271,7 +270,6 @@ server.get('/search', (req, res, skipSearch) => {
         }
         else if (anonSearch[1]=='0' || anonSearch[1].toLowerCase()=='false') {
           // exclude anonymous (default)
-          lookup._userId = { "$exists": true }
           Search.query.context.push({
             query: anonSearch[0],
             type: 'option',
@@ -284,14 +282,12 @@ server.get('/search', (req, res, skipSearch) => {
         }
         
         else if (!defaultAnon) {
-          lookup._userId = { "$exists": true }
           esFilter.push({exists: { field: "_userId" } })
         }
 
         return cb()
       }
       else if (!defaultAnon) {
-        lookup._userId = { "$exists": true }
         esFilter.push({exists: { field: "_userId" } })
         return cb()
       }
@@ -446,7 +442,7 @@ server.get('/search', (req, res, skipSearch) => {
       ]
     }
     else {
-      esQuery = []
+      esQuery = { match_all: {} }
     } 
     if (esShould.length > 0) {
       // should = array of OR, add to filter
@@ -479,9 +475,6 @@ server.get('/search', (req, res, skipSearch) => {
           reject(err)
         }
         else {
-          if (!lookup.priority && page === 0) {
-            results.meta = { forceNextPage: true }
-          }
           resolve(results)
         }
       })
@@ -501,10 +494,14 @@ server.get('/search', (req, res, skipSearch) => {
       if (docs.hits && docs.hits.hits) {
         Search.total = docs.hits.total
         Search.results = docs.hits.hits
-        Search.meta = docs.meta
       }
       else {      
         Search.results = docs
+      }
+
+      Search.meta = {}
+      if (lookup.priority && search.total < 20) {
+        Search.meta.forceNextPage = true
       }
 
 
