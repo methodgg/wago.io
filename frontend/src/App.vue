@@ -197,6 +197,8 @@ export default {
     goSearch: function (q) {
       this.$router.push('/search/' + q.trim().replace(/\s+/g, '+'))
       this.gSearch = ''
+      this.searchString = q.trim()
+      console.log(this.searchString)
     }
   },
   computed: {

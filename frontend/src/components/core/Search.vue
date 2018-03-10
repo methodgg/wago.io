@@ -63,7 +63,8 @@ export default {
       sortVal: 'bestmatch',
       uiSearchValue: false,
       catRelevance: 'standard',
-      uiRelevanceValue: false
+      uiRelevanceValue: false,
+      contextSearchData: this.contextSearch
     }
   },
   props: ['contextSearch'],
@@ -73,7 +74,8 @@ export default {
   },
   watch: {
     '$route' (to, from) {
-      // this.runSearch(false)
+      this.searchString = ''
+      this.runSearch(false)
     }
   },
   methods: {
@@ -82,20 +84,18 @@ export default {
         var _this = this
         // super hacky but vue.nextTick isn't updating the input value if form is submitted too quickly after typing, so just wait
         return setTimeout(function () {
-          console.log(_this.searchString)
           if (!_this.searchString) {
             return
           }
           _this.runSearch(_this.searchString)
         }, 100)
       }
-      console.log('after timeout')
       var opt = ''
       // if loaded via category menu
-      if (this.contextSearch && !query) {
-        this.contextSearch = this.contextSearch.replace(this.searchOptions, '').trim()
-        this.searchString = this.contextSearch
-        query = this.contextSearch
+      if (this.contextSearchData && !query) {
+        this.contextSearchData = this.contextSearchData.replace(this.searchOptions, '').trim()
+        this.searchString = this.contextSearchData
+        query = this.contextSearchData
       }
       // if loaded direct
       else if (!query && this.$route.params.query) {
@@ -105,7 +105,7 @@ export default {
       // if loaded as component from other file
       else if (typeof query === 'string' && query) {
         query = query.replace(this.searchOptions, '').trim()
-        this.$router.push('/search/' + query.replace(/\s+/g, '+'))
+        // this.$router.push('/search/' + query.replace(/\s+/g, '+'))
         this.searchString = query
       }
       // if navigating forward/back
@@ -211,6 +211,7 @@ export default {
         vue.$set(vue.results, 'query', res.query)
         vue.$set(vue.results, 'results', res.results)
         vue.$set(vue.results, 'context', res.query.context)
+        vue.$set(vue.results, 'meta', res.meta)
         // put text search at the end of the query
         if (res.query && res.query.textSearch) {
           this.searchString = this.searchString.replace(res.query.textSearch, '').replace(/\s+/g, ' ').trim() + ' ' + res.query.textSearch
@@ -245,7 +246,7 @@ export default {
     })
 
     document.addEventListener('scroll', function (event) {
-      if (vue.results && vue.results.total && vue.results.results && vue.results.total > vue.results.results.length && !vue.isSearching && !vue.isSearchingMore) {
+      if (vue.results && vue.results.total && ((vue.results.results && vue.results.total > vue.results.results.length) || (vue.results.meta && vue.results.meta.forceNextPage)) && !vue.isSearching && !vue.isSearchingMore) {
         if (document.body.scrollHeight - 600 <= document.body.scrollTop + window.innerHeight || document.body.scrollHeight - 600 <= document.documentElement.scrollTop + window.innerHeight) {
           vue.isSearchingMore = true
 
@@ -263,6 +264,7 @@ export default {
             var merged = vue.results.results.concat(res.results)
             vue.$set(vue.results, 'query', res.query)
             vue.$set(vue.results, 'results', merged)
+            vue.$set(vue.results, 'meta', res.meta)
 
             vue.isSearchingMore = false
           })

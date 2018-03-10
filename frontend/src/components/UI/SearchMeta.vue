@@ -73,7 +73,7 @@
           <md-list-item v-else-if="context.type === 'option' && context.option.name==='alert'" v-bind:key="index">
             <md-avatar class="md-avatar-icon"><md-icon>chat</md-icon></md-avatar>
             <div class="md-list-text-container">
-              <span v-if="context.option.enabled">{{ $t("My unread mentions") }}</span>
+              <span v-if="context.option.enabled">{{ $t("My mentions") }}</span>
               <span v-else>{{ $t("Not my unread mentions") }}</span>
               <md-subheader>{{ context.query }}</md-subheader>
             </div>

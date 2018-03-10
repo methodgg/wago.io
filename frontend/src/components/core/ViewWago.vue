@@ -362,7 +362,7 @@
                   <md-subheader>{{ $t("Preview") }}</md-subheader>
                   <div id="embed-preview">
                     <span :id="'wago-'+wago._id" class="wagoEmbed">
-                      <a :href="wago.url" class='vr'><img src="https://wago.io/assets/favicon/apple-touch-icon-57x57.png"></a>
+                      <a :href="wago.url" class='vr'><img src="https://media.wago.io/logo-57x57.png"></a>
                       <button @click="embedCopy(this, wago.code.encoded)" class="wagoCopyButton">
                         <small class="clickToCopyWago">Click to copy import string from wago.io</small>
                         <div class="wagoName">{{ wago.name }}</div>
@@ -673,10 +673,10 @@ export default {
       else {
         var embedTheme = {}
         if (this.embedStyle === 'light') {
-          embedTheme = {buttonBG: '#FFF', buttonHover: '#F4F4F4', textColor: 'rgba(0,0,0,.87)', logo: 'https://media.wago.io/assets/favicon/apple-touch-icon-57x57.png'}
+          embedTheme = {buttonBG: '#FFF', buttonHover: '#F4F4F4', textColor: 'rgba(0,0,0,.87)', logo: 'https://media.wago.io/logo-57x57.png'}
         }
         else {
-          embedTheme = {buttonBG: '#000', buttonHover: '#040404', textColor: 'rgba(255,255,255,.87)', logo: 'https://media.wago.io/assets/favicon/apple-touch-icon-57x57.png'}
+          embedTheme = {buttonBG: '#000', buttonHover: '#040404', textColor: 'rgba(255,255,255,.87)', logo: 'https://media.wago.io/logo-57x57.png'}
         }
         return `<span id="wago-${this.wago._id}" class="wagoEmbed">
   <a href="https://wago.io/${this.wago.slug}">

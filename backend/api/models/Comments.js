@@ -18,5 +18,9 @@ Schema.statics.findUnread = function(userID) {
   return this.find({usersTagged: {$elemMatch: {userID: userID, read: false}}}).select('wagoID').exec()
 }
 
+Schema.statics.findMentions = function(userID) {
+  return this.find({"usersTagged.userID": userID}).select('wagoID usersTagged.$').exec()
+}
+
 const Comments = mongoose.model('Comments', Schema)
 module.exports = Comments

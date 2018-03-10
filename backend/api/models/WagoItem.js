@@ -5,7 +5,7 @@ const mongoose = require('mongoose'),
       config = require('../../config')
 
 const Schema = new mongoose.Schema({
-  _id : { type: String, default: shortid.generate },
+  _id : { type: String, default: shortid.generate, es_indexed: true },
   custom_slug : { type: String, index: true, es_indexed: true },
   _userId : { type: mongoose.Schema.Types.ObjectId, ref: 'Users', es_indexed: true },
 
@@ -142,17 +142,18 @@ Schema.statics.randomOfTheMoment = function(callback) {
 
 const WagoItem = mongoose.model('WagoItem', Schema)
 
-var es_Stream = WagoItem.synchronize()
-var es_Count = 0
+if (require('../../config').env == 'production') {
+  var es_Stream = WagoItem.synchronize()
+  var es_Count = 0
 
-es_Stream.on('error', function(err){
-  console.log('es index error', err);
-});
-es_Stream.on('data', function(err, doc){
-  es_Count++;
-});
-es_Stream.on('close', function(){
-  console.log('indexed ' + es_Count + ' documents!');
-});
-
+  es_Stream.on('error', function(err){
+    console.log('es index error', err);
+  });
+  es_Stream.on('data', function(err, doc){
+    es_Count++;
+  });
+  es_Stream.on('close', function(){
+    console.log('indexed ' + es_Count + ' documents!');
+  });
+}
 module.exports = WagoItem

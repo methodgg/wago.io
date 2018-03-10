@@ -201,7 +201,6 @@ server.get('/search', (req, res, skipSearch) => {
           return cb()
         }
       }, function() {
-        console.log(JSON.stringify(esFilter))
         done()
       })
     },
@@ -363,7 +362,7 @@ server.get('/search', (req, res, skipSearch) => {
               enabled: (alertSearch[1]=='1' || alertSearch[1].toLowerCase()=='true')
             }
           })
-          Comments.findUnread(req.user._id).then((mentions) => {
+          Comments.findMentions(req.user._id).then((mentions) => {
             // if no wago's have alerts then return no results
             if (!mentions || !mentions[0]) {
               lookup._id = false
@@ -372,22 +371,20 @@ server.get('/search', (req, res, skipSearch) => {
             mentions.forEach((comment) => {
               // only include what the user has an alert on
               if (alertSearch[1]=='1' || alertSearch[1].toLowerCase()=='true') {
-                lookup._id = lookup._id || {"$in": []}
-                lookup._id["$in"].push(comment.wagoID)
-              }
-              // only include what the user has no alert on (why would anyone ever want to?)
-              else {
-                lookup._id = lookup._id || {"$nin": []}
-                lookup._id["$nin"].push(comment.wagoID)
+                if (!comment.usersTagged[0].read) {
+                  lookup.priority = lookup.priority || []
+                  lookup.priority.push(comment.wagoID)
+                }
+                else {
+                  lookup._id = lookup._id || {"$in": []}
+                  lookup._id["$in"].push(comment.wagoID)
+                }
               }
             })
             return cb()
           })
         }
         else {
-          if (lookup._id["$in"]) {
-            esFilter.push({ids: { type: "_doc", values: lookup._id["$in"] } })
-          }
           return cb()
         }
       }
@@ -395,7 +392,7 @@ server.get('/search', (req, res, skipSearch) => {
         return cb()
       }
     },
-
+    
 
   ], () => {
     // any actual search terms?
@@ -460,6 +457,18 @@ server.get('/search', (req, res, skipSearch) => {
     }
       
     var runSearch = new Promise((resolve, reject) => {
+      if (lookup.priority && page === 0) {
+        resultsPerPage = 100 // show all priority results at once - should rarely be over the standard 20 anyway.
+        esFilter.push({simple_query_string: {query: lookup.priority.join(' '), fields: ["_id"] }})
+      }
+      else if (lookup.priority && lookup._id && lookup._id["$in"]) {
+        page-- // show first page of non priority results
+        esFilter.push({simple_query_string: {query: lookup._id["$in"].join(' '), fields: ["_id"] }})
+      }
+      else if (lookup._id && lookup._id["$in"]) {
+        esFilter.push({simple_query_string: {query: lookup._id["$in"].join(' '), fields: ["_id"] }})
+        // esFilter.push({ids: { type: "_doc", values: lookup._id["$in"] } }) 
+      }
       WagoItem.esSearch({
         query: {
           bool: {
@@ -473,6 +482,9 @@ server.get('/search', (req, res, skipSearch) => {
           reject(err)
         }
         else {
+          if (!lookup.priority && page === 0) {
+            results.meta = { forceNextPage: true }
+          }
           resolve(results)
         }
       })
@@ -492,9 +504,10 @@ server.get('/search', (req, res, skipSearch) => {
       if (docs.hits && docs.hits.hits) {
         Search.total = docs.hits.total
         Search.results = docs.hits.hits
+        Search.meta = docs.meta
       }
       else {      
-        Search.results = docs // Array.apply(null, Array(docs.length)).map(function () {})
+        Search.results = docs
       }
 
 
