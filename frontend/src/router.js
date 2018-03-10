@@ -112,7 +112,7 @@ export default {
     { path: '/snippets/:c1/:c2/:c3', component: Search, props: (route) => ({ contextSearch: 'Type: Snippet' + GetContextTag(route.params) }) },
     { path: '/snippets/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ contextSearch: 'Type: Snippet' + GetContextTag(route.params) }) },
 
-    { path: '/p/:profile', component: ViewProfile, props: true },
+    { path: '/p/:profile', component: ViewProfile, props: (route) => ({ contextSearch: 'User: ' + route.params.profile }) },
     { path: '/my/stars', component: Search, props: (route) => ({ contextSearch: 'Starred: True' }) },
     { path: '/my/mentions', component: Search, props: (route) => ({ contextSearch: 'Alert: True' }) },
 

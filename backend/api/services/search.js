@@ -139,8 +139,7 @@ server.get('/search', (req, res, skipSearch) => {
           query = query.replace(userMatch[0], '').replace(/\s{2,}/, ' ').trim()
           User.findOne({ "search.username": (userMatch[1] || userMatch[2]).toLowerCase() }).then((user) => {
             if (user) {
-              lookup._userId = lookup._userId || {"$in": []}
-              lookup._userId["$in"].push(user._id)
+              lookup._userId = user._id
               esFilter.push({term: { _userId: user._id } })
 
               Search.query.context.push({
@@ -415,24 +414,22 @@ server.get('/search', (req, res, skipSearch) => {
     esFilter.push({term: { deleted: false } })
     
     var esShould = []
-    if (req.user && !allowHidden) {
-      lookup['$or'] = [{ '_userId': req.user._id }, { private: false, hidden: false }]
+    if (req.user && lookup._userId && req.user._id.equals(lookup._userId)) {
+      // no additional filters needed
+    }
+    else if (req.user && !allowHidden) {
       esShould.push({term: { _userId: req.user._id } })
       esShould.push({bool: {filter: [{ term: { private: false } }, { term: { hidden: false } }] } })
     }
     else if (req.user) {
-      lookup['$or'] = [{ '_userId': req.user._id }, { private: false }]
       esShould.push({term: { _userId: req.user._id } })
       esShould.push({term: { private: false } })
     }
     else if (!allowHidden) {
-      lookup['private'] = false
-      lookup['hidden'] = false
       esFilter.push({term: { private: false } })
       esFilter.push({term: { hidden: false } })
     }
     else {      
-      lookup['private'] = false
       esFilter.push({term: { private: false } })
     }
 
