@@ -219,6 +219,10 @@ export default {
         }
 
         this.isSearching = false
+
+        if (vue.results.total < 20 && vue.results.meta.forceNextPage) {
+          this.searchMore()
+        }
       })
     },
     setSearch: function (val) {
@@ -234,6 +238,29 @@ export default {
         this.uiRelevanceValue = true
         this.runSearch()
       }
+    },
+    searchMore: function () {
+      var vue = this
+      vue.isSearchingMore = true
+
+      // setup query
+      var params = { q: vue.results.query.q, sort: vue.results.query.sort, page: vue.results.query.page + 1 }
+      // run search
+      vue.http.get('/search', params).then((res) => {
+        for (var i = 0; i < res.results.length; i++) {
+          res.results[i].categories = res.results[i].categories.map((cat) => {
+            return Categories.match(cat, vue.$t)
+          })
+        }
+
+        // merge data
+        var merged = vue.results.results.concat(res.results)
+        vue.$set(vue.results, 'query', res.query)
+        vue.$set(vue.results, 'results', merged)
+        vue.$set(vue.results, 'meta', res.meta)
+
+        vue.isSearchingMore = false
+      })
     }
   },
   mounted: function () {
@@ -249,26 +276,7 @@ export default {
     document.addEventListener('scroll', function (event) {
       if (vue.results && vue.results.total && ((vue.results.results && vue.results.total > vue.results.results.length) || (vue.results.meta && vue.results.meta.forceNextPage)) && !vue.isSearching && !vue.isSearchingMore) {
         if (document.body.scrollHeight - 600 <= document.body.scrollTop + window.innerHeight || document.body.scrollHeight - 600 <= document.documentElement.scrollTop + window.innerHeight) {
-          vue.isSearchingMore = true
-
-          // setup query
-          var params = { q: vue.results.query.q, sort: vue.results.query.sort, page: vue.results.query.page + 1 }
-          // run search
-          vue.http.get('/search', params).then((res) => {
-            for (var i = 0; i < res.results.length; i++) {
-              res.results[i].categories = res.results[i].categories.map((cat) => {
-                return Categories.match(cat, vue.$t)
-              })
-            }
-
-            // merge data
-            var merged = vue.results.results.concat(res.results)
-            vue.$set(vue.results, 'query', res.query)
-            vue.$set(vue.results, 'results', merged)
-            vue.$set(vue.results, 'meta', res.meta)
-
-            vue.isSearchingMore = false
-          })
+          vue.searchMore()
         }
       }
     })
