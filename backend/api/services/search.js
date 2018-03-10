@@ -429,7 +429,11 @@ server.get('/search', (req, res, skipSearch) => {
       esFilter.push({term: { private: false } })
     }
 
-    // search wago for all of our criteria
+    // search wago for all of our criteria    
+    if (esShould.length > 0) {
+      // should = array of OR, add to filter
+      esFilter.push({bool: {should: esShould}})
+    }
     if (esQuery) {
       esQuery = [
         {
@@ -441,12 +445,12 @@ server.get('/search', (req, res, skipSearch) => {
         }
       ]
     }
+    else if (esFilter) {
+      esQuery = esFilter
+      esFilter = []
+    }
     else {
       esQuery = { match_all: {} }
-    } 
-    if (esShould.length > 0) {
-      // should = array of OR, add to filter
-      esFilter.push({bool: {should: esShould}})
     }
       
     var runSearch = new Promise((resolve, reject) => {
