@@ -75,6 +75,7 @@ export default {
   watch: {
     '$route' (to, from) {
       this.searchString = ''
+      this.contextSearchData = this.contextSearch
       this.runSearch(false)
     }
   },
