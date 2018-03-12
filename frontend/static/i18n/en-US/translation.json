@@ -403,5 +403,7 @@
   "A more recent version of this import is available view the latest version [-url-]": "A more recent version of this import is available. <a href=\"[-url-]\" class=\"vr\">View the latest version</a>.",
   "Download tga file": "Download .tga file",
   "Code Review": "Code Review",
-  "Browse TotalRP imports": ""
+  "Browse TotalRP imports": "",
+  "Best Match": "",
+  "My mentions": ""
 }

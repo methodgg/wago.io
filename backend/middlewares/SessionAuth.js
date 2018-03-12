@@ -20,8 +20,8 @@ module.exports = function(req, res, next) {
         // if session is expired or flagged as requiring a fresh login
         if (!session || session.requireLogin || session.expires < +new Date()) {
           console.log('sid not found')
-          return res.send({error: 'session_expired', requireLogin: true})
-          // return next()
+          // return res.send({error: 'session_expired', requireLogin: true})
+          return next()
         }
 
         // if session is found then lookup user and set req.user
@@ -54,8 +54,8 @@ module.exports = function(req, res, next) {
             })
           }
           else {
-            return res.send({error: 'session_expired', requireLogin: true})
-            // return next()
+            // return res.send({error: 'session_expired', requireLogin: true})
+            return next()
           }
         })
       })

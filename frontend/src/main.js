@@ -351,7 +351,14 @@ const http = {
 
         // ajax away!
         return fetch(url, this.config()).then((res) => {
+          this.interceptHeaders(res)
           return res.json()
+        }).then((json) => {
+          this.interceptJSON(json)
+          return json
+        }).catch((err) => {
+          console.log(err)
+          window.eventHub.$emit('showSnackBar', i18next.t('Error could not reach data server'))
         })
       },
       post: function (url, params) {
@@ -414,13 +421,13 @@ const http = {
       interceptJSON: function (json) {
         if (json.login && json.token && json.user) {
           window.setCookie('token', json.token, 365)
-          Vue.axios.defaults.headers = { 'x-auth-token': json.token }
           store.commit('setUser', json.user)
           router.replace(store.loginRedirect || '/account')
         }
-        else if (json.error === 'session_expired') {
+        else {
+          // session expired or no session at all, clear cookies
           window.clearCookie('token')
-          Vue.axios.defaults.headers = { 'x-auth-token': '' }
+          window.clearCookie('theme')
         }
       }
     }
