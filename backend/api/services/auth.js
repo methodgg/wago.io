@@ -433,7 +433,6 @@ function patreonAuth(req, res) {
         }
       })
       .then((userResponse) => {
-        console.log(userResponse)
         oAuthLogin(req, res, 'patreon', userResponse.data)
       })
       .catch(function (err) {
@@ -556,7 +555,7 @@ function oAuthLogin(req, res, provider, authUser) {
     try {
       profile = {
         id: authUser.data.id,
-        name: authUser.data.attributes.vanity
+        name: authUser.data.attributes.vanity || authUser.data.attributes.first_name
       }
       avatarURL = authUser.data.attributes.thumb_url
       if (authUser.data.relationships.pledges.data.length>0 && authUser.data.relationships.pledges.data[0].attributes) {
@@ -629,8 +628,6 @@ function oAuthLogin(req, res, provider, authUser) {
       } 
       else {
         user = new User()
-        user.account.username = newAcctName
-        user.search.username = newAcctName.toLowerCase()
       }
       image.avatarFromURL(avatarURL, user._id.toString(), provider, (img) => {
         if (!img.error) {
@@ -658,11 +655,14 @@ function oAuthLogin(req, res, provider, authUser) {
         else {
           // if brand new user, check if we can use the username
           User.findByUsername(newAcctName).then((testUser) => {
-            // if username exists then assign random name
-            if (!user.account.username && testUser) {
+            // if username exists then assign unique name
+            if (testUser) {
               user.account.username = newAcctName + user._id.toString()
-              user.search.username = user.account.username.toLowerCase()
             }
+            else {
+              user.account.username = newAcctName
+            }
+            user.search.username = user.account.username.toLowerCase()
 
             user.save().then((newuser) => {
               var who = {}

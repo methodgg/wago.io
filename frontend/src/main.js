@@ -424,10 +424,11 @@ const http = {
           store.commit('setUser', json.user)
           router.replace(store.loginRedirect || '/account')
         }
-        else {
+        else if (json.guest === true) {
           // session expired or no session at all, clear cookies
           window.clearCookie('token')
           window.clearCookie('theme')
+          Vue.axios.defaults.headers = { }
         }
       }
     }
