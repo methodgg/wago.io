@@ -512,7 +512,7 @@ server.get('/search', (req, res, skipSearch) => {
       // for each found result...
       async.forEachOf(Search.results, function (wago, async_key, next) {
         if (!wago || !wago.name) {
-          return next
+          return next()
         }
         // setup return object
         var item = {}
