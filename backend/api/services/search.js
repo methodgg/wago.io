@@ -511,7 +511,8 @@ server.get('/search', (req, res, skipSearch) => {
 
       // for each found result...
       async.forEachOf(Search.results, function (wago, async_key, next) {
-        if (!wago || !wago.name) {
+        if (!wago) {
+          delete Search.results[async_key]
           return next()
         }
         // setup return object
