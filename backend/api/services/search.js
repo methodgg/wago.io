@@ -149,7 +149,7 @@ server.get('/search', (req, res, skipSearch) => {
                 user: {
                   url: user.profile.url,
                   roleClass: user.roleClass,
-                  name: user.profile.name
+                  name: user.account.username || 'User-' + user._id.toString()
                 }
               })
             }
@@ -511,7 +511,7 @@ server.get('/search', (req, res, skipSearch) => {
 
       // for each found result...
       async.forEachOf(Search.results, function (wago, async_key, next) {
-        if (!wago.name) {
+        if (!wago || !wago.name) {
           return next
         }
         // setup return object
