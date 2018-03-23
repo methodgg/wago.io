@@ -88,7 +88,7 @@
 
     <footer>
       <div class='legal fleft'>
-        <span>&copy; 2017 Wago.io</span>
+        <span>&copy; 2018 Wago.io</span>
         <span><router-link to="/terms-of-service">{{ $t("Terms of Service") }}</router-link></span>
         <span><router-link to="/privacy-policy">{{ $t("Privacy Policy") }}</router-link></span>
       </div>
