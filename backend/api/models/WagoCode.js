@@ -7,8 +7,9 @@ const Schema = new mongoose.Schema({
   json : String,
   updated : { type: Date, default: Date.now },
   lua : { type: String },
-  version: Number,
-  build: String,
+  version: Number, // incremental counter
+  branch: String, // ex "8.0-beta", default is not set for live
+  semver: String,
   changelog: String
 });
 // compound text index

@@ -24,6 +24,7 @@ const Schema = new mongoose.Schema({
   last_comment : { type: Date, index: true },
   display_date : String,
   wow_patch : String,
+  supports_patch: String,
   batch_import : String,
 
   hidden : { type: Boolean, default: false, index: true, es_indexed: true },
