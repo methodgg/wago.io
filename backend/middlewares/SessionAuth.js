@@ -15,11 +15,10 @@ module.exports = function(req, res, next) {
   // verify the token and set req.user
   jwt.verify(userToken, config.jwtSecret, function(err, token) {
     if (!err && token) {
-      var SID = token.$__._id
+      var SID = token._id
       UserSessions.findById(SID).then(function(session) {
         // if session is expired or flagged as requiring a fresh login
         if (!session || session.requireLogin || session.expires < +new Date()) {
-          console.log('sid not found')
           // return res.send({error: 'session_expired', requireLogin: true})
           return next()
         }
@@ -28,7 +27,7 @@ module.exports = function(req, res, next) {
         User.findById(session.UID).then(function(doc) {
           if (doc) {
             req.user = doc
-            req.user.SID = session.$__._id
+            req.user.SID = session._id
             req.user.admin = doc.roles.admin || doc.roles.super_admin
 
             async.parallel({

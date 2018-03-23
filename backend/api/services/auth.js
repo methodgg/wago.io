@@ -56,6 +56,9 @@ function makeSession(req, res, token, user) {
   // sign and return token
   if (promise) {
     promise.then(function(doc) {
+      // drop prototypes so we are A-OK for JWT
+      console.log(doc)
+      doc = JSON.parse(JSON.stringify(doc))
       var token = jwt.sign(doc, config.jwtSecret, function(err, token) {
         if (!err && token) {
           var who = {}
@@ -111,10 +114,12 @@ function makeSession(req, res, token, user) {
           })
         }
         else {
+          console.log(err, doc)
           res.send(500, {error: "server_error"})
         }
       })
     }).catch(e => {
+      console.error(e)
       return res.send(403, {error: 'unknown_user'})
     })
   }
