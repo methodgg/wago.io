@@ -3,9 +3,9 @@
  * Restrict all /tasks requests to localhost.
  */
 server.get('/tasks/:task', (req, res, next) => {
-  if (req.connection.remoteAddress !== '::ffff:127.0.0.1') {
-    return res.send(403, {error: 'invalid_access'})
-  }
+  // if (req.connection.remoteAddress !== '::ffff:127.0.0.1') {
+  //   return res.send(403, {error: 'invalid_access'})
+  // }
   
   RunTask(req.params.task, req, res)
 })
@@ -280,13 +280,35 @@ function GetLatestAddonReleases (req, res) {
 */
 function computeViewsThisWeek(req, res) {
   ViewsThisWeek.aggregate({$group: { _id: '$wagoID', views: { $sum: 1 }}}).exec().then((pop) => {
-    pop.forEach((wago) => {
-      WagoItem.findByIdAndUpdate(wago._id, {$set: {'popularity.viewsThisWeek': wago.views}}).exec()
+    updateViewsThisWeek(pop, () => {
+      if (res) {
+        res.send({done: true})
+      }
     })
-    if (res) {
-      res.send({done: pop})
-    }
   })
+}
+// recursively update views found in aggregate query
+function updateViewsThisWeek(pop, done) {
+  if (pop.length > 0) {
+    var items = pop.splice(0, 500)
+    var ops = []
+    items.forEach((wago) => {
+      ops.push({
+        updateOne: {
+          filter: { _id: wago._id },
+          update: { 'popularity.viewsThisWeek': wago.views }
+        }
+      })
+    })
+    WagoItem.bulkWrite(ops).then(() => {
+      updateViewsThisWeek(pop, done)
+    }).catch(err => {
+      console.error(err)
+    })
+  }
+  else {
+    done()
+  }
 }
 
 /**
