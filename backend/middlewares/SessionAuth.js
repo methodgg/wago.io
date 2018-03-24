@@ -14,8 +14,15 @@ module.exports = function(req, res, next) {
   }
   // verify the token and set req.user
   jwt.verify(userToken, config.jwtSecret, function(err, token) {
-    if (!err && token && token.$__ && token.$__.id) {
-      var SID = token.$__.id
+    var SID
+    // not entirely sure why this changes?
+    if (token && token.$__ && token.$__.id) {
+      SID = token.$__.id
+    }
+    else if (token && token._id) {
+      SID = token._id
+    }
+    if (!err && SID) {
       UserSessions.findById(SID).then(function(session) {
         // if session is expired or flagged as requiring a fresh login
         if (!session || session.requireLogin || session.expires < +new Date()) {
