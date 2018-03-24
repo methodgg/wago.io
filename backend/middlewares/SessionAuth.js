@@ -60,7 +60,7 @@ module.exports = function(req, res, next) {
       })
     }
     else {
-      // console.log('token err', err, token)
+      console.log('token err', err, token)
       next()
     }
   })    
