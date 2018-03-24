@@ -11,7 +11,7 @@
       <md-layout>
         <ui-loading v-if="isSearching"></ui-loading>
         <div v-else-if="!isSearching && results.total > 0">
-          <div class="searchResult" template v-for="(result, index) in results.results" v-bind:key="index">
+          <div class="searchResult" template v-for="(result, index) in results.results" v-bind:key="index" v-if="result">
             <div class="searchImg">
               <md-image :md-src="result.thumbnail" v-if="result.thumbnail"></md-image>
             </div>
@@ -208,9 +208,11 @@ export default {
 
       vue.http.get('/search', params).then((res) => {
         for (var i = 0; i < res.results.length; i++) {
-          res.results[i].categories = res.results[i].categories.map((cat) => {
-            return Categories.match(cat, vue.$t)
-          })
+          if (res.results[i] && typeof res.results[i] === 'object') {
+            res.results[i].categories = res.results[i].categories.map((cat) => {
+              return Categories.match(cat, vue.$t)
+            })
+          }
         }
 
         vue.$set(vue.results, 'total', res.total)
@@ -253,9 +255,11 @@ export default {
       // run search
       vue.http.get('/search', params).then((res) => {
         for (var i = 0; i < res.results.length; i++) {
-          res.results[i].categories = res.results[i].categories.map((cat) => {
-            return Categories.match(cat, vue.$t)
-          })
+          if (res.results[i] && typeof res.results[i] === 'object') {
+            res.results[i].categories = res.results[i].categories.map((cat) => {
+              return Categories.match(cat, vue.$t)
+            })
+          }
         }
 
         // merge data
