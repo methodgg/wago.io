@@ -504,7 +504,7 @@ server.get('/search', (req, res, skipSearch) => {
       }
 
       Search.meta = {}
-      if (lookup.priority && search.total < 20) {
+      if (lookup.priority && Search.total < 20) {
         Search.meta.forceNextPage = true
       }
 

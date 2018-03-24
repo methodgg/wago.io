@@ -19,6 +19,9 @@ module.exports = function(req, res, next) {
     if (token && token.$__ && token.$__.id) {
       SID = token.$__.id
     }
+    else if (token && token._doc && token._doc._id) {
+      SID = token._doc._id
+    }
     else if (token && token._id) {
       SID = token._id
     }
