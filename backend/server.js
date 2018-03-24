@@ -65,6 +65,16 @@ server.use(require('./middlewares/defaults')) // set default vars
 server.use(require('./middlewares/SessionAuth')) // set req.user
 
 /**
+ * Datadog
+ */
+const dd_options = {
+  'response_code':true,
+  'tags': ['app:wago']
+}
+const connect_datadog = require('connect-datadog')(dd_options);
+server.use(connect_datadog);
+
+/**
  * Service requests
  */
 require('./api/services/account')
