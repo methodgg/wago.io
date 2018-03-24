@@ -8,7 +8,7 @@ server.get('/search', (req, res, skipSearch) => {
   var esQuery = false
 
   // set constants
-  const resultsPerPage = 20 // TODO: make this a global config
+  var resultsPerPage = 20 // TODO: make this a global config
 
   // setup return object
   var Search = {}

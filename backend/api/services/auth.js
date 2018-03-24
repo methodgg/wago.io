@@ -57,7 +57,6 @@ function makeSession(req, res, token, user) {
   if (promise) {
     promise.then(function(doc) {
       // drop prototypes so we are A-OK for JWT
-      console.log(doc)
       doc = JSON.parse(JSON.stringify(doc))
       var token = jwt.sign(doc, config.jwtSecret, function(err, token) {
         if (!err && token) {
