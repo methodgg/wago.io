@@ -474,6 +474,19 @@ module.exports = {
     })
     return selected
   },
+
+  getClones: function(id) {
+    var cats = this.categories(false)
+    var base = this.getCategory(id)[0]
+    var clones = []
+
+    cats.forEach((cat) => {
+      if (cat.text === base.text && cat.id !== base.id) {
+        clones.push(cat.id)
+      }
+    })
+    return clones
+  },
   
   getRoot: function (cat) {
     var cats = this.categories()

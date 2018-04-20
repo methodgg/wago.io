@@ -181,13 +181,19 @@ server.get('/search', (req, res, skipSearch) => {
           tags.forEach((thisTag) => {
             lookup.categories = lookup.categories || {"$all": []}
             lookup.categories["$all"].push(thisTag)
-            esFilter.push({match_phrase: { categories: thisTag.replace(/-/g, ' ') } })
+            esTags = [{ term: { categories: thisTag } }]
 
             Search.query.context.push({
               query: tagMatch[0],
               type: 'tag',
               tag: thisTag
             })
+
+            global.Categories.getClones(thisTag).forEach((clone) => {
+              lookup.categories["$all"].push(clone)
+              esTags.push({ term: { categories: clone } })
+            })
+            esFilter.push({bool: { should: esTags } })
           })
 
           // if there is only one tag or one set of related tags then we can show other related tags
