@@ -71,7 +71,7 @@ export default {
             }
           }
         }
-        else if (!values[0].systemtag) {
+        else if (!values[0].systemtag && !values[0].noselect) {
           this.categoryOptions = Categories.getChildren(values[values.length - 1], this.type, this.$t)
         }
       }

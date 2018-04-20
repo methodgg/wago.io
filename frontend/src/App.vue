@@ -70,6 +70,7 @@
         <a class='vr md-button md-theme-default' href='/elvui'>ElvUI</a>
         <a class='vr md-button md-theme-default' href='/vuhdo'>Vuhdo</a>
         <a class='vr md-button md-theme-default' href='/totalrp'>Total RP</a>
+        <a class='vr md-button md-theme-default' href='/mdt'>MDT</a>
         <a class='vr md-button md-theme-default' href='/collections'>{{ $t("Collections") }}</a>
       </div>
       <div id="hr-nav" class="md-hide-xsmall">

@@ -29,7 +29,7 @@
           <md-list-item v-if="context.type === 'type'" v-bind:key="index">
             <md-avatar class='square'><category-image :group="'t-' + context.wagoType.toLowerCase()"></category-image></md-avatar>
             <div class="md-list-text-container">
-              <span>{{ context.wagoType }}</span>
+              <span>{{ getLabel(context.wagoType) }}</span>
               <md-subheader>{{ context.query }}</md-subheader>
             </div>
           </md-list-item>
@@ -133,6 +133,12 @@ export default {
   methods: {
     getCategory: function (catID) {
       return Categories.match(catID, this.$t)
+    },
+    getLabel: function (v) {
+      switch (v) {
+        case 'MDT': return 'Method Dungeon Tools'
+        default: return v
+      }
     }
   }
 }

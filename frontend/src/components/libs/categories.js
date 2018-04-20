@@ -262,6 +262,31 @@ module.exports = {
       {id: "gen4", slug: "development/wa-training", cls:"development", text: t("WA Training"), WEAKAURA: true, COLLECTION: true},
       {id: "beta2", slug: "development/legion-ptr7.2", cls:"development", text: t("Legion 7.2 PTR"), noselect: true, "systemtag": true, WEAKAURA: true},
 
+      {id: "mdtdun", slug: "dungeons", cls:"dungeon", text: t("Dungeons"), root: true, MDT: true, systemtag: true, noselect: true},
+      {id: "mdtdun1", slug: "dungeons/blackrook-hold", cls:"dungeon", text: t("warcraft:zones.7805"), MDT: true, systemtag: true, noselect: true},
+      {id: "mdtdun2", slug: "dungeons/cathedral-of-eternal-night", cls:"dungeon", text: t("warcraft:zones.8527"), MDT: true, systemtag: true, noselect: true},
+      {id: "mdtdun3", slug: "dungeons/court-of-stars", cls:"dungeon", text: t("warcraft:zones.8079"), MDT: true, systemtag: true, noselect: true},
+      {id: "mdtdun4", slug: "dungeons/darkheart-thicket", cls:"dungeon", text: t("warcraft:zones.7673"), MDT: true, systemtag: true, noselect: true},
+      {id: "mdtdun5", slug: "dungeons/eye-of-azshara", cls:"dungeon", text: t("warcraft:zones.8040"), MDT: true, systemtag: true, noselect: true},
+      {id: "mdtdun6", slug: "dungeons/halls-of-valor", cls:"dungeon", text: t("warcraft:zones.7672"), MDT: true, systemtag: true, noselect: true},
+      {id: "mdtdun7", slug: "dungeons/maw-of-souls", cls:"dungeon", text: t("warcraft:zones.7812"), MDT: true, systemtag: true, noselect: true},
+      {id: "mdtdun8", slug: "dungeons/neltharions-lair", cls:"dungeon", text: t("warcraft:zones.7546"), MDT: true, systemtag: true, noselect: true},
+      {id: "mdtdun9", slug: "dungeons/return-to-karazhan-lower", cls:"dungeon", text: t("warcraft:zones.8443-lower"), MDT: true, systemtag: true, noselect: true},
+      {id: "mdtdun10", slug: "dungeons/return-to-karazhan-upper", cls:"dungeon", text: t("warcraft:zones.8443-upper"), MDT: true, systemtag: true, noselect: true},
+      {id: "mdtdun11", slug: "dungeons/seat-of-the-triumvirate", cls:"dungeon", text: t("warcraft:zones.8910"), MDT: true, systemtag: true, noselect: true},
+      {id: "mdtdun12", slug: "dungeons/the-arcway", cls:"dungeon", text: t("warcraft:zones.7855"), MDT: true, systemtag: true, noselect: true},
+      {id: "mdtdun13", slug: "dungeons/vault-of-the-wardens", cls:"dungeon", text: t("warcraft:zones.7787"), MDT: true, systemtag: true, noselect: true},
+
+      {id: "mdtaffix", slug: "affixes", cls:"affixes", text: t("Affixes"), root: true, MDT: true, systemtag: true, noselect: true},
+      {id: "mdtaffix1", slug: "affixes/fortified", cls:"affixes", text: t("Fortified"), MDT: true, systemtag: true, noselect: true},
+      {id: "mdtaffix2", slug: "affixes/tyrannical", cls:"affixes", text: t("Tyrannical"), MDT: true, systemtag: true, noselect: true},
+      {id: "mdtaffix3", slug: "affixes/teeming", cls:"affixes", text: t("Teeming"), MDT: true, systemtag: true, noselect: true},
+
+      {id: "mdtspeed", slug: "speed", cls:"speed", text: t("Easy Going"), root: true, MDT: true, noselect: true },
+      {id: "mdtspeed1", slug: "speed/easy-going", cls:"speed", text: t("Easy Going"), root: true, MDT: true },
+      {id: "mdtspeed2", slug: "speed/gotta-go-fast", cls:"speed", text: t("Gotta Go Fast"), root: true, MDT: true },
+      {id: "mdtspeed3", slug: "speed/ludacris", cls:"speed", text: t("Ludacris Speed"), root: true, MDT: true },
+
       {id: "snip0", slug: "snippets", cls:"snippets", text: t("Code Snippets"), root: true, "LUA SNIPPET": true, COLLECTION: true},
       {id: "snip1", slug: "snippets/libraries", cls:"snippets", text: t("Libraries"), "LUA SNIPPET": true, COLLECTION: true},
       {id: "snip2", slug: "snippets/tutorials", cls:"snippets", text: t("Tutorials"), "LUA SNIPPET": true, COLLECTION: true},
@@ -362,7 +387,7 @@ module.exports = {
   rootCategories: function (t, type) {
     var roots = []
     this.categories(t).forEach((cat) => {
-      if (cat.root && (!type || cat[type])) {
+      if (cat.root && (!type || cat[type]) && !cat.noselect) {
         roots.push(cat)
       }
     })

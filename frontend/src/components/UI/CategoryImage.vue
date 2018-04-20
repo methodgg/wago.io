@@ -26,6 +26,8 @@
     <img src="./../../assets/menu-gathering.png" v-if="group === 'prof-gathering'"/>
     <img src="./../../assets/menu-crafting.png" v-else-if="group === 'prof-crafting'"/>
     <img src="./../../assets/menu-secondaryprof.png" v-else-if="group === 'prof-secondary'"/>
+    <img src="./../../assets/menu-affixes.png" v-else-if="group === 'affixes'"/>
+    <img src="./../../assets/menu-speed.png" v-else-if="group === 'speed'"/>
     <img src="./../../assets/menu-development.png" v-else-if="group === 'development'"/>
     <img src="./../../assets/menu-snippets.png" v-else-if="group === 'snippets'"/>
     <img src="./../../assets/menu-trialofvalor.png" v-else-if="group === 'trialofvalor'"/>
@@ -37,6 +39,8 @@
 
     <img src="./../../assets/weakauras.png" v-else-if="group === 't-weakaura'"/>
     <img src="./../../assets/tukui.png" v-else-if="group === 't-elvui'"/>
+    <img src="./../../assets/menu-mdt.png" v-else-if="group === 't-mdt'"/>
+    <img src="./../../assets/menu-mdt.png" v-else-if="group === 't-methoddungeontools'"/>
     <img src="./../../assets/menu-vuhdo.png" v-else-if="group === 't-vuhdo'"/>
     <img src="./../../assets/menu-trpcamp.png" v-else-if="group === 't-totalrp' || group === 't-totalrp3'"/>
   </div>

@@ -211,6 +211,33 @@ function ScanImport (req, res, next, test) {
             res.send({scan: doc._id.toString(), type: 'WeakAura', name: data.d.id, categories: categories})
           })
         }
+        else if (data && data.value && data.value.currentDungeonIdx) {
+          try {
+            scan.type = 'MDT'
+            scan.input = req.body.importString
+            scan.decoded = result.stdout
+            scan.save().then((doc) => {
+              var categories = []
+
+              if (data.text === 'Default') {
+                var tmp = global.Categories.getCategory('mdtdun' + data.value.currentDungeonIdx)
+                if (tmp && tmp[0] && tmp[0].slug) {
+                  // cheating because we dont have i8n here and we're not localizing import titles anyway
+                  tmp = tmp[0].slug.replace(/dungeons\//, '').replace(/-/g, ' ').replace(/\w\S*/g, (txt) => {
+                    return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
+                  })
+                  data.text = tmp
+                }                
+              }
+
+              res.send({scan: doc._id.toString(), type: 'MDT', name: data.text, categories: categories})
+            })
+          }
+          catch (e) {
+            console.error('MDT import error', e)
+            return res.send({error: 'invalid_import'})
+          }
+        }
         else {
           // unknown import with weakaura encoding
           return res.send({error: 'invalid_import_wa'})
@@ -490,6 +517,11 @@ server.post('/import/submit', function(req, res) {
         wago.name = req.body.name
         wago.type = scan.type
         wago.categories = []
+        if (req.body.categories && req.body.categories.length > 0) {
+          wago.categories = JSON.parse(req.body.categories).map((c) => {
+            return c.id
+          })
+        }
         
         // add system tags as necessary
         if (wago.type === 'VUHDO') {
@@ -513,11 +545,24 @@ server.post('/import/submit', function(req, res) {
             wago.categories.push('totalrp4')
           }
         }
+        else if (wago.type === 'MDT') {
+          if (json.value.currentDungeonIdx && parseInt(json.value.currentDungeonIdx) > 0 && global.Categories.getCategory('mdtdun' + json.value.currentDungeonIdx)) {
+            wago.categories.push('mdtdun' + json.value.currentDungeonIdx)
+          }
 
-        if (req.body.categories && req.body.categories.length > 2) {
-          wago.categories = JSON.parse(req.body.categories).map((c) => {
-            return c.id
-          })
+          if (json.value.currentAffix == 'fortified') {
+            wago.categories.push('mdtaffix1')
+          }
+          else if (json.value.currentAffix == 'tyrannical') {
+            wago.categories.push('mdtaffix2')
+          }
+          
+          if (json.value.teeming) {
+            wago.categories.push('mdtaffix3')
+          }
+        }
+
+        if (wago.categories.length > 0) {
           wago.categories = Categories.validateCategories(wago.categories)
           wago.relevancy = Categories.relevanceScores(wago.categories)
         }

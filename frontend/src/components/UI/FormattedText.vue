@@ -8,8 +8,12 @@ export default {
   props: ['text', 'truncate', 'plaintext'],
   methods: {
     formatText: function () {
+      // validate content
+      if (!this.text.text) {
+        return ''
+      }
       // format plaintext
-      if (this.plaintext) {
+      else if (this.plaintext) {
         var plaintext = this.text.text.replace(/\[\/?(?:b|center|code|color|face|font|i|justify|large|left|li|noparse|ol|php|quote|right|s|size|small|sub|sup|taggeduser|table|tbody|tfoot|td|th|tr|u|url|\*)*?.*?\]/g, '').replace(/\n/g, ' ')
 
         // if shortening the text

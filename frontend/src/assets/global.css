@@ -149,6 +149,14 @@
 .dungeon a, .dungeon { color: #F5A623!important}
 .multiselect .md-chip.dungeon { background-color: #F5A623!important; color: black!important }
 
+.md-chip.affixes { color: #ef2254!important; background-image: url('menu-affixes.png') }
+.affixes a, .affixes { color: #ef2254!important}
+.multiselect .md-chip.affixes { background-color: #ef2254!important; color: black!important }
+
+.md-chip.speed { color: #42bce4!important; background-image: url('menu-speed.png') }
+.speed a, .speed { color: #42bce4!important}
+.multiselect .md-chip.speed { background-color: #42bce4!important; color: black!important }
+
 /* ---- END CATEGORIES ---- */
 
 /* md fixes */
