@@ -9,7 +9,7 @@ const MenuWeakAuras = resolve => require(['@/components/core/Menu-WeakAuras.vue'
 const MenuElvUI = resolve => require(['@/components/core/Menu-ElvUI.vue'], resolve)
 const MenuVuhdo = resolve => require(['@/components/core/Menu-Vuhdo.vue'], resolve)
 const MenuTotalRP = resolve => require(['@/components/core/Menu-TotalRP.vue'], resolve)
-const MenuMDT = resolve => require(['@/components/core/Menu-MDT.vue'], resolve)
+// const MenuMDT = resolve => require(['@/components/core/Menu-MDT.vue'], resolve)
 const MenuCollections = resolve => require(['@/components/core/Menu-Collections.vue'], resolve)
 
 const TermsOfService = resolve => require(['@/components/core/TermsOfService.vue'], resolve)
@@ -51,6 +51,9 @@ function GetContextTag (params) {
   }
 
   if (slug) {
+    while (!window.i18next.t) {
+      // wait for i8next
+    }
     var cat = Categories.search(slug, window.i18next.t)
     if (cat && cat.text) {
       tag = cat.text
@@ -101,11 +104,11 @@ export default {
     { path: '/totalrp/:c1/:c2', component: Search, props: (route) => ({ contextSearch: 'Type: TotalRP' + GetContextTag(route.params) }) },
     { path: '/totalrp/:c1/:c2/:c3', component: Search, props: (route) => ({ contextSearch: 'Type: TotalRP' + GetContextTag(route.params) }) },
     { path: '/totalrp/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ contextSearch: 'Type: TotalRP' + GetContextTag(route.params) }) },
-    { path: '/mdt', component: MenuMDT },
-    { path: '/mdt/:c1', component: Search, props: (route) => ({ contextSearch: 'Type: MDT' + GetContextTag(route.params) }) },
-    { path: '/mdt/:c1/:c2', component: Search, props: (route) => ({ contextSearch: 'Type: MDT' + GetContextTag(route.params) }) },
-    { path: '/mdt/:c1/:c2/:c3', component: Search, props: (route) => ({ contextSearch: 'Type: MDT' + GetContextTag(route.params) }) },
-    { path: '/mdt/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ contextSearch: 'Type: MDT' + GetContextTag(route.params) }) },
+    // { path: '/mdt', component: MenuMDT },
+    // { path: '/mdt/:c1', component: Search, props: (route) => ({ contextSearch: 'Type: MDT' + GetContextTag(route.params) }) },
+    // { path: '/mdt/:c1/:c2', component: Search, props: (route) => ({ contextSearch: 'Type: MDT' + GetContextTag(route.params) }) },
+    // { path: '/mdt/:c1/:c2/:c3', component: Search, props: (route) => ({ contextSearch: 'Type: MDT' + GetContextTag(route.params) }) },
+    // { path: '/mdt/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ contextSearch: 'Type: MDT' + GetContextTag(route.params) }) },
     { path: '/collections', component: MenuCollections },
     { path: '/collections/:c1', component: Search, props: (route) => ({ contextSearch: 'Type: Collection' + GetContextTag(route.params) }) },
     { path: '/collections/:c1/:c2', component: Search, props: (route) => ({ contextSearch: 'Type: Collection' + GetContextTag(route.params) }) },

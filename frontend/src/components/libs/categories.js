@@ -321,11 +321,19 @@ module.exports = {
   
   // find category by searching id, localized text or url slug
   search: function (str, t) {
-    var cats = this.categories(t)
+    if (!t) {
+      t = window.i18next.t
+    }
+    var cats = this.categories(t) // search translated text
+    var _cats = this.categories() // search i8n codes
     for (var i=0; i<cats.length; i++) {
-      if (cats[i].id === str.toLowerCase().trim() || cats[i].text.toLowerCase().trim() === str.toLowerCase().trim() || cats[i].slug === str) {
+      if (cats[i].id === str.toLowerCase().trim() || cats[i].text.toLowerCase().trim() === str.toLowerCase().trim() || _cats[i].text.toLowerCase().trim() === str.toLowerCase().trim() || cats[i].slug === str) {
+        cats[i].text = t(cats[i].text)
         return cats[i]
       }
+    }
+    if (str.match(/\./) && !str.match(/warcraft:/)) {
+      return this.search('warcraft:'+str, t)
     }
     return false
   },

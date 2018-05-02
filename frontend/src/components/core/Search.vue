@@ -185,6 +185,19 @@ export default {
               tagStrMatch = tagMatch[1]
             }
             else {
+              // if i8n code found instead of translated text, then translate it
+              if (tagMatch[2].match(/\./)) {
+                var s = Categories.search(tagMatch[2])
+                if (s && s.text) {
+                  tagMatch[2] = s.text
+                  if (tagMatch[2].match(/\s/)) {
+                    this.searchString = this.searchString.replace(tagMatch[0], `tag: "${tagMatch[2]}"`)
+                  }
+                  else {
+                    this.searchString = this.searchString.replace(tagMatch[0], `tag: ${tagMatch[2]}`)
+                  }
+                }
+              }
               tagStrMatch = tagMatch[2]
             }
 
