@@ -1080,6 +1080,15 @@ function guessCategory(key) {
     case 2082: return 'raidantorus9' // Imonar the Soulhunter
     case 2088: return 'raidantorus10' // Kin'garoth
     case 2092: return 'raidantorus11' // Argus the Unmaker
+
+    case 2144: return 'raiduldir1' // Taloc
+    case 2141: return 'raiduldir2' // MOTHER
+    case 2128: return 'raiduldir3' // Fetid
+    case 2136: return 'raiduldir4' // Zek'voz
+    case 2145: return 'raiduldir5' // Zul, Reborn
+    case 2135: return 'raiduldir6' // Mythrax
+    //case ?: return 'raiduldir7' // Vectis
+    case 2122: return 'raiduldir8' // G'huun
   }
   return false
 }
