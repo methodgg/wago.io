@@ -35,6 +35,19 @@
             </div>
           </md-list-item>
         </md-list>
+
+        <md-subheader>{{ $t("Battle for Azeroth Beta") }}</md-subheader>
+        <md-list class="md-double-line md-dense">
+          <md-list-item v-for="raid in uldir" v-bind:key="raid.id" :class="raid.cls + ' md-inset'">
+            <category-image :group="raid.cls"></category-image>
+            <div class="md-list-text-container">
+              <router-link :to="'/weakauras/' + raid.slug">{{ raid.text }}</router-link>
+              <span>
+                <router-link  v-for="boss in raid.bosses" v-bind:key="boss.id" :to="'/weakauras/' + boss.slug">{{ boss.text }}</router-link>
+              </span>
+            </div>
+          </md-list-item>
+        </md-list>
       </md-layout>
       <md-layout>
         <md-subheader>{{ $t("Miscellaneous") }}</md-subheader>
@@ -173,6 +186,9 @@ export default {
     },
     raids: function () {
       return categories.raidCategories(['raidantorus', 'raidtomb', 'raidnh', 'dungeon'], this.$t)
+    },
+    uldir: function () {
+      return categories.raidCategories(['raiduldir'], this.$t)
     },
     misc: function () {
       return categories.getCategories(['gen1', 'gen7', 'gen2', 'gen6', 'gen9', 'gen10', 'gen11', 'gen12', 'gen14', 'gen13', 'gen8', 'gen15'], this.$t)

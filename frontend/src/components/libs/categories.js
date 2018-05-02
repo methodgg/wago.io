@@ -126,6 +126,16 @@ module.exports = {
 
       // {id: "pve", slug: "pve", cls:"", text: t("PvE"), noselect: true, WEAKAURA: true},
       
+      {id: "raiduldir", slug: "pve/uldir", cls:"uldir", text: t("warcraft:zones.9389"), root: true, WEAKAURA: true, COLLECTION: true},
+      {id: "raiduldir1", slug: "pve/uldir/taloc-the-corrupted", cls:"uldir", text: t("warcraft:bosses.137119"), WEAKAURA: true},
+      {id: "raiduldir2", slug: "pve/uldir/mother", cls:"uldir", text: t("warcraft:bosses.MOTHER"), WEAKAURA: true},
+      {id: "raiduldir3", slug: "pve/uldir/fetid-devourer", cls:"uldir", text: t("warcraft:bosses.133298"), WEAKAURA: true},
+      {id: "raiduldir4", slug: "pve/uldir/zekvoz-herald-of-nzoth", cls:"uldir", text: t("warcraft:bosses.ZEK"), WEAKAURA: true},
+      {id: "raiduldir5", slug: "pve/uldir/zul-reborn", cls:"uldir", text: t("warcraft:bosses.ZUL"), WEAKAURA: true},
+      {id: "raiduldir6", slug: "pve/uldir/mythrax-the-unraveler", cls:"uldir", text: t("warcraft:bosses.MYT"), WEAKAURA: true},
+      {id: "raiduldir7", slug: "pve/uldir/vectis", cls:"uldir", text: t("warcraft:bosses.VEC"), WEAKAURA: true},
+      {id: "raiduldir8", slug: "pve/uldir/ghuun", cls:"uldir", text: t("warcraft:bosses.GHU"), WEAKAURA: true},
+
       {id: "raidantorus", slug: "pve/antorus-the-burning-throne", cls:"antorus", text: t("warcraft:zones.8638"), root: true, WEAKAURA: true, COLLECTION: true},
       {id: "raidantorus1", slug: "pve/antorus-the-burning-throne/garothi-worldbreaker", cls:"antorus", text: t("warcraft:bosses.123371"), WEAKAURA: true},
       {id: "raidantorus2", slug: "pve/antorus-the-burning-throne/hounds-of-sargeras", cls:"antorus", text: t("warcraft:bosses.126915"), WEAKAURA: true},

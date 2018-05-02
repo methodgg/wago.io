@@ -25,10 +25,13 @@ export default {
   computed: {
     multiSelectValue: {
       get: function () {
-        this.setOptions(this.selectedCategories)
+        if (!this.categoryOptions) {
+          this.setOptions(this.selectedCategories)
+        }
         return this.selectedCategories
       },
       set: function (newValue) {
+        console.log('set', newValue, this.categoryOptions)
         this.setOptions(newValue)
         this.$emit('update', newValue)
         return newValue
@@ -44,6 +47,7 @@ export default {
   },
   methods: {
     setOptions (values) {
+      console.log(values)
       if (!values) {
         values = []
       }
@@ -62,6 +66,7 @@ export default {
             var valid = true
             for (var j = 0; j < values.length; j++) {
               if (children[i].id === values[j].id) {
+                console.log(children[i])
                 valid = false
                 break
               }
@@ -84,6 +89,7 @@ export default {
         this.maxSelections = values.length + 1
       }
       else {
+        console.log(this.categoryOptions.length, this.categoryOptions)
         this.maxSelections = values.length
       }
     }

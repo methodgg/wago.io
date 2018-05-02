@@ -80,7 +80,8 @@
     "8524": "Tomb of Sargeras",
     "8527": "Cathedral of Eternal Night",
     "8638": "Antorus, the Burning Throne",
-    "8910": "The Seat of the Triumvirate"
+    "8910": "The Seat of the Triumvirate",
+    "9389": "Uldir"
   },
   "bosses": {
     "76809": "Blast Furnace",
@@ -152,7 +153,15 @@
     "125075": "Varimathras",
     "122468": "The Coven of Shivarra",
     "124691": "Aggramar",
-    "124828": "Argus the Unmaker"
+    "124828": "Argus the Unmaker",
+    "137119": "Taloc the Corrupted",
+    "MOTHER": "MOTHER",
+    "133298": "Fetid Devourer",
+    "ZEK": "Zek'voz, Herald of N'zoth",
+    "ZUL": "Zul, Reborn",
+    "MYT": "Mythrax the Unraveler",
+    "VEC": "Vectis",
+    "GHU": "G'huun"
   },
   "professions": {
     "alchemy": "Alchemy",

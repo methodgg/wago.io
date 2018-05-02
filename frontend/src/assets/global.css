@@ -141,6 +141,10 @@
 .antorus a, .antorus { color: #1978aa!important}
 .multiselect .md-chip.antorus { background-color: #1978aa!important; color: black!important }
 
+.md-chip.uldir { color: #D42D20!important; background-image: url('menu-uldir.png') }
+.uldir a, .uldir { color: #D42D20!important}
+.multiselect .md-chip.uldir { background-color: #D42D20!important; color: black!important }
+
 .md-chip.hellfirecitadel { color: #689E12!important; background-image: url('menu-hellfirecitadel.png') }
 .hellfirecitadel a, .hellfirecitadel { color: #689E12!important}
 .multiselect .md-chip.hellfirecitadel { background-color: #689E12!important; color: black!important }
