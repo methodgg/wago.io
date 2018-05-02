@@ -93,7 +93,7 @@ module.exports = {
       {id: "mech5", slug: "combat-mechanics/consumables", cls:"mechanics", text: t("Consumables"), WEAKAURA: true, COLLECTION: true},
       {id: "mech6", slug: "combat-mechanics/group-buffs", cls:"mechanics", text: t("Group Buffs"), WEAKAURA: true, COLLECTION: true},
 
-      {id: "role0", slug: "class-roles", cls:"roles", text: t("Group Roles"), root: true, noselect: true, WEAKAURA: true, ELVUI: true, VUHDO: true, COLLECTION: true},
+      {id: "role0", slug: "class-roles", cls:"roles", text: t("Group Roles"), root: true, WEAKAURA: true, ELVUI: true, VUHDO: true, COLLECTION: true},
       {id: "role4", slug: "class-roles/raid-leading", cls:"roles", text: t("Raid Leading"), WEAKAURA: true, COLLECTION: true},
       {id: "role1", slug: "class-roles/damage-dealing", cls:"roles", text: t("Damage Dealing"), WEAKAURA: true, ELVUI: true, VUHDO: true, COLLECTION: true},
       {id: "role2", slug: "class-roles/healing", cls:"roles", text: t("Healing"), WEAKAURA: true, ELVUI: true, VUHDO: true, COLLECTION: true},
