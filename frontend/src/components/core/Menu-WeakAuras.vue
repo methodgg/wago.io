@@ -185,7 +185,7 @@ export default {
       return categories.classCategories(this.$t)
     },
     raids: function () {
-      return categories.raidCategories(['raidantorus', 'raidtomb', 'raidnh', 'dungeon'], this.$t)
+      return categories.raidCategories(['raidantorus', 'dungeon'], this.$t)
     },
     uldir: function () {
       return categories.raidCategories(['raiduldir'], this.$t)
@@ -215,7 +215,7 @@ export default {
       return categories.getCategories(['snip1', 'snip2'], this.$t)
     },
     legacy: function () {
-      return categories.getCategories(['raidtov', 'raiden', 'raidhfc'], this.$t)
+      return categories.getCategories(['raidtomb', 'raidnh', 'raidtov', 'raiden', 'raidhfc'], this.$t, true)
     }
   },
   mounted: function () {

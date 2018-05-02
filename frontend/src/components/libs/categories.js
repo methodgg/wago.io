@@ -468,7 +468,7 @@ module.exports = {
     return this.getCategories([id], t)
   },
  
-  getCategories: function (ids, t) {
+  getCategories: function (ids, t, doNotSortAlpha) {
     var cats = this.categories(t)
     var selected = []
     ids.forEach((c) => {
@@ -482,14 +482,16 @@ module.exports = {
       })
     })
 
-    selected.sort(function (a, b) {
-      if (a.text < b.text) {
-        return -1
-      }
-      else {
-        return 1
-      }
-    })
+    if (!doNotSortAlpha) {
+      selected.sort(function (a, b) {
+        if (a.text < b.text) {
+          return -1
+        }
+        else {
+          return 1
+        }
+      })
+    }
     return selected
   },
 
