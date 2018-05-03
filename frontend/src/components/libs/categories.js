@@ -187,6 +187,18 @@ module.exports = {
       {id: "dungeon13", slug: "pve/dungeons/seat-of-the-triumvirate", cls:"dungeon", text: t("warcraft:zones.8910"), WEAKAURA: true},
       {id: "dungeon10", slug: "pve/dungeons/vault-of-the-wardens", cls:"dungeon", text: t("warcraft:zones.7787"), WEAKAURA: true},
 
+      {id: "bfadungeon", slug: "pve/bfa-dungeons", cls:"dungeon", text: t("BFA Dungeons"), root: true, WEAKAURA: true, COLLECTION: true},
+      {id: "bfadungeon1", slug: "pve/bfa-dungeons/atal-dazar", cls:"dungeon", text: t("warcraft:zones.9028"), WEAKAURA: true},
+      {id: "bfadungeon2", slug: "pve/bfa-dungeons/freehold", cls:"dungeon", text: t("warcraft:zones.9164"), WEAKAURA: true},
+      {id: "bfadungeon3", slug: "pve/bfa-dungeons/kings-rest", cls:"dungeon", text: t("warcraft:zones.9526"), WEAKAURA: true},
+      {id: "bfadungeon4", slug: "pve/bfa-dungeons/shrine-of-the-storm", cls:"dungeon", text: t("warcraft:zones.9525"), WEAKAURA: true},
+      {id: "bfadungeon5", slug: "pve/bfa-dungeons/siege-of-boralus", cls:"dungeon", text: t("warcraft:zones.9354"), WEAKAURA: true},
+      {id: "bfadungeon6", slug: "pve/bfa-dungeons/temple-of-sethraliss", cls:"dungeon", text: t("warcraft:zones.9527"), WEAKAURA: true},
+      {id: "bfadungeon7", slug: "pve/bfa-dungeons/the-motherlode", cls:"dungeon", text: t("warcraft:zones.8064"), WEAKAURA: true},
+      {id: "bfadungeon8", slug: "pve/bfa-dungeons/the-underrot", cls:"dungeon", text: t("warcraft:zones.9391"), WEAKAURA: true},
+      {id: "bfadungeon9", slug: "pve/bfa-dungeons/tol-dagor", cls:"dungeon", text: t("warcraft:zones.9327"), WEAKAURA: true},
+      {id: "bfadungeon10", slug: "pve/bfa-dungeons/waycrest-manor", cls:"dungeon", text: t("warcraft:zones.9424"), WEAKAURA: true},
+
       {id: "pvp", slug: "pvp", cls:"pvp", text: t("PvP"), noselect: true, WEAKAURA: true},
 
       {id: "arena", slug: "pvp/arena", cls:"pvp-arena", text: t("Arena"), root: true, WEAKAURA: true, COLLECTION: true},

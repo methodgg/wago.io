@@ -48,6 +48,19 @@
             </div>
           </md-list-item>
         </md-list>
+
+        <md-list class="md-double-line md-dense">
+          <md-list-item v-for="dun in bfadun" v-bind:key="dun.id" :class="dun.cls + ' md-inset'">
+            <category-image :group="dun.cls"></category-image>
+            <div class="md-list-text-container">
+              <router-link :to="'/weakauras/' + dun.slug">{{ dun.text }}</router-link>
+              <span>
+                <router-link  v-for="boss in dun.bosses" v-bind:key="boss.id" :to="'/weakauras/' + boss.slug">{{ boss.text }}</router-link>
+              </span>
+            </div>
+          </md-list-item>
+        </md-list>
+
       </md-layout>
       <md-layout>
         <md-subheader>{{ $t("Miscellaneous") }}</md-subheader>
@@ -186,6 +199,9 @@ export default {
     },
     raids: function () {
       return categories.raidCategories(['raidantorus', 'dungeon'], this.$t)
+    },
+    bfadun: function () {
+      return categories.raidCategories(['bfadungeon'], this.$t)
     },
     uldir: function () {
       return categories.raidCategories(['raiduldir'], this.$t)
