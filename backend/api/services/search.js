@@ -420,12 +420,12 @@ server.get('/search', (req, res, skipSearch) => {
       // no additional filters needed
     }
     else if (req.user && !allowHidden) {
-      esShould.push({term: { _userId: { value: req.user._id } } })
-      esShould.push({bool: {filter: [{ term: { private: { value: false } } }, { term: { hidden: { value: false } } }] } })
+      esShould.push({term: { _userId: { value: req.user._id, boost: 0 } } })
+      esShould.push({bool: {filter: [{ term: { private: { value: false, boost: 0 } } }, { term: { hidden: { value: false, boost: 0 } } }] } })
     }
     else if (req.user) {
-      esShould.push({term: { _userId: { value: req.user._id } } })
-      esShould.push({term: { private: { value: false } } })
+      esShould.push({term: { _userId: { value: req.user._id, boost: 0 } } })
+      esShould.push({term: { private: { value: false, boost: 0 } } })
     }
     else if (!allowHidden) {
       esFilter.push({term: { private: false } })
