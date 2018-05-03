@@ -79,6 +79,8 @@ module.exports = {
       {id: "gen13", slug: "general/world-events/darkmoon-faire", cls:"misc", text: t("Darkmoon Faire"), WEAKAURA: true, COLLECTION: true},
       {id: "gen14", slug: "general/world-events/brawlers-guild", cls:"misc", text: t("Brawler's Guild"), WEAKAURA: true, COLLECTION: true},
       {id: "gen15", slug: "general/pet-battles", cls:"misc", text: t("Pet Battles"), WEAKAURA: true, COLLECTION: true},
+      {id: "gen16", slug: "general/warfronts", cls:"misc", text: t("Warfronts"), WEAKAURA: true, COLLECTION: true},
+      {id: "gen17", slug: "general/island-expeditions", cls:"misc", text: t("Island Expeditions"), WEAKAURA: true, COLLECTION: true},
       
       {id: "equip", slug: "equipment", cls:"equip", text: t("Equipment"), root: true, WEAKAURA: true, COLLECTION: true},
       {id: "legen", slug: "equipment/legendaries", cls:"equip", text: t("Legendaries"), WEAKAURA: true, COLLECTION: true},

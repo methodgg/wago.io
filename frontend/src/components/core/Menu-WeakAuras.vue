@@ -47,15 +47,22 @@
               </span>
             </div>
           </md-list-item>
-        </md-list>
 
-        <md-list class="md-double-line md-dense">
           <md-list-item v-for="dun in bfadun" v-bind:key="dun.id" :class="dun.cls + ' md-inset'">
             <category-image :group="dun.cls"></category-image>
             <div class="md-list-text-container">
-              <router-link :to="'/weakauras/' + dun.slug">{{ dun.text }}</router-link>
+              <router-link :to="'/weakauras/' + dun.slug">{{ $t("Dungeons") }}</router-link>
               <span>
                 <router-link  v-for="boss in dun.bosses" v-bind:key="boss.id" :to="'/weakauras/' + boss.slug">{{ boss.text }}</router-link>
+              </span>
+            </div>
+          </md-list-item>
+          <md-list-item class="md-inset misc">
+            <category-image group="misc"></category-image>
+            <div class="md-list-text-container">
+              <router-link to='/weakauras/other'>{{ $t("General") }}</router-link>
+              <span>
+                <router-link v-for="item in bfamisc" v-bind:key="item.id" :to="'/weakauras/' + item.slug">{{ item.text }}</router-link>
               </span>
             </div>
           </md-list-item>
@@ -208,6 +215,9 @@ export default {
     },
     misc: function () {
       return categories.getCategories(['gen1', 'gen7', 'gen2', 'gen6', 'gen9', 'gen10', 'gen11', 'gen12', 'gen14', 'gen13', 'gen8', 'gen15'], this.$t)
+    },
+    bfamisc: function () {
+      return categories.getCategories(['gen16', 'gen17'], this.$t)
     },
     roles: function () {
       return categories.getCategories(['role4', 'role1', 'role2', 'role3'], this.$t)
