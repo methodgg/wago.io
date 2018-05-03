@@ -181,7 +181,7 @@ server.get('/search', (req, res, skipSearch) => {
           tags.forEach((thisTag) => {
             lookup.categories = lookup.categories || {"$all": []}
             lookup.categories["$all"].push(thisTag)
-            esTags = [{ term: { categories: thisTag } }]
+            esTags = [{ term: { "categories.keyword": thisTag } }]
 
             Search.query.context.push({
               query: tagMatch[0],
@@ -420,12 +420,12 @@ server.get('/search', (req, res, skipSearch) => {
       // no additional filters needed
     }
     else if (req.user && !allowHidden) {
-      esShould.push({term: { _userId: { value: req.user._id, boost: 0 } } })
-      esShould.push({bool: {filter: [{ term: { private: { value: false, boost: 0 } } }, { term: { hidden: { value: false, boost: 0 } } }] } })
+      esShould.push({term: { _userId: { value: req.user._id } } })
+      esShould.push({bool: {filter: [{ term: { private: { value: false } } }, { term: { hidden: { value: false } } }] } })
     }
     else if (req.user) {
-      esShould.push({term: { _userId: { value: req.user._id, boost: 0 } } })
-      esShould.push({term: { private: { value: false, boost: 0 } } })
+      esShould.push({term: { _userId: { value: req.user._id } } })
+      esShould.push({term: { private: { value: false } } })
     }
     else if (!allowHidden) {
       esFilter.push({term: { private: false } })
@@ -482,6 +482,7 @@ server.get('/search', (req, res, skipSearch) => {
       },
       { hydrate: true, sort: esSort, size: resultsPerPage, from: resultsPerPage*page}, (err, results) => {
         if (err) {
+          console.error('search err', err)
           reject(err)
         }
         else {
