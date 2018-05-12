@@ -46,6 +46,40 @@ server.post('/wago/update/name', (req, res) => {
   })
 })
 
+// update game mode
+server.post('/wago/update/gameMode', (req, res) => {
+  if (!req.user || !req.body.wagoID) {
+    return res.send(403, {error: "forbidden"})
+  }
+
+  if (req.body.mode === '' || req.body.mode === 'beta-bfa') {
+    WagoItem.findById(req.body.wagoID).then((wago) => {
+      if (!wago || !wago._userId.equals(req.user._id)) {
+        return res.send(404, {error: "no_wago"})
+      }
+
+      if (req.body.mode === '') {
+        var i = wago.categories.indexOf('beta-bfa')
+        if (i >= 0) {
+          wago.categories.splice(i, 1)
+        }
+      }
+      else if (req.body.mode === 'beta-bfa') {
+        var i = wago.categories.indexOf('beta-bfa')
+        if (i === -1) {
+          wago.categories.push('beta-bfa')
+        }
+      }
+      wago.save().then(() => {
+        res.send({success: true})
+      })
+    })
+  }
+  else {
+    res.send({success: false})
+  }
+})
+
 // update wago slug
 server.post('/wago/update/slug', (req, res) => {
   if (!req.user || !req.user.access.custom_slug || !req.body.wagoID) {

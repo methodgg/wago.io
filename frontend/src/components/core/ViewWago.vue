@@ -168,6 +168,13 @@
                     </div>
                   </div>
                 </div>
+                <div v-if="wago.type=='WEAKAURA'">
+                  <label id="betaLabel">{{ $t("Game") }}</label>
+                  <md-button-toggle md-single class="md-accent md-warn">
+                    <md-button :class="{ 'md-toggle': gameMode === '' }" @click="setGameMode('')">Legion Live</md-button>
+                    <md-button :class="{ 'md-toggle': gameMode === 'beta-bfa' }"@click="setGameMode('beta-bfa')">BFA Beta</md-button>
+                  </md-button-toggle>
+                </div>
                 <h3>{{ $t("Preview setup")}}</h3>
                 <md-layout>
                   <md-layout md-flex="75">
@@ -573,7 +580,8 @@ export default {
       newImportString: '',
       newImportStringStatus: '',
       addCollectionName: '',
-      numCategorySets: 1
+      numCategorySets: 1,
+      gameMode: ''
     }
   },
   watch: {
@@ -810,11 +818,26 @@ export default {
         this.editCategories = Categories.groupSets(res.categories)
         this.numCategorySets = this.editCategories.length
 
+        for (var i = 0; i < res.categories.length; i++) {
+          if (res.categories[i].id === 'beta-bfa') {
+            this.gameMode = 'beta-bfa'
+            break
+          }
+        }
+
         vue.$store.commit('setPageInfo', {
           title: res.name,
           description: res.description.text,
           image: res.screens && res.screens[0] && res.screens[0].src || false
         })
+      })
+    },
+    setGameMode (mode) {
+      var vue = this
+      this.gameMode = mode
+      this.http.post('/wago/update/gameMode', {
+        wagoID: vue.wago._id,
+        mode: mode
       })
     },
     MakeDefaultDescription (wago) {
