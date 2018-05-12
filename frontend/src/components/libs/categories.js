@@ -314,6 +314,8 @@ module.exports = {
       {id: "snip0", slug: "snippets", cls:"snippets", text: t("Code Snippets"), root: true, "LUA SNIPPET": true, COLLECTION: true},
       {id: "snip1", slug: "snippets/libraries", cls:"snippets", text: t("Libraries"), "LUA SNIPPET": true, COLLECTION: true},
       {id: "snip2", slug: "snippets/tutorials", cls:"snippets", text: t("Tutorials"), "LUA SNIPPET": true, COLLECTION: true},
+      
+      {id: "beta", slug: "beta/8.0", cls:"beta", text: t("Beta"), root: true, WEAKAURA: true},
     ]
     // add sortVal
     for (var i = 0; i < cats.length; i++) {
