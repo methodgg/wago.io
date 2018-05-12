@@ -314,6 +314,8 @@ module.exports = {
       {id: "snip0", slug: "snippets", cls:"snippets", text: t("Code Snippets"), root: true, "LUA SNIPPET": true, COLLECTION: true},
       {id: "snip1", slug: "snippets/libraries", cls:"snippets", text: t("Libraries"), "LUA SNIPPET": true, COLLECTION: true},
       {id: "snip2", slug: "snippets/tutorials", cls:"snippets", text: t("Tutorials"), "LUA SNIPPET": true, COLLECTION: true},
+
+      {id: "beta-bfa", slug: "beta-bfa", cls:"snippets", text: t("BFA Beta 8.0"), root: true, noselect: true, systemtag: true, WEAKAURA: true}
     ]
     // add sortVal
     for (var i = 0; i < cats.length; i++) {
@@ -432,13 +434,13 @@ module.exports = {
     for (var i = 0; i < cats.length; i++) {
       var cat = this.getCategory(cats[i])[0]
       // if not a valid category object then skip it
-      if (!cat || !cat.id || cat.systemtag) {
+      if (!cat || !cat.id) {
         continue
       }
 
       // category is valid, add both it and its root to valid[]
       valid.push(cat.id)
-      if (!cat.root) {
+      if (!cat.root && !cat.systemtag) {
         var root = this.getRoot(cat)
         if (!root.systemtag) { // to account for snippet parent
           valid.push(root.id)

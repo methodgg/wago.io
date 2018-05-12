@@ -64,7 +64,15 @@
             </div>
           </div>
 
-          <md-button class="md-raised" :disabled="disableSubmit" @click="submitImport()">Submit</md-button>
+          <div v-if="scanID && type === 'WeakAura'">
+            <label id="betaLabel">{{ $t("Game") }}</label>
+            <md-button-toggle md-single class="md-accent md-warn">
+              <md-button class="md-toggle" @click="setGameMode('')">Legion Live</md-button>
+              <md-button @click="setGameMode('beta-bfa')">BFA Beta</md-button>
+            </md-button-toggle>
+          </div>
+
+          <md-button class="md-raised" :disabled="disableSubmit" @click="submitImport()" style="margin-top:2em">Submit</md-button>
         </md-whiteframe>
 
         <div v-if="latestBlogs && latestBlogs.length > 0" id="sitenews">
@@ -243,7 +251,8 @@ export default {
       top10Lists: {},
       latestBlogs: [],
       addonReleases: [],
-      numCategorySets: 1
+      numCategorySets: 1,
+      gameMode: ''
     }
   },
   components: {
@@ -288,7 +297,8 @@ export default {
         importAs: this.importAs,
         expireAfter: this.expire,
         name: this.name,
-        categories: JSON.stringify(flatten(this.setCategories))
+        categories: JSON.stringify(flatten(this.setCategories)),
+        gameMode: this.gameMode
       }
       var vue = this
       this.http.post('/import/submit', post).then((res) => {
@@ -303,6 +313,10 @@ export default {
 
     onUpdateCategories () {
       // filters?
+    },
+
+    setGameMode (mode) {
+      this.gameMode = mode
     }
   },
   watch: {

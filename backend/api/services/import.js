@@ -562,6 +562,11 @@ server.post('/import/submit', function(req, res) {
           }
         }
 
+        // import for non-standard game
+        if (req.body.gameMode === 'beta-bfa') {
+          wago.categories.push(req.body.gameMode)
+        }
+
         if (wago.categories.length > 0) {
           wago.categories = Categories.validateCategories(wago.categories)
           wago.relevancy = Categories.relevanceScores(wago.categories)

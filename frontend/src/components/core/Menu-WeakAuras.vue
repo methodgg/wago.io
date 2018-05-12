@@ -36,7 +36,7 @@
           </md-list-item>
         </md-list>
 
-        <md-subheader>{{ $t("Battle for Azeroth Beta") }}</md-subheader>
+        <md-subheader>{{ $t("Battle for Azeroth Beta") }} <router-link style="margin-left:2em" class="snippets" :to="'/weakauras/beta-bfa'">View all beta imports</router-link></md-subheader>
         <md-list class="md-double-line md-dense">
           <md-list-item v-for="raid in uldir" v-bind:key="raid.id" :class="raid.cls + ' md-inset'">
             <category-image :group="raid.cls"></category-image>
