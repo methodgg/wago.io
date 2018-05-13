@@ -340,10 +340,11 @@ module.exports = {
     if (!t) {
       t = window.i18next.t
     }
+    console.log(str.toLowerCase().trim())
     var cats = this.categories(t) // search translated text
     var _cats = this.categories() // search i8n codes
     for (var i=0; i<cats.length; i++) {
-      if (cats[i].id === str.toLowerCase().trim() || cats[i].text.toLowerCase().trim() === str.toLowerCase().trim() || _cats[i].text.toLowerCase().trim() === str.toLowerCase().trim() || cats[i].slug === str) {
+      if (cats[i].id === str.toLowerCase().trim()|| cats[i].text.toLowerCase().trim() === str.toLowerCase().trim() || _cats[i].text.replace(/-/, ' ') === str.toLowerCase().trim() || _cats[i].text.toLowerCase().trim() === str.toLowerCase().trim() || cats[i].slug === str) {
         cats[i].text = t(cats[i].text)
         return cats[i]
       }
