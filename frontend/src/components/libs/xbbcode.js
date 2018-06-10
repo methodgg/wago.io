@@ -219,23 +219,26 @@ var XBBCODE = (function() {
                 return '</span>';
             }
         },
-        // "img": {
-        //     openTag: function(params,content) {
+        "img": {
+            openTag: function(params,content) {
+                if (!enableURLs) {
+                    return content
+                }
 
-        //         var myUrl = content;
+                var myUrl = content;
 
-        //         urlPattern.lastIndex = 0;
-        //         if ( !urlPattern.test( myUrl ) ) {
-        //             myUrl = "";
-        //         }
+                urlPattern.lastIndex = 0;
+                if ( !urlPattern.test( myUrl ) ) {
+                    myUrl = "";
+                }
 
-        //         return '<img src="' + myUrl + '" />';
-        //     },
-        //     closeTag: function(params,content) {
-        //         return '';
-        //     },
-        //     displayContent: false
-        // },
+                return '<img src="' + myUrl + '" />';
+            },
+            closeTag: function(params,content) {
+                return '';
+            },
+            displayContent: false
+        },
         "justify": {
             openTag: function(params,content) {
                 return '<span class="xbbcode-justify">';
@@ -787,6 +790,7 @@ var XBBCODE = (function() {
 
         if (config.enableURLs) {
             urlPattern = /^(?:https?|file|c):(?:\/{1,3}|\\{1})[-a-zA-Z0-9:;,@#%&()~_?\+=\/\\\.]*$/
+            enableURLs = true
         }
         // if disabled then only allow wago.io links
         else {
