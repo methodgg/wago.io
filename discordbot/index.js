@@ -1,5 +1,6 @@
 // setup discord bot
-const Eris = require("eris")
+const Eris = require('eris')
+const fs = require('fs')
 
 const config = require('../backend/config')
 var bot = new Eris(config.discordBotKey)
@@ -35,3 +36,11 @@ app.post('/sendtext', function (req, res) {
   })
 })
 
+// track discord beta key giveaway, record everyone's favorite wago
+bot.on("messageCreate", (msg) => {
+  if (msg.channel.id == '170293631448514560' && msg.content.match(/https:\/\/wago.io\/([^\s]*)/)) {
+    fs.appendFile('./contestFaves.txt', "\n"+msg.content.match(/https:\/\/wago.io\/([^\s]*)/)[1], function (err) {
+      if (err) console.error(err)
+    })
+  }
+})

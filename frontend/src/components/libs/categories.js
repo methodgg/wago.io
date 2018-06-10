@@ -67,7 +67,7 @@ module.exports = {
       {id: "cl1-2", slug: "classes/warrior/fury", cls:"cl-warrior", text: t("warcraft:classes.1-2"), WEAKAURA: true, ELVUI: true, VUHDO: true, COLLECTION: true},
       {id: "cl1-3", slug: "classes/warrior/protection", cls:"cl-warrior", text: t("warcraft:classes.1-3"), WEAKAURA: true, ELVUI: true, VUHDO: true, COLLECTION: true},
 
-      {id: "gen0", slug: "general", cls:"misc", text: t("General"), root: true, noselect: true, WEAKAURA: true, COLLECTION: true},
+      {id: "gen0", slug: "general", cls:"misc", text: t("General"), root: true, WEAKAURA: true, COLLECTION: true},
       {id: "gen7", slug: "general/achievements", cls:"misc", text: t("Achievements"), WEAKAURA: true, COLLECTION: true},
       {id: "gen2", slug: "general/questing", cls:"misc", text: t("Questing"), WEAKAURA: true, COLLECTION: true},
       {id: "gen6", slug: "general/non-combat", cls:"misc", text: t("Non-Combat"), WEAKAURA: true, COLLECTION: true},

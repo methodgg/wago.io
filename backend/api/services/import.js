@@ -847,7 +847,14 @@ function SaveWagoVersion (req, res, mode) {
     })
   }
   else if ((type=='ELVUI' || type=='VUHDO' || type=='GRID2') && json) {
-    lua.JSON2ElvUI(json, (error, result) => {
+    var encodeFunc
+    if (type=='VUHDO') {
+      encodeFunc = lua.JSON2Vuhdo
+    }
+    else if (type=='VUHDO') {
+      encodeFunc = lua.JSON2ElvUI
+    }
+    encodeFunc(json, (error, result) => {
       if (error) {
         return res.send({error: error})
       }
