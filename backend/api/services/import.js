@@ -851,8 +851,12 @@ function SaveWagoVersion (req, res, mode) {
     if (type=='VUHDO') {
       encodeFunc = lua.JSON2Vuhdo
     }
-    else if (type=='VUHDO') {
+    else if (type=='ELVUI') {
       encodeFunc = lua.JSON2ElvUI
+    }
+    else {
+      console.error('Unknown type', type)
+      return
     }
     encodeFunc(json, (error, result) => {
       if (error) {
