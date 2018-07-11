@@ -229,6 +229,15 @@ export default {
             func.push({ name: this.$t('Duration Info ([-count-])', {count: 1}), ix: ix, path: 'trigger.customDuration' })
           }
 
+          // overlay
+          if (item.trigger && item.trigger.customOverlay1 && item.trigger.customOverlay1.length > 0) {
+            var overlayCount = 1
+            while (item.trigger['customOverlay' + overlayCount] && item.trigger['customOverlay' + overlayCount].length > 0) {
+              func.push({ name: this.$t('Overlay [-num-] ([-count-])', {num: overlayCount, count: 1}), ix: ix, path: 'trigger.customOverlay' + overlayCount })
+              overlayCount++
+            }
+          }
+
           // name
           if (item.trigger && item.trigger.customName && item.trigger.customName.length > 0) {
             func.push({ name: this.$t('Name Info ([-count-])', {count: 1}), ix: ix, path: 'trigger.customName' })
