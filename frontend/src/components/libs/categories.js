@@ -174,7 +174,7 @@ module.exports = {
       {id: "raidnh9", slug: "pve/nighthold/grand-magistrix-elisande", cls:"nighthold", text: t("warcraft:bosses.110965"), WEAKAURA: true},
       {id: "raidnh10", slug: "pve/nighthold/guldan", cls:"nighthold", text: t("warcraft:bosses.105503"), WEAKAURA: true},
 
-      {id: "dungeon", slug: "pve/dungeons", cls:"dungeon", text: t("Dungeons"), root: true, WEAKAURA: true, COLLECTION: true},
+      {id: "dungeon", slug: "pve/dungeons", cls:"dungeon", text: t("Legion Dungeons"), root: true, WEAKAURA: true, COLLECTION: true},
       {id: "dungeon3", slug: "pve/dungeons/arcway", cls:"dungeon", text: t("warcraft:zones.7855"), WEAKAURA: true},
       {id: "dungeon1", slug: "pve/dungeons/assault-on-violet-hold", cls:"dungeon", text: t("warcraft:zones.7996"), WEAKAURA: true},
       {id: "dungeon4", slug: "pve/dungeons/blackrook-hold", cls:"dungeon", text: t("warcraft:zones.7805"), WEAKAURA: true},
@@ -189,7 +189,7 @@ module.exports = {
       {id: "dungeon13", slug: "pve/dungeons/seat-of-the-triumvirate", cls:"dungeon", text: t("warcraft:zones.8910"), WEAKAURA: true},
       {id: "dungeon10", slug: "pve/dungeons/vault-of-the-wardens", cls:"dungeon", text: t("warcraft:zones.7787"), WEAKAURA: true},
 
-      {id: "bfadungeon", slug: "pve/bfa-dungeons", cls:"dungeon", text: t("BFA Dungeons"), root: true, WEAKAURA: true, COLLECTION: true},
+      {id: "bfadungeon", slug: "pve/bfa-dungeons", cls:"dungeon", text: t("Dungeons"), root: true, WEAKAURA: true, COLLECTION: true},
       {id: "bfadungeon1", slug: "pve/bfa-dungeons/atal-dazar", cls:"dungeon", text: t("warcraft:zones.9028"), WEAKAURA: true},
       {id: "bfadungeon2", slug: "pve/bfa-dungeons/freehold", cls:"dungeon", text: t("warcraft:zones.9164"), WEAKAURA: true},
       {id: "bfadungeon3", slug: "pve/bfa-dungeons/kings-rest", cls:"dungeon", text: t("warcraft:zones.9526"), WEAKAURA: true},
@@ -315,7 +315,7 @@ module.exports = {
       {id: "snip1", slug: "snippets/libraries", cls:"snippets", text: t("Libraries"), "LUA SNIPPET": true, COLLECTION: true},
       {id: "snip2", slug: "snippets/tutorials", cls:"snippets", text: t("Tutorials"), "LUA SNIPPET": true, COLLECTION: true},
 
-      {id: "beta-bfa", slug: "beta-bfa", cls:"snippets", text: t("BFA Beta 8.0"), root: true, noselect: true, systemtag: true, WEAKAURA: true}
+      {id: "beta-bfa", slug: "beta-bfa", cls:"snippets", text: t("Battle for Azeroth"), root: true, noselect: true, systemtag: true, WEAKAURA: true}
     ]
     // add sortVal
     for (var i = 0; i < cats.length; i++) {

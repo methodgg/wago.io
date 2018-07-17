@@ -21,6 +21,15 @@
             <md-option value="strict">{{ $t("Strict") }}</md-option>
           </md-select>
         </md-input-container>
+        
+        <md-input-container>
+          <label for="expansion">{{ $t("Expansion Filter") }}</label>
+          <md-select name="expansion" id="expansion" v-model="expansionVal">
+            <md-option value="all">{{ $t("Search All") }}</md-option>
+            <md-option value="bfa">{{ $t("Battle for Azeroth") }}</md-option>
+            <md-option value="legion">{{ $t("Legion") }}</md-option>
+          </md-select>
+        </md-input-container>
       </div>
 
       <strong>{{ $t("Query information") }}</strong>
@@ -103,14 +112,14 @@ export default {
   components: {
     'category-image': require('../UI/CategoryImage.vue')
   },
-  props: ['meta', 'textSearch', 'tagMap', 'sort', 'catRelevance'],
+  props: ['meta', 'textSearch', 'tagMap', 'sort', 'catRelevance', 'filterExpansion'],
   computed: {
     sortVal: {
       get: function () {
         return this.sort
       },
       set: function (v) {
-        this.$emit('setSearch', v)
+        this.$emit('setSort', v)
       }
     },
     relevanceVal: {
@@ -119,6 +128,14 @@ export default {
       },
       set: function (v) {
         this.$emit('setCategoryRelevance', v)
+      }
+    },
+    expansionVal: {
+      get: function () {
+        return this.filterExpansion
+      },
+      set: function (v) {
+        this.$emit('setExpansion', v)
       }
     },
     hasCategories: function () {

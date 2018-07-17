@@ -35,8 +35,8 @@ const Schema = new mongoose.Schema({
   fork_of: String,
 
   popularity : {
-      views : { type: Number, default: 0, es_indexed: true },
-      viewsThisWeek : { type: Number, default: 0, es_indexed: true },
+      views : { type: Number, default: 0, index: true, es_indexed: true },
+      viewsThisWeek : { type: Number, default: 0, index: true, es_indexed: true },
       embeds : { type: Number, default: 0 },
       downloads : { type: Number, default: 0 },
       favorites : { type: Array, index: true, es_indexed: true },

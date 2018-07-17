@@ -71,6 +71,8 @@ function GetContextTag (params) {
   return ''
 }
 
+const defaultGame = 'bfa'
+
 export default {
   mode: 'history',
   routes: [
@@ -84,7 +86,8 @@ export default {
     { path: '/admin', component: Admin },
 
     // menus/categories
-    { path: '/weakauras', component: MenuWeakAuras },
+    { path: '/weakauras', component: MenuWeakAuras, props: (route) => ({ gameMode: defaultGame }) },
+    { path: '/weakauras/:game(legion|bfa)', component: MenuWeakAuras, props: (route) => ({ gameMode: route.game }) },
     { path: '/weakauras/:c1', component: Search, props: (route) => ({ contextSearch: 'Type: WeakAura' + GetContextTag(route.params) }) },
     { path: '/weakauras/:c1/:c2', component: Search, props: (route) => ({ contextSearch: 'Type: WeakAura' + GetContextTag(route.params) }) },
     { path: '/weakauras/:c1/:c2/:c3', component: Search, props: (route) => ({ contextSearch: 'Type: WeakAura' + GetContextTag(route.params) }) },

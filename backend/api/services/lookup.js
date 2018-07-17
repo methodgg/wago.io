@@ -42,6 +42,10 @@ server.get('/lookup/wago', (req, res, next) => {
     if (!doc) {
       return res.send(404, {error: "page_not_found"})
     }
+
+    if (doc.private && (!req.user || !req.user._id.equals(doc._userId))) {
+      return res.send(404, {error: "page_not_found"})
+    }
     
     doc.popularity.views++
     doc.popularity.viewsThisWeek++

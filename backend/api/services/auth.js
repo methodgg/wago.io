@@ -460,8 +460,11 @@ function twitterAuth(req, res) {
   })
   if (!req.body.oauth_token) {
     twitter.getRequestToken(function(err, requestToken, requestSecret) {
-      if (err)
+      if (err) {
+        console.log(err)
+        console.log(req.headers.origin + '/auth/twitter')
         res.status(500).send(err);
+      }
       else {
         twitterRequestSecrets[requestToken] = requestSecret;
         res.send({requestToken: requestToken})

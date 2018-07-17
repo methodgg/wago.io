@@ -23,7 +23,7 @@
         </md-list>
       </md-layout>
       <md-layout>
-        <md-subheader>{{ $t("Legion PvE") }}</md-subheader>
+        <md-subheader>{{ $t("Battle for Azeroth PvE") }}</md-subheader>
         <md-list class="md-double-line md-dense">
           <md-list-item v-for="raid in raids" v-bind:key="raid.id" :class="raid.cls + ' md-inset'">
             <category-image :group="raid.cls"></category-image>
@@ -35,34 +35,15 @@
             </div>
           </md-list-item>
         </md-list>
-
-        <md-subheader>{{ $t("Battle for Azeroth Beta") }} <router-link style="margin-left:2em" class="snippets" :to="'/weakauras/beta-bfa'">View all beta imports</router-link></md-subheader>
+        
+        <md-subheader>{{ $t("PvP") }}</md-subheader>
         <md-list class="md-double-line md-dense">
-          <md-list-item v-for="raid in uldir" v-bind:key="raid.id" :class="raid.cls + ' md-inset'">
-            <category-image :group="raid.cls"></category-image>
+          <md-list-item v-for="item in pvp" v-bind:key="item.id" :class="item.cls + ' md-inset'">
+            <category-image :group="item.cls"></category-image>
             <div class="md-list-text-container">
-              <router-link :to="'/weakauras/' + raid.slug">{{ raid.text }}</router-link>
+              <router-link :to="'/weakauras/' + item.slug">{{ item.text }}</router-link>
               <span>
-                <router-link  v-for="boss in raid.bosses" v-bind:key="boss.id" :to="'/weakauras/' + boss.slug">{{ boss.text }}</router-link>
-              </span>
-            </div>
-          </md-list-item>
-
-          <md-list-item v-for="dun in bfadun" v-bind:key="dun.id" :class="dun.cls + ' md-inset'">
-            <category-image :group="dun.cls"></category-image>
-            <div class="md-list-text-container">
-              <router-link :to="'/weakauras/' + dun.slug">{{ $t("Dungeons") }}</router-link>
-              <span>
-                <router-link  v-for="boss in dun.bosses" v-bind:key="boss.id" :to="'/weakauras/' + boss.slug">{{ boss.text }}</router-link>
-              </span>
-            </div>
-          </md-list-item>
-          <md-list-item class="md-inset misc">
-            <category-image group="misc"></category-image>
-            <div class="md-list-text-container">
-              <router-link to='/weakauras/other'>{{ $t("General") }}</router-link>
-              <span>
-                <router-link v-for="item in bfamisc" v-bind:key="item.id" :to="'/weakauras/' + item.slug">{{ item.text }}</router-link>
+                <router-link v-for="zone in item.bosses" v-bind:key="zone.id" :to="'/weakauras/' + zone.slug">{{ zone.text }}</router-link>
               </span>
             </div>
           </md-list-item>
@@ -128,19 +109,6 @@
 
       </md-layout>
       <md-layout>
-        <md-subheader>{{ $t("PvP") }}</md-subheader>
-        <md-list class="md-double-line md-dense">
-          <md-list-item v-for="item in pvp" v-bind:key="item.id" :class="item.cls + ' md-inset'">
-            <category-image :group="item.cls"></category-image>
-            <div class="md-list-text-container">
-              <router-link :to="'/weakauras/' + item.slug">{{ item.text }}</router-link>
-              <span>
-                <router-link v-for="zone in item.bosses" v-bind:key="zone.id" :to="'/weakauras/' + zone.slug">{{ zone.text }}</router-link>
-              </span>
-            </div>
-          </md-list-item>
-        </md-list>
-
         <md-subheader>{{ $t("Custom Code") }}</md-subheader>
         <md-list class="md-double-line md-dense">
           <md-list-item class="md-inset development">
@@ -205,19 +173,10 @@ export default {
       return categories.classCategories(this.$t)
     },
     raids: function () {
-      return categories.raidCategories(['raidantorus', 'dungeon'], this.$t)
-    },
-    bfadun: function () {
-      return categories.raidCategories(['bfadungeon'], this.$t)
-    },
-    uldir: function () {
-      return categories.raidCategories(['raiduldir'], this.$t)
+      return categories.raidCategories(['raiduldir', 'bfadungeon'], this.$t)
     },
     misc: function () {
-      return categories.getCategories(['gen1', 'gen7', 'gen2', 'gen6', 'gen9', 'gen10', 'gen11', 'gen12', 'gen14', 'gen13', 'gen8', 'gen15'], this.$t)
-    },
-    bfamisc: function () {
-      return categories.getCategories(['gen16', 'gen17'], this.$t)
+      return categories.getCategories(['gen1', 'gen7', 'gen2', 'gen6', 'gen9', 'gen10', 'gen11', 'gen12', 'gen14', 'gen13', 'gen8', 'gen15', 'gen16', 'gen17'], this.$t)
     },
     roles: function () {
       return categories.getCategories(['role4', 'role1', 'role2', 'role3'], this.$t)
@@ -241,7 +200,7 @@ export default {
       return categories.getCategories(['snip1', 'snip2'], this.$t)
     },
     legacy: function () {
-      return categories.getCategories(['raidtomb', 'raidnh', 'raidtov', 'raiden', 'raidhfc'], this.$t, true)
+      return categories.getCategories(['raidantorus', 'raidtomb', 'raidnh', 'raidtov', 'raiden', 'dungeon', 'raidhfc'], this.$t, true)
     }
   },
   mounted: function () {

@@ -64,13 +64,13 @@
             </div>
           </div>
 
-          <div v-if="scanID && type === 'WeakAura'">
+          <!--<div v-if="scanID && type === 'WeakAura'">
             <label id="betaLabel">{{ $t("Game") }}</label>
             <md-button-toggle md-single class="md-accent md-warn">
               <md-button class="md-toggle" @click="setGameMode('')">Legion Live</md-button>
               <md-button @click="setGameMode('beta-bfa')">BFA Beta</md-button>
             </md-button-toggle>
-          </div>
+          </div>-->
 
           <md-button class="md-raised" :disabled="disableSubmit" @click="submitImport()" style="margin-top:2em">Submit</md-button>
         </md-whiteframe>

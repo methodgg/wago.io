@@ -174,7 +174,7 @@ export default {
         }
       }
       else if (res.guest) {
-        this.$store.commit('setUser', { guest: true })
+        this.$store.commit('setUser', { guest: true, config: { searchOptions: { sort: 'bestmatch', relevance: 'standard', expansion: '' } } })
       }
     }).catch((err) => {
       console.log('whoami error', err)

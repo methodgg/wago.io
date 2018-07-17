@@ -38,7 +38,7 @@
       </md-layout>   
     
       <md-layout id="searchMeta" v-if="results && results.query">
-        <search-meta :meta="results.query.context" :tagMap="tagMap" :textSearch="results.query.textSearch" :sort="sortVal" @setSearch="setSearch" :catRelevance="catRelevance" @setCategoryRelevance="setCategoryRelevance"></search-meta>
+        <search-meta :meta="results.query.context" :tagMap="tagMap" :textSearch="results.query.textSearch" :sort="sortVal" @setSort="setSort" :catRelevance="catRelevance" @setCategoryRelevance="setCategoryRelevance" :filterExpansion="filterExpansion" @setExpansion="setExpansion"></search-meta>
       </md-layout>
     </md-layout>
     <p v-if="!isSearching && results.total === 0">{{ $t("No results found") }}</p>
@@ -60,10 +60,12 @@ export default {
       tagMap: {},
       isSearching: false,
       isSearchingMore: false,
-      sortVal: 'bestmatch',
+      sortVal: this.$store.state.user && this.$store.state.user.config && this.$store.state.user.config.searchOptions.sort || 'bestmatch',
       uiSearchValue: false,
-      catRelevance: 'standard',
+      catRelevance: this.$store.state.user && this.$store.state.user.config && this.$store.state.user.config.searchOptions.relevance || 'standard',
       uiRelevanceValue: false,
+      filterExpansion: this.$store.state.user && this.$store.state.user.config && this.$store.state.user.config.searchOptions.expansion || 'all',
+      uiExpansionValue: false,
       contextSearchData: this.contextSearch
     }
   },
@@ -147,25 +149,25 @@ export default {
       }
       this.uiSearchValue = false
 
-      var relevance = opt.match(/relevance:\s?(\w+)/i)
-      if (relevance && relevance[1] && !this.uiRelevanceValue) {
-        relevance[1] = relevance[1].toLowerCase()
-        if (relevance[1] === 'strict' || relevance[1] === 'relaxed') {
-          this.catRelevance = relevance[1]
-          opt = opt.replace(/relevance:\s?(-?\w+)/i, 'Relevance: ' + this.catRelevance)
+      var expansion = opt.match(/expansion:\s?(\w+)/i)
+      if (expansion && expansion[1] && !this.uiExpansionValue) {
+        expansion[1] = expansion[1].toLowerCase()
+        if (expansion[1] === 'legion' || expansion[1] === 'bfa') {
+          this.filterExpansion = expansion[1]
+          opt = opt.replace(/expansion:\s?(-?\w+)/i, 'Expansion: ' + this.filterExpansion)
         }
         else {
-          this.catRelevance = 'standard'
-          opt = opt.replace(/relevance:\s?(-?\w+)/i, 'Relevance: ' + this.catRelevance)
+          this.filterExpansion = ''
+          opt = opt.replace(/expansion:\s?(-?\w+)/i, 'Expansion: ' + this.filterExpansion)
         }
       }
       else {
-        opt = opt.replace(/relevance:\s?(\w+)/i, '')
-        if (this.catRelevance !== 'standard') {
-          opt = opt.trim() + ' Relevance: ' + this.catRelevance
+        opt = opt.replace(/expansion:\s?(\w+)/i, '')
+        if (this.filterExpansion !== '') {
+          opt = opt.trim() + ' Expansion: ' + this.filterExpansion
         }
       }
-      this.uiRelevanceValue = false
+      this.uiExpansionValue = false
 
       this.searchOptions = opt.trim() + ' '
 
@@ -173,6 +175,27 @@ export default {
       const regex = /\btag:\s*"([^"]+)"|\btag:\s*([^\s]+)/ig
       var tagSearch = query.match(regex)
       if (tagSearch && tagSearch.length > 0) {
+        // check for relevance if tags are found
+        var relevance = opt.match(/relevance:\s?(\w+)/i)
+        if (relevance && relevance[1] && !this.uiRelevanceValue) {
+          relevance[1] = relevance[1].toLowerCase()
+          if (relevance[1] === 'strict' || relevance[1] === 'relaxed') {
+            this.catRelevance = relevance[1]
+            opt = opt.replace(/relevance:\s?(-?\w+)/i, 'Relevance: ' + this.catRelevance)
+          }
+          else {
+            this.catRelevance = 'standard'
+            opt = opt.replace(/relevance:\s?(-?\w+)/i, 'Relevance: ' + this.catRelevance)
+          }
+        }
+        else {
+          opt = opt.replace(/relevance:\s?(\w+)/i, '')
+          if (this.catRelevance !== 'standard') {
+            opt = opt.trim() + ' Relevance: ' + this.catRelevance
+          }
+        }
+        this.uiRelevanceValue = false
+
         this.tagContext = []
         this.tagMap = {}
         tagSearch.forEach((tagQuery) => {
@@ -245,11 +268,13 @@ export default {
         }
       })
     },
-    setSearch: function (val) {
+    setSort: function (val) {
       if (val !== this.sortVal) {
         this.sortVal = val
         this.uiSearchValue = true
         this.runSearch()
+
+        this.$store.commit('userSearchOption', {field: 'sort', value: val})
       }
     },
     setCategoryRelevance: function (val) {
@@ -257,6 +282,17 @@ export default {
         this.catRelevance = val
         this.uiRelevanceValue = true
         this.runSearch()
+
+        this.$store.commit('userSearchOption', {field: 'relevance', value: val})
+      }
+    },
+    setExpansion: function (val) {
+      if (val !== this.filterExpansion) {
+        this.filterExpansion = val
+        this.uiExpansionValue = true
+        this.runSearch()
+
+        this.$store.commit('userSearchOption', {field: 'expansion', value: val})
       }
     },
     searchMore: function () {

@@ -695,14 +695,17 @@ var XBBCODE = (function() {
         if (config.enableURLs) {
             // check for wago links first
             var exp = /(^|\s)((?:https?|ftp):\/\/wago.io([a-zA-Z0-9-+&@#\/%?=~_|!:,.;]*[a-zA-Z0-9-+&@#\/%=~_|]))($|\s)/ig;
+            output = (' '+output.replace(exp, "$1<a href='$3' class='vr'>$2</a>$4")).substring(1); // doubling up on this as a hack because something is wrong with the regex and gets every other link otherwise
             output = (' '+output.replace(exp, "$1<a href='$3' class='vr'>$2</a>$4")).substring(1);
 
             // then other links (no vr class)
             exp = /(^|\s)((?:https?|ftp):\/\/[a-zA-Z0-9-+&@#\/%?=~_|!:,.;]*[a-zA-Z0-9-+&@#\/%=~_|])($|\s)/ig;
             output = (' '+output.replace(exp, "$1<a href='$2' target='_blank'>$2</a>$3")).substring(1);
+            output = (' '+output.replace(exp, "$1<a href='$2' target='_blank'>$2</a>$3")).substring(1);
         }
         else {
             var exp = /(^|\s)((?:https?|ftp):\/\/wago.io([a-zA-Z0-9-+&@#\/%?=~_|!:,.;]*[a-zA-Z0-9-+&@#\/%=~_|]))($|\s)/ig;
+            output = (' '+output.replace(exp, "$1<a href='$3' class='vr'>$2</a>$4")).substring(1);
             output = (' '+output.replace(exp, "$1<a href='$3' class='vr'>$2</a>$4")).substring(1);
         }
 

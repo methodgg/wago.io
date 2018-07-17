@@ -58,6 +58,14 @@ server.get('/search', (req, res, skipSearch) => {
           esSort.push({'popularity.viewsThisWeek': 'desc'})
           esSort.push({modified: 'desc'})
         }
+
+        // if user is logged in and sort is different from their current config, then update config
+        if (sortMatch && req.user && req.user.config.searchOptions.sort != sortMatch[1]) {
+          req.user.config.searchOptions.sort = sortMatch[1]
+          req.user.save().then((user) => {
+            // no need to wait here
+          })
+        }
       }
       return done()
     },
@@ -90,6 +98,54 @@ server.get('/search', (req, res, skipSearch) => {
         // standard score sorts by number of root categories
         sort = 'relevancy.standard ' + sort
         esSort.unshift('relevancy.standard')
+      }
+
+      // if user is logged in and relevance is different from their current config, then update config
+      if (sortType && req.user && req.user.config.searchOptions.relevance != sortType[1]) {
+        req.user.config.searchOptions.relevance = sortType[1]
+        req.user.save().then((user) => {
+          // no need to wait here
+        })
+      }
+
+      return done()
+    },
+
+    // check for expansion filter
+    function(done) {
+      // only applies if category tags are included in search query
+      if (!query.match(/expansion:/i)) {
+        return done()
+      }
+      
+      const regex = /expansion:\s*"?(all|legion|bfa)"?/i
+      var gameVersion = query.match(regex)
+      // if legion
+      if (gameVersion && gameVersion[1] === 'legion') {
+        query = query.replace(gameVersion[0], '').replace(/\s{2,}/, ' ').trim()
+
+        esFilter.push({ bool: { must: {range: { modified: { lt: "2018-07-17" } } }, must_not: { term: { "categories.keyword": 'beta-bfa' } } } })
+      }
+
+      // if battle for azeroth
+      else if (gameVersion && gameVersion[1] === 'bfa') {
+        query = query.replace(gameVersion[0], '').replace(/\s{2,}/, ' ').trim()
+        
+        // esFilter.push({range: { modified: { gte: "2018-07-17" } } })
+        esFilter.push({ bool: { should: [{range: { modified: { gte: "2018-07-17" } } }, { term: { "categories.keyword": 'beta-bfa' } }] } })
+      }
+
+      // if showing all expansions
+      else if (gameVersion && gameVersion[1] === 'all') {
+        query = query.replace(gameVersion[0], '').replace(/\s{2,}/, ' ').trim()
+      }
+
+      // if user is logged in and expansion is different from their current config, then update config
+      if (gameVersion && req.user && req.user.config.searchOptions.expansion != gameVersion[1]) {
+        req.user.config.searchOptions.expansion = gameVersion[1]
+        req.user.save().then((user) => {
+          // no need to wait here
+        })
       }
 
       return done()

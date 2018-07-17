@@ -102,7 +102,12 @@ const Schema = new mongoose.Schema({
   },
   config: {
     theme : String,
-    editor : String
+    editor : String,
+    searchOptions: {
+      sort: { type: String, default: "bestmatch" },
+      relevance: { type: String, default: "standard" },
+      expansion: { type: String, default: "" }
+    }
   },
   search: {
     username: {type: String, index: true}

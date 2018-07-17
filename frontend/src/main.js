@@ -145,6 +145,13 @@ const store = new Vuex.Store({
       }
     },
 
+    userSearchOption (state, data) {
+      if (!state.user) {
+        return
+      }
+      state.user.config.searchOptions[data.field] = data.value
+    },
+
     setPageInfo (state, page) {
       if (!page.title) {
         page.title = state.pageInfo.title
