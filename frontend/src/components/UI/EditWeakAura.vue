@@ -8,7 +8,7 @@
             <md-option value="tabledata" >{{ $t("Table data") }}</md-option>
             <template v-for="fn in customFn(tableData)">
               <md-subheader v-if="typeof fn === 'string'">{{ fn }}</md-subheader>
-              <md-option v-else :value="fn">{{ fn.name }}</md-option>
+              <md-option v-else :value="fn.id.replace(/,/g, '')+','+fn.path">{{ fn.name }}</md-option>
             </template>
             <md-subheader v-if="customFn(tableData).length === 0">{{ $t("No custom functions found") }}</md-subheader>
           </md-select>
@@ -53,6 +53,7 @@ export default {
     return {
       editorSelected: 'tabledata',
       editorPrevious: 'tabledata',
+      editorPreviousObj: {},
       tableData: JSON.parse(this.$store.state.wago.code.json),
       tableString: this.$store.state.wago.code.json,
       editorFile: '',
@@ -64,11 +65,24 @@ export default {
   },
   watch: {
     editorSelected: function (fn) {
+      console.log(fn)
+      if (fn !== 'tabledata') {
+        fn = fn.split(',')
+        var custFns = this.customFn(this.tableData)
+        for (var i = 0; i < custFns.length; i++) {
+          if (typeof custFns[i] === 'object' && fn[0] === custFns[i].id.replace(/,/g, '') && fn[1] === custFns[i].path) {
+            fn = custFns[i]
+            break
+          }
+        }
+      }
+      console.log(fn)
       // save current data to json object
       try {
         /* eslint-disable no-unused-vars */
         /* eslint-disable no-eval */
         var root
+        console.log('set editor')
 
         // if switching FROM table data TO a custom Fn
         if (this.editorPrevious === 'tabledata') {
@@ -81,48 +95,56 @@ export default {
           if (fn.ix.table === 'd') {
             root = JSON.parse(this.editorContent).d
             this.aceEditor.setValue(eval('root.' + fn.path), -1)
+            console.log('set1')
           }
           else if (fn.ix.table === 'c') {
             root = JSON.parse(this.editorContent).c[fn.ix.index]
             this.aceEditor.setValue(eval('root.' + fn.path), -1)
+            console.log('set2')
           }
 
           this.editorFile = root.id
         }
-
         // if switching FROM a custom function
         else {
           var updated = this.aceEditor.getValue().replace(/\\/g, '\\\\').replace(/\r\n|\n|\r/g, '\\n').replace(/"/g, '\\"')
 
           // update table data
-          if (this.editorPrevious.ix.table === 'd') {
-            eval('this.tableData.d.' + this.editorPrevious.path + ' = "' + updated + '"')
+          if (this.editorPreviousObj.ix.table === 'd') {
+            eval('this.tableData.d.' + this.editorPreviousObj.path + ' = "' + updated + '"')
           }
-          else if (this.editorPrevious.ix.table === 'c') {
-            eval('this.tableData.c[' + this.editorPrevious.ix.index + '].' + this.editorPrevious.path + ' = "' + updated + '"')
+          else if (this.editorPreviousObj.ix.table === 'c') {
+            eval('this.tableData.c[' + this.editorPreviousObj.ix.index + '].' + this.editorPreviousObj.path + ' = "' + updated + '"')
           }
 
           var json = JSON.stringify(this.tableData, null, 2)
           this.$store.commit('setWagoJSON', json)
+          var vue = this
 
-          // if switching TO table data
-          if (fn === 'tabledata') {
-            this.aceEditor.setValue(json, -1)
-            this.aceEditor.getSession().setMode('ace/mode/json')
-            this.editorFile = this.tableData.d.id
-          }
-          // if we are switching TO a custom function
-          else {
-            if (fn.ix.table === 'd') {
-              root = JSON.parse(this.editorContent).d
-              this.aceEditor.setValue(eval('root.' + fn.path), -1)
+          setTimeout(function () {
+            // if switching TO table data
+            if (fn === 'tabledata') {
+              vue.aceEditor.setValue(json, -1)
+              console.log('set3')
+              vue.aceEditor.getSession().setMode('ace/mode/json')
+              vue.editorFile = vue.tableData.d.id
             }
-            else if (fn.ix.table === 'c') {
-              root = JSON.parse(this.editorContent).c[fn.ix.index]
-              this.aceEditor.setValue(eval('root.' + fn.path), -1)
+            // if we are switching TO a custom function
+            else if (typeof fn === 'object') {
+              vue.aceEditor.getSession().setMode('ace/mode/lua')
+              if (fn.ix.table === 'd') {
+                root = vue.tableData.d
+                vue.aceEditor.setValue(eval('root.' + fn.path), -1)
+                console.log('set4', eval('root.' + fn.path))
+              }
+              else if (fn.ix.table === 'c') {
+                root = vue.tableData.c[fn.ix.index]
+                vue.aceEditor.setValue(eval('root.' + fn.path), -1)
+                console.log('set5')
+              }
+              vue.editorFile = root.id
             }
-            this.editorFile = root.id
-          }
+          }, 100)
         }
       }
       catch (e) {
@@ -130,7 +152,13 @@ export default {
       }
 
       // set previous to what is set NOW, for next time
-      this.editorPrevious = fn
+      if (fn === 'tabledata') {
+        this.editorPrevious = fn
+      }
+      else {
+        this.editorPrevious = 'fn'
+        this.editorPreviousObj = fn
+      }
     }
   },
   components: {
@@ -170,7 +198,7 @@ export default {
           // onInit
           if (item.actions.init && item.actions.init.do_custom) {
             func.push(item.id)
-            func.push({name: this.$t('onInit'), ix: ix, path: 'actions.init.custom'})
+            func.push({id: item.id, name: this.$t('onInit'), ix: ix, path: 'actions.init.custom'})
           }
 
           // onShow
@@ -178,7 +206,7 @@ export default {
             if (func.indexOf(item.id) < 0) {
               func.push(item.id)
             }
-            func.push({name: this.$t('onShow'), ix: ix, path: 'actions.start.custom'})
+            func.push({id: item.id, name: this.$t('onShow'), ix: ix, path: 'actions.start.custom'})
           }
 
           // onHide
@@ -186,7 +214,7 @@ export default {
             if (func.indexOf(item.id) < 0) {
               func.push(item.id)
             }
-            func.push({name: this.$t('onHide'), ix: ix, path: 'actions.finish.custom'})
+            func.push({id: item.id, name: this.$t('onHide'), ix: ix, path: 'actions.finish.custom'})
           }
         }
 
@@ -200,7 +228,7 @@ export default {
           if (func.indexOf(item.id) < 0) {
             func.push(item.id)
           }
-          func.push({ name: this.$t('DisplayText'), ix: ix, path: 'customText' })
+          func.push({ id: item.id, name: this.$t('DisplayText'), ix: ix, path: 'customText' })
         }
 
         // display stacks
@@ -208,7 +236,7 @@ export default {
           if (func.indexOf(item.id) < 0) {
             func.push(item.id)
           }
-          func.push({ name: this.$t('DisplayStacks'), ix: ix, path: 'customText' })
+          func.push({ id: item.id, name: this.$t('DisplayStacks'), ix: ix, path: 'customText' })
         }
 
         // primary trigger
@@ -217,40 +245,40 @@ export default {
             func.push(item.id)
           }
 
-          func.push({ name: this.$t('Trigger ([-count-])', {count: 1}), ix: ix, path: 'trigger.custom' })
+          func.push({ id: item.id, name: this.$t('Trigger ([-count-])', {count: 1}), ix: ix, path: 'trigger.custom' })
 
           // main untrigger
           if (item.untrigger && item.untrigger.custom && item.untrigger.custom.length > 0) {
-            func.push({ name: this.$t('Untrigger ([-count-])', {count: 1}), ix: ix, path: 'untrigger.custom' })
+            func.push({ id: item.id, name: this.$t('Untrigger ([-count-])', {count: 1}), ix: ix, path: 'untrigger.custom' })
           }
 
           // duration
           if (item.trigger && item.trigger.customDuration && item.trigger.customDuration.length > 0) {
-            func.push({ name: this.$t('Duration Info ([-count-])', {count: 1}), ix: ix, path: 'trigger.customDuration' })
+            func.push({ id: item.id, name: this.$t('Duration Info ([-count-])', {count: 1}), ix: ix, path: 'trigger.customDuration' })
           }
 
           // overlay
           if (item.trigger && item.trigger.customOverlay1 && item.trigger.customOverlay1.length > 0) {
             var overlayCount = 1
             while (item.trigger['customOverlay' + overlayCount] && item.trigger['customOverlay' + overlayCount].length > 0) {
-              func.push({ name: this.$t('Overlay [-num-] ([-count-])', {num: overlayCount, count: 1}), ix: ix, path: 'trigger.customOverlay' + overlayCount })
+              func.push({ id: item.id, name: this.$t('Overlay [-num-] ([-count-])', {num: overlayCount, count: 1}), ix: ix, path: 'trigger.customOverlay' + overlayCount })
               overlayCount++
             }
           }
 
           // name
           if (item.trigger && item.trigger.customName && item.trigger.customName.length > 0) {
-            func.push({ name: this.$t('Name Info ([-count-])', {count: 1}), ix: ix, path: 'trigger.customName' })
+            func.push({ id: item.id, name: this.$t('Name Info ([-count-])', {count: 1}), ix: ix, path: 'trigger.customName' })
           }
 
           // icon
           if (item.trigger && item.trigger.customIcon && item.trigger.customIcon.length > 0) {
-            func.push({ name: this.$t('Icon Info ([-count-])', {count: 1}), ix: ix, path: 'trigger.customIcon' })
+            func.push({ id: item.id, name: this.$t('Icon Info ([-count-])', {count: 1}), ix: ix, path: 'trigger.customIcon' })
           }
 
           // texture
           if (item.trigger && item.trigger.customTexture && item.trigger.customTexture.length > 0) {
-            func.push({ name: this.$t('Texture Info ([-count-])', {count: 1}), ix: ix, path: 'trigger.customTexture' })
+            func.push({ id: item.id, name: this.$t('Texture Info ([-count-])', {count: 1}), ix: ix, path: 'trigger.customTexture' })
           }
 
           // stacks
@@ -267,36 +295,36 @@ export default {
                 func.push(item.id)
               }
 
-              func.push({ name: this.$t('Trigger ([-count-])', {count: k + 2}), ix: ix, path: 'additional_triggers[' + k + '].trigger.custom' })
+              func.push({ id: item.id, name: this.$t('Trigger ([-count-])', {count: k + 2}), ix: ix, path: 'additional_triggers[' + k + '].trigger.custom' })
 
               // untrigger
               if (item.additional_triggers[k].untrigger && item.additional_triggers[k].untrigger.custom && item.additional_triggers[k].untrigger.custom.length > 0) {
-                func.push({ name: this.$t('Untrigger ([-count-])', {count: k + 2}), ix: ix, path: 'additional_triggers[' + k + '].untrigger.custom' })
+                func.push({ id: item.id, name: this.$t('Untrigger ([-count-])', {count: k + 2}), ix: ix, path: 'additional_triggers[' + k + '].untrigger.custom' })
               }
 
               // duration
               if (item.trigger && item.trigger.customDuration && item.trigger.customDuration.length > 0) {
-                func.push({ name: this.$t('Duration Info ([-count-])', {count: k + 2}), ix: ix, path: 'additional_triggers[' + k + '].trigger.customDuration' })
+                func.push({ id: item.id, name: this.$t('Duration Info ([-count-])', {count: k + 2}), ix: ix, path: 'additional_triggers[' + k + '].trigger.customDuration' })
               }
 
               // name
               if (item.trigger && item.trigger.customName && item.trigger.customName.length > 0) {
-                func.push({ name: this.$t('Name Info ([-count-])', {count: k + 2}), ix: ix, path: 'additional_triggers[' + k + '].trigger.customName' })
+                func.push({ id: item.id, name: this.$t('Name Info ([-count-])', {count: k + 2}), ix: ix, path: 'additional_triggers[' + k + '].trigger.customName' })
               }
 
               // icon
               if (item.trigger && item.trigger.customIcon && item.trigger.customIcon.length > 0) {
-                func.push({ name: this.$t('Icon Info ([-count-])', {count: k + 2}), ix: ix, path: 'additional_triggers[' + k + '].trigger.customIcon' })
+                func.push({ id: item.id, name: this.$t('Icon Info ([-count-])', {count: k + 2}), ix: ix, path: 'additional_triggers[' + k + '].trigger.customIcon' })
               }
 
               // texture
               if (item.trigger && item.trigger.customTexture && item.trigger.customTexture.length > 0) {
-                func.push({ name: this.$t('Texture Info ([-count-])', {count: k + 2}), ix: ix, path: 'additional_triggers[' + k + '].trigger.customTexture' })
+                func.push({ id: item.id, name: this.$t('Texture Info ([-count-])', {count: k + 2}), ix: ix, path: 'additional_triggers[' + k + '].trigger.customTexture' })
               }
 
               // stacks
               if (item.trigger && item.trigger.customStacks && item.trigger.customStacks.length > 0) {
-                func.push({ name: this.$t('Stack Info ([-count-])', {count: k + 2}), ix: ix, path: 'additional_triggers[' + k + '].trigger.customStacks' })
+                func.push({ id: item.id, name: this.$t('Stack Info ([-count-])', {count: k + 2}), ix: ix, path: 'additional_triggers[' + k + '].trigger.customStacks' })
               }
             }
           }
@@ -307,7 +335,7 @@ export default {
 
           // trigger logic (must have at least 2 triggers)
           if (item.disjunctive === 'custom' && item.customTriggerLogic && item.customTriggerLogic.length > 0) {
-            func.push({ name: this.$t('Trigger Logic'), ix: ix, path: 'customTriggerLogic' })
+            func.push({ id: item.id, name: this.$t('Trigger Logic'), ix: ix, path: 'customTriggerLogic' })
           }
         }
 
@@ -319,7 +347,7 @@ export default {
               func.push(item.id)
             }
 
-            func.push({ name: this.$t('onStart animate alpha'), ix: ix, path: 'animation.start.alphaFunc' })
+            func.push({ id: item.id, name: this.$t('onStart animate alpha'), ix: ix, path: 'animation.start.alphaFunc' })
           }
 
           // animate color
@@ -328,7 +356,7 @@ export default {
               func.push(item.id)
             }
 
-            func.push({ name: this.$t('onStart animate color'), ix: ix, path: 'animation.start.colorFunc' })
+            func.push({ id: item.id, name: this.$t('onStart animate color'), ix: ix, path: 'animation.start.colorFunc' })
           }
 
           // animate rotation
@@ -337,7 +365,7 @@ export default {
               func.push(item.id)
             }
 
-            func.push({ name: this.$t('onStart animate rotation'), ix: ix, path: 'animation.start.rotateFunc' })
+            func.push({ id: item.id, name: this.$t('onStart animate rotation'), ix: ix, path: 'animation.start.rotateFunc' })
           }
 
           // animate scale
@@ -346,7 +374,7 @@ export default {
               func.push(item.id)
             }
 
-            func.push({ name: this.$t('onStart animate scale'), ix: ix, path: 'animation.start.scaleFunc' })
+            func.push({ id: item.id, name: this.$t('onStart animate scale'), ix: ix, path: 'animation.start.scaleFunc' })
           }
 
           // animate translation
@@ -355,7 +383,7 @@ export default {
               func.push(item.id)
             }
 
-            func.push({ name: this.$t('onStart animate translation'), ix: ix, path: 'animation.start.translateFunc' })
+            func.push({ id: item.id, name: this.$t('onStart animate translation'), ix: ix, path: 'animation.start.translateFunc' })
           }
         }
 
@@ -367,7 +395,7 @@ export default {
               func.push(item.id)
             }
 
-            func.push({ name: this.$t('Main animate alpha'), ix: ix, path: 'animation.main.alphaFunc' })
+            func.push({ id: item.id, name: this.$t('Main animate alpha'), ix: ix, path: 'animation.main.alphaFunc' })
           }
 
           // animate color
@@ -376,7 +404,7 @@ export default {
               func.push(item.id)
             }
 
-            func.push({ name: this.$t('Main animate color'), ix: ix, path: 'animation.main.colorFunc' })
+            func.push({ id: item.id, name: this.$t('Main animate color'), ix: ix, path: 'animation.main.colorFunc' })
           }
 
           // animate rotation
@@ -385,7 +413,7 @@ export default {
               func.push(item.id)
             }
 
-            func.push({ name: this.$t('Main animate rotation'), ix: ix, path: 'animation.main.rotateFunc' })
+            func.push({ id: item.id, name: this.$t('Main animate rotation'), ix: ix, path: 'animation.main.rotateFunc' })
           }
 
           // animate scale
@@ -394,7 +422,7 @@ export default {
               func.push(item.id)
             }
 
-            func.push({ name: this.$t('Main animate scale'), ix: ix, path: 'animation.main.scaleFunc' })
+            func.push({ id: item.id, name: this.$t('Main animate scale'), ix: ix, path: 'animation.main.scaleFunc' })
           }
 
           // animate translation
@@ -403,7 +431,7 @@ export default {
               func.push(item.id)
             }
 
-            func.push({ name: this.$t('Main animate translation'), ix: ix, path: 'animation.main.translateFunc' })
+            func.push({ id: item.id, name: this.$t('Main animate translation'), ix: ix, path: 'animation.main.translateFunc' })
           }
         }
 
@@ -415,7 +443,7 @@ export default {
               func.push(item.id)
             }
 
-            func.push({ name: this.$t('Finish animate alpha'), ix: ix, path: 'animation.finish.alphaFunc' })
+            func.push({ id: item.id, name: this.$t('Finish animate alpha'), ix: ix, path: 'animation.finish.alphaFunc' })
           }
 
           // animate color
@@ -424,7 +452,7 @@ export default {
               func.push(item.id)
             }
 
-            func.push({ name: this.$t('Finish animate color'), ix: ix, path: 'animation.finish.colorFunc' })
+            func.push({ id: item.id, name: this.$t('Finish animate color'), ix: ix, path: 'animation.finish.colorFunc' })
           }
 
           // animate rotation
@@ -433,7 +461,7 @@ export default {
               func.push(item.id)
             }
 
-            func.push({ name: this.$t('Finish animate rotation'), ix: ix, path: 'animation.finish.rotateFunc' })
+            func.push({ id: item.id, name: this.$t('Finish animate rotation'), ix: ix, path: 'animation.finish.rotateFunc' })
           }
 
           // animate scale
@@ -442,7 +470,7 @@ export default {
               func.push(item.id)
             }
 
-            func.push({ name: this.$t('Finish animate scale'), ix: ix, path: 'animation.finish.scaleFunc' })
+            func.push({ id: item.id, name: this.$t('Finish animate scale'), ix: ix, path: 'animation.finish.scaleFunc' })
           }
 
           // animate translation
@@ -451,7 +479,7 @@ export default {
               func.push(item.id)
             }
 
-            func.push({ name: this.$t('Finish animate translation'), ix: ix, path: 'animation.finish.translateFunc' })
+            func.push({ id: item.id, name: this.$t('Finish animate translation'), ix: ix, path: 'animation.finish.translateFunc' })
           }
         }
       })
