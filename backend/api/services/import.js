@@ -1103,7 +1103,7 @@ function guessCategory(key) {
     case 2136: return 'raiduldir4' // Zek'voz
     case 2145: return 'raiduldir5' // Zul, Reborn
     case 2135: return 'raiduldir6' // Mythrax
-    //case ?: return 'raiduldir7' // Vectis
+    case 2134: return 'raiduldir7' // Vectis
     case 2122: return 'raiduldir8' // G'huun
   }
   return false
