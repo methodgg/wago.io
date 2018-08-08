@@ -18,7 +18,7 @@
                 <md-input type="password" id="login-password"></md-input>
               </md-input-container>
               
-              <md-button class="md-raised md-primary" type="submit" @click="doLogin">{{ $t("Log in") }}</md-button>
+              <md-button class="md-raised md-primary" type="submit">{{ $t("Log in") }}</md-button>
             </form>
           </md-card-content>
         </md-card-area>
@@ -47,7 +47,7 @@
               <vue-recaptcha sitekey="6LfMCGkUAAAAACs_6tjQoqpEaQIph8NnHmQgPuu7" @verify="onVerifyCaptcha" @expired="onExpiredCaptcha"></vue-recaptcha>
             </template>
 
-            <md-button class="md-raised md-primary" type="submit" @click="createAcct" :disabled="!recaptchaSuccess">{{ $t("Create account") }}</md-button>
+            <md-button class="md-raised md-primary" type="submit" :disabled="!recaptchaValid || submitForm">{{ $t("Create account") }}</md-button>
           </form>
         </md-card-content>
       </md-card>
@@ -67,7 +67,8 @@ export default {
   },
   data: () => {
     return {
-      recaptchaSuccess: false
+      recaptchaValid: false,
+      submitForm: false
     }
   },
   methods: {
@@ -96,9 +97,11 @@ export default {
       })
     },
     createAcct: function () {
-      if (!this.recaptchaSuccess) {
+      if (!this.recaptchaValid) {
         return
       }
+      console.log('create acct')
+      this.submitForm = true
       var vue = this
       var username = document.getElementById('create-name').value.trim()
       var password = document.getElementById('create-password2').value.trim()
@@ -116,19 +119,21 @@ export default {
 
       vue.http.post('/auth/create', {
         username: username,
-        password: password
+        password: password,
+        recaptcha: this.recaptchaValid
       }).then((res) => {
+        this.submitForm = false
         if (res.error) {
           return window.eventHub.$emit('showSnackBar', res.error)
         }
         // success is handled by http interceptor
       })
     },
-    onVerifyCaptcha: function () {
-      this.recaptchaSuccess = true
+    onVerifyCaptcha: function (re) {
+      this.recaptchaValid = re
     },
     onExpiredCaptcha: function () {
-      this.recaptchaSuccess = false
+      this.recaptchaValid = false
     }
   },
   mounted: function () {

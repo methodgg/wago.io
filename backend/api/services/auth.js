@@ -247,23 +247,39 @@ function createUser (req, res) {
   if (!req.body.password || req.body.password.length < 6) {
     return res.send(403, {error: 'bad password'})
   }
-  // make sure username is not in use
   User.findByUsername(req.body.username).then(function(user) {
     if (user) {
       return res.send(403, {error: "Error: Username already exists"})
     }
-    var user = new User()
-    user.account.username = req.body.username
-    user.search.username = req.body.username.toLowerCase()
-    // check if password is a match
-    bcrypt.hash(req.body.password, 10).then((pass) => {
-      user.account.password = pass
-      user.save().then((user) => {
-        var who = {}
-        who.UID = user._id
+    
+    Axios.post('https://www.google.com/recaptcha/api/siteverify', querystring.stringify({
+      secret: '6LfMCGkUAAAAACj35VLnGhJFq2cFqwSj3Hh-5UFq',
+      response: req.body.recaptcha,
+      remoteip: req.connection.remoteAddress
+    })).then(function (google) {
+      console.log(google.data)
+      if (google.data.success) {
+        // make sure username is not in use
+        console.log('success')
+        return
+      
+        var user = new User()
+        user.account.username = req.body.username
+        user.search.username = req.body.username.toLowerCase()
+        // check if password is a match
+        bcrypt.hash(req.body.password, 10).then((pass) => {
+          user.account.password = pass
+          user.save().then((user) => {
+            var who = {}
+            who.UID = user._id
 
-        return makeSession(req, res, who, user)
-      })
+            return makeSession(req, res, who, user)
+          })
+        })
+      }
+      else {
+        return res.send(403, {error: 'bad captcha'})
+      }
     })
   })
 }

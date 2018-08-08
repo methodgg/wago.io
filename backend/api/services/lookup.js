@@ -47,12 +47,12 @@ server.get('/lookup/wago', (req, res, next) => {
       return res.send(404, {error: "page_not_found"})
     }
  
+    doc.popularity.views++
+    doc.popularity.viewsThisWeek++
+
     ViewsThisWeek.find({viewed: { $gt: new Date().getTime() - 1000 * 60 * 20 }, source: req.connection.remoteAddress, wagoID: doc._id}).then((recent) => {
       console.log(recent, recent.length)
       if (!recent || recent.length === 0) {
-        console.log('increase views')
-        doc.popularity.views++
-        doc.popularity.viewsThisWeek++
         doc.save()
         
         var pop = new ViewsThisWeek()

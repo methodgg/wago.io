@@ -1,5 +1,6 @@
 module.exports = function(req, res, next) {
-  if (!req.body) {
+  console.log(req.body, req.method)
+  if (!req.body || req.method != 'POST') {
     req.body = {}
   }
   else if (typeof req.body === 'string') {
