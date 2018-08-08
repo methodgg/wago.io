@@ -65,7 +65,6 @@ export default {
   },
   watch: {
     editorSelected: function (fn) {
-      console.log(fn)
       try {
         if (fn && fn !== 'tabledata') {
           fn = fn.split(',')
@@ -77,12 +76,10 @@ export default {
             }
           }
         }
-        console.log(fn)
         // save current data to json object
         /* eslint-disable no-unused-vars */
         /* eslint-disable no-eval */
         var root
-        console.log('set editor')
 
         // if switching FROM table data TO a custom Fn
         if (fn && this.editorPrevious === 'tabledata') {
@@ -95,12 +92,10 @@ export default {
           if (fn.ix.table === 'd') {
             root = JSON.parse(this.editorContent).d
             this.aceEditor.setValue(eval('root.' + fn.path), -1)
-            console.log('set1')
           }
           else if (fn.ix.table === 'c') {
             root = JSON.parse(this.editorContent).c[fn.ix.index]
             this.aceEditor.setValue(eval('root.' + fn.path), -1)
-            console.log('set2')
           }
 
           this.editorFile = root.id
@@ -125,7 +120,6 @@ export default {
             // if switching TO table data
             if (fn === 'tabledata') {
               vue.aceEditor.setValue(json, -1)
-              console.log('set3')
               vue.aceEditor.getSession().setMode('ace/mode/json')
               vue.editorFile = vue.tableData.d.id
             }
@@ -135,12 +129,10 @@ export default {
               if (fn.ix.table === 'd') {
                 root = vue.tableData.d
                 vue.aceEditor.setValue(eval('root.' + fn.path), -1)
-                console.log('set4', eval('root.' + fn.path))
               }
               else if (fn.ix.table === 'c') {
                 root = vue.tableData.c[fn.ix.index]
                 vue.aceEditor.setValue(eval('root.' + fn.path), -1)
-                console.log('set5')
               }
               vue.editorFile = root.id
             }
@@ -485,7 +477,6 @@ export default {
         }
       })
 
-      console.log(func)
       return func
     },
 
