@@ -43,7 +43,11 @@
               <md-input type="password" id="create-password2"></md-input>
             </md-input-container>
 
-            <md-button class="md-raised md-primary" type="submit" @click="createAcct">{{ $t("Create account") }}</md-button>
+            <template>
+              <vue-recaptcha sitekey="6LfMCGkUAAAAACs_6tjQoqpEaQIph8NnHmQgPuu7" @verify="onVerifyCaptcha" @expired="onExpiredCaptcha"></vue-recaptcha>
+            </template>
+
+            <md-button class="md-raised md-primary" type="submit" @click="createAcct" :disabled="!recaptchaSuccess">{{ $t("Create account") }}</md-button>
           </form>
         </md-card-content>
       </md-card>
@@ -55,9 +59,16 @@
 </template>
 
 <script>
+import VueRecaptcha from 'vue-recaptcha'
 export default {
   components: {
-    'wago-oauth': require('../UI/WagoOauth.vue')
+    'wago-oauth': require('../UI/WagoOauth.vue'),
+    VueRecaptcha
+  },
+  data: () => {
+    return {
+      recaptchaSuccess: false
+    }
   },
   methods: {
     doLogin: function () {
@@ -85,6 +96,9 @@ export default {
       })
     },
     createAcct: function () {
+      if (!this.recaptchaSuccess) {
+        return
+      }
       var vue = this
       var username = document.getElementById('create-name').value.trim()
       var password = document.getElementById('create-password2').value.trim()
@@ -109,6 +123,12 @@ export default {
         }
         // success is handled by http interceptor
       })
+    },
+    onVerifyCaptcha: function () {
+      this.recaptchaSuccess = true
+    },
+    onExpiredCaptcha: function () {
+      this.recaptchaSuccess = false
     }
   },
   mounted: function () {

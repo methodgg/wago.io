@@ -46,14 +46,21 @@ server.get('/lookup/wago', (req, res, next) => {
     if (doc.private && (!req.user || !req.user._id.equals(doc._userId))) {
       return res.send(404, {error: "page_not_found"})
     }
-    
-    doc.popularity.views++
-    doc.popularity.viewsThisWeek++
-    doc.save()
-    
-    var pop = new ViewsThisWeek()
-    pop.wagoID = doc._id
-    pop.save()
+ 
+    ViewsThisWeek.find({viewed: { $gt: new Date().getTime() - 1000 * 60 * 20 }, source: req.connection.remoteAddress, wagoID: doc._id}).then((recent) => {
+      console.log(recent, recent.length)
+      if (!recent || recent.length === 0) {
+        console.log('increase views')
+        doc.popularity.views++
+        doc.popularity.viewsThisWeek++
+        doc.save()
+        
+        var pop = new ViewsThisWeek()
+        pop.wagoID = doc._id
+        pop.source = req.connection.remoteAddress
+        pop.save()
+      }
+    })
 
     var wago = {}
     wago._id = doc._id
