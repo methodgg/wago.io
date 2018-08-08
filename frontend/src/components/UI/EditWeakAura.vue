@@ -8,7 +8,7 @@
             <md-option value="tabledata" >{{ $t("Table data") }}</md-option>
             <template v-for="fn in customFn(tableData)">
               <md-subheader v-if="typeof fn === 'string'">{{ fn }}</md-subheader>
-              <md-option v-else :value="fn.id.replace(/,/g, '')+','+fn.path">{{ fn.name }}</md-option>
+              <md-option v-else :value="fn.id && fn.id.replace(/,/g, '')+','+fn.path">{{ fn.name }}</md-option>
             </template>
             <md-subheader v-if="customFn(tableData).length === 0">{{ $t("No custom functions found") }}</md-subheader>
           </md-select>
@@ -66,26 +66,26 @@ export default {
   watch: {
     editorSelected: function (fn) {
       console.log(fn)
-      if (fn !== 'tabledata') {
-        fn = fn.split(',')
-        var custFns = this.customFn(this.tableData)
-        for (var i = 0; i < custFns.length; i++) {
-          if (typeof custFns[i] === 'object' && fn[0] === custFns[i].id.replace(/,/g, '') && fn[1] === custFns[i].path) {
-            fn = custFns[i]
-            break
+      try {
+        if (fn && fn !== 'tabledata') {
+          fn = fn.split(',')
+          var custFns = this.customFn(this.tableData)
+          for (var i = 0; i < custFns.length; i++) {
+            if (typeof custFns[i] === 'object' && custFns[i].id && fn[0] === custFns[i].id.replace(/,/g, '') && fn[1] === custFns[i].path) {
+              fn = custFns[i]
+              break
+            }
           }
         }
-      }
-      console.log(fn)
-      // save current data to json object
-      try {
+        console.log(fn)
+        // save current data to json object
         /* eslint-disable no-unused-vars */
         /* eslint-disable no-eval */
         var root
         console.log('set editor')
 
         // if switching FROM table data TO a custom Fn
-        if (this.editorPrevious === 'tabledata') {
+        if (fn && this.editorPrevious === 'tabledata') {
           this.$store.commit('setWagoJSON', this.aceEditor.getValue())
           this.tableData = JSON.parse(this.aceEditor.getValue())
 
@@ -148,6 +148,7 @@ export default {
         }
       }
       catch (e) {
+        console.log(e)
         window.eventHub.$emit('showSnackBar', this.$t('error:An error occurred reading the table data'))
       }
 
@@ -248,42 +249,42 @@ export default {
           func.push({ id: item.id, name: this.$t('Trigger ([-count-])', {count: 1}), ix: ix, path: 'trigger.custom' })
 
           // main untrigger
-          if (item.untrigger && item.untrigger.custom && item.untrigger.custom.length > 0) {
+          if (item.untrigger && item.untrigger.custom && item.untrigger.custom.trim().length > 0) {
             func.push({ id: item.id, name: this.$t('Untrigger ([-count-])', {count: 1}), ix: ix, path: 'untrigger.custom' })
           }
 
           // duration
-          if (item.trigger && item.trigger.customDuration && item.trigger.customDuration.length > 0) {
+          if (item.trigger && item.trigger.customDuration && item.trigger.customDuration.trim().length > 0) {
             func.push({ id: item.id, name: this.$t('Duration Info ([-count-])', {count: 1}), ix: ix, path: 'trigger.customDuration' })
           }
 
           // overlay
-          if (item.trigger && item.trigger.customOverlay1 && item.trigger.customOverlay1.length > 0) {
+          if (item.trigger && item.trigger.customOverlay1 && item.trigger.customOverlay1.trim().length > 0) {
             var overlayCount = 1
-            while (item.trigger['customOverlay' + overlayCount] && item.trigger['customOverlay' + overlayCount].length > 0) {
+            while (item.trigger['customOverlay' + overlayCount] && item.trigger['customOverlay' + overlayCount].trim().length > 0) {
               func.push({ id: item.id, name: this.$t('Overlay [-num-] ([-count-])', {num: overlayCount, count: 1}), ix: ix, path: 'trigger.customOverlay' + overlayCount })
               overlayCount++
             }
           }
 
           // name
-          if (item.trigger && item.trigger.customName && item.trigger.customName.length > 0) {
+          if (item.trigger && item.trigger.customName && item.trigger.customName.trim().length > 0) {
             func.push({ id: item.id, name: this.$t('Name Info ([-count-])', {count: 1}), ix: ix, path: 'trigger.customName' })
           }
 
           // icon
-          if (item.trigger && item.trigger.customIcon && item.trigger.customIcon.length > 0) {
+          if (item.trigger && item.trigger.customIcon && item.trigger.customIcon.trim().length > 0) {
             func.push({ id: item.id, name: this.$t('Icon Info ([-count-])', {count: 1}), ix: ix, path: 'trigger.customIcon' })
           }
 
           // texture
-          if (item.trigger && item.trigger.customTexture && item.trigger.customTexture.length > 0) {
+          if (item.trigger && item.trigger.customTexture && item.trigger.customTexture.trim().length > 0) {
             func.push({ id: item.id, name: this.$t('Texture Info ([-count-])', {count: 1}), ix: ix, path: 'trigger.customTexture' })
           }
 
           // stacks
-          if (item.trigger && item.trigger.customStacks && item.trigger.customStacks.length > 0) {
-            func.push({ name: this.$t('Stack Info ([-count-])', {count: 1}), ix: ix, path: 'trigger.customStacks' })
+          if (item.trigger && item.trigger.customStacks && item.trigger.customStacks.trim().length > 0) {
+            func.push({ id: item.id, name: this.$t('Stack Info ([-count-])', {count: 1}), ix: ix, path: 'trigger.customStacks' })
           }
         }
 
@@ -298,32 +299,32 @@ export default {
               func.push({ id: item.id, name: this.$t('Trigger ([-count-])', {count: k + 2}), ix: ix, path: 'additional_triggers[' + k + '].trigger.custom' })
 
               // untrigger
-              if (item.additional_triggers[k].untrigger && item.additional_triggers[k].untrigger.custom && item.additional_triggers[k].untrigger.custom.length > 0) {
+              if (item.additional_triggers[k].untrigger && item.additional_triggers[k].untrigger.custom && item.additional_triggers[k].untrigger.custom.trim().length > 0) {
                 func.push({ id: item.id, name: this.$t('Untrigger ([-count-])', {count: k + 2}), ix: ix, path: 'additional_triggers[' + k + '].untrigger.custom' })
               }
 
               // duration
-              if (item.trigger && item.trigger.customDuration && item.trigger.customDuration.length > 0) {
+              if (item.trigger && item.trigger.customDuration && item.trigger.customDuration.trim().length > 0) {
                 func.push({ id: item.id, name: this.$t('Duration Info ([-count-])', {count: k + 2}), ix: ix, path: 'additional_triggers[' + k + '].trigger.customDuration' })
               }
 
               // name
-              if (item.trigger && item.trigger.customName && item.trigger.customName.length > 0) {
+              if (item.trigger && item.trigger.customName && item.trigger.customName.trim().length > 0) {
                 func.push({ id: item.id, name: this.$t('Name Info ([-count-])', {count: k + 2}), ix: ix, path: 'additional_triggers[' + k + '].trigger.customName' })
               }
 
               // icon
-              if (item.trigger && item.trigger.customIcon && item.trigger.customIcon.length > 0) {
+              if (item.trigger && item.trigger.customIcon && item.trigger.customIcon.trim().length > 0) {
                 func.push({ id: item.id, name: this.$t('Icon Info ([-count-])', {count: k + 2}), ix: ix, path: 'additional_triggers[' + k + '].trigger.customIcon' })
               }
 
               // texture
-              if (item.trigger && item.trigger.customTexture && item.trigger.customTexture.length > 0) {
+              if (item.trigger && item.trigger.customTexture && item.trigger.customTexture.trim().length > 0) {
                 func.push({ id: item.id, name: this.$t('Texture Info ([-count-])', {count: k + 2}), ix: ix, path: 'additional_triggers[' + k + '].trigger.customTexture' })
               }
 
               // stacks
-              if (item.trigger && item.trigger.customStacks && item.trigger.customStacks.length > 0) {
+              if (item.trigger && item.trigger.customStacks && item.trigger.customStacks.trim().length > 0) {
                 func.push({ id: item.id, name: this.$t('Stack Info ([-count-])', {count: k + 2}), ix: ix, path: 'additional_triggers[' + k + '].trigger.customStacks' })
               }
             }
@@ -334,7 +335,7 @@ export default {
           }
 
           // trigger logic (must have at least 2 triggers)
-          if (item.disjunctive === 'custom' && item.customTriggerLogic && item.customTriggerLogic.length > 0) {
+          if (item.disjunctive === 'custom' && item.customTriggerLogic && item.customTriggerLogic.trim().length > 0) {
             func.push({ id: item.id, name: this.$t('Trigger Logic'), ix: ix, path: 'customTriggerLogic' })
           }
         }
@@ -342,7 +343,7 @@ export default {
         // animation onStart functions
         if (item.animation && item.animation.start) {
           // animate alpha
-          if (item.animation.start.use_alpha && item.animation.start.alphaType === 'custom' && item.animation.start.alphaFunc) {
+          if (item.animation.start.use_alpha && item.animation.start.alphaType === 'custom' && item.animation.start.alphaFunc && item.animation.start.alphaFunc.trim().length > 0) {
             if (func.indexOf(item.id) < 0) {
               func.push(item.id)
             }
@@ -351,7 +352,7 @@ export default {
           }
 
           // animate color
-          if (item.animation.start.use_color && item.animation.start.colorType === 'custom' && item.animation.start.colorFunc) {
+          if (item.animation.start.use_color && item.animation.start.colorType === 'custom' && item.animation.start.colorFunc && item.animation.start.colorFunc.trim().length > 0) {
             if (func.indexOf(item.id) < 0) {
               func.push(item.id)
             }
@@ -360,7 +361,7 @@ export default {
           }
 
           // animate rotation
-          if (item.animation.start.use_rotate && item.animation.start.rotateType === 'custom' && item.animation.start.rotateFunc) {
+          if (item.animation.start.use_rotate && item.animation.start.rotateType === 'custom' && item.animation.start.rotateFunc && item.animation.start.rotateFunc.trim().length > 0) {
             if (func.indexOf(item.id) < 0) {
               func.push(item.id)
             }
@@ -369,7 +370,7 @@ export default {
           }
 
           // animate scale
-          if (item.animation.start.use_scale && item.animation.start.scaleType === 'custom' && item.animation.start.scaleFunc) {
+          if (item.animation.start.use_scale && item.animation.start.scaleType === 'custom' && item.animation.start.scaleFunc && item.animation.start.scaleFunc.trim().length > 0) {
             if (func.indexOf(item.id) < 0) {
               func.push(item.id)
             }
@@ -378,7 +379,7 @@ export default {
           }
 
           // animate translation
-          if (item.animation.start.use_translate && item.animation.start.translateType === 'custom' && item.animation.start.translateFunc) {
+          if (item.animation.start.use_translate && item.animation.start.translateType === 'custom' && item.animation.start.translateFunc && item.animation.start.translateFunc.trim().length > 0) {
             if (func.indexOf(item.id) < 0) {
               func.push(item.id)
             }
@@ -390,7 +391,7 @@ export default {
         // animation main/ongoing functions
         if (item.animation && item.animation.main) {
           // animate alpha
-          if (item.animation.main.use_alpha && item.animation.main.alphaType === 'custom' && item.animation.main.alphaFunc) {
+          if (item.animation.main.use_alpha && item.animation.main.alphaType === 'custom' && item.animation.main.alphaFunc && item.animation.main.alphaFunc.trim().length > 0) {
             if (func.indexOf(item.id) < 0) {
               func.push(item.id)
             }
@@ -399,7 +400,7 @@ export default {
           }
 
           // animate color
-          if (item.animation.main.use_color && item.animation.main.colorType === 'custom' && item.animation.main.colorFunc) {
+          if (item.animation.main.use_color && item.animation.main.colorType === 'custom' && item.animation.main.colorFunc && item.animation.main.colorFunc.trim().length > 0) {
             if (func.indexOf(item.id) < 0) {
               func.push(item.id)
             }
@@ -408,7 +409,7 @@ export default {
           }
 
           // animate rotation
-          if (item.animation.main.use_rotate && item.animation.main.rotateType === 'custom' && item.animation.main.rotateFunc) {
+          if (item.animation.main.use_rotate && item.animation.main.rotateType === 'custom' && item.animation.main.rotateFunc && item.animation.main.rotateFunc.trim().length > 0) {
             if (func.indexOf(item.id) < 0) {
               func.push(item.id)
             }
@@ -417,7 +418,7 @@ export default {
           }
 
           // animate scale
-          if (item.animation.main.use_scale && item.animation.main.scaleType === 'custom' && item.animation.main.scaleFunc) {
+          if (item.animation.main.use_scale && item.animation.main.scaleType === 'custom' && item.animation.main.scaleFunc && item.animation.main.scaleFunc.trim().length > 0) {
             if (func.indexOf(item.id) < 0) {
               func.push(item.id)
             }
@@ -426,7 +427,7 @@ export default {
           }
 
           // animate translation
-          if (item.animation.main.use_translate && item.animation.main.translateType === 'custom' && item.animation.main.translateFunc) {
+          if (item.animation.main.use_translate && item.animation.main.translateType === 'custom' && item.animation.main.translateFunc && item.animation.main.translateFunc.trim().length > 0) {
             if (func.indexOf(item.id) < 0) {
               func.push(item.id)
             }
@@ -438,7 +439,7 @@ export default {
         // animation finish functions
         if (item.animation && item.animation.finish) {
           // animate alpha
-          if (item.animation.finish.use_alpha && item.animation.finish.alphaType === 'custom' && item.animation.finish.alphaFunc) {
+          if (item.animation.finish.use_alpha && item.animation.finish.alphaType === 'custom' && item.animation.finish.alphaFunc && item.animation.finish.alphaFunc.trim().length > 0) {
             if (func.indexOf(item.id) < 0) {
               func.push(item.id)
             }
@@ -447,7 +448,7 @@ export default {
           }
 
           // animate color
-          if (item.animation.finish.use_color && item.animation.finish.colorType === 'custom' && item.animation.finish.colorFunc) {
+          if (item.animation.finish.use_color && item.animation.finish.colorType === 'custom' && item.animation.finish.colorFunc && item.animation.finish.colorFunc.trim().length > 0) {
             if (func.indexOf(item.id) < 0) {
               func.push(item.id)
             }
@@ -456,7 +457,7 @@ export default {
           }
 
           // animate rotation
-          if (item.animation.finish.use_rotate && item.animation.finish.rotateType === 'custom' && item.animation.finish.rotateFunc) {
+          if (item.animation.finish.use_rotate && item.animation.finish.rotateType === 'custom' && item.animation.finish.rotateFunc && item.animation.finish.rotateFunc.trim().length > 0) {
             if (func.indexOf(item.id) < 0) {
               func.push(item.id)
             }
@@ -465,7 +466,7 @@ export default {
           }
 
           // animate scale
-          if (item.animation.finish.use_scale && item.animation.finish.scaleType === 'custom' && item.animation.finish.scaleFunc) {
+          if (item.animation.finish.use_scale && item.animation.finish.scaleType === 'custom' && item.animation.finish.scaleFunc && item.animation.finish.scaleFunc.trim().length > 0) {
             if (func.indexOf(item.id) < 0) {
               func.push(item.id)
             }
@@ -474,7 +475,7 @@ export default {
           }
 
           // animate translation
-          if (item.animation.finish.use_translate && item.animation.finish.translateType === 'custom' && item.animation.finish.translateFunc) {
+          if (item.animation.finish.use_translate && item.animation.finish.translateType === 'custom' && item.animation.finish.translateFunc && item.animation.finish.translateFunc.trim().length > 0) {
             if (func.indexOf(item.id) < 0) {
               func.push(item.id)
             }
@@ -484,6 +485,7 @@ export default {
         }
       })
 
+      console.log(func)
       return func
     },
 
