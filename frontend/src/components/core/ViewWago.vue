@@ -828,7 +828,8 @@ export default {
         vue.$store.commit('setPageInfo', {
           title: res.name,
           description: res.description.text,
-          image: res.screens && res.screens[0] && res.screens[0].src || false
+          image: res.screens && res.screens[0] && res.screens[0].src || false,
+          unlisted: (res.visibility.hidden || res.visibility.private)
         })
       })
     },

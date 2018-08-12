@@ -431,6 +431,7 @@ server.post('/import/submit', function(req, res) {
     if (!scan) {
       return res.send(401, {error: 'scan_expired'})
     }
+    console.log(scan)
 
     if (scan.decoded) {
       var json = JSON.parse(scan.decoded)
@@ -652,7 +653,8 @@ server.post('/import/submit', function(req, res) {
       }, (err) => {
         res.send(err)
       })
-    }).catch((e) => {
+    })
+    ImportPromise.catch((e) => {
       console.log('error', e)
     })
   })

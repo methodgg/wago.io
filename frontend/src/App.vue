@@ -246,7 +246,9 @@ export default {
         { name: 'msapplication-square70x70logo', content: 'https://media.wago.io/favicon/smalltile.png' },
         { name: 'msapplication-square150x150logo', content: 'https://media.wago.io/favicon/mediumtile.png' },
         { name: 'msapplication-wide310x150logo', content: 'https://media.wago.io/favicon/widetile.png' },
-        { name: 'msapplication-square310x310logo', content: 'https://media.wago.io/favicon/largetile.png' }
+        { name: 'msapplication-square310x310logo', content: 'https://media.wago.io/favicon/largetile.png' },
+
+        { name: 'robots', content: this.Page.robots }
       ],
       link: [
         { rel: 'stylesheet', href: '//fonts.googleapis.com/css?family=Roboto:300,400,500,700,400italic' },

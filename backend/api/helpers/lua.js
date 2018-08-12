@@ -1,7 +1,7 @@
 const execa = require('execa')
 const execaOptions = {
   cwd: __dirname+'/../lua',
-  timeout: 8000
+  timeout: 15000
 }
 const wagoify = require('./wago-luamin').minify
 

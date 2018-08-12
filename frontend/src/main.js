@@ -175,6 +175,12 @@ const store = new Vuex.Store({
       if (!page.image) {
         page.image = 'https://wago.io/media/favicon/apple-touch-icon-180x180.png'
       }
+      if (page.unlisted) {
+        page.robots = 'noindex,nofollow'
+      }
+      else {
+        page.robots = 'index,follow'
+      }
       state.pageInfo = JSON.parse(JSON.stringify(page))
       window.prerenderReady = true
     },
