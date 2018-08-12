@@ -431,7 +431,6 @@ server.post('/import/submit', function(req, res) {
     if (!scan) {
       return res.send(401, {error: 'scan_expired'})
     }
-    console.log(scan)
 
     if (scan.decoded) {
       var json = JSON.parse(scan.decoded)
@@ -501,10 +500,10 @@ server.post('/import/submit', function(req, res) {
             wago.fork_of = null
             return importResolve(wago) // original no longer exists
           }
-          if (!wago.name) {
-            wago.name = fork.name
-            wago.categories = fork.categories
-          }
+
+          wago.name = fork.name
+          wago.categories = fork.categories
+          wago.relevancy = Categories.relevanceScores(wago.categories)
           wago.description = fork.description
           return importResolve(wago)
         })
@@ -632,7 +631,7 @@ server.post('/import/submit', function(req, res) {
 
           code.save().then((codeDoc) => {
             // broadcast to discord webhook?
-            if (req.body.importAs === 'User' && req.user && !wago.hidden && !wago.private && req.user.discord && req.user.discord.webhooks.onCreate) {
+            if (req.body.importAs === 'User' && req.user && !wago.hidden && !wago.private && req.user.discord && req.user.discord.webhooks && req.user.discord.webhooks.onCreate) {
               discord.webhookOnCreate(req.user, wago)
             }
 
