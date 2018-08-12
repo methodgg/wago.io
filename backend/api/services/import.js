@@ -603,7 +603,7 @@ server.post('/import/submit', function(req, res) {
         }
         return importResolve(wago)
       }
-    })    
+    })
 
     // when everything is ready, save wago
     ImportPromise.then((wago) => {
@@ -682,6 +682,10 @@ server.post('/import/update', function (req, res) {
             return res.send({error: 'invalid_wa', e: e})
           }
           WagoItem.findOne({_id: req.body.wagoID, type: 'WEAKAURAS2', _userId: req.user._id}).then((doc) => {
+            if (!doc) {
+              return res.send({error: 'Invalid scan ID'})
+            }
+            req.scanWA = scan
             WagoCode.count({auraID: req.body.wagoID}).then((ver) => {
               ver = ver + 1
               json.d.url = doc.url + '/' + ver
@@ -785,8 +789,46 @@ function SaveWagoVersion (req, res, mode) {
     return res.send({error: 'invalid_data'})
   }
 
-  if ((type=='WEAKAURA' || type=='WEAKAURAS2') && json && json.d && json.d.id) {
+  // if updating a WA
+  if ((type=='WEAKAURA' || type=='WEAKAURAS2') && mode === 'update' && req.scanWA) {
+    WagoItem.findOne({_id: wagoID, type: 'WEAKAURAS2', _userId: req.user._id}).then((wago) => {
+      if (!wago) {
+        return res.send({error: 'not_found'})
+      }
+
+      // good to save
+      var code = new WagoCode()
+      code.auraID = wago._id
+      code.json = req.scanWA.decoded
+      code.encoded = req.scanWA.input
+      
+      code.save().then(() => {
+        wago.modified = new Date()
+        wago.save().then(() => {
+          // look for any discord actions
+          discord.onUpdate(req.user, wago)
+        })
+
+        lua.JSON2WeakAura(json, (error, result) => {
+          code.encoded = result.stdout
+          code.json = JSON.stringify(json)
+          code.save().then((codeDoc) => {
+            // update with re-encoded data once ready
+          })
+        })
+        
+        res.send({success: true})
+      })
+    }).catch(e => {
+      return res.send({error: 'not_found'})
+    })
+  }
+  // if importing or editing a WA
+  else if ((type=='WEAKAURA' || type=='WEAKAURAS2') && json && json.d && json.d.id) {
     var promise
+    if (mode === 'update' && req.scanWA) {
+      promise = WagoItem.findOne({_id: wagoID, type: 'WEAKAURAS2', _userId: req.user._id}).exec()
+    }
     lua.JSON2WeakAura(json, (error, result) => {
       if (error) {
         return res.send({error: error})
