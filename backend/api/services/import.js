@@ -629,17 +629,26 @@ server.post('/import/submit', function(req, res) {
               json.c[i].url = doc.url + '/1'
             }
           }
-          lua.JSON2WeakAura(json, (error, result) => {
-            code.encoded = result.stdout
-            code.json = JSON.stringify(json)
-            code.save().then((codeDoc) => {
-              // broadcast to discord webhook?
-              if (req.body.importAs === 'User' && req.user && !wago.hidden && !wago.private && req.user.discord && req.user.discord.webhooks.onCreate) {
-                discord.webhookOnCreate(req.user, wago)
-              }
-              res.send({success: true, wagoID: doc._id})
+
+          code.save().then((codeDoc) => {
+            // broadcast to discord webhook?
+            if (req.body.importAs === 'User' && req.user && !wago.hidden && !wago.private && req.user.discord && req.user.discord.webhooks.onCreate) {
+              discord.webhookOnCreate(req.user, wago)
+            }
+
+            lua.JSON2WeakAura(json, (error, result) => {
+              code.encoded = result.stdout
+              code.json = JSON.stringify(json)
+              code.save().then((codeDoc) => {
+                // update with re-encoded data once ready
+              })
             })
+
+            // tell browser that things are ready, the re-encoded string will update in a moment
+            res.send({success: true, wagoID: doc._id})
           })
+
+          
         }
         else {
           code.save().then((codeDoc) => {

@@ -1,7 +1,7 @@
 const execa = require('execa')
 const execaOptions = {
   cwd: __dirname+'/../lua',
-  timeout: 15000
+  timeout: 8000
 }
 const wagoify = require('./wago-luamin').minify
 
@@ -27,6 +27,10 @@ module.exports = {
     }
 
     // generate lua file
+    var options = Object.assign({}, execaOptions)
+    if (str.len > execaOptions.timeout * 10) {
+      options.timeout = Math.round(str.len / 10)
+    }
     var luaScript = 'dofile("./wago.lua"); WA2JSON("' + str + '")'
     var luaFile = tmpLuaFileName(str)
     
@@ -36,7 +40,7 @@ module.exports = {
       }
 
       // run luajit and return output
-      execa('luajit', [luaFile], execaOptions).then((res) => {
+      execa('luajit', [luaFile], options).then((res) => {
         // delete the temp lua file. async - no need to wait for it
         fs.unlink(luaFile)
         cb(null, res)
