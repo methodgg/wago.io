@@ -86,6 +86,7 @@ module.exports = {
       {id: "legen", slug: "equipment/legendaries", cls:"equip", text: t("Legendaries"), WEAKAURA: true, COLLECTION: true},
       {id: "equip1", slug: "equipment/trinkets", cls:"equip", text: t("Trinkets"), WEAKAURA: true, COLLECTION: true},
       {id: "equip2", slug: "equipment/item-enhancements", cls:"equip", text: t("Item Enhancements"), WEAKAURA: true, COLLECTION: true},
+      {id: "equip3", slug: "equipment/azerite-traits", cls:"equip", text: t("Azerite Traits"), WEAKAURA: true, COLLECTION: true},
       
       {id: "mech", slug: "combat-mechanics", cls:"mechanics", text: t("Combat Mechanics"), root: true, WEAKAURA: true, COLLECTION: true},
       {id: "mech1", slug: "combat-mechanics/battle-resurrection", cls:"mechanics", text: t("Battle Resurrection"), WEAKAURA: true, COLLECTION: true},
@@ -174,7 +175,7 @@ module.exports = {
       {id: "raidnh9", slug: "pve/nighthold/grand-magistrix-elisande", cls:"nighthold", text: t("warcraft:bosses.110965"), WEAKAURA: true},
       {id: "raidnh10", slug: "pve/nighthold/guldan", cls:"nighthold", text: t("warcraft:bosses.105503"), WEAKAURA: true},
 
-      {id: "dungeon", slug: "pve/dungeons", cls:"dungeon", text: t("Legion Dungeons"), root: true, WEAKAURA: true, COLLECTION: true},
+      {id: "dungeon", slug: "pve/dungeons", cls:"dungeon", text: t("Legion Dungeons"), noselect: true, root: true, WEAKAURA: true, COLLECTION: true},
       {id: "dungeon3", slug: "pve/dungeons/arcway", cls:"dungeon", text: t("warcraft:zones.7855"), WEAKAURA: true},
       {id: "dungeon1", slug: "pve/dungeons/assault-on-violet-hold", cls:"dungeon", text: t("warcraft:zones.7996"), WEAKAURA: true},
       {id: "dungeon4", slug: "pve/dungeons/blackrook-hold", cls:"dungeon", text: t("warcraft:zones.7805"), WEAKAURA: true},
@@ -201,7 +202,7 @@ module.exports = {
       {id: "bfadungeon9", slug: "pve/bfa-dungeons/tol-dagor", cls:"dungeon", text: t("warcraft:zones.9327"), WEAKAURA: true},
       {id: "bfadungeon10", slug: "pve/bfa-dungeons/waycrest-manor", cls:"dungeon", text: t("warcraft:zones.9424"), WEAKAURA: true},
 
-      {id: "pvp", slug: "pvp", cls:"pvp", text: t("PvP"), noselect: true, WEAKAURA: true},
+      // {id: "pvp", slug: "pvp", cls:"pvp", text: t("PvP"), noselect: true, WEAKAURA: true},
 
       {id: "arena", slug: "pvp/arena", cls:"pvp-arena", text: t("Arena"), root: true, WEAKAURA: true, COLLECTION: true},
       // {id: "arena1", slug: "pvp/arena/blades-edge", cls:"pvp-arena", text: t("Blade's Edge Arena"), WEAKAURA: true, "hideFromMenu": true},
@@ -227,7 +228,7 @@ module.exports = {
       // {id: "bg10", slug: "pvp/battlegrounds/twin-peaks", cls:"pvp-battleground", text: t("Twin Peaks"), WEAKAURA: true, "hideFromMenu": true},
       // {id: "bg11", slug: "pvp/battlegrounds/warsong-gulch", cls:"pvp-battleground", text: t("Warsong Gulch"), WEAKAURA: true, "hideFromMenu": true},
 
-      {id: "wpvp", slug: "pvp/world-pvp", cls:"pvp-world", text: t("World PvP"), WEAKAURA: true, COLLECTION: true},
+      {id: "wpvp", slug: "pvp/world-pvp", cls:"pvp-world", text: t("World PvP"), root: true, WEAKAURA: true, COLLECTION: true},
       {id: "wpvp1", slug: "pvp/duels", cls:"pvp-world", text: t("Duels"), WEAKAURA: true},
       
       // {id: "prof0", slug: "professions", cls:"prof", text: t("Professions"), noselect: true, WEAKAURA: true, COLLECTION: true},
