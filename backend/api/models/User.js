@@ -32,7 +32,8 @@ const Schema = new mongoose.Schema({
     },
     subscriber : { type: Boolean, default: false },
     gold_subscriber : { type: Boolean, default: false },
-    ambassador : { type: Boolean, default: false }
+    ambassador : { type: Boolean, default: false },
+    artContestWinnerAug2018: { type: Boolean, default: false }
   },
   api : {
     public_key : { type: String, default: '' },
@@ -178,21 +179,21 @@ Schema.virtual('avatarURL').get(function() {
 
 
 Schema.virtual('access.custom_slug').get(function() {
-  if (this.roles.super_admin) return true
-  if (this.roles.gold_subscriber || this.roles.ambassador) return true
+  if (this.roles.admin.super) return true
+  if (this.roles.gold_subscriber || this.roles.ambassador || this.roles.artContestWinnerAug2018) return true
 
   return false
 })
 Schema.virtual('access.animatedAvatar').get(function() {
   if (this.roles.admin.super) return true
-  if (this.roles.gold_subscriber || this.roles.subscriber || this.roles.ambassador || this.roles.admin.moderator) return true
+  if (this.roles.gold_subscriber || this.roles.subscriber || this.roles.ambassador || this.roles.admin.moderator || this.roles.artContestWinnerAug2018) return true
 
   return false
 })
 
 Schema.virtual('access.beta').get(function() {
   if (this.roles.admin.super) return true
-  if (this.roles.gold_subscriber || this.roles.subscriber || this.roles.ambassador || this.roles.admin.moderator) return true
+  if (this.roles.gold_subscriber || this.roles.subscriber || this.roles.ambassador || this.roles.admin.moderator || this.roles.artContestWinnerAug2018) return true
 
   return false
 })
@@ -202,7 +203,7 @@ Schema.virtual('roleclass').get(function() {
       return 'user-admin'
   else if (this.roles.admin.moderator)
       return 'user-moderator'
-  else if (this.roles.gold_subscriber)
+  else if (this.roles.gold_subscriber || this.roles.artContestWinnerAug2018)
       return 'user-goldsub'
   else if (this.roles.subscriber)
       return 'user-sub'

@@ -168,13 +168,13 @@
                     </div>
                   </div>
                 </div>
-                <div v-if="wago.type=='WEAKAURA'">
+                <!--<div v-if="wago.type=='WEAKAURA'">
                   <label id="betaLabel">{{ $t("Game") }}</label>
                   <md-button-toggle md-single class="md-accent md-warn">
                     <md-button :class="{ 'md-toggle': gameMode === '' }" @click="setGameMode('')">Legion Live</md-button>
                     <md-button :class="{ 'md-toggle': gameMode === 'beta-bfa' }"@click="setGameMode('beta-bfa')">BFA Beta</md-button>
                   </md-button-toggle>
-                </div>
+                </div>-->
                 <h3>{{ $t("Preview setup")}}</h3>
                 <md-layout>
                   <md-layout md-flex="75">
