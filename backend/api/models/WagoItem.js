@@ -119,7 +119,7 @@ Schema.virtual('url').get(function() {
 })
 
 Schema.statics.randomOfTheMoment = function(callback) {
-  var search = {"hidden": false, "private": false, "deleted": false, $or:[{type: 'WEAKAURAS2'}, {type: 'ELVUI'}, {type: 'VUHDO'}]}
+  var search = {"hidden": false, "private": false, "deleted": false, $or:[{type: 'WEAKAURAS2'}, {type: 'ELVUI'}, {type: 'VUHDO'}], modified: { "$gte": new Date(2018, 7, 17) } }
   this.count(search).exec().then((count) => {
     if (count > 0) {
       var rand = Math.floor(Math.random() * count)

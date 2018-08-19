@@ -3,9 +3,9 @@
  * Restrict all /tasks requests to localhost.
  */
 server.get('/tasks/:task', (req, res, next) => {
-  // if (req.connection.remoteAddress !== '::ffff:127.0.0.1') {
-  //   return res.send(403, {error: 'invalid_access'})
-  // }
+  if (req.connection.remoteAddress !== '::ffff:127.0.0.1') {
+    return res.send(403, {error: 'invalid_access'})
+  }
   
   RunTask(req.params.task, req, res)
 })
