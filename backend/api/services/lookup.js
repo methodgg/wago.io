@@ -50,14 +50,19 @@ server.get('/lookup/wago', (req, res, next) => {
     doc.popularity.views++
     doc.popularity.viewsThisWeek++
 
-    ViewsThisWeek.find({viewed: { $gt: new Date().getTime() - 1000 * 60 * 20 }, source: req.connection.remoteAddress, wagoID: doc._id}).then((recent) => {
+    var ipAddress = req.headers['x-forwarded-for'] ||
+      req.connection.remoteAddress || 
+      req.socket.remoteAddress ||
+      (req.connection.socket ? req.connection.socket.remoteAddress : null);
+
+    ViewsThisWeek.find({viewed: { $gt: new Date().getTime() - 1000 * 60 * 20 }, source: ipAddress, wagoID: doc._id}).then((recent) => {
       console.log(recent, recent.length)
       if (!recent || recent.length === 0) {
         doc.save()
         
         var pop = new ViewsThisWeek()
         pop.wagoID = doc._id
-        pop.source = req.connection.remoteAddress
+        pop.source = ipAddress
         pop.save()
       }
     })
