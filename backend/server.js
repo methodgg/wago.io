@@ -42,7 +42,7 @@ const expressWinston = require('express-winston')
  */
 const corsMiddleware = require('restify-cors-middleware')
 const cors = corsMiddleware({
-  origins: ['http://wago.io', 'https://wago.io', 'https://*.wago.io', 'http://192.168.0.181:8080'],
+  origins: ['http://wago.io', 'https://wago.io', 'https://*.wago.io', 'http://192.168.0.14:8080'],
   allowHeaders: ['Cookie', 'Authorization', 'x-auth-token'],
   exposeHeaders: ['Set-Cookie', 'wotm']
 })

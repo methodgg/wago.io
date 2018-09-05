@@ -279,6 +279,16 @@ end
 function WA2JSON(importStr) 
   local t = StringToTable(importStr, false)
 
+  if t and t.d and t.d.triggers and t.d.triggers["1"] then
+    local n = 1
+    local triggers = {}
+    while t.d.triggers[""..n] do
+      tinsert(triggers, t.d.triggers[""..n])
+      n = n+1
+    end
+    t.d.triggers = triggers
+  end
+
   if (t) then
     print(JSON:encode(t))
   else

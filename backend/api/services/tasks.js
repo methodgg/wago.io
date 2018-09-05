@@ -4,6 +4,7 @@
  */
 server.get('/tasks/:task', (req, res, next) => {
   if (req.connection.remoteAddress !== '::ffff:127.0.0.1') {
+    console.log(req.connections.remoteAddress)
     return res.send(403, {error: 'invalid_access'})
   }
   

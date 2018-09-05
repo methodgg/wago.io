@@ -94,7 +94,6 @@
         <span><router-link to="/privacy-policy">{{ $t("Privacy Policy") }}</router-link></span>
       </div>
 
-      <a class="resource" target="_blank" href="https://postapoc.gg"><img src="./assets/postapoc.png">Post Apocalypse</a>
       <a class="resource" target="_blank" href="https://www.patreon.com/wago"><img src="./assets/patreon.png">{{ $t("Support the website") }}</a>
       <a class="resource" target="_blank" href="https://discord.gg/wa2"><img src="./assets/discord.png">{{ $t("Join WA Discord") }}</a>
       <a class="resource" target="_blank" href="https://github.com/oratory/wago.io"><img src="./assets/github.png">{{ $t("View source") }}</a>
