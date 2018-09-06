@@ -10,7 +10,10 @@ const Schema = new mongoose.Schema({
   version: Number, // incremental counter
   branch: String, // ex "8.0-beta", default is not set for live
   semver: String,
-  changelog: String
+  changelog: String,
+  fix: {
+    triggerTable: Boolean // for WA 7.3.6 release that broke imports with triggers Sept 5-6 2018
+  }
 });
 // compound text index
 Schema.index({json: 'text', lua: 'text'})

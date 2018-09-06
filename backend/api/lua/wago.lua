@@ -279,16 +279,6 @@ end
 function WA2JSON(importStr) 
   local t = StringToTable(importStr, false)
 
-  if t and t.d and t.d.triggers and t.d.triggers["1"] then
-    local n = 1
-    local triggers = {}
-    while t.d.triggers[""..n] do
-      tinsert(triggers, t.d.triggers[""..n])
-      n = n+1
-    end
-    t.d.triggers = triggers
-  end
-
   if (t) then
     print(JSON:encode(t))
   else
@@ -298,6 +288,29 @@ end
 
 function JSON2WA(json)
   local t = JSON:decode(json)
+  local n
+
+  if t and t.d and t.d.triggers and t.d.triggers["1"] then
+    n = 1
+    while t.d.triggers[""..n] do
+      tinsert(t.d.triggers, t.d.triggers[""..n])
+      t.d.triggers[""..n] = nil
+      n = n+1
+    end
+  end
+
+  if t and t.c then
+    for i=1, #t.c do
+      if t.c[i].triggers and t.c[i].triggers["1"] then
+        n = 1
+        while t.c[i].triggers[""..n] do
+          tinsert(t.c[i].triggers, t.c[i].triggers[""..n])
+          t.c[i].triggers[""..n] = nil
+          n = n+1
+        end
+      end
+    end
+  end
 
   if (t) then
     print(TableToString(t))

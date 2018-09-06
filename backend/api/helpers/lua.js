@@ -42,6 +42,7 @@ module.exports = {
       // run luajit and return output
       execa('luajit', [luaFile], options).then((res) => {
         // delete the temp lua file. async - no need to wait for it
+        console.log(res)
         fs.unlink(luaFile)
         cb(null, res)
       })

@@ -1,10 +1,10 @@
 /**
  * Standard lookup requests
  */
+const lua = require('../helpers/lua')
+var wowPatches = require('../helpers/wowPatches')
 
- var wowPatches = require('../helpers/wowPatches')
-
- function doNothing () {}
+function doNothing () {}
 
  server.get('/lookup/codereview', (req, res) => {
   WagoCode.lookup(req.query.wagoID).then((code) => {
@@ -239,9 +239,18 @@ server.get('/lookup/wago', (req, res, next) => {
           if (doc.type === 'SNIPPET') {
             cb(null, {lua: code.lua})
           }
+          else if (wago.type === 'WEAKAURA' && wago.date.modified >= new Date('2018-09-05') && wago.date.modified <= new Date('2018-09-07') && !code.fix.triggerTable) {
+            console.log('fix time!')
+            lua.JSON2WeakAura(code.json, (error, result) => {
+              code.encoded = result.stdout
+              code.fix.triggerTable = true
+              code.save()           
+              cb(null, {json: code.json, encoded: code.encoded})
+            })
+          }
           else {
             cb(null, {json: code.json, encoded: code.encoded})
-          }
+          }     
         })
       },
       versionsLookup: (cb) => {
