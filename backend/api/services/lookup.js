@@ -240,7 +240,6 @@ server.get('/lookup/wago', (req, res, next) => {
             cb(null, {lua: code.lua})
           }
           else if (wago.type === 'WEAKAURA' && wago.date.modified >= new Date('2018-09-05') && wago.date.modified <= new Date('2018-09-07') && !code.fix.triggerTable) {
-            console.log('fix time!')
             lua.JSON2WeakAura(code.json, (error, result) => {
               code.encoded = result.stdout
               code.fix.triggerTable = true

@@ -259,10 +259,6 @@ function createUser (req, res) {
     })).then(function (google) {
       console.log(google.data)
       if (google.data.success) {
-        // make sure username is not in use
-        console.log('success')
-        return
-      
         var user = new User()
         user.account.username = req.body.username
         user.search.username = req.body.username.toLowerCase()
