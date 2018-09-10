@@ -14,7 +14,7 @@ var supportedLocales = new locale.Locales(localeArray)
  * Gets user information or detects locale if not logged in
  */
 server.get('/account/whoami', (req, res, next) => {
-  data = {}
+  var data = {}
   // if user has locale preference saved
   if (req.user && req.user.locale && localeArray.indexOf(user.locale) !== -1) {
     data.locale = req.user.locale

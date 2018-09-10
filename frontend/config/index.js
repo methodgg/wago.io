@@ -28,8 +28,8 @@ module.exports = {
   dev: {
     env: {
       NODE_ENV: '"development"',
-      API_SERVER: '"http://192.168.0.14:3030"',
-      WEB_SERVER: '"http://192.168.0.14:8080"'
+      API_SERVER: '"http://192.168.0.16:3030"',
+      WEB_SERVER: '"http://192.168.0.16:8080"'
     },
     port: 8080,
     autoOpenBrowser: true,
