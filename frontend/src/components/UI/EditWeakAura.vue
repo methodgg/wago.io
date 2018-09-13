@@ -232,103 +232,163 @@ export default {
           func.push({ id: item.id, name: this.$t('DisplayStacks'), ix: ix, path: 'customText' })
         }
 
-        // primary trigger
-        if (item.trigger && item.trigger.type === 'custom' && item.trigger.custom) {
-          if (func.indexOf(item.id) < 0) {
-            func.push(item.id)
+        // triggers
+        if (item.triggers && item.triggers['1']) {
+          let n = 1
+          let k = '' + 1
+          if (item.triggers.disjunctive === 'custom' && item.triggers.customTriggerLogic && item.triggers.customTriggerLogic.trim().length > 0) {
+            func.push({ id: item.id, name: this.$t('Trigger Logic'), ix: ix, path: 'triggers.customTriggerLogic' })
           }
-
-          func.push({ id: item.id, name: this.$t('Trigger ([-count-])', {count: 1}), ix: ix, path: 'trigger.custom' })
-
-          // main untrigger
-          if (item.untrigger && item.untrigger.custom && item.untrigger.custom.trim().length > 0) {
-            func.push({ id: item.id, name: this.$t('Untrigger ([-count-])', {count: 1}), ix: ix, path: 'untrigger.custom' })
-          }
-
-          // duration
-          if (item.trigger && item.trigger.customDuration && item.trigger.customDuration.trim().length > 0) {
-            func.push({ id: item.id, name: this.$t('Duration Info ([-count-])', {count: 1}), ix: ix, path: 'trigger.customDuration' })
-          }
-
-          // overlay
-          if (item.trigger && item.trigger.customOverlay1 && item.trigger.customOverlay1.trim().length > 0) {
-            var overlayCount = 1
-            while (item.trigger['customOverlay' + overlayCount] && item.trigger['customOverlay' + overlayCount].trim().length > 0) {
-              func.push({ id: item.id, name: this.$t('Overlay [-num-] ([-count-])', {num: overlayCount, count: 1}), ix: ix, path: 'trigger.customOverlay' + overlayCount })
-              overlayCount++
-            }
-          }
-
-          // name
-          if (item.trigger && item.trigger.customName && item.trigger.customName.trim().length > 0) {
-            func.push({ id: item.id, name: this.$t('Name Info ([-count-])', {count: 1}), ix: ix, path: 'trigger.customName' })
-          }
-
-          // icon
-          if (item.trigger && item.trigger.customIcon && item.trigger.customIcon.trim().length > 0) {
-            func.push({ id: item.id, name: this.$t('Icon Info ([-count-])', {count: 1}), ix: ix, path: 'trigger.customIcon' })
-          }
-
-          // texture
-          if (item.trigger && item.trigger.customTexture && item.trigger.customTexture.trim().length > 0) {
-            func.push({ id: item.id, name: this.$t('Texture Info ([-count-])', {count: 1}), ix: ix, path: 'trigger.customTexture' })
-          }
-
-          // stacks
-          if (item.trigger && item.trigger.customStacks && item.trigger.customStacks.trim().length > 0) {
-            func.push({ id: item.id, name: this.$t('Stack Info ([-count-])', {count: 1}), ix: ix, path: 'trigger.customStacks' })
-          }
-        }
-
-        // secondary triggers
-        if (item.additional_triggers && item.additional_triggers.length > 0) {
-          for (var k = 0; k < item.additional_triggers.length; k++) {
-            if (item.additional_triggers[k].trigger && item.additional_triggers[k].trigger.type === 'custom' && item.additional_triggers[k].trigger.custom) {
+          while (item.triggers[k] && item.triggers[k].trigger) {
+            if (item.triggers[k].trigger.type === 'custom' && item.triggers[k].trigger.custom) {
               if (func.indexOf(item.id) < 0) {
                 func.push(item.id)
               }
 
-              func.push({ id: item.id, name: this.$t('Trigger ([-count-])', {count: k + 2}), ix: ix, path: 'additional_triggers[' + k + '].trigger.custom' })
+              func.push({ id: item.id, name: this.$t('Trigger ([-count-])', {count: k}), ix: ix, path: 'triggers[""+' + k + '].trigger.custom' })
 
               // untrigger
-              if (item.additional_triggers[k].untrigger && item.additional_triggers[k].untrigger.custom && item.additional_triggers[k].untrigger.custom.trim().length > 0) {
-                func.push({ id: item.id, name: this.$t('Untrigger ([-count-])', {count: k + 2}), ix: ix, path: 'additional_triggers[' + k + '].untrigger.custom' })
+              if (item.triggers[k].untrigger && item.triggers[k].untrigger.custom && item.triggers[k].untrigger.custom.trim().length > 0 && item.triggers[k].trigger.custom_hide === 'custom') {
+                func.push({ id: item.id, name: this.$t('Untrigger ([-count-])', {count: k}), ix: ix, path: 'triggers[""+' + k + '].untrigger.custom' })
               }
 
               // duration
-              if (item.trigger && item.trigger.customDuration && item.trigger.customDuration.trim().length > 0) {
-                func.push({ id: item.id, name: this.$t('Duration Info ([-count-])', {count: k + 2}), ix: ix, path: 'additional_triggers[' + k + '].trigger.customDuration' })
+              if (item.triggers[k].trigger.customDuration && item.triggers[k].trigger.customDuration.trim().length > 0) {
+                func.push({ id: item.id, name: this.$t('Duration Info ([-count-])', {count: k}), ix: ix, path: 'triggers[""+' + k + '].trigger.customDuration' })
               }
 
               // name
-              if (item.trigger && item.trigger.customName && item.trigger.customName.trim().length > 0) {
-                func.push({ id: item.id, name: this.$t('Name Info ([-count-])', {count: k + 2}), ix: ix, path: 'additional_triggers[' + k + '].trigger.customName' })
+              if (item.triggers[k].trigger.customName && item.triggers[k].trigger.customName.trim().length > 0) {
+                func.push({ id: item.id, name: this.$t('Name Info ([-count-])', {count: k}), ix: ix, path: 'triggers[""+' + k + '].trigger.customName' })
               }
 
               // icon
-              if (item.trigger && item.trigger.customIcon && item.trigger.customIcon.trim().length > 0) {
-                func.push({ id: item.id, name: this.$t('Icon Info ([-count-])', {count: k + 2}), ix: ix, path: 'additional_triggers[' + k + '].trigger.customIcon' })
+              if (item.triggers[k].trigger.customIcon && item.triggers[k].trigger.customIcon.trim().length > 0) {
+                func.push({ id: item.id, name: this.$t('Icon Info ([-count-])', {count: k}), ix: ix, path: 'triggers[""+' + k + '].trigger.customIcon' })
               }
 
               // texture
-              if (item.trigger && item.trigger.customTexture && item.trigger.customTexture.trim().length > 0) {
-                func.push({ id: item.id, name: this.$t('Texture Info ([-count-])', {count: k + 2}), ix: ix, path: 'additional_triggers[' + k + '].trigger.customTexture' })
+              if (item.triggers[k].trigger.customTexture && item.triggers[k].trigger.customTexture.trim().length > 0) {
+                func.push({ id: item.id, name: this.$t('Texture Info ([-count-])', {count: k}), ix: ix, path: 'triggers[""+' + k + '].trigger.customTexture' })
               }
 
               // stacks
-              if (item.trigger && item.trigger.customStacks && item.trigger.customStacks.trim().length > 0) {
-                func.push({ id: item.id, name: this.$t('Stack Info ([-count-])', {count: k + 2}), ix: ix, path: 'additional_triggers[' + k + '].trigger.customStacks' })
+              if (item.triggers[k].trigger.customStacks && item.triggers[k].trigger.customStacks.trim().length > 0) {
+                func.push({ id: item.id, name: this.$t('Stack Info ([-count-])', {count: k}), ix: ix, path: 'triggers[""+' + k + '].trigger.customStacks' })
               }
+
+              let overlayCount = 1
+              while (item.triggers[k].trigger['customOverlay' + overlayCount]) {
+                if (item.triggers[k].trigger['customOverlay' + overlayCount].trim().length > 0) {
+                  func.push({ id: item.id, name: this.$t('Overlay [-num-] ([-count-])', {num: overlayCount, count: k}), ix: ix, path: 'triggers[""+' + k + '].trigger["customOverlay' + overlayCount + '"]' })
+                }
+                overlayCount++
+              }
+            }
+
+            n++
+            k = '' + n
+          }
+        }
+        else {
+          // primary trigger (old format)
+          if (item.trigger && item.trigger.type === 'custom' && item.trigger.custom) {
+            if (func.indexOf(item.id) < 0) {
+              func.push(item.id)
+            }
+
+            func.push({ id: item.id, name: this.$t('Trigger ([-count-])', {count: 1}), ix: ix, path: 'trigger.custom' })
+
+            // main untrigger
+            if (item.untrigger && item.untrigger.custom && item.untrigger.custom.trim().length > 0) {
+              func.push({ id: item.id, name: this.$t('Untrigger ([-count-])', {count: 1}), ix: ix, path: 'untrigger.custom' })
+            }
+
+            // duration
+            if (item.trigger && item.trigger.customDuration && item.trigger.customDuration.trim().length > 0) {
+              func.push({ id: item.id, name: this.$t('Duration Info ([-count-])', {count: 1}), ix: ix, path: 'trigger.customDuration' })
+            }
+
+            // overlay
+            if (item.trigger && item.trigger.customOverlay1 && item.trigger.customOverlay1.trim().length > 0) {
+              var overlayCount = 1
+              while (item.trigger['customOverlay' + overlayCount] && item.trigger['customOverlay' + overlayCount].trim().length > 0) {
+                func.push({ id: item.id, name: this.$t('Overlay [-num-] ([-count-])', {num: overlayCount, count: 1}), ix: ix, path: 'trigger.customOverlay' + overlayCount })
+                overlayCount++
+              }
+            }
+
+            // name
+            if (item.trigger && item.trigger.customName && item.trigger.customName.trim().length > 0) {
+              func.push({ id: item.id, name: this.$t('Name Info ([-count-])', {count: 1}), ix: ix, path: 'trigger.customName' })
+            }
+
+            // icon
+            if (item.trigger && item.trigger.customIcon && item.trigger.customIcon.trim().length > 0) {
+              func.push({ id: item.id, name: this.$t('Icon Info ([-count-])', {count: 1}), ix: ix, path: 'trigger.customIcon' })
+            }
+
+            // texture
+            if (item.trigger && item.trigger.customTexture && item.trigger.customTexture.trim().length > 0) {
+              func.push({ id: item.id, name: this.$t('Texture Info ([-count-])', {count: 1}), ix: ix, path: 'trigger.customTexture' })
+            }
+
+            // stacks
+            if (item.trigger && item.trigger.customStacks && item.trigger.customStacks.trim().length > 0) {
+              func.push({ id: item.id, name: this.$t('Stack Info ([-count-])', {count: 1}), ix: ix, path: 'trigger.customStacks' })
             }
           }
 
-          if (func.indexOf(item.id) < 0) {
-            func.push(item.id)
-          }
+          // secondary triggers
+          if (item.additional_triggers && item.additional_triggers.length > 0) {
+            for (let k = 0; k < item.additional_triggers.length; k++) {
+              if (item.additional_triggers[k].trigger && item.additional_triggers[k].trigger.type === 'custom' && item.additional_triggers[k].trigger.custom) {
+                if (func.indexOf(item.id) < 0) {
+                  func.push(item.id)
+                }
 
-          // trigger logic (must have at least 2 triggers)
-          if (item.disjunctive === 'custom' && item.customTriggerLogic && item.customTriggerLogic.trim().length > 0) {
-            func.push({ id: item.id, name: this.$t('Trigger Logic'), ix: ix, path: 'customTriggerLogic' })
+                func.push({ id: item.id, name: this.$t('Trigger ([-count-])', {count: k + 2}), ix: ix, path: 'additional_triggers[' + k + '].trigger.custom' })
+
+                // untrigger
+                if (item.additional_triggers[k].untrigger && item.additional_triggers[k].untrigger.custom && item.additional_triggers[k].untrigger.custom.trim().length > 0) {
+                  func.push({ id: item.id, name: this.$t('Untrigger ([-count-])', {count: k + 2}), ix: ix, path: 'additional_triggers[' + k + '].untrigger.custom' })
+                }
+
+                // duration
+                if (item.trigger && item.trigger.customDuration && item.trigger.customDuration.trim().length > 0) {
+                  func.push({ id: item.id, name: this.$t('Duration Info ([-count-])', {count: k + 2}), ix: ix, path: 'additional_triggers[' + k + '].trigger.customDuration' })
+                }
+
+                // name
+                if (item.trigger && item.trigger.customName && item.trigger.customName.trim().length > 0) {
+                  func.push({ id: item.id, name: this.$t('Name Info ([-count-])', {count: k + 2}), ix: ix, path: 'additional_triggers[' + k + '].trigger.customName' })
+                }
+
+                // icon
+                if (item.trigger && item.trigger.customIcon && item.trigger.customIcon.trim().length > 0) {
+                  func.push({ id: item.id, name: this.$t('Icon Info ([-count-])', {count: k + 2}), ix: ix, path: 'additional_triggers[' + k + '].trigger.customIcon' })
+                }
+
+                // texture
+                if (item.trigger && item.trigger.customTexture && item.trigger.customTexture.trim().length > 0) {
+                  func.push({ id: item.id, name: this.$t('Texture Info ([-count-])', {count: k + 2}), ix: ix, path: 'additional_triggers[' + k + '].trigger.customTexture' })
+                }
+
+                // stacks
+                if (item.trigger && item.trigger.customStacks && item.trigger.customStacks.trim().length > 0) {
+                  func.push({ id: item.id, name: this.$t('Stack Info ([-count-])', {count: k + 2}), ix: ix, path: 'additional_triggers[' + k + '].trigger.customStacks' })
+                }
+              }
+            }
+
+            if (func.indexOf(item.id) < 0) {
+              func.push(item.id)
+            }
+
+            // trigger logic (must have at least 2 triggers)
+            if (item.disjunctive === 'custom' && item.customTriggerLogic && item.customTriggerLogic.trim().length > 0) {
+              func.push({ id: item.id, name: this.$t('Trigger Logic'), ix: ix, path: 'customTriggerLogic' })
+            }
           }
         }
 
