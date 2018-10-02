@@ -51,7 +51,10 @@
           <div>
             <md-button @click="toTop"><md-icon>arrow_upward</md-icon> {{ $t("To top") }}</md-button>
           </div>
-          <md-button v-if="wago.code && wago.code.encoded && !wago.alerts.blacklist" @click="copyEncoded" class="copy-import-button"><md-icon>assignment</md-icon> {{ $t("Copy [-type-] import string", {type: wago.type}) }}</md-button>
+          <md-button v-if="wago.code && wago.code.encoded && !wago.alerts.blacklist" @click="copyEncoded" class="copy-import-button">
+            <md-icon>assignment</md-icon> {{ $t("Copy [-type-] import string", {type: wago.type}) }}
+            <md-tooltip v-if="wago.type==='WEAKAURA' && wago.code.encoded.match(/^!/)" md-direction="bottom" class="waVersionWarningTooltip">WeakAuras has been updated for a more efficient import string.<br>Please ensure you have at least version 2.8.0 to import this string.</md-tooltip>
+          </md-button>
         </div>
       </md-card>
 
@@ -80,7 +83,10 @@
                   <md-icon v-else>star_border</md-icon> {{ $t("Favorite") }}
                 </md-button>
                 <md-button v-if="wago.user && User && wago.UID && wago.UID === User.UID && wago.code && wago.code.encoded" @click="$refs['newImportDialog'].open()" id="newImportButton"><md-icon>input</md-icon> {{ $t("Import new string") }}</md-button>
-                <md-button v-if="wago.code && wago.code.encoded && !wago.alerts.blacklist" @click="copyEncoded" class="copy-import-button"><md-icon>assignment</md-icon> {{ $t("Copy [-type-] import string", {type: wago.type}) }}</md-button>
+                <md-button v-if="wago.code && wago.code.encoded && !wago.alerts.blacklist" @click="copyEncoded" class="copy-import-button">
+                  <md-icon>assignment</md-icon> {{ $t("Copy [-type-] import string", {type: wago.type}) }}
+                  <md-tooltip v-if="wago.type==='WEAKAURA' && wago.code.encoded.match(/^!/)" md-direction="bottom" class="waVersionWarningTooltip">WeakAuras has been updated for a more efficient import string.<br>Please ensure you have at least version 2.8.0 to import this string.</md-tooltip>
+                </md-button>
                 <md-button v-if="wago.image && wago.image.files.tga" :href="wago.image.files.tga" class="copy-import-button"><md-icon>file_download</md-icon> {{ $t("Download tga file") }}</md-button>
               </md-card-actions>
               <md-dialog v-if="wago.user && User && wago.UID && wago.UID === User.UID" md-open-from="#newImportButton" md-close-to="#newImportButton" ref="newImportDialog" id="newImportDialog">
@@ -881,6 +887,7 @@ export default {
         else {
           window.eventHub.$emit('showSnackBar', this.$t('Import string failed to copy please upgrade to a modern browser'))
         }
+        document.querySelector('.copy-import-button:not([hidden])').focus()
         return copied
       }
       catch (e) {
@@ -1564,5 +1571,7 @@ ul:not(.md-list) > li.multiselect__element + li { margin-top: 0 }
 .my-gallery a img { border-color: transparent }
 
 #newImportDialog > div { min-width: 30% }
+
+.waVersionWarningTooltip { padding: 8px; border:5px solid #c1272d; font-size: 14px; height: auto; background: black; left: auto!important;right:-230px!important  }
 
 </style>

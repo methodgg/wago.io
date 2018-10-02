@@ -19,6 +19,7 @@ pcall(function() dofile( "./libs/LibBabble-Race-3.0/LibBabble-3.0.lua" ) end)
 pcall(function() dofile( "./libs/LibBabble-Race-3.0/LibBabble-Race-3.0.lua" ) end)
 pcall(function() dofile( "./libs/LibDataBroker-1.1/LibDataBroker-1.1.lua" ) end)
 pcall(function() dofile( "./libs/LibButtonGlow-1.0/LibButtonGlow-1.0.lua" ) end)
+pcall(function() dofile( "./libs/LibDeflate/LibDeflate.lua" ) end)
 
 dofile( "./VUHDO.lua" )
 
@@ -29,28 +30,53 @@ local Compresser = LibStub:GetLibrary("LibCompress")
 local LibCompress = LibStub:GetLibrary("LibCompress")
 local Encoder = Compresser:GetAddonEncodeTable()
 local Serializer = LibStub:GetLibrary("AceSerializer-3.0")
+local LibDeflate = LibStub:GetLibrary("LibDeflate")
+local configForDeflate = {level = 9}
 
 local JSON = (loadfile "./json.lua")()
 
 function StringToTable(inString)
-    local decoded = decodeB64(inString);
-    local decompressed, errorMsg = Compresser:Decompress(decoded);
-    if not(decompressed) then
-        return "Error decompressing: "..errorMsg;
-    end
+  -- if gsub strips off a ! at the beginning then we know that this is not a legacy encoding
+  local encoded, usesDeflate = inString:gsub("^%!", "")
+  local decoded
 
-    local success, deserialized = Serializer:Deserialize(decompressed);
-    if not(success) then
-        return "Error deserializing "..deserialized;
-    end
-    return deserialized;
+  decoded = decodeB64(inString);
+  if usesDeflate == 1 then
+    decoded = LibDeflate:DecodeForPrint(encoded)
+  else
+    decoded = decodeB64(encoded)
+  end
+
+  local decompressed, errorMsg = nil, "unknown compression method"
+  if usesDeflate == 1 then
+    decompressed = LibDeflate:DecompressDeflate(decoded)
+  else
+    decompressed, errorMsg = Compresser:Decompress(decoded)
+  end
+
+  if not(decompressed) then
+    return "Error decompressing: " .. errorMsg
+  end
+
+  local success, deserialized = Serializer:Deserialize(decompressed)
+  if not(success) then
+    return "Error deserializing "..deserialized
+  end
+  return deserialized
 end
 
 function TableToString(inTable)
-    local serialized = Serializer:Serialize(inTable);
-    local compressed = Compresser:CompressHuffman(serialized);
-    local encoded = encodeB64(compressed);
-    return encoded
+  local serialized = Serializer:Serialize(inTable)
+  local compressed = LibDeflate:CompressDeflate(serialized, configForDeflate)
+  local encoded = "!" .. LibDeflate:EncodeForPrint(compressed)
+  return encoded
+end
+
+function TableToStringOld(inTable)
+  local serialized = Serializer:Serialize(inTable);
+  local compressed = Compresser:CompressHuffman(serialized);
+  local encoded = encodeB64(compressed);
+  return encoded
 end
 
 local decodeB64Table = {}

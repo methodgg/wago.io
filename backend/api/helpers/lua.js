@@ -22,7 +22,7 @@ function tmpLuaFileName (str) {
 module.exports = {
   WeakAura2JSON: (str, cb) => {
     // make sure there is nothing shady in WA str
-    if (!str || !str.match(/^[a-zA-Z0-9\(\)]*$/)) {
+    if (!str || !str.match(/^!?[a-zA-Z0-9\(\)]*$/)) {
       return cb('Invalid import')
     }
 
