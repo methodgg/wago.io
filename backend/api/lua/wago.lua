@@ -65,14 +65,14 @@ function StringToTable(inString)
   return deserialized
 end
 
-function TableToStringNew(inTable)
+function TableToString(inTable)
   local serialized = Serializer:Serialize(inTable)
   local compressed = LibDeflate:CompressDeflate(serialized, configForDeflate)
   local encoded = "!" .. LibDeflate:EncodeForPrint(compressed)
   return encoded
 end
 
-function TableToString(inTable)
+function TableToStringOld(inTable)
   local serialized = Serializer:Serialize(inTable);
   local compressed = Compresser:CompressHuffman(serialized);
   local encoded = encodeB64(compressed);

@@ -798,7 +798,15 @@ local function object_or_array(self, T, etc)
             table.insert(string_keys , string_key)
             map[string_key] = T[number_key]
          else
-            self:onEncodeError("conflict converting table with mixed-type keys into a JSON object: key " .. number_key .. " exists both as a string and a number.", etc)
+            local increment_key = number_key+1
+            string_key = tostring(increment_key)
+            while map[string_key] ~= nil do
+              increment_key = increment_key+1
+              string_key = tostring(increment_key)
+            end
+            table.insert(string_keys , string_key)
+            map[string_key] = T[number_key]
+          --  self:onEncodeError("conflict converting table with mixed-type keys into a JSON object: key " .. number_key .. " exists both as a string and a number.", etc)
          end
       end
    end
