@@ -145,6 +145,10 @@
 .uldir a, .uldir { color: #D42D20!important}
 .multiselect .md-chip.uldir { background-color: #D42D20!important; color: black!important }
 
+.md-chip.zuldazar { color: #4BB21F!important; background-image: url('menu-zuldazar.png') }
+.zuldazar a, .zuldazar { color: #4BB21F!important}
+.multiselect .md-chip.zuldazar { background-color: #4BB21F!important; color: black!important }
+
 .md-chip.hellfirecitadel { color: #689E12!important; background-image: url('menu-hellfirecitadel.png') }
 .hellfirecitadel a, .hellfirecitadel { color: #689E12!important}
 .multiselect .md-chip.hellfirecitadel { background-color: #689E12!important; color: black!important }

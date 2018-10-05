@@ -91,7 +91,8 @@
     "8064": "The MOTHERLODE!!",
     "9391": "The Underrot",
     "9327": "Tol Dagor",
-    "9424": "Waycrest Manor"
+    "9424": "Waycrest Manor",
+    "10076": "The Burning of Zuldazar"
   },
   "bosses": {
     "76809": "Blast Furnace",
@@ -164,14 +165,26 @@
     "122468": "The Coven of Shivarra",
     "124691": "Aggramar",
     "124828": "Argus the Unmaker",
-    "137119": "Taloc the Corrupted",
-    "MOTHER": "MOTHER",
+    "132998": "G'huun",
     "133298": "Fetid Devourer",
-    "ZEK": "Zek'voz, Herald of N'zoth",
-    "ZUL": "Zul, Reborn",
-    "MYT": "Mythrax the Unraveler",
-    "VEC": "Vectis",
-    "GHU": "G'huun"
+    "134442": "Vectis",
+    "134445": "Zek'voz, Herald of N'zoth",
+    "136383": "Mythrax the Unraveler",
+    "137119": "Taloc the Corrupted",
+    "138967": "Zul, Reborn",
+    "140853": "MOTHER",
+    "144680": "Frida Ironbellows",
+    "144683": "Ra'wani Kanae",
+    "147268": "King Grong",
+    "144638": "Grong the Revanant",
+    "146099": "Flamefist and the Illuminated",
+    "144691": "Grimfang and Firecaller",
+    "147589": "High Tinker Mekkatorque",
+    "139633": "King Rastakhan",
+    "146256": "Laminaria",
+    "144747": "Loa Council",
+    "TREASUREGUARDIAN": "Treasure Guardian",
+    "JAINA": "Jaina Proudmoore"
   },
   "professions": {
     "alchemy": "Alchemy",
