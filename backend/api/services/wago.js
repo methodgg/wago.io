@@ -552,7 +552,12 @@ server.post('/wago/update/delete/confirm', (req, res) => {
       return res.send(404, {error: "no_wago"})
     }
 
-    wago.remove().then(() => {
+    wago.deleted = true
+    var today = new Date()
+    var expires = new Date(today.getFullYear(), today.getMonth(), today.getDate()+14)
+    wago.expires_at = expires
+
+    wago.save().then(() => {
       res.send({success: true})
     })
   })

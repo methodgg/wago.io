@@ -39,7 +39,7 @@ server.get('/lookup/wago', (req, res, next) => {
   var start = Date.now()
   WagoItem.lookup(req.params.id).then((doc) => {
     timing.WagoLookup = Date.now() - start
-    if (!doc) {
+    if (!doc || doc.deleted) {
       return res.send(404, {error: "page_not_found"})
     }
 
