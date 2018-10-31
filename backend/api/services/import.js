@@ -8,6 +8,7 @@ const RegexWeakAura = /^!?[a-zA-Z0-9\(\)]*$/
 const RegexElv = /^[a-zA-Z0-9=\+\/]*$/
 const RegexGrid = /^\[=== (.*) profile ===\]\n[ABCDEF0-9\n]+\n\[===/m
 const RegexTotalRP3 = /^\^.+\^\^$/
+const RegexTotalRP3Deflate = /^![a-zA-Z0-9\(\)]*$/
 
 /**
  * Scans an import string and validates the input.
@@ -110,9 +111,14 @@ function ScanImport (req, res, next, test) {
         return res.send({error: error})
       }
       else if (result.stderr || result.stdout=='' || result.stdout.indexOf("Error deserializing Supplied data is not AceSerializer data")>-1 || result.stdout.indexOf("Unknown compression method")>-1) {
-        // if this import string managed to match both WA and ElvUI encoding, then try ElvUI next
-        if (req.body.importString.match(RegexElv)) {
-          return ScanImport(req, res, next, { notWeakAura: true })
+        // if this import string matches a different import format...
+        if (req.body.importString.match(RegexTotalRP3Deflate)) {
+          test.notWeakAura = true
+          return ScanImport(req, res, next, test)
+        }
+        else if (req.body.importString.match(RegexElv)) {
+          test.notWeakAura = true
+          return ScanImport(req, res, next, test)
         }
         // otherwise, return error
         return res.send({error: 'invalid_import2'})
@@ -130,7 +136,6 @@ function ScanImport (req, res, next, test) {
           scan.input = req.body.importString
           scan.decoded = result.stdout
           scan.save().then((doc) => {
-            console.log('scanned', doc._id)
             // check load conditions to set default categories
             var categories = []
             
@@ -211,6 +216,7 @@ function ScanImport (req, res, next, test) {
             res.send({scan: doc._id.toString(), type: 'WeakAura', name: data.d.id, categories: categories})
           })
         }
+        // check for MDT data
         else if (data && data.value && data.value.currentDungeonIdx) {
           try {
             scan.type = 'MDT'
@@ -223,7 +229,7 @@ function ScanImport (req, res, next, test) {
                 var tmp = global.Categories.getCategory('mdtdun' + data.value.currentDungeonIdx)
                 if (tmp && tmp[0] && tmp[0].slug) {
                   // cheating because we dont have i8n here and we're not localizing import titles anyway
-                  tmp = tmp[0].slug.replace(/dungeons\//, '').replace(/-/g, ' ').replace(/\w\S*/g, (txt) => {
+                  tmp = tmp[0].slug.replace(/dungeons\//, '').replace(/pve\//, '').replace(/-/g, ' ').replace(/\w\S*/g, (txt) => {
                     return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
                   })
                   data.text = tmp
@@ -237,6 +243,10 @@ function ScanImport (req, res, next, test) {
             console.error('MDT import error', e)
             return res.send({error: 'invalid_import'})
           }
+        }
+        else if (req.body.importString.match(RegexTotalRP3Deflate)) {
+          test.notWeakAura = true
+          return ScanImport(req, res, next, test)
         }
         else {
           // unknown import with weakaura encoding
@@ -350,7 +360,7 @@ function ScanImport (req, res, next, test) {
   }
 
   // if input looks like a TotalRP3 string
-  else if (req.body.importString.match(RegexTotalRP3) && !test.notRP3) {
+  else if ((req.body.importString.match(RegexTotalRP3) || req.body.importString.match(RegexTotalRP3Deflate)) && !test.notRP3) {
     lua.TotalRP32JSON(req.body.importString, (error, result) => {
       if (error) {
         return res.send({error: error})
@@ -362,7 +372,7 @@ function ScanImport (req, res, next, test) {
       var scan = new ImportScan()
       try {
         var data = JSON.parse(result.stdout)
-        // if elvui fields found
+        // if totalRP fields found
         if (data && data[2] && data[2].MD && data[2].MD.CD && data[2].MD.CD.match(/\d+\/\d+\/\d+\s\d+:\d+\d+/)) {
           if (data.wagoID) {
             scan.fork = data.wagoID

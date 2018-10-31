@@ -282,6 +282,7 @@ function createUser (req, res) {
 
 // Login through Blizzard Battle.net
 function battlenetAuth(req, res) {
+  console.log('auth bnet')
   var key, secret
   if (req.headers.origin === 'https://t1000.wago.io') {
     key = config.auth.battlenet.betaClientID
@@ -292,10 +293,10 @@ function battlenetAuth(req, res) {
     secret = config.auth.battlenet.clientSecret
   }
   Axios.post('https://us.battle.net/oauth/token', querystring.stringify({
-    code: req.body.code || req.query.code,
     redirect_uri: req.headers.origin + '/auth/battlenet',
-    scope: 'wow.profile',
-    grant_type: 'authorization_code'
+    scope: 'wow.profile account.public',
+    grant_type: 'authorization_code',
+    code: req.body.code || req.query.code,
   }), {
     auth: {
       username: key,
@@ -303,7 +304,7 @@ function battlenetAuth(req, res) {
     }
   }).then(function (response) {
     var authResponse = {}
-    Axios.get('https://us.api.battle.net/account/user', {
+    Axios.get('https://us.battle.net/oauth/userinfo', {
       headers: {
         Authorization: 'Bearer ' + response.data.access_token
       }
@@ -325,6 +326,9 @@ function battlenetAuth(req, res) {
           },
           function getKR(callback) {
             getWoWProfile('kr', response.data.access_token, callback)
+          },
+          function getCN(callback) {
+            getWoWProfile('cn', response.data.access_token, callback)
           }
         ], (err, results) => {
           if (results) {
@@ -337,15 +341,15 @@ function battlenetAuth(req, res) {
         })
       }
       else {
-        callback({error: 'no_account_found'})
+        return res.send(403, {error: 'no_account_found'})
       }
     }).catch((err) => {
       winston.error('failed battlenet user fetch', err)
-      callback({error: 'no_account_found'})
+      return res.send(403, {error: 'no_account_found'})
     })
   }).catch((err) => {
-    winston.error('failed battlenet auth', err)
-    callback({error: 'no_account_found'})
+    console.error('failed battlenet auth', err.response)
+    return res.send(403, {error: 'no_account_found'})
   })
 }
 
@@ -725,16 +729,19 @@ function getWoWProfile(region, token, callback) {
   var url
   switch (region) {
     case 'us':
-      url = 'https://us.api.battle.net/wow/user/characters'
+      url = 'https://us.api.blizzard.com/wow/user/characters'
       break
     case 'eu':
-      url = 'https://eu.api.battle.net/wow/user/characters'
+      url = 'https://eu.api.blizzard.com/wow/user/characters'
       break
     case 'tw':
-      url = 'https://tw.api.battle.net/wow/user/characters'
+      url = 'https://tw.api.blizzard.com/wow/user/characters'
       break
-    case 'kr':
-      url = 'https://kr.api.battle.net/wow/user/characters'
+      case 'kr':
+      url = 'https://kr.api.blizzard.com/wow/user/characters'
+      break
+    case 'cn':
+      url = 'https://api.blizzard.com.cn/wow/user/characters'
       break
     default:
       console.log({error: 'unknown battlenet auth region', region: region})

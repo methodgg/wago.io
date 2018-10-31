@@ -490,7 +490,7 @@ if (window.location.hostname === 't1000.wago.io') {
   bnetClientID = 'knqu8yfycxhjzuufny6vja3z3jyzap8s'
 }
 else {
-  bnetClientID = '895thn7mck2jbqfmv3j6nfe9fsf7nvdr'
+  bnetClientID = '814f698f09d446a8b5ba7b1b6123fb3f'
 }
 
 // setup third party oauth authentication

@@ -1,5 +1,5 @@
 <template>
-  <div id="search-totalrp"> 
+  <div id="search-mdt"> 
     <form novalidate @submit.stop.prevent="runSearch(searchString)" id="searchForm">
       <md-input-container>
         <label>{{ $t("Search") }}</label>
@@ -84,8 +84,8 @@ export default {
   mounted: function () {
     this.$refs.searchInput.$el.focus()
     this.$store.commit('setPageInfo', {
-      title: 'TotalRP',
-      description: this.$t('Browse TotalRP imports')
+      title: 'MDT',
+      description: this.$t('Browse MDT imports')
     })
   }
 }
@@ -95,11 +95,11 @@ export default {
 #searchForm { padding: 16px }
 #searchForm button { margin-top: -3px }
 
-#search-totalrp .md-list-item img { height: 48px; padding-right: 16px; vertical-align:top}
-#search-totalrp a { margin-right: 12px }
-#search-totalrp .md-list-item.md-inset .md-list-item-container { padding-left: 24px; flex-wrap: wrap; padding-bottom: 16px }
-#search-totalrp .md-list-text-container a { white-space: nowrap; display: inline-block }
-#search-totalrp .md-list-text-container > a { font-size: 18px; font-weight: bold; line-height: 19px; }
-#search-totalrp .md-list-text-container span{ white-space: normal; line-height: 22px}
-#search-totalrp .md-layout { align-items: flex-start}
+#search-mdt .md-list-item img { height: 48px; padding-right: 16px; vertical-align:top}
+#search-mdt a { margin-right: 12px }
+#search-mdt .md-list-item.md-inset .md-list-item-container { padding-left: 24px; flex-wrap: wrap; padding-bottom: 16px }
+#search-mdt .md-list-text-container a { white-space: nowrap; display: inline-block }
+#search-mdt .md-list-text-container > a { font-size: 18px; font-weight: bold; line-height: 19px; }
+#search-mdt .md-list-text-container span{ white-space: normal; line-height: 22px}
+#search-mdt .md-layout { align-items: flex-start}
 </style>

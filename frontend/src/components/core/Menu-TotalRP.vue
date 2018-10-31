@@ -99,4 +99,5 @@ export default {
 #search-totalrp .md-list-text-container > a { font-size: 18px; font-weight: bold; line-height: 19px; }
 #search-totalrp .md-list-text-container span{ white-space: normal; line-height: 22px}
 #search-totalrp .md-layout { align-items: flex-start}
+#search-totalrp .md-subheader + .md-list:after { background-color: transparent }
 </style>

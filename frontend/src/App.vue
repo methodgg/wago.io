@@ -25,6 +25,7 @@
         <md-list-item v-else><router-link to='/login'>{{ $t("Login") }}</router-link></md-list-item>
         <md-list-item><router-link to='/'>{{ $t("Import") }}</router-link></md-list-item>
         <md-list-item><router-link to='/weakauras'>WeakAuras</router-link></md-list-item>
+        <!-- <md-list-item><router-link to='/mdt'>MDT</router-link></md-list-item> -->
         <md-list-item><router-link to='/elvui'>ElvUI</router-link></md-list-item>
         <md-list-item><router-link to='/vuhdo'>Vuhdo</router-link></md-list-item>
         <md-list-item><router-link to='/totalrp'>Total RP</router-link></md-list-item>
@@ -67,10 +68,10 @@
       <div id="h-nav" class="md-hide-xsmall">
         <a class='vr md-button md-theme-default' href='/'>{{ $t("Import") }}</a>
         <a class='vr md-button md-theme-default' href='/weakauras'>WeakAuras</a>
+        <!-- <a class='vr md-button md-theme-default' href='/mdt'>MDT</a> -->
         <a class='vr md-button md-theme-default' href='/elvui'>ElvUI</a>
         <a class='vr md-button md-theme-default' href='/vuhdo'>Vuhdo</a>
         <a class='vr md-button md-theme-default' href='/totalrp'>Total RP</a>
-        <!--<a class='vr md-button md-theme-default' href='/mdt'>MDT</a>-->
         <a class='vr md-button md-theme-default' href='/collections'>{{ $t("Collections") }}</a>
       </div>
       <div id="hr-nav" class="md-hide-xsmall">

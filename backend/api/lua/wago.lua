@@ -302,6 +302,10 @@ local function HexDecode(s)
 	return table.concat(t)
 end
 
+function Table2JSON(t)
+  print(JSON:encode(t))
+end
+
 function WA2JSON(importStr) 
   local t = StringToTable(importStr, false)
 
@@ -410,8 +414,13 @@ function JSON2Grid(json, title)
 end
 
 function TotalRP32JSON(importStr)
+  local encoded, usesLibDeflate = importStr:gsub("^%!", "");
+  if usesLibDeflate == 1 then
+    local decoded = LibDeflate:DecodeForPrint(encoded)
+    importStr = LibDeflate:DecompressDeflate(decoded)
+  end
   local success, deserialized = Serializer:Deserialize(importStr);
-  if (success) then
+  if success then
     print(JSON:encode(deserialized))
     return
   end
@@ -422,3 +431,4 @@ function JSON2TotalRP3(json)
   local t = JSON:decode(json)
   print(Serializer:Serialize(t))
 end
+

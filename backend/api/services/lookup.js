@@ -246,6 +246,14 @@ server.get('/lookup/wago', (req, res, next) => {
               cb(null, {json: code.json, encoded: code.encoded})
             })
           }
+          // for now we'll convert all RP3 strings to the old format
+          else if (wago.type === 'TOTALRP3' && code.encoded.match(/^!/)) {
+            lua.JSON2TotalRP3(code.json, (error, result) => {
+              code.encoded = result.stdout
+              code.save()           
+              cb(null, {json: code.json, encoded: code.encoded})
+            })
+          }
           else {
             cb(null, {json: code.json, encoded: code.encoded})
           }     
@@ -556,4 +564,16 @@ server.get('/lookup/blogs', (req, res) => {
  */
 server.get('/lookup/index', (req, res) => {
   res.send({top10: global.TopTenLists, news: global.newsPosts, addons: global.addonUpdates})
+})
+
+/**
+ * Fetch site data
+ */
+server.get('/data/:key', (req, res) => {
+  SiteData.findOne({_id: req.params.key}).then((data) => {
+    if (data)
+      res.send(data)
+    else
+      return res.send(404, {error: "value_not_found"})
+  })
 })

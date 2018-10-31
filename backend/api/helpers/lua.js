@@ -227,7 +227,7 @@ module.exports = {
   
   TotalRP32JSON: (str, cb) => {
     // make sure import string is valid format
-    if (!str || !str.match(/^\^.+\^\^$/)) {
+    if (!str || !str.match(/^\^.+\^\^$|^![a-zA-Z0-9\(\)]*$/)) {
       return cb('Invalid import')
     }
 
@@ -270,7 +270,34 @@ module.exports = {
         fs.unlink(luaFile)
         cb(null, res)
       })
-    })    
+    })
+  },
+
+  BuildMDT_DungeonTable: (directory, cb) => {
+    var luaCode = 'local MethodDungeonTools={dungeonTotalCount={}, mapPOIs={}, dungeonEnemies={}, scaleMultiplier={}}\nlocal dungeonIndex\n'
+    
+    var dungeonFiles = fs.readdirSync(directory)
+    dungeonFiles.forEach((file) => {
+      if (file.match(/\.lua$/)) {
+        luaCode = luaCode + fs.readFileSync(directory+'/'+file, 'utf8').replace(/local dungeonIndex/, 'dungeonIndex') + '\n'
+      }
+    })
+    
+    var luaScript = `dofile("./wago.lua"); ${luaCode} Table2JSON(MethodDungeonTools)`
+    var luaFile = tmpLuaFileName('mdtDungeons')
+
+    fs.writeFile(luaFile, luaScript, (err) => {
+      if (err) {
+        return res.send(err)
+      }
+
+      // run luajit and return output
+      execa('luajit', [luaFile], execaOptions).then((res) => {
+        // delete the temp lua file. async - no need to wait for it
+        fs.unlink(luaFile)
+        cb(null, res)
+      })
+    })
   },
 
   CodeReview: (WeakAura, cb) => {

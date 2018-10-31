@@ -3,8 +3,7 @@
  * Restrict all /tasks requests to localhost.
  */
 server.get('/tasks/:task', (req, res, next) => {
-  if (req.connection.remoteAddress !== '::ffff:127.0.0.1') {
-    console.log(req.connections.remoteAddress)
+  if (req.connection.remoteAddress !== '::ffff:127.0.0.1' && config.env !== 'development') {
     return res.send(403, {error: 'invalid_access'})
   }
   
@@ -85,6 +84,7 @@ function GetLatestAddonReleases (req, res) {
   const decompress = require('decompress')
   const mkdirp = require('mkdirp')
   const request = require('request')
+  const lua = require('../helpers/lua')
 
   const addonDir = __dirname + '/../lua/addons/'
 
@@ -262,7 +262,84 @@ function GetLatestAddonReleases (req, res) {
           cb()
         }
       })
-    }
+    },
+
+    // get MDT latest releases
+    function(cb) {
+      var listedURLs = []
+      var ThisAddon = 'MDT'
+      request('https://wow.curseforge.com/projects/method-dungeon-tools', (err, resp, body) => {
+        if (err) return cb(err)
+        if (resp && resp.statusCode!=200) return cb(err)
+
+        // html loaded correctly, now parse it
+        var scrape = cheerio.load(body)
+        async.forEachOf(scrape('ul.cf-recentfiles li.file-tag'), (file, key, cb2) => {
+          // for each release found...
+          var release = {}
+          release.addon = ThisAddon
+          release.active = true
+
+          var phase = scrape(file).find('.e-project-file-phase-wrapper .e-project-file-phase')
+          release.phase = phase.attr('title')
+
+          var version = scrape(file).find('.project-file-name-container a')
+          release.url = "https://wow.curseforge.com"+version.attr('href')
+          release.version = version.text()
+
+          var date = scrape(file).find('abbr.standard-datetime')
+          release.date = new Date(date.attr('title'))
+
+          AddonRelease.findOneAndUpdate({addon: release.addon, url: release.url}, release, {"upsert": true, "new": false}).then((doc) => {
+            listedURLs.push(release.url) // use the url because its unique and easier than looking up both phase and version
+
+            if (!doc) { // if not found then this is a new release
+              // download zip and get the full game version string
+              var tmpfile = '/tmp/'+ThisAddon+'.zip'
+              var versionDir = addonDir + ThisAddon + '/' + release.version
+              mkdirp.sync(versionDir)
+              request(release.url + '/download').pipe(fs.createWriteStream(tmpfile)).on('close', function() {
+                decompress(tmpfile, versionDir).then(function() {
+                  var toc = fs.readFileSync(versionDir+'/MethodDungeonTools/MethodDungeonTools.toc', 'utf8')
+                  var matches = toc.match(/## Version:\s*(.*)/)
+
+                  // generate dungeon table
+                  lua.BuildMDT_DungeonTable(versionDir+'/MethodDungeonTools/BattleForAzeroth', (err, result) => {
+                    if (err) {
+                      console.error('MDT build table error', err)
+                    }
+                    else if (result && result.stdout) {
+                      var json = JSON.parse(result.stdout)
+                      SiteData.findByIdAndUpdate('mdtDungeonTable', {value: json}, {upsert: true}).exec()
+                    }
+                  })
+                  
+                  // update version number
+                  if (matches && matches[1]) {
+                    release.gameVersion = matches[1]
+                    // save to DB
+                    AddonRelease.findOneAndUpdate({addon: release.addon, url: release.url}, release, {"upsert":true}).exec(() => {
+                      cb2()
+                    })
+                  }
+                  else {
+                    console.log('could not find .toc file')
+                    cb2()
+                  }
+                })
+              })
+            }
+            else {
+              cb2()
+            }
+          })
+        }, function() {
+          AddonRelease.update({ addon: ThisAddon, url: { "$nin": listedURLs } }, { "$set": { active: false }}, {multi: true} ).then(() => {
+            cb()
+          })
+        })
+      })
+    },
   ], function(err) {
     if (err) console.error(err)
     // now rebuild global addons table
