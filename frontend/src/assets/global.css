@@ -149,6 +149,10 @@
 .zuldazar a, .zuldazar { color: #4BB21F!important}
 .multiselect .md-chip.zuldazar { background-color: #4BB21F!important; color: black!important }
 
+.md-chip.crucible { color: #3329b3!important; background-image: url('menu-cruciblestorms.png') }
+.crucible a, .crucible { color: #3329b3!important}
+.multiselect .md-chip.crucible { background-color: #3329b3!important; color: black!important }
+
 .md-chip.hellfirecitadel { color: #689E12!important; background-image: url('menu-hellfirecitadel.png') }
 .hellfirecitadel a, .hellfirecitadel { color: #689E12!important}
 .multiselect .md-chip.hellfirecitadel { background-color: #689E12!important; color: black!important }

@@ -92,7 +92,8 @@
     "9391": "The Underrot",
     "9327": "Tol Dagor",
     "9424": "Waycrest Manor",
-    "10076": "The Burning of Zuldazar"
+    "10057": "Crucible of Storms",
+    "10076": "Battle of Zuldazar"
   },
   "bosses": {
     "76809": "Blast Furnace",
@@ -181,9 +182,11 @@
     "144691": "Grimfang and Firecaller",
     "147589": "High Tinker Mekkatorque",
     "139633": "King Rastakhan",
-    "146256": "Laminaria",
-    "144747": "Loa Council",
-    "TREASUREGUARDIAN": "Treasure Guardian",
+    "145371": "Uu'nat, Harbinger of the Void",
+    "146256": "Stormwall Blockade",
+    "146497": "Zaxasj the Speaker",
+    "147564": "Opulence",
+    "144747": "Conclave of the Chosen",
     "JAINA": "Jaina Proudmoore"
   },
   "professions": {

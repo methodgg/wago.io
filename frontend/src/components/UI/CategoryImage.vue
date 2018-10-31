@@ -13,6 +13,7 @@
     <img src="./../../assets/menu-druid.png" v-else-if="group === 'cl-druid'"/>
     <img src="./../../assets/menu-demonhunter.png" v-else-if="group === 'cl-demonhunter'"/>
     <img src="./../../assets/menu-zuldazar.png" v-if="group === 'zuldazar'"/>
+    <img src="./../../assets/menu-cruciblestorms.png" v-if="group === 'crucible'"/>
     <img src="./../../assets/menu-uldir.png" v-if="group === 'uldir'"/>
     <img src="./../../assets/menu-antorus.png" v-if="group === 'antorus'"/>
     <img src="./../../assets/menu-tombofsarg.png" v-else-if="group === 'tombofsargeras'"/>

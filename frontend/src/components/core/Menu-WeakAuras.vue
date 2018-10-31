@@ -189,7 +189,7 @@ export default {
       return categories.raidCategories(['raiduldir', 'bfadungeon'], this.$t)
     },
     ptr: function () {
-      return categories.raidCategories(['raidzuldazar'], this.$t)
+      return categories.raidCategories(['raidzuldazar', 'raidcrucible'], this.$t)
     },
     misc: function () {
       return categories.getCategories(['gen1', 'gen7', 'gen2', 'gen6', 'gen9', 'gen10', 'gen11', 'gen12', 'gen14', 'gen13', 'gen8', 'gen15', 'gen16', 'gen17'], this.$t)
