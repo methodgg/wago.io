@@ -392,6 +392,19 @@ export default {
           }
         }
 
+        // conditions
+        if (item.conditions && item.conditions.length) {
+          for (let k = 0; k < item.conditions.length; k++) {
+            if (item.conditions[k].changes && item.conditions[k].changes.length) {
+              for (let k2 = 0; k2 < item.conditions[k].changes.length; k2++) {
+                if (typeof item.conditions[k].changes[k2] === 'object' && item.conditions[k].changes[k2].property === 'customcode' && item.conditions[k].changes[k2].value && item.conditions[k].changes[k2].value.custom) {
+                  func.push({ id: item.id, name: this.$t('Condition [-num-] - [-prop-]', {num: k + 1, prop: k2 + 1}), ix: ix, path: `conditions[${k}].changes[${k2}].value.custom` })
+                }
+              }
+            }
+          }
+        }
+
         // animation onStart functions
         if (item.animation && item.animation.start) {
           // animate alpha
