@@ -97,7 +97,6 @@ function ScanImport (req, res, next, test) {
         })
       }
       catch(e) {
-        console.log(e)
         return res.send({error: 'invalid_import'})
       }
     })
@@ -240,7 +239,7 @@ function ScanImport (req, res, next, test) {
             })
           }
           catch (e) {
-            console.error('MDT import error', e)
+            logger.error({label:'MDT import error', error: e})
             return res.send({error: 'invalid_import'})
           }
         }
@@ -254,7 +253,7 @@ function ScanImport (req, res, next, test) {
         }
       }
       catch (e) {
-        console.error('Error reading WA JSON', e)
+        logger.error({label:'Error reading WA JSON', error: e})
         return res.send({error: 'invalid_import'})
       }      
     })
@@ -314,7 +313,7 @@ function ScanImport (req, res, next, test) {
       catch (e) {
         test.notElvUI = true
         return ScanImport (req, res, next, test)
-        console.error('Error reading ElvUI JSON', e, result.stdout)
+        logger.error({label:'Error reading ElvUI JSON', error: e})
         return res.send({error: "Invalid ElvUI detected."})
       }      
     })
@@ -353,7 +352,7 @@ function ScanImport (req, res, next, test) {
         }
       }
       catch (e) {
-        console.error('Error reading ElvUI JSON', e)
+        logger.error({label:'Error reading ElvUI JSON', error:e})
         return res.send({error: 'invalid_import'})
       }      
     })
@@ -413,7 +412,7 @@ function ScanImport (req, res, next, test) {
         }
       }
       catch (e) {
-        console.error('Error reading ElvUI JSON', e)
+        logger.error({label:'Error reading ElvUI JSON', error: e})
         return res.send({error: 'invalid_import'})
       }     ``
     })
@@ -673,7 +672,7 @@ server.post('/import/submit', function(req, res) {
       })
     })
     ImportPromise.catch((e) => {
-      console.log('error', e)
+      logger.error({label:'Import error', error: e})
     })
   })
 })
@@ -795,7 +794,7 @@ function SaveWagoVersion (req, res, mode) {
     var encoded = req.body.encoded
   }
   catch(e) {
-    console.log(e)
+    logger.error({label:'Update import error', error: e})
     return res.send({error: 'invalid_data'})
   }
 
@@ -917,7 +916,7 @@ function SaveWagoVersion (req, res, mode) {
       encodeFunc = lua.JSON2ElvUI
     }
     else {
-      console.error('Unknown type', type)
+      logger.error({label: 'Unknown import type', type: type})
       return
     }
     encodeFunc(json, (error, result) => {

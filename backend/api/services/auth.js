@@ -113,12 +113,12 @@ function makeSession(req, res, token, user) {
           })
         }
         else {
-          console.log(err, doc)
+          logger.error({label: 'Auth token error', userSession: doc, err: err})
           res.send(500, {error: "server_error"})
         }
       })
-    }).catch(e => {
-      console.error(e)
+    }).catch(err => {
+      logger.warn({label: 'User does not exist', err: err})
       return res.send(403, {error: 'unknown_user'})
     })
   }
@@ -219,6 +219,7 @@ server.get('/auth', (req, res, next) => {
 
 // Login with username/password against wago database
 function localAuth (req, res) {
+  logger.info({label: 'Attempt login', service: 'wago'})
   // find user(s) with entered email
   User.findByUsername(req.body.username).then(function(user) {
     if (!user || !user.account.password) {
@@ -228,12 +229,14 @@ function localAuth (req, res) {
     bcrypt.compare(req.body.password, user.account.password).then((auth) => {
       // if password is a match return true
       if (auth) {
+        logger.info({label: 'Successful login', service: 'wago'})
         var who = {}
         who.UID = user._id.toString()
 
         return makeSession(req, res, who, user)
       }
       else {
+        logger.info({label: 'Failed login', service: 'wago'})
 
         // otherwise no match
         return res.send({error: "invalid_login"})
@@ -257,8 +260,8 @@ function createUser (req, res) {
       response: req.body.recaptcha,
       remoteip: req.connection.remoteAddress
     })).then(function (google) {
-      console.log(google.data)
       if (google.data.success) {
+        logger.info('Passed captcha')
         var user = new User()
         user.account.username = req.body.username
         user.search.username = req.body.username.toLowerCase()
@@ -274,6 +277,7 @@ function createUser (req, res) {
         })
       }
       else {
+        logger.info('Failed captcha')
         return res.send(403, {error: 'bad captcha'})
       }
     })
@@ -282,7 +286,7 @@ function createUser (req, res) {
 
 // Login through Blizzard Battle.net
 function battlenetAuth(req, res) {
-  console.log('auth bnet')
+  logger.info({label: 'Attempt login', service: 'battlenet'})
   var key, secret
   if (req.headers.origin === 'https://t1000.wago.io') {
     key = config.auth.battlenet.betaClientID
@@ -341,20 +345,23 @@ function battlenetAuth(req, res) {
         })
       }
       else {
+        logger.error({label: 'Failed battlenet user found', err: err.response})
         return res.send(403, {error: 'no_account_found'})
       }
     }).catch((err) => {
-      winston.error('failed battlenet user fetch', err)
+      logger.error({label: 'Failed battlenet user fetch', err: err.response})
       return res.send(403, {error: 'no_account_found'})
     })
   }).catch((err) => {
-    console.error('failed battlenet auth', err.response)
+    logger.error({label: 'Failed battlenet auth', err: err.response})
     return res.send(403, {error: 'no_account_found'})
   })
 }
 
 // Login through Discord
 function discordAuth(req, res) {
+  logger.info({label: 'Attempt login', service: 'discord'})
+
   Axios.post('https://discordapp.com/api/oauth2/token', querystring.stringify({
     code: req.body.code || req.query.code,
     client_id: config.auth.discord.clientID,
@@ -379,13 +386,15 @@ function discordAuth(req, res) {
       oAuthLogin(req, res, 'discord', authResponse.data)
     })
   }).catch(function (err) {    
-    winston.error('failed discord auth', err)
+    logger.error({label: 'Failed discord auth', err: err.response})
     res.send(500, err)
   })
 }
 
 // Login through facebook
 function facebookAuth(req, res) {
+  logger.info({label: 'Attempt login', service: 'facebook'})
+
   Axios.post('https://graph.facebook.com/v2.4/oauth/access_token', {
     code: req.body.code || req.query.code,
     client_id: config.auth.facebook.clientID,
@@ -402,13 +411,15 @@ function facebookAuth(req, res) {
       oAuthLogin(req, res, 'facebook', authResponse.data)
     })
   }).catch(function (err) {    
-    winston.error('failed facebook auth', err)
+    logger.error({label: 'Failed facebook auth', err: err.response})
     res.send(500, err)
   })
 }
 
 // Login through Google
 function googleAuth(req, res) {
+  logger.info({label: 'Attempt login', service: 'google'})
+
   Axios.post('https://www.googleapis.com/oauth2/v4/token', querystring.stringify({
     code: req.body.code || req.query.code,
     client_id: config.auth.google.clientID,
@@ -428,13 +439,15 @@ function googleAuth(req, res) {
       res.send(500, {error: 'invalid token'})
     }
   }).catch(function (err) {
-    winston.error('failed google auth', err)
+    logger.error({label: 'Failed google auth', err: err.response})
     res.send(500, err)
   })
 }
 
 // Login through Patreon
 function patreonAuth(req, res) {
+  logger.info({label: 'Attempt login', service: 'patreon'})
+
   Axios.post('https://api.patreon.com/oauth2/token', querystring.stringify({
     code: req.query.code,
     client_id: config.auth.patreon.clientID,
@@ -460,7 +473,7 @@ function patreonAuth(req, res) {
       })
     }    
   }).catch(function (err) {
-    winston.error('failed patreon auth', err)
+    logger.error({label: 'Failed patreon auth', err: err.response})
     res.send(500, err)
   })
 }
@@ -469,6 +482,8 @@ function patreonAuth(req, res) {
 var Twitter = require("node-twitter-api")
 global.twitterRequestSecrets = {}
 function twitterAuth(req, res) {
+  logger.info({label: 'Attempt login', service: 'twitter'})
+
   var twitter = new Twitter({
     consumerKey: config.auth.twitter.clientID,
     consumerSecret: config.auth.twitter.clientSecret,
@@ -477,8 +492,7 @@ function twitterAuth(req, res) {
   if (!req.body.oauth_token) {
     twitter.getRequestToken(function(err, requestToken, requestSecret) {
       if (err) {
-        console.log(err)
-        console.log(req.headers.origin + '/auth/twitter')
+        logger.error({label: 'Twitter token error', err: err})
         res.status(500).send(err);
       }
       else {
@@ -515,6 +529,7 @@ function twitterAuth(req, res) {
 
 function oAuthLogin(req, res, provider, authUser) {
   // oAuth JSON profile assumed good at this point, log user in, register social login to existing user, or register as new user
+  logger.info({label: 'Successful login', service: provider})
 
   var query
   var profile
@@ -744,7 +759,7 @@ function getWoWProfile(region, token, callback) {
       url = 'https://api.blizzard.com.cn/wow/user/characters'
       break
     default:
-      console.log({error: 'unknown battlenet auth region', region: region})
+      logger.error({label: 'Unknown battlenet auth region', region: region})
       return callback(null)
   }
   

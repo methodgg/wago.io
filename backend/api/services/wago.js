@@ -223,7 +223,7 @@ server.post('/wago/upload/image', (req, res) => {
       }
       catch (e) {
         if (e.code !== 'EEXIST') {
-          console.error(err)
+          logger.error({label: 'Error creating screenshot directory', error: e})
           return res.send({error: 'could not save'})
         }
       }
@@ -233,7 +233,7 @@ server.post('/wago/upload/image', (req, res) => {
       var mv = require('mv')
       mv(req.files.file.path, '/nfs/media/screenshots/' + wago._id + '/' + screen.localFile, function(err) {
         if (err) {
-          console.error(err)
+          logger.error({label: 'Error saving screenshot file', error: e})
           res.send({error: 'could not save'})
         }
         else {
@@ -284,7 +284,7 @@ server.post('/wago/upload/image/url', (req, res) => {
             }
           }
           catch(e) {
-            console.log('error fetching from twitch api', e)
+            logger.error({label: 'Error fetching from twitch API', error: e})
             res.send({error: 'invalid_twitch'})
           }
         })
@@ -292,7 +292,6 @@ server.post('/wago/upload/image/url', (req, res) => {
 
       else if (video.source === 'vimeo') {
         request.get('https://vimeo.com/api/oembed.json?url=https://vimeo.com/'+video.videoID, function(error, response, content) {
-          console.log(content)
           try {
             var json = JSON.parse(content)
             if (json && json.thumbnail_url) {
@@ -306,7 +305,7 @@ server.post('/wago/upload/image/url', (req, res) => {
             }
           }
           catch(e) {
-            console.log('error fetching from twitch api', e)
+            logger.error({label: 'Error fetching from vimeo API', error: e})
             res.send({error: 'invalid_twitch'})
           }
         })
@@ -344,7 +343,7 @@ server.post('/wago/upload/image/url', (req, res) => {
             }
             catch (e) {
               if (e.code !== 'EEXIST') {
-                console.error(err)
+                logger.error({label: 'Error creating screenshot directory', error: e})
                 return res.send({error: 'could not save'})
               }
             }
@@ -352,7 +351,7 @@ server.post('/wago/upload/image/url', (req, res) => {
             // store image
             fs.writeFile('/nfs/media/screenshots/' + wago._id + '/' + screen.localFile, buffer, function(err) {
               if (err) {
-                console.error(err)
+                logger.error({label: 'Error saving image file', error: e})
                 res.send({error: 'could not save'})
               }
               else {
@@ -363,7 +362,7 @@ server.post('/wago/upload/image/url', (req, res) => {
             })
           }
           else {
-            console.log('unknown mime', mime)
+            logger.warn({label: 'invalid mime', mime})
             res.send({error: 'No image found'})
           }
         })
@@ -404,7 +403,7 @@ server.post('/wago/upload/image/base64', (req, res) => {
       }
       catch (e) {
         if (e.code !== 'EEXIST') {
-          console.error(err)
+          logger.error({label: 'Error creating screenshot directory', error: e})
           return res.send({error: 'could not save'})
         }
       }
@@ -412,7 +411,7 @@ server.post('/wago/upload/image/base64', (req, res) => {
       // store image
       fs.writeFile('/nfs/media/screenshots/' + wago._id + '/' + screen.localFile, buffer, (err) => {
         if (err) {
-          console.error(err)
+          logger.error({label: 'Error saving image file', error: e})
           res.send({error: 'could not save'})
         }
         else {

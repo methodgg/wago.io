@@ -538,7 +538,7 @@ server.get('/search', (req, res, skipSearch) => {
       },
       { hydrate: true, sort: esSort, size: resultsPerPage, from: resultsPerPage*page}, (err, results) => {
         if (err) {
-          console.error('search err', err)
+          logger.error({label: 'ElasticSearch error', err})
           reject(err)
         }
         else {

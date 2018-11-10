@@ -16,7 +16,7 @@ module.exports = {
     }
     Axios.post(user.discord.webhooks.onCreate, hookData)
       .then((res) => {
-        // console.log(res)
+        logger.debug({label: 'Send discord webhook', response: res.response})
       })
   },
 
@@ -46,6 +46,6 @@ module.exports = {
 function sendChatMessage (profileID, message) {
   Axios.post('http://discordbot:9999/sendtext', { profileID: profileID, message: message })
   .then((res) => {
-    // console.log(res)
+    logger.debug({label: 'Send discord direct message', response: res.response})
   })
 }

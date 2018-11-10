@@ -138,7 +138,7 @@ function GetLatestAddonReleases (req, res) {
                     })
                   }
                   else {
-                    console.log('could not find .toc file')
+                    logger.error({label: 'Could not find .toc file', addon: release})
                     cb2()
                   }
                 })
@@ -306,7 +306,7 @@ function GetLatestAddonReleases (req, res) {
                   // generate dungeon table
                   lua.BuildMDT_DungeonTable(versionDir+'/MethodDungeonTools/BattleForAzeroth', (err, result) => {
                     if (err) {
-                      console.error('MDT build table error', err)
+                      logger.error({label: 'Could not build MDT dungeon table', addon: release})
                     }
                     else if (result && result.stdout) {
                       var json = JSON.parse(result.stdout)
@@ -323,7 +323,7 @@ function GetLatestAddonReleases (req, res) {
                     })
                   }
                   else {
-                    console.log('could not find .toc file')
+                    logger.error({label: 'Could not find .toc file', addon: release})
                     cb2()
                   }
                 })
@@ -341,7 +341,7 @@ function GetLatestAddonReleases (req, res) {
       })
     },
   ], function(err) {
-    if (err) console.error(err)
+    if (err) logger.error({label: 'Update addons error', error: err})
     // now rebuild global addons table
     AddonRelease.find({active: true}).sort('-addon -phase').then((docs) => {
       global.addonUpdates = docs
@@ -381,7 +381,7 @@ function updateViewsThisWeek(pop, done) {
     WagoItem.bulkWrite(ops).then(() => {
       updateViewsThisWeek(pop, done)
     }).catch(err => {
-      console.error(err)
+      logger.error({label: 'Error updating views this week count', err})
     })
   }
   else {

@@ -148,13 +148,13 @@ if (require('../../config').env == 'production') {
   var es_Count = 0
 
   es_Stream.on('error', function(err){
-    console.log('es index error', err);
+    logger.error({label: 'Elastic index error', err: err});
   });
-  es_Stream.on('data', function(err, doc){
+  es_Stream.on('data', function() {
     es_Count++;
   });
-  es_Stream.on('close', function(){
-    console.log('indexed ' + es_Count + ' documents!');
+  es_Stream.on('close', function() {
+    logger.info('Elastic indexed ' + es_Count + ' documents!');
   });
 }
 module.exports = WagoItem

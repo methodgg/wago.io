@@ -11,18 +11,16 @@ function doNothing () {}
     if (code && code.json) {
       const lua = require('../helpers/lua')
       var WeakAura = JSON.parse(code.json)
-      console.log(WeakAura.length)
 
       lua.CodeReview(WeakAura, (error, result) => {
         if (error) {
-          console.error(error)
+          logger.debug({label: 'Code review', error: error})
           return res.send({error: "An error has occurred. Could not profile code."})
         }
         res.send(result)
       })
     }
     else {
-      console.log(code)
       res.send({error: 'could not load'})
     }
   })
@@ -56,7 +54,6 @@ server.get('/lookup/wago', (req, res, next) => {
       (req.connection.socket ? req.connection.socket.remoteAddress : null);
 
     ViewsThisWeek.find({viewed: { $gt: new Date().getTime() - 1000 * 60 * 20 }, source: ipAddress, wagoID: doc._id}).then((recent) => {
-      console.log(recent, recent.length)
       if (!recent || recent.length === 0) {
         doc.save()
         

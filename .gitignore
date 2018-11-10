@@ -7,6 +7,8 @@ config.js
 */test/unit/coverage
 */test/e2e/reports
 */selenium-debug.log
+*/lua-scans/*.lua
+*/logs/*.log
 
 # Editor directories and files
 */.idea

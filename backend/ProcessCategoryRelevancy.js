@@ -15,7 +15,6 @@ global['Categories'] = require('../frontend/src/components/libs/categories')
 // mongoose models
 global['WagoItem'] = require('./api/models/WagoItem')
 
-console.log('starting...')
 WagoItem.find({"relevancy.strict": {"$exists": false}, "categories.0": {"$exists": true} }).limit(5000).then((docs) => {
   docs.forEach((wago) => {
     // keep system tags
@@ -28,6 +27,5 @@ WagoItem.find({"relevancy.strict": {"$exists": false}, "categories.0": {"$exists
     wago.categories = wago.categories.concat(systemTags)
     
     wago.save()
-    console.log(wago._id)
   })
 })

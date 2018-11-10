@@ -299,9 +299,7 @@ server.post('/account/discord/options', (req, res) => {
   else {
     req.user.discord.webhooks.onCreate = null
   }
-
-  console.log(req.user.discord)
-
+  
   req.user.save().then((doc) => {
     res.send({success: true})
   })

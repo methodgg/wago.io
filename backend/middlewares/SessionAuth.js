@@ -70,7 +70,7 @@ module.exports = function(req, res, next) {
       })
     }
     else {
-      console.log('token err', err, token)
+      logger.error({label: 'User token error', error: err, token: token})
       next()
     }
   })    

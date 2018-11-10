@@ -42,7 +42,6 @@ module.exports = {
       // run luajit and return output
       execa('luajit', [luaFile], options).then((res) => {
         // delete the temp lua file. async - no need to wait for it
-        console.log(res)
         fs.unlink(luaFile)
         cb(null, res)
       })
@@ -189,7 +188,6 @@ module.exports = {
 
       // run luajit and return output
       execa('luajit', [luaFile], execaOptions).then((res) => {
-        console.log(res)
         // delete the temp lua file. async - no need to wait for it
         fs.unlink(luaFile)
         cb(null, res)
@@ -487,7 +485,7 @@ module.exports = {
       // run luajit and return output
       execa('luajit', [luaFile], execaOptions).then((res) => {
         // delete the temp lua file. async - no need to wait for it
-        // console.log(res.stdout)
+        logger.debug({label: 'Lua code review', output: res.stdout})
         fs.unlink(luaFile)
 
         if (res && res.stdout) {
@@ -575,12 +573,12 @@ function prepareCustomCode(code, label, nopcall) {
     code = wagoify(code.replace(/__Wago__/g, ''))
     code = code.replace('[================[', '[========================[').replace(']================]', ']========================]')
     label = label.replace('[================[', '[========================[').replace(']================]', ']========================]')
-    // if (label.match(/DISPLAY/)) console.log(code)
+    if (label.match(/DISPLAY/)) logger.debug(code)
     code = `[================[--${label}\n${code} ]================]`
     return code
   }
   catch(e) {
-    console.error('error minifying lua', e)
+    logger.error({label: 'Error minifying lua', err: e})
     return ''
   }
 }

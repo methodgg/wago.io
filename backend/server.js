@@ -30,14 +30,6 @@ var runTask = require('./api/services/tasks') // localhost tasks
 require('./api/services/status') // status monitor
 
 /**
- * Logging
- */
-global.winston = require('winston');
-const expressWinston = require('express-winston')
-
-
-
-/**
  * CORS
  */
 const corsMiddleware = require('restify-cors-middleware')
@@ -66,6 +58,72 @@ server.use(require('./middlewares/SessionAuth')) // set req.user
 
 
 /**
+ * Logging
+ */
+const winston = require('winston')
+const DailyRotateFile = require('winston-daily-rotate-file')
+const logger = winston.createLogger({
+  format: winston.format.combine(winston.format.timestamp(), winston.format.json()),
+  transports: [
+    new winston.transports.File({ filename: 'logs/errors.log', level: 'error', handleExceptions: true, maxsize: 5242880, maxFiles: 5 }),
+    new winston.transports.File({ filename: 'logs/warning.log', level: 'warn', maxsize: 5242880, maxFiles: 5 }),
+    new winston.transports.File({ filename: 'logs/info.log', level: 'info', maxsize: 5242880, maxFiles: 5 }),
+    new DailyRotateFile({
+		  filename: './logs',
+		  datePattern: 'yyyy-MM-dd.',
+		  prepend: true,
+		  localTime: true,
+		  level: 'info'
+		})
+  ]
+})
+if (config.env !== 'production') {
+  logger.add(new winston.transports.Console({
+    format: winston.format.simple(),
+    handleExceptions: true,
+    colorize: true,
+    json: false,
+    level: 'debug'
+  }))
+}
+global.logger = logger
+logger.info("Server startup")
+/** npm logging levels
+  error: 0, 
+  warn: 1, 
+  info: 2, 
+  verbose: 3, 
+  debug: 4, 
+  silly: 5 
+ */
+const expressWinston = require('express-winston')
+server.use(expressWinston.logger({
+  winstonInstance: winston.createLogger({
+    transports: [
+      new winston.transports.File({ filename: 'logs/info.log', maxsize: 5242880, maxFiles: 5 })
+    ],
+    format: winston.format.combine(winston.format.timestamp(), winston.format.json()),
+    msg: "HTTP {{res.statusCode}} {{req.method}} {{res.responseTime}}ms {{req.url}}",
+  }),
+  meta: true, 
+  requestFilter: function (req, propName) { 
+    if (propName === 'headers') {
+      req[propName]['x-auth-token'] = undefined
+      req[propName]['cookie'] = undefined
+    }
+    return req[propName] 
+  },
+  dynamicMeta: function (req, res) {
+    if (req.user)
+      return {user: req.user.account.username}
+    else
+      return undefined
+  },
+  ignoreRoute: function (req, res) { return false; } // optional: allows to skip some log messages based on request and/or response
+}))
+
+
+/**
  * Service requests
  */
 require('./api/services/account')
@@ -77,41 +135,20 @@ require('./api/services/lookup')
 require('./api/services/search')
 require('./api/services/wago')
 
-
-/**
- * Error Handling
- */
-// server.use(expressWinston.errorLogger({
-//   winstonInstance: errorLogger,
-//   statusLevels: true
-// }))
-
-winston.info("starting up")
-
 /**
  * Lift Server, Connect to DB & Bind Routes
  */
 server.listen(config.port, function() {
-
   mongoose.connection.on('error', function(err) {
-    winston.error('Mongoose default connection error: ' + err)
-      process.exit(1)
+    logger.error('Mongoose default connection error: ' + err)
+    process.exit(1)
   })
 
   mongoose.connection.on('open', function(err) {
-
     if (err) {
-      winston.error('Mongoose default connection error: ' + err)
+      logger.error('Mongoose default connection error: ' + err)
       process.exit(1)
     }
-
-    winston.info(
-      '%s v%s ready to accept connections on port %s in %s environment.',
-      server.name,
-      config.version,
-      config.port,
-      config.name
-    )
   })
 
   global.db = mongoose.connect(config.db.uri)

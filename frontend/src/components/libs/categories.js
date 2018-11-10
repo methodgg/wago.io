@@ -382,7 +382,7 @@ module.exports = {
     if (!t) {
       t = window.i18next.t
     }
-    console.log(str.toLowerCase().trim())
+
     var cats = this.categories(t) // search translated text
     var _cats = this.categories() // search i8n codes
     for (var i=0; i<cats.length; i++) {
