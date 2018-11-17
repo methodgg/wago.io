@@ -1,4 +1,0 @@
-{"message":"Server startup","level":"info","timestamp":"2018-11-10T19:43:33.368Z"}
-{"message":{"label":"Attempt login","service":"battlenet"},"level":"info","timestamp":"2018-11-10T19:43:41.376Z"}
-{"message":{"label":"Successful login","service":"battlenet"},"level":"info","timestamp":"2018-11-10T19:43:44.143Z"}
-{"message":"Server startup","level":"info","timestamp":"2018-11-11T05:57:20.050Z"}

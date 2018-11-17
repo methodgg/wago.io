@@ -271,8 +271,14 @@ module.exports = {
     })
   },
 
-  BuildMDT_DungeonTable: (directory, cb) => {
+  BuildMDT_DungeonTable: (directory, cb) => {    
     var luaCode = 'local MethodDungeonTools={dungeonTotalCount={}, mapPOIs={}, dungeonEnemies={}, scaleMultiplier={}}\nlocal dungeonIndex\n'
+    
+    // load in some tables from core file
+    var core = fs.readFileSync(directory+'/../MethodDungeonTools.lua', 'utf8')
+    core = 'MethodDungeonTools.affixWeeks =' + core.split(/local affixWeeks =/)[1]
+    core = core.split(/function MethodDungeonTools:GetDB/)[0]
+    luaCode = luaCode + core.replace(/local /g, 'MethodDungeonTools.')
     
     var dungeonFiles = fs.readdirSync(directory)
     dungeonFiles.forEach((file) => {
@@ -292,7 +298,7 @@ module.exports = {
       // run luajit and return output
       execa('luajit', [luaFile], execaOptions).then((res) => {
         // delete the temp lua file. async - no need to wait for it
-        fs.unlink(luaFile)
+        // fs.unlink(luaFile)
         cb(null, res)
       })
     })

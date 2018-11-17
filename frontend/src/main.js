@@ -596,6 +596,10 @@ window.braceRequires = function () {
   require('brace/theme/vibrant_ink')
 }
 
+// setup Konva
+import VueKonva from 'vue-konva'
+Vue.use(VueKonva)
+
 /* eslint-disable no-unused-vars */
 window.eventHub = new Vue()
 var VueApp = new Vue({

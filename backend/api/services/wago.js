@@ -634,6 +634,36 @@ server.post('/wago/collection/new', (req, res) => {
 })
 
 
+// get raw encoded string
+server.get('/wago/raw/encoded', (req, res) => {
+  if (!req.params.id) {
+    return res.send(404, {error: "page_not_found"})
+  }
+
+  WagoItem.lookup(req.params.id).then((wago) => {
+    if (wago.private && (!req.user || !req.user._id.equals(wago._userId))) {
+      return res.send(404, {error: "page_not_found"})
+    }
+    WagoCode.lookup(wago._id, req.params.version).then((code) => {
+      if (!code || !code.encoded) {
+        return res.send(404, {error: "page_not_found"})
+      }
+      if (wago.type === 'WEAKAURA' && !code.encoded.match(/^!/)) {
+        lua.JSON2WeakAura(code.json, (error, result) => {
+          code.encoded = result.stdout
+          res.set('Content-Type', 'text/plain')
+          res.send(code.encoded)
+        })
+      }
+      else {
+        res.set('Content-Type', 'text/plain')
+        res.send(code.encoded)
+      }
+    })
+  })
+})
+
+
 // gets embed javascript
 server.get('/wago/embed', (req, res, next) => {
   res.header('Content-Type', 'text/plain')

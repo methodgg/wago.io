@@ -29,7 +29,7 @@ function doNothing () {}
  /**
   * Wago lookup
   */
-server.get('/lookup/wago', (req, res, next) => {
+ server.get('/lookup/wago', (req, res, next) => {
   if (!req.params.id) {
     return res.send(404, {error: "page_not_found"})
   }
@@ -361,6 +361,45 @@ server.get('/lookup/wago', (req, res, next) => {
         return res.send(timing)
       }
       res.send(wago)
+    })
+  })
+})
+
+ /**
+  * Wago multi WA lookup
+  */
+server.get('/lookup/weakauras', (req, res, next) => {
+  if (!req.params.ids) {
+    return res.send(404, {error: "page_not_found"})
+  }
+
+  var ids = req.params.ids.split(',').slice(0, 50)
+
+  WagoItem.find({'$or' : [{_id: ids}, {custom_slug: ids}], deleted: false, type: ['WEAKAURAS', 'WEAKAURAS2']}).then((docs) => {
+    var wagos = []
+    async.forEachOf(docs, (doc, k, done) => {
+      if (doc.private && (!req.user || !req.user._id.equals(doc._userId))) {
+        return done()
+      }
+      var wago = {}
+      wago._id = doc._id
+      wago.name = doc.name
+      wago.url = doc.url
+      wago.created = doc.created
+      wago.modified = doc.modified
+      if (wago.UID) {
+        User.findById(wago.UID).then((user) => {
+          wago.username = user.account.username
+          wagos.push(wago)
+          done()
+        })
+      }
+      else {
+        wagos.push(wago)
+        done()
+      }
+    }, function() {
+      res.send(wagos)
     })
   })
 })

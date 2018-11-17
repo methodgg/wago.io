@@ -1,6 +1,6 @@
 <template>
   <div id="view-wago">
-    <div v-if="!wagoExists && wago.error">
+    <div v-if="(!wagoExists && wago.error) || (wago.type === 'MDT' && (!User || !User.access || !User.access.beta))">
       <ui-warning v-if="wago.error === 'page_not_found'" mode="alert">
         404 {{ $t("No results found") }}
       </ui-warning>
@@ -70,6 +70,7 @@
                 <md-button v-if="wago.versions && wago.versions.total > 1" @click="toggleFrame('versions')" ref="versionsButton">{{ $t("[-count-] version", { count: wago.versions.total }) }}</md-button>
                 <md-button v-if="wago.type !== 'COLLECTION'" @click="toggleFrame('collections')">{{ $t("[-count-] collection", {count:  wago.collectionCount}) }}</md-button>
                 <md-button v-if="!wago.alerts.blacklist && wago.code && wago.code.encoded" @click="toggleFrame('embed')">{{ $t("Embed") }}</md-button>
+                <md-button v-if="wago.type === 'MDT'" @click="toggleFrame('builder')">{{ $t("Builder") }}</md-button>
                 <md-button v-if="wago.code" @click="toggleFrame('editor')">{{ $t("Editor") }}</md-button>
                 <md-button v-if="(User && User.access && (User.access.beta)) && wago.type === 'WEAKAURA' && wago.code" @click="toggleFrame('codereview')">{{ $t("Code Review") }}</md-button>
               </md-button-toggle>
@@ -389,6 +390,14 @@
             </md-card>
           </div>
 
+          <!-- BUILDER FRAME -->
+          <div id="wago-builder-container" class="wago-container" v-if="showPanel=='builder'">
+            <div id="wago-builder">
+              <build-mdt v-if="wago.type=='MDT'"></build-mdt>
+            </div>
+          </div>
+          <div class="border" v-if="showEditor"></div>
+
           <!-- EDITOR FRAME -->
           <div id="wago-editor-container" class="wago-container" v-if="showPanel=='editor'">
             <div id="wago-editor">
@@ -529,6 +538,7 @@ export default {
     'edit-common': require('../UI/EditCommon.vue'),
     'edit-snippet': require('../UI/EditSnippet.vue'),
     'edit-weakaura': require('../UI/EditWeakAura.vue'),
+    'build-mdt': require('../UI/BuildMDT.vue'),
     editor: require('vue2-ace-editor'),
     Multiselect,
     CategorySelect,
