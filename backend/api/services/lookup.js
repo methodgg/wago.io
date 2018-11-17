@@ -387,8 +387,8 @@ server.get('/lookup/weakauras', (req, res, next) => {
       wago.url = doc.url
       wago.created = doc.created
       wago.modified = doc.modified
-      if (wago.UID) {
-        User.findById(wago.UID).then((user) => {
+      if (doc.UID) {
+        User.findById(doc.UID).then((user) => {
           wago.username = user.account.username
           wagos.push(wago)
           done()
