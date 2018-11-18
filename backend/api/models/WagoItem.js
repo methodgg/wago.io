@@ -41,6 +41,8 @@ const Schema = new mongoose.Schema({
       downloads : { type: Number, default: 0 },
       favorites : { type: Array, index: true, es_indexed: true },
       favorite_count : { type: Number, default: 0, index: true, es_indexed: true },  // this should always match the length of favorites
+      buds_installed : { type: Array, index: true }, // count users of Buds' app that have this WA installed
+      buds_installed_count : { type: Number, default: 0, index: true, es_indexed: true },
       comments_count : { type: Number, default: 0, index: true, es_indexed: true }
   },
 

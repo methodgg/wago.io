@@ -389,6 +389,22 @@ server.get('/lookup/weakauras', (req, res, next) => {
       wago.url = doc.url
       wago.created = doc.created
       wago.modified = doc.modified
+
+      // if requested by Buds' app, update installed count
+      if (req.headers['Identifier'] && req.headers['user-agent'].match(/Electron/)) { 
+        // remove user from buds_installed list (prevents doubles)
+        doc.popularity.buds_installed.pull(req.headers['Identifier'])
+
+        // add user to buds_installed list
+        if (req.body.addStar) {
+          doc.popularity.buds_installed.push(req.headers['Identifier'])
+        }
+
+        // update count
+        doc.popularity.buds_installed_count = doc.popularity.buds_installed.length
+        doc.save().exec()
+      }
+
       async.parallel({
         user: (cb) => {
           if (doc._userId) {
@@ -619,9 +635,18 @@ server.get('/lookup/index', (req, res) => {
  * Fetch site data
  */
 server.get('/data/:key', (req, res) => {
+  const md5 = require('md5')
   SiteData.findOne({_id: req.params.key}).then((data) => {
-    if (data)
-      res.send(data)
+    if (data) {
+      var etag = md5(JSON.stringify(data))
+      if (req.headers['if-none-match'] === etag) {
+        return res.send(304, null)
+      }
+      res.set('Cache-Control', 'public, max-age=2592000, must-revalidate') // 1 month
+      res.set('ETag', etag)
+      res.send(200, data)
+
+    }
     else
       return res.send(404, {error: "value_not_found"})
   })

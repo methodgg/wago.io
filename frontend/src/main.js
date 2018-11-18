@@ -36,9 +36,7 @@ window.clearCookie = function (name) {
 
 window.locales = require('../../i18nLocaleConfig').locales
 
-if (window.readCookie('theme')) {
-  document.body.className = 'theme-' + window.readCookie('theme')
-}
+document.body.className = 'theme-' + (window.readCookie('theme') || 'dark')
 
 // The Vue build version to load with the `import` command
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
@@ -57,8 +55,9 @@ const store = new Vuex.Store({
     wago: {},
     snackBarText: 'alert',
     loginRedirect: '/',
-    theme: window.readCookie('theme') || 'classic',
+    theme: window.readCookie('theme') || 'dark',
     editorTheme: window.readCookie('editorTheme') || 'tomorrow',
+    MDTTable: false,
     pageInfo: {
       title: 'Import',
       description: 'Database of sharable World of Warcraft addon elements',
@@ -210,6 +209,10 @@ const store = new Vuex.Store({
       document.body.className = 'theme-' + theme
       Vue.set(state.user.config, 'theme', theme)
       state.theme = theme
+    },
+
+    saveMDT (state, table) {
+      state.MDTTable = table
     }
   },
   getters: {
@@ -331,7 +334,7 @@ axios.interceptors.response.use(function (response) {
 const http = {
   install: function (Vue, options) {
     Vue.prototype.http = {
-      config: function () {
+      config: function (url) {
         var headers = {}
 
         // add jwt token
@@ -345,6 +348,7 @@ const http = {
           mode: 'cors'
         }
       },
+
       get: function (url, params) {
         // prepend API server
         if (!url.match(/^http/)) {
@@ -363,7 +367,7 @@ const http = {
         }
 
         // ajax away!
-        return fetch(url, this.config()).then((res) => {
+        return fetch(url, this.config(url)).then((res) => {
           this.interceptHeaders(res)
           return res.json()
         }).then((json) => {

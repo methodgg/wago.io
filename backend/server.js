@@ -33,11 +33,15 @@ require('./api/services/status') // status monitor
  * CORS
  */
 const corsMiddleware = require('restify-cors-middleware')
-const cors = corsMiddleware({
-  origins: ['http://wago.io', 'https://wago.io', 'https://*.wago.io', 'http://ubuntu:8080'],
+const corsOpts = {
+  origins: ['https://wago.io', 'https://*.wago.io', 'http://ubuntu:8080'],
   allowHeaders: ['Cookie', 'Authorization', 'x-auth-token'],
-  exposeHeaders: ['Set-Cookie', 'wotm']
-})
+  exposeHeaders: ['Set-Cookie', 'wotm'],
+  ignoreCors: ['/data/:key']
+}
+const cors = corsMiddleware(corsOpts)
+// replace cors.actual of standard middleware to add ignoreCors paths
+cors.actual = require('./middlewares/corsActual').handler(corsOpts)
 server.pre(cors.preflight)
 server.use(cors.actual)
 
