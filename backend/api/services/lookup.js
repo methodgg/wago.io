@@ -374,34 +374,47 @@ server.get('/lookup/weakauras', (req, res, next) => {
   }
 
   var ids = req.params.ids.split(',').slice(0, 50)
-
-  WagoItem.find({'$or' : [{_id: ids}, {custom_slug: ids}], deleted: false, type: ['WEAKAURAS', 'WEAKAURAS2']}).then((docs) => {
-    var wagos = []
+  var wagos = []
+  WagoItem.find({'$or' : [{_id: ids}, {custom_slug: ids}], deleted: false, type: ['WEAKAURAS', 'WEAKAURAS2']})
+  .select({name:1, custom_slug:1, created:1, modified:1, _userId:1})
+  .then((docs) => {
     async.forEachOf(docs, (doc, k, done) => {
       if (doc.private && (!req.user || !req.user._id.equals(doc._userId))) {
         return done()
       }
       var wago = {}
       wago._id = doc._id
-      wago.name = doc.name
+      wago.name = doc.name      
+      wago.slug = doc.custom_slug || doc._id
       wago.url = doc.url
       wago.created = doc.created
       wago.modified = doc.modified
-      if (doc._userId) {
-        User.findById(doc._userId).then((user) => {
-          wago.username = user.account.username
+      async.parallel({
+        user: (cb) => {
+          if (doc._userId) {
+            User.findById(doc._userId).then((user) => {
+              wago.username = user.account.username
+              cb()
+            })
+          }
+          else {
+            cb()
+          }
+        },
+        version: (cb) => {
+          WagoCode.count({auraID: doc._id}).then((count) => {
+            wago.version = count
+            cb()
+          })
+        }}, () => {
           wagos.push(wago)
           done()
         })
-      }
-      else {
-        wagos.push(wago)
-        done()
-      }
-    }, function() {
-      res.send(wagos)
-    })
-  })
+      }, function() {
+        res.send(wagos)
+      })     
+    }
+  )
 })
 
 server.get('/lookup/wago/versions', (req, res, next) => {

@@ -648,15 +648,18 @@ server.get('/wago/raw/encoded', (req, res) => {
       if (!code || !code.encoded) {
         return res.send(404, {error: "page_not_found"})
       }
+      res.set('Content-Type', 'text/plain')
+      
+      if (wago.type === 'WEAKAURA' && code.json && code.json.match(commonRegex.WeakAuraBlacklist)) {
+        return res.send(403, '')
+      }
       if (wago.type === 'WEAKAURA' && !code.encoded.match(/^!/)) {
         lua.JSON2WeakAura(code.json, (error, result) => {
           code.encoded = result.stdout
-          res.set('Content-Type', 'text/plain')
           res.send(code.encoded)
         })
       }
       else {
-        res.set('Content-Type', 'text/plain')
         res.send(code.encoded)
       }
     })
