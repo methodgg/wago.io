@@ -7,8 +7,8 @@ body.theme-dark {
   $Text2: #B6B6B6;
   $Text3: #999999;
 
-  background: $Background;
-  color: $Text;
+  background-color: $Background!important;
+  color: $Text!important;
   h2, .md-subheader {
     color: $Text;
   }

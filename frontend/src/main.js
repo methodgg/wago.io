@@ -288,6 +288,10 @@ Vue.use(Meta)
 import Vddl from 'vddl'
 Vue.use(Vddl)
 
+// load v-show-slide component
+import VShowSlide from 'v-show-slide'
+Vue.use(VShowSlide)
+
 // setup vue material
 import VueMaterial from 'vue-material'
 import 'vue-material/dist/vue-material.css'

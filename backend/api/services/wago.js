@@ -641,7 +641,7 @@ server.get('/wago/raw/encoded', (req, res) => {
   }
 
   WagoItem.lookup(req.params.id).then((wago) => {
-    if (wago.private && (!req.user || !req.user._id.equals(wago._userId))) {
+    if (!wago || (wago.private && (!req.user || !req.user._id.equals(wago._userId)))) {
       return res.send(404, {error: "page_not_found"})
     }
     WagoCode.lookup(wago._id, req.params.version).then((code) => {

@@ -420,5 +420,9 @@
   "PTR": "",
   "Browse MDT imports": "",
   "Condition [-num-] - [-prop-]": "",
-  "Builder": ""
+  "Builder": "",
+  "Change Affixes": "",
+  "Pull [-num-]": "",
+  "Week [-num-]": "",
+  "Locked": ""
 }
