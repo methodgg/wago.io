@@ -392,17 +392,18 @@ server.get('/lookup/weakauras', (req, res, next) => {
 
       // if requested by Buds' app, update installed count
       if (req.headers['identifier'] && req.headers['user-agent'].match(/Electron/)) { 
-        // remove user from buds_installed list (prevents doubles)
-        doc.popularity.buds_installed.pull(req.headers['identifier'])
-
-        // add user to buds_installed list
-        if (req.body.addStar) {
-          doc.popularity.buds_installed.push(req.headers['identifier'])
+        // remove user from buds_installed list (prevents doubles) and then add it
+        if (!doc.popularity.buds_installed) {
+          doc.popularity.buds_installed = []
         }
+        else {
+          doc.popularity.buds_installed.pull(req.headers['identifier'])
+        }
+        doc.popularity.buds_installed.push(req.headers['identifier'])
 
         // update count
         doc.popularity.buds_installed_count = doc.popularity.buds_installed.length
-        doc.save().exec()
+        doc.save()
       }
 
       async.parallel({
