@@ -372,7 +372,7 @@ server.get('/lookup/weakauras', (req, res, next) => {
   if (!req.params.ids) {
     return res.send(404, {error: "page_not_found"})
   }
-
+  
   var ids = req.params.ids.split(',').slice(0, 50)
   var wagos = []
   WagoItem.find({'$or' : [{_id: ids}, {custom_slug: ids}], deleted: false, type: ['WEAKAURAS', 'WEAKAURAS2']})
@@ -391,13 +391,13 @@ server.get('/lookup/weakauras', (req, res, next) => {
       wago.modified = doc.modified
 
       // if requested by Buds' app, update installed count
-      if (req.headers['Identifier'] && req.headers['user-agent'].match(/Electron/)) { 
+      if (req.headers['identifier'] && req.headers['user-agent'].match(/Electron/)) { 
         // remove user from buds_installed list (prevents doubles)
-        doc.popularity.buds_installed.pull(req.headers['Identifier'])
+        doc.popularity.buds_installed.pull(req.headers['identifier'])
 
         // add user to buds_installed list
         if (req.body.addStar) {
-          doc.popularity.buds_installed.push(req.headers['Identifier'])
+          doc.popularity.buds_installed.push(req.headers['identifier'])
         }
 
         // update count
