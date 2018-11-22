@@ -391,20 +391,20 @@ server.get('/lookup/weakauras', (req, res, next) => {
       wago.modified = doc.modified
 
       // if requested by Buds' app, update installed count
-      if (req.headers['identifier'] && req.headers['user-agent'].match(/Electron/)) { 
-        // remove user from buds_installed list (prevents doubles) and then add it
-        if (!doc.popularity.buds_installed) {
-          doc.popularity.buds_installed = []
-        }
-        else {
-          doc.popularity.buds_installed.pull(req.headers['identifier'])
-        }
-        doc.popularity.buds_installed.push(req.headers['identifier'])
+      // if (req.headers['identifier'] && req.headers['user-agent'].match(/Electron/)) { 
+      //   // remove user from buds_installed list (prevents doubles) and then add it
+      //   if (!doc.popularity.buds_installed) {
+      //     doc.popularity.buds_installed = []
+      //   }
+      //   else {
+      //     doc.popularity.buds_installed.pull(req.headers['identifier'])
+      //   }
+      //   doc.popularity.buds_installed.push(req.headers['identifier'])
 
-        // update count
-        doc.popularity.buds_installed_count = doc.popularity.buds_installed.length
-        doc.save()
-      }
+      //   // update count
+      //   doc.popularity.buds_installed_count = doc.popularity.buds_installed.length
+      //   doc.save()
+      // }
 
       async.parallel({
         user: (cb) => {
@@ -639,7 +639,7 @@ server.get('/data/:key', (req, res) => {
   const md5 = require('md5')
   SiteData.findOne({_id: req.params.key}).then((data) => {
     if (data) {
-      var etag = md5(JSON.stringify(data))
+      var etag = 'W\\"' + md5(JSON.stringify(data)) + '"'
       if (req.headers['if-none-match'] === etag) {
         return res.send(304, null)
       }

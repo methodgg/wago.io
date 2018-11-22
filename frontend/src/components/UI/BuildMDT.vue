@@ -30,7 +30,7 @@
               </template>
               <template v-for="(poi, i) in mdtDungeonTable.mapPOIs[mapID][subMapID]">
                 <slot>1</slot>
-                <v-image v-if="poi.type === 'graveyard'" @mouseover="showPOIToolip(poi)" @mouseout="hidePOITooltip()" :config="{ 
+                <v-image v-if="poi.type === 'graveyard'" @mouseover="showPOIToolip(poi)" @mouseout="hidePOITooltip()" :config="{
                   image: mapPOIs.graveyard, 
                   x: poi.x * mdtScale - mapPOIs.graveyard.naturalWidth / 2, 
                   y: poi.y * -mdtScale - mapPOIs.graveyard.naturalHeight / 2
@@ -50,6 +50,7 @@
                       fillPatternY: -Math.round(5 * creature.scale * (creature.isBoss ? 1.7 : 1)),
                       fillPatternScaleX: 2 * Math.round(5 * creature.scale * (creature.isBoss ? 1.7 : 1)) / 64,
                       fillPatternScaleY: 2 * Math.round(5 * creature.scale * (creature.isBoss ? 1.7 : 1)) / 64,
+                      listening: false
                     }"
                   />
                   <v-circle v-if="(!clone.sublevel || clone.sublevel === subMapID + 1) && (!clone.teeming || (clone.teeming && isTeemingSelected()))" 
@@ -71,6 +72,22 @@
                     }"
                   />
                 </template>
+              </template>
+              <template v-for="(obj, id) in tableData.objects">
+                <!-- note -->
+                <v-image v-if="obj.n" :config="{
+                  image: mapPOIs.graveyard,
+                  x: obj.d[0] * mdtScale,
+                  y: -obj.d[1] * mdtScale
+                }"/>
+                <!-- line -->
+                <v-line v-else-if="obj.l && obj.d[2] === subMapID + 1 && obj.d[3]" :config="{
+                  points: linePointsXY(obj.l),
+                  strokeWidth: obj.d[0] * .4,
+                  stroke: '#' + obj.d[4]
+                }"/>
+                <!-- ring -->
+                <!-- triangle -->
               </template>
             </v-layer>
           </v-stage>
@@ -509,6 +526,10 @@ export default {
 
     hidePOITooltip () {
       this.POITooltip = false
+    },
+
+    linePointsXY (points) {
+      return points.map(x => Math.abs(x) * this.mdtScale)
     },
 
     saveChanges () {
