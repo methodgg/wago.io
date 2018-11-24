@@ -23,11 +23,13 @@ module.exports = {
   // when a wago is updated check for anyone that has starred it AND has the discord notification enabled
   onUpdate: (owner, wago) => {
     var msg = `${owner.account.username} has updated ${wago.name}!\n${wago.url}`
-    User.find({_id: wago.popularity.favorites, "discord.options.messageOnFaveUpdate": true}).select('discord').then((users) => {
-      users.forEach((user) => {
-        if (!owner._id.equals(user._id)) {
-          sendChatMessage(user.discord.id, msg)
-        }
+    WagoFavorites.find({type: 'Star', wagoID: wago._id}).then((stars) => {
+      stars.forEach((star) => {
+        User.findOne({_id: star.userID, "discord.options.messageOnFaveUpdate": true}).select('discord').then((user) => {
+          if (!owner._id.equals(user._id)) {
+            sendChatMessage(user.discord.id, msg)
+          }
+        })
       })
     })
   },

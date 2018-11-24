@@ -72,24 +72,17 @@ const logger = winston.createLogger({
     new winston.transports.File({ filename: 'logs/errors.log', level: 'error', handleExceptions: true, maxsize: 5242880, maxFiles: 5 }),
     new winston.transports.File({ filename: 'logs/warning.log', level: 'warn', maxsize: 5242880, maxFiles: 5 }),
     new winston.transports.File({ filename: 'logs/info.log', maxsize: 5242880, maxFiles: 5 }),
-    new DailyRotateFile({
-		  filename: './logs',
-		  datePattern: 'yyyy-MM-dd.',
-		  prepend: true,
-		  localTime: true,
-		  level: 'info'
-		})
   ]
 })
-if (config.env !== 'production') {
-  logger.add(new winston.transports.Console({
-    format: winston.format.json(),
-    handleExceptions: true,
-    colorize: true,
-    json: false,
-    level: 'debug'
-  }))
-}
+// if (config.env !== 'production') {
+//   logger.add(new winston.transports.Console({
+//     format: winston.format.json(),
+//     handleExceptions: true,
+//     colorize: true,
+//     json: false,
+//     level: 'debug'
+//   }))
+// }
 global.logger = logger
 logger.info("Server startup")
 /** npm logging levels
