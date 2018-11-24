@@ -88,13 +88,6 @@ function doNothing () {}
     wago.downloadCount = doc.popularity.downloads
     wago.embedCount = doc.popularity.embeds
     wago.favoriteCount = doc.popularity.favorite_count
-    if (req.user) {
-      doc.popularity.favorites.forEach((userID) => {
-        if (req.user._id.equals(userID)) {
-          wago.myfave = true
-        }
-      })
-    }
 
     timing.startingParallel = Date.now() - start
     wago.UID = doc._userId
@@ -129,6 +122,19 @@ function doNothing () {}
           }
           cb(null, u)
         })
+      },
+      myStar: (cb) => {
+        if (req.user) {
+          WagoFavorites.findOne({wagoID: wago._id, userID: req.user._id, type: 'Star'}).then((doc) => {
+            if (doc) {
+              wago.myfave = true
+            }
+            cb()
+          })
+        }
+        else {
+          cb()
+        }
       },
       screenshotLookup: (cb) => {
         Screenshot.findForWago(wago._id).then((screens) => {
@@ -390,21 +396,10 @@ server.get('/lookup/weakauras', (req, res, next) => {
       wago.created = doc.created
       wago.modified = doc.modified
 
-      // if requested by Buds' app, update installed count
-      // if (req.headers['identifier'] && req.headers['user-agent'].match(/Electron/)) { 
-      //   // remove user from buds_installed list (prevents doubles) and then add it
-      //   if (!doc.popularity.buds_installed) {
-      //     doc.popularity.buds_installed = []
-      //   }
-      //   else {
-      //     doc.popularity.buds_installed.pull(req.headers['identifier'])
-      //   }
-      //   doc.popularity.buds_installed.push(req.headers['identifier'])
-
-      //   // update count
-      //   doc.popularity.buds_installed_count = doc.popularity.buds_installed.length
-      //   doc.save()
-      // }
+      // if requested by Buds' WA Updater app, update installed count
+      if (req.headers['identifier'] && req.headers['user-agent'].match(/Electron/)) { 
+        WagoFavorites.addInstall(wago, 'WA-Updater-' + req.headers['identifier'])
+      }
 
       async.parallel({
         user: (cb) => {

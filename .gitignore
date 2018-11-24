@@ -10,6 +10,7 @@ config.js
 */lua-scans/*.lua
 */logs/*.log
 
+
 # Editor directories and files
 */.idea
 *.suo

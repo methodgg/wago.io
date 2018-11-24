@@ -274,7 +274,8 @@ Vue.use(VueAnalytics, {
   appName: 'wago.io',
   appVersion: '3.0',
   trackingId: 'UA-75437214-1',
-  vueRouter: router
+  vueRouter: router,
+  trackPage: true
 })
 router.afterEach((to, from) => {
   Vue.analytics.trackView(to)

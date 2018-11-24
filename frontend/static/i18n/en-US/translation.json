@@ -424,5 +424,7 @@
   "Change Affixes": "",
   "Pull [-num-]": "",
   "Week [-num-]": "",
-  "Locked": ""
+  "Locked": "",
+  "Level [-level-] [-type-]": "",
+  "Health [-hp-]": ""
 }

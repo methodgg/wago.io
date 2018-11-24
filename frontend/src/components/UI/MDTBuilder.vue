@@ -30,7 +30,7 @@
               </template>
               <template v-for="(poi, i) in mdtDungeonTable.mapPOIs[mapID][subMapID]">
                 <slot>1</slot>
-                <v-image v-if="poi.type === 'graveyard'" @mouseover="showPOIToolip(poi)" @mouseout="hidePOITooltip()" :config="{
+                <v-image v-if="poi.type === 'graveyard'" @mouseover="setPOIToolip(poi)" @mouseout="setPOIToolip()" @mousemove="moveTooltip()" :config="{
                   image: mapPOIs.graveyard, 
                   x: poi.x * mdtScale - mapPOIs.graveyard.naturalWidth / 2, 
                   y: poi.y * -mdtScale - mapPOIs.graveyard.naturalHeight / 2
@@ -55,8 +55,9 @@
                   />
                   <v-circle v-if="(!clone.sublevel || clone.sublevel === subMapID + 1) && (!clone.teeming || (clone.teeming && isTeemingSelected()))" 
                     @click="selectCreature(creature, clone, j)" 
-                    @mouseover="setHover(creature, clone, j)" 
-                    @mouseleave="setHover()" 
+                    @mouseover="setTargetHover(creature, clone, j)" 
+                    @mouseleave="setTargetHover()" 
+                    @mousemove="moveTooltip()"
                     :config="{
                       x: clone.x * mdtScale,
                       y: clone.y * -mdtScale,
@@ -75,7 +76,7 @@
               </template>
               <template v-for="(obj, id) in tableData.objects">
                 <!-- note -->
-                <v-image v-if="obj.n" :config="{
+                <v-image v-if="obj.n" @mouseover="setPOIToolip(obj)" @mouseout="setPOIToolip()" @mousemove="moveTooltip()" :config="{
                   image: mapPOIs.graveyard,
                   x: obj.d[0] * mdtScale,
                   y: -obj.d[1] * mdtScale
@@ -106,7 +107,7 @@
 
           <md-list class="custom-list md-double-line md-dense" id="mdtPulls">
             <template v-for="pull in tableData.value.pulls.length">
-              <div @mouseover="setHover(false, false, false, pull - 1)" @mouseleave="setHover()">
+              <div @mouseover="setTargetHover(false, false, false, pull - 1)" @mouseleave="setTargetHover()">
                 <md-list-item v-bind:class="{selected: currentPull === pull - 1}"
                   @click="selectPull(pull - 1)">
                   <div class="md-list-text-container">
@@ -118,12 +119,9 @@
                         <span v-if="parseInt(details.g)" class="groupnum">{{ details.g }}</span>
                         <span v-else class="singlepull">➽</span>
                         <template v-for="(target, targetIndex) in details.targets">
-                          <div class="md-avatar enemyPortrait" @mouseover="setHoverAvatar(pull - 1, detailIndex, targetIndex, true)" @mouseleave="setHoverAvatar(pull - 1, detailIndex, targetIndex, false)">
-                            <picture>
-                              <source srcset="https://media.wago.io/avatars/56ef7fd27251b4eb17a6c2ea/discord-1506749979849.png" type="image/png">
-                              <img src="https://media.wago.io/avatars/56ef7fd27251b4eb17a6c2ea/discord-1506749979849.png">
-                            </picture>
-                          </div>
+                          <mdt-enemy-portrait :mapID="mapID" :creatureID="findCreatureID(pull - 1, detailIndex, targetIndex)"
+                            @mouseover="setTargetHoverAvatar(pull - 1, detailIndex, targetIndex, true)" @mouseleave="setTargetHoverAvatar(pull - 1, detailIndex, targetIndex, false)"
+                          />
                         </template>
                       </div>
                     </div>
@@ -151,16 +149,38 @@
       </md-layout>
     </md-layout>
     <export-modal :json="tableString" :type="wago.type" :showExport="showExport" :wagoID="wago._id" @hideExport="hideExport"></export-modal>
-    <div id="mdtPOITooltip" v-if="POITooltip.length" v-html="POITooltip"></div>
+    <div id="mdtTooltip" v-bind:style="{top: cursorTooltipY + 'px', left: cursorTooltipX + 'px'}">
+      <div class="tooltipPOI" v-if="tooltipPOI" v-html="tooltipPOI.replace(/\\n/g, '<br>')"></div>
+      <div class="tooltipEnemy" v-else-if="tooltipEnemy.name">
+        <mdt-enemy-portrait :mapID="mapID" :creatureID="tooltipEnemy.id" :size="56" />
+        <span v-if="tooltipEnemy.isBoss" style="margin-left:-3px">💀 </span><strong>{{ tooltipEnemy.name }}</strong><br>
+        {{ $t('Level [-level-] [-type-]', {level: tooltipEnemy.level, type: tooltipEnemy.creatureType}) }}<br>
+        {{ $t('Health [-hp-]', {hp: calcEnemyHealth(tooltipEnemy, true)}) }}<br>
+      </div>
+    </div>
   </div>
 </template>
+
+<!--
+  TODO:
+  add more tooltip details
+  m+ level
+  notes
+  arrows
+  POI
+  patrol routes
+  add/remove groups to pulls
+  create/edit annotations
+  enemy portraits
+  -->
+  
 
 <script>
 export default {
   name: 'build-mdt',
   data: function () {
     return {
-      mdtScale: 1.19777777,
+      mdtScale: 539 / 450, // 1.197777 repeating, of course. Found by trial and error, there may be something that more accurately scales wow pixels into real pixels, but this is very close.
       tableString: this.$store.state.wago.code.json,
       tableData: JSON.parse(this.$store.state.wago.code.json),
       enemies: [],
@@ -169,15 +189,18 @@ export default {
       mapID: 0,
       subMapID: 0,
       mdtDungeonTable: this.$store.state.MDTTable,
+      mdtLevel: 10,
       mapTiles: [],
       enemyPortraits: null,
       mapPOIs: {},
       konvaStageConfig: {width: 1024, height: 768},
-      loadedKonvasImages: 0,
-      totalKonvasImages: 12,
       tile: {},
       hoverGroups: [], // which group(s) is being moused-over
       hoverText: '',
+      cursorTooltipX: 0,
+      cursorTooltipY: 0,
+      tooltipEnemy: {},
+      tooltipPOI: '',
       selectedGroup: -1, // which group is selected
       selectedAffixes: [],
       dungeonAffixes: {
@@ -199,8 +222,7 @@ export default {
         16: { name: 'Infested', icon: 'Achievement_Nazmir_Boss_Ghuun' },
         117: { name: 'Reaping', icon: 'Ability_Racial_EmbraceOfTheLoa_Bwonsomdi' }
       },
-      currentPull: 0,
-      POITooltip: ''
+      currentPull: 0
     }
   },
   created: function () {
@@ -228,7 +250,8 @@ export default {
     }
   },
   components: {
-    'export-modal': require('./ExportJSON.vue')
+    'export-modal': require('./ExportJSON.vue'),
+    'mdt-enemy-portrait': require('./MDTEnemyPortrait.vue')
   },
   methods: {
     setupStage () {
@@ -326,7 +349,7 @@ export default {
       })
     },
 
-    setHover (creature, clone, cloneIndex, pullIndex) {
+    setTargetHover (creature, clone, cloneIndex, pullIndex) {
       for (let i = 0; i < this.enemies.length; i++) {
         for (let k = 0; k < this.enemies[i].clones.length; k++) {
           // if hovering over an avatar
@@ -351,15 +374,39 @@ export default {
           }
         }
       }
+
+      if (creature && isNaN(pullIndex)) {
+        this.tooltipEnemy = creature
+        this.tooltipPOI = ''
+        this.$nextTick(() => {
+          this.moveTooltip()
+        })
+      }
+      else {
+        this.cursorTooltipX = -1000
+        this.cursorTooltipY = -1000
+        this.tooltipEnemy = false
+      }
     },
 
-    setHoverAvatar (pullIndex, groupIndex, targetIndex, bool) {
+    moveTooltip () {
+      var box = document.getElementById('mdtTooltip')
+      this.cursorTooltipX = window.event.clientX + 10
+      this.cursorTooltipY = window.event.clientY - 10 - box.offsetHeight
+      console.log(box.offsetHeight)
+    },
+
+    setTargetHoverAvatar (pullIndex, groupIndex, targetIndex, bool) {
       for (let i = 0; i < this.enemies.length; i++) {
         if (this.enemies[i].id === this.pullDetails[pullIndex][groupIndex].targets[targetIndex].id) {
           this.$set(this.enemies[i].clones[this.pullDetails[pullIndex][groupIndex].targets[targetIndex].cloneIndex], 'hoverAvatar', bool)
           return
         }
       }
+    },
+
+    findCreatureID (pullIndex, groupIndex, targetIndex) {
+      return this.pullDetails[pullIndex][groupIndex].targets[targetIndex].id
     },
 
     selectCreature (creature, clone, cloneIndex) {
@@ -394,6 +441,14 @@ export default {
       return this.selectedAffixes.indexOf(5) >= 0
     },
 
+    isFortifiedSelected () {
+      return this.selectedAffixes.indexOf(10) >= 0
+    },
+
+    isTyrannicalSelected () {
+      return this.selectedAffixes.indexOf(9) >= 0
+    },
+
     isInfestedCreature (clone) {
       if (!clone.infested) {
         return false
@@ -405,6 +460,28 @@ export default {
       week--
 
       return clone.infested[week]
+    },
+
+    calcEnemyHealth (creature, shorten) {
+      var mult = 1
+      if (creature.boss && this.isTyrannicalSelected()) mult = 1.4
+      else if (!creature.boss && this.isFortifiedSelected()) mult = 1.2
+      mult = Math.round((1.08 ^ (this.mdtLevel - 2)) * mult, 2)
+
+      console.log(creature.health, mult)
+      var hp = Math.round(mult * creature.health)
+      if (!shorten || hp < 1e3) return hp
+
+      if (hp >= 1e9) {
+        return (hp / 1e9).toFixed(2) + 'B'
+      }
+      else if (hp >= 1e6) {
+        return (hp / 1e6).toFixed(2) + 'M'
+      }
+      else if (hp >= 1e3) {
+        return (hp / 1e3).toFixed(2) + 'K'
+      }
+      return hp
     },
 
     selectPull (pullIndex) {
@@ -447,7 +524,7 @@ export default {
       var str = ''
       for (let name in targets) {
         if (!targets.hasOwnProperty(name) || name === '_groups') continue
-        if (targets[name].boss) str = str + '&#128128;' + name + ', '
+        if (targets[name].boss) str = str + '💀' + name + ', '
         else str = str + targets[name].count + 'x ' + name + ', '
       }
       return str.substring(0, str.length - 2)
@@ -512,20 +589,26 @@ export default {
       this.pullDetails.splice(pullIndex, 1, details)
     },
 
-    showPOIToolip (poi) {
+    setPOIToolip (poi) {
+      if (!poi) {
+        this.cursorTooltipX = -1000
+        this.cursorTooltipY = -1000
+        this.tooltipPOI = ''
+        return
+      }
+
       var lines = []
       if (poi.type === 'door' && poi.doorDescription) lines.push(poi.doorDescription.replace('\\n', '<br>'))
-      if (poi.type === 'door' && poi.lockpick) lines.push('<span class="lockedDoor">' + this.$t('Locked') + '</span>')
-      if (poi.type === 'graveyard' && poi.graveyardDescription) lines.push(poi.graveyardDescription.replace('\\n', '<br>'))
-      if (poi.type === 'generalNote' && poi.text) lines.push(poi.text.replace('\\n', '<br>'))
+      else if (poi.type === 'door' && poi.lockpick) lines.push('<span class="lockedDoor">' + this.$t('Locked') + '</span>')
+      else if (poi.type === 'graveyard' && poi.graveyardDescription) lines.push(poi.graveyardDescription.replace('\\n', '<br>'))
+      else if (poi.type === 'generalNote' && poi.text) lines.push(poi.text.replace('\\n', '<br>'))
+      else if (poi.n && poi.d && poi.d[4]) lines.push(poi.d[4].replace('\\n', '<br>')) // user note
 
-      if (lines.length) {
-        this.POITooltip = lines.join('<br>')
-      }
-    },
-
-    hidePOITooltip () {
-      this.POITooltip = false
+      this.tooltipEnemy = ''
+      this.tooltipPOI = lines.join('<br>')
+      this.$nextTick(() => {
+        this.moveTooltip()
+      })
     },
 
     linePointsXY (points) {
@@ -603,6 +686,7 @@ export default {
 #build-mdt .flex-left .md-input-container label { white-space: nowrap}
 #build-mdt .flex-right { order: 1; flex: 1 1 auto; text-align: right}
 #build-mdt .ace_editor { box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2), 0 2px 2px rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.12); }
+#build-mdt .md-theme-default.md-sidenav .md-sidenav-content { background-color: inherit; min-width: 360px; }
 #builder { position: relative; min-height: 768px }
 #builder canvas { position: absolute; left: 0; top: 0; width:1024px; max-width: 1024px; height: 768px; max-height: 768px; }
 .mdtOptions { margin: 0; overflow: hidden; width: 100%; height: 768px; overflow-y: auto }
@@ -620,5 +704,9 @@ export default {
 .mdtGroupDetails .groupnum:before { content: 'Group'; font-size: 9px; position: absolute; top: -15px; right: 6px; text-align: right }
 .mdtGroupDetails .singlepull:before { content: 'Singles'; font-size: 9px; position: absolute; top: -15px; right: 6px; text-align: right }
 .mdtGroupDetails .groupnum, .mdtGroupDetails .singlepull { position: relative; font-size: 26px; width: 1.7em; display: inline-block; text-align: right; padding-right: 6px; }
-.mdtGroupDetails .enemyPortrait { margin-top: -9px; width:32px; height:32px; z-index:99 }
+.mdtGroupDetails .enemyPortrait { margin-top: -9px; width:32px; height:32px; z-index:10 }
+#mdtTooltip { z-index: 100; position: fixed; padding: 16px; background: rgba(0, 0, 0, .8); border: 2px solid black; color: white; }
+#mdtTooltip .tooltipPOI { max-width: 210px }
+#mdtTooltip .tooltipEnemy { width: 210px; position: relative; }
+#mdtTooltip .tooltipEnemy .enemyPortrait { position: absolute; left: -48px; top: -48px; border: 2px solid black; }
 </style>

@@ -538,7 +538,7 @@ export default {
     'edit-common': require('../UI/EditCommon.vue'),
     'edit-snippet': require('../UI/EditSnippet.vue'),
     'edit-weakaura': require('../UI/EditWeakAura.vue'),
-    'build-mdt': require('../UI/BuildMDT.vue'),
+    'build-mdt': require('../UI/MDTBuilder.vue'),
     editor: require('vue2-ace-editor'),
     Multiselect,
     CategorySelect,

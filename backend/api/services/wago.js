@@ -4,25 +4,19 @@ server.post('/wago/star', (req, res, next) => {
     return res.send(403, {error: "forbidden"})
   }
 
-  WagoItem.findById(req.body.wagoID).then((wago) => {
+  WagoItem.findById(req.body.wagoID).select('popularity').then((wago) => {
     if (!wago) {
       return res.send(404, {error: "no_wago"})
     }
 
-    // remove user from favorites list (prevents doubles)
-    wago.popularity.favorites.pull(req.user._id)
-
-    // add user to favorite list
     if (req.body.addStar) {
-      wago.popularity.favorites.push(req.user._id)
+      WagoFavorites.addStar(wago, req.user._id)
+      res.send({updated: true, count: wago.popularity.favorite_count+1 })
     }
-
-    // update count
-    wago.popularity.favorite_count = wago.popularity.favorites.length
-
-    // update database and return
-    wago.save()
-    res.send({updated: true, count: wago.popularity.favorite_count })
+    else {
+      WagoFavorites.removeStar(wago, req.user._id)
+      res.send({updated: true, count: wago.popularity.favorite_count-1 })
+    }    
   })
 })
 
