@@ -37,7 +37,7 @@ const corsOpts = {
   origins: ['https://wago.io', 'https://*.wago.io', 'http://ubuntu:8080'],
   allowHeaders: ['Cookie', 'Authorization', 'x-auth-token'],
   exposeHeaders: ['Set-Cookie', 'wotm'],
-  ignoreCors: ['/data/:key']
+  ignoreCors: ['/data/:key', '/lookup/weakauras', '/wago/raw/encoded']
 }
 const cors = corsMiddleware(corsOpts)
 // replace cors.actual of standard middleware to add ignoreCors paths
@@ -74,15 +74,15 @@ const logger = winston.createLogger({
     new winston.transports.File({ filename: 'logs/info.log', maxsize: 5242880, maxFiles: 5 }),
   ]
 })
-// if (config.env !== 'production') {
-//   logger.add(new winston.transports.Console({
-//     format: winston.format.json(),
-//     handleExceptions: true,
-//     colorize: true,
-//     json: false,
-//     level: 'debug'
-//   }))
-// }
+if (config.env !== 'production') {
+  logger.add(new winston.transports.Console({
+    format: winston.format.json(),
+    handleExceptions: true,
+    colorize: true,
+    json: false,
+    level: 'debug'
+  }))
+}
 global.logger = logger
 logger.info("Server startup")
 /** npm logging levels
