@@ -499,8 +499,6 @@ server.get('/search', (req, res, skipSearch) => {
       esFilter.push({term: { private: false } })
     }
 
-    console.log(JSON.stringify(esFilter, null, 2))
-
     // search wago for all of our criteria    
     if (esShould.length > 0) {
       // should = array of OR, add to filter
@@ -538,7 +536,6 @@ server.get('/search', (req, res, skipSearch) => {
         esFilter.push({simple_query_string: {query: lookup._id["$in"].join(' '), fields: ["_id"] }})
         // esFilter.push({ids: { type: "_doc", values: lookup._id["$in"] } }) 
       }
-      console.log(JSON.stringify(esFilter, null, 2))
       WagoItem.esSearch({
         query: {
           bool: {
