@@ -426,5 +426,6 @@
   "Week [-num-]": "",
   "Locked": "",
   "Level [-level-] [-type-]": "",
-  "Health [-hp-]": ""
+  "Health [-hp-]": "",
+  "[-hp-] HP @ +10": ""
 }

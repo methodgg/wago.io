@@ -1,5 +1,6 @@
 <template>
-  <div class="md-avatar enemyPortrait" v-bind:style="{width: (size || 36) + 'px', height: (size || 36) + 'px'}">
+  <div class="md-avatar enemyPortrait" v-bind:style="{width: (size || 36) + 'px', height: (size || 36) + 'px'}"
+     @click="click" @mouseover="mouseover" @mouseleave="mouseleave" @mousemove="mousemove">
     <picture>
       <source srcset="https://media.wago.io/avatars/56ef7fd27251b4eb17a6c2ea/discord-1506749979849.png" type="image/png">
       <img src="https://media.wago.io/avatars/56ef7fd27251b4eb17a6c2ea/discord-1506749979849.png">
@@ -9,6 +10,20 @@
 
 <script>
 export default {
-  props: ['mapID', 'creatureID', 'size']
+  props: ['mapID', 'creatureID', 'size'],
+  methods: {
+    click: function (e) {
+      this.$emit('click', e)
+    },
+    mouseover: function (e) {
+      this.$emit('mouseover', e)
+    },
+    mousemove: function (e) {
+      this.$emit('mousemove', e)
+    },
+    mouseleave: function (e) {
+      this.$emit('mouseleave', e)
+    }
+  }
 }
 </script>

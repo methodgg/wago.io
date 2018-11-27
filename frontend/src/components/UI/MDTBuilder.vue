@@ -17,7 +17,8 @@
       </div>
     </div>
 
-    <md-layout md-row>
+    <ui-loading v-if="mdtLoading"></ui-loading>
+    <md-layout v-else md-row>
       <md-layout style="width:65%; height:768px" md-vertical-align="start">
         <div id="builder" ref="canvas" width="1024" height="768">
           <v-stage ref="mdtStage" id="mdtStage" :config="konvaStageConfig" @scroll.passive="zoomStage">
@@ -30,11 +31,7 @@
               </template>
               <template v-for="(poi, i) in mdtDungeonTable.mapPOIs[mapID][subMapID]">
                 <slot>1</slot>
-                <v-image v-if="poi.type === 'graveyard'" @mouseover="setPOIToolip(poi)" @mouseout="setPOIToolip()" @mousemove="moveTooltip()" :config="{
-                  image: mapPOIs.graveyard, 
-                  x: poi.x * mdtScale - mapPOIs.graveyard.naturalWidth / 2, 
-                  y: poi.y * -mdtScale - mapPOIs.graveyard.naturalHeight / 2
-                }" />
+                <mdt-poi :data="poi" :mdtScale="mdtScale" :mapID="mapID" @mouseover="setPOITooltip" @mouseout="setPOITooltip" @mousemove="moveTooltip" @click="clickPOI" />
               </template>
               <template v-for="(creature, i) in enemies">
                 <slot>1</slot>
@@ -76,13 +73,13 @@
               </template>
               <template v-for="(obj, id) in tableData.objects">
                 <!-- note -->
-                <v-image v-if="obj.n" @mouseover="setPOIToolip(obj)" @mouseout="setPOIToolip()" @mousemove="moveTooltip()" :config="{
+                <v-image v-if="obj && obj.n" @mouseover="setPOITooltip(obj)" @mouseout="setPOITooltip()" @mousemove="moveTooltip()" :config="{
                   image: mapPOIs.graveyard,
                   x: obj.d[0] * mdtScale,
                   y: -obj.d[1] * mdtScale
                 }"/>
                 <!-- line -->
-                <v-line v-else-if="obj.l && obj.d[2] === subMapID + 1 && obj.d[3]" :config="{
+                <v-line v-else-if="obj && obj.l && obj.d[2] === subMapID + 1 && obj.d[3]" :config="{
                   points: linePointsXY(obj.l),
                   strokeWidth: obj.d[0] * .4,
                   stroke: '#' + obj.d[4]
@@ -120,7 +117,8 @@
                         <span v-else class="singlepull">➽</span>
                         <template v-for="(target, targetIndex) in details.targets">
                           <mdt-enemy-portrait :mapID="mapID" :creatureID="findCreatureID(pull - 1, detailIndex, targetIndex)"
-                            @mouseover="setTargetHoverAvatar(pull - 1, detailIndex, targetIndex, true)" @mouseleave="setTargetHoverAvatar(pull - 1, detailIndex, targetIndex, false)"
+                            @mouseover="setTargetHoverAvatar(pull - 1, detailIndex, targetIndex, true)" 
+                            @mouseleave="setTargetHoverAvatar(pull - 1, detailIndex, targetIndex, false)"
                           />
                         </template>
                       </div>
@@ -155,7 +153,7 @@
         <mdt-enemy-portrait :mapID="mapID" :creatureID="tooltipEnemy.id" :size="56" />
         <span v-if="tooltipEnemy.isBoss" style="margin-left:-3px">💀 </span><strong>{{ tooltipEnemy.name }}</strong><br>
         {{ $t('Level [-level-] [-type-]', {level: tooltipEnemy.level, type: tooltipEnemy.creatureType}) }}<br>
-        {{ $t('Health [-hp-]', {hp: calcEnemyHealth(tooltipEnemy, true)}) }}<br>
+        {{ $t('[-hp-] HP @ +10', {hp: calcEnemyHealth(tooltipEnemy, true)}) }}<br>
       </div>
     </div>
   </div>
@@ -164,10 +162,9 @@
 <!--
   TODO:
   add more tooltip details
-  m+ level
-  notes
+  m+ level needed?
+  user notes
   arrows
-  POI
   patrol routes
   add/remove groups to pulls
   create/edit annotations
@@ -181,6 +178,7 @@ export default {
   data: function () {
     return {
       mdtScale: 539 / 450, // 1.197777 repeating, of course. Found by trial and error, there may be something that more accurately scales wow pixels into real pixels, but this is very close.
+      mdtLoading: true,
       tableString: this.$store.state.wago.code.json,
       tableData: JSON.parse(this.$store.state.wago.code.json),
       enemies: [],
@@ -227,21 +225,21 @@ export default {
   },
   created: function () {
     this.mapID = this.tableData.value.currentDungeonIdx - 1
+    if (this.$store.state.mdtDungeonTable) {
+      this.mdtDungeonTable = this.$store.state.mdtDungeonTable
+    }
 
     if (!this.mdtDungeonTable || !this.mdtDungeonTable.affixWeeks) {
       this.http.get('/data/mdtDungeonTable').then((res) => {
         if (res && res._id === 'mdtDungeonTable') {
           this.mdtDungeonTable = res.value
-          this.enemies = this.mdtDungeonTable.dungeonEnemies[this.mapID]
           this.$store.commit('saveMDT', this.mdtDungeonTable)
-          this.selectedAffixes = this.mdtDungeonTable.affixWeeks[this.tableData.week - 1]
-          this.setupStage()
+          this.init()
         }
       })
     }
     else {
-      this.selectedAffixes = this.mdtDungeonTable.affixWeeks[this.tableData.week - 1]
-      this.setupStage()
+      this.init()
     }
   },
   watch: {
@@ -251,20 +249,27 @@ export default {
   },
   components: {
     'export-modal': require('./ExportJSON.vue'),
-    'mdt-enemy-portrait': require('./MDTEnemyPortrait.vue')
+    'mdt-enemy-portrait': require('./MDTEnemyPortrait.vue'),
+    'mdt-poi': require('./MDTPOI.vue')
   },
   methods: {
-    setupStage () {
+    init () {
+      this.selectedAffixes = this.mdtDungeonTable.affixWeeks[this.tableData.week - 1]
+      this.enemies = this.mdtDungeonTable.dungeonEnemies[this.mapID]
       this.setMap(this.subMapID)
+    },
 
+    setupStage () {
       var vue = this
-      vue.$nextTick().then(function () {
-        vue.$refs.mdtStage.getStage().draggable(true)
+
+      this.$nextTick().then(function () {
+        var stage = vue.$refs.mdtStage.getStage()
+        var canvas = vue.$refs.canvas
+        stage.draggable(true)
 
         // setup zoom
-        vue.$refs.canvas.addEventListener('wheel', (evt) => {
+        canvas.addEventListener('wheel', (evt) => {
           let scaleBy = 1.2
-          var stage = vue.$refs.mdtStage.getStage()
           if (evt.target.nodeName !== 'CANVAS') {
             return false
           }
@@ -322,14 +327,16 @@ export default {
       }
 
       // map POI images
-      var POIs = ['graveyard']
-      POIs.forEach((poi) => {
-        this.mapPOIs[poi] = new Image()
-        this.mapPOIs[poi].src = require('../../assets/mapPOI/' + poi + '.png')
-        preload.push(this.mapPOIs[poi].src)
+      var POIs = ['OBJECTICONS.png', 'POIICONS.png', 'DOOR.png']
+      POIs.forEach((file) => {
+        this.mapPOIs[file] = new Image()
+        this.mapPOIs[file].src = require('../../assets/mapPOI/' + file)
+        preload.push(this.mapPOIs[file].src)
       })
 
       if (preloaded) {
+        this.mdtLoading = false
+        this.setupStage()
         return
       }
 
@@ -391,9 +398,17 @@ export default {
 
     moveTooltip () {
       var box = document.getElementById('mdtTooltip')
-      this.cursorTooltipX = window.event.clientX + 10
-      this.cursorTooltipY = window.event.clientY - 10 - box.offsetHeight
-      console.log(box.offsetHeight)
+      var x = window.event.clientX + 10
+      if (x + box.offsetWidth > window.innerWidth - 30) {
+        x = window.event.clientX - 10 - box.offsetWidth
+      }
+      this.cursorTooltipX = x
+
+      var y = window.event.clientY - 10 - box.offsetHeight
+      if (y < 24) {
+        y = window.event.clientY + 40
+      }
+      this.cursorTooltipY = y
     },
 
     setTargetHoverAvatar (pullIndex, groupIndex, targetIndex, bool) {
@@ -468,7 +483,6 @@ export default {
       else if (!creature.boss && this.isFortifiedSelected()) mult = 1.2
       mult = Math.round((1.08 ^ (this.mdtLevel - 2)) * mult, 2)
 
-      console.log(creature.health, mult)
       var hp = Math.round(mult * creature.health)
       if (!shorten || hp < 1e3) return hp
 
@@ -589,7 +603,7 @@ export default {
       this.pullDetails.splice(pullIndex, 1, details)
     },
 
-    setPOIToolip (poi) {
+    setPOITooltip (poi, text) {
       if (!poi) {
         this.cursorTooltipX = -1000
         this.cursorTooltipY = -1000
@@ -598,17 +612,24 @@ export default {
       }
 
       var lines = []
-      if (poi.type === 'door' && poi.doorDescription) lines.push(poi.doorDescription.replace('\\n', '<br>'))
+      if (text) lines = text.split(/\n/g)
+      else if (poi.type === 'door' && poi.doorDescription) lines.push(poi.doorDescription.replace('\\n', '<br>'))
       else if (poi.type === 'door' && poi.lockpick) lines.push('<span class="lockedDoor">' + this.$t('Locked') + '</span>')
       else if (poi.type === 'graveyard' && poi.graveyardDescription) lines.push(poi.graveyardDescription.replace('\\n', '<br>'))
       else if (poi.type === 'generalNote' && poi.text) lines.push(poi.text.replace('\\n', '<br>'))
       else if (poi.n && poi.d && poi.d[4]) lines.push(poi.d[4].replace('\\n', '<br>')) // user note
 
       this.tooltipEnemy = ''
-      this.tooltipPOI = lines.join('<br>')
+      this.tooltipPOI = `<span>${lines.join('<br></span><span>')}</span>`
       this.$nextTick(() => {
         this.moveTooltip()
       })
+    },
+
+    clickPOI (action) {
+      if (action.mapLink) {
+        this.subMapID = action.mapLink
+      }
     },
 
     linePointsXY (points) {
@@ -704,9 +725,10 @@ export default {
 .mdtGroupDetails .groupnum:before { content: 'Group'; font-size: 9px; position: absolute; top: -15px; right: 6px; text-align: right }
 .mdtGroupDetails .singlepull:before { content: 'Singles'; font-size: 9px; position: absolute; top: -15px; right: 6px; text-align: right }
 .mdtGroupDetails .groupnum, .mdtGroupDetails .singlepull { position: relative; font-size: 26px; width: 1.7em; display: inline-block; text-align: right; padding-right: 6px; }
-.mdtGroupDetails .enemyPortrait { margin-top: -9px; width:32px; height:32px; z-index:10 }
+.mdtGroupDetails .enemyPortrait { margin-top: -9px; width:32px; height:32px; z-index:99 }
 #mdtTooltip { z-index: 100; position: fixed; padding: 16px; background: rgba(0, 0, 0, .8); border: 2px solid black; color: white; }
-#mdtTooltip .tooltipPOI { max-width: 210px }
+#mdtTooltip .tooltipPOI { max-width: 240px }
+#mdtTooltip .tooltipPOI span + span { font-size: 90%; color: #DDD }
 #mdtTooltip .tooltipEnemy { width: 210px; position: relative; }
 #mdtTooltip .tooltipEnemy .enemyPortrait { position: absolute; left: -48px; top: -48px; border: 2px solid black; }
 </style>

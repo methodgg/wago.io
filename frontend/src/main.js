@@ -212,7 +212,7 @@ const store = new Vuex.Store({
     },
 
     saveMDT (state, table) {
-      state.MDTTable = table
+      state.mdtDungeonTable = table
     }
   },
   getters: {
