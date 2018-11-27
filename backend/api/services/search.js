@@ -369,16 +369,24 @@ server.get('/search', (req, res, skipSearch) => {
         query = query.replace(faveSearch[0], '')
         if (faveSearch[1]=='1' || faveSearch[1].toLowerCase()=='true') {
           // only include what user has starred
-          lookup['popularity.favorites'] = req.user._id
-          Search.query.context.push({
-            query: faveSearch[0],
-            type: 'option',
-            option: {
-              name: 'starred',
-              enabled: true
-            }
-          })
-          esFilter.push({term: { 'popularity.favorites': req.user._id } })
+          var stars = []
+          WagoFavorites.find({userID: req.user._id, type: 'Star'}).select('wagoID').then((faves) => {
+            faves.forEach((wago) => {
+              stars.push(wago.wagoID)
+            })
+
+            Search.query.context.push({
+              query: faveSearch[0],
+              type: 'option',
+              option: {
+                name: 'starred',
+                enabled: true
+              }
+            })
+            // esFilter.push({terms: { '_id': stars } })
+            esFilter.push({ids: { values: stars } })
+            return cb()
+          })          
         }
         else {
           // only include what user has NOT starred
@@ -392,9 +400,9 @@ server.get('/search', (req, res, skipSearch) => {
             }
           })
           //esFilter.push({must_not: {term: { 'popularity.favorites': req.user._id } } })
+          return cb()
         }
 
-        return cb()
       }
       else {
         return cb()
@@ -491,6 +499,8 @@ server.get('/search', (req, res, skipSearch) => {
       esFilter.push({term: { private: false } })
     }
 
+    console.log(JSON.stringify(esFilter, null, 2))
+
     // search wago for all of our criteria    
     if (esShould.length > 0) {
       // should = array of OR, add to filter
@@ -528,6 +538,7 @@ server.get('/search', (req, res, skipSearch) => {
         esFilter.push({simple_query_string: {query: lookup._id["$in"].join(' '), fields: ["_id"] }})
         // esFilter.push({ids: { type: "_doc", values: lookup._id["$in"] } }) 
       }
+      console.log(JSON.stringify(esFilter, null, 2))
       WagoItem.esSearch({
         query: {
           bool: {
