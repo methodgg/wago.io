@@ -22,7 +22,7 @@
       <md-layout style="width:65%; height:768px" md-vertical-align="start">
         <div id="builder" ref="canvas" width="1024" height="768">
           <v-stage ref="mdtStage" id="mdtStage" :config="konvaStageConfig" @scroll.passive="zoomStage">
-            <slot>1</slot> <!-- defined slots prevent Konvas from spamming "<div>undefined</div>" -->
+            <slot>1</slot> <!-- defined slots prevent Konva from spamming "<div>undefined</div>" -->
             <v-layer ref="mdtMap" v-if="mdtDungeonTable.dungeonSubLevels">
               <slot>1</slot>
               <template v-if="mapTiles.length" v-for="(tile, i) in mapTiles">
@@ -33,6 +33,24 @@
                 <slot>1</slot>
                 <mdt-poi :data="poi" :mdtScale="mdtScale" :mapID="mapID" @mouseover="setPOITooltip" @mouseout="setPOITooltip" @mousemove="moveTooltip" @click="clickPOI" />
               </template>
+              <template v-for="(creature, i) in enemies">
+                <slot>1</slot>
+                <template v-for="(clone, j) in creature.clones">
+                  <slot>1</slot>
+                  <v-line v-if="clone.patrol" 
+                    @mouseover="setTargetHover(creature, clone, j, undefined, true)"
+                    @mouseleave="setTargetHover()"
+                    :config="{
+                      points: linePointsObjXY(clone.patrol),
+                      strokeWidth: 1,
+                      stroke: clone.hover ? '#77FD32' : '#150047',
+                      dash: [5, 3, 2, 3],
+                      lineCap: 'round',
+                      lineJoin: 'round'
+                    }"
+                  />
+                </template>
+              </template>              
               <template v-for="(creature, i) in enemies">
                 <slot>1</slot>
                 <template v-for="(clone, j) in creature.clones">
@@ -51,7 +69,7 @@
                     }"
                   />
                   <v-circle v-if="(!clone.sublevel || clone.sublevel === subMapID + 1) && (!clone.teeming || (clone.teeming && isTeemingSelected()))" 
-                    @click="selectCreature(creature, clone, j)" 
+                    @click="selectCreature(i, j)" 
                     @mouseover="setTargetHover(creature, clone, j)" 
                     @mouseleave="setTargetHover()" 
                     @mousemove="moveTooltip()"
@@ -73,11 +91,7 @@
               </template>
               <template v-for="(obj, id) in tableData.objects">
                 <!-- note -->
-                <v-image v-if="obj && obj.n" @mouseover="setPOITooltip(obj)" @mouseout="setPOITooltip()" @mousemove="moveTooltip()" :config="{
-                  image: mapPOIs.graveyard,
-                  x: obj.d[0] * mdtScale,
-                  y: -obj.d[1] * mdtScale
-                }"/>
+                <mdt-poi v-if="obj && obj.n" :data="obj" :annotationsIndex="id" :mdtScale="mdtScale" :mapID="mapID" @mouseover="setPOITooltip" @mouseout="setPOITooltip" @mousemove="moveTooltip" @click="clickPOI" />
                 <!-- line -->
                 <v-line v-else-if="obj && obj.l && obj.d[2] === subMapID + 1 && obj.d[3]" :config="{
                   points: linePointsXY(obj.l),
@@ -92,7 +106,7 @@
         </div>
       </md-layout>
       <md-layout style="width:35%" md-vertical-align="start" v-if="mdtDungeonTable.dungeonSubLevels">
-        <md-card class="mdtOptions">
+        <md-card id="mdtOptions">
           <md-card-area>
             <div class="inlineContainer">
               <template v-for="(affixID, k) in selectedAffixes">
@@ -108,15 +122,15 @@
                 <md-list-item v-bind:class="{selected: currentPull === pull - 1}"
                   @click="selectPull(pull - 1)">
                   <div class="md-list-text-container">
-                    <span>{{ $t('Pull [-num-]', { num : pull}) }}; {{ pullPercent(pull - 1) }}%</span>
-                    <span v-html="pullEnemyList(pull - 1)"></span>
-                    <md-progress :md-progress="pullPercent(pull - 1, true)"></md-progress>
+                    <span>{{ $t('Pull [-num-]', { num : pull}) }}; {{ pullDetails[pull - 1].percent }}%</span>
+                    <span v-html="pullDetails[pull - 1].hList"></span>
+                    <md-progress :md-progress="pullDetails[pull - 1].percentRunningTotal"></md-progress>
                     <div v-show-slide="currentPull === pull - 1" class="mdtGroupDetails">
-                      <div v-for="(details, detailIndex) in pullDetails[pull - 1]">
+                      <div v-for="(details, detailIndex) in pullDetails[pull - 1].groups">
                         <span v-if="parseInt(details.g)" class="groupnum">{{ details.g }}</span>
                         <span v-else class="singlepull">➽</span>
                         <template v-for="(target, targetIndex) in details.targets">
-                          <mdt-enemy-portrait :mapID="mapID" :creatureID="findCreatureID(pull - 1, detailIndex, targetIndex)"
+                          <mdt-enemy-portrait :mapID="mapID" :creatureID="target.id"
                             @mouseover="setTargetHoverAvatar(pull - 1, detailIndex, targetIndex, true)" 
                             @mouseleave="setTargetHoverAvatar(pull - 1, detailIndex, targetIndex, false)"
                           />
@@ -127,6 +141,11 @@
                 </md-list-item>
               </div>
             </template>
+            <md-list-item @click="createPull()" style="margin-bottom: 16px">
+              <div class="md-list-text-container">
+                <span>➕ {{ $t('Create new pull') }}</span>
+              </div><br>
+            </md-list-item>
           </md-list>
 
           <md-sidenav class="md-right" ref="affixSelection">
@@ -154,6 +173,9 @@
         <span v-if="tooltipEnemy.isBoss" style="margin-left:-3px">💀 </span><strong>{{ tooltipEnemy.name }}</strong><br>
         {{ $t('Level [-level-] [-type-]', {level: tooltipEnemy.level, type: tooltipEnemy.creatureType}) }}<br>
         {{ $t('[-hp-] HP @ +10', {hp: calcEnemyHealth(tooltipEnemy, true)}) }}<br>
+        <span v-if="tooltipEnemy.clone && isInfestedCreature(tooltipEnemy.clone)" style="color:red">{{ $t('Infested') }}<br></span>
+        <span v-if="tooltipEnemy.clone && tooltipEnemy.clone.g > 0">{{ $t('Group [-num-]', {num: tooltipEnemy.clone.g}) }}</span>
+        <span v-if="tooltipEnemy.clone && tooltipEnemy.clone.pull >= 0">{{ $t('Pull [-num-]', {num: tooltipEnemy.clone.pull + 1}) }}<br></span>
       </div>
     </div>
   </div>
@@ -161,12 +183,9 @@
 
 <!--
   TODO:
-  add more tooltip details
+  add more tooltip details?
   m+ level needed?
-  user notes
-  arrows
-  patrol routes
-  add/remove groups to pulls
+  arrows/rings/other annotation tools?
   create/edit annotations
   enemy portraits
   -->
@@ -199,7 +218,6 @@ export default {
       cursorTooltipY: 0,
       tooltipEnemy: {},
       tooltipPOI: '',
-      selectedGroup: -1, // which group is selected
       selectedAffixes: [],
       dungeonAffixes: {
         1: { name: 'Overflowing', icon: 'inv_misc_volatilewater' },
@@ -220,7 +238,7 @@ export default {
         16: { name: 'Infested', icon: 'Achievement_Nazmir_Boss_Ghuun' },
         117: { name: 'Reaping', icon: 'Ability_Racial_EmbraceOfTheLoa_Bwonsomdi' }
       },
-      currentPull: 0
+      currentPull: -1
     }
   },
   created: function () {
@@ -327,7 +345,7 @@ export default {
       }
 
       // map POI images
-      var POIs = ['OBJECTICONS.png', 'POIICONS.png', 'DOOR.png']
+      var POIs = ['OBJECTICONS.png', 'POIICONS.png', 'DOOR.png', 'USERNOTEICONS.png']
       POIs.forEach((file) => {
         this.mapPOIs[file] = new Image()
         this.mapPOIs[file].src = require('../../assets/mapPOI/' + file)
@@ -356,7 +374,7 @@ export default {
       })
     },
 
-    setTargetHover (creature, clone, cloneIndex, pullIndex) {
+    setTargetHover (creature, clone, cloneIndex, pullIndex, noTooltip) {
       for (let i = 0; i < this.enemies.length; i++) {
         for (let k = 0; k < this.enemies[i].clones.length; k++) {
           // if hovering over an avatar
@@ -382,7 +400,8 @@ export default {
         }
       }
 
-      if (creature && isNaN(pullIndex)) {
+      if (creature && isNaN(pullIndex) && !noTooltip) {
+        creature.clone = clone
         this.tooltipEnemy = creature
         this.tooltipPOI = ''
         this.$nextTick(() => {
@@ -413,26 +432,99 @@ export default {
 
     setTargetHoverAvatar (pullIndex, groupIndex, targetIndex, bool) {
       for (let i = 0; i < this.enemies.length; i++) {
-        if (this.enemies[i].id === this.pullDetails[pullIndex][groupIndex].targets[targetIndex].id) {
-          this.$set(this.enemies[i].clones[this.pullDetails[pullIndex][groupIndex].targets[targetIndex].cloneIndex], 'hoverAvatar', bool)
+        if (this.enemies[i].id === this.pullDetails[pullIndex].groups[groupIndex].targets[targetIndex].id) {
+          this.$set(this.enemies[i].clones[this.pullDetails[pullIndex].groups[groupIndex].targets[targetIndex].cloneIndex], 'hoverAvatar', bool)
           return
         }
       }
     },
 
     findCreatureID (pullIndex, groupIndex, targetIndex) {
-      return this.pullDetails[pullIndex][groupIndex].targets[targetIndex].id
+      return this.pullDetails[pullIndex].groups[groupIndex].targets[targetIndex].id
     },
 
-    selectCreature (creature, clone, cloneIndex) {
-      this.selectedGroup = this.determineGroupID(creature, clone, cloneIndex)
-    },
-
-    determineGroupID (creature, clone, cloneIndex) {
-      if (clone.g) {
-        return clone.g
+    selectCreature (creatureIndex, cloneIndex) {
+      // if no pull is selected then do nothing
+      if (this.currentPull < 0) {
+        return
       }
-      return creature.id + '.' + cloneIndex
+
+      // if current pull matches clicked target then we'll be removing only, otherwise we'll add unit/group after we remove
+      var addToPull = (this.enemies[creatureIndex].clones[cloneIndex].pull !== this.currentPull)
+      var previousPull = this.enemies[creatureIndex].clones[cloneIndex].pull
+      console.log(previousPull)
+
+      // if target is part of a group then apply to all creatures in the group
+      if (this.enemies[creatureIndex].clones[cloneIndex].g && this.enemies[creatureIndex].clones[cloneIndex].pull >= 0) {
+        this.removeGroupFromPull(this.enemies[creatureIndex].clones[cloneIndex].pull, this.enemies[creatureIndex].clones[cloneIndex].g)
+      }
+      // othersise just remove the solo creature
+      else if (this.tableData.value.pulls[this.currentPull][creatureIndex] && this.enemies[creatureIndex].clones[cloneIndex].pull >= 0) {
+        if (this.tableData.value.pulls[this.currentPull][creatureIndex].indexOf(cloneIndex + 1) >= 0) {
+          this.$delete(this.tableData.value.pulls[this.currentPull][creatureIndex], this.tableData.value.pulls[this.currentPull][creatureIndex].indexOf(cloneIndex + 1))
+        }
+        // use null instead of empty arrays
+        if (!this.tableData.value.pulls[this.currentPull][creatureIndex].length) {
+          this.$set(this.tableData.value.pulls[this.currentPull], creatureIndex, null)
+        }
+        this.$delete(this.enemies[creatureIndex].clones[cloneIndex], 'pull')
+      }
+
+      if (previousPull >= 0) {
+        this.updatePullDetails(previousPull)
+      }
+
+      if (addToPull) {
+        if (this.enemies[creatureIndex].clones[cloneIndex].g) {
+          this.addGroupToPull(this.currentPull, this.enemies[creatureIndex].clones[cloneIndex].g)
+        }
+        else {
+          this.tableData.value.pulls[this.currentPull][creatureIndex] = this.tableData.value.pulls[this.currentPull][creatureIndex] || []
+          if (this.tableData.value.pulls[this.currentPull].length <= creatureIndex) {
+            // increase array size to match required length
+            this.tableData.value.pulls[this.currentPull].push(...new Array(creatureIndex + 1 - this.tableData.value.pulls[this.currentPull].length))
+          }
+          this.tableData.value.pulls[this.currentPull][creatureIndex].push(cloneIndex + 1)
+          this.$set(this.enemies[creatureIndex].clones[cloneIndex], 'pull', this.currentPull)
+        }
+
+        this.updatePullDetails(this.currentPull)
+      }
+
+      // update data table
+      this.tableString = JSON.stringify(this.tableData, null, 2)
+      this.$store.commit('setWagoJSON', this.tableString)
+    },
+
+    addGroupToPull (pullIndex, group) {
+      this.enemies.forEach((creature, creatureIndex) => {
+        creature.clones.forEach((clone, cloneIndex) => {
+          if (clone.g === group) {
+            this.tableData.value.pulls[pullIndex][creatureIndex] = this.tableData.value.pulls[pullIndex][creatureIndex] || []
+            if (this.tableData.value.pulls[pullIndex].length <= creatureIndex) {
+              // increase array size to match required length
+              this.tableData.value.pulls[pullIndex].push(...new Array(creatureIndex + 1 - this.tableData.value.pulls[pullIndex].length))
+            }
+            this.tableData.value.pulls[pullIndex][creatureIndex].push(cloneIndex + 1)
+            this.$set(this.enemies[creatureIndex].clones[cloneIndex], 'pull', pullIndex)
+          }
+        })
+      })
+    },
+
+    removeGroupFromPull (pullIndex, group) {
+      this.enemies.forEach((creature, creatureIndex) => {
+        creature.clones.forEach((clone, cloneIndex) => {
+          if (clone.g === group && this.tableData.value.pulls[pullIndex][creatureIndex]) {
+            this.$delete(this.tableData.value.pulls[pullIndex][creatureIndex], this.tableData.value.pulls[pullIndex][creatureIndex].indexOf(cloneIndex + 1))
+            // use null instead of empty arrays
+            if (!this.tableData.value.pulls[pullIndex][creatureIndex].length) {
+              this.$set(this.tableData.value.pulls[pullIndex], creatureIndex, null)
+            }
+            this.$delete(this.enemies[creatureIndex].clones[cloneIndex], 'pull')
+          }
+        })
+      })
     },
 
     displayAffix (affixID) {
@@ -502,6 +594,15 @@ export default {
       this.currentPull = pullIndex
     },
 
+    createPull () {
+      this.tableData.value.pulls.push(new Array(this.enemies.length))
+      this.currentPull = this.tableData.value.pulls.length - 1
+      this.$nextTick(() => {
+        var o = document.getElementById('mdtOptions')
+        o.scrollTop = o.scrollHeight
+      })
+    },
+
     pullEnemyList (pullIndex, returnObj) {
       var targets = {_groups: []}
       var isTeeming = this.isTeemingSelected()
@@ -544,7 +645,7 @@ export default {
       return str.substring(0, str.length - 2)
     },
 
-    pullPercent (pullIndex, runningTotal) {
+    pullPercent (pullIndex, runningTotal, targets) {
       var required = this.mdtDungeonTable.dungeonTotalCount[this.mapID]
       var max
       if (required.teemingEnabled && this.isTeemingSelected()) {
@@ -554,7 +655,9 @@ export default {
         max = required.normal
       }
 
-      var targets = this.pullEnemyList(pullIndex, true)
+      if (!targets) {
+        targets = this.pullEnemyList(pullIndex, true)
+      }
       var current = 0
       for (let key in targets) {
         if (!targets.hasOwnProperty(key) || key === '_groups') continue
@@ -574,32 +677,62 @@ export default {
     },
 
     updatePullDetails (pullIndex) {
-      var enemies = this.enemies
       var groups = {}
+      var targets = {}
       var isTeeming = this.isTeemingSelected()
-      this.tableData.value.pulls[pullIndex].forEach(function (clones, enemyIndex) {
-        if (!clones || !enemies[enemyIndex].clones) {
+
+      this.tableData.value.pulls[pullIndex].forEach((clones, enemyIndex) => {
+        if (!clones || !this.enemies[enemyIndex].clones) {
           return
         }
-        clones.forEach(function (cloneIndex) {
+        clones.forEach((cloneIndex) => {
           cloneIndex--
-          if (!enemies[enemyIndex].clones[cloneIndex] || (enemies[enemyIndex].clones[cloneIndex].teeming && !isTeeming)) {
+          if (!this.enemies[enemyIndex].clones[cloneIndex] || (this.enemies[enemyIndex].clones[cloneIndex].teeming && !isTeeming)) {
+            // if clone is set to current pullIndex, remove it
+            if (this.enemies[enemyIndex].clones[cloneIndex] === pullIndex) {
+              this.$set(this.enemies[enemyIndex].clones[cloneIndex], 'pull', -1)
+            }
             return
           }
 
-          groups[enemies[enemyIndex].clones[cloneIndex].g] = groups[enemies[enemyIndex].clones[cloneIndex].g] || []
-          let meta = Object.assign({}, enemies[enemyIndex])
+          // add pull data
+          // this.$set(this.enemies[enemyIndex].clones[cloneIndex], 'pull', pullIndex)
+
+          groups[this.enemies[enemyIndex].clones[cloneIndex].g] = groups[this.enemies[enemyIndex].clones[cloneIndex].g] || []
+          let meta = Object.assign({}, this.enemies[enemyIndex])
           meta.clones = null
           meta.cloneIndex = cloneIndex
-          groups[enemies[enemyIndex].clones[cloneIndex].g].push(meta)
+          groups[this.enemies[enemyIndex].clones[cloneIndex].g].push(meta)
+
+          // setup targets obj for horizontal list
+          targets[this.enemies[enemyIndex].name] = targets[this.enemies[enemyIndex].name] || { count: 0, forces: this.enemies[enemyIndex].count, boss: this.enemies[enemyIndex].isBoss }
+          targets[this.enemies[enemyIndex].name].count++
+          if (!targets._groups) {
+            targets._groups = [this.enemies[enemyIndex].clones[cloneIndex].g]
+          }
+          else if (targets._groups.indexOf(this.enemies[enemyIndex].clones[cloneIndex].g) === -1) {
+            targets._groups.push(this.enemies[enemyIndex].clones[cloneIndex].g)
+          }
         })
       })
 
-      var details = []
+      var details = {groups: []}
       for (let g in groups) {
         if (!groups.hasOwnProperty(g)) continue
-        details.push({g: g, targets: groups[g]})
+        details.groups.push({g: g, targets: groups[g]})
       }
+
+      var hList = ''
+      for (let name in targets) {
+        if (!targets.hasOwnProperty(name) || name === '_groups') continue
+        if (targets[name].boss) hList = hList + '💀' + name + ', '
+        else hList = hList + targets[name].count + 'x ' + name + ', '
+      }
+      details.hList = hList
+
+      details.percent = this.pullPercent(pullIndex, false, targets)
+      details.percentRunningTotal = this.pullPercent(pullIndex, true, targets)
+
       this.pullDetails.splice(pullIndex, 1, details)
     },
 
@@ -634,6 +767,15 @@ export default {
 
     linePointsXY (points) {
       return points.map(x => Math.abs(x) * this.mdtScale)
+    },
+
+    linePointsObjXY (points) {
+      var a = []
+      points.forEach((coords) => {
+        a.push(coords.x * this.mdtScale)
+        a.push(-coords.y * this.mdtScale)
+      })
+      return a
     },
 
     saveChanges () {
@@ -710,8 +852,8 @@ export default {
 #build-mdt .md-theme-default.md-sidenav .md-sidenav-content { background-color: inherit; min-width: 360px; }
 #builder { position: relative; min-height: 768px }
 #builder canvas { position: absolute; left: 0; top: 0; width:1024px; max-width: 1024px; height: 768px; max-height: 768px; }
-.mdtOptions { margin: 0; overflow: hidden; width: 100%; height: 768px; overflow-y: auto }
-.mdtOptions .md-sidenav-content { min-width: 75%; }
+#mdtOptions { margin: 0; overflow: hidden; width: 100%; height: 768px; overflow-y: auto;}
+#mdtOptions .md-sidenav-content { min-width: 75%; }
 .inlineContainer { display: inline-flex; flex-direction: row; flex-wrap: wrap; }
 .affix { padding-right: 6px; padding-bottom: 4px; white-space: nowrap; line-height:36px; display: inline; }
 .affix img { width: 22px; height: 22px; }

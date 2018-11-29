@@ -4,7 +4,7 @@
 
 <script>
 export default {
-  props: ['data', 'mapID', 'mdtScale'],
+  props: ['data', 'mapID', 'mdtScale', 'annotationsIndex'],
   data: function () {
     return {
       POIICONS: { // sprite sheet 14x28 of 16x16 icons
@@ -24,8 +24,7 @@ export default {
         shrineSkip: [2 * 32, 0, 32, 32], // 3rd column, 1st row
         templeEye: [2 * 32, 0, 32, 32], // 3rd column, 1st row
         krSpiritGuide: [2 * 32, 0, 32, 32], // 3rd column, 1st row
-        sobGutters: [2 * 32, 6 * 32, 32, 32], // 3rd column, 7th row
-        userNote: [0, 6 * 32, 32, 32] // 1st columnb, 7th row
+        sobGutters: [2 * 32, 6 * 32, 32, 32] // 3rd column, 7th row
       },
       DOOR: { // sprite sheet 1x5 of 32x32 icons
         0: [0, 0, 32, 32], // no arrow
@@ -34,11 +33,17 @@ export default {
         '-2': [3 * 32, 0, 32, 32], // left arrow
         2: [4 * 32, 0, 32, 32] // right arrow
       },
-      mdtDungeonTable: this.$store.state.mdtDungeonTable
+      USERNOTEICONS: [], // sprite sheet 1x50 of 32x32 icons
+      mdtDungeonTable: this.$store.state.mdtDungeonTable,
+      tableData: JSON.parse(this.$store.state.wago.code.json)
     }
   },
   created: function () {
-    this.mdtDungeonTable = this.$store.state.mdtDungeonTable
+    // this.mdtDungeonTable = this.$store.state.mdtDungeonTable
+    this.USERNOTEICONS = []
+    for (let i = 0; i < 50; i++) {
+      this.USERNOTEICONS.push([i * 32, 0, 32, 32])
+    }
   },
   methods: {
     getSprite (data) {
@@ -60,8 +65,12 @@ export default {
       }
 
       else if (data.n && data.d) {
-        image.src = require('../../assets/mapPOI/OBJECTICONS.png')
-        return {image, animation: 'userNote', animations: this.OBJECTICONS, x: (data.x * this.mdtScale) - 11.2, y: -(data.y * this.mdtScale) - 11.2, scaleX: 0.7, scaleY: 0.7}
+        image.src = require('../../assets/mapPOI/USERNOTEICONS.png')
+        var count = 0
+        for (let i = 0; i < this.tableData.objects.length && i < this.annotationsIndex && count < 50; i++) {
+          if (this.tableData.objects[i].n) count++
+        }
+        return {image, animation: count, animations: this.USERNOTEICONS, x: (data.d[0] * this.mdtScale) - 13.6, y: -(data.d[1] * this.mdtScale) - 16.6, scaleX: 0.85, scaleY: 0.85}
       }
 
       else {
@@ -131,16 +140,17 @@ export default {
           text = 'Eye of Sethraliss\nBring both Eyes to the Skull of Sethraliss\nEach Eye you bring to the Skull awards 12 Enemy Forces'
           break
         case 'wmMaggotNote': // waycrest manor
-          text = 'Note on Devouring Maggots:\n\nDevouring Maggots with the buff <em>Parasitic</em> will try to <em>Infest</em> Players\nUpon successfull cast of <em>Infest</em> the Devouring Maggot will disappear and spawn 2x Devouring Maggots after a debuff on the infested player runs out.\nYou can only gain 1 count for killing the initial Infested Maggot - the 2 newly spawned Infested Maggots do not give count.\n\nInfected Peasants spawn 3x Devouring Maggots which do give 1 count each.\nThese Devouring Maggots are mapped next to the Infected Peasants.'
+          text = 'Note on Devouring Maggots:\nDevouring Maggots with the buff <em>Parasitic</em> will try to <em>Infest</em> Players\nUpon successfull cast of <em>Infest</em> the Devouring Maggot will disappear and spawn 2x Devouring Maggots after a debuff on the infested player runs out.\nYou can only gain 1 count for killing the initial Infested Maggot - the 2 newly spawned Infested Maggots do not give count.\n\nInfected Peasants spawn 3x Devouring Maggots which do give 1 count each.\nThese Devouring Maggots are mapped next to the Infected Peasants.'
           break
 
-        // error message on others
         default:
+          // user note
           if (poi.n && poi.d) {
-            text = 'user note'
+            text = poi.d[4] || 'Error\nNo note content'
           }
+          // unknown/error
           else {
-            text = 'Error. Unknown POI ' + poi.type
+            text = 'Error\nUnknown POI ' + poi.type
           }
       }
       this.$emit('mouseover', poi, text)

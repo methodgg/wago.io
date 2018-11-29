@@ -632,6 +632,7 @@ server.post('/import/submit', function(req, res) {
         if (wago.type === 'WEAKAURAS2') {
           json.wagoID = doc._id
           json.d.url = doc.url + '/1'
+          delete json.d.ignoreWagoUpdate // remove as this is a client-level setting for the WA updater app
           if (json.c) {
             for (var i = 0; i < json.c.length; i++) {
               json.c[i].url = doc.url + '/1'
