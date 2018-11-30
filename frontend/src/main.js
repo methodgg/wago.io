@@ -184,11 +184,8 @@ const store = new Vuex.Store({
       window.prerenderReady = true
     },
 
-    initWotM (state, wotm) {
-      state.wotm = wotm
-    },
-    updateWotm (state, wotm) {
-      state.wotm = wotm
+    setWotm (state, wotm) {
+      state.wotm = JSON.parse(decodeURIComponent(wotm))
     },
     setWago (state, wago) {
       state.wago = wago
@@ -435,7 +432,7 @@ const http = {
         for (var pair of res.headers.entries()) {
           switch (pair[0]) {
             case 'wotm':
-              store.commit('updateWotm', JSON.parse(pair[1]))
+              store.commit('setWotm', pair[1])
               break
           }
         }

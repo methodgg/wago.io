@@ -155,10 +155,6 @@ export default {
         vue.axios.defaults.headers = { 'x-auth-token': res.token }
       }
 
-      if (res.wotm) {
-        vue.$store.commit('initWotM', res.wotm)
-      }
-
       // if beta server and user does not have beta access
       // if (process.env.WEB_SERVER.match(/t1000/) && (res.guest || !res.user || !res.user.access || !res.user.access.beta)) {
       //   window.requireBetaAccess = true

@@ -14,7 +14,7 @@ module.exports = function(req, res, next) {
     req.params = {}
   }
 
-  res.setHeader('wotm', JSON.stringify(global['WagoOfTheMoment'] || {}))
+  res.setHeader('wotm', encodeURIComponent(JSON.stringify(global['WagoOfTheMoment'] || {})))
   res.setHeader('Access-Control-Allow-Credentials', 'true')
   next()
 }
