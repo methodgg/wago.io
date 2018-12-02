@@ -1035,7 +1035,8 @@ export default {
 .affixMeta { color: rgba(128,128,128,.6); font-size: 12px; position: absolute; left: 16px; top: 24px; }
 #changeAffixesBtn { margin-top: 0; }
 #mdtPulls .md-progress { margin-top: 4px }
-#mdtPulls .selected { background-color: rgba(99, 233, 30, 0.1); padding-top: 16px }
+#mdtPulls .selected > div { background-color: rgba(99, 233, 30, 0.1); padding-top: 16px }
+#mdtPulls .selected > button { display: none }
 .mdtGroupDetails > div { margin: 15px 0; }
 .mdtGroupDetails .groupnum:before { content: 'Group'; font-size: 9px; position: absolute; top: -15px; right: 6px; text-align: right }
 .mdtGroupDetails .singlepull:before { content: 'Singles'; font-size: 9px; position: absolute; top: -15px; right: 6px; text-align: right }

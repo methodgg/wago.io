@@ -33,5 +33,5 @@ export default {
 
 <!-- background-size of 3339% based on 115px per sprite and 3840px wide image -->
 <style scoped>
-.enemyPortrait { display: inline-block; overflow: hidden; vertical-align: middle; box-sizing: initial; background-size: 3339% }
+.enemyPortrait { display: inline-block; overflow: hidden; vertical-align: middle; box-sizing: initial; background-size: 3339%; }
 </style>

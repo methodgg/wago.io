@@ -143,8 +143,7 @@ Schema.statics.randomOfTheMoment = function(callback) {
 }
 
 const WagoItem = mongoose.model('WagoItem', Schema)
-
-if (require('../../config').env == 'production') {
+if (require('../../config').env == 'production' && !global.CRONTASK) {
   var es_Stream = WagoItem.synchronize()
   var es_Count = 0
 

@@ -1,5 +1,6 @@
 // requires
 const config = require('./config')
+global.CRONTASK = true
 const mongoose = require('mongoose')
 const async = require('async')
 const fs = require('fs')
