@@ -19,8 +19,8 @@
 
     <ui-loading v-if="mdtLoading"></ui-loading>
     <md-layout v-else md-row>
-      <md-layout style="width:65%; height:768px" md-vertical-align="start">
-        <div id="builder" ref="canvas" width="1024" height="768">
+      <md-layout style="width:65%; height:768px; position: relative" md-vertical-align="start">
+        <div id="builder" ref="canvas" v-bind:class="annotationClass">
           <v-stage ref="mdtStage" id="mdtStage" :config="konvaStageConfig" @scroll.passive="zoomStage">
             <slot>1</slot> <!-- defined slots prevent Konva from spamming "<div>undefined</div>" -->
             <v-layer ref="mdtMap" v-if="mdtDungeonTable.dungeonSubLevels">
@@ -37,7 +37,7 @@
                 <slot>1</slot>
                 <template v-for="(clone, j) in creature.clones">
                   <slot>1</slot>
-                  <v-line v-if="clone.patrol" 
+                  <v-line v-if="clone.patrol && clone.sublevel === subMapID + 1" 
                     @mouseover="setTargetHover(creature, clone, j, undefined, true)"
                     @mouseleave="setTargetHover()"
                     :config="{
@@ -58,13 +58,14 @@
                   <v-circle v-if="(!clone.sublevel || clone.sublevel === subMapID + 1) && (!clone.teeming || (clone.teeming && isTeemingSelected()))" :config="{
                       x: clone.x * mdtScale,
                       y: clone.y * -mdtScale,
-                      radius: Math.round(5 * creature.scale * (creature.isBoss ? 1.7 : 1)),
+                      radius: Math.round(5 * creature.scale * (creature.isBoss ? 1.7 : 1)) / mdtScale,
+                      fillPatternX: (-Math.round(5 * creature.scale * (creature.isBoss ? 1.7 : 1))) / mdtScale,
+                      fillPatternY: (-Math.round(5 * creature.scale * (creature.isBoss ? 1.7 : 1))) / mdtScale,
                       fillPatternImage: enemyPortraits,
+                      fillPatternOffset: getEnemyPortraitOffset(i, 115),
                       fillPatternRepeat: 'no-repeat',
-                      fillPatternX: -Math.round(5 * creature.scale * (creature.isBoss ? 1.7 : 1)),
-                      fillPatternY: -Math.round(5 * creature.scale * (creature.isBoss ? 1.7 : 1)),
-                      fillPatternScaleX: 2 * Math.round(5 * creature.scale * (creature.isBoss ? 1.7 : 1)) / 64,
-                      fillPatternScaleY: 2 * Math.round(5 * creature.scale * (creature.isBoss ? 1.7 : 1)) / 64,
+                      fillPatternScaleX: Math.round(5 * creature.scale * (creature.isBoss ? 1.7 : 1)) / 64,
+                      fillPatternScaleY: Math.round(5 * creature.scale * (creature.isBoss ? 1.7 : 1)) / 64,
                       listening: false
                     }"
                   />
@@ -76,7 +77,7 @@
                     :config="{
                       x: clone.x * mdtScale,
                       y: clone.y * -mdtScale,
-                      radius: Math.round(5 * creature.scale * (creature.isBoss ? 1.7 : 1)),
+                      radius: Math.round(5 * creature.scale * (creature.isBoss ? 1.7 : 1)) / mdtScale,
                       fill: clone.hover ? 'rgba(119, 253, 50, 0.6)' : (clone.pull >= 0 ? 'rgba(99, 233, 30, 0.3)' : 'rgba(99, 233, 30, 0.0)'),
                       stroke: isInfestedCreature(clone) ? 'red' : (creature.isBoss ? 'gold' : 'black'),
                       strokeWidth: .5,
@@ -87,22 +88,68 @@
                       shadowBlur: 10
                     }"
                   />
+
+                  <v-circle v-if="i === 1 && j === 1" :config="{
+                      x: clone.x * mdtScale,
+                      y: clone.y * -mdtScale,
+                      radius: 8 / mdtScale,
+                      fillPatternX: -8 / mdtScale,
+                      fillPatternY: -8 / mdtScale,
+                      fillPatternImage: enemyPortraits,
+                      fillPatternOffset: {x:0, y:0},
+                      fillPatternScale: {x: .125, y: .125},
+                      fillPatternRepeat: 'no-repeat',
+                      listening: false
+                    }"
+                  />
                 </template>
               </template>
+            </v-layer>
+            <v-layer ref="mdtAnnotations" v-if="mdtDungeonTable.dungeonSubLevels">
               <template v-for="(obj, id) in tableData.objects">
                 <!-- note -->
-                <mdt-poi v-if="obj && obj.n" :data="obj" :annotationsIndex="id" :mdtScale="mdtScale" :mapID="mapID" @mouseover="setPOITooltip" @mouseout="setPOITooltip" @mousemove="moveTooltip" @click="clickPOI" />
+                <mdt-poi v-if="obj && obj.n && obj.d && obj.d[2] === subMapID + 1" :data="obj" :annotationsIndex="id" :mdtScale="mdtScale" :mapID="mapID" @mouseover="setPOITooltip" @mouseout="setPOITooltip" @mousemove="moveTooltip" @click="clickPOI" />
+                <!-- arrow -->
+                <v-arrow v-else-if="obj && obj.t && obj.l && obj.d[2] === subMapID + 1 && obj.d[3]" :config="{
+                  points: linePointsXY(obj.l),
+                  strokeWidth: obj.d[0] * .4,
+                  stroke: '#' + obj.d[4],
+                  fill: '#' + obj.d[4]
+                }"/>
                 <!-- line -->
                 <v-line v-else-if="obj && obj.l && obj.d[2] === subMapID + 1 && obj.d[3]" :config="{
                   points: linePointsXY(obj.l),
                   strokeWidth: obj.d[0] * .4,
-                  stroke: '#' + obj.d[4]
+                  stroke: '#' + obj.d[4],
+                  tension: .3
                 }"/>
                 <!-- ring -->
                 <!-- triangle -->
               </template>
             </v-layer>
           </v-stage>
+        </div>
+        <div id="mdtAnnotateMenu">
+          <md-button-toggle md-single class="md-primary">
+            <md-button class="md-icon-button" @click="setAnnotate('standard')">
+              <md-icon style="transform:rotate(-65deg); margin-left:2px">near_me</md-icon>
+            </md-button>
+            <md-button class="md-icon-button" @click="setAnnotate('freedraw')">
+              <md-icon>edit</md-icon>
+            </md-button>
+            <md-button class="md-icon-button" @click="setAnnotate('note')">
+              <md-icon>receipt</md-icon>
+            </md-button>
+            <md-button class="md-icon-button" @click="setAnnotate('line')">
+              <md-icon style="transform:rotate(-45deg); font-size: 28px; margin-left: -5px; margin-top: -2px">remove</md-icon>
+            </md-button>
+            <md-button class="md-icon-button" @click="setAnnotate('move')">
+              <md-icon>control_camera</md-icon>
+            </md-button>
+            <md-button class="md-icon-button" @click="setAnnotate('arrow')">
+              <md-icon>call_made</md-icon>
+            </md-button>
+          </md-button-toggle>
         </div>
       </md-layout>
       <md-layout style="width:35%" md-vertical-align="start" v-if="mdtDungeonTable.dungeonSubLevels">
@@ -130,7 +177,7 @@
                         <span v-if="parseInt(details.g)" class="groupnum">{{ details.g }}</span>
                         <span v-else class="singlepull">➽</span>
                         <template v-for="(target, targetIndex) in details.targets">
-                          <mdt-enemy-portrait :mapID="mapID" :creatureID="target.id"
+                          <mdt-enemy-portrait :size="36" :mapID="mapID" :offset="getEnemyPortraitOffset(target.enemyIndex, 36)"
                             @mouseover="setTargetHoverAvatar(pull - 1, detailIndex, targetIndex, true)" 
                             @mouseleave="setTargetHoverAvatar(pull - 1, detailIndex, targetIndex, false)"
                           />
@@ -151,12 +198,12 @@
           <md-sidenav class="md-right" ref="affixSelection">
             <md-list class="md-double-line md-dense" id="selectAffixWeek">
               <template v-for="(week, k) in mdtDungeonTable.affixWeeks">
-                <md-list-item @click="setAffixWeek(week)">
+                <md-list-item @click="setAffixWeek(k)">
                   <div class="affixWeek">
                     <template v-for="affixID in week">
                       <span v-html="displayAffix(affixID)" class="affix"></span>             
                     </template>
-                  </div>            
+                  </div>           
                   <span class="affixMeta">{{ $t("Week [-num-]", {num: k + 1 }) }}</span>
                 </md-list-item>
               </template>
@@ -169,7 +216,7 @@
     <div id="mdtTooltip" v-bind:style="{top: cursorTooltipY + 'px', left: cursorTooltipX + 'px'}">
       <div class="tooltipPOI" v-if="tooltipPOI" v-html="tooltipPOI.replace(/\\n/g, '<br>')"></div>
       <div class="tooltipEnemy" v-else-if="tooltipEnemy.name">
-        <mdt-enemy-portrait :mapID="mapID" :creatureID="tooltipEnemy.id" :size="56" />
+        <mdt-enemy-portrait :size="56" :mapID="mapID" :offset="getEnemyPortraitOffset(tooltipEnemy.enemyIndex, 56)" />
         <span v-if="tooltipEnemy.isBoss" style="margin-left:-3px">💀 </span><strong>{{ tooltipEnemy.name }}</strong><br>
         {{ $t('Level [-level-] [-type-]', {level: tooltipEnemy.level, type: tooltipEnemy.creatureType}) }}<br>
         {{ $t('[-hp-] HP @ +10', {hp: calcEnemyHealth(tooltipEnemy, true)}) }}<br>
@@ -186,8 +233,17 @@
   add more tooltip details?
   m+ level needed?
   arrows/rings/other annotation tools?
+  - color : color_lens or style or fiber_manual_record
+  - width
+  - shapes? -- outline style
+    - triangle? details
+    - square? crop_din
+    - circle? fiber_manual_record
+  - note : receipt
+  - move object
+  - eraser
+  - clear all
   create/edit annotations
-  enemy portraits
   -->
   
 
@@ -196,7 +252,7 @@ export default {
   name: 'build-mdt',
   data: function () {
     return {
-      mdtScale: 539 / 450, // 1.197777 repeating, of course. Found by trial and error, there may be something that more accurately scales wow pixels into real pixels, but this is very close.
+      mdtScale: 539 / 450, // 1.197777 repeating, of course. Found by trial and error; there may be something that more accurately scales wow pixels into real pixels, but this is very close.
       mdtLoading: true,
       tableString: this.$store.state.wago.code.json,
       tableData: JSON.parse(this.$store.state.wago.code.json),
@@ -238,7 +294,14 @@ export default {
         16: { name: 'Infested', icon: 'Achievement_Nazmir_Boss_Ghuun' },
         117: { name: 'Reaping', icon: 'Ability_Racial_EmbraceOfTheLoa_Bwonsomdi' }
       },
-      currentPull: -1
+      currentPull: -1,
+      annotationMode: false,
+      annotationClass: 'standard',
+      isPainting: false,
+      paintingContext: null,
+      paintingPosition: {},
+      paintingStrokeWidth: 3,
+      paintingStrokeColor: 'FFFFFF'
     }
   },
   created: function () {
@@ -274,16 +337,21 @@ export default {
     init () {
       this.selectedAffixes = this.mdtDungeonTable.affixWeeks[this.tableData.week - 1]
       this.enemies = this.mdtDungeonTable.dungeonEnemies[this.mapID]
+      for (let i = 0; i < this.enemies.length; i++) {
+        this.enemies[i].enemyIndex = i
+      }
       this.setMap(this.subMapID)
     },
 
     setupStage () {
       var vue = this
+      this.isPainting = false
 
       this.$nextTick().then(function () {
         var stage = vue.$refs.mdtStage.getStage()
-        var canvas = vue.$refs.canvas
         stage.draggable(true)
+
+        var canvas = vue.$refs.canvas
 
         // setup zoom
         canvas.addEventListener('wheel', (evt) => {
@@ -313,6 +381,65 @@ export default {
           stage.position(newPos)
           stage.batchDraw()
         })
+
+        stage.addEventListener('mousedown touchstart', (evt) => {
+          if (vue.annotationMode === 'freedraw' || vue.annotationMode === 'line' || vue.annotationMode === 'arrow') {
+            vue.isPainting = true
+            vue.paintingPosition = stage.getPointerPosition()
+            var scale = stage.scaleX()
+            var x = ((vue.paintingPosition.x - stage.x()) / scale) / vue.mdtScale
+            var y = -((vue.paintingPosition.y - stage.y()) / scale) / vue.mdtScale
+            vue.tableData.objects.push({l: [x, y], d: [vue.paintingStrokeWidth, 1.1, vue.subMapID + 1, true, vue.paintingStrokeColor, 0, true]})
+          }
+          else {
+            vue.isPainting = false
+          }
+        })
+
+        stage.addEventListener('mouseup touchend', (evt) => {
+          vue.isPainting = false
+          // if line is started but never actually drawn then remove it from the table
+          if ((vue.annotationMode === 'freedraw' || vue.annotationMode === 'line' || vue.annotationMode === 'arrow') && vue.tableData.objects[vue.tableData.objects.length - 1].l.length <= 3) {
+            vue.tableData.objects.pop()
+            return
+          }
+
+          vue.tableString = JSON.stringify(vue.tableData, null, 2)
+          vue.$store.commit('setWagoJSON', vue.tableString)
+        })
+
+        stage.addEventListener('mousemove touchmove', (evt) => {
+          if (!vue.isPainting) {
+            return
+          }
+
+          var pos = stage.getPointerPosition()
+          var scale = stage.scaleX()
+          var x = ((pos.x - stage.x()) / scale) / vue.mdtScale
+          var y = -((pos.y - stage.y()) / scale) / vue.mdtScale
+          if (x < 0 || y > 0) {
+            return
+          }
+          else if (Math.abs(pos.x - x) < 10 && Math.abs(pos.y - y) < 10) {
+            return
+          }
+
+          var data = vue.tableData.objects[vue.tableData.objects.length - 1]
+          if (vue.annotationMode === 'freedraw') {
+            // using vue's mutating methods
+            data.l.push(x)
+            data.l.push(y)
+          }
+          else if (vue.annotationMode === 'line') {
+            data.l.splice(2, 2, x, y)
+          }
+          else if (vue.annotationMode === 'arrow') {
+            data.l.splice(2, 2, x, y)
+            data.t = Math.atan2(data.l[1] - y, data.l[0] - x) * 180 / Math.PI
+          }
+          // vue.tableData.objects.splice(vue.tableData.objects.length - 1, 1, data)
+          vue.paintingPosition = pos
+        })
       })
 
       // setup pull info
@@ -328,7 +455,7 @@ export default {
 
       // enemy portraits
       this.enemyPortraits = new Image()
-      this.enemyPortraits.src = 'https://media.wago.io/avatars/56ef7fd27251b4eb17a6c2ea/discord-1506749979849.png'
+      this.enemyPortraits.src = `https://media.wago.io/mdt/portraits-${this.mapID}.png`
       preload.push(this.enemyPortraits.src)
 
       // build map files
@@ -372,6 +499,15 @@ export default {
       $.when.apply($, promises).done(function () {
         vue.setMap(subMap, true)
       })
+    },
+
+    getEnemyPortraitOffset (creatureIndex, size) {
+      var row = 0
+      size = size || 36
+      if (creatureIndex >= Math.ceil(this.enemies.length / 2)) {
+        row++
+      }
+      return {x: ((creatureIndex) - (Math.ceil(this.enemies.length / 2) * row)) * size, y: row * size}
     },
 
     setTargetHover (creature, clone, cloneIndex, pullIndex, noTooltip) {
@@ -452,7 +588,6 @@ export default {
       // if current pull matches clicked target then we'll be removing only, otherwise we'll add unit/group after we remove
       var addToPull = (this.enemies[creatureIndex].clones[cloneIndex].pull !== this.currentPull)
       var previousPull = this.enemies[creatureIndex].clones[cloneIndex].pull
-      console.log(previousPull)
 
       // if target is part of a group then apply to all creatures in the group
       if (this.enemies[creatureIndex].clones[cloneIndex].g && this.enemies[creatureIndex].clones[cloneIndex].pull >= 0) {
@@ -541,6 +676,8 @@ export default {
     setAffixWeek (week) {
       this.selectedAffixes = week
       this.tableData.week = week + 1
+      this.tableString = JSON.stringify(this.tableData, null, 2)
+      this.$store.commit('setWagoJSON', this.tableString)
       this.$refs.affixSelection.close()
     },
 
@@ -597,6 +734,7 @@ export default {
     createPull () {
       this.tableData.value.pulls.push(new Array(this.enemies.length))
       this.currentPull = this.tableData.value.pulls.length - 1
+      this.updatePullDetails(this.currentPull)
       this.$nextTick(() => {
         var o = document.getElementById('mdtOptions')
         o.scrollTop = o.scrollHeight
@@ -702,10 +840,11 @@ export default {
           let meta = Object.assign({}, this.enemies[enemyIndex])
           meta.clones = null
           meta.cloneIndex = cloneIndex
+          meta.enemyIndex = enemyIndex
           groups[this.enemies[enemyIndex].clones[cloneIndex].g].push(meta)
 
           // setup targets obj for horizontal list
-          targets[this.enemies[enemyIndex].name] = targets[this.enemies[enemyIndex].name] || { count: 0, forces: this.enemies[enemyIndex].count, boss: this.enemies[enemyIndex].isBoss }
+          targets[this.enemies[enemyIndex].name] = targets[this.enemies[enemyIndex].name] || { count: 0, forces: this.enemies[enemyIndex].count, boss: this.enemies[enemyIndex].isBoss, enemyIndex: enemyIndex }
           targets[this.enemies[enemyIndex].name].count++
           if (!targets._groups) {
             targets._groups = [this.enemies[enemyIndex].clones[cloneIndex].g]
@@ -760,7 +899,7 @@ export default {
     },
 
     clickPOI (action) {
-      if (action.mapLink) {
+      if (!isNaN(action.mapLink)) {
         this.subMapID = action.mapLink
       }
     },
@@ -778,11 +917,43 @@ export default {
       return a
     },
 
+    setAnnotate (mode) {
+      this.annotationMode = mode
+      var stage = this.$refs.mdtStage.getStage()
+
+      switch (mode) {
+        case 'freedraw':
+        case 'line':
+        case 'arrow':
+          this.annotationClass = 'annotate-crosshair'
+          stage.draggable(false)
+          break
+
+        case 'note':
+          this.annotationClass = 'annotate-note'
+          stage.draggable(false)
+          break
+
+        case 'standard':
+          stage.draggable(true)
+          this.annotationClass = 'standard'
+          break
+
+        default:
+          this.annotationClass = 'standard'
+      }
+    },
+
     saveChanges () {
       var post = {}
       post.wagoID = this.wago._id
       post.type = this.wago.type
-      post.json = this.aceEditor.getValue()
+      if (this.aceEditor) {
+        post.json = this.aceEditor.getValue()
+      }
+      else {
+        post.json = this.tableString
+      }
       var vue = this
       this.http.post('/import/json/save', post).then((res) => {
         if (res.success) {
@@ -798,7 +969,9 @@ export default {
       })
     },
     exportChanges () {
-      this.tableString = this.aceEditor.getValue()
+      if (this.aceEditor) {
+        this.tableString = this.aceEditor.getValue()
+      }
       this.showExport = true
     },
     hideExport () {
@@ -873,4 +1046,10 @@ export default {
 #mdtTooltip .tooltipPOI span + span { font-size: 90%; color: #DDD }
 #mdtTooltip .tooltipEnemy { width: 210px; position: relative; }
 #mdtTooltip .tooltipEnemy .enemyPortrait { position: absolute; left: -48px; top: -48px; border: 2px solid black; }
+#mdtAnnotateMenu { position: absolute; top: 36px; left: 18px; width: 50px; height: 200px; border: 1px solid black; background: #212121; opacity: .9 }
+#mdtAnnotateMenu .md-button-toggle { padding: 0}
+#mdtAnnotateMenu button, #mdtAnnotateMenu button .md-ink-ripple { padding: 2px; width: 24px; min-width: 24px; max-width: 24px; height: 24px; min-height: 24px; max-height: 24px; }
+#mdtAnnotateMenu button i.md-icon { font-size: 18px; margin: 0; }
+#builder.annotate-crosshair { cursor: crosshair }
+#builder.annotate-note { cursor: cell }
 </style>

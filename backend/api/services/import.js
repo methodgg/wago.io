@@ -313,8 +313,6 @@ function ScanImport (req, res, next, test) {
       catch (e) {
         test.notElvUI = true
         return ScanImport (req, res, next, test)
-        logger.error({label:'Error reading ElvUI JSON', error: e})
-        return res.send({error: "Invalid ElvUI detected."})
       }      
     })
   }
@@ -908,13 +906,16 @@ function SaveWagoVersion (req, res, mode) {
       })
     })
   }
-  else if ((type=='ELVUI' || type=='VUHDO' || type=='GRID2') && json) {
+  else if ((type=='ELVUI' || type=='VUHDO' || type=='MDT') && json) {
     var encodeFunc
     if (type=='VUHDO') {
       encodeFunc = lua.JSON2Vuhdo
     }
     else if (type=='ELVUI') {
       encodeFunc = lua.JSON2ElvUI
+    }
+    else if (type=='MDT') {
+      encodeFunc = lua.JSON2MDT
     }
     else {
       logger.error({label: 'Unknown import type', type: type})

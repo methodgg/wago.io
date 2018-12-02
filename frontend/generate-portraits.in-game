@@ -1,0 +1,33 @@
+/run # with paste addon
+
+/run NEXTDUNGEON=15; mdtY=-(NEXTDUNGEON-15)*128; SETPORT=SetPortraitTextureFromCreatureDisplayID;MDTDUN=MethodDungeonTools.dungeonEnemies[NEXTDUNGEON];
+/run MDTPO=function(i,x)local r=0 if i>ceil(#MDTDUN/2) then r=1 end if x then return 64*(i-1)-(64*ceil(#MDTDUN/2)*r) else return mdtY-64*r end end
+/run local f=CreateFrame("Frame",nil,UIParent);f:SetWidth(5000);f:SetHeight(5000);f:SetPoint("TOPLEFT",0,0);local t=f:CreateTexture(nil,"BACKGROUND");t:SetAllPoints();t:SetColorTexture(0,0,0,1)
+/run local m=MDTDUN;local k=0;for i=1,#m do local f=CreateFrame("Frame",nil,UIParent);f:SetWidth(64);f:SetHeight(64);f:SetPoint("TOPLEFT",MDTPO(i,1),MDTPO(i));local t=f:CreateTexture(nil,"DIALOG");t:SetAllPoints();SETPORT(t,m[i].displayId)end
+
+/run NEXTDUNGEON=16; mdtY=-(NEXTDUNGEON-15)*128; SETPORT=SetPortraitTextureFromCreatureDisplayID;MDTDUN=MethodDungeonTools.dungeonEnemies[NEXTDUNGEON];
+/run local m=MDTDUN;for i=1,#m do local f=CreateFrame("Frame",nil,UIParent);f:SetWidth(64);f:SetHeight(64);f:SetPoint("TOPLEFT",MDTPO(i,1),MDTPO(i));local t=f:CreateTexture(nil,"DIALOG");t:SetAllPoints();SETPORT(t,m[i].displayId)end
+
+/run NEXTDUNGEON=17; mdtY=-(NEXTDUNGEON-15)*128; SETPORT=SetPortraitTextureFromCreatureDisplayID;MDTDUN=MethodDungeonTools.dungeonEnemies[NEXTDUNGEON];
+/run local m=MDTDUN;for i=1,#m do local f=CreateFrame("Frame",nil,UIParent);f:SetWidth(64);f:SetHeight(64);f:SetPoint("TOPLEFT",MDTPO(i,1),MDTPO(i));local t=f:CreateTexture(nil,"DIALOG");t:SetAllPoints();SETPORT(t,m[i].displayId)end
+
+/run NEXTDUNGEON=18; mdtY=-(NEXTDUNGEON-15)*128; SETPORT=SetPortraitTextureFromCreatureDisplayID;MDTDUN=MethodDungeonTools.dungeonEnemies[NEXTDUNGEON];
+/run local m=MDTDUN;for i=1,#m do local f=CreateFrame("Frame",nil,UIParent);f:SetWidth(64);f:SetHeight(64);f:SetPoint("TOPLEFT",MDTPO(i,1),MDTPO(i));local t=f:CreateTexture(nil,"DIALOG");t:SetAllPoints();SETPORT(t,m[i].displayId)end
+
+/run NEXTDUNGEON=19; mdtY=-(NEXTDUNGEON-15)*128; SETPORT=SetPortraitTextureFromCreatureDisplayID;MDTDUN=MethodDungeonTools.dungeonEnemies[NEXTDUNGEON];
+/run local m=MDTDUN;for i=1,#m do local f=CreateFrame("Frame",nil,UIParent);f:SetWidth(64);f:SetHeight(64);f:SetPoint("TOPLEFT",MDTPO(i,1),MDTPO(i));local t=f:CreateTexture(nil,"DIALOG");t:SetAllPoints();SETPORT(t,m[i].displayId)end
+
+/run NEXTDUNGEON=20; mdtY=-(NEXTDUNGEON-15)*128; SETPORT=SetPortraitTextureFromCreatureDisplayID;MDTDUN=MethodDungeonTools.dungeonEnemies[NEXTDUNGEON];
+/run local m=MDTDUN;for i=1,#m do local f=CreateFrame("Frame",nil,UIParent);f:SetWidth(64);f:SetHeight(64);f:SetPoint("TOPLEFT",MDTPO(i,1),MDTPO(i));local t=f:CreateTexture(nil,"DIALOG");t:SetAllPoints();SETPORT(t,m[i].displayId)end
+
+/run NEXTDUNGEON=21; mdtY=-(NEXTDUNGEON-15)*128; SETPORT=SetPortraitTextureFromCreatureDisplayID;MDTDUN=MethodDungeonTools.dungeonEnemies[NEXTDUNGEON];
+/run local m=MDTDUN;for i=1,#m do local f=CreateFrame("Frame",nil,UIParent);f:SetWidth(64);f:SetHeight(64);f:SetPoint("TOPLEFT",MDTPO(i,1),MDTPO(i));local t=f:CreateTexture(nil,"DIALOG");t:SetAllPoints();SETPORT(t,m[i].displayId)end
+
+/run NEXTDUNGEON=22; mdtY=-(NEXTDUNGEON-15)*128; SETPORT=SetPortraitTextureFromCreatureDisplayID;MDTDUN=MethodDungeonTools.dungeonEnemies[NEXTDUNGEON];
+/run local m=MDTDUN;for i=1,#m do local f=CreateFrame("Frame",nil,UIParent);f:SetWidth(64);f:SetHeight(64);f:SetPoint("TOPLEFT",MDTPO(i,1),MDTPO(i));local t=f:CreateTexture(nil,"DIALOG");t:SetAllPoints();SETPORT(t,m[i].displayId)end
+
+/run NEXTDUNGEON=23; mdtY=-(NEXTDUNGEON-15)*128; SETPORT=SetPortraitTextureFromCreatureDisplayID;MDTDUN=MethodDungeonTools.dungeonEnemies[NEXTDUNGEON];
+/run local m=MDTDUN;for i=1,#m do local f=CreateFrame("Frame",nil,UIParent);f:SetWidth(64);f:SetHeight(64);f:SetPoint("TOPLEFT",MDTPO(i,1),MDTPO(i));local t=f:CreateTexture(nil,"DIALOG");t:SetAllPoints();SETPORT(t,m[i].displayId)end
+
+/run NEXTDUNGEON=24; mdtY=-(NEXTDUNGEON-15)*128; SETPORT=SetPortraitTextureFromCreatureDisplayID;MDTDUN=MethodDungeonTools.dungeonEnemies[NEXTDUNGEON];
+/run local m=MDTDUN;for i=1,#m do local f=CreateFrame("Frame",nil,UIParent);f:SetWidth(64);f:SetHeight(64);f:SetPoint("TOPLEFT",MDTPO(i,1),MDTPO(i));local t=f:CreateTexture(nil,"DIALOG");t:SetAllPoints();SETPORT(t,m[i].displayId)end

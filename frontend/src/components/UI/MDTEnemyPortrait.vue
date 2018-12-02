@@ -1,16 +1,19 @@
 <template>
-  <div class="md-avatar enemyPortrait" v-bind:style="{width: (size || 36) + 'px', height: (size || 36) + 'px'}"
-     @click="click" @mouseover="mouseover" @mouseleave="mouseleave" @mousemove="mousemove">
-    <picture>
-      <source srcset="https://media.wago.io/avatars/56ef7fd27251b4eb17a6c2ea/discord-1506749979849.png" type="image/png">
-      <img src="https://media.wago.io/avatars/56ef7fd27251b4eb17a6c2ea/discord-1506749979849.png">
-    </picture>
+  <div class="enemyPortrait" v-bind:style="{
+    width: (size || 36) + 'px', 
+    height: (size || 36) + 'px', 
+    'border-radius': (size || 36) + 'px', 
+    'background-image': 'url(https://media.wago.io/mdt/portraits-' + mapID + '.png)',
+    'background-position': (-offset.x) + 'px ' + (-offset.y) + 'px'
+    }"
+    @click="click" @mouseover="mouseover" @mouseleave="mouseleave" @mousemove="mousemove"
+  >
   </div>
 </template>
 
 <script>
 export default {
-  props: ['mapID', 'creatureID', 'size'],
+  props: ['mapID', 'offset', 'size'],
   methods: {
     click: function (e) {
       this.$emit('click', e)
@@ -27,3 +30,8 @@ export default {
   }
 }
 </script>
+
+<!-- background-size of 3339% based on 115px per sprite and 3840px wide image -->
+<style scoped>
+.enemyPortrait { display: inline-block; overflow: hidden; vertical-align: middle; box-sizing: initial; background-size: 3339% }
+</style>

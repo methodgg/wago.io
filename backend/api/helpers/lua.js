@@ -74,6 +74,33 @@ module.exports = {
       })
     })    
   },
+
+  JSON2MDT: (obj, cb) => {
+    if (typeof obj === 'string') {
+      obj = JSON.parse(obj)
+    }
+    if (!obj || !obj.value || !obj.value.currentDungeonIdx) {
+      return cb('Invalid export')
+    }
+
+    // generate lua file
+    var str = JSON.stringify(obj)
+    var luaScript = 'dofile("./wago.lua"); JSON2MDT("' + str.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim() + '")'
+    var luaFile = tmpLuaFileName(str)
+
+    fs.writeFile(luaFile, luaScript, (err) => {
+      if (err) {
+        return cb(err)
+      }
+
+      // run luajit and return output
+      execa('luajit', [luaFile], execaOptions).then((res) => {
+        // delete the temp lua file. async - no need to wait for it
+        fs.unlink(luaFile)
+        cb(null, res)
+      })
+    })    
+  },
   
   ElvUI2JSON: (str, cb) => {
     // make sure there is nothing shady in import str

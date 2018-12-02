@@ -72,7 +72,14 @@ function TableToString(inTable)
   return encoded
 end
 
-function TableToStringOld(inTable)
+function TableToStringOld(inTable) -- old WA format
+  local serialized = Serializer:Serialize(inTable);
+  local compressed = Compresser:CompressHuffman(serialized);
+  local encoded = encodeB64(compressed);
+  return encoded
+end
+
+function TableToStringMDT(inTable)
   local serialized = Serializer:Serialize(inTable);
   local compressed = Compresser:CompressHuffman(serialized);
   local encoded = encodeB64(compressed);
@@ -344,6 +351,16 @@ function JSON2WA(json)
 
   if (t) then
     print(TableToString(t))
+  else
+    print("")
+  end
+end
+
+function JSON2MDT(json)
+  local t = JSON:decode(json)
+
+  if (t) then
+    print(TableToStringMDT(t))
   else
     print("")
   end

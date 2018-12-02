@@ -6,7 +6,7 @@ var wowPatches = require('../helpers/wowPatches')
 
 function doNothing () {}
 
- server.get('/lookup/codereview', (req, res) => {
+server.get('/lookup/codereview', (req, res) => {
   WagoCode.lookup(req.query.wagoID).then((code) => {
     if (code && code.json) {
       const lua = require('../helpers/lua')
