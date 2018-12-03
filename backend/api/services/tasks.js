@@ -115,7 +115,7 @@ function GetLatestAddonReleases (req, res) {
           AddonRelease.findOneAndUpdate({addon: release.addon, url: release.url}, release, {"upsert": true, "new": false}).then((doc) => {
             listedURLs.push(release.url) // use the url because its unique and easier than looking up both phase and version
 
-            if (!doc) { // if not found then this is a new release
+            if (!doc || !doc.gameVersion) { // if not found then this is a new release
               downloadAddon('WeakAuras', release, cb2)
             }
             else {
@@ -157,8 +157,8 @@ function GetLatestAddonReleases (req, res) {
 
           AddonRelease.findOneAndUpdate({addon: release.addon, url: release.url}, release, {"upsert": true}).then((doc) => {
             listedURLs.push(release.url)
-            if (!doc) { // if not found then this is a new release
-              downloadAddon('VuhDo', release, cb2)              
+            if (!doc || !doc.gameVersion) { // if not found then this is a new release
+              //  downloadAddon('VuhDo', release, cb2)
             }
             else {
               cb2()
@@ -199,8 +199,9 @@ function GetLatestAddonReleases (req, res) {
 
           AddonRelease.findOneAndUpdate({addon: release.addon, url: release.url}, release, {"upsert": true}).then((doc) => {
             listedURLs.push(release.url)
-            if (!doc) { // if not found then this is a new release
-              downloadAddon('Grid2', release, cb2)              
+            if (!doc || !doc.gameVersion) { // if not found then this is a new release
+              // downloadAddon('Grid2', release, cb2)              
+              cb2()
             }
             else {
               cb2()
