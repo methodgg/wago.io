@@ -3,7 +3,14 @@
  * Restrict all /tasks requests to localhost.
  */
 server.get('/tasks/:task', (req, res, next) => {
-  if (req.connection.remoteAddress !== '::ffff:127.0.0.1' && config.env !== 'development' && !req.headers['user-agent'].match(/^GitHub-Hookshot\//) ) {
+  if (req.connection.remoteAddress !== '::ffff:127.0.0.1' && config.env !== 'development') {
+    return res.send(403, {error: 'invalid_access'})
+  }
+  
+  RunTask(req.params.task, req, res)
+})
+server.post('/tasks/:task', (req, res, next) => {
+  if (!req.headers['user-agent'].match(/^GitHub-Hookshot\//) ) {
     return res.send(403, {error: 'invalid_access'})
   }
   
