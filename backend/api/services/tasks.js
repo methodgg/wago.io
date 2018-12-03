@@ -158,7 +158,7 @@ function GetLatestAddonReleases (req, res) {
           AddonRelease.findOneAndUpdate({addon: release.addon, url: release.url}, release, {"upsert": true}).then((doc) => {
             listedURLs.push(release.url)
             if (!doc || !doc.gameVersion) { // if not found then this is a new release
-              //  downloadAddon('VuhDo', release, cb2)
+              downloadAddon('VuhDo', release, cb2)
             }
             else {
               cb2()
@@ -177,7 +177,7 @@ function GetLatestAddonReleases (req, res) {
     function(cb) {
       var listedURLs = []
       var ThisAddon = 'Grid2'
-      request('https://wow.curseforge.com/projects/grid2', (err, resp, body) => {
+      request('https://www.wowace.com/projects/grid2', (err, resp, body) => {
         if (err) return cb(err)
         if (resp && resp.statusCode!=200) return cb(err)
 
@@ -191,7 +191,7 @@ function GetLatestAddonReleases (req, res) {
           release.phase = phase.attr('title')
 
           var version = scrape(file).find('.project-file-name-container a')
-          release.url = "https://wow.curseforge.com"+version.attr('href')
+          release.url = "https://www.wowace.com"+version.attr('href')
           release.version = version.text()
 
           var date = scrape(file).find('abbr.standard-datetime')
@@ -200,8 +200,7 @@ function GetLatestAddonReleases (req, res) {
           AddonRelease.findOneAndUpdate({addon: release.addon, url: release.url}, release, {"upsert": true}).then((doc) => {
             listedURLs.push(release.url)
             if (!doc || !doc.gameVersion) { // if not found then this is a new release
-              // downloadAddon('Grid2', release, cb2)              
-              cb2()
+              downloadAddon('Grid2', release, cb2)            
             }
             else {
               cb2()
@@ -320,6 +319,7 @@ function downloadAddon(addon, release, done) {
   const tmpfile = '/tmp/' + addon + '.zip'
   const versionDir = addonDir + addon + '/' + release.version
   try {
+    console.log(release.url + '/download')
     request(release.url + '/download').pipe(fs.createWriteStream(tmpfile)).on('close', function() {
       decompress(tmpfile, versionDir).then(function() {
         var toc = fs.readFileSync(versionDir + '/' + addon + '/' + addon + '.toc', 'utf8')
