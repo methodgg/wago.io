@@ -281,7 +281,7 @@ function GetLatestAddonReleases (req, res) {
           AddonRelease.findOneAndUpdate({addon: release.addon, url: release.url}, release, {"upsert": true, "new": false}).then((doc) => {
             listedURLs.push(release.url) // use the url because its unique and easier than looking up both phase and version
 
-            if (!doc) { // if not found then this is a new release
+            if (!doc || !doc.gameVersion) { // if not found then this is a new release
               downloadAddon('MethodDungeonTools', release, cb2)              
             }
             else {
@@ -321,10 +321,8 @@ function downloadAddon(addon, release, done) {
   try {
     request(release.url + '/download').pipe(fs.createWriteStream(tmpfile)).on('close', function() {
       decompress(tmpfile, versionDir).then(function() {
-        console.log('unzipped', addon, versionDir)
         var toc = fs.readFileSync(versionDir + '/' + addon + '/' + addon + '.toc', 'utf8')
         var matches = toc.match(/## Interface:\s*(.*)/)
-        console.log('version?', matches[1])
         if (matches && parseInt(matches[1])) {
           release.gameVersion = parseInt(matches[1])
           // update again
