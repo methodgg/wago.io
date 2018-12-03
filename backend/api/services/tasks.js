@@ -81,13 +81,7 @@ function MakeTopTenLists (req, res) {
  */
 function GetLatestAddonReleases (req, res) {
   const cheerio = require('cheerio')
-  const decompress = require('decompress')
-  const mkdirp = require('mkdirp')
   const request = require('request')
-  const lua = require('../helpers/lua')
-
-  const addonDir = __dirname + '/../lua/addons/'
-
   // TODO: sub-fuctionalize this stuff to avoid repeating code. Curseforge and wowace use the same HTML source
   
   // for each addon we are looking for
@@ -102,7 +96,7 @@ function GetLatestAddonReleases (req, res) {
 
         // html loaded correctly, now parse it
         var scrape = cheerio.load(body)
-        async.forEachOf(scrape('ul.cf-recentfiles li.file-tag'), (file, key, cb2) => {
+        async.eachOfSeries(scrape('ul.cf-recentfiles li.file-tag'), (file, key, cb2) => {
           // for each release found...
           var release = {}
           release.addon = ThisAddon
@@ -122,33 +116,14 @@ function GetLatestAddonReleases (req, res) {
             listedURLs.push(release.url) // use the url because its unique and easier than looking up both phase and version
 
             if (!doc) { // if not found then this is a new release
-              // download zip and get the full game version string
-              var tmpfile = '/tmp/'+ThisAddon+'.zip'
-              var versionDir = addonDir + ThisAddon + '/' + release.version
-              mkdirp.sync(versionDir)
-              request(release.url + '/download').pipe(fs.createWriteStream(tmpfile)).on('close', function() {
-                decompress(tmpfile, versionDir).then(function() {
-                  var toc = fs.readFileSync(versionDir+'/WeakAuras/WeakAuras.toc', 'utf8')
-                  var matches = toc.match(/## Version:\s*(.*)/)
-                  if (matches && matches[1]) {
-                    release.gameVersion = matches[1]
-                    // update again
-                    AddonRelease.findOneAndUpdate({addon: release.addon, url: release.url}, release, {"upsert":true}).exec(() => {
-                      cb2()
-                    })
-                  }
-                  else {
-                    logger.error({label: 'Could not find .toc file', addon: release})
-                    cb2()
-                  }
-                })
-              })
+              downloadAddon('WeakAuras', release, cb2)
             }
             else {
               cb2()
             }
           })
         }, function() {
+          // set old versions to inactive
           AddonRelease.update({ addon: ThisAddon, url: { "$nin": listedURLs } }, { "$set": { active: false }}, {multi: true} ).then(() => {
             cb()
           })
@@ -165,7 +140,7 @@ function GetLatestAddonReleases (req, res) {
         if (resp && resp.statusCode!=200) return cb(err)
 
         var scrape = cheerio.load(body)
-        async.forEachOf(scrape('ul.cf-recentfiles li.file-tag'), (file, key, cb2) => {
+        async.eachOfSeries(scrape('ul.cf-recentfiles li.file-tag'), (file, key, cb2) => {
           var release = {}
           release.addon = ThisAddon
           release.active = true
@@ -182,9 +157,15 @@ function GetLatestAddonReleases (req, res) {
 
           AddonRelease.findOneAndUpdate({addon: release.addon, url: release.url}, release, {"upsert": true}).then((doc) => {
             listedURLs.push(release.url)
-            cb2()
+            if (!doc) { // if not found then this is a new release
+              downloadAddon('VuhDo', release, cb2)              
+            }
+            else {
+              cb2()
+            }
           })
         }, () => {
+          // set old versions to inactive
           AddonRelease.update({ addon: ThisAddon, url: { "$nin": listedURLs } }, { "$set": { active: false }}, {multi: true} ).then(() => {
             cb()
           })
@@ -201,7 +182,7 @@ function GetLatestAddonReleases (req, res) {
         if (resp && resp.statusCode!=200) return cb(err)
 
         var scrape = cheerio.load(body)
-        async.forEachOf(scrape('ul.cf-recentfiles li.file-tag'), (file, key, cb2) => {
+        async.eachOfSeries(scrape('ul.cf-recentfiles li.file-tag'), (file, key, cb2) => {
           var release = {}
           release.addon = ThisAddon
           release.active = true
@@ -218,9 +199,15 @@ function GetLatestAddonReleases (req, res) {
 
           AddonRelease.findOneAndUpdate({addon: release.addon, url: release.url}, release, {"upsert": true}).then((doc) => {
             listedURLs.push(release.url)
-            cb2()
+            if (!doc) { // if not found then this is a new release
+              downloadAddon('Grid2', release, cb2)              
+            }
+            else {
+              cb2()
+            }
           })
         }, () => {
+          // set old versions to inactive
           AddonRelease.update({ addon: ThisAddon, url: { "$nin": listedURLs } }, { "$set": { active: false }}, {multi: true} ).then(() => {
             cb()
           })
@@ -253,6 +240,7 @@ function GetLatestAddonReleases (req, res) {
             release.date = Date.now()
             release.save()
 
+            // set old versions to inactive
             AddonRelease.update({"addon": ThisAddon, "version": { "$ne": version } }, { "$set": { active: false }}, {multi: true}).exec(function(err, doc) {
               cb()
             })
@@ -274,7 +262,7 @@ function GetLatestAddonReleases (req, res) {
 
         // html loaded correctly, now parse it
         var scrape = cheerio.load(body)
-        async.forEachOf(scrape('ul.cf-recentfiles li.file-tag'), (file, key, cb2) => {
+        async.eachOfSeries(scrape('ul.cf-recentfiles li.file-tag'), (file, key, cb2) => {
           // for each release found...
           var release = {}
           release.addon = ThisAddon
@@ -294,46 +282,14 @@ function GetLatestAddonReleases (req, res) {
             listedURLs.push(release.url) // use the url because its unique and easier than looking up both phase and version
 
             if (!doc) { // if not found then this is a new release
-              // download zip and get the full game version string
-              var tmpfile = '/tmp/'+ThisAddon+'.zip'
-              var versionDir = addonDir + ThisAddon + '/' + release.version
-              mkdirp.sync(versionDir)
-              request(release.url + '/download').pipe(fs.createWriteStream(tmpfile)).on('close', function() {
-                decompress(tmpfile, versionDir).then(function() {
-                  var toc = fs.readFileSync(versionDir+'/MethodDungeonTools/MethodDungeonTools.toc', 'utf8')
-                  var matches = toc.match(/## Version:\s*(.*)/)
-
-                  // generate dungeon table
-                  lua.BuildMDT_DungeonTable(versionDir+'/MethodDungeonTools/BattleForAzeroth', (err, result) => {
-                    if (err) {
-                      logger.error({label: 'Could not build MDT dungeon table', addon: release})
-                    }
-                    else if (result && result.stdout) {
-                      var json = JSON.parse(result.stdout)
-                      SiteData.findByIdAndUpdate('mdtDungeonTable', {value: json}, {upsert: true}).exec()
-                    }
-                  })
-                  
-                  // update version number
-                  if (matches && matches[1]) {
-                    release.gameVersion = matches[1]
-                    // save to DB
-                    AddonRelease.findOneAndUpdate({addon: release.addon, url: release.url}, release, {"upsert":true}).exec(() => {
-                      cb2()
-                    })
-                  }
-                  else {
-                    logger.error({label: 'Could not find .toc file', addon: release})
-                    cb2()
-                  }
-                })
-              })
+              downloadAddon('MethodDungeonTools', release, cb2)              
             }
             else {
               cb2()
             }
           })
         }, function() {
+          // set old versions to inactive
           AddonRelease.update({ addon: ThisAddon, url: { "$nin": listedURLs } }, { "$set": { active: false }}, {multi: true} ).then(() => {
             cb()
           })
@@ -350,6 +306,62 @@ function GetLatestAddonReleases (req, res) {
       }
     })
   })
+}
+
+// download zip and get the full game version string
+function downloadAddon(addon, release, done) {
+  const addonDir = __dirname + '/../lua/addons/'
+  const decompress = require('decompress')
+  const lua = require('../helpers/lua')
+  const mkdirp = require('mkdirp')
+  const request = require('request')
+
+  const tmpfile = '/tmp/' + addon + '.zip'
+  const versionDir = addonDir + addon + '/' + release.version
+  try {
+    request(release.url + '/download').pipe(fs.createWriteStream(tmpfile)).on('close', function() {
+      decompress(tmpfile, versionDir).then(function() {
+        console.log('unzipped', addon, versionDir)
+        var toc = fs.readFileSync(versionDir + '/' + addon + '/' + addon + '.toc', 'utf8')
+        var matches = toc.match(/## Interface:\s*(.*)/)
+        console.log('version?', matches[1])
+        if (matches && parseInt(matches[1])) {
+          release.gameVersion = parseInt(matches[1])
+          // update again
+          AddonRelease.findOneAndUpdate({addon: release.addon, url: release.url}, release, {"upsert":true}).then((doc) => {
+            done()
+          })
+
+          switch (addon) {
+            case 'MethodDungeonTools':
+              // generate dungeon table
+              lua.BuildMDT_DungeonTable(versionDir+'/MethodDungeonTools/BattleForAzeroth', (err, result) => {
+                if (err) {
+                  logger.error({label: 'Could not build MDT dungeon table', addon: release})
+                }
+                else if (result && result.stdout) {
+                  var json = JSON.parse(result.stdout)
+                  SiteData.findByIdAndUpdate('mdtDungeonTable', {value: json}, {upsert: true}).exec()
+                }
+              })
+            break
+          }
+        }
+        else {
+          logger.error({label: 'Could not find game version', addon: release})
+          done()
+        }
+      }).catch((e) => {
+        logger.error({label: 'Could not unzip addon', addon: release})
+        done()
+      })
+    }).on('error', (e) => {
+      logger.error({label: 'Could not reach URL', addon: release, error: e})
+    })
+  }
+  catch (e) {
+    logger.error({label: 'Downloading addon failed.', addon: release, error: e}) 
+  }
 }
 
 /**
@@ -422,3 +434,4 @@ function GetLatestNews(req, res) {
 module.exports = function (task) {
   RunTask(task)
 }
+

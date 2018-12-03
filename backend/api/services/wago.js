@@ -627,40 +627,6 @@ server.post('/wago/collection/new', (req, res) => {
   })
 })
 
-
-// get raw encoded string
-server.get('/wago/raw/encoded', (req, res) => {
-  if (!req.params.id) {
-    return res.send(404, {error: "page_not_found"})
-  }
-
-  WagoItem.lookup(req.params.id).then((wago) => {
-    if (!wago || (wago.private && (!req.user || !req.user._id.equals(wago._userId)))) {
-      return res.send(404, {error: "page_not_found"})
-    }
-    WagoCode.lookup(wago._id, req.params.version).then((code) => {
-      if (!code || !code.encoded) {
-        return res.send(404, {error: "page_not_found"})
-      }
-      res.set('Content-Type', 'text/plain')
-      
-      if (wago.type === 'WEAKAURA' && code.json && code.json.match(commonRegex.WeakAuraBlacklist)) {
-        return res.send(403, '')
-      }
-      if (wago.type === 'WEAKAURA' && !code.encoded.match(/^!/)) {
-        lua.JSON2WeakAura(code.json, (error, result) => {
-          code.encoded = result.stdout
-          res.send(code.encoded)
-        })
-      }
-      else {
-        res.send(code.encoded)
-      }
-    })
-  })
-})
-
-
 // gets embed javascript
 server.get('/wago/embed', (req, res, next) => {
   res.header('Content-Type', 'text/plain')
@@ -712,4 +678,11 @@ server.get('/wago/embed', (req, res, next) => {
       res.send(js)
     })
   })
+})
+
+/* moved to /api */
+server.get('/wago/raw/encoded', (req, res, next) => {
+  req.pathname = '/api/raw/encoded'
+  req.query = undefined // since redirect is combining query and params
+  res.redirect(req, next);
 })

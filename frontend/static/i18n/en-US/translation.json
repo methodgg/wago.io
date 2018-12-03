@@ -429,5 +429,6 @@
   "Health [-hp-]": "",
   "[-hp-] HP @ +10": "",
   "Create new pull": "",
-  "Infested": ""
+  "Infested": "",
+  "Group [-num-]": ""
 }

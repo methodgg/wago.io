@@ -125,6 +125,7 @@ server.use(expressWinston.logger({
  */
 require('./api/services/account')
 require('./api/services/admin')
+require('./api/services/api')
 require('./api/services/auth') // authentication service
 require('./api/services/comments') 
 require('./api/services/import') 
