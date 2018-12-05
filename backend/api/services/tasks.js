@@ -1,3 +1,7 @@
+const config = require('../../config')
+const async = require('async')
+const Axios = require('axios')
+
 /**
  * Using restify to run cron tasks directly on data service. 
  * Restrict all /tasks requests to localhost.
@@ -6,34 +10,49 @@ server.get('/tasks/:task', (req, res, next) => {
   if (req.connection.remoteAddress !== '::ffff:127.0.0.1' && config.env !== 'development') {
     return res.send(403, {error: 'invalid_access'})
   }
-  
-  RunTask(req.params.task, req, res)
+
+  // allowed tasks for GET
+  switch (req.params.task) {
+    case 'random':
+    case 'top10':
+    case 'addons':
+    case 'popularity':
+    case 'news':
+    case 'patreon':
+      return RunTask(req.params.task, req, res)
+  }
 })
+
+/**
+ * Same as above but allowing GitHub webhooks to post
+ */
 server.post('/tasks/:task', (req, res, next) => {
   if (!req.headers['user-agent'].match(/^GitHub-Hookshot\//) ) {
     return res.send(403, {error: 'invalid_access'})
   }
   
-  RunTask(req.params.task, req, res)
+  // allowed tasks for POST
+  switch (req.params.task) {
+    case 'addons': 
+      return RunTask(req.params.task, req, res)
+  }
 })
 
-/**
- * Runs the requested task 
- */
-function RunTask (task, req, res) {
+function RunTask(task, req, res) {
   switch (task) {
-    case 'random': return MakeWagoOfTheMoment(req, res)
-    case 'top10': return MakeTopTenLists(req, res)
-    case 'addons': return GetLatestAddonReleases(req, res)
-    case 'popularity': return computeViewsThisWeek(req, res)
-    case 'news': return GetLatestNews(req, res)
+    case 'random': return MakeWagoOfTheMoment(res)
+    case 'top10': return MakeTopTenLists(res)
+    case 'addons': return GetLatestAddonReleases(res)
+    case 'popularity': return computeViewsThisWeek(res)
+    case 'news': return GetLatestNews(res)
+    case 'patreon': return updatePatreon(res)
   }
 }
 
 /**
  * Updates wago of the moment
  */
-function MakeWagoOfTheMoment (req, res) {
+function MakeWagoOfTheMoment (res) {
   var data = global.WagoOfTheMoment || {}
   WagoItem.randomOfTheMoment((wago) => {
     data = wago
@@ -48,7 +67,7 @@ function MakeWagoOfTheMoment (req, res) {
 /**
  * Builds top 10 lists for home page.
  */
-function MakeTopTenLists (req, res) {
+function MakeTopTenLists (res) {
   var data = global.TopTenLists || {}
   async.parallel({
     favorites: (done) => {
@@ -86,7 +105,7 @@ function MakeTopTenLists (req, res) {
 /**
  * Gets latest version of supported addons.
  */
-function GetLatestAddonReleases (req, res) {
+function GetLatestAddonReleases (res) {
   const cheerio = require('cheerio')
   const request = require('request')
   // TODO: sub-fuctionalize this stuff to avoid repeating code. Curseforge and wowace use the same HTML source
@@ -374,7 +393,7 @@ function downloadAddon(addon, release, done) {
  * Updates views this week for each wago.
  * They are auto incremented on-the-fly but expired views from a week ago need to be pruned.
 */
-function computeViewsThisWeek(req, res) {
+function computeViewsThisWeek(res) {
   ViewsThisWeek.aggregate({$group: { _id: '$wagoID', views: { $sum: 1 }}}).exec().then((pop) => {
     updateViewsThisWeek(pop, () => {
       if (res) {
@@ -410,7 +429,7 @@ function updateViewsThisWeek(pop, done) {
 /**
  * Gets most recent news articles for front page
  */
-function GetLatestNews(req, res) {
+function GetLatestNews(res) {
   Blog.find({publishStatus: 'publish'}).sort('-date').limit(2).populate('_userId').then((docs) => {
     var news = []
     docs.forEach((item) => {
@@ -430,6 +449,48 @@ function GetLatestNews(req, res) {
     global.newsPosts = news
     if (res) {
       res.send({done: true})
+    }
+  })
+}
+
+/**
+ * Updates all patrons with current patreon data
+ */
+function updatePatreon(res, url) {
+  if (!url) {
+    url = 'https://www.patreon.com/api/oauth2/api/campaigns/562591/pledges?include=patron.null'
+  }
+  Axios.get(url, {
+    headers: {
+      Authorization: 'Bearer ' + config.auth.patreon.creatorAccessToken
+    }
+  }).then((patreon) => {
+    patreon = patreon.data
+    try {
+      async.eachSeries(patreon.data, (patron, done) => {
+        if (!patron || !patron.relationships || !patron.relationships.patron || !patron.relationships.patron.data || !patron.relationships.patron.data.id) {
+          return done()
+        }
+        User.findOne({"patreon.id": patron.relationships.patron.data.id}).then((user) => {
+          if (!user) {
+            return done()
+          }
+          user.roles.subscriber = (!patron.attributes.declined_since && patron.attributes.amount_cents >= 100)
+          user.roles.gold_subscriber = (!patron.attributes.declined_since && patron.attributes.amount_cents >= 400)
+          user.save()
+          done()
+        })
+      }, () => {
+        if (patreon.links && patreon.links.next) {
+          updatePatreon(res, patreon.links.next)
+        }
+        else {
+          res.send(patreon)
+        }
+      })
+    }
+    catch (e) {
+      logger.error({label: 'Unable to update Patreon', error: e.message})
     }
   })
 }
