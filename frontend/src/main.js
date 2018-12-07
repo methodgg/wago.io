@@ -554,7 +554,6 @@ Vue.use(VueAuth, {
 })
 
 // setup global components
-Vue.component('ui-select-locale', require('./components/UI/SelectLocale.vue'))
 Vue.component('ui-image', require('./components/UI/Image.vue'))
 Vue.component('ui-loading', require('./components/UI/Loading.vue'))
 Vue.component('ui-warning', require('./components/UI/Warning.vue'))

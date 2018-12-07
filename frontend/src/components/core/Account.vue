@@ -162,21 +162,32 @@
             {{ $t("To enable hyperlinks in your descriptions, connect or update your Wago account with a Battlenet account with a max level character, or with a Patreon subscription") }}
           </ui-warning>
           <br>
-          <ui-warning v-if="User.access && (User.access.goldSub || User.access.ambassador || User.access.translator || User.access.admin)" mode="gold">
-            <span v-if="User.access.admin">Wago.io Admin</span>
-            <span v-else-if="User.access.ambassador">Wago.io Ambassador</span>
-            <span v-else-if="User.access.translator">Wago.io Translator</span>
-            <span v-else-if="User.access.goldSub">{{ $t("Gold Subscriber") }}</span>
-            <br>{{ $t("Custom URLs are enabled") }}
+          <ui-warning v-if="User.access && (User.access.admin || User.access.goldSub || User.access.guild_subscriber || User.access.ambassador || User.access.contestWinner)" mode="gold">
+            <span v-if="User.access.admin" style="padding-right:16px">[Wago.io Admin]</span>
+            <span v-if="User.access.ambassador" style="padding-right:16px">[Wago.io Ambassador]</span>
+            <span v-if="User.access.contestWinner" style="padding-right:16px">[{{ $t("Contest Winner") }}]</span>
+            <span v-if="User.access.guild_subscriber">[{{ $t("Guild Subscriber") }}]</span>
+            <span v-else-if="User.access.goldSub">[{{ $t("Gold Subscriber") }}]</span>
             <br>{{ $t("Animated avatars are enabled") }}
-            <br>{{ $t("Access to Wago beta server") }} <a href="https://t1000.wago.io/">https://t1000.wago.io/</a>
+            <br>{{ $t("Custom URLs are enabled") }}
+            <!--<br>{{ $t("Access to Wago beta server") }} <a href="https://t1000.wago.io/">https://t1000.wago.io/</a>-->
+            <!--<br>{{ $t("API Key Enabled") }} <wago-api-key />-->
           </ui-warning>
           <ui-warning v-else-if="User.access && User.access.sub" mode="ok">
-            <span>{{ $t("Subscriber") }}</span>
+            <span>[{{ $t("Subscriber") }}]</span>
             <br>{{ $t("Animated avatars are enabled") }}
-            <br>{{ $t("Access to Wago beta server") }} <a href="https://t1000.wago.io/">https://t1000.wago.io/</a>
+            <!--<br>{{ $t("Access to Wago beta server") }} <a href="https://t1000.wago.io/">https://t1000.wago.io/</a>-->
+            <!--<br>{{ $t("API Key Enabled") }} <wago-api-key />-->
           </ui-warning>
         </md-card-content>
+        <!--<div v-if="User.access && User.access.api">
+          <h2>API</h2>
+          <md-card-content>
+            <p>{{ $t("You may use an API key to access Wago programmatically, through your own software or a third party app such as the WeakAuras Updater") }}</p>
+            <wago-api-key />
+            <p>{{ $t("Documentation soon") }}</p>
+          </md-card-content>
+        </div>-->
         <div v-if="User.discord && User.discord.id">  
           <h2>Discord</h2>
           <md-card-content>
@@ -200,7 +211,8 @@
 export default {
   components: {
     'wago-oauth': require('../UI/WagoOauth.vue'),
-    editor: require('vue2-ace-editor')
+    editor: require('vue2-ace-editor'),
+    'wago-api-key': require('../UI/WagoApiKey.vue')
   },
   data: function () {
     return {

@@ -17,7 +17,6 @@ server.get('api/addons', (req, res, next) => {
   if (!req.query.ids) {
     return res.send(404, {error: "page_not_found"})
   }
-  console.log(req.query)
   
   var ids = req.query.ids.split(',').slice(0, 50)
   var wagos = []

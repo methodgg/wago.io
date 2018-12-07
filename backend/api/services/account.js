@@ -56,8 +56,6 @@ server.get('/account/whoami', (req, res, next) => {
     who.name = user.account.username || 'User-' + user._id.toString()
     who.avatar = user.avatarURL
     who.css = user.roleClass
-    who.patron = user.patreon && user.patreon.amount_cents >= 100
-    who.gold_patron = user.patreon && user.patreon.amount_cents >= 400
 
     who.battlenet = user.battlenet || false
     who.facebook = user.facebook || false
@@ -77,6 +75,16 @@ server.get('/account/whoami', (req, res, next) => {
     who.access.customSlug = user.access.custom_slug
     who.access.beta = user.access.beta
     who.access.animatedAvatar = user.access.animatedAvatar
+    if (user.access.api) {
+      who.access.api = true
+      who.apiKey = user.account.api_key
+    }
+    who.access.sub = user.roles.subscriber
+    who.access.goldSub = user.roles.gold_subscriber
+    who.access.guild_subscriber = user.roles.guild_subscriber
+    who.access.ambassador = user.roles.ambassador
+    who.access.contestWinner = user.roles.artContestWinnerAug2018
+
     if (user.roles.admin.access) {
       who.access.admin = user.roles.admin
     }
@@ -108,7 +116,6 @@ server.get('/account/whoami', (req, res, next) => {
     // return user info
     return res.send(200, data)
   }
-
 })
 
 /**
@@ -303,4 +310,19 @@ server.post('/account/discord/options', (req, res) => {
   req.user.save().then((doc) => {
     res.send({success: true})
   })
+})
+
+server.post('/account/api-key', (req, res) => {
+  if (!req.user || !req.user.access.api) {
+    res.send(403, {error: 'forbidden'})
+  }
+
+  if (!req.user.account.api_key || req.body.new) {
+    req.user.createAPIKey().then((user) => {
+      res.send({key: user.account.api_key})
+    })
+  }
+  else {
+    res.send({key: req.user.account.api_key})
+  }
 })

@@ -1,6 +1,24 @@
 <template>
   <div id="app">
     <div id="copyContainer"></div>
+    <md-toolbar id="topbar">
+      <md-button class="md-icon-button md-hide-small-and-up" @click="toggleMobileNav()">
+        <md-icon>menu</md-icon>
+      </md-button>      
+      <h2 class="md-title md-hide-xsmall" id="logo"><router-link to="/"><img src="./assets/wagoio-logo.png"/></router-link></h2>
+      <h2 class="md-title md-hide-small-and-up" id="logo-m"><router-link to="/"><img src="./assets/wagoio-logo.png"/></router-link></h2>
+      
+      <div id="h-nav" class="md-hide-xsmall">
+        <form novalidate @submit.stop.prevent="goSearch(gSearch)" id="gSearch">
+          <input type="text" v-model="gSearch" placeholder="Search Wago..." />
+        </form>
+      </div>
+      <div id="hr-nav" class="md-hide-xsmall">
+        <h2 class="md-title md-hide-small-and-up" id="logo"><router-link to="/"><img src="./assets/wagoio-logo.png"/></router-link></h2>
+        <select-locale display="code"></select-locale>
+        <login-button></login-button>
+      </div>
+    </md-toolbar>
     <md-sidenav class="md-hide-small-and-up md-left" ref="mobileSidebar" id="mobile-sidebar">
       <form novalidate @submit.prevent="goSearch(gSearch)" id="gSearch-m">
         <md-input-container>
@@ -33,51 +51,41 @@
       </md-list>
     </md-sidenav>
     <md-sidenav class="md-hide-xsmall" ref="full-sidebar" id="full-sidebar">
-      <h2 class="md-title md-hide-xsmall"><router-link to="/"><img id="logo" src="./assets/wagologo.png"/></router-link></h2>
-      <div class="autoscroll">
-        <div id="user-info">
-          <div v-if="LoggedIn" v-html="$t('Welcome! You are viewing Wago as [-roleclass-][-name-]', {name: User.name, roleclass: User.css})"></div>
-          <div v-else v-html="$t('Welcome! You are viewing Wago as a guest')"></div>
-        </div>
-        <form novalidate @submit.stop.prevent="goSearch(gSearch)" id="gSearch">
-          <md-input-container>
-            <label>{{ $t("Search") }}</label>
-            <md-input v-model="gSearch"></md-input>
-          </md-input-container>
-        </form>
-        <md-list v-if="LoggedIn" id="usernav">
+      <md-list class="mainnav">
+        <md-list-item><router-link to='/'>{{ $t("Import") }}</router-link><md-divider></md-divider></md-list-item>
+        <md-list-item><router-link to='/elvui'>ElvUI</router-link></md-list-item>
+        <!-- <md-list-item><router-link to='/grid2'>Grid2</router-link></md-list-item> -->
+        <!-- <md-list-item><router-link to='/mdt'>MDT</router-link></md-list-item> -->
+        <!-- <md-list-item><router-link to='/plater'>Plater</router-link></md-list-item> -->
+        <md-list-item><router-link to='/totalrp'>Total RP</router-link></md-list-item>
+        <md-list-item><router-link to='/vuhdo'>Vuhdo</router-link></md-list-item>
+        <md-list-item><router-link to='/weakauras'>WeakAuras</router-link><md-divider></md-divider></md-list-item>
+        <md-list-item><router-link to='/collections'>{{ $t("Collections") }}</router-link></md-list-item>
+        <md-list-item><router-link to='/snippets'>{{ $t("Snippets") }}</router-link><md-divider></md-divider></md-list-item>
+        <template v-if="LoggedIn">
           <md-list-item><router-link :to="'/p/'+User.name">{{ $t("My Profile") }}</router-link></md-list-item>
           <md-list-item><router-link to="/my/mentions">{{ $t("My Mentions") }} <span class="unreadCount" v-if="User.unreadMentions.length > 0">{{ User.unreadMentions.length }}</span></router-link></md-list-item>
           <md-list-item><router-link to="/my/stars">{{ $t("My Favorites") }}</router-link></md-list-item>
-          <md-list-item><router-link to="/account">{{ $t("Account Settings") }}</router-link></md-list-item>
-          <md-list-item v-if="User.access.admin"><router-link to="/admin">Admin</router-link></md-list-item>
-        </md-list>     
-        <div v-if="WotM.name" id="wotm">
-          <strong>{{ $t("Wago of the Minute") }}</strong><br>
-          <router-link :to="'/' + WotM.slug"><strong>{{ WotM.name }}</strong></router-link><br>
-          <router-link :to="'/' + WotM.slug"><md-image :md-src="WotM.screenshot" /></router-link>
-        </div>
+        </template>
+      </md-list>     
+      <div v-if="WotM.name" id="wotm">
+        <strong>{{ $t("Wago of the Minute") }}</strong><br>
+        <router-link :to="'/' + WotM.slug"><strong>{{ WotM.name }}</strong></router-link><br>
+        <router-link :to="'/' + WotM.slug"><md-image :md-src="WotM.screenshot" /></router-link>
+      </div>
+
+      <md-list class="mainnav bottom">
+        <md-list-item target="_blank" href="https://www.patreon.com/wago"><img v-if="$store.state.theme === 'classic'" src="./assets/Patreon_Navy.png"><img v-else src="./assets/Patreon_White.png">{{ $t("Support the website") }}</md-list-item>
+        <md-list-item target="_blank" href="https://discord.gg/wa2"><img src="./assets/discord.png">{{ $t("Join WA Discord") }}</md-list-item>
+        <md-list-item target="_blank" href="https://github.com/oratory/wago.io"><img src="./assets/github.png">{{ $t("Open source") }}<md-divider></md-divider></md-list-item>
+      </md-list>
+        
+      <div class='legal'>
+        <span>&copy; 2016-{{(new Date()).getFullYear()}} Wago.io</span>
+        <span><router-link to="/terms-of-service">{{ $t("Terms of Service") }}</router-link></span>
+        <span><router-link to="/privacy-policy">{{ $t("Privacy Policy") }}</router-link></span>
       </div>
     </md-sidenav>
-    <md-toolbar id="nav"> 
-      <md-button class="md-icon-button md-hide-small-and-up" @click="toggleMobileNav()">
-        <md-icon>menu</md-icon>
-      </md-button>
-      <h2 class="md-title md-hide-small-and-up"><img id="logo" src="./assets/wagologo.png"/></h2>
-      
-      <div id="h-nav" class="md-hide-xsmall">
-        <a class='vr md-button md-theme-default' href='/'>{{ $t("Import") }}</a>
-        <a class='vr md-button md-theme-default' href='/weakauras'>WeakAuras</a>
-        <!-- <a class='vr md-button md-theme-default' href='/mdt'>MDT</a> -->
-        <a class='vr md-button md-theme-default' href='/elvui'>ElvUI</a>
-        <a class='vr md-button md-theme-default' href='/vuhdo'>Vuhdo</a>
-        <a class='vr md-button md-theme-default' href='/totalrp'>Total RP</a>
-        <a class='vr md-button md-theme-default' href='/collections'>{{ $t("Collections") }}</a>
-      </div>
-      <div id="hr-nav" class="md-hide-xsmall">
-        <ui-select-locale display="code"></ui-select-locale>
-      </div>
-    </md-toolbar>
 
     <md-snackbar md-position="top center" ref="snackbar" md-duration="4000">
       <span>{{ PopMsg }}</span>
@@ -87,20 +95,6 @@
     <div id="content">
       <router-view></router-view>
     </div>
-
-    <footer>
-      <div class='legal fleft'>
-        <span>&copy; 2018 Wago.io</span>
-        <span><router-link to="/terms-of-service">{{ $t("Terms of Service") }}</router-link></span>
-        <span><router-link to="/privacy-policy">{{ $t("Privacy Policy") }}</router-link></span>
-      </div>
-
-      <a class="resource" target="_blank" href="https://www.patreon.com/wago"><img src="./assets/patreon.png">{{ $t("Support the website") }}</a>
-      <a class="resource" target="_blank" href="https://discord.gg/wa2"><img src="./assets/discord.png">{{ $t("Join WA Discord") }}</a>
-      <a class="resource" target="_blank" href="https://github.com/oratory/wago.io"><img src="./assets/github.png">{{ $t("View source") }}</a>
-     
-
-    </footer>
   </div>
 </template>
 
@@ -118,6 +112,10 @@ function interceptClickEvent (e, vue) {
 
 export default {
   name: 'app',
+  components: {
+    'select-locale': require('./components/UI/SelectLocale.vue'),
+    'login-button': require('./components/UI/LoginButton.vue')
+  },
   data: () => {
     return {
       PopMsg: 'test',
@@ -283,7 +281,7 @@ export default {
   .md-backdrop { pointer-events: none }
 
   #full-sidebar .md-sidenav-content {
-    top:0;
+    top:64px;
     pointer-events: auto;
     transform: translateZ(0)!important;
   }
@@ -291,12 +289,14 @@ export default {
     width: 304px;
     display: flex;
     flex-flow: column;
-    overflow: hidden;
     background: #ECECEC;
     z-index: 1
   }
-  #content, #nav { padding-left: 304px; pointer-events: auto; position: relative }
-  #logo { max-height: 72px; }
+  #content { padding-left: 304px; pointer-events: auto; position: relative }
+  #logo { text-align: left; padding: 8px 16px; }
+  #logo img { max-height: 40px; }
+  #h-nav { flex: 1 }
+  #h-nav, #hr-nav { display: flex }
 }
 
 #app {
@@ -307,38 +307,25 @@ export default {
   padding-bottom: 180px;
   pointer-events: auto;
 }
-#h-nav { flex: 1 }
-footer {
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  padding: 16px;
-  margin-top: 100%;
-  min-height: 100px;
-  background-color: black;
-  color: white;
-  z-index:2
-}
-footer a { color: white; }
-footer .legal { font-size: 80%; padding-right: 16px; float: left }
-footer .legal span { display:block }
-footer .resource { float: left; padding: 4px 24px; text-align: center; font-size: 80%}
-footer .resource img { height: 32px; display: block; margin: 0 auto}
-footer .md-bottom-bar, footer .md-bottom-bar button, footer .md-bottom-bar i { background: inherit!important; color: white!important }
-footer .md-bottom-bar-item.md-active .md-icon, footer .md-bottom-bar-item.md-active .md-text { color: white }
 
-#usernav { padding: 0; background-color: #ccc; padding-top: 8px}
-#usernav .md-subheader { padding-left: 0;}
-#usernav .md-list-item a { justify-content: start }
-#usernav .md-list-item a span { margin-left: 8px; line-height: 18px }
-.autoscroll { overflow: auto; margin-bottom: 100px }
+.mainnav { padding: 0; background-color: #ccc; position: relative; display: block}
+.mainnav .md-subheader { padding-left: 0;}
+.mainnav .md-list-item img { max-height: 32px }
+.mainnav .md-list-item a { justify-content: start }
+.mainnav .md-list-item a span { margin-left: 8px; line-height: 18px }
+.mainnav .md-list-item { height: 36px }
+.mainnav .md-list-item .md-list-item-container { min-height: auto; }
+.mainnav .md-list-item.small { height: 16px; }
+.mainnav .md-list-item.small .md-list-item-container { font-size: 12px; height: 18px; }
+.mainnav.bottom .md-list-item-container { font-size: 90%; }
+.mainnav.bottom .md-list-item-container img { width: 90px; padding-right: 16px; }
+#side-bottom {}
+#side-bottom .resource {  display: inline-block; padding: 8px 0 0 16px; color: default }
+#side-bottom .resource img { max-width: 30%; }
 .md-sidenav h2 { background: black; margin:0; padding: 16px 24px; text-align: center}
 #user-info { background: #CCC; padding: 16px 16px 0 }
-#gSearch { background: #CCC; padding: 0 16px}
-#gSearch .md-input-container { margin: 0 }
-#gSearch-m { padding: 0 16px}
-#gSearch-m button { margin-top: -2px }
+#gSearch { margin-left: 16px }
+#gSearch input { background: #404040; border:0; padding: 8px 16px; min-width: 330px; color: white; }
 .md-list { padding-bottom: 0}
 .md-list:after { height: 1px; width:100%; background-color: rgba(0,0,0,.12); content: " " }
 .md-list-item .md-list-item-container { padding-left: 16px }
@@ -346,13 +333,16 @@ footer .md-bottom-bar-item.md-active .md-icon, footer .md-bottom-bar-item.md-act
 #wotm img { max-height: 200px }
 .wotm-controls { padding: 16px 16px 0; margin-bottom: -8px}
 .wotm-controls button { background: none; border: none; cursor: pointer}
+.legal { margin: 16px; }
+.legal span { font-size: 90%; padding: 0 0 8px; display: block; }
 
 @media (max-width: 600px) {
-  #logo { max-height: 28px; }
+  #logo img { max-height: 28px; }
   .md-toolbar h2 { margin:0; padding:0}
   footer .legal { float: none; padding-bottom: 6px}
   footer .legal span { display: inline; padding-left: 6px }
   footer .resource { padding-left: 0; width:50%}
+  #logo-m img { max-height: 40px }
 }
 
 .document { padding: 16px }

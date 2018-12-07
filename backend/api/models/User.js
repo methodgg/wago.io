@@ -10,6 +10,7 @@ const Schema = new mongoose.Schema({
     created : { type: Date, default: Date.now },
     active : { type: Date, default: Date.now },
     verified_human : { type: Boolean, default: false },
+    api_key : { type: String, index: true },
     reset : String
   },
   profile: {
@@ -21,7 +22,11 @@ const Schema = new mongoose.Schema({
     description: {
       text: String,
       format: String
-    }
+    },
+    guilds: [{
+      default: { type: Boolean, default: false },
+      guildID: ObjectId
+    }]
   },
   roles : {
     admin : { 
@@ -32,12 +37,10 @@ const Schema = new mongoose.Schema({
     },
     subscriber : { type: Boolean, default: false },
     gold_subscriber : { type: Boolean, default: false },
+    guild_subscriber : { type: Boolean, default: false }, // patron of guild level pledge
+    guild_member : { type: Boolean, default: false }, // member of guild with guild level pledge
     ambassador : { type: Boolean, default: false },
     artContestWinnerAug2018: { type: Boolean, default: false }
-  },
-  api : {
-    public_key : { type: String, default: '' },
-    requests : { type: Number, default: 0 }
   },
   facebook : {
     id : String,
@@ -121,13 +124,36 @@ const Schema = new mongoose.Schema({
  */
 // Schema.index({"account.firstname": 1, "account.lastname": 1})
 
-
 /**
  * Statics
  */
-Schema.statics.findByUsername = function(name, cb) {
+Schema.statics.findByUsername = function(name) {
   return this.findOne({"search.username": name.toLowerCase()}).exec()
 }
+
+Schema.statics.findByAPIKey = function(key) {
+  return new Promise((resolve, reject) => {
+    this.findOne({"account.api_key": key}).then((user) => {
+      if (user && user.access.api) {
+        resolve(user)
+      }
+      else {
+        resolve(false)
+      }
+    })
+  })
+}
+Schema.methods.createAPIKey = function() {
+  var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+  var key = 'xxxxxxxx-xxxx-xxxxx-xxxx-xxxxxxxxxxxx'.replace(/x/g, function(c) {
+    return chars.charAt(Math.floor(Math.random() * chars.length))
+  })
+
+  this.account.api_key = key
+  console.log(key)
+  return this.save()
+}
+  
 
 /**
  * Virtuals
@@ -180,20 +206,25 @@ Schema.virtual('avatarURL').get(function() {
 
 Schema.virtual('access.custom_slug').get(function() {
   if (this.roles.admin.super) return true
-  if (this.roles.gold_subscriber || this.roles.ambassador || this.roles.artContestWinnerAug2018) return true
+  if (this.roles.gold_subscriber || this.roles.ambassador || this.roles.artContestWinnerAug2018 || this.roles.guild_member) return true
 
   return false
 })
 Schema.virtual('access.animatedAvatar').get(function() {
   if (this.roles.admin.super) return true
-  if (this.roles.gold_subscriber || this.roles.subscriber || this.roles.ambassador || this.roles.admin.moderator || this.roles.artContestWinnerAug2018) return true
+  if (this.roles.gold_subscriber || this.roles.subscriber || this.roles.ambassador || this.roles.admin.moderator || this.roles.artContestWinnerAug2018 || this.roles.guild_member) return true
 
   return false
 })
-
 Schema.virtual('access.beta').get(function() {
   if (this.roles.admin.super) return true
-  if (this.roles.gold_subscriber || this.roles.subscriber || this.roles.ambassador || this.roles.admin.moderator || this.roles.artContestWinnerAug2018) return true
+  if (this.roles.gold_subscriber || this.roles.subscriber || this.roles.ambassador || this.roles.admin.moderator || this.roles.artContestWinnerAug2018 || this.roles.guild_member) return true
+
+  return false
+})
+Schema.virtual('access.api').get(function() {
+  if (this.roles.admin.super) return true
+  if (this.roles.gold_subscriber || this.roles.subscriber || this.roles.ambassador || this.roles.admin.moderator || this.roles.artContestWinnerAug2018 || this.roles.guild_member) return true
 
   return false
 })
@@ -203,7 +234,7 @@ Schema.virtual('roleclass').get(function() {
       return 'user-admin'
   else if (this.roles.admin.moderator)
       return 'user-moderator'
-  else if (this.roles.gold_subscriber || this.roles.artContestWinnerAug2018)
+  else if (this.roles.gold_subscriber || this.roles.artContestWinnerAug2018 || this.roles.guild_member)
       return 'user-goldsub'
   else if (this.roles.subscriber)
       return 'user-sub'

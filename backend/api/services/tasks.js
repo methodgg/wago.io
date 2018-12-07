@@ -477,6 +477,7 @@ function updatePatreon(res, url) {
           }
           user.roles.subscriber = (!patron.attributes.declined_since && patron.attributes.amount_cents >= 100)
           user.roles.gold_subscriber = (!patron.attributes.declined_since && patron.attributes.amount_cents >= 400)
+          user.roles.guild_subscriber = (!patron.attributes.declined_since && patron.attributes.amount_cents >= 1500)
           user.save()
           done()
         })
@@ -485,7 +486,7 @@ function updatePatreon(res, url) {
           updatePatreon(res, patreon.links.next)
         }
         else {
-          res.send(patreon)
+          res.send({done: true})
         }
       })
     }

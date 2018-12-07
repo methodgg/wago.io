@@ -54,11 +54,8 @@ server.use(restify.bodyParser({mapParams: false}))
 server.use(restify.gzipResponse())
 server.use(CookieParser.parse)
 server.use(require('./middlewares/defaults')) // set default vars
-
-/**
- * JWT
- */
 server.use(require('./middlewares/SessionAuth')) // set req.user
+server.use(require('./middlewares/APIAuth')) // set req.user
 
 
 /**

@@ -102,19 +102,19 @@ export default {
       // if loaded via category menu
       if (this.contextSearchData && !query) {
         this.contextSearchData = this.contextSearchData.replace(this.searchOptions, '').trim()
-        this.searchString = this.contextSearchData
+        this.searchString = this.contextSearchData.trim()
         query = this.contextSearchData
       }
       // if loaded direct
       else if (!query && this.$route.params.query) {
         query = this.$route.params.query.replace(/\+/g, ' ').replace(this.searchOptions, '').trim()
-        this.searchString = query
+        this.searchString = query.trim()
       }
       // if loaded as component from other file
       else if (typeof query === 'string' && query) {
         query = query.replace(this.searchOptions, '').trim()
         // this.$router.push('/search/' + query.replace(/\s+/g, '+'))
-        this.searchString = query
+        this.searchString = query.trim()
       }
       // if navigating forward/back
       else if (this.$route.params.query) {
@@ -214,10 +214,10 @@ export default {
                 if (s && s.text) {
                   tagMatch[2] = s.text
                   if (tagMatch[2].match(/\s/)) {
-                    this.searchString = this.searchString.replace(tagMatch[0], `tag: "${tagMatch[2]}"`)
+                    this.searchString = this.searchString.replace(tagMatch[0], `tag: "${tagMatch[2]}"`).trim()
                   }
                   else {
-                    this.searchString = this.searchString.replace(tagMatch[0], `tag: ${tagMatch[2]}`)
+                    this.searchString = this.searchString.replace(tagMatch[0], `tag: ${tagMatch[2]}`).trim()
                   }
                 }
               }
@@ -258,7 +258,7 @@ export default {
         vue.$set(vue.results, 'meta', res.meta)
         // put text search at the end of the query
         if (res.query && res.query.textSearch) {
-          this.searchString = this.searchString.replace(res.query.textSearch, '').replace(/\s+/g, ' ').trim() + ' ' + res.query.textSearch
+          this.searchString = (this.searchString.replace(res.query.textSearch, '').replace(/\s+/g, ' ').trim() + ' ' + res.query.textSearch).trim()
         }
 
         this.isSearching = false
