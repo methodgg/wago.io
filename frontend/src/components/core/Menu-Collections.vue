@@ -23,9 +23,19 @@
         </md-list>
       </md-layout>
       <md-layout>
+        <md-subheader>{{ $t("Battle for Azeroth PvE") }}</md-subheader>
+        <md-list class="md-double-line md-dense">
+          <md-list-item v-for="raid in bfaRaids" v-bind:key="raid.id" :class="raid.cls + ' md-inset'">
+            <category-image :group="raid.cls"></category-image>
+            <div class="md-list-text-container">
+              <router-link :to="'/collections/' + raid.slug">{{ raid.text }}</router-link>
+            </div>
+          </md-list-item>
+        </md-list>
+        
         <md-subheader>{{ $t("Legion PvE") }}</md-subheader>
         <md-list class="md-double-line md-dense">
-          <md-list-item v-for="raid in raids" v-bind:key="raid.id" :class="raid.cls + ' md-inset'">
+          <md-list-item v-for="raid in legionRaids" v-bind:key="raid.id" :class="raid.cls + ' md-inset'">
             <category-image :group="raid.cls"></category-image>
             <div class="md-list-text-container">
               <router-link :to="'/collections/' + raid.slug">{{ raid.text }}</router-link>
@@ -162,7 +172,10 @@ export default {
     classes: function () {
       return categories.classCategories(this.$t)
     },
-    raids: function () {
+    bfaRaids: function () {
+      return categories.raidCategories(['raidcrucible', 'raidzuldazar', 'raiduldir', 'bfadungeon'], this.$t)
+    },
+    legionRaids: function () {
       return categories.raidCategories(['raidantorus', 'raidtomb', 'raidnh', 'dungeon'], this.$t)
     },
     misc: function () {

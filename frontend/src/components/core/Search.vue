@@ -347,7 +347,7 @@ export default {
 #searchForm { padding: 16px; width: 100% }
 #searchForm button { margin-top: -3px }
 
-.searchResult { display: flex; padding: 0 8px; margin-bottom: 8px }
+.searchResult { display: flex; padding: 0 8px; margin-bottom: 8px; max-width: 850px }
 .searchResult .searchImg { min-width: 120px; max-width: 120px; text-align: center }
 .searchResult .searchImg img { max-width: 100%; max-height: 6em; }
 .searchResult .searchText {  }
@@ -360,6 +360,12 @@ export default {
 .searchTags .md-chip { height: auto; padding: 4px 6px 4px 20px; background-size: 18px 18px; background-position: 2px 2px }
 
 #searchMeta .md-whiteframe { padding: 8px;}
+
+@media (min-width: 601px) {
+  #searchLayout { flex-wrap: nowrap; }
+  #searchLayout > .md-layout { flex: initial }
+  #searchMeta { margin-right: 16px }
+}
 
 
 @media (max-width: 600px) {

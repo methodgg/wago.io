@@ -630,7 +630,7 @@ server.post('/import/submit', function(req, res) {
         if (wago.type === 'WEAKAURAS2') {
           json.wagoID = doc._id
           json.d.url = doc.url + '/1'
-          delete json.d.ignoreWagoUpdate // remove as this is a client-level setting for the WA updater app
+          delete json.d.ignoreWagoUpdate // remove as this is a client-level setting for the WA companion app
           delete json.d.skipWagoUpdate
           if (json.c) {
             for (var i = 0; i < json.c.length; i++) {
@@ -654,9 +654,7 @@ server.post('/import/submit', function(req, res) {
 
             // tell browser that things are ready, the re-encoded string will update in a moment
             res.send({success: true, wagoID: doc._id})
-          })
-
-          
+          })          
         }
         else {
           code.save().then((codeDoc) => {
@@ -989,6 +987,7 @@ function SaveWagoVersion (req, res, mode) {
     })
   }
   else if ((type=='TOTALRP3') && json) {
+    console.log(json)
     lua.JSON2TotalRP3(json, (error, result) => {
       if (error) {
         return res.send({error: error})

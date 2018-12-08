@@ -1455,7 +1455,7 @@ export default {
 #wago-header .md-card-header .item .md-subhead { font-weight: 500; line-height: 20px; font-size: 14px; opacity: .54 }
 #wago-header .md-card-header .item .md-subhead.has-link { opacity: 1 }
 
-#wago-floating-header { position: fixed; top:-16px; right:0; left: 304px; z-index: 9; opacity: .95 }
+#wago-floating-header { position: fixed; top:-16px; right:0; left: 260px; z-index: 9; opacity: .95 }
 #wago-floating-header .floating-header { display: flex; justify-content: flex-start; align-content: stretch; align-items: flex-start}
 #wago-floating-header .floating-header div { flex: 0 1 auto; vertical-align:top; margin-right: 24px}
 #wago-floating-header button { margin-top: 0 }

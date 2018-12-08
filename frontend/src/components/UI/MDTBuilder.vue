@@ -50,7 +50,7 @@
                     }"
                   />
                 </template>
-              </template>              
+              </template>       
               <template v-for="(creature, i) in enemies">
                 <slot>1</slot>
                 <template v-for="(clone, j) in creature.clones">
@@ -86,20 +86,6 @@
                       shadowEnabled : clone.hoverAvatar || false,
                       shadowOffset: {x: 0, y: 0},
                       shadowBlur: 10
-                    }"
-                  />
-
-                  <v-circle v-if="i === 1 && j === 1" :config="{
-                      x: clone.x * mdtScale,
-                      y: clone.y * -mdtScale,
-                      radius: 8 / mdtScale,
-                      fillPatternX: -8 / mdtScale,
-                      fillPatternY: -8 / mdtScale,
-                      fillPatternImage: enemyPortraits,
-                      fillPatternOffset: {x:0, y:0},
-                      fillPatternScale: {x: .125, y: .125},
-                      fillPatternRepeat: 'no-repeat',
-                      listening: false
                     }"
                   />
                 </template>

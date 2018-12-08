@@ -127,6 +127,9 @@ module.exports = {
   },
 
   JSON2ElvUI: (obj, cb) => {
+    if (typeof obj === 'string') {
+      obj = JSON.parse(obj)
+    }
     if (!obj || !obj.movers) {
       return cb('Invalid export')
     }
@@ -175,6 +178,9 @@ module.exports = {
   },
   
   JSON2Vuhdo: (obj, cb) => {
+    if (typeof obj === 'string') {
+      obj = JSON.parse(obj)
+    }
     if (!obj || (!obj.profile && !obj.bouquet && !obj.keyLayout)) {
       return cb('Invalid export')
     }
@@ -275,6 +281,9 @@ module.exports = {
   },
   
   JSON2TotalRP3: (obj, cb) => {
+    if (typeof obj === 'string') {
+      obj = JSON.parse(obj)
+    }
     if (!obj) {
       return cb('Invalid export')
     }

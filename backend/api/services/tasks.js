@@ -345,7 +345,6 @@ function downloadAddon(addon, release, done) {
   const tmpfile = '/tmp/' + addon + '.zip'
   const versionDir = addonDir + addon + '/' + release.version
   try {
-    console.log(release.url + '/download')
     request(release.url + '/download').pipe(fs.createWriteStream(tmpfile)).on('close', function() {
       decompress(tmpfile, versionDir).then(function() {
         var toc = fs.readFileSync(versionDir + '/' + addon + '/' + addon + '.toc', 'utf8')

@@ -75,7 +75,7 @@
       </div>
 
       <md-list class="mainnav bottom">
-        <md-list-item target="_blank" href="https://www.patreon.com/wago"><img v-if="$store.state.theme === 'classic'" src="./assets/Patreon_Navy.png"><img v-else src="./assets/Patreon_White.png">{{ $t("Support the website") }}</md-list-item>
+        <md-list-item target="_blank" href="https://www.patreon.com/wago"><img src="./assets/Patreon_White.png">{{ $t("Support the website") }}</md-list-item>
         <md-list-item target="_blank" href="https://discord.gg/wa2"><img src="./assets/discord.png">{{ $t("Join WA Discord") }}</md-list-item>
         <md-list-item target="_blank" href="https://github.com/oratory/wago.io"><img src="./assets/github.png">{{ $t("Open source") }}<md-divider></md-divider></md-list-item>
       </md-list>
@@ -286,13 +286,13 @@ export default {
     transform: translateZ(0)!important;
   }
   #full-sidebar .md-sidenav-content {
-    width: 304px;
+    width: 260px;
     display: flex;
     flex-flow: column;
     background: #ECECEC;
     z-index: 1
   }
-  #content { padding-left: 304px; pointer-events: auto; position: relative }
+  #content { padding-left: 260px; pointer-events: auto; position: relative }
   #logo { text-align: left; padding: 8px 16px; }
   #logo img { max-height: 40px; }
   #h-nav { flex: 1 }
@@ -308,7 +308,8 @@ export default {
   pointer-events: auto;
 }
 
-.mainnav { padding: 0; background-color: #ccc; position: relative; display: block}
+#full-sidebar .mainnav { padding: 0; background-color: #ccc; position: relative; display: block}
+#full-sidebar .md-sidenav-content { overflow: inherit; }
 .mainnav .md-subheader { padding-left: 0;}
 .mainnav .md-list-item img { max-height: 32px }
 .mainnav .md-list-item a { justify-content: start }
@@ -325,7 +326,7 @@ export default {
 .md-sidenav h2 { background: black; margin:0; padding: 16px 24px; text-align: center}
 #user-info { background: #CCC; padding: 16px 16px 0 }
 #gSearch { margin-left: 16px }
-#gSearch input { background: #404040; border:0; padding: 8px 16px; min-width: 330px; color: white; }
+#gSearch input { background: #404040; border:0; padding: 8px 16px; min-width: 330px; color: white; outline: none }
 .md-list { padding-bottom: 0}
 .md-list:after { height: 1px; width:100%; background-color: rgba(0,0,0,.12); content: " " }
 .md-list-item .md-list-item-container { padding-left: 16px }
@@ -333,7 +334,7 @@ export default {
 #wotm img { max-height: 200px }
 .wotm-controls { padding: 16px 16px 0; margin-bottom: -8px}
 .wotm-controls button { background: none; border: none; cursor: pointer}
-.legal { margin: 16px; }
+.legal { padding: 16px; background: #333333; }
 .legal span { font-size: 90%; padding: 0 0 8px; display: block; }
 
 @media (max-width: 600px) {
