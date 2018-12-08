@@ -7,7 +7,7 @@ const Schema = new mongoose.Schema({
   account : {
     username : { type: String, index: true, es_index: true },
     password : String,
-    hidden : { type: Boolean, default: false },
+    hidden : { type: Boolean, default: false, es_index: true },
     default_aura_visibility : { type: String, default: "Public" },
     created : { type: Date, default: Date.now },
     active : { type: Date, default: Date.now },
@@ -259,7 +259,7 @@ Schema.plugin(mongoosastic, {
 const User = mongoose.model('Users', Schema)
 
 
-// if (require('../../config').env == 'production' && !global.CRONTASK) {
+if (require('../../config').env == 'production' && !global.CRONTASK) {
   User.synchronize()
-// }
+}
 module.exports = User

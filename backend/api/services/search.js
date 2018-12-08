@@ -761,11 +761,19 @@ server.get('/search/username', (req, res) => {
   var name = new RegExp(req.query.name)
   User.esSearch({
     query: {
-      // regexp: {
-      //   "account.username": '.*' + req.query.name + '.*'
-      // }
       bool: {
+        must: [
+          { term: { "account.hidden": { value: false, boost: 0 } } }
+        ],
         should: [
+          {
+            regexp: {
+              "account.username": {
+                value: req.query.name.toLowerCase(),
+                boost: 2
+              }
+            } 
+          },
           {
             regexp: {
               "account.username": {
