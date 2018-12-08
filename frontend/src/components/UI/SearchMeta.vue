@@ -51,6 +51,14 @@
             </div>
           </md-list-item>
           
+          <md-list-item v-else-if="context.type === 'date'" v-bind:key="index">
+            <md-avatar class="md-avatar-icon"><md-icon>date_range</md-icon></md-avatar>
+            <div class="md-list-text-container">
+              <span>{{ context.range }}</span>
+              <md-subheader>{{ context.query }}</md-subheader>
+            </div>
+          </md-list-item>
+          
           <md-list-item v-if="context.type === 'user'" v-bind:key="index">
             <md-avatar><ui-image :img="context.image"></ui-image></md-avatar>
             <div class="md-list-text-container">

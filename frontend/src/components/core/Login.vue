@@ -100,7 +100,6 @@ export default {
       if (!this.recaptchaValid) {
         return
       }
-      console.log('create acct')
       this.submitForm = true
       var vue = this
       var username = document.getElementById('create-name').value.trim()

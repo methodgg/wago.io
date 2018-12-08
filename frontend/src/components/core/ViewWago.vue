@@ -628,10 +628,7 @@ export default {
 
       // send content to import scan
       vue.newImportStringStatus = 'Verifying'
-      console.log('post')
       vue.http.post('/import/scan', { importString: val, type: vue.wago.type }).then((res) => {
-        console.log('result')
-
         vue.isScanning = false
         if (res.error) {
           vue.newImportStringStatus = vue.$t('Invalid [-type-]', {type: vue.wago.type.toLowerCase()})
@@ -923,7 +920,6 @@ export default {
       }
     },
     viewAllCategories () {
-      console.log('test')
       this.showMoreCategories = true
     },
     toggleFavorite () {

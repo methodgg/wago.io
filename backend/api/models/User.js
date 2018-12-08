@@ -1,9 +1,11 @@
 const mongoose = require('mongoose'),
-      ObjectId = mongoose.Schema.Types.ObjectId
+      mongoosastic = require('mongoosastic'),
+      ObjectId = mongoose.Schema.Types.ObjectId,
+      config = require('../../config')
 
 const Schema = new mongoose.Schema({
   account : {
-    username : String,
+    username : { type: String, index: true, es_index: true },
     password : String,
     hidden : { type: Boolean, default: false },
     default_aura_visibility : { type: String, default: "Public" },
@@ -150,7 +152,6 @@ Schema.methods.createAPIKey = function() {
   })
 
   this.account.api_key = key
-  console.log(key)
   return this.save()
 }
   
@@ -250,5 +251,15 @@ Schema.virtual('roleClass').get(function() {
   return this.roleclass
 })
 
+// add Mongoosastic plugin (elastic search)
+Schema.plugin(mongoosastic, {
+  hosts: config.elasticServers
+})
+
 const User = mongoose.model('Users', Schema)
+
+
+// if (require('../../config').env == 'production' && !global.CRONTASK) {
+  User.synchronize()
+// }
 module.exports = User

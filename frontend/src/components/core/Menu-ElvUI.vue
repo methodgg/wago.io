@@ -54,7 +54,7 @@ export default {
   },
   data: function () {
     return {
-      searchString: 'Type: Elvui '
+      searchString: 'Type: ElvUI '
     }
   },
   computed: {

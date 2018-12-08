@@ -182,6 +182,59 @@ server.get('/search', (req, res, skipSearch) => {
       return done()
     },
 
+    // if search includes 'modified: # periods'
+    function(done) {
+      const regex = /\bmodified:\s*(\d+)\s*(second|minute|hour|day|week|month|year)s?/i
+      var dateSearch = query.match(regex)
+      if (!dateSearch || dateSearch.length==0) return done()
+
+      if ((dateMatch = regex.exec(dateSearch)) !== null) {
+        // valid wagotype context found. Remove tag from query and update lookup
+        query = query.replace(dateMatch[0], '').replace(/\s{2,}/, ' ').trim()
+        var num = parseInt(dateMatch[1])
+        var time
+        switch (dateMatch[2].toLowerCase()) {
+          case 'second':
+            time = 's'
+            break
+          case 'minute':
+            time = 'm'
+            break
+          case 'hour':
+            time = 'h'
+            break
+          case 'day':
+            time = 'd'
+            break
+          case 'week':
+            time = 'w'
+            break
+          case 'month':
+            time = 'M'
+            break
+          case 'year':
+            time = 'y'
+            break
+          default:
+            return done()
+        }
+
+        if (num > 1) {
+          dateMatch[2] = dateMatch[2] + 's'
+        }
+        lookup.type = dateMatch[1] + ' ' + dateMatch[2].charAt(0).toUpperCase() + dateMatch[2].toLowerCase().slice(1)
+
+        Search.query.context.push({
+          query: dateMatch[0],
+          type: 'date',
+          range: dateMatch[1] + ' ' + dateMatch[2].charAt(0).toUpperCase() + dateMatch[2].toLowerCase().slice(1)
+        })
+        esFilter.push({range: { modified: { gte: `now-${num}${time}`} } })
+        
+      }
+      return done()
+    },
+
     // if search includes 'user: username'
     function(done) {
       const regex = /\buser:\s*([^\s]+)|\buser:\s*"([^"]+)"/ig
@@ -414,17 +467,17 @@ server.get('/search', (req, res, skipSearch) => {
       // option only valid for logged in users
       if (!req.user) return cb()
 
-      const regex = /\balert:\s*(1|0|true|false)\b/ig
+      const regex = /\b(alert|mentioned):\s*(1|0|true|false)\b/ig
       var alertSearch
       if ((alertSearch = regex.exec(query)) !== null) {
         query = query.replace(alertSearch[0], '')
-        if (alertSearch[1]=='1' || alertSearch[1].toLowerCase()=='true') {
+        if (alertSearch[2]=='1' || alertSearch[2].toLowerCase()=='true') {
           Search.query.context.push({
             query: alertSearch[0],
             type: 'option',
             option: {
               name: 'alert',
-              enabled: (alertSearch[1]=='1' || alertSearch[1].toLowerCase()=='true')
+              enabled: (alertSearch[2]=='1' || alertSearch[2].toLowerCase()=='true')
             }
           })
           Comments.findMentions(req.user._id).then((mentions) => {
@@ -435,7 +488,7 @@ server.get('/search', (req, res, skipSearch) => {
             }
             mentions.forEach((comment) => {
               // only include what the user has an alert on
-              if (alertSearch[1]=='1' || alertSearch[1].toLowerCase()=='true') {
+              if (alertSearch[2]=='1' || alertSearch[2].toLowerCase()=='true') {
                 if (!comment.usersTagged[0].read) {
                   lookup.priority = lookup.priority || []
                   lookup.priority.push(comment.wagoID)
@@ -695,5 +748,68 @@ server.get('/search', (req, res, skipSearch) => {
         }
       })
     })
+  })
+})
+
+/**
+ * Search by username for autocomplete
+ */
+server.get('/search/username', (req, res) => {
+  if (!req.query.name || req.query.name.length < 3) {
+    return res.send([])
+  }
+  var name = new RegExp(req.query.name)
+  User.esSearch({
+    query: {
+      // regexp: {
+      //   "account.username": '.*' + req.query.name + '.*'
+      // }
+      bool: {
+        should: [
+          {
+            regexp: {
+              "account.username": {
+                value: req.query.name.toLowerCase() + '.*',
+                boost: 1.2
+              }
+            } 
+          },
+          {
+            regexp: {
+              "account.username": {
+                value: '.*' + req.query.name.toLowerCase() + '.*',
+                boost: .9
+              }
+            } 
+          }
+        ]
+      }
+    },          
+  },
+  { hydrate: true, sort: ['_score'], size: 10, from: 0}, (err, results) => {
+    if (err) {
+      logger.error({label: 'ElasticSearch error', err})
+      return res.send([])
+    }
+    else if (!results || !results.hits || !results.hits.hits) {
+      return res.send([])
+    }
+
+    else {
+      var users = []
+      results.hits.hits.forEach((user) => {
+        var avatar = user.avatarURL
+        if (typeof avatar === 'string') {
+          users.push({name: user.account.username, html: `<div class="md-avatar"><img src="${avatar}"></div> ${user.account.username}`})
+        }
+        else if (typeof avatar === 'object') {
+          users.push({name: user.account.username, html: `<div class="md-avatar"><img src="${avatar.png}"></div> ${user.account.username}`})
+        }
+        else {
+          users.push({name: user.account.username, html: user.account.username})
+        }
+      })
+      res.send(users)
+    }
   })
 })

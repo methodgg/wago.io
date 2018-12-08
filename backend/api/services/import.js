@@ -987,7 +987,6 @@ function SaveWagoVersion (req, res, mode) {
     })
   }
   else if ((type=='TOTALRP3') && json) {
-    console.log(json)
     lua.JSON2TotalRP3(json, (error, result) => {
       if (error) {
         return res.send({error: error})

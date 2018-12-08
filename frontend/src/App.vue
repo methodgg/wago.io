@@ -11,6 +11,67 @@
       <div id="h-nav" class="md-hide-xsmall">
         <form novalidate @submit.stop.prevent="goSearch(gSearch)" id="gSearch">
           <input type="text" v-model="gSearch" placeholder="Search Wago..." />
+          <md-menu md-direction="bottom left" :md-offset-y="50" ref="advancedSearch">
+            <md-button class="md-icon-button md-primary" md-menu-trigger @click="buildSearch(true)">
+              <md-icon>arrow_drop_down</md-icon>
+            </md-button>
+            <md-menu-content id="advancedSearch">
+              <md-input-container>
+                <label for="advSearchType">{{ $t("Select Type") }}</label>
+                <md-select name="advSearchType" id="advSearchType" v-model="advSearchType" md-menu-class="advSearchSelect">
+                  <md-option value=""><em>All Imports</em></md-option>
+                  <md-option value="ElvUI">ElvUI</md-option>
+                  <md-option value="TotalRP">Total RP</md-option>
+                  <md-option value="VuhDo">VuhDo</md-option>
+                  <md-option value="WeakAura">WeakAura</md-option>
+                  <md-option value="Collection">Collection</md-option>
+                  <md-option value="Snippet">Snippet</md-option>
+                </md-select>
+              </md-input-container>
+              
+              <md-input-container>
+                <label for="advSearchUser">{{ $t("Select User") }}</label>
+                <md-select name="advSearchUser" id="advSearchUser" v-model="advSearchUser" md-menu-class="advSearchSelect">
+                  <md-option value=""><em>{{ $t("All Users") }}</em></md-option>
+                  <md-option value="anon">{{ $t("Include Anonymous") }}</md-option>
+                  <md-option value="user">{{ $t("Specific User") }}</md-option>
+                </md-select>
+              </md-input-container>
+
+              <md-input-container v-if="advSearchUser === 'user'" id="advSearchUserName">
+                <label for="advSearchUserName">{{ $t("User Name") }}</label>
+                <md-autocomplete v-model="advSearchUserName" :fetch="autoCompleteUserName"></md-autocomplete>
+              </md-input-container>
+
+              <md-layout md-row>
+                <md-checkbox v-model="advSearchStarred">Starred</md-checkbox>
+                <md-checkbox v-model="advSearchMentioned">Mentioned</md-checkbox>
+              </md-layout>
+              
+              <md-input-container>
+                <label for="advSearchDate">{{ $t("Date Modified") }}</label>
+                <md-select name="advSearchDate" id="advSearchDate" v-model="advSearchDate" md-menu-class="advSearchSelect">
+                  <md-option value=""><em>{{ $t("Any Time") }}</em></md-option>
+                  <md-option value="24 Hours">{{ $t("Last 24 Hours") }}</md-option>
+                  <md-option value="3 Days">{{ $t("Last Three Days") }}</md-option>
+                  <md-option value="7 Days">{{ $t("Last Week") }}</md-option>
+                  <md-option value="1 Month">{{ $t("Last Month") }}</md-option>
+                </md-select>
+              </md-input-container>
+              
+              <md-input-container>
+                <label>Text Search</label>
+                <md-input v-model="advSearchText"></md-input>
+              </md-input-container>
+
+              <md-layout md-align="end" md-gutter="16">
+                <md-layout md-flex="50" class="advSearchButtons">
+                  <md-button class="md-raised md-primary" @click="goSearch(gSearch)">Search</md-button>
+                  <md-button @click="buildSearch('reset')">Reset</md-button>
+                </md-layout>
+              </md-layout>
+            </md-menu-content>
+          </md-menu>
         </form>
       </div>
       <div id="hr-nav" class="md-hide-xsmall">
@@ -45,7 +106,7 @@
         <md-list-item><router-link to='/weakauras'>WeakAuras</router-link></md-list-item>
         <!-- <md-list-item><router-link to='/mdt'>MDT</router-link></md-list-item> -->
         <md-list-item><router-link to='/elvui'>ElvUI</router-link></md-list-item>
-        <md-list-item><router-link to='/vuhdo'>Vuhdo</router-link></md-list-item>
+        <md-list-item><router-link to='/vuhdo'>VuhDo</router-link></md-list-item>
         <md-list-item><router-link to='/totalrp'>Total RP</router-link></md-list-item>
         <md-list-item><router-link to='/collections'>{{ $t("Collections") }}</router-link></md-list-item>
       </md-list>
@@ -58,7 +119,7 @@
         <!-- <md-list-item><router-link to='/mdt'>MDT</router-link></md-list-item> -->
         <!-- <md-list-item><router-link to='/plater'>Plater</router-link></md-list-item> -->
         <md-list-item><router-link to='/totalrp'>Total RP</router-link></md-list-item>
-        <md-list-item><router-link to='/vuhdo'>Vuhdo</router-link></md-list-item>
+        <md-list-item><router-link to='/vuhdo'>VuhDo</router-link></md-list-item>
         <md-list-item><router-link to='/weakauras'>WeakAuras</router-link><md-divider></md-divider></md-list-item>
         <md-list-item><router-link to='/collections'>{{ $t("Collections") }}</router-link></md-list-item>
         <md-list-item><router-link to='/snippets'>{{ $t("Snippets") }}</router-link><md-divider></md-divider></md-list-item>
@@ -114,12 +175,20 @@ export default {
   name: 'app',
   components: {
     'select-locale': require('./components/UI/SelectLocale.vue'),
-    'login-button': require('./components/UI/LoginButton.vue')
+    'login-button': require('./components/UI/LoginButton.vue'),
+    'md-autocomplete': require('./components/UI/md-autocomplete.vue')
   },
   data: () => {
     return {
       PopMsg: 'test',
-      gSearch: ''
+      gSearch: '',
+      advSearchType: '',
+      advSearchUser: '',
+      advSearchUserName: '',
+      advSearchText: '',
+      advSearchStarred: false,
+      advSearchMentioned: false,
+      advSearchDate: ''
     }
   },
   created: function () {
@@ -171,7 +240,7 @@ export default {
         this.$store.commit('setUser', { guest: true, config: { searchOptions: { sort: 'bestmatch', relevance: 'standard', expansion: '' } } })
       }
     }).catch((err) => {
-      console.log('whoami error', err)
+      console.error(err)
       window.initPage = vue.$route.path
       // vue.$router.replace('/login')
     })
@@ -190,10 +259,101 @@ export default {
       this.$refs.mobileSidebar.toggle()
     },
     goSearch: function (q) {
+      this.$refs.advancedSearch.close()
       this.$router.push('/search/' + q.trim().replace(/\s+/g, '+'))
-      this.gSearch = ''
       this.searchString = q.trim()
-      console.log(this.searchString)
+      this.buildSearch('reset')
+    },
+    buildSearch: function (root) {
+      if (root === 'reset') {
+        this.advSearchUser = ''
+        this.advSearchUserName = ''
+        this.advSearchType = ''
+        this.advSearchText = ''
+        this.advSearchStarred = false
+        this.advSearchMentioned = false
+        this.advSearchDate = ''
+
+        this.gSearch = ''
+      }
+      else if (root) {
+        var s = this.gSearch
+        var m = s.match(/\btype:\s*"?([a-zA-Z0-9]+)"?\s*/i)
+        if (m) {
+          this.advSearchType = m[1]
+        }
+
+        m = s.match(/\banon:\s*"?([a-zA-Z0-9]+)"?\s*/i)
+        if (m && (m[1] === '1' || m[1].toLowerCase() === 'true')) {
+          this.advSearchUser = 'anon'
+        }
+
+        m = s.match(/\buser:\s*"?([a-zA-Z0-9]+)"?\s*/i)
+        if (m) {
+          this.advSearchUser = 'user'
+          this.advSearchUserName = m[1]
+        }
+
+        m = s.match(/\bstarred:\s*"?([a-zA-Z0-9]+)"?\s*/i)
+        if (m && (m[1] === '1' || m[1].toLowerCase() === 'true')) {
+          this.advSearchStarred = true
+        }
+
+        m = s.match(/\bmentioned:\s*"?([a-zA-Z0-9]+)"?\s*/i)
+        if (m && (m[1] === '1' || m[1].toLowerCase() === 'true')) {
+          this.advSearchMentioned = true
+        }
+
+        m = s.match(/\bmodified:\s*"?(\d+\s*[a-zA-Z]+)"?\s*/i)
+        if (m) {
+          this.advSearchDate = m[1]
+        }
+
+        s = s.replace(/\btype:\s*"?[a-zA-Z0-9]+"?\s*/i, '')
+        s = s.replace(/\banon:\s*"?[a-zA-Z0-9]+"?\s*/i, '')
+        s = s.replace(/\buser:\s*"?[a-zA-Z0-9]+"?\s*/i, '')
+        s = s.replace(/\bstarred:\s*"?[a-zA-Z0-9]+"?\s*/i, '')
+        s = s.replace(/\bmentioned:\s*"?[a-zA-Z0-9]+"?\s*/i, '')
+        s = s.replace(/\bmodified:\s*"?\d+\s*[a-zA-Z]+"?\s*/i, '')
+        this.advSearchText = s.trim()
+      }
+      else {
+        var filters = []
+        if (this.advSearchType) {
+          filters.push('Type: ' + this.advSearchType)
+        }
+        this.gSearch = this.gSearch.replace(/\btype:\s*"?[a-zA-Z0-9]+"?\s*/i, '')
+
+        if (this.advSearchUser === 'anon') {
+          filters.push('Anon: True')
+        }
+        else if (this.advSearchUser === 'user' && this.advSearchUserName) {
+          filters.push('User: ' + this.advSearchUserName)
+        }
+        this.gSearch = this.gSearch.replace(/\banon:\s*"?[a-zA-Z0-9]+"?\s*/i, '')
+        this.gSearch = this.gSearch.replace(/\buser:\s*"?[a-zA-Z0-9]+"?\s*/i, '')
+
+        if (this.advSearchStarred) {
+          filters.push('Starred: True')
+        }
+
+        if (this.advSearchMentioned) {
+          filters.push('Mentioned: True')
+        }
+
+        if (this.advSearchDate) {
+          filters.push('Modified: ' + this.advSearchDate)
+        }
+
+        if (this.advSearchText) {
+          filters.push(this.advSearchText.trim())
+        }
+
+        this.gSearch = filters.join(' ')
+      }
+    },
+    autoCompleteUserName: function (q) {
+      return this.http.get('/search/username', {name: q.q})
     }
   },
   computed: {
@@ -216,6 +376,34 @@ export default {
   watch: {
     $route (to, from) {
       this.$refs.mobileSidebar.close()
+    },
+    advSearchType () {
+      this.buildSearch(false)
+    },
+    advSearchUser (v) {
+      if (v === 'user') {
+        this.advSearchUserName = ''
+        this.$nextTick(() => {
+          document.querySelector('#advSearchUserName input').focus()
+          document.querySelector('#advSearchUserName').classList.add('md-input-focused')
+        })
+      }
+      this.buildSearch(false)
+    },
+    advSearchUserName () {
+      this.buildSearch(false)
+    },
+    advSearchText () {
+      this.buildSearch(false)
+    },
+    advSearchStarred () {
+      this.buildSearch(false)
+    },
+    advSearchMentioned () {
+      this.buildSearch(false)
+    },
+    advSearchDate () {
+      this.buildSearch(false)
     }
   },
   metaInfo () {
@@ -325,8 +513,16 @@ export default {
 #side-bottom .resource img { max-width: 30%; }
 .md-sidenav h2 { background: black; margin:0; padding: 16px 24px; text-align: center}
 #user-info { background: #CCC; padding: 16px 16px 0 }
-#gSearch { margin-left: 16px }
-#gSearch input { background: #404040; border:0; padding: 8px 16px; min-width: 330px; color: white; outline: none }
+#gSearch { margin-left: 16px; white-space: nowrap; width: 100% }
+#gSearch input { border:0; padding: 0 16px; line-height:40px; max-width: 640px;  width: 100%; outline: none; }
+#gSearch button { margin-left: -48px }
+#gSearch .md-menu { display: inline }
+#advancedSearch { padding: 16px; width: 640px; max-width: 640px; top:64px!important; left: 120px!important; box-shadow: 0 7px 9px -4px rgba(0, 0, 0, 0.2), 0 14px 21px 2px rgba(0, 0, 0, 0.14), 0 5px 26px 4px rgba(0, 0, 0, 0.12) }
+#advancedSearch .md-list:after { content:none }
+#advancedSearch .md-checkbox { margin-right: 32px }
+.advSearchSelect.md-select-content { max-height: initial; min-width: 220px; margin-left: 0; margin-top: 36px!important }
+.advSearchButtons { flex-direction: row-reverse; }
+
 .md-list { padding-bottom: 0}
 .md-list:after { height: 1px; width:100%; background-color: rgba(0,0,0,.12); content: " " }
 .md-list-item .md-list-item-container { padding-left: 16px }
@@ -336,6 +532,10 @@ export default {
 .wotm-controls button { background: none; border: none; cursor: pointer}
 .legal { padding: 16px; background: #333333; }
 .legal span { font-size: 90%; padding: 0 0 8px; display: block; }
+
+@media (max-width: 800px) {
+  #gSearch button { display: none }
+}
 
 @media (max-width: 600px) {
   #logo img { max-height: 28px; }

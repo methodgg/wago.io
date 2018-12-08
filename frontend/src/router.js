@@ -126,7 +126,7 @@ export default {
 
     { path: '/p/:profile', component: ViewProfile, props: (route) => ({ contextSearch: 'User: ' + route.params.profile }) },
     { path: '/my/stars', component: Search, props: (route) => ({ contextSearch: 'Starred: True' }) },
-    { path: '/my/mentions', component: Search, props: (route) => ({ contextSearch: 'Alert: True' }) },
+    { path: '/my/mentions', component: Search, props: (route) => ({ contextSearch: 'Mentioned: True' }) },
 
     // legal mumbo jumbo
     { path: '/terms-of-service', component: TermsOfService },

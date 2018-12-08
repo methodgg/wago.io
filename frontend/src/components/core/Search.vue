@@ -34,15 +34,15 @@
               </div>
             </div>
           </div>
-        </div>
+        </div>        
+        <div class="searchResult" v-else-if="!isSearching && results.total === 0">{{ $t("No results found") }}</div>
       </md-layout>   
     
       <md-layout id="searchMeta" v-if="results && results.query">
         <search-meta :meta="results.query.context" :tagMap="tagMap" :textSearch="results.query.textSearch" :sort="sortVal" @setSort="setSort" :catRelevance="catRelevance" @setCategoryRelevance="setCategoryRelevance" :filterExpansion="filterExpansion" @setExpansion="setExpansion"></search-meta>
       </md-layout>
     </md-layout>
-    <p v-if="!isSearching && results.total === 0">{{ $t("No results found") }}</p>
-    <p v-else-if="isSearchingMore">{{ $t("Loading more") }}</p>
+    <p v-if="isSearchingMore">{{ $t("Loading more") }}</p>
   </div>
 </template>
 
@@ -347,7 +347,7 @@ export default {
 #searchForm { padding: 16px; width: 100% }
 #searchForm button { margin-top: -3px }
 
-.searchResult { display: flex; padding: 0 8px; margin-bottom: 8px; max-width: 850px }
+.searchResult { display: flex; padding: 0 8px; margin-bottom: 8px; max-width: 850px; min-width: 30% }
 .searchResult .searchImg { min-width: 120px; max-width: 120px; text-align: center }
 .searchResult .searchImg img { max-width: 100%; max-height: 6em; }
 .searchResult .searchText {  }

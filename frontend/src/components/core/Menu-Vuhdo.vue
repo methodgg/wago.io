@@ -67,7 +67,7 @@ export default {
   },
   data: function () {
     return {
-      searchString: 'Type: Vuhdo '
+      searchString: 'Type: VuhDo '
     }
   },
   computed: {

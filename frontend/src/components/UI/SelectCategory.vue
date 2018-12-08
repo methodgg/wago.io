@@ -31,7 +31,6 @@ export default {
         return this.selectedCategories
       },
       set: function (newValue) {
-        console.log('set', newValue, this.categoryOptions)
         this.setOptions(newValue)
         this.$emit('update', newValue)
         return newValue

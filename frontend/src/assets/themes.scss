@@ -22,8 +22,9 @@ body.theme-dark {
     background: $Background2;
     color: $Text;
   }
-  #user-info, #gSearch, #full-sidebar .mainnav {
+  #user-info, #gSearch input, #gSearch button, #advancedSearch, #advancedSearch .md-list, #full-sidebar .mainnav {
     background: $Background3;
+    color: $Text;
   }
   .md-theme-default.md-select-content .md-menu-item.md-selected, .md-theme-default.md-select-content .md-menu-item.md-checked {
     background: $Background;
