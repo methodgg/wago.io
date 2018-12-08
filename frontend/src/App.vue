@@ -519,7 +519,7 @@ export default {
 #gSearch .md-menu { display: inline }
 #advancedSearch { padding: 16px; width: 640px; max-width: 640px; top:64px!important; left: 120px!important; box-shadow: 0 7px 9px -4px rgba(0, 0, 0, 0.2), 0 14px 21px 2px rgba(0, 0, 0, 0.14), 0 5px 26px 4px rgba(0, 0, 0, 0.12) }
 #advancedSearch .md-list:after { content:none }
-#advancedSearch .md-checkbox { margin-right: 32px }
+#advancedSearch .md-checkbox { margin-right: 32px; font-size: 12px; font-weight: normal; }
 .advSearchSelect.md-select-content { max-height: initial; min-width: 220px; margin-left: 0; margin-top: 36px!important }
 .advSearchButtons { flex-direction: row-reverse; }
 

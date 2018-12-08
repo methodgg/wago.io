@@ -1,3 +1,11 @@
+body.theme-classic {
+  .md-theme-default .md-checkbox-label {
+    color: rgba(0, 0, 0, 0.54)
+  }
+  #advancedSearch, #advancedSearch .md-list { 
+    background: white
+  }
+}
 body.theme-dark {
   $Background: #212121;
   $Background2: #333333;
@@ -29,7 +37,10 @@ body.theme-dark {
   .md-theme-default.md-select-content .md-menu-item.md-selected, .md-theme-default.md-select-content .md-menu-item.md-checked {
     background: $Background;
   }
-  .md-list-text-container > :nth-child(2):not(:last-child), .md-theme-default.md-list .md-list-item .router-link-active.md-list-item-container {
+  .md-checkbox-container {
+    border-color: $Text3;
+  }
+  .md-list-text-container > :nth-child(2):not(:last-child), .md-theme-default.md-list .md-list-item .router-link-active.md-list-item-container, .md-checkbox-label {
     color: $Text2;
   }
   .md-list-text-container > :nth-child(2), .md-list-text-container > :nth-child(3) {
