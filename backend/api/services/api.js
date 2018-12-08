@@ -108,6 +108,6 @@ server.get('/api/raw/encoded', (req, res) => {
  */
 server.get('/api/wa-companion-stats', (req, res) => {
   WagoFavorites.find().distinct('appID').then((num) => {
-    res.send({Installs: num - 1})
+    res.send({Installs: num.length - 1})
   })
 })
