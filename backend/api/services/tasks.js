@@ -485,28 +485,28 @@ function buildStaticMDTPortraits(json, mapID, subMapID, teeming, done) {
 
     const puppeteer = require('puppeteer')
     
-    puppeteer.launch().then(async browser => {
-      try {
-        const page = await browser.newPage()
-        await page.setContent(html)
-        await page.waitForSelector('img')
-        var img = await page.evaluate( () => {
-          let img = document.getElementById('img')
-          return img.src
-        })
-        img = img.replace(/^data:image\/\w+;base64,/, "")
-        var buffer = new Buffer(img, 'base64')
-        image.saveMdtPortraitMap(buffer, `portraitMap-${mapID}-${subMapID}${teeming}`, (img) => {
-          browser.close().then(() => {
-            done()
-          })
-        })
-      } 
-      catch (e) {
-        logger.error({label: 'Error creating MDT map', file: `portraitMap-${mapID}-${subMapID}${teeming}`, error: e.message})
-        done()
-      }
-    })
+    // puppeteer.launch().then(async browser => {
+    //   try {
+    //     const page = await browser.newPage()
+    //     await page.setContent(html)
+    //     await page.waitForSelector('img')
+    //     var img = await page.evaluate( () => {
+    //       let img = document.getElementById('img')
+    //       return img.src
+    //     })
+    //     img = img.replace(/^data:image\/\w+;base64,/, "")
+    //     var buffer = new Buffer(img, 'base64')
+    //     image.saveMdtPortraitMap(buffer, `portraitMap-${mapID}-${subMapID}${teeming}`, (img) => {
+    //       browser.close().then(() => {
+    //         done()
+    //       })
+    //     })
+    //   } 
+    //   catch (e) {
+    //     logger.error({label: 'Error creating MDT map', file: `portraitMap-${mapID}-${subMapID}${teeming}`, error: e.message})
+    //     done()
+    //   }
+    // })
   })
 }
 

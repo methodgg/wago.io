@@ -53,9 +53,10 @@
               </template>
               <v-image
                 :config="{
-                  image: portraits,
+                  image: enemyPortraitMap,
                   scaleX: 1/8,
-                  scaleY: 1/8
+                  scaleY: 1/8,
+                  listening: false
                 }"
               />
               <template v-for="(creature, i) in enemies">
@@ -97,8 +98,6 @@
                   />
                 </template>
               </template>
-            </v-layer>
-            <v-layer ref="mdtAnnotations" v-if="mdtDungeonTable.dungeonSubLevels">
               <template v-for="(obj, id) in tableData.objects">
                 <!-- note -->
                 <mdt-poi v-if="obj && obj.n && obj.d && obj.d[2] === subMapID + 1" :data="obj" :annotationsIndex="id" :mdtScale="mdtScale" :mapID="mapID" @mouseover="setPOITooltip" @mouseout="setPOITooltip" @mousemove="moveTooltip" @click="clickPOI" />
@@ -258,9 +257,10 @@ export default {
       mdtLevel: 10,
       mapTiles: [],
       enemyPortraits: null,
-      portraits: null,
+      enemyPortraitMap: null,
       mapPOIs: {},
       konvaStageConfig: {width: 1024, height: 768},
+      webpSupport: false,
       tile: {},
       hoverGroups: [], // which group(s) is being moused-over
       hoverText: '',
@@ -334,7 +334,12 @@ export default {
       for (let i = 0; i < this.enemies.length; i++) {
         this.enemies[i].enemyIndex = i
       }
-      this.setMap(this.subMapID)
+      var testWebp = new Image()
+      testWebp.src = 'data:image/webp;base64,UklGRi4AAABXRUJQVlA4TCEAAAAvAUAAEB8wA' + 'iMwAgSSNtse/cXjxyCCmrYNWPwmHRH9jwMA'
+      testWebp.onload = testWebp.onerror = () => {
+        this.webpSupport = (testWebp.height === 2)
+        this.setMap(this.subMapID)
+      }
     },
 
     setupStage () {
@@ -452,9 +457,9 @@ export default {
       this.enemyPortraits.src = `https://media.wago.io/mdt/portraits-${this.mapID}.png`
       preload.push(this.enemyPortraits.src)
 
-      this.portraits = new Image()
-      this.portraits.src = require('../../assets/portraitMap-14-1Teeming.png')
-      preload.push(this.portraits.src)
+      this.enemyPortraitMap = new Image()
+      this.enemyPortraitMap.src = `https://media.wago.io/mdt/portraitMap-${this.mapID}-${subMap + 1}${this.isTeemingSelected() ? '-Teeming' : ''}.${this.webpSupport ? 'webp' : 'png'}`
+      preload.push(this.enemyPortraitMap.src)
 
       // build map files
       var dir = this.mdtDungeonTable.dungeonMaps[this.mapID][0]
