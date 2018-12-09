@@ -443,5 +443,19 @@
   "You may use an API key to access Wago programmatically, through your own software or a third party app such as the WeakAuras Updater": "You may use an API key to access Wago programmatically, through your own software or a third party app such as the WeakAuras Updater",
   "Documentation soon": "",
   "API key copied": "",
-  "API key failed to copy please upgrade to a modern browser": ""
+  "API key failed to copy please upgrade to a modern browser": "",
+  "Select Type": "",
+  "Select User": "",
+  "All Users": "",
+  "Include Anonymous": "",
+  "Specific User": "",
+  "User Name": "",
+  "Date Modified": "",
+  "Any Time": "",
+  "Last 24 Hours": "",
+  "Last Three Days": "",
+  "Last Week": "",
+  "Last Month": "",
+  "Snippets": "",
+  "Open source": ""
 }

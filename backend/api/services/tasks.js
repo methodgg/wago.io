@@ -1,6 +1,7 @@
 const config = require('../../config')
 const async = require('async')
 const Axios = require('axios')
+const image = require('../helpers/image')
 
 /**
  * Using restify to run cron tasks directly on data service. 
@@ -366,6 +367,24 @@ function downloadAddon(addon, release, done) {
                 else if (result && result.stdout) {
                   var json = JSON.parse(result.stdout)
                   SiteData.findByIdAndUpdate('mdtDungeonTable', {value: json}, {upsert: true}).exec()
+                  // now generate portrait maps
+                  async.eachOfSeries(json.dungeonEnemies, (dungeon, mapID, callback) => {
+                    if (!dungeon) return callback()
+                    async.timesSeries((Object.keys(json.dungeonMaps[mapID]).length) * 2 - 1, (subMapID, callback2) => {
+                      if (!subMapID) return callback2()
+                      if (subMapID < Object.keys(json.dungeonMaps[mapID]).length) {
+                        buildStaticMDTPortraits(json, mapID, subMapID, false, callback2)
+                      }
+                      else {
+                        buildStaticMDTPortraits(json, mapID, subMapID - Object.keys(json.dungeonMaps[mapID]).length + 1, true, callback2)
+                      }            
+                    }, () => {
+                      console.log('done map', mapID)
+                      callback()
+                    })           
+                  }, () => {
+                    console.log('done')
+                  })                  
                 }
               })
             break
@@ -386,6 +405,119 @@ function downloadAddon(addon, release, done) {
   catch (e) {
     logger.error({label: 'Downloading addon failed.', addon: release, error: e}) 
   }
+}
+
+function buildStaticMDTPortraits(json, mapID, subMapID, teeming, done) {
+  var mdtScale = 539 / 450
+  if (teeming) teeming = '-Teeming'
+  else teeming = ''
+
+  html = `<!DOCTYPE html>
+  <html>
+  <head>
+    <script src="https://unpkg.com/konva@2.4.2/konva.min.js"></script>
+    <meta charset="utf-8">
+    <title>Konva Circle Demo</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        background-color: #F0F0F0;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="container"></div>
+    <script>
+      var multiplier = 8
+      
+      var stage = new Konva.Stage({
+        container: 'container',
+        width: 1024 * multiplier,
+        height: 768 * multiplier
+      });
+  
+      var layer = new Konva.Layer();
+      var enemyPortraits = new Image()
+      enemyPortraits.src = 'https://media.wago.io/mdt/portraits-${mapID}.png'
+      enemyPortraits.crossOrigin = 'anonymous'
+      enemyPortraits.onload = () => {`
+        async.eachOfSeries(json.dungeonEnemies[mapID], (creature, i, creatureDone) => {
+          if (!creature || !creature.clones) return creatureDone()
+
+          creature.clones.forEach((clone, j) => {
+            if ((!clone.sublevel || clone.sublevel === subMapID) && (!clone.teeming || (clone.teeming && teeming))) {
+              html = html + `
+              var circle${i}_${j} = new Konva.Circle({
+                x: ${clone.x * mdtScale} * multiplier,
+                y: ${clone.y * -mdtScale} * multiplier,
+                radius: ${Math.round(5 * creature.scale * (creature.isBoss ? 1.7 : 1)) / mdtScale} * multiplier,
+                fillPatternX: ${(-Math.round(5 * creature.scale * (creature.isBoss ? 1.7 : 1))) / mdtScale} * multiplier,
+                fillPatternY: ${(-Math.round(5 * creature.scale * (creature.isBoss ? 1.7 : 1))) / mdtScale} * multiplier,
+                fillPatternImage: enemyPortraits,
+                fillPatternOffset: ${getEnemyPortraitOffset(json.dungeonEnemies[mapID].length, i, 115)},
+                fillPatternRepeat: 'no-repeat',
+                fillPatternScaleX: ${Math.round(5 * creature.scale * (creature.isBoss ? 1.7 : 1)) / 64} * multiplier,
+                fillPatternScaleY: ${Math.round(5 * creature.scale * (creature.isBoss ? 1.7 : 1)) / 64} * multiplier,
+              });
+
+              // add the shape to the layer
+              layer.add(circle${i}_${j});`
+            }
+          })
+          creatureDone()
+        }, () => {
+          html = html + `
+        stage.add(layer);
+
+        setTimeout(() => {
+          var img = document.createElement('img')
+          img.src = stage.toDataURL()
+          img.id = 'img'
+          document.body.appendChild(img)
+          document.getElementById('container').remove()
+        }, 1000)
+      }
+      </script>    
+    </body>
+    </html>`
+
+    const puppeteer = require('puppeteer')
+    
+    puppeteer.launch().then(async browser => {
+      try {
+        const page = await browser.newPage()
+        await page.setContent(html)
+        await page.waitForSelector('img')
+        var img = await page.evaluate( () => {
+          let img = document.getElementById('img')
+          return img.src
+        })
+        img = img.replace(/^data:image\/\w+;base64,/, "")
+        var buffer = new Buffer(img, 'base64')
+        image.saveMdtPortraitMap(buffer, `portraitMap-${mapID}-${subMapID}${teeming}`, (img) => {
+          browser.close().then(() => {
+            done()
+          })
+        })
+      } 
+      catch (e) {
+        logger.error({label: 'Error creating MDT map', file: `portraitMap-${mapID}-${subMapID}${teeming}`, error: e.message})
+        done()
+      }
+    })
+  })
+}
+
+function getEnemyPortraitOffset (numCreatures, creatureIndex, size) {
+  var row = 0
+  size = size || 36
+  if (creatureIndex >= Math.ceil(numCreatures / 2)) {
+    row++
+  }
+  var o = {x: ((creatureIndex) - (Math.ceil(numCreatures / 2) * row)) * size, y: row * size}
+  return `{x: ${o.x}, y: ${o.y}}`
 }
 
 /**

@@ -163,7 +163,6 @@ server.listen(config.port, function() {
   // build global vars on runtime
   runTask('random')
   runTask('top10')
-  runTask('addons')
   runTask('news')
 
   /**

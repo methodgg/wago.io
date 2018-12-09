@@ -1,8 +1,11 @@
-const sharp = require('sharp')
-const webpc = require('webp-converter')
+const config = require('../../config')
+const cloudflare = require('cloudflare')({email: config.cloudflare.email, key: config.cloudflare.apiKey})
 
+const sharp = require('sharp')
+const md5File = require('md5-file')
 const mkdirp = require('mkdirp')
 const mmm = require('mmmagic')
+const webpc = require('webp-converter')
 
 module.exports = {
   avatarFromURL: (url, userID, name, callback) => {
@@ -108,5 +111,57 @@ module.exports = {
         }
       })
     }
+  },
+
+  saveMdtPortraitMap: (buffer, filename, callback) => {
+    if (!buffer || !filename) {
+      return callback({error: 'bad_input', inputs: [buffer, filename]})
+    }
+    saveToDirectory = '/nfs/media/mdt/'
+
+    md5File(saveToDirectory + filename + '.webp', (err, originalHash) => {
+      if (err) {
+        originalHash = ''
+      }
+      async.parallel({
+        webp: (cb) => {
+          sharp(buffer).toFormat('webp').toFile(saveToDirectory + filename + '.webp').then(() => {
+            cb(null, 'https://media.wago.io/mdt/' + filename + '.webp')
+          }).catch((e) => {
+            logger.error({label: 'Could not save image', file: saveToDirectory + filename + '.webp', error: e.message})
+            cb(e)
+          })
+        },
+        png: (cb) => {
+          sharp(buffer).toFormat('png').toFile(saveToDirectory + filename + '.png').then(() => {
+            cb(null, 'https://media.wago.io/mdt/' + filename + '.png')
+          }).catch((e) => {
+            logger.error({label: 'Could not save image', file: saveToDirectory + filename + '.webp', error: e.message})
+            cb(e)
+          })
+        }
+      }, (err, images) => {
+        if (err) {
+          return callback({error: err.message})
+        }
+        else {
+          // if file has changed
+          md5File(saveToDirectory + filename + '.webp', (err, newHash) => {
+            if (newHash !== originalHash) {
+              console.log('new file, purge cache')
+              cloudflare.zones.purgeCache(config.cloudflare.zoneID, {files: [img.png, img.webp]}).then(() => {
+                callback(images)
+              }).catch((e) => {
+                logger.error({label: 'Error clearing Cloudflare cache', url: [img.png, img.webp], error: e.message})
+              })
+            }
+            else {
+              console.log('same file, keep cache')
+              callback(images)
+            }
+          })          
+        }
+      })
+    })
   }
 }

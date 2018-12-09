@@ -50,12 +50,19 @@
                     }"
                   />
                 </template>
-              </template>       
+              </template>
+              <v-image
+                :config="{
+                  image: portraits,
+                  scaleX: 1/8,
+                  scaleY: 1/8
+                }"
+              />
               <template v-for="(creature, i) in enemies">
                 <slot>1</slot>
                 <template v-for="(clone, j) in creature.clones">
                   <slot>1</slot>
-                  <v-circle v-if="(!clone.sublevel || clone.sublevel === subMapID + 1) && (!clone.teeming || (clone.teeming && isTeemingSelected()))" :config="{
+                  <!--<v-circle v-if="(!clone.sublevel || clone.sublevel === subMapID + 1) && (!clone.teeming || (clone.teeming && isTeemingSelected()))" :config="{
                       x: clone.x * mdtScale,
                       y: clone.y * -mdtScale,
                       radius: Math.round(5 * creature.scale * (creature.isBoss ? 1.7 : 1)) / mdtScale,
@@ -68,7 +75,7 @@
                       fillPatternScaleY: Math.round(5 * creature.scale * (creature.isBoss ? 1.7 : 1)) / 64,
                       listening: false
                     }"
-                  />
+                  />-->
                   <v-circle v-if="(!clone.sublevel || clone.sublevel === subMapID + 1) && (!clone.teeming || (clone.teeming && isTeemingSelected()))" 
                     @click="selectCreature(i, j)" 
                     @mouseover="setTargetHover(creature, clone, j)" 
@@ -251,6 +258,7 @@ export default {
       mdtLevel: 10,
       mapTiles: [],
       enemyPortraits: null,
+      portraits: null,
       mapPOIs: {},
       konvaStageConfig: {width: 1024, height: 768},
       tile: {},
@@ -443,6 +451,10 @@ export default {
       this.enemyPortraits = new Image()
       this.enemyPortraits.src = `https://media.wago.io/mdt/portraits-${this.mapID}.png`
       preload.push(this.enemyPortraits.src)
+
+      this.portraits = new Image()
+      this.portraits.src = require('../../assets/portraitMap-14-1Teeming.png')
+      preload.push(this.portraits.src)
 
       // build map files
       var dir = this.mdtDungeonTable.dungeonMaps[this.mapID][0]
