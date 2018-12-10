@@ -14,6 +14,9 @@ Schema.statics.addStar = function (wago, userID) {
     this.count({wagoID: wago._id, type: 'Star'}).then((num) => {
       wago.popularity.favorite_count = num
       wago.save()
+      wago.index((err, r) => {
+        console.log('index?', err, r)
+      })
     })
   })
 }

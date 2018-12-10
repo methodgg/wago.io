@@ -259,7 +259,7 @@ Schema.plugin(mongoosastic, {
 const User = mongoose.model('Users', Schema)
 
 
-if (require('../../config').env == 'production' && !global.CRONTASK) {
-  User.synchronize()
-}
+// if (require('../../config').env == 'production' && require('../../config').host == 'data-02' && !global.CRONTASK) {
+//   User.synchronize()
+// }
 module.exports = User

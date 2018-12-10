@@ -80,24 +80,44 @@
                   <v-circle v-if="(!clone.sublevel || clone.sublevel === subMapID + 1) && (!clone.teeming || (clone.teeming && isTeemingSelected()))" 
                     @click="selectCreature(i, j)" 
                     @mouseover="setTargetHover(creature, clone, j)" 
-                    @mouseleave="setTargetHover()" 
                     @mousemove="moveTooltip()"
                     :config="{
                       x: clone.x * mdtScale,
                       y: clone.y * -mdtScale,
                       radius: Math.round(5 * creature.scale * (creature.isBoss ? 1.7 : 1)) / mdtScale,
                       fill: clone.hover ? 'rgba(119, 253, 50, 0.6)' : (clone.pull >= 0 ? 'rgba(99, 233, 30, 0.3)' : 'rgba(99, 233, 30, 0.0)'),
-                      stroke: isInfestedCreature(clone) ? 'red' : (creature.isBoss ? 'gold' : 'black'),
+                      stroke: isSeasonalAffixClone(clone) ? 'red' : (creature.isBoss ? 'gold' : 'black'),
                       strokeWidth: .5,
+                      strokeEnabled: isSeasonalAffixClone(clone),
                       shadowColor: 'white',
                       shadowOpacity: 1,
                       shadowEnabled : clone.hoverAvatar || false,
                       shadowOffset: {x: 0, y: 0},
-                      shadowBlur: 10
+                      shadowBlur: 10,
                     }"
                   />
                 </template>
               </template>
+              <v-circle v-if="hoverSpecific.cloneIndex" 
+                @click="selectCreature(hoverSpecific.creatureIndex, hoverSpecific.cloneIndex)" 
+                @mouseleave="setTargetHover()" 
+                @mousemove="moveTooltip()"
+                :config="{
+                  x: enemies[hoverSpecific.creatureIndex].clones[hoverSpecific.cloneIndex].x * mdtScale,
+                  y: enemies[hoverSpecific.creatureIndex].clones[hoverSpecific.cloneIndex].y * -mdtScale,
+                  radius: Math.round(7 * enemies[hoverSpecific.creatureIndex].scale * (enemies[hoverSpecific.creatureIndex].isBoss ? 1.7 : 1)) / mdtScale,
+                  stroke: isSeasonalAffixClone(enemies[hoverSpecific.creatureIndex].clones[hoverSpecific.cloneIndex]) ? 'red' : (enemies[hoverSpecific.creatureIndex].isBoss ? 'gold' : 'black'),
+                  strokeWidth: 3,
+                  strokeEnabled: true,
+                  fillPatternX: (-Math.round(7 * enemies[hoverSpecific.creatureIndex].scale * (enemies[hoverSpecific.creatureIndex].isBoss ? 1.7 : 1))) / mdtScale,
+                  fillPatternY: (-Math.round(7 * enemies[hoverSpecific.creatureIndex].scale * (enemies[hoverSpecific.creatureIndex].isBoss ? 1.7 : 1))) / mdtScale,
+                  fillPatternImage: enemyPortraits,
+                  fillPatternOffset: getEnemyPortraitOffset(hoverSpecific.creatureIndex, 115),
+                  fillPatternRepeat: 'no-repeat',
+                  fillPatternScaleX: Math.round(7 * enemies[hoverSpecific.creatureIndex].scale * (enemies[hoverSpecific.creatureIndex].isBoss ? 1.7 : 1)) / 64,
+                  fillPatternScaleY: Math.round(7 * enemies[hoverSpecific.creatureIndex].scale * (enemies[hoverSpecific.creatureIndex].isBoss ? 1.7 : 1)) / 64,
+                }"
+              />
               <template v-for="(obj, id) in tableData.objects">
                 <!-- note -->
                 <mdt-poi v-if="obj && obj.n && obj.d && obj.d[2] === subMapID + 1" :data="obj" :annotationsIndex="id" :mdtScale="mdtScale" :mapID="mapID" @mouseover="setPOITooltip" @mouseout="setPOITooltip" @mousemove="moveTooltip" @click="clickPOI" />
@@ -212,7 +232,7 @@
         <span v-if="tooltipEnemy.isBoss" style="margin-left:-3px">💀 </span><strong>{{ tooltipEnemy.name }}</strong><br>
         {{ $t('Level [-level-] [-type-]', {level: tooltipEnemy.level, type: tooltipEnemy.creatureType}) }}<br>
         {{ $t('[-hp-] HP @ +10', {hp: calcEnemyHealth(tooltipEnemy, true)}) }}<br>
-        <span v-if="tooltipEnemy.clone && isInfestedCreature(tooltipEnemy.clone)" style="color:red">{{ $t('Infested') }}<br></span>
+        <span v-if="tooltipEnemy.clone && isSeasonalAffixClone(tooltipEnemy.clone)" style="color:red">{{ $t('Infested') }}<br></span>
         <span v-if="tooltipEnemy.clone && tooltipEnemy.clone.g > 0">{{ $t('Group [-num-]', {num: tooltipEnemy.clone.g}) }}</span>
         <span v-if="tooltipEnemy.clone && tooltipEnemy.clone.pull >= 0">{{ $t('Pull [-num-]', {num: tooltipEnemy.clone.pull + 1}) }}<br></span>
       </div>
@@ -269,6 +289,7 @@ export default {
       tooltipEnemy: {},
       tooltipPOI: '',
       selectedAffixes: [],
+      hoverSpecific: {},
       dungeonAffixes: {
         1: { name: 'Overflowing', icon: 'inv_misc_volatilewater' },
         2: { name: 'Skittish', icon: 'Spell_Magic_LesserInvisibilty' },
@@ -523,10 +544,15 @@ export default {
           // if we're turning all hovers off
           else if (!clone) {
             this.$set(this.enemies[i].clones[k], 'hover', false)
+            this.$set(this.hoverSpecific, 'cloneIndex', false)
+            this.$set(this.hoverSpecific, 'creatureIndex', false)
           }
           // if matching a single enemy
-          else if (!clone.g && creature.id === this.enemies[i].id && k === cloneIndex) {
+          else if (creature.id === this.enemies[i].id && k === cloneIndex) {
             this.$set(this.enemies[i].clones[k], 'hover', true)
+            this.$set(this.hoverSpecific, 'cloneIndex', cloneIndex)
+            this.$set(this.hoverSpecific, 'creatureIndex', i)
+            console.log('specific!')
           }
           // if matching part of a group
           else if (clone.g && clone.g === this.enemies[i].clones[k].g) {
@@ -552,6 +578,7 @@ export default {
         this.cursorTooltipY = -1000
         this.tooltipEnemy = false
       }
+      console.log(this.hoverSpecific)
     },
 
     moveTooltip () {
@@ -677,7 +704,7 @@ export default {
     },
 
     setAffixWeek (week) {
-      this.selectedAffixes = week
+      this.selectedAffixes = this.mdtDungeonTable.affixWeeks[week]
       this.tableData.week = week + 1
       this.tableString = JSON.stringify(this.tableData, null, 2)
       this.$store.commit('setWagoJSON', this.tableString)
@@ -696,7 +723,7 @@ export default {
       return this.selectedAffixes.indexOf(9) >= 0
     },
 
-    isInfestedCreature (clone) {
+    isSeasonalAffixClone (clone) {
       if (!clone.infested) {
         return false
       }
@@ -706,7 +733,7 @@ export default {
       }
       week--
 
-      return clone.infested[week]
+      return !!clone.infested[week]
     },
 
     calcEnemyHealth (creature, shorten) {

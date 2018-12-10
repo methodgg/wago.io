@@ -4,7 +4,7 @@ server.post('/wago/star', (req, res, next) => {
     return res.send(403, {error: "forbidden"})
   }
 
-  WagoItem.findById(req.body.wagoID).select('popularity').then((wago) => {
+  WagoItem.findById(req.body.wagoID).then((wago) => {
     if (!wago) {
       return res.send(404, {error: "no_wago"})
     }

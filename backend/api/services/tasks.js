@@ -368,23 +368,25 @@ function downloadAddon(addon, release, done) {
                   var json = JSON.parse(result.stdout)
                   SiteData.findByIdAndUpdate('mdtDungeonTable', {value: json}, {upsert: true}).exec()
                   // now generate portrait maps
-                  async.eachOfSeries(json.dungeonEnemies, (dungeon, mapID, callback) => {
-                    if (!dungeon) return callback()
-                    async.timesSeries((Object.keys(json.dungeonMaps[mapID]).length) * 2 - 1, (subMapID, callback2) => {
-                      if (!subMapID) return callback2()
-                      if (subMapID < Object.keys(json.dungeonMaps[mapID]).length) {
-                        buildStaticMDTPortraits(json, mapID, subMapID, false, callback2)
-                      }
-                      else {
-                        buildStaticMDTPortraits(json, mapID, subMapID - Object.keys(json.dungeonMaps[mapID]).length + 1, true, callback2)
-                      }            
+                  if (config.host === 'data-01' || config.env === 'development') {
+                    async.eachOfSeries(json.dungeonEnemies, (dungeon, mapID, callback) => {
+                      if (!dungeon) return callback()
+                      async.timesSeries((Object.keys(json.dungeonMaps[mapID]).length) * 2 - 1, (subMapID, callback2) => {
+                        if (!subMapID) return callback2()
+                        if (subMapID < Object.keys(json.dungeonMaps[mapID]).length) {
+                          buildStaticMDTPortraits(json, mapID, subMapID, false, callback2)
+                        }
+                        else {
+                          buildStaticMDTPortraits(json, mapID, subMapID - Object.keys(json.dungeonMaps[mapID]).length + 1, true, callback2)
+                        }            
+                      }, () => {
+                        console.log('done map', mapID)
+                        callback()
+                      })           
                     }, () => {
-                      console.log('done map', mapID)
-                      callback()
-                    })           
-                  }, () => {
-                    console.log('done')
-                  })                  
+                      console.log('done')
+                    })         
+                  }         
                 }
               })
             break
@@ -460,7 +462,9 @@ function buildStaticMDTPortraits(json, mapID, subMapID, teeming, done) {
                 fillPatternRepeat: 'no-repeat',
                 fillPatternScaleX: ${Math.round(5 * creature.scale * (creature.isBoss ? 1.7 : 1)) / 64} * multiplier,
                 fillPatternScaleY: ${Math.round(5 * creature.scale * (creature.isBoss ? 1.7 : 1)) / 64} * multiplier,
-              });
+                stroke: '${creature.isBoss ? 'gold' : 'black'}',
+                strokeWidth: .5 * multiplier
+              })
 
               // add the shape to the layer
               layer.add(circle${i}_${j});`
@@ -479,34 +483,46 @@ function buildStaticMDTPortraits(json, mapID, subMapID, teeming, done) {
           document.getElementById('container').remove()
         }, 1000)
       }
-      </script>    
+      </script>
     </body>
     </html>`
 
     const puppeteer = require('puppeteer')
-    
-    // puppeteer.launch().then(async browser => {
-    //   try {
-    //     const page = await browser.newPage()
-    //     await page.setContent(html)
-    //     await page.waitForSelector('img')
-    //     var img = await page.evaluate( () => {
-    //       let img = document.getElementById('img')
-    //       return img.src
-    //     })
-    //     img = img.replace(/^data:image\/\w+;base64,/, "")
-    //     var buffer = new Buffer(img, 'base64')
-    //     image.saveMdtPortraitMap(buffer, `portraitMap-${mapID}-${subMapID}${teeming}`, (img) => {
-    //       browser.close().then(() => {
-    //         done()
-    //       })
-    //     })
-    //   } 
-    //   catch (e) {
-    //     logger.error({label: 'Error creating MDT map', file: `portraitMap-${mapID}-${subMapID}${teeming}`, error: e.message})
-    //     done()
-    //   }
-    // })
+
+    let _browser
+    let _page
+    let _img
+
+    console.info('make portrait map', mapID, subMapID)
+    fs.writeFileSync('./test.html', html, 'utf8')
+
+    puppeteer
+      .launch()
+      .then(browser => (_browser = browser))
+      .then(browser => (_page = browser.newPage()))
+      .then(page => page.setContent(html))
+      .then(() => _page)
+      .then(page => page.waitForSelector('img', {timeout: 120000}))
+      .then(() => _page)
+      .then(page => {
+        return page.evaluate(() => {
+          let img = document.getElementById('img')
+          return img.src
+        })
+      })
+      .then(img => (_img = img))
+      .then(() => _browser.close())
+      .then(() => {
+        console.info('img prepared')
+        _img = _img.replace(/^data:image\/\w+;base64,/, "")
+        var buffer = new Buffer(_img, 'base64')
+        image.saveMdtPortraitMap(buffer, `portraitMap-${mapID}-${subMapID}${teeming}`, (img) => {
+          done()
+        })
+      })
+      .catch((e) => {
+        logger.error({label: 'Error creating MDT map', file: `portraitMap-${mapID}-${subMapID}${teeming}`, error: e.message})
+      })
   })
 }
 

@@ -140,7 +140,7 @@ module.exports = {
             cb(e)
           })
         }
-      }, (err, images) => {
+      }, (err, img) => {
         if (err) {
           return callback({error: err.message})
         }
@@ -148,16 +148,14 @@ module.exports = {
           // if file has changed
           md5File(saveToDirectory + filename + '.webp', (err, newHash) => {
             if (newHash !== originalHash) {
-              console.log('new file, purge cache')
               cloudflare.zones.purgeCache(config.cloudflare.zoneID, {files: [img.png, img.webp]}).then(() => {
-                callback(images)
+                callback(img)
               }).catch((e) => {
                 logger.error({label: 'Error clearing Cloudflare cache', url: [img.png, img.webp], error: e.message})
               })
             }
             else {
-              console.log('same file, keep cache')
-              callback(images)
+              callback(img)
             }
           })          
         }

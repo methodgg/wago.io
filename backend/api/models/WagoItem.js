@@ -143,18 +143,18 @@ Schema.statics.randomOfTheMoment = function(callback) {
 }
 
 const WagoItem = mongoose.model('WagoItem', Schema)
-if (require('../../config').env == 'production' && !global.CRONTASK) {
-  var es_Stream = WagoItem.synchronize()
-  var es_Count = 0
+// if (require('../../config').env == 'production' && require('../../config').host == 'data-02' && !global.CRONTASK) {
+//   var es_Stream = WagoItem.synchronize()
+//   var es_Count = 0
 
-  es_Stream.on('error', function(err){
-    logger.error({label: 'Elastic index error', err: err});
-  });
-  es_Stream.on('data', function() {
-    es_Count++;
-  });
-  es_Stream.on('close', function() {
-    logger.info('Elastic indexed ' + es_Count + ' documents!');
-  });
-}
+//   es_Stream.on('error', function(err){
+//     logger.error({label: 'Elastic index error', err: err});
+//   });
+//   es_Stream.on('data', function() {
+//     es_Count++;
+//   });
+//   es_Stream.on('close', function() {
+//     logger.info('Elastic indexed ' + es_Count + ' documents!');
+//   });
+// }
 module.exports = WagoItem
