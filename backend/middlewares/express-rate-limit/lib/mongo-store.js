@@ -11,10 +11,10 @@ function calculateNextResetTime(windowMs) {
 }
 
 function MongoStore(windowMs) {
-  let resetTime = new Date(calculateNextResetTime(windowMs));
 
   var store = {
     incr: function(key, cb) {
+     let resetTime = new Date(calculateNextResetTime(windowMs));
     _RateLimiter.incr(key, resetTime, cb)
     },
 
