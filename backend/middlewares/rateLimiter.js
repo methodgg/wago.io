@@ -10,7 +10,7 @@ const commonRateLimit = rateLimit({
   max: 50,
   store: mongoStore,
   keyGenerator: (req) => {
-    return req.connection.remoteAddress
+    return req.headers['cf-connecting-ip'] || req.connection.remoteAddress
   },
   handler: (req, res) => {
     res.send(429, {msg: 'Rate limit exceeded'})
@@ -22,7 +22,7 @@ const commonAuthRateLimit = rateLimit({
   headers: false,
   expectUser: true,
   keyGenerator: (req) => {
-    return 'auth' + req.connection.remoteAddress
+    return 'auth' + req.headers['cf-connecting-ip'] || req.connection.remoteAddress
   },
   handler: (req, res) => {
     res.send(429, {msg: 'Too many failed auth attempts. IP Blocked.'})
@@ -34,7 +34,7 @@ const apiRateLimit = rateLimit({
   max: 6000,
   store: mongoStore,
   keyGenerator: (req) => {
-    return 'api' + req.connection.remoteAddress
+    return 'api' + req.headers['cf-connecting-ip'] || req.connection.remoteAddress
   },
   handler: (req, res) => {
     res.send(429, {msg: 'Rate limit exceeded'})
@@ -46,7 +46,7 @@ const apiAuthRateLimit = rateLimit({
   headers: false,
   expectUser: true,
   keyGenerator: (req) => {
-    return 'apiAuth' + req.connection.remoteAddress
+    return 'apiAuth' + req.headers['cf-connecting-ip'] || req.connection.remoteAddress
   },
   handler: (req, res) => {
     res.send(429, {msg: 'Too many failed auth attempts. IP Blocked.'})
