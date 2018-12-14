@@ -23,12 +23,38 @@ Schema.index({json: 'text', lua: 'text'})
  */
 // Find selected code version, or latest if not supplied
 Schema.statics.lookup = function(id, version) {
-  if (version && version > 0 && parseInt(version) == version) {
-    return this.findOne({auraID: id}).sort({updated: 1}).skip(version - 1).exec()
-  }
-  else {
-    return this.findOne({auraID: id}).sort({updated: -1}).exec()
-  }
+  return new Promise((resolve, reject) => {
+    if (version && version > 0 && parseInt(version) == version) {
+      this.findOne({auraID: id}).sort({updated: 1}).skip(version - 1).then((doc) => {
+        this.findOne({auraID: id}).sort({updated: -1}).then((doc) => {
+          if (doc && !doc.version) {
+            this.count({auraID: id}).then((num) => {
+              doc.version = num
+              doc.save()
+              resolve(doc)
+            })
+          }
+          else {
+            resolve(doc)
+          }
+        })
+      })
+    }
+    else {
+      this.findOne({auraID: id}).sort({updated: -1}).then((doc) => {
+        if (doc && !doc.version) {
+          this.count({auraID: id}).then((num) => {
+            doc.version = num
+            doc.save()
+            resolve(doc)
+          })
+        }
+        else {
+          resolve(doc)
+        }
+      })
+    }
+  })
 }
 
 

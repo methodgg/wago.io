@@ -19,7 +19,7 @@ function MongoStore(windowMs) {
     },
 
     decrement: function(key) {
-      // not needed but keep the structure
+      _RateLimiter.findAndRemove({key}).exec()
     },
 
     // export an API to allow hits all IPs to be reset

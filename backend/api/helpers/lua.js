@@ -309,13 +309,18 @@ module.exports = {
 
   BuildMDT_DungeonTable: (directory, cb) => {    
     var luaCode = 'local MethodDungeonTools={dungeonTotalCount={}, mapPOIs={}, dungeonEnemies={}, scaleMultiplier={}}\nlocal dungeonIndex\n'
-    
     // load in some tables from core file
     var core = fs.readFileSync(directory+'/../MethodDungeonTools.lua', 'utf8')
-    core = 'MethodDungeonTools.affixWeeks =' + core.split(/local affixWeeks =/)[1]
-    core = core.split(/function MethodDungeonTools:GetDB/)[0]
-    luaCode = luaCode + core.replace(/local /g, 'MethodDungeonTools.')
-    
+    core = core.replace(/local AddonName, MethodDungeonTools = \.\.\./, 'local AddonName, MethodDungeonTools = "MDT", {}')
+    core = core.replace(/local dungeonList =/, 'MethodDungeonTools.dungeonList =')
+    core = core.replace(/local dungeonSubLevels =/, 'MethodDungeonTools.dungeonSubLevels =')
+    luaCode = luaCode + core
+
+    // load in some tables from dungeonEnemies file
+    core = fs.readFileSync(directory+'/../DungeonEnemies.lua', 'utf8')
+    core = core.replace(/local MethodDungeonTools = MethodDungeonTools/, '')    
+    luaCode = luaCode + core
+
     var dungeonFiles = fs.readdirSync(directory)
     dungeonFiles.forEach((file) => {
       if (file.match(/\.lua$/)) {

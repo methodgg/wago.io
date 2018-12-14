@@ -40,5 +40,8 @@ function CreateFrame()
     frame.Hide = function() end
     frame.Show = function() end
     frame.IsShown = function() end
+    frame.RegisterEvent = function() end
     return frame
 end
+
+SlashCmdList = {}

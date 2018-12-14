@@ -242,12 +242,22 @@ server.get('/lookup/codereview', (req, res) => {
           if (doc.type === 'SNIPPET') {
             cb(null, {lua: code.lua})
           }
-          else if (wago.type === 'WEAKAURA' && !code.encoded.match(/^!/)) {
-            lua.JSON2WeakAura(code.json, (error, result) => {
-              code.encoded = result.stdout
-              code.save()           
+          else if (wago.type === 'WEAKAURA') {
+            var json = JSON.parse(code.json)
+            if (!json.d.version && code.version) {
+              json.d.url = wago.url
+              json.d.version = code.version
+              code.json = JSON.stringify(json)
+
+              lua.JSON2WeakAura(code.json, (error, result) => {
+                code.encoded = result.stdout
+                code.save()           
+                cb(null, {json: code.json, encoded: code.encoded})
+              })
+            }
+            else {
               cb(null, {json: code.json, encoded: code.encoded})
-            })
+            }
           }
           // for now we'll convert all RP3 strings to the old format
           else if (wago.type === 'TOTALRP3' && code.encoded.match(/^!/)) {

@@ -629,12 +629,14 @@ server.post('/import/submit', function(req, res) {
         // add additional fields to WA
         if (wago.type === 'WEAKAURAS2') {
           json.wagoID = doc._id
-          json.d.url = doc.url + '/1'
+          json.d.url = doc.url
+          json.d.version = 1
           delete json.d.ignoreWagoUpdate // remove as this is a client-level setting for the WA companion app
           delete json.d.skipWagoUpdate
           if (json.c) {
             for (var i = 0; i < json.c.length; i++) {
-              json.c[i].url = doc.url + '/1'
+              json.c[i].url = doc.url
+              json.c[i].version = 1
             }
           }
 
@@ -695,11 +697,17 @@ server.post('/import/update', function (req, res) {
             req.scanWA = scan
             WagoCode.count({auraID: req.body.wagoID}).then((ver) => {
               ver = ver + 1
-              json.d.url = doc.url + '/' + ver
+              json.d.url = doc.url
+              json.d.version = ver
               json.wagoID = doc._id
+              delete json.d.ignoreWagoUpdate // remove as this is a client-level setting for the WA companion app
+              delete json.d.skipWagoUpdate
               if (json.c) {
                 for (var i = 0; i < json.c.length; i++) {
-                  json.c[i].url = doc.url + '/' + ver
+                  json.c[i].url = doc.url
+                  json.c[i].version = ver
+                  delete json.c[i].ignoreWagoUpdate
+                  delete json.c[i].skipWagoUpdate
                 }
               }
               req.body.json = JSON.stringify(json)
