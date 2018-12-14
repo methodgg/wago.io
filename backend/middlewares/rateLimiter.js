@@ -18,6 +18,7 @@ const commonRateLimit = rateLimit({
 })
 // 10 token failed authentication attempts per hour
 const commonAuthRateLimit = rateLimit({
+  windowMs: 60 * 60 * 1000,
   max: 10,
   headers: false,
   expectUser: true,
@@ -28,7 +29,7 @@ const commonAuthRateLimit = rateLimit({
     res.send(429, {msg: 'Too many failed auth attempts. IP Blocked.'})
   }
 })
-// 6000 API requests per minute
+// 6000 API requests per hour
 const apiRateLimit = rateLimit({
   windowMs: 60 * 60 * 1000,
   max: 6000,
@@ -42,6 +43,7 @@ const apiRateLimit = rateLimit({
 })
 // 10 API failed authentication attempts per hour
 const apiAuthRateLimit = rateLimit({
+  windowMs: 60 * 60 * 1000,
   max: 10,
   headers: false,
   expectUser: true,

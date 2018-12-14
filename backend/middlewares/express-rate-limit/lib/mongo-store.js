@@ -4,27 +4,35 @@
  */
 "use strict";
 
-module.exports = {
-  incr: function(key, cb) {
-    if (typeof key === 'string') {
-      _RateLimiter.incr(key, null, cb)
-    }
-    else {
-      _RateLimiter.incr(key.key, key.userID, cb) 
-    }
-  },
-
-  decrement: function(key) {
-    // not needed but keep the structure
-  },
-
-  // export an API to allow hits all IPs to be reset
-  resetAll: function() {
-    // not needed but keep the structure
-  },
-
-  // export an API to allow hits from one IP to be reset
-  resetKey: function(key) {
-    // not needed but keep the structure
-  }
+function calculateNextResetTime(windowMs) {
+  const d = new Date();
+  d.setMilliseconds(d.getMilliseconds() + windowMs);
+  return d;
 }
+
+function MongoStore(windowMs) {
+  let resetTime = new Date(calculateNextResetTime(windowMs));
+
+  var store = {
+    incr: function(key, cb) {
+    _RateLimiter.incr(key, resetTime, cb)
+    },
+
+    decrement: function(key) {
+      // not needed but keep the structure
+    },
+
+    // export an API to allow hits all IPs to be reset
+    resetAll: function() {
+      // not needed but keep the structure
+    },
+
+    // export an API to allow hits from one IP to be reset
+    resetKey: function(key) {
+      // not needed but keep the structure
+    }
+  }
+  return store
+}
+
+module.exports = MongoStore;

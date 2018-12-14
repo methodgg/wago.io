@@ -2,12 +2,12 @@ const mongoose = require('mongoose')
 
 const Schema = new mongoose.Schema({
   key: { type: String, index: true },
-  expires_at :  { type: Date, default: Date.now, expires: 60 * 60 * 1000 },
+  expires :  { type: Date, expireAfterSeconds: 1 },
   _userId: { type: mongoose.Schema.Types.ObjectId, ref: 'Users' }  
 })
 
-Schema.statics.incr = function (key, _userID, done) {
-  new this({key, _userID}).save().then((doc) => {
+Schema.statics.incr = function (key, expires, done) {
+  new this({key, expires}).save().then((doc) => {
     this.count({key: key}).then((num) => {
       done(null, num, doc)
     })

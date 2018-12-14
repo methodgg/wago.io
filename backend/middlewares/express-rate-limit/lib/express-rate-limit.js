@@ -32,7 +32,10 @@ function RateLimit(options) {
   });
 
   // store to use for persisting rate limit data
-  options.store = options.store || new MemoryStore(options.windowMs);
+  if (typeof options.store === 'function')
+    options.store = options.store(options.windowMs);
+  else
+    options.store = new MemoryStore(options.windowMs);
 
   // ensure that the store has the incr method
   if (
