@@ -80,6 +80,7 @@
                   <v-circle v-if="(!clone.sublevel || clone.sublevel === subMapID + 1) && (!clone.teeming || (clone.teeming && isTeemingSelected()))" 
                     @click="selectCreature(i, j)" 
                     @mouseover="setTargetHover(creature, clone, j)" 
+                    @mouseleave="setTargetHover()" 
                     @mousemove="moveTooltip()"
                     :config="{
                       x: clone.x * mdtScale,
@@ -98,10 +99,7 @@
                   />
                 </template>
               </template>
-              <v-circle v-if="hoverSpecific.cloneIndex" 
-                @click="selectCreature(hoverSpecific.creatureIndex, hoverSpecific.cloneIndex)" 
-                @mouseleave="setTargetHover()" 
-                @mousemove="moveTooltip()"
+              <v-circle v-if="hoverSpecific.cloneIndex >= 0" 
                 :config="{
                   x: enemies[hoverSpecific.creatureIndex].clones[hoverSpecific.cloneIndex].x * mdtScale,
                   y: enemies[hoverSpecific.creatureIndex].clones[hoverSpecific.cloneIndex].y * -mdtScale,
@@ -116,6 +114,7 @@
                   fillPatternRepeat: 'no-repeat',
                   fillPatternScaleX: Math.round(7 * enemies[hoverSpecific.creatureIndex].scale * (enemies[hoverSpecific.creatureIndex].isBoss ? 1.7 : 1)) / 64,
                   fillPatternScaleY: Math.round(7 * enemies[hoverSpecific.creatureIndex].scale * (enemies[hoverSpecific.creatureIndex].isBoss ? 1.7 : 1)) / 64,
+                  listening: false
                 }"
               />
               <template v-for="(obj, id) in tableData.objects">
@@ -189,7 +188,7 @@
                         <span v-if="parseInt(details.g)" class="groupnum">{{ details.g }}</span>
                         <span v-else class="singlepull">➽</span>
                         <template v-for="(target, targetIndex) in details.targets">
-                          <mdt-enemy-portrait :size="36" :mapID="mapID" :offset="getEnemyPortraitOffset(target.enemyIndex, 36)"
+                          <mdt-enemy-portrait :size="36" :mapID="mapID" :offset="getEnemyPortraitOffset(target.enemyIndex, 36)" :seasonalAffix="isSeasonalAffixClone(target.clone)"
                             @mouseover="setTargetHoverAvatar(pull - 1, detailIndex, targetIndex, true)" 
                             @mouseleave="setTargetHoverAvatar(pull - 1, detailIndex, targetIndex, false)"
                           />
@@ -544,15 +543,14 @@ export default {
           // if we're turning all hovers off
           else if (!clone) {
             this.$set(this.enemies[i].clones[k], 'hover', false)
-            this.$set(this.hoverSpecific, 'cloneIndex', false)
-            this.$set(this.hoverSpecific, 'creatureIndex', false)
+            this.$set(this.hoverSpecific, 'cloneIndex', -1)
+            this.$set(this.hoverSpecific, 'creatureIndex', -1)
           }
           // if matching a single enemy
           else if (creature.id === this.enemies[i].id && k === cloneIndex) {
             this.$set(this.enemies[i].clones[k], 'hover', true)
-            this.$set(this.hoverSpecific, 'cloneIndex', cloneIndex)
+            this.$set(this.hoverSpecific, 'cloneIndex', k)
             this.$set(this.hoverSpecific, 'creatureIndex', i)
-            console.log('specific!')
           }
           // if matching part of a group
           else if (clone.g && clone.g === this.enemies[i].clones[k].g) {
@@ -578,7 +576,6 @@ export default {
         this.cursorTooltipY = -1000
         this.tooltipEnemy = false
       }
-      console.log(this.hoverSpecific)
     },
 
     moveTooltip () {
@@ -724,7 +721,7 @@ export default {
     },
 
     isSeasonalAffixClone (clone) {
-      if (!clone.infested) {
+      if (!clone || !clone.infested) {
         return false
       }
       var week = this.tableData.week % 3

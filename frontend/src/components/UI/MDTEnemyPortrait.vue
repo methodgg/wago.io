@@ -4,7 +4,8 @@
     height: (size || 36) + 'px', 
     'border-radius': (size || 36) + 'px', 
     'background-image': 'url(https://media.wago.io/mdt/portraits-' + mapID + '.png)',
-    'background-position': (-offset.x) + 'px ' + (-offset.y) + 'px'
+    'background-position': (-offset.x) + 'px ' + (-offset.y) + 'px',
+    border: seasonalAffix ? '1px solid red' : 'none'
     }"
     @click="click" @mouseover="mouseover" @mouseleave="mouseleave" @mousemove="mousemove"
   >
@@ -13,7 +14,7 @@
 
 <script>
 export default {
-  props: ['mapID', 'offset', 'size'],
+  props: ['mapID', 'offset', 'size', 'seasonalAffix'],
   methods: {
     click: function (e) {
       this.$emit('click', e)

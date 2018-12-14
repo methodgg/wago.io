@@ -53,9 +53,15 @@ server.use(restify.queryParser())
 server.use(restify.bodyParser({mapParams: false}))
 server.use(restify.gzipResponse())
 server.use(CookieParser.parse)
+server.use(require('./middlewares/rateLimiter')) // rate limiter
 server.use(require('./middlewares/defaults')) // set default vars
 server.use(require('./middlewares/SessionAuth')) // set req.user
 server.use(require('./middlewares/APIAuth')) // set req.user
+
+
+server.on('restifyError', (req, res, next) => {
+  console.log('after?')
+})
 
 
 /**

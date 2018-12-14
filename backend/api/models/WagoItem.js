@@ -1,6 +1,5 @@
 const mongoose = require('mongoose'),
       mongoosastic = require('mongoosastic'),
-      ObjectId = mongoose.Schema.Types.ObjectId,
       shortid = require('shortid'),
       config = require('../../config')
 
