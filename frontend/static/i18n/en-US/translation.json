@@ -440,7 +440,7 @@
   "Contest Winner": "",
   "Guild Subscriber": "",
   "API Key Enabled": "",
-  "You may use an API key to access Wago programmatically, through your own software or a third party app such as the WeakAuras Updater": "You may use an API key to access Wago programmatically, through your own software or a third party app such as the WeakAuras Updater",
+  "You may use an API key to access Wago programmatically, through your own software or a third party app such as the WeakAuras Updater": "You may use an API key to access Wago programmatically, through your own software or a third party app such as the WeakAuras Updater.",
   "Documentation soon": "",
   "API key copied": "",
   "API key failed to copy please upgrade to a modern browser": "",
@@ -457,5 +457,8 @@
   "Last Week": "",
   "Last Month": "",
   "Snippets": "",
-  "Open source": ""
+  "Open source": "",
+  "Join Crew [-crew-]": "Join Crew: [-crew-]",
+  "Horde": "",
+  "Alliance": ""
 }
