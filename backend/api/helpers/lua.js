@@ -312,6 +312,7 @@ module.exports = {
     // load in some tables from core file
     var core = fs.readFileSync(directory+'/../MethodDungeonTools.lua', 'utf8')
     core = core.replace(/local AddonName, MethodDungeonTools = \.\.\./, 'local AddonName, MethodDungeonTools = "MDT", {}')
+    core = core.replace(/local affixWeeks =/, 'MethodDungeonTools.affixWeeks =')
     core = core.replace(/local dungeonList =/, 'MethodDungeonTools.dungeonList =')
     core = core.replace(/local dungeonSubLevels =/, 'MethodDungeonTools.dungeonSubLevels =')
     luaCode = luaCode + core

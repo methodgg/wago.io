@@ -21,6 +21,54 @@ server.get('/tasks/:task', (req, res, next) => {
     case 'news':
     case 'patreon':
       return RunTask(req.params.task, req, res)
+      break
+
+    case 'mdt':
+    case 'debug':
+    
+      require('../helpers/lua').BuildMDT_DungeonTable('/home/mark/wagov3/backend/api/services/../lua/addons/MethodDungeonTools/v2.2.46/MethodDungeonTools/BattleForAzeroth', (err, result) => {
+        if (err) {
+          logger.error({label: 'Could not build MDT dungeon table', addon: release})
+        }
+        else if (result && result.stdout) {
+          var json = JSON.parse(result.stdout)
+          SiteData.findByIdAndUpdate('mdtDungeonTable', {value: json}, {upsert: true}).exec()
+          // now generate portrait maps
+          if (config.host === 'data-01' || config.env === 'development') {
+            async.eachOfSeries(json.dungeonEnemies, (dungeon, mapID, callback) => {
+              if (!dungeon) return callback()
+              async.timesSeries((Object.keys(json.dungeonMaps[mapID]).length) * 2 - 1, (subMapID, callback2) => {
+                if (!subMapID) return callback2()
+                if (subMapID < Object.keys(json.dungeonMaps[mapID]).length) {
+                  if (mapID === 18) {
+                    buildStaticMDTPortraits(json, mapID, subMapID, false, 1, () => {
+                      buildStaticMDTPortraits(json, mapID, subMapID, false, 2, callback2)
+                    })
+                  }
+                  else {
+                    buildStaticMDTPortraits(json, mapID, subMapID, false, false, callback2)
+                  }
+                }
+                else {
+                  if (mapID === 18) {
+                    buildStaticMDTPortraits(json, mapID, subMapID - Object.keys(json.dungeonMaps[mapID]).length + 1, true, 1, () => {
+                      buildStaticMDTPortraits(json, mapID, subMapID - Object.keys(json.dungeonMaps[mapID]).length + 1, true, 2, callback2)
+                    })
+                  }
+                  else {
+                    buildStaticMDTPortraits(json, mapID, subMapID - Object.keys(json.dungeonMaps[mapID]).length + 1, true, false, callback2)
+                  }
+                }            
+              }, () => {
+                console.log('done map', mapID)
+                callback()
+              })           
+            }, () => {
+              console.log('done')
+            })         
+          }         
+        }
+      })
   }
 })
 
@@ -409,10 +457,12 @@ function downloadAddon(addon, release, done) {
   }
 }
 
-function buildStaticMDTPortraits(json, mapID, subMapID, teeming, done) {
+function buildStaticMDTPortraits(json, mapID, subMapID, teeming, faction, done) {
   var mdtScale = 539 / 450
   if (teeming) teeming = '-Teeming'
   else teeming = ''
+
+  if (mapID !== 18) return done()
 
   html = `<!DOCTYPE html>
   <html>
@@ -432,7 +482,7 @@ function buildStaticMDTPortraits(json, mapID, subMapID, teeming, done) {
   <body>
     <div id="container"></div>
     <script>
-      var multiplier = 8
+      var multiplier = 6
       
       var stage = new Konva.Stage({
         container: 'container',
@@ -449,12 +499,12 @@ function buildStaticMDTPortraits(json, mapID, subMapID, teeming, done) {
           if (!creature || !creature.clones) return creatureDone()
 
           creature.clones.forEach((clone, j) => {
-            if ((!clone.sublevel || clone.sublevel === subMapID) && (!clone.teeming || (clone.teeming && teeming))) {
+            if ((!clone.sublevel || clone.sublevel === subMapID) && (!clone.teeming || (clone.teeming && teeming)) && (!clone.faction || (clone.faction === faction))) {
               html = html + `
               var circle${i}_${j} = new Konva.Circle({
                 x: ${clone.x * mdtScale} * multiplier,
                 y: ${clone.y * -mdtScale} * multiplier,
-                radius: ${Math.round(5 * creature.scale * (creature.isBoss ? 1.7 : 1)) / mdtScale} * multiplier,
+                radius: ${Math.round(5 * creature.scale * (creature.isBoss ? 1.7 : 1) * (json.scaleMultiplier[mapID] || 1)) / mdtScale} * multiplier,
                 fillPatternX: ${(-Math.round(5 * creature.scale * (creature.isBoss ? 1.7 : 1))) / mdtScale} * multiplier,
                 fillPatternY: ${(-Math.round(5 * creature.scale * (creature.isBoss ? 1.7 : 1))) / mdtScale} * multiplier,
                 fillPatternImage: enemyPortraits,
@@ -493,8 +543,16 @@ function buildStaticMDTPortraits(json, mapID, subMapID, teeming, done) {
     let _page
     let _img
 
-    console.info('make portrait map', mapID, subMapID)
-    fs.writeFileSync('./test.html', html, 'utf8')
+    if (faction) {
+      faction = '-Faction' + faction
+    }
+    else {
+      faction = ''
+    }
+    var imgName = `portraitMap-${mapID}-${subMapID}${teeming}${faction}`
+
+    console.info('make portrait map', imgName)
+    // fs.writeFileSync('./test.html', html, 'utf8')
 
     puppeteer
       .launch()
@@ -513,15 +571,14 @@ function buildStaticMDTPortraits(json, mapID, subMapID, teeming, done) {
       .then(img => (_img = img))
       .then(() => _browser.close())
       .then(() => {
-        console.info('img prepared')
         _img = _img.replace(/^data:image\/\w+;base64,/, "")
         var buffer = new Buffer(_img, 'base64')
-        image.saveMdtPortraitMap(buffer, `portraitMap-${mapID}-${subMapID}${teeming}`, (img) => {
+        image.saveMdtPortraitMap(buffer, imgName, (img) => {
           done()
         })
       })
       .catch((e) => {
-        logger.error({label: 'Error creating MDT map', file: `portraitMap-${mapID}-${subMapID}${teeming}`, error: e.message})
+        logger.error({label: 'Error creating MDT map', file: imgName, error: e.message})
       })
   })
 }

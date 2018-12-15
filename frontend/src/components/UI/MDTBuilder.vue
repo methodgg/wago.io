@@ -18,8 +18,8 @@
     </div>
 
     <ui-loading v-if="mdtLoading"></ui-loading>
-    <md-layout v-else md-row>
-      <md-layout style="width:65%; height:768px; position: relative" md-vertical-align="start">
+    <md-layout v-else md-row style="flex-wrap: nowrap">
+      <md-layout style="max-width:800px; width:60%; height:768px; position: relative" md-vertical-align="start">
         <div id="builder" ref="canvas" v-bind:class="annotationClass">
           <v-stage ref="mdtStage" id="mdtStage" :config="konvaStageConfig" @scroll.passive="zoomStage">
             <slot>1</slot> <!-- defined slots prevent Konva from spamming "<div>undefined</div>" -->
@@ -37,7 +37,7 @@
                 <slot>1</slot>
                 <template v-for="(clone, j) in creature.clones">
                   <slot>1</slot>
-                  <v-line v-if="clone.patrol && clone.sublevel === subMapID + 1" 
+                  <v-line v-if="clone.patrol && clone.sublevel === subMapID + 1 && (!clone.teeming || (clone.teeming && isTeemingSelected())) && (!clone.faction || (clone.faction === tableData.faction))" 
                     @mouseover="setTargetHover(creature, clone, j, undefined, true)"
                     @mouseleave="setTargetHover()"
                     :config="{
@@ -54,8 +54,8 @@
               <v-image
                 :config="{
                   image: enemyPortraitMap,
-                  scaleX: 1/8,
-                  scaleY: 1/8,
+                  scaleX: 1/6,
+                  scaleY: 1/6,
                   listening: false
                 }"
               />
@@ -63,21 +63,7 @@
                 <slot>1</slot>
                 <template v-for="(clone, j) in creature.clones">
                   <slot>1</slot>
-                  <!--<v-circle v-if="(!clone.sublevel || clone.sublevel === subMapID + 1) && (!clone.teeming || (clone.teeming && isTeemingSelected()))" :config="{
-                      x: clone.x * mdtScale,
-                      y: clone.y * -mdtScale,
-                      radius: Math.round(5 * creature.scale * (creature.isBoss ? 1.7 : 1)) / mdtScale,
-                      fillPatternX: (-Math.round(5 * creature.scale * (creature.isBoss ? 1.7 : 1))) / mdtScale,
-                      fillPatternY: (-Math.round(5 * creature.scale * (creature.isBoss ? 1.7 : 1))) / mdtScale,
-                      fillPatternImage: enemyPortraits,
-                      fillPatternOffset: getEnemyPortraitOffset(i, 115),
-                      fillPatternRepeat: 'no-repeat',
-                      fillPatternScaleX: Math.round(5 * creature.scale * (creature.isBoss ? 1.7 : 1)) / 64,
-                      fillPatternScaleY: Math.round(5 * creature.scale * (creature.isBoss ? 1.7 : 1)) / 64,
-                      listening: false
-                    }"
-                  />-->
-                  <v-circle v-if="(!clone.sublevel || clone.sublevel === subMapID + 1) && (!clone.teeming || (clone.teeming && isTeemingSelected()))" 
+                  <v-circle v-if="(!clone.sublevel || clone.sublevel === subMapID + 1) && (!clone.teeming || (clone.teeming && isTeemingSelected())) && (!clone.faction || (clone.faction === tableData.faction))" 
                     @click="selectCreature(i, j)" 
                     @mouseover="setTargetHover(creature, clone, j)" 
                     @mouseleave="setTargetHover()" 
@@ -85,11 +71,17 @@
                     :config="{
                       x: clone.x * mdtScale,
                       y: clone.y * -mdtScale,
-                      radius: Math.round(5 * creature.scale * (creature.isBoss ? 1.7 : 1)) / mdtScale,
-                      fill: clone.hover ? 'rgba(119, 253, 50, 0.6)' : (clone.pull >= 0 ? 'rgba(99, 233, 30, 0.3)' : 'rgba(99, 233, 30, 0.0)'),
-                      stroke: isSeasonalAffixClone(clone) ? 'red' : (creature.isBoss ? 'gold' : 'black'),
+                      radius: Math.round(5 * creature.scale * (creature.isBoss ? 1.7 : 1) * (mdtDungeonTable.scaleMultiplier[mapID] || 1)) / mdtScale,
+                      fill: isCreatureNoTarget(creature.id) ? 'rgba(33, 33, 33, 0.6)' : 
+                            clone.hover ? 'rgba(119, 253, 50, 0.65)' : 
+                            clone.pull >= 0 ? 'rgba(99, 233, 30, 0.3)' : 
+                            'rgba(99, 233, 30, 0.0)',
+                      stroke: isCreatureNoTarget(creature.id) ? '#333333' :
+                              isSeasonalAffixClone(clone) ? 'red' : 
+                              creature.isBoss ? 'gold' : 
+                              'black',
                       strokeWidth: .5,
-                      strokeEnabled: isSeasonalAffixClone(clone),
+                      strokeEnabled: ((creature.isBoss && isCreatureNoTarget(creature.id)) || isSeasonalAffixClone(clone)),
                       shadowColor: 'white',
                       shadowOpacity: 1,
                       shadowEnabled : clone.hoverAvatar || false,
@@ -103,7 +95,7 @@
                 :config="{
                   x: enemies[hoverSpecific.creatureIndex].clones[hoverSpecific.cloneIndex].x * mdtScale,
                   y: enemies[hoverSpecific.creatureIndex].clones[hoverSpecific.cloneIndex].y * -mdtScale,
-                  radius: Math.round(7 * enemies[hoverSpecific.creatureIndex].scale * (enemies[hoverSpecific.creatureIndex].isBoss ? 1.7 : 1)) / mdtScale,
+                  radius: Math.round(7 * enemies[hoverSpecific.creatureIndex].scale * (enemies[hoverSpecific.creatureIndex].isBoss ? 1.7 : 1) * (mdtDungeonTable.scaleMultiplier[mapID] || 1)) / mdtScale,
                   stroke: isSeasonalAffixClone(enemies[hoverSpecific.creatureIndex].clones[hoverSpecific.cloneIndex]) ? 'red' : (enemies[hoverSpecific.creatureIndex].isBoss ? 'gold' : 'black'),
                   strokeWidth: 3,
                   strokeEnabled: true,
@@ -163,7 +155,7 @@
           </md-button-toggle>
         </div>
       </md-layout>
-      <md-layout style="width:35%" md-vertical-align="start" v-if="mdtDungeonTable.dungeonSubLevels">
+      <md-layout style="width:40%" md-vertical-align="start" v-if="mdtDungeonTable.dungeonSubLevels">
         <md-card id="mdtOptions">
           <md-card-area>
             <div class="inlineContainer">
@@ -171,6 +163,25 @@
                 <span v-html="displayAffix(affixID)" class="affix"></span>
               </template>
               <md-button class="md-raised md-accent" @click="toggleAffixSelection" id="changeAffixesBtn">{{ $t("Change Affixes") }}</md-button>
+            </div>
+          </md-card-area>
+          
+          <md-card-area v-if="mapID === 15">
+            <!-- Freehold Crew Option -->
+            <div class="inlineContainer">
+              <md-layout md-row>
+                <md-checkbox v-model="tableData.freeholdCrewSelected" @change="updateTableString()">{{ $t('Join Crew [-crew-]', {crew: freeholdCrew()}) }}</md-checkbox>
+              </md-layout>
+            </div>
+          </md-card-area>
+
+          <md-card-area v-if="mapID === 18">
+            <!-- Boralus Faction Option -->
+            <div class="inlineContainer">
+              <md-layout md-row>
+                <md-radio v-model.number="tableData.faction" md-value="1" @change="updateTableString(true)">{{ $t('Horde') }}</md-radio>
+                <md-radio v-model.number="tableData.faction" md-value="2" @change="updateTableString(true)">{{ $t('Alliance') }}</md-radio>
+              </md-layout>
             </div>
           </md-card-area>
 
@@ -354,12 +365,30 @@ export default {
       for (let i = 0; i < this.enemies.length; i++) {
         this.enemies[i].enemyIndex = i
       }
+      // boralus make sure faction value is set
+      if (this.mapID === 18 && !this.tableData.faction) {
+        this.tableData.faction = 1
+      }
+      // check webp support and load map
       var testWebp = new Image()
-      testWebp.src = 'data:image/webp;base64,UklGRi4AAABXRUJQVlA4TCEAAAAvAUAAEB8wA' + 'iMwAgSSNtse/cXjxyCCmrYNWPwmHRH9jwMA'
+      testWebp.src = 'data:image/webp;base64,UklGRi4AAABXRUJQVlA4TCEAAAAvAUAAEB8wAiMwAgSSNtse/cXjxyCCmrYNWPwmHRH9jwMA'
       testWebp.onload = testWebp.onerror = () => {
         this.webpSupport = (testWebp.height === 2)
         this.setMap(this.subMapID)
       }
+    },
+
+    updateTableString (reloadMap) {
+      this.$nextTick(() => {
+        if (reloadMap) {
+          for (let i = 0; i < this.tableData.value.pulls.length; i++) {
+            this.updatePullDetails(i)
+          }
+          this.setMap(this.subMapID)
+        }
+        this.tableString = JSON.stringify(this.tableData, null, 2)
+        this.$store.commit('setWagoJSON', this.tableString)
+      })
     },
 
     setupStage () {
@@ -385,7 +414,7 @@ export default {
             y: stage.getPointerPosition().y / oldScale - stage.y() / oldScale
           }
 
-          var newScale = Math.min(6, Math.max(1, evt.deltaY < 0 ? oldScale * scaleBy : oldScale / scaleBy))
+          var newScale = Math.min(10, Math.max(1, evt.deltaY < 0 ? oldScale * scaleBy : oldScale / scaleBy))
 
           if (newScale === oldScale) {
             return false
@@ -423,8 +452,7 @@ export default {
             return
           }
 
-          vue.tableString = JSON.stringify(vue.tableData, null, 2)
-          vue.$store.commit('setWagoJSON', vue.tableString)
+          vue.updateTableString()
         })
 
         stage.addEventListener('mousemove touchmove', (evt) => {
@@ -477,8 +505,13 @@ export default {
       this.enemyPortraits.src = `https://media.wago.io/mdt/portraits-${this.mapID}.png`
       preload.push(this.enemyPortraits.src)
 
+      var faction = ''
+      if (this.tableData.faction) {
+        faction = '-Faction' + this.tableData.faction
+      }
+
       this.enemyPortraitMap = new Image()
-      this.enemyPortraitMap.src = `https://media.wago.io/mdt/portraitMap-${this.mapID}-${subMap + 1}${this.isTeemingSelected() ? '-Teeming' : ''}.${this.webpSupport ? 'webp' : 'png'}`
+      this.enemyPortraitMap.src = `https://media.wago.io/mdt/portraitMap-${this.mapID}-${subMap + 1}${this.isTeemingSelected() ? '-Teeming' : ''}${faction}.${this.webpSupport ? 'webp' : 'png'}`
       preload.push(this.enemyPortraitMap.src)
 
       // build map files
@@ -534,6 +567,9 @@ export default {
     },
 
     setTargetHover (creature, clone, cloneIndex, pullIndex, noTooltip) {
+      if (creature && creature.id && this.isCreatureNoTarget(creature.id)) {
+        return
+      }
       for (let i = 0; i < this.enemies.length; i++) {
         for (let k = 0; k < this.enemies[i].clones.length; k++) {
           // if hovering over an avatar
@@ -579,18 +615,20 @@ export default {
     },
 
     moveTooltip () {
-      var box = document.getElementById('mdtTooltip')
-      var x = window.event.clientX + 10
-      if (x + box.offsetWidth > window.innerWidth - 30) {
-        x = window.event.clientX - 10 - box.offsetWidth
-      }
-      this.cursorTooltipX = x
+      if (this.tooltipEnemy || this.tooltipPOI) {
+        var box = document.getElementById('mdtTooltip')
+        var x = window.event.clientX + 10
+        if (x + box.offsetWidth > window.innerWidth - 30) {
+          x = window.event.clientX - 10 - box.offsetWidth
+        }
+        this.cursorTooltipX = x
 
-      var y = window.event.clientY - 10 - box.offsetHeight
-      if (y < 24) {
-        y = window.event.clientY + 40
+        var y = window.event.clientY - 10 - box.offsetHeight
+        if (y < 24) {
+          y = window.event.clientY + 40
+        }
+        this.cursorTooltipY = y
       }
-      this.cursorTooltipY = y
     },
 
     setTargetHoverAvatar (pullIndex, groupIndex, targetIndex, bool) {
@@ -654,8 +692,7 @@ export default {
       }
 
       // update data table
-      this.tableString = JSON.stringify(this.tableData, null, 2)
-      this.$store.commit('setWagoJSON', this.tableString)
+      this.updateTableString()
     },
 
     addGroupToPull (pullIndex, group) {
@@ -703,8 +740,7 @@ export default {
     setAffixWeek (week) {
       this.selectedAffixes = this.mdtDungeonTable.affixWeeks[week]
       this.tableData.week = week + 1
-      this.tableString = JSON.stringify(this.tableData, null, 2)
-      this.$store.commit('setWagoJSON', this.tableString)
+      this.updateTableString()
       this.$refs.affixSelection.close()
     },
 
@@ -731,6 +767,16 @@ export default {
       week--
 
       return !!clone.infested[week]
+    },
+
+    isCreatureNoTarget (creatureID) {
+      if (this.mapID === 15 && this.tableData.freeholdCrewSelected) {
+        var i = this.freeholdCrew(true)
+        if (this.mdtDungeonTable.freeholdCrews[i] && this.mdtDungeonTable.freeholdCrews[i][creatureID]) {
+          return true
+        }
+      }
+      return false
     },
 
     calcEnemyHealth (creature, shorten) {
@@ -852,7 +898,7 @@ export default {
         }
         clones.forEach((cloneIndex) => {
           cloneIndex--
-          if (!this.enemies[enemyIndex].clones[cloneIndex] || (this.enemies[enemyIndex].clones[cloneIndex].teeming && !isTeeming)) {
+          if (!this.enemies[enemyIndex].clones[cloneIndex] || (this.enemies[enemyIndex].clones[cloneIndex].teeming && !isTeeming) || (this.enemies[enemyIndex].clones[cloneIndex].faction && this.tableData.faction !== this.enemies[enemyIndex].clones[cloneIndex].faction) || this.isCreatureNoTarget(this.enemies[enemyIndex].id)) {
             // if clone is set to current pullIndex, remove it
             if (this.enemies[enemyIndex].clones[cloneIndex] === pullIndex) {
               this.$set(this.enemies[enemyIndex].clones[cloneIndex], 'pull', -1)
@@ -861,7 +907,7 @@ export default {
           }
 
           // add pull data
-          // this.$set(this.enemies[enemyIndex].clones[cloneIndex], 'pull', pullIndex)
+          this.$set(this.enemies[enemyIndex].clones[cloneIndex], 'pull', pullIndex)
 
           groups[this.enemies[enemyIndex].clones[cloneIndex].g] = groups[this.enemies[enemyIndex].clones[cloneIndex].g] || []
           let meta = Object.assign({}, this.enemies[enemyIndex])
@@ -894,12 +940,27 @@ export default {
         if (targets[name].boss) hList = hList + '💀' + name + ', '
         else hList = hList + targets[name].count + 'x ' + name + ', '
       }
-      details.hList = hList
+      details.hList = hList.slice(0, -2)
 
       details.percent = this.pullPercent(pullIndex, false, targets)
       details.percentRunningTotal = this.pullPercent(pullIndex, true, targets)
 
       this.pullDetails.splice(pullIndex, 1, details)
+    },
+
+    freeholdCrew (index) {
+      var week = this.tableData.week % 3
+      if (!week) {
+        week = 3
+      }
+      if (index) {
+        return week - 1
+      }
+      switch (week) {
+        case 1: return 'Blacktooth'
+        case 2: return 'Bilge Rats'
+        case 3: return 'Cutwater'
+      }
     },
 
     setPOITooltip (poi, text) {
@@ -1064,6 +1125,7 @@ export default {
 #mdtPulls .md-progress { margin-top: 4px }
 #mdtPulls .selected > div { background-color: rgba(99, 233, 30, 0.1); padding-top: 16px }
 #mdtPulls .selected > button { display: none }
+#mdtPulls .md-list-text-container > * { white-space: normal }
 .mdtGroupDetails > div { margin: 15px 0; }
 .mdtGroupDetails .groupnum:before { content: 'Group'; font-size: 9px; position: absolute; top: -15px; right: 6px; text-align: right }
 .mdtGroupDetails .singlepull:before { content: 'Singles'; font-size: 9px; position: absolute; top: -15px; right: 6px; text-align: right }

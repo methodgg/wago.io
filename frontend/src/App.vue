@@ -530,7 +530,7 @@ export default {
 #wotm img { max-height: 200px }
 .wotm-controls { padding: 16px 16px 0; margin-bottom: -8px}
 .wotm-controls button { background: none; border: none; cursor: pointer}
-.legal { padding: 16px; background: #333333; }
+.legal { padding: 16px; }
 .legal span { font-size: 90%; padding: 0 0 8px; display: block; }
 
 @media (max-width: 800px) {
