@@ -17,10 +17,10 @@
       </div>
     </div>
 
-    <ui-loading v-if="mdtLoading"></ui-loading>
-    <md-layout v-else md-row style="flex-wrap: nowrap">
-      <md-layout style="max-width:800px; width:60%; height:768px; position: relative" md-vertical-align="start">
-        <div id="builder" ref="canvas" v-bind:class="annotationClass">
+    <md-layout md-row style="flex-wrap: nowrap">
+      <md-layout id="stageContainer" md-vertical-align="start">
+        <ui-loading v-if="mdtLoading"></ui-loading>
+        <div v-else id="builder" ref="canvas" v-bind:class="annotationClass">
           <v-stage ref="mdtStage" id="mdtStage" :config="konvaStageConfig" @scroll.passive="zoomStage">
             <slot>1</slot> <!-- defined slots prevent Konva from spamming "<div>undefined</div>" -->
             <v-layer ref="mdtMap" v-if="mdtDungeonTable.dungeonSubLevels">
@@ -132,7 +132,7 @@
             </v-layer>
           </v-stage>
         </div>
-        <div id="mdtAnnotateMenu">
+        <div id="mdtAnnotateMenu" v-if="!mdtLoading">
           <md-button-toggle md-single class="md-primary">
             <md-button class="md-icon-button" @click="setAnnotate('standard')">
               <md-icon style="transform:rotate(-65deg); margin-left:2px">near_me</md-icon>
@@ -155,8 +155,8 @@
           </md-button-toggle>
         </div>
       </md-layout>
-      <md-layout style="width:40%" md-vertical-align="start" v-if="mdtDungeonTable.dungeonSubLevels">
-        <md-card id="mdtOptions">
+      <md-layout style="width:40%" md-vertical-align="start">
+        <md-card id="mdtOptions" v-if="!mdtLoading">
           <md-card-area>
             <div class="inlineContainer">
               <template v-for="(affixID, k) in selectedAffixes">
@@ -289,7 +289,7 @@ export default {
       enemyPortraits: null,
       enemyPortraitMap: null,
       mapPOIs: {},
-      konvaStageConfig: {width: 1024, height: 768},
+      konvaStageConfig: {width: 1000, height: 768},
       webpSupport: false,
       tile: {},
       hoverGroups: [], // which group(s) is being moused-over
@@ -397,9 +397,11 @@ export default {
 
       this.$nextTick().then(function () {
         var stage = vue.$refs.mdtStage.getStage()
+        var canvas = vue.$refs.canvas
         stage.draggable(true)
 
-        var canvas = vue.$refs.canvas
+        // center the map onload; do it here once we know how wide the window is
+        stage.move({x: (1000 - document.getElementById('stageContainer').offsetWidth) * -0.6})
 
         // setup zoom
         canvas.addEventListener('wheel', (evt) => {
@@ -539,6 +541,11 @@ export default {
         this.mdtLoading = false
         this.setupStage()
         return
+      }
+      else {
+        if (document.getElementById('stageContainer')) {
+          // this.$set(this.konvaStageConfig, 'offsetX', (1000 - document.getElementById('stageContainer').offsetWidth) * -0.4)
+        }
       }
 
       // load the images
@@ -1112,7 +1119,8 @@ export default {
 #build-mdt .ace_editor { box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2), 0 2px 2px rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.12); }
 #build-mdt .md-theme-default.md-sidenav .md-sidenav-content { background-color: inherit; min-width: 360px; }
 #builder { position: relative; min-height: 768px }
-#builder canvas { position: absolute; left: 0; top: 0; width:1024px; max-width: 1024px; height: 768px; max-height: 768px; }
+#builder canvas { position: absolute; left: 0; top: 0; width:1000px; max-width: 1000px; height: 768px; max-height: 768px; }
+#stageContainer { max-width:1000px; width:60%; height:768px; position: relative }
 #mdtOptions { margin: 0; overflow: hidden; width: 100%; height: 768px; overflow-y: auto;}
 #mdtOptions .md-sidenav-content { min-width: 75%; }
 .inlineContainer { display: inline-flex; flex-direction: row; flex-wrap: wrap; }

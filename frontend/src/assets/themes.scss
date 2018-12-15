@@ -1,13 +1,14 @@
-.md-theme-default.md-button:not([disabled]).md-accent.md-raised, .md-theme-default.md-button-toggle.md-accent .md-toggle, .md-theme-default.md-radio .md-radio-container:after, .md-theme-default.md-checkbox.md-checked .md-checkbox-container {
-  background-color: #d7373d;
+body  {
+  .md-theme-default.md-button:not([disabled]).md-accent.md-raised, .md-theme-default.md-button-toggle.md-accent .md-toggle, .md-theme-default.md-radio .md-radio-container:after, .md-theme-default.md-checkbox.md-checked .md-checkbox-container {
+    background-color: #d7373d;
+  }
+  .md-theme-default.md-radio.md-checked .md-radio-container, .md-theme-default.md-checkbox.md-checked .md-checkbox-container {
+    border-color: #d7373d;
+  }
+  .md-theme-default a:not(.md-button) {
+    color: #d7373d;
+  }
 }
-.md-theme-default.md-radio.md-checked .md-radio-container, .md-theme-default.md-checkbox.md-checked .md-checkbox-container {
-  border-color: #d7373d;
-}
-.md-theme-default a:not(.md-button) {
-  color: #d7373d;
-}
-
 body.theme-classic {
   .md-theme-default .md-checkbox-label {
     color: rgba(0, 0, 0, 0.54)

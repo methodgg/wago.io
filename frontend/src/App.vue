@@ -5,8 +5,8 @@
       <md-button class="md-icon-button md-hide-small-and-up" @click="toggleMobileNav()">
         <md-icon>menu</md-icon>
       </md-button>      
-      <h2 class="md-title md-hide-xsmall" id="logo"><router-link to="/"><img src="./assets/wagoio-logo.png"/></router-link></h2>
-      <h2 class="md-title md-hide-small-and-up" id="logo-m"><router-link to="/"><img src="./assets/wagoio-logo.png"/></router-link></h2>
+      <h2 class="md-title" id="logo"><router-link to="/"><img src="./assets/wagoio-logo.png"/></router-link></h2>
+      <h2 class="md-title" id="xmaslogo" v-if="today.getMonth() === 11"><router-link to="/"><img src="./assets/xmas-hat.png"/></router-link></h2>
       
       <div id="h-nav" class="md-hide-xsmall">
         <form novalidate @submit.stop.prevent="goSearch(gSearch)" id="gSearch">
@@ -188,7 +188,8 @@ export default {
       advSearchText: '',
       advSearchStarred: false,
       advSearchMentioned: false,
-      advSearchDate: ''
+      advSearchDate: '',
+      today: new Date()
     }
   },
   created: function () {
@@ -483,6 +484,7 @@ export default {
   #content { padding-left: 260px; pointer-events: auto; position: relative }
   #logo { text-align: left; padding: 8px 16px; }
   #logo img { max-height: 40px; }
+  #xmaslogo img { width: 45px; position: absolute; left: 41px; top: -3px;}
   #h-nav { flex: 1 }
   #h-nav, #hr-nav { display: flex }
 }
@@ -538,12 +540,12 @@ export default {
 }
 
 @media (max-width: 600px) {
-  #logo img { max-height: 28px; }
   .md-toolbar h2 { margin:0; padding:0}
   footer .legal { float: none; padding-bottom: 6px}
   footer .legal span { display: inline; padding-left: 6px }
   footer .resource { padding-left: 0; width:50%}
-  #logo-m img { max-height: 40px }
+  #logo img { max-height: 40px }
+  #xmaslogo img {width: 43px; position: absolute; left: 81px; top: -2px;}
 }
 
 .document { padding: 16px }
