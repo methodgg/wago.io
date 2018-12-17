@@ -399,7 +399,7 @@
           <!-- BUILDER FRAME -->
           <div id="wago-builder-container" class="wago-container" v-if="showPanel=='builder'">
             <div id="wago-builder">
-              <build-mdt v-if="wago.type=='MDT'" @set-has-unsaved-changes="setHasUnsavedChanges"></build-mdt>
+              <build-mdt v-if="wago.type=='MDT'" @set-has-unsaved-changes="setHasUnsavedChanges" @update-encoded="updateEncoded"></build-mdt>
             </div>
           </div>
           <div class="border" v-if="showEditor"></div>
@@ -407,9 +407,9 @@
           <!-- EDITOR FRAME -->
           <div id="wago-editor-container" class="wago-container" v-if="showPanel=='editor'">
             <div id="wago-editor">
-              <edit-weakaura v-if="wago.type=='WEAKAURA'" @set-has-unsaved-changes="setHasUnsavedChanges" :unsavedTable="hasUnsavedChanges"></edit-weakaura>
+              <edit-weakaura v-if="wago.type=='WEAKAURA'" @set-has-unsaved-changes="setHasUnsavedChanges" :unsavedTable="hasUnsavedChanges" @update-encoded="updateEncoded"></edit-weakaura>
               <edit-snippet v-else-if="wago.type=='SNIPPET'"></edit-snippet>
-              <edit-common v-else @set-has-unsaved-changes="setHasUnsavedChanges"></edit-common>
+              <edit-common v-else @set-has-unsaved-changes="setHasUnsavedChanges" @update-encoded="updateEncoded"></edit-common>
             </div>
           </div>
           <div class="border" v-if="showEditor"></div>
@@ -866,6 +866,11 @@ export default {
         this.hasUnsavedChanges = bool
       }
       console.log(this.hasUnsavedChanges)
+    },
+    updateEncoded (str) {
+      if (str) {
+        this.$set(this.wago.code, 'encoded', str)
+      }
     },
     MakeDefaultDescription (wago) {
       var desc = ''

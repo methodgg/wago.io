@@ -569,6 +569,9 @@ export default {
             window.eventHub.$emit('showSnackBar', this.$t('Wago saved successfully'))
             vue.$router.push('/' + vue.wago.slug)
             this.setHasUnsavedChanges(false)
+            if (res.encoded) {
+              this.$emit('update-encoded', res.encoded)
+            }
           }
           else if (res && res.error) {
             window.eventHub.$emit('showSnackBar', res.error)

@@ -741,6 +741,7 @@ server.post('/import/json/save', function (req, res) {
       WagoCode.count({auraID: req.body.wagoID}).then((ver) => {
         ver = ver + 1
         json.d.url = doc.url + '/' + ver
+        json.d.version = ver
         json.wagoID = doc._id
         if (json.c) {
           for (var i = 0; i < json.c.length; i++) {
@@ -906,7 +907,7 @@ function SaveWagoVersion (req, res, mode) {
               discord.onUpdate(req.user, wago)
             })
           }
-          res.send({success: true})
+          res.send({success: true, encoded: code.encoded})
         })
       }).catch(e => {
         return res.send({error: 'not_found'})
@@ -987,7 +988,7 @@ function SaveWagoVersion (req, res, mode) {
               discord.onUpdate(req.user, wago)
             })
           }
-          res.send({success: true})
+          res.send({success: true, encoded: code.encoded})
         })
       }).catch(e => {
         return res.send({error: 'not_found'})
@@ -1054,7 +1055,7 @@ function SaveWagoVersion (req, res, mode) {
               discord.onUpdate(req.user, wago)
             })
           }
-          res.send({success: true})
+          res.send({success: true, encoded: code.encoded})
         })
       }).catch(e => {
         return res.send({error: 'not_found'})

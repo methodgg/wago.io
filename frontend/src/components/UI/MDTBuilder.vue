@@ -111,7 +111,7 @@
               />
               <template v-for="(obj, id) in tableData.objects">
                 <!-- note -->
-                <mdt-poi v-if="obj && obj.n && obj.d && obj.d[2] === subMapID + 1" :data="obj" :annotationsIndex="id" :mdtScale="mdtScale" :mapID="mapID" @mouseover="setPOITooltip" @mouseout="setPOITooltip" @mousemove="moveTooltip" @click="clickPOI(obj)" />
+                <mdt-poi v-if="obj && obj.n && obj.d && obj.d[2] === subMapID + 1" :data="obj" :annotationsIndex="id" :mdtScale="mdtScale" :mapID="mapID" @mouseover="setPOITooltip" @mouseout="setPOITooltip" @mousemove="moveTooltip" @click="clickPOI(obj, id)" />
                 <!-- arrow -->
                 <v-arrow v-else-if="obj && obj.t && obj.l && obj.d[2] === subMapID + 1 && obj.d[3]" :config="{
                   points: linePointsXY(obj.l),
@@ -235,7 +235,7 @@
       </md-layout>
     </md-layout>
     <export-modal :json="tableString" :type="wago.type" :showExport="showExport" :wagoID="wago._id" @hideExport="hideExport"></export-modal>
-    <div id="mdtTooltip" v-bind:style="{top: cursorTooltipY + 'px', left: cursorTooltipX + 'px'}">
+    <div id="mdtTooltip" v-if="tooltipPOI || tooltipEnemy" v-bind:style="{top: cursorTooltipY + 'px', left: cursorTooltipX + 'px'}">
       <div class="tooltipPOI" v-if="tooltipPOI" v-html="tooltipPOI.replace(/\\n/g, '<br>')"></div>
       <div class="tooltipEnemy" v-else-if="tooltipEnemy.name">
         <mdt-enemy-portrait :size="56" :mapID="mapID" :offset="getEnemyPortraitOffset(tooltipEnemy.enemyIndex, 56)" />
@@ -247,6 +247,17 @@
         <span v-if="tooltipEnemy.clone && tooltipEnemy.clone.pull >= 0">{{ $t('Pull [-num-]', {num: tooltipEnemy.clone.pull + 1}) }}<br></span>
       </div>
     </div>
+    <md-dialog v-model="userNoteEditText" ref="userNoteEdit" id="mdtEditNote">
+      <md-dialog-title>{{ $t('Set Note') }}</md-dialog-title>
+      <md-input-container>
+        <md-textarea v-model="userNoteEditText" :placeholder="$t('Note text')"></md-textarea>
+      </md-input-container>
+      <md-dialog-actions>
+        <md-button class="md-primary" @click="userNoteEditClose()">Cancel</md-button>
+        <md-button class="md-primary" @click="userNoteEditClose(true)">Ok</md-button>
+      </md-dialog-actions>
+    </md-dialog>
+
   </div>
 </template>
 
@@ -326,7 +337,9 @@ export default {
       paintingContext: null,
       paintingPosition: {},
       paintingStrokeWidth: 3,
-      paintingStrokeColor: 'FFFFFF'
+      paintingStrokeColor: 'FFFFFF',
+      userNoteEditText: '',
+      editPoiID: -1
     }
   },
   created: function () {
@@ -434,13 +447,17 @@ export default {
         })
 
         stage.addEventListener('mousedown touchstart', (evt) => {
+          vue.paintingPosition = stage.getPointerPosition()
+          var scale = stage.scaleX()
+          var x = ((vue.paintingPosition.x - stage.x()) / scale) / vue.mdtScale
+          var y = -((vue.paintingPosition.y - stage.y()) / scale) / vue.mdtScale
+
           if (vue.annotationMode === 'freedraw' || vue.annotationMode === 'line' || vue.annotationMode === 'arrow') {
             vue.isPainting = true
-            vue.paintingPosition = stage.getPointerPosition()
-            var scale = stage.scaleX()
-            var x = ((vue.paintingPosition.x - stage.x()) / scale) / vue.mdtScale
-            var y = -((vue.paintingPosition.y - stage.y()) / scale) / vue.mdtScale
-            vue.tableData.objects.push({l: [x, y], d: [vue.paintingStrokeWidth, 1.1, vue.subMapID + 1, true, vue.paintingStrokeColor, 0, true]})
+            vue.tableData.objects.push({l: [x, y], d: [vue.paintingStrokeWidth, 1.1, vue.subMapID + 1, true, vue.paintingStrokeColor, -8, true]})
+          }
+          else if (vue.annotationMode === 'note') {
+            vue.userNoteEditOpen('', {x, y})
           }
           else {
             vue.isPainting = false
@@ -452,7 +469,6 @@ export default {
           // if line is started but never actually drawn then remove it from the table
           if ((vue.annotationMode === 'freedraw' || vue.annotationMode === 'line' || vue.annotationMode === 'arrow') && vue.tableData.objects[vue.tableData.objects.length - 1].l.length <= 3) {
             vue.tableData.objects.pop()
-            vue.updateTableString()
             return
           }
         })
@@ -476,18 +492,19 @@ export default {
           var data = vue.tableData.objects[vue.tableData.objects.length - 1]
           if (vue.annotationMode === 'freedraw') {
             // using vue's mutating methods
-            data.l.push(x)
-            data.l.push(y)
+            vue.tableData.objects[vue.tableData.objects.length - 1].l.push(x)
+            vue.tableData.objects[vue.tableData.objects.length - 1].l.push(y)
           }
           else if (vue.annotationMode === 'line') {
-            data.l.splice(2, 2, x, y)
+            vue.tableData.objects[vue.tableData.objects.length - 1].l.splice(2, 2, x, y)
           }
           else if (vue.annotationMode === 'arrow') {
-            data.l.splice(2, 2, x, y)
-            data.t = Math.atan2(data.l[1] - y, data.l[0] - x) * 180 / Math.PI
+            vue.tableData.objects[vue.tableData.objects.length - 1].l.splice(2, 2, x, y)
+            vue.$set(vue.tableData.objects[vue.tableData.objects.length - 1], 't', [Math.atan2(data.l[1] - y, data.l[0] - x)])
           }
           // vue.tableData.objects.splice(vue.tableData.objects.length - 1, 1, data)
           vue.paintingPosition = pos
+          vue.updateTableString()
         })
       })
 
@@ -993,13 +1010,16 @@ export default {
       })
     },
 
-    clickPOI (action) {
-      if (action && !isNaN(action.mapLink)) {
-        this.subMapID = action.mapLink
+    clickPOI (poi, id) {
+      if (!poi) {
+        return
+      }
+      if (!isNaN(poi.mapLink)) {
+        this.subMapID = poi.mapLink
       }
       // if user note
-      else if (action && action.n && action.d) {
-
+      else if (poi.n && poi.d) {
+        this.userNoteEditOpen(poi.d[4], {objID: id})
       }
     },
 
@@ -1043,6 +1063,29 @@ export default {
       }
     },
 
+    userNoteEditOpen (text, poiMeta) {
+      this.userNoteEditText = text
+      this.editPoiMeta = poiMeta
+      this.$refs.userNoteEdit.open()
+    },
+
+    userNoteEditClose (save) {
+      this.$refs.userNoteEdit.close()
+      if (save) {
+        var obj
+        if (isNaN(this.editPoiMeta.objID)) {
+          obj = {n: true, d: [this.editPoiMeta.x, this.editPoiMeta.y, 1, true, this.userNoteEditText]}
+          this.tableData.objects.push(obj)
+        }
+        else {
+          obj = this.tableData.objects[this.editPoiMeta.objID]
+          obj.d[4] = this.userNoteEditText
+          this.$set(this.tableData.objects, this.editPoiMeta.objID, obj)
+        }
+        this.updateTableString()
+      }
+    },
+
     saveChanges () {
       var post = {}
       post.wagoID = this.wago._id
@@ -1055,10 +1098,13 @@ export default {
       }
       var vue = this
       this.http.post('/import/json/save', post).then((res) => {
-        this.$emit('set-has-unsaved-changes', false)
         if (res.success) {
           window.eventHub.$emit('showSnackBar', this.$t('Wago saved successfully'))
           vue.$router.push('/' + vue.wago.slug)
+          this.$emit('set-has-unsaved-changes', false)
+          if (res.encoded) {
+            this.$emit('update-encoded', res.encoded)
+          }
         }
         else if (res && res.error) {
           window.eventHub.$emit('showSnackBar', res.error)
@@ -1153,6 +1199,8 @@ export default {
 #mdtAnnotateMenu .md-button-toggle { padding: 0}
 #mdtAnnotateMenu button, #mdtAnnotateMenu button .md-ink-ripple { padding: 2px; width: 24px; min-width: 24px; max-width: 24px; height: 24px; min-height: 24px; max-height: 24px; }
 #mdtAnnotateMenu button i.md-icon { font-size: 18px; margin: 0; }
+#mdtEditNote .md-input-container { padding: 16px }
+#mdtEditNote .md-input-container:after { margin: 0 16px }
 #builder.annotate-crosshair { cursor: crosshair }
 #builder.annotate-note { cursor: cell }
 </style>

@@ -26,7 +26,7 @@ module.exports = {
     WagoFavorites.find({type: 'Star', wagoID: wago._id}).then((stars) => {
       stars.forEach((star) => {
         User.findOne({_id: star.userID, "discord.options.messageOnFaveUpdate": true}).select('discord').then((user) => {
-          if (!owner._id.equals(user._id)) {
+          if (user && !owner._id.equals(user._id)) {
             sendChatMessage(user.discord.id, msg)
           }
         })
