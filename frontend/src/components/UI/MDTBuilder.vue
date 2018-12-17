@@ -111,7 +111,7 @@
               />
               <template v-for="(obj, id) in tableData.objects">
                 <!-- note -->
-                <mdt-poi v-if="obj && obj.n && obj.d && obj.d[2] === subMapID + 1" :data="obj" :annotationsIndex="id" :mdtScale="mdtScale" :mapID="mapID" @mouseover="setPOITooltip" @mouseout="setPOITooltip" @mousemove="moveTooltip" @click="clickPOI" />
+                <mdt-poi v-if="obj && obj.n && obj.d && obj.d[2] === subMapID + 1" :data="obj" :annotationsIndex="id" :mdtScale="mdtScale" :mapID="mapID" @mouseover="setPOITooltip" @mouseout="setPOITooltip" @mousemove="moveTooltip" @click="clickPOI(obj)" />
                 <!-- arrow -->
                 <v-arrow v-else-if="obj && obj.t && obj.l && obj.d[2] === subMapID + 1 && obj.d[3]" :config="{
                   points: linePointsXY(obj.l),
@@ -388,6 +388,7 @@ export default {
         }
         this.tableString = JSON.stringify(this.tableData, null, 2)
         this.$store.commit('setWagoJSON', this.tableString)
+        this.$emit('set-has-unsaved-changes', true)
       })
     },
 
@@ -451,10 +452,9 @@ export default {
           // if line is started but never actually drawn then remove it from the table
           if ((vue.annotationMode === 'freedraw' || vue.annotationMode === 'line' || vue.annotationMode === 'arrow') && vue.tableData.objects[vue.tableData.objects.length - 1].l.length <= 3) {
             vue.tableData.objects.pop()
+            vue.updateTableString()
             return
           }
-
-          vue.updateTableString()
         })
 
         stage.addEventListener('mousemove touchmove', (evt) => {
@@ -994,8 +994,12 @@ export default {
     },
 
     clickPOI (action) {
-      if (!isNaN(action.mapLink)) {
+      if (action && !isNaN(action.mapLink)) {
         this.subMapID = action.mapLink
+      }
+      // if user note
+      else if (action && action.n && action.d) {
+
       }
     },
 
@@ -1051,6 +1055,7 @@ export default {
       }
       var vue = this
       this.http.post('/import/json/save', post).then((res) => {
+        this.$emit('set-has-unsaved-changes', false)
         if (res.success) {
           window.eventHub.$emit('showSnackBar', this.$t('Wago saved successfully'))
           vue.$router.push('/' + vue.wago.slug)

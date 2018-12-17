@@ -9,7 +9,7 @@
       </div>
     </div>
     
-    <editor v-model="editorContent" @init="editorInit" :lang="aceLanguage" :theme="editorTheme" width="100%" height="500"></editor>
+    <editor v-model="editorContent" @init="editorInit" :lang="aceLanguage" :theme="editorTheme" width="100%" height="500" @input="setHasUnsavedChanges(true)"></editor>
     <export-modal :json="tableString" :type="wago.type" :showExport="showExport" :wagoID="wago._id" @hideExport="hideExport"></export-modal>
   </div>
 </template>
@@ -55,6 +55,7 @@ export default {
         if (res.success) {
           window.eventHub.$emit('showSnackBar', this.$t('Wago saved successfully'))
           vue.$router.push('/' + vue.wago.slug)
+          this.$emit('set-has-unsaved-changes', false)
         }
         else if (res && res.error) {
           window.eventHub.$emit('showSnackBar', res.error)
@@ -63,6 +64,9 @@ export default {
           window.eventHub.$emit('showSnackBar', this.$t('Unknown error could not save'))
         }
       })
+    },
+    setHasUnsavedChanges: function (bool) {
+      this.$emit('set-has-unsaved-changes', bool)
     },
     exportChanges: function () {
       this.tableString = this.aceEditor.getValue()

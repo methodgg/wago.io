@@ -26,7 +26,7 @@
       </div>
     </div>
 
-    <editor v-model="editorContent" @init="editorInit" :lang="aceLanguage" :theme="editorTheme" width="100%" height="500"></editor>
+    <editor v-model="editorContent" @init="editorInit" :lang="aceLanguage" :theme="editorTheme" width="100%" height="500" @input="setHasUnsavedChanges(true)"></editor>
 
     <md-dialog md-open-from="#extractFromGroupButton" md-close-to="#extractFromGroupButton" ref="extractFromGroupDialog">
       <md-dialog-title>{{ $t("Extract from group") }}</md-dialog-title>
@@ -49,6 +49,7 @@
 <script>
 export default {
   name: 'edit-weakaura',
+  props: ['unsavedTable'],
   data: function () {
     return {
       editorSelected: 'tabledata',
@@ -65,6 +66,7 @@ export default {
   },
   watch: {
     editorSelected: function (fn) {
+      var tmpUnsaved = this.unsavedTable
       try {
         if (fn && fn !== 'tabledata') {
           fn = fn.split(',')
@@ -98,6 +100,7 @@ export default {
             this.aceEditor.setValue(eval('root.' + fn.path), -1)
           }
 
+          this.setHasUnsavedChanges(tmpUnsaved)
           this.editorFile = root.id
         }
         // if switching FROM a custom function
@@ -136,6 +139,7 @@ export default {
               }
               vue.editorFile = root.id
             }
+            vue.setHasUnsavedChanges(tmpUnsaved)
           }, 100)
         }
       }
@@ -564,6 +568,7 @@ export default {
           if (res.success) {
             window.eventHub.$emit('showSnackBar', this.$t('Wago saved successfully'))
             vue.$router.push('/' + vue.wago.slug)
+            this.setHasUnsavedChanges(false)
           }
           else if (res && res.error) {
             window.eventHub.$emit('showSnackBar', res.error)
@@ -580,6 +585,9 @@ export default {
           t.saveChanges()
         }, 50)
       }
+    },
+    setHasUnsavedChanges: function (bool) {
+      this.$emit('set-has-unsaved-changes', bool)
     },
     extractWA: function (wa) {
       this.extractData = false

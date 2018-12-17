@@ -51,9 +51,12 @@
           <div>
             <md-button @click="toTop"><md-icon>arrow_upward</md-icon> {{ $t("To top") }}</md-button>
           </div>
-          <md-button v-if="wago.code && wago.code.encoded && !wago.alerts.blacklist" @click="copyEncoded" class="copy-import-button">
+          <md-button v-if="hasUnsavedChanges && wago.code && wago.code.encoded && !wago.alerts.blacklist" @click="copyEncoded" class="copy-import-button">
             <md-icon>assignment</md-icon> {{ $t("Copy [-type-] import string", {type: wago.type}) }}
-            <md-tooltip v-if="wago.type==='WEAKAURA' && wago.code.encoded.match(/^!/)" md-direction="bottom" class="waVersionWarningTooltip">WeakAuras has been updated for a more efficient import string.<br>Please ensure you have at least version 2.8.0 to import this string.</md-tooltip>
+            <md-tooltip md-direction="bottom" class="CopyWarningTooltip"><strong>{{ $t("You have unsaved changes") }}</strong><br>{{ $t("Be sure to save or fork to generate a new string with your modifications") }}</md-tooltip>
+          </md-button>          
+          <md-button v-else-if="wago.code && wago.code.encoded && !wago.alerts.blacklist" @click="copyEncoded" class="copy-import-button">
+            <md-icon>assignment</md-icon> {{ $t("Copy [-type-] import string", {type: wago.type}) }}
           </md-button>
         </div>
       </md-card>
@@ -84,9 +87,12 @@
                   <md-icon v-else>star_border</md-icon> {{ $t("Favorite") }}
                 </md-button>
                 <md-button v-if="wago.user && User && wago.UID && wago.UID === User.UID && wago.code && wago.code.encoded" @click="$refs['newImportDialog'].open()" id="newImportButton"><md-icon>input</md-icon> {{ $t("Import new string") }}</md-button>
-                <md-button v-if="wago.code && wago.code.encoded && !wago.alerts.blacklist" @click="copyEncoded" class="copy-import-button">
+                <md-button v-if="hasUnsavedChanges && wago.code && wago.code.encoded && !wago.alerts.blacklist" @click="copyEncoded" class="copy-import-button">
                   <md-icon>assignment</md-icon> {{ $t("Copy [-type-] import string", {type: wago.type}) }}
-                  <md-tooltip v-if="wago.type==='WEAKAURA' && wago.code.encoded.match(/^!/)" md-direction="bottom" class="waVersionWarningTooltip">WeakAuras has been updated for a more efficient import string.<br>Please ensure you have at least version 2.8.0 to import this string.</md-tooltip>
+                  <md-tooltip md-direction="bottom" class="CopyWarningTooltip"><strong>{{ $t("You have unsaved changes") }}</strong><br>{{ $t("Be sure to save or fork to generate a new string with your modifications") }}</md-tooltip>
+                </md-button>
+                <md-button v-else-if="wago.code && wago.code.encoded && !wago.alerts.blacklist" @click="copyEncoded" class="copy-import-button">
+                  <md-icon>assignment</md-icon> {{ $t("Copy [-type-] import string", {type: wago.type}) }}
                 </md-button>
                 <md-button v-if="wago.image && wago.image.files.tga" :href="wago.image.files.tga" class="copy-import-button"><md-icon>file_download</md-icon> {{ $t("Download tga file") }}</md-button>
               </md-card-actions>
@@ -393,7 +399,7 @@
           <!-- BUILDER FRAME -->
           <div id="wago-builder-container" class="wago-container" v-if="showPanel=='builder'">
             <div id="wago-builder">
-              <build-mdt v-if="wago.type=='MDT'"></build-mdt>
+              <build-mdt v-if="wago.type=='MDT'" @set-has-unsaved-changes="setHasUnsavedChanges"></build-mdt>
             </div>
           </div>
           <div class="border" v-if="showEditor"></div>
@@ -401,9 +407,9 @@
           <!-- EDITOR FRAME -->
           <div id="wago-editor-container" class="wago-container" v-if="showPanel=='editor'">
             <div id="wago-editor">
-              <edit-weakaura v-if="wago.type=='WEAKAURA'"></edit-weakaura>
+              <edit-weakaura v-if="wago.type=='WEAKAURA'" @set-has-unsaved-changes="setHasUnsavedChanges" :unsavedTable="hasUnsavedChanges"></edit-weakaura>
               <edit-snippet v-else-if="wago.type=='SNIPPET'"></edit-snippet>
-              <edit-common v-else></edit-common>
+              <edit-common v-else @set-has-unsaved-changes="setHasUnsavedChanges"></edit-common>
             </div>
           </div>
           <div class="border" v-if="showEditor"></div>
@@ -597,7 +603,8 @@ export default {
       newImportStringStatus: '',
       addCollectionName: '',
       numCategorySets: 1,
-      gameMode: ''
+      gameMode: '',
+      hasUnsavedChanges: false
     }
   },
   watch: {
@@ -853,6 +860,12 @@ export default {
         wagoID: vue.wago._id,
         mode: mode
       })
+    },
+    setHasUnsavedChanges (bool) {
+      if (typeof bool === 'boolean') {
+        this.hasUnsavedChanges = bool
+      }
+      console.log(this.hasUnsavedChanges)
     },
     MakeDefaultDescription (wago) {
       var desc = ''
@@ -1578,6 +1591,6 @@ ul:not(.md-list) > li.multiselect__element + li { margin-top: 0 }
 
 #newImportDialog > div { min-width: 30% }
 
-.waVersionWarningTooltip { padding: 8px; border:5px solid #c1272d; font-size: 14px; height: auto; background: black; left: auto!important;right:-230px!important  }
+.CopyWarningTooltip { padding: 8px; border:5px solid #c1272d; font-size: 14px; height: auto; max-width: 450px; white-space:normal; background: black; right: -84px  }
 
 </style>
