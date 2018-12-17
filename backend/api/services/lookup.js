@@ -181,10 +181,10 @@ server.get('/lookup/codereview', (req, res) => {
           return cb()
         }
         if (req.user) {
-          var search = WagoItem.find({"type": "COLLECTION", "collect": wago._id.toString(), "$or": [{ '_userId': req.user._id || null }, { private: false, hidden: false }]})
+          var search = WagoItem.find({"type": "COLLECTION", "collect": wago._id.toString(), deleted: false, "$or": [{ '_userId': req.user._id || null }, { private: false, hidden: false }]})
         }
         else {
-          var search = WagoItem.find({"type": "COLLECTION", "collect": wago._id.toString(), private: false, hidden: false})
+          var search = WagoItem.find({"type": "COLLECTION", "collect": wago._id.toString(), deleted: false, private: false, hidden: false})
         }
         
         search.sort('-modified').limit(10).populate('_userId').then((coll) => {
@@ -204,10 +204,10 @@ server.get('/lookup/codereview', (req, res) => {
           return cb()
         }
         if (req.user) {
-          var search = WagoItem.count({"type": "COLLECTION", "collect": wago._id.toString(), "$or": [{ '_userId': req.user._id || null }, { private: false, hidden: false }]})
+          var search = WagoItem.count({"type": "COLLECTION", "collect": wago._id.toString(), deleted: false, "$or": [{ '_userId': req.user._id || null }, { private: false, hidden: false }]})
         }
         else {
-          var search = WagoItem.count({"type": "COLLECTION", "collect": wago._id.toString(), private: false, hidden: false})
+          var search = WagoItem.count({"type": "COLLECTION", "collect": wago._id.toString(), deleted: false, private: false, hidden: false})
         }
         search.then((count) => {
           timing.countCollections = Date.now() - start
@@ -222,7 +222,7 @@ server.get('/lookup/codereview', (req, res) => {
           return cb(null, [])
         }
         
-        WagoItem.find({"type": "COLLECTION", "collect": wago._id, "_userId": req.user._id}).select('_id').then((coll) => {
+        WagoItem.find({"type": "COLLECTION", "collect": wago._id, "_userId": req.user._id, deleted: false}).select('_id').then((coll) => {
           var arr = []
           coll.forEach((c) => {
             arr.push(c._id)

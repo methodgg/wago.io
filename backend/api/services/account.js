@@ -100,7 +100,7 @@ server.get('/account/whoami', (req, res, next) => {
       },
 
       collections: (cb) => {
-        WagoItem.find({_userId: user._id, type: 'COLLECTION'}).select('_id name').sort('name').then((collections) => {
+        WagoItem.find({_userId: user._id, type: 'COLLECTION', deleted: false}).select('_id name').sort('name').then((collections) => {
           who.collections = collections
           cb()
         })

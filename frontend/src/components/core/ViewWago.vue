@@ -1334,6 +1334,19 @@ export default {
       this.http.post('/wago/update/delete/confirm', {
         wagoID: this.wago._id
       })
+      if (this.wago.type === 'COLLECTION') {
+        var user = this.$store.state.user
+        var i = -1
+        user.collections.forEach((collection, index) => {
+          if (collection._id === this.wago._id) {
+            i = index
+          }
+        })
+        if (i >= 0) {
+          user.collections.splice(i, 1)
+          this.$store.commit('setUser', user)
+        }
+      }
       this.$router.replace('/')
     },
 
@@ -1432,7 +1445,8 @@ export default {
               profile: (vue.User.profileVisibility === 'Public') ? '/p/' + encodeURIComponent(vue.User.name) : false,
               class: vue.User.css,
               name: vue.User.name,
-              avatar: vue.User.avatar},
+              avatar: vue.User.avatar
+            },
             slug: res.collectionID,
             _id: res.collectionID
           })
@@ -1442,6 +1456,11 @@ export default {
           })
           vue.$refs.addCollectionDialog.close()
           vue.wago.collectionCount++
+
+          var user = this.$store.state.user
+          user.collections.push({_id: res.collectionID, name: res.name})
+          vue.$store.commit('setUser', user)
+          vue.wago.myCollections.push(res.collectionID)
         }
       })
     }
