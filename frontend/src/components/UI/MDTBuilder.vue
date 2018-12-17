@@ -146,9 +146,9 @@
             <md-button class="md-icon-button" @click="setAnnotate('line')">
               <md-icon style="transform:rotate(-45deg); font-size: 28px; margin-left: -5px; margin-top: -2px">remove</md-icon>
             </md-button>
-            <md-button class="md-icon-button" @click="setAnnotate('move')">
+            <!--<md-button class="md-icon-button" @click="setAnnotate('move')">
               <md-icon>control_camera</md-icon>
-            </md-button>
+            </md-button>-->
             <md-button class="md-icon-button" @click="setAnnotate('arrow')">
               <md-icon>call_made</md-icon>
             </md-button>
@@ -492,6 +492,8 @@ export default {
           var data = vue.tableData.objects[vue.tableData.objects.length - 1]
           if (vue.annotationMode === 'freedraw') {
             // using vue's mutating methods
+            vue.tableData.objects[vue.tableData.objects.length - 1].l.push(x)
+            vue.tableData.objects[vue.tableData.objects.length - 1].l.push(y)
             vue.tableData.objects[vue.tableData.objects.length - 1].l.push(x)
             vue.tableData.objects[vue.tableData.objects.length - 1].l.push(y)
           }
