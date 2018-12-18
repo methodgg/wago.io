@@ -27,7 +27,7 @@
           <md-list-item class="md-inset affixes">
             <category-image group="affixes"></category-image>
             <div class="md-list-text-container">
-              <router-link to="/mdt/affixes">{{ $t("Affixes") }}</router-link>
+              <router-link to="/mdt/affixes">{{ $t("BFA Season 1 Affixes") }}</router-link>
               <span>
                 <router-link v-for="(item, index) in affixes" :to="'/mdt/' + item.slug" v-bind:key="index">{{ item.text }}</router-link>
               </span>
@@ -75,7 +75,7 @@ export default {
       return categories.raidCategories(['mdtdun'], this.$t)
     },
     affixes: function () {
-      return categories.getCategories([/^mdtaffix[\d]+/], this.$t)
+      return categories.getCategories([/^mdtaffix-bfa-s1-/], this.$t)
     },
     speed: function () {
       return categories.getCategories([/^mdtspeed[\d]+/], this.$t)

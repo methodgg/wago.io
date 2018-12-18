@@ -332,21 +332,34 @@ module.exports = {
 
       {id: "mdtaffix", slug: "affixes", cls:"affixes", text: t("Affixes"), root: true, MDT: true, systemtag: true, noselect: true},
       // {id: "mdtaffix1", slug: "affixes/overflowing", cls:"affixes", text: t("Overflowing"), MDT: true, systemtag: true, noselect: true},
-      {id: "mdtaffix2", slug: "affixes/skittish", cls:"affixes", text: t("Skittish"), MDT: true, systemtag: true, noselect: true},
-      {id: "mdtaffix3", slug: "affixes/volcanic", cls:"affixes", text: t("Volcanic"), MDT: true, systemtag: true, noselect: true},
-      {id: "mdtaffix4", slug: "affixes/necrotic", cls:"affixes", text: t("Nolcanic"), MDT: true, systemtag: true, noselect: true},
-      {id: "mdtaffix5", slug: "affixes/teeming", cls:"affixes", text: t("Teeming"), MDT: true, systemtag: true, noselect: true},
-      {id: "mdtaffix6", slug: "affixes/raging", cls:"affixes", text: t("Raging"), MDT: true, systemtag: true, noselect: true},
-      {id: "mdtaffix7", slug: "affixes/bolstering", cls:"affixes", text: t("Bolstering"), MDT: true, systemtag: true, noselect: true},
-      {id: "mdtaffix8", slug: "affixes/sanguine", cls:"affixes", text: t("Sanguine"), MDT: true, systemtag: true, noselect: true},
-      {id: "mdtaffix9", slug: "affixes/tyrannical", cls:"affixes", text: t("Tyrannical"), MDT: true, systemtag: true, noselect: true},
-      {id: "mdtaffix10", slug: "affixes/fortified", cls:"affixes", text: t("Fortified"), MDT: true, systemtag: true, noselect: true},
-      {id: "mdtaffix11", slug: "affixes/bursting", cls:"affixes", text: t("Bursting"), MDT: true, systemtag: true, noselect: true},
-      {id: "mdtaffix12", slug: "affixes/grievous", cls:"affixes", text: t("Grievous"), MDT: true, systemtag: true, noselect: true},
-      {id: "mdtaffix13", slug: "affixes/explosive", cls:"affixes", text: t("Explosive"), MDT: true, systemtag: true, noselect: true},
-      {id: "mdtaffix14", slug: "affixes/quaking", cls:"affixes", text: t("Quaking"), MDT: true, systemtag: true, noselect: true},
+      // {id: "mdtaffix2", slug: "affixes/skittish", cls:"affixes", text: t("Skittish"), MDT: true, systemtag: true, noselect: true},
+      // {id: "mdtaffix3", slug: "affixes/volcanic", cls:"affixes", text: t("Volcanic"), MDT: true, systemtag: true, noselect: true},
+      // {id: "mdtaffix4", slug: "affixes/necrotic", cls:"affixes", text: t("Nolcanic"), MDT: true, systemtag: true, noselect: true},
+      // {id: "mdtaffix5", slug: "affixes/teeming", cls:"affixes", text: t("Teeming"), MDT: true, systemtag: true, noselect: true},
+      // {id: "mdtaffix6", slug: "affixes/raging", cls:"affixes", text: t("Raging"), MDT: true, systemtag: true, noselect: true},
+      // {id: "mdtaffix7", slug: "affixes/bolstering", cls:"affixes", text: t("Bolstering"), MDT: true, systemtag: true, noselect: true},
+      // {id: "mdtaffix8", slug: "affixes/sanguine", cls:"affixes", text: t("Sanguine"), MDT: true, systemtag: true, noselect: true},
+      // {id: "mdtaffix9", slug: "affixes/tyrannical", cls:"affixes", text: t("Tyrannical"), MDT: true, systemtag: true, noselect: true},
+      // {id: "mdtaffix10", slug: "affixes/fortified", cls:"affixes", text: t("Fortified"), MDT: true, systemtag: true, noselect: true},
+      // {id: "mdtaffix11", slug: "affixes/bursting", cls:"affixes", text: t("Bursting"), MDT: true, systemtag: true, noselect: true},
+      // {id: "mdtaffix12", slug: "affixes/grievous", cls:"affixes", text: t("Grievous"), MDT: true, systemtag: true, noselect: true},
+      // {id: "mdtaffix13", slug: "affixes/explosive", cls:"affixes", text: t("Explosive"), MDT: true, systemtag: true, noselect: true},
+      // {id: "mdtaffix14", slug: "affixes/quaking", cls:"affixes", text: t("Quaking"), MDT: true, systemtag: true, noselect: true},
       // {id: "mdtaffix15", slug: "affixes/relentless", cls:"affixes", text: t("Relentless"), MDT: true, systemtag: true, noselect: true},
-      {id: "mdtaffix16", slug: "affixes/infested", cls:"affixes", text: t("Infested"), MDT: true, systemtag: true, noselect: true},
+      // {id: "mdtaffix16", slug: "affixes/infested", cls:"affixes", text: t("Infested"), MDT: true, systemtag: true, noselect: true},
+      
+      {id: "mdtaffix-bfa-s1-w1", slug: "affixes/week1", cls:"affixes", text: t("Week [-num-] [-affix1-] [-affix2-] [-affix3-] [-affix4-]", {num: 1, affix1: t('Raging'), affix2: t('Volcanic'), affix3: t('Tyrannical'), affix4: t('Infested')}), MDT: true, systemtag: true, noselect: true},
+      {id: "mdtaffix-bfa-s1-w2", slug: "affixes/week2", cls:"affixes", text: t("Week [-num-] [-affix1-] [-affix2-] [-affix3-] [-affix4-]", {num: 2, affix1: t('Teeming'), affix2: t('Explosive'), affix3: t('Fortified'), affix4: t('Infested')}), MDT: true, systemtag: true, noselect: true},
+      {id: "mdtaffix-bfa-s1-w3", slug: "affixes/week3", cls:"affixes", text: t("Week [-num-] [-affix1-] [-affix2-] [-affix3-] [-affix4-]", {num: 3, affix1: t('Bolstering'), affix2: t('Grievous'), affix3: t('Tyrannical'), affix4: t('Infested')}), MDT: true, systemtag: true, noselect: true},
+      {id: "mdtaffix-bfa-s1-w4", slug: "affixes/week4", cls:"affixes", text: t("Week [-num-] [-affix1-] [-affix2-] [-affix3-] [-affix4-]", {num: 4, affix1: t('Sanguine'), affix2: t('Necrotic'), affix3: t('Fortified'), affix4: t('Infested')}), MDT: true, systemtag: true, noselect: true},
+      {id: "mdtaffix-bfa-s1-w5", slug: "affixes/week5", cls:"affixes", text: t("Week [-num-] [-affix1-] [-affix2-] [-affix3-] [-affix4-]", {num: 5, affix1: t('Bursting'), affix2: t('Skittish'), affix3: t('Tyrannical'), affix4: t('Infested')}), MDT: true, systemtag: true, noselect: true},
+      {id: "mdtaffix-bfa-s1-w6", slug: "affixes/week6", cls:"affixes", text: t("Week [-num-] [-affix1-] [-affix2-] [-affix3-] [-affix4-]", {num: 6, affix1: t('Teeming'), affix2: t('Quaking'), affix3: t('Fortified'), affix4: t('Infested')}), MDT: true, systemtag: true, noselect: true},
+      {id: "mdtaffix-bfa-s1-w7", slug: "affixes/week7", cls:"affixes", text: t("Week [-num-] [-affix1-] [-affix2-] [-affix3-] [-affix4-]", {num: 7, affix1: t('Raging'), affix2: t('Necrotic'), affix3: t('Tyrannical'), affix4: t('Infested')}), MDT: true, systemtag: true, noselect: true},
+      {id: "mdtaffix-bfa-s1-w8", slug: "affixes/week8", cls:"affixes", text: t("Week [-num-] [-affix1-] [-affix2-] [-affix3-] [-affix4-]", {num: 8, affix1: t('Bolstering'), affix2: t('Skittish'), affix3: t('Fortified'), affix4: t('Infested')}), MDT: true, systemtag: true, noselect: true},
+      {id: "mdtaffix-bfa-s1-w9", slug: "affixes/week9", cls:"affixes", text: t("Week [-num-] [-affix1-] [-affix2-] [-affix3-] [-affix4-]", {num: 9, affix1: t('Teeming'), affix2: t('Volcanic'), affix3: t('Tyrannical'), affix4: t('Infested')}), MDT: true, systemtag: true, noselect: true},
+      {id: "mdtaffix-bfa-s1-w10", slug: "affixes/week10", cls:"affixes", text: t("Week [-num-] [-affix1-] [-affix2-] [-affix3-] [-affix4-]", {num: 10, affix1: t('Sanguine'), affix2: t('Grievous'), affix3: t('Fortified'), affix4: t('Infested')}), MDT: true, systemtag: true, noselect: true},
+      {id: "mdtaffix-bfa-s1-w11", slug: "affixes/week11", cls:"affixes", text: t("Week [-num-] [-affix1-] [-affix2-] [-affix3-] [-affix4-]", {num: 11, affix1: t('Bolstering'), affix2: t('Explosive'), affix3: t('Tyrannical'), affix4: t('Infested')}), MDT: true, systemtag: true, noselect: true},
+      {id: "mdtaffix-bfa-s1-w12", slug: "affixes/week12", cls:"affixes", text: t("Week [-num-] [-affix1-] [-affix2-] [-affix3-] [-affix4-]", {num: 12, affix1: t('Bursting'), affix2: t('Quaking'), affix3: t('Fortified'), affix4: t('Infested')}), MDT: true, systemtag: true, noselect: true},
 
       {id: "mdtspeed", slug: "speed", cls:"speed", text: t("Easy Going"), root: true, MDT: true, noselect: true },
       {id: "mdtspeed1", slug: "speed/easy-going", cls:"speed", text: t("Easy Going"), root: true, MDT: true },
@@ -543,7 +556,15 @@ module.exports = {
 
     if (!doNotSortAlpha) {
       selected.sort(function (a, b) {
-        if (a.text < b.text) {
+        var testA = a.text
+        var testB = b.text
+        if (a.cls === 'affixes') {
+          testA = testA.replace(/\s(\d):/, ' 0$1:')
+        }
+        if (b.cls === 'affixes') {
+          testB = testB.replace(/\s(\d):/, ' 0$1:')
+        }
+        if (testA < testB) {
           return -1
         }
         else {

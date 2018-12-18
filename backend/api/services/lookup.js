@@ -244,7 +244,7 @@ server.get('/lookup/codereview', (req, res) => {
           }
           else if (wago.type === 'WEAKAURA') {
             var json = JSON.parse(code.json)
-            if (!json.d.version && code.version) {
+            if (code.version && json.d.version !== code.version) {
               json.d.url = wago.url
               json.d.version = code.version
               code.json = JSON.stringify(json)

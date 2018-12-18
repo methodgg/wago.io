@@ -24,36 +24,38 @@ Schema.index({json: 'text', lua: 'text'})
 // Find selected code version, or latest if not supplied
 Schema.statics.lookup = function(id, version) {
   return new Promise((resolve, reject) => {
+    var find
     if (version && version > 0 && parseInt(version) == version) {
-      this.findOne({auraID: id}).sort({updated: 1}).skip(version - 1).then((doc) => {
-        this.findOne({auraID: id}).sort({updated: -1}).then((doc) => {
-          if (doc && !doc.version) {
-            this.count({auraID: id}).then((num) => {
-              doc.version = num
-              doc.save()
-              resolve(doc)
-            })
-          }
-          else {
-            resolve(doc)
-          }
-        })
-      })
+      find = this.findOne({auraID: id}).sort({updated: 1}).skip(version - 1)
     }
     else {
-      this.findOne({auraID: id}).sort({updated: -1}).then((doc) => {
-        if (doc && !doc.version) {
-          this.count({auraID: id}).then((num) => {
-            doc.version = num
-            doc.save()
-            resolve(doc)
-          })
-        }
-        else {
-          resolve(doc)
-        }
-      })
+      find = this.findOne({auraID: id}).sort({updated: -1})
     }
+    find.then((doc) => {
+      if (!doc) {
+        return reject({err: 'No code found'})
+      }
+      if ((!doc.version || (version && doc.version > version)) || (!doc.version && !version)) {
+        // if viewing latest version or there is some weirdness, set to latest version
+        this.count({auraID: id}).then((num) => {
+          doc.version = num
+          doc.save()
+          resolve(doc)
+        })
+      }
+      // if viewing an older version and version number is not set, then set it
+      if ((!doc.version && version) || doc.version > version) {
+        doc.version = version
+        doc.save()
+        return resolve(doc)
+      }
+      // otherwise version is set correctly
+      else {
+        resolve(doc)
+      }
+    }).catch((e) => {
+      logger.error(e.message)
+    })
   })
 }
 
