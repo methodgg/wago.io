@@ -244,13 +244,13 @@ server.get('/lookup/codereview', (req, res) => {
           }
           else if (wago.type === 'WEAKAURA') {
             var json = JSON.parse(code.json)
-            if (code.version && ((json.d.version !== code.version) || (json.c && json.c[0].version !== code.version))) {
-              json.d.url = wago.url
+            if (code.version && ((json.d.version !== code.version || json.d.url !== wago.url + '/' + code.version) || (json.c && json.c[0].version !== code.version))) {
+              json.d.url = wago.url + '/' + code.version
               json.d.version = code.version
 
               if (json.c) {
                 for (let i = 0; i < json.c.length; i++) {
-                  json.c[i].url = wago.url
+                  json.c[i].url = wago.url + '/' + code.version
                   json.c[i].version = code.version
                 }
               }
