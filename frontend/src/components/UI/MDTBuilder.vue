@@ -19,9 +19,9 @@
 
     <md-layout md-row style="flex-wrap: nowrap">
       <md-layout id="stageContainer" md-vertical-align="start">
-        <ui-loading v-if="mdtLoading"></ui-loading>
-        <div v-else id="builder" ref="canvas" v-bind:class="annotationClass">
-          <v-stage ref="mdtStage" id="mdtStage" :config="konvaStageConfig" @scroll.passive="zoomStage">
+        <div id="builder" ref="canvas" v-bind:class="annotationClass">
+          <ui-loading v-if="mdtLoading"></ui-loading>
+          <v-stage v-else-if="konvaStageConfig.width > 0" ref="mdtStage" id="mdtStage" :config="konvaStageConfig" @scroll.passive="zoomStage">
             <slot>1</slot> <!-- defined slots prevent Konva from spamming "<div>undefined</div>" -->
             <v-layer ref="mdtMap" v-if="mdtDungeonTable.dungeonSubLevels">
               <slot>1</slot>
@@ -155,7 +155,7 @@
           </md-button-toggle>
         </div>
       </md-layout>
-      <md-layout style="width:40%" md-vertical-align="start">
+      <md-layout style="width:25%" md-vertical-align="start">
         <md-card id="mdtOptions" v-if="!mdtLoading">
           <md-card-area>
             <div class="inlineContainer">
@@ -300,7 +300,6 @@ export default {
       enemyPortraits: null,
       enemyPortraitMap: null,
       mapPOIs: {},
-      konvaStageConfig: {width: 1000, height: 768},
       webpSupport: false,
       tile: {},
       hoverGroups: [], // which group(s) is being moused-over
@@ -419,6 +418,8 @@ export default {
 
         // setup zoom
         canvas.addEventListener('wheel', (evt) => {
+          evt.preventDefault()
+
           let scaleBy = 1.2
           if (evt.target.nodeName !== 'CANVAS') {
             return false
@@ -435,7 +436,6 @@ export default {
           if (newScale === oldScale) {
             return false
           }
-          evt.preventDefault()
           stage.scale({ x: newScale, y: newScale })
 
           var newPos = {
@@ -1155,12 +1155,16 @@ export default {
       else {
         return this.$store.state.user.config.editor || 'tomorrow'
       }
+    },
+    konvaStageConfig: () => {
+      return {width: document.getElementById('builder') && document.getElementById('builder').offsetWidth || 0, height: 768}
     }
   }
 }
 </script>
 
 <style>
+#builder, #mdtStage { width: 100% }
 #build-mdt .md-select-content { max-height: calc(70vh); margin-bottom: 32px }
 #build-mdt .md-select { width: auto }
 #build-mdt .md-input-container { margin-bottom: 10px}
@@ -1172,8 +1176,8 @@ export default {
 #build-mdt .ace_editor { box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2), 0 2px 2px rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.12); }
 #build-mdt .md-theme-default.md-sidenav .md-sidenav-content { background-color: inherit; min-width: 360px; }
 #builder { position: relative; min-height: 768px }
-#builder canvas { position: absolute; left: 0; top: 0; width:1000px; max-width: 1000px; height: 768px; max-height: 768px; }
-#stageContainer { max-width:1000px; width:60%; height:768px; position: relative }
+#builder canvas { position: absolute; left: 0; top: 0; width:60%; max-width: 1000px; height: 768px; max-height: 768px; }
+#stageContainer { max-width:1000px; width:60%; height:768px; position: relative; flex: 2 }
 #mdtOptions { margin: 0; overflow: hidden; width: 100%; height: 768px; overflow-y: auto;}
 #mdtOptions .md-sidenav-content { min-width: 75%; }
 .inlineContainer { display: inline-flex; flex-direction: row; flex-wrap: wrap; }

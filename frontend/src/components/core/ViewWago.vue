@@ -1,20 +1,55 @@
 <template>
   <div id="view-wago">
-    <div v-if="(!wagoExists && wago.error) || (wago.type === 'MDT' && (!User || !User.access || !User.access.beta))">
-      <ui-warning v-if="wago.error === 'page_not_found'" mode="alert">
-        404 {{ $t("No results found") }}
-      </ui-warning>
-      <ui-warning v-else mode="alert">
-        Error: {{ wago.error }}
-      </ui-warning>
-    </div>
+    <ui-warning v-if="wago.error === 'page_not_found'" mode="alert">
+      404 {{ $t("No results found") }}
+    </ui-warning>
+    <ui-warning v-else-if="(wago.type === 'MDT' && (!User || !User.access || !User.access.beta))" mode="alert">
+      Error: Wago beta access is required to view this page.
+    </ui-warning>
+    <ui-warning v-else-if="wago.error" mode="alert">
+      Error: {{ wago.error }}
+    </ui-warning>
     <ui-loading v-else-if="!wagoExists"></ui-loading>
     <div v-else>
       <md-card id="wago-header" ref="header">
-        <div class="floating-header">
-          <h3>{{ wago.name }}</h3>
-          <md-subheader>{{ wago.type }}</md-subheader>
-        </div>
+        <md-layout>
+          <div class="floating-header">
+            <h3>{{ wago.name }}</h3>
+            <md-subheader>{{ wago.type }}</md-subheader>
+          </div>          
+          <!-- ACTIONS -->
+          <md-card-actions id="wago-actions" ref="action-buttons">
+            <md-button v-if="User.UID" @click="toggleFavorite">
+              <md-icon v-if="wago.myfave">star</md-icon>
+              <md-icon v-else>star_border</md-icon> {{ $t("Favorite") }}
+            </md-button>
+            <md-button v-if="wago.user && User && wago.UID && wago.UID === User.UID && wago.code && wago.code.encoded" @click="$refs['newImportDialog'].open()" id="newImportButton"><md-icon>input</md-icon> {{ $t("Import new string") }}</md-button>
+            <md-button v-if="hasUnsavedChanges && wago.code && wago.code.encoded && !wago.alerts.blacklist" @click="copyEncoded" class="copy-import-button">
+              <md-icon>assignment</md-icon> {{ $t("Copy [-type-] import string", {type: wago.type}) }}
+              <md-tooltip md-direction="bottom" class="CopyWarningTooltip"><strong>{{ $t("You have unsaved changes") }}</strong><br>{{ $t("Be sure to save or fork to generate a new string with your modifications") }}</md-tooltip>
+            </md-button>
+            <md-button v-else-if="wago.code && wago.code.encoded && !wago.alerts.blacklist" @click="copyEncoded" class="copy-import-button">
+              <md-icon>assignment</md-icon> {{ $t("Copy [-type-] import string", {type: wago.type}) }}
+            </md-button>
+            <md-button v-if="wago.image && wago.image.files.tga" :href="wago.image.files.tga" class="copy-import-button"><md-icon>file_download</md-icon> {{ $t("Download tga file") }}</md-button>
+          </md-card-actions>
+          <md-dialog v-if="wago.user && User && wago.UID && wago.UID === User.UID" md-open-from="#newImportButton" md-close-to="#newImportButton" ref="newImportDialog" id="newImportDialog">
+            <md-dialog-title>{{ $t("Import new string") }}</md-dialog-title>
+
+            <md-dialog-content>
+              <md-input-container :class="{ 'md-input-invalid': newImportString && newImportStringStatus.indexOf('Invalid') >= 0, 'md-input-status': newImportStringStatus }">
+                <label>{{ $t("Paste a new [-type-] string to update this Wago", {type: wago.type.toLowerCase() }) }}</label>
+                <md-input v-model="newImportString"></md-input>
+                <span class="md-error" v-if="newImportStringStatus.length>0">{{ newImportStringStatus }}</span>
+              </md-input-container>
+            </md-dialog-content>
+
+            <md-dialog-actions>
+              <md-button class="md-primary" @click="onUpdateImportString()" :disabled="!newImportString || newImportStringStatus.indexOf('Invalid') >= 0">{{ $t("Update") }}</md-button>
+              <md-button class="md-primary" @click="$refs['newImportDialog'].close()">{{ $t("Cancel") }}</md-button>
+            </md-dialog-actions>
+          </md-dialog>
+        </md-layout>
         <md-card-header>
           <md-avatar>
             <ui-image :img="wago.user.avatar"></ui-image>
@@ -35,10 +70,21 @@
             <div class="md-title">{{ $t("Permalink") }}</div>
             <div class="md-subhead has-link"><a :href="wago.url" @click.prevent="copyURL">{{ wago.url }}</a></div>
           </div>
+          <div class="item" style="float:right" v-if="wago.type === 'WEAKAURA' && companionRTC && wago.code && wago.code.encoded && !wago.alerts.blacklist">
+            <md-button @click="sendToCompanionApp" class="copy-import-button">
+              <md-icon>airplay</md-icon> {{ $t("Send to WeakAura Companion App") }}
+            </md-button>
+          </div>
           <div id="tags">
             <md-chip v-for="(cat, n) in wago.categories" :key="n" :class="cat.cls" disabled v-if="cat.text && (n<5 || showMoreCategories)">{{ cat.text }}</md-chip>
             <span @click="viewAllCategories()"><md-chip v-if="wago.categories.length > 5 && !showMoreCategories" class="show_more">{{ $t("[-count-] more", {count: wago.categories.length - 5}) }}</md-chip></span>
           </div>
+          <md-layout id="thumbnails">
+            <template v-for="video in wago.videos">
+              <a class="showvid" :href="video.url" @click.prevent="showVideo(video.embed)"><md-icon>play_circle_outline</md-icon><md-image :md-src="video.thumb"></md-image></a>
+            </template>
+            <lightbox id="mylightbox" :images="wago.screens"></lightbox>
+          </md-layout>
         </md-card-header>
       </md-card>
 
@@ -67,401 +113,370 @@
             <md-layout id="wago-tabs">
               <!-- FRAME TOGGLES -->
               <md-button-toggle class="md-accent" md-single>
-                <md-button v-if="wago.user && User && wago.UID && wago.UID === User.UID" @click="toggleFrame('config')">{{ $t("Config") }}</md-button>
-                <md-button class="md-toggle" @click="toggleFrame('description')">{{ $t("Description") }}</md-button>
-                <md-button @click="toggleFrame('comments')"><span v-if="hasUnreadComments && showPanel !== 'comments'" class="commentAttn">{{$t("NEW")}}!! </span>{{ $t("[-count-] comment", {count: wago.commentCount }) }}</md-button>
-                <md-button v-if="wago.versions && wago.versions.total > 1" @click="toggleFrame('versions')" ref="versionsButton">{{ $t("[-count-] version", { count: wago.versions.total }) }}</md-button>
-                <md-button v-if="wago.type !== 'COLLECTION'" @click="toggleFrame('collections')">{{ $t("[-count-] collection", {count:  wago.collectionCount}) }}</md-button>
-                <md-button v-if="!wago.alerts.blacklist && wago.code && wago.code.encoded" @click="toggleFrame('embed')">{{ $t("Embed") }}</md-button>
-                <md-button v-if="wago.type === 'MDT'" @click="toggleFrame('builder')">{{ $t("Builder") }}</md-button>
-                <md-button v-if="wago.code" @click="toggleFrame('editor')">{{ $t("Editor") }}</md-button>
-                <md-button v-if="(User && User.access && (User.access.beta)) && wago.type === 'WEAKAURA' && wago.code" @click="toggleFrame('codereview')">{{ $t("Code Review") }}</md-button>
+                <md-button v-bind:class="{'md-toggle': showPanel === 'config'}" v-if="wago.user && User && wago.UID && wago.UID === User.UID" @click="toggleFrame('config')">{{ $t("Config") }}</md-button>
+                <md-button v-bind:class="{'md-toggle': showPanel === 'description'}" @click="toggleFrame('description')">{{ $t("Description") }}</md-button>
+                <md-button v-bind:class="{'md-toggle': showPanel === 'comments'}" @click="toggleFrame('comments')"><span v-if="hasUnreadComments && showPanel !== 'comments'" class="commentAttn">{{$t("NEW")}}!! </span>{{ $t("[-count-] comment", {count: wago.commentCount }) }}</md-button>
+                <md-button v-bind:class="{'md-toggle': showPanel === 'versions'}" v-if="wago.versions && wago.versions.total > 1" @click="toggleFrame('versions')" ref="versionsButton">{{ $t("[-count-] version", { count: wago.versions.total }) }}</md-button>
+                <md-button v-bind:class="{'md-toggle': showPanel === 'collections'}" v-if="wago.type !== 'COLLECTION'" @click="toggleFrame('collections')">{{ $t("[-count-] collection", {count:  wago.collectionCount}) }}</md-button>
+                <md-button v-bind:class="{'md-toggle': showPanel === 'embed'}" v-if="!wago.alerts.blacklist && wago.code && wago.code.encoded" @click="toggleFrame('embed')">{{ $t("Embed") }}</md-button>
+                <md-button v-bind:class="{'md-toggle': showPanel === 'builder'}" v-if="wago.type === 'MDT'" @click="toggleFrame('builder')">{{ $t("Builder") }}</md-button>
+                <md-button v-bind:class="{'md-toggle': showPanel === 'editor'}" v-if="wago.code" @click="toggleFrame('editor')">{{ $t("Editor") }}</md-button>
+                <!--<md-button v-bind:class="{'md-toggle': showPanel === 'codereview'}" v-if="(User && User.access && (User.access.beta)) && wago.type === 'WEAKAURA' && wago.code" @click="toggleFrame('codereview')">{{ $t("Code Review") }}</md-button>-->
               </md-button-toggle>
+              
+              <ui-image v-if="wago.image" :img="wago.image.files" class="wago-media"></ui-image>
+              <!--<div v-else id="thumbnails" class="wago-media">
+                <template v-for="video in wago.videos">
+                  <a class="showvid" :href="video.url" @click.prevent="showVideo(video.embed)"><md-icon>play_circle_outline</md-icon><md-image :md-src="video.thumb"></md-image></a>
+                </template>
+                <lightbox id="mylightbox" :images="wago.screens"></lightbox>
+              </div>-->
             </md-layout>
 
-            <md-layout md-align="end">
-              <!-- ACTIONS -->
-              <md-card-actions id="wago-actions">
-                <md-button v-if="User.UID" @click="toggleFavorite">
-                  <md-icon v-if="wago.myfave">star</md-icon>
-                  <md-icon v-else>star_border</md-icon> {{ $t("Favorite") }}
-                </md-button>
-                <md-button v-if="wago.user && User && wago.UID && wago.UID === User.UID && wago.code && wago.code.encoded" @click="$refs['newImportDialog'].open()" id="newImportButton"><md-icon>input</md-icon> {{ $t("Import new string") }}</md-button>
-                <md-button v-if="hasUnsavedChanges && wago.code && wago.code.encoded && !wago.alerts.blacklist" @click="copyEncoded" class="copy-import-button">
-                  <md-icon>assignment</md-icon> {{ $t("Copy [-type-] import string", {type: wago.type}) }}
-                  <md-tooltip md-direction="bottom" class="CopyWarningTooltip"><strong>{{ $t("You have unsaved changes") }}</strong><br>{{ $t("Be sure to save or fork to generate a new string with your modifications") }}</md-tooltip>
-                </md-button>
-                <md-button v-else-if="wago.code && wago.code.encoded && !wago.alerts.blacklist" @click="copyEncoded" class="copy-import-button">
-                  <md-icon>assignment</md-icon> {{ $t("Copy [-type-] import string", {type: wago.type}) }}
-                </md-button>
-                <md-button v-if="wago.image && wago.image.files.tga" :href="wago.image.files.tga" class="copy-import-button"><md-icon>file_download</md-icon> {{ $t("Download tga file") }}</md-button>
-              </md-card-actions>
-              <md-dialog v-if="wago.user && User && wago.UID && wago.UID === User.UID" md-open-from="#newImportButton" md-close-to="#newImportButton" ref="newImportDialog" id="newImportDialog">
-                <md-dialog-title>{{ $t("Import new string") }}</md-dialog-title>
+            <md-layout id="wago-content">
+              <ui-warning v-if="wago.expires" mode="info">
+                {{ $t("This import will expire in [-time-]", {time: this.$moment(wago.expires).fromNow() }) }}<br>
+              </ui-warning>
 
-                <md-dialog-content>
-                  <md-input-container :class="{ 'md-input-invalid': newImportString && newImportStringStatus.indexOf('Invalid') >= 0, 'md-input-status': newImportStringStatus }">
-                    <label>{{ $t("Paste a new [-type-] string to update this Wago", {type: wago.type.toLowerCase() }) }}</label>
-                    <md-input v-model="newImportString"></md-input>
-                    <span class="md-error" v-if="newImportStringStatus.length>0">{{ newImportStringStatus }}</span>
+              <ui-warning v-if="wago.fork && wago.fork._id" mode="info" :html="$t('This is a fork of [-id-][-name-]', {id: wago.fork._id, name: wago.fork.name})"></ui-warning>
+
+              <ui-warning v-if="wago.visibility && wago.visibility.private">
+                {{ $t("This import is private only you may view it") }}
+              </ui-warning>
+              <ui-warning v-else-if="wago.visibility && wago.visibility.hidden">
+                {{ $t("This import is hidden only those with the URL may view it") }}
+              </ui-warning>
+
+              <ui-warning v-if="wago.alerts.blacklist" mode="alert">
+                {{ $t("Blacklisted code detected") }}<br>
+                <div v-for="func in wago.alerts.blacklist">{{ func }}</div>
+              </ui-warning>
+              <ui-warning v-else-if="wago.alerts.malicious" mode="alert">
+                {{ $t("Possible malicious code detected") }}<br>
+                <div v-for="func in wago.alerts.malicious">{{ func }}</div>
+              </ui-warning>
+
+              <ui-warning v-if="!isLatestVersion()" mode="info" :html="$t('A more recent version of this import is available view the latest version [-url-]', {url: '/' + $store.state.wago.slug})"></ui-warning>          
+
+              <!-- CONFIG FRAME -->
+              <div id="wago-config-container" class="wago-container" v-if="showPanel=='config'">
+                <md-card id="wago-config">
+                  <h3>{{ $t("Text setup")}}</h3>
+                  <md-input-container :class="{ 'md-input-invalid': updateNameError, 'md-input-status': updateNameHasStatus }">
+                    <label>{{ $t("Title") }}</label>
+                    <md-input v-model="editName" @change="onUpdateName()" :debounce="600"></md-input>
+                    <span class="md-error" v-if="updateNameStatus.length>0">{{ updateNameStatus }}</span>
                   </md-input-container>
-                </md-dialog-content>
+                  <div v-if="User.access.customSlug">
+                    <md-input-container :class="{ 'md-input-invalid': updateSlugError, 'md-input-status': updateSlugHasStatus, 'customSlug': true }">
+                      <label>{{ $t("Custom URL") }}</label>
+                      <span class="root">http://wago.io/</span>
+                      <md-input v-model="editSlug" @change="onUpdateSlug()" :debounce="600"></md-input>
+                    <span class="md-error" v-if="updateSlugStatus.length>0">{{ updateSlugStatus }}</span>
+                    </md-input-container>
+                  </div>
+                  <md-input-container :class="{ 'md-input-invalid': updateDescError, 'md-input-status': updateDescHasStatus }">
+                    <label>{{ $t("Description") }}</label>
+                    <md-textarea v-model="editDesc" @change="onUpdateDescription()" :debounce="600"></md-textarea>
+                    <span class="md-error" v-if="updateDescStatus.length>0">{{ updateDescStatus }}</span>
+                  </md-input-container>
+                  <md-input-container>
+                    <label for="visibilty">{{ $t("Visibility") }}</label>
+                    <md-select name="visibilty" id="visibilty" v-model="editVisibility" @selected="onUpdateVisibility()">
+                      <md-option value="Public" selected>{{ $t("Public") }}</md-option>
+                      <md-option value="Hidden">{{ $t("Hidden (only viewable with link)") }}</md-option>
+                      <md-option value="Private">{{ $t("Private (only you may view)") }}</md-option>
+                    </md-select>
+                  </md-input-container>
+                  <div v-if="!wago.image && !wago.audio">
+                    <div>
+                      <label id="categoryLabel">{{ $t("Categories") }}</label>
+                      <md-button class="md-icon-button md-raised" @click="numCategorySets++">
+                        <md-icon>add</md-icon>
+                      </md-button>
+                      <div v-for="n in numCategorySets">
+                        <div class="has-category-select">
+                          <category-select :selectedCategories="editCategories[n-1]" @update="cat => {editCategories[n-1] = cat; onUpdateCategories()}" :type="wago.type.toUpperCase()"></category-select>
+                        </div>
+                      </div>
+                    </div>
+                    <!--<div v-if="wago.type=='WEAKAURA'">
+                      <label id="betaLabel">{{ $t("Game") }}</label>
+                      <md-button-toggle md-single class="md-accent md-warn">
+                        <md-button :class="{ 'md-toggle': gameMode === '' }" @click="setGameMode('')">Legion Live</md-button>
+                        <md-button :class="{ 'md-toggle': gameMode === 'beta-bfa' }"@click="setGameMode('beta-bfa')">BFA Beta</md-button>
+                      </md-button-toggle>
+                    </div>-->
+                    <h3>{{ $t("Preview setup")}}</h3>
+                    <md-layout>
+                      <md-layout md-flex="75">
+                        <md-input-container :class="{ 'md-input-invalid': pasteURLError, 'md-input-status': pasteURLHasStatus}">
+                          <label>{{ $t("Add an image or video by pasting an image directly or input a URL") }}</label>
+                          <md-input v-model="pasteURL" id="pasteURL" :readonly="pasteURLUploading"></md-input>
+                          <span class="md-error" v-if="pasteURLStatus">{{ pasteURLStatus }}</span>
+                        </md-input-container>
+                      </md-layout>
+                      <md-layout>
+                        <md-input-container>
+                          <md-file v-model="uploadImages" multiple accept="image/*" :placeholder="$t('Or click to upload image')" @selected="onUploadFile($event)"></md-file>
+                        </md-input-container>
+                      </md-layout>
+                    </md-layout>
+                    <div v-if="wago.videos.length > 0">
+                      <strong>{{ $t("Videos") }}</strong>
+                      <vddl-list :list="wago.screens" :horizontal="true" :drop="onVideoMoved">
+                        <vddl-draggable v-for="(item, index) in wago.videos" :key="item._id" :draggable="item" :index="index" effect-allowed="move" :moved="onVideoMoveOut">
+                          <span class="vddl-delete" @click="onVideoDelete(index)">❌</span>
+                          <md-image :md-src="item.thumb"></md-image>
+                        </vddl-draggable>
+                      </vddl-list>
+                    </div>
+                    <div v-if="wago.screens.length > 0" class="config-screenshots">
+                      <strong>{{ $t("Screenshots") }}</strong>
+                      <vddl-list :list="wago.screens" :horizontal="true" :drop="onScreenshotMoved">
+                        <vddl-draggable v-for="(item, index) in wago.screens" :key="item._id" :draggable="item" :index="index" effect-allowed="move" :moved="onScreenMoveOut">
+                          <span class="vddl-delete" @click="onScreenDelete(index)">❌</span>
+                          <md-image :md-src="item.src"></md-image>
+                        </vddl-draggable>
+                      </vddl-list>
+                    </div>
+                  </div>
 
-                <md-dialog-actions>
-                  <md-button class="md-primary" @click="onUpdateImportString()" :disabled="!newImportString || newImportStringStatus.indexOf('Invalid') >= 0">{{ $t("Update") }}</md-button>
-                  <md-button class="md-primary" @click="$refs['newImportDialog'].close()">{{ $t("Cancel") }}</md-button>
-                </md-dialog-actions>
-              </md-dialog>
+                  <md-card-actions>
+                    <md-button id="deleteWago" @click="$refs['deleteWago'].open()">Delete</md-button>
+                    <md-dialog md-open-from="#deleteWago" md-close-to="#deleteWago" ref="deleteWago">
+                      <md-dialog-title>{{ $t("Are you sure you want to delete this import?") }}</md-dialog-title>
+                      <md-dialog-content>{{ $t("There is no way to undo this action") }}</md-dialog-content>
+                      <md-dialog-actions>
+                        <md-button class="md-primary" @click="$refs['deleteWago'].close()">Cancel</md-button>
+                        <md-button class="md-primary" @click="onDeleteImport()">Delete</md-button>
+                      </md-dialog-actions>
+                    </md-dialog>
+                  </md-card-actions>        
+                </md-card>
+              </div>
+
+              <!-- DESCRIPTIONS FRAME -->
+              <div id="wago-description-container" class="wago-container" v-if="showPanel=='description'">
+                <div id="wago-description" style="padding-top:6px">
+                  <formatted-text :text="wago.description.text && wago.description.text.length ? wago.description : {text: $t('No description for this import has been provided')}"></Formatted-text>
+                </div>
+              </div>
+
+              <div id="wago-comments-container" class="wago-container" v-if="showPanel=='comments'">
+                <div id="wago-comments">
+                  <view-comments :comments="wago.comments" :commentTotal="wago.commentCount" :wagoID="wago._id"></view-comments>
+                </div>
+              </div>
+
+              <!-- VERSIONS FRAME -->
+              <div id="wago-versions-container" class="wago-container" v-if="showPanel=='versions'">
+                <h2>{{ $t("Previous versions") }}</h2>
+                <md-card id="wago-versions">
+                  <md-table @select="selectVersion">
+                    <md-table-header>
+                      <md-table-row>
+                        <md-table-head>{{ $t("Import Date") }}</md-table-head>
+                        <md-table-head md-numeric>{{ $t("Iteration") }}</md-table-head>
+                        <md-table-head md-numeric>{{ $t("Size") }}</md-table-head>
+                      </md-table-row>
+                    </md-table-header>
+
+                    <md-table-body>
+                      <md-table-row v-for="(ver, key) in wago.versions.versions" v-bind:key="key" :md-item="ver" md-auto-select md-selection>
+                        <md-table-cell>
+                          {{ ver.date | moment("dddd, MMMM Do YYYY, h:mm a") }}
+                          <md-chip v-if="key===0">{{ $t("Latest version") }}</md-chip>
+                          <md-chip v-if="ver.version===version || (!version && key===0)">{{ $t("Viewing this version") }}</md-chip>
+                        </md-table-cell>
+                        <md-table-cell md-numeric>
+                          {{ ver.version }}
+                        </md-table-cell>
+                        <md-table-cell md-numeric>
+                          {{ ver.size }}
+                        </md-table-cell>
+                      </md-table-row>
+                    </md-table-body>
+                  </md-table>
+                  <md-button v-if="showMoreVersions" @click="loadMoreVersions"><md-icon>list</md-icon> {{ $t("Load more versions" )}}</md-button>
+                </md-card>
+              </div>
+
+              <!-- COLLECTIONS FRAME -->
+              <div id="wago-collections-container" class="wago-container" v-if="showPanel=='collections'">
+                <md-menu md-align-trigger md-size="7" v-if="User.UID">
+                  <md-button md-menu-trigger id="addCollectionButton"><md-icon>library_add</md-icon> {{ $t("Add to collection") }}</md-button>
+
+                  <md-menu-content>
+                    <md-menu-item v-for="coll in User.collections" :key="coll._id" @click="addToCollection(coll._id)">
+                      <md-icon v-if="wago.myCollections.length > 0 && wago.myCollections.indexOf(coll._id) > -1">check</md-icon>
+                      <md-icon v-else>add</md-icon>
+                      {{ coll.name }}
+                    </md-menu-item>
+                    <md-menu-item @click="openNewCollectionDialog()"><md-icon>add_box</md-icon>{{ $t("Create new collection") }}</md-menu-item>
+                  </md-menu-content>
+
+                  <md-dialog md-open-from="#addCollectionButton" md-close-to="#addCollectionButton" ref="addCollectionDialog">
+                    <md-dialog-title>{{ $t("Create new collection") }}</md-dialog-title>
+
+                    <md-dialog-content>
+                      <form>
+                        <md-input-container>
+                          <label>{{ $t("Name") }}</label>
+                          <md-input v-model="addCollectionName" ref="addCollectionNameInput"></md-input>
+                        </md-input-container>
+                      </form>
+                    </md-dialog-content>
+
+                    <md-dialog-actions>
+                      <md-button @click="$refs.addCollectionDialog.close()">{{ $t("Cancel") }}</md-button>
+                      <md-button class="md-primary" @click="CreateCollection()">{{ $t("Create") }}</md-button>
+                    </md-dialog-actions>
+                  </md-dialog>
+                </md-menu>
+                <md-card id="wago-collections">
+                  <div>{{ $t("Collections are sets of imports curated by users for a variety of purproses")}}</div>
+                  <div v-if="wago.collections.length > 0">
+                    <strong>{{ $t("This Wago is included in [-count-] collection", {count: wago.collectionCount}) }}</strong>
+                    <md-table @select="selectVersion">
+                      <md-table-header>
+                        <md-table-row>
+                          <md-table-head>{{ $t("Collection") }}</md-table-head>
+                          <md-table-head>{{ $t("Last Modified") }}</md-table-head>
+                          <md-table-head>{{ $t("User") }}</md-table-head>
+                        </md-table-row>
+                      </md-table-header>
+
+                      <md-table-body>
+                        <md-table-row v-for="(coll, key) in wago.collections" v-bind:key="key">
+                          <md-table-cell>
+                            <router-link :to="coll.slug">{{ coll.name }}</router-link>
+                          </md-table-cell>
+                          <md-table-cell>
+                            {{ coll.modified | moment("dddd, MMMM Do YYYY, h:mm a") }}
+                          </md-table-cell>
+                          <md-table-cell class="userlink">
+                            <md-avatar><ui-image :md-src="coll.user.avatar" alt="Avatar"></ui-image></md-avatar> 
+                            <router-link v-if="coll.user.profile" :to="coll.user.profile" :class="coll.user.class">{{ coll.user.name }}</router-link>
+                            <span v-else :class="coll.user.class">{{ coll.user.name }}</span>
+                          </md-table-cell>
+                        </md-table-row>
+                      </md-table-body>
+                    </md-table>
+                    <md-button v-if="showMoreCollections" @click="loadMoreCollections"><md-icon>list</md-icon> {{ $t("Load more collections" )}}</md-button>
+                  </div>
+                  <div v-else><strong>{{ $t("This WeakAura is not included in any public collections") }}</strong></div>
+                </md-card>
+              </div>
+
+              <!-- EMBED FRAME -->
+              <div id="wago-embed-container" class="wago-container" v-if="showPanel=='embed' && wago.code && wago.code.encoded">
+                <h2>{{ $t("Embed script") }}</h2>
+                <md-card id="wago-embed">
+                  <div>{{ $t("Embed this wago on your own site") }}</div>
+                  <div id="embed-content">
+                    <div id="embed-inputs" class="field-group">
+                      <md-input-container>
+                        <label for="embedStyle">{{ $t("Button Style") }}</label>
+                        <md-select id="embedStyle" v-model="embedStyle">
+                          <md-option value="dark">{{ $t("Dark") }}</md-option>
+                          <md-option value="light">{{ $t("Light") }}</md-option>
+                          <md-option value="none">{{ $t("None") }}</md-option>
+                        </md-select>
+                        <md-button @click="copyEmbed()">{{ $t("Copy code") }}</md-button>
+                      </md-input-container>
+                      <md-input-container>
+                        <label>{{ $t("Embed code") }}</label>
+                        <md-input readonly :value="'<script src=&quot;https://wago.io/' + this.wago._id + '/embed.js?style=' + this.embedStyle + '&quot;></script>'"></md-input>
+                      </md-input-container>
+                    </div>
+                    <div id="embed-preview-container" :class="embedStyle">
+                      <md-subheader>{{ $t("Preview") }}</md-subheader>
+                      <div id="embed-preview">
+                        <span :id="'wago-'+wago._id" class="wagoEmbed">
+                          <a :href="wago.url" class='vr'><img src="https://media.wago.io/logo-57x57.png"></a>
+                          <button @click="embedCopy(this, wago.code.encoded)" class="wagoCopyButton">
+                            <small class="clickToCopyWago">Click to copy import string from wago.io</small>
+                            <div class="wagoName">{{ wago.name }}</div>
+                          </button>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <div>{{ $t("The following HTML code will be generated when you place the embed script on your site") }}</div>
+                  <editor v-model="embedHTML" @init="embedEditorInit" lang="html" :theme="editorTheme" width="100%" height="100" readonly></editor>
+                </md-card>
+              </div>
+
+              <!-- BUILDER FRAME -->
+              <div id="wago-builder-container" class="wago-container" v-if="showPanel=='builder'">
+                <div id="wago-builder">
+                  <build-mdt v-if="wago.type=='MDT'" @set-has-unsaved-changes="setHasUnsavedChanges" @update-encoded="updateEncoded"></build-mdt>
+                </div>
+              </div>
+
+              <!-- EDITOR FRAME -->
+              <div id="wago-editor-container" class="wago-container" v-if="showPanel=='editor'">
+                <div id="wago-editor">
+                  <edit-weakaura v-if="wago.type=='WEAKAURA'" @set-has-unsaved-changes="setHasUnsavedChanges" :unsavedTable="hasUnsavedChanges" @update-encoded="updateEncoded"></edit-weakaura>
+                  <edit-snippet v-else-if="wago.type=='SNIPPET'"></edit-snippet>
+                  <edit-common v-else @set-has-unsaved-changes="setHasUnsavedChanges" @update-encoded="updateEncoded"></edit-common>
+                </div>
+              </div>
+
+              <!-- CODE REVIEW FRAME -->
+              <div id="wago-codereview-container" class="wago-container" v-if="showPanel=='codereview'">
+                <div v-if="wago && wago.codeReview">
+                  Global variables defined: {{ wago.codeReview.countGlobals }}.<br>
+                  Profile runtime: {{ (parseFloat(wago.codeReview.profileRunTime) * 1000).toFixed(2) }}ms.<br>
+                  <div v-for="(errors, aura) in wago.codeReview.errors" :key="aura">Error in {{aura}}: 
+                    <div v-for="(err, index) in errors" :key="index" style="margin-left:12px">{{ err.block }}: {{err.message}}</div>
+                  </div>
+                  <md-table>
+                    <md-table-header>
+                      <md-table-row>
+                        <md-table-head>WeakAura</md-table-head>
+                        <md-table-head>Code Block</md-table-head>
+                        <md-table-head>Function</md-table-head>
+                        <md-table-head md-numeric>Called # Times</md-table-head>
+                        <md-table-head md-numeric>Processing Time</md-table-head>
+                      </md-table-row>
+                    </md-table-header>
+
+                    <md-table-body>
+                      <template v-for="(row, aura) in wago.codeReview.profile">
+                        <md-table-row v-for="(code, index) in row" :key="index" v-if="!code.func">
+                          <md-table-cell>{{ aura }}</md-table-cell>
+                          <md-table-cell>{{ code.block }}</md-table-cell>
+                          <md-table-cell></md-table-cell>
+                          <md-table-cell md-numeric></md-table-cell>
+                          <md-table-cell md-numeric>{{ (parseFloat(code.time) * 1000).toFixed(2) }}ms</md-table-cell>
+                        </md-table-row>
+                        <md-table-row v-for="(code, index) in row" :key="index" v-if="code.func">
+                          <md-table-cell>{{ aura }}</md-table-cell>
+                          <md-table-cell>{{ code.block }}</md-table-cell>
+                          <md-table-cell>{{ code.func }}()</md-table-cell>
+                          <md-table-cell md-numeric>{{ code.calls }}</md-table-cell>
+                          <md-table-cell md-numeric>{{ (parseFloat(code.time) * 1000).toFixed(2) }}ms</md-table-cell>
+                        </md-table-row>
+                      </template>
+                    </md-table-body>
+                  </md-table>
+
+                </div>
+                <div v-else>Loading...</div>
+              </div>          
+
+              <div id="wago-importstring-container" class="wago-container" v-if="wago.code && wago.code.encoded">
+                <textarea id="wago-importstring" class="wago-importstring" spellcheck="false">{{ wago.code.encoded }}</textarea>
+              </div>
+
+              <search v-if="wago.type === 'COLLECTION'" :contextSearch="'Collection: ' + wago._id"></search>
+
             </md-layout>
           </md-layout>
 
-          <ui-warning v-if="wago.expires" mode="info">
-            {{ $t("This import will expire in [-time-]", {time: this.$moment(wago.expires).fromNow() }) }}<br>
-          </ui-warning>
-
-          <ui-warning v-if="wago.fork && wago.fork._id" mode="info" :html="$t('This is a fork of [-id-][-name-]', {id: wago.fork._id, name: wago.fork.name})"></ui-warning>
-
-          <ui-warning v-if="wago.visibility && wago.visibility.private">
-            {{ $t("This import is private only you may view it") }}
-          </ui-warning>
-          <ui-warning v-else-if="wago.visibility && wago.visibility.hidden">
-            {{ $t("This import is hidden only those with the URL may view it") }}
-          </ui-warning>
-
-          <ui-warning v-if="wago.alerts.blacklist" mode="alert">
-            {{ $t("Blacklisted code detected") }}<br>
-            <div v-for="func in wago.alerts.blacklist">{{ func }}</div>
-          </ui-warning>
-          <ui-warning v-else-if="wago.alerts.malicious" mode="alert">
-            {{ $t("Possible malicious code detected") }}<br>
-            <div v-for="func in wago.alerts.malicious">{{ func }}</div>
-          </ui-warning>
-
-          <ui-warning v-if="!isLatestVersion()" mode="info" :html="$t('A more recent version of this import is available view the latest version [-url-]', {url: '/' + $store.state.wago.slug})"></ui-warning>          
-
-          <!-- CONFIG FRAME -->
-          <div id="wago-config-container" class="wago-container" v-if="showPanel=='config'">
-            <md-card id="wago-config">
-              <h3>{{ $t("Text setup")}}</h3>
-              <md-input-container :class="{ 'md-input-invalid': updateNameError, 'md-input-status': updateNameHasStatus }">
-                <label>{{ $t("Title") }}</label>
-                <md-input v-model="editName" @change="onUpdateName()" :debounce="600"></md-input>
-                <span class="md-error" v-if="updateNameStatus.length>0">{{ updateNameStatus }}</span>
-              </md-input-container>
-              <div v-if="User.access.customSlug">
-                <md-input-container :class="{ 'md-input-invalid': updateSlugError, 'md-input-status': updateSlugHasStatus, 'customSlug': true }">
-                  <label>{{ $t("Custom URL") }}</label>
-                  <span class="root">http://wago.io/</span>
-                  <md-input v-model="editSlug" @change="onUpdateSlug()" :debounce="600"></md-input>
-                <span class="md-error" v-if="updateSlugStatus.length>0">{{ updateSlugStatus }}</span>
-                </md-input-container>
-              </div>
-              <md-input-container :class="{ 'md-input-invalid': updateDescError, 'md-input-status': updateDescHasStatus }">
-                <label>{{ $t("Description") }}</label>
-                <md-textarea v-model="editDesc" @change="onUpdateDescription()" :debounce="600"></md-textarea>
-                <span class="md-error" v-if="updateDescStatus.length>0">{{ updateDescStatus }}</span>
-              </md-input-container>
-              <md-input-container>
-                <label for="visibilty">{{ $t("Visibility") }}</label>
-                <md-select name="visibilty" id="visibilty" v-model="editVisibility" @selected="onUpdateVisibility()">
-                  <md-option value="Public" selected>{{ $t("Public") }}</md-option>
-                  <md-option value="Hidden">{{ $t("Hidden (only viewable with link)") }}</md-option>
-                  <md-option value="Private">{{ $t("Private (only you may view)") }}</md-option>
-                </md-select>
-              </md-input-container>
-              <div v-if="!wago.image && !wago.audio">
-                <div>
-                  <label id="categoryLabel">{{ $t("Categories") }}</label>
-                  <md-button class="md-icon-button md-raised" @click="numCategorySets++">
-                    <md-icon>add</md-icon>
-                  </md-button>
-                  <div v-for="n in numCategorySets">
-                    <div class="has-category-select">
-                      <category-select :selectedCategories="editCategories[n-1]" @update="cat => {editCategories[n-1] = cat; onUpdateCategories()}" :type="wago.type.toUpperCase()"></category-select>
-                    </div>
-                  </div>
-                </div>
-                <!--<div v-if="wago.type=='WEAKAURA'">
-                  <label id="betaLabel">{{ $t("Game") }}</label>
-                  <md-button-toggle md-single class="md-accent md-warn">
-                    <md-button :class="{ 'md-toggle': gameMode === '' }" @click="setGameMode('')">Legion Live</md-button>
-                    <md-button :class="{ 'md-toggle': gameMode === 'beta-bfa' }"@click="setGameMode('beta-bfa')">BFA Beta</md-button>
-                  </md-button-toggle>
-                </div>-->
-                <h3>{{ $t("Preview setup")}}</h3>
-                <md-layout>
-                  <md-layout md-flex="75">
-                    <md-input-container :class="{ 'md-input-invalid': pasteURLError, 'md-input-status': pasteURLHasStatus}">
-                      <label>{{ $t("Add an image or video by pasting an image directly or input a URL") }}</label>
-                      <md-input v-model="pasteURL" id="pasteURL" :readonly="pasteURLUploading"></md-input>
-                      <span class="md-error" v-if="pasteURLStatus">{{ pasteURLStatus }}</span>
-                    </md-input-container>
-                  </md-layout>
-                  <md-layout>
-                    <md-input-container>
-                      <md-file v-model="uploadImages" multiple accept="image/*" :placeholder="$t('Or click to upload image')" @selected="onUploadFile($event)"></md-file>
-                    </md-input-container>
-                  </md-layout>
-                </md-layout>
-                <div v-if="wago.videos.length > 0">
-                  <strong>{{ $t("Videos") }}</strong>
-                  <vddl-list :list="wago.screens" :horizontal="true" :drop="onVideoMoved">
-                    <vddl-draggable v-for="(item, index) in wago.videos" :key="item._id" :draggable="item" :index="index" effect-allowed="move" :moved="onVideoMoveOut">
-                      <span class="vddl-delete" @click="onVideoDelete(index)">❌</span>
-                      <md-image :md-src="item.thumb"></md-image>
-                    </vddl-draggable>
-                  </vddl-list>
-                </div>
-                <div v-if="wago.screens.length > 0" class="config-screenshots">
-                  <strong>{{ $t("Screenshots") }}</strong>
-                  <vddl-list :list="wago.screens" :horizontal="true" :drop="onScreenshotMoved">
-                    <vddl-draggable v-for="(item, index) in wago.screens" :key="item._id" :draggable="item" :index="index" effect-allowed="move" :moved="onScreenMoveOut">
-                      <span class="vddl-delete" @click="onScreenDelete(index)">❌</span>
-                      <md-image :md-src="item.src"></md-image>
-                    </vddl-draggable>
-                  </vddl-list>
-                </div>
-              </div>
-
-              <md-card-actions>
-                <md-button id="deleteWago" @click="$refs['deleteWago'].open()">Delete</md-button>
-                <md-dialog md-open-from="#deleteWago" md-close-to="#deleteWago" ref="deleteWago">
-                  <md-dialog-title>{{ $t("Are you sure you want to delete this import?") }}</md-dialog-title>
-                  <md-dialog-content>{{ $t("There is no way to undo this action") }}</md-dialog-content>
-                  <md-dialog-actions>
-                    <md-button class="md-primary" @click="$refs['deleteWago'].close()">Cancel</md-button>
-                    <md-button class="md-primary" @click="onDeleteImport()">Delete</md-button>
-                  </md-dialog-actions>
-                </md-dialog>
-              </md-card-actions>        
-            </md-card>
-          </div>
-
-          <!-- DESCRIPTIONS FRAME -->
-          <div id="wago-description-container" class="wago-container" v-if="showPanel=='description'">
-            <div id="wago-description">
-              <ui-image v-if="wago.image" :img="wago.image.files"></ui-image>
-              <div v-else id="thumbnails">
-                <template v-for="video in wago.videos">
-                  <a class="showvid" :href="video.url" @click.prevent="showVideo(video.embed)"><md-image :md-src="video.thumb"></md-image></a>
-                </template>
-                <lightbox id="mylightbox" :images="wago.screens"></lightbox>
-              </div>
-              <formatted-text :text="wago.description"></Formatted-text>
-            </div>
-          </div>
-
-          <div id="wago-comments-container" class="wago-container">
-            <div id="wago-comments" v-if="showPanel=='comments'">
-              <view-comments :comments="wago.comments" :commentTotal="wago.commentCount" :wagoID="wago._id"></view-comments>
-            </div>
-          </div>
-
-          <!-- VERSIONS FRAME -->
-          <div id="wago-versions-container" class="wago-container" v-if="showPanel=='versions'">
-            <h2>{{ $t("Previous versions") }}</h2>
-            <md-card id="wago-versions">
-              <md-table @select="selectVersion">
-                <md-table-header>
-                  <md-table-row>
-                    <md-table-head>{{ $t("Import Date") }}</md-table-head>
-                    <md-table-head md-numeric>{{ $t("Iteration") }}</md-table-head>
-                    <md-table-head md-numeric>{{ $t("Size") }}</md-table-head>
-                  </md-table-row>
-                </md-table-header>
-
-                <md-table-body>
-                  <md-table-row v-for="(ver, key) in wago.versions.versions" v-bind:key="key" :md-item="ver" md-auto-select md-selection>
-                    <md-table-cell>
-                      {{ ver.date | moment("dddd, MMMM Do YYYY, h:mm a") }}
-                      <md-chip v-if="key===0">{{ $t("Latest version") }}</md-chip>
-                      <md-chip v-if="ver.version===version || (!version && key===0)">{{ $t("Viewing this version") }}</md-chip>
-                    </md-table-cell>
-                    <md-table-cell md-numeric>
-                      {{ ver.version }}
-                    </md-table-cell>
-                    <md-table-cell md-numeric>
-                      {{ ver.size }}
-                    </md-table-cell>
-                  </md-table-row>
-                </md-table-body>
-              </md-table>
-              <md-button v-if="showMoreVersions" @click="loadMoreVersions"><md-icon>list</md-icon> {{ $t("Load more versions" )}}</md-button>
-            </md-card>
-          </div>
-
-          <!-- COLLECTIONS FRAME -->
-          <div id="wago-collections-container" class="wago-container" v-if="showPanel=='collections'">
-            <md-menu md-align-trigger md-size="7" v-if="User.UID">
-              <md-button md-menu-trigger id="addCollectionButton"><md-icon>library_add</md-icon> {{ $t("Add to collection") }}</md-button>
-
-              <md-menu-content>
-                <md-menu-item v-for="coll in User.collections" :key="coll._id" @click="addToCollection(coll._id)">
-                  <md-icon v-if="wago.myCollections.length > 0 && wago.myCollections.indexOf(coll._id) > -1">check</md-icon>
-                  <md-icon v-else>add</md-icon>
-                  {{ coll.name }}
-                </md-menu-item>
-                <md-menu-item @click="openNewCollectionDialog()"><md-icon>add_box</md-icon>{{ $t("Create new collection") }}</md-menu-item>
-              </md-menu-content>
-
-              <md-dialog md-open-from="#addCollectionButton" md-close-to="#addCollectionButton" ref="addCollectionDialog">
-                <md-dialog-title>{{ $t("Create new collection") }}</md-dialog-title>
-
-                <md-dialog-content>
-                  <form>
-                    <md-input-container>
-                      <label>{{ $t("Name") }}</label>
-                      <md-input v-model="addCollectionName" ref="addCollectionNameInput"></md-input>
-                    </md-input-container>
-                  </form>
-                </md-dialog-content>
-
-                <md-dialog-actions>
-                  <md-button @click="$refs.addCollectionDialog.close()">{{ $t("Cancel") }}</md-button>
-                  <md-button class="md-primary" @click="CreateCollection()">{{ $t("Create") }}</md-button>
-                </md-dialog-actions>
-              </md-dialog>
-            </md-menu>
-            <md-card id="wago-collections">
-              <div>{{ $t("Collections are sets of imports curated by users for a variety of purproses")}}</div>
-              <div v-if="wago.collections.length > 0">
-                <strong>{{ $t("This Wago is included in [-count-] collection", {count: wago.collectionCount}) }}</strong>
-                <md-table @select="selectVersion">
-                  <md-table-header>
-                    <md-table-row>
-                      <md-table-head>{{ $t("Collection") }}</md-table-head>
-                      <md-table-head>{{ $t("Last Modified") }}</md-table-head>
-                      <md-table-head>{{ $t("User") }}</md-table-head>
-                    </md-table-row>
-                  </md-table-header>
-
-                  <md-table-body>
-                    <md-table-row v-for="(coll, key) in wago.collections" v-bind:key="key">
-                      <md-table-cell>
-                        <router-link :to="coll.slug">{{ coll.name }}</router-link>
-                      </md-table-cell>
-                      <md-table-cell>
-                        {{ coll.modified | moment("dddd, MMMM Do YYYY, h:mm a") }}
-                      </md-table-cell>
-                      <md-table-cell class="userlink">
-                        <md-avatar><ui-image :md-src="coll.user.avatar" alt="Avatar"></ui-image></md-avatar> 
-                        <router-link v-if="coll.user.profile" :to="coll.user.profile" :class="coll.user.class">{{ coll.user.name }}</router-link>
-                        <span v-else :class="coll.user.class">{{ coll.user.name }}</span>
-                      </md-table-cell>
-                    </md-table-row>
-                  </md-table-body>
-                </md-table>
-                <md-button v-if="showMoreCollections" @click="loadMoreCollections"><md-icon>list</md-icon> {{ $t("Load more collections" )}}</md-button>
-              </div>
-              <div v-else><strong>{{ $t("This WeakAura is not included in any public collections") }}</strong></div>
-            </md-card>
-          </div>
-
-          <!-- EMBED FRAME -->
-          <div id="wago-embed-container" class="wago-container" v-if="showPanel=='embed' && wago.code && wago.code.encoded">
-            <h2>{{ $t("Embed script") }}</h2>
-            <md-card id="wago-embed">
-              <div>{{ $t("Embed this wago on your own site") }}</div>
-              <div id="embed-content">
-                <div id="embed-inputs" class="field-group">
-                  <md-input-container>
-                    <label for="embedStyle">{{ $t("Button Style") }}</label>
-                    <md-select id="embedStyle" v-model="embedStyle">
-                      <md-option value="dark">{{ $t("Dark") }}</md-option>
-                      <md-option value="light">{{ $t("Light") }}</md-option>
-                      <md-option value="none">{{ $t("None") }}</md-option>
-                    </md-select>
-                    <md-button @click="copyEmbed()">{{ $t("Copy code") }}</md-button>
-                  </md-input-container>
-                  <md-input-container>
-                    <label>{{ $t("Embed code") }}</label>
-                    <md-input readonly :value="'<script src=&quot;https://wago.io/' + this.wago._id + '/embed.js?style=' + this.embedStyle + '&quot;></script>'"></md-input>
-                  </md-input-container>
-                </div>
-                <div id="embed-preview-container" :class="embedStyle">
-                  <md-subheader>{{ $t("Preview") }}</md-subheader>
-                  <div id="embed-preview">
-                    <span :id="'wago-'+wago._id" class="wagoEmbed">
-                      <a :href="wago.url" class='vr'><img src="https://media.wago.io/logo-57x57.png"></a>
-                      <button @click="embedCopy(this, wago.code.encoded)" class="wagoCopyButton">
-                        <small class="clickToCopyWago">Click to copy import string from wago.io</small>
-                        <div class="wagoName">{{ wago.name }}</div>
-                      </button>
-                    </span>
-                  </div>
-                </div>
-              </div>
-              <div>{{ $t("The following HTML code will be generated when you place the embed script on your site") }}</div>
-              <editor v-model="embedHTML" @init="embedEditorInit" lang="html" :theme="editorTheme" width="100%" height="100" readonly></editor>
-            </md-card>
-          </div>
-
-          <!-- BUILDER FRAME -->
-          <div id="wago-builder-container" class="wago-container" v-if="showPanel=='builder'">
-            <div id="wago-builder">
-              <build-mdt v-if="wago.type=='MDT'" @set-has-unsaved-changes="setHasUnsavedChanges" @update-encoded="updateEncoded"></build-mdt>
-            </div>
-          </div>
-          <div class="border" v-if="showEditor"></div>
-
-          <!-- EDITOR FRAME -->
-          <div id="wago-editor-container" class="wago-container" v-if="showPanel=='editor'">
-            <div id="wago-editor">
-              <edit-weakaura v-if="wago.type=='WEAKAURA'" @set-has-unsaved-changes="setHasUnsavedChanges" :unsavedTable="hasUnsavedChanges" @update-encoded="updateEncoded"></edit-weakaura>
-              <edit-snippet v-else-if="wago.type=='SNIPPET'"></edit-snippet>
-              <edit-common v-else @set-has-unsaved-changes="setHasUnsavedChanges" @update-encoded="updateEncoded"></edit-common>
-            </div>
-          </div>
-          <div class="border" v-if="showEditor"></div>
-
-          <!-- CODE REVIEW FRAME -->
-          <div id="wago-codereview-container" class="wago-container" v-if="showPanel=='codereview'">
-            <div v-if="wago && wago.codeReview">
-              Global variables defined: {{ wago.codeReview.countGlobals }}.<br>
-              Profile runtime: {{ (parseFloat(wago.codeReview.profileRunTime) * 1000).toFixed(2) }}ms.<br>
-              <div v-for="(errors, aura) in wago.codeReview.errors" :key="aura">Error in {{aura}}: 
-                <div v-for="(err, index) in errors" :key="index" style="margin-left:12px">{{ err.block }}: {{err.message}}</div>
-              </div>
-              <md-table>
-                <md-table-header>
-                  <md-table-row>
-                    <md-table-head>WeakAura</md-table-head>
-                    <md-table-head>Code Block</md-table-head>
-                    <md-table-head>Function</md-table-head>
-                    <md-table-head md-numeric>Called # Times</md-table-head>
-                    <md-table-head md-numeric>Processing Time</md-table-head>
-                  </md-table-row>
-                </md-table-header>
-
-                <md-table-body>
-                  <template v-for="(row, aura) in wago.codeReview.profile">
-                    <md-table-row v-for="(code, index) in row" :key="index" v-if="!code.func">
-                      <md-table-cell>{{ aura }}</md-table-cell>
-                      <md-table-cell>{{ code.block }}</md-table-cell>
-                      <md-table-cell></md-table-cell>
-                      <md-table-cell md-numeric></md-table-cell>
-                      <md-table-cell md-numeric>{{ (parseFloat(code.time) * 1000).toFixed(2) }}ms</md-table-cell>
-                    </md-table-row>
-                    <md-table-row v-for="(code, index) in row" :key="index" v-if="code.func">
-                      <md-table-cell>{{ aura }}</md-table-cell>
-                      <md-table-cell>{{ code.block }}</md-table-cell>
-                      <md-table-cell>{{ code.func }}()</md-table-cell>
-                      <md-table-cell md-numeric>{{ code.calls }}</md-table-cell>
-                      <md-table-cell md-numeric>{{ (parseFloat(code.time) * 1000).toFixed(2) }}ms</md-table-cell>
-                    </md-table-row>
-                  </template>
-                </md-table-body>
-              </md-table>
-
-            </div>
-            <div v-else>Loading...</div>
-          </div>          
-
-          <div id="wago-importstring-container" class="wago-container" v-if="wago.code && wago.code.encoded">
-            <textarea id="wago-importstring" class="wago-importstring" spellcheck="false">{{ wago.code.encoded }}</textarea>
-          </div>
-
-          <search v-if="wago.type === 'COLLECTION'" :contextSearch="'Collection: ' + wago._id"></search>
+          
           
         </div>
 
@@ -559,6 +574,7 @@ export default {
   },
   data: function () {
     return {
+      companionRTC: false,
       videoEmbedHTML: '',
       scanID: '',
       isScanning: false,
@@ -812,6 +828,16 @@ export default {
         this.editSlug = res.slug
         this.editDesc = res.description.text
 
+        if (!this.wago.description.text && this.wago.type === 'WEAKAURA') {
+          this.showPanel = 'editor'
+        }
+        else if (!this.wago.description.text && this.wago.type === 'MDT') {
+          this.showPanel = 'builder'
+        }
+        else {
+          this.showPanel = 'description'
+        }
+
         vue.doNotReloadWago = true
         window.preventScroll = true
         // make sure we're using custom url
@@ -977,7 +1003,7 @@ export default {
       this.$scrollTo('#app')
     },
     watchScroll () {
-      var header = this.$refs.header
+      var header = this.$refs['action-buttons']
       if (!header) {
         this.showFloatingHeader = false
       }
@@ -1478,7 +1504,7 @@ export default {
 #wago-header.md-card h3, #wago-floating-header.md-card h3 { margin: 0 }
 #wago-header.md-card h3 + .md-subheader, #wago-floating-header.md-card h3 + .md-subheader { padding:0; min-height:0 }
 
-#wago-header .md-card-header, #wago-floating-header .md-card-header { padding-left: 0}
+#wago-header .md-card-header, #wago-floating-header .md-card-header { padding-left: 0; padding-right: 4px }
 #wago-header .md-card-header .item, #wago-floating-header .md-card-header .item { padding-left: 0!important; float: left; display: inline; margin-right: 16px; vertical-align: middle }
 @media (min-width: 601px) {
   #wago-header .md-card-header .item+.item { margin-left: 16px; margin-right: 0 }
@@ -1495,20 +1521,29 @@ export default {
   #wago-floating-header { display: none!important}
 }
 
-#wago-tabs { flex: 0 1 auto }
+#wago-tabs { flex: 0 1 auto; flex-direction: column }
+#wago-tabs .md-button-toggle { flex-direction: column }
+#wago-tabs .md-button-toggle button { text-align:left }
 
-#wago-actions {text-align: right; margin-right: 8px}
+#wago-content { flex: 1; flex-direction: column }
+#wago-content > div { margin: 0 8px 16px 0; width: 100%; }
+#addCollectionButton, #newCommentButton { margin-top: 0 }
+
+#wago-actions { flex: 1; padding: 0 }
 #wago-actions button { margin-top: 0 }
-.copy-import-button { border: 2px solid #c1272d; border-radius: 25px; margin: 4px 28px }
+.copy-import-button { border: 2px solid #c1272d; border-radius: 25px; margin: 4px 28px; display: inline-block }
 #wago-collections-container button { margin-left: -2px }
 #wago-floating-header .copy-import-button { margin: -2px 0 0 auto }
 
+#thumbnails img { max-width: 190px; max-height: 107px; width: auto; height: auto; margin: 8px 0 0 8px }
+
 #tags { display: block; clear: both; padding-top: 16px}
-#thumbnails { vertical-align: middle; white-space: nowrap; width: 100%; overflow-x: auto; overflow-y: hidden; }
-#thumbnails div, a.showvid { float: left; vertical-align: middle; display: inline }
-#thumbnails img { padding: 8px 16px 8px 0; max-width: 150px; max-height: 120px; vertical-align: middle }
-#thumbnails img + img { padding: 0 8px }
+.wago-media { width: 160px; text-align: center  }
+.wago-media img, .wago-media a img { padding: 8px 16px; width: 100%; max-height: 120px; display: block; float: none }
+a.showvid { position: relative; display: block; cursor: pointer }
 a.showvid:hover img { transform: scale(1.05); }
+a.showvid .md-icon { width:50px; height: 50px; position:absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); -webkit-transform: translate(-50%, -50%); opacity: .7; font-size: 50px; color: #fff; text-shadow: 0px 0px 30px rgba(0, 0, 0, 0.8); z-index: 9  }
+a.showvid:hover:before  .md-icon { opacity:1 }
 .sl-overlay { background-color: rgba(0, 0, 0, 0.54) }
 
 #wago-config { padding-bottom: 10em!important}
@@ -1518,21 +1553,19 @@ a.showvid:hover img { transform: scale(1.05); }
 .video-wrapper { position: relative; }
 .video-wrapper:before { display: block; content:""; width: 100%; padding-top: 56.25%}
 .video-wrapper iframe { position: absolute; top: 0;	left: 0; bottom: 0; right: 0; width:100%; height: 100% }
-.showvid { position: relative }
-.showvid:after { content: ""; position: absolute; top: 0; left:0; width: 130px; height: 120px; z-index: 2; background: transparent url(./../../assets/play-video.png) no-repeat center; pointer-events: none; opacity:.7 }
-.showvid:hover:after { opacity:1 }
 
 .md-button-toggle { padding: 0 16px 16px; flex-wrap: wrap; }
 .md-button .commentAttn { color: #c2272e !important; -webkit-text-fill-color: #c2272e }
 
 .wago-container { padding: 0 16px; }
-.wago-container > h2 { padding: 0 16px; }
+.wago-container > h2 { padding: 0 16px; margin: 8px 0 16px }
 .wago-container > div { margin: 0; }
 .wago-container .border { border-bottom: 1px solid rgba(128, 128, 128, 0.5) }
 #wago-config, #wago-embed { background: rgba(128, 128, 128, 0.1); padding: 16px;}
 
 #wago-flex-container { display: flex; flex-direction: row; }
 #wago-col-main { flex: 1.5 0 0 }
+#wago-col-main > .md-layout { flex-direction: row }
 #wago-col-side { flex: 1 0 0 }
 
 #wago-versions .md-table .md-table-cell .md-table-cell-container { display: block }
@@ -1554,7 +1587,6 @@ a.showvid:hover img { transform: scale(1.05); }
   #wago-header.md-card { margin: 0}
   #wago-flex-container { flex-direction: column; }
 }
-.my-gallery a img { width: auto }
 
 /* embed preview */
 #embed-preview-container a{display:inline;padding:0 2px;margin:0;border:0}

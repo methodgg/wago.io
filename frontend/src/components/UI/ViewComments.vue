@@ -1,7 +1,7 @@
 <template>
   <div id="comments">
     <md-card-actions v-if="User.UID && replyID != -1">
-      <md-button @click="openReply(-1)">
+      <md-button @click="openReply(-1)" id="newCommentButton">
         <md-icon>comment</md-icon> {{ $t("New comment") }}
       </md-button>
     </md-card-actions>

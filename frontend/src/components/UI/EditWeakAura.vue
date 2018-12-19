@@ -692,10 +692,10 @@ export default {
     },
     editorTheme: function () {
       if (!this.$store.state.user || !this.$store.state.user.config || !this.$store.state.user.config.editor) {
-        return 'tomorrow'
+        return 'terminal'
       }
       else {
-        return this.$store.state.user.config.editor || 'tomorrow'
+        return this.$store.state.user.config.editor || 'terminal'
       }
     }
   }

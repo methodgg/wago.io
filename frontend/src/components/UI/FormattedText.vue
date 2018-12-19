@@ -8,6 +8,7 @@ export default {
   props: ['text', 'truncate', 'plaintext'],
   methods: {
     formatText: function () {
+      console.log(this.text)
       // validate content
       if (!this.text.text) {
         return ''
