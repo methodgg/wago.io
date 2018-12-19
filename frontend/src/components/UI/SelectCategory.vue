@@ -1,7 +1,8 @@
 <template>
-  <multiselect v-model="multiSelectValue" :options="categoryOptions" label="text" :multiple="true" :max="maxSelections" :close-on-select="false" :clear-on-select="false" :hide-selected="true" :placeholder="selectText || ''" :searchable="false" select-label="" open-direction="bottom">
-    <template slot="tag" slot-scope="props"><span :class="'custom__tag ' + props.option.cls">
-      <span>{{ props.option.text }}</span><span class="multiselect_remove" @click="props.remove(props.option)">❌</span></span>
+  <multiselect v-model="multiSelectValue" :options="categoryOptions" label="text" :multiple="true" trackBy="id" :max="maxSelections" :close-on-select="false" :clear-on-select="false" :hide-selected="true" :placeholder="selectText || ''" :searchable="false" select-label="" open-direction="bottom">
+    <template slot="tag" slot-scope="{ option, remove }">
+      <span :class="'custom__tag ' + option.cls"><span>{{ option.text }}</span><span class="multiselect_remove" @click="remove(option)" v-if="(option.root && multiSelectValue.length === 1) || !option.root">❌</span><span v-else style='padding-right:4px'>:</span>
+      </span>
     </template>
     <template slot="option" slot-scope="props">
       <div :class="'md-chip ' + props.option.cls"><div class="option__title">{{ props.option.text }}</div></div>
@@ -31,6 +32,8 @@ export default {
         return this.selectedCategories
       },
       set: function (newValue) {
+        console.trace()
+        console.log('set', newValue)
         this.setOptions(newValue)
         this.$emit('update', newValue)
         return newValue
@@ -46,7 +49,6 @@ export default {
   },
   methods: {
     setOptions (values) {
-      console.log(values)
       if (!values) {
         values = []
       }
@@ -65,7 +67,6 @@ export default {
             var valid = true
             for (var j = 0; j < values.length; j++) {
               if (children[i].id === values[j].id) {
-                console.log(children[i])
                 valid = false
                 break
               }
@@ -88,7 +89,6 @@ export default {
         this.maxSelections = values.length + 1
       }
       else {
-        console.log(this.categoryOptions.length, this.categoryOptions)
         this.maxSelections = values.length
       }
     }

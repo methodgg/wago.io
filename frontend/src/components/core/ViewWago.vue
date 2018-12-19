@@ -1177,16 +1177,15 @@ export default {
       this.updateCatHasStatus = true
       this.updateCatError = false
       this.updateCatStatus = this.$t('Saving')
-      var vue = this
+      this.$set(this.wago, 'categories', cats)
       this.http.post('/wago/update/categories', {
-        wagoID: vue.wago._id,
+        wagoID: this.wago._id,
         cats: catIDs.join(',')
       }).then((res) => {
         if (res.success) {
-          vue.updateCatStatus = vue.$t('Saved')
-          vue.$set(vue.wago, 'categories', cats)
+          this.updateCatStatus = this.$t('Saved')
           setTimeout(function () {
-            vue.updateDescHasStatus = false
+            this.updateDescHasStatus = false
           }, 600)
         }
         else {
