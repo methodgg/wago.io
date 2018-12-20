@@ -195,7 +195,6 @@ export default {
           }
         }
         this.uiRelevanceValue = false
-
         this.tagContext = []
         this.tagMap = {}
         tagSearch.forEach((tagQuery) => {
@@ -224,7 +223,8 @@ export default {
               tagStrMatch = tagMatch[2]
             }
 
-            var tags = tagStrMatch.split(';')
+            var tags = tagStrMatch.split(/;|,/g)
+            console.log(tagStrMatch, tags)
             tags.forEach((thisTag) => {
               var category = Categories.search(thisTag, this.$t)
               if (category) {

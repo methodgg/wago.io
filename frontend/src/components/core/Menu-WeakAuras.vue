@@ -243,4 +243,5 @@ export default {
 
 #search-weakaura .md-subheader { width: 100% }
 #search-weakaura .md-subheader + .md-list { width: 100% }
+.md-list:after { background-color: transparent!important }
 </style>

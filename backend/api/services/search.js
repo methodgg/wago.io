@@ -285,7 +285,7 @@ server.get('/search', (req, res, skipSearch) => {
         if ((tagMatch = regex.exec(tagSearch)) !== null) {
           // valid tag context found. Remove tag from query and search DB
           query = query.replace(tagMatch[0], '').replace(/\s{2,}/, ' ').trim()
-          var tags = (tagMatch[1] || tagMatch[2]).split(',')
+          var tags = (tagMatch[1] || tagMatch[2]).split(/,\s?/g)
           var related = []
           tags.forEach((thisTag) => {
             lookup.categories = lookup.categories || {"$all": []}
@@ -304,6 +304,7 @@ server.get('/search', (req, res, skipSearch) => {
             })
             esFilter.push({bool: { should: esTags } })
           })
+          // console.log(JSON.stringify(esFilter, null, 2))
 
           // if there is only one tag or one set of related tags then we can show other related tags
           if (tagMatch.length === 1 && related.length === 1) {

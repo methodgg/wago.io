@@ -103,4 +103,5 @@ export default {
 #search-vuhdo .md-list-text-container > a { font-size: 18px; font-weight: bold; line-height: 19px; }
 #search-vuhdo .md-list-text-container span{ white-space: normal; line-height: 22px}
 #search-vuhdo .md-layout { align-items: flex-start}
+.md-list:after { background-color: transparent!important }
 </style>

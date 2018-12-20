@@ -231,4 +231,5 @@ export default {
 #search-collections .md-subheader { width: 100% }
 #search-collections .md-subheader + .md-list { width: 100% }
 #search-collections .md-subheader + .md-list:after { background-color: transparent }
+.md-list:after { background-color: transparent!important }
 </style>

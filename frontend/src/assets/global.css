@@ -165,6 +165,10 @@
 .affixes a, .affixes { color: #ef2254!important}
 .multiselect .md-chip.affixes { background-color: #ef2254!important; color: black!important }
 
+.md-chip.affixWeek { color: #55b955!important; background-image: url('menu-affixWeek.png') }
+.affixWeek a, .affixWeek { color: #55b955!important}
+.multiselect .md-chip.affixWeek { background-color: #55b955!important; color: black!important }
+
 .md-chip.speed { color: #42bce4!important; background-image: url('menu-speed.png') }
 .speed a, .speed { color: #42bce4!important}
 .multiselect .md-chip.speed { background-color: #42bce4!important; color: black!important }

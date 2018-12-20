@@ -100,4 +100,5 @@ export default {
 #search-totalrp .md-list-text-container span{ white-space: normal; line-height: 22px}
 #search-totalrp .md-layout { align-items: flex-start}
 #search-totalrp .md-subheader + .md-list:after { background-color: transparent }
+.md-list:after { background-color: transparent!important }
 </style>

@@ -216,7 +216,7 @@ function ScanImport (req, res, next, test) {
           })
         }
         // check for MDT data
-        else if (data && data.value && data.value.currentDungeonIdx) {
+        else if (data && data.value && data.value.currentDungeonIdx && req.user && req.user.access.beta) {
           try {
             scan.type = 'MDT'
             scan.input = req.body.importString
@@ -557,15 +557,10 @@ server.post('/import/submit', function(req, res) {
             wago.categories.push('mdtdun' + json.value.currentDungeonIdx)
           }
 
-          if (json.value.currentAffix == 'fortified') {
-            wago.categories.push('mdtaffix1')
-          }
-          else if (json.value.currentAffix == 'tyrannical') {
-            wago.categories.push('mdtaffix2')
-          }
-          
-          if (json.value.teeming) {
-            wago.categories.push('mdtaffix3')
+          if (json.week && global.mdtDungeonTable.affixWeeks[json.week - 1]) {
+            global.mdtDungeonTable.affixWeeks[json.week - 1].forEach((affixID) => {
+              wago.categories.push('mdtaffix' + affixID)
+            })
           }
         }
 
@@ -922,7 +917,7 @@ function SaveWagoVersion (req, res, mode) {
     else if (type=='ELVUI') {
       encodeFunc = lua.JSON2ElvUI
     }
-    else if (type=='MDT') {
+    else if (type=='MDT' && req.user && req.user.access.beta) {
       encodeFunc = lua.JSON2MDT
     }
     else {
@@ -969,6 +964,17 @@ function SaveWagoVersion (req, res, mode) {
           return res.send({error: 'not_found'})
         }
 
+        if (wago.type === 'MDT' && json.week && global.mdtDungeonTable.affixWeeks[json.week - 1]) {
+          wago.categories = wago.categories.filter((v) => {
+            return !!!v.match(/^mdtaffix/)          
+          })
+          global.mdtDungeonTable.affixWeeks[json.week - 1].forEach((affixID) => {
+            wago.categories.push('mdtaffix' + affixID)
+          })
+          wago.categories = Categories.validateCategories(wago.categories)
+          wago.relevancy = Categories.relevanceScores(wago.categories)
+        }
+
         // good to save
         var code = new WagoCode()
         code.auraID = wago._id
@@ -991,6 +997,7 @@ function SaveWagoVersion (req, res, mode) {
           res.send({success: true, encoded: code.encoded})
         })
       }).catch(e => {
+        logger.error(e.message)
         return res.send({error: 'not_found'})
       })
     })

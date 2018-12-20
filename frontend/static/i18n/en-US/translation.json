@@ -465,6 +465,15 @@
   "Be sure to save or fork to generate a new string with your modifications": "Be sure to save or fork to generate a new string with your modifications.",
   "Set Note": "",
   "Note text": "",
-  "Week [-num-] [-affix1-] [-affix2-] [-affix3-] [-affix4-]": "Week [-num-]: [-affix1-], [-affix2-], [-affix3-], [-affix4-]",
-  "BFA Season 1 Affixes": ""
+  "[-affix1-] [-affix2-] [-affix3-] [-affix4-]": "[-affix1-], [-affix2-], [-affix3-], [-affix4-]",
+  "BFA Season 1 Affixes": "",
+  "Requires Class": "",
+  "BFA Season 1 Affix Weeks": "",
+  "Individual Affixes": "",
+  "BFA Dungeons": "",
+  "Speed Goal": "",
+  "Send to WeakAura Companion App": "",
+  "No description for this import has been provided": "No description for this import has been provided.",
+  "Week [-num-] [-affixes-]": "",
+  "Speed Goals": ""
 }
