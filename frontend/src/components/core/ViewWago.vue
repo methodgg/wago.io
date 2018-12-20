@@ -1535,7 +1535,7 @@ export default {
 #wago-collections-container button { margin-left: -2px }
 #wago-floating-header .copy-import-button { margin: -2px 0 0 auto }
 
-#thumbnails img { max-width: 190px; max-height: 107px; width: auto; height: auto; margin: 8px 0 0 8px }
+#thumbnails img { max-width: 190px; max-height: 107px; width: auto; height: auto; margin: 8px 8px 0 0 }
 
 #tags { display: block; clear: both; padding-top: 16px}
 .wago-media { width: 160px; text-align: center  }
