@@ -361,10 +361,10 @@ module.exports = {
       {id: "mdtaffix-bfa-s1-w11", slug: "affixes/week11", cls:"affixes", text: t("[-affix1-] [-affix2-] [-affix3-] [-affix4-]", {affix1: t('Bolstering'), affix2: t('Explosive'), affix3: t('Tyrannical'), affix4: t('Infested')}), MDT: true, systemtag: true, noselect: true},
       {id: "mdtaffix-bfa-s1-w12", slug: "affixes/week12", cls:"affixes", text: t("[-affix1-] [-affix2-] [-affix3-] [-affix4-]", {affix1: t('Bursting'), affix2: t('Quaking'), affix3: t('Fortified'), affix4: t('Infested')}), MDT: true, systemtag: true, noselect: true},
 
-      {id: "mdtspeed", slug: "speed", cls:"speed", text: t("Speed"), root: true, MDT: true, noselect: true },
-      {id: "mdtspeed1", slug: "speed/easy-going", cls:"speed", text: t("Easy Going"), root: true, MDT: true },
-      {id: "mdtspeed2", slug: "speed/gotta-go-fast", cls:"speed", text: t("Gotta Go Fast"), root: true, MDT: true },
-      {id: "mdtspeed3", slug: "speed/racing-number-one", cls:"speed", text: t("Racing for #1"), root: true, MDT: true },
+      {id: "mdtspeed", slug: "speed", cls:"speed", text: t("Speed"), root: true, MDT: true},
+      {id: "mdtspeed1", slug: "speed/easy-going", cls:"speed", text: t("Easy Going"), MDT: true },
+      {id: "mdtspeed2", slug: "speed/gotta-go-fast", cls:"speed", text: t("Gotta Go Fast"), MDT: true },
+      {id: "mdtspeed3", slug: "speed/racing-number-one", cls:"speed", text: t("Racing for #1"), MDT: true },
 
       {id: "mdtcl6", slug: "classes/death-knight", cls:"cl-deathknight", text: t("warcraft:classes.6"), root: true, MDT: true},
       {id: "mdtcl6-1", slug: "classes/death-knight/blood", cls:"cl-deathknight", text: t("warcraft:classes.6-1"), MDT: true},
