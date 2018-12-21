@@ -475,5 +475,17 @@
   "Send to WeakAura Companion App": "",
   "No description for this import has been provided": "No description for this import has been provided.",
   "Week [-num-] [-affixes-]": "",
-  "Speed Goals": ""
+  "Speed Goals": "",
+  "auratype": {
+    "dynamicgroup": "Dynamic Group",
+    "icon": "Icon",
+    "group": "Group",
+    "aurabar": "Progress Bar",
+    "model": "Model",
+    "stopmotion": "Stop Motion",
+    "progresstexture": "Progress Texture",
+    "text": "Text",
+    "texture": "Texture"
+  },
+  "Included Auras": ""
 }

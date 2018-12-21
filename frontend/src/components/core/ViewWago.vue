@@ -70,7 +70,7 @@
             <div class="md-title">{{ $t("Permalink") }}</div>
             <div class="md-subhead has-link"><a :href="wago.url" @click.prevent="copyURL">{{ wago.url }}</a></div>
           </div>
-          <div class="item" style="float:right" v-if="wago.type === 'WEAKAURA' && companionRTC && wago.code && wago.code.encoded && !wago.alerts.blacklist">
+          <div class="item" style="float:right" v-if="enableCompanionBeta && wago.type === 'WEAKAURA' && wago.code && wago.code.encoded && !wago.alerts.blacklist">
             <md-button @click="sendToCompanionApp" class="copy-import-button">
               <md-icon>airplay</md-icon> {{ $t("Send to WeakAura Companion App") }}
             </md-button>
@@ -115,6 +115,7 @@
               <md-button-toggle class="md-accent" md-single>
                 <md-button v-bind:class="{'md-toggle': showPanel === 'config'}" v-if="wago.user && User && wago.UID && wago.UID === User.UID" @click="toggleFrame('config')">{{ $t("Config") }}</md-button>
                 <md-button v-bind:class="{'md-toggle': showPanel === 'description'}" @click="toggleFrame('description')">{{ $t("Description") }}</md-button>
+                <md-button v-bind:class="{'md-toggle': showPanel === 'includedauras'}" @click="toggleFrame('includedauras')">{{ $t("Included Auras") }}</md-button>
                 <md-button v-bind:class="{'md-toggle': showPanel === 'comments'}" @click="toggleFrame('comments')"><span v-if="hasUnreadComments && showPanel !== 'comments'" class="commentAttn">{{$t("NEW")}}!! </span>{{ $t("[-count-] comment", {count: wago.commentCount }) }}</md-button>
                 <md-button v-bind:class="{'md-toggle': showPanel === 'versions'}" v-if="wago.versions && wago.versions.total > 1" @click="toggleFrame('versions')" ref="versionsButton">{{ $t("[-count-] version", { count: wago.versions.total }) }}</md-button>
                 <md-button v-bind:class="{'md-toggle': showPanel === 'collections'}" v-if="wago.type !== 'COLLECTION'" @click="toggleFrame('collections')">{{ $t("[-count-] collection", {count:  wago.collectionCount}) }}</md-button>
@@ -263,6 +264,16 @@
                 </div>
               </div>
 
+              <!-- INCLUDED AURAS FRAME -->
+              <div id="wago-includedauras-container" class="wago-container" v-if="showPanel=='includedauras'">
+                <div id="wago-includedauras" style="padding-top:6px">
+                  <template v-for="(item, i) in listIncludedAuras()">
+                    <div>{{ item.name }} ({{ item.type }})</div>
+                  </template>
+                </div>
+              </div>
+
+              <!-- COMMENTS FRAME -->
               <div id="wago-comments-container" class="wago-container" v-if="showPanel=='comments'">
                 <div id="wago-comments">
                   <view-comments :comments="wago.comments" :commentTotal="wago.commentCount" :wagoID="wago._id"></view-comments>
@@ -550,6 +561,7 @@ function flatten (arr) {
     return flat.concat(Array.isArray(toFlatten) ? flatten(toFlatten) : toFlatten)
   }, [])
 }
+window.enableCompanion = false
 
 export default {
   components: {
@@ -574,7 +586,6 @@ export default {
   },
   data: function () {
     return {
-      companionRTC: false,
       videoEmbedHTML: '',
       scanID: '',
       isScanning: false,
@@ -620,7 +631,8 @@ export default {
       addCollectionName: '',
       numCategorySets: 1,
       gameMode: '',
-      hasUnsavedChanges: false
+      hasUnsavedChanges: false,
+      enableCompanionBeta: false
     }
   },
   watch: {
@@ -751,6 +763,14 @@ export default {
     }
   },
   methods: {
+    checkCompanionBeta () {
+      this.enableCompanionBeta = window.enableCompanion
+      if (!this.enableCompanionBeta) {
+        setTimeout(() => {
+          this.checkCompanionBeta()
+        }, 500)
+      }
+    },
     loadCodeReview () {
       var vue = this
       vue.http.get('/lookup/codereview', {wagoID: this.wago._id}).then((res) => {
@@ -763,6 +783,7 @@ export default {
       })
     },
     fetchWago () {
+      this.checkCompanionBeta()
       if (this.doNotReloadWago) {
         return false
       }
@@ -816,10 +837,6 @@ export default {
         }
         else {
           vue.showMoreCollections = false
-        }
-
-        if (!res.description.text) {
-          res.description.text = this.MakeDefaultDescription(res)
         }
 
         vue.$store.commit('setWago', res)
@@ -898,35 +915,28 @@ export default {
         this.$set(this.wago.code, 'encoded', str)
       }
     },
-    MakeDefaultDescription (wago) {
-      var desc = ''
-      switch (wago.type) {
-        case 'WEAKAURA':
-          if (wago.code && wago.code.json) {
-            var json = JSON.parse(wago.code.json)
-            if (json.c) {
-              for (var k in json.c) {
-                var caura = json.c[k]
-                if (caura.id && caura.regionType) {
-                  desc = desc + caura.id + ' (' + caura.regionType + ')\n'
-                }
-              }
-            }
-            else if (json.d) {
-              desc = desc + json.d.id + ' (' + json.d.regionType + ')\n'
-              if (json.d.desc) {
-                desc = desc + '\n\n' + json.d.desc
-              }
-            }
+    listIncludedAuras () {
+      var tbl = JSON.parse(this.wago.code.json)
+      let list = [{name: tbl.d.id, type: this.$t('auratype.' + tbl.d.regionType)}]
+      if (tbl.c) {
+        for (var k in tbl.c) {
+          var caura = tbl.c[k]
+          if (caura.id && caura.regionType) {
+            list.push({name: caura.id, type: this.$t('auratype.' + caura.regionType)})
           }
-          return desc
-
-        case 'ELVUI':
-        case 'VUHDO':
-        case 'COLLECTION':
-        case 'SNIPPET':
-          return ''
+        }
       }
+      return list
+    },
+    sendToCompanionApp () {
+      this.http.PostToWACompanion({
+        action: 'Add-Import',
+        name: this.wago.name,
+        url: this.wago.url,
+        user: this.wago.user.name,
+        import: this.wago.code.encoded,
+        version: this.wago.code.version
+      })
     },
     copyEncoded () {
       try {
@@ -1567,6 +1577,10 @@ a.showvid:hover:before  .md-icon { opacity:1 }
 #wago-col-main { flex: 1.5 0 0 }
 #wago-col-main > .md-layout { flex-direction: row }
 #wago-col-side { flex: 1 0 0 }
+
+#wago-includedauras div { font-weight: bold }
+#wago-includedauras div + div { font-weight: normal; padding-left: 24px }
+#wago-includedauras div + div:before { content: '• ' }
 
 #wago-versions .md-table .md-table-cell .md-table-cell-container { display: block }
 #wago-versions .md-table-row { cursor: pointer}

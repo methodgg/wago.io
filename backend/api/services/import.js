@@ -444,7 +444,14 @@ server.post('/import/submit', function(req, res) {
     }
     var ImportPromise = new Promise((importResolve, importReject) => {
       var wago = new WagoItem()
-      wago.type = scan.type
+      wago.type = scan.type      
+
+      if ((wago.type === 'WEAKAURA' || wago.type === 'WEAKAURAS2') && json.d.desc) {
+        wago.description = json.d.desc
+      }
+      else if (wago.type === 'TOTALRP3' && json[2] && json[2].NT) {
+        wago.description = json[2].NT
+      }
       
       switch (req.body.expireAfter) {
         case '15m':
@@ -577,10 +584,6 @@ server.post('/import/submit', function(req, res) {
         wago.hidden = (req.body.visibility === 'Hidden')
         wago.private = (req.body.visibility === 'Private')
         wago.expires = new Date()
-
-        if (wago.type === 'TOTALRP3' && json[2] && json[2].NT) {
-          wago.description = json[2].NT
-        }
 
         if (req.body.expireAfter) {
           switch (req.body.expireAfter) {

@@ -8,8 +8,9 @@ const Schema = new mongoose.Schema({
   updated : { type: Date, default: Date.now },
   lua : { type: String },
   version: Number, // incremental counter
+  semver: String, // semantic version number
   branch: String, // ex "8.0-beta", default is not set for live
-  semver: String,
+  semver: { type: String, index: true },
   changelog: String,
   fix: {
     triggerTable: Boolean // for WA 7.3.6 release that broke imports with triggers Sept 5-6 2018

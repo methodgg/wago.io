@@ -284,7 +284,7 @@ server.get('/lookup/codereview', (req, res) => {
         if (doc.type === 'COLLECTION') {
           return cb()
         }
-        WagoCode.find({auraID: wago._id}).select('json lua version updated').limit(10).sort({updated: -1}).then((versions) => {
+        WagoCode.find({auraID: wago._id}).select('json lua version semver updated').limit(10).sort({updated: -1}).then((versions) => {
           timing.findVersions = Date.now() - start
           if (!versions) {
             return cb()
@@ -293,7 +293,7 @@ server.get('/lookup/codereview', (req, res) => {
             timing.countVersions = Date.now() - start
             var v = []
             for (var i=0; i<versions.length; i++) {
-              v.push({version: count - i, size: (versions[i].json && versions[i].json.length || versions[i].lua && versions[i].lua.length || versions[i].encoded && versions[i].encoded.length || 0), date: versions[i].updated})
+              v.push({version: count - i, semver: versions[i].semver, size: (versions[i].json && versions[i].json.length || versions[i].lua && versions[i].lua.length || versions[i].encoded && versions[i].encoded.length || 0), date: versions[i].updated})
             }
             cb(null, {total: count, versions: v})
           })
