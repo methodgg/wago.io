@@ -10,6 +10,10 @@ module.exports = (jsonA, jsonB, diffOptions) => {
 
   var keys = Object.keys(customB)
   keys.forEach((key) => {
+    // in case something messed up somewhere
+    if (typeof customB[key] !== 'string') {
+      return
+    }
     let diff = gitDiff(customB[key], customA[key] || '', diffOptions)
     if (diff) {
       diffs.push(`--- a/${key}\n+++ b/${key}\n${diff}`)
@@ -19,6 +23,10 @@ module.exports = (jsonA, jsonB, diffOptions) => {
 
   keys = Object.keys(customA)
   keys.forEach((key) => {
+    // in case something messed up somewhere
+    if (typeof customA[key] !== 'string') {
+      return
+    }
     let diff = gitDiff(customA[key], '', diffOptions)
     if (diff) {
       diffs.push(`--- a/${key}\n+++ b/${key}\n${diff}`)
