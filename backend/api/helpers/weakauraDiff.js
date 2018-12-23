@@ -28,11 +28,14 @@ module.exports = (jsonA, jsonB, diffOptions) => {
 }
 
 // ported from frontend's table editor
-function getCustomCode(auras) {
+function getCustomCode(data) {
   var code = {}
-  if (typeof auras === 'object') {
-    auras = Object.values(auras)
+  if (typeof data !== 'object') {
+    return []
   }
+  var auras = Object.keys(data).map((key) => {
+    return data[key];
+  })
   auras.forEach((item, key) => {
     // actions functions
     if (item.actions) {
