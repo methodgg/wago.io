@@ -343,14 +343,13 @@
                       </template>
                     </md-table-body>
                   </md-table>
-                  <md-button v-if="showMoreVersions" @click="loadMoreVersions"><md-icon>list</md-icon> {{ $t("Load more versions" )}}</md-button>
                 </md-card>
                 <md-dialog ref="modifyVersionDialog" id="modifyVersionDialog" @open="focusFieldByRef('modifiedChangelog')">
                   <md-dialog-title>{{ $t("Modify Version") }}</md-dialog-title>
 
                   <md-dialog-content>{{ $t("Note that version numbers must be unique when changing the version number, any subsequent versions will be increased if necessary") }}</md-dialog-content>
 
-                  <input-semver v-model="modifiedVersion"></input-semver>
+                  <input-semver v-model="modifiedVersion" :latestVersion="modifiedPreviousVersion"></input-semver>
 
                   <md-dialog-content>
                     <md-input-container class="changelog-notes">
@@ -697,6 +696,7 @@ export default {
       latestVersion: {},
       modifiedVersionNum: 1,
       modifiedVersion: {},
+      modifiedPreviousVersion: {},
       currentBuild: 1,
       newImportString: '',
       newImportStringStatus: '',
@@ -1547,14 +1547,14 @@ export default {
         ver.changelog = this.newChangelog
         this.$set(this.wago.versions.versions, this.wago.versions.versions.length - this.modifiedVersionNum, ver)
 
-        if (this.wago.versions.versions.length > this.modifiedVersionNum) {
-          var vs = semver.inc(this.modifiedVersion.semver, 'patch')
-          for (let i = this.modifiedVersionNum + 1; i <= this.wago.versions.versions.length; i++) {
-            ver = this.wago.versions.versions[this.wago.versions.versions.length - i]
-            ver.versionString = vs
-            vs = semver.inc(vs, 'patch')
-            this.$set(this.wago.versions.versions, this.wago.versions.versions.length - i, ver)
+        var previous = semver.valid(semver.coerce(this.wago.versions.versions[this.wago.versions.versions.length - 1].versionString))
+        for (let i = this.wago.versions.versions.length - 2; i >= 0; i--) {
+          let next = semver.valid(semver.coerce(this.wago.versions.versions[i].versionString))
+          if (semver.gte(previous, next)) {
+            next = semver.inc(previous, 'patch')
+            this.$set(this.wago.versions.versions[i], 'versionString', next)
           }
+          previous = next
         }
         this.$refs.modifyVersionDialog.close()
       })
@@ -1575,6 +1575,10 @@ export default {
       this.$set(this.modifiedVersion, 'major', semver.major(this.modifiedVersion.semver))
       this.$set(this.modifiedVersion, 'minor', semver.minor(this.modifiedVersion.semver))
       this.$set(this.modifiedVersion, 'patch', semver.patch(this.modifiedVersion.semver))
+
+      if (this.wago.versions.versions[version.version - 1]) {
+        this.modifiedPreviousVersion = {semver: semver.valid(semver.coerce(this.wago.versions.versions[version.version - 1].versionString))}
+      }
 
       this.$refs.modifyVersionDialog.open()
     },
@@ -1758,7 +1762,7 @@ a.showvid:hover:before  .md-icon { opacity:1 }
 
 #wago-flex-container { display: flex; flex-direction: row; }
 #wago-col-main { flex: 1.5 0 0 }
-#wago-col-main > .md-layout { flex-direction: row }
+#wago-col-main > .md-layout { flex-direction: row; flex-wrap: nowrap }
 #wago-col-side { flex: 1 0 0 }
 
 #wago-includedauras div { font-weight: bold }

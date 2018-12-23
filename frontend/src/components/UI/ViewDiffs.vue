@@ -94,7 +94,8 @@ export default {
 </script>
 
 <style>
-#wago-diff .md-input-container { margin-right: 16px; max-width: 150px }
+#wago-diff .md-layout.md-row { flex-wrap: nowrap }
+#wago-diff .md-input-container { margin-right: 16px; max-width: 220px }
 .d2h-file-diff { overflow-x: auto }
 .d2h-tag { display: none }
 .d2h-diff-tbody>tr>td { height: auto }

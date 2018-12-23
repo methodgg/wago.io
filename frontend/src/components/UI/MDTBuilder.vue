@@ -315,6 +315,7 @@ export default {
       tableData: JSON.parse(this.$store.state.wago.code.json),
       latestVersion: {semver: this.$store.state.wago.versions.versions[0].versionString},
       newImportVersion: {major: 1, minor: 0, patch: 1},
+      newChangelog: {},
       enemies: [],
       pullDetails: [],
       showExport: false,

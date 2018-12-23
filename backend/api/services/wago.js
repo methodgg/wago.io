@@ -160,13 +160,21 @@ server.post('/wago/update/version', (req, res) => {
       code.changelog.format = req.body.changelogFormat
       code.save()
 
-      WagoCode.find({auraID: wago._id, version: {$gt: parseInt(req.body.version)}}).then((docs) => {
+      WagoCode.find({auraID: wago._id}).sort('version').then((docs) => {
+        var previous
         docs.forEach((doc) => {
-          if (semver.gt(versionString, doc.versionString)) {
-            doc.versionString = semver.inc(versionString, 'patch')
-            doc.save()
-            versionString = doc.versionString
+          if (!previous) {
+            previous = semver.valid(semver.coerce(doc.versionString))
+            return
           }
+
+          let next = semver.valid(semver.coerce(doc.versionString))
+          if (semver.gte(previous, next)) {
+            next = semver.inc(previous, 'patch')
+            doc.versionString = next
+            doc.save()
+          }
+          previous = next
         })
       })
 
