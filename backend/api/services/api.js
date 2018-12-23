@@ -33,7 +33,7 @@ server.get('api/addons', (req, res, next) => {
       wago.slug = doc.custom_slug || doc._id
       wago.url = doc.url
       wago.created = doc.created
-      wago.modified = doc.modified
+      wago.modified = doc.modified      
 
       // if requested by Buds' WA Updater app, update installed count
       if (req.headers['identifier'] && req.headers['user-agent'].match(/Electron/)) { 
@@ -53,8 +53,13 @@ server.get('api/addons', (req, res, next) => {
           }
         },
         version: (cb) => {
-          WagoCode.count({auraID: doc._id}).then((count) => {
-            wago.version = count
+          WagoCode.lookup(wago._id).select('version versionString').then((code) => {
+            wago.version = code.version
+            var versionString = code.versionString
+            if (versionString !== '1.0.' (code.version + 1) && versionString !== '0.0.' + code.version) {
+              versionString = versionString + '-' + versions[i].version
+            }
+            wago.versionString = versionString
             cb()
           })
         }}, () => {

@@ -13,8 +13,30 @@
       </div>
       <div class="flex-col flex-right"> 
         <md-button @click="exportChanges"><md-icon>open_in_new</md-icon> {{ $t("Export/Fork changes") }}</md-button>
-        <md-button v-if="canEdit" @click="saveChanges"><md-icon>save</md-icon> {{ $t("Save changes") }}</md-button>
+        <md-button v-if="canEdit" @click="$refs['saveChangesDialog'].open()" ref="saveChangesButton"><md-icon>save</md-icon> {{ $t("Save changes") }}</md-button>
       </div>
+      <md-dialog md-open-from="#saveChangesButton" md-close-to="#saveChangesButton" ref="saveChangesDialog" id="saveChangesDialog" :focus="true">
+        <md-dialog-title>{{ $t("Save Modifications") }}</md-dialog-title>
+
+        <input-semver v-model="newImportVersion" :latestVersion="latestVersion"></input-semver>
+
+        <md-dialog-content>
+          <md-input-container class="changelog-notes">
+            <label>{{ $t("Changelog") }}</label>
+            <md-textarea v-model="newChangelog.text" :placeholder="$t('You may enter any patch notes or updates here')"></md-textarea>
+          </md-input-container>
+          <div>
+            <div class="md-radio md-theme-default"><label class="md-radio-label">{{ $t("Format") }}</label></div>
+            <md-radio v-model="newChangelog.format" md-value="bbcode">BBCode</md-radio>
+            <md-radio v-model="newChangelog.format" md-value="markdown">Markdown</md-radio>
+          </div>
+        </md-dialog-content>
+
+        <md-dialog-actions>
+          <md-button class="md-primary" @click="saveChanges()">{{ $t("Save") }}</md-button>
+          <md-button class="md-primary" @click="$refs['saveChangesDialog'].close()">{{ $t("Cancel") }}</md-button>
+        </md-dialog-actions>
+      </md-dialog>
     </div>
 
     <md-layout md-row style="flex-wrap: nowrap">
@@ -281,6 +303,8 @@
   
 
 <script>
+const semver = require('semver')
+
 export default {
   name: 'build-mdt',
   data: function () {
@@ -289,6 +313,8 @@ export default {
       mdtLoading: true,
       tableString: this.$store.state.wago.code.json,
       tableData: JSON.parse(this.$store.state.wago.code.json),
+      latestVersion: {semver: this.$store.state.wago.versions.versions[0].versionString},
+      newImportVersion: {major: 1, minor: 0, patch: 1},
       enemies: [],
       pullDetails: [],
       showExport: false,
@@ -368,7 +394,14 @@ export default {
   components: {
     'export-modal': require('./ExportJSON.vue'),
     'mdt-enemy-portrait': require('./MDTEnemyPortrait.vue'),
-    'mdt-poi': require('./MDTPOI.vue')
+    'mdt-poi': require('./MDTPOI.vue'),
+    'input-semver': require('../UI/Input-Semver.vue')
+  },
+  mounted () {
+    this.latestVersion.semver = semver.valid(semver.coerce(this.wago.versions.versions[0].versionString))
+    this.latestVersion.major = semver.major(this.latestVersion.semver)
+    this.latestVersion.minor = semver.minor(this.latestVersion.semver)
+    this.latestVersion.patch = semver.patch(this.latestVersion.semver)
   },
   methods: {
     init () {
@@ -1089,6 +1122,7 @@ export default {
     },
 
     saveChanges () {
+      this.$refs['saveChangesDialog'].close()
       var post = {}
       post.wagoID = this.wago._id
       post.type = this.wago.type
@@ -1098,6 +1132,7 @@ export default {
       else {
         post.json = this.tableString
       }
+      post.newVersion = this.newImportVersion.semver
       var vue = this
       this.http.post('/import/json/save', post).then((res) => {
         if (res.success) {
@@ -1106,6 +1141,13 @@ export default {
           this.$emit('set-has-unsaved-changes', false)
           if (res.encoded) {
             this.$emit('update-encoded', res.encoded)
+          }
+          if (res.latestVersion) {
+            this.$set(this.latestVersion, 'semver', semver.valid(semver.coerce(res.latestVersion)))
+            this.$set(this.latestVersion, 'major', semver.major(this.latestVersion.semver))
+            this.$set(this.latestVersion, 'minor', semver.minor(this.latestVersion.semver))
+            this.$set(this.latestVersion, 'patch', semver.patch(this.latestVersion.semver))
+            this.$emit('update-version', res.latestVersion)
           }
         }
         else if (res && res.error) {
@@ -1209,4 +1251,5 @@ export default {
 #mdtEditNote .md-input-container:after { margin: 0 16px }
 #builder.annotate-crosshair { cursor: crosshair }
 #builder.annotate-note { cursor: cell }
+#saveChangesDialog .md-dialog { min-width: 40% }
 </style>

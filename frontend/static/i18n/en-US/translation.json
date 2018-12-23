@@ -487,5 +487,22 @@
     "text": "Text",
     "texture": "Texture"
   },
-  "Included Auras": ""
+  "Included Auras": "",
+  "New version number": "",
+  "Version": "",
+  "Save Modifications": "",
+  "Save": "",
+  "New version number must be greater than [-version-]": "",
+  "View this version": "",
+  "Modify Version": "",
+  "Note that version numbers must be unique when changing the version number, any subsequent versions will be increased if necessary": "",
+  "Changelog": "",
+  "You may enter any patch notes or updates here": "",
+  "Format": "",
+  "Select default editor syntax": "",
+  "Code Diffs": "",
+  "Description Format": "",
+  "Active": "",
+  "Open": "",
+  "View notes": ""
 }

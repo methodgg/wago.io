@@ -1,11 +1,13 @@
 <template>
-  <div v-html="formatText()" v-bind:class="{ noFormat: truncate > 0 }" :class="'usertext ' + text.format "></div>
+  <div v-html="formatText()" v-bind:class="{ noFormat: truncate > 0 }" :class="'usertext ' + (text.format || 'bbcode') "></div>
 </template>
 
 <script>
 import XBBCode from '../libs/xbbcode'
+const markdown = require('markdown').markdown
+
 export default {
-  props: ['text', 'truncate', 'plaintext'],
+  props: ['text', 'truncate', 'plaintext', 'enableLinks'],
   methods: {
     formatText: function () {
       // validate content
@@ -33,9 +35,18 @@ export default {
           tags: {},
           removeMisalignedTags: true,
           addInLineBreaks: !(this.truncate > 0),
-          enableURLs: this.text.enableLinks && !(this.truncate),
-          enableWagoURLs: this.text.enableLinks && !(this.truncate)
+          enableURLs: this.enableLinks && !(this.truncate),
+          enableWagoURLs: this.enableLinks && !(this.truncate)
         }).html
+      }
+
+      // format markdown
+      else if (this.text.format === 'markdown') {
+        var html = markdown.toHTML(this.text.text)
+        if (!this.enableLinks || this.truncate) {
+          html = html.replace(/<\/?a(?:(?= )[^>]*)?>/g, '')
+        }
+        return html
       }
 
       else {

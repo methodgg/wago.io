@@ -2,6 +2,8 @@
  * Standard lookup requests
  */
 const lua = require('../helpers/lua')
+const gitDiff = require('git-diff')
+const weakauraDiff = require('../helpers/weakauraDiff')
 var wowPatches = require('../helpers/wowPatches')
 
 function doNothing () {}
@@ -117,9 +119,7 @@ server.get('/lookup/codereview', (req, res) => {
           u.searchable = !user.account.hidden
           u.roleClass = user.roleclass
           u.avatar = user.avatarURL
-          if (user.account.verified_human) {
-            wago.description.enableLinks = true
-          }
+          u.enableLinks = user.account.verified_human
           cb(null, u)
         })
       },
@@ -239,19 +239,27 @@ server.get('/lookup/codereview', (req, res) => {
           if (!code) {
             return cb()
           }
+          
+          var versionString = code.versionString
+          if (versionString !== '1.0.' + (code.version - 1) && versionString !== '0.0.' + code.version) {
+            versionString = versionString + '-' + code.version
+          }
+
           if (doc.type === 'SNIPPET') {
-            cb(null, {lua: code.lua})
+            cb(null, {lua: code.lua, version: code.version, versionString: versionString, changelog: code.changelog})
           }
           else if (wago.type === 'WEAKAURA') {
             var json = JSON.parse(code.json)
-            if (code.version && ((json.d.version !== code.version || json.d.url !== wago.url + '/' + code.version) || (json.c && json.c[0].version !== code.version))) {
+            if (code.version && ((json.d.version !== code.version || json.d.url !== wago.url + '/' + code.version) || (json.c && json.c[0].version !== code.version) || (json.d.semver !== code.versionString))) {
               json.d.url = wago.url + '/' + code.version
               json.d.version = code.version
+              json.d.semver = versionString
 
               if (json.c) {
                 for (let i = 0; i < json.c.length; i++) {
                   json.c[i].url = wago.url + '/' + code.version
                   json.c[i].version = code.version
+                  json.c[i].semver = versionString
                 }
               }
 
@@ -260,11 +268,11 @@ server.get('/lookup/codereview', (req, res) => {
               lua.JSON2WeakAura(code.json, (error, result) => {
                 code.encoded = result.stdout
                 code.save()           
-                cb(null, {json: code.json, encoded: code.encoded})
+                cb(null, {json: code.json, encoded: code.encoded, version: code.version, versionString: versionString, changelog: code.changelog})
               })
             }
             else {
-              cb(null, {json: code.json, encoded: code.encoded})
+              cb(null, {json: code.json, encoded: code.encoded, version: code.version, versionString: versionString, changelog: code.changelog})
             }
           }
           // for now we'll convert all RP3 strings to the old format
@@ -272,11 +280,11 @@ server.get('/lookup/codereview', (req, res) => {
             lua.JSON2TotalRP3(code.json, (error, result) => {
               code.encoded = result.stdout
               code.save()           
-              cb(null, {json: code.json, encoded: code.encoded})
+              cb(null, {json: code.json, encoded: code.encoded, version: code.version, versionString: versionString, changelog: code.changelog})
             })
           }
           else {
-            cb(null, {json: code.json, encoded: code.encoded})
+            cb(null, {json: code.json, encoded: code.encoded, version: code.version, versionString: versionString, changelog: code.changelog})
           }     
         })
       },
@@ -284,7 +292,7 @@ server.get('/lookup/codereview', (req, res) => {
         if (doc.type === 'COLLECTION') {
           return cb()
         }
-        WagoCode.find({auraID: wago._id}).select('json lua version semver updated').limit(10).sort({updated: -1}).then((versions) => {
+        WagoCode.find({auraID: wago._id}).sort({updated: -1}).then((versions) => {
           timing.findVersions = Date.now() - start
           if (!versions) {
             return cb()
@@ -293,7 +301,11 @@ server.get('/lookup/codereview', (req, res) => {
             timing.countVersions = Date.now() - start
             var v = []
             for (var i=0; i<versions.length; i++) {
-              v.push({version: count - i, semver: versions[i].semver, size: (versions[i].json && versions[i].json.length || versions[i].lua && versions[i].lua.length || versions[i].encoded && versions[i].encoded.length || 0), date: versions[i].updated})
+              var versionString = versions[i].versionString
+              if (versionString !== '1.0.' + (versions[i].version - 1) && versionString !== '0.0.' + versions[i].version) {
+                versionString = versionString + '-' + versions[i].version
+              }
+              v.push({version: versions[i].version, versionString: versionString, size: (versions[i].json && versions[i].json.length || versions[i].lua && versions[i].lua.length || versions[i].encoded && versions[i].encoded.length || 0), date: versions[i].updated, changelog: versions[i].changelog})
             }
             cb(null, {total: count, versions: v})
           })
@@ -398,17 +410,51 @@ server.get('/lookup/wago/versions', (req, res, next) => {
       return res.send(404, {error: "page_not_found"})
     }
 
-    WagoCode.find({auraID: req.params.id}).select('json version updated').skip(10).sort({updated: -1}).then((versions) => {
+    WagoCode.find({auraID: req.params.id}).select('json version updated versionString changelog').skip(10).sort({updated: -1}).then((versions) => {
       if (!versions) {
         return cb()
       }
       WagoCode.count({auraID: req.params.id}).then((count) => {
         var v = []
         for (var i=0; i<versions.length; i++) {
-          v.push({version: count - i - 10, size: versions[i].json.length, date: versions[i].updated})
+          v.push({version: count - i - 10, versionString: versions[i].versionString, size: versions[i].json.length, date: versions[i].updated, changelog: versions[i].changelog})
         }
         return res.send(v)
       })
+    })
+  })
+})
+
+server.get('/lookup/wago/diffs', (req, res, next) => {
+  if (!req.params.id || !req.params.left || !req.params.right) {
+    return res.send(404, {error: "page_not_found"})
+  }
+  WagoItem.lookup(req.params.id).then((doc) => {
+    if (!doc || doc.deleted) {
+      return res.send(404, {error: "page_not_found"})
+    }
+
+    if (doc.private && (!req.user || !req.user._id.equals(doc._userId))) {
+      return res.send(404, {error: "page_not_found"})
+    }
+
+    var tables = {}
+    async.each(['left', 'right'], (side, cb) => {
+      WagoCode.lookup(doc._id, req.params[side]).then((code) => {
+        tables[side] = code.json || code.lua
+        cb()
+      })
+    }, () => {
+      const diffOpts = {flags: '--diff-algorithm=minimal --ignore-space-at-eol'}
+      if (doc.type === 'SNIPPET') {
+        return res.send(['--- a/Snippet\n+++ b/Snippet\n' + gitDiff(tables.right, tables.left, diffOpts)])
+      }
+      else if (doc.type !== 'WEAKAURAS2' && doc.type !== 'WEAKAURA') {
+        return res.send(['--- a/Table\n+++ b/Table\n' + gitDiff(tables.right, tables.left, diffOpts)])
+      }
+      else {
+        return res.send(weakauraDiff(tables.left, tables.right, diffOpts))
+      }
     })
   })
 })

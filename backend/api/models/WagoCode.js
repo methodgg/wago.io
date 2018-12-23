@@ -8,10 +8,12 @@ const Schema = new mongoose.Schema({
   updated : { type: Date, default: Date.now },
   lua : { type: String },
   version: Number, // incremental counter
-  semver: String, // semantic version number
+  versionString: { type: String, index: true }, // semantic version number
   branch: String, // ex "8.0-beta", default is not set for live
-  semver: { type: String, index: true },
-  changelog: String,
+  changelog: {
+    text: String,
+    format: String
+  },
   fix: {
     triggerTable: Boolean // for WA 7.3.6 release that broke imports with triggers Sept 5-6 2018
   }
@@ -26,9 +28,12 @@ Schema.index({json: 'text', lua: 'text'})
 Schema.statics.lookup = function(id, version) {
   return new Promise((resolve, reject) => {
     var find
-    if (version && version > 0 && parseInt(version) == version) {
-      find = this.findOne({auraID: id}).sort({updated: 1}).skip(version - 1)
+    if (version && typeof version === 'string' && version.match(/\d+\.\d+\.\d+/)) {
+      find = this.findOne({auraID: id, versionString: version})
     }
+    else if (version && parseInt(version) == version && version > 0) {
+      find = this.findOne({auraID: id}).sort({updated: 1}).skip(parseInt(version) - 1)
+    }    
     else {
       find = this.findOne({auraID: id}).sort({updated: -1})
     }
@@ -36,26 +41,41 @@ Schema.statics.lookup = function(id, version) {
       if (!doc) {
         return reject({err: 'No code found'})
       }
-      if ((!doc.version || (version && doc.version > version)) || (!doc.version && !version)) {
-        // if viewing latest version or there is some weirdness, set to latest version
-        this.count({auraID: id}).then((num) => {
-          doc.version = num
-          doc.save()
-          resolve(doc)
+      if ((!doc.versionString || !doc.version || (version && doc.version > version)) || (!doc.version && !version)) {
+        // missing version numbers here, so add them in for all versions
+        WagoCode.find({auraID: id}).sort({updated: 1}).then((versions) => {
+          async.forEachOf(versions, (codeVersion, i, cb) => {
+            i++
+            if (codeVersion.version && codeVersion.versionString) {
+              return cb()
+            }
+            else if (!codeVersion.versionString && i == versions.length) {
+              codeVersion.versionString = '1.0.0'
+            }
+            else if (!codeVersion.versionString) {
+              codeVersion.versionString = '0.0.' + i
+            }
+            codeVersion.version = i            
+            codeVersion.save().then(() => {
+              if ((!version && i === versions.length) || i === version) {
+                doc.versionString = codeVersion.versionString
+                doc.version = codeVersion.version
+                doc.save().then(() => {
+                  resolve(doc)
+                })
+              }
+              cb()
+            })
+          }, () => {
+            resolve(doc)
+          })
         })
       }
-      // if viewing an older version and version number is not set, then set it
-      if ((!doc.version && version) || doc.version > version) {
-        doc.version = version
-        doc.save()
-        return resolve(doc)
-      }
-      // otherwise version is set correctly
       else {
         resolve(doc)
       }
     }).catch((e) => {
-      logger.error(e.message)
+      logger.error(e)
     })
   })
 }

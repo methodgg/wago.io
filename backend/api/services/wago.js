@@ -1,3 +1,5 @@
+const semver = require('semver')
+
 // sets favorite for a wago
 server.post('/wago/star', (req, res, next) => {
   if (!req.user) {
@@ -127,8 +129,47 @@ server.post('/wago/update/desc', (req, res) => {
     }
 
     wago.description = req.body.desc || ''
-    wago.description_format = req.body.format || 1 // 1=BBcode, 2=Markdown
+    wago.description_format = req.body.format || 'bbcode'
     wago.save().then(() => {
+      res.send({success: true})
+    })
+  })
+})
+
+// update wago version
+server.post('/wago/update/version', (req, res) => {
+  if (!req.user || !req.body.wagoID) {
+    return res.send(403, {error: "forbidden"})
+  }
+  var versionString = semver.valid(semver.coerce(req.body.versionString))
+  if (!versionString || !req.body.version) {
+    return res.send(400, {error: "bad input"})
+  }
+
+  WagoItem.findById(req.body.wagoID).then((wago) => {
+    if (!wago || !wago._userId.equals(req.user._id)) {
+      return res.send(404, {error: "no_wago"})
+    }
+
+    WagoCode.lookup(wago._id, req.body.version).then((code) => {
+      if (!code) {
+        return res.send(404, {error: "no_code"})
+      }
+      code.versionString = versionString
+      code.changelog.text = req.body.changelog
+      code.changelog.format = req.body.changelogFormat
+      code.save()
+
+      WagoCode.find({auraID: wago._id, version: {$gt: parseInt(req.body.version)}}).then((docs) => {
+        docs.forEach((doc) => {
+          if (semver.gt(versionString, doc.versionString)) {
+            doc.versionString = semver.inc(versionString, 'patch')
+            doc.save()
+            versionString = doc.versionString
+          }
+        })
+      })
+
       res.send({success: true})
     })
   })

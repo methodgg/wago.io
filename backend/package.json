@@ -56,7 +56,9 @@
     "winston-daily-rotate-file": "^3.5.1",
     "winston-loggly-bulk": "^2.0.3"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "git-diff": "^2.0.6"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

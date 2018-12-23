@@ -70,6 +70,11 @@
       <md-card>
         <h2>{{ $t("Website Options") }}</h2>
         <md-card-content>
+          <p>{{ $t("Select default editor syntax") }}</p>
+          <md-button-toggle md-single class="md-primary">
+            <md-button v-bind:class="{'md-toggle': selectEditorSyntax === 'bbcode'}" @click="setEditorSyntax('bbcode')">BBCode</md-button>
+            <md-button v-bind:class="{'md-toggle': selectEditorSyntax === 'markdown'}" @click="setEditorSyntax('markdown')">Markdown</md-button>
+          </md-button-toggle>
           <p>{{ $t("Select site theme") }}</p>
           <md-button-toggle md-single class="md-primary">
             <md-button v-bind:class="{'md-toggle': selectTheme === 'classic'}" @click="setTheme('classic')">{{ $t("Classic") }}</md-button>
@@ -237,6 +242,7 @@ function()
     return true
   end
 end`,
+      selectEditorSyntax: this.$store.state.user.defaultEditorSyntax || 'bbcode',
       currentPasswordError: '',
       currentPassword: '',
       newPassword: '',
@@ -422,6 +428,17 @@ end`,
       this.http.post('/account/update/theme', {
         theme: this.selectTheme,
         editor: theme
+      })
+    },
+
+    setEditorSyntax (syntax) {
+      this.selectEditorSyntax = syntax
+      var user = this.$store.state.user
+      user.defaultEditorSyntax = syntax
+      this.$store.commit('setUser', user)
+
+      this.http.post('/account/update/editorSyntax', {
+        syntax: syntax
       })
     },
 

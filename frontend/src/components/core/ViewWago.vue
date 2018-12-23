@@ -14,7 +14,7 @@
       <md-card id="wago-header" ref="header">
         <md-layout>
           <div class="floating-header">
-            <h3>{{ wago.name }}</h3>
+            <h3>{{ wago.name }} <span class="version-number">v{{ currentVersionString }}</span></h3>
             <md-subheader>{{ wago.type }}</md-subheader>
           </div>          
           <!-- ACTIONS -->
@@ -23,7 +23,7 @@
               <md-icon v-if="wago.myfave">star</md-icon>
               <md-icon v-else>star_border</md-icon> {{ $t("Favorite") }}
             </md-button>
-            <md-button v-if="wago.user && User && wago.UID && wago.UID === User.UID && wago.code && wago.code.encoded" @click="$refs['newImportDialog'].open()" id="newImportButton"><md-icon>input</md-icon> {{ $t("Import new string") }}</md-button>
+            <md-button v-if="wago.user && User && wago.UID && wago.UID === User.UID && wago.code && wago.code.encoded" @click="generateNextVersionData(); $refs['newImportDialog'].open()" id="newImportButton"><md-icon>input</md-icon> {{ $t("Import new string") }}</md-button>
             <md-button v-if="hasUnsavedChanges && wago.code && wago.code.encoded && !wago.alerts.blacklist" @click="copyEncoded" class="copy-import-button">
               <md-icon>assignment</md-icon> {{ $t("Copy [-type-] import string", {type: wago.type}) }}
               <md-tooltip md-direction="bottom" class="CopyWarningTooltip"><strong>{{ $t("You have unsaved changes") }}</strong><br>{{ $t("Be sure to save or fork to generate a new string with your modifications") }}</md-tooltip>
@@ -33,19 +33,33 @@
             </md-button>
             <md-button v-if="wago.image && wago.image.files.tga" :href="wago.image.files.tga" class="copy-import-button"><md-icon>file_download</md-icon> {{ $t("Download tga file") }}</md-button>
           </md-card-actions>
-          <md-dialog v-if="wago.user && User && wago.UID && wago.UID === User.UID" md-open-from="#newImportButton" md-close-to="#newImportButton" ref="newImportDialog" id="newImportDialog">
+          <md-dialog v-if="wago.user && User && wago.UID && wago.UID === User.UID" md-open-from="#newImportButton" md-close-to="#newImportButton" ref="newImportDialog" id="newImportDialog" @open="focusFieldByRef('importStringField')">
             <md-dialog-title>{{ $t("Import new string") }}</md-dialog-title>
 
             <md-dialog-content>
               <md-input-container :class="{ 'md-input-invalid': newImportString && newImportStringStatus.indexOf('Invalid') >= 0, 'md-input-status': newImportStringStatus }">
                 <label>{{ $t("Paste a new [-type-] string to update this Wago", {type: wago.type.toLowerCase() }) }}</label>
-                <md-input v-model="newImportString"></md-input>
+                <md-input v-model="newImportString" ref="importStringField"></md-input>
                 <span class="md-error" v-if="newImportStringStatus.length>0">{{ newImportStringStatus }}</span>
               </md-input-container>
             </md-dialog-content>
 
+            <input-semver v-model="newImportVersion" :latestVersion="latestVersion"></input-semver>
+
+            <md-dialog-content>
+              <md-input-container class="changelog-notes">
+                <label>{{ $t("Changelog") }}</label>
+                <md-textarea v-model="newChangelog.text" :placeholder="$t('You may enter any patch notes or updates here')"></md-textarea>
+              </md-input-container>
+              <div>
+                <div class="md-radio md-theme-default"><label class="md-radio-label">{{ $t("Format") }}</label></div>
+                <md-radio v-model="newChangelog.format" md-value="bbcode">BBCode</md-radio>
+                <md-radio v-model="newChangelog.format" md-value="markdown">Markdown</md-radio>
+              </div>
+            </md-dialog-content>
+
             <md-dialog-actions>
-              <md-button class="md-primary" @click="onUpdateImportString()" :disabled="!newImportString || newImportStringStatus.indexOf('Invalid') >= 0">{{ $t("Update") }}</md-button>
+              <md-button class="md-primary" @click="onUpdateImportString()" :disabled="!newImportString || newImportStringStatus.indexOf('Invalid') >= 0 || newImportVersionError.length > 0">{{ $t("Update") }}</md-button>
               <md-button class="md-primary" @click="$refs['newImportDialog'].close()">{{ $t("Cancel") }}</md-button>
             </md-dialog-actions>
           </md-dialog>
@@ -91,7 +105,7 @@
       <md-card id="wago-floating-header" v-if="showFloatingHeader">
         <div class="floating-header">
           <div>
-            <h3>{{ wago.name }}</h3>
+            <h3>{{ wago.name }} <span class="version-number">v{{ currentVersionString }}</span></h3>
             <md-subheader>{{ wago.type }}</md-subheader>
           </div>
           <div>
@@ -117,8 +131,9 @@
                 <md-button v-bind:class="{'md-toggle': showPanel === 'description'}" @click="toggleFrame('description')">{{ $t("Description") }}</md-button>
                 <md-button v-bind:class="{'md-toggle': showPanel === 'includedauras'}" @click="toggleFrame('includedauras')">{{ $t("Included Auras") }}</md-button>
                 <md-button v-bind:class="{'md-toggle': showPanel === 'comments'}" @click="toggleFrame('comments')"><span v-if="hasUnreadComments && showPanel !== 'comments'" class="commentAttn">{{$t("NEW")}}!! </span>{{ $t("[-count-] comment", {count: wago.commentCount }) }}</md-button>
-                <md-button v-bind:class="{'md-toggle': showPanel === 'versions'}" v-if="wago.versions && wago.versions.total > 1" @click="toggleFrame('versions')" ref="versionsButton">{{ $t("[-count-] version", { count: wago.versions.total }) }}</md-button>
                 <md-button v-bind:class="{'md-toggle': showPanel === 'collections'}" v-if="wago.type !== 'COLLECTION'" @click="toggleFrame('collections')">{{ $t("[-count-] collection", {count:  wago.collectionCount}) }}</md-button>
+                <md-button v-bind:class="{'md-toggle': showPanel === 'versions'}" v-if="wago.versions && wago.versions.total > 1" @click="toggleFrame('versions')" ref="versionsButton">{{ $t("[-count-] version", { count: wago.versions.total }) }}</md-button>
+                <md-button v-bind:class="{'md-toggle': showPanel === 'diffs'}" v-if="wago.versions && wago.versions.total > 1 && (wago.type === 'WEAKAURA' || wago.type === 'SNIPPET')" @click="toggleFrame('diffs')" ref="diffsButton">{{ $t("Code Diffs") }}</md-button>
                 <md-button v-bind:class="{'md-toggle': showPanel === 'embed'}" v-if="!wago.alerts.blacklist && wago.code && wago.code.encoded" @click="toggleFrame('embed')">{{ $t("Embed") }}</md-button>
                 <md-button v-bind:class="{'md-toggle': showPanel === 'builder'}" v-if="wago.type === 'MDT'" @click="toggleFrame('builder')">{{ $t("Builder") }}</md-button>
                 <md-button v-bind:class="{'md-toggle': showPanel === 'editor'}" v-if="wago.code" @click="toggleFrame('editor')">{{ $t("Editor") }}</md-button>
@@ -179,8 +194,13 @@
                   <md-input-container :class="{ 'md-input-invalid': updateDescError, 'md-input-status': updateDescHasStatus }">
                     <label>{{ $t("Description") }}</label>
                     <md-textarea v-model="editDesc" @change="onUpdateDescription()" :debounce="600"></md-textarea>
-                    <span class="md-error" v-if="updateDescStatus.length>0">{{ updateDescStatus }}</span>
-                  </md-input-container>
+                    <span class="md-error" v-if="updateDescStatus.length>0">{{ updateDescStatus }}</span> 
+                  </md-input-container>     
+                  <div style="margin-top:-24px">
+                    <div class="md-radio md-theme-default"><div class="md-radio-container" style="opacity:0; width:0"></div><label class="md-radio-label">{{ $t("Description Format") }}</label></div>
+                    <md-radio v-model="updateDescFormat" @change="onUpdateDescription()" md-value="bbcode">BBCode</md-radio>
+                    <md-radio v-model="updateDescFormat" @change="onUpdateDescription()" md-value="markdown">Markdown</md-radio>
+                  </div>   
                   <md-input-container>
                     <label for="visibilty">{{ $t("Visibility") }}</label>
                     <md-select name="visibilty" id="visibilty" v-model="editVisibility" @selected="onUpdateVisibility()">
@@ -260,7 +280,11 @@
               <!-- DESCRIPTIONS FRAME -->
               <div id="wago-description-container" class="wago-container" v-if="showPanel=='description'">
                 <div id="wago-description" style="padding-top:6px">
-                  <formatted-text :text="wago.description.text && wago.description.text.length ? wago.description : {text: $t('No description for this import has been provided')}"></Formatted-text>
+                  <div v-if="wago.code.changelog.text" class="changelog-text">
+                    <div>v{{ wago.code.versionString }}</div>
+                    <formatted-text :text="wago.code.changelog" :enableLinks="wago.user.enableLinks"></formatted-text>
+                  </div>
+                  <formatted-text :text="wago.description.text && wago.description.text.length ? wago.description : {text: $t('No description for this import has been provided')}" :enableLinks="wago.user.enableLinks"></formatted-text>
                 </div>
               </div>
 
@@ -284,33 +308,74 @@
               <div id="wago-versions-container" class="wago-container" v-if="showPanel=='versions'">
                 <h2>{{ $t("Previous versions") }}</h2>
                 <md-card id="wago-versions">
-                  <md-table @select="selectVersion">
+                  <md-table>
                     <md-table-header>
                       <md-table-row>
+                        <md-table-head md-numeric>{{ $t("Version") }}</md-table-head>
+                        <md-table-head md-numeric></md-table-head>
                         <md-table-head>{{ $t("Import Date") }}</md-table-head>
-                        <md-table-head md-numeric>{{ $t("Iteration") }}</md-table-head>
                         <md-table-head md-numeric>{{ $t("Size") }}</md-table-head>
                       </md-table-row>
                     </md-table-header>
 
                     <md-table-body>
-                      <md-table-row v-for="(ver, key) in wago.versions.versions" v-bind:key="key" :md-item="ver" md-auto-select md-selection>
-                        <md-table-cell>
-                          {{ ver.date | moment("dddd, MMMM Do YYYY, h:mm a") }}
-                          <md-chip v-if="key===0">{{ $t("Latest version") }}</md-chip>
-                          <md-chip v-if="ver.version===version || (!version && key===0)">{{ $t("Viewing this version") }}</md-chip>
-                        </md-table-cell>
-                        <md-table-cell md-numeric>
-                          {{ ver.version }}
-                        </md-table-cell>
-                        <md-table-cell md-numeric>
-                          {{ ver.size }}
-                        </md-table-cell>
-                      </md-table-row>
+                      <template v-for="(ver, key) in wago.versions.versions">
+                        <md-table-row>
+                          <md-table-cell md-numeric>
+                            <md-chip v-if="ver.versionString === currentVersionString">{{ $t("Active") }}</md-chip>
+                            <md-button v-else class='chip-button' @click="selectVersion([ver])">{{ $t("View") }}</md-button>
+                            <span class='version-num'>{{ ver.versionString }}</span>
+                          </md-table-cell>
+                          <md-table-cell>                            
+                            <md-button class='chip-button' v-bind:class="{'md-toggle': ver.version === viewNotes}" v-if="ver.changelog.text" @click="toggleViewNotes(ver.version)">{{ $t("View notes") }}</md-button>
+                            <md-button v-if="User && wago.UID && wago.UID === User.UID" class='chip-button' @click="modifyVersion(ver)">{{ $t("Modify Version") }}</md-button>
+                          </md-table-cell>
+                          <md-table-cell>
+                            {{ ver.date | moment("dddd, MMMM Do YYYY, h:mm a") }}
+                          </md-table-cell>
+                          <md-table-cell md-numeric>
+                            {{ ver.size }}
+                          </md-table-cell>
+                        </md-table-row>
+                        <md-table-row v-if="viewNotes === ver.version" class='changelog-row'>
+                          <md-table-cell colspan="4"><span class='version-num'></span><formatted-text :text="ver.changelog" :enableLinks="wago.user.enableLinks"></formatted-text></md-table-cell>
+                        </md-table-row>
+                      </template>
                     </md-table-body>
                   </md-table>
                   <md-button v-if="showMoreVersions" @click="loadMoreVersions"><md-icon>list</md-icon> {{ $t("Load more versions" )}}</md-button>
                 </md-card>
+                <md-dialog ref="modifyVersionDialog" id="modifyVersionDialog" @open="focusFieldByRef('modifiedChangelog')">
+                  <md-dialog-title>{{ $t("Modify Version") }}</md-dialog-title>
+
+                  <md-dialog-content>{{ $t("Note that version numbers must be unique when changing the version number, any subsequent versions will be increased if necessary") }}</md-dialog-content>
+
+                  <input-semver v-model="modifiedVersion"></input-semver>
+
+                  <md-dialog-content>
+                    <md-input-container class="changelog-notes">
+                      <label>{{ $t("Changelog") }}</label>
+                      <md-textarea ref="modifiedChangelog" v-model="newChangelog.text" :placeholder="$t('You may enter any patch notes or updates here')"></md-textarea>
+                    </md-input-container>
+                    <div>
+                      <div class="md-radio md-theme-default"><label class="md-radio-label">{{ $t("Format") }}</label></div>
+                      <md-radio v-model="newChangelog.format" md-value="bbcode">BBCode</md-radio>
+                      <md-radio v-model="newChangelog.format" md-value="markdown">Markdown</md-radio>
+                    </div>
+                  </md-dialog-content>
+
+                  <md-dialog-actions>
+                    <md-button class="md-primary" @click="saveModifiedVersion()">{{ $t("Update") }}</md-button>
+                    <md-button class="md-primary" @click="$refs['modifyVersionDialog'].close()">{{ $t("Cancel") }}</md-button>
+                  </md-dialog-actions>
+                </md-dialog>
+              </div>
+
+              <!-- DIFF FRAME -->
+              <div id="wago-diff-container" class="wago-container" v-if="showPanel=='diffs'">
+                <div id="wago-diff">
+                  <view-diffs :leftVersion="leftDiff" :rightVersion="rightDiff" :allVersions="listVersions"></view-diffs>
+                </div>
               </div>
 
               <!-- COLLECTIONS FRAME -->
@@ -422,16 +487,16 @@
               <!-- BUILDER FRAME -->
               <div id="wago-builder-container" class="wago-container" v-if="showPanel=='builder'">
                 <div id="wago-builder">
-                  <build-mdt v-if="wago.type=='MDT'" @set-has-unsaved-changes="setHasUnsavedChanges" @update-encoded="updateEncoded"></build-mdt>
+                  <build-mdt v-if="wago.type=='MDT'" @set-has-unsaved-changes="setHasUnsavedChanges" @update-encoded="updateEncoded" @update-version="updateVersion"></build-mdt>
                 </div>
               </div>
 
               <!-- EDITOR FRAME -->
               <div id="wago-editor-container" class="wago-container" v-if="showPanel=='editor'">
                 <div id="wago-editor">
-                  <edit-weakaura v-if="wago.type=='WEAKAURA'" @set-has-unsaved-changes="setHasUnsavedChanges" :unsavedTable="hasUnsavedChanges" @update-encoded="updateEncoded"></edit-weakaura>
-                  <edit-snippet v-else-if="wago.type=='SNIPPET'"></edit-snippet>
-                  <edit-common v-else @set-has-unsaved-changes="setHasUnsavedChanges" @update-encoded="updateEncoded"></edit-common>
+                  <edit-weakaura v-if="wago.type=='WEAKAURA'" @set-has-unsaved-changes="setHasUnsavedChanges" :unsavedTable="hasUnsavedChanges" @update-encoded="updateEncoded" @update-version="updateVersion"></edit-weakaura>
+                  <edit-snippet v-else-if="wago.type=='SNIPPET'" @update-version="updateVersion"></edit-snippet>
+                  <edit-common v-else @set-has-unsaved-changes="setHasUnsavedChanges" @update-encoded="updateEncoded" @update-version="updateVersion"></edit-common>
                 </div>
               </div>
 
@@ -486,9 +551,6 @@
 
             </md-layout>
           </md-layout>
-
-          
-          
         </div>
 
         <!-- SIDE PANEL COMMENTS -->
@@ -555,6 +617,7 @@ import Lightbox from 'vue-simple-lightbox'
 import Multiselect from 'vue-multiselect'
 import CategorySelect from '../UI/SelectCategory.vue'
 import Search from '../core/Search.vue'
+import semver from 'semver'
 
 function flatten (arr) {
   return arr.reduce(function (flat, toFlatten) {
@@ -572,6 +635,8 @@ export default {
     'edit-snippet': require('../UI/EditSnippet.vue'),
     'edit-weakaura': require('../UI/EditWeakAura.vue'),
     'build-mdt': require('../UI/MDTBuilder.vue'),
+    'input-semver': require('../UI/Input-Semver.vue'),
+    'view-diffs': require('../UI/ViewDiffs.vue'),
     editor: require('vue2-ace-editor'),
     Multiselect,
     CategorySelect,
@@ -594,7 +659,7 @@ export default {
       showPanel: 'description',
       showEditor: (window.innerWidth > 800),
       showConfig: false,
-      showVersions: (parseInt(this.$route.params.version) > 0),
+      showVersions: this.$route.params.version,
       showMoreVersions: true,
       showCollections: false,
       showMoreCollections: true,
@@ -614,6 +679,7 @@ export default {
       updateDescHasStatus: false,
       updateDescStatus: '',
       updateDescError: false,
+      updateDescFormat: this.$store.state.user.defaultEditorSyntax,
       editVisibility: 'Public',
       showMoreCategories: false,
       editCategories: [],
@@ -626,8 +692,18 @@ export default {
       pasteURLUploading: false,
       uploadImages: '',
       uploadFileProgress: [],
+      currentVersionString: '',
+      currentVersion: {},
+      latestVersion: {},
+      modifiedVersionNum: 1,
+      modifiedVersion: {},
+      currentBuild: 1,
       newImportString: '',
       newImportStringStatus: '',
+      newImportVersion: {major: 1, minor: 0, patch: 1},
+      newImportVersionError: '',
+      newChangelog: { text: '', format: this.$store.state.user.defaultEditorSyntax },
+      viewNotes: -1,
       addCollectionName: '',
       numCategorySets: 1,
       gameMode: '',
@@ -657,6 +733,7 @@ export default {
 
       // ignore short strings (probably unintentional keypress)
       if (val.length < 10) {
+        vue.newImportStringStatus = vue.$t('Invalid [-type-]', {type: vue.wago.type.toLowerCase()})
         this.importError = true
         return
       }
@@ -704,7 +781,7 @@ export default {
       return (window.innerWidth > 800) // init state for toggle button
     },
     initShowVersions () {
-      return (parseInt(this.$route.params.version) > 0)
+      return this.$route.params.version
     },
     hasUnreadComments () {
       if (!this.User || !this.User.unreadMentions || this.User.unreadMentions.length === 0 || !this.wago) {
@@ -760,6 +837,13 @@ export default {
       else {
         return this.$store.state.user.config.editor || 'tomorrow'
       }
+    },
+    listVersions: function () {
+      var arr = []
+      this.wago.versions.versions.forEach((v) => {
+        arr.push(semver.valid(semver.coerce(v.versionString)))
+      })
+      return arr
     }
   },
   methods: {
@@ -795,7 +879,7 @@ export default {
       this.showPanel = 'description'
       this.showEditor = (window.innerWidth > 800)
       this.showConfig = false
-      this.showVersions = (parseInt(this.$route.params.version) > 0)
+      this.showVersions = this.$route.params.version
       this.showMoreVersions = true
       this.showCollections = false
       this.showMoreCollections = true
@@ -807,7 +891,7 @@ export default {
 
       var params = {}
       params.id = wagoID
-      this.version = parseInt(this.$route.params.version)
+      this.version = this.$route.params.version
       if (this.version) {
         params.version = this.version
       }
@@ -823,6 +907,27 @@ export default {
         if (res.code && res.code.json) {
           res.code.obj = JSON.parse(res.code.json)
           res.code.json = JSON.stringify(res.code.obj, null, 2)
+        }
+
+        this.currentVersionString = res.code.versionString
+        this.currentVersion.semver = semver.valid(semver.coerce(this.currentVersionString || '1.0.0'))
+        this.currentVersion.major = semver.major(this.currentVersion.semver)
+        this.currentVersion.minor = semver.minor(this.currentVersion.semver)
+        this.currentVersion.patch = semver.patch(this.currentVersion.semver)
+
+        this.latestVersion.semver = semver.valid(semver.coerce(res.versions.versions[0].versionString || '1.0.0'))
+        this.latestVersion.major = semver.major(this.latestVersion.semver)
+        this.latestVersion.minor = semver.minor(this.latestVersion.semver)
+        this.latestVersion.patch = semver.patch(this.latestVersion.semver)
+
+        this.generateNextVersionData()
+
+        this.leftDiff = this.latestVersion.semver
+        if (this.leftDiff !== this.currentVersion.semver) {
+          this.rightDiff = this.currentVersion.semver
+        }
+        else if (res.versions.versions[1]) {
+          this.rightDiff = semver.valid(semver.coerce(res.versions.versions[1].versionString))
         }
 
         if (res.versions && res.versions.total > 10) {
@@ -844,6 +949,7 @@ export default {
         this.editName = res.name
         this.editSlug = res.slug
         this.editDesc = res.description.text
+        this.updateDescFormat = res.description.format || this.$store.state.user.defaultEditorSyntax
 
         if (!this.wago.description.text && this.wago.type === 'WEAKAURA') {
           this.showPanel = 'editor'
@@ -908,12 +1014,16 @@ export default {
       if (typeof bool === 'boolean') {
         this.hasUnsavedChanges = bool
       }
-      console.log(this.hasUnsavedChanges)
     },
     updateEncoded (str) {
       if (str) {
         this.$set(this.wago.code, 'encoded', str)
       }
+    },
+    focusFieldByRef (ref) {
+      setTimeout(() => {
+        this.$refs[ref].$el.focus()
+      }, 150)
     },
     listIncludedAuras () {
       var tbl = JSON.parse(this.wago.code.json)
@@ -952,7 +1062,7 @@ export default {
         return copied
       }
       catch (e) {
-        console.log(e)
+        console.error(e.message)
         window.eventHub.$emit('showSnackBar', this.$t('Import string failed to copy please upgrade to a modern browser'))
       }
     },
@@ -1023,8 +1133,19 @@ export default {
         this.showFloatingHeader = !!(rect.bottom < 0 || rect.top - viewHeight >= 0)
       }
     },
+    toggleViewNotes (v) {
+      if (this.viewNotes === v) {
+        this.viewNotes = -1
+      }
+      else {
+        this.viewNotes = v
+      }
+    },
     selectVersion (v) {
-      this.$router.push('/' + this.$store.state.wago.slug + '/' + v[0].version)
+      console.log(v)
+      if (v && v[0] && v[0].version) {
+        this.$router.push('/' + this.$store.state.wago.slug + '/' + v[0].version)
+      }
     },
     isLatestVersion () {
       return (!this.version || this.version === this.wago.versions.total)
@@ -1169,8 +1290,8 @@ export default {
         var vue = this
         this.http.post('/wago/update/desc', {
           wagoID: vue.wago._id,
-          desc: this.editDesc.trim()
-          // format: 'bbcode'
+          desc: this.editDesc.trim(),
+          format: this.updateDescFormat
         }).then((res) => {
           if (res.success) {
             vue.updateDescStatus = vue.$t('Saved')
@@ -1199,7 +1320,7 @@ export default {
         vue.wago.visibility.private = res.private
         vue.wago.visibility.hidden = res.hidden
       }).catch((err) => {
-        console.log(err)
+        console.error(err)
         window.eventHub.$emit('showSnackBar', vue.$t('Error could not save'))
       })
     },
@@ -1244,7 +1365,7 @@ export default {
             vue.$set(vue.wago.screens, vue.wago.screens.length, res)
           })
           .catch((err) => {
-            console.log('Error uploading image', err)
+            console.error('Error uploading image', err)
           })
       }
       this.uploadImages = ''
@@ -1317,7 +1438,7 @@ export default {
       }).then((res) => {
         // success, render is already up to date.
       }).catch((err) => {
-        console.log(err)
+        console.error(err)
         window.eventHub.$emit('showSnackBar', vue.$t('Error could not save'))
       })
     },
@@ -1352,7 +1473,7 @@ export default {
       }).then((res) => {
         // success, render is already up to date.
       }).catch((err) => {
-        console.log(err)
+        console.error(err)
         window.eventHub.$emit('showSnackBar', vue.$t('Error could not save'))
       })
     },
@@ -1390,19 +1511,80 @@ export default {
       post.wagoID = this.wago._id
       post.type = this.wago.type
       post.scanID = this.scanID
+      post.newVersion = this.newImportVersion.semver
+      post.changelog = this.newChangelog.text
+      post.changelogFormat = this.newChangelog.format
       var vue = this
       this.http.post('/import/update', post).then((res) => {
+        this.newChangelog = { text: '', format: this.$store.state.user.defaultEditorSyntax }
         if (res.error) {
           window.eventHub.$emit('showSnackBar', res.error)
         }
         else {
+          if (res.latestVersion) {
+            this.updateVersion(res.latestVersion)
+            this.$set(this.wago.code, 'changelog', {text: post.changelog, format: post.changelogFormat})
+          }
           window.eventHub.$emit('showSnackBar', vue.$t('Wago saved successfully'))
           location.reload()
         }
       }).catch((err) => {
-        console.log(err)
+        console.error(err)
         window.eventHub.$emit('showSnackBar', vue.$t('Unknown error could not save'))
       })
+    },
+
+    saveModifiedVersion () {
+      this.http.post('/wago/update/version', {
+        wagoID: this.wago._id,
+        version: this.modifiedVersionNum,
+        versionString: this.modifiedVersion.semver,
+        changelog: this.newChangelog.text,
+        changelogFormat: this.newChangelog.format
+      }).then((res) => {
+        var ver = this.wago.versions.versions[this.wago.versions.versions.length - this.modifiedVersionNum]
+        ver.versionString = this.modifiedVersion.semver
+        ver.changelog = this.newChangelog
+        this.$set(this.wago.versions.versions, this.wago.versions.versions.length - this.modifiedVersionNum, ver)
+
+        if (this.wago.versions.versions.length > this.modifiedVersionNum) {
+          var vs = semver.inc(this.modifiedVersion.semver, 'patch')
+          for (let i = this.modifiedVersionNum + 1; i <= this.wago.versions.versions.length; i++) {
+            ver = this.wago.versions.versions[this.wago.versions.versions.length - i]
+            ver.versionString = vs
+            vs = semver.inc(vs, 'patch')
+            this.$set(this.wago.versions.versions, this.wago.versions.versions.length - i, ver)
+          }
+        }
+        this.$refs.modifyVersionDialog.close()
+      })
+    },
+
+    updateVersion (version) {
+      this.$set(this.latestVersion, 'semver', semver.valid(semver.coerce(version)))
+      this.$set(this.latestVersion, 'major', semver.major(this.latestVersion.semver))
+      this.$set(this.latestVersion, 'minor', semver.minor(this.latestVersion.semver))
+      this.$set(this.latestVersion, 'patch', semver.patch(this.latestVersion.semver))
+      this.currentVersionString = this.latestVersion.semver
+    },
+
+    modifyVersion (version) {
+      this.modifiedVersionNum = version.version
+      this.newChangelog = { text: version.changelog.text, format: version.changelog.format }
+      this.$set(this.modifiedVersion, 'semver', semver.valid(semver.coerce(version.versionString)))
+      this.$set(this.modifiedVersion, 'major', semver.major(this.modifiedVersion.semver))
+      this.$set(this.modifiedVersion, 'minor', semver.minor(this.modifiedVersion.semver))
+      this.$set(this.modifiedVersion, 'patch', semver.patch(this.modifiedVersion.semver))
+
+      this.$refs.modifyVersionDialog.open()
+    },
+
+    generateNextVersionData () {
+      this.newChangelog = { text: '', format: this.$store.state.user.defaultEditorSyntax }
+      this.$set(this.newImportVersion, 'semver', semver.inc(this.latestVersion.semver, 'patch'))
+      this.$set(this.newImportVersion, 'major', semver.major(this.newImportVersion.semver))
+      this.$set(this.newImportVersion, 'minor', semver.minor(this.newImportVersion.semver))
+      this.$set(this.newImportVersion, 'patch', semver.patch(this.newImportVersion.semver))
     },
 
     // add to or remove from collection
@@ -1449,7 +1631,7 @@ export default {
           window.eventHub.$emit('showSnackBar', vue.$t('Unknown error could not save'))
         }
       }).catch((err) => {
-        console.log(err)
+        console.error(err)
         window.eventHub.$emit('showSnackBar', vue.$t('Unknown error could not save'))
       })
     },
@@ -1527,6 +1709,7 @@ export default {
 #wago-floating-header .floating-header { display: flex; justify-content: flex-start; align-content: stretch; align-items: flex-start}
 #wago-floating-header .floating-header div { flex: 0 1 auto; vertical-align:top; margin-right: 24px}
 #wago-floating-header button { margin-top: 0 }
+.version-number { padding-left: 8px; opacity: .54; font-size: 14px }
 @media (max-width: 600px) {
   #wago-floating-header { display: none!important}
 }
@@ -1583,8 +1766,16 @@ a.showvid:hover:before  .md-icon { opacity:1 }
 #wago-includedauras div + div:before { content: '• ' }
 
 #wago-versions .md-table .md-table-cell .md-table-cell-container { display: block }
-#wago-versions .md-table-row { cursor: pointer}
+#wago-versions .md-table-row { }
 #wago-versions .md-table-selection { display: none } /* hack to make md-table-row clickable */
+#wago-versions .chip-button { background-color: rgba(0, 0, 0, .12); text-transform: none; width: auto; min-width: auto; height: auto; min-height: auto; font-size: 13px; line-height: 16px; padding: 8px 12px; margin: 0 6px 6px 0}
+#wago-versions .chip-button:hover, #wago-versions .chip-button.md-toggle { background-color: #c2272e; cursor: pointer }
+#wago-versions .version-num { min-width: 55px; display: inline-block; }
+#wago-versions .version-num + .usertext { display: inline-block; padding-left: 12px }
+
+.changelog-notes { margin-top: 0 }
+.changelog-text { border-bottom: 1px solid #555; margin-bottom: 8px; }
+.md-table tbody .md-table-row.changelog-row { border-top-color: #555;}
 
 #embed-content { display: flex }
 #embed-inputs { flex: 2 1 auto }
@@ -1625,7 +1816,7 @@ a.showvid:hover:before  .md-icon { opacity:1 }
 .wago-importstring::-webkit-selection { color:transparent;background:transparent }
 
 .customSlug .root { font-size:16px; line-height: 32px }
-.md-input-container.md-input-status .md-error { opacity: 1; transform: translate3d(0, 0, 0);}
+.md-input-container.md-input-status .md-error { opacity: 1; transform: translate3d(0, 0, 0); }
 
 .has-category-select { position: relative}
 .has-category-select:after {
@@ -1640,6 +1831,7 @@ a.showvid:hover:before  .md-icon { opacity:1 }
 }
 #categoryLabel { margin-top: 10px; display: inline-block}
 #tags .md-chip { padding-left:26px }
+
 
 .multiselect { min-height: 0}
 .multiselect__tags { border-width: 0 0 1px 0; padding:5px 0; min-height: 16px; border: 0; background: none}
@@ -1659,7 +1851,11 @@ ul:not(.md-list) > li.multiselect__element + li { margin-top: 0 }
 .my-gallery a img { border-color: transparent }
 
 #newImportDialog > div { min-width: 30% }
+#newImportDialog .md-input-container { margin-bottom: 0 }
+#newVersionFlexArea { flex: 1 }
 
 .CopyWarningTooltip { padding: 8px; border:5px solid #c1272d; font-size: 14px; height: auto; max-width: 450px; white-space:normal; background: black; right: -84px  }
+
+.usertext.markdown hr { opacity: .5 }
 
 </style>

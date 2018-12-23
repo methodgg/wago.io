@@ -68,6 +68,7 @@ server.get('/account/whoami', (req, res, next) => {
     }
 
     who.defaultImportVisibility = user.account.default_aura_visibility
+    who.defaultEditorSyntax = user.config.textSyntax
     who.profileVisibility = user.profile.visibility
 
     who.access = {}
@@ -282,6 +283,17 @@ server.post('/account/update/theme', (req, res) => {
   // TODO: add theme validation
   req.user.config.theme = req.body.theme
   req.user.config.editor = req.body.editor
+  req.user.save().then((doc) => {
+    res.send({success: true})
+  })
+})
+
+server.post('/account/update/editorSyntax', (req, res) => {
+  if (!req.user || !req.body.syntax) {
+    return res.send(403, {error: "forbidden"})
+  }
+
+  req.user.config.textSyntax = req.body.syntax
   req.user.save().then((doc) => {
     res.send({success: true})
   })

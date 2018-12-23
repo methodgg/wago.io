@@ -109,6 +109,7 @@ const Schema = new mongoose.Schema({
   config: {
     theme : String,
     editor : String,
+    textSyntax : { type: String, default: "bbcode" }, // bbcode or markdown
     searchOptions: {
       sort: { type: String, default: "bestmatch" },
       relevance: { type: String, default: "standard" },

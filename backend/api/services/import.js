@@ -1,6 +1,7 @@
 // load our libs and functions on app startup
 const lua = require('../helpers/lua')
 const discord = require('../helpers/discord')
+const semver = require('semver')
 
 const RegexLuaSnippet = /\b(and|break|do|else|elseif|end|false|for|if|in|local|nil|not|repeat|return|then|true|until|while|_G|_VERSION|getfenv|getmetatable|ipairs|load|module|next|pairs|pcall|print|rawequal|rawget|rawset|select|setfenv|setmetatable|tonumber|tostring|type|unpack|xpcall|coroutine|debug|math|package|string|table|SetAttribute|SetAllPoints|CreateFrame|unit|player|target)\b/g
 const RegexPasteBinLink = /^https?:\/\/pastebin.com\/([\w]+)$/
@@ -273,7 +274,7 @@ function ScanImport (req, res, next, test) {
           return ScanImport (req, res, next, test)
         }
         else {
-          return res.send({error: 'invalid_import'})
+          return res.send({error: 'invalid_import', e: result.stdout})
         }
       }
 
@@ -307,11 +308,12 @@ function ScanImport (req, res, next, test) {
         }
         else {
           // unknown import with elvui/vuhdo encoding
-          return res.send({error: 'invalid_import'})
+          return res.send({error: 'invalid_import', data: result.stdout})
         }
       }
       catch (e) {
         test.notElvUI = true
+        console.log('err?', req.body.importString, e.message, result.stdout)
         return ScanImport (req, res, next, test)
       }      
     })
@@ -635,6 +637,8 @@ server.post('/import/submit', function(req, res) {
             for (var i = 0; i < json.c.length; i++) {
               json.c[i].url = doc.url + '/1'
               json.c[i].version = 1
+              delete json.c[i].ignoreWagoUpdate
+              delete json.c[i].skipWagoUpdate
             }
           }
 
@@ -676,47 +680,68 @@ server.post('/import/submit', function(req, res) {
 })
 
 server.post('/import/update', function (req, res) {
-  if (req.body.scanID && req.user) {
+  if (req.body.scanID && req.user && req.body.wagoID) {
     ImportScan.findById(req.body.scanID).then((scan) => {
       if (scan && scan.decoded) {
-        req.body.encoded = scan.input
-
-        if (req.body.wagoID && scan.type.toUpperCase() === 'WEAKAURAS2') {
-          try {
-            var json = JSON.parse(scan.decoded)
+        req.body.json = scan.decoded
+        WagoItem.findOne({_id: req.body.wagoID, _userId: req.user._id}).then((doc) => {
+          if (!doc) {
+            return res.send({error: 'Invalid scan ID'})
           }
-          catch (e) {
-            return res.send({error: 'invalid_wa', e: e})
-          }
-          WagoItem.findOne({_id: req.body.wagoID, type: 'WEAKAURAS2', _userId: req.user._id}).then((doc) => {
-            if (!doc) {
-              return res.send({error: 'Invalid scan ID'})
-            }
-            req.scanWA = scan
-            WagoCode.count({auraID: req.body.wagoID}).then((ver) => {
-              ver = ver + 1
-              json.d.url = doc.url + '/' + ver
-              json.d.version = ver
-              json.wagoID = doc._id
-              delete json.d.ignoreWagoUpdate // remove as this is a client-level setting for the WA companion app
-              delete json.d.skipWagoUpdate
-              if (json.c) {
-                for (var i = 0; i < json.c.length; i++) {
-                  json.c[i].url = doc.url + '/' + ver
-                  json.c[i].version = ver
-                  delete json.c[i].ignoreWagoUpdate
-                  delete json.c[i].skipWagoUpdate
-                }
+          WagoCode.lookup(req.body.wagoID).then((latest) => {
+            try {
+              var newVersion = semver.valid(req.body.newVersion)
+              var latestVersion = semver.valid(latest.versionString)
+              if (!newVersion || !semver.gt(newVersion, latestVersion)) {
+                req.body.newVersionString = semver.inc(latestVersion, 'patch')
               }
-              req.body.json = JSON.stringify(json)
-              return SaveWagoVersion(req, res, 'update')
-            })
+              else {
+                req.body.newVersionString = newVersion
+              }
+            }
+            catch (e) {
+              logger.error(e.message)
+            }
+            req.body.newVersionNum = latest.version + 1
+
+            if (scan.type.toUpperCase() === 'WEAKAURAS2') {
+              var versionString = req.body.newVersionString
+              if (versionString !== '1.0.' + (latest.version - 1) && versionString !== '0.0.' + latest.version) {
+                versionString = versionString + '-' + latest.version
+              }
+              try {
+                var json = JSON.parse(scan.decoded)
+                req.scanWA = scan
+
+                var version = latest.version + 1
+                json.d.url = doc.url + '/' + version
+                json.d.version = version
+                json.d.semver = versionString
+                json.wagoID = doc._id
+                delete json.d.ignoreWagoUpdate // remove as this is a client-level setting for the WA companion app
+                delete json.d.skipWagoUpdate
+                if (json.c) {
+                  for (var i = 0; i < json.c.length; i++) {
+                    json.c[i].url = doc.url + '/' + version
+                    json.c[i].version = version
+                    json.c[i].semver = versionString
+                    delete json.c[i].ignoreWagoUpdate
+                    delete json.c[i].skipWagoUpdate
+                  }
+                }
+                req.body.json = JSON.stringify(json)
+              }
+              catch (e) {
+                return res.send({error: 'invalid_wa', e: e.message})
+              }
+            }
+            else {
+              req.body.encoded = scan.input
+            }
+            
+            return SaveWagoVersion(req, res, 'update')
           })
-        }
-        else {
-          req.body.json = scan.decoded
-          return SaveWagoVersion(req, res, 'update')
-        }
+        })
       }
       else {
         return res.send({error: 'Invalid scan'})
@@ -727,32 +752,67 @@ server.post('/import/update', function (req, res) {
     res.send({error: 'Invalid scan ID'})
   }
 })
+
 server.post('/import/json/save', function (req, res) {
-  if (req.user && req.body.wagoID && req.body.type.toUpperCase() === 'WEAKAURA') {
-    try {
-      var json = JSON.parse(req.body.json)
-    }
-    catch (e) {
-      return res.send({error: 'invalid_wa', e: e})
-    }
-    WagoItem.findOne({_id: req.body.wagoID, type: 'WEAKAURAS2', _userId: req.user._id}).then((doc) => {
-      WagoCode.count({auraID: req.body.wagoID}).then((ver) => {
-        ver = ver + 1
-        json.d.url = doc.url + '/' + ver
-        json.d.version = ver
-        json.wagoID = doc._id
-        if (json.c) {
-          for (var i = 0; i < json.c.length; i++) {
-            json.c[i].url = doc.url + '/' + ver
+  if (req.user && req.body.wagoID) {
+    WagoItem.findOne({_id: req.body.wagoID, _userId: req.user._id}).then((doc) => {
+      if (!doc) {
+        return res.send({error: "No access to this import"})
+      }
+      WagoCode.lookup(req.body.wagoID).then((latest) => {
+        try {
+          var newVersion = semver.valid(semver.coerce(req.body.newVersion))
+          var latestVersion = semver.valid(semver.coerce(latest.versionString))
+          if (!newVersion || !semver.gt(newVersion, latestVersion)) {
+            req.body.newVersionString = semver.inc(latestVersion, 'patch')
+          }
+          else {
+            req.body.newVersionString = newVersion
           }
         }
-        req.body.json = JSON.stringify(json)
+        catch (e) {
+          logger.error(e.message)
+        }
+        req.body.newVersionNum = latest.version + 1
+
+        if (doc.type === 'WEAKAURAS2' || doc.type === 'WEAKAURA') {
+          var versionString = req.body.newVersionString
+          if (versionString !== '1.0.' + (latest.version - 1) && versionString !== '0.0.' + latest.version) {
+            versionString = versionString + '-' + latest.version
+          }
+          try {
+            var json = JSON.parse(req.body.json)
+
+            var version = latest.version + 1
+            json.d.url = doc.url + '/' + version
+            json.d.version = version
+            json.d.semver = versionString
+            json.wagoID = doc._id
+            delete json.d.ignoreWagoUpdate // remove as this is a client-level setting for the WA companion app
+            delete json.d.skipWagoUpdate
+            if (json.c) {
+              for (var i = 0; i < json.c.length; i++) {
+                json.c[i].url = doc.url + '/' + version
+                json.c[i].version = version
+                json.c[i].semver = versionString
+                delete json.c[i].ignoreWagoUpdate
+                delete json.c[i].skipWagoUpdate
+              }
+            }
+
+            req.body.json = JSON.stringify(json)
+          }
+          catch (e) {
+            return res.send({error: 'invalid_wa', e: e.message})
+          }
+        }
+        
         return SaveWagoVersion(req, res, 'update')
       })
     })
   }
   else {
-    SaveWagoVersion(req, res, 'update')
+    return res.send({error: "Must be logged in"})
   }
 })
 server.post('/import/json/fork', function (req, res) {
@@ -769,8 +829,29 @@ server.post('/import/lua/save', function (req, res) {
   if (!req.body || !req.body.lua || req.body.lua.length < 10) {
     return res.send({error: 'invalid_import'})
   }
-  req.body.json = "{}"
-  SaveWagoVersion(req, res, 'update')
+  WagoItem.findOne({_id: req.body.wagoID, _userId: req.user._id}).then((doc) => {
+    if (!doc) {
+      return res.send({error: "No access to this import"})
+    }
+    WagoCode.lookup(req.body.wagoID).then((latest) => {
+      try {
+        var newVersion = semver.valid(req.body.newVersion)
+        var latestVersion = semver.valid(latest.versionString)
+        if (!newVersion || !semver.gt(newVersion, latestVersion)) {
+          req.body.newVersionString = semver.inc(latestVersion, 'patch')
+        }
+        else {
+          req.body.newVersionString = newVersion
+        }
+      }
+      catch (e) {
+        logger.error(e.message)
+      }
+      req.body.newVersionNum = latest.version + 1
+      req.body.json = "{}"
+      SaveWagoVersion(req, res, 'update')
+    })
+  })
 })
 server.post('/import/lua/fork', function (req, res) {
   if (!req.body || !req.body.lua || req.body.lua.length < 10) {
@@ -815,6 +896,12 @@ function SaveWagoVersion (req, res, mode) {
       code.auraID = wago._id
       code.json = req.scanWA.decoded
       code.encoded = req.scanWA.input
+      code.versionString = req.body.newVersionString || '1.0.0'
+      code.version = req.body.newVersionNum || 1
+      code.changelog = {
+        text: req.body.changelog,
+        format: req.body.changelogFormat || 'bbcode'
+      }
       
       code.save().then(() => {
         wago.modified = new Date()
@@ -831,7 +918,7 @@ function SaveWagoVersion (req, res, mode) {
           })
         })
         
-        res.send({success: true})
+        res.send({success: true, latestVersion: code.versionString})
       })
     }).catch(e => {
       return res.send({error: 'not_found'})
@@ -896,6 +983,12 @@ function SaveWagoVersion (req, res, mode) {
         code.auraID = wago._id
         code.json = JSON.stringify(json)
         code.encoded = result.stdout
+        code.versionString = req.body.newVersionString || '1.0.0'
+        code.version = req.body.newVersionNum || 1
+        code.changelog = {
+          text: req.body.changelog,
+          format: req.body.changelogFormat || 'bbcode'
+        }
         
         code.save().then(() => {
           if (mode === 'update') {
@@ -905,7 +998,7 @@ function SaveWagoVersion (req, res, mode) {
               discord.onUpdate(req.user, wago)
             })
           }
-          res.send({success: true, encoded: code.encoded})
+          res.send({success: true, encoded: code.encoded, latestVersion: code.versionString})
         })
       }).catch(e => {
         return res.send({error: 'not_found'})
@@ -988,6 +1081,12 @@ function SaveWagoVersion (req, res, mode) {
         else {
           code.encoded = result.stdout
         }
+        code.versionString = req.body.newVersionString || '1.0.0'
+        code.version = req.body.newVersionNum || 1
+        code.changelog = {
+          text: req.body.changelog,
+          format: req.body.changelogFormat || 'bbcode'
+        }
         
         code.save().then(() => {
           if (mode === 'update') {
@@ -997,7 +1096,7 @@ function SaveWagoVersion (req, res, mode) {
               discord.onUpdate(req.user, wago)
             })
           }
-          res.send({success: true, encoded: code.encoded})
+          res.send({success: true, encoded: code.encoded, latestVersion: code.versionString})
         })
       }).catch(e => {
         logger.error(e.message)
@@ -1056,6 +1155,12 @@ function SaveWagoVersion (req, res, mode) {
         else {
           code.encoded = result.stdout
         }
+        code.versionString = req.body.newVersionString || '1.0.0'
+        code.version = req.body.newVersionNum || 1
+        code.changelog = {
+          text: req.body.changelog,
+          format: req.body.changelogFormat || 'bbcode'
+        }
         
         code.save().then(() => {
           if (mode === 'update') {
@@ -1065,7 +1170,7 @@ function SaveWagoVersion (req, res, mode) {
               discord.onUpdate(req.user, wago)
             })
           }
-          res.send({success: true, encoded: code.encoded})
+          res.send({success: true, encoded: code.encoded, latestVersion: code.versionString})
         })
       }).catch(e => {
         return res.send({error: 'not_found'})
@@ -1099,13 +1204,19 @@ function SaveWagoVersion (req, res, mode) {
       var code = new WagoCode()
       code.auraID = wago._id
       code.lua = req.body.lua
+      code.versionString = req.body.newVersionString || '1.0.0'
+      code.version = req.body.newVersionNum || 1
+      code.changelog = {
+        text: req.body.changelog,
+        format: req.body.changelogFormat || 'bbcode'
+      }
       
       code.save().then(() => {
         if (mode === 'update') {
           // look for any discord action 
 
         }
-        res.send({success: true, wagoID: wago._id})
+        res.send({success: true, wagoID: wago._id, latestVersion: code.versionString})
       })
     }).catch(e => {
       return res.send({error: 'not_found'})

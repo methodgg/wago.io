@@ -10,7 +10,7 @@ const Schema = new mongoose.Schema({
 
   name : { type: String, index: true, es_indexed: true},
   description : { type: String, default: "", es_indexed: true },
-  description_format : { type: Number, default: 1 }, // 1=BBcode, 2=Markdown
+  description_format : { type: String, default: 'bbcode' },
   type : { type: String, index: true, es_indexed: true },
   subtype : String,
   categories : { type: Array, index: true, es_indexed: true },
@@ -143,7 +143,7 @@ Schema.statics.randomOfTheMoment = function(callback) {
 
 const WagoItem = mongoose.model('WagoItem', Schema)
 // if (require('../../config').env == 'production' && require('../../config').host == 'data-02' && !global.CRONTASK) {
-//   var es_Stream = WagoItem.synchronize()
+// WagoItem.synchronize()
 //   var es_Count = 0
 
 //   es_Stream.on('error', function(err){

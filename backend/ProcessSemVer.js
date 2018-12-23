@@ -13,13 +13,16 @@ mongoose.Promise = global.Promise
 global['WagoCode'] = require('./api/models/WagoCode')
 
 var remaining = 1
-WagoCode.count({semver: null}).then((num) => {
+WagoCode.count({versionString: null}).then((num) => {
   remaining = num
+  makeVersions(0)
 })
 
+var n = 0
 function makeVersions(c) {
   var processed = []
-  WagoCode.find({semver: null}).limit(100).skip(c*100).then((docs) => {
+  WagoCode.find({versionString: null}).limit(100).skip(c*100).then((docs) => {
+    if (!docs) return
     async.forEach(docs, (code, done) => {
       if (processed.indexOf(code.auraID) >= 0) {
         return done()
@@ -28,23 +31,26 @@ function makeVersions(c) {
         async.forEachOf(versions, (version, i, cb) => {
           i++
           if (i == versions.length) {
-            version.semver = '1.0.0-' + i
+            version.versionString = '1.0.0'
           }
           else {
-            version.semver = '0.0.' + i
+            version.versionString = '0.0.' + i
           }
+          version.version = i
           version.save().then(() => {
-            processed.push(code.auraID)
+            n++
             cb()
           })
         }, () => {
+          processed.push(code.auraID)
           done()
         })
       })
     }, () => {
-      console.log('c =', c, 'remaining =', remaining - c * 100)      
-      makeVersions(c+1)
+      console.log('c =', c, 'remaining =', remaining - n)
+      setTimeout(() => {
+        makeVersions(c+1)
+      }, 30000)      
     })
   })
 }
-makeVersions(0)
