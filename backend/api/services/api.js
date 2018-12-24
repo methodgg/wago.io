@@ -14,11 +14,13 @@ server.get('api/addons', (req, res, next) => {
   * Wago multi WA lookup
   */
  server.get('/api/check/weakauras', (req, res, next) => {
+   console.log('sfd')
   if (!req.query.ids) {
     return res.send(404, {error: "page_not_found"})
   }
   
   var ids = req.query.ids.split(',').slice(0, 50)
+  console.log(ids)
   var wagos = []
   WagoItem.find({'$or' : [{_id: ids}, {custom_slug: ids}], deleted: false, type: ['WEAKAURAS', 'WEAKAURAS2']})
   .select({name:1, custom_slug:1, created:1, modified:1, _userId:1})
@@ -53,11 +55,11 @@ server.get('api/addons', (req, res, next) => {
           }
         },
         version: (cb) => {
-          WagoCode.lookup(wago._id).select('version versionString').then((code) => {
+          WagoCode.lookup(wago._id).then((code) => {
             wago.version = code.version
             var versionString = code.versionString
-            if (versionString !== '1.0.' (code.version + 1) && versionString !== '0.0.' + code.version) {
-              versionString = versionString + '-' + versions[i].version
+            if (versionString !== '1.0.' + (code.version + 1) && versionString !== '0.0.' + code.version) {
+              versionString = versionString + '-' + code.version
             }
             wago.versionString = versionString
             cb()
