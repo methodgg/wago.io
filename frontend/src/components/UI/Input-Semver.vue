@@ -117,7 +117,7 @@ export default {
 </script>
 
 <style scoped>
-.semver-input input { flex: 0; text-align: right }
+.semver-input input { flex: inherit; text-align: right }
 .semver-input span { line-height: 32px; font-size: 24px; padding: 0 2px; margin: -3px 0 3px; }
 .semver-input .md-error { font-size: 12px }
 </style>

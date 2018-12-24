@@ -62,6 +62,7 @@ server.get('api/addons', (req, res, next) => {
               versionString = versionString + '-' + code.version
             }
             wago.versionString = versionString
+            wago.changelog = code.changelog
             cb()
           })
         }}, () => {
