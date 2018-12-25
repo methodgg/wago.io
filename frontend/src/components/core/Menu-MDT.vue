@@ -27,31 +27,7 @@
         </div>
         <md-button @click="createMDT()" class="md-raised" :disabled="!newAffix || !newDungeon">{{ $t("Build") }}</md-button>
       </md-whiteframe>
-      <md-layout>        
-        <md-subheader>{{ $t("BFA Season 1 Affix Weeks") }}</md-subheader>
-        <md-list class="md-double-line md-dense">          
-          <md-list-item class="md-inset affixWeek">
-            <category-image group="affixWeek"></category-image>
-            <div class="md-list-text-container">
-              <span>
-                <router-link v-for="(item, index) in affixesS1" :to="'/mdt/' + item.slug" :key="index">{{ $t('Week [-num-] [-affixes-]', {num: index + 1, affixes: item.text}) }}</router-link>
-              </span>
-            </div>
-          </md-list-item>
-        </md-list>  
-        <md-subheader>{{ $t("Individual Affixes") }}</md-subheader>
-        <md-list class="md-double-line md-dense">          
-          <md-list-item class="md-inset affixes">
-            <category-image group="affixes"></category-image>
-            <div class="md-list-text-container">
-              <span>
-                <router-link v-for="(item, index) in affixes" :to="'/mdt/' + item.slug" :key="index">{{ item.text }}</router-link>
-              </span>
-            </div>
-          </md-list-item>
-        </md-list>      
-      </md-layout>
-      <md-layout>      
+      <md-layout md-column>
         <md-subheader>{{ $t("BFA Dungeons") }}</md-subheader>
         <md-list class="md-double-line md-dense">
           <md-list-item v-for="dun in dungeons" v-bind:key="dun.id" :class="dun.cls + ' md-inset'">
@@ -63,6 +39,17 @@
             </div>
           </md-list-item>
         </md-list>
+        <md-subheader>{{ $t("BFA Season 1 Affix Weeks") }}</md-subheader>
+        <md-list class="md-double-line md-dense">          
+          <md-list-item class="md-inset affixWeek">
+            <category-image group="affixWeek"></category-image>
+            <div class="md-list-text-container">
+              <span>
+                <router-link v-for="(item, index) in affixesS1" :to="'/mdt/' + item.slug" :key="index">{{ $t('Week [-num-] [-affixes-]', {num: index + 1, affixes: item.text}) }}</router-link>
+              </span>
+            </div>
+          </md-list-item>
+        </md-list>  
         <md-subheader>{{ $t("Speed Goals") }}</md-subheader>
         <md-list class="md-double-line md-dense">          
           <md-list-item class="md-inset speed">
@@ -73,9 +60,20 @@
               </span>
             </div>
           </md-list-item>
-        </md-list>  
+        </md-list> 
+        <md-subheader>{{ $t("Individual Affixes") }}</md-subheader>
+        <md-list class="md-double-line md-dense">          
+          <md-list-item class="md-inset affixes">
+            <category-image group="affixes"></category-image>
+            <div class="md-list-text-container">
+              <span>
+                <router-link v-for="(item, index) in affixes" :to="'/mdt/' + item.slug" :key="index">{{ item.text }}</router-link>
+              </span>
+            </div>
+          </md-list-item>
+        </md-list>         
       </md-layout>
-      <md-layout>
+      <md-layout md-column>
         <md-subheader>{{ $t("Requires Class") }}</md-subheader>
         <md-list class="md-double-line md-dense">
           <md-list-item v-for="cls in classes" v-bind:key="cls.id" :class="cls.cls + ' md-inset'">
@@ -149,7 +147,7 @@ export default {
 </script>
 
 <style>
-#create-mdt { padding: 16px; margin: 16px; max-width: 600px }
+#create-mdt { padding: 16px; margin: 16px; flex-grow: .5}
 #searchForm { padding: 16px }
 #searchForm button { margin-top: -3px }
 
