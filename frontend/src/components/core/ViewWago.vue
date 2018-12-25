@@ -14,7 +14,7 @@
       <md-card id="wago-header" ref="header">
         <md-layout>
           <div class="floating-header">
-            <h3>{{ wago.name }} <span class="version-number">v{{ currentVersionString }}</span></h3>
+            <h3>{{ wago.name }} <span class="version-number" v-if="currentVersionString">v{{ currentVersionString }}</span></h3>
             <md-subheader>{{ wago.type }}</md-subheader>
           </div>          
           <!-- ACTIONS -->
@@ -105,7 +105,7 @@
       <md-card id="wago-floating-header" v-if="showFloatingHeader">
         <div class="floating-header">
           <div>
-            <h3>{{ wago.name }} <span class="version-number">v{{ currentVersionString }}</span></h3>
+            <h3>{{ wago.name }} <span class="version-number" v-if="currentVersionString">v{{ currentVersionString }}</span></h3>
             <md-subheader>{{ wago.type }}</md-subheader>
           </div>
           <div>
@@ -129,7 +129,7 @@
               <md-button-toggle class="md-accent" md-single>
                 <md-button v-bind:class="{'md-toggle': showPanel === 'config'}" v-if="wago.user && User && wago.UID && wago.UID === User.UID" @click="toggleFrame('config')">{{ $t("Config") }}</md-button>
                 <md-button v-bind:class="{'md-toggle': showPanel === 'description'}" @click="toggleFrame('description')">{{ $t("Description") }}</md-button>
-                <md-button v-bind:class="{'md-toggle': showPanel === 'includedauras'}" @click="toggleFrame('includedauras')">{{ $t("Included Auras") }}</md-button>
+                <md-button v-bind:class="{'md-toggle': showPanel === 'includedauras'}" @click="toggleFrame('includedauras')" v-if="wago.type === 'WEAKAURA'">{{ $t("Included Auras") }}</md-button>
                 <md-button v-bind:class="{'md-toggle': showPanel === 'comments'}" @click="toggleFrame('comments')"><span v-if="hasUnreadComments && showPanel !== 'comments'" class="commentAttn">{{$t("NEW")}}!! </span>{{ $t("[-count-] comment", {count: wago.commentCount }) }}</md-button>
                 <md-button v-bind:class="{'md-toggle': showPanel === 'collections'}" v-if="wago.type !== 'COLLECTION'" @click="toggleFrame('collections')">{{ $t("[-count-] collection", {count:  wago.collectionCount}) }}</md-button>
                 <md-button v-bind:class="{'md-toggle': showPanel === 'versions'}" v-if="wago.versions && wago.versions.total > 1" @click="toggleFrame('versions')" ref="versionsButton">{{ $t("[-count-] version", { count: wago.versions.total }) }}</md-button>
@@ -280,7 +280,7 @@
               <!-- DESCRIPTIONS FRAME -->
               <div id="wago-description-container" class="wago-container" v-if="showPanel=='description'">
                 <div id="wago-description" style="padding-top:6px">
-                  <div v-if="wago.code.changelog.text" class="changelog-text">
+                  <div v-if="wago.code && wago.code.changelog.text" class="changelog-text">
                     <div>v{{ wago.code.versionString }}</div>
                     <formatted-text :text="wago.code.changelog" :enableLinks="wago.user.enableLinks"></formatted-text>
                   </div>
@@ -909,25 +909,28 @@ export default {
           res.code.json = JSON.stringify(res.code.obj, null, 2)
         }
 
-        this.currentVersionString = res.code.versionString
-        this.currentVersion.semver = semver.valid(semver.coerce(this.currentVersionString || '1.0.0'))
-        this.currentVersion.major = semver.major(this.currentVersion.semver)
-        this.currentVersion.minor = semver.minor(this.currentVersion.semver)
-        this.currentVersion.patch = semver.patch(this.currentVersion.semver)
-
-        this.latestVersion.semver = semver.valid(semver.coerce(res.versions.versions[0].versionString || '1.0.0'))
-        this.latestVersion.major = semver.major(this.latestVersion.semver)
-        this.latestVersion.minor = semver.minor(this.latestVersion.semver)
-        this.latestVersion.patch = semver.patch(this.latestVersion.semver)
-
-        this.generateNextVersionData()
-
-        this.leftDiff = this.latestVersion.semver
-        if (this.leftDiff !== this.currentVersion.semver) {
-          this.rightDiff = this.currentVersion.semver
+        if (res.code && res.code.versionString) {
+          this.currentVersionString = res.code.versionString
+          this.currentVersion.semver = semver.valid(semver.coerce(this.currentVersionString || '1.0.0'))
+          this.currentVersion.major = semver.major(this.currentVersion.semver)
+          this.currentVersion.minor = semver.minor(this.currentVersion.semver)
+          this.currentVersion.patch = semver.patch(this.currentVersion.semver)
         }
-        else if (res.versions.versions[1]) {
-          this.rightDiff = semver.valid(semver.coerce(res.versions.versions[1].versionString))
+
+        if (res.versions && res.versions.versions[0].versionString) {
+          this.latestVersion.semver = semver.valid(semver.coerce(res.versions.versions[0].versionString || '1.0.0'))
+          this.latestVersion.major = semver.major(this.latestVersion.semver)
+          this.latestVersion.minor = semver.minor(this.latestVersion.semver)
+          this.latestVersion.patch = semver.patch(this.latestVersion.semver)
+
+          this.generateNextVersionData()
+          this.leftDiff = this.latestVersion.semver
+          if (this.leftDiff !== this.currentVersion.semver) {
+            this.rightDiff = this.currentVersion.semver
+          }
+          else if (res.versions.versions[1]) {
+            this.rightDiff = semver.valid(semver.coerce(res.versions.versions[1].versionString))
+          }
         }
 
         if (res.versions && res.versions.total > 10) {

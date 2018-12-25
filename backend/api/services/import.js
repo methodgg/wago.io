@@ -625,6 +625,7 @@ server.post('/import/submit', function(req, res) {
           code.json = scan.decoded
         }
         code.version = 1
+        code.versionString = '1.0.0'
 
         // add additional fields to WA
         if (wago.type === 'WEAKAURAS2') {
@@ -808,6 +809,64 @@ server.post('/import/json/save', function (req, res) {
         }
         
         return SaveWagoVersion(req, res, 'update')
+      })
+    })
+  }
+  else if (req.body.create && req.body.type === 'MDT') {
+    try {
+      var json = JSON.parse(req.body.json)
+    }
+    catch (e) {
+      return res.send({error: "Invalid data"})
+    }
+    lua.JSON2MDT(json, (error, result) => {
+      if (error) {
+        return res.send({error: error})
+      }
+      else if (result.stderr || result.stdout=='') {
+        return res.send({error: 'invalid_' + type})
+      }
+      var encoded = result.stdout
+      var wago = new WagoItem()
+      if (req.user) {
+        wago.expires_at = null
+        wago._userId = req.user._id
+        wago.hidden = (req.user.account.default_aura_visibility === 'Hidden')
+        wago.private = (req.user.account.default_aura_visibility === 'Private')
+      }
+      // if forking anonymously save for 3 months
+      else {
+        wago.expires_at = new Date().setTime(new Date().getTime()+3*30*24*60*60*1000)
+        wago.hidden = false
+        wago.private = false
+      }
+      wago.name = json.text
+      wago.type = 'MDT'
+      wago.categories = []
+      if (json.value.currentDungeonIdx && parseInt(json.value.currentDungeonIdx) > 0 && global.Categories.getCategory('mdtdun' + json.value.currentDungeonIdx)) {
+        wago.categories.push('mdtdun' + json.value.currentDungeonIdx)
+      }
+
+      if (json.week && global.mdtDungeonTable.affixWeeks[json.week - 1]) {
+        global.mdtDungeonTable.affixWeeks[json.week - 1].forEach((affixID) => {
+          wago.categories.push('mdtaffix' + affixID)
+        })
+      }
+
+      wago.save().then((doc) => {
+        var code = new WagoCode()
+        code.auraID = doc._id
+        code.encoded = encoded
+        code.json = req.body.json
+        code.version = 1
+        code.versionString = '1.0.0'
+        code.save().then((codeDoc) => {
+          // broadcast to discord webhook?
+          if (req.body.importAs === 'User' && req.user && !wago.hidden && !wago.private && req.user.discord && req.user.discord.webhooks.onCreate) {
+            discord.webhookOnCreate(req.user, wago)
+          }
+          res.send({success: true, wagoID: doc._id})
+        })
       })
     })
   }

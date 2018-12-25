@@ -9,20 +9,24 @@
     </form>
     <md-subheader>Method Dungeon Tools</md-subheader>
     <md-layout>
-      <md-layout>
-        <md-subheader>{{ $t("Requires Class") }}</md-subheader>
-        <md-list class="md-double-line md-dense">
-          <md-list-item v-for="cls in classes" v-bind:key="cls.id" :class="cls.cls + ' md-inset'">
-            <category-image :group="cls.cls"></category-image>
-            <div class="md-list-text-container">
-              <router-link :to="'/mdt/' + cls.slug">{{ cls.text }}</router-link>
-              <span>
-                <router-link  v-for="spec in cls.specs" v-bind:key="spec.id" :to="'/mdt/' + spec.slug">{{ spec.text.replace(cls.text, '').trim() }}</router-link>
-              </span>
-            </div>
-          </md-list-item>
-        </md-list>
-      </md-layout>
+      <md-whiteframe id="create-mdt">
+        {{ $t("Build a new MDT run") }}
+        <div class="field-group">
+          <md-input-container>
+            <label for="dungeon">{{ $t("Select Dungeon") }}</label>
+            <md-select name="dungeon" id="dungeon" v-model="newDungeon">
+              <md-option v-for="(dun, k) in dungeons[0].bosses" :key="k" :value="dun.id">{{ $t(dun.text) }}</md-option>
+            </md-select>
+          </md-input-container>
+          <md-input-container>
+            <label for="affixes">{{ $t("Select Affixes") }}</label>
+            <md-select name="affixes" id="affixes" v-model="newAffix">
+              <md-option v-for="(item, index) in affixesS1" :value="item.id" :key="index">{{ $t('Week [-num-] [-affixes-]', {num: index + 1, affixes: item.text}) }}</md-option>
+            </md-select>
+          </md-input-container>
+        </div>
+        <md-button @click="createMDT()" class="md-raised" :disabled="!newAffix || !newDungeon">{{ $t("Build") }}</md-button>
+      </md-whiteframe>
       <md-layout>        
         <md-subheader>{{ $t("BFA Season 1 Affix Weeks") }}</md-subheader>
         <md-list class="md-double-line md-dense">          
@@ -30,7 +34,7 @@
             <category-image group="affixWeek"></category-image>
             <div class="md-list-text-container">
               <span>
-                <router-link v-for="(item, index) in affixesS1" :to="'/mdt/' + item.slug" v-bind:key="index">{{ $t('Week [-num-] [-affixes-]', {num: index + 1, affixes: item.text}) }}</router-link>
+                <router-link v-for="(item, index) in affixesS1" :to="'/mdt/' + item.slug" :key="index">{{ $t('Week [-num-] [-affixes-]', {num: index + 1, affixes: item.text}) }}</router-link>
               </span>
             </div>
           </md-list-item>
@@ -41,7 +45,7 @@
             <category-image group="affixes"></category-image>
             <div class="md-list-text-container">
               <span>
-                <router-link v-for="(item, index) in affixes" :to="'/mdt/' + item.slug" v-bind:key="index">{{ item.text }}</router-link>
+                <router-link v-for="(item, index) in affixes" :to="'/mdt/' + item.slug" :key="index">{{ item.text }}</router-link>
               </span>
             </div>
           </md-list-item>
@@ -71,6 +75,20 @@
           </md-list-item>
         </md-list>  
       </md-layout>
+      <md-layout>
+        <md-subheader>{{ $t("Requires Class") }}</md-subheader>
+        <md-list class="md-double-line md-dense">
+          <md-list-item v-for="cls in classes" v-bind:key="cls.id" :class="cls.cls + ' md-inset'">
+            <category-image :group="cls.cls"></category-image>
+            <div class="md-list-text-container">
+              <router-link :to="'/mdt/' + cls.slug">{{ cls.text }}</router-link>
+              <span>
+                <router-link  v-for="spec in cls.specs" v-bind:key="spec.id" :to="'/mdt/' + spec.slug">{{ spec.text.replace(cls.text, '').trim() }}</router-link>
+              </span>
+            </div>
+          </md-list-item>
+        </md-list>
+      </md-layout>
     </md-layout>
   </div>
 </template>
@@ -84,11 +102,23 @@ export default {
   methods: {
     runSearch: function () {
       this.$router.push('/search/' + this.searchString.trim().replace(/\s+/g, '+'))
+    },
+    createMDT: function () {
+      try {
+        var dungeon = categories.match(this.newDungeon).slug.split(/\//).pop()
+        var week = categories.match(this.newAffix).slug.split(/\//).pop()
+        this.$router.push('/build-new-mdt/' + dungeon + '/' + week)
+      }
+      catch (e) {
+        console.error(e.message)
+      }
     }
   },
   data: function () {
     return {
-      searchString: 'Type: MDT '
+      searchString: 'Type: MDT ',
+      newDungeon: '',
+      newAffix: ''
     }
   },
   computed: {
@@ -96,7 +126,7 @@ export default {
       return categories.raidCategories(['mdtdun'], this.$t)
     },
     affixesS1: function () {
-      return categories.getCategories([/^mdtaffix-bfa-s1-/], this.$t, true)
+      return categories.getCategories([/^mdtaffix-bfa-s1-/], this.$t, true) // also in Create-MDT
     },
     affixes: function () {
       return categories.getCategories([/^mdtaffix\d/], this.$t)
@@ -119,6 +149,7 @@ export default {
 </script>
 
 <style>
+#create-mdt { padding: 16px; margin: 16px; max-width: 600px }
 #searchForm { padding: 16px }
 #searchForm button { margin-top: -3px }
 

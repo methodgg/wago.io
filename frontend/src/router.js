@@ -10,6 +10,7 @@ const MenuElvUI = resolve => require(['@/components/core/Menu-ElvUI.vue'], resol
 const MenuVuhdo = resolve => require(['@/components/core/Menu-Vuhdo.vue'], resolve)
 const MenuTotalRP = resolve => require(['@/components/core/Menu-TotalRP.vue'], resolve)
 const MenuMDT = resolve => require(['@/components/core/Menu-MDT.vue'], resolve)
+const CreateMDT = resolve => require(['@/components/core/Create-MDT.vue'], resolve)
 const MenuCollections = resolve => require(['@/components/core/Menu-Collections.vue'], resolve)
 
 const TermsOfService = resolve => require(['@/components/core/TermsOfService.vue'], resolve)
@@ -112,6 +113,7 @@ export default {
     { path: '/mdt/:c1/:c2', component: Search, props: (route) => ({ contextSearch: 'Type: MDT' + GetContextTag(route.params) }) },
     { path: '/mdt/:c1/:c2/:c3', component: Search, props: (route) => ({ contextSearch: 'Type: MDT' + GetContextTag(route.params) }) },
     { path: '/mdt/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ contextSearch: 'Type: MDT' + GetContextTag(route.params) }) },
+    { path: '/build-new-mdt/:dungeon/:week', component: CreateMDT },
     { path: '/collections', component: MenuCollections },
     { path: '/collections/:c1', component: Search, props: (route) => ({ contextSearch: 'Type: Collection' + GetContextTag(route.params) }) },
     { path: '/collections/:c1/:c2', component: Search, props: (route) => ({ contextSearch: 'Type: Collection' + GetContextTag(route.params) }) },

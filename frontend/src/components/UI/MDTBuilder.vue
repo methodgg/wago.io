@@ -12,8 +12,9 @@
         </md-input-container>
       </div>
       <div class="flex-col flex-right"> 
-        <md-button @click="exportChanges"><md-icon>open_in_new</md-icon> {{ $t("Export/Fork changes") }}</md-button>
+        <md-button @click="exportChanges" v-if="wago._id"><md-icon>open_in_new</md-icon> {{ $t("Export/Fork changes") }}</md-button>
         <md-button v-if="canEdit" @click="$refs['saveChangesDialog'].open()" ref="saveChangesButton"><md-icon>save</md-icon> {{ $t("Save changes") }}</md-button>
+        <md-button v-if="scratch" @click="saveFromScratch"><md-icon>save</md-icon> {{ $t("Save MDT") }}</md-button>
       </div>
       <md-dialog md-open-from="#saveChangesButton" md-close-to="#saveChangesButton" ref="saveChangesDialog" id="saveChangesDialog" :focus="true">
         <md-dialog-title>{{ $t("Save Modifications") }}</md-dialog-title>
@@ -304,9 +305,11 @@
 
 <script>
 const semver = require('semver')
+const async = require('async')
 
 export default {
   name: 'build-mdt',
+  props: ['scratch'],
   data: function () {
     return {
       mdtScale: 539 / 450, // 1.197777 repeating, of course. Found by trial and error; there may be something that more accurately scales wow pixels into real pixels, but this is very close.
@@ -553,7 +556,7 @@ export default {
     setMap (subMap, preloaded) {
       // setup preload images
       var preload = []
-      var promises = []
+      // var promises = []
 
       // enemy portraits
       this.enemyPortraits = new Image()
@@ -602,18 +605,14 @@ export default {
       }
 
       // load the images
-      for (var i = 0; i < preload.length; i++) {
-        (function (url, promise) {
-          var img = new Image()
-          img.onload = function () {
-            promise.resolve()
-          }
-          img.src = url
-        })(preload[i], promises[i] = $.Deferred())
-      }
-      var vue = this
-      $.when.apply($, promises).done(function () {
-        vue.setMap(subMap, true)
+      async.each(preload, (url, done) => {
+        var img = new Image()
+        img.onload = function () {
+          done()
+        }
+        img.src = url
+      }, () => {
+        this.setMap(subMap, true)
       })
     },
 
@@ -1153,6 +1152,16 @@ export default {
         }
         else if (res && res.error) {
           window.eventHub.$emit('showSnackBar', res.error)
+        }
+        else {
+          window.eventHub.$emit('showSnackBar', this.$t('Unknown error could not save'))
+        }
+      })
+    },
+    saveFromScratch () {
+      this.http.post('/import/json/save', { json: this.tableString, type: 'MDT', create: true }).then((res) => {
+        if (res.success && res.wagoID) {
+          this.$router.push('/' + res.wagoID)
         }
         else {
           window.eventHub.$emit('showSnackBar', this.$t('Unknown error could not save'))
