@@ -504,5 +504,15 @@
   "Description Format": "",
   "Active": "",
   "Open": "",
-  "View notes": ""
+  "View notes": "",
+  "Version number must be greater than [-version-]": "",
+  "Save MDT": "",
+  "Compare": "",
+  "There are no code differences between the selected versions": "",
+  "Error unknown dungeon or week": "",
+  "Build a new MDT run": "",
+  "Select Dungeon": "",
+  "Select Affixes": "",
+  "Build": "",
+  "View": ""
 }

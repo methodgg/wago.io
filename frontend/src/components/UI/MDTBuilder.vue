@@ -4,11 +4,12 @@
       <div class="flex-col flex-left">
         <md-input-container>
           <label for="subMap">{{ "Map" }}</label>
-          <md-select name="subMap" id="subMap" v-model="subMapID">
+          <md-select name="subMap" id="subMap" v-model="subMapID" v-if="mdtDungeonTable.dungeonSubLevels[mapID].length > 1">
             <template v-for="(name, id) in mdtDungeonTable.dungeonSubLevels[mapID]">
               <md-option :value="id">{{ name }}</md-option>
             </template>
           </md-select>
+          <md-input v-else readonly :value="mdtDungeonTable.dungeonSubLevels[mapID][0]"></md-input>
         </md-input-container>
       </div>
       <div class="flex-col flex-right"> 
@@ -1219,7 +1220,7 @@ export default {
 #builder, #mdtStage { width: 100% }
 #build-mdt .md-select-content { max-height: calc(70vh); margin-bottom: 32px }
 #build-mdt .md-select { width: auto }
-#build-mdt .md-input-container { margin-bottom: 10px}
+#build-mdt .md-input-container { margin-bottom: 0}
 #build-mdt .md-input-container:after { content: none }
 #build-mdt .flex-container { display: flex; flex-direction: row; flex-wrap: nowrap; align-items: flex-end}
 #build-mdt .flex-left { order: 0; flex: 0 1 auto}

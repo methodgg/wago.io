@@ -2,6 +2,7 @@
  * Standard lookup requests
  */
 const lua = require('../helpers/lua')
+const WCL = require('../helpers/WCL')
 const gitDiff = require('git-diff')
 const weakauraDiff = require('../helpers/weakauraDiff')
 var wowPatches = require('../helpers/wowPatches')
@@ -11,7 +12,6 @@ function doNothing () {}
 server.get('/lookup/codereview', (req, res) => {
   WagoCode.lookup(req.query.wagoID).then((code) => {
     if (code && code.json) {
-      const lua = require('../helpers/lua')
       var WeakAura = JSON.parse(code.json)
 
       lua.CodeReview(WeakAura, (error, result) => {
@@ -632,6 +632,28 @@ server.get('/lookup/blogs', (req, res) => {
 server.get('/lookup/index', (req, res) => {
   res.send({top10: global.TopTenLists, news: global.newsPosts, addons: global.addonUpdates})
 })
+
+/**
+ * Lookup WCL data
+ */
+// server.get('/lookup/wcl/dungeons', (req, res) => {
+//   if (req.query.log) {
+//     WCL.getDungeons(req.query.log).then((dun) => {
+//       res.send(dun)
+//     })
+//   }
+// })
+
+// server.get('/lookup/wcl/mdt-events', (req, res) => {
+//   if (req.query.log) {
+//     WCL.generateMDT(req.query.log, req.query.dungeon || 0).then((dun) => {
+//       res.send(dun)
+//     })
+//     .catch((e) => {
+//       res.send(400, e)
+//     })
+//   }
+// })
 
 /**
  * Fetch site data
