@@ -55,7 +55,7 @@
               </template>
               <template v-for="(poi, i) in mdtDungeonTable.mapPOIs[mapID][subMapID]">
                 <slot>1</slot>
-                <mdt-poi :data="poi" :mdtScale="mdtScale" :mapID="mapID" @mouseover="setPOITooltip" @mouseout="setPOITooltip" @mousemove="moveTooltip" @click="clickPOI" />
+                <mdt-poi :data="poi" :mdtScale="mdtScale" :mapID="mapID" @mouseover="setPOITooltip" @mouseout="setPOITooltip(null)" @mousemove="moveTooltip" @click="clickPOI" />
               </template>
               <template v-for="(creature, i) in enemies">
                 <slot>1</slot>
@@ -135,7 +135,7 @@
               />
               <template v-for="(obj, id) in tableData.objects">
                 <!-- note -->
-                <mdt-poi v-if="obj && obj.n && obj.d && obj.d[2] === subMapID + 1" :data="obj" :annotationsIndex="id" :mdtScale="mdtScale" :mapID="mapID" @mouseover="setPOITooltip" @mouseout="setPOITooltip" @mousemove="moveTooltip" @click="clickPOI(obj, id)" />
+                <mdt-poi v-if="obj && obj.n && obj.d && obj.d[2] === subMapID + 1" :data="obj" :annotationsIndex="id" :mdtScale="mdtScale" :mapID="mapID" @mouseover="setPOITooltip" @mouseout="setPOITooltip(null)" @mousemove="moveTooltip" @click="clickPOI(obj, id)" />
                 <!-- arrow -->
                 <v-arrow v-else-if="obj && obj.t && obj.l && obj.d[2] === subMapID + 1 && obj.d[3]" :config="{
                   points: linePointsXY(obj.l),
@@ -157,26 +157,43 @@
           </v-stage>
         </div>
         <div id="mdtAnnotateMenu" v-if="!mdtLoading">
+          <div class="annotate-label">{{ $t('Tools') }}</div>
           <md-button-toggle md-single class="md-primary">
-            <md-button class="md-icon-button" @click="setAnnotate('standard')">
-              <md-icon style="transform:rotate(-65deg); margin-left:2px">near_me</md-icon>
-            </md-button>
-            <md-button class="md-icon-button" @click="setAnnotate('freedraw')">
+            <div class="md-icon-button md-toggle" ref="annotate-standard" @click="setAnnotate('standard')" @mouseover="setPOITooltip('annotation', $t('Selection Tool'))" @mouseout="setPOITooltip(null)">
+              <md-ink-ripple />
+              <md-icon style="transform:rotate(-65deg); margin-top:-2px">near_me</md-icon>
+            </div>
+            <div class="md-icon-button" ref="annotate-freedraw" @click="setAnnotate('freedraw')" @mouseover="setPOITooltip('annotation', $t('Pencil Tool'))" @mouseout="setPOITooltip(null)">
+              <md-ink-ripple />
               <md-icon>edit</md-icon>
-            </md-button>
-            <md-button class="md-icon-button" @click="setAnnotate('note')">
+            </div>
+            <div class="md-icon-button" ref="annotate-note" @click="setAnnotate('note')" @mouseover="setPOITooltip('annotation', $t('Create Note Tool'))" @mouseout="setPOITooltip(null)">
+              <md-ink-ripple />
               <md-icon>receipt</md-icon>
-            </md-button>
-            <md-button class="md-icon-button" @click="setAnnotate('line')">
-              <md-icon style="transform:rotate(-45deg); font-size: 28px; margin-left: -5px; margin-top: -2px">remove</md-icon>
-            </md-button>
-            <!--<md-button class="md-icon-button" @click="setAnnotate('move')">
-              <md-icon>control_camera</md-icon>
-            </md-button>-->
-            <md-button class="md-icon-button" @click="setAnnotate('arrow')">
+            </div>
+            <div class="md-icon-button" ref="annotate-line" @click="setAnnotate('line')" @mouseover="setPOITooltip('annotation', $t('Line Tool'))" @mouseout="setPOITooltip(null)">
+              <md-ink-ripple />
+              <md-icon style="transform:rotate(-45deg); font-size: 28px; margin-left: -5px; margin-top: -2px">remove</md-icon>            
+            </div>
+            <!--<div class="md-icon-button" ref="annotate-move" @click="setAnnotate('move')" @mouseover="setPOITooltip('annotation', $t('Move Object Tool'))" @mouseout="setPOITooltip(null)" >
+              <md-ink-ripple />
+              <md-icon style="transform:rotate(-45deg); font-size: 28px; margin-left: -5px; margin-top: -2px">control_camera</md-icon>
+            </div>-->
+            <div class="md-icon-button" ref="annotate-arrow" @click="setAnnotate('arrow')" @mouseover="setPOITooltip('annotation', $t('Arrow Tool'))" @mouseout="setPOITooltip(null)">
               <md-icon>call_made</md-icon>
-            </md-button>
+            </div>
           </md-button-toggle>
+          <div id="stroke-input" @mouseover="setPOITooltip('annotation', $t('Set Line Width'))" @mouseout="setPOITooltip(null)">
+            <button @click="paintingStrokeWidth = Math.max(paintingStrokeWidth - 1, 1)">-</button>
+            <input min="1" max="20" v-model="paintingStrokeWidth" type="number">
+            <button @click="paintingStrokeWidth = Math.min(paintingStrokeWidth + 1, 20)">+</button>
+          </div>
+          <div id="color-input" @mouseover="setPOITooltip('annotation', $t('Set Line Color'))" @mouseout="setPOITooltip(null)">
+            <button @click="showColorPicker" v-bind:style="{'background-color': paintingStrokeColor.hex}"></button>
+          </div>
+          <div v-if="isColorPickerOpen" id="color-picker">
+            <color-picker v-model="paintingStrokeColor" :disableAlpha="true" />
+          </div>
         </div>
       </md-layout>
       <md-layout style="width:25%" md-vertical-align="start">
@@ -367,7 +384,8 @@ export default {
       paintingContext: null,
       paintingPosition: {},
       paintingStrokeWidth: 3,
-      paintingStrokeColor: 'FFFFFF',
+      paintingStrokeColor: '#FFFFFF',
+      isColorPickerOpen: false,
       userNoteEditText: '',
       editPoiID: -1
     }
@@ -400,7 +418,8 @@ export default {
     'export-modal': require('./ExportJSON.vue'),
     'mdt-enemy-portrait': require('./MDTEnemyPortrait.vue'),
     'mdt-poi': require('./MDTPOI.vue'),
-    'input-semver': require('../UI/Input-Semver.vue')
+    'input-semver': require('../UI/Input-Semver.vue'),
+    'color-picker': require('vue-color').Chrome
   },
   mounted () {
     this.latestVersion.semver = semver.valid(semver.coerce(this.wago.versions.versions[0].versionString))
@@ -486,13 +505,16 @@ export default {
 
         stage.addEventListener('mousedown touchstart', (evt) => {
           vue.paintingPosition = stage.getPointerPosition()
+          vue.isColorPickerOpen = false
           var scale = stage.scaleX()
           var x = ((vue.paintingPosition.x - stage.x()) / scale) / vue.mdtScale
           var y = -((vue.paintingPosition.y - stage.y()) / scale) / vue.mdtScale
 
+          console.log(vue.paintingStrokeColor)
+
           if (vue.annotationMode === 'freedraw' || vue.annotationMode === 'line' || vue.annotationMode === 'arrow') {
             vue.isPainting = true
-            vue.tableData.objects.push({l: [x, y], d: [vue.paintingStrokeWidth, 1.1, vue.subMapID + 1, true, vue.paintingStrokeColor, -8, true]})
+            vue.tableData.objects.push({l: [x, y], d: [vue.paintingStrokeWidth, 1.1, vue.subMapID + 1, true, vue.paintingStrokeColor.hex.replace(/#/, ''), -8, true]})
           }
           else if (vue.annotationMode === 'note') {
             vue.userNoteEditOpen('', {x, y})
@@ -676,16 +698,21 @@ export default {
 
     moveTooltip () {
       if (this.tooltipEnemy || this.tooltipPOI) {
+        var canvas = document.getElementById('mdtStage').getBoundingClientRect()
+        var mouse = this.$refs.mdtStage.getStage().getPointerPosition()
         var box = document.getElementById('mdtTooltip')
-        var x = window.event.clientX + 10
+        if (!mouse) {
+          return
+        }
+        var x = mouse.x + 10 + canvas.left
         if (x + box.offsetWidth > window.innerWidth - 30) {
-          x = window.event.clientX - 10 - box.offsetWidth
+          x = mouse.x - 10 + canvas.left - box.offsetWidth
         }
         this.cursorTooltipX = x
 
-        var y = window.event.clientY - 10 - box.offsetHeight
+        var y = mouse.y - 10 + canvas.top - box.offsetHeight
         if (y < 24) {
-          y = window.event.clientY + 40
+          y = mouse.y + 55 + canvas.top
         }
         this.cursorTooltipY = y
       }
@@ -1030,6 +1057,11 @@ export default {
         this.tooltipPOI = ''
         return
       }
+      else if (poi === 'annotation') {
+        var menu = document.getElementById('mdtAnnotateMenu').getBoundingClientRect()
+        this.cursorTooltipX = menu.left + menu.width + 10
+        this.cursorTooltipY = menu.top
+      }
 
       var lines = []
       if (text) lines = text.split(/\n/g)
@@ -1073,6 +1105,8 @@ export default {
     },
 
     setAnnotate (mode) {
+      document.querySelector('#mdtAnnotateMenu .md-toggle').classList.remove('md-toggle')
+      this.$refs['annotate-' + mode].classList.add('md-toggle')
       this.annotationMode = mode
       var stage = this.$refs.mdtStage.getStage()
 
@@ -1097,6 +1131,11 @@ export default {
         default:
           this.annotationClass = 'standard'
       }
+    },
+
+    showColorPicker () {
+      console.log('colors ahoy!')
+      this.isColorPickerOpen = true
     },
 
     userNoteEditOpen (text, poiMeta) {
@@ -1254,10 +1293,22 @@ export default {
 #mdtTooltip .tooltipPOI span + span { font-size: 90%; color: #DDD }
 #mdtTooltip .tooltipEnemy { width: 210px; position: relative; }
 #mdtTooltip .tooltipEnemy .enemyPortrait { position: absolute; left: -48px; top: -48px; border: 2px solid black; }
-#mdtAnnotateMenu { position: absolute; top: 36px; left: 18px; width: 50px; height: 200px; border: 1px solid black; background: #212121; opacity: .9 }
+#mdtAnnotateMenu { position: absolute; top: 36px; left: 18px; width: 50px; border: 1px solid black; background: #212121; opacity: .9 }
+#mdtAnnotateMenu .annotate-label { text-align: center; text-decoration: underline; font-weight: bold; font-size: 12px }
 #mdtAnnotateMenu .md-button-toggle { padding: 0}
-#mdtAnnotateMenu button, #mdtAnnotateMenu button .md-ink-ripple { padding: 2px; width: 24px; min-width: 24px; max-width: 24px; height: 24px; min-height: 24px; max-height: 24px; }
-#mdtAnnotateMenu button i.md-icon { font-size: 18px; margin: 0; }
+#mdtAnnotateMenu .md-icon-button { display: inline-block; position: relative; padding: 2px; width: 24px; min-width: 24px; max-width: 24px; height: 24px; min-height: 24px; max-height: 24px; }
+#mdtAnnotateMenu .md-icon-button i.md-icon { font-size: 18px; margin: 0; color: white; cursor: pointer }
+#stroke-input { text-align: center }
+#stroke-input input { text-align: center; font-weight: bold; font-size: 12px; height: 24px; width:18px; padding: 0; color: white; background: none; border: 0; }
+#stroke-input button { border: 0; background: none; color: white; padding:0; width: 10px; cursor: pointer }
+#stroke-input input[type="number"] { -webkit-appearance: textfield; -moz-appearance: textfield; appearance: textfield; }
+#stroke-input input[type="number"]::-webkit-inner-spin-button, #stroke-input input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; }
+#color-input button { width: 100%; height: 18px; border: 1px solid black; border-width: 1px 3px }
+#color-picker .vc-chrome-body { background: #333 }
+#color-picker .vc-chrome-active-color { width: 24px; height: 24px; }
+#color-picker .vc-chrome-hue-wrap { margin-top: 7px; }
+#color-picker .vc-input__input { border: 0; background: none; color: white; box-shadow: none; text-align: left; font-size: 14px; padding-left: 30px }
+#color-picker .vc-chrome-toggle-btn, #color-picker span.vc-input__label { display: none }
 #mdtEditNote .md-input-container { padding: 16px }
 #mdtEditNote .md-input-container:after { margin: 0 16px }
 #builder.annotate-crosshair { cursor: crosshair }
