@@ -175,13 +175,16 @@
               <md-ink-ripple />
               <md-icon style="transform:rotate(-45deg); font-size: 28px; margin-left: -5px; margin-top: -2px">remove</md-icon>            
             </div>
-            <!--<div class="md-icon-button" ref="annotate-move" @click="setAnnotate('move')" @mouseover="setPOITooltip('annotation', $t('Move Object Tool'))" @mouseout="setPOITooltip(null)" >
-              <md-ink-ripple />
-              <md-icon style="transform:rotate(-45deg); font-size: 28px; margin-left: -5px; margin-top: -2px">control_camera</md-icon>
-            </div>-->
             <div class="md-icon-button" ref="annotate-arrow" @click="setAnnotate('arrow')" @mouseover="setPOITooltip('annotation', $t('Arrow Tool'))" @mouseout="setPOITooltip(null)">
               <md-icon>call_made</md-icon>
             </div>
+            <!--<div class="md-icon-button" ref="annotate-box" @click="setAnnotate('box')" @mouseover="setPOITooltip('annotation', $t('Box Tool'))" @mouseout="setPOITooltip(null)">
+              <md-icon style="margin:">check_box_outline_blank</md-icon>
+            </div>
+            <div class="md-icon-button" ref="annotate-move" @click="setAnnotate('move')" @mouseover="setPOITooltip('annotation', $t('Move Object Tool'))" @mouseout="setPOITooltip(null)" >
+              <md-ink-ripple />
+              <md-icon style="transform:rotate(-45deg); font-size: 28px; margin-left: -5px; margin-top: -2px">control_camera</md-icon>
+            </div>-->
           </md-button-toggle>
           <div id="stroke-input" @mouseover="setPOITooltip('annotation', $t('Set Line Width'))" @mouseout="setPOITooltip(null)">
             <button @click="paintingStrokeWidth = Math.max(paintingStrokeWidth - 1, 1)">-</button>
@@ -384,7 +387,7 @@ export default {
       paintingContext: null,
       paintingPosition: {},
       paintingStrokeWidth: 3,
-      paintingStrokeColor: '#FFFFFF',
+      paintingStrokeColor: {hex: '#FFFFFF'},
       isColorPickerOpen: false,
       userNoteEditText: '',
       editPoiID: -1
@@ -510,9 +513,7 @@ export default {
           var x = ((vue.paintingPosition.x - stage.x()) / scale) / vue.mdtScale
           var y = -((vue.paintingPosition.y - stage.y()) / scale) / vue.mdtScale
 
-          console.log(vue.paintingStrokeColor)
-
-          if (vue.annotationMode === 'freedraw' || vue.annotationMode === 'line' || vue.annotationMode === 'arrow') {
+          if (vue.annotationMode === 'freedraw' || vue.annotationMode === 'line' || vue.annotationMode === 'arrow' || vue.annotationMode === 'box') {
             vue.isPainting = true
             vue.tableData.objects.push({l: [x, y], d: [vue.paintingStrokeWidth, 1.1, vue.subMapID + 1, true, vue.paintingStrokeColor.hex.replace(/#/, ''), -8, true]})
           }
@@ -527,7 +528,7 @@ export default {
         stage.addEventListener('mouseup touchend', (evt) => {
           vue.isPainting = false
           // if line is started but never actually drawn then remove it from the table
-          if ((vue.annotationMode === 'freedraw' || vue.annotationMode === 'line' || vue.annotationMode === 'arrow') && vue.tableData.objects[vue.tableData.objects.length - 1].l.length <= 3) {
+          if ((vue.annotationMode === 'freedraw' || vue.annotationMode === 'line' || vue.annotationMode === 'arrow' || vue.annotationMode === 'box') && vue.tableData.objects[vue.tableData.objects.length - 1].l.length <= 3) {
             vue.tableData.objects.pop()
             return
           }
@@ -559,6 +560,10 @@ export default {
           }
           else if (vue.annotationMode === 'line') {
             vue.tableData.objects[vue.tableData.objects.length - 1].l.splice(2, 2, x, y)
+          }
+          else if (vue.annotationMode === 'box') {
+            var start = {x: vue.tableData.objects[vue.tableData.objects.length - 1].l[0], y: vue.tableData.objects[vue.tableData.objects.length - 1].l[1]}
+            vue.$set(vue.tableData.objects[vue.tableData.objects.length - 1], 'l', [start.x, start.y, x, start.y, x, start.y, x, y, x, y, start.x, y, start.x, y, start.x, start.y])
           }
           else if (vue.annotationMode === 'arrow') {
             vue.tableData.objects[vue.tableData.objects.length - 1].l.splice(2, 2, x, y)
@@ -1114,6 +1119,7 @@ export default {
         case 'freedraw':
         case 'line':
         case 'arrow':
+        case 'box':
           this.annotationClass = 'annotate-crosshair'
           stage.draggable(false)
           break

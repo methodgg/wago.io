@@ -1145,8 +1145,10 @@ export default {
       }
     },
     selectVersion (v) {
-      console.log(v)
-      if (v && v[0] && v[0].version) {
+      if (v && v[0] && v[0].versionString) {
+        this.$router.push('/' + this.$store.state.wago.slug + '/' + v[0].versionString)
+      }
+      else if (v && v[0] && v[0].version) {
         this.$router.push('/' + this.$store.state.wago.slug + '/' + v[0].version)
       }
     },

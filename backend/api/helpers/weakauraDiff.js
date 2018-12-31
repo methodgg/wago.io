@@ -5,7 +5,7 @@ module.exports = (jsonA, jsonB, diffOptions) => {
   var tblA = JSON.parse(jsonA)
   var tblB = JSON.parse(jsonB)
 
-  var customA = getCustomCode(tblA.c || [tblA.d])  
+  var customA = getCustomCode(tblA.c || [tblA.d])
   var customB = getCustomCode(tblB.c || [tblB.d])
 
   var keys = Object.keys(customB)
@@ -14,7 +14,16 @@ module.exports = (jsonA, jsonB, diffOptions) => {
     if (typeof customB[key] !== 'string') {
       return
     }
-    let diff = gitDiff(customB[key], customA[key] || '', diffOptions)
+    if (!customA[key]) {
+      customA[key] = ''
+    }
+    if (customA[key].match(/^--/)) {
+      customA[key] = ' ' + customA[key]
+    }
+    if (customB[key].match(/^--/)) {
+      customB[key] = ' ' + customB[key]
+    }
+    let diff = gitDiff(customB[key], customA[key], diffOptions)
     if (diff) {
       diffs.push(`--- a/${key}\n+++ b/${key}\n${diff}`)
     }
