@@ -36,7 +36,10 @@ module.exports = (jsonA, jsonB, diffOptions) => {
     if (typeof customA[key] !== 'string') {
       return
     }
-    let diff = gitDiff(customA[key], '', diffOptions)
+    if (customA[key].match(/^--/)) {
+      customA[key] = ' ' + customA[key]
+    }
+    let diff = gitDiff('', customA[key], diffOptions)
     if (diff) {
       diffs.push(`--- a/${key}\n+++ b/${key}\n${diff}`)
     }

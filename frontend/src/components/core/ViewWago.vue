@@ -323,7 +323,7 @@
                         <md-table-row>
                           <md-table-cell md-numeric>
                             <md-chip v-if="ver.versionString === currentVersionString">{{ $t("Active") }}</md-chip>
-                            <md-button v-else class='chip-button' @click="selectVersion([ver])">{{ $t("View") }}</md-button>
+                            <md-button v-else class='chip-button' :href="selectVersion([ver])">{{ $t("View") }}</md-button>
                             <span class='version-num'>{{ ver.versionString }}</span>
                           </md-table-cell>
                           <md-table-cell>                            
@@ -1146,10 +1146,13 @@ export default {
     },
     selectVersion (v) {
       if (v && v[0] && v[0].versionString) {
-        this.$router.push('/' + this.$store.state.wago.slug + '/' + v[0].versionString)
+        return '/' + this.$store.state.wago.slug + '/' + v[0].versionString.replace(/-.*/, '')
       }
       else if (v && v[0] && v[0].version) {
-        this.$router.push('/' + this.$store.state.wago.slug + '/' + v[0].version)
+        return '/' + this.$store.state.wago.slug + '/' + v[0].version
+      }
+      else {
+        return '/' + this.$store.state.wago.slug
       }
     },
     isLatestVersion () {
