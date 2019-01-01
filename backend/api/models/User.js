@@ -72,11 +72,27 @@ const Schema = new mongoose.Schema({
   battlenet : {
     id : String,
     name : String,
-    region: String,
     avatar : {
       png: String,
       webp: String
-    }
+    },
+    updateStatus: String,
+    characters: [{
+      region: {type: String, index: true},
+      realm: {type: String, index: true},
+      name: {type: String, index: true},
+      guild: {type: String, index: true},
+      guildRealm: {type: String, index: true}
+    }]
+  },
+  battlenetCN : {
+    id : String,
+    name : String,
+    avatar : {
+      png: String,
+      webp: String
+    },
+    updateStatus: String,
   },
   patreon : {
     id: String,

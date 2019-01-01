@@ -39,6 +39,7 @@ module.exports = {
           }
         }, (err, images) => {
           if (err) {
+            console.log(err)
             return callback({error: err})
           }
           else {

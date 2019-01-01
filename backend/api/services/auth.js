@@ -174,6 +174,10 @@ function doAuth (req, res, next) {
     case 'battlenet':
       battlenetAuth(req, res)
       break
+
+    case 'battlenetCN':
+      battlenetAuth(req, res, 'china')
+      break
       
     case 'discord':
       discordAuth(req, res)
@@ -285,7 +289,7 @@ function createUser (req, res) {
 }
 
 // Login through Blizzard Battle.net
-function battlenetAuth(req, res) {
+function battlenetAuth(req, res, region) {
   logger.info({label: 'Attempt login', service: 'battlenet'})
   var key, secret
   if (req.headers.origin === 'https://t1000.wago.io') {
@@ -296,7 +300,17 @@ function battlenetAuth(req, res) {
     key = config.auth.battlenet.clientID
     secret = config.auth.battlenet.clientSecret
   }
-  Axios.post('https://us.battle.net/oauth/token', querystring.stringify({
+  var tokenURL
+  var battlenetField = 'battlenet'
+  if (region === 'CN') {
+    tokenURL = 'https://www.battlenet.com.cn/oauth/token'
+    battlenetField = 'battlenetCN'
+  }
+  else {
+    region = 'global'
+    tokenURL = 'https://us.battle.net/oauth/token'
+  }
+  Axios.post(tokenURL, querystring.stringify({
     redirect_uri: req.headers.origin + '/auth/battlenet',
     scope: 'wow.profile account.public',
     grant_type: 'authorization_code',
@@ -316,32 +330,86 @@ function battlenetAuth(req, res) {
       if (authRes.data.id) {
         authResponse.id = authRes.data.id
         authResponse.name = authRes.data.battletag
-        
-        // get user name/id, then check each region until characters are found
-        async.tryEach([
-          function getUS(callback) {
-            getWoWProfile('us', response.data.access_token, callback)
-          },
-          function getEU(callback) {
-            getWoWProfile('eu', response.data.access_token, callback)
-          },
-          function getTW(callback) {
-            getWoWProfile('tw', response.data.access_token, callback)
-          },
-          function getKR(callback) {
-            getWoWProfile('kr', response.data.access_token, callback)
-          },
-          function getCN(callback) {
-            getWoWProfile('cn', response.data.access_token, callback)
-          }
-        ], (err, results) => {
-          if (results) {
-            authResponse.region = results.region
-            authResponse.maxLevel = results.maxLevel
-            authResponse.avatar = results.avatar
-          }
-          // success
-          oAuthLogin(req, res, 'battlenet', authResponse)
+        oAuthLogin(req, res, battlenetField, authResponse, (user) => {
+          // get user name/id, then check each region until characters are found
+          async.parallel({
+            us: function getUS(callback) {
+              if (region === 'global') {
+                getWoWProfile('us', response.data.access_token, callback)
+              }
+              else {
+                callback(null, [])
+              }
+            },
+            eu: function getEU(callback) {
+              if (region === 'global') {
+                getWoWProfile('eu', response.data.access_token, callback)
+              }
+              else {
+                callback(null, [])
+              }
+            },
+            tw: function getTW(callback) {
+              if (region === 'global') {
+                getWoWProfile('tw', response.data.access_token, callback)
+              }
+              else {
+                callback(null, [])
+              }
+            },
+            kr: function getKR(callback) {
+              if (region === 'global') {
+                getWoWProfile('kr', response.data.access_token, callback)
+              }
+              else {
+                callback(null, [])
+              }
+            },
+            cn: function getCN(callback) {
+              if (region === 'CN') {
+                getWoWProfile('cn', response.data.access_token, callback)
+              }
+              else {
+                callback(null, [])
+              }
+            }
+          }, (err, results) => {
+            if (err) {
+              user[battlenetField].updateStatus = 'Error: ' + err
+              user.save()
+            }
+            else if (results) {
+              var chars = []
+              var mostRecent = 0
+              var avatarURL = ''
+              Object.keys(results).forEach((region) => {
+                results[region].forEach((c) => {
+                  if (c.level >= 100) {
+                    chars.push({region: region, realm: c.realm, name: c.name, guild: c.guild, guildRealm: c.guildRealm })
+                    if (mostRecent < c.lastModified) {
+                      mostRecent = c.lastModified
+                      avatarURL = 'http://render-' + region + '.worldofwarcraft.com/character/' + c.thumbnail
+                    }
+                  }
+                })
+              })
+              if (chars.length > 0) {
+                image.avatarFromURL(avatarURL, user._id.toString(), battlenetField, (img) => {
+                  if (!img.error) {
+                    user[battlenetField].avatar = img
+                  }
+                  user[battlenetField].characters = chars
+                  user[battlenetField].updateStatus = 'done'
+                  user.account.verified_human = true
+                  user.save()
+                })
+              }
+              else {
+                user[battlenetField].updateStatus = 'Error: No characters found.'
+                user.save()
+              }
+            }
+          })
         })
       }
       else {
@@ -527,7 +595,7 @@ function twitterAuth(req, res) {
   }
 }
 
-function oAuthLogin(req, res, provider, authUser) {
+function oAuthLogin(req, res, provider, authUser, callback) {
   // oAuth JSON profile assumed good at this point, log user in, register social login to existing user, or register as new user
   logger.info({label: 'Successful login', service: provider})
 
@@ -543,7 +611,7 @@ function oAuthLogin(req, res, provider, authUser) {
     profile = {
       id: authUser.id,
       name: authUser.name,
-      region: authUser.region
+      updateStatus: 'pending'
     }
     humanDetected = authUser.maxLevel
     newAcctName = authUser.name
@@ -653,6 +721,9 @@ function oAuthLogin(req, res, provider, authUser) {
         req.user.save().then((user) => {
           var who = {}
           who.UID = user._id
+          if (callback) {
+            callback(user)
+          }
           return makeSession(req, res, who, user)
         })
       })       
@@ -687,6 +758,9 @@ function oAuthLogin(req, res, provider, authUser) {
           user.save().then((newuser) => {
             var who = {}
             who.UID = newuser._id
+            if (callback) {
+              callback(newuser)
+            }
             return makeSession(req, res, who, newuser)
           })
         }
@@ -705,6 +779,9 @@ function oAuthLogin(req, res, provider, authUser) {
             user.save().then((newuser) => {
               var who = {}
               who.UID = newuser._id
+              if (callback) {
+                callback(newuser)
+              }
               return makeSession(req, res, who, newuser)
             })
           })
@@ -732,6 +809,9 @@ function oAuthLogin(req, res, provider, authUser) {
         oauthUser.save().then((user) => {
           var who = {}
           who.UID = user._id
+          if (callback) {
+            callback(user)
+          }
           return makeSession(req, res, who, user)
         })
       })
@@ -752,11 +832,11 @@ function getWoWProfile(region, token, callback) {
     case 'tw':
       url = 'https://tw.api.blizzard.com/wow/user/characters'
       break
-      case 'kr':
+    case 'kr':
       url = 'https://kr.api.blizzard.com/wow/user/characters'
       break
     case 'cn':
-      url = 'https://api.blizzard.com.cn/wow/user/characters'
+      url = 'https://gateway.battlenet.com.cn/wow/user/characters'
       break
     default:
       logger.error({label: 'Unknown battlenet auth region', region: region})
@@ -765,25 +845,9 @@ function getWoWProfile(region, token, callback) {
   
   Axios.get(url, { headers: { Authorization: 'Bearer ' + token } })
     .then((charRes) => {
-      // if no characters found on this region then move on
-      if (!charRes.data.characters || charRes.data.characters.length === 0) {
-        return callback(null)
-      }
-      // if characters are found then loop through, find any 110s to flag account as human and use most recently updated for avatar
-      var myCharacter = { lastModified: 1, region: region }
-      charRes.data.characters.forEach((char) => {
-        if (char.level >= 110) {
-          myCharacter.maxLevel = true
-          if (char.lastModified > myCharacter.lastModified) {
-            myCharacter.lastModified = char.lastModified
-            myCharacter.avatar = 'http://render-' + region + '.worldofwarcraft.com/character/' + char.thumbnail
-          }          
-        }
-      })
-      myCharacter.region = region
-      callback(null, myCharacter)
+      callback(null, charRes.data.characters)
     })
     .catch((err) => {
-      callback(err)
+      callback(err.message)
     })
 }

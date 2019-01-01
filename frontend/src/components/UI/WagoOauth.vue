@@ -11,10 +11,25 @@
               <ui-image v-else img="battlenet"></ui-image>
             </md-avatar>
             <div class="md-list-text-container">
-              <span v-if="user && user.battlenet">{{ user.battlenet.name }}</span>
+              <span v-if="user && user.battlenet && user.battlenet.name">{{ user.battlenet.name }}</span>
               <span>Blizzard Battle.net</span>
               <span v-if="!user || user.guest">{{ $t("Login with Blizzard") }}</span>
-              <span v-else-if="!user || !user.battlenet || !user.battlenet.name">{{ $t("Connect to account") }}</span>
+              <span v-else-if="!user.battlenet || !user.battlenet.name">{{ $t("Connect to account") }}</span>
+              <span v-else-if="user && user.battlenet && user.battlenet.updateStatus === 'pending'">{{ $t("Profile update in progress") }}</span>
+              <span v-else>{{ $t("Update profile") }}</span>
+            </div>
+          </md-list-item>
+          <md-list-item class="auth-battlenet" href="#" @click.prevent="doAuth('battlenetCN')">
+            <md-avatar>
+              <ui-image v-if="user && user.battlenetCN && user.battlenetCN.avatar && user.battlenetCN.avatar.png" :img="user.battlenetCN.avatar"></ui-image>
+              <ui-image v-else img="battlenet"></ui-image>
+            </md-avatar>
+            <div class="md-list-text-container">
+              <span v-if="user && user.battlenetCN">{{ user.battlenetCN.name }}</span>
+              <span>Blizzard Battle.net China</span>
+              <span v-if="!user || user.guest">{{ $t("Login with Blizzard") }}</span>
+              <span v-else-if="!user || !user.battlenetCN || !user">{{ $t("Connect to account") }}</span>
+              <span v-else-if="user.battlenetCN.updateStatus === 'pending'">{{ $t("Profile update in progress") }}</span>
               <span v-else>{{ $t("Update profile") }}</span>
             </div>
           </md-list-item>
@@ -101,7 +116,8 @@ export default {
     return {
       context: 'oauth2 context',
       code: this.$route.query.code,
-      provider: this.$route.params.provider
+      provider: this.$route.params.provider,
+      bnetUpdateTimer: null
     }
   },
   methods: {
@@ -116,17 +132,48 @@ export default {
             console.log(err)
           })
       }
+      else if (provider === 'battlenet' && this.user && this.user.battlenet && this.user.battlenet.updateStatus === 'pending') {
+        // do nothing...
+      }
       else {
         this.$auth.oauth2({
           provider: provider || this.provider
         })
       }
+    },
+
+    checkUpdatedBnetProfile: (vue) => {
+      console.log('checking for updates', this.provider)
+      vue.http.get('/account/whoami').then((res) => {
+        if (res && res.user && res.user.battlenet && res.user.battlenet.updateStatus !== 'pending') {
+          vue.$store.commit('setUser', res.user)
+        }
+        else {
+          if (this.bnetUpdateTimer) {
+            clearTimeout(this.bnetUpdateTimer)
+          }
+          vue.bnetUpdateTimer = setTimeout(() => {
+            vue.checkUpdatedBnetProfile(vue)
+          }, 2000)
+        }
+      })
     }
   },
   computed: {
     user () {
       return this.$store.state.user
     }
+  },
+  created () {
+    var vue = this
+    if (this.user && this.user.battlenet && this.user.battlenet.updateStatus === 'pending') {
+      this.bnetUpdateTimer = setTimeout(() => {
+        this.checkUpdatedBnetProfile(vue)
+      }, 2000)
+    }
+  },
+  destroyed () {
+    clearTimeout(this.bnetUpdateTimer)
   },
   mounted () {
     var vue = this
@@ -135,7 +182,7 @@ export default {
         oauth_token: this.$route.query.oauth_token,
         oauth_verifier: this.$route.query.oauth_verifier
       }).then((res) => {
-        console.log(res) // user?
+        // console.log(res)
       })
       .catch((err) => {
         window.eventHub.$emit('showSnackBar', vue.$t('An error occurred'))

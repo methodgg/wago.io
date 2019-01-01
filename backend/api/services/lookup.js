@@ -81,7 +81,7 @@ server.get('/lookup/codereview', (req, res) => {
     wago.date = { created: doc.created, modified: doc.modified }
     wago.expires = doc.expires_at
     wago.patch = wowPatches.patchByDate(doc.modified || doc.created)
-    wago.description = { text: doc.description, format: 'bbcode' }
+    wago.description = { text: doc.description, format: doc.description_format }
     wago.categories = doc.categories
     
     wago.viewCount = doc.popularity.views

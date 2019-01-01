@@ -413,7 +413,7 @@
                   <div>{{ $t("Collections are sets of imports curated by users for a variety of purproses")}}</div>
                   <div v-if="wago.collections.length > 0">
                     <strong>{{ $t("This Wago is included in [-count-] collection", {count: wago.collectionCount}) }}</strong>
-                    <md-table @select="selectVersion">
+                    <md-table>
                       <md-table-header>
                         <md-table-row>
                           <md-table-head>{{ $t("Collection") }}</md-table-head>
@@ -425,7 +425,7 @@
                       <md-table-body>
                         <md-table-row v-for="(coll, key) in wago.collections" v-bind:key="key">
                           <md-table-cell>
-                            <router-link :to="coll.slug">{{ coll.name }}</router-link>
+                            <router-link :to="'/' + coll.slug">{{ coll.name }}</router-link>
                           </md-table-cell>
                           <md-table-cell>
                             {{ coll.modified | moment("dddd, MMMM Do YYYY, h:mm a") }}

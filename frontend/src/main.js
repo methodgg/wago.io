@@ -534,6 +534,15 @@ Vue.use(VueAuth, {
     clientId: bnetClientID,
     scope: 'wow.profile'
   },
+  battlenetCNData: {url: 'auth/battlenetCN', method: 'POST', redirect: '/account'},
+  battlenetCNOauth2Data: {
+    url: 'https://www.battlenet.com.cn/oauth/authorize',
+    redirect: function () {
+      return this.options.getUrl() + '/auth/battlenetCN'
+    },
+    clientId: bnetClientID,
+    scope: 'wow.profile'
+  },
   discordData: {url: 'auth/discord', method: 'POST', redirect: '/account'},
   discordOauth2Data: {
     url: 'https://discordapp.com/api/oauth2/authorize',
