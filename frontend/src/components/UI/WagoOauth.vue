@@ -7,7 +7,8 @@
         <md-list class="md-double-line">
           <md-list-item class="auth-battlenet" href="#" @click.prevent="doAuth('battlenet')">
             <md-avatar>
-              <ui-image v-if="user && user.battlenet && user.battlenet.avatar && user.battlenet.avatar.png" :img="user.battlenet.avatar"></ui-image>
+              <ui-image v-if="user && user.battlenet && user.battlenet.updateStatus === 'pending'" img="loading"></ui-image>
+              <ui-image v-else-if="user && user.battlenet && user.battlenet.avatar && user.battlenet.avatar.png" :img="user.battlenet.avatar"></ui-image>
               <ui-image v-else img="battlenet"></ui-image>
             </md-avatar>
             <div class="md-list-text-container">
@@ -15,13 +16,14 @@
               <span>Blizzard Battle.net</span>
               <span v-if="!user || user.guest">{{ $t("Login with Blizzard") }}</span>
               <span v-else-if="!user.battlenet || !user.battlenet.name">{{ $t("Connect to account") }}</span>
-              <span v-else-if="user && user.battlenet && user.battlenet.updateStatus === 'pending'">{{ $t("Profile update in progress") }}</span>
+              <span v-else-if="user && user.battlenet && user.battlenet.updateStatus === 'pending'" style="color:#c1272d">{{ $t("Profile update in progress") }}</span>
               <span v-else>{{ $t("Update profile") }}</span>
             </div>
           </md-list-item>
           <md-list-item class="auth-battlenet" href="#" @click.prevent="doAuth('battlenetCN')">
             <md-avatar>
-              <ui-image v-if="user && user.battlenetCN && user.battlenetCN.avatar && user.battlenetCN.avatar.png" :img="user.battlenetCN.avatar"></ui-image>
+              <ui-image v-if="user && user.battlenetCN && user.battlenetCN.updateStatus === 'pending'" img="loading"></ui-image>
+              <ui-image v-else-if="user && user.battlenetCN && user.battlenetCN.avatar && user.battlenetCN.avatar.png" :img="user.battlenetCN.avatar"></ui-image>
               <ui-image v-else img="battlenet"></ui-image>
             </md-avatar>
             <div class="md-list-text-container">
