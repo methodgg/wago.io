@@ -74,6 +74,13 @@ server.get('/lookup/codereview', (req, res) => {
     else {
       wago.type = doc.type
     }
+    if (doc.description_format === '1' || !doc.description_format) {
+      doc.description_format = 'bbcode'
+    }
+    else if (doc.description_format === '2') {
+      doc.description_format = 'markdown'
+    }
+
     wago.name = doc.name
     wago.slug = doc.slug
     wago.url = doc.url
