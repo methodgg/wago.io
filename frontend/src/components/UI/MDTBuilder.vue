@@ -529,7 +529,6 @@ export default {
           else if (vue.annotationMode === 'move' && !isNaN(vue.selectedMoveAnnotationID) && vue.tableData.objects[vue.selectedMoveAnnotationID] && vue.tableData.objects[vue.selectedMoveAnnotationID].n && vue.tableData.objects[vue.selectedMoveAnnotationID].d) {
             vue.isPainting = true
             vue.moveStartCoords = {x, y, note: JSON.parse(JSON.stringify(vue.tableData.objects[vue.selectedMoveAnnotationID].d))}
-            console.log(vue.moveStartCoords)
           }
           else {
             vue.isPainting = false
@@ -1125,7 +1124,7 @@ export default {
         this.subMapID = poi.mapLink
       }
       // if user note
-      else if (poi.n && poi.d) {
+      else if (poi.n && poi.d && this.annotationMode !== 'move') {
         this.userNoteEditOpen(poi.d[4], {objID: id})
       }
     },
