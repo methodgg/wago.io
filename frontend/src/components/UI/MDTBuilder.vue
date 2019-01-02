@@ -135,19 +135,19 @@
               />
               <template v-for="(obj, id) in tableData.objects">
                 <!-- note -->
-                <mdt-poi v-if="obj && obj.n && obj.d && obj.d[2] === subMapID + 1" :data="obj" :annotationsIndex="id" :mdtScale="mdtScale" :mapID="mapID" @mouseover="setPOITooltip" @mouseout="setPOITooltip(null)" @mousemove="moveTooltip" @click="clickPOI(obj, id)" />
+                <mdt-poi v-if="obj && obj.n && obj.d && obj.d[2] === subMapID + 1" :data="obj" :annotationsIndex="id" :mdtScale="mdtScale" :mapID="mapID" @mouseover="setPOITooltip(obj); setSelectedMoveAnnotation(id)" @mouseout="setPOITooltip(null); setSelectedMoveAnnotation(null)" @mousemove="moveTooltip" @click="clickPOI(obj, id)" />
                 <!-- arrow -->
-                <v-arrow v-else-if="obj && obj.t && obj.l && obj.d[2] === subMapID + 1 && obj.d[3]" :config="{
+                <v-arrow v-else-if="obj && obj.t && obj.l && obj.d[2] === subMapID + 1 && obj.d[3]" @mouseover="setSelectedMoveAnnotation(id)" @mouseout="setSelectedMoveAnnotation(null)" :config="{
                   points: linePointsXY(obj.l),
-                  strokeWidth: obj.d[0] * .4,
-                  stroke: '#' + obj.d[4],
-                  fill: '#' + obj.d[4]
+                  strokeWidth: Math.max(obj.d[0] * 0.4, (id === selectedMoveAnnotationID ? 2 : 0)),
+                  stroke: '#' + (id === selectedMoveAnnotationID ? '0288D1' : obj.d[4]),
+                  fill: '#' + (id === selectedMoveAnnotationID ? '0288D1' : obj.d[4])
                 }"/>
                 <!-- line -->
-                <v-line v-else-if="obj && obj.l && obj.d[2] === subMapID + 1 && obj.d[3]" :config="{
+                <v-line v-else-if="obj && obj.l && obj.d[2] === subMapID + 1 && obj.d[3]" @mouseover="setSelectedMoveAnnotation(id)" @mouseout="setSelectedMoveAnnotation(null)" :config="{
                   points: linePointsXY(obj.l),
-                  strokeWidth: obj.d[0] * .4,
-                  stroke: '#' + obj.d[4],
+                  strokeWidth: Math.max(obj.d[0] * 0.4, (id === selectedMoveAnnotationID ? 2 : 0)),
+                  stroke: '#' + (id === selectedMoveAnnotationID ? '0288D1' : obj.d[4]),
                   tension: .3
                 }"/>
                 <!-- ring -->
@@ -178,13 +178,13 @@
             <div class="md-icon-button" ref="annotate-arrow" @click="setAnnotate('arrow')" @mouseover="setPOITooltip('annotation', $t('Arrow Tool'))" @mouseout="setPOITooltip(null)">
               <md-icon>call_made</md-icon>
             </div>
-            <!--<div class="md-icon-button" ref="annotate-box" @click="setAnnotate('box')" @mouseover="setPOITooltip('annotation', $t('Box Tool'))" @mouseout="setPOITooltip(null)">
+            <div class="md-icon-button" ref="annotate-box" @click="setAnnotate('box')" @mouseover="setPOITooltip('annotation', $t('Box Tool'))" @mouseout="setPOITooltip(null)">
               <md-icon style="margin:">check_box_outline_blank</md-icon>
             </div>
             <div class="md-icon-button" ref="annotate-move" @click="setAnnotate('move')" @mouseover="setPOITooltip('annotation', $t('Move Object Tool'))" @mouseout="setPOITooltip(null)" >
               <md-ink-ripple />
-              <md-icon style="transform:rotate(-45deg); font-size: 28px; margin-left: -5px; margin-top: -2px">control_camera</md-icon>
-            </div>-->
+              <md-icon style="transform:rotate(-45deg); margin-top:-2px; margin-left: 1px">zoom_out_map</md-icon>
+            </div>
           </md-button-toggle>
           <div id="stroke-input" @mouseover="setPOITooltip('annotation', $t('Set Line Width'))" @mouseout="setPOITooltip(null)">
             <button @click="paintingStrokeWidth = Math.max(paintingStrokeWidth - 1, 1)">-</button>
@@ -388,6 +388,8 @@ export default {
       paintingPosition: {},
       paintingStrokeWidth: 3,
       paintingStrokeColor: {hex: '#FFFFFF'},
+      selectedMoveAnnotationID: null,
+      moveStartCoords: {},
       isColorPickerOpen: false,
       userNoteEditText: '',
       editPoiID: -1
@@ -515,10 +517,19 @@ export default {
 
           if (vue.annotationMode === 'freedraw' || vue.annotationMode === 'line' || vue.annotationMode === 'arrow' || vue.annotationMode === 'box') {
             vue.isPainting = true
-            vue.tableData.objects.push({l: [x, y], d: [vue.paintingStrokeWidth, 1.1, vue.subMapID + 1, true, vue.paintingStrokeColor.hex.replace(/#/, ''), -8, true]})
+            vue.tableData.objects.push({l: [x, y], d: [vue.paintingStrokeWidth, 1, vue.subMapID + 1, true, vue.paintingStrokeColor.hex.replace(/#/, ''), -8, true]})
           }
           else if (vue.annotationMode === 'note') {
             vue.userNoteEditOpen('', {x, y})
+          }
+          else if (vue.annotationMode === 'move' && !isNaN(vue.selectedMoveAnnotationID) && vue.tableData.objects[vue.selectedMoveAnnotationID] && vue.tableData.objects[vue.selectedMoveAnnotationID].l) {
+            vue.isPainting = true
+            vue.moveStartCoords = {x, y, line: JSON.parse(JSON.stringify(vue.tableData.objects[vue.selectedMoveAnnotationID].l))}
+          }
+          else if (vue.annotationMode === 'move' && !isNaN(vue.selectedMoveAnnotationID) && vue.tableData.objects[vue.selectedMoveAnnotationID] && vue.tableData.objects[vue.selectedMoveAnnotationID].n && vue.tableData.objects[vue.selectedMoveAnnotationID].d) {
+            vue.isPainting = true
+            vue.moveStartCoords = {x, y, note: JSON.parse(JSON.stringify(vue.tableData.objects[vue.selectedMoveAnnotationID].d))}
+            console.log(vue.moveStartCoords)
           }
           else {
             vue.isPainting = false
@@ -550,26 +561,49 @@ export default {
             return
           }
 
-          var data = vue.tableData.objects[vue.tableData.objects.length - 1]
+          var thisObj = vue.tableData.objects.length - 1
+          if (!isNaN(vue.selectedMoveAnnotationID) && vue.tableData.objects[vue.selectedMoveAnnotationID]) {
+            thisObj = vue.selectedMoveAnnotationID
+          }
+
+          var data = vue.tableData.objects[thisObj]
           if (vue.annotationMode === 'freedraw') {
             // using vue's mutating methods
-            vue.tableData.objects[vue.tableData.objects.length - 1].l.push(x)
-            vue.tableData.objects[vue.tableData.objects.length - 1].l.push(y)
-            vue.tableData.objects[vue.tableData.objects.length - 1].l.push(x)
-            vue.tableData.objects[vue.tableData.objects.length - 1].l.push(y)
+            vue.tableData.objects[thisObj].l.push(x)
+            vue.tableData.objects[thisObj].l.push(y)
+            vue.tableData.objects[thisObj].l.push(x)
+            vue.tableData.objects[thisObj].l.push(y)
           }
           else if (vue.annotationMode === 'line') {
-            vue.tableData.objects[vue.tableData.objects.length - 1].l.splice(2, 2, x, y)
+            vue.tableData.objects[thisObj].l.splice(2, 2, x, y)
           }
           else if (vue.annotationMode === 'box') {
-            var start = {x: vue.tableData.objects[vue.tableData.objects.length - 1].l[0], y: vue.tableData.objects[vue.tableData.objects.length - 1].l[1]}
-            vue.$set(vue.tableData.objects[vue.tableData.objects.length - 1], 'l', [start.x, start.y, x, start.y, x, start.y, x, y, x, y, start.x, y, start.x, y, start.x, start.y])
+            var start = {x: vue.tableData.objects[thisObj].l[0], y: vue.tableData.objects[thisObj].l[1]}
+            vue.$set(vue.tableData.objects[thisObj], 'l', [start.x, start.y, x, start.y, x, start.y, x, y, x, y, start.x, y, start.x, y, start.x, start.y])
           }
           else if (vue.annotationMode === 'arrow') {
-            vue.tableData.objects[vue.tableData.objects.length - 1].l.splice(2, 2, x, y)
-            vue.$set(vue.tableData.objects[vue.tableData.objects.length - 1], 't', [Math.atan2(data.l[1] - y, data.l[0] - x)])
+            vue.tableData.objects[thisObj].l.splice(2, 2, x, y)
+            data = vue.tableData.objects[thisObj]
+            vue.$set(vue.tableData.objects[thisObj], 't', [Math.atan2(data.l[1] - y, data.l[0] - x)])
           }
-          // vue.tableData.objects.splice(vue.tableData.objects.length - 1, 1, data)
+          else if (vue.annotationMode === 'move' && (vue.moveStartCoords.line || vue.moveStartCoords.note)) {
+            var diff = {x: x - vue.moveStartCoords.x, y: y - vue.moveStartCoords.y}
+            if (vue.moveStartCoords.line) {
+              for (let i = 0; i < vue.moveStartCoords.line.length; i++) {
+                if (i % 2 === 0) { // x value
+                  vue.$set(vue.tableData.objects[thisObj].l, i, parseInt(vue.moveStartCoords.line[i]) + diff.x)
+                }
+                else { // y value
+                  vue.$set(vue.tableData.objects[thisObj].l, i, parseInt(vue.moveStartCoords.line[i]) + diff.y)
+                }
+              }
+            }
+            else if (vue.moveStartCoords.note) {
+              vue.$set(vue.tableData.objects[thisObj].d, 0, parseInt(vue.moveStartCoords.note[0]) + diff.x)
+              vue.$set(vue.tableData.objects[thisObj].d, 1, parseInt(vue.moveStartCoords.note[1]) + diff.y)
+            }
+          }
+          // vue.tableData.objects.splice(thisObj, 1, data)
           vue.paintingPosition = pos
           vue.updateTableString()
         })
@@ -1096,6 +1130,19 @@ export default {
       }
     },
 
+    setSelectedMoveAnnotation (id) {
+      if (this.annotationMode === 'move' && !this.isPainting && (!this.selectedMoveAnnotationID || !id)) {
+        console.log(id)
+        this.selectedMoveAnnotationID = id
+        if (parseInt(id) >= 0) {
+          this.$refs.mdtStage.getStage().draggable(false)
+        }
+        else {
+          this.$refs.mdtStage.getStage().draggable(true)
+        }
+      }
+    },
+
     linePointsXY (points) {
       return points.map(x => Math.abs(x) * this.mdtScale)
     },
@@ -1124,6 +1171,10 @@ export default {
           stage.draggable(false)
           break
 
+        case 'move':
+          this.annotationClass = 'annotate-crosshair'
+          break
+
         case 'note':
           this.annotationClass = 'annotate-note'
           stage.draggable(false)
@@ -1140,7 +1191,6 @@ export default {
     },
 
     showColorPicker () {
-      console.log('colors ahoy!')
       this.isColorPickerOpen = true
     },
 
