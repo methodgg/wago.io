@@ -51,13 +51,13 @@ const store = new Vuex.Store({
     user: {},
     loggedIn: false,
     wotm: {},
-    nextWotm: {},
     wago: {},
     snackBarText: 'alert',
     loginRedirect: '/',
     theme: window.readCookie('theme') || 'dark',
     editorTheme: window.readCookie('editorTheme') || 'tomorrow',
     MDTTable: false,
+    MDTWeek: 0,
     pageInfo: {
       title: 'Import',
       description: 'Database of sharable World of Warcraft addon elements',
@@ -192,6 +192,9 @@ const store = new Vuex.Store({
     },
     setWagoJSON (state, json) {
       state.wago.code.json = json
+    },
+    setMDTWeek (state, week) {
+      state.MDTWeek = week
     },
     setLoginRedirect (state, path) {
       state.loginRedirect = path
@@ -467,6 +470,10 @@ const http = {
           window.clearCookie('token')
           window.clearCookie('theme')
           Vue.axios.defaults.headers = { }
+        }
+
+        if (json.mdtWeek) {
+          store.commit('setMDTWeek', json.mdtWeek)
         }
       }
     }

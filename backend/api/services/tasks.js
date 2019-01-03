@@ -1,7 +1,8 @@
 const config = require('../../config')
 const async = require('async')
-const Axios = require('axios')
+const axios = require('axios')
 const image = require('../helpers/image')
+const battlenet = require('../helpers/battlenet')
 
 /**
  * Using restify to run cron tasks directly on data service. 
@@ -20,55 +21,11 @@ server.get('/tasks/:task', (req, res, next) => {
     case 'popularity':
     case 'news':
     case 'patreon':
+    case 'mdtweek':
       return RunTask(req.params.task, req, res)
       break
 
-    case 'mdt':
     case 'debug':
-    
-      require('../helpers/lua').BuildMDT_DungeonTable('/home/mark/wagov3/backend/api/services/../lua/addons/MethodDungeonTools/v2.2.46/MethodDungeonTools/BattleForAzeroth', (err, result) => {
-        if (err) {
-          logger.error({label: 'Could not build MDT dungeon table', addon: release})
-        }
-        else if (result && result.stdout) {
-          var json = JSON.parse(result.stdout)
-          SiteData.findByIdAndUpdate('mdtDungeonTable', {value: json}, {upsert: true}).exec()
-          // now generate portrait maps
-          if (config.host === 'data-01' || config.env === 'development') {
-            async.eachOfSeries(json.dungeonEnemies, (dungeon, mapID, callback) => {
-              if (!dungeon) return callback()
-              async.timesSeries((Object.keys(json.dungeonMaps[mapID]).length) * 2 - 1, (subMapID, callback2) => {
-                if (!subMapID) return callback2()
-                if (subMapID < Object.keys(json.dungeonMaps[mapID]).length) {
-                  if (mapID === 18) {
-                    buildStaticMDTPortraits(json, mapID, subMapID, false, 1, () => {
-                      buildStaticMDTPortraits(json, mapID, subMapID, false, 2, callback2)
-                    })
-                  }
-                  else {
-                    buildStaticMDTPortraits(json, mapID, subMapID, false, false, callback2)
-                  }
-                }
-                else {
-                  if (mapID === 18) {
-                    buildStaticMDTPortraits(json, mapID, subMapID - Object.keys(json.dungeonMaps[mapID]).length + 1, true, 1, () => {
-                      buildStaticMDTPortraits(json, mapID, subMapID - Object.keys(json.dungeonMaps[mapID]).length + 1, true, 2, callback2)
-                    })
-                  }
-                  else {
-                    buildStaticMDTPortraits(json, mapID, subMapID - Object.keys(json.dungeonMaps[mapID]).length + 1, true, false, callback2)
-                  }
-                }            
-              }, () => {
-                console.log('done map', mapID)
-                callback()
-              })           
-            }, () => {
-              console.log('done')
-            })         
-          }         
-        }
-      })
   }
 })
 
@@ -95,6 +52,7 @@ function RunTask(task, req, res) {
     case 'popularity': return computeViewsThisWeek(res)
     case 'news': return GetLatestNews(res)
     case 'patreon': return updatePatreon(res)
+    case 'mdtweek': return updateWeeklyMDT(res)
   }
 }
 
@@ -664,7 +622,7 @@ function updatePatreon(res, url) {
   if (!url) {
     url = 'https://www.patreon.com/api/oauth2/api/campaigns/562591/pledges?include=patron.null'
   }
-  Axios.get(url, {
+  axios.get(url, {
     headers: {
       Authorization: 'Bearer ' + config.auth.patreon.creatorAccessToken
     }
@@ -697,6 +655,15 @@ function updatePatreon(res, url) {
     catch (e) {
       logger.error({label: 'Unable to update Patreon', error: e.message})
     }
+  })
+}
+
+function updateWeeklyMDT(res) {
+  battlenet.updateMDTWeek().then(() => {
+    res.send({done: true})
+  }).catch((e) => {
+    logger.error(e.message)
+    res.send({done: false})
   })
 }
 

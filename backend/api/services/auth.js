@@ -176,7 +176,7 @@ function doAuth (req, res, next) {
       break
 
     case 'battlenetCN':
-      battlenetAuth(req, res, 'china')
+      battlenetAuth(req, res, 'CN')
       break
       
     case 'discord':
@@ -301,14 +301,17 @@ function battlenetAuth(req, res, region) {
     secret = config.auth.battlenet.clientSecret
   }
   var tokenURL
+  var userURL
   var battlenetField = 'battlenet'
   if (region === 'CN') {
     tokenURL = 'https://www.battlenet.com.cn/oauth/token'
+    userURL = 'https://www.battlenet.com.cn/oauth/userinfo'
     battlenetField = 'battlenetCN'
   }
   else {
     region = 'global'
     tokenURL = 'https://us.battle.net/oauth/token'
+    userURL = 'https://us.battle.net/oauth/userinfo'
   }
   Axios.post(tokenURL, querystring.stringify({
     redirect_uri: req.headers.origin + '/auth/battlenet',
@@ -322,7 +325,7 @@ function battlenetAuth(req, res, region) {
     }
   }).then(function (response) {
     var authResponse = {}
-    Axios.get('https://us.battle.net/oauth/userinfo', {
+    Axios.get(userURL, {
       headers: {
         Authorization: 'Bearer ' + response.data.access_token
       }

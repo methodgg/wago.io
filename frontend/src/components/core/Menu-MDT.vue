@@ -10,7 +10,7 @@
     <md-subheader>Method Dungeon Tools</md-subheader>
     <md-layout>
       <md-whiteframe id="create-mdt">
-        {{ $t("Build a new MDT run") }}
+        {{ $t("Build a new MDT route") }}
         <div class="field-group">
           <md-input-container>
             <label for="dungeon">{{ $t("Select Dungeon") }}</label>
@@ -45,7 +45,11 @@
             <category-image group="affixWeek"></category-image>
             <div class="md-list-text-container">
               <span>
-                <router-link v-for="(item, index) in affixesS1" :to="'/mdt/' + item.slug" :key="index">{{ $t('Week [-num-] [-affixes-]', {num: index + 1, affixes: item.text}) }}</router-link>
+                <router-link v-for="(item, index) in affixesS1" :to="'/mdt/' + item.slug" :key="index">
+                  <span v-if="index + 1 === currentWeek" class="currentWeek">&#xab;</span>
+                  <span v-bind:class="{currentWeek: index + 1 === currentWeek}">{{ $t('Week [-num-] [-affixes-]', {num: index + 1, affixes: item.text}) }}</span>
+                  <span v-if="index + 1 === currentWeek" class="currentWeek">&#xbb;</span>
+                </router-link>
               </span>
             </div>
           </md-list-item>
@@ -116,7 +120,12 @@ export default {
     return {
       searchString: 'Type: MDT ',
       newDungeon: '',
-      newAffix: ''
+      newAffix: 'mdtaffix-bfa-s1-w' + this.$store.state.MDTWeek
+    }
+  },
+  watch: {
+    currentWeek: function (val) {
+      this.newAffix = 'mdtaffix-bfa-s1-w' + val
     }
   },
   computed: {
@@ -124,7 +133,7 @@ export default {
       return categories.raidCategories(['mdtdun'], this.$t)
     },
     affixesS1: function () {
-      return categories.getCategories([/^mdtaffix-bfa-s1-/], this.$t, true) // also in Create-MDT
+      return categories.getCategories([/^mdtaffix-bfa-s1-/], this.$t, true) // also in Create-MDT and data.newAffix
     },
     affixes: function () {
       return categories.getCategories([/^mdtaffix\d/], this.$t)
@@ -134,6 +143,9 @@ export default {
     },
     classes: function () {
       return categories.classCategories(this.$t)
+    },
+    currentWeek: function () {
+      return this.$store.state.MDTWeek
     }
   },
   mounted: function () {
@@ -147,7 +159,7 @@ export default {
 </script>
 
 <style>
-#create-mdt { padding: 16px; margin: 16px; flex-grow: .5}
+#create-mdt { padding: 16px; margin: 16px;}
 #searchForm { padding: 16px }
 #searchForm button { margin-top: -3px }
 
@@ -159,4 +171,5 @@ export default {
 #search-mdt .md-list-text-container span{ white-space: normal; line-height: 22px}
 #search-mdt .md-layout { align-items: flex-start}
 .md-list:after { background-color: transparent!important }
+.currentWeek { color: gold }
 </style>

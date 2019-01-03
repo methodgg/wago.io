@@ -57,6 +57,7 @@ server.use(require('./middlewares/rateLimiter')) // rate limiter
 server.use(require('./middlewares/defaults')) // set default vars
 server.use(require('./middlewares/SessionAuth')) // set req.user
 server.use(require('./middlewares/APIAuth')) // set req.user
+server.use(require('./middlewares/wowRegion')) // set req.wowRegion
 
 
 server.on('restifyError', (req, res, next) => {

@@ -46,6 +46,10 @@ server.get('/account/whoami', (req, res, next) => {
     data.locale = match
   }
 
+  if (global['mdtWeek' + req.wowRegion]) {
+    data.mdtWeek = global['mdtWeek' + req.wowRegion]
+  }
+
   data.wotm = global.WagoOfTheMoment
 
   // if user is logged in
