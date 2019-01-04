@@ -46,7 +46,7 @@ export default {
         if (!this.enableLinks || this.truncate) {
           html = html.replace(/<\/?a(?:(?= )[^>]*)?>/g, '')
         }
-        return html
+        return html.replace(/\n/, '<br>')
       }
 
       else {

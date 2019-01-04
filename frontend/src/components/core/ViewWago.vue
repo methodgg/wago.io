@@ -1156,7 +1156,7 @@ export default {
       }
     },
     isLatestVersion () {
-      return (!this.version || this.version === this.wago.versions.total)
+      return (this.currentVersionString && this.currentVersionString.replace(/-.*/, '') === this.latestVersion.semver)
     },
     loadMoreVersions () {
       this.http.get('/lookup/wago/versions', {id: this.wago._id}).then((res) => {
