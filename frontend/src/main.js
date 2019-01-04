@@ -430,25 +430,31 @@ const http = {
           reader.readAsDataURL(file)
         })
       },
-      PostToWACompanion: function (params) {
-        return fetch('http://127.0.0.1:24642', {
-          method: 'post',
-          'content-type': 'application/x-www-form-urlencoded',
-          body: JSON.stringify(params)
-        }).then((res) => {
-          return res.json()
-        }).then((json) => {
-          if (json.success) {
-            window.eventHub.$emit('showSnackBar', i18next.t('WeakAura successfully sent to Companion App'))
-          }
-          else {
-            window.eventHub.$emit('showSnackBar', i18next.t('An error has occurred'))
-          }
-        }).catch((err) => {
-          console.log(err)
-          window.eventHub.$emit('showSnackBar', i18next.t('Error could not reach the WeakAura Companion App, are you sure it is running?'))
-        })
-      },
+      // PostToWACompanion: function (action, id) {
+      //   var e = document.createElement('a')
+      //   e.id = 'sendToCompanion'
+      //   e.href = `weakauras-companion://wago/${action}/${id}`
+      //   document.getElementsByTagName('body')[0].appendChild(e)
+      //   e.click()
+      //   e.parentNode.removeChild(e)
+      //   return fetch(`weakauras-companion://wago/${action}/${id}`, {
+      //     mode: 'no-cors',
+      //     cache: 'no-cache'
+      //   })
+      //   .then((res) => {
+      //     return res.json()
+      //   }).then((json) => {
+      //     if (json.success) {
+      //       window.eventHub.$emit('showSnackBar', i18next.t('WeakAura successfully sent to Companion App'))
+      //     }
+      //     else {
+      //       window.eventHub.$emit('showSnackBar', i18next.t('An error has occurred'))
+      //     }
+      //   }).catch((err) => {
+      //     console.log(err)
+      //     window.eventHub.$emit('showSnackBar', i18next.t('Error could not reach the WeakAura Companion App, are you sure it is running?'))
+      //   })
+      // },
       interceptHeaders: function (res) {
         // because fetch API does not allow custom headers
         for (var pair of res.headers.entries()) {

@@ -1042,14 +1042,13 @@ export default {
       return list
     },
     sendToCompanionApp () {
-      this.http.PostToWACompanion({
-        action: 'Add-Import',
-        name: this.wago.name,
-        url: this.wago.url,
-        user: this.wago.user.name,
-        import: this.wago.code.encoded,
-        version: this.wago.code.version
-      })
+      var e = document.createElement('a')
+      e.id = 'sendToCompanion'
+      e.href = `weakauras-companion://wago/push/${this.wago.slug}`
+      document.getElementsByTagName('body')[0].appendChild(e)
+      e.click()
+      e.parentNode.removeChild(e)
+      // this.http.PostToWACompanion('push', this.wago.slug)
     },
     copyEncoded () {
       try {
