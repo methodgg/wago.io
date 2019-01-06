@@ -13,6 +13,7 @@ const MenuMDT = resolve => require(['@/components/core/Menu-MDT.vue'], resolve)
 const CreateMDT = resolve => require(['@/components/core/Create-MDT.vue'], resolve)
 const MenuCollections = resolve => require(['@/components/core/Menu-Collections.vue'], resolve)
 
+const WACompanion = resolve => require(['@/components/core/WA-Companion.vue'], resolve)
 const TermsOfService = resolve => require(['@/components/core/TermsOfService.vue'], resolve)
 const PrivacyPolicy = resolve => require(['@/components/core/PrivacyPolicy.vue'], resolve)
 
@@ -129,6 +130,9 @@ export default {
     { path: '/p/:profile', component: ViewProfile, props: (route) => ({ contextSearch: 'User: ' + route.params.profile }) },
     { path: '/my/stars', component: Search, props: (route) => ({ contextSearch: 'Starred: True' }) },
     { path: '/my/mentions', component: Search, props: (route) => ({ contextSearch: 'Mentioned: True' }) },
+
+    // pages
+    { path: '/wa-companion', component: WACompanion },
 
     // legal mumbo jumbo
     { path: '/terms-of-service', component: TermsOfService },

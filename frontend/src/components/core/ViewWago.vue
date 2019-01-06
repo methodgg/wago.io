@@ -85,9 +85,10 @@
             <div class="md-subhead has-link"><a :href="wago.url" @click.prevent="copyURL">{{ wago.url }}</a></div>
           </div>
           <div class="item" style="float:right" v-if="enableCompanionBeta && wago.type === 'WEAKAURA' && wago.code && wago.code.encoded && !wago.alerts.blacklist">
-            <md-button @click="sendToCompanionApp" class="copy-import-button">
+            <a v-if="showCompanionHelp" href="#" style="line-height:40px; margin-right:16px" @click="$router.push('/wa-companion')" @mouseover="setCompanionHelpShow(true)" @mouseout="setCompanionHelpShow(false, 4000)">{{ $t("What's this?") }}</a>
+            <div class="md-button copy-import-button" @click="sendToCompanionApp" @mouseover="setCompanionHelpShow(true)" @mouseout="setCompanionHelpShow(false, 4000)">
               <md-icon>airplay</md-icon> {{ $t("Send to WeakAura Companion App") }}
-            </md-button>
+            </div>
           </div>
           <div id="tags">
             <md-chip v-for="(cat, n) in wago.categories" :key="n" :class="cat.cls" disabled v-if="cat.text && (n<5 || showMoreCategories)">{{ cat.text }}</md-chip>
@@ -708,6 +709,8 @@ export default {
       numCategorySets: 1,
       gameMode: '',
       hasUnsavedChanges: false,
+      showCompanionHelp: false,
+      showCompanionHelpTimer: null,
       enableCompanionBeta: false
     }
   },
@@ -1050,6 +1053,18 @@ export default {
       e.parentNode.removeChild(e)
       // this.http.PostToWACompanion('push', this.wago.slug)
     },
+    setCompanionHelpShow (enable, time) {
+      clearTimeout(this.showCompanionHelpTimer)
+      if (time) {
+        var vue = this
+        this.showCompanionHelpTimer = setTimeout(() => {
+          vue.showCompanionHelp = enable
+        }, time)
+      }
+      else {
+        this.showCompanionHelp = enable
+      }
+    },
     copyEncoded () {
       try {
         document.getElementById('wago-importstring').select()
@@ -1155,6 +1170,9 @@ export default {
       }
     },
     isLatestVersion () {
+      if (!this.wago.versions || this.wago.versions.total <= 1) {
+        return true
+      }
       return (this.currentVersionString && this.currentVersionString.replace(/-.*/, '') === this.latestVersion.semver)
     },
     loadMoreVersions () {
