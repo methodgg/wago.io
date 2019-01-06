@@ -78,8 +78,8 @@
               <v-image
                 :config="{
                   image: enemyPortraitMap,
-                  scaleX: 1/6,
-                  scaleY: 1/6,
+                  scaleX: 1/5,
+                  scaleY: 1/5,
                   listening: false
                 }"
               />

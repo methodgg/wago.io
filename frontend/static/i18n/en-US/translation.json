@@ -514,5 +514,20 @@
   "Select Dungeon": "",
   "Select Affixes": "",
   "Build": "",
-  "View": ""
+  "View": "",
+  "Tools": "",
+  "Selection Tool": "",
+  "Pencil Tool": "",
+  "Create Note Tool": "",
+  "Line Tool": "",
+  "Arrow Tool": "",
+  "Box Tool": "",
+  "Move Object Tool": "",
+  "Set Line Width": "",
+  "Set Line Color": "",
+  "Profile update in progress": "",
+  "Build a new MDT route": "",
+  "What's this?": "",
+  "Wago supports the WeakAuras Companion desktop app": "",
+  "This app acts as a bridge between Wago and your in-game addon, and allows you to keep your imports up to date as authors update their auras": ""
 }

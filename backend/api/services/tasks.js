@@ -379,18 +379,24 @@ function downloadAddon(addon, release, done) {
                       if (!dungeon) return callback()
                       async.timesSeries((Object.keys(json.dungeonMaps[mapID]).length) * 2 - 1, (subMapID, callback2) => {
                         if (!subMapID) return callback2()
-                        if (subMapID < Object.keys(json.dungeonMaps[mapID]).length) {
-                          buildStaticMDTPortraits(json, mapID, subMapID, false, callback2)
+                        if (mapID === 18 && subMapID < Object.keys(json.dungeonMaps[mapID]).length) {
+                          buildStaticMDTPortraits(json, mapID, subMapID, false, 1)
+                          buildStaticMDTPortraits(json, mapID, subMapID, false, 2, callback2)
+                        }
+                        else if (subMapID < Object.keys(json.dungeonMaps[mapID]).length) {
+                          buildStaticMDTPortraits(json, mapID, subMapID, false, false, callback2)
+                        }
+                        else if (mapID === 18) {
+                          buildStaticMDTPortraits(json, mapID, subMapID - Object.keys(json.dungeonMaps[mapID]).length + 1, true, 1)
+                          buildStaticMDTPortraits(json, mapID, subMapID - Object.keys(json.dungeonMaps[mapID]).length + 1, true, 2, callback2)
                         }
                         else {
-                          buildStaticMDTPortraits(json, mapID, subMapID - Object.keys(json.dungeonMaps[mapID]).length + 1, true, callback2)
-                        }            
+                          buildStaticMDTPortraits(json, mapID, subMapID - Object.keys(json.dungeonMaps[mapID]).length + 1, true, false, callback2)
+                        }       
                       }, () => {
-                        console.log('done map', mapID)
                         callback()
                       })           
                     }, () => {
-                      console.log('done')
                     })         
                   }         
                 }
@@ -419,8 +425,16 @@ function buildStaticMDTPortraits(json, mapID, subMapID, teeming, faction, done) 
   var mdtScale = 539 / 450
   if (teeming) teeming = '-Teeming'
   else teeming = ''
+  
+  if (faction) {
+    faction = '-Faction' + faction
+  }
+  else {
+    faction = ''
+  }
+  var imgName = `portraitMap-${mapID}-${subMapID}${teeming}${faction}`
 
-  if (mapID !== 18) return done()
+  console.log('processing', imgName)
 
   html = `<!DOCTYPE html>
   <html>
@@ -440,7 +454,7 @@ function buildStaticMDTPortraits(json, mapID, subMapID, teeming, faction, done) 
   <body>
     <div id="container"></div>
     <script>
-      var multiplier = 6
+      var multiplier = 5
       
       var stage = new Konva.Stage({
         container: 'container',
@@ -500,16 +514,6 @@ function buildStaticMDTPortraits(json, mapID, subMapID, teeming, faction, done) 
     let _browser
     let _page
     let _img
-
-    if (faction) {
-      faction = '-Faction' + faction
-    }
-    else {
-      faction = ''
-    }
-    var imgName = `portraitMap-${mapID}-${subMapID}${teeming}${faction}`
-
-    console.info('make portrait map', imgName)
     // fs.writeFileSync('./test.html', html, 'utf8')
 
     puppeteer
@@ -532,7 +536,9 @@ function buildStaticMDTPortraits(json, mapID, subMapID, teeming, faction, done) 
         _img = _img.replace(/^data:image\/\w+;base64,/, "")
         var buffer = new Buffer(_img, 'base64')
         image.saveMdtPortraitMap(buffer, imgName, (img) => {
-          done()
+          if (done) {
+            done()
+          }
         })
       })
       .catch((e) => {
