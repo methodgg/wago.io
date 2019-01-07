@@ -34,7 +34,9 @@
             <category-image :group="dun.cls"></category-image>
             <div class="md-list-text-container">
               <span>
-                <router-link v-for="boss in dun.bosses" v-bind:key="boss.id" :to="'/mdt/' + boss.slug">{{ boss.text }}</router-link>
+                <div v-for="boss in dun.bosses" v-bind:key="boss.id" v-bind:class="{'inline-dungeon-link': boss.slug.match(/\//g).length > 2}">
+                  <router-link :to="'/mdt/' + boss.slug">{{ boss.text }}</router-link>
+                </div>
               </span>
             </div>
           </md-list-item>
@@ -85,7 +87,7 @@
             <div class="md-list-text-container">
               <router-link :to="'/mdt/' + cls.slug">{{ cls.text }}</router-link>
               <span>
-                <router-link  v-for="spec in cls.specs" v-bind:key="spec.id" :to="'/mdt/' + spec.slug">{{ spec.text.replace(cls.text, '').trim() }}</router-link>
+                <router-link v-for="spec in cls.specs" v-bind:key="spec.id" :to="'/mdt/' + spec.slug">{{ spec.text.replace(cls.text, '').trim() }}</router-link>
               </span>
             </div>
           </md-list-item>
@@ -172,4 +174,6 @@ export default {
 #search-mdt .md-layout { align-items: flex-start}
 .md-list:after { background-color: transparent!important }
 .currentWeek { color: gold }
+.inline-dungeon-link { display: inline-block; margin-left: 16px }
+.inline-dungeon-link a { margin-right:0 }
 </style>

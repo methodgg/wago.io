@@ -13,7 +13,7 @@ body.theme-classic {
   .md-theme-default .md-checkbox-label {
     color: rgba(0, 0, 0, 0.54)
   }
-  #advancedSearch, #advancedSearch .md-list { 
+  #advancedSearch, #advancedSearch .md-list, #wago-tabs { 
     background: white
   }
   .mainnav.bottom .md-list-item-container img {
@@ -34,7 +34,7 @@ body.theme-dark {
   h2, .md-subheader {
     color: $Text;
   }
-  .md-theme-default.md-list, .md-theme-default.md-dialog-container .md-dialog {
+  .md-theme-default.md-list, .md-theme-default.md-dialog-container .md-dialog, #wago-tabs {
     background: $Background;
     color: $Text;
   }

@@ -1126,6 +1126,26 @@ function SaveWagoVersion (req, res, mode) {
           global.mdtDungeonTable.affixWeeks[json.week - 1].forEach((affixID) => {
             wago.categories.push('mdtaffix' + affixID)
           })
+          if (json.value && json.value.currentDungeonIdx === 16 && json.freeholdCrewSelected) {
+            // freehold, get crew
+            var crew = json.week % 3
+            if (!crew) {
+              crew = 3
+            }
+            wago.categories.push('mdtdun16-crew' + crew)
+            wago.categories = wago.categories.filter((v) => {
+              var test = v.match(/-crew(\d)/)
+              return (!test || test[1] === '' + crew)
+            })
+          }
+          else if (json.value && json.value.currentDungeonIdx === 19 && (json.faction === 1 || json.faction === 2)) {
+            // siege of boralus, get faction
+            wago.categories.push('mdtdun19-faction' + json.faction)
+            wago.categories = wago.categories.filter((v) => {
+              var test = v.match(/-faction(\d)/)
+              return (!test || test[1] === '' + json.faction)
+            })
+          }
           wago.categories = Categories.validateCategories(wago.categories)
           wago.relevancy = Categories.relevanceScores(wago.categories)
         }

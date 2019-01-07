@@ -558,4 +558,5 @@ export default {
 .md-card > h3 + .md-subheader { padding:0; min-height:0 }
 
 .unreadCount { background: #c1272d; color: white; padding: 4px; border-radius: 2px;  }
+.md-snackbar-container { border: 1px solid black }
 </style>

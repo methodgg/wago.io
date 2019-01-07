@@ -256,6 +256,12 @@ router.beforeEach((to, from, next) => {
     }
   }
 
+  // hide any open menus on navigation
+  var needClick = document.querySelectorAll('.md-menu-backdrop')
+  needClick.forEach((el) => {
+    el.click()
+  })
+
   // beta server require login (if JS does not know user is logged in when visiting the page then wait for whoami request handled in App.vue)
   if (window.requireBetaAccess && (!store.state.user.access || !store.state.user.access.beta) && !to.path.match(/^\/(login|auth)/)) {
     router.replace('/login')

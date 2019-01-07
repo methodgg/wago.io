@@ -12,10 +12,16 @@
           <md-input v-else readonly :value="mdtDungeonTable.dungeonSubLevels[mapID][0]"></md-input>
         </md-input-container>
       </div>
-      <div class="flex-col flex-right"> 
-        <md-button @click="exportChanges" v-if="wago._id"><md-icon>open_in_new</md-icon> {{ $t("Export/Fork changes") }}</md-button>
-        <md-button v-if="canEdit" @click="$refs['saveChangesDialog'].open()" ref="saveChangesButton"><md-icon>save</md-icon> {{ $t("Save changes") }}</md-button>
-        <md-button v-if="scratch" @click="saveFromScratch"><md-icon>save</md-icon> {{ $t("Save MDT") }}</md-button>
+      <div class="flex-col flex-right" style="position:relative">
+        <md-input-container id="mobilePull" v-if="currentPull >= 0">
+          <md-input readonly :value="$t('Pull [-num-]', {num: currentPull + 1})"></md-input>
+        </md-input-container>
+        <md-button id="wago-options-toggle" class="md-icon-button md-raised md-hide-small-and-up" @click="toggleMDTOptions">
+          <md-icon>more_horiz</md-icon>
+        </md-button>
+        <md-button class="md-hide-xsmall" @click="exportChanges" v-if="wago._id"><md-icon>open_in_new</md-icon> {{ $t("Export/Fork changes") }}</md-button>
+        <md-button class="md-hide-xsmall" v-if="canEdit" @click="$refs['saveChangesDialog'].open()" ref="saveChangesButton"><md-icon>save</md-icon> {{ $t("Save changes") }}</md-button>
+        <md-button class="md-hide-xsmall" v-if="scratch" @click="saveFromScratch"><md-icon>save</md-icon> {{ $t("Save MDT") }}</md-button>
       </div>
       <md-dialog md-open-from="#saveChangesButton" md-close-to="#saveChangesButton" ref="saveChangesDialog" id="saveChangesDialog" :focus="true">
         <md-dialog-title>{{ $t("Save Modifications") }}</md-dialog-title>
@@ -199,8 +205,13 @@
           </div>
         </div>
       </md-layout>
-      <md-layout style="width:25%" md-vertical-align="start">
-        <md-card id="mdtOptions" v-if="!mdtLoading">
+      <md-layout id="mdtOptions" md-vertical-align="start" v-bind:class="{'md-hide-xsmall': hideMobileOptions}">
+        <md-card v-if="!mdtLoading">
+          <md-card-area class="md-hide-small-and-up">          
+            <md-button @click="exportChanges" v-if="wago._id"><md-icon>open_in_new</md-icon> {{ $t("Export/Fork changes") }}</md-button>
+            <md-button v-if="canEdit" @click="$refs['saveChangesDialog'].open()" ref="saveChangesButton"><md-icon>save</md-icon> {{ $t("Save changes") }}</md-button>
+          </md-card-area>
+
           <md-card-area>
             <div class="inlineContainer">
               <template v-for="(affixID, k) in selectedAffixes">
@@ -279,7 +290,7 @@
       </md-layout>
     </md-layout>
     <export-modal :json="tableString" :type="wago.type" :showExport="showExport" :wagoID="wago._id" @hideExport="hideExport"></export-modal>
-    <div id="mdtTooltip" v-if="tooltipPOI || tooltipEnemy" v-bind:style="{top: cursorTooltipY + 'px', left: cursorTooltipX + 'px'}">
+    <div id="mdtTooltip" v-if="tooltipPOI || tooltipEnemy.name" v-bind:style="{top: cursorTooltipY + 'px', left: cursorTooltipX + 'px'}">
       <div class="tooltipPOI" v-if="tooltipPOI" v-html="tooltipPOI.replace(/\\n/g, '<br>')"></div>
       <div class="tooltipEnemy" v-else-if="tooltipEnemy.name">
         <mdt-enemy-portrait :size="56" :mapID="mapID" :offset="getEnemyPortraitOffset(tooltipEnemy.enemyIndex, 56)" />
@@ -390,6 +401,7 @@ export default {
       paintingStrokeColor: {hex: '#FFFFFF'},
       selectedMoveAnnotationID: null,
       moveStartCoords: {},
+      hideMobileOptions: true,
       isColorPickerOpen: false,
       userNoteEditText: '',
       editPoiID: -1
@@ -851,15 +863,20 @@ export default {
       })
     },
 
-    displayAffix (affixID) {
+    displayAffix (affixID, textonly) {
       if (!this.dungeonAffixes || !this.dungeonAffixes[affixID]) {
         return ''
+      }
+      if (textonly) {
+        return this.dungeonAffixes[affixID].name
       }
       return '<img src="//media.wago.io/wow-ui-textures/ICONS/' + this.dungeonAffixes[affixID].icon + '.PNG" /> ' + this.dungeonAffixes[affixID].name
     },
 
     toggleAffixSelection () {
+      var scrollTop = window.pageYOffset || document.documentElement.scrollTop
       this.$refs.affixSelection.toggle()
+      document.documentElement.scrollTop = document.body.scrollTop = scrollTop
     },
 
     setAffixWeek (week) {
@@ -1271,6 +1288,9 @@ export default {
     },
     hideExport () {
       this.showExport = false
+    },
+    toggleMDTOptions () {
+      this.hideMobileOptions = !this.hideMobileOptions
     }
   },
   computed: {
@@ -1304,6 +1324,7 @@ export default {
       }
     },
     konvaStageConfig: () => {
+      console.log({width: document.getElementById('builder') && document.getElementById('builder').offsetWidth || 0, height: 768})
       return {width: document.getElementById('builder') && document.getElementById('builder').offsetWidth || 0, height: 768}
     }
   }
@@ -1325,8 +1346,9 @@ export default {
 #builder { position: relative; min-height: 768px }
 #builder canvas { position: absolute; left: 0; top: 0; width:60%; max-width: 1000px; height: 768px; max-height: 768px; }
 #stageContainer { max-width:1000px; width:60%; height:768px; position: relative; flex: 2 }
-#mdtOptions { margin: 0; overflow: hidden; width: 100%; height: 768px; overflow-y: auto;}
-#mdtOptions .md-sidenav-content { min-width: 75%; }
+#mdtOptions .md-card { margin: 0; overflow: hidden; width: 100%; height: 768px; overflow-y: auto;}
+#mdtOptions .md-card .md-sidenav-content { min-width: 75%; }
+#mdtOptions .md-sidenav-backdrop { position: fixed }
 .inlineContainer { display: inline-flex; flex-direction: row; flex-wrap: wrap; }
 .affix { padding-right: 6px; padding-bottom: 4px; white-space: nowrap; line-height:36px; display: inline; }
 .affix img { width: 22px; height: 22px; }
@@ -1369,4 +1391,13 @@ export default {
 #builder.annotate-crosshair { cursor: crosshair }
 #builder.annotate-note { cursor: cell }
 #saveChangesDialog .md-dialog { min-width: 40% }
+
+@media (max-width: 600px) {
+  #mdtOptions { display: block; position: absolute; }
+  #mdtOptions.md-hide-xsmall { display: none }
+  #stageContainer { margin-left: -16px}
+  #stageContainer, #builder canvas {width:calc(100vw) }
+  #mobilePull { position: absolute; top: -12px; right: 48px; max-width: 70px }
+  #wago-options-toggle { background-color: rgba(0, 0, 0, 0.7); margin-right: 22px }
+}
 </style>

@@ -3,6 +3,7 @@
     <md-card>
       <p>{{ $t('Wago supports the WeakAuras Companion desktop app') }}</p>
       <p>{{ $t('This app acts as a bridge between Wago and your in-game addon, and allows you to keep your imports up to date as authors update their auras') }}</p>
+      <p>This page is a placeholder why are you even here?</p>
     </md-card>
   </div>
 </template>

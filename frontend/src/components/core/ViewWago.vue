@@ -10,13 +10,20 @@
       Error: {{ wago.error }}
     </ui-warning>
     <ui-loading v-else-if="!wagoExists"></ui-loading>
-    <div v-else>
-      <md-card id="wago-header" ref="header">
+    <div v-else style="position:relative">
+      <md-button id="wago-header-toggle" class="md-icon-button md-raised" @click="toggleMobileHeader">
+        <md-icon>view_agenda</md-icon>
+      </md-button>
+      <div id="wago-mobile-header" v-bind:class="{'md-hide-xsmall': !hideMobileHeader}">
+        <h3>{{ wago.name }}</h3>
+        <md-subheader><span v-for="(cat, n) in wago.categories" :key="n" :class="cat.cls" disabled v-if="cat.text">{{ cat.text }}</span></md-subheader>
+      </div>
+      <md-card id="wago-header" ref="header" v-bind:class="{'md-hide-xsmall': hideMobileHeader}">
         <md-layout>
-          <div class="floating-header">
+          <div>
             <h3>{{ wago.name }} <span class="version-number" v-if="currentVersionString">v{{ currentVersionString }}</span></h3>
             <md-subheader>{{ wago.type }}</md-subheader>
-          </div>          
+          </div>
           <!-- ACTIONS -->
           <md-card-actions id="wago-actions" ref="action-buttons">
             <md-button v-if="User.UID" @click="toggleFavorite">
@@ -123,9 +130,12 @@
       </md-card>
 
       <div id="wago-flex-container">
-        <div id="wago-col-main">
+        <div id="wago-col-main" style="position:relative">        
+          <md-button id="wago-tabs-toggle" class="md-icon-button md-raised" @click="toggleTabs">
+            <md-icon>more_vert</md-icon>
+          </md-button>
           <md-layout>
-            <md-layout id="wago-tabs">
+            <md-layout id="wago-tabs" v-bind:class="{'md-hide-xsmall': hideTabs}">
               <!-- FRAME TOGGLES -->
               <md-button-toggle class="md-accent" md-single>
                 <md-button v-bind:class="{'md-toggle': showPanel === 'config'}" v-if="wago.user && User && wago.UID && wago.UID === User.UID" @click="toggleFrame('config')">{{ $t("Config") }}</md-button>
@@ -618,6 +628,7 @@ import Multiselect from 'vue-multiselect'
 import CategorySelect from '../UI/SelectCategory.vue'
 import Search from '../core/Search.vue'
 import semver from 'semver'
+const openCustomProtocol = require('../libs/customProtocolDetection')
 
 function flatten (arr) {
   return arr.reduce(function (flat, toFlatten) {
@@ -656,6 +667,8 @@ export default {
       isScanning: false,
       showDescription: true,
       showComments: true,
+      hideMobileHeader: true,
+      hideTabs: true,
       showPanel: 'description',
       showEditor: (window.innerWidth > 800),
       showConfig: false,
@@ -1045,13 +1058,28 @@ export default {
       return list
     },
     sendToCompanionApp () {
-      var e = document.createElement('a')
-      e.id = 'sendToCompanion'
-      e.href = `weakauras-companion://wago/push/${this.wago.slug}`
-      document.getElementsByTagName('body')[0].appendChild(e)
-      e.click()
-      e.parentNode.removeChild(e)
-      // this.http.PostToWACompanion('push', this.wago.slug)
+      openCustomProtocol(`weakauras-companion://wago/push/${this.wago.slug}`,
+        () => {
+          // fail
+          this.$router.push('/wa-companion')
+          window.eventHub.$emit('showSnackBar', this.$t('Unable to launch WeakAura Companion app, please make sure you have it installed'))
+        },
+        () => {
+          // success
+          window.eventHub.$emit('showSnackBar', this.$t('WeakAura sent to Companion'))
+        },
+        () => {
+          // unsupported
+          this.$router.push('/wa-companion')
+          window.eventHub.$emit('showSnackBar', this.$t('Unable to launch WeakAura Companion app, please make sure you have it installed'))
+        }
+      )
+      // var e = document.createElement('a')
+      // e.id = 'sendToCompanion'
+      // e.href = `weakauras-companion://wago/push/${this.wago.slug}`
+      // document.getElementsByTagName('body')[0].appendChild(e)
+      // e.click()
+      // e.parentNode.removeChild(e)
     },
     setCompanionHelpShow (enable, time) {
       clearTimeout(this.showCompanionHelpTimer)
@@ -1100,6 +1128,12 @@ export default {
         window.eventHub.$emit('showSnackBar', this.$t('Embed script failed to copy please upgrade to a modern browser'))
       }
     },
+    toggleMobileHeader () {
+      this.hideMobileHeader = !this.hideMobileHeader
+    },
+    toggleTabs () {
+      this.hideTabs = !this.hideTabs
+    },
     viewAllCategories () {
       this.showMoreCategories = true
     },
@@ -1127,6 +1161,7 @@ export default {
     },
     toggleFrame (frame) {
       this.showPanel = frame
+      this.hideTabs = true
       if (frame === 'config') {
         this.$nextTick(function () {
           setupPasteImage(this)
@@ -1817,9 +1852,23 @@ a.showvid:hover:before  .md-icon { opacity:1 }
 #wago-collections .md-avatar { margin: 0 16px 0 0 }
 #wago-collections .userlink .md-table-cell-container { display: inline }
 
+#wago-header-toggle, #wago-tabs-toggle { display: none }
+
 @media (max-width: 600px) {
+  #wago-mobile-header { position: absolute; left: 64px; width: calc(100vw - 128px); }
+  #wago-mobile-header h3 { margin: 8px 0 0 0; overflow: hidden; white-space: nowrap }
+  #wago-mobile-header .md-subheader { padding: 0; overflow: hidden; white-space: nowrap; display: block }
+  #wago-mobile-header .md-subheader span { padding-right: 6px; font-size: 10px }
+  #wago-header-toggle { display: block; position: absolute; top: 8px; right: 8px; z-index: 9; background-color: rgba(0, 0, 0, 0.7) }
   #wago-header.md-card { margin: 0}
-  #wago-flex-container { flex-direction: column; }
+  #wago-col-main > .md-layout { margin-top: 16px }
+  #wago-flex-container, #wago-header .md-layout, #wago-actions { flex-direction: column; align-items: flex-start; }
+  #wago-actions button { padding: 0 }
+  #wago-actions button.copy-import-button { padding: 0 8px }
+  #wago-actions .md-card .md-card-actions .md-button + .md-button { margin-left: 0}  
+  #wago-tabs-toggle { display: block; position: absolute; top: 8px; left: 8px; z-index: 9; background-color: rgba(0, 0, 0, 0.7) }
+  #wago-tabs { position: absolute; top: 48px; z-index: 999}
+  #wago-content { padding-top: 40px; }
 }
 
 /* embed preview */
