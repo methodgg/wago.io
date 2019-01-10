@@ -218,6 +218,7 @@
                 <span v-html="displayAffix(affixID)" class="affix"></span>
               </template>
               <md-button class="md-raised md-accent" @click="toggleAffixSelection" id="changeAffixesBtn">{{ $t("Change Affixes") }}</md-button>
+              <md-button class="md-raised" disabled id="sumPct"><md-icon>functions</md-icon> {{ Math.round(100*pullDetails[pullDetails.length - 1].percentRunningTotal)/100 }}%</md-button>
             </div>
           </md-card-area>
           
@@ -1348,6 +1349,7 @@ export default {
 #mdtOptions .md-card { margin: 0; overflow: hidden; width: 100%; height: 768px; overflow-y: auto;}
 #mdtOptions .md-card .md-sidenav-content { min-width: 75%; }
 #mdtOptions .md-sidenav-backdrop { position: fixed }
+#sumPct { color: inherit }
 .inlineContainer { display: inline-flex; flex-direction: row; flex-wrap: wrap; }
 .affix { padding-right: 6px; padding-bottom: 4px; white-space: nowrap; line-height:36px; display: inline; }
 .affix img { width: 22px; height: 22px; }

@@ -186,6 +186,9 @@ export default {
         }).then((data) => {
           this.wclLoading = false
           this.wclDungeons = data.dungeons
+          if (this.wclDungeons.length) {
+            this.wclDungeonIndex = 0
+          }
         })
       }
     }

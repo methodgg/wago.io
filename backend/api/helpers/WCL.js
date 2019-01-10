@@ -7,7 +7,7 @@ function getAPIFights (logID) {
       if (log) {
         return resolve(log)
       }
-      axios.get(`https://www.warcraftlogs.com/v1/report/fights/${logID}?api_key=${config.warcraftLogsKey}`).then((result) => {
+      axios.get(`https://www.warcraftlogs.com/v1/report/fights/${logID}?translate=true&api_key=${config.warcraftLogsKey}`).then((result) => {
         if (result && result.data.fights) {
           var dungeons = []
           var enemies = {}
@@ -151,8 +151,8 @@ module.exports = {
                     return
                   }
                   let distance = Math.sqrt(
-                    Math.pow(((clone.x - mdt.dungeonDimensions[mdtDungeonIndex].minX) / mdt.dungeonDimensions[mdtDungeonIndex].maxX) - ((target.x - data.Dimensions.minX) / data.Dimensions.maxX), 2) + 
-                    Math.pow(((clone.y - mdt.dungeonDimensions[mdtDungeonIndex].minY) / mdt.dungeonDimensions[mdtDungeonIndex].maxY) - ((target.y - data.Dimensions.minY) / data.Dimensions.maxY), 2)
+                    Math.pow((clone.x - mdt.dungeonDimensions[mdtDungeonIndex].minX) / (mdt.dungeonDimensions[mdtDungeonIndex].maxX - mdt.dungeonDimensions[mdtDungeonIndex].minX) - ((target.x - data.Dimensions.minX) / (data.Dimensions.maxX - data.Dimensions.minX)), 2) + 
+                    Math.pow((clone.y - mdt.dungeonDimensions[mdtDungeonIndex].minY) / (mdt.dungeonDimensions[mdtDungeonIndex].maxY - mdt.dungeonDimensions[mdtDungeonIndex].minY) - ((target.y - data.Dimensions.minY) / (data.Dimensions.maxY - data.Dimensions.minY)), 2)
                   )
                   if (distance < closestClone.distance) {
                     closestClone = {distance: distance, index: cloneIndex}

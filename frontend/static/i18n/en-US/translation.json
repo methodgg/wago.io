@@ -529,5 +529,10 @@
   "Build a new MDT route": "",
   "What's this?": "",
   "Wago supports the WeakAuras Companion desktop app": "",
-  "This app acts as a bridge between Wago and your in-game addon, and allows you to keep your imports up to date as authors update their auras": ""
+  "This app acts as a bridge between Wago and your in-game addon, and allows you to keep your imports up to date as authors update their auras": "",
+  "Import route from WarcraftLogs": "",
+  "Log URL or ID": "",
+  "Select Run": "",
+  "Unable to launch WeakAura Companion app, please make sure you have it installed": "",
+  "WeakAura sent to Companion": ""
 }
