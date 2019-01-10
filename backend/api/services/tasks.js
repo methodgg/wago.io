@@ -372,6 +372,20 @@ function downloadAddon(addon, release, done) {
                 }
                 else if (result && result.stdout) {
                   var json = JSON.parse(result.stdout)
+                  json.dungeonDimensions = []
+                  json.dungeonEnemies.forEach((enemies, mapID) => {
+                    json.dungeonDimensions.push({maxX: -9999999, minX: 9999999, maxY: -9999999, minY: 9999999})
+                    if (!enemies) return
+                    enemies.forEach((creature) => {
+                      if (!creature || !creature.clones) return
+                      creature.clones.forEach((clone) => {
+                        json.dungeonDimensions[mapID].maxX = Math.max(json.dungeonDimensions[mapID].maxX, clone.x)
+                        json.dungeonDimensions[mapID].minX = Math.min(json.dungeonDimensions[mapID].minX, clone.x)
+                        json.dungeonDimensions[mapID].maxY = Math.max(json.dungeonDimensions[mapID].maxY, clone.y)
+                        json.dungeonDimensions[mapID].minY = Math.min(json.dungeonDimensions[mapID].minY, clone.y)
+                      })
+                    })
+                  })
                   SiteData.findByIdAndUpdate('mdtDungeonTable', {value: json}, {upsert: true}).exec()
                   // now generate portrait maps
                   if (config.host === 'data-01' || config.env === 'development') {
@@ -425,14 +439,12 @@ function buildStaticMDTPortraits(json, mapID, subMapID, teeming, faction, done) 
   var mdtScale = 539 / 450
   if (teeming) teeming = '-Teeming'
   else teeming = ''
+
+  var imgName = `portraitMap-${mapID}-${subMapID}${teeming}`
   
   if (faction) {
-    faction = '-Faction' + faction
+    imgName = imgName + '-Faction' + faction
   }
-  else {
-    faction = ''
-  }
-  var imgName = `portraitMap-${mapID}-${subMapID}${teeming}${faction}`
 
   console.log('processing', imgName)
 

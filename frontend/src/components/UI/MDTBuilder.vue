@@ -961,7 +961,7 @@ export default {
       var isTeeming = this.isTeemingSelected()
       this.tableData.value.pulls[pullIndex].forEach((clones, enemyIndex) => {
         // validate data
-        if (!clones || !this.enemies[enemyIndex].clones) {
+        if (!clones || !this.enemies[enemyIndex] || !this.enemies[enemyIndex].clones) {
           return
         }
         clones.forEach((cloneIndex) => {
@@ -1035,7 +1035,7 @@ export default {
       var isTeeming = this.isTeemingSelected()
 
       this.tableData.value.pulls[pullIndex].forEach((clones, enemyIndex) => {
-        if (!clones || !this.enemies[enemyIndex].clones) {
+        if (!clones || !this.enemies[enemyIndex] || !this.enemies[enemyIndex].clones) {
           return
         }
         clones.forEach((cloneIndex) => {
@@ -1324,7 +1324,6 @@ export default {
       }
     },
     konvaStageConfig: () => {
-      console.log({width: document.getElementById('builder') && document.getElementById('builder').offsetWidth || 0, height: 768})
       return {width: document.getElementById('builder') && document.getElementById('builder').offsetWidth || 0, height: 768}
     }
   }

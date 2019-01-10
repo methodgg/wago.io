@@ -114,7 +114,7 @@ export default {
     { path: '/mdt/:c1/:c2', component: Search, props: (route) => ({ contextSearch: 'Type: MDT' + GetContextTag(route.params) }) },
     { path: '/mdt/:c1/:c2/:c3', component: Search, props: (route) => ({ contextSearch: 'Type: MDT' + GetContextTag(route.params) }) },
     { path: '/mdt/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ contextSearch: 'Type: MDT' + GetContextTag(route.params) }) },
-    { path: '/build-new-mdt/:dungeon/:week', component: CreateMDT },
+    { path: '/build-new-mdt/:dungeon/:week', name: 'create-mdt', component: CreateMDT, props: true },
     { path: '/collections', component: MenuCollections },
     { path: '/collections/:c1', component: Search, props: (route) => ({ contextSearch: 'Type: Collection' + GetContextTag(route.params) }) },
     { path: '/collections/:c1/:c2', component: Search, props: (route) => ({ contextSearch: 'Type: Collection' + GetContextTag(route.params) }) },

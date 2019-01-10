@@ -14,7 +14,7 @@
       <md-button id="wago-header-toggle" class="md-icon-button md-raised" @click="toggleMobileHeader">
         <md-icon>view_agenda</md-icon>
       </md-button>
-      <div id="wago-mobile-header" v-bind:class="{'md-hide-xsmall': !hideMobileHeader}">
+      <div id="wago-mobile-header" class="md-hide-small-and-up" v-bind:class="{'md-hide-xsmall': !hideMobileHeader}">
         <h3>{{ wago.name }}</h3>
         <md-subheader><span v-for="(cat, n) in wago.categories" :key="n" :class="cat.cls" disabled v-if="cat.text">{{ cat.text }}</span></md-subheader>
       </div>

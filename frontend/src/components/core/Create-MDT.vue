@@ -17,6 +17,7 @@ export default {
   components: {
     'build-mdt': require('../UI/MDTBuilder.vue')
   },
+  props: ['pulls'],
   data: function () {
     return {
       ready: false,
@@ -56,7 +57,7 @@ export default {
           currentPull: 1,
           teeming: affixes.indexOf(5) >= 0,
           currentDungeonIdx: dungeonID,
-          pulls: []
+          pulls: this.pulls || []
         },
         week: week
       }

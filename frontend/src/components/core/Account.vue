@@ -249,7 +249,7 @@ end`,
       confirmPassword: '',
       discordOptionFaveUpdateMsg: this.$store.state.user.discord && this.$store.state.user.discord.options && this.$store.state.user.discord.options.messageOnFaveUpdate,
       discordOptionCommentMsg: this.$store.state.user.discord && this.$store.state.user.discord.options && this.$store.state.user.discord.options.messageOnComment,
-      discordOptionCreateWebhook: this.$store.state.user.discord && this.$store.state.user.discord.webhooks && this.$store.state.user.discord.options.onCreate,
+      discordOptionCreateWebhook: this.$store.state.user.discord && this.$store.state.user.discord.webhooks && this.$store.state.user.discord.webhooks.onCreate,
       discordOptionCreateWebhookStatus: ''
     }
   },

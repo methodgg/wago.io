@@ -456,7 +456,7 @@ module.exports = {
   },
   
   // find category by searching id, localized text or url slug
-  search: function (str, t) {
+  search: function (str, t, idPrefix) {
     if (!t) {
       t = window.i18next.t
     }
@@ -465,8 +465,10 @@ module.exports = {
     var _cats = this.categories() // search i8n codes
     for (var i=0; i<cats.length; i++) {
       if (cats[i].id === str.toLowerCase().trim()|| cats[i].text.toLowerCase().trim() === str.toLowerCase().trim() || _cats[i].text.replace(/-/, ' ') === str.toLowerCase().trim() || _cats[i].text.toLowerCase().trim() === str.toLowerCase().trim() || cats[i].slug === str) {
-        cats[i].text = t(cats[i].text)
-        return cats[i]
+        if (!idPrefix || cats[i].id.match(new RegExp('^' + idPrefix))) {
+          cats[i].text = t(cats[i].text)
+          return cats[i]
+        }
       }
     }
     if (str.match(/\./) && !str.match(/warcraft:/)) {

@@ -224,7 +224,6 @@ export default {
             }
 
             var tags = tagStrMatch.split(/;|,/g)
-            console.log(tagStrMatch, tags)
             tags.forEach((thisTag) => {
               var category = Categories.search(thisTag, this.$t)
               if (category) {

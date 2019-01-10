@@ -9,24 +9,46 @@
     </form>
     <md-subheader>Method Dungeon Tools</md-subheader>
     <md-layout>
-      <md-whiteframe id="create-mdt">
-        {{ $t("Build a new MDT route") }}
-        <div class="field-group">
-          <md-input-container>
-            <label for="dungeon">{{ $t("Select Dungeon") }}</label>
-            <md-select name="dungeon" id="dungeon" v-model="newDungeon">
-              <md-option v-for="(dun, k) in dungeons[0].bosses" :key="k" :value="dun.id">{{ $t(dun.text) }}</md-option>
-            </md-select>
-          </md-input-container>
-          <md-input-container>
-            <label for="affixes">{{ $t("Select Affixes") }}</label>
-            <md-select name="affixes" id="affixes" v-model="newAffix">
-              <md-option v-for="(item, index) in affixesS1" :value="item.id" :key="index">{{ $t('Week [-num-] [-affixes-]', {num: index + 1, affixes: item.text}) }}</md-option>
-            </md-select>
-          </md-input-container>
-        </div>
-        <md-button @click="createMDT()" class="md-raised" :disabled="!newAffix || !newDungeon">{{ $t("Build") }}</md-button>
-      </md-whiteframe>
+      <md-layout md-column>
+        <md-whiteframe id="create-mdt">
+          {{ $t("Build a new MDT route") }}
+          <div class="field-group">
+            <md-input-container>
+              <label for="dungeon">{{ $t("Select Dungeon") }}</label>
+              <md-select name="dungeon" id="dungeon" v-model="newDungeon">
+                <md-option v-for="(dun, k) in dungeons[0].bosses" :key="k" :value="dun.id" v-if="dun.slug.match(/\//g).length <= 2">{{ $t(dun.text) }}</md-option>
+              </md-select>
+            </md-input-container>
+            <md-input-container>
+              <label for="affixes">{{ $t("Select Affixes") }}</label>
+              <md-select name="affixes" id="affixes" v-model="newAffix">
+                <md-option v-for="(item, index) in affixesS1" :value="item.id" :key="index">{{ $t('Week [-num-] [-affixes-]', {num: index + 1, affixes: item.text}) }}</md-option>
+              </md-select>
+            </md-input-container>
+          </div>
+          <md-button @click="createMDT()" class="md-raised" :disabled="!newAffix || !newDungeon">{{ $t("Build") }}</md-button>
+        </md-whiteframe>
+        
+        <md-whiteframe id="import-wcl" v-if="$store.state.user && $store.state.user.access && $store.state.user.access.beta">
+          {{ $t("Import route from WarcraftLogs") }}<p>* Highly experimental *<br>I need logs and accompanying video please!</p>
+          <div class="field-group">
+            <md-input-container>
+              <label for="wclURL">{{ $t("Log URL or ID") }}</label>
+              <md-input v-model="wclURL"></md-input>
+            </md-input-container>
+            <md-input-container v-if="wclDungeons.length">
+              <label for="wclDungeonIndex">{{ $t("Select Run") }}</label>
+              <md-select name="wclDungeonIndex" id="wclDungeonIndex" v-model="wclDungeonIndex">
+                <md-option v-for="(item, index) in wclDungeons" :value="index" :key="index">{{ `${item.name} +${item.level}` }}</md-option>
+              </md-select>
+            </md-input-container>
+            <md-button @click="importWCL()" class="md-raised" :disabled="wclDungeonIndex === -1 || wclLoading">{{ $t("Import") }}</md-button>
+            <md-avatar v-if="wclLoading">
+              <ui-image img="loading"></ui-image>
+            </md-avatar>
+          </div>
+        </md-whiteframe>
+      </md-layout>
       <md-layout md-column>
         <md-subheader>{{ $t("BFA Dungeons") }}</md-subheader>
         <md-list class="md-double-line md-dense">
@@ -116,18 +138,56 @@ export default {
       catch (e) {
         console.error(e.message)
       }
+    },
+    importWCL: function () {
+      this.wclLoading = true
+      this.http.get('/lookup/wcl/mdt-events', {
+        log: this.wclURL,
+        dungeon: this.wclDungeonIndex
+      }).then((pulls) => {
+        this.wclLoading = false
+        const dungeon = categories.search(this.wclDungeons[this.wclDungeonIndex].name, false, 'mdt').slug.split(/\//).pop()
+        const week = 1 // categories.match(this.newAffix).slug.split(/\//).pop()
+        this.$router.push({name: 'create-mdt', params: {dungeon, week, pulls}})
+      })
+      .catch((e) => {
+        console.error(e.message)
+      })
     }
   },
   data: function () {
     return {
       searchString: 'Type: MDT ',
       newDungeon: '',
-      newAffix: 'mdtaffix-bfa-s1-w' + this.$store.state.MDTWeek
+      newAffix: 'mdtaffix-bfa-s1-w' + this.$store.state.MDTWeek,
+      wclURL: '',
+      wclDungeons: [],
+      wclDungeonIndex: -1,
+      wclLoading: false
     }
   },
   watch: {
     currentWeek: function (val) {
       this.newAffix = 'mdtaffix-bfa-s1-w' + val
+    },
+    wclURL: function (val) {
+      this.wclDungeonIndex = -1
+      this.wclDungeons.splice(0, this.wclDungeons.length)
+      var m = val.match(/(https:\/\/)?[\w]?\.?warcraftlogs.com\/reports\/([\w\d]+)/)
+      if (m && m[2]) {
+        this.wclURL = m[2]
+        return
+      }
+      if (val.match(/^[\w\d]+$/)) {
+        this.wclLoading = true
+        // id found
+        this.http.get('/lookup/wcl/dungeons', {
+          log: val
+        }).then((data) => {
+          this.wclLoading = false
+          this.wclDungeons = data.dungeons
+        })
+      }
     }
   },
   computed: {
@@ -161,7 +221,7 @@ export default {
 </script>
 
 <style>
-#create-mdt { padding: 16px; margin: 16px;}
+#create-mdt, #import-wcl { padding: 16px; margin: 16px; width:calc(100% - 16px); margin-right: 16px; flex-grow: 1; flex-basis: 0;}
 #searchForm { padding: 16px }
 #searchForm button { margin-top: -3px }
 
