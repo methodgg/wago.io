@@ -107,11 +107,11 @@
                             clone.pull >= 0 ? 'rgba(99, 233, 30, 0.3)' : 
                             'rgba(99, 233, 30, 0.0)',
                       stroke: isCreatureNoTarget(creature.id) ? '#333333' :
-                              isSeasonalAffixClone(clone) ? 'red' : 
+                              isInfested(clone) ? 'red' : 
                               creature.isBoss ? 'gold' : 
                               'black',
                       strokeWidth: .5,
-                      strokeEnabled: ((creature.isBoss && isCreatureNoTarget(creature.id)) || isSeasonalAffixClone(clone)),
+                      strokeEnabled: ((creature.isBoss && isCreatureNoTarget(creature.id)) || isInfested(clone)),
                       shadowColor: 'white',
                       shadowOpacity: 1,
                       shadowEnabled : clone.hoverAvatar || false,
@@ -126,7 +126,7 @@
                   x: enemies[hoverSpecific.creatureIndex].clones[hoverSpecific.cloneIndex].x * mdtScale,
                   y: enemies[hoverSpecific.creatureIndex].clones[hoverSpecific.cloneIndex].y * -mdtScale,
                   radius: Math.round(7 * enemies[hoverSpecific.creatureIndex].scale * (enemies[hoverSpecific.creatureIndex].isBoss ? 1.7 : 1) * (mdtDungeonTable.scaleMultiplier[mapID] || 1)) / mdtScale,
-                  stroke: isSeasonalAffixClone(enemies[hoverSpecific.creatureIndex].clones[hoverSpecific.cloneIndex]) ? 'red' : (enemies[hoverSpecific.creatureIndex].isBoss ? 'gold' : 'black'),
+                  stroke: isInfested(enemies[hoverSpecific.creatureIndex].clones[hoverSpecific.cloneIndex]) ? 'red' : (enemies[hoverSpecific.creatureIndex].isBoss ? 'gold' : 'black'),
                   strokeWidth: 3,
                   strokeEnabled: true,
                   fillPatternX: (-Math.round(7 * enemies[hoverSpecific.creatureIndex].scale * (enemies[hoverSpecific.creatureIndex].isBoss ? 1.7 : 1))) / mdtScale,
@@ -221,7 +221,7 @@
               <md-button class="md-raised" disabled id="sumPct"><md-icon>functions</md-icon> {{ Math.round(100*pullDetails[pullDetails.length - 1].percentRunningTotal)/100 }}%</md-button>
             </div>
           </md-card-area>
-          
+
           <md-card-area v-if="mapID === 15">
             <!-- Freehold Crew Option -->
             <div class="inlineContainer">
@@ -255,7 +255,7 @@
                         <span v-if="parseInt(details.g)" class="groupnum">{{ details.g }}</span>
                         <span v-else class="singlepull">➽</span>
                         <template v-for="(target, targetIndex) in details.targets">
-                          <mdt-enemy-portrait :size="36" :mapID="mapID" :offset="getEnemyPortraitOffset(target.enemyIndex, 36)" :seasonalAffix="isSeasonalAffixClone(target.clone)"
+                          <mdt-enemy-portrait :size="36" :mapID="mapID" :offset="getEnemyPortraitOffset(target.enemyIndex, 36)" :seasonalAffix="isInfested(target.clone)"
                             @mouseover="setTargetHoverAvatar(pull - 1, detailIndex, targetIndex, true)" 
                             @mouseleave="setTargetHoverAvatar(pull - 1, detailIndex, targetIndex, false)"
                           />
@@ -298,7 +298,7 @@
         <span v-if="tooltipEnemy.isBoss" style="margin-left:-3px">💀 </span><strong>{{ tooltipEnemy.name }}</strong><br>
         {{ $t('Level [-level-] [-type-]', {level: tooltipEnemy.level, type: tooltipEnemy.creatureType}) }}<br>
         {{ $t('[-hp-] HP @ +10', {hp: calcEnemyHealth(tooltipEnemy, true)}) }}<br>
-        <span v-if="tooltipEnemy.clone && isSeasonalAffixClone(tooltipEnemy.clone)" style="color:red">{{ $t('Infested') }}<br></span>
+        <span v-if="tooltipEnemy.clone && isInfested(tooltipEnemy.clone)" style="color:red">{{ $t('Infested') }}<br></span>
         <span v-if="tooltipEnemy.clone && tooltipEnemy.clone.g > 0">{{ $t('Group [-num-]', {num: tooltipEnemy.clone.g}) }}</span>
         <span v-if="tooltipEnemy.clone && tooltipEnemy.clone.pull >= 0">{{ $t('Pull [-num-]', {num: tooltipEnemy.clone.pull + 1}) }}<br></span>
       </div>
@@ -899,8 +899,8 @@ export default {
       return this.selectedAffixes.indexOf(9) >= 0
     },
 
-    isSeasonalAffixClone (clone) {
-      if (!clone || !clone.infested) {
+    isInfested (clone) {
+      if (this.selectedAffixes.indexOf(16) == -1 || !clone || !clone.infested) {
         return false
       }
       var week = this.tableData.week % 3

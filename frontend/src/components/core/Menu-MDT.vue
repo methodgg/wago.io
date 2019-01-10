@@ -11,7 +11,7 @@
     <md-layout>
       <md-layout md-column>
         <md-whiteframe id="create-mdt">
-          {{ $t("Build a new MDT route") }}
+          <strong>{{ $t("Build a new MDT route") }}</strong>
           <div class="field-group">
             <md-input-container>
               <label for="dungeon">{{ $t("Select Dungeon") }}</label>
@@ -30,7 +30,8 @@
         </md-whiteframe>
         
         <md-whiteframe id="import-wcl" v-if="$store.state.user && $store.state.user.access && $store.state.user.access.beta">
-          {{ $t("Import route from WarcraftLogs") }}<p>* Highly experimental *<br>I need logs and accompanying video please!</p>
+          <strong>{{ $t("Import route from WarcraftLogs") }}</strong>
+          <p>* Highly experimental *<br>I need logs and accompanying video please!</p>
           <div class="field-group">
             <md-input-container>
               <label for="wclURL">{{ $t("Log URL or ID") }}</label>
