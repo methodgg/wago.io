@@ -1,8 +1,8 @@
 <template>
   <div>
-    <md-card v-if="stats['Total WeakAuras']" v-for="(statistic, label) in stats" :key="label">
+    <md-card v-if="stats['Total WeakAuras']" v-for="(statistic, label) in stats" :key="label" v-bind:style="{'z-index': statistic.z}">
       <md-card-header>
-        <div class="md-title">{{ new Intl.NumberFormat().format(statistic.total) }} {{ label }}</div>
+        <div class="md-title"><span v-if="statistic.total">{{ new Intl.NumberFormat().format(statistic.total) }} </span>{{ label }}</div>
         <div class="md-subhead">{{ label }} added per week:</div>
       </md-card-header>
       <md-card-content style="background: #FFF; color:#000">
@@ -166,7 +166,8 @@ export default {
       },
       statGroups: [
         { name: 'WeakAura Imports with Features', search: /^WeakAura Imports/ },
-        { name: 'WeakAura Imports with Custom Triggers', search: /^WeakAura Triggers/ }
+        { name: 'WeakAura Imports with Custom Triggers', search: /^WeakAura Triggers/ },
+        { name: 'WeakAura Region Types', search: /^WeakAura Region/, cut: /^WeakAura Region\s/, total: false }
       ]
     }
   },
@@ -194,11 +195,16 @@ export default {
         let group = false
         for (let i = 0; i < this.statGroups.length; i++) {
           if (stat.name.match(this.statGroups[i].search)) {
+            if (this.statGroups[i].cut) {
+              stat.name = stat.name.replace(this.statGroups[i].cut, '')
+            }
             if (!statObj[this.statGroups[i].name]) {
               statObj[this.statGroups[i].name] = {series: [], total: 0}
             }
             statObj[this.statGroups[i].name].series.push(this.makeSeries(stat))
-            statObj[this.statGroups[i].name].total = Math.max(statObj[this.statGroups[i].name].total, this.calcTotal(stat.data))
+            if (this.statGroups[i].total !== false) {
+              statObj[this.statGroups[i].name].total = Math.max(statObj[this.statGroups[i].name].total, this.calcTotal(stat.data))
+            }
             group = true
           }
         }
@@ -206,6 +212,11 @@ export default {
           statObj[stat.name] = {series: [this.makeSeries(stat)], total: this.calcTotal(stat.data)}
         }
       })
+      let keys = Object.keys(statObj)
+      for (let i = keys.length - 1; i >= 0; i--) {
+        console.log(keys)
+        statObj[keys[i]].z = keys.length - i
+      }
       this.stats = statObj
     })
   },
@@ -228,4 +239,5 @@ export default {
 </script>
 
 <style scoped>
+.md-card { overflow: visible; }
 </style>
