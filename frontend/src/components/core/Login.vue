@@ -1,61 +1,66 @@
 <template>
-  <md-layout>
-    <md-layout md-column>
-      <md-card>
-        <md-card-area>
-          <md-card-header>
-            <h2>{{ $t("Log into Wago") }}</h2>
-          </md-card-header>
+  <div>
+    <ui-warning mode="alert">
+      Wago.io uses cookies to track your user session. By logging in to the website you consent to having a cookie installed to preserve your authentication.
+    </ui-warning>
+    <md-layout>
+      <md-layout md-column>
+        <md-card>
+          <md-card-area>
+            <md-card-header>
+              <h2>{{ $t("Log into Wago") }}</h2>
+            </md-card-header>
+            <md-card-content>
+              <form id="login-form" novalidate v-on:submit.prevent="doLogin">
+                <md-input-container>
+                  <label>{{ $t("Username") }}</label>
+                  <md-input type="text" id="login-name"></md-input>
+                </md-input-container>
+                
+                <md-input-container>
+                  <label>{{ $t("Password") }}</label>
+                  <md-input type="password" id="login-password"></md-input>
+                </md-input-container>
+                
+                <md-button class="md-raised md-primary" type="submit">{{ $t("Log in") }}</md-button>
+              </form>
+            </md-card-content>
+          </md-card-area>
+        </md-card>
+        <md-card>
+          <h2>{{ $t("Create Account") }}</h2>
           <md-card-content>
-            <form id="login-form" novalidate v-on:submit.prevent="doLogin">
+            <p>{{ $t("Wago does not collect email addresses and therefore has no forgotten password function; we recommend using one of the social logins") }}</p>
+            <form id="create-acct" novalidate v-on:submit.prevent="createAcct">
               <md-input-container>
                 <label>{{ $t("Username") }}</label>
-                <md-input type="text" id="login-name"></md-input>
+                <md-input type="text" id="create-name"></md-input>
               </md-input-container>
-              
+
               <md-input-container>
                 <label>{{ $t("Password") }}</label>
-                <md-input type="password" id="login-password"></md-input>
+                <md-input type="password" id="create-password"></md-input>
               </md-input-container>
-              
-              <md-button class="md-raised md-primary" type="submit">{{ $t("Log in") }}</md-button>
+
+              <md-input-container>
+                <label>{{ $t("Confirm Password") }}</label>
+                <md-input type="password" id="create-password2"></md-input>
+              </md-input-container>
+
+              <template>
+                <vue-recaptcha sitekey="6LfMCGkUAAAAACs_6tjQoqpEaQIph8NnHmQgPuu7" @verify="onVerifyCaptcha" @expired="onExpiredCaptcha"></vue-recaptcha>
+              </template>
+
+              <md-button class="md-raised md-primary" type="submit" :disabled="!recaptchaValid || submitForm">{{ $t("Create account") }}</md-button>
             </form>
           </md-card-content>
-        </md-card-area>
-      </md-card>
-      <md-card>
-        <h2>{{ $t("Create Account") }}</h2>
-        <md-card-content>
-          <p>{{ $t("Wago does not collect email addresses and therefore has no forgotten password function; we recommend using one of the social logins") }}</p>
-          <form id="create-acct" novalidate v-on:submit.prevent="createAcct">
-            <md-input-container>
-              <label>{{ $t("Username") }}</label>
-              <md-input type="text" id="create-name"></md-input>
-            </md-input-container>
-
-            <md-input-container>
-              <label>{{ $t("Password") }}</label>
-              <md-input type="password" id="create-password"></md-input>
-            </md-input-container>
-
-            <md-input-container>
-              <label>{{ $t("Confirm Password") }}</label>
-              <md-input type="password" id="create-password2"></md-input>
-            </md-input-container>
-
-            <template>
-              <vue-recaptcha sitekey="6LfMCGkUAAAAACs_6tjQoqpEaQIph8NnHmQgPuu7" @verify="onVerifyCaptcha" @expired="onExpiredCaptcha"></vue-recaptcha>
-            </template>
-
-            <md-button class="md-raised md-primary" type="submit" :disabled="!recaptchaValid || submitForm">{{ $t("Create account") }}</md-button>
-          </form>
-        </md-card-content>
-      </md-card>
+        </md-card>
+      </md-layout>
+      <md-layout md-column>
+        <wago-oauth></wago-oauth>
+      </md-layout>
     </md-layout>
-    <md-layout md-column>
-      <wago-oauth></wago-oauth>
-    </md-layout>
-  </md-layout>   
+  </div>
 </template>
 
 <script>

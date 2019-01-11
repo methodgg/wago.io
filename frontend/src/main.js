@@ -275,18 +275,6 @@ router.beforeEach((to, from, next) => {
   // next(false)
 })
 
-import VueAnalytics from 'vue-ua'
-Vue.use(VueAnalytics, {
-  appName: 'wago.io',
-  appVersion: '3.0',
-  trackingId: 'UA-75437214-1',
-  vueRouter: router,
-  trackPage: true
-})
-router.afterEach((to, from) => {
-  Vue.analytics.trackView(to)
-})
-
 // setup vue-meta for header
 import Meta from 'vue-meta'
 Vue.use(Meta)
