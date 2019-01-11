@@ -832,7 +832,7 @@ function generateStats(res) {
       done()
     },
     WACode: (done) => {
-      Stats.findOne({name: 'WeakAura Region Group'}).sort({date: -1}).then((stat) => {
+      Stats.findOne({name: 'WeakAura Region group'}).sort({date: -1}).then((stat) => {
         let date
         let today = new Date()
         if (!stat) {
