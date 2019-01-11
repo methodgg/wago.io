@@ -13,7 +13,6 @@ const MenuMDT = resolve => require(['@/components/core/Menu-MDT.vue'], resolve)
 const CreateMDT = resolve => require(['@/components/core/Create-MDT.vue'], resolve)
 const MenuCollections = resolve => require(['@/components/core/Menu-Collections.vue'], resolve)
 
-const WACompanion = resolve => require(['@/components/core/WA-Companion.vue'], resolve)
 const TermsOfService = resolve => require(['@/components/core/TermsOfService.vue'], resolve)
 const PrivacyPolicy = resolve => require(['@/components/core/PrivacyPolicy.vue'], resolve)
 
@@ -22,6 +21,8 @@ const ViewProfile = resolve => require(['@/components/core/ViewProfile.vue'], re
 
 const News = resolve => require(['@/components/core/News.vue'], resolve)
 const Search = resolve => require(['@/components/core/Search.vue'], resolve)
+const WACompanion = resolve => require(['@/components/core/WA-Companion.vue'], resolve)
+const Stats = resolve => require(['@/components/core/Stats.vue'], resolve)
 
 const OAuth = resolve => require(['@/components/UI/WagoOauth.vue'], resolve)
 
@@ -133,6 +134,7 @@ export default {
 
     // pages
     { path: '/wa-companion', component: WACompanion },
+    { path: '/stats', component: Stats },
 
     // legal mumbo jumbo
     { path: '/terms-of-service', component: TermsOfService },

@@ -683,6 +683,27 @@ server.get('/data/:key', (req, res) => {
   })
 })
 
+server.get('/lookup/statistics', (req, res) => {
+  if (!req.user || !req.user.access.beta) {
+    return res.send(403, {error: 'no_access'})
+  }
+  Stats.find().sort({name: 1, date: 1}).then((docs) => {
+    var stats = []
+    var runningTotal = 0
+    docs.forEach((item) => {
+      if (!stats.length || stats[stats.length - 1].name !== item.name) {
+        stats.push({name: item.name, data: [item.value]})
+      }
+      else {
+        stats[stats.length - 1].data.push(item.value)
+      }
+    })
+    res.send(stats)    
+  })
+})
+
+
+
 /* moved to /api */
 server.get('/lookup/weakauras', (req, res, next) => {
   req.pathname = '/api/check/weakauras'

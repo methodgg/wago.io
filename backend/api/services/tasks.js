@@ -22,6 +22,7 @@ server.get('/tasks/:task', (req, res, next) => {
     case 'news':
     case 'patreon':
     case 'mdtweek':
+    case 'stats':
       return RunTask(req.params.task, req, res)
       break
 
@@ -45,6 +46,7 @@ server.post('/tasks/:task', (req, res, next) => {
 })
 
 function RunTask(task, req, res) {
+  logger.info('run task ' + task)
   switch (task) {
     case 'random': return MakeWagoOfTheMoment(res)
     case 'top10': return MakeTopTenLists(res)
@@ -53,6 +55,7 @@ function RunTask(task, req, res) {
     case 'news': return GetLatestNews(res)
     case 'patreon': return updatePatreon(res)
     case 'mdtweek': return updateWeeklyMDT(res)
+    case 'stats': return generateStats(res)
   }
 }
 
@@ -683,6 +686,205 @@ function updateWeeklyMDT(res) {
     logger.error(e.message)
     res.send({done: false})
   })
+}
+
+function generateStats(res) {
+  const startDate = new Date(1463788800000) // May 21 2016
+  async.series({
+    WeakAuras: (done) => {
+      Stats.findOne({name: 'Total WeakAuras'}).sort({date: -1}).then((stat) => {
+        let date
+        let today = new Date()
+        if (!stat) {
+          date = startDate
+        }
+        else if (stat.date.nextWeek() < today) {
+          date = stat.date.nextWeek()
+        }
+        else {
+          // up to date already
+          return done()
+        }
+        while (date < today) {
+          let dDate = new Date(date)
+          WagoItem.count({type: "WEAKAURAS2", created: {"$gte": dDate, "$lt": dDate.nextWeek()}}).then((num) => {
+            Stats.findOneAndUpdate({name: 'Total WeakAuras', date: dDate}, {name: 'Total WeakAuras', date: dDate, value: num}, {upsert: true}).exec()
+          })
+          date = date.nextWeek()
+        }
+        done()
+      })
+    },
+    ElvUI: (done) => {
+      Stats.findOne({name: 'Total ElvUI'}).sort({date: -1}).then((stat) => {
+        let date
+        let today = new Date()
+        if (!stat) {
+          date = startDate
+        }
+        else if (stat.date.nextWeek() < today) {
+          date = stat.date.nextWeek()
+        }
+        else {
+          // up to date already
+          return done()
+        }
+        while (date < today) {
+          let dDate = new Date(date)
+          WagoItem.count({type: "ELVUI", created: {"$gte": dDate, "$lt": dDate.nextWeek()}}).then((num) => {
+            Stats.findOneAndUpdate({name: 'Total ElvUI', date: dDate}, {name: 'Total ElvUI', date: dDate, value: num}, {upsert: true}).exec()
+          })
+          date = date.nextWeek()
+        }
+        done()
+      })
+    },
+    MDT: (done) => {
+      Stats.findOne({name: 'Total MDT Routes'}).sort({date: -1}).then((stat) => {
+        let date
+        let today = new Date()
+        if (!stat) {
+          date = startDate
+        }
+        else if (stat.date.nextWeek() < today) {
+          date = stat.date.nextWeek()
+        }
+        else {
+          // up to date already
+          return done()
+        }
+        while (date < today) {
+          let dDate = new Date(date)
+          WagoItem.count({type: "MDT", created: {"$gte": dDate, "$lt": dDate.nextWeek()}}).then((num) => {
+            Stats.findOneAndUpdate({name: 'Total MDT Routes', date: dDate}, {name: 'Total MDT Routes', date: dDate, value: num}, {upsert: true}).exec()
+          })
+          date = date.nextWeek()
+        }
+        done()
+      })
+    },
+    TotalRP: (done) => {
+      Stats.findOne({name: 'Total TotalRP'}).sort({date: -1}).then((stat) => {
+        let date
+        let today = new Date()
+        if (!stat) {
+          date = startDate
+        }
+        else if (stat.date.nextWeek() < today) {
+          date = stat.date.nextWeek()
+        }
+        else {
+          // up to date already
+          return done()
+        }
+        while (date < today) {
+          let dDate = new Date(date)
+          WagoItem.count({type: "TOTALRP3", created: {"$gte": dDate, "$lt": dDate.nextWeek()}}).then((num) => {
+            Stats.findOneAndUpdate({name: 'Total TotalRP', date: dDate}, {name: 'Total TotalRP', date: dDate, value: num}, {upsert: true}).exec()
+          })
+          date = date.nextWeek()
+        }
+        done()
+      })
+    },
+    VuhDo: (done) => {
+      Stats.findOne({name: 'Total VuhDo'}).sort({date: -1}).then((stat) => {
+        let date
+        let today = new Date()
+        if (!stat) {
+          date = startDate
+        }
+        else if (stat.date.nextWeek() < today) {
+          date = stat.date.nextWeek()
+        }
+        else {
+          // up to date already
+          return done()
+        }
+        while (date < today) {
+          let dDate = new Date(date)
+          WagoItem.count({type: "VUHDO", created: {"$gte": dDate, "$lt": dDate.nextWeek()}}).then((num) => {
+            Stats.findOneAndUpdate({name: 'Total VuhDo', date: dDate}, {name: 'Total VuhDo', date: dDate, value: num}, {upsert: true}).exec()
+          })
+          date = date.nextWeek()
+        }
+        done()
+      })
+    },
+    WACode: (done) => {
+      Stats.findOne({name: 'WeakAura Imports with BuffTrigger2 Feature'}).sort({date: -1}).then((stat) => {
+        console.log(stat)
+        let date
+        let today = new Date()
+        if (!stat) {
+          date = startDate
+        }
+        else if (stat.date.nextWeek() < today) {
+          date = stat.date.nextWeek()
+        }
+        else {
+          // up to date already
+          return done()
+        }
+        async.whilst(
+          () => {
+            return date < today
+          },
+          (cb) => {
+            let dDate = new Date(date)
+            let countAuthorOptions = 0
+            let countBuffTrigger2 = 0
+            WagoCode.find({updated: {"$gte": dDate, "$lt": dDate.nextWeek()}}).then((wa) => {
+              console.log(dDate)
+              async.forEach(wa, (code, next) => {
+                // confirm import is a weakaura
+                WagoItem.findOne({_id: code.auraID, type: 'WEAKAURAS2'}).then((aura) => {
+                  if (aura) {
+                    var json = JSON.parse(code.json)
+                    if (json.d && json.d.authorOptions && json.d.authorOptions.length) {
+                      countAuthorOptions++
+                    }
+                    else if (json.c) {
+                      for (let i = 0; i < json.c.length; i++) {
+                        if (json.c[i] && json.c[i].authorOptions && json.c[i].authorOptions.length) {
+                          countAuthorOptions++
+                        }
+                      }
+                    }
+                    if (json.d && json.d.triggers && json.d.triggers['1']) {
+                      countBuffTrigger2++
+                    }
+                    else if (json.c) {
+                      for (let i = 0; i < json.c.length; i++) {
+                        if (json.c[i] && json.c[i].triggers && json.c[i].triggers['1']) {
+                          countBuffTrigger2++
+                        }
+                      }
+                    }
+                  }
+                  next()
+                })
+              }, () => {
+                Stats.findOneAndUpdate({name: 'WeakAura Imports with Author Options Feature', date: dDate}, {name: 'WeakAura Imports with Author Options Feature', date: dDate, value: countAuthorOptions}, {upsert: true}).exec()                
+                Stats.findOneAndUpdate({name: 'WeakAura Imports with BuffTrigger2 Feature', date: dDate}, {name: 'WeakAura Imports with BuffTrigger2 Feature', date: dDate, value: countBuffTrigger2}, {upsert: true}).exec()
+
+                date = date.nextWeek()
+                cb()
+              })            
+            })
+          }, () => {
+            done()
+          })
+      })
+    }
+  }, () => {
+    res.send({done: true})
+  })
+}
+Date.prototype.nextWeek = function() {
+  var date = new Date(this.valueOf())
+  date.setDate(date.getDate() + 7)
+  return date
 }
 
 /**

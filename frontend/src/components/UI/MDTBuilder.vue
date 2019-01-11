@@ -900,7 +900,7 @@ export default {
     },
 
     isInfested (clone) {
-      if (this.selectedAffixes.indexOf(16) == -1 || !clone || !clone.infested) {
+      if (this.selectedAffixes.indexOf(16) === -1 || !clone || !clone.infested) {
         return false
       }
       var week = this.tableData.week % 3
