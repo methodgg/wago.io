@@ -812,7 +812,7 @@ function generateStats(res) {
       })
     },
     WACode: (done) => {
-      Stats.findOne({name: 'WeakAura Imports with BuffTrigger2 Feature'}).sort({date: -1}).then((stat) => {
+      Stats.findOne({name: 'WeakAura Triggers with Custom Code'}).sort({date: -1}).then((stat) => {
         console.log(stat)
         let date
         let today = new Date()
@@ -834,6 +834,8 @@ function generateStats(res) {
             let dDate = new Date(date)
             let countAuthorOptions = 0
             let countBuffTrigger2 = 0
+            let countTriggerCustomCode = 0
+            let countTriggerCustomCodeEveryFrame = 0
             WagoCode.find({updated: {"$gte": dDate, "$lt": dDate.nextWeek()}}).then((wa) => {
               console.log(dDate)
               async.forEach(wa, (code, next) => {
@@ -841,23 +843,45 @@ function generateStats(res) {
                 WagoItem.findOne({_id: code.auraID, type: 'WEAKAURAS2'}).then((aura) => {
                   if (aura) {
                     var json = JSON.parse(code.json)
-                    if (json.d && json.d.authorOptions && json.d.authorOptions.length) {
-                      countAuthorOptions++
+                    if (!json.c) {
+                      json.c = [json.d]
                     }
-                    else if (json.c) {
-                      for (let i = 0; i < json.c.length; i++) {
-                        if (json.c[i] && json.c[i].authorOptions && json.c[i].authorOptions.length) {
-                          countAuthorOptions++
+                    for (let i = 0; i < json.c.length; i++) {
+                      if (!json.c[i]) continue
+
+                      // author options feature
+                      if (json.c[i].authorOptions && json.c[i].authorOptions.length) {
+                        countAuthorOptions++
+                      }
+                      // bufftrigger2 feature
+                      if (json.c[i].triggers && json.c[i].triggers['1']) {
+                        countBuffTrigger2++
+                      }
+                      // count triggers with custom code
+                      if (json.c[i].trigger && json.c[i].trigger.type === 'custom' &&  json.c[i].trigger.custom) {
+                        countTriggerCustomCode++
+                        if (json.c[i].trigger.check === 'update') {
+                          countTriggerCustomCodeEveryFrame++
                         }
                       }
-                    }
-                    if (json.d && json.d.triggers && json.d.triggers['1']) {
-                      countBuffTrigger2++
-                    }
-                    else if (json.c) {
-                      for (let i = 0; i < json.c.length; i++) {
-                        if (json.c[i] && json.c[i].triggers && json.c[i].triggers['1']) {
-                          countBuffTrigger2++
+                      if (json.c[i].additional_triggers && json.c[i].additional_triggers.length) {
+                        for (let k = 0; k < json.c[i].additional_triggers.length; k++) {
+                          if (json.c[i].additional_triggers[k].type === 'custom' &&  json.c[i].additional_triggers[k].custom) {
+                            countTriggerCustomCode++
+                            if (json.c[i].trigger.check === 'update') {
+                              countTriggerCustomCodeEveryFrame++
+                            }
+                          }
+                        }
+                      }
+                      if (json.c[i].triggers) {
+                        for (var k in json.c[i].triggers) {
+                          if (parseInt(k) && json.c[i].triggers[k].trigger.type === 'custom' &&  json.c[i].triggers[k].trigger.custom) {
+                            countTriggerCustomCode++
+                            if (json.c[i].triggers[k].check === 'update') {
+                              countTriggerCustomCodeEveryFrame++
+                            }
+                          }
                         }
                       }
                     }
@@ -866,7 +890,9 @@ function generateStats(res) {
                 })
               }, () => {
                 Stats.findOneAndUpdate({name: 'WeakAura Imports with Author Options Feature', date: dDate}, {name: 'WeakAura Imports with Author Options Feature', date: dDate, value: countAuthorOptions}, {upsert: true}).exec()                
-                Stats.findOneAndUpdate({name: 'WeakAura Imports with BuffTrigger2 Feature', date: dDate}, {name: 'WeakAura Imports with BuffTrigger2 Feature', date: dDate, value: countBuffTrigger2}, {upsert: true}).exec()
+                Stats.findOneAndUpdate({name: 'WeakAura Imports with BuffTrigger2 Feature', date: dDate}, {name: 'WeakAura Imports with BuffTrigger2 Feature', date: dDate, value: countBuffTrigger2}, {upsert: true}).exec()          
+                Stats.findOneAndUpdate({name: 'WeakAura Triggers with Custom Code', date: dDate}, {name: 'WeakAura Triggers with Custom Code', date: dDate, value: countTriggerCustomCode}, {upsert: true}).exec()          
+                Stats.findOneAndUpdate({name: 'WeakAura Triggers with Custom Code Updating Every Frame', date: dDate}, {name: 'WeakAura Triggers with Custom Code Updating Every Frame', date: dDate, value: countTriggerCustomCodeEveryFrame}, {upsert: true}).exec()
 
                 date = date.nextWeek()
                 cb()

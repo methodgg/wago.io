@@ -1,12 +1,12 @@
 <template>
   <div>
-    <md-card v-if="stats.length" v-for="(statistic, key) in stats" :key="key">
+    <md-card v-if="stats['Total WeakAuras']" v-for="(statistic, label) in stats" :key="label">
       <md-card-header>
-        <div class="md-title">{{ new Intl.NumberFormat().format(calcTotal(statistic.data)) }} {{ statistic.name }}</div>
-        <div class="md-subhead">{{ statistic.name }} added per week:</div>
+        <div class="md-title">{{ new Intl.NumberFormat().format(statistic.total) }} {{ label }}</div>
+        <div class="md-subhead">{{ label }} added per week:</div>
       </md-card-header>
       <md-card-content style="background: #FFF; color:#000">
-        <apex-chart type="area" height="200" :options="apexOptions" :series="makeSeries(statistic)"></apex-chart>
+        <apex-chart type="area" height="200" :options="apexOptions" :series="statistic.series"></apex-chart>
       </md-card-content>
     </md-card>
   </div>
@@ -27,7 +27,7 @@ export default {
   },
   data: function () {
     return {
-      stats: [],
+      stats: {},
       apexOptions: {
         annotations: {
           xaxis: [{
@@ -40,6 +40,7 @@ export default {
                 background: '#0f6e03',
                 fontSize: '12px'
               },
+              offsetY: -8,
               orientation: 'horizontal',
               text: 'Battle for Azeroth Expansion'
             }
@@ -54,8 +55,99 @@ export default {
                 background: '#0f6e03',
                 fontSize: '12px'
               },
+              offsetY: -8,
               orientation: 'horizontal',
               text: 'Legion Expansion'
+            }
+          },
+          {
+            x: new Date('20 September 2016').getTime(),
+            borderColor: '#a63232',
+            label: {
+              borderColor: '#a63232',
+              style: {
+                color: '#fff',
+                background: '#a63232',
+                fontSize: '12px'
+              },
+              offsetY: 10,
+              orientation: 'horizontal',
+              text: 'EN Raid'
+            }
+          },
+          {
+            x: new Date('8 November 2016').getTime(),
+            borderColor: '#a63232',
+            label: {
+              borderColor: '#a63232',
+              style: {
+                color: '#fff',
+                background: '#a63232',
+                fontSize: '12px'
+              },
+              offsetY: 10,
+              orientation: 'horizontal',
+              text: 'ToV Raid'
+            }
+          },
+          {
+            x: new Date('17 January 2017').getTime(),
+            borderColor: '#a63232',
+            label: {
+              borderColor: '#a63232',
+              style: {
+                color: '#fff',
+                background: '#a63232',
+                fontSize: '12px'
+              },
+              offsetY: 10,
+              orientation: 'horizontal',
+              text: 'NH Raid'
+            }
+          },
+          {
+            x: new Date('20 June 2017').getTime(),
+            borderColor: '#a63232',
+            label: {
+              borderColor: '#a63232',
+              style: {
+                color: '#fff',
+                background: '#a63232',
+                fontSize: '12px'
+              },
+              offsetY: 10,
+              orientation: 'horizontal',
+              text: 'ToS Raid'
+            }
+          },
+          {
+            x: new Date('28 November 2017').getTime(),
+            borderColor: '#a63232',
+            label: {
+              borderColor: '#a63232',
+              style: {
+                color: '#fff',
+                background: '#a63232',
+                fontSize: '12px'
+              },
+              offsetY: 10,
+              orientation: 'horizontal',
+              text: 'AtBT Raid'
+            }
+          },
+          {
+            x: new Date('4 September 2018').getTime(),
+            borderColor: '#a63232',
+            label: {
+              borderColor: '#a63232',
+              style: {
+                color: '#fff',
+                background: '#a63232',
+                fontSize: '12px'
+              },
+              offsetY: 10,
+              orientation: 'horizontal',
+              text: 'Uldir Raid'
             }
           }]
         },
@@ -71,7 +163,11 @@ export default {
             show: false
           }
         }
-      }
+      },
+      statGroups: [
+        { name: 'WeakAura Imports with Features', search: /^WeakAura Imports/ },
+        { name: 'WeakAura Imports with Custom Triggers', search: /^WeakAura Triggers/ }
+      ]
     }
   },
   computed: {
@@ -93,7 +189,24 @@ export default {
     })
 
     this.http.get('/lookup/statistics').then((data) => {
-      this.stats = data
+      var statObj = {}
+      data.forEach((stat) => {
+        let group = false
+        for (let i = 0; i < this.statGroups.length; i++) {
+          if (stat.name.match(this.statGroups[i].search)) {
+            if (!statObj[this.statGroups[i].name]) {
+              statObj[this.statGroups[i].name] = {series: [], total: 0}
+            }
+            statObj[this.statGroups[i].name].series.push(this.makeSeries(stat))
+            statObj[this.statGroups[i].name].total = Math.max(statObj[this.statGroups[i].name].total, this.calcTotal(stat.data))
+            group = true
+          }
+        }
+        if (!group) {
+          statObj[stat.name] = {series: [this.makeSeries(stat)], total: this.calcTotal(stat.data)}
+        }
+      })
+      this.stats = statObj
     })
   },
   methods: {
@@ -108,8 +221,7 @@ export default {
       for (let i = 0; i < weeks.length; i++) {
         series.push([weeks[i].getTime(), stats.data[i] || 0])
       }
-      console.log(series)
-      return [{name: stats.name, data: series}]
+      return {name: stats.name, data: series}
     }
   }
 }
