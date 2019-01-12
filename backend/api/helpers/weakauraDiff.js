@@ -133,6 +133,11 @@ function getCustomCode(data) {
             code[item.id + ': Stack Info ('+k+')'] = item.triggers[k].trigger.customStacks
           }
 
+          // custom variables
+          if (item.triggers[k].trigger.customVariables && item.triggers[k].trigger.customVariables.trim().length > 0) {
+            code[item.id + ': Custom Variables ('+k+')'] = item.triggers[k].trigger.customVariables
+          }
+
           let overlayCount = 1
           while (item.triggers[k].trigger['customOverlay' + overlayCount]) {
             if (item.triggers[k].trigger['customOverlay' + overlayCount].trim().length > 0) {

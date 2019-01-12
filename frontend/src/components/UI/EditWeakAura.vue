@@ -315,6 +315,11 @@ export default {
                 func.push({ id: item.id, name: this.$t('Stack Info ([-count-])', {count: k}), ix: ix, path: 'triggers[""+' + k + '].trigger.customStacks' })
               }
 
+              // custom variables
+              if (item.triggers[k].trigger.customVariables && item.triggers[k].trigger.customVariables.trim().length > 0) {
+                func.push({ id: item.id, name: this.$t('Custom Variables ([-count-])', {count: k}), ix: ix, path: 'triggers[""+' + k + '].trigger.customVariables' })
+              }
+
               let overlayCount = 1
               while (item.triggers[k].trigger['customOverlay' + overlayCount]) {
                 if (item.triggers[k].trigger['customOverlay' + overlayCount].trim().length > 0) {
