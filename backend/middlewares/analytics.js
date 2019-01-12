@@ -6,28 +6,15 @@ module.exports = function(req, res, next) {
     return next()
   }
   new Promise((resolve, reject) => {
-    if (req.user) {
-      UUID.v5({
-        namespace: UUID.namespace.oid,
-        name: req.user._id.toString()
-      }, (err, result) => {
-        if (err) {
-          return reject()
-        }
-        resolve(ua('UA-75437214-1', result))
-      })      
-    }
-    else {
-      UUID.v5({
-        namespace: UUID.namespace.oid,
-        name: req.headers['user-agent'] + req.connection.remoteAddres
-      }, (err, result) => {
-        if (err) {
-          return reject()
-        }
-        resolve(ua('UA-75437214-1', result))
-      })        
-    }
+    UUID.v5({
+      namespace: UUID.namespace.oid,
+      name: req.headers['user-agent'] + req.connection.remoteAddress
+    }, (err, result) => {
+      if (err) {
+        return reject()
+      }
+      resolve(ua('UA-75437214-1', result, {geoid: req.headers['cf-ipcountry'] || null, ua: req.headers['user-agent'] || null, dr: req.params._ref || null}))
+    })     
   }).then((track) => {
     if (req.headers.referer) {
       track.pageview({dp: req.headers.referer.replace(/^https:\/\/wago.io/, ''), dh: 'https://wago.io'}).send()

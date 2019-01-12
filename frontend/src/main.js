@@ -349,6 +349,13 @@ const http = {
       },
 
       get: function (url, params) {
+        // add referer for analytics
+        if (document.referer && !document.referer.match(/^https:\/\/wago.io/) && !url.match(/^\/account\//)) {
+          params = params || {}
+          params._ref = document.referer
+          document.referer = null
+        }
+
         // prepend API server
         if (!url.match(/^http/)) {
           url = process.env.API_SERVER + url
