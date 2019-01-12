@@ -438,8 +438,7 @@ export default {
         { name: 'robots', content: this.Page.robots }
       ],
       link: [
-        { rel: 'stylesheet', href: '//fonts.googleapis.com/css?family=Roboto:300,400,500,700,400italic' },
-        { rel: 'stylesheet', href: '//fonts.googleapis.com/icon?family=Material+Icons' },
+        { rel: 'stylesheet', href: '//media.wago.io/fonts/fonts.css' },
 
         { rel: 'shortcut icon', href: 'https://media.wago.io/favicon/favicon.ico', type: 'image/x-icon' },
         { rel: 'apple-touch-icon', sizes: '57x57', href: 'https://media.wago.io/favicon/apple-touch-icon-57x57.png' },
