@@ -661,15 +661,8 @@ server.get('/search', (req, res, skipSearch) => {
         item.embedCount = wago.popularity.embeds
         item.favoriteCount = wago.popularity.favorite_count
 
-        // if logged in check for myfave and mentions
+        // if logged in check for mentions
         if (req.user) {
-          for (var i=0; i<wago.popularity.favorites.length; i++) {
-            if (wago.popularity.favorites[i].equals(req.user._id)) {
-              item.myfave = true
-              break
-            }
-          }
-
           if (req.user.unreadMentions.indexOf(wago._id) >= 0) {
             item.unreadMention = true
           }
