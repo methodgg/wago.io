@@ -191,6 +191,10 @@
               <md-ink-ripple />
               <md-icon style="transform:rotate(-45deg); margin-top:-2px; margin-left: 1px">zoom_out_map</md-icon>
             </div>
+            <div class="md-icon-button" ref="annotate-eraser" @click="setAnnotate('eraser', $event)" @mouseover="setPOITooltip('annotation', $t('Eraser Tool\nShift click to clear all annotations'))" @mouseout="setPOITooltip(null)" >
+              <md-ink-ripple />
+              <md-icon>remove_circle_outline</md-icon>
+            </div>
           </md-button-toggle>
           <div id="stroke-input" @mouseover="setPOITooltip('annotation', $t('Set Line Width'))" @mouseout="setPOITooltip(null)">
             <button @click="paintingStrokeWidth = Math.max(paintingStrokeWidth - 1, 1)">-</button>
@@ -493,8 +497,6 @@ export default {
 
         // setup zoom
         canvas.addEventListener('wheel', (evt) => {
-          evt.preventDefault()
-
           let scaleBy = 1.2
           if (evt.target.nodeName !== 'CANVAS') {
             return false
@@ -517,6 +519,8 @@ export default {
             x: -(mousePointTo.x - stage.getPointerPosition().x / newScale) * newScale,
             y: -(mousePointTo.y - stage.getPointerPosition().y / newScale) * newScale
           }
+
+          evt.preventDefault()
           stage.position(newPos)
           stage.batchDraw()
         })
@@ -525,8 +529,8 @@ export default {
           vue.paintingPosition = stage.getPointerPosition()
           vue.isColorPickerOpen = false
           var scale = stage.scaleX()
-          var x = ((vue.paintingPosition.x - stage.x()) / scale) / vue.mdtScale
-          var y = -((vue.paintingPosition.y - stage.y()) / scale) / vue.mdtScale
+          var x = Math.round(((vue.paintingPosition.x - stage.x()) / scale) / vue.mdtScale / 10) * 10
+          var y = Math.round(-((vue.paintingPosition.y - stage.y()) / scale) / vue.mdtScale / 10) * 10
 
           if (vue.annotationMode === 'freedraw' || vue.annotationMode === 'line' || vue.annotationMode === 'arrow' || vue.annotationMode === 'box') {
             vue.isPainting = true
@@ -543,12 +547,17 @@ export default {
             vue.isPainting = true
             vue.moveStartCoords = {x, y, note: JSON.parse(JSON.stringify(vue.tableData.objects[vue.selectedMoveAnnotationID].d))}
           }
+          else if (vue.annotationMode === 'eraser') {
+            vue.isPainting = true
+          }
           else {
             vue.isPainting = false
           }
         })
 
+        var lastDist = 0
         stage.addEventListener('mouseup touchend', (evt) => {
+          lastDist = 0
           vue.isPainting = false
           // if line is started but never actually drawn then remove it from the table
           if ((vue.annotationMode === 'freedraw' || vue.annotationMode === 'line' || vue.annotationMode === 'arrow' || vue.annotationMode === 'box') && vue.tableData.objects[vue.tableData.objects.length - 1].l.length <= 3) {
@@ -558,14 +567,24 @@ export default {
         })
 
         stage.addEventListener('mousemove touchmove', (evt) => {
+          if (evt.touches && evt.touches[0] && evt.touches[1]) {
+            // mobile zoom
+            const dist = vue.getDistance({x: evt.touches[0].clientX, y: evt.touches[0].clientY}, {x: evt.touches[1].clientX, y: evt.touches[1].clientY})
+            if (!vue.lastDist) {
+              vue.lastDist = dist
+            }
+            const newScale = stage.getScaleX() * dist / lastDist
+            stage.scale({ x: newScale, y: newScale })
+            return
+          }
           if (!vue.isPainting) {
             return
           }
 
           var pos = stage.getPointerPosition()
           var scale = stage.scaleX()
-          var x = ((pos.x - stage.x()) / scale) / vue.mdtScale
-          var y = -((pos.y - stage.y()) / scale) / vue.mdtScale
+          var x = Math.round(((pos.x - stage.x()) / scale) / vue.mdtScale / 10) * 10
+          var y = Math.round(-((pos.y - stage.y()) / scale) / vue.mdtScale / 10) * 10
           if (x < 0 || y > 0) {
             return
           }
@@ -578,25 +597,46 @@ export default {
             thisObj = vue.selectedMoveAnnotationID
           }
 
-          var data = vue.tableData.objects[thisObj]
           if (vue.annotationMode === 'freedraw') {
-            // using vue's mutating methods
             vue.tableData.objects[thisObj].l.push(x)
             vue.tableData.objects[thisObj].l.push(y)
             vue.tableData.objects[thisObj].l.push(x)
             vue.tableData.objects[thisObj].l.push(y)
           }
-          else if (vue.annotationMode === 'line') {
-            vue.tableData.objects[thisObj].l.splice(2, 2, x, y)
+          else if (vue.annotationMode === 'line' || vue.annotationMode === 'arrow') {
+            var startX = vue.tableData.objects[thisObj].l[0]
+            var startY = vue.tableData.objects[thisObj].l[1]
+            // break line into segments so eraser tool works as expected
+            var d = vue.getDistance({x, y}, {x: startX, y: startY})
+            var numSegments = Math.max(1, d * 2 / Math.max(5, vue.paintingStrokeWidth))
+            var line = []
+            var currX = startX
+            var currY = startY
+            for (let i = 1; i <= numSegments; i++) {
+              var t = i / numSegments
+              var newX = startX + t * (x - startX)
+              var newY = startY + t * (y - startY)
+              line.push(Math.round(currX * 10) / 10)
+              line.push(Math.round(currY * 10) / 10)
+              line.push(Math.round(newX * 10) / 10)
+              line.push(Math.round(newY * 10) / 10)
+              currX = newX
+              currY = newY
+            }
+            line.push(Math.round(currX * 10) / 10)
+            line.push(Math.round(currY * 10) / 10)
+            line.push(Math.round(x * 10) / 10)
+            line.push(Math.round(y * 10) / 10)
+            vue.$set(vue.tableData.objects[thisObj], 'l', line)
+            // vue.tableData.objects[thisObj].l.splice(2, 2, x, y)
+
+            if (vue.annotationMode === 'arrow') {
+              vue.$set(vue.tableData.objects[thisObj], 't', [Math.atan2(vue.tableData.objects[thisObj].l[1] - y, vue.tableData.objects[thisObj].l[0] - x)])
+            }
           }
           else if (vue.annotationMode === 'box') {
             var start = {x: vue.tableData.objects[thisObj].l[0], y: vue.tableData.objects[thisObj].l[1]}
             vue.$set(vue.tableData.objects[thisObj], 'l', [start.x, start.y, x, start.y, x, start.y, x, y, x, y, start.x, y, start.x, y, start.x, start.y])
-          }
-          else if (vue.annotationMode === 'arrow') {
-            vue.tableData.objects[thisObj].l.splice(2, 2, x, y)
-            data = vue.tableData.objects[thisObj]
-            vue.$set(vue.tableData.objects[thisObj], 't', [Math.atan2(data.l[1] - y, data.l[0] - x)])
           }
           else if (vue.annotationMode === 'move' && (vue.moveStartCoords.line || vue.moveStartCoords.note)) {
             var diff = {x: x - vue.moveStartCoords.x, y: y - vue.moveStartCoords.y}
@@ -613,6 +653,30 @@ export default {
             else if (vue.moveStartCoords.note) {
               vue.$set(vue.tableData.objects[thisObj].d, 0, parseInt(vue.moveStartCoords.note[0]) + diff.x)
               vue.$set(vue.tableData.objects[thisObj].d, 1, parseInt(vue.moveStartCoords.note[1]) + diff.y)
+            }
+          }
+          else if (vue.annotationMode === 'eraser' && vue.tableData.objects && vue.tableData.objects.length) {
+            // scan all objects and see if any points are close enough to cursor
+            let zoom = vue.$refs.mdtStage.getStage().scaleX()
+            for (let oi = 0; oi < vue.tableData.objects.length; oi++) {
+              if (vue.tableData.objects[oi].l) {
+                for (let i = 0; i <= vue.tableData.objects[oi].l.length; i = i + 4) {
+                  let d = vue.getDistance({x, y}, {x: vue.tableData.objects[oi].l[i], y: vue.tableData.objects[oi].l[i + 1]})
+                  if (d / zoom < 5) {
+                    vue.tableData.objects[oi].l.splice(i, 4)
+                    if (vue.tableData.objects[oi].l.length > i + 3) {
+                      // need to split line into two objects
+                      let newObj = vue.tableData.objects[oi].l.splice(i + 4, vue.tableData.objects[oi].l.length)
+                      vue.tableData.objects.push({l: newObj, d: vue.tableData.objects[oi].d})
+                    }
+                    else if (!vue.tableData.objects[oi].l.length) {
+                      // if line is deleted then remove the object
+                      vue.tableData.objects.splice(oi, 1)
+                    }
+                    return
+                  }
+                }
+              }
             }
           }
           // vue.tableData.objects.splice(thisObj, 1, data)
@@ -1149,7 +1213,6 @@ export default {
 
     setSelectedMoveAnnotation (id) {
       if (this.annotationMode === 'move' && !this.isPainting && (!this.selectedMoveAnnotationID || !id)) {
-        console.log(id)
         this.selectedMoveAnnotationID = id
         if (parseInt(id) >= 0) {
           this.$refs.mdtStage.getStage().draggable(false)
@@ -1173,7 +1236,11 @@ export default {
       return a
     },
 
-    setAnnotate (mode) {
+    getDistance (p1, p2) {
+      return Math.sqrt(Math.pow((p2.x - p1.x), 2) + Math.pow((p2.y - p1.y), 2))
+    },
+
+    setAnnotate (mode, event) {
       document.querySelector('#mdtAnnotateMenu .md-toggle').classList.remove('md-toggle')
       this.$refs['annotate-' + mode].classList.add('md-toggle')
       this.annotationMode = mode
@@ -1200,6 +1267,24 @@ export default {
         case 'standard':
           stage.draggable(true)
           this.annotationClass = 'standard'
+          break
+
+        case 'eraser':
+          if (event && event.shiftKey) {
+            this.$set(this.tableData, 'objects', [])
+            this.setAnnotate('standard')
+            // since shift clicking tends to select a bunch of items on the page, unselect it
+            if (window.getSelection) {
+              window.getSelection().removeAllRanges()
+            }
+            else if (document.selection) {
+              document.selection.empty()
+            }
+          }
+          else {
+            stage.draggable(false)
+            this.annotationClass = 'annotate-eraser'
+          }
           break
 
         default:
@@ -1391,6 +1476,7 @@ export default {
 #mdtEditNote .md-input-container:after { margin: 0 16px }
 #builder.annotate-crosshair { cursor: crosshair }
 #builder.annotate-note { cursor: cell }
+#builder.annotate-eraser { cursor: not-allowed }
 #saveChangesDialog .md-dialog { min-width: 40% }
 
 @media (max-width: 600px) {
