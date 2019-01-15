@@ -390,6 +390,23 @@ function downloadAddon(addon, release, done) {
                     })
                   })
                   SiteData.findByIdAndUpdate('mdtDungeonTable', {value: json}, {upsert: true}).exec()
+                  async.eachOfSeries(json.dungeonEnemies, (dungeon, mapID, callback) => {
+                    let Obj = {
+                      affixWeeks: json.affixWeeks,
+                      dungeonEnemies: dungeon,
+                      mapPOIs: json.mapPOIs[mapID],
+                      dungeonTotalCount: json.dungeonTotalCount[mapID],
+                      scaleMultiplier: json.scaleMultiplier[mapID],
+                      dungeonSubLevels: json.dungeonSubLevels[mapID],
+                      dungeonMaps: json.dungeonMaps[mapID],
+                      dungeonDimensions: json.dungeonDimensions[mapID],
+                    }
+                    if (mapID === 15) {
+                      Obj.freeholdCrews = json.freeholdCrews
+                    }
+                    SiteData.findByIdAndUpdate('mdtDungeonTable-' + mapID, {value: Obj}, {upsert: true}).exec()
+                    callback()
+                  })
                   // now generate portrait maps
                   if (config.host === 'data-01' || config.env === 'development') {
                     async.eachOfSeries(json.dungeonEnemies, (dungeon, mapID, callback) => {

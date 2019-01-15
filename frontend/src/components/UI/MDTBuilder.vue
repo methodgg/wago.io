@@ -4,12 +4,12 @@
       <div class="flex-col flex-left">
         <md-input-container>
           <label for="subMap">{{ "Map" }}</label>
-          <md-select name="subMap" id="subMap" v-model="subMapID" v-if="mdtDungeonTable.dungeonSubLevels[mapID].length > 1">
-            <template v-for="(name, id) in mdtDungeonTable.dungeonSubLevels[mapID]">
+          <md-select name="subMap" id="subMap" v-model="subMapID" v-if="mdtDungeonTable.dungeonSubLevels.length > 1">
+            <template v-for="(name, id) in mdtDungeonTable.dungeonSubLevels">
               <md-option :value="id">{{ name }}</md-option>
             </template>
           </md-select>
-          <md-input v-else readonly :value="mdtDungeonTable.dungeonSubLevels[mapID][0]"></md-input>
+          <md-input v-else readonly :value="mdtDungeonTable.dungeonSubLevels[0]"></md-input>
         </md-input-container>
       </div>
       <div class="flex-col flex-right" style="position:relative">
@@ -59,7 +59,7 @@
                 <slot>1</slot>
                 <v-image :config="tile" />
               </template>
-              <template v-for="(poi, i) in mdtDungeonTable.mapPOIs[mapID][subMapID]">
+              <template v-for="(poi, i) in mdtDungeonTable.mapPOIs[subMapID]">
                 <slot>1</slot>
                 <mdt-poi :data="poi" :mdtScale="mdtScale" :mapID="mapID" @mouseover="setPOITooltip" @mouseout="setPOITooltip(null)" @mousemove="moveTooltip" @click="clickPOI" />
               </template>
@@ -101,7 +101,7 @@
                     :config="{
                       x: clone.x * mdtScale,
                       y: clone.y * -mdtScale,
-                      radius: Math.round(5 * creature.scale * (creature.isBoss ? 1.7 : 1) * (mdtDungeonTable.scaleMultiplier[mapID] || 1)) / mdtScale,
+                      radius: Math.round(5 * creature.scale * (creature.isBoss ? 1.7 : 1) * (mdtDungeonTable.scaleMultiplier || 1)) / mdtScale,
                       fill: isCreatureNoTarget(creature.id) ? 'rgba(33, 33, 33, 0.6)' : 
                             clone.hover ? 'rgba(119, 253, 50, 0.65)' : 
                             clone.pull >= 0 ? 'rgba(99, 233, 30, 0.3)' : 
@@ -125,7 +125,7 @@
                 :config="{
                   x: enemies[hoverSpecific.creatureIndex].clones[hoverSpecific.cloneIndex].x * mdtScale,
                   y: enemies[hoverSpecific.creatureIndex].clones[hoverSpecific.cloneIndex].y * -mdtScale,
-                  radius: Math.round(7 * enemies[hoverSpecific.creatureIndex].scale * (enemies[hoverSpecific.creatureIndex].isBoss ? 1.7 : 1) * (mdtDungeonTable.scaleMultiplier[mapID] || 1)) / mdtScale,
+                  radius: Math.round(7 * enemies[hoverSpecific.creatureIndex].scale * (enemies[hoverSpecific.creatureIndex].isBoss ? 1.7 : 1) * (mdtDungeonTable.scaleMultiplier || 1)) / mdtScale,
                   stroke: isInfested(enemies[hoverSpecific.creatureIndex].clones[hoverSpecific.cloneIndex]) ? 'red' : (enemies[hoverSpecific.creatureIndex].isBoss ? 'gold' : 'black'),
                   strokeWidth: 3,
                   strokeEnabled: true,
@@ -418,18 +418,13 @@ export default {
       this.mdtDungeonTable = this.$store.state.mdtDungeonTable
     }
 
-    if (!this.mdtDungeonTable || !this.mdtDungeonTable.affixWeeks) {
-      this.http.get('/data/mdtDungeonTable').then((res) => {
-        if (res && res._id === 'mdtDungeonTable') {
-          this.mdtDungeonTable = res.value
-          this.$store.commit('saveMDT', this.mdtDungeonTable)
-          this.init()
-        }
-      })
-    }
-    else {
-      this.init()
-    }
+    this.http.get('/data/mdtDungeonTable-' + this.mapID).then((res) => {
+      if (res && res.value) {
+        this.mdtDungeonTable = res.value
+        this.$store.commit('saveMDT', this.mdtDungeonTable)
+        this.init()
+      }
+    })
   },
   watch: {
     subMapID: function (val) {
@@ -452,7 +447,7 @@ export default {
   methods: {
     init () {
       this.selectedAffixes = this.mdtDungeonTable.affixWeeks[this.tableData.week - 1]
-      this.enemies = this.mdtDungeonTable.dungeonEnemies[this.mapID]
+      this.enemies = this.mdtDungeonTable.dungeonEnemies
       for (let i = 0; i < this.enemies.length; i++) {
         this.enemies[i].enemyIndex = i
       }
@@ -711,8 +706,8 @@ export default {
       preload.push(this.enemyPortraitMap.src)
 
       // build map files
-      var dir = this.mdtDungeonTable.dungeonMaps[this.mapID][0]
-      var map = this.mdtDungeonTable.dungeonMaps[this.mapID][subMap + 1]
+      var dir = this.mdtDungeonTable.dungeonMaps[0]
+      var map = this.mdtDungeonTable.dungeonMaps[subMap + 1]
       this.mapTiles = []
       for (let i = 1; i <= 12; i++) {
         var row = (i - 1) % 4
@@ -1064,7 +1059,7 @@ export default {
     },
 
     pullPercent (pullIndex, runningTotal, targets) {
-      var required = this.mdtDungeonTable.dungeonTotalCount[this.mapID]
+      var required = this.mdtDungeonTable.dungeonTotalCount
       var max
       if (required.teemingEnabled && this.isTeemingSelected()) {
         max = required.teeming
