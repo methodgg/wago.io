@@ -222,7 +222,10 @@
                 <span v-html="displayAffix(affixID)" class="affix"></span>
               </template>
               <md-button class="md-raised md-accent" @click="toggleAffixSelection" id="changeAffixesBtn">{{ $t("Change Affixes") }}</md-button>
-              <md-button class="md-raised" disabled id="sumPct"><md-icon>functions</md-icon> {{ Math.round(100*pullDetails[pullDetails.length - 1].percentRunningTotal)/100 }}%</md-button>
+              <md-button class="md-raised" disabled id="sumPct"><md-icon>functions</md-icon> 
+                <span v-if="pullDetails.length">{{ Math.round(100*pullDetails[pullDetails.length - 1].percentRunningTotal)/100 }}%</span>
+                <span v-else>0%</span>
+              </md-button>
             </div>
           </md-card-area>
 

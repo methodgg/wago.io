@@ -102,7 +102,7 @@ export default {
           text = poi.graveyardDescription || 'Graveyard'
           break
         case 'mapLink':
-          text = 'To ' + this.mdtDungeonTable.dungeonSubLevels[this.mapID][poi.target - 1]
+          text = 'To ' + this.mdtDungeonTable.dungeonSubLevels[poi.target - 1]
           break
 
         // dungeon specific

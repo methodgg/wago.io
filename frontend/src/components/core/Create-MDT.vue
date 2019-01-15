@@ -21,20 +21,13 @@ export default {
   data: function () {
     return {
       ready: false,
-      loading: true
+      loading: true,
+      mapID: -1,
+      dungeonName: ''
     }
   },
   methods: {
     createMDT (dungeonTable) {
-      var dungeons = categories.raidCategories(['mdtdun'])[0].bosses
-      var dungeonID, dungeonName
-      for (let i = 0; i < dungeons.length; i++) {
-        if (dungeons[i].slug.match(this.$route.params.dungeon)) {
-          dungeonID = parseInt(dungeons[i].id.replace(/[^\d]*/, ''))
-          dungeonName = this.$t(dungeons[i].text)
-          break
-        }
-      }
       var weeks = categories.getCategories([/^mdtaffix-bfa-s1-/], this.$t)
       var week, affixes
       for (let i = 0; i < weeks.length; i++) {
@@ -45,18 +38,18 @@ export default {
         }
       }
 
-      if (!dungeonID || !week) {
+      if (this.mapID < 0 || !week) {
         this.loading = false
         return
       }
       var table = {
-        text: dungeonName,
+        text: this.dungeonName,
         objects: [],
         value: {
           currentSublevel: 1,
           currentPull: 1,
           teeming: affixes.indexOf(5) >= 0,
-          currentDungeonIdx: dungeonID,
+          currentDungeonIdx: this.mapID,
           pulls: this.pulls || []
         },
         week: week
@@ -75,8 +68,16 @@ export default {
     }
   },
   created () {
-    this.http.get('/data/mdtDungeonTable').then((res) => {
-      if (res && res._id === 'mdtDungeonTable') {
+    var dungeons = categories.raidCategories(['mdtdun'])[0].bosses
+    for (let i = 0; i < dungeons.length; i++) {
+      if (dungeons[i].slug.match(this.$route.params.dungeon)) {
+        this.mapID = parseInt(dungeons[i].id.replace(/[^\d]*/, ''))
+        this.dungeonName = this.$t(dungeons[i].text)
+        break
+      }
+    }
+    this.http.get('/data/mdtDungeonTable-' + this.mapID).then((res) => {
+      if (res && res.value) {
         this.createMDT(res.value)
       }
     })
