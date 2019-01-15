@@ -841,7 +841,7 @@ function generateStats(res) {
         let dDate = new Date(date)
         var allIDs = []
         var prevNum = 0
-        WagoFavorites.distinct('appID', {timestamp: {"$gte": dDate, "$lt": dDate.nextWeek()}}).then((IDs) => {
+        WagoFavorites.distinct('wagoID', {timestamp: {"$gte": dDate, "$lt": dDate.nextWeek()}}).then((IDs) => {
           allIDs.concat(IDs)
           allIDs = allIDs.filter((val, index, self) => {
             return self.indexOf(val) === index

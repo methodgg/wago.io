@@ -38,9 +38,8 @@ const Schema = new mongoose.Schema({
       viewsThisWeek : { type: Number, default: 0, index: true, es_indexed: true },
       embeds : { type: Number, default: 0 },
       downloads : { type: Number, default: 0 },
-      favorites : { type: Array, index: true, es_indexed: true },
       favorite_count : { type: Number, default: 0, index: true, es_indexed: true },  // this should always match the length of favorites
-      installed_count : { type: Number, index: true }, // count users of Buds' app that have this WA installed
+      installed_count : { type: Number, default: 0, index: true, es_indexed: true }, // count users of WA Companion that have this installed
       comments_count : { type: Number, default: 0, index: true, es_indexed: true }
   },
 
