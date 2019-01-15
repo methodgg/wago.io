@@ -28,10 +28,10 @@ Schema.statics.removeStar = function (wago, userID) {
   })
 }
 
-Schema.statics.addInstall = function (wagoID, appID) {
-  var obj = {wagoID: wagoID, appID: appID, type: 'Install', timestamp: Date.now()}
+Schema.statics.addInstall = function (wago, appID) {
+  var obj = {wagoID: wago._id, appID: appID, type: 'Install', timestamp: Date.now()}
   this.findOneAndUpdate(obj, obj, {upsert: true, new: true}).then(() => {
-    this.count({wagoID: wagoID, type: 'Install'}).then((num) => {
+    this.count({wagoID: wago._id, type: 'Install'}).then((num) => {
       wago.popularity.installed_count = num
       wago.save()
     })
