@@ -86,6 +86,12 @@ function MakeTopTenLists (res) {
         done()
       })
     },
+    installed: (done) => {
+      WagoItem.find({hidden: false, private: false}).sort("-popularity.installed_count").select('_id name popularity.installed_count').limit(10).then((faves) => {
+        data.installs = installs
+        done()
+      })
+    },
     newest: (done) => {
       WagoItem.find({hidden: false, private: false, $where: "this.created.getTime() == this.modified.getTime()"}).sort({"created": -1}).select('_id name created').limit(10).then((newest) => {
         data.newest = newest
@@ -838,7 +844,7 @@ function generateStats(res) {
         WagoFavorites.distinct('appID', {timestamp: {"$gte": dDate, "$lt": dDate.nextWeek()}}).then((IDs) => {
           allIDs.concat(IDs)
           allIDs.filter((val, index, self) => {
-            return self.indexOf(value) === index
+            return self.indexOf(val) === index
           })
           let num = allIDs.length - prevNum
           prevNum = num
