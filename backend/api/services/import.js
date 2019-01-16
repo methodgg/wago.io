@@ -969,7 +969,7 @@ function SaveWagoVersion (req, res, mode) {
           discord.onUpdate(req.user, wago)
           if (!wago.hidden && !wago.private && req.user.discord && req.user.discord.webhooks && req.user.discord.webhooks.onCreate) {
             Screenshot.findForWago(wago._id).then((screens) => {
-              if (!screens) {
+              if (!screens.length) {
                 return discord.webhookOnUpdate(req.user, wago)
               }
               wago.thumb = screens[0].url
@@ -1184,7 +1184,7 @@ function SaveWagoVersion (req, res, mode) {
               discord.onUpdate(req.user, wago)
               if (!wago.hidden && !wago.private && req.user.discord && req.user.discord.webhooks && req.user.discord.webhooks.onCreate) {
                 Screenshot.findForWago(wago._id).then((screens) => {
-                  if (!screens) {
+                  if (!screens.length) {
                     return discord.webhookOnUpdate(req.user, wago)
                   }
                   wago.thumb = screens[0].url
