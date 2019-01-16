@@ -9,7 +9,7 @@ const Schema = new mongoose.Schema({
 })
 
 Schema.statics.addStar = function (wago, userID) {
-  this.findOneAndUpdate({wagoID: wago._id, appID: appID, type: 'Star'}, {wagoID: wago._id, appID: appID, type: 'Star', timestamp: Date.now()}, {upsert: true, new: true}).then(() => {
+  this.findOneAndUpdate({wagoID: wago._id, userID: userID, type: 'Star'}, {wagoID: wago._id, userID: userID, type: 'Star', timestamp: Date.now()}, {upsert: true, new: true}).then(() => {
     this.count({wagoID: wago._id, type: 'Star'}).then((num) => {
       wago.popularity.favorite_count = num
       wago.save()
@@ -18,8 +18,7 @@ Schema.statics.addStar = function (wago, userID) {
 }
 
 Schema.statics.removeStar = function (wago, userID) {
-  var obj = {wagoID: wago._id, userID: userID, type: 'Star', timestamp: Date.now()}
-  this.findOneAndRemove(obj).then(() => {
+  this.findOneAndRemove({wagoID: wago._id, userID: userID, type: 'Star'}).then(() => {
     this.count({wagoID: wago._id, type: 'Star'}).then((num) => {
       wago.popularity.favorite_count = num
       wago.save()
