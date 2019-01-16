@@ -3,8 +3,11 @@ var Axios = require('axios')
 module.exports = {
   // broadcast to owner's discord when a new import is created
   webhookOnCreate: (user, wago) => {
+    if (wago.type === 'WEAKAURAS2') {
+      wago.type = 'WeakAura'
+    }
     // build message
-    var msg = `${user.account.username} has imported a new ${wago.type} Wago!`
+    var msg = `${user.account.username} has imported a new ${wago.type} on Wago.io!`
     var hookData = { 
       "embeds": [{
         "title": "New "+wago.type+": "+wago.name,
@@ -12,6 +15,27 @@ module.exports = {
         "description": msg,
         "type": "rich",
         "thumbnail": {"url": 'https://media.wago.io/favicon/mediumtile.png'}
+      }]
+    }
+    Axios.post(user.discord.webhooks.onCreate, hookData)
+      .then((res) => {
+        logger.debug({label: 'Send discord webhook', response: res.response})
+      })
+  },
+  
+  webhookOnUpdate: (user, wago) => {
+    if (wago.type === 'WEAKAURAS2') {
+      wago.type = 'WeakAura'
+    }
+    // build message
+    var msg = `${user.account.username} has updated a ${wago.type} on Wago.io!`
+    var hookData = { 
+      "embeds": [{
+        "title": wago.type+": "+wago.name,
+        "url": wago.url,
+        "description": msg,
+        "type": "rich",
+        "thumbnail": {"url": wago.thumb || 'https://media.wago.io/favicon/mediumtile.png'}
       }]
     }
     Axios.post(user.discord.webhooks.onCreate, hookData)

@@ -967,6 +967,13 @@ function SaveWagoVersion (req, res, mode) {
         wago.save().then(() => {
           // look for any discord actions
           discord.onUpdate(req.user, wago)
+          Screenshot.findForWago(wago._id).then((screens) => {
+            if (!screens) {
+              return discord.webhookOnUpdate(req.user, wago)
+            }
+            wago.thumb = screens[0].url
+            discord.webhookOnUpdate(req.user, wago)
+          })
         })
 
         lua.JSON2WeakAura(json, (error, result) => {
@@ -1173,6 +1180,13 @@ function SaveWagoVersion (req, res, mode) {
             wago.save().then(() => {
               // look for any discord actions
               discord.onUpdate(req.user, wago)
+              Screenshot.findForWago(wago._id).then((screens) => {
+                if (!screens) {
+                  return discord.webhookOnUpdate(req.user, wago)
+                }
+                wago.thumb = screens[0].url
+                discord.webhookOnUpdate(req.user, wago)
+              })
             })
           }
           res.send({success: true, encoded: code.encoded, latestVersion: code.versionString})
@@ -1247,6 +1261,13 @@ function SaveWagoVersion (req, res, mode) {
             wago.save().then(() => {
               // look for any discord actions
               discord.onUpdate(req.user, wago)
+              Screenshot.findForWago(wago._id).then((screens) => {
+                if (!screens.length) {
+                  return discord.webhookOnUpdate(req.user, wago)
+                }
+                wago.thumb = screens[0].url
+                discord.webhookOnUpdate(req.user, wago)
+              })
             })
           }
           res.send({success: true, encoded: code.encoded, latestVersion: code.versionString})
