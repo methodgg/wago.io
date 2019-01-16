@@ -97,6 +97,7 @@ server.get('/lookup/codereview', (req, res) => {
     wago.downloadCount = doc.popularity.downloads
     wago.embedCount = doc.popularity.embeds
     wago.favoriteCount = doc.popularity.favorite_count
+    wago.installCount = doc.popularity.installed_count
 
     timing.startingParallel = Date.now() - start
     wago.UID = doc._userId

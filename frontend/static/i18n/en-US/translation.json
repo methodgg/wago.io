@@ -34,8 +34,10 @@
   "Categories": "Categories",
   "[-count-] star": "[-count-] star",
   "[-count-] view": "[-count-] view",
+  "[-count-] install": "[-count-] install",
   "[-count-] star_plural": "[-count-] stars",
   "[-count-] view_plural": "[-count-] views",
+  "[-count-] install_plural": "[-count-] installs",
   "Permalink": "Permalink",
   "Favorite": "Favorite",
   "Imported by [-URL-][-roleClass-][-name-]": "Imported by <a href=\"[-URL-]\" class=\"[-roleClass-] vr\">[-name-]</a>",
@@ -537,5 +539,6 @@
   "WeakAura sent to Companion": "",
   "Custom Variables ([-count-])": "",
   "Custom Variables ([-count-])_plural": "",
-  "Eraser Tool\nShift click to clear all annotations": ""
+  "Eraser Tool\nShift click to clear all annotations": "",
+  "As reported by the WeakAuras Companion app": ""
 }

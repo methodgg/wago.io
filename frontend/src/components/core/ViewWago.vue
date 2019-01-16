@@ -22,7 +22,7 @@
         <md-layout>
           <div>
             <h3>{{ wago.name }} <span class="version-number" v-if="currentVersionString">v{{ currentVersionString }}</span></h3>
-            <md-subheader>{{ wago.type }}</md-subheader>
+            <md-subheader>{{ wago.type }} <span :href="wago.url" @click.prevent="copyURL" style="margin-left: 16px; opacity: .54">{{ wago.url }}</span></md-subheader>
           </div>
           <!-- ACTIONS -->
           <md-card-actions id="wago-actions" ref="action-buttons">
@@ -83,13 +83,12 @@
             <div class="md-title" v-else>{{ $t("Imported by guest") }}</div>
             <div class="md-subhead">{{ wago.date.modified | moment('MMM Do YYYY') }} [{{ wago.patch }}]</div>
           </div>
-          <div class="item">
+          <div class="item" v-if="wago.type === 'WEAKAURA'">
             <div class="md-title">{{ $t("[-count-] star", { count: wago.favoriteCount }) }}</div>
             <div class="md-subhead">{{ $t("[-count-] view", { count: wago.viewCount }) }}</div>
           </div>
           <div class="item">
-            <div class="md-title">{{ $t("Permalink") }}</div>
-            <div class="md-subhead has-link"><a :href="wago.url" @click.prevent="copyURL">{{ wago.url }}</a></div>
+            <div class="md-title">{{ $t("[-count-] install", { count: wago.installCount }) }}</div>
           </div>
           <div class="item" style="float:right" v-if="enableCompanionBeta && wago.type === 'WEAKAURA' && wago.code && wago.code.encoded && !wago.alerts.blacklist">
             <a v-if="showCompanionHelp" href="#" style="line-height:40px; margin-right:16px" @click="$router.push('/wa-companion')" @mouseover="setCompanionHelpShow(true)" @mouseout="setCompanionHelpShow(false, 4000)">{{ $t("What's this?") }}</a>
