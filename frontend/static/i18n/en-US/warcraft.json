@@ -93,7 +93,7 @@
     "9327": "Tol Dagor",
     "9424": "Waycrest Manor",
     "10057": "Crucible of Storms",
-    "10076": "Battle of Zuldazar"
+    "10076": "Battle of Dazar'alor"
   },
   "bosses": {
     "76809": "Blast Furnace",
@@ -187,7 +187,7 @@
     "146497": "Zaxasj the Speaker",
     "147564": "Opulence",
     "144747": "Conclave of the Chosen",
-    "JAINA": "Jaina Proudmoore"
+    "133251": "Lady Jaina Proudmoore"
   },
   "professions": {
     "alchemy": "Alchemy",

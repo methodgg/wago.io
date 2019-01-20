@@ -83,11 +83,11 @@
             <div class="md-title" v-else>{{ $t("Imported by guest") }}</div>
             <div class="md-subhead">{{ wago.date.modified | moment('MMM Do YYYY') }} [{{ wago.patch }}]</div>
           </div>
-          <div class="item" v-if="wago.type === 'WEAKAURA'">
+          <div class="item">
             <div class="md-title">{{ $t("[-count-] star", { count: wago.favoriteCount }) }}</div>
             <div class="md-subhead">{{ $t("[-count-] view", { count: wago.viewCount }) }}</div>
           </div>
-          <div class="item">
+          <div class="item" v-if="wago.type === 'WEAKAURA'">
             <div class="md-title">{{ $t("[-count-] install", { count: wago.installCount }) }}</div>
           </div>
           <div class="item" style="float:right" v-if="enableCompanionBeta && wago.type === 'WEAKAURA' && wago.code && wago.code.encoded && !wago.alerts.blacklist">

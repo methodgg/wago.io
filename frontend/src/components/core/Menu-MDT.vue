@@ -30,7 +30,7 @@
         </md-whiteframe>
         
         <md-whiteframe id="import-wcl" v-if="$store.state.user && $store.state.user.access && $store.state.user.access.beta">
-          <strong>{{ $t("Import route from WarcraftLogs") }}</strong>
+          <strong>{{ $t("Import route from WarcraftLogs") }} [Beta]</strong>
           <p>* Highly experimental *<br>I need logs and accompanying video please!</p>
           <div class="field-group">
             <md-input-container>

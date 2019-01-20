@@ -95,6 +95,7 @@
                   <slot>1</slot>
                   <v-circle v-if="(!clone.sublevel || clone.sublevel === subMapID + 1) && (!clone.teeming || (clone.teeming && isTeemingSelected())) && (!clone.faction || (clone.faction === tableData.faction))" 
                     @click="selectCreature(i, j)" 
+                    @tap="selectCreature(i, j)" 
                     @mouseover="setTargetHover(creature, clone, j)" 
                     @mouseleave="setTargetHover()" 
                     @mousemove="moveTooltip()"
@@ -524,6 +525,9 @@ export default {
         })
 
         stage.addEventListener('mousedown touchstart', (evt) => {
+          if (evt.touches && evt.touches[0] && evt.touches[1]) {
+            return
+          }
           vue.paintingPosition = stage.getPointerPosition()
           vue.isColorPickerOpen = false
           var scale = stage.scaleX()
@@ -565,14 +569,33 @@ export default {
         })
 
         stage.addEventListener('mousemove touchmove', (evt) => {
+          // if two touch points then handle pinch zoom
           if (evt.touches && evt.touches[0] && evt.touches[1]) {
-            // mobile zoom
             const dist = vue.getDistance({x: evt.touches[0].clientX, y: evt.touches[0].clientY}, {x: evt.touches[1].clientX, y: evt.touches[1].clientY})
-            if (!vue.lastDist) {
-              vue.lastDist = dist
+            if (!lastDist) {
+              lastDist = dist
+              return
             }
+            const oldScale = stage.getScaleX()
             const newScale = stage.getScaleX() * dist / lastDist
+            if (newScale === oldScale) {
+              return
+            }
+            lastDist = dist
+
+            const posX = ((evt.touches[0].clientX + evt.touches[1].clientX) / 2)
+            const posY = ((evt.touches[0].clientY + evt.touches[1].clientY) / 2)
+            const zoomTo = {
+              x: (posX - stage.x()) / oldScale,
+              y: (posY - stage.y()) / oldScale
+            }
             stage.scale({ x: newScale, y: newScale })
+            const newPos = {
+              x: -(zoomTo.x - posX / newScale) * newScale,
+              y: -(zoomTo.y - posY / newScale) * newScale
+            }
+            stage.position(newPos)
+            stage.draw()
             return
           }
           if (!vue.isPainting) {

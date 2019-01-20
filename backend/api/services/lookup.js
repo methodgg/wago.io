@@ -53,7 +53,7 @@ server.get('/lookup/codereview', (req, res) => {
     var ipAddress = req.headers['x-forwarded-for'] ||
       req.connection.remoteAddress || 
       req.socket.remoteAddress ||
-      (req.connection.socket ? req.connection.socket.remoteAddress : null);
+      (req.connection.socket ? req.connection.socket.remoteAddress : null)
 
     ViewsThisWeek.find({viewed: { $gt: new Date().getTime() - 1000 * 60 * 20 }, source: ipAddress, wagoID: doc._id}).then((recent) => {
       if (!recent || recent.length === 0) {

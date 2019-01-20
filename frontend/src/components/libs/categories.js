@@ -145,7 +145,7 @@ module.exports = {
       {id: "raidzuldazar5", slug: "pve/battle-of-zuldazar/stormwall-blockade", cls:"zuldazar", text: t("warcraft:bosses.146256"), WEAKAURA: true},
       {id: "raidzuldazar6", slug: "pve/battle-of-zuldazar/conclave-of-the-chosen", cls:"zuldazar", text: t("warcraft:bosses.144747"), WEAKAURA: true},
       {id: "raidzuldazar7", slug: "pve/battle-of-zuldazar/opulence", cls:"zuldazar", text: t("warcraft:bosses.147564"), WEAKAURA: true},
-      {id: "raidzuldazar8", slug: "pve/battle-of-zuldazar/jaina-proudmoore", cls:"zuldazar", text: t("warcraft:bosses.JAINA"), WEAKAURA: true},
+      {id: "raidzuldazar8", slug: "pve/battle-of-zuldazar/jaina-proudmoore", cls:"zuldazar", text: t("warcraft:bosses.133251"), WEAKAURA: true},
 
       {id: "raiduldir", slug: "pve/uldir", cls:"uldir", text: t("warcraft:zones.9389"), root: true, WEAKAURA: true, COLLECTION: true},
       {id: "raiduldir1", slug: "pve/uldir/taloc-the-corrupted", cls:"uldir", text: t("warcraft:bosses.137119"), WEAKAURA: true},

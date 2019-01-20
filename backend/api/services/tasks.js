@@ -3,6 +3,7 @@ const async = require('async')
 const axios = require('axios')
 const image = require('../helpers/image')
 const battlenet = require('../helpers/battlenet')
+const cloudflare = require('cloudflare')({email: config.cloudflare.email, key: config.cloudflare.apiKey})
 
 /**
  * Using restify to run cron tasks directly on data service. 
@@ -396,6 +397,7 @@ function downloadAddon(addon, release, done) {
                     })
                   })
                   SiteData.findByIdAndUpdate('mdtDungeonTable', {value: json}, {upsert: true}).exec()
+                  cloudflare.zones.purgeCache(config.cloudflare.zoneID, {files: ['https://data.wago.io/data/mdtDungeonTable']})
                   async.eachOfSeries(json.dungeonEnemies, (dungeon, mapID, callback) => {
                     let Obj = {
                       affixWeeks: json.affixWeeks,
@@ -411,6 +413,7 @@ function downloadAddon(addon, release, done) {
                       Obj.freeholdCrews = json.freeholdCrews
                     }
                     SiteData.findByIdAndUpdate('mdtDungeonTable-' + mapID, {value: Obj}, {upsert: true}).exec()
+                    cloudflare.zones.purgeCache(config.cloudflare.zoneID, {files: ['https://data.wago.io/data/mdtDungeonTable-' + mapID]})
                     callback()
                   })
                   // now generate portrait maps
@@ -839,15 +842,8 @@ function generateStats(res) {
       let today = new Date
       while (date < today) {
         let dDate = new Date(date)
-        var allIDs = []
-        var prevNum = 0
-        WagoFavorites.distinct('wagoID', {timestamp: {"$gte": dDate, "$lt": dDate.nextWeek()}}).then((IDs) => {
-          allIDs.concat(IDs)
-          allIDs = allIDs.filter((val, index, self) => {
-            return self.indexOf(val) === index
-          })
-          let num = allIDs.length - prevNum
-          prevNum = num
+        WagoFavorites.distinct('appID', {type: 'Install', timestamp: {"$gte": dDate, "$lt": dDate.nextWeek()}}).then((IDs) => {
+          var num = IDs.length
           Stats.findOneAndUpdate({name: 'WeakAura Companion Installs', date: dDate}, {name: 'WeakAura Companion Installs', date: dDate, value: num}, {upsert: true}).exec()
         })
         date = date.nextWeek()

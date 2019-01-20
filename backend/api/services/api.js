@@ -34,9 +34,13 @@ server.get('api/addons', (req, res, next) => {
       wago.created = doc.created
       wago.modified = doc.modified      
 
-      // if requested by Buds' WA Updater app, update installed count
-      if (req.headers['identifier'] && req.headers['user-agent'].match(/Electron/)) { 
-        WagoFavorites.addInstall(doc, 'WA-Updater-' + req.headers['identifier'])
+      // if requested by WA Companion App, update installed count
+      if (req.headers['identifier'] && req.headers['user-agent'].match(/Electron/)) {
+        const ipAddress = req.headers['x-forwarded-for'] ||
+          req.connection.remoteAddress || 
+          req.socket.remoteAddress ||
+          (req.connection.socket ? req.connection.socket.remoteAddress : null)
+        WagoFavorites.addInstall(doc, 'WA-Updater-' + req.headers['identifier'], ipAddress)
       }
 
       async.parallel({
