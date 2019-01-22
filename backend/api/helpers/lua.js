@@ -174,7 +174,7 @@ module.exports = {
         fs.unlink(luaFile)
         cb(null, res)
       })
-    })    
+    })
   },
   
   JSON2Vuhdo: (obj, cb) => {
@@ -188,6 +188,60 @@ module.exports = {
     // generate lua file
     var str = JSON.stringify(obj)
     var luaScript = 'dofile("./wago.lua"); JSON2Vuhdo("' + str.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim() + '")'
+    var luaFile = tmpLuaFileName(str)
+    
+    fs.writeFile(luaFile, luaScript, (err) => {
+      if (err) {
+        return res.send(err)
+      }
+
+      // run luajit and return output
+      execa('luajit', [luaFile], execaOptions).then((res) => {
+        // delete the temp lua file. async - no need to wait for it
+        fs.unlink(luaFile)
+        cb(null, res)
+      })
+    })    
+  },
+  
+  JSON2Plater: (obj, cb) => {
+    if (typeof obj === 'string') {
+      obj = JSON.parse(obj)
+    }
+
+    if (obj['1']) {
+      var tmp = obj['1']
+      delete obj['1']
+      obj[1] = tmp
+    }
+    console.log(obj)
+    // generate lua file
+    var str = JSON.stringify(obj)
+    var luaScript = 'dofile("./wago.lua"); JSON2Plater("' + str.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim() + '")'
+    var luaFile = tmpLuaFileName(str)
+    
+    fs.writeFile(luaFile, luaScript, (err) => {
+      if (err) {
+        return res.send(err)
+      }
+
+      // run luajit and return output
+      execa('luajit', [luaFile], execaOptions).then((res) => {
+        // delete the temp lua file. async - no need to wait for it
+        fs.unlink(luaFile)
+        cb(null, res)
+      })
+    })    
+  },
+  
+  Plater2JSON: (str, cb) => {
+    // make sure there is nothing shady in import str
+    if (!str || !str.match(/^[a-zA-Z0-9\(\)]*$/)) {
+      return cb('Invalid import')
+    }
+
+    // generate lua file
+    var luaScript = 'dofile("./wago.lua"); Plater2JSON("' + str + '")'
     var luaFile = tmpLuaFileName(str)
     
     fs.writeFile(luaFile, luaScript, (err) => {

@@ -32,7 +32,8 @@ server.get('api/addons', (req, res, next) => {
       wago.slug = doc.custom_slug || doc._id
       wago.url = doc.url
       wago.created = doc.created
-      wago.modified = doc.modified      
+      wago.modified = doc.modified  
+      wago.forkOf = doc.fork_of
 
       // if requested by WA Companion App, update installed count
       if (req.headers['identifier'] && req.headers['user-agent'].match(/Electron/)) {
@@ -87,8 +88,11 @@ server.get('/api/raw/encoded', (req, res) => {
   }
 
   WagoItem.lookup(req.params.id).then((wago) => {
-    if (!wago || (wago.private && (!req.user || !req.user._id.equals(wago._userId)))) {
+    if (!wago) {
       return res.send(404, {error: "page_not_found"})
+    }
+    else if (wago.private && (!req.user || !req.user._id.equals(wago._userId))) {
+      return res.send(401, {error: "import_is_private"})
     }
     WagoCode.lookup(wago._id, req.params.version).then((code) => {
       if (!code || !code.encoded) {

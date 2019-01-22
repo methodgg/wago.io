@@ -9,6 +9,7 @@ const MenuWeakAuras = resolve => require(['@/components/core/Menu-WeakAuras.vue'
 const MenuElvUI = resolve => require(['@/components/core/Menu-ElvUI.vue'], resolve)
 const MenuVuhdo = resolve => require(['@/components/core/Menu-Vuhdo.vue'], resolve)
 const MenuTotalRP = resolve => require(['@/components/core/Menu-TotalRP.vue'], resolve)
+const MenuPlater = resolve => require(['@/components/core/Menu-Plater.vue'], resolve)
 const MenuMDT = resolve => require(['@/components/core/Menu-MDT.vue'], resolve)
 const CreateMDT = resolve => require(['@/components/core/Create-MDT.vue'], resolve)
 const MenuCollections = resolve => require(['@/components/core/Menu-Collections.vue'], resolve)
@@ -105,6 +106,11 @@ export default {
     { path: '/vuhdo/:c1/:c2', component: Search, props: (route) => ({ contextSearch: 'Type: Vuhdo' + GetContextTag(route.params) }) },
     { path: '/vuhdo/:c1/:c2/:c3', component: Search, props: (route) => ({ contextSearch: 'Type: Vuhdo' + GetContextTag(route.params) }) },
     { path: '/vuhdo/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ contextSearch: 'Type: Vuhdo' + GetContextTag(route.params) }) },
+    { path: '/plater', component: MenuPlater },
+    { path: '/plater/:c1', component: Search, props: (route) => ({ contextSearch: 'Type: Plater' + GetContextTag(route.params) }) },
+    { path: '/plater/:c1/:c2', component: Search, props: (route) => ({ contextSearch: 'Type: Plater' + GetContextTag(route.params) }) },
+    { path: '/plater/:c1/:c2/:c3', component: Search, props: (route) => ({ contextSearch: 'Type: Plater' + GetContextTag(route.params) }) },
+    { path: '/plater/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ contextSearch: 'Type: Plater' + GetContextTag(route.params) }) },
     { path: '/totalrp', component: MenuTotalRP },
     { path: '/totalrp/:c1', component: Search, props: (route) => ({ contextSearch: 'Type: TotalRP' + GetContextTag(route.params) }) },
     { path: '/totalrp/:c1/:c2', component: Search, props: (route) => ({ contextSearch: 'Type: TotalRP' + GetContextTag(route.params) }) },

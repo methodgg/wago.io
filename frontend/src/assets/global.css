@@ -65,6 +65,10 @@
 .roles a, .roles { color: #BED0C1!important}
 .multiselect .md-chip.roles { background-color: #BED0C1!important; color: black!important }
 
+.md-chip.plater { color: #FFC972!important; background-image: url('menu-plater.png') }
+.plater a, .plater { color: #FFC972!important}
+.multiselect .md-chip.plater { background-color: #FFC972!important; color: black!important }
+
 .md-chip.vuhdo { color: #6BB85E!important; background-image: url('menu-vuhdo.png') }
 .vuhdo a, .vuhdo { color: #6BB85E!important}
 .multiselect .md-chip.vuhdo { background-color: #6BB85E!important; color: black!important }

@@ -65,6 +65,26 @@ function StringToTable(inString)
   return deserialized
 end
 
+function DeflateToTable(encoded)
+  local decoded = LibDeflate:DecodeForPrint(encoded)
+  local decompressed = LibDeflate:DecompressDeflate(decoded)
+  if not(decompressed) then
+    return "Error decompressing: " .. errorMsg
+  end
+
+  local success, deserialized = Serializer:Deserialize(decompressed)
+  if not(success) then
+    return "Error deserializing "..deserialized
+  end
+  return deserialized
+end
+
+function TableToDeflate(inTable)
+  local serialized = Serializer:Serialize(inTable)
+  local compressed = LibDeflate:CompressDeflate(serialized, configForDeflate)
+  return LibDeflate:EncodeForPrint(compressed)
+end
+
 function TableToString(inTable)
   local serialized = Serializer:Serialize(inTable)
   local compressed = LibDeflate:CompressDeflate(serialized, configForDeflate)
@@ -397,6 +417,30 @@ function Vuhdo2JSON(importStr)
     print("{}")
   end
 end
+
+function Plater2JSON(importStr)
+  local t = DeflateToTable(importStr)
+  if (t) then
+    print(JSON:encode(t))
+  else
+    print("{}")
+  end
+end
+
+function JSON2Plater(json)
+  local t = JSON:decode(json)
+  if t and t["1"] then
+    n = 1
+    while t[""..n] do
+      tinsert(t, t[""..n])
+      t[""..n] = nil
+      n = n+1
+    end
+  end
+  print(TableToDeflate(t))
+end
+
+
 
 function JSON2Vuhdo(json)
   local t = JSON:decode(json)

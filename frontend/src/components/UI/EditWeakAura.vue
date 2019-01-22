@@ -115,20 +115,21 @@ export default {
           this.$store.commit('setWagoJSON', this.aceEditor.getValue())
           this.tableData = JSON.parse(this.aceEditor.getValue())
 
-          // switch to lua
-          this.aceEditor.getSession().setMode('ace/mode/lua')
+          this.$nextTick(() => {
+            // switch to lua
+            this.aceEditor.getSession().setMode('ace/mode/lua')
 
-          if (fn.ix.table === 'd') {
-            root = JSON.parse(this.editorContent).d
-            this.aceEditor.setValue(eval('root.' + fn.path), -1)
-          }
-          else if (fn.ix.table === 'c') {
-            root = JSON.parse(this.editorContent).c[fn.ix.index]
-            this.aceEditor.setValue(eval('root.' + fn.path), -1)
-          }
-
-          this.setHasUnsavedChanges(tmpUnsaved)
-          this.editorFile = root.id
+            if (fn.ix.table === 'd') {
+              root = JSON.parse(this.editorContent).d
+              this.aceEditor.setValue(eval('root.' + fn.path), -1)
+            }
+            else if (fn.ix.table === 'c') {
+              root = JSON.parse(this.editorContent).c[fn.ix.index]
+              this.aceEditor.setValue(eval('root.' + fn.path), -1)
+            }
+            this.setHasUnsavedChanges(tmpUnsaved)
+            this.editorFile = root.id
+          })
         }
         // if switching FROM a custom function
         else {
@@ -144,30 +145,29 @@ export default {
 
           var json = JSON.stringify(this.tableData, null, 2)
           this.$store.commit('setWagoJSON', json)
-          var vue = this
 
-          setTimeout(function () {
+          this.$nextTick(() => {
             // if switching TO table data
             if (fn === 'tabledata') {
-              vue.aceEditor.setValue(json, -1)
-              vue.aceEditor.getSession().setMode('ace/mode/json')
-              vue.editorFile = vue.tableData.d.id
+              this.aceEditor.setValue(json, -1)
+              this.aceEditor.getSession().setMode('ace/mode/json')
+              this.editorFile = this.tableData.d.id
             }
             // if we are switching TO a custom function
             else if (typeof fn === 'object') {
-              vue.aceEditor.getSession().setMode('ace/mode/lua')
+              this.aceEditor.getSession().setMode('ace/mode/lua')
               if (fn.ix.table === 'd') {
-                root = vue.tableData.d
-                vue.aceEditor.setValue(eval('root.' + fn.path), -1)
+                root = this.tableData.d
+                this.aceEditor.setValue(eval('root.' + fn.path), -1)
               }
               else if (fn.ix.table === 'c') {
-                root = vue.tableData.c[fn.ix.index]
-                vue.aceEditor.setValue(eval('root.' + fn.path), -1)
+                root = this.tableData.c[fn.ix.index]
+                this.aceEditor.setValue(eval('root.' + fn.path), -1)
               }
-              vue.editorFile = root.id
+              this.editorFile = root.id
             }
-            vue.setHasUnsavedChanges(tmpUnsaved)
-          }, 100)
+            this.setHasUnsavedChanges(tmpUnsaved)
+          })
         }
       }
       catch (e) {

@@ -5,7 +5,7 @@ const lua = require('../helpers/lua')
 const WCL = require('../helpers/WCL')
 const gitDiff = require('git-diff')
 const weakauraDiff = require('../helpers/weakauraDiff')
-var wowPatches = require('../helpers/wowPatches')
+const wowPatches = require('../helpers/wowPatches')
 
 function doNothing () {}
 

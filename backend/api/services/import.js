@@ -1,11 +1,13 @@
 // load our libs and functions on app startup
 const lua = require('../helpers/lua')
 const discord = require('../helpers/discord')
+const battlenet = require('../helpers/battlenet')
 const semver = require('semver')
 
 const RegexLuaSnippet = /\b(and|break|do|else|elseif|end|false|for|if|in|local|nil|not|repeat|return|then|true|until|while|_G|_VERSION|getfenv|getmetatable|ipairs|load|module|next|pairs|pcall|print|rawequal|rawget|rawset|select|setfenv|setmetatable|tonumber|tostring|type|unpack|xpcall|coroutine|debug|math|package|string|table|SetAttribute|SetAllPoints|CreateFrame|unit|player|target)\b/g
 const RegexPasteBinLink = /^https?:\/\/pastebin.com\/([\w]+)$/
 const RegexWeakAura = /^!?[a-zA-Z0-9\(\)]*$/
+const RegexPlater = /^[a-zA-Z0-9\(\)]*$/
 const RegexElv = /^[a-zA-Z0-9=\+\/]*$/
 const RegexGrid = /^\[=== (.*) profile ===\]\n[ABCDEF0-9\n]+\n\[===/m
 const RegexTotalRP3 = /^\^.+\^\^$/
@@ -17,7 +19,6 @@ const RegexTotalRP3Deflate = /^![a-zA-Z0-9\(\)]*$/
  */
 server.post('/import/scan', ScanImport)
 function ScanImport (req, res, next, test) {
-
   // validate the input
   if (!req.body || !req.body.importString || req.body.importString.length < 10) {
     return res.send({error: 'invalid_import'})
@@ -58,12 +59,11 @@ function ScanImport (req, res, next, test) {
         test.notElvUI = true
         test.notVuhdo = true
         test.notGrid2 = true
-        break    
+      break 
     }
   }
-  
-  var match
 
+  console.log('scanning')
   // if input is a pastebin URL
   var pastebinMatch = req.body.importString.match(RegexPasteBinLink)
   if (pastebinMatch) {
@@ -112,11 +112,7 @@ function ScanImport (req, res, next, test) {
       }
       else if (result.stderr || result.stdout=='' || result.stdout.indexOf("Error deserializing Supplied data is not AceSerializer data")>-1 || result.stdout.indexOf("Unknown compression method")>-1) {
         // if this import string matches a different import format...
-        if (req.body.importString.match(RegexTotalRP3Deflate)) {
-          test.notWeakAura = true
-          return ScanImport(req, res, next, test)
-        }
-        else if (req.body.importString.match(RegexElv)) {
+        if (req.body.importString.match(RegexTotalRP3Deflate) || req.body.importString.match(RegexElv) || req.body.importString.match(RegexPlater)) {
           test.notWeakAura = true
           return ScanImport(req, res, next, test)
         }
@@ -217,7 +213,7 @@ function ScanImport (req, res, next, test) {
           })
         }
         // check for MDT data
-        else if (data && data.value && data.value.currentDungeonIdx && req.user && req.user.access.beta) {
+        else if (data && data.value && data.value.currentDungeonIdx) {
           try {
             scan.type = 'MDT'
             scan.input = req.body.importString
@@ -263,6 +259,7 @@ function ScanImport (req, res, next, test) {
   // if input looks like an ElvUI or Vuhdo string
   else if (req.body.importString.match(RegexElv) && !test.notElvUI) {
     // run lua and decode string into JSON
+    console.log('try elv')
     lua.ElvUI2JSON(req.body.importString, (error, result) => {
       if (error) {
         return res.send({error: error})
@@ -360,7 +357,9 @@ function ScanImport (req, res, next, test) {
 
   // if input looks like a TotalRP3 string
   else if ((req.body.importString.match(RegexTotalRP3) || req.body.importString.match(RegexTotalRP3Deflate)) && !test.notRP3) {
+    console.log('try rp3')
     lua.TotalRP32JSON(req.body.importString, (error, result) => {
+      console.log(error, result.stderr)
       if (error) {
         return res.send({error: error})
       }
@@ -371,6 +370,7 @@ function ScanImport (req, res, next, test) {
       var scan = new ImportScan()
       try {
         var data = JSON.parse(result.stdout)
+        console.log(data)
         // if totalRP fields found
         if (data && data[2] && data[2].MD && data[2].MD.CD && data[2].MD.CD.match(/\d+\/\d+\/\d+\s\d+:\d+\d+/)) {
           if (data.wagoID) {
@@ -418,6 +418,84 @@ function ScanImport (req, res, next, test) {
     })
   }
 
+  // if input looks like a Plater string
+  else if (req.body.importString.match(RegexPlater) && !test.notPlater && req.user && req.user.access.beta) {
+    lua.Plater2JSON(req.body.importString, (error, result) => {
+      if (error) {
+        return res.send({error: error})
+      }
+      else if (result.stderr || result.stdout=='' || result.stdout.indexOf("Error deserializing Supplied data is not AceSerializer data")>-1 || result.stdout.indexOf("Unknown compression method")>-1) {
+        return res.send({error: 'invalid_import'})
+      }
+
+      var scan = new ImportScan()
+      try {
+        var data = JSON.parse(result.stdout)
+        // if Plater Profile fields found
+        if (!Array.isArray(data) && data && data.OptionsPanelDB && data.OptionsPanelDB.PlaterOptionsPanelFrame) {
+          scan.type = 'PLATER'
+          scan.input = req.body.importString
+          scan.decoded = result.stdout
+          scan.save().then((doc) => {
+            return res.send({scan: doc._id.toString(), type: 'PLATER', name: 'Plater Profile', categories: []})
+          })
+        }
+        else if (!Array.isArray(data) && data && data[1] && data[1].animation_type) {
+          scan.type = 'PLATER'
+          scan.input = req.body.importString
+          scan.decoded = result.stdout
+          if (data.info && data.info.spellid) {
+            battlenet.lookupSpell(data.info.spellid).then((spell) => {
+              var name = 'Plater Animation'
+              if (spell && spell.name) {
+                name = name + ': ' + spell.name
+              }
+              scan.save().then((doc) => {
+                return res.send({scan: doc._id.toString(), type: 'PLATER', name: name, categories: []})
+              })
+            }).catch((e) => {
+              logger.error(e.message)       
+              scan.save().then((doc) => {
+                return res.send({scan: doc._id.toString(), type: 'PLATER', name: 'Plater Animation', categories: []})
+              })
+            })
+          }
+          else {            
+            scan.save().then((doc) => {
+              return res.send({scan: doc._id.toString(), type: 'PLATER', name: 'Plater Animation', categories: []})
+            })
+          }
+        }
+        // if Plater Hook is found
+        else if (Array.isArray(data) && typeof data[8] === 'object' && typeof data[0] === 'string') {
+          scan.type = 'PLATER'
+          scan.input = req.body.importString
+          scan.decoded = result.stdout
+          scan.save().then((doc) => {
+            return res.send({scan: doc._id.toString(), type: 'PLATER', name: data[0], categories: []})
+          })
+        }
+        // if Plater Script is found
+        else if (Array.isArray(data) && typeof data[8] === 'number' && typeof data[1] === 'string') {
+          scan.type = 'PLATER'
+          scan.input = req.body.importString
+          scan.decoded = result.stdout
+          scan.save().then((doc) => {
+            return res.send({scan: doc._id.toString(), type: 'PLATER', name: data[1], categories: []})
+          })
+        }
+        else {
+          // unknown import with deflate encoding
+          return res.send({error: 'invalid_import'})
+        }
+      }
+      catch (e) {
+        logger.error({label:'Error reading Plater JSON', error: e})
+        return res.send({error: 'invalid_import'})
+      }
+    })
+  }
+
   // if input contains lua code and does not match anything above then it's probably a snippet
   else if (req.body.importString.replace(/\)/g, '').match(RegexLuaSnippet)) {
     var scan = new ImportScan()
@@ -453,6 +531,15 @@ server.post('/import/submit', function(req, res) {
       }
       else if (wago.type === 'TOTALRP3' && json[2] && json[2].NT) {
         wago.description = json[2].NT
+      }
+      else if (wago.type === 'PLATER' && Array.isArray(json) && typeof json[8] === 'number') {
+        wago.description = json[5]
+      }
+      else if (wago.type === 'PLATER' && Array.isArray(json) && typeof json[8] === 'object') {
+        wago.description = json[2]
+      }
+      else if (wago.type === 'PLATER' && !Array.isArray(json) && json.info && json.info.desc) {
+        wago.description = json.info.desc
       }
       
       switch (req.body.expireAfter) {
@@ -570,6 +657,25 @@ server.post('/import/submit', function(req, res) {
             global.mdtDungeonTable.affixWeeks[json.week - 1].forEach((affixID) => {
               wago.categories.push('mdtaffix' + affixID)
             })
+          }
+        }
+        else if (wago.type === 'PLATER') {
+          wago.categories.push('plater0')
+          if (!Array.isArray(json) && json[1] && json[1].animation_type) {    
+            // plater profile        
+            wago.categories.push('plater4')
+          }
+          else if (!Array.isArray(json)) {    
+            // plater profile        
+            wago.categories.push('plater1')
+          }
+          else if (Array.isArray(json) && typeof json[8] === 'number') {
+            // plater script
+            wago.categories.push('plater2')
+          }
+          else if (Array.isArray(json) && typeof json[8] === 'object') {
+            // plater hook
+            wago.categories.push('plater3')
           }
         }
 
@@ -1081,7 +1187,7 @@ function SaveWagoVersion (req, res, mode) {
     else if (type=='ELVUI') {
       encodeFunc = lua.JSON2ElvUI
     }
-    else if (type=='MDT' && req.user && req.user.access.beta) {
+    else if (type=='MDT') {
       encodeFunc = lua.JSON2MDT
     }
     else {
@@ -1203,6 +1309,88 @@ function SaveWagoVersion (req, res, mode) {
   }
   else if ((type=='TOTALRP3') && json) {
     lua.JSON2TotalRP3(json, (error, result) => {
+      if (error) {
+        return res.send({error: error})
+      }
+      else if (result.stderr || result.stdout=='') {
+        return res.send({error: 'invalid_' + type})
+      }
+      
+      var promise
+      if (mode === 'scan') {
+        var scan = new ImportScan()
+        scan.fork = req.body.forkOf
+        scan.type = type
+        scan.input = result.stdout
+        scan.decoded = req.body.json
+        scan.save().then((doc) => {
+          return res.send({scan: doc._id.toString(), type: doc.type, encoded: scan.input})
+        })
+      }
+      else if (mode === 'update') {
+        promise = WagoItem.findOne({_id: wagoID, type: type, _userId: req.user._id}).exec()
+      }
+      else if (mode === 'fork') {
+        var wago = new WagoItem()
+        wago.type = type
+        wago.name = 'FORKED ' + type
+        wago.fork_of = wagoID
+        if (req.user) {
+          wago._userId = req.user._id
+          wago.hidden = (req.user.default_aura_visibility === 'Hidden')
+          wago.private = (req.user.default_aura_visibility === 'Private')
+          promise = wago.save()
+        }
+      }
+
+      promise.then((wago) => {
+        if (!wago) {
+          return res.send({error: 'not_found'})
+        }
+
+        // good to save
+        var code = new WagoCode()
+        code.auraID = wago._id
+        code.json = JSON.stringify(json)
+        if (encoded) {
+          code.encoded = encoded
+        }
+        else {
+          code.encoded = result.stdout
+        }
+        code.versionString = req.body.newVersionString || '1.0.0'
+        code.version = req.body.newVersionNum || 1
+        code.changelog = {
+          text: req.body.changelog,
+          format: req.body.changelogFormat || 'bbcode'
+        }
+        
+        code.save().then(() => {
+          if (mode === 'update') {
+            wago.modified = new Date()
+            wago.save().then(() => {
+              // look for any discord actions
+              discord.onUpdate(req.user, wago)
+              if (!wago.hidden && !wago.private && req.user.discord && req.user.discord.webhooks && req.user.discord.webhooks.onCreate) {
+                Screenshot.findForWago(wago._id).then((screens) => {
+                  if (!screens.length) {
+                    return discord.webhookOnUpdate(req.user, wago)
+                  }
+                  wago.thumb = screens[0].url
+                  discord.webhookOnUpdate(req.user, wago)
+                })
+              }
+            })
+          }
+          res.send({success: true, encoded: code.encoded, latestVersion: code.versionString})
+        })
+      }).catch(e => {
+        return res.send({error: 'not_found'})
+      })
+    })
+  }
+  else if (type=='PLATER' && json && req.user && req.user.access.beta) {
+    lua.JSON2Plater(json, (error, result) => {
       if (error) {
         return res.send({error: error})
       }

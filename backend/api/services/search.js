@@ -153,7 +153,7 @@ server.get('/search', (req, res, skipSearch) => {
 
     // if search includes 'type: wagotype'
     function(done) {
-      const regex = /\btype:\s*"?(weakauras?2?|elvui|vuhdo|totalrp3?|collection|snippet|mdt|encounternotes|image|audio)"?/i
+      const regex = /\btype:\s*"?(weakauras?2?|elvui|vuhdo|totalrp3?|collection|snippet|plater|mdt|encounternotes|image|audio)"?/i
       var typeSearch = query.match(regex)
       if (!typeSearch || typeSearch.length==0) return done()
 

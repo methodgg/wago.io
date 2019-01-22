@@ -212,5 +212,32 @@ module.exports = {
         resolve()
       })
     })
+  },
+
+  lookupSpell: (spellID, locale) => {
+    if (!locale) {
+      locale = 'en_US'
+    }
+    var spellLookup = `spell/${spellID}`
+    return new Promise((resolve, reject) => {
+      BlizzData.findOne({_id: spellLookup, locale: locale}).then((doc) => {
+        if (doc && doc.value) {
+          return resolve(doc.value)
+        }
+        getToken().then((token) => {
+          getAPI('NA', '/wow/' + spellLookup, token).then((res) => {
+            try {
+              if (res.data) {
+                BlizzData.findOneAndUpdate({_id: spellLookup, locale: locale}, {_id: spellLookup, locale: locale, value: res.data}, {upsert: true}).exec()
+                resolve(res.data)
+              }
+            }
+            catch (e) {
+              reject(e)
+            }
+          })
+        })
+      })
+    })
   }
 }

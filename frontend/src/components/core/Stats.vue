@@ -2,7 +2,7 @@
   <div>
     <md-card v-if="stats['Total WeakAuras']" v-for="(statistic, label) in stats" :key="label" v-bind:style="{'z-index': statistic.z}">
       <md-card-header>
-        <div class="md-title"><span v-if="statistic.total">{{ new Intl.NumberFormat().format(statistic.total) }} </span>{{ label }}</div>
+        <div class="md-title" :name="slugify(label)"><span v-if="statistic.total">{{ new Intl.NumberFormat().format(statistic.total) }} </span>{{ label }}</div>
         <div class="md-subhead">{{ label }} added per week:</div>
       </md-card-header>
       <md-card-content style="background: #FFF; color:#000">
@@ -233,6 +233,12 @@ export default {
         series.push([weeks[i].getTime(), stats.data[i] || 0])
       }
       return {name: stats.name, data: series}
+    },
+    slugify (str) {
+      return str.toString().toLowerCase().trim()
+        .replace(/\s+/g, '-')           // Replace spaces with -
+        .replace(/[^\w-]+/g, '')       // Remove all non-word chars
+        .replace(/-{2,}/g, '-')        // Replace multiple - with single -
     }
   }
 }

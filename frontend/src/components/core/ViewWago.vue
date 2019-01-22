@@ -3,7 +3,7 @@
     <ui-warning v-if="wago.error === 'page_not_found'" mode="alert">
       404 {{ $t("No results found") }}
     </ui-warning>
-    <ui-warning v-else-if="(wago.type === 'MDT' && (!User || !User.access || !User.access.beta))" mode="alert">
+    <ui-warning v-else-if="(wago.type === 'PLATER' && (!User || !User.access || !User.access.beta))" mode="alert">
       Error: Wago beta access is required to view this page.
     </ui-warning>
     <ui-warning v-else-if="wago.error" mode="alert">
@@ -504,6 +504,7 @@
               <div id="wago-editor-container" class="wago-container" v-if="showPanel=='editor'">
                 <div id="wago-editor">
                   <edit-weakaura v-if="wago.type=='WEAKAURA'" @set-has-unsaved-changes="setHasUnsavedChanges" :unsavedTable="hasUnsavedChanges" @update-encoded="updateEncoded" @update-version="updateVersion"></edit-weakaura>
+                  <edit-plater v-else-if="wago.type=='PLATER'" @set-has-unsaved-changes="setHasUnsavedChanges" :unsavedTable="hasUnsavedChanges" @update-encoded="updateEncoded" @update-version="updateVersion"></edit-plater>
                   <edit-snippet v-else-if="wago.type=='SNIPPET'" @update-version="updateVersion"></edit-snippet>
                   <edit-common v-else @set-has-unsaved-changes="setHasUnsavedChanges" @update-encoded="updateEncoded" @update-version="updateVersion"></edit-common>
                 </div>
@@ -643,6 +644,7 @@ export default {
     Lightbox,
     'edit-common': require('../UI/EditCommon.vue'),
     'edit-snippet': require('../UI/EditSnippet.vue'),
+    'edit-plater': require('../UI/EditPlater.vue'),
     'edit-weakaura': require('../UI/EditWeakAura.vue'),
     'build-mdt': require('../UI/MDTBuilder.vue'),
     'input-semver': require('../UI/Input-Semver.vue'),
@@ -969,7 +971,7 @@ export default {
         this.editDesc = res.description.text
         this.updateDescFormat = res.description.format || this.$store.state.user.defaultEditorSyntax
 
-        if (!this.wago.description.text && this.wago.type === 'WEAKAURA') {
+        if (!this.wago.description.text && (this.wago.type === 'WEAKAURA' || this.wago.type === 'PLATER')) {
           this.showPanel = 'editor'
         }
         else if (!this.wago.description.text && this.wago.type === 'MDT') {

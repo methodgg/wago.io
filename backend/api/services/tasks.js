@@ -877,7 +877,6 @@ function generateStats(res) {
             let countTriggerCustomCodeEveryFrame = 0
             let countRegionTypes = {group:0, dynamicgroup:0, aurabar:0, icon:0, text:0, model:0, model:0, texture:0, progresstexture:0, stopmotion:0}
             WagoCode.find({updated: {"$gte": dDate, "$lt": dDate.nextWeek()}}).then((wa) => {
-              console.log(dDate)
               async.forEach(wa, (code, next) => {
                 // confirm import is a weakaura
                 WagoItem.findOne({_id: code.auraID, type: 'WEAKAURAS2'}).then((aura) => {
