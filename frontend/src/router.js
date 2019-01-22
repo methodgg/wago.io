@@ -12,6 +12,7 @@ const MenuTotalRP = resolve => require(['@/components/core/Menu-TotalRP.vue'], r
 const MenuPlater = resolve => require(['@/components/core/Menu-Plater.vue'], resolve)
 const MenuMDT = resolve => require(['@/components/core/Menu-MDT.vue'], resolve)
 const CreateMDT = resolve => require(['@/components/core/Create-MDT.vue'], resolve)
+const CreateEncounterNotes = resolve => require(['@/components/core/Create-Notes.vue'], resolve)
 const MenuCollections = resolve => require(['@/components/core/Menu-Collections.vue'], resolve)
 
 const TermsOfService = resolve => require(['@/components/core/TermsOfService.vue'], resolve)
@@ -128,6 +129,7 @@ export default {
     { path: '/collections/:c1/:c2/:c3', component: Search, props: (route) => ({ contextSearch: 'Type: Collection' + GetContextTag(route.params) }) },
     { path: '/collections/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ contextSearch: 'Type: Collection' + GetContextTag(route.params) }) },
 
+    { path: '/build-new-notes', name: 'create-notes', component: CreateEncounterNotes, props: true },
     { path: '/snippets', component: Search, props: (route) => ({ contextSearch: 'Type: Snippet' }) },
     { path: '/snippets/:c1', component: Search, props: (route) => ({ contextSearch: 'Type: Snippet' + GetContextTag(route.params) }) },
     { path: '/snippets/:c1/:c2', component: Search, props: (route) => ({ contextSearch: 'Type: Snippet' + GetContextTag(route.params) }) },

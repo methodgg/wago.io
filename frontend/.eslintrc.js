@@ -25,6 +25,8 @@ module.exports = {
     // allow debugger during development
     'no-debugger': process.env.NODE_ENV === 'production' ? 2 : 0,
     // http://eslint.org/docs/rules/brace-style
-    'brace-style': ['error', 'stroustrup']
+    'brace-style': ['error', 'stroustrup'],
+    // allow any promise resolve/reject names
+    'promise/param-names': 0
   }
 }

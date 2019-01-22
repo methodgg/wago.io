@@ -398,7 +398,7 @@ export default {
         14: { name: 'Quaking', icon: 'Spell_Nature_Earthquake' },
         15: { name: 'Relentless', icon: 'INV_Chest_Plate04' },
         16: { name: 'Infested', icon: 'Achievement_Nazmir_Boss_Ghuun' },
-        117: { name: 'Reaping', icon: 'Ability_Racial_EmbraceOfTheLoa_Bwonsomdi' }
+        117: { name: 'Reaping', icon: 'Ability_Racial_EmbraceoftheLoa_Bwonsomdi' }
       },
       currentPull: -1,
       annotationMode: false,

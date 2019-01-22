@@ -107,7 +107,7 @@
         <md-list-item><router-link to='/elvui'>ElvUI</router-link></md-list-item>
         <!-- <md-list-item><router-link to='/grid2'>Grid2</router-link></md-list-item> -->
         <md-list-item><router-link to='/mdt'>Method Dungeon Tools</router-link></md-list-item>
-        <md-list-item v-if="User && User.access && User.access.beta"><router-link to='/plater'>Plater</router-link></md-list-item>
+        <md-list-item v-if="User && User.access && User.access.beta"><router-link to='/plater'>Plater Nameplates</router-link></md-list-item>
         <md-list-item><router-link to='/totalrp'>Total RP</router-link></md-list-item>
         <md-list-item><router-link to='/vuhdo'>VuhDo</router-link></md-list-item>
         <md-list-item><router-link to='/weakauras'>WeakAuras</router-link><md-divider></md-divider></md-list-item>
@@ -121,7 +121,7 @@
         <md-list-item><router-link to='/elvui'>ElvUI</router-link></md-list-item>
         <!-- <md-list-item><router-link to='/grid2'>Grid2</router-link></md-list-item> -->
         <md-list-item><router-link to='/mdt'>Method Dungeon Tools</router-link></md-list-item>
-        <md-list-item v-if="User && User.access && User.access.beta"><router-link to='/plater'>Plater</router-link></md-list-item>
+        <md-list-item v-if="User && User.access && User.access.beta"><router-link to='/plater'>Plater Nameplates</router-link></md-list-item>
         <md-list-item><router-link to='/totalrp'>Total RP</router-link></md-list-item>
         <md-list-item><router-link to='/vuhdo'>VuhDo</router-link></md-list-item>
         <md-list-item><router-link to='/weakauras'>WeakAuras</router-link><md-divider></md-divider></md-list-item>

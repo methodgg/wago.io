@@ -4,6 +4,7 @@
 const lua = require('../helpers/lua')
 const WCL = require('../helpers/WCL')
 const gitDiff = require('git-diff')
+const battlenet = require('../helpers/battlenet')
 const weakauraDiff = require('../helpers/weakauraDiff')
 const wowPatches = require('../helpers/wowPatches')
 
@@ -702,6 +703,20 @@ server.get('/lookup/statistics', (req, res) => {
     res.send(stats)    
   })
 })
+
+
+/* battlenet api proxy */
+server.get('/lookup/blizzard/spell', (req, res) => {
+  if (parseInt(req.query.id)) {
+    battlenet.lookupSpell(req.query.id).then((spell) => {
+      res.send(spell)
+    })
+  }
+  else {
+    res.send({})
+  }
+})
+
 
 
 

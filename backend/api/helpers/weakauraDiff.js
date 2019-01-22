@@ -5,8 +5,8 @@ module.exports = (jsonA, jsonB, diffOptions) => {
   var tblA = JSON.parse(jsonA)
   var tblB = JSON.parse(jsonB)
 
-  var customA = getCustomCode(tblA.c || [tblA.d])
-  var customB = getCustomCode(tblB.c || [tblB.d])
+  var customA = getCustomCodeWA(tblA.c || [tblA.d])
+  var customB = getCustomCodeWA(tblB.c || [tblB.d])
 
   var keys = Object.keys(customB)
   keys.forEach((key) => {
@@ -48,7 +48,7 @@ module.exports = (jsonA, jsonB, diffOptions) => {
 }
 
 // ported from frontend's table editor
-function getCustomCode(data) {
+function getCustomCodeWA(data) {
   var code = {}
   if (typeof data !== 'object') {
     return []

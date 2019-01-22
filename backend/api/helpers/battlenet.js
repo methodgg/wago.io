@@ -1,5 +1,6 @@
 const config = require('../../config')
 const axios = require('axios')
+const fs = require('fs')
 const querystring = require('querystring')
 const async = require('async')
 const mdtWeekReset = 670
@@ -227,10 +228,23 @@ module.exports = {
         getToken().then((token) => {
           getAPI('NA', '/wow/' + spellLookup, token).then((res) => {
             try {
-              if (res.data) {
+              // find actual case-sensitive filename
+              const regex = new RegExp('^' + res.data.icon + '\.png$', 'i')
+              fs.readdir('/nfs/media/wow-ui-textures/ICONS', (err, files) => {
+                if (err) {
+                  throw err
+                }
+                for (let i = 0; i < files.length; i++) {
+                  console.log(files[i])
+                  if (files[i].match(regex)) {
+                    res.data.iconFile = files[i]
+                    BlizzData.findOneAndUpdate({_id: spellLookup, locale: locale}, {_id: spellLookup, locale: locale, value: res.data}, {upsert: true}).exec()
+                    return resolve(res.data)
+                  }
+                }
                 BlizzData.findOneAndUpdate({_id: spellLookup, locale: locale}, {_id: spellLookup, locale: locale, value: res.data}, {upsert: true}).exec()
-                resolve(res.data)
-              }
+                return resolve(res.data)
+              })
             }
             catch (e) {
               reject(e)

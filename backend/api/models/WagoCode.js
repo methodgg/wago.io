@@ -6,6 +6,7 @@ const Schema = new mongoose.Schema({
 	encoded : String,
   json : String,
   updated : { type: Date, default: Date.now },
+  text: String,
   lua : { type: String },
   version: Number, // incremental counter
   versionString: { type: String, index: true }, // semantic version number
