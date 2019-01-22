@@ -88,6 +88,7 @@ server.get('/account/whoami', (req, res, next) => {
     who.access.goldSub = user.roles.gold_subscriber
     who.access.guild_subscriber = user.roles.guild_subscriber
     who.access.ambassador = user.roles.ambassador
+    who.access.developer = user.roles.developer
     who.access.contestWinner = user.roles.artContestWinnerAug2018
 
     if (user.roles.admin.access) {

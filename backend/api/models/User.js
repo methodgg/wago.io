@@ -42,6 +42,7 @@ const Schema = new mongoose.Schema({
     guild_subscriber : { type: Boolean, default: false }, // patron of guild level pledge
     guild_member : { type: Boolean, default: false }, // member of guild with guild level pledge
     ambassador : { type: Boolean, default: false },
+    developer : { type: Boolean, default: false },
     artContestWinnerAug2018: { type: Boolean, default: false }
   },
   facebook : {
@@ -224,25 +225,25 @@ Schema.virtual('avatarURL').get(function() {
 
 Schema.virtual('access.custom_slug').get(function() {
   if (this.roles.admin.super) return true
-  if (this.roles.gold_subscriber || this.roles.ambassador || this.roles.artContestWinnerAug2018 || this.roles.guild_member) return true
+  if (this.roles.gold_subscriber || this.roles.ambassador || this.roles.developer || this.roles.artContestWinnerAug2018 || this.roles.guild_member) return true
 
   return false
 })
 Schema.virtual('access.animatedAvatar').get(function() {
   if (this.roles.admin.super) return true
-  if (this.roles.gold_subscriber || this.roles.subscriber || this.roles.ambassador || this.roles.admin.moderator || this.roles.artContestWinnerAug2018 || this.roles.guild_member) return true
+  if (this.roles.gold_subscriber || this.roles.subscriber || this.roles.ambassador || this.roles.developer || this.roles.admin.moderator || this.roles.artContestWinnerAug2018 || this.roles.guild_member) return true
 
   return false
 })
 Schema.virtual('access.beta').get(function() {
   if (this.roles.admin.super) return true
-  if (this.roles.gold_subscriber || this.roles.subscriber || this.roles.ambassador || this.roles.admin.moderator || this.roles.artContestWinnerAug2018 || this.roles.guild_member) return true
+  if (this.roles.gold_subscriber || this.roles.subscriber || this.roles.ambassador || this.roles.developer || this.roles.admin.moderator || this.roles.artContestWinnerAug2018 || this.roles.guild_member) return true
 
   return false
 })
 Schema.virtual('access.api').get(function() {
   if (this.roles.admin.super) return true
-  if (this.roles.gold_subscriber || this.roles.subscriber || this.roles.ambassador || this.roles.admin.moderator || this.roles.artContestWinnerAug2018 || this.roles.guild_member) return true
+  if (this.roles.gold_subscriber || this.roles.subscriber || this.roles.ambassador || this.roles.developer || this.roles.admin.moderator || this.roles.artContestWinnerAug2018 || this.roles.guild_member) return true
 
   return false
 })
@@ -256,8 +257,8 @@ Schema.virtual('roleclass').get(function() {
       return 'user-goldsub'
   else if (this.roles.subscriber)
       return 'user-sub'
-  else if (this.roles.ambassador)
-      return 'user-ambassador'
+  else if (this.roles.ambassador || this.roles.developer)
+      return 'user-goldsub'
 
   else
       return 'user-default'
