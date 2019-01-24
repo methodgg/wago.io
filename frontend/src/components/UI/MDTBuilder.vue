@@ -12,8 +12,8 @@
           <md-input v-else readonly :value="mdtDungeonTable.dungeonSubLevels[0]"></md-input>
         </md-input-container>
       </div>
-      <div class="flex-col flex-right" style="position:relative">
-        <md-input-container id="mobilePull" v-if="currentPull >= 0">
+      <div class="flex-col flex-right" style="position:relative" v-if="!readonly">
+        <md-input-container class="md-hide-small-and-up" id="mobilePull" v-if="currentPull >= 0">
           <md-input readonly :value="$t('Pull [-num-]', {num: currentPull + 1})"></md-input>
         </md-input-container>
         <md-button id="wago-options-toggle" class="md-icon-button md-raised md-hide-small-and-up" @click="toggleMDTOptions">
@@ -22,6 +22,18 @@
         <md-button class="md-hide-xsmall" @click="exportChanges" v-if="wago._id"><md-icon>open_in_new</md-icon> {{ $t("Export/Fork changes") }}</md-button>
         <md-button class="md-hide-xsmall" v-if="canEdit" @click="$refs['saveChangesDialog'].open()" ref="saveChangesButton"><md-icon>save</md-icon> {{ $t("Save changes") }}</md-button>
         <md-button class="md-hide-xsmall" v-if="scratch" @click="saveFromScratch"><md-icon>save</md-icon> {{ $t("Save MDT") }}</md-button>
+      </div>
+      <div class="flex-col flex-right" style="position:relative" v-if="readonly">        
+        <template v-for="(affixID, k) in selectedAffixes">
+          <span v-html="displayAffix(affixID)" class="topaffix"></span>
+        </template>
+        <md-button class="md-raised" disabled id="sumPct"><md-icon>functions</md-icon> 
+          <span v-if="pullDetails.length">{{ Math.round(100*pullDetails[pullDetails.length - 1].percentRunningTotal)/100 }}%</span>
+          <span v-else>0%</span>
+        </md-button>
+        <md-button v-if="screenWidth < 800" id="wago-options-toggle" class="md-icon-button md-raised" @click="toggleMDTOptions">
+          <md-icon>more_horiz</md-icon>
+        </md-button>
       </div>
       <md-dialog md-open-from="#saveChangesButton" md-close-to="#saveChangesButton" ref="saveChangesDialog" id="saveChangesDialog" :focus="true">
         <md-dialog-title>{{ $t("Save Modifications") }}</md-dialog-title>
@@ -163,7 +175,7 @@
             </v-layer>
           </v-stage>
         </div>
-        <div id="mdtAnnotateMenu" v-if="!mdtLoading">
+        <div id="mdtAnnotateMenu" v-if="!mdtLoading && !readonly">
           <div class="annotate-label">{{ $t('Tools') }}</div>
           <md-button-toggle md-single class="md-primary">
             <div class="md-icon-button md-toggle" ref="annotate-standard" @click="setAnnotate('standard')" @mouseover="setPOITooltip('annotation', $t('Selection Tool'))" @mouseout="setPOITooltip(null)">
@@ -210,14 +222,14 @@
           </div>
         </div>
       </md-layout>
-      <md-layout id="mdtOptions" md-vertical-align="start" v-bind:class="{'md-hide-xsmall': hideMobileOptions}">
+      <md-layout id="mdtOptions" md-vertical-align="start" v-bind:class="{'hidden': hideMobileOptions}">
         <md-card v-if="!mdtLoading">
-          <md-card-area class="md-hide-small-and-up">          
+          <md-card-area v-if="!readonly" class="md-hide-small-and-up">          
             <md-button @click="exportChanges" v-if="wago._id"><md-icon>open_in_new</md-icon> {{ $t("Export/Fork changes") }}</md-button>
             <md-button v-if="canEdit" @click="$refs['saveChangesDialog'].open()" ref="saveChangesButton"><md-icon>save</md-icon> {{ $t("Save changes") }}</md-button>
           </md-card-area>
 
-          <md-card-area>
+          <md-card-area v-if="!readonly">
             <div class="inlineContainer">
               <template v-for="(affixID, k) in selectedAffixes">
                 <span v-html="displayAffix(affixID)" class="affix"></span>
@@ -274,7 +286,7 @@
                 </md-list-item>
               </div>
             </template>
-            <md-list-item @click="createPull()" style="margin-bottom: 16px">
+            <md-list-item @click="createPull()" style="margin-bottom: 16px" v-if="!readonly">
               <div class="md-list-text-container">
                 <span>➕ {{ $t('Create new pull') }}</span>
               </div><br>
@@ -298,7 +310,7 @@
         </md-card>
       </md-layout>
     </md-layout>
-    <export-modal :json="tableString" :type="wago.type" :showExport="showExport" :wagoID="wago._id" @hideExport="hideExport"></export-modal>
+    <export-modal v-if="!readonly" :json="tableString" :type="wago.type" :showExport="showExport" :wagoID="wago._id" @hideExport="hideExport"></export-modal>
     <div id="mdtTooltip" v-if="tooltipPOI || tooltipEnemy.name" v-bind:style="{top: cursorTooltipY + 'px', left: cursorTooltipX + 'px'}">
       <div class="tooltipPOI" v-if="tooltipPOI" v-html="tooltipPOI.replace(/\\n/g, '<br>')"></div>
       <div class="tooltipEnemy" v-else-if="tooltipEnemy.name">
@@ -350,7 +362,7 @@ const async = require('async')
 
 export default {
   name: 'build-mdt',
-  props: ['scratch'],
+  props: ['scratch', 'readonly'],
   data: function () {
     return {
       mdtScale: 539 / 450, // 1.197777 repeating, of course. Found by trial and error; there may be something that more accurately scales wow pixels into real pixels, but this is very close.
@@ -410,13 +422,15 @@ export default {
       paintingStrokeColor: {hex: '#FFFFFF'},
       selectedMoveAnnotationID: null,
       moveStartCoords: {},
-      hideMobileOptions: true,
+      hideMobileOptions: false,
       isColorPickerOpen: false,
       userNoteEditText: '',
-      editPoiID: -1
+      editPoiID: -1,
+      screenWidth: window.innerWidth || document.documentElement.clientWidth || document.getElementsByTagName('body')[0].clientWidth
     }
   },
   created: function () {
+    this.hideMobileOptions = (this.screenWidth < 800)
     this.mapID = this.tableData.value.currentDungeonIdx - 1
     if (this.$store.state.mdtDungeonTable) {
       this.mdtDungeonTable = this.$store.state.mdtDungeonTable
@@ -476,9 +490,11 @@ export default {
           }
           this.setMap(this.subMapID)
         }
-        this.tableString = JSON.stringify(this.tableData, null, 2)
-        this.$store.commit('setWagoJSON', this.tableString)
-        this.$emit('set-has-unsaved-changes', true)
+        if (!this.readonly) {
+          this.tableString = JSON.stringify(this.tableData, null, 2)
+          this.$store.commit('setWagoJSON', this.tableString)
+          this.$emit('set-has-unsaved-changes', true)
+        }
       })
     },
 
@@ -869,7 +885,7 @@ export default {
 
     selectCreature (creatureIndex, cloneIndex) {
       // if no pull is selected then do nothing
-      if (this.currentPull < 0) {
+      if (this.currentPull < 0 || this.readonly) {
         return
       }
 
@@ -1431,7 +1447,7 @@ export default {
       }
     },
     konvaStageConfig: () => {
-      return {width: document.getElementById('builder') && document.getElementById('builder').offsetWidth || 0, height: 768}
+      return {width: document.getElementById('builder') && document.getElementById('builder').offsetWidth || 0, height: 666}
     }
   }
 }
@@ -1449,16 +1465,18 @@ export default {
 #build-mdt .flex-right { order: 1; flex: 1 1 auto; text-align: right}
 #build-mdt .ace_editor { box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2), 0 2px 2px rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.12); }
 #build-mdt .md-theme-default.md-sidenav .md-sidenav-content { background-color: inherit; min-width: 360px; }
-#builder { position: relative; min-height: 768px }
-#builder canvas { position: absolute; left: 0; top: 0; width:60%; max-width: 1000px; height: 768px; max-height: 768px; }
-#stageContainer { max-width:1000px; width:60%; height:768px; position: relative; flex: 2 }
-#mdtOptions .md-card { margin: 0; overflow: hidden; width: 100%; height: 768px; overflow-y: auto;}
+#builder { position: relative; min-height: 666px }
+#builder canvas { position: absolute; left: 0; top: 0; width:60%; max-width: 1000px; height: 666px; max-height: 666px; }
+#stageContainer { max-width:1000px; width:60%; height:666px; position: relative; flex: 2 }
+#mdtOptions .md-card { margin: 0; overflow: hidden; width: 100%; height: 666px; overflow-y: auto;}
 #mdtOptions .md-card .md-sidenav-content { min-width: 75%; }
 #mdtOptions .md-sidenav-backdrop { position: fixed }
 #sumPct { color: inherit }
 .inlineContainer { display: inline-flex; flex-direction: row; flex-wrap: wrap; }
 .affix { padding-right: 6px; padding-bottom: 4px; white-space: nowrap; line-height:36px; display: inline; }
 .affix img { width: 22px; height: 22px; }
+.topaffix { margin: 6px 4px; padding: 0; white-space: nowrap; line-height:36px; display: inline-block;}
+.topaffix img { width: 18px; height: 18px; }
 #selectAffixWeek { position: relative; }
 .affixWeek { margin-top: -22px; }
 .affixMeta { color: rgba(128,128,128,.6); font-size: 12px; position: absolute; left: 16px; top: 24px; }
@@ -1508,4 +1526,6 @@ export default {
   #mobilePull { position: absolute; top: -12px; right: 48px; max-width: 70px }
   #wago-options-toggle { background-color: rgba(0, 0, 0, 0.7); margin-right: 22px }
 }
+
+.hidden { display: none!important }
 </style>

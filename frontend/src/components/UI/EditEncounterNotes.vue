@@ -32,23 +32,14 @@
       </md-dialog>
     </div>
     
-    <div v-if="$store.state.user && $store.state.user.access && $store.state.user.access.beta" id="editarea" contenteditable="true" v-html="parsedNotes" @keydown="resetActiveTimer" @keyup="resetActiveTimer" @blur="parseNotes"></div>
+    <div v-if="$store.state.user && $store.state.user.access && $store.state.user.access.beta" id="editarea" contenteditable="true" v-html="parsedNotes" @keyup="parseNotes"></div>
+    <input id="contentAngry" readonly="true">
+    <input id="contentExorsus" readonly="true">
   </div>
 </template>
 
 <script>
-function isChildOf (node, parentId) {
-  while (node !== null) {
-    if (node.id === parentId) {
-      return true
-    }
-    node = node.parentNode
-  }
-  return false
-}
-
 const semver = require('semver')
-
 export default {
   props: ['scratch'],
   name: 'edit-notes',
@@ -61,23 +52,51 @@ export default {
       noteContent: '',
       parsedNotes: '',
       activeTimer: null,
-      caretPosition: -1
+      caret: {},
+      previousFocus: null
     }
   },
   components: {
     'input-semver': require('../UI/Input-Semver.vue')
   },
-  created: function () {
-    // this.activeTimer = setInterval(this.parseNotes, 3000)
-  },
   methods: {
-    resetActiveTimer () {
-      this.caretPosition = this.getCaretPosition()
-      // clearInterval(this.activeTimer)
-      // this.activeTimer = setInterval(this.parseNotes, 3000)
+    addNode () {
+      var node = document.createElement('IMG')
+      node.setAttribute('src', '//media.wago.io/iconsUI/raidmarker-rt1.png')
+      if (typeof window.getSelection !== 'undefined') {
+        var sel = window.getSelection()
+        if (sel.rangeCount) {
+          var range = sel.getRangeAt(0)
+          range.collapse(false)
+          range.insertNode(node)
+          range = range.cloneRange()
+          range.selectNodeContents(node)
+          range.collapse(false)
+          sel.removeAllRanges()
+          sel.addRange(range)
+        }
+        else if (typeof document.selection !== 'undefined' && document.selection.type !== 'Control') {
+          var html = (node.nodeType === 1) ? node.outerHTML : node.data
+          var id = 'marker_' + ('' + Math.random()).slice(2)
+          html += '<span id="' + id + '"></span>'
+          var textRange = document.selection.createRange()
+          textRange.collapse(false)
+          textRange.pasteHTML(html)
+          var markerSpan = document.getElementById(id)
+          textRange.moveToElementText(markerSpan)
+          textRange.select()
+          markerSpan.parentNode.removeChild(markerSpan)
+        }
+      }
     },
     parseNotes () {
       let content = document.getElementById('editarea').innerHTML
+      if (content.match(/{star}/)) {
+        return this.addNode()
+      }
+      else if (content) {
+        return
+      }
       // parse raid markers ---------------  need translations here
       content = content.replace(/\{(rt1|star)\}/ig, `<img src='//media.wago.io/iconsUI/raidmarker-rt1.png' />`)
       content = content.replace(/\{(rt2|circle)\}/ig, `<img src='//media.wago.io/iconsUI/raidmarker-rt2.png' />`)
@@ -170,28 +189,19 @@ export default {
       // replace icons and links with html
       Promise.all(promises).then(() => {
         // parse color codes
-        let color = false
         let text = '' + content
-        let regex = /\|c([\dabcdef]{8}|blue|green|red|yellow|orange|pink|purple)|\|r/ig
+        let regex = /\|c([\dabcdef]{8}|blue|green|red|yellow|orange|pink|purple|deathknight|demonhunter|druid|hunter|mage|monk|paladin|priest|rogue|shaman|warlock|warrior)|\|r/ig
         let m
         while ((m = regex.exec(text)) !== null) {
           if (m.index === regex.lastIndex) {
             regex.lastIndex++
           }
           let html = ''
-          if (color && m[0] === '|r') {
+          if (m[0] === '|r') {
             content = content.replace(/\|r/, '</span>')
-            color = false
             continue
           }
-          else if (m[0] === '|r') {
-            content = content.replace(/\|r/, '')
-            continue
-          }
-          else if (color) {
-            html = '</span>'
-          }
-          switch (m[1]) {
+          switch (m[1].toLowerCase()) {
             case 'blue':
               html = html + '<span hex="ff00cbf4" style="color:#00cbf4">'
               break
@@ -263,49 +273,21 @@ export default {
                 html = html + `<span hex="${m[1]}" style="color:rgba(${rbga.red}, ${rbga.green}, ${rbga.blue}, ${rbga.alpha}">`
               }
           }
-          content = content.replace(/\|r/, html)
+          content = content.replace(m[0], html)
         }
-        // if we have an open tag
-        if (color) {
+        // make sure we have matching tags
+        var open = (content.match(/<span/g) || []).length
+        var close = (content.match(/<\/span/g) || []).length
+        while (open > close) {
           content = content + '</span>'
+          close++
+        }
+        while (close > open) {
+          content = content.replace(/<\/span>((?:.(?!<\/span>))+)$/, '$1')
+          close--
         }
         this.parsedNotes = content
       })
-    },
-
-    getCaretPosition: function (parentId) {
-      if (!parentId) {
-        parentId = 'editarea'
-      }
-      var selection = window.getSelection()
-      var charCount = -1
-      var node
-
-      if (selection.focusNode) {
-        if (isChildOf(selection.focusNode, parentId)) {
-          node = selection.focusNode
-          charCount = selection.focusOffset
-
-          while (node) {
-            if (node.id === parentId) {
-              break
-            }
-
-            if (node.previousSibling) {
-              node = node.previousSibling
-              charCount += node.textContent.length
-            }
-            else {
-              node = node.parentNode
-              if (node === null) {
-                break
-              }
-            }
-          }
-        }
-      }
-
-      return charCount
     },
 
     saveFromScratch: function () {
@@ -415,6 +397,7 @@ export default {
 #edit-notes .flex-right { order: 1; flex: 1 1 auto; text-align: right}
 #editarea { margin: 0 16px; min-height: 400px; box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2), 0 2px 2px rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.12); background: #333333; color: #DDD; }
 #editarea img { width: 18px; height: 18px; }
+#contentAngry, #contentExorsus {position:fixed;top:0;left:0;width:2em;height:2em;padding:0;border:0;outline:none;boxShadow:none;background:transparent}
 #saveChangesDialog .md-dialog { min-width: 40% }
 
 </style>

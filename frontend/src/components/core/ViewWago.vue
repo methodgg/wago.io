@@ -476,7 +476,7 @@
                       </md-input-container>
                     </div>
                     <div id="embed-preview-container" :class="embedStyle">
-                      <md-subheader>{{ $t("Preview") }}</md-subheader>
+                      <md-subheader><span style="color:#777">{{ $t("Preview") }}</span></md-subheader>
                       <div id="embed-preview">
                         <span :id="'wago-'+wago._id" class="wagoEmbed">
                           <a :href="wago.url" class='vr'><img src="https://media.wago.io/logo-57x57.png"></a>
