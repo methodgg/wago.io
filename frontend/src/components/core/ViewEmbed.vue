@@ -12,7 +12,10 @@
     <ui-loading v-else-if="!wagoExists"></ui-loading>
     <div v-else style="position:relative">
       <div id="wago-header">
-        <h3><img src="../../assets/wagoio-logo.png"/> <md-layout md-column><span class="title">{{ wago.name }}</span><span>View or modify at <a :href="wago.url" target="_blank">wago.io/{{ wago.slug }}</a></span></md-layout></h3>
+        <h3>
+          <img src="../../assets/wagoio-logo.png" v-if="darkBackground"/><img src="../../assets/wagoio-logo-dark.png" v-else/> 
+          <md-layout md-column><span class="title">{{ wago.name }}</span><span>View or modify at <a :href="wago.url" target="_blank">wago.io/{{ wago.slug }}</a></span></md-layout>
+        </h3>
         <div>
           <md-button v-if="wago.code && wago.code.encoded && !wago.alerts.blacklist" @click="copyEncoded" id="copy-import-button">
             <md-icon>assignment</md-icon> {{ $t("Copy [-type-] import string", {type: wago.type}) }}
@@ -35,6 +38,37 @@
 </template>
 
 <script>
+// global to be called from parent frame
+window.setColor = (item, color) => {
+  if (!color || !color.match(/^[\dABCDEF]{6}$/i)) {
+    return
+  }
+  var css
+  switch (item) {
+    case 'background':
+      css = `body#embed-body { background-color: #${color}!important }`
+      document.body.setAttribute('update', Date.now()) // trigger background observer within vue
+      break
+    case 'menu':
+      css = `body#embed-body #mdtOptions > .md-card, body#embed-body #mdtPulls { background-color: #${color}!important }`
+      break
+    case 'text1':
+      css = `body#embed-body #wago-header h3 span.title, body#embed-body .md-button, body#embed-body .topaffix, body#embed-body #mdtOptions label { color: #${color}!important }`
+      break
+    case 'text2':
+      css = `body#embed-body #wago-header h3 span, body#embed-body #wago-header h3 span a, body#embed-body .md-list-text-container > :nth-child(2):not(:last-child) { color: #${color}!important; } 
+             body#embed-body .md-input-container label, body#embed-body .md-input-container.md-has-select, body#embed-body .md-select:after, body#embed-body .md-input-container input { color: #${color}!important; -webkit-text-fill-color: #${color}!important }`
+      break
+    default:
+      return
+  }
+  const head = document.head
+  const style = document.createElement('style')
+  style.type = 'text/css'
+  style.appendChild(document.createTextNode(css))
+  head.appendChild(style)
+}
+
 export default {
   props: ['wagoID'],
   components: {
@@ -43,13 +77,24 @@ export default {
   created: function () {
     this.fetchWago()
     window.addEventListener('scroll', this.watchScroll)
+    const params = new URLSearchParams(window.location.search)
+    window.setColor('background', params.get('background'))
+    window.setColor('menu', params.get('menu'))
+    window.setColor('text1', params.get('text1'))
+    window.setColor('text2', params.get('text2'))
+
+    this.observer = new MutationObserver(this.checkBackground)
+    this.observer.observe(document.getElementById('embed-body'), {attributes: true})
   },
   destroyed: function () {
     window.removeEventListener('scroll', this.watchScroll)
+    this.observer.disconnect()
   },
   data: function () {
     return {
-      currentVersionString: ''
+      currentVersionString: '',
+      darkBackground: true,
+      observer: null
     }
   },
   computed: {
@@ -124,6 +169,39 @@ export default {
       catch (e) {
         console.error(e.message)
       }
+    },
+    checkBackground () {
+      try {
+        var color = getComputedStyle(document.body)['background-color']
+      }
+      catch (e) {
+        this.darkBackground = true
+        return
+      }
+      var r
+      var g
+      var b
+      // calc brightness https://awik.io/determine-color-bright-dark-using-javascript/
+      if (color.match(/^rgb/)) {
+        // If HEX --> store the red, green, blue values in separate variables
+        color = color.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d+(?:\.\d+)?))?\)$/)
+        r = color[1]
+        g = color[2]
+        b = color[3]
+      }
+      else {
+        // If RGB --> Convert it to HEX: http://gist.github.com/983661
+        color = +('0x' + color.slice(1).replace(color.length < 5 && /./g, '$&$&'))
+        r = color >> 16
+        g = color >> 8 & 255
+        b = color & 255
+      }
+      var hsp = Math.sqrt(0.299 * (r * r) + 0.587 * (g * g) + 0.114 * (b * b))
+      if (hsp > 127.5) {
+        this.darkBackground = false
+        return
+      }
+      this.darkBackground = true
     }
   }
 }
@@ -147,6 +225,4 @@ body { margin: 0; padding: 0}
 .wago-importstring::selection { color:transparent;background:transparent }
 .wago-importstring::-moz-selection { color:transparent;background:transparent }
 .wago-importstring::-webkit-selection { color:transparent;background:transparent }
-
-
 </style>

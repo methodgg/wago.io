@@ -547,5 +547,18 @@
   "On Hide": "",
   "BFA Season 2 Affix Weeks": "",
   "Content": "",
-  "Browse Plater imports": ""
+  "Browse Plater imports": "",
+  "Save Notes": "",
+  "Embed iframe": "",
+  "Embed a minimimally designed readonly MDT route on your own site": "Embed a minimimally designed, readonly MDT route on your own site.",
+  "The frame is responsive and will look good at most site widths": "The frame is responsive and will look good at most site widths.",
+  "Most of the colors are customizable by including a parameter in the URL": "Most of the colors are customizable by including a parameter in the URL.",
+  "Body Background": "",
+  "Menu Background": "",
+  "Text 1": "",
+  "Text 2": "",
+  "Reset": "",
+  "Iframe code": "",
+  "Iframe script copied": "",
+  "Iframe script failed to copy please upgrade to a modern browser": ""
 }

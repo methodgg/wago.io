@@ -69,6 +69,10 @@
 .plater a, .plater { color: #FFC972!important}
 .multiselect .md-chip.plater { background-color: #FFC972!important; color: black!important }
 
+.md-chip.encounternotes { color: #DE0B72!important; background-image: url('menu-encounternotes.png') }
+.encounternotes a, .encounternotes { color: #DE0B72!important}
+.multiselect .md-chip.encounternotes { background-color: #DE0B72!important; color: black!important }
+
 .md-chip.vuhdo { color: #6BB85E!important; background-image: url('menu-vuhdo.png') }
 .vuhdo a, .vuhdo { color: #6BB85E!important}
 .multiselect .md-chip.vuhdo { background-color: #6BB85E!important; color: black!important }

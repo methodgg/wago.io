@@ -20,6 +20,7 @@ const commonRateLimit = rateLimit({
 const commonAuthRateLimit = rateLimit({
   windowMs: 60 * 60 * 1000,
   max: 10,
+  store: mongoStore,
   headers: false,
   expectUser: true,
   keyGenerator: (req) => {
@@ -45,6 +46,7 @@ const apiRateLimit = rateLimit({
 const apiAuthRateLimit = rateLimit({
   windowMs: 60 * 60 * 1000,
   max: 10,
+  store: mongoStore,
   headers: false,
   expectUser: true,
   keyGenerator: (req) => {

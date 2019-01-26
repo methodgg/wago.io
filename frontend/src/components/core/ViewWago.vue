@@ -456,6 +456,47 @@
 
               <!-- EMBED FRAME -->
               <div id="wago-embed-container" class="wago-container" v-if="showPanel=='embed' && wago.code && wago.code.encoded">
+                <template v-if="wago.type === 'MDT'">
+                  <h2>{{ $t("Embed iframe") }}</h2>
+                  <md-card id="wago-embed">
+                    <p>{{ $t("Embed a minimimally designed readonly MDT route on your own site") }} {{ $t("The frame is responsive and will look good at most site widths") }}</p>
+                    <p>{{ $t("Most of the colors are customizable by including a parameter in the URL") }}</p>
+                    <div id="embed-content">
+                      <div id="embed-inputs" class="field-group">                        
+                        <md-layout>
+                          <div class="iframeColorPickers">
+                            <span v-bind:style="{'color': (iframeColorEdit === 'background' ? '#d7373d' : 'inherit')}">{{ $t("Body Background") }}</span>
+                            <button class='colorBtn' @click="setCustomizeIframeColor('background')" v-bind:style="{'background-color': iframeBackground}"></button>
+                            
+                            <span v-bind:style="{'color': (iframeColorEdit === 'menu' ? '#d7373d' : 'inherit')}">{{ $t("Menu Background") }}</span>              
+                            <button class='colorBtn' @click="setCustomizeIframeColor('menu')" v-bind:style="{'background-color': iframeMenu}"></button>
+
+                            <md-button @click="copyIframe()">{{ $t("Copy code") }}</md-button>
+                          </div>
+                          <div class="iframeColorPickers">                            
+                            <span v-bind:style="{'color': (iframeColorEdit === 'text1' ? '#d7373d' : 'inherit')}">{{ $t("Text 1") }}</span>              
+                            <button class='colorBtn' @click="setCustomizeIframeColor('text1')" v-bind:style="{'background-color': iframeText1}"></button>
+                            
+                            <span v-bind:style="{'color': (iframeColorEdit === 'text2' ? '#d7373d' : 'inherit')}">{{ $t("Text 2") }}</span>              
+                            <button class='colorBtn' @click="setCustomizeIframeColor('text2')" v-bind:style="{'background-color': iframeText2}"></button>
+
+                            <md-button @click="resetIframe()" v-if="iframeQueryString">{{ $t("Reset") }}</md-button>
+                          </div>
+                          <div id="color-picker">
+                            <color-picker v-if="iframeColorEdit" v-model="customizeIframeColor" :disableAlpha="true" />
+                          </div>
+                        </md-layout>                        
+                        <md-input-container>
+                          <label>{{ $t("Iframe code") }}</label>
+                          <md-input readonly :value="'<iframe src=&quot;https://wago.io/' + wago._id + '/embed.html' + iframeQueryString + '&quot; style=&quot;width: 100%; height: 795px;&quot;></iframe>'"></md-input>
+                        </md-input-container>
+                      </div>
+                    </div>
+                    <iframe :src="'https://wago.io/' + wago._id + '/embed.html' + _iframeQueryString" style="width: 100%; height: 795px; border: 1px solid #ddd" id="embed-iframe"></iframe>
+                  </md-card>
+                  <br>
+                </template>
+
                 <h2>{{ $t("Embed script") }}</h2>
                 <md-card id="wago-embed">
                   <div>{{ $t("Embed this wago on your own site") }}</div>
@@ -649,6 +690,7 @@ export default {
     'build-mdt': require('../UI/MDTBuilder.vue'),
     'input-semver': require('../UI/Input-Semver.vue'),
     'view-diffs': require('../UI/ViewDiffs.vue'),
+    'color-picker': require('vue-color').Chrome,
     editor: require('vue2-ace-editor'),
     Multiselect,
     CategorySelect,
@@ -679,6 +721,12 @@ export default {
       showMoreCollections: true,
       showEmbed: false,
       embedStyle: 'dark',
+      customizeIframeColor: {},
+      iframeColorEdit: '',
+      iframeBackground: '#212121',
+      iframeMenu: '#333333',
+      iframeText1: '#FFFFFF',
+      iframeText2: '#B6B6B6',
       version: this.$route.params.version,
       showFloatingHeader: false,
       editName: '',
@@ -769,6 +817,26 @@ export default {
           vue.scanID = res.scan
         }
       })
+    },
+    customizeIframeColor: function (val) {
+      if (!val || !val.hex || !this.iframeColorEdit) {
+        return
+      }
+      switch (this.iframeColorEdit) {
+        case 'background':
+          this.iframeBackground = val.hex
+          break
+        case 'menu':
+          this.iframeMenu = val.hex
+          break
+        case 'text1':
+          this.iframeText1 = val.hex
+          break
+        case 'text2':
+          this.iframeText2 = val.hex
+          break
+      }
+      document.getElementById('embed-iframe').contentWindow.setColor(this.iframeColorEdit, val.hex.replace(/#/, ''))
     }
   },
   computed: {
@@ -847,6 +915,25 @@ export default {
 </style>`
       }
     },
+    iframeQueryString: function () {
+      var params = []
+      if (this.iframeBackground && this.iframeBackground !== '#212121') {
+        params.push(`background=${this.iframeBackground}`)
+      }
+      if (this.iframeMenu && this.iframeMenu !== '#333333') {
+        params.push(`menu=${this.iframeMenu}`)
+      }
+      if (this.iframeText1 && this.iframeText1 !== '#FFFFFF') {
+        params.push(`text1=${this.iframeText1}`)
+      }
+      if (this.iframeText2 && this.iframeText2 !== '#B6B6B6') {
+        params.push(`text2=${this.iframeText2}`)
+      }
+      if (!params.length) {
+        return ''
+      }
+      return '?' + params.join('&').replace(/#/g, '')
+    },
     editorTheme: function () {
       if (!this.$store.state.user || !this.$store.state.user.config || !this.$store.state.user.config.editor) {
         return 'tomorrow'
@@ -905,6 +992,7 @@ export default {
       this.newImportStringStatus = ''
       this.numCategorySets = 1
       this.showMoreCategories = false
+      this._iframeQueryString = this.iframeQueryString
 
       var params = {}
       params.id = wagoID
@@ -1127,6 +1215,44 @@ export default {
       }
       else {
         window.eventHub.$emit('showSnackBar', this.$t('Embed script failed to copy please upgrade to a modern browser'))
+      }
+    },
+    copyIframe () {
+      var stopEscaping = '<'
+      if (copyTextToClipboard(stopEscaping + 'iframe src=&quot;https://wago.io/' + this.wago._id + '/embed.html' + this.iframeQueryString + '&quot; style=&quot;width: 100%; height: 795px;&quot;>' + stopEscaping + '/iframe>', this)) {
+        window.eventHub.$emit('showSnackBar', this.$t('Iframe script copied'))
+      }
+      else {
+        window.eventHub.$emit('showSnackBar', this.$t('Iframe script failed to copy please upgrade to a modern browser'))
+      }
+    },
+    resetIframe () {
+      this.iframeColorEdit = null
+      this.iframeBackground = '#212121'
+      this.iframeMenu = '#333333'
+      this.iframeText1 = '#FFFFFF'
+      this.iframeText2 = '#B6B6B6'
+      var frame = document.getElementById('embed-iframe')
+      frame.contentWindow.setColor('background', this.iframeBackground.replace(/#/, ''))
+      frame.contentWindow.setColor('menu', this.iframeMenu.replace(/#/, ''))
+      frame.contentWindow.setColor('text1', this.iframeText1.replace(/#/, ''))
+      frame.contentWindow.setColor('text2', this.iframeText2.replace(/#/, ''))
+    },
+    setCustomizeIframeColor (item) {
+      this.iframeColorEdit = item
+      switch (item) {
+        case 'background':
+          this.customizeIframeColor = this.iframeBackground
+          return
+        case 'menu':
+          this.customizeIframeColor = this.iframeMenu
+          return
+        case 'text1':
+          this.customizeIframeColor = this.iframeText1
+          return
+        case 'text2':
+          this.customizeIframeColor = this.iframeText2
+          return
       }
     },
     toggleMobileHeader () {
@@ -1888,6 +2014,9 @@ a.showvid:hover:before  .md-icon { opacity:1 }
 #embed-preview-container.light button{display:inline;padding:4px 16px;min-width: 130px;background-color:#FFF;cursor:pointer;color:rgba(0,0,0,.87);border:0;text-align:center;vertical-align:top;border-radius:6px}
 #embed-preview-container.light button:hover{background-color:#F4F4F4}
 #embed-preview-container.none img {display: none}
+
+.iframeColorPickers { margin-right: 16px }
+.colorBtn { display: block; margin: 4px 0 16px 0; height: 32px; width: 130px; border: 1px solid white; cursor: pointer }
 
 .wago-importstring { width:2em;height:2em;padding:0;margin:0;border:0;outline:none;box-shadow:none;background:transparent;color:transparent;overflow:hidden;resize:none }
 .wago-importstring::selection { color:transparent;background:transparent }

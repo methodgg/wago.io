@@ -23,13 +23,14 @@
         <md-button class="md-hide-xsmall" v-if="canEdit" @click="$refs['saveChangesDialog'].open()" ref="saveChangesButton"><md-icon>save</md-icon> {{ $t("Save changes") }}</md-button>
         <md-button class="md-hide-xsmall" v-if="scratch" @click="saveFromScratch"><md-icon>save</md-icon> {{ $t("Save MDT") }}</md-button>
       </div>
-      <div class="flex-col flex-right" style="position:relative" v-if="readonly">        
+      <div class="flex-col flex-right" style="position:relative" v-if="readonly">     
         <template v-for="(affixID, k) in selectedAffixes">
           <span v-html="displayAffix(affixID)" class="topaffix"></span>
-        </template>
-        <md-button class="md-raised" disabled id="sumPct"><md-icon>functions</md-icon> 
-          <span v-if="pullDetails.length">{{ Math.round(100*pullDetails[pullDetails.length - 1].percentRunningTotal)/100 }}%</span>
-          <span v-else>0%</span>
+        </template> 
+        <md-button class="md-raised" disabled id="sumPct">  
+          <md-icon>functions</md-icon> 
+          <strong v-if="pullDetails.length">{{ Math.round(100*pullDetails[pullDetails.length - 1].percentRunningTotal)/100 }}%</strong>
+          <strong v-else>0%</strong>
         </md-button>
         <md-button v-if="screenWidth < 800" id="wago-options-toggle" class="md-icon-button md-raised" @click="toggleMDTOptions">
           <md-icon>more_horiz</md-icon>
@@ -336,25 +337,6 @@
 
   </div>
 </template>
-
-<!--
-  TODO:
-  add more tooltip details?
-  m+ level needed?
-  arrows/rings/other annotation tools?
-  - color : color_lens or style or fiber_manual_record
-  - width
-  - shapes? -- outline style
-    - triangle? details
-    - square? crop_din
-    - circle? fiber_manual_record
-  - note : receipt
-  - move object
-  - eraser
-  - clear all
-  create/edit annotations
-  -->
-  
 
 <script>
 const semver = require('semver')
@@ -1468,10 +1450,17 @@ export default {
 #builder { position: relative; min-height: 666px }
 #builder canvas { position: absolute; left: 0; top: 0; width:60%; max-width: 1000px; height: 666px; max-height: 666px; }
 #stageContainer { max-width:1000px; width:60%; height:666px; position: relative; flex: 2 }
-#mdtOptions .md-card { margin: 0; overflow: hidden; width: 100%; height: 666px; overflow-y: auto;}
+#mdtOptions .md-card { margin: 0; overflow: hidden; width: 100%; height: 666px; overflow-y: auto;} 
 #mdtOptions .md-card .md-sidenav-content { min-width: 75%; }
 #mdtOptions .md-sidenav-backdrop { position: fixed }
-#sumPct { color: inherit }
+/* embed options scrollbar */
+#embed-body #mdtOptions .md-card { scrollbar-width: thin; }
+#embed-body #mdtOptions .md-card::-webkit-scrollbar { width: 8px; }
+#embed-body #mdtOptions .md-card::-webkit-scrollbar-track { background: #f1f1f1; }
+#embed-body #mdtOptions .md-card::-webkit-scrollbar-thumb { background: #888; }
+#embed-body #mdtOptions .md-card::-webkit-scrollbar-thumb:hover { background: #555; }
+
+#sumPct { color: inherit; text-transform: none }
 .inlineContainer { display: inline-flex; flex-direction: row; flex-wrap: wrap; }
 .affix { padding-right: 6px; padding-bottom: 4px; white-space: nowrap; line-height:36px; display: inline; }
 .affix img { width: 22px; height: 22px; }
@@ -1525,6 +1514,7 @@ export default {
   #stageContainer, #builder canvas {width:calc(100vw) }
   #mobilePull { position: absolute; top: -12px; right: 48px; max-width: 70px }
   #wago-options-toggle { background-color: rgba(0, 0, 0, 0.7); margin-right: 22px }
+  #wago-builder-container.wago-container { margin-right: 0}
 }
 
 .hidden { display: none!important }

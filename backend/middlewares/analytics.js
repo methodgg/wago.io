@@ -2,7 +2,7 @@ const ua = require('universal-analytics')
 const UUID = require('uuid-1345')
 
 module.exports = function(req, res, next) {
-  if (req.path().match(/\/account\//) || req.method != 'GET') {
+  if (req.path().match(/\/(account|auth)\//) || req.method != 'GET') {
     return next()
   }
   new Promise((resolve, reject) => {
