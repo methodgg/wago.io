@@ -4,10 +4,10 @@
 const rateLimit = require('./express-rate-limit/lib/express-rate-limit')
 const mongoStore = require('./express-rate-limit/lib/mongo-store')
 
-// 50 requests per minute against backend service
+// 1000 requests per 10 minutes against backend service
 const commonRateLimit = rateLimit({
-  windowMs: 60 * 1000,
-  max: 50,
+  windowMs: 10 * 60 * 1000,
+  max: 1000,
   store: mongoStore,
   keyGenerator: (req) => {
     return 'web-' + req.headers['cf-connecting-ip']
