@@ -214,7 +214,6 @@ module.exports = {
       delete obj['1']
       obj[1] = tmp
     }
-    console.log(obj)
     // generate lua file
     var str = JSON.stringify(obj)
     var luaScript = 'dofile("./wago.lua"); JSON2Plater("' + str.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim() + '")'

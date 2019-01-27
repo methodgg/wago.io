@@ -235,7 +235,6 @@ module.exports = {
                   throw err
                 }
                 for (let i = 0; i < files.length; i++) {
-                  console.log(files[i])
                   if (files[i].match(regex)) {
                     res.data.iconFile = files[i]
                     BlizzData.findOneAndUpdate({_id: spellLookup, locale: locale}, {_id: spellLookup, locale: locale, value: res.data}, {upsert: true}).exec()

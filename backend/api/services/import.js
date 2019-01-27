@@ -310,7 +310,6 @@ function ScanImport (req, res, next, test) {
       }
       catch (e) {
         test.notElvUI = true
-        console.log('err?', req.body.importString, e.message, result.stdout)
         return ScanImport (req, res, next, test)
       }      
     })
@@ -357,9 +356,8 @@ function ScanImport (req, res, next, test) {
 
   // if input looks like a TotalRP3 string
   else if ((req.body.importString.match(RegexTotalRP3) || req.body.importString.match(RegexTotalRP3Deflate)) && !test.notRP3) {
-    console.log('try rp3')
     lua.TotalRP32JSON(req.body.importString, (error, result) => {
-      console.log(error, result.stderr)
+      logger.error(error, result.stderr)
       if (error) {
         return res.send({error: error})
       }
@@ -370,7 +368,6 @@ function ScanImport (req, res, next, test) {
       var scan = new ImportScan()
       try {
         var data = JSON.parse(result.stdout)
-        console.log(data)
         // if totalRP fields found
         if (data && data[2] && data[2].MD && data[2].MD.CD && data[2].MD.CD.match(/\d+\/\d+\/\d+\s\d+:\d+\d+/)) {
           if (data.wagoID) {

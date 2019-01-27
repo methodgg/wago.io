@@ -143,7 +143,7 @@
                 <md-button v-bind:class="{'md-toggle': showPanel === 'comments'}" @click="toggleFrame('comments')"><span v-if="hasUnreadComments && showPanel !== 'comments'" class="commentAttn">{{$t("NEW")}}!! </span>{{ $t("[-count-] comment", {count: wago.commentCount }) }}</md-button>
                 <md-button v-bind:class="{'md-toggle': showPanel === 'collections'}" v-if="wago.type !== 'COLLECTION'" @click="toggleFrame('collections')">{{ $t("[-count-] collection", {count:  wago.collectionCount}) }}</md-button>
                 <md-button v-bind:class="{'md-toggle': showPanel === 'versions'}" v-if="wago.versions && wago.versions.total > 1" @click="toggleFrame('versions')" ref="versionsButton">{{ $t("[-count-] version", { count: wago.versions.total }) }}</md-button>
-                <md-button v-bind:class="{'md-toggle': showPanel === 'diffs'}" v-if="wago.versions && wago.versions.total > 1 && (wago.type === 'WEAKAURA' || wago.type === 'SNIPPET')" @click="toggleFrame('diffs')" ref="diffsButton">{{ $t("Code Diffs") }}</md-button>
+                <md-button v-bind:class="{'md-toggle': showPanel === 'diffs'}" v-if="hasCodeDiffs" @click="toggleFrame('diffs')" ref="diffsButton">{{ $t("Code Diffs") }}</md-button>
                 <md-button v-bind:class="{'md-toggle': showPanel === 'embed'}" v-if="!wago.alerts.blacklist && wago.code && wago.code.encoded" @click="toggleFrame('embed')">{{ $t("Embed") }}</md-button>
                 <md-button v-bind:class="{'md-toggle': showPanel === 'builder'}" v-if="wago.type === 'MDT'" @click="toggleFrame('builder')">{{ $t("Builder") }}</md-button>
                 <md-button v-bind:class="{'md-toggle': showPanel === 'editor'}" v-if="wago.code" @click="toggleFrame('editor')">{{ $t("Editor") }}</md-button>
@@ -948,6 +948,22 @@ export default {
         arr.push(semver.valid(semver.coerce(v.versionString)))
       })
       return arr
+    },
+    hasCodeDiffs: function () {
+      if (!this.wago.versions || this.wago.versions.total <= 1) {
+        return false
+      }
+      if (this.wago.type === 'WEAKAURA' || this.wago.type === 'SNIPPET') {
+        return true
+      }
+      if (this.wago.type === 'PLATER') {
+        for (let i = 0; i < this.wago.categories.length; i++) {
+          if (this.wago.categories[i].id === 'plater2' || this.wago.categories[i].id === 'plater3') {
+            return true
+          }
+        }
+      }
+      return false
     }
   },
   methods: {

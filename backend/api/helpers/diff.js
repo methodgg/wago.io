@@ -6,6 +6,35 @@ module.exports = {
   Lua: (codeA, codeB) => {
     return makeDiffs({Lua: codeA}, {Lua: codeB})
   },
+
+  Plater: (jsonA, jsonB) => {
+    try {
+      jsonA = JSON.parse(jsonA)
+      jsonB = JSON.parse(jsonB)
+    }
+    catch (e) {
+      return makeDiffs({}, {})
+    }
+    if (!Array.isArray(jsonA) || !Array.isArray(jsonB)) {
+      return makeDiffs({}, {})
+    }
+    else if (typeof jsonA[8] === 'number' && typeof jsonB[8] === 'number') { // Plater script
+      var tblA = {}
+      var tblB = {}
+      tblA.Constructor = jsonA[11]
+      tblA['On Show'] = jsonA[13]
+      tblA['On Update'] = jsonA[10]
+      tblA['On Hide'] = jsonA[12]
+      tblB.Constructor = jsonB[11]
+      tblB['On Show'] = jsonB[13]
+      tblB['On Update'] = jsonB[10]
+      tblB['On Hide'] = jsonB[12]
+      return makeDiffs(tblA, tblB)
+    }
+    else if (typeof jsonA[8] === 'object' && typeof jsonB[8] === 'object') { // Plater hook
+      return makeDiffs(jsonA[8], jsonB[8]) 
+    }
+  },
   
   WeakAuras: (jsonA, jsonB) => {
     var tblA = JSON.parse(jsonA)
@@ -17,6 +46,7 @@ module.exports = {
     return makeDiffs(customA, customB)
   }
 }
+
 
 function makeDiffs (compareA, compareB) {
   return new Promise((resolve, reject) => {

@@ -458,6 +458,11 @@ server.get('/lookup/wago/diffs', (req, res, next) => {
           res.send(content)
         })
       }
+      if (doc.type === 'PLATER') {
+        diff.Plater(tables.right, tables.left).then((content) => {
+          res.send(content)
+        })
+      }
       else if (doc.type === 'WEAKAURAS2' || doc.type === 'WEAKAURA') {
         diff.WeakAuras(tables.right, tables.left).then((content) => {
           res.send(content)
