@@ -157,14 +157,14 @@
                 <!-- note -->
                 <mdt-poi v-if="obj && obj.n && obj.d && obj.d[2] === subMapID + 1" :data="obj" :annotationsIndex="id" :mdtScale="mdtScale" :mapID="mapID" @mouseover="setPOITooltip(obj); setSelectedMoveAnnotation(id)" @mouseout="setPOITooltip(null); setSelectedMoveAnnotation(null)" @mousemove="moveTooltip" @click="clickPOI(obj, id)" />
                 <!-- arrow -->
-                <v-arrow v-else-if="obj && obj.t && obj.l && obj.d[2] === subMapID + 1 && obj.d[3]" @mouseover="setSelectedMoveAnnotation(id)" @mouseout="setSelectedMoveAnnotation(null)" :config="{
+                <v-arrow v-else-if="obj && obj.t && obj.l && obj.l.length >= 4 && obj.d[2] === subMapID + 1 && obj.d[3]" @mouseover="setSelectedMoveAnnotation(id)" @mouseout="setSelectedMoveAnnotation(null)" :config="{
                   points: linePointsXY(obj.l),
                   strokeWidth: Math.max(obj.d[0] * 0.4, (id === selectedMoveAnnotationID ? 2 : 0)),
                   stroke: '#' + (id === selectedMoveAnnotationID ? '0288D1' : obj.d[4]),
                   fill: '#' + (id === selectedMoveAnnotationID ? '0288D1' : obj.d[4])
                 }"/>
                 <!-- line -->
-                <v-line v-else-if="obj && obj.l && obj.d[2] === subMapID + 1 && obj.d[3]" @mouseover="setSelectedMoveAnnotation(id)" @mouseout="setSelectedMoveAnnotation(null)" :config="{
+                <v-line v-else-if="obj && obj.l && obj.l.length >= 4 && obj.d[2] === subMapID + 1 && obj.d[3]" @mouseover="setSelectedMoveAnnotation(id)" @mouseout="setSelectedMoveAnnotation(null)" :config="{
                   points: linePointsXY(obj.l),
                   strokeWidth: Math.max(obj.d[0] * 0.4, (id === selectedMoveAnnotationID ? 2 : 0)),
                   stroke: '#' + (id === selectedMoveAnnotationID ? '0288D1' : obj.d[4]),
@@ -420,7 +420,7 @@ export default {
     if (this.$store.state.mdtDungeonTable) {
       this.mdtDungeonTable = this.$store.state.mdtDungeonTable
     }
-    this.checkKonvaSize = setInterval(this.updateKonvaSize, 500)
+    this.checkKonvaSize = setInterval(this.updateKonvaSize, 100)
 
     this.http.get('/data/mdtDungeonTable-' + this.mapID).then((res) => {
       if (res && res.value) {
@@ -727,6 +727,9 @@ export default {
     },
 
     updateKonvaSize () {
+      if (!this.mdtDungeonTable.dungeonMaps) {
+        return
+      }
       var w = document.getElementById('builder') && document.getElementById('builder').offsetWidth || 0
       if (!this.konvaStageConfig || w !== this.konvaStageConfig.width) {
         this.konvaStageConfig = {width: w, height: 666, x: (1000 - document.getElementById('stageContainer').offsetWidth) * -0.6}
@@ -1173,8 +1176,8 @@ export default {
           groups[this.enemies[enemyIndex].clones[cloneIndex].g].push(meta)
 
           // setup targets obj for horizontal list
-          targets[this.enemies[enemyIndex].name] = targets[this.enemies[enemyIndex].name] || { count: 0, forces: this.enemies[enemyIndex].count, boss: this.enemies[enemyIndex].isBoss, enemyIndex: enemyIndex }
-          targets[this.enemies[enemyIndex].name].count++
+          targets[enemyIndex] = targets[enemyIndex] || { count: 0, forces: this.enemies[enemyIndex].count, boss: this.enemies[enemyIndex].isBoss, enemyIndex: enemyIndex, name: this.enemies[enemyIndex].name }
+          targets[enemyIndex].count++
           if (!targets._groups) {
             targets._groups = [this.enemies[enemyIndex].clones[cloneIndex].g]
           }
@@ -1191,10 +1194,10 @@ export default {
       }
 
       var hList = ''
-      for (let name in targets) {
-        if (!targets.hasOwnProperty(name) || name === '_groups') continue
-        if (targets[name].boss) hList = hList + '💀' + name + ', '
-        else hList = hList + targets[name].count + 'x ' + name + ', '
+      for (let index in targets) {
+        if (!targets[index].name || index === '_groups') continue
+        if (targets[index].boss) hList = hList + '💀' + targets[index].name + ', '
+        else hList = hList + targets[index].count + 'x ' + targets[index].name + ', '
       }
       details.hList = hList.slice(0, -2)
 
