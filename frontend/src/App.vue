@@ -155,7 +155,7 @@
 
       <md-snackbar md-position="top center" ref="snackbar" md-duration="4000">
         <span>{{ PopMsg }}</span>
-        <md-button class="md-accent" md-theme="light-blue" @click.native="$refs.snackbar.close()">{{ $t("Close") }}</md-button>
+        <md-button @click.native="$refs.snackbar.close()">{{ $t("Close") }}</md-button>
       </md-snackbar>
 
       <div id="content">
