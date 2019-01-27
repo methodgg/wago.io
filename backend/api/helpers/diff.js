@@ -1,50 +1,72 @@
-const gitDiff = require('git-diff')
+const async = require('async')
+const exec = require('shelljs.exec')
+const fs = require('fs')
 
-module.exports = (jsonA, jsonB, diffOptions) => {
-  var diffs = [] // `--- a/Table+++ b/Table\n${gitDiff(jsonA, jsonB, diffOptions)}`
-  var tblA = JSON.parse(jsonA)
-  var tblB = JSON.parse(jsonB)
+module.exports = {
+  Lua: (codeA, codeB) => {
+    return makeDiffs({Lua: codeA}, {Lua: codeB})
+  },
+  
+  WeakAuras: (jsonA, jsonB) => {
+    var tblA = JSON.parse(jsonA)
+    var tblB = JSON.parse(jsonB)
 
-  var customA = getCustomCodeWA(tblA.c || [tblA.d])
-  var customB = getCustomCodeWA(tblB.c || [tblB.d])
+    var customA = getCustomCodeWA(tblA.c || [tblA.d])
+    var customB = getCustomCodeWA(tblB.c || [tblB.d])
 
-  var keys = Object.keys(customB)
-  keys.forEach((key) => {
-    // in case something messed up somewhere
-    if (typeof customB[key] !== 'string') {
-      return
-    }
-    if (!customA[key]) {
-      customA[key] = ''
-    }
-    if (customA[key].match(/^--/)) {
-      customA[key] = ' ' + customA[key]
-    }
-    if (customB[key].match(/^--/)) {
-      customB[key] = ' ' + customB[key]
-    }
-    let diff = gitDiff(customB[key], customA[key], diffOptions)
-    if (diff) {
-      diffs.push(`--- a/${key}\n+++ b/${key}\n${diff}`)
-    }
-    delete customA[key]
+    return makeDiffs(customA, customB)
+  }
+}
+
+function makeDiffs (compareA, compareB) {
+  return new Promise((resolve, reject) => {
+    var diffs = []
+    var keys = arrayUnique(Object.keys(compareA).concat(Object.keys(compareB)))
+    async.each(keys, (key, done) => {
+      if (compareA[key] === compareB[key]) {
+        return done()
+      }
+      if (typeof compareA[key] !== 'string') {
+        compareA[key] = ''
+      }
+      if (typeof compareB[key] !== 'string') {
+        compareB[key] = ''
+      }
+      if (compareA[key].match(/^--/)) {
+        compareA[key] = ' ' + compareA[key]
+      }
+      if (compareB[key].match(/^--/)) {
+        compareB[key] = ' ' + compareB[key]
+      }
+      makeTmpFile(compareA[key]).then((fileA) => {
+        makeTmpFile(compareB[key]).then((fileB) => {
+          let diff = exec(`git diff --no-index --color=never ${fileA} ${fileB}`)
+          if (diff && diff.stdout) {
+            diff = diff.stdout.split(/\n/g).slice(4).join('\n')
+            diffs.push(`--- a/${key}\n+++ b/${key}\n${diff}`)
+          }
+          fs.unlink(fileA, () => {})
+          fs.unlink(fileB, () => {})
+          done()
+        })
+      })
+    }, () => {
+      resolve(diffs)
+    })    
   })
+}
 
-  keys = Object.keys(customA)
-  keys.forEach((key) => {
-    // in case something messed up somewhere
-    if (typeof customA[key] !== 'string') {
-      return
-    }
-    if (customA[key].match(/^--/)) {
-      customA[key] = ' ' + customA[key]
-    }
-    let diff = gitDiff('', customA[key], diffOptions)
-    if (diff) {
-      diffs.push(`--- a/${key}\n+++ b/${key}\n${diff}`)
-    }
+function makeTmpFile(contents) {
+  return new Promise((resolve, reject) => {
+    var tmp = Math.random().toString(36)
+    var filename = __dirname + '/../../diffs/' + new Date().getTime() + tmp
+    fs.writeFile(filename, contents, (err) => {
+      if (err) {
+        return reject(err)
+      }
+      resolve(filename)
+    })
   })
-  return diffs
 }
 
 // ported from frontend's table editor
@@ -340,4 +362,16 @@ function getCustomCodeWA(data) {
   })
 
   return code
+}
+
+
+function arrayUnique(array) {
+  var a = array.concat()
+  for(var i=0; i<a.length; ++i) {
+      for(var j=i+1; j<a.length; ++j) {
+          if(a[i] === a[j])
+              a.splice(j--, 1)
+      }
+  }
+  return a
 }

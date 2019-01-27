@@ -3,9 +3,8 @@
  */
 const lua = require('../helpers/lua')
 const WCL = require('../helpers/WCL')
-const gitDiff = require('git-diff')
 const battlenet = require('../helpers/battlenet')
-const weakauraDiff = require('../helpers/weakauraDiff')
+const diff = require('../helpers/diff')
 const wowPatches = require('../helpers/wowPatches')
 
 function doNothing () {}
@@ -454,15 +453,18 @@ server.get('/lookup/wago/diffs', (req, res, next) => {
         cb()
       })
     }, () => {
-      const diffOpts = {flags: '--diff-algorithm=minimal --ignore-space-at-eol'}
       if (doc.type === 'SNIPPET') {
-        return res.send(['--- a/Snippet\n+++ b/Snippet\n' + gitDiff(tables.right, tables.left, diffOpts)])
+        diff.Lua(tables.right, tables.left).then((content) => {
+          res.send(content)
+        })
       }
-      else if (doc.type !== 'WEAKAURAS2' && doc.type !== 'WEAKAURA') {
-        return res.send(['--- a/Table\n+++ b/Table\n' + gitDiff(tables.right, tables.left, diffOpts)])
+      else if (doc.type === 'WEAKAURAS2' || doc.type === 'WEAKAURA') {
+        diff.WeakAuras(tables.right, tables.left).then((content) => {
+          res.send(content)
+        })
       }
       else {
-        return res.send(weakauraDiff(tables.left, tables.right, diffOpts))
+        return res.send([])
       }
     })
   })

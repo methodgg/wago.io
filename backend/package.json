@@ -50,6 +50,7 @@
     "restify-errors": "^4.3.0",
     "semver": "^5.6.0",
     "sharp": "^0.18.4",
+    "shelljs.exec": "^1.1.8",
     "shortid": "^2.2.14",
     "universal-analytics": "^0.4.20",
     "uuid-1345": "^0.99.7",
@@ -58,9 +59,7 @@
     "winston-daily-rotate-file": "^3.5.1",
     "winston-loggly-bulk": "^2.0.3"
   },
-  "devDependencies": {
-    "git-diff": "^2.0.6"
-  },
+  "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
