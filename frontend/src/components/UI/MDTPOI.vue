@@ -68,7 +68,7 @@ export default {
         image.src = require('../../assets/mapPOI/USERNOTEICONS.png')
         var count = 0
         for (let i = 0; i < this.tableData.objects.length && i < this.annotationsIndex && count < 50; i++) {
-          if (this.tableData.objects[i].n) count++
+          if (this.tableData.objects[i] && this.tableData.objects[i].n) count++
         }
         return {image, animation: count, animations: this.USERNOTEICONS, x: (data.d[0] * this.mdtScale) - 13.6, y: -(data.d[1] * this.mdtScale) - 16.6, scaleX: 0.85, scaleY: 0.85}
       }
