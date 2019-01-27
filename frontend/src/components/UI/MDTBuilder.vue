@@ -408,7 +408,10 @@ export default {
       isColorPickerOpen: false,
       userNoteEditText: '',
       editPoiID: -1,
-      screenWidth: window.innerWidth || document.documentElement.clientWidth || document.getElementsByTagName('body')[0].clientWidth
+      screenWidth: window.innerWidth || document.documentElement.clientWidth || document.getElementsByTagName('body')[0].clientWidth,
+      konvaStageConfig: {},
+      checkKonvaSize: null,
+      stageEvents: false
     }
   },
   created: function () {
@@ -417,6 +420,7 @@ export default {
     if (this.$store.state.mdtDungeonTable) {
       this.mdtDungeonTable = this.$store.state.mdtDungeonTable
     }
+    this.checkKonvaSize = setInterval(this.updateKonvaSize, 500)
 
     this.http.get('/data/mdtDungeonTable-' + this.mapID).then((res) => {
       if (res && res.value) {
@@ -425,6 +429,10 @@ export default {
         this.init()
       }
     })
+  },
+  destroyed () {
+    window.removeEventListener('resize', this.setMap)
+    clearInterval(this.checkKonvaSize)
   },
   watch: {
     subMapID: function (val) {
@@ -455,12 +463,17 @@ export default {
       if (this.mapID === 18 && !this.tableData.faction) {
         this.tableData.faction = 1
       }
+      // setup pull info
+      for (let i = 0; i < this.tableData.value.pulls.length; i++) {
+        this.updatePullDetails(i)
+      }
       // check webp support and load map
       var testWebp = new Image()
       testWebp.src = 'data:image/webp;base64,UklGRi4AAABXRUJQVlA4TCEAAAAvAUAAEB8wAiMwAgSSNtse/cXjxyCCmrYNWPwmHRH9jwMA'
       testWebp.onload = testWebp.onerror = () => {
         this.webpSupport = (testWebp.height === 2)
         this.setMap(this.subMapID)
+        window.addEventListener('resize', this.setMap)
       }
     },
 
@@ -485,15 +498,24 @@ export default {
       this.isPainting = false
 
       this.$nextTick().then(function () {
+        if (!vue.$refs.mdtStage) {
+          return // not ready
+        }
         var stage = vue.$refs.mdtStage.getStage()
         var canvas = vue.$refs.canvas
         stage.draggable(true)
+        stage.position({x: (1000 - document.getElementById('stageContainer').offsetWidth) * -0.6, y: 0})
+        stage.scale({ x: 1, y: 1 })
+        stage.batchDraw()
 
-        // center the map onload; do it here once we know how wide the window is
-        stage.move({x: (1000 - document.getElementById('stageContainer').offsetWidth) * -0.6})
+        if (vue.stageEvents) {
+          return
+        }
+        vue.stageEvents = true
 
         // setup zoom
         canvas.addEventListener('wheel', (evt) => {
+          evt.preventDefault()
           let scaleBy = 1.2
           if (evt.target.nodeName !== 'CANVAS') {
             return false
@@ -517,7 +539,6 @@ export default {
             y: -(mousePointTo.y - stage.getPointerPosition().y / newScale) * newScale
           }
 
-          evt.preventDefault()
           stage.position(newPos)
           stage.batchDraw()
         })
@@ -703,14 +724,23 @@ export default {
           vue.updateTableString()
         })
       })
+    },
 
-      // setup pull info
-      for (let i = 0; i < this.tableData.value.pulls.length; i++) {
-        this.updatePullDetails(i)
+    updateKonvaSize () {
+      var w = document.getElementById('builder') && document.getElementById('builder').offsetWidth || 0
+      if (!this.konvaStageConfig || w !== this.konvaStageConfig.width) {
+        this.konvaStageConfig = {width: w, height: 666, x: (1000 - document.getElementById('stageContainer').offsetWidth) * -0.6}
+        this.setMap()
       }
     },
 
     setMap (subMap, preloaded) {
+      if (typeof subMap !== 'number' && this.subMapID >= 0) {
+        subMap = this.subMapID
+      }
+      else if (typeof subMap !== 'number') {
+        return
+      }
       // setup preload images
       var preload = []
       // var promises = []
@@ -1427,9 +1457,6 @@ export default {
       else {
         return this.$store.state.user.config.editor || 'tomorrow'
       }
-    },
-    konvaStageConfig: () => {
-      return {width: document.getElementById('builder') && document.getElementById('builder').offsetWidth || 0, height: 666}
     }
   }
 }
