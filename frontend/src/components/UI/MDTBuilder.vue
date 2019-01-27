@@ -730,7 +730,13 @@ export default {
       if (!this.mdtDungeonTable.dungeonMaps) {
         return
       }
-      var w = document.getElementById('builder') && document.getElementById('builder').offsetWidth || 0
+      var w
+      if (this.readonly) {
+        w = Math.min(1000, document.body.offsetWidth - 16)
+      }
+      else {
+        w = document.getElementById('builder') && document.getElementById('builder').offsetWidth || 0
+      }
       if (!this.konvaStageConfig || w !== this.konvaStageConfig.width) {
         this.konvaStageConfig = {width: w, height: 666, x: (1000 - document.getElementById('stageContainer').offsetWidth) * -0.6}
         this.setMap()
