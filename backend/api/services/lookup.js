@@ -267,7 +267,7 @@ server.get('/lookup/codereview', (req, res) => {
                 for (let i = 0; i < json.c.length; i++) {
                   json.c[i].url = wago.url + '/' + code.version
                   json.c[i].version = code.version
-                  json.c[i].semver = versionString
+                  json.c[i].semver = code.versionString
                 }
               }
 
