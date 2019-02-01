@@ -49,6 +49,9 @@ server.get('api/addons', (req, res, next) => {
       if (doc.latestVersion.iteration) {
         wago.version = doc.latestVersion.iteration
         wago.versionString = doc.latestVersion.versionString
+        if (typeof doc.latestVersion.changelog === 'string') {
+          doc.latestVersion.changelog = JSON.parse(doc.latestVersion.changelog)
+        }
         wago.changelog = doc.latestVersion.changelog
         wagos.push(wago)
         return done()
