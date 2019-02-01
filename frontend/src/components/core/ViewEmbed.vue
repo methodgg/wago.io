@@ -119,6 +119,7 @@ export default {
 
       var params = {}
       params.id = wagoID
+      params.embed = 1
       this.version = this.$route.params.version
       if (this.version) {
         params.version = this.version

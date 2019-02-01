@@ -259,6 +259,7 @@ server.get('/lookup/codereview', (req, res) => {
           else if (wago.type === 'WEAKAURA') {
             var json = JSON.parse(code.json)
             if (code.version && ((json.d.version !== code.version || json.d.url !== wago.url + '/' + code.version) || (json.c && json.c[0].version !== code.version) || (json.d.semver !== code.versionString))) {
+              console.log('fgsd')
               json.d.url = wago.url + '/' + code.version
               json.d.version = code.version
               json.d.semver = code.versionString
@@ -716,6 +717,11 @@ server.get('/lookup/statistics', (req, res) => {
 server.get('/lookup/blizzard/spell', (req, res) => {
   if (parseInt(req.query.id)) {
     battlenet.lookupSpell(req.query.id).then((spell) => {
+      res.send(spell)
+    })
+  }
+  else if (req.query.text) {
+    battlenet.searchSpell(req.query.text).then((spell) => {
       res.send(spell)
     })
   }

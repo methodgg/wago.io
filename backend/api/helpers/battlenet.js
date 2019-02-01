@@ -228,7 +228,7 @@ module.exports = {
         getToken().then((token) => {
           getAPI('NA', '/wow/' + spellLookup, token).then((res) => {
             try {
-              // find actual case-sensitive filename
+              // blizz API gives lowercase icon name, so find the actual case-sensitive filename
               const regex = new RegExp('^' + res.data.icon + '\.png$', 'i')
               fs.readdir('/nfs/media/wow-ui-textures/ICONS', (err, files) => {
                 if (err) {
@@ -248,7 +248,34 @@ module.exports = {
             catch (e) {
               reject(e)
             }
+          }).catch ((e) => {
+            resolve({error: 'not found'})
           })
+        })
+      })
+    })
+  },
+
+  searchSpell: (text, locale) => {
+    if (!locale) {
+      locale = 'en_US'
+    }
+    return new Promise((resolve, reject) => {
+      BlizzData.findOne({$or: [{'value.name': {$regex: new RegExp('^' + text + '$', 'i')}}, {'value.icon': {$regex: new RegExp('^' + text + '$', 'i')}}], locale: locale}).then((doc) => {
+        if (doc && doc.value) {
+          return resolve(doc.value)
+        }
+        fs.readdir('/nfs/media/wow-ui-textures/ICONS', (err, files) => {
+          if (err) {
+            throw err
+          }
+          const regex = new RegExp('^' + text + '\.png$', 'i')
+          for (let i = 0; i < files.length; i++) {
+            if (files[i].match(regex)) {
+              return resolve({id: -1, icon: text, iconFile: files[i]})
+            }
+          }
+          resolve({error: 'not found'})
         })
       })
     })
