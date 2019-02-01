@@ -43,6 +43,12 @@ const Schema = new mongoose.Schema({
       comments_count : { type: Number, default: 0, index: true, es_indexed: true }
   },
 
+  latestVersion : {
+    versionString : String,
+    iteration: Number,
+    changelog : String
+  },
+
   // relevancy scores for searches
   relevancy: {
     standard: { type: Number, index: true, es_indexed: true },

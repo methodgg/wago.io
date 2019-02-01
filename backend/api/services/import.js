@@ -1034,7 +1034,6 @@ function SaveWagoVersion (req, res, mode) {
   if (!req.user && (mode === 'update' || mode === 'save')) {
     return res.send({error: 'invalid_user'})
   }
-
   try {
     var wagoID = req.body.wagoID
     var type = req.body.type.toUpperCase()
@@ -1064,6 +1063,11 @@ function SaveWagoVersion (req, res, mode) {
         text: req.body.changelog,
         format: req.body.changelogFormat || 'bbcode'
       }
+
+      wago.latestVersion.iteration = code.version
+      wago.latestVersion.versionString = code.versionString
+      wago.latestVersion.changelog = code.changelog
+      console.log(wago.latestVersion)
       
       code.save().then(() => {
         wago.modified = new Date()
@@ -1092,6 +1096,7 @@ function SaveWagoVersion (req, res, mode) {
         res.send({success: true, latestVersion: code.versionString})
       })
     }).catch(e => {
+      console.log(e.message)
       return res.send({error: 'not_found'})
     })
   }
@@ -1160,6 +1165,10 @@ function SaveWagoVersion (req, res, mode) {
           text: req.body.changelog,
           format: req.body.changelogFormat || 'bbcode'
         }
+
+        wago.latestVersion.iteration = code.version
+        wago.latestVersion.versionString = code.versionString
+        wago.latestVersion.changelog = code.changelog
         
         code.save().then(() => {
           if (mode === 'update') {
@@ -1278,6 +1287,10 @@ function SaveWagoVersion (req, res, mode) {
           text: req.body.changelog,
           format: req.body.changelogFormat || 'bbcode'
         }
+
+        wago.latestVersion.iteration = code.version
+        wago.latestVersion.versionString = code.versionString
+        wago.latestVersion.changelog = code.changelog
         
         code.save().then(() => {
           if (mode === 'update') {
@@ -1361,6 +1374,10 @@ function SaveWagoVersion (req, res, mode) {
           text: req.body.changelog,
           format: req.body.changelogFormat || 'bbcode'
         }
+
+        wago.latestVersion.iteration = code.version
+        wago.latestVersion.versionString = code.versionString
+        wago.latestVersion.changelog = code.changelog
         
         code.save().then(() => {
           if (mode === 'update') {
@@ -1443,6 +1460,10 @@ function SaveWagoVersion (req, res, mode) {
           text: req.body.changelog,
           format: req.body.changelogFormat || 'bbcode'
         }
+
+        wago.latestVersion.iteration = code.version
+        wago.latestVersion.versionString = code.versionString
+        wago.latestVersion.changelog = code.changelog
         
         code.save().then(() => {
           if (mode === 'update') {
@@ -1501,6 +1522,11 @@ function SaveWagoVersion (req, res, mode) {
         text: req.body.changelog,
         format: req.body.changelogFormat || 'bbcode'
       }
+
+      wago.latestVersion.iteration = code.version
+      wago.latestVersion.versionString = code.versionString
+      wago.latestVersion.changelog = code.changelog
+      wago.save()
       
       code.save().then(() => {
         if (mode === 'update') {

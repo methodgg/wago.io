@@ -18,9 +18,10 @@ server.get('api/addons', (req, res, next) => {
     return res.send(404, {error: "page_not_found"})
   }
   
-  var ids = req.query.ids.split(',').slice(0, 50)
+  var ids = req.query.ids.split(',').slice(0, 200)
   var wagos = []
   WagoItem.find({'$or' : [{_id: ids}, {custom_slug: ids}], deleted: false, type: ['WEAKAURAS', 'WEAKAURAS2']})
+  .populate('_userId')
   .then((docs) => {
     async.forEachOf(docs, (doc, k, done) => {
       if (doc.private && (!req.user || !req.user._id.equals(doc._userId))) {
@@ -34,6 +35,7 @@ server.get('api/addons', (req, res, next) => {
       wago.created = doc.created
       wago.modified = doc.modified  
       wago.forkOf = doc.fork_of
+      wago.username = doc._userId.account.username
 
       // if requested by WA Companion App, update installed count
       if (req.headers['identifier'] && req.headers['user-agent'].match(/Electron/)) {
@@ -44,38 +46,34 @@ server.get('api/addons', (req, res, next) => {
         WagoFavorites.addInstall(doc, 'WA-Updater-' + req.headers['identifier'], ipAddress)
       }
 
-      async.parallel({
-        user: (cb) => {
-          if (doc._userId) {
-            User.findById(doc._userId).then((user) => {
-              wago.username = user.account.username
-              cb()
-            })
-          }
-          else {
-            cb()
-          }
-        },
-        version: (cb) => {
-          WagoCode.lookup(wago._id).then((code) => {
-            wago.version = code.version
-            var versionString = code.versionString
-            if (versionString !== '1.0.' + (code.version + 1) && versionString !== '0.0.' + code.version) {
-              versionString = versionString + '-' + code.version
-            }
-            wago.versionString = versionString
-            wago.changelog = code.changelog
-            cb()
-          })
-        }}, () => {
-          wagos.push(wago)
-          done()
-        })
-      }, function() {
-        res.send(wagos)
-      })     
-    }
-  )
+      if (doc.latestVersion.iteration) {
+        wago.version = doc.latestVersion.iteration
+        wago.versionString = doc.latestVersion.versionString
+        wago.changelog = doc.latestVersion.changelog
+        wagos.push(wago)
+        return done()
+      }
+
+      WagoCode.lookup(wago._id).then((code) => {
+        wago.version = code.version
+        var versionString = code.versionString
+        if (versionString !== '1.0.' + (code.version + 1) && versionString !== '0.0.' + code.version) {
+          versionString = versionString + '-' + code.version
+        }
+        wago.versionString = versionString
+        wago.changelog = code.changelog
+        wagos.push(wago)
+        
+        doc.latestVersion.iteration = code.version
+        doc.latestVersion.versionString = versionString
+        doc.latestVersion.changelog = code.changelog
+        doc.save()
+        done()
+      })
+    }, function() {
+      res.send(wagos)
+    })     
+  })
 })
 
 

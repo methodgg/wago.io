@@ -104,8 +104,8 @@
             <md-table-cell>Spell link by Wowhead URL</md-table-cell>
             <md-table-cell>Just paste the URL</md-table-cell>
             <md-table-cell>https://www.wowhead.com/spell=284360/sea-storm</md-table-cell>
-            <md-table-cell><img style="height:16px" src="https://media.wago.io/wow-ui-textures/ICONS/Spell_Frost_IceStorm.PNG"><a style="color:#9adbfe" data-wowhead="spell=284360">Sea Storm</a></md-table-cell>
-            <md-table-cell><img style="height:16px" src="https://media.wago.io/wow-ui-textures/ICONS/Spell_Frost_IceStorm.PNG"><span style="color:#9adbfe">Sea Storm</span><br><small>Not linked</small></md-table-cell>
+            <md-table-cell><img style="height:16px" src="https://media.wago.io/wow-ui-textures/ICONS/Spell_Frost_IceStorm.PNG"> <a style="color:#9adbfe" data-wowhead="spell=284360">Sea Storm</a></md-table-cell>
+            <md-table-cell><img style="height:16px" src="https://media.wago.io/wow-ui-textures/ICONS/Spell_Frost_IceStorm.PNG"> <span style="color:#9adbfe">Sea Storm</span><br><small>Not linked</small></md-table-cell>
           </md-table-row>
         </md-table-body>
       </md-table>
@@ -448,10 +448,10 @@ export default {
           '|Воин|Паладин|Охотник|Разбойник|Жрец|Рыцарь\\s?смерти|Шаман|Маг|Чернокнижник|Монах|Друид|Охотник\\s?на\\s?демонов' +                   // RU classes
           '|战士|圣骑士|猎人|盗贼|牧师|死亡骑士|萨满祭司|法师|术士|武僧|德鲁伊|恶魔猎手' +                                                              // CN classes
           // remaining is not localized in either addon
-          '|tank|healer|damage|dps' +                                           // Raid roles
-          '|bl|bloodlust|hero|heroism|hs|healthstone' +                         // Common spells
-          '|wow|d3|sc2|bnet|alliance|horde' +                                   // Community icons
-          '|icon:?\\s?\\w+|spell:?\\s?\\d+|boss:?\\s?\\d+|journal:?\\s?\\d+' +  // Custom icon and links
+          '|tank|healer|damage|dps' +                                                // Raid roles
+          '|bl|bloodlust|hero|heroism|hs|healthstone' +                              // Common spells
+          '|wow|d3|sc2|bnet|alliance|horde' +                                        // Community icons
+          '|icon:?\\s?[\\w\\/]+|spell:?\\s?\\d+|boss:?\\s?\\d+|journal:?\\s?\\d+' +  // Custom icon and links
           ')\\}' +
           // check for escape codes
           '|(\\|c([\\dabcdef]{8}|blue|green|red|yellow|orange|pink|purple|deathknight|demonhunter|druid|hunter|mage|monk|paladin|priest|rogue|shaman|warlock|warrior))' + // set color
@@ -489,7 +489,7 @@ export default {
 
               // what are we matching?
               let icon = m[0].match(/^{icon:?\s?(\d+)}$/)
-              let iconText = m[0].match(/^{icon:?\s?(\w+)}$/)
+              let iconText = m[0].match(/^{icon:?\s?(?:interface\/icons\/)?(\w+)}$/i)
               let spell = m[0].match(/^{spell:?\s?(\d+)}$/)
               let colorStart = m[0].match(/^\|c([\\dabcdef]{8}|blue|green|red|yellow|orange|pink|purple|deathknight|demonhunter|druid|hunter|mage|monk|paladin|priest|rogue|shaman|warlock|warrior)$/i)
               let colorEnd = m[0].match(/^\|r$/)
