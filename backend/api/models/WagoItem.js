@@ -46,7 +46,7 @@ const Schema = new mongoose.Schema({
   latestVersion : {
     versionString : String,
     iteration: Number,
-    changelog : String
+    changelog : mongoose.Schema.Types.Mixed
   },
 
   // relevancy scores for searches

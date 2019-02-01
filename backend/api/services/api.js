@@ -64,6 +64,9 @@ server.get('api/addons', (req, res, next) => {
           versionString = versionString + '-' + code.version
         }
         wago.versionString = versionString
+        if (typeof code.changelog === 'string') {
+          code.changelog = JSON.parse(code.changelog)
+        }
         wago.changelog = code.changelog
         wagos.push(wago)
         
