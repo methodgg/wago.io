@@ -46,7 +46,7 @@ server.get('api/addons', (req, res, next) => {
         WagoFavorites.addInstall(doc, 'WA-Updater-' + req.headers['identifier'], ipAddress)
       }
 
-      if (doc.latestVersion.iteration) {
+      if (doc.latestVersion.iteration && typeof doc.latestVersion.changelog !== 'string') {
         wago.version = doc.latestVersion.iteration
         wago.versionString = doc.latestVersion.versionString
         if (typeof doc.latestVersion.changelog === 'string') {
@@ -64,9 +64,6 @@ server.get('api/addons', (req, res, next) => {
           versionString = versionString + '-' + code.version
         }
         wago.versionString = versionString
-        if (typeof code.changelog === 'string') {
-          code.changelog = JSON.parse(code.changelog)
-        }
         wago.changelog = code.changelog
         wagos.push(wago)
         
