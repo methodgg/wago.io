@@ -35,7 +35,9 @@ server.get('api/addons', (req, res, next) => {
       wago.created = doc.created
       wago.modified = doc.modified  
       wago.forkOf = doc.fork_of
-      wago.username = doc._userId.account.username
+      if (doc._userId) {
+        wago.username = doc._userId.account.username
+      }
 
       // if requested by WA Companion App, update installed count
       if (req.headers['identifier'] && req.headers['user-agent'].match(/Electron/)) {
