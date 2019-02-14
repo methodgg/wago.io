@@ -10,6 +10,9 @@ selenium-debug.log
 ecosystem.json
 config.js
 api/lua/addons/*
+fastify-wago.crt
+fastify-wago.csr
+fastify-wago.key
 
 # Editor directories and files
 .idea

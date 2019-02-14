@@ -11,7 +11,6 @@ function calculateNextResetTime(windowMs) {
 }
 
 function MongoStore(windowMs) {
-
   var store = {
     incr: function(key, cb) {
      let resetTime = new Date(calculateNextResetTime(windowMs));

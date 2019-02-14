@@ -2,30 +2,24 @@
  * API requests for WA Updater app or other uses
  */
 
- /**
-  * Get latest versions
-  */
-server.get('api/addons', (req, res, next) => {
-  res.send(global.addonUpdates)
-})
-  
+module.exports = function (fastify, opts, next) {
+  // returns array of latest versions details of supported addons
+  fastify.get('/addons', (req, res) => {
+    res.send(global.LatestAddons)
+  })
 
-/**
-  * Wago multi WA lookup
-  */
- server.get('/api/check/weakauras', (req, res, next) => {
-  if (!req.query.ids) {
-    return res.send(404, {error: "page_not_found"})
-  }
-  
-  var ids = req.query.ids.split(',').slice(0, 200)
-  var wagos = []
-  WagoItem.find({'$or' : [{_id: ids}, {custom_slug: ids}], deleted: false, type: ['WEAKAURAS', 'WEAKAURAS2']})
-  .populate('_userId')
-  .then((docs) => {
-    async.forEachOf(docs, (doc, k, done) => {
+  // returns basic data of requested weakauras; WA Companion uses to check for updates
+  fastify.get('/check/weakauras', async (req, res) => {
+    if (!req.query.ids) {
+      return res.code(404).send({error: "page_not_found"})
+    }
+    
+    var ids = req.query.ids.split(',').slice(0, 200)
+    var wagos = []
+    var docs = await WagoItem.find({'$or' : [{_id: ids}, {custom_slug: ids}], deleted: false, type: 'WEAKAURAS2'}).populate('_userId').exec()
+    await Promise.all(docs.map(async (doc) => {
       if (doc.private && (!req.user || !req.user._id.equals(doc._userId))) {
-        return done()
+        return
       }
       var wago = {}
       wago._id = doc._id
@@ -38,17 +32,14 @@ server.get('api/addons', (req, res, next) => {
       if (doc._userId) {
         wago.username = doc._userId.account.username
       }
-
+  
       // if requested by WA Companion App, update installed count
       if (req.headers['identifier'] && req.headers['user-agent'].match(/Electron/)) {
-        const ipAddress = req.headers['x-forwarded-for'] ||
-          req.connection.remoteAddress || 
-          req.socket.remoteAddress ||
-          (req.connection.socket ? req.connection.socket.remoteAddress : null)
+        const ipAddress = req.raw.ip
         WagoFavorites.addInstall(doc, 'WA-Updater-' + req.headers['identifier'], ipAddress)
       }
 
-      if (doc.latestVersion.iteration && typeof doc.latestVersion.changelog !== 'string') {
+      if (doc.latestVersion.iteration) {
         wago.version = doc.latestVersion.iteration
         wago.versionString = doc.latestVersion.versionString
         if (typeof doc.latestVersion.changelog === 'string') {
@@ -56,74 +47,57 @@ server.get('api/addons', (req, res, next) => {
         }
         wago.changelog = doc.latestVersion.changelog
         wagos.push(wago)
-        return done()
+        return
       }
-
-      WagoCode.lookup(wago._id).then((code) => {
-        wago.version = code.version
-        var versionString = code.versionString
-        if (versionString !== '1.0.' + (code.version + 1) && versionString !== '0.0.' + code.version) {
-          versionString = versionString + '-' + code.version
-        }
-        wago.versionString = versionString
-        wago.changelog = code.changelog
-        wagos.push(wago)
-        
-        doc.latestVersion.iteration = code.version
-        doc.latestVersion.versionString = versionString
-        doc.latestVersion.changelog = code.changelog
-        doc.save()
-        done()
-      })
-    }, function() {
-      res.send(wagos)
-    })     
+  
+      var code = await WagoCode.lookup(wago._id)
+      wago.version = code.version
+      var versionString = code.versionString
+      if (versionString !== '1.0.' + (code.version + 1) && versionString !== '0.0.' + code.version) {
+        versionString = versionString + '-' + code.version
+      }
+      wago.versionString = versionString
+      wago.changelog = code.changelog
+      wagos.push(wago)
+      
+      doc.latestVersion.iteration = code.version
+      doc.latestVersion.versionString = versionString
+      doc.latestVersion.changelog = code.changelog
+      doc.save()
+      return
+    }))
+    res.send(wagos)
   })
-})
 
-
-/*
- * Get raw data
- */
-server.get('/api/raw/encoded', (req, res) => {
-  if (!req.params.id) {
-    return res.send(404, {error: "page_not_found"})
-  }
-
-  WagoItem.lookup(req.params.id).then((wago) => {
+  // returns raw encoded string for requested import
+  fastify.get('/raw/encoded', async (req, res) => {
+    if (!req.query.id) {
+      return res.code(404).send({error: "page_not_found"})
+    }
+  
+    var wago = await WagoItem.lookup(req.query.id)
     if (!wago) {
-      return res.send(404, {error: "page_not_found"})
+      return res.code(404).send({error: "page_not_found"})
     }
     else if (wago.private && (!req.user || !req.user._id.equals(wago._userId))) {
-      return res.send(401, {error: "import_is_private"})
+      return res.code(401).send({error: "import_is_private"})
     }
-    WagoCode.lookup(wago._id, req.params.version).then((code) => {
-      if (!code || !code.encoded) {
-        return res.send(404, {error: "page_not_found"})
+    var code = await WagoCode.lookup(wago._id, req.query.version)
+    if (!code || !code.encoded) {
+      return res.code(404).send({error: "page_not_found"})
+    }
+    if (wago.type === 'WEAKAURA' && code.json && code.json.match(commonRegex.WeakAuraBlacklist)) {
+      return res.code(409).send({error: "malicious_code_found"})
+    }
+    res.header('Content-Type', 'text/plain')
+    if (wago.type === 'WEAKAURA' && !code.encoded.match(/^!/)) {
+      code.encoded = await lua.JSON2WeakAura(code.json)
+      if (code.encoded) {
+        code.save()
       }
-      res.set('Content-Type', 'text/plain')
-      
-      if (wago.type === 'WEAKAURA' && code.json && code.json.match(commonRegex.WeakAuraBlacklist)) {
-        return res.send(403, '')
-      }
-      if (wago.type === 'WEAKAURA' && !code.encoded.match(/^!/)) {
-        lua.JSON2WeakAura(code.json, (error, result) => {
-          code.encoded = result.stdout
-          res.send(code.encoded)
-        })
-      }
-      else {
-        res.send(code.encoded)
-      }
-    })
+    }
+    return res.send(code.encoded)
   })
-})
 
-/**
- * Some companion stats?
- */
-server.get('/api/wa-companion-stats', (req, res) => {
-  WagoFavorites.find().distinct('appID').then((num) => {
-    res.send({Installs: num.length - 1}) // don't count null appID
-  })
-})
+  next()
+}

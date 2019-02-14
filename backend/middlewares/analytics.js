@@ -1,30 +1,26 @@
-const ua = require('universal-analytics')
-const UUID = require('uuid-1345')
 
-module.exports = function(req, res, next) {
-  if (req.path().match(/\/(account|auth)\//) || req.method != 'GET') {
+module.exports = function (req, res, payload, next) {
+  if (req.raw.url.match(/^\/(auth|account)/) || req.raw.method.toUpperCase() !== 'GET') {
     return next()
   }
-  new Promise((resolve, reject) => {
-    UUID.v5({
-      namespace: UUID.namespace.oid,
-      name: req.headers['user-agent'] + req.connection.remoteAddress
-    }, (err, result) => {
-      if (err) {
-        return reject()
-      }
-      resolve(ua('UA-75437214-1', result, {strictCidFormat: false, geoid: req.headers['cf-ipcountry'] || null, ua: req.headers['user-agent'] || null, dr: req.params._ref || null}))
-    })     
-  }).then((visitor) => {
-    if (req.headers.referer) {
-      visitor.pageview({dp: req.headers.referer.replace(/^https:\/\/wago.io/, ''), dh: 'https://wago.io'}).send()
+  try {
+    var track = {}
+    if (typeof payload === 'object') {
+      track.bw_bytes = JSON.stringify(payload).length
     }
-    else {
-      visitor.event("API", req.path()).send()
+    else if (typeof payload === 'string') {
+      track.bw_bytes = payload.length
     }
-    return next()
-  }).catch((e) => {
-    return next()
-  })
 
+    if (req.tracking.search) {
+      track.search = req.tracking.search.query
+      track.search_count = req.tracking.search.count
+    }
+
+    req.track(track)
+  }
+  catch (e) {
+    console.error('FAILED TO TRACK ANALYTICS', e)
+  }
+  next()
 }

@@ -1,5 +1,3 @@
-var Axios = require('axios')
-
 module.exports = {
   // broadcast to owner's discord when a new import is created
   webhookOnCreate: (user, wago) => {
@@ -17,10 +15,7 @@ module.exports = {
         "thumbnail": {"url": 'https://media.wago.io/favicon/mediumtile.png'}
       }]
     }
-    Axios.post(user.discord.webhooks.onCreate, hookData)
-      .then((res) => {
-        logger.debug({label: 'Send discord webhook', response: res.response})
-      })
+    axios.post(user.discord.webhooks.onCreate, hookData)
   },
   
   webhookOnUpdate: (user, wago) => {
@@ -38,40 +33,31 @@ module.exports = {
         "thumbnail": {"url": wago.thumb || 'https://media.wago.io/favicon/mediumtile.png'}
       }]
     }
-    Axios.post(user.discord.webhooks.onCreate, hookData)
-      .then((res) => {
-        logger.debug({label: 'Send discord webhook', response: res.response})
-      })
+    axios.post(user.discord.webhooks.onCreate, hookData)
   },
 
   // when a wago is updated check for anyone that has starred it AND has the discord notification enabled
-  onUpdate: (owner, wago) => {
+  onUpdate: async (owner, wago) => {
     var msg = `${owner.account.username} has updated ${wago.name}!\n${wago.url}`
-    WagoFavorites.find({type: 'Star', wagoID: wago._id}).then((stars) => {
-      stars.forEach((star) => {
-        User.findOne({_id: star.userID, "discord.options.messageOnFaveUpdate": true}).select('discord').then((user) => {
-          if (user && !owner._id.equals(user._id)) {
-            sendChatMessage(user.discord.id, msg)
-          }
-        })
-      })
-    })
+    const stars = await WagoFavorites.find({type: 'Star', wagoID: wago._id})
+    for (let i = 0; i < stars.length; i++) {
+      const user = await User.findOne({_id: stars[i].userID, "discord.options.messageOnFaveUpdate": true}).select('discord').exec()
+      if (user && !owner._id.equals(user._id)) {
+        sendChatMessage(user.discord.id, msg)
+      }
+    }
   },
 
   // when a comment is posted check for anyone that has starred it AND has the discord notification enabled
-  onComment: (owner, tagged, wago) => {
+  onComment: async (owner, tagged, wago) => {
     var msg = `${owner.account.username} has posted a comment to ${wago.name}!\n${wago.url}`
-    User.find({_id: tagged._id}).select('discord').then((users) => {
-      users.forEach((user) => {
-        sendChatMessage(user.discord.id, msg)
-      })
+    const users = await User.find({_id: tagged._id}).select('discord').exec()
+    users.forEach((user) => {
+      sendChatMessage(user.discord.id, msg)
     })
   }
 }
 
 function sendChatMessage (profileID, message) {
-  Axios.post('http://discordbot:9999/sendtext', { profileID: profileID, message: message })
-  .then((res) => {
-    logger.debug({label: 'Send discord direct message', response: res.response})
-  })
+  axios.post('http://discordbot:9999/sendtext', { profileID: profileID, message: message })
 }

@@ -4,7 +4,8 @@ const mongoose = require('mongoose'),
 
 const Schema = new mongoose.Schema({
     _id: { type: String },
-    value: Mixed
+    value: Mixed,
+    private: {type: Boolean, default: false}
 }, { timestamps: true });
 
 

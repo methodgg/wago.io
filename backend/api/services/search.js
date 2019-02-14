@@ -1,543 +1,400 @@
-server.get('/search', (req, res, skipSearch) => {
-  // get input
-  var query = req.params.q || req.body.q || ""
-  var sort = req.params.sort || req.body.sort || 'elastic'
-  var page = parseInt(req.query.page || req.body.page || 0)
-  var esFilter = []
-  var esSort = ['_score']
-  var esQuery = false
+function findAll(regex, str, matches = []) {
+  const arr = regex.exec(str)
+  if (arr === null) return matches
+  return findAll(regex, str.slice(arr.index + arr[0].length), matches.concat([arr]))
+}
 
-  // set constants
-  var resultsPerPage = 20 // TODO: make this a global config
+module.exports = function (fastify, opts, next) {
+  fastify.get('/', async (req, res, skipSearch) => {
+    // get input
+    var query = req.query.q || req.body.q || ""
+    var sort = req.query.sort || req.body.sort || 'elastic'
+    var page = parseInt(req.query.page || req.body.page || 0)
+    var esFilter = []
+    var esSort = ['_score']
+    var esQuery = false
 
-  // setup return object
-  var Search = {}
-  Search.query = {}
-  Search.query.q = query
-  Search.query.sort = sort
-  Search.query.page = page
-  Search.query.context = []
+    var searchSettings = {showAnon: 'hide', showHidden: false}
 
-  // our lookup object
-  var lookup = {}
+    // set constants
+    var resultsPerPage = 20 // TODO: make this a global config
 
-  // override settings
-  var defaultAnon = false
-  var allowHidden = false
+    // setup return object
+    var Search = {}
+    Search.query = {}
+    Search.query.q = query
+    Search.query.sort = sort
+    Search.query.page = page
+    Search.query.context = []
 
-  // build criteria to search for
-  async.series([
-    // if search includes 'sort: sort' - valid sort options: date stars views
-    function(done) {
-      const regex = /\bsort:\s*"?(date|stars|views|bestmatch)"?/i
-      var sortType = query.match(regex)
-      if (!sortType || sortType.length==0) return done()
+    // our lookup object
+    var lookup = {}
 
-      if ((sortMatch = regex.exec(sortType)) !== null) {
-        // valid sort option found. Remove tag from query and update lookup
-        query = query.replace(sortMatch[0], '').replace(/\s{2,}/, ' ').trim()
-        sortMatch[1] = sortMatch[1].toLowerCase()
+    // build criteria to search for
 
-        if (sortMatch[1] === 'date') {
-          sort = '-modified'
-          esSort.unshift({modified: 'desc'})
-        }
-        else if (sortMatch[1] === 'stars') {
-          sort = '-popularity.favorite_count'
-          esSort.unshift({'popularity.favorite_count': 'desc'})
-        }
-        else if (sortMatch[1] === 'views') {
-          sort = '-popularity.views'
-          esSort.unshift({'popularity.views': 'desc'})
-        }
-        else if (sortMatch[1] === 'popular') {
-          sort = '-popularity.viewsThisWeek'
-          esSort.unshift({'popularity.viewsThisWeek': 'desc'})
-        }
-        else if (sortMatch[1] === 'bestmatch') {
-          esSort.push({'popularity.viewsThisWeek': 'desc'})
-          esSort.push({modified: 'desc'})
-        }
+    // if search includes 'sort: mode'
+    match = findAll(/\bsort:\s*"?(date|stars|views|bestmatch)"?/i, query)
+    if (match.length) {
+      match = match[0]
+      query = query.replace(match[0], '').replace(/\s{2,}/, ' ').trim()
+      match[1] = match[1].toLowerCase()
 
-        // if user is logged in and sort is different from their current config, then update config
-        if (sortMatch && req.user && req.user.config.searchOptions.sort != sortMatch[1]) {
-          req.user.config.searchOptions.sort = sortMatch[1]
-          req.user.save().then((user) => {
-            // no need to wait here
-          })
-        }
+      if (match[1] === 'date') {
+        sort = '-modified'
+        esSort.unshift({modified: 'desc'})
       }
-      return done()
-    },
-
-    // check for relevancy search option to sort by relevancy scores
-    function(done) {
-      // only applies if category tags are included in search query
-      if (!query.match(/tag:/i)) {
-        return done()
+      else if (match[1] === 'stars') {
+        sort = '-popularity.favorite_count'
+        esSort.unshift({'popularity.favorite_count': 'desc'})
       }
-      const regex = /\brelevance:\s*"?(relaxed|strict)"?/i
-      var sortType = query.match(regex)
-      // if relaxed relevance 
-      if (sortType && sortType[1] === 'relaxed') {
-        // don't consider the number of categories
-        query = query.replace(sortType[0], '').replace(/\s{2,}/, ' ').trim()
+      else if (match[1] === 'views') {
+        sort = '-popularity.views'
+        esSort.unshift({'popularity.views': 'desc'})
+      }
+      else if (match[1] === 'popular') {
+        sort = '-popularity.viewsThisWeek'
+        esSort.unshift({'popularity.viewsThisWeek': 'desc'})
+      }
+      else if (match[1] === 'bestmatch') {
+        esSort.push({'popularity.viewsThisWeek': 'desc'})
+        esSort.push({modified: 'desc'})
       }
 
-      // if strict relevance
-      else if (sortType && sortType[1] === 'strict') {
-        // strict score sorts by total number of categories with secondary sorting on number of root categories
-        sort = 'relevancy.strict relevancy.standard ' + sort
-        query = query.replace(sortType[0], '').replace(/\s{2,}/, ' ').trim()
-        esSort.unshift('relevancy.standard')
-        esSort.unshift('relevancy.strict')
+      // if user is logged in and sort is different from their current config, then update default config
+      if (req.user && req.user.config.searchOptions.sort != match[1]) {
+        req.user.config.searchOptions.sort = match[1]
+        req.user.save()
       }
+    }
 
-      // default 
+    // if tags are included, check for relevancy search option to sort by relevancy scores
+    if (query.match(/tag:/i)) {
+      // relaxed = don't consider the number of categories
+      // strict = sort by total number of categories with secondary sort by total number of root categories
+      // standard = sort by total number of root categories
+      match = findAll(/\brelevance:\s*"?(relaxed|strict|standard)"?/i, query)
+      if (match.length) {
+        match = match[0]
+        query = query.replace(match[0], '').replace(/\s{2,}/, ' ').trim()
+        // if relaxed relevance
+        if (match[1] === 'relaxed') {
+          // no filters
+        }
+
+        // if strict relevance
+        else if (match[1] === 'strict') {
+          // strict score sorts by total number of categories with secondary sorting on number of root categories
+          sort = 'relevancy.strict relevancy.standard ' + sort
+          query = query.replace(match[0], '').replace(/\s{2,}/, ' ').trim()
+          esSort.unshift('relevancy.standard')
+          esSort.unshift('relevancy.strict')
+        }
+
+        // standard 
+        else {
+          // standard score sorts by number of root categories
+          sort = 'relevancy.standard ' + sort
+          esSort.unshift('relevancy.standard')
+        }
+
+        // if user is logged in and relevance is different from their current config, then update config
+        if (req.user && req.user.config.searchOptions.relevance != match[1]) {
+          req.user.config.searchOptions.relevance = match[1]
+          req.user.save()
+        }
+      }
       else {
-        // standard score sorts by number of root categories
+        // default to standard
         sort = 'relevancy.standard ' + sort
         esSort.unshift('relevancy.standard')
+        if (req.user && req.user.config.searchOptions.relevance !== 'standard') {
+          req.user.config.searchOptions.relevance = match[1]
+          req.user.save()
+        }
       }
+    }
 
-      // if user is logged in and relevance is different from their current config, then update config
-      if (sortType && req.user && req.user.config.searchOptions.relevance != sortType[1]) {
-        req.user.config.searchOptions.relevance = sortType[1]
-        req.user.save().then((user) => {
-          // no need to wait here
-        })
-      }
-
-      return done()
-    },
-
-    // check for expansion filter
-    function(done) {
-      // only applies if category tags are included in search query
-      if (!query.match(/expansion:/i)) {
-        return done()
-      }
-      
-      const regex = /expansion:\s*"?(all|legion|bfa)"?/i
-      var gameVersion = query.match(regex)
-      // if legion
-      if (gameVersion && gameVersion[1] === 'legion') {
-        query = query.replace(gameVersion[0], '').replace(/\s{2,}/, ' ').trim()
-
+    // check for expansion filter        
+    match = findAll(/expansion:\s*"?(all|legion|bfa)"?/i, query)
+    if (match.length) {
+      match = match[0]
+      query = query.replace(match[0], '').replace(/\s{2,}/, ' ').trim()
+      if (match[1] === 'legion') {
+        // less than bfa release date AND does not have bfa beta tag
         esFilter.push({ bool: { must: {range: { modified: { lt: "2018-07-17" } } }, must_not: { term: { "categories.keyword": 'beta-bfa' } } } })
       }
 
       // if battle for azeroth
-      else if (gameVersion && gameVersion[1] === 'bfa') {
-        query = query.replace(gameVersion[0], '').replace(/\s{2,}/, ' ').trim()
-        
-        // esFilter.push({range: { modified: { gte: "2018-07-17" } } })
+      else if (match[1] === 'bfa') {  
+        // greater than bfa release date OR has bfa beta tag      
         esFilter.push({ bool: { should: [{range: { modified: { gte: "2018-07-17" } } }, { term: { "categories.keyword": 'beta-bfa' } }] } })
       }
 
       // if showing all expansions
-      else if (gameVersion && gameVersion[1] === 'all') {
-        query = query.replace(gameVersion[0], '').replace(/\s{2,}/, ' ').trim()
+      else if (match[1] === 'all') {
+        // no filter
       }
 
       // if user is logged in and expansion is different from their current config, then update config
-      if (gameVersion && req.user && req.user.config.searchOptions.expansion != gameVersion[1]) {
-        req.user.config.searchOptions.expansion = gameVersion[1]
-        req.user.save().then((user) => {
-          // no need to wait here
-        })
+      if (req.user && req.user.config.searchOptions.expansion != match[1]) {
+        req.user.config.searchOptions.expansion = match[1]
+        req.user.save()
       }
+    }
 
-      return done()
-    },
+    // check for import type
+    match = findAll(/\btype:\s*"?(weakauras?2?|elvui|vuhdo|totalrp3?|collection|snippet|plater|mdt|encounternotes|image|audio)"?/i, query)
+    if (match.length) {
+      match = match[0]
+      query = query.replace(match[0], '').replace(/\s{2,}/, ' ').trim()
+      match[1] = match[1].toUpperCase()
 
-    // if search includes 'type: wagotype'
-    function(done) {
-      const regex = /\btype:\s*"?(weakauras?2?|elvui|vuhdo|totalrp3?|collection|snippet|plater|mdt|encounternotes|image|audio)"?/i
-      var typeSearch = query.match(regex)
-      if (!typeSearch || typeSearch.length==0) return done()
-
-      if ((typeMatch = regex.exec(typeSearch)) !== null) {
-        // valid wagotype context found. Remove tag from query and update lookup
-        query = query.replace(typeMatch[0], '').replace(/\s{2,}/, ' ').trim()
-        typeMatch[1] = typeMatch[1].toUpperCase()
-
-        if (typeMatch[1] === 'WEAKAURA' || typeMatch[1] === 'WEAKAURA2' || typeMatch[1] === 'WEAKAURAS') {
-          typeMatch[1] = 'WEAKAURAS2'
-        } 
-        else if (typeMatch[1] === 'TOTALRP') {
-          typeMatch[1] = 'TOTALRP3'
-        }
-        lookup.type = typeMatch[1]
-
-        Search.query.context.push({
-          query: typeMatch[0],
-          type: 'type',
-          wagoType: typeMatch[1]==='WEAKAURAS2' && 'WEAKAURA' || typeMatch[1],
-          image: '/media/wagotypes/' + typeMatch[1] + '.png'
-        })
-        esFilter.push({match: { type: typeMatch[1] } })
-        
+      if (match[1] === 'WEAKAURA' || match[1] === 'WEAKAURA2' || match[1] === 'WEAKAURAS') {
+        match[1] = 'WEAKAURAS2'
+      } 
+      else if (match[1] === 'TOTALRP') {
+        match[1] = 'TOTALRP3'
       }
-      return done()
-    },
-
-    // if search includes 'modified: # periods'
-    function(done) {
-      const regex = /\bmodified:\s*(\d+)\s*(second|minute|hour|day|week|month|year)s?/i
-      var dateSearch = query.match(regex)
-      if (!dateSearch || dateSearch.length==0) return done()
-
-      if ((dateMatch = regex.exec(dateSearch)) !== null) {
-        // valid wagotype context found. Remove tag from query and update lookup
-        query = query.replace(dateMatch[0], '').replace(/\s{2,}/, ' ').trim()
-        var num = parseInt(dateMatch[1])
-        var time
-        switch (dateMatch[2].toLowerCase()) {
-          case 'second':
-            time = 's'
-            break
-          case 'minute':
-            time = 'm'
-            break
-          case 'hour':
-            time = 'h'
-            break
-          case 'day':
-            time = 'd'
-            break
-          case 'week':
-            time = 'w'
-            break
-          case 'month':
-            time = 'M'
-            break
-          case 'year':
-            time = 'y'
-            break
-          default:
-            return done()
-        }
-
-        if (num > 1) {
-          dateMatch[2] = dateMatch[2] + 's'
-        }
-        lookup.type = dateMatch[1] + ' ' + dateMatch[2].charAt(0).toUpperCase() + dateMatch[2].toLowerCase().slice(1)
-
-        Search.query.context.push({
-          query: dateMatch[0],
-          type: 'date',
-          range: dateMatch[1] + ' ' + dateMatch[2].charAt(0).toUpperCase() + dateMatch[2].toLowerCase().slice(1)
-        })
-        esFilter.push({range: { modified: { gte: `now-${num}${time}`} } })
-        
-      }
-      return done()
-    },
-
-    // if search includes 'user: username'
-    function(done) {
-      const regex = /\buser:\s*([^\s]+)|\buser:\s*"([^"]+)"/ig
-      var userSearch = query.match(regex)
-      if (!userSearch || userSearch.length==0) return done()
-
-      async.each(userSearch, function(userQuery, cb) {
-        var userMatch
-        if ((userMatch = regex.exec(userSearch)) !== null) {
-          // user: username context found. Remove tag from query and search DB
-          query = query.replace(userMatch[0], '').replace(/\s{2,}/, ' ').trim()
-          User.findOne({ "search.username": (userMatch[1] || userMatch[2]).toLowerCase() }).then((user) => {
-            if (user) {
-              lookup._userId = user._id
-              esFilter.push({term: { _userId: user._id } })
-
-              Search.query.context.push({
-                query: userMatch[0],
-                type: 'user',
-                image: user.avatarURL,
-                user: {
-                  url: user.profile.url,
-                  roleClass: user.roleClass,
-                  name: user.account.username || 'User-' + user._id.toString()
-                }
-              })
-            }
-
-            return cb()
-          })
-        }
-        else {
-          return cb()
-        }
-      }, function() {
-        done()
+      // lookup.type = match[1]
+      Search.query.context.push({
+        query: match[0],
+        type: 'type',
+        wagoType: match[1]==='WEAKAURAS2' && 'WEAKAURA' || match[1],
+        image: '/media/wagotypes/' + match[1] + '.png'
       })
-    },
+      esFilter.push({match: { type: match[1] } })
+    }
 
-    // if search includes 'tag: tagname'
-    function(done) {
-      const regex = /\btag:\s*([\w\-]+)|\btag:\s*"([^"]+)"/ig
-      var tagSearch = query.match(regex)
-      if (!tagSearch || tagSearch.length==0) return done()
+    // check for date range
+    match = findAll(/\bmodified:\s*(\d+)\s*(second|minute|hour|day|week|month|year)s?/i, query)
+    if (match.length) {
+      match = match[0]
+      query = query.replace(match[0], '').replace(/\s{2,}/, ' ').trim()
+      var num = parseInt(match[1])
+      var time
+      switch (match[2].toLowerCase()) {
+        case 'second':
+          time = 's'
+          break
+        case 'minute':
+          time = 'm'
+          break
+        case 'hour':
+          time = 'h'
+          break
+        case 'day':
+          time = 'd'
+          break
+        case 'week':
+          time = 'w'
+          break
+        case 'month':
+          time = 'M'
+          break
+        case 'year':
+          time = 'y'
+          break
+        default:
+          return done()
+      }
 
-      async.each(tagSearch, function(tagQuery, cb) {
-        var tagMatch
-        if ((tagMatch = regex.exec(tagSearch)) !== null) {
-          // valid tag context found. Remove tag from query and search DB
-          query = query.replace(tagMatch[0], '').replace(/\s{2,}/, ' ').trim()
-          var tags = (tagMatch[1] || tagMatch[2]).split(/,\s?/g)
-          var related = []
-          tags.forEach((thisTag) => {
-            lookup.categories = lookup.categories || {"$all": []}
-            lookup.categories["$all"].push(thisTag)
-            esTags = [{ term: { "categories.keyword": thisTag } }]
+      if (num > 1) {
+        match[2] = match[2] + 's'
+      }
+      // lookup.type = match[1] + ' ' + match[2].charAt(0).toUpperCase() + match[2].toLowerCase().slice(1)
 
-            Search.query.context.push({
-              query: tagMatch[0],
-              type: 'tag',
-              tag: thisTag
-            })
+      Search.query.context.push({
+        query: match[0],
+        type: 'date',
+        range: match[1] + ' ' + match[2].charAt(0).toUpperCase() + match[2].toLowerCase().slice(1)
+      })
+      esFilter.push({range: { modified: { gte: `now-${num}${time}`} } })
+    }
 
-            global.Categories.getClones(thisTag).forEach((clone) => {
-              lookup.categories["$all"].push(clone)
-              esTags.push({ term: { categories: clone } })
-            })
-            esFilter.push({bool: { should: esTags } })
-          })
-          // console.log(JSON.stringify(esFilter, null, 2))
-
-          // if there is only one tag or one set of related tags then we can show other related tags
-          if (tagMatch.length === 1 && related.length === 1) {
-            Search.query.related = Categories.findByClass(related[0], lookup.type)
+    // check if searching by user(s)
+    match = findAll(/\buser:\s*([^\s]+)|\buser:\s*"([^"]+)"/ig, query)
+    if (match.length) {
+      match.forEach(async (m) => {
+        query = query.replace(m[0], '').replace(/\s{2,}/, ' ').trim()
+        const user = await User.findOne({"search.username": (m[1] || m[2]).toLowerCase()}).exec()
+        if (user) {
+          if (matches.length === 1) {
+            searchSettings.userSearch = user._id
           }
-          return cb()
+          // lookup._userId = user._id
+          esFilter.push({term: { _userId: user._id } })
+          Search.query.context.push({
+            query: userMatch[0],
+            type: 'user',
+            image: user.avatarURL,
+            user: {
+              url: user.profile.url,
+              roleClass: user.roleClass,
+              name: user.account.username || 'User-' + user._id.toString()
+            }
+          })
         }
-        else {
-          return cb()
-        }
-      }, function() {
-        done()
       })
-    },
+    }
 
-    // if search includes 'collection: id`
-    function(done) {
-      const regex = /\bcollection:\s*([a-zA-Z0-9\-_]+)|\bcollection:\s*"([^"]+)"/ig
-      var collectIDs = query.match(regex)
-      if (!collectIDs || collectIDs.length==0) return done()
-      lookup._id = []
-      async.each(collectIDs, function(_ids, cb) {
-        if ((collectMatch = regex.exec(_ids)) !== null) {
-          query = query.replace(collectMatch[0], '').replace(/\s{2,}/, ' ').trim()
-          WagoItem.findById([collectMatch[1], collectMatch[2]]).then((collection) => {
-            if (collection && collection.collect) {
-              defaultAnon = true // default anon items to on
-              if (collection.hidden) { // if collection is hidden then allow hidden imports to be shown
-                allowHidden = true
-              }
-              lookup._id = lookup._id.concat(collection.collect)
-            }
-            cb()
+    // check for tag(s)
+    match = findAll(/\btags?:\s*([\w\-]+)|\btags?:\s*"([^"]+)"/ig, query)
+    if (match.length) {
+      match.forEach((m) => {
+        query = query.replace(m[0], '').replace(/\s{2,}/, ' ').trim()
+        var tags = (m[1] || m[2]).split(/,\s?/g)
+        tags.forEach((thisTag) => {
+          lookup.categories = lookup.categories || {"$all": []}
+          lookup.categories["$all"].push(thisTag)
+          esTags = [{ term: { "categories.keyword": thisTag } }]
+
+          Search.query.context.push({
+            query: m[0],
+            type: 'tag',
+            tag: thisTag
           })
-        }
-        else {
-          return cb()
-        }
-      }, function() {
-        if (lookup._id.length > 0) {
-          esFilter.push({ids: { values: lookup._id } })
-        }
-        done()
+
+          global.Categories.getClones(thisTag).forEach((clone) => {
+            lookup.categories["$all"].push(clone)
+            esTags.push({ term: { categories: clone } })
+          })
+          esFilter.push({bool: { should: esTags } })
+        })
       })
-    },
+    }
 
-    // option for anonymous imports
-    function(cb) {
-      // ignore if we are searching a specific user
-      if (lookup._userId) return cb()
-
-      const regex = /\banon:\s*(1|0|true|false|force)\b/ig
-      var anonSearch
-      if ((anonSearch = regex.exec(query)) !== null) {
-        query = query.replace(anonSearch[0], '')
-        if (anonSearch[1]=='1' || anonSearch[1].toLowerCase()=='true') {
-          // do not exclude anonymous
-          Search.query.context.push({
-            query: anonSearch[0],
-            type: 'option',
-            option: {
-              name: 'anon',
-              enabled: true
-            }
-          })
+    // check for collection
+    match = findAll(/\bcollection:\s*([a-zA-Z0-9\-_]+)|\bcollection:\s*"([^"]+)"/ig, query)
+    if (match.length) {
+      match = match[0]
+      query = query.replace(match[0], '').replace(/\s{2,}/, ' ').trim()
+      const collection = await WagoItem.findById([match[1], match[2]]).exec()
+      if (collection && collection.collect) {
+        searchSettings.showAnon = 'allow' // show anonymous imports if they are part of collection (can be overridden with anon: false)
+        if (collection.hidden) {
+          searchSettings.showHidden = true // show hidden imports if they are part of a hidden collection
         }
-        else if (anonSearch[1]=='force') {
-          // ONLY return anonymous
-          Search.query.context.push({
-            query: anonSearch[0],
-            type: 'option',
-            option: {
-              name: 'anon',
-              force: true,
-              enabled: false
-            }
-          })
-          esFilter.push({bool: { must_not: [{ exists: { field: "_userId" } }] } })
-        }
-        else if (anonSearch[1]=='0' || anonSearch[1].toLowerCase()=='false') {
-          // exclude anonymous (default)
-          Search.query.context.push({
-            query: anonSearch[0],
-            type: 'option',
-            option: {
-              name: 'anon',
-              enabled: false
-            }
-          })
-          esFilter.push({exists: { field: "_userId" } })
-        }
-        
-        else if (!defaultAnon) {
-          esFilter.push({exists: { field: "_userId" } })
-        }
-
-        return cb()
+        esFilter.push({simple_query_string: {query: collection.collect.join(' '), fields: ["_id"] }})
       }
-      else if (!defaultAnon) {
-        esFilter.push({exists: { field: "_userId" } })
-        return cb()
+    }
+
+    // check for anonymous setting
+    match = findAll(/\banon:\s*(1|0|true|false|force)\b/i)
+    if (match.length) {
+      match = match[0]
+      query = query.replace(match[0], '').replace(/\s{2,}/, ' ').trim()
+      if (match[1] === '1' || match[1].toLowerCase() === 'true') {
+        searchSettings.showAnon = 'allow'
+        Search.query.context.push({
+          query: anonSearch[0],
+          type: 'option',
+          option: {
+            name: 'anon',
+            enabled: true
+          }
+        })
       }
-      else {
-        return cb()
+      else if (match[1] === '0' || match[1].toLowerCase() === 'false') {
+        searchSettings.showAnon = 'hide'
+        Search.query.context.push({
+          query: anonSearch[0],
+          type: 'option',
+          option: {
+            name: 'anon',
+            enabled: false
+          }
+        })
       }
-    },
-
-    // option for my-favorites
-    function(cb) {
-      // option only valid for logged in users
-      if (!req.user) return cb()
-
-      const regex = /\bstarred:\s*(1|0|true|false)\b/ig
-      var faveSearch
-      if ((faveSearch = regex.exec(query)) !== null) {
-        query = query.replace(faveSearch[0], '')
-        if (faveSearch[1]=='1' || faveSearch[1].toLowerCase()=='true') {
-          // only include what user has starred
-          var stars = []
-          WagoFavorites.find({userID: req.user._id, type: 'Star'}).select('wagoID').then((faves) => {
-            faves.forEach((wago) => {
-              stars.push(wago.wagoID)
-            })
-
-            Search.query.context.push({
-              query: faveSearch[0],
-              type: 'option',
-              option: {
-                name: 'starred',
-                enabled: true
-              }
-            })
-            // esFilter.push({terms: { '_id': stars } })
-            esFilter.push({ids: { values: stars } })
-            return cb()
-          })          
-        }
-        else {
-          // only include what user has NOT starred
-          lookup['popularity.favorites'] = { "$ne": req.user._id }
-          Search.query.context.push({
-            query: faveSearch[0],
-            type: 'option',
-            option: {
-              name: 'starred',
-              enabled: false
-            }
-          })
-          //esFilter.push({must_not: {term: { 'popularity.favorites': req.user._id } } })
-          return cb()
-        }
-
+      else if (match[1].toLowerCase() === 'force') {
+        searchSettings.showAnon = 'exclusive'
+        Search.query.context.push({
+          query: anonSearch[0],
+          type: 'option',
+          option: {
+            name: 'anon',
+            force: true,
+            enabled: false
+          }
+        })
       }
-      else {
-        return cb()
-      }
-    },
+    }
 
-    // option for my-mention alerts
-    function(cb) {
-      // option only valid for logged in users
-      if (!req.user) return cb()
+    // check for favorites
+    match = findAll(/\bstarred:\s*(1|true)\b/i, query)
+    if (match.length && req.user) {
+      match = match[0]
+      query = query.replace(match[0], '').replace(/\s{2,}/, ' ').trim()
+      if (match[1]=='1' || match[1].toLowerCase()=='true') {
+        const faves = await WagoFavorites.find({userID: req.user._id, type: 'Star'}).select('wagoID').exec()
+        var stars = []
+        faves.forEach((fave) => {
+          stars.push(fave.wagoID)
+        })
 
-      const regex = /\b(alert|mentioned):\s*(1|0|true|false)\b/ig
-      var alertSearch
-      if ((alertSearch = regex.exec(query)) !== null) {
-        query = query.replace(alertSearch[0], '')
-        if (alertSearch[2]=='1' || alertSearch[2].toLowerCase()=='true') {
-          Search.query.context.push({
-            query: alertSearch[0],
-            type: 'option',
-            option: {
-              name: 'alert',
-              enabled: (alertSearch[2]=='1' || alertSearch[2].toLowerCase()=='true')
-            }
-          })
-          Comments.findMentions(req.user._id).then((mentions) => {
-            // if no wago's have alerts then return no results
-            if (!mentions || !mentions[0]) {
-              lookup._id = false
-              return cb()
-            }
-            mentions.forEach((comment) => {
-              // only include what the user has an alert on
-              if (alertSearch[2]=='1' || alertSearch[2].toLowerCase()=='true') {
-                if (!comment.usersTagged[0].read) {
-                  lookup.priority = lookup.priority || []
-                  lookup.priority.push(comment.wagoID)
-                }
-                else {
-                  lookup._id = lookup._id || {"$in": []}
-                  lookup._id["$in"].push(comment.wagoID)
-                }
-              }
-            })
-            return cb()
-          })
-        }
-        else {
-          return cb()
-        }
+        Search.query.context.push({
+          query: faveSearch[0],
+          type: 'option',
+          option: {
+            name: 'starred',
+            enabled: true
+          }
+        })
+        esFilter.push({ids: { values: stars } })
       }
-      else {
-        return cb()
-      }
-    },
-    
+    }
 
-  ], () => {
-    // any actual search terms?
-    // make sure excess space is removed
+    // check for comments
+    match = findAll(/\b(?:alerts?|mentioned):\s*(1|true)\b/i, query)
+    if (match.length && req.user) {
+      match = match[0]
+      query = query.replace(match[0], '').replace(/\s{2,}/, ' ').trim()
+      if (match[1]=='1' || match[1].toLowerCase()=='true') {
+        Search.query.context.push({
+          query: alertSearch[0],
+          type: 'option',
+          option: {
+            name: 'alert',
+            enabled: true
+          }
+        })
+        const mentions = await Comments.findMentions(req.user._id).exec()
+        searchSettings.topSearch = []
+        searchSettings.secondarySearch = []
+        mentions.forEach((comment) => {
+          // push unread comments to top of search results
+          if (!comment.usersTagged[0].read) {
+            searchSettings.topSearch.push(comment.wagoID)
+          }
+          else {
+            searchSettings.secondarySearch.push(comment.wagoID)
+          }
+        })
+      }
+    }
+
+    // check for actual search terms and protect against regex attacks
     query = query.replace(/\s{2,}/g, ' ').trim()
-    // prevent regex attacks
-    query = query.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&")
     if (query) {
-      // convert lookup object into $and Array
-      lookup = { "$and": [lookup] }
-
-      // remaining search query
       Search.query.textSearch = query
-      lookup["$text"] = { "$search": query }
+      query = query.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&")
       esQuery = query
     }
 
-    // limit lookup to what we have access to
-    lookup['deleted'] = false
     esFilter.push({term: { deleted: false } })
+    // configure search per anon settings
+    if (searchSettings.showAnon === 'hide') {
+      esFilter.push({exists: { field: "_userId" } })
+    }
+    else if (searchSettings.showAnon === 'exclusive') {
+      esFilter.push({bool: { must_not: [{ exists: { field: "_userId" } }] } })
+    }
     
+    // configure search per visibility settings
     var esShould = []
-    if (req.user && lookup._userId && req.user._id.equals(lookup._userId)) {
+    if (searchSettings.userSearch && req.user && req.user._id.equals(searchSettings.userSearch)) {
       // no additional filters needed
     }
-    else if (req.user && !allowHidden) {
+    else if (req.user && !searchSettings.showHidden) {
       esShould.push({term: { _userId: { value: req.user._id, boost: 0 } } })
       esShould.push({bool: {filter: [{ term: { private: { value: false, boost: 0 } } }, { term: { hidden: { value: false, boost: 0 } } }] } })
     }
@@ -545,7 +402,7 @@ server.get('/search', (req, res, skipSearch) => {
       esShould.push({term: { _userId: { value: req.user._id, boost: 0 } } })
       esShould.push({term: { private: { value: false, boost: 0 } } })
     }
-    else if (!allowHidden) {
+    else if (!searchSettings.showHidden) {
       esFilter.push({term: { private: false } })
       esFilter.push({term: { hidden: false } })
     }
@@ -553,9 +410,7 @@ server.get('/search', (req, res, skipSearch) => {
       esFilter.push({term: { private: false } })
     }
 
-    // search wago for all of our criteria    
     if (esShould.length > 0) {
-      // should = array of OR, add to filter
       esFilter.push({bool: {should: esShould}})
     }
     if (esQuery) {
@@ -574,238 +429,171 @@ server.get('/search', (req, res, skipSearch) => {
       esFilter = []
     }
     else {
-      esQuery = { match_all: {} }
+      esQuery = {match_all: {}}
     }
+
+    // if we have top and secondary searches (unread comments and read comments)
+    if (searchSettings.topSearch && searchSettings.topSearch.length) {
+      if (searchSettings.topSearch.length / resultsPerPage > page + 1) {
+        searchSettings.secondarySearch = []
+        esFilter.push({simple_query_string: {query: searchSettings.topSearch.slice(page * resultsPerPage, resultsPerPage).join(' '), fields: ["_id"] }})
+      }
+      else {
+        page -= Math.ceil(searchSettings.topSearch.length / resultsPerPage)
+      }
+    }
+    if (searchSettings.secondarySearch && searchSettings.secondarySearch.length) {
+      esFilter.push({simple_query_string: {query: searchSettings.secondarySearch.slice(page * resultsPerPage, resultsPerPage).join(' '), fields: ["_id"] }})
+    }
+
+    // finally, run the search!
+    const results = await WagoItem.esSearch(
+      {query: { bool: { must: esQuery, filter: esFilter}}},
+      {hydrate: true, sort: esSort, size: resultsPerPage, from: resultsPerPage*page})
       
-    var runSearch = new Promise((resolve, reject) => {
-      if (lookup.priority && page === 0) {
-        resultsPerPage = 100 // show all priority results at once - should rarely be over the standard 20 anyway.
-        esFilter.push({simple_query_string: {query: lookup.priority.join(' '), fields: ["_id"] }})
-      }
-      else if (lookup.priority && lookup._id && lookup._id["$in"]) {
-        page-- // show first page of non priority results
-        esFilter.push({simple_query_string: {query: lookup._id["$in"].join(' '), fields: ["_id"] }})
-      }
-      else if (lookup._id && lookup._id["$in"]) {
-        esFilter.push({simple_query_string: {query: lookup._id["$in"].join(' '), fields: ["_id"] }})
-        // esFilter.push({ids: { type: "_doc", values: lookup._id["$in"] } }) 
-      }
-      WagoItem.esSearch({
-        query: {
-          bool: {
-            must: esQuery,
-            filter: esFilter
-          }
-        },          
-      },
-      { hydrate: true, sort: esSort, size: resultsPerPage, from: resultsPerPage*page}, (err, results) => {
-        if (err) {
-          logger.error({label: 'ElasticSearch error', err})
-          reject(err)
-        }
-        else {
-          resolve(results)
-        }
-      })
-    })
-    // else {
-    //   var runSearch = WagoItem.find(lookup).sort(sort).skip(resultsPerPage*page).limit(resultsPerPage)
-    // }
-    
-    runSearch.then((docs) => {
-      if (!docs) {
-        Search.total = 0
-        Search.results = []
-        return res.send(Search)
-      }
-
-      // initialize results
-      if (docs.hits && docs.hits.hits) {
-        Search.total = docs.hits.total
-        Search.results = docs.hits.hits
-      }
-      else {      
-        Search.results = docs
-      }
-
-      Search.meta = {}
-      if (lookup.priority && Search.total < 20) {
-        Search.meta.forceNextPage = true
-      }
-
-
-      // for each found result...
-      async.forEachOf(Search.results, function (wago, async_key, next) {
-        if (!wago) {
-          delete Search.results[async_key]
-          return next()
-        }
-        // setup return object
-        var item = {}
-        item.name = wago.name
-        item.slug = wago.slug
-        item.url = wago.url
-        if (wago.type=='WEAKAURAS2' || wago.type=='WEAKAURA2') {
-            wago.type = 'WEAKAURA';
-        }
-        item.type = wago.type
-        item.description = { text: wago.description, type: 'bbcode' }
-        item.visibility = { private: wago.private, hidden: wago.hidden }
-        item.date = { created: wago.created, modified: wago.modified }
-        item.description = { text: wago.description, format: 'bbcode' }
-        item.categories = wago.categories.slice(0, 5)
-
-        item.viewCount = wago.popularity.views
-        item.commentCount = wago.popularity.comments_count
-        item.downloadCount = wago.popularity.downloads
-        item.embedCount = wago.popularity.embeds
-        item.favoriteCount = wago.popularity.favorite_count
-
-        // if logged in check for mentions
-        if (req.user) {
-          if (req.user.unreadMentions.indexOf(wago._id) >= 0) {
-            item.unreadMention = true
-          }
-        }
-
-        // look up additional data
-        async.parallel([
-          // count total results
-          function (done) {
-            if (Search.total) {
-              return done()
-            }
-            WagoItem.count(lookup).then((num) => {
-              Search.total = num
-              done()
-            })
-          },
-
-          // get screenshot
-          function (done) {
-            if (wago.image && wago.image[0]) {
-              if (wago.image[0].files.png) {
-                item.thumbnail = wago.image[0].files.png
-              }
-              if (wago.image[0].files.jpg) {
-                item.thumbnail = wago.image[0].files.jpg
-              }
-              if (item.thumbnail && item.thumbnail.indexOf(/https?:\/\//) < 0) {
-                item.thumbnail = 'https://media.wago.io/images/'  + item.thumbnail
-              }
-              return done()
-            }
-            Screenshot.findOne({auraID: wago._id}).sort({sort:1}).then((screen) => {
-              if (!screen) return done()
-
-              item.thumbnail = screen.url
-              done()
-            })
-          },
-
-          // get username
-          function (done) {
-            // set defaults
-            item.user = { name: "a Guest" }
-            item.user.searchable = false
-            item.user.roleClass = 'user-default'
-            item.user.avatar = 'https://api.adorable.io/avatars/60/' + wago._id + '.png'
-
-            if (!wago._userId) return done()
-
-            User.findById(wago._userId).then((user) => {
-              if (!user) return done()
-
-              // if user found 
-              item.user.name = user.account.username
-              item.user.searchable = !user.account.hidden
-              item.user.roleClass = user.roleclass
-              item.user.avatar = user.avatarURL
-              return done()
-            })
-          }
-        ], () => {
-          Search.results[async_key] = item
-          next()
-        })
-      },
-      // once forEach is done and we have all our results
-      () => {
-        // called once parallel is done
-        if (page === 0) {
-          WagoItem.count(lookup).then((count) => {
-            res.send(Search)
-          })
-        }
-        else {
-          res.send(Search) 
-        }
-      })
-    })
-  })
-})
-
-/**
- * Search by username for autocomplete
- */
-server.get('/search/username', (req, res) => {
-  if (!req.query.name || req.query.name.length < 3) {
-    return res.send([])
-  }
-  var name = new RegExp(req.query.name)
-  User.esSearch({
-    query: {
-      bool: {
-        must: [
-          { term: { "account.hidden": { value: false, boost: 0 } } }
-        ],
-        should: [
-          {
-            regexp: {
-              "account.username": {
-                value: req.query.name.toLowerCase(),
-                boost: 2
-              }
-            } 
-          },
-          {
-            regexp: {
-              "account.username": {
-                value: req.query.name.toLowerCase() + '.*',
-                boost: 1.2
-              }
-            } 
-          },
-          {
-            regexp: {
-              "account.username": {
-                value: '.*' + req.query.name.toLowerCase() + '.*',
-                boost: .9
-              }
-            } 
-          }
-        ]
-      }
-    },          
-  },
-  { hydrate: true, sort: ['_score'], size: 10, from: 0}, (err, results) => {
-    if (err) {
-      logger.error({label: 'ElasticSearch error', err})
-      return res.send([])
-    }
-    else if (!results || !results.hits || !results.hits.hits) {
-      return res.send([])
+    if (!results) {
+      Search.total = 0
+      Search.results = []
+      return res.send(Search)
     }
 
+    // initialize results
+    if (results.hits && results.hits.hits) {
+      Search.total = results.hits.total
+      Search.results = results.hits.hits
+    }
+    else if (results.length == resultsPerPage) {
+      // if total couldn't be determined for some reason then give a total to ensure the search page loads more results
+      Search.total = resultsPerPage + 1
+      Search.results = results
+    }
     else {
+      Search.total = results.length
+      Search.results = results
+    }
+
+    req.tracking.search = {
+      query: Search.query.q.replace(/sort: \w+/, '').replace(/Expansion: \w+/, '').replace(/Relevance: \w+/, '').replace(/\s+/g, ' '),
+      count: Search.total
+    }
+
+    Search.meta = {}
+    if (searchSettings.topSearch && Search.total < 20) {
+      Search.meta.forceNextPage = true
+    }
+
+    // sanitize results
+    Search.results = await Promise.all(Search.results.map(async (wago) => {
+      if (!wago) {
+        return
+      }
+      var item = {}
+      item.name = wago.name
+      item.slug = wago.slug
+      item.url = wago.url
+      if (wago.type=='WEAKAURAS2' || wago.type=='WEAKAURA2') {
+          wago.type = 'WEAKAURA'
+      }
+      item.type = wago.type
+      item.description = {text: wago.description, type: wago.description_format}
+      item.visibility = {private: wago.private, hidden: wago.hidden}
+      item.date = {created: wago.created, modified: wago.modified}
+      item.categories = wago.categories.slice(0, 5)
+
+      item.viewCount = wago.popularity.views
+      item.commentCount = wago.popularity.comments_count
+      item.downloadCount = wago.popularity.downloads
+      item.embedCount = wago.popularity.embeds
+      item.favoriteCount = wago.popularity.favorite_count
+
+      // if logged in check for mentions
+      if (req.user && req.user.unreadMentions && req.user.unreadMentions.indexOf(wago._id) >= 0) {
+        item.unreadMention = true
+      }
+
+      // get thumbnail
+      if (wago.image && wago.image[0] && wago.image[0].files.png) {
+        item.thumbnail = 'https://media.wago.io/images/' + wago.image[0].files.png
+      }
+      else if (wago.image && wago.image[0] && wago.image[0].files.jpg) {
+        item.thumbnail = 'https://media.wago.io/images/' + wago.image[0].files.jpg
+      }
+      else {
+        const thumbnail = await Screenshot.findOne({auraID: wago._id}).sort({sort:1}).exec()
+        if (thumbnail) {
+          item.thumbnail = thumbnail.url
+        }
+      }
+
+      // get username
+      if (wago._userId) {
+        var user = await User.findById(wago._userId).exec()
+        item.user = {name: user.account.username}
+        item.user.searchable = !user.account.hidden
+        item.user.roleClass = user.roleclass
+        item.user.avatar = user.avatarURL
+      }
+      else {
+        item.user = { name: "a Guest" }
+        item.user.searchable = false
+        item.user.roleClass = 'user-default'
+        item.user.avatar = 'https://api.adorable.io/avatars/60/' + wago._id + '.png' 
+      }
+      return item
+    }))
+    res.send(Search)
+  })
+
+    
+  // search by name : autocomplete
+  fastify.get('/username', async (req, res) => {
+    if (!req.query.name || req.query.name.length < 3) {
+      return res.send([])
+    }
+    const results = await User.esSearch({
+      query: {
+        bool: {
+          must: [
+            { term: { "account.hidden": { value: false, boost: 0 } } }
+          ],
+          should: [
+            {
+              regexp: {
+                "account.username": {
+                  value: req.query.name.toLowerCase(),
+                  boost: 2
+                }
+              } 
+            },
+            {
+              regexp: {
+                "account.username": {
+                  value: req.query.name.toLowerCase() + '.*',
+                  boost: 1.2
+                }
+              } 
+            },
+            {
+              regexp: {
+                "account.username": {
+                  value: '.*' + req.query.name.toLowerCase() + '.*',
+                  boost: .9
+                }
+              } 
+            }
+          ]
+        }
+      },          
+    },
+    { hydrate: true, sort: ['_score'], size: 10, from: 0})
+    if (results && results.hits && results.hits.hits) {
       var users = []
       results.hits.hits.forEach((user) => {
-        var avatar = user.avatarURL
-        if (typeof avatar === 'string') {
-          users.push({name: user.account.username, html: `<div class="md-avatar"><img src="${avatar}"></div> ${user.account.username}`})
+        if (typeof user.avatarURL === 'string') {
+          users.push({name: user.account.username, html: `<div class="md-avatar"><img src="${user.avatarURL}"></div> ${user.account.username}`})
         }
-        else if (typeof avatar === 'object') {
-          users.push({name: user.account.username, html: `<div class="md-avatar"><img src="${avatar.png}"></div> ${user.account.username}`})
+        else if (typeof user.avatarURL === 'object') {
+          users.push({name: user.account.username, html: `<div class="md-avatar"><img src="${user.avatarURL.png}"></div> ${user.account.username}`})
         }
         else {
           users.push({name: user.account.username, html: user.account.username})
@@ -813,5 +601,10 @@ server.get('/search/username', (req, res) => {
       })
       res.send(users)
     }
+    else {
+      res.send([])
+    }
   })
-})
+
+  next()
+}

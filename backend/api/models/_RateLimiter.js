@@ -8,7 +8,7 @@ const Schema = new mongoose.Schema({
 
 Schema.statics.incr = function (key, expires, done) {
   new this({key, expires}).save().then((doc) => {
-    this.count({key: key}).then((num) => {
+    this.countDocuments({key: key}).then((num) => {
       done(null, num, doc)
     })
   })

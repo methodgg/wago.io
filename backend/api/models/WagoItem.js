@@ -104,7 +104,7 @@ Schema.plugin(mongoosastic, {
  * Statics
  */
 // Look up wago by id or custom slug
-Schema.statics.lookup = function(slug) {
+Schema.statics.lookup = async function(slug) {
   return this.findOne({"$or": [{_id: slug}, {custom_slug: slug}]}).exec()
 }
 
@@ -123,42 +123,27 @@ Schema.virtual('url').get(function() {
   return 'https://wago.io/'+this.slug
 })
 
-Schema.statics.randomOfTheMoment = function(callback) {
-  var search = {"hidden": false, "private": false, "deleted": false, $or:[{type: 'WEAKAURAS2'}, {type: 'ELVUI'}, {type: 'VUHDO'}], modified: { "$gte": new Date(2018, 7, 17) } }
-  this.count(search).exec().then((count) => {
-    if (count > 0) {
-      var rand = Math.floor(Math.random() * count)
-      this.findOne(search).skip(rand).exec().then((doc) => {
-        Screenshot.findOne({auraID: doc._id}).exec().then((screen) => {
-          if (screen) {
-            var wotm = {}
-            wotm.name = doc.name
-            wotm.slug = doc.slug
-            wotm.screenshot = screen.url
-            callback(wotm)
-          }
-          else {
-            return this.randomOfTheMoment(callback)
-          }
-        })
-      })
+Schema.statics.randomOfTheMoment = async function(count, n) {
+  if (!n) {
+    n = 0
+  }
+  var search = {"hidden": false, "private": false, "deleted": false, $or:[{type: 'WEAKAURAS2'}, {type: 'ELVUI'}, {type: 'VUHDO'}, {type: 'MDT'}], modified: {"$gte": new Date(2018, 7, 17)}}
+  if (!count) {
+    count = await this.countDocuments(search).exec()
+  }
+  if (count > 0 && n < 50) {
+    const rand = Math.floor(Math.random() * count)
+    const doc = await this.findOne(search).skip(rand).exec()
+    const screen = await Screenshot.findOne({auraID: doc._id}).exec()
+    if (screen) {
+      return {name: doc.name, slug: doc.slug, screenshot: screen.url}
     }
-  })
+    else {
+      return this.randomOfTheMoment(count, n + 1)
+    }
+  }
 }
 
 const WagoItem = mongoose.model('WagoItem', Schema)
-// if (require('../../config').env == 'production' && require('../../config').host == 'data-02' && !global.CRONTASK) {
-// WagoItem.synchronize()
-//   var es_Count = 0
-
-//   es_Stream.on('error', function(err){
-//     logger.error({label: 'Elastic index error', err: err});
-//   });
-//   es_Stream.on('data', function() {
-//     es_Count++;
-//   });
-//   es_Stream.on('close', function() {
-//     logger.info('Elastic indexed ' + es_Count + ' documents!');
-//   });
-// }
+WagoItem.esSearch = bluebird.promisify(WagoItem.esSearch, {context: WagoItem})
 module.exports = WagoItem

@@ -31,7 +31,7 @@ local LibCompress = LibStub:GetLibrary("LibCompress")
 local Encoder = Compresser:GetAddonEncodeTable()
 local Serializer = LibStub:GetLibrary("AceSerializer-3.0")
 local LibDeflate = LibStub:GetLibrary("LibDeflate")
-local configForDeflate = {level = 9}
+local configForDeflate = {level = 7}
 
 local JSON = (loadfile "./json.lua")()
 
@@ -411,6 +411,15 @@ end
 function Vuhdo2JSON(importStr) 
   local t = VUHDO_decompressIfCompressed(VUHDO_LibBase64.Decode(importStr))
 
+  if (t) then
+    print(JSON:encode(t))
+  else
+    print("{}")
+  end
+end
+
+function Deflate2JSON(importStr)
+  local t = DeflateToTable(importStr)
   if (t) then
     print(JSON:encode(t))
   else

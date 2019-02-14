@@ -1,5 +1,6 @@
 /**
  * Detect wow region by cloudflare-identified country code
+ * Used for highlighting current MDT week
  */
 var regions = {
   KR: ['KR'],

@@ -3,7 +3,7 @@ const mongoose = require('mongoose'),
       Mixed = mongoose.Schema.Types.Mixed
 
 const Schema = new mongoose.Schema({
-    _id: { type: String, index: true },
+    _id: { type: String },
     value: Mixed,
     locale: { type: String, index: true }
 }, { timestamps: true });

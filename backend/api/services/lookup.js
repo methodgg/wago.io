@@ -1,60 +1,37 @@
 /**
- * Standard lookup requests
+ * /lookup requests
  */
+ 
 const lua = require('../helpers/lua')
 const WCL = require('../helpers/WCL')
 const battlenet = require('../helpers/battlenet')
 const diff = require('../helpers/diff')
 const wowPatches = require('../helpers/wowPatches')
 
-function doNothing () {}
-
-server.get('/lookup/codereview', (req, res) => {
-  WagoCode.lookup(req.query.wagoID).then((code) => {
-    if (code && code.json) {
-      var WeakAura = JSON.parse(code.json)
-
-      lua.CodeReview(WeakAura, (error, result) => {
-        if (error) {
-          logger.debug({label: 'Code review', error: error})
-          return res.send({error: "An error has occurred. Could not profile code."})
-        }
-        res.send(result)
-      })
-    }
-    else {
-      res.send({error: 'could not load'})
-    }
+module.exports = function (fastify, opts, next) {
+  // returns data used on wago.io homepage 
+  fastify.get('/index', (req, res) => {
+    res.send({top10: global.Top10Lists, news: global.LatestNews, addons: global.LatestAddons})
   })
-})
 
- /**
-  * Wago lookup
-  */
- server.get('/lookup/wago', (req, res, next) => {
-  if (!req.params.id) {
-    return res.send(404, {error: "page_not_found"})
-  }
-  var timing = {}
-  var start = Date.now()
-  WagoItem.lookup(req.params.id).then((doc) => {
-    timing.WagoLookup = Date.now() - start
+  // standard lookup for any import
+  fastify.get('/wago', async (req, res) => {
+    if (!req.query.id) {
+      return res.code(404).send({error: "page_not_found"})
+    }
+    var doc = await WagoItem.lookup(req.query.id)
     if (!doc || doc.deleted) {
-      return res.send(404, {error: "page_not_found"})
+      return res.code(404).send({error: "page_not_found"})
     }
 
     if (doc.private && (!req.user || !req.user._id.equals(doc._userId))) {
-      return res.send(404, {error: "page_not_found"})
+      return res.code(401).send({error: "page_not_accessible"})
     }
- 
+    
     doc.popularity.views++
     doc.popularity.viewsThisWeek++
-
-    var ipAddress = req.headers['x-forwarded-for'] ||
-      req.connection.remoteAddress || 
-      req.socket.remoteAddress ||
-      (req.connection.socket ? req.connection.socket.remoteAddress : null)
-
+  
+    const ipAddress = req.raw.ip  
     ViewsThisWeek.find({viewed: { $gt: new Date().getTime() - 1000 * 60 * 20 }, source: ipAddress, wagoID: doc._id}).then((recent) => {
       if (!recent || recent.length === 0) {
         doc.save()
@@ -65,7 +42,7 @@ server.get('/lookup/codereview', (req, res) => {
         pop.save()
       }
     })
-
+  
     var wago = {}
     wago._id = doc._id
     if (doc.type === 'WEAKAURAS2') {
@@ -80,6 +57,8 @@ server.get('/lookup/codereview', (req, res) => {
     else if (doc.description_format === '2') {
       doc.description_format = 'markdown'
     }
+
+    req.tracking.name = doc.name
 
     wago.name = doc.name
     wago.slug = doc.slug
@@ -98,294 +77,142 @@ server.get('/lookup/codereview', (req, res) => {
     wago.embedCount = doc.popularity.embeds
     wago.favoriteCount = doc.popularity.favorite_count
     wago.installCount = doc.popularity.installed_count
-
-    timing.startingParallel = Date.now() - start
     wago.UID = doc._userId
-    async.parallel({
-      userLookup: (cb) => {
-        if (!wago.UID) {
-          return cb(null, {            
-            name: null,
-            searchable: false,
-            roleClass: 'user-anon',
-            avatar: '/media/avatars/anon.png'
-          })
-        }
+    wago.alerts = {}
 
-        User.findById(wago.UID).then((user) => {
-          if (!user) { // should always find a match
-            return cb(null, {            
-              name: null,
-              searchable: false,
-              roleClass: 'user-anon',
-              avatar: '/media/avatars/anon.png'
-            })
-          }
-          timing.findUser = Date.now() - start
-          var u = {}
-          u.name = user.account.username
-          u.searchable = !user.account.hidden
-          u.roleClass = user.roleclass
-          u.avatar = user.avatarURL
-          u.enableLinks = user.account.verified_human
-          cb(null, u)
-        })
-      },
-      myStar: (cb) => {
-        if (req.user) {
-          WagoFavorites.findOne({wagoID: wago._id, userID: req.user._id, type: 'Star'}).then((doc) => {
-            if (doc) {
-              wago.myfave = true
-            }
-            cb()
-          })
+    const getUser = async () => {
+      if (!wago.UID) {
+        wago.user = {          
+          name: null,
+          searchable: false,
+          roleClass: 'user-anon',
+          avatar: '/media/avatars/anon.png'
         }
-        else {
-          cb()
-        }
-      },
-      screenshotLookup: (cb) => {
-        Screenshot.findForWago(wago._id).then((screens) => {
-          timing.findScreenshots = Date.now() - start
-          if (!screens) {
-            return cb(null)
-          }
-          var ss = []
-          screens.forEach((screen) => {
-            ss.push({_id: screen._id.toString(), src: screen.url, title: screen.caption })
-          })
-          cb(null, ss)
-        })
-      },
-      videoLookup: (cb) => {
-        Video.findForWago(wago._id).then((videos) => {
-          timing.findVideos = Date.now() - start
-          if (!videos) {
-            return cb(null)
-          }
-          var vids = []
-          videos.forEach((video) => {
-            vids.push({_id: video._id.toString(), url: video.url, thumb: video.thumbnail, embed: video.embed })
-          })
-          cb(null, vids)
-        })
-      },
-      mediaLookup: (cb) => {
-        if (doc.type === 'IMAGE') {
-          wago.image = doc.image[0]
-          for (file in wago.image.files) {
-            if (!wago.image.files.hasOwnProperty(file)) {
-              continue
-            }
-            if (wago.image.files[file].indexOf(/https?:\/\//) < 0) {
-              wago.image.files[file] = 'https://media.wago.io/images/'  + wago.image.files[file]
-            }
-          }
-        }
-        cb(null)
-      },
-      collectionLookup: (cb) => {
-        if (doc.type === 'COLLECTION') {
-          return cb()
-        }
-        if (req.user) {
-          var search = WagoItem.find({"type": "COLLECTION", "collect": wago._id.toString(), deleted: false, "$or": [{ '_userId': req.user._id || null }, { private: false, hidden: false }]})
-        }
-        else {
-          var search = WagoItem.find({"type": "COLLECTION", "collect": wago._id.toString(), deleted: false, private: false, hidden: false})
-        }
-        
-        search.sort('-modified').limit(10).populate('_userId').then((coll) => {
-          timing.findCollections = Date.now() - start
-          if (!coll) {
-            return cb(null)
-          }
-          var collections = []
-          coll.forEach((c) => {
-            collections.push({name: c.name, _id: c._id, slug: c.slug, modified: c.modified, user: {name: c._userId.profile.name, class: c._userId.roleclass, avatar: c._userId.avatarURL, profile: c._userId.profile.url}})
-          })
-          cb(null, collections)
-        })
-      },
-      collectionCount: (cb) => {
-        if (doc.type === 'COLLECTION') {
-          return cb()
-        }
-        if (req.user) {
-          var search = WagoItem.count({"type": "COLLECTION", "collect": wago._id.toString(), deleted: false, "$or": [{ '_userId': req.user._id || null }, { private: false, hidden: false }]})
-        }
-        else {
-          var search = WagoItem.count({"type": "COLLECTION", "collect": wago._id.toString(), deleted: false, private: false, hidden: false})
-        }
-        search.then((count) => {
-          timing.countCollections = Date.now() - start
-          return cb(null, count)
-        })
-      },
-      myCollections: (cb) => {
-        if (doc.type === 'COLLECTION') {
-          return cb()
-        }
-        if (!req.user || req.user.collections.length === 0) {
-          return cb(null, [])
-        }
-        
-        WagoItem.find({"type": "COLLECTION", "collect": wago._id, "_userId": req.user._id, deleted: false}).select('_id').then((coll) => {
-          var arr = []
-          coll.forEach((c) => {
-            arr.push(c._id)
-          })
-          cb(null, arr)
-        })
-      },
-      codeLookup: (cb) => {
-        if (doc.type === 'COLLECTION') {
-          return cb()
-        }
-        WagoCode.lookup(wago._id, req.params.version).then((code) => {
-          timing.findCode = Date.now() - start
-          if (!code) {
-            return cb()
-          }
-          
-          var versionString = code.versionString
-          if (versionString !== '1.0.' + (code.version - 1) && versionString !== '0.0.' + code.version) {
-            versionString = versionString + '-' + code.version
-          }
-
-          if (doc.type === 'SNIPPET') {
-            cb(null, {lua: code.lua, version: code.version, versionString: versionString, changelog: code.changelog})
-          }
-          else if (wago.type === 'WEAKAURA') {
-            var json = JSON.parse(code.json)
-            if (code.version && ((json.d.version !== code.version || json.d.url !== wago.url + '/' + code.version) || (json.c && json.c[0].version !== code.version) || (json.d.semver !== code.versionString))) {
-              console.log('fgsd')
-              json.d.url = wago.url + '/' + code.version
-              json.d.version = code.version
-              json.d.semver = code.versionString
-
-              if (json.c) {
-                for (let i = 0; i < json.c.length; i++) {
-                  json.c[i].url = wago.url + '/' + code.version
-                  json.c[i].version = code.version
-                  json.c[i].semver = code.versionString
-                }
-              }
-
-              code.json = JSON.stringify(json)
-
-              lua.JSON2WeakAura(code.json, (error, result) => {
-                code.encoded = result.stdout
-                code.save()           
-                cb(null, {json: code.json, encoded: code.encoded, version: code.version, versionString: versionString, changelog: code.changelog})
-              })
-            }
-            else {
-              cb(null, {json: code.json, encoded: code.encoded, version: code.version, versionString: versionString, changelog: code.changelog})
-            }
-          }
-          // for now we'll convert all RP3 strings to the old format
-          else if (wago.type === 'TOTALRP3' && code.encoded.match(/^!/)) {
-            lua.JSON2TotalRP3(code.json, (error, result) => {
-              code.encoded = result.stdout
-              code.save()           
-              cb(null, {json: code.json, encoded: code.encoded, version: code.version, versionString: versionString, changelog: code.changelog})
-            })
-          }
-          else {
-            cb(null, {json: code.json, encoded: code.encoded, version: code.version, versionString: versionString, changelog: code.changelog})
-          }     
-        })
-      },
-      versionsLookup: (cb) => {
-        if (doc.type === 'COLLECTION') {
-          return cb()
-        }
-        WagoCode.find({auraID: wago._id}).sort({updated: -1}).then((versions) => {
-          timing.findVersions = Date.now() - start
-          if (!versions) {
-            return cb()
-          }
-          WagoCode.count({auraID: wago._id}).then((count) => {
-            timing.countVersions = Date.now() - start
-            var v = []
-            for (var i=0; i<versions.length; i++) {
-              var versionString = versions[i].versionString
-              if (versionString !== '1.0.' + (versions[i].version - 1) && versionString !== '0.0.' + versions[i].version) {
-                versionString = versionString + '-' + versions[i].version
-              }
-              v.push({version: versions[i].version, versionString: versionString, size: (versions[i].json && versions[i].json.length || versions[i].lua && versions[i].lua.length || versions[i].encoded && versions[i].encoded.length || 0), date: versions[i].updated, changelog: versions[i].changelog})
-            }
-            cb(null, {total: count, versions: v})
-          })
-        })
-      },
-      commentLookup: (cb) => {
-        Comments.find({wagoID: wago._id}).sort({postDate: -1}).limit(10).populate('authorID').then((comments) => {
-          timing.findComments = Date.now() - start
-          if (!comments) {
-            return cb()
-          }
-          var c = []
-          for (var i=0; i<comments.length; i++) {
-            c.push({
-              cid: comments[i]._id.toString(),
-              date: comments[i].postDate, 
-              text: comments[i].commentText, 
-              format: 'bbcode',
-              canMod: (req.user && ((req.user.admin && (req.user.admin.moderator || req.user.admin.super)) || req.user._id.equals(comments[i].authorID._id) || req.user._id.equals(wago.UID))),
-              author: { 
-                name: comments[i].authorID.account.username || 'User-' + comments[i].authorID._id.toString(),
-                avatar: comments[i].authorID.avatarURL,
-                class: comments[i].authorID.roleclass,
-                profile: comments[i].authorID.profile.url,
-                enableLinks: comments[i].authorID.account.verified_human
-              }
-            })
-          }
-          cb(null, c)
-        })
-      },
-      commentCount: (cb) => {
-        Comments.count({wagoID: wago._id}).then((count) => {
-          timing.countComments = Date.now() - start
-          cb(null, count)
-        })
-      },
-      forkLookup: (cb) => {
-        if (!doc.fork_of || wago.type === 'COLLECTION') {
-          return cb()
-        }
-        WagoItem.findById(doc.fork_of).then((doc) => {
-          if (!doc || doc.hidden || doc.private) {
-            return cb()
-          }
-          var fork = {}
-          fork._id = doc._id
-          fork.name = doc.name
-          cb(null, fork)
-        })
+        return
       }
-    }, function (err, data) {
-      timing.doneParallel = Date.now() - start
-      // parallel finished
-      wago.alerts = {}
-      wago.code = data.codeLookup
-      wago.versions = data.versionsLookup
-      wago.collectionCount = data.collectionCount
-      wago.collections = data.collectionLookup
-      wago.myCollections = data.myCollections
-      wago.user = data.userLookup
-      wago.screens = data.screenshotLookup
-      wago.videos = data.videoLookup
-      wago.commentCount = data.commentCount
-      wago.comments = data.commentLookup
-      wago.fork = data.forkLookup
+
+      const user = await User.findById(wago.UID).exec()
+      if (!user) {
+        // should always find a match but if something is whack...
+        wago.user = {          
+          name: null,
+          searchable: false,
+          roleClass: 'user-anon',
+          avatar: '/media/avatars/anon.png'
+        }
+        return
+      }
+      wago.user = {
+        name: user.account.username,
+        searchable: !user.account.hidden,
+        roleClass: user.roleclass,
+        avatar: user.avatarURL,
+        enableLinks: user.account.verified_human
+      }
+      return
+    }
+    const isMyStar = async () => {
+      if (req.user) {
+        const star = await WagoFavorites.findOne({wagoID: wago._id, userID: req.user._id, type: 'Star'}).exec()
+        if (star) {
+          wago.myfave = true
+        }
+        return
+      }
+      else {
+        return
+      }
+    }
+    const getScreenshots = async () => {
+      const screens = await Screenshot.findForWago(wago._id)
+      if (!screens) {
+        return
+      }
+      wago.screens = []
+      screens.forEach((screen) => {
+        wago.screens.push({_id: screen._id.toString(), src: screen.url, title: screen.caption})
+      })
+      return
+    }
+    const getVideos = async () => {
+      const videos = await Video.findForWago(wago._id)
+      if (!videos) {
+        return
+      }
+      wago.videos = []
+      videos.forEach((video) => {
+        wago.videos.push({_id: video._id.toString(), url: video.url, thumb: video.thumbnail, embed: video.embed})
+      })
+      return
+    }
+    const getMedia = async () => {
+      if (doc.type === 'IMAGE') {
+        wago.image = doc.image[0]
+        for (file in wago.image.files) {
+          if (!wago.image.files.hasOwnProperty(file)) {
+            continue
+          }
+          if (wago.image.files[file].indexOf(/https?:\/\//) < 0) {
+            wago.image.files[file] = 'https://media.wago.io/images/'  + wago.image.files[file]
+          }
+        }
+      }
+      return
+    }
+    const getCollections = async () => {
+      if (doc.type === 'COLLECTION') {
+        return
+      }
+      var search
+      var count
+      wago.collectionCount = 0
+      wago.collections = []
+      wago.myCollections = []
+      if (!doc.collect || !doc.collect.length) {
+        return
+      }
+      if (req.user) {
+        search = WagoItem.find({type: 'COLLECTION', collect: doc._id, deleted: false, "$or": [{ '_userId': req.user._id || null }, { private: false, hidden: false }]})
+        count = WagoItem.countDocuments({type: 'COLLECTION', collect: doc._id, deleted: false, "$or": [{ '_userId': req.user._id || null }, { private: false, hidden: false }]})
+      }
+      else {
+        search = WagoItem.find({type: 'COLLECTION',collect: doc._id, deleted: false, private: false, hidden: false})
+        count = WagoItem.countDocuments({type: 'COLLECTION', collect: doc._id, deleted: false, private: false, hidden: false})
+      }
+
+      wago.collectionCount = await count.exec()
+      if (!wago.collectionCount) {
+        return
+      }
+      var collections = await search.sort('-modified').limit(10).populate('_userId').exec()
+      collections.forEach((c) => {
+        wago.collections.push({name: c.name, _id: c._id, slug: c.slug, modified: c.modified, user: {name: c._userId.profile.name, class: c._userId.roleclass, avatar: c._userId.avatarURL, profile: c._userId.profile.url}})
+        if (req.user && req.user._id.equals(c._userId._id)) {
+          wago.myCollections.push(c._id.toString())
+        }
+      })
+      return
+    }
+    // TODO: consider moving getCode into a separate request to leverage CDN caching
+    const getCode = async () => {
+      if (doc.type === 'COLLECTION') {
+        return
+      }
+      var code = await WagoCode.lookup(wago._id, req.params.version)
+      if (!code) {
+        return
+      }
+          
+      var versionString = code.versionString
+      if (versionString !== '1.0.' + (code.version - 1) && versionString !== '0.0.' + code.version) {
+        // append build # if version numbers are not sequential
+        versionString = versionString + '-' + code.version
+      }
 
       // check for alerts
       // functions blocked by WeakAuras
-      if (wago.code && wago.code.json) {
-        while ((m = commonRegex.WeakAuraBlacklist.exec(wago.code.json)) !== null) {
+      if (code.json) {
+        while ((m = commonRegex.WeakAuraBlacklist.exec(code.json)) !== null) {
           if (!wago.alerts.blacklist) {
             wago.alerts.blacklist = []
           }
@@ -393,7 +220,7 @@ server.get('/lookup/codereview', (req, res) => {
         }
         
         // check for functions that could be used for malintent
-        while ((m = commonRegex.MaliciousCode.exec(wago.code.json)) !== null) {
+        while ((m = commonRegex.MaliciousCode.exec(code.json)) !== null) {
           if (!wago.alerts.malicious) {
             wago.alerts.malicious = []
           }
@@ -401,132 +228,201 @@ server.get('/lookup/codereview', (req, res) => {
         }
       }
 
-      if (req.params.timing) {
-        timing.done = Date.now() - start
-        return res.send(timing)
+      if (doc.type === 'SNIPPET') {
+        wago.code = {lua: code.lua, version: code.version, versionString: versionString, changelog: code.changelog}
+        return
       }
-      res.send(wago)
-    })
-  })
-})
+      else if (wago.type === 'WEAKAURA') {
+        var json = JSON.parse(code.json)
+        // check if json needs version information added
+        if (code.version && ((json.d.version !== code.version || json.d.url !== wago.url + '/' + code.version) || (json.c && json.c[0].version !== code.version) || (json.d.semver !== code.versionString))) {
+          json.d.url = wago.url + '/' + code.version
+          json.d.version = code.version
+          json.d.semver = code.versionString
 
-server.get('/lookup/wago/versions', (req, res, next) => {
-  if (!req.params.id) {
-    return res.send(404, {error: "page_not_found"})
-  }
-  WagoItem.lookup(req.params.id).then((doc) => {
-    if (!doc) {
-      return res.send(404, {error: "page_not_found"})
-    }
+          if (json.c) {
+            for (let i = 0; i < json.c.length; i++) {
+              json.c[i].url = wago.url + '/' + code.version
+              json.c[i].version = code.version
+              json.c[i].semver = code.versionString
+            }
+          }
 
-    WagoCode.find({auraID: req.params.id}).select('json version updated versionString changelog').skip(10).sort({updated: -1}).then((versions) => {
-      if (!versions) {
-        return cb()
-      }
-      WagoCode.count({auraID: req.params.id}).then((count) => {
-        var v = []
-        for (var i=0; i<versions.length; i++) {
-          v.push({version: count - i - 10, versionString: versions[i].versionString, size: versions[i].json.length, date: versions[i].updated, changelog: versions[i].changelog})
+          code.json = JSON.stringify(json)
+          var encoded = await lua.JSON2WeakAura(code.json)
+          if (encoded) {
+            code.encoded = encoded
+          }
+          code.save()
         }
-        return res.send(v)
+        wago.code = {json: code.json, encoded: code.encoded, version: code.version, versionString: versionString, changelog: code.changelog}
+        return
+      }
+      // for now we'll convert all RP3 strings to the old format
+      else if (wago.type === 'TOTALRP3' && code.encoded.match(/^!/)) {
+        var encoded = await lua.JSON2TotalRP3(code.json)
+        if (encoded) {
+          code.encoded = encoded
+        }
+        code.save()
+        wago.code = {json: code.json, encoded: code.encoded, version: code.version, versionString: versionString, changelog: code.changelog}
+        return
+      }
+      else {
+        wago.code = {json: code.json, encoded: code.encoded, version: code.version, versionString: versionString, changelog: code.changelog}
+        return
+      }
+    }
+    const getVersionHistory = async () => {
+      if (doc.type === 'COLLECTION') {
+        return
+      }
+      var versions = await WagoCode.find({auraID: wago._id}).sort({updated: -1}).exec()
+      if (!versions) {
+        return
+      }
+      var versionHistory = []
+      versions.forEach((v) => {
+        var versionString = v.versionString
+        if (versionString !== '1.0.' + (v.version - 1) && versionString !== '0.0.' + v.version) {
+          versionString = versionString + '-' + v.version
+        }
+        versionHistory.push({version: v.version, versionString: versionString, size: (v.json && v.json.length || v.lua && v.lua.length || v.encoded && v.encoded.length || 0), date: v.updated, changelog: v.changelog})
       })
-    })
+      wago.versions = {total: versions.length, versions: versionHistory}
+      return
+    }
+    const getComments = async () => {
+      var count = await Comments.countDocuments({wagoID: wago._id}).exec()
+      wago.commentCount = count
+      wago.comments = []
+      var comments = await Comments.find({wagoID: wago._id}).sort({postDate: -1}).limit(10).populate('authorID').exec()
+      if (!comments) {
+        return
+      }
+      comments.forEach((c) => {
+        wago.comments.push({
+          cid: c._id.toString(),
+          date: c.postDate,
+          text: c.commentText,
+          format: 'bbcode',
+          canMod: (req.user && ((req.user.isAdmin && (req.user.isAdmin.moderator || req.user.isAdmin.super)) || req.user._id.equals(c.authorID._id) || req.user._id.equals(wago.UID))),
+          author: {
+            name: c.authorID.account.username || 'User-' + c.authorID._id.toString(),
+            avatar: c.authorID.avatarURL,
+            class: c.authorID.roleclass,
+            profile: c.authorID.profile.url,
+            enableLinks: c.authorID.account.verified_human
+          }
+        })
+      })
+      return
+    }
+    const getFork = async () => {
+      if (!doc.fork_of || wago.type === 'COLLECTION') {
+        return
+      }
+      var fork = await WagoItem.findById(doc.fork_of).exec()
+      if (!fork || fork.hidden || fork.private) {
+        return
+      }
+      wago.fork = {_id: fork._id.toString(), name: fork.name}
+      return
+    }
+    // run tasks in parallel
+    await Promise.all([getUser(), isMyStar(), getScreenshots(), getVideos(), getMedia(), getCollections(), getCode(), getVersionHistory(), getComments(), getFork()])
+    return res.send(wago)
   })
-})
 
-server.get('/lookup/wago/diffs', (req, res, next) => {
-  if (!req.params.id || !req.params.left || !req.params.right) {
-    return res.send(404, {error: "page_not_found"})
-  }
-  WagoItem.lookup(req.params.id).then((doc) => {
+  // return array of git-formatted diffs comparing two versions of code
+  fastify.get('/wago/diffs', async (req, res) => {
+    if (!req.query.id || !req.query.left || !req.query.right) {
+      return res.code(404).send({error: "page_not_found"})
+    }
+    const doc = await WagoItem.lookup(req.query.id)
     if (!doc || doc.deleted) {
-      return res.send(404, {error: "page_not_found"})
+      return res.code(404).send({error: "page_not_found"})
     }
 
     if (doc.private && (!req.user || !req.user._id.equals(doc._userId))) {
-      return res.send(404, {error: "page_not_found"})
+      return res.code(404).send({error: "page_not_found"})
     }
-
-    var tables = {}
-    async.each(['left', 'right'], (side, cb) => {
-      WagoCode.lookup(doc._id, req.params[side]).then((code) => {
-        tables[side] = code.json || code.lua
-        cb()
-      })
-    }, () => {
-      if (doc.type === 'SNIPPET') {
-        diff.Lua(tables.right, tables.left).then((content) => {
-          res.send(content)
-        })
-      }
-      if (doc.type === 'PLATER') {
-        diff.Plater(tables.right, tables.left).then((content) => {
-          res.send(content)
-        })
-      }
-      else if (doc.type === 'WEAKAURAS2' || doc.type === 'WEAKAURA') {
-        diff.WeakAuras(tables.right, tables.left).then((content) => {
-          res.send(content)
-        })
-      }
-      else {
-        return res.send([])
-      }
-    })
-  })
-})
-
-server.get('/lookup/wago/collections', (req, res, next) => {
-  if (!req.params.id) {
-    return res.send(404, {error: "page_not_found"})
-  }
-   WagoItem.find({"type": "COLLECTION", "collect": req.params.id, "deleted": false, "private": false, "hidden": false})
-    .sort('-modified').skip(10).populate('_userId').then((coll) => {
-      if (!coll) {
-        return res.send([])
-      }
-      var collections = []
-      coll.forEach((c) => {
-        collections.push({name: c.name, slug: c.slug, modified: c.modified, user: {name: c._userId.profile.name, class: c._userId.roleclass, avatar: c._userId.avatarURL, profile: c._userId.profile.url}})
-      })
-      return res.send(collections)
-  })
-})
-
-server.get('/lookup/wago/comments', (req, res, next) => {
-  if (!req.params.id || !req.params.page) {
-    return res.send(404, {error: "page_not_found"})
-  }
-  Comments.find({wagoID: req.params.id}).sort({postDate: -1}).limit(10).skip(10 * parseInt(req.params.page)).populate('authorID').then((comments) => {
-    if (!comments) {
+    const left = WagoCode.lookup(doc._id, req.query.left)
+    const right = WagoCode.lookup(doc._id, req.query.right)
+    var tables = {left: await left, right: await right}
+    try {
+      tables.left = tables.left.json || tables.left.lua
+      tables.right = tables.right.json || tables.right.lua
+    }
+    catch (e) {
       return res.send([])
     }
-    var c = []
-    for (var i=0; i<comments.length; i++) {
-      c.push({
-        cid: comments[i]._id.toString(),
-        date: comments[i].postDate, 
-        text: comments[i].commentText, 
+      
+    if (doc.type === 'SNIPPET') {
+      return res.send(await diff.Lua(tables.left, tables.right))
+    }
+    if (doc.type === 'PLATER') {
+      return res.send(await diff.Plater(tables.left, tables.right))
+    }
+    else if (doc.type === 'WEAKAURAS2') {
+      return res.send(await diff.WeakAuras(tables.left, tables.right))
+    }
+    else {
+      return res.send([])
+    }
+  })
+
+  // return array of collections this import is included in
+  fastify.get('/wago/collections', async (req, res) => {
+    if (!req.query.id) {
+      return res.code(404).send({error: "page_not_found"})
+    }
+    const docs = await WagoItem.find({"type": "COLLECTION", "collect": req.params.id, "deleted": false, "private": false, "hidden": false}).sort('-modified').skip(10).populate('_userId').exec()
+    if (!docs) {
+      return res.send([])
+    }
+    var collections = []
+    docs.forEach((c) => {
+      collections.push({name: c.name, slug: c.slug, modified: c.modified, user: {name: c._userId.profile.name, class: c._userId.roleclass, avatar: c._userId.avatarURL, profile: c._userId.profile.url}})
+    })
+    return res.send(collections)
+  })
+
+  // find "more" comments on this import
+  fastify.get('/wago/comments', async (req, res, next) => {
+    if (!req.query.id || !req.query.page) {
+      return res.code(404).send({error: "page_not_found"})
+    }
+    const docs = await Comments.find({wagoID: req.query.id}).sort({postDate: -1}).limit(10).skip(10 * parseInt(req.query.page)).populate('authorID').exec()
+    if (!docs) {
+      return res.send([])
+    }
+    var comments = []
+    docs.forEach((c) => {
+      comments.push({
+        cid: c._id.toString(),
+        date: c.postDate, 
+        text: c.commentText, 
         format: 'bbcode',
         author: { 
-          name: comments[i].authorID.account.username || 'User-' + comments[i].authorID._id.toString(),
-          avatar: comments[i].authorID.avatarURL,
-          class: comments[i].authorID.roleclass,
-          profile: comments[i].authorID.profile.url,
-          enableLinks: comments[i].authorID.account.verified_human
+          name: c.authorID.account.username || 'User-' + c.authorID._id.toString(),
+          avatar: c.authorID.avatarURL,
+          class: c.authorID.roleclass,
+          profile: c.authorID.profile.url,
+          enableLinks: c.authorID.account.verified_human
         }
       })
-    }
-    return res.send(c)
+    })
+    return res.send(comments)
   })
-})
 
-server.get('/lookup/profile', (req, res, next) => {
-  if (!req.params.user) {
-    return res.send(404, {error: "page_not_found"})
-  }
+  // get profile info for user search
+  fastify.get('/profile', async (req, res, next) => {
+    if (!req.query.user) {
+      return res.code(404).send({error: "page_not_found"})
+    }
 
-  User.findByUsername(req.params.user).then((user) => {
+    const user = await User.findByUsername(req.query.user)
     if (!user) {
       return res.send({})
     }
@@ -541,26 +437,14 @@ server.get('/lookup/profile', (req, res, next) => {
     }
     res.send(profile)
   })
-})
 
-/**
- * Get a single blog post
- */
-server.get('/lookup/blog', (req, res) => {
-  if (!req.query.id) {
-    return res.send(404, {error: "page_not_found"})
-  }
+  // get a single blog post
+  fastify.get('/blog', async (req, res) => {
+    if (!req.query.id) {
+      return res.code(404).send({error: "page_not_found"})
+    }
 
-  var query
-  if (req.user && req.user.admin) {
-    // allow fetching drafts for admins
-    query = {_id: req.query.id}
-  }
-  else {
-    query = {_id: req.query.id, publishStatus: 'publish'}
-  }
-
-  Blog.findOne(query).populate('_userId').then((doc) => {
+    const doc = await Blog.findOne({_id: req.query.id, publishStatus: 'publish'}).populate('_userId').exec()    
     if (doc) {
       res.send({
         content: doc.content,
@@ -576,166 +460,94 @@ server.get('/lookup/blog', (req, res) => {
       })
     }
     else {
-      return res.send(404, {error: "page_not_found"})
+      return res.code(404).send({error: "page_not_found"})
     }
   })
-})
 
-/**
- * Get a page of blog posts.
- * Also includes the first and last ID of overall blog posts.
- */
-server.get('/lookup/blogs', (req, res) => {
-  if (!req.query.page) {
-    return res.send(404, {error: "page_not_found"})
-  }
-
-  var pageNum = parseInt(req.query.page)
-  if (pageNum <= 0) {
-    return res.send(404, {error: "page_not_found"})
-  }
-  // reduce to zero-index
-  pageNum--
-
-  var data = {}
-  async.parallel([
-    (done) => {
-      Blog.find({publishStatus: 'publish'}).populate('_userId').sort('-date').limit(3).skip(pageNum * 3).then((docs) => {
-        if (docs && docs.length > 0) {
-          var news = []
-          docs.forEach((doc) => {
-            news.push({
-              content: doc.content,
-              date: doc.date,
-              format: doc.format,
-              title: doc.title,
-              _id: doc._id,
-              publishStatus: doc.publishStatus,
-              user: {
-                username: doc._userId.account.username,
-                css: doc._userId.roleclass
-              }
-            })
-          })
-          data.news = news
-          done()
-        }
-        else {
-          data.error = 'no_news_found'
-          done()
-        }
-      })
-    },
-    (done) => {
-      Blog.findOne({publishStatus: 'publish'}).sort('date').select('_id').then((doc) => {
-        data.oldest = doc._id
-        done()
-      })
-    },
-    (done) => {
-      Blog.findOne({publishStatus: 'publish'}).sort('-date').select('_id').then((doc) => {
-        data.latest = doc._id
-        done()
-      })
+  // get a page of up to 3 blog posts
+  fastify.get('/blogs', async (req, res) => {
+    if (!req.query.page) {
+      return res.code(404).send({error: "page_not_found"})
     }
-  ], () => {
+    
+    var pageNum = parseInt(req.query.page)
+    if (pageNum <= 0) {
+      return res.code(404).send({error: "page_not_found"})
+    }
+    // reduce to zero-index
+    pageNum--
+    
+    var data = {news: []}
+    const blogPage = Blog.find({publishStatus: 'publish'}).populate('_userId').sort('-date').limit(3).skip(pageNum * 3).exec()
+    const blogOldest = Blog.findOne({publishStatus: 'publish'}).sort('date').select('_id').exec()
+    const blogNewest = Blog.findOne({publishStatus: 'publish'}).sort('-date').select('_id').exec()
+    const blogs = await blogPage
+    blogs.forEach((doc) => {
+      data.news.push({
+        content: doc.content,
+        date: doc.date,
+        format: doc.format,
+        title: doc.title,
+        _id: doc._id,
+        publishStatus: doc.publishStatus,
+        user: {
+          username: doc._userId.account.username,
+          css: doc._userId.roleclass
+        }
+      })
+    })
+    data.oldest = await blogOldest
+    data.newest = await blogNewest
     res.send(data)
-  })  
-})
-
-/**
- * Fetch static contents used on index page
- */
-server.get('/lookup/index', (req, res) => {
-  res.send({top10: global.TopTenLists, news: global.newsPosts, addons: global.addonUpdates})
-})
-
-/**
- * Lookup WCL data
- */
-server.get('/lookup/wcl/dungeons', (req, res) => {
-  if (req.query.log) {
-    WCL.getDungeons(req.query.log).then((dun) => {
-      res.send(dun)
-    })
-  }
-})
-
-server.get('/lookup/wcl/mdt-events', (req, res) => {
-  if (req.query.log) {
-    WCL.generateMDT(req.query.log, parseInt(req.query.dungeon) || 0).then((dun) => {
-      res.send(dun)
-    })
-    .catch((e) => {
-      res.send(400, e)
-    })
-  }
-})
-
-/**
- * Fetch site data
- */
-server.get('/data/:key', (req, res) => {
-  const md5 = require('md5')
-  SiteData.findOne({_id: req.params.key}).then((data) => {
-    if (data) {
-      var etag = 'W\\"' + md5(JSON.stringify(data)) + '"'
-      if (req.headers['if-none-match'] === etag) {
-        return res.send(304, null)
-      }
-      res.set('Cache-Control', 'public, max-age=2592000, must-revalidate') // 1 month
-      res.set('ETag', etag)
-      res.send(200, data)
-
-    }
-    else
-      return res.send(404, {error: "value_not_found"})
   })
-})
 
-server.get('/lookup/statistics', (req, res) => {
-  if (!req.user || !req.user.access.beta) {
-    return res.send(403, {error: 'no_access'})
-  }
-  Stats.find().sort({name: 1, date: 1}).then((docs) => {
+  // look up WCL data
+  fastify.get('/wcl/dungeons', async (req, res) => {
+    if (req.query.log) {
+      const dungeons = await WCL.getDungeons(req.query.log)
+      res.send(dungeons)
+    }
+  })
+  fastify.get('/wcl/mdt-events', async (req, res) => {
+    if (req.query.log) {
+      const dungeon = await WCL.generateMDT(req.query.log, parseInt(req.query.dungeon) || 0)
+      res.send(dungeon)
+    }
+  })
+
+  // get site stats
+  fastify.get('/statistics', async (req, res) => {
+    if (!req.user || !req.user.access.beta) {
+      return res.code(403).send({error: 'no_access'})
+    }
+    const docs = await Stats.find().sort({name: 1, date: 1}).exec()
     var stats = []
-    var runningTotal = 0
     docs.forEach((item) => {
       if (!stats.length || stats[stats.length - 1].name !== item.name) {
         stats.push({name: item.name, data: [item.value]})
       }
       else {
         stats[stats.length - 1].data.push(item.value)
-      }
+      }   
     })
-    res.send(stats)    
+    res.send(stats) 
   })
-})
 
 
-/* battlenet api proxy */
-server.get('/lookup/blizzard/spell', (req, res) => {
-  if (parseInt(req.query.id)) {
-    battlenet.lookupSpell(req.query.id).then((spell) => {
+  // Blizzard web API proxy 
+  fastify.get('/blizzard/spell', async (req, res) => {
+    if (parseInt(req.query.id)) {
+      const spell = await battlenet.lookupSpell(req.query.id)
       res.send(spell)
-    })
-  }
-  else if (req.query.text) {
-    battlenet.searchSpell(req.query.text).then((spell) => {
+    }
+    else if (req.query.text) {
+      const spell = await battlenet.searchSpell(req.query.text)
       res.send(spell)
-    })
-  }
-  else {
-    res.send({})
-  }
-})
+    }
+    else {
+      res.send({})
+    }
+  })
 
-
-
-
-/* moved to /api */
-server.get('/lookup/weakauras', (req, res, next) => {
-  req.pathname = '/api/check/weakauras'
-  req.query = undefined // since redirect is combining query and params
-  res.redirect(req, next);
-})
+  next()  
+}

@@ -31,7 +31,7 @@ const Schema = new mongoose.Schema({
     }]
   },
   roles : {
-    admin : { 
+    isAdmin : { 
       access: { type: Boolean, default: false },
       super: { type: Boolean, default: false },
       blog: { type: Boolean, default: false },
@@ -170,7 +170,8 @@ Schema.methods.createAPIKey = function() {
   })
 
   this.account.api_key = key
-  return this.save()
+  this.save()
+  return key
 }
   
 
@@ -224,34 +225,34 @@ Schema.virtual('avatarURL').get(function() {
 
 
 Schema.virtual('access.custom_slug').get(function() {
-  if (this.roles.admin.super) return true
+  if (this.roles.isAdmin.access) return true
   if (this.roles.gold_subscriber || this.roles.ambassador || this.roles.developer || this.roles.artContestWinnerAug2018 || this.roles.guild_member) return true
 
   return false
 })
 Schema.virtual('access.animatedAvatar').get(function() {
-  if (this.roles.admin.super) return true
-  if (this.roles.gold_subscriber || this.roles.subscriber || this.roles.ambassador || this.roles.developer || this.roles.admin.moderator || this.roles.artContestWinnerAug2018 || this.roles.guild_member) return true
+  if (this.roles.isAdmin.access) return true
+  if (this.roles.gold_subscriber || this.roles.subscriber || this.roles.ambassador || this.roles.developer || this.roles.isAdmin.moderator || this.roles.artContestWinnerAug2018 || this.roles.guild_member) return true
 
   return false
 })
 Schema.virtual('access.beta').get(function() {
-  if (this.roles.admin.super) return true
-  if (this.roles.gold_subscriber || this.roles.subscriber || this.roles.ambassador || this.roles.developer || this.roles.admin.moderator || this.roles.artContestWinnerAug2018 || this.roles.guild_member) return true
+  if (this.roles.isAdmin.access) return true
+  if (this.roles.gold_subscriber || this.roles.subscriber || this.roles.ambassador || this.roles.developer || this.roles.isAdmin.moderator || this.roles.artContestWinnerAug2018 || this.roles.guild_member) return true
 
   return false
 })
 Schema.virtual('access.api').get(function() {
-  if (this.roles.admin.super) return true
-  if (this.roles.gold_subscriber || this.roles.subscriber || this.roles.ambassador || this.roles.developer || this.roles.admin.moderator || this.roles.artContestWinnerAug2018 || this.roles.guild_member) return true
+  if (this.roles.isAdmin.access) return true
+  if (this.roles.gold_subscriber || this.roles.subscriber || this.roles.ambassador || this.roles.developer || this.roles.isAdmin.moderator || this.roles.artContestWinnerAug2018 || this.roles.guild_member) return true
 
   return false
 })
 
 Schema.virtual('roleclass').get(function() {
-  if (this.roles.admin.super)
+  if (this.roles.isAdmin.access)
       return 'user-admin'
-  else if (this.roles.admin.moderator)
+  else if (this.roles.isAdmin.moderator)
       return 'user-moderator'
   else if (this.roles.gold_subscriber || this.roles.artContestWinnerAug2018 || this.roles.guild_member)
       return 'user-goldsub'
@@ -275,9 +276,6 @@ Schema.plugin(mongoosastic, {
 })
 
 const User = mongoose.model('Users', Schema)
+User.esSearch = bluebird.promisify(User.esSearch, {context: User})
 
-
-// if (require('../../config').env == 'production' && require('../../config').host == 'data-02' && !global.CRONTASK) {
-//   User.synchronize()
-// }
 module.exports = User
