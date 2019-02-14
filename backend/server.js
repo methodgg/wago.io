@@ -7,11 +7,11 @@ const fastify = require('fastify')({
   maxParamLength: 1048576,
   bodyLimit: 1048576 * 15,
   trustProxy: true,
-  // http2: true,
-  // https: {
-  //   key: require('fs').readFileSync('./fastify-wago.key'),
-  //   cert: require('fs').readFileSync('./fastify-wago.crt')
-  // }
+  http2: true,
+  https: {
+    key: require('fs').readFileSync('./fastify-wago.key'),
+    cert: require('fs').readFileSync('./fastify-wago.crt')
+  }
 })
 // iptables port forward https://spin.atomicobject.com/2012/10/01/useful-iptables-port-forwarding-patterns/
 
@@ -23,12 +23,6 @@ global.config = require('./config')
 global.commonRegex = require('./commonRegex')
 global.fs = require('fs').promises
 global.mongoose = require('mongoose')
-// global._ = require('lodash')
-// global.keyd = require('keyd')
-
-// loader.io tests
-// node 6 https://ldr.io/2SlO2UF
-
 
 // --- FASTIFY PLUGINS
 fastify.register(require('fastify-cookie'))
@@ -74,7 +68,7 @@ fastify.register(require('./api/services/webhooks'))
 const startServer = async () => {
   try {
     await fastify.listen(config.port, '0.0.0.0')
-    fastify.log.info(`server listening on ${fastify.server.address().port}`)
+    console.log(`Fastify listening on ${fastify.server.address().port}`)
     await mongoose.connect(config.db.uri, {useNewUrlParser: true, useCreateIndex: true, useFindAndModify: false})
     const models = await fs.readdir('./api/models')
     models.forEach((model) => {
