@@ -19,17 +19,30 @@ module.exports = function (data) {
   }
   var trackProp = {}
   trackProp.token_auth = config.matomo.key
-  trackProp.ua = this.raw.headers['user-agent']
-  trackProp.lang = this.raw.headers['accept-language']
-  trackProp.cip = this.headers['x-forwarded-for'] || this.raw.connection.remoteAddress || this.raw.socket.remoteAddress || (this.raw.connection.socket ? this.raw.connection.socket.remoteAddress : null)
+  if (this.req && this.req.raw) {
+    trackProp.ua = this.req.raw.headers['user-agent']
+    trackProp.lang = this.req.raw.headers['accept-language']
+    trackProp.cip = this.req.raw.ip
+    trackProp.url = 'https://data.wago.io' + this.req.raw.url
+  }
+  else if (this.headers && this.req) {
+    trackProp.ua = this.headers['user-agent']
+    trackProp.lang = this.headers['accept-language']
+    trackProp.cip = this.req.ip
+    trackProp.url = 'https://data.wago.io' + this.req.url
+  }
   trackProp.uid = md5(trackProp.cip + (this.user && this.user._id.toString() || ''))
-  if (this.query._ref && !this.query._ref.match(/^https:\/\/wago.io/)) {
+  if (this.query && this.query._ref && !this.query._ref.match(/^https:\/\/wago.io/)) {
     trackProp.urlref = this.query._ref
   }
-  trackProp.url = 'https://data.wago.io' + this.raw.url
   trackProp.cvar = JSON.stringify({
     '1': ['host', config.host]
   })
+
   trackProp = Object.assign(trackProp, data)
+  
+  if (!trackProp.url) {
+    trackProp.url = 'https://wago-missing-url/'
+  }
   matomo.track(trackProp)
 }

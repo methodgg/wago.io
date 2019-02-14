@@ -17,8 +17,6 @@ module.exports = function (error, label) {
   }
   else {
     // out of scope; initiate tracker
-    const MatomoTracker = require('matomo-tracker')
-    const matomo = new MatomoTracker(1, 'https://logging.wago.io/matomo.php')
-    matomo.track(err)
+    require('./matomo')(err)
   }
 }

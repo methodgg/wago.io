@@ -51,6 +51,7 @@ fastify.addHook('preSerialization', require('./middlewares/analytics'))
 // --- ROUTES
 fastify.get('/logout', (req, res) => {res.redirect('/auth/logout')})
 fastify.get('/ping', (req, res) => {res.send({pong: true, host: config.base_url})})
+fastify.get('/favicon.ico', (req, res) => {res.redirect('https://media.wago.io/favicon/favicon.ico')})
 fastify.get('/loaderio-ea4a5150f4d42634b2499beaf72f04a9.txt', (req, res) => {res.send('loaderio-ea4a5150f4d42634b2499beaf72f04a9')})
 fastify.register(require('./api/services/account'), { prefix: '/account' })
 fastify.register(require('./api/services/admin'), { prefix: '/admin' })
