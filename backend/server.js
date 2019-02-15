@@ -1,25 +1,23 @@
-/**
- * Module Dependencies
- */
-const config = require('./config')
-const fastify = require('fastify')({
+// --- SETUP FASTIFY
+global.config = require('./config')
+var fastifyOpt = {
   ignoreTrailingSlash: true,
   maxParamLength: 1048576,
   bodyLimit: 1048576 * 15,
-  trustProxy: true,
-  http2: true,
-  https: {
+  trustProxy: true
+}
+if (config.env === 'production') {
+  fastifyOpt.https = {
     key: require('fs').readFileSync('./fastify-wago.key'),
     cert: require('fs').readFileSync('./fastify-wago.crt')
   }
-})
-// iptables port forward https://spin.atomicobject.com/2012/10/01/useful-iptables-port-forwarding-patterns/
+}
+const fastify = require('fastify')()
 
 // --- GLOBAL MODULES
 global.async = require('async')
 global.axios = require('axios')
 global.bluebird = require('bluebird')
-global.config = require('./config')
 global.commonRegex = require('./commonRegex')
 global.fs = require('fs').promises
 global.mongoose = require('mongoose')
@@ -66,6 +64,7 @@ fastify.register(require('./api/services/search'), { prefix: '/search' })
 fastify.register(require('./api/services/wago'), { prefix: '/wago' })
 fastify.register(require('./api/services/webhooks'))
 
+// --- START SERVER AND CONNECT TO MONGO
 const startServer = async () => {
   try {
     await fastify.listen(config.port, '0.0.0.0')

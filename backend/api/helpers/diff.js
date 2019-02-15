@@ -50,9 +50,10 @@ module.exports = {
 async function makeDiffs (compareA, compareB) {
   var diffs = []
   var keys = arrayUnique(Object.keys(compareA).concat(Object.keys(compareB)))
-  keys.forEach(async (key) => {
+  for (let i = 0; i < keys.length; i++) {
+    let key = keys[i]
     if (compareA[key] === compareB[key]) {
-      return done()
+      continue
     }
     if (typeof compareA[key] !== 'string') {
       compareA[key] = ''
@@ -68,14 +69,14 @@ async function makeDiffs (compareA, compareB) {
     }
     var fileA = await makeTmpFile(compareA[key])
     var fileB = await makeTmpFile(compareB[key])
-    let diff = exec(`git diff --no-index --color=never ${fileA} ${fileB}`)
+    let diff = await exec(`git diff --no-index --color=never ${fileA} ${fileB}`)
     if (diff && diff.stdout) {
       diff = diff.stdout.split(/\n/g).slice(4).join('\n')
       diffs.push(`--- a/${key}\n+++ b/${key}\n${diff}`)
     }
     fs.unlink(fileA)
     fs.unlink(fileB)
-  })
+  }
   return diffs  
 }
 
