@@ -12,7 +12,7 @@ if (config.env === 'production') {
     cert: require('fs').readFileSync('./fastify-wago.crt')
   }
 }
-const fastify = require('fastify')()
+const fastify = require('fastify')(fastifyOpt)
 
 // --- GLOBAL MODULES
 global.async = require('async')
