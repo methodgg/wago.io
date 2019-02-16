@@ -29,6 +29,7 @@
     "moment": "^2.24.0",
     "mongoosastic": "^4.4.1",
     "mongoose": "^5.4.9",
+    "node-object-hash": "^1.4.2",
     "promise-mmmagic": "0.0.2",
     "puppeteer": "^1.12.2",
     "sharp": "^0.21.3",

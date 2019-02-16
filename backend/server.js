@@ -28,6 +28,7 @@ fastify.register(require('fastify-compress'))
 fastify.register(require('fastify-file-upload'), {
   limits: { fileSize: 1048576 * 15 },
 })
+
 // TODO: set different limits for different routes
 fastify.register(require('./middlewares/fastify-rate-limit'), {
   max: 300,
@@ -37,14 +38,15 @@ fastify.register(require('./middlewares/fastify-rate-limit'), {
 // --- DECORATORS
 fastify.decorateRequest('track', require('./middlewares/matomo'))
 fastify.decorateRequest('trackError', require('./middlewares/matomoErrors'))
+fastify.decorateReply('cache', require('./middlewares/cache'))
 fastify.setErrorHandler(require('./middlewares/errors'))
 
 // --- HOOKS & MIDDLEWARES
 fastify.addHook('preValidation', require('./middlewares/cors'))
-fastify.addHook('preHandler', require('./middlewares/auth'))
 fastify.addHook('preHandler', require('./middlewares/setDefaults'))
+fastify.addHook('preHandler', require('./middlewares/analytics'))
+fastify.addHook('preHandler', require('./middlewares/auth'))
 fastify.addHook('preHandler', require('./middlewares/getRegion'))
-fastify.addHook('preSerialization', require('./middlewares/analytics'))
 
 // --- ROUTES
 fastify.get('/logout', (req, res) => {res.redirect('/auth/logout')})

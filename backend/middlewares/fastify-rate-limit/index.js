@@ -41,6 +41,9 @@ function rateLimitPlugin (fastify, opts, next) {
   fastify.addHook('onRequest', onRateLimit)
 
   function onRateLimit (req, res, next) {
+    if (req.raw.method === 'OPTIONS') {
+      return next()
+    }
     var key = keyGenerator(req)
     if (whitelist.indexOf(key) > -1) {
       next()

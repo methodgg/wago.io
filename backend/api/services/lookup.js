@@ -11,7 +11,7 @@ const wowPatches = require('../helpers/wowPatches')
 module.exports = function (fastify, opts, next) {
   // returns data used on wago.io homepage 
   fastify.get('/index', (req, res) => {
-    res.send({top10: global.Top10Lists, news: global.LatestNews, addons: global.LatestAddons})
+    res.cache(60).send({top10: global.Top10Lists, news: global.LatestNews, addons: global.LatestAddons})
   })
 
   // standard lookup for any import
@@ -198,7 +198,7 @@ module.exports = function (fastify, opts, next) {
       if (doc.type === 'COLLECTION') {
         return
       }
-      var code = await WagoCode.lookup(wago._id, req.params.version)
+      var code = await WagoCode.lookup(wago._id, req.query.version)
       if (!code) {
         return
       }
@@ -330,7 +330,7 @@ module.exports = function (fastify, opts, next) {
       return
     }
     // run tasks in parallel
-    await Promise.all([getUser(), isMyStar(), getScreenshots(), getVideos(), getMedia(), getCollections(), getCode(), getVersionHistory(), getComments(), getFork()])
+    await Promise.all([getUser(), isMyStar(), getScreenshots(), getVideos(), getMedia(), getCollections(), /*getCode(),*/ getVersionHistory(), getComments(), getFork()])
     return res.send(wago)
   })
 
@@ -356,20 +356,115 @@ module.exports = function (fastify, opts, next) {
     }
     catch (e) {
       return res.send([])
-    }
-      
+    }    
+    
     if (doc.type === 'SNIPPET') {
-      return res.send(await diff.Lua(tables.left, tables.right))
+      return res.cache(31104000).send(await diff.Lua(tables.left, tables.right))
     }
     if (doc.type === 'PLATER') {
-      return res.send(await diff.Plater(tables.left, tables.right))
+      return res.cache(31104000).send(await diff.Plater(tables.left, tables.right))
     }
     else if (doc.type === 'WEAKAURAS2') {
-      return res.send(await diff.WeakAuras(tables.left, tables.right))
+      return res.cache(31104000).send(await diff.WeakAuras(tables.left, tables.right))
     }
     else {
-      return res.send([])
+      return res.cache(31104000).send([])
     }
+  })
+
+  // returns a cache-able object of a wago's code
+  fastify.get('/wago/code', async (req, res) => {
+    if (!req.query.id) {
+      return res.code(404).send({error: "page_not_found"})
+    }
+    var doc = await WagoItem.lookup(req.query.id)
+    if (!doc || doc.deleted) {
+      return res.code(404).send({error: "page_not_found"})
+    }
+
+    if (doc.private && (!req.user || !req.user._id.equals(doc._userId))) {
+      return res.code(401).send({error: "page_not_accessible"})
+    }
+
+    var code = await WagoCode.lookup(doc._id, req.query.version)
+    if (!code) {
+      return res.code(403).send({error: "code not available"})
+    }
+
+    if (code.versionString !== req.query.version) {
+      return res.code(302).redirect(`/lookup/wago/code?id=${req.query.id}&version=${code.versionString}`)
+    }
+          
+    var versionString = code.versionString
+    if (versionString !== '1.0.' + (code.version - 1) && versionString !== '0.0.' + code.version) {
+      // append build # if version numbers are not sequential
+      versionString = versionString + '-' + code.version
+    }
+
+    var wagoCode = {alerts: {}}
+
+    // check for alerts
+    // functions blocked by WeakAuras
+    if (code.json) {
+      while ((m = commonRegex.WeakAuraBlacklist.exec(code.json)) !== null) {
+        if (!wagoCode.alerts.blacklist) {
+          wagoCode.alerts.blacklist = []
+        }
+        wagoCode.alerts.blacklist.push(m[1].replace(/\\"/g, '"'))
+      }
+      
+      // check for functions that could be used for malintent
+      while ((m = commonRegex.MaliciousCode.exec(code.json)) !== null) {
+        if (!wagoCode.alerts.malicious) {
+          wagoCode.alerts.malicious = []
+        }
+        wagoCode.alerts.malicious.push(m[1])
+      }
+    }
+
+    if (doc.type === 'SNIPPET') {
+      wagoCode.lua = code.lua
+      wagoCode.version = code.version
+      wagoCode.versionString = versionString
+      wagoCode.changelog = code.changelog
+    }
+    else if (doc.type === 'WEAKAURA') {
+      var json = JSON.parse(code.json)
+      // check if json needs version information added
+      if (code.version && ((json.d.version !== code.version || json.d.url !== wago.url + '/' + code.version) || (json.c && json.c[0].version !== code.version) || (json.d.semver !== code.versionString))) {
+        json.d.url = wago.url + '/' + code.version
+        json.d.version = code.version
+        json.d.semver = code.versionString
+
+        if (json.c) {
+          for (let i = 0; i < json.c.length; i++) {
+            json.c[i].url = wago.url + '/' + code.version
+            json.c[i].version = code.version
+            json.c[i].semver = code.versionString
+          }
+        }
+
+        code.json = JSON.stringify(json)
+        var encoded = await lua.JSON2WeakAura(code.json)
+        if (encoded) {
+          code.encoded = encoded
+        }
+        code.save()
+      }
+      wagoCode.json = code.json
+      wagoCode.encoded = code.encoded
+      wagoCode.version = code.version
+      wagoCode.versionString = versionString
+      wagoCode.changelog = code.changelog
+    }
+    else {
+      wagoCode.json = code.json
+      wagoCode.encoded = code.encoded
+      wagoCode.version = code.version
+      wagoCode.versionString = versionString
+      wagoCode.changelog = code.changelog
+    }
+    res.cache(31104000).send(wagoCode)
   })
 
   // return array of collections this import is included in
@@ -377,7 +472,7 @@ module.exports = function (fastify, opts, next) {
     if (!req.query.id) {
       return res.code(404).send({error: "page_not_found"})
     }
-    const docs = await WagoItem.find({"type": "COLLECTION", "collect": req.params.id, "deleted": false, "private": false, "hidden": false}).sort('-modified').skip(10).populate('_userId').exec()
+    const docs = await WagoItem.find({"type": "COLLECTION", "collect": req.query.id, "deleted": false, "private": false, "hidden": false}).sort('-modified').skip(10).populate('_userId').exec()
     if (!docs) {
       return res.send([])
     }
@@ -446,7 +541,7 @@ module.exports = function (fastify, opts, next) {
 
     const doc = await Blog.findOne({_id: req.query.id, publishStatus: 'publish'}).populate('_userId').exec()    
     if (doc) {
-      res.send({
+      res.cache(300).send({
         content: doc.content,
         date: doc.date,
         format: doc.format,
@@ -498,20 +593,20 @@ module.exports = function (fastify, opts, next) {
     })
     data.oldest = await blogOldest
     data.newest = await blogNewest
-    res.send(data)
+    res.cache(300).send(data)
   })
 
   // look up WCL data
   fastify.get('/wcl/dungeons', async (req, res) => {
     if (req.query.log) {
       const dungeons = await WCL.getDungeons(req.query.log)
-      res.send(dungeons)
+      res.cache(180).send(dungeons)
     }
   })
   fastify.get('/wcl/mdt-events', async (req, res) => {
     if (req.query.log) {
       const dungeon = await WCL.generateMDT(req.query.log, parseInt(req.query.dungeon) || 0)
-      res.send(dungeon)
+      res.cache(180).send(dungeon)
     }
   })
 
@@ -530,7 +625,7 @@ module.exports = function (fastify, opts, next) {
         stats[stats.length - 1].data.push(item.value)
       }   
     })
-    res.send(stats) 
+    res.cache(3600).send(stats) 
   })
 
 
@@ -538,11 +633,11 @@ module.exports = function (fastify, opts, next) {
   fastify.get('/blizzard/spell', async (req, res) => {
     if (parseInt(req.query.id)) {
       const spell = await battlenet.lookupSpell(req.query.id)
-      res.send(spell)
+      res.cache(2592000).send(spell)
     }
     else if (req.query.text) {
       const spell = await battlenet.searchSpell(req.query.text)
-      res.send(spell)
+      res.cache(2592000).send(spell)
     }
     else {
       res.send({})

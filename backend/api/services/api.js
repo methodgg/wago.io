@@ -5,7 +5,7 @@
 module.exports = function (fastify, opts, next) {
   // returns array of latest versions details of supported addons
   fastify.get('/addons', (req, res) => {
-    res.send(global.LatestAddons)
+    res.cache(300).send(global.LatestAddons)
   })
 
   // returns basic data of requested weakauras; WA Companion uses to check for updates
@@ -89,6 +89,9 @@ module.exports = function (fastify, opts, next) {
     if (wago.type === 'WEAKAURA' && code.json && code.json.match(commonRegex.WeakAuraBlacklist)) {
       return res.code(409).send({error: "malicious_code_found"})
     }
+    if (code.versionString !== req.query.version) {
+      return res.code(302).redirect(`/api/raw/encoded?id=${req.query.id}&version=${code.versionString}`)
+    }
     res.header('Content-Type', 'text/plain')
     if (wago.type === 'WEAKAURA' && !code.encoded.match(/^!/)) {
       code.encoded = await lua.JSON2WeakAura(code.json)
@@ -96,7 +99,7 @@ module.exports = function (fastify, opts, next) {
         code.save()
       }
     }
-    return res.send(code.encoded)
+    return res.cache(86400).send(code.encoded)
   })
 
   next()
