@@ -193,85 +193,20 @@ module.exports = function (fastify, opts, next) {
       })
       return
     }
-    // TODO: consider moving getCode into a separate request to leverage CDN caching
     const getCode = async () => {
       if (doc.type === 'COLLECTION') {
         return
       }
-      var code = await WagoCode.lookup(wago._id, req.query.version)
-      if (!code) {
-        return
+      if (req.query.version) {
+        wago.codeURL = `/lookup/wago/code?id=${doc._id}&version=${req.query.version}`
       }
-          
-      var versionString = code.versionString
-      if (versionString !== '1.0.' + (code.version - 1) && versionString !== '0.0.' + code.version) {
-        // append build # if version numbers are not sequential
-        versionString = versionString + '-' + code.version
-      }
-
-      // check for alerts
-      // functions blocked by WeakAuras
-      if (code.json) {
-        while ((m = commonRegex.WeakAuraBlacklist.exec(code.json)) !== null) {
-          if (!wago.alerts.blacklist) {
-            wago.alerts.blacklist = []
-          }
-          wago.alerts.blacklist.push(m[1].replace(/\\"/g, '"'))
-        }
-        
-        // check for functions that could be used for malintent
-        while ((m = commonRegex.MaliciousCode.exec(code.json)) !== null) {
-          if (!wago.alerts.malicious) {
-            wago.alerts.malicious = []
-          }
-          wago.alerts.malicious.push(m[1])
-        }
-      }
-
-      if (doc.type === 'SNIPPET') {
-        wago.code = {lua: code.lua, version: code.version, versionString: versionString, changelog: code.changelog}
-        return
-      }
-      else if (wago.type === 'WEAKAURA') {
-        var json = JSON.parse(code.json)
-        // check if json needs version information added
-        if (code.version && ((json.d.version !== code.version || json.d.url !== wago.url + '/' + code.version) || (json.c && json.c[0].version !== code.version) || (json.d.semver !== code.versionString))) {
-          json.d.url = wago.url + '/' + code.version
-          json.d.version = code.version
-          json.d.semver = code.versionString
-
-          if (json.c) {
-            for (let i = 0; i < json.c.length; i++) {
-              json.c[i].url = wago.url + '/' + code.version
-              json.c[i].version = code.version
-              json.c[i].semver = code.versionString
-            }
-          }
-
-          code.json = JSON.stringify(json)
-          var encoded = await lua.JSON2WeakAura(code.json)
-          if (encoded) {
-            code.encoded = encoded
-          }
-          code.save()
-        }
-        wago.code = {json: code.json, encoded: code.encoded, version: code.version, versionString: versionString, changelog: code.changelog}
-        return
-      }
-      // for now we'll convert all RP3 strings to the old format
-      else if (wago.type === 'TOTALRP3' && code.encoded.match(/^!/)) {
-        var encoded = await lua.JSON2TotalRP3(code.json)
-        if (encoded) {
-          code.encoded = encoded
-        }
-        code.save()
-        wago.code = {json: code.json, encoded: code.encoded, version: code.version, versionString: versionString, changelog: code.changelog}
-        return
+      else if (doc.latestVersion && doc.latestVersion.versionString) {
+        wago.codeURL = `/lookup/wago/code?id=${doc._id}&version=${doc.latestVersion.versionString}`
       }
       else {
-        wago.code = {json: code.json, encoded: code.encoded, version: code.version, versionString: versionString, changelog: code.changelog}
-        return
+        wago.codeURL = `/lookup/wago/code?id=${doc._id}`
       }
+      return
     }
     const getVersionHistory = async () => {
       if (doc.type === 'COLLECTION') {
@@ -330,7 +265,7 @@ module.exports = function (fastify, opts, next) {
       return
     }
     // run tasks in parallel
-    await Promise.all([getUser(), isMyStar(), getScreenshots(), getVideos(), getMedia(), getCollections(), /*getCode(),*/ getVersionHistory(), getComments(), getFork()])
+    await Promise.all([getUser(), isMyStar(), getScreenshots(), getVideos(), getMedia(), getCollections(), getCode(), getVersionHistory(), getComments(), getFork()])
     return res.send(wago)
   })
 
@@ -359,16 +294,16 @@ module.exports = function (fastify, opts, next) {
     }    
     
     if (doc.type === 'SNIPPET') {
-      return res.cache(31104000).send(await diff.Lua(tables.left, tables.right))
+      return res.cache(604800).send(await diff.Lua(tables.left, tables.right))
     }
     if (doc.type === 'PLATER') {
-      return res.cache(31104000).send(await diff.Plater(tables.left, tables.right))
+      return res.cache(604800).send(await diff.Plater(tables.left, tables.right))
     }
     else if (doc.type === 'WEAKAURAS2') {
-      return res.cache(31104000).send(await diff.WeakAuras(tables.left, tables.right))
+      return res.cache(604800).send(await diff.WeakAuras(tables.left, tables.right))
     }
     else {
-      return res.cache(31104000).send([])
+      return res.cache(604800).send([])
     }
   })
 
@@ -392,6 +327,15 @@ module.exports = function (fastify, opts, next) {
     }
 
     if (code.versionString !== req.query.version) {
+      if (!req.query.version) {
+        // save latest version data to wagoitem (for older imports)
+        doc.latestVersion = {
+          versionString: code.versionString,
+          iteration: code.version,
+          changelog: code.changelog
+        }
+        doc.save()
+      }
       return res.code(302).redirect(`/lookup/wago/code?id=${req.query.id}&version=${code.versionString}`)
     }
           
@@ -464,7 +408,7 @@ module.exports = function (fastify, opts, next) {
       wagoCode.versionString = versionString
       wagoCode.changelog = code.changelog
     }
-    res.cache(31104000).send(wagoCode)
+    res.cache(604800).send(wagoCode)
   })
 
   // return array of collections this import is included in
@@ -633,11 +577,11 @@ module.exports = function (fastify, opts, next) {
   fastify.get('/blizzard/spell', async (req, res) => {
     if (parseInt(req.query.id)) {
       const spell = await battlenet.lookupSpell(req.query.id)
-      res.cache(2592000).send(spell)
+      res.cache(604800).send(spell)
     }
     else if (req.query.text) {
       const spell = await battlenet.searchSpell(req.query.text)
-      res.cache(2592000).send(spell)
+      res.cache(604800).send(spell)
     }
     else {
       res.send({})

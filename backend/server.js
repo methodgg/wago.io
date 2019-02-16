@@ -8,6 +8,7 @@ var fastifyOpt = {
 }
 if (config.env === 'production') {
   fastifyOpt.https = {
+    http2: true,
     key: require('fs').readFileSync('./fastify-wago.key'),
     cert: require('fs').readFileSync('./fastify-wago.crt')
   }
