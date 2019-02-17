@@ -5,20 +5,20 @@
 "use strict";
 
 function calculateNextResetTime(windowMs) {
-  const d = new Date();
+  const d = new Date()
   d.setMilliseconds(d.getMilliseconds() + windowMs);
-  return d;
+  return d
 }
 
-function MongoStore(windowMs) {
+function MongoStore() {
   var store = {
-    incr: function(key, cb) {
-     let resetTime = new Date(calculateNextResetTime(windowMs));
-    _RateLimiter.incr(key, resetTime, cb)
+    incr: async function(opts) {
+      let resetTime = new Date(calculateNextResetTime(opts.expires))
+      return await _RateLimiter.incr(opts.key, resetTime, opts.url)
     },
 
-    decrement: function(key) {
-      _RateLimiter.findAndRemove({key}).exec()
+    decr: function(key) {
+      _RateLimiter.decr(key)
     },
 
     // export an API to allow hits all IPs to be reset
@@ -34,4 +34,4 @@ function MongoStore(windowMs) {
   return store
 }
 
-module.exports = MongoStore;
+module.exports = MongoStore
