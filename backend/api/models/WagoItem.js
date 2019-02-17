@@ -123,6 +123,12 @@ Schema.virtual('url').get(function() {
   return 'https://wago.io/'+this.slug
 })
 
+// something is preventing auto re-indexing, until I find what, I'll do this
+Schema.methods.reIndex = async function() {
+  await this.unIndex()
+  this.index()
+}
+
 Schema.statics.randomOfTheMoment = async function(count, n) {
   if (!n) {
     n = 0

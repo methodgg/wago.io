@@ -29,19 +29,20 @@ module.exports = function (fastify, opts, next) {
     }
     
     doc.popularity.views++
-    doc.popularity.viewsThisWeek++
-  
-    const ipAddress = req.raw.ip  
-    ViewsThisWeek.find({viewed: { $gt: new Date().getTime() - 1000 * 60 * 20 }, source: ipAddress, wagoID: doc._id}).then((recent) => {
-      if (!recent || recent.length === 0) {
-        doc.save()
-        
-        var pop = new ViewsThisWeek()
-        pop.wagoID = doc._id
-        pop.source = ipAddress
-        pop.save()
-      }
-    })
+
+    if (!req.query.embed) {
+      doc.popularity.viewsThisWeek++    
+      ViewsThisWeek.find({viewed: { $gt: new Date().getTime() - 1000 * 60 * 20 }, source: req.raw.ip, wagoID: doc._id}).then((recent) => {
+        if (!recent || recent.length === 0) {
+          doc.save()
+          
+          var pop = new ViewsThisWeek()
+          pop.wagoID = doc._id
+          pop.source = req.raw.ip
+          pop.save()
+        }
+      })
+    }
   
     var wago = {}
     wago._id = doc._id

@@ -466,6 +466,7 @@ module.exports = function (fastify, opts, next) {
 
     // time to save!
     var doc = await wago.save()
+    wago.reIndex()
     var code = new WagoCode({auraID: doc._id})
     if (wago.type === 'SNIPPET') {
       code.lua = scan.input
@@ -582,6 +583,7 @@ module.exports = function (fastify, opts, next) {
     code.versionString = wago.latestVersion.versionString
     await code.save()
     await wago.save()
+    wago.reIndex()
     res.send({success: true, wagoID: wago._id})
   })
   
@@ -621,6 +623,7 @@ module.exports = function (fastify, opts, next) {
       wago.latestVersion.versionString = newVersion
     }
     await wago.save()
+    wago.reIndex()
 
     var code = new WagoCode({
       auraID: wago._id, 
@@ -726,6 +729,7 @@ module.exports = function (fastify, opts, next) {
         })
       }
       var doc = await wago.save()
+      wago.reIndex()
       var code = new WagoCode()
       code.auraID = doc._id
       code.encoded = encoded
@@ -820,6 +824,7 @@ module.exports = function (fastify, opts, next) {
       wago.latestVersion.versionString = newVersion
     }
     await wago.save()
+    wago.reIndex()
 
     var code = new WagoCode({
       auraID: wago._id, 
@@ -864,6 +869,7 @@ module.exports = function (fastify, opts, next) {
     }
 
     var doc = await wago.save()
+    wago.reIndex()
     var code = new WagoCode({auraID: doc._id})
     code.lua = req.body.lua
     code.version = 1
