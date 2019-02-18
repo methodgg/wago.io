@@ -42,7 +42,6 @@ module.exports = function (fastify, opts, next) {
 
     wago.name = req.body.name
     await wago.save()
-    wago.reIndex()
     res.send({success: true})
   })
 
@@ -100,7 +99,6 @@ module.exports = function (fastify, opts, next) {
     if (!req.body.slug) {
       wago.custom_slug = null
       await wago.save()
-      wago.reIndex()
       res.send({success: true})
     }
     else {
@@ -109,7 +107,6 @@ module.exports = function (fastify, opts, next) {
       if (!exists || exists._id === wago._id) {
         wago.custom_slug = req.body.slug
         await wago.save()
-        wago.reIndex()
         res.send({success: true})
       }
       else {
@@ -132,7 +129,6 @@ module.exports = function (fastify, opts, next) {
     wago.description = req.body.desc || ''
     wago.description_format = req.body.format || 'bbcode'
     await wago.save()
-    wago.reIndex()
     res.send({success: true})
   })
   
@@ -199,7 +195,6 @@ module.exports = function (fastify, opts, next) {
     }
 
     await wago.save()
-    wago.reIndex()
     res.send({success: true, hidden: wago.hidden, private: wago.private})
   })
 
@@ -230,7 +225,6 @@ module.exports = function (fastify, opts, next) {
 
     // check if this import should have any system tags applied
     await wago.save()
-    wago.reIndex()
     res.send({success: true})
   })
 

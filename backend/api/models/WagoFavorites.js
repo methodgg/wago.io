@@ -13,16 +13,14 @@ Schema.statics.addStar = async function (wago, userID) {
   await this.findOneAndUpdate({wagoID: wago._id, userID: userID, type: 'Star'}, {wagoID: wago._id, userID: userID, type: 'Star', timestamp: Date.now()}, {upsert: true, new: true}).exec()
   const num = await this.countDocuments({wagoID: wago._id, type: 'Star'})
   wago.popularity.favorite_count = num
-  await wago.save()
-  wago.reIndex()
+  wago.save()
 }
 
 Schema.statics.removeStar = async function (wago, userID) {
   await this.findOneAndRemove({wagoID: wago._id, userID: userID, type: 'Star'}).exec()
   const num = await this.countDocuments({wagoID: wago._id, type: 'Star'})
   wago.popularity.favorite_count = num
-  await wago.save()
-  wago.reIndex()
+  wago.save()
 }
 
 Schema.statics.addInstall = async function (wago, appID, ipAddress) {
@@ -31,8 +29,7 @@ Schema.statics.addInstall = async function (wago, appID, ipAddress) {
     await this.create({wagoID: wago._id, appID: appID, type: 'Install', timestamp: Date.now(), ipAddress: ipAddress}).exec()
     const num = this.countDocuments({wagoID: wago._id, type: 'Install'})
     wago.popularity.installed_count = num
-    await wago.save()
-    wago.reIndex()
+    wago.save()
   }
 }
 

@@ -46,7 +46,10 @@ const Schema = new mongoose.Schema({
   latestVersion : {
     versionString : String,
     iteration: Number,
-    changelog : mongoose.Schema.Types.Mixed
+    changelog : {
+      format: { type: String, default: '' },
+      text: { type: String, default: '' }
+    }
   },
 
   // relevancy scores for searches
@@ -97,6 +100,7 @@ const Schema = new mongoose.Schema({
 
 // add Mongoosastic plugin (elastic search)
 Schema.plugin(mongoosastic, {
+  index: 'wago',
   hosts: config.elasticServers
 })
 
@@ -122,12 +126,6 @@ Schema.virtual('slug').get(function() {
 Schema.virtual('url').get(function() {
   return 'https://wago.io/'+this.slug
 })
-
-// something is preventing auto re-indexing, until I find what, I'll do this
-Schema.methods.reIndex = async function() {
-  await this.unIndex()
-  this.index()
-}
 
 Schema.statics.randomOfTheMoment = async function(count, n) {
   if (!n) {
