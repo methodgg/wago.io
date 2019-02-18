@@ -92,7 +92,7 @@ const startServer = async () => {
       var minute = Math.floor((new Date()-new Date().setHours(0,0,0,0)) / 60000) // start at x minutes from midnight
       const runCron = async () => {
         if (minute % 240 === 0) { // every 4 hours
-          if (config.env !== 'development') {
+          if (config.env === 'crontasks') {
             await cronTasks.UpdatePatreonAccounts(cronReq)
           }
           await cronTasks.UpdateWeeklyMDT(cronReq)
@@ -116,7 +116,7 @@ const startServer = async () => {
             cronReq.trackError(err, 'Elastic Sync Error WagoItem')
           })
           syncStream.on('close', function() {
-            cronReq.track({e_c: 'Elastic Sync Complete', e_a: 'WagoItem', e_n: 'WagoItem'})
+            cronReq.track({e_a: 'Elastic Sync Complete', e_c: 'WagoItem', e_n: 'WagoItem'})
           })
         }
         else if (minute === 30 && (new Date).getDay() === 1) {
@@ -125,7 +125,7 @@ const startServer = async () => {
             cronReq.trackError(err, 'Elastic Sync Error User')
           })
           syncStream.on('close', function() {
-            cronReq.track({e_c: 'Elastic Sync Complete', e_a: 'User', e_n: 'User'})
+            cronReq.track({e_a: 'Elastic Sync Complete', e_c: 'User', e_n: 'User'})
           })
         }
 

@@ -184,31 +184,33 @@ module.exports = {
           "Content-Type": "application/x-www-form-urlencoded"
         }
       })
-      await SiteData.findOneAndUpdate({_id: 'PatreonRefreshToken'}, {value: token.data.refresh_token, private: true}, {upsert: true}).exec()
-      if (!nextURL) {
-        nextURL = 'https://www.patreon.com/api/oauth2/api/campaigns/562591/pledges?include=patron.null'
-      }
-      while (nextURL) {
-        var response = await axios.get(nextURL, {headers: {Authorization: 'Bearer ' + token.data.access_token}})
-        var patrons = response.data.data
-        for (let i = 0; i < patrons.length; i++) {
-          if (!patrons[i] || !patrons[i].relationships || !patrons[i].relationships.patron || !patrons[i].relationships.patron.data || !patrons[i].relationships.patron.data.id) {
-            continue
-          }
-          var user = await User.findOne({"patreon.id": patrons[i].relationships.patron.data.id})
-          if (!user) {
-            continue
-          }
-          user.roles.subscriber = (!patrons[i].attributes.declined_since && patrons[i].attributes.amount_cents >= 100)
-          user.roles.gold_subscriber = (!patrons[i].attributes.declined_since && patrons[i].attributes.amount_cents >= 400)
-          user.roles.guild_subscriber = (!patrons[i].attributes.declined_since && patrons[i].attributes.amount_cents >= 1500)
-          await user.save()
+      if (token && token.data && token.data.access_token) {
+        await SiteData.findOneAndUpdate({_id: 'PatreonRefreshToken'}, {value: token.data.refresh_token, private: true}, {upsert: true}).exec()
+        if (!nextURL) {
+          nextURL = 'https://www.patreon.com/api/oauth2/api/campaigns/562591/pledges?include=patron.null'
         }
-        if (response.data.links && response.data.links.next) {
-          nextURL = response.data.links.next
-        }
-        else {
-          nextURL = null
+        while (nextURL) {
+          var response = await axios.get(nextURL, {headers: {Authorization: 'Bearer ' + token.data.access_token}})
+          var patrons = response.data.data
+          for (let i = 0; i < patrons.length; i++) {
+            if (!patrons[i] || !patrons[i].relationships || !patrons[i].relationships.patron || !patrons[i].relationships.patron.data || !patrons[i].relationships.patron.data.id) {
+              continue
+            }
+            var user = await User.findOne({"patreon.id": patrons[i].relationships.patron.data.id})
+            if (!user) {
+              continue
+            }
+            user.roles.subscriber = (!patrons[i].attributes.declined_since && patrons[i].attributes.amount_cents >= 100)
+            user.roles.gold_subscriber = (!patrons[i].attributes.declined_since && patrons[i].attributes.amount_cents >= 400)
+            user.roles.guild_subscriber = (!patrons[i].attributes.declined_since && patrons[i].attributes.amount_cents >= 1500)
+            await user.save()
+          }
+          if (response.data.links && response.data.links.next) {
+            nextURL = response.data.links.next
+          }
+          else {
+            nextURL = null
+          }
         }
       }
       return

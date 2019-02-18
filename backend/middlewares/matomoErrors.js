@@ -4,7 +4,7 @@ module.exports = function (error, label) {
     label = 'Axios ' + error.config.url
   }
   const err = {
-    e_c: 'ERR: ' + (label ? label : error.name),
+    e_c: config.host + ' ERR: ' + (label ? label : error.name),
     e_a: error.stack,
     e_n: error.message
   }
