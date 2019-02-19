@@ -48,6 +48,8 @@ server.get('/lookup/codereview', (req, res) => {
     }
  
     doc.popularity.views++
+    // quick hack to stop counting mdt embeds
+    if (!req.headers.referer.match(/embed/)) {
     doc.popularity.viewsThisWeek++
 
     var ipAddress = req.headers['x-forwarded-for'] ||
@@ -65,6 +67,7 @@ server.get('/lookup/codereview', (req, res) => {
         pop.save()
       }
     })
+    }
 
     var wago = {}
     wago._id = doc._id
