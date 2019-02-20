@@ -139,6 +139,10 @@ const startServer = async () => {
       runCron()
       setInterval(runCron, 60 * 1000)
     }
+
+    if (config.env === 'development') {
+      // require('./unitTests')
+    }
   } catch (err) {
     console.log('FASTIFY ERROR', err)
     process.exit(1)

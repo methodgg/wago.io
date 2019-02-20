@@ -39,7 +39,10 @@
     "uninstall": "0.0.0",
     "webp-converter": "^2.2.2"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "request-promise": "^4.2.4",
+    "tap": "^12.5.3"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

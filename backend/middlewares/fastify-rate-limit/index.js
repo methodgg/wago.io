@@ -59,7 +59,7 @@ function rateLimitPlugin (fastify, opts, next) {
       if (current <= max && finish) {
         res.header('X-RateLimit-Limit', max)
         res.header('X-RateLimit-Remaining', max - current)
-        next()
+        return 
       } 
       else if (current > max) {
         // track possible errors or ddos attacks

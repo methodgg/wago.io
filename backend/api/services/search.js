@@ -214,27 +214,24 @@ module.exports = function (fastify, opts, next) {
     // check if searching by user(s)
     match = findAll(/\buser:\s*([^\s]+)|\buser:\s*"([^"]+)"/ig, query)
     if (match.length) {
-      match.forEach(async (m) => {
-        query = query.replace(m[0], '').replace(/\s{2,}/, ' ').trim()
-        const user = await User.findOne({"search.username": (m[1] || m[2]).toLowerCase()}).exec()
-        if (user) {
-          if (matches.length === 1) {
-            searchSettings.userSearch = user._id
+      var m = match[0]
+      query = query.replace(m[0], '').replace(/\s{2,}/, ' ').trim()
+      const user = await User.findOne({"search.username": (m[1] || m[2]).toLowerCase()}).exec()
+      if (user) {
+        searchSettings.userSearch = user._id
+        // lookup._userId = user._id
+        esFilter.push({term: { _userId: user._id } })
+        Search.query.context.push({
+          query: m[0],
+          type: 'user',
+          image: user.avatarURL,
+          user: {
+            url: user.profile.url,
+            roleClass: user.roleClass,
+            name: user.account.username || 'User-' + user._id.toString()
           }
-          // lookup._userId = user._id
-          esFilter.push({term: { _userId: user._id } })
-          Search.query.context.push({
-            query: userMatch[0],
-            type: 'user',
-            image: user.avatarURL,
-            user: {
-              url: user.profile.url,
-              roleClass: user.roleClass,
-              name: user.account.username || 'User-' + user._id.toString()
-            }
-          })
-        }
-      })
+        })
+      }
     }
 
     // check for tag(s)
@@ -456,7 +453,6 @@ module.exports = function (fastify, opts, next) {
       Search.results = []
       return res.send(Search)
     }
-
     // initialize results
     if (results.hits && results.hits.hits) {
       Search.total = results.hits.total
@@ -483,10 +479,11 @@ module.exports = function (fastify, opts, next) {
     }
 
     // sanitize results
+    Search.results = Search.results.filter((wago) => {
+      // make sure we have no nulls (why do we need this?)
+      return !!(wago)
+    })
     Search.results = await Promise.all(Search.results.map(async (wago) => {
-      if (!wago) {
-        return
-      }
       var item = {}
       item.name = wago.name
       item.slug = wago.slug
