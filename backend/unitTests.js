@@ -53,7 +53,7 @@ async function runTests() {
     res = res.body
     t.true(res.type === 'WeakAura' && res.scan, 'scan import')
 
-    res = await request({method: 'POST', url: `${hostname}/import/submit`, json: {expiresAfter: '15m', name: 'UnitTest', scanID: res.scan, visbility: 'Hidden'}, resolveWithFullResponse: true})
+    res = await request({method: 'POST', url: `${hostname}/import/submit`, json: {expireAfter: '15m', name: 'UnitTest', scanID: res.scan, visbility: 'Hidden'}, resolveWithFullResponse: true})
     res = res.body
     t.true(res.success && res.wagoID, 'submit import')
 

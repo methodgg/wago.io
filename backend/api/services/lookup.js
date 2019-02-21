@@ -333,7 +333,10 @@ module.exports = function (fastify, opts, next) {
         doc.latestVersion = {
           versionString: code.versionString,
           iteration: code.version,
-          changelog: code.changelog
+          changelog: {
+            text: code.changelog.text || '',
+            format: code.changelog.text || 'bbcode',
+          }
         }
         doc.save()
       }

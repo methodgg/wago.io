@@ -1,7 +1,13 @@
-function findAll(regex, str, matches = []) {
-  const arr = regex.exec(str)
-  if (arr === null) return matches
-  return findAll(regex, str.slice(arr.index + arr[0].length), matches.concat([arr]))
+function findAll(regex, str) {
+  var matches = []
+  var m
+  while ((m = regex.exec(str)) !== null) {
+    if (m.index === regex.lastIndex) {
+      regex.lastIndex++
+    }
+    matches.push(m)
+  }
+  return matches
 }
 
 module.exports = function (fastify, opts, next) {
@@ -33,9 +39,8 @@ module.exports = function (fastify, opts, next) {
     // build criteria to search for
 
     // if search includes 'sort: mode'
-    match = findAll(/\bsort:\s*"?(date|stars|views|bestmatch)"?/i, query)
+    match = /\bsort:\s*"?(date|stars|views|bestmatch)"?/i.exec(query)
     if (match.length) {
-      match = match[0]
       query = query.replace(match[0], '').replace(/\s{2,}/, ' ').trim()
       match[1] = match[1].toLowerCase()
 
@@ -68,13 +73,12 @@ module.exports = function (fastify, opts, next) {
     }
 
     // if tags are included, check for relevancy search option to sort by relevancy scores
-    if (query.match(/tag:/i)) {
+    if (query.match(/tags?:/i)) {
       // relaxed = don't consider the number of categories
       // strict = sort by total number of categories with secondary sort by total number of root categories
       // standard = sort by total number of root categories
-      match = findAll(/\brelevance:\s*"?(relaxed|strict|standard)"?/i, query)
-      if (match.length) {
-        match = match[0]
+      match = /\brelevance:\s*"?(relaxed|strict|standard)"?/i.exec(query)
+      if (match) {
         query = query.replace(match[0], '').replace(/\s{2,}/, ' ').trim()
         // if relaxed relevance
         if (match[1] === 'relaxed') {
@@ -115,9 +119,8 @@ module.exports = function (fastify, opts, next) {
     }
 
     // check for expansion filter        
-    match = findAll(/expansion:\s*"?(all|legion|bfa)"?/i, query)
-    if (match.length) {
-      match = match[0]
+    match = /expansion:\s*"?(all|legion|bfa)"?/i.exec(query)
+    if (match) {
       query = query.replace(match[0], '').replace(/\s{2,}/, ' ').trim()
       if (match[1] === 'legion') {
         // less than bfa release date AND does not have bfa beta tag
@@ -143,9 +146,8 @@ module.exports = function (fastify, opts, next) {
     }
 
     // check for import type
-    match = findAll(/\btype:\s*"?(weakauras?2?|elvui|vuhdo|totalrp3?|collection|snippet|plater|mdt|encounternotes|image|audio)"?/i, query)
-    if (match.length) {
-      match = match[0]
+    match = /\btype:\s*"?(weakauras?2?|elvui|vuhdo|totalrp3?|collection|snippet|plater|mdt|encounternotes|image|audio)"?/i.exec(query)
+    if (match) {
       query = query.replace(match[0], '').replace(/\s{2,}/, ' ').trim()
       match[1] = match[1].toUpperCase()
 
@@ -166,9 +168,8 @@ module.exports = function (fastify, opts, next) {
     }
 
     // check for date range
-    match = findAll(/\bmodified:\s*(\d+)\s*(second|minute|hour|day|week|month|year)s?/i, query)
-    if (match.length) {
-      match = match[0]
+    match = /\bmodified:\s*(\d+)\s*(second|minute|hour|day|week|month|year)s?/i.exec(query)
+    if (match) {
       query = query.replace(match[0], '').replace(/\s{2,}/, ' ').trim()
       var num = parseInt(match[1])
       var time
@@ -276,9 +277,8 @@ module.exports = function (fastify, opts, next) {
     }
 
     // check for anonymous setting
-    match = findAll(/\banon:\s*(1|0|true|false|force)\b/i)
-    if (match.length) {
-      match = match[0]
+    match = /\banon:\s*(1|0|true|false|force)\b/i.exec(query)
+    if (match) {
       query = query.replace(match[0], '').replace(/\s{2,}/, ' ').trim()
       if (match[1] === '1' || match[1].toLowerCase() === 'true') {
         searchSettings.showAnon = 'allow'
@@ -317,9 +317,8 @@ module.exports = function (fastify, opts, next) {
     }
 
     // check for favorites
-    match = findAll(/\bstarred:\s*(1|true)\b/i, query)
-    if (match.length && req.user) {
-      match = match[0]
+    match = /\bstarred:\s*(1|true)\b/i.exec(query)
+    if (match && req.user) {
       query = query.replace(match[0], '').replace(/\s{2,}/, ' ').trim()
       if (match[1]=='1' || match[1].toLowerCase()=='true') {
         const faves = await WagoFavorites.find({userID: req.user._id, type: 'Star'}).select('wagoID').exec()
@@ -329,7 +328,7 @@ module.exports = function (fastify, opts, next) {
         })
 
         Search.query.context.push({
-          query: faveSearch[0],
+          query: match[0],
           type: 'option',
           option: {
             name: 'starred',
@@ -341,20 +340,19 @@ module.exports = function (fastify, opts, next) {
     }
 
     // check for comments
-    match = findAll(/\b(?:alerts?|mentioned):\s*(1|true)\b/i, query)
-    if (match.length && req.user) {
-      match = match[0]
+    match = /\b(?:alerts?|mentioned):\s*(1|true)\b/i.exec(query)
+    if (match && req.user) {
       query = query.replace(match[0], '').replace(/\s{2,}/, ' ').trim()
       if (match[1]=='1' || match[1].toLowerCase()=='true') {
         Search.query.context.push({
-          query: alertSearch[0],
+          query: match[0],
           type: 'option',
           option: {
             name: 'alert',
             enabled: true
           }
         })
-        const mentions = await Comments.findMentions(req.user._id).exec()
+        const mentions = await Comments.findMentions(req.user._id)
         searchSettings.topSearch = []
         searchSettings.secondarySearch = []
         mentions.forEach((comment) => {
