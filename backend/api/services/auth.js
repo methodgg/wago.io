@@ -647,7 +647,7 @@ async function oAuthLogin(req, res, provider, authUser, callback) {
     else {
       user = new User()
     }
-    var img = await image.avatarFromURL(avatarURL, oauthUser._id.toString(), provider)
+    var img = await image.avatarFromURL(avatarURL, user._id.toString(), provider)
     if (!img.error) {
       profile.avatar = img
     }
