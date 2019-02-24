@@ -311,7 +311,8 @@ import axios from 'axios'
 import VueAxios from 'vue-axios'
 Vue.use(VueAxios, axios)
 // set default options
-Vue.axios.defaults.baseURL = process.env.API_SERVER
+// TODO: switch axios auth'ing to fetch
+Vue.axios.defaults.baseURL = 'https://data1.wago.io'
 Vue.axios.defaults.withCredentials = true // to use cookies with CORS
 if (window.readCookie('token')) {
   Vue.axios.defaults.headers = { 'x-auth-token': window.readCookie('token') }
@@ -329,6 +330,17 @@ axios.interceptors.response.use(function (response) {
   return response
 })
 
+var dataServers
+if (process.env.NODE_ENV === 'development') {
+  dataServers = ['http://ubuntu:3030']
+}
+else {
+  // using round robin client-based load balancing
+  dataServers = ['https://data1.wago.io', 'https://data2.wago.io']
+}
+dataServers = dataServers.sort(() => {
+  return 0.5 - Math.random()
+})
 // setup http fetch helper
 const http = {
   install: function (Vue, options) {
@@ -357,8 +369,11 @@ const http = {
         }
 
         // prepend API server
+        var host
         if (!url.match(/^http/)) {
-          url = process.env.API_SERVER + url
+          host = dataServers.shift()
+          url = host + url
+          dataServers.push(host)
         }
 
         // append querystring to url
@@ -380,14 +395,25 @@ const http = {
           this.interceptJSON(json)
           return json
         }).catch((err) => {
-          console.log(err)
-          window.eventHub.$emit('showSnackBar', i18next.t('Error could not reach data server'))
+          // if we couldn't reach the server
+          if (host && dataServers.length > 1) {
+            // remove server from server list and try again
+            dataServers.splice(dataServers.indexOf(host), 1)
+            url = url.replace(host, dataServers[0])
+            return this.get(url, params)
+          }
+          else {
+            console.log('No servers available', err)
+            window.eventHub.$emit('showSnackBar', i18next.t('Error could not reach data server'))
+          }
         })
       },
       post: function (url, params) {
         // prepend API server
         if (!url.match(/^http/)) {
-          url = process.env.API_SERVER + url
+          var host = dataServers.shift()
+          url = host + url
+          dataServers.push(host)
         }
 
         if (!params) {
@@ -407,14 +433,23 @@ const http = {
           this.interceptJSON(json)
           return json
         }).catch((err) => {
-          console.log(err)
-          window.eventHub.$emit('showSnackBar', i18next.t('Error could not reach data server'))
+          if (host && dataServers.length > 1) {
+            dataServers.splice(dataServers.indexOf(host), 1)
+            url = url.replace(host, dataServers[0])
+            this.get(url, params)
+          }
+          else {
+            console.log(url, err)
+            window.eventHub.$emit('showSnackBar', i18next.t('Error could not reach data server'))
+          }
         })
       },
       upload: function (url, file, params) {
         // prepend API server
         if (!url.match(/^http/)) {
-          url = process.env.API_SERVER + url
+          var host = dataServers.shift()
+          url = host + url
+          dataServers.push(host)
         }
 
         if (!params) {
@@ -457,7 +492,6 @@ const http = {
       //   })
       // },
       interceptHeaders: function (res) {
-        // because fetch API does not allow custom headers
         for (var pair of res.headers.entries()) {
           switch (pair[0]) {
             case 'wotm':

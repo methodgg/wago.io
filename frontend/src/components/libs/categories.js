@@ -110,7 +110,7 @@ module.exports = {
       {id: "plater0", slug: "plater", cls:"plater", text: t("Plater"), "systemtag": true, noselect: true, PLATER: true},
       {id: "plater1", slug: "plater/plater-profiles", cls:"plater", text: t("Plater Profiles"), "systemtag": true, PLATER: true},
       {id: "plater2", slug: "plater/plater-scripts", cls:"plater", text: t("Plater Scripts"), "systemtag": true, PLATER: true},
-      {id: "plater3", slug: "plater/plater-hooks", cls:"plater", text: t("Plater Hooks"), "systemtag": true, PLATER: true},
+      {id: "plater3", slug: "plater/plater-mods", cls:"plater", text: t("Plater Mods"), "systemtag": true, PLATER: true},
       {id: "plater4", slug: "plater/plater-animations", cls:"plater", text: t("Plater Animations"), "systemtag": true, PLATER: true},
 
       {id: "platerpvp", slug: "plater/pvp", cls:"snippets", text: t("PvP"), root: true, PLATER: true},

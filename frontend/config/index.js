@@ -4,7 +4,7 @@ var path = require('path')
 module.exports = {
   build: {
     env: {
-      NODE_ENV: '"development"',
+      NODE_ENV: '"production"',
       API_SERVER: '"https://data.wago.io"',
       WEB_SERVER: '"https://wago.io"'
     },

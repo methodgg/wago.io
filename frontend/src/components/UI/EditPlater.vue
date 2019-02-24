@@ -109,9 +109,8 @@ export default {
           this.$nextTick(() => {
             this.aceEditor.getSession().setMode('ace/mode/lua')
             this.aceEditor.setValue(eval('root' + fn), -1)
+            this.setHasUnsavedChanges(tmpUnsaved)
           })
-
-          this.setHasUnsavedChanges(tmpUnsaved)
         }
         // if switching FROM a custom function
         else {
@@ -128,14 +127,15 @@ export default {
             if (fn === 'tabledata') {
               this.aceEditor.setValue(json, -1)
               this.aceEditor.getSession().setMode('ace/mode/json')
+              this.setHasUnsavedChanges(tmpUnsaved)
             }
             // if we are switching TO a custom function
             else {
               this.aceEditor.getSession().setMode('ace/mode/lua')
               root = this.tableData
               this.aceEditor.setValue(eval('root' + fn), -1)
+              this.setHasUnsavedChanges(tmpUnsaved)
             }
-            this.setHasUnsavedChanges(tmpUnsaved)
           })
         }
       }
@@ -168,7 +168,7 @@ export default {
         this.scriptType = 'Script'
       }
       else if (typeof this.tableData[8] === 'object') {
-        this.scriptType = 'Hook'
+        this.scriptType = 'Mod'
       }
       this.aceEditor = editor
       window.braceRequires()
@@ -200,7 +200,7 @@ export default {
           func.push({name: this.$t('On Hide'), path: '[12]'})
         }
       }
-      else if (this.scriptType === 'Hook') {
+      else if (this.scriptType === 'Mod') {
         var hooks = Object.keys(this.tableData[8])
         hooks.sort()
         hooks.forEach((hook) => {

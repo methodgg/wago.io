@@ -304,7 +304,7 @@
   "Import new string": "Import new string",
   "Paste a new [-type-] string to update this Wago": "Paste a new [-type-] string to update this Wago",
   "Update": "Update",
-  "Collections are sets of imports curated by users for a variety of purproses": "Collections are sets of imports curated by users for a variety of purproses",
+  "Collections are sets of imports curated by users for a variety of purproses": "Collections are sets of imports curated by users for a variety of purposes",
   "Add to collection": "Add to collection",
   "Create new collection": "Create new collection",
   "This Wago is included in [-count-] collection": "This Wago is included in [-count-] collection",
@@ -560,5 +560,12 @@
   "Reset": "",
   "Iframe code": "",
   "Iframe script copied": "",
-  "Iframe script failed to copy please upgrade to a modern browser": ""
+  "Iframe script failed to copy please upgrade to a modern browser": "",
+  "Copy for Angry Assignments": "",
+  "ERT Copy coming soon": "",
+  "Notes copied": "",
+  "Notes failed to copy please upgrade to a modern browser": "",
+  "Reaping [-num-]%": "Reaping: [-num-]%",
+  "Reaping [-spirit-]": "Reaping: [-spirit-]",
+  "Embeds will not work for imports with blacklisted code": ""
 }

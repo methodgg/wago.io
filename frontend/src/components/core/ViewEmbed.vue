@@ -26,7 +26,7 @@
       <!-- BUILDER FRAME -->
       <div id="wago-builder-container" class="wago-container" v-if="wago.type === 'MDT'">
         <div id="wago-builder">
-          <build-mdt v-if="wago.type=='MDT'" :readonly="true"></build-mdt>
+          <build-mdt v-if="wago.type=='MDT' && wago.code" :readonly="true"></build-mdt>
         </div>
       </div>
     </div>    
@@ -130,20 +130,30 @@ export default {
           this.$store.commit('setWago', res)
           return
         }
-        if (res.code && res.code.json) {
-          res.code.obj = JSON.parse(res.code.json)
-          res.code.json = JSON.stringify(res.code.obj, null, 2)
+        var getCode
+        if (res.codeURL) {
+          getCode = vue.http.get(res.codeURL)
         }
-
-        if (res.code && res.code.versionString) {
-          this.currentVersionString = res.code.versionString
+        else {
+          getCode = vue.http.get('/lookup/wago/code', params)
         }
+        getCode.then((code) => {
+          if (code && code.json) {
+            code.obj = JSON.parse(code.json)
+            code.json = JSON.stringify(code.obj, null, 2)
+          }
+          res.code = code
 
-        vue.$store.commit('setWago', res)
-        vue.$store.commit('setPageInfo', {
-          title: res.name,
-          description: res.description.text,
-          unlisted: (res.visibility.hidden || res.visibility.private)
+          if (res.code && res.code.versionString) {
+            this.currentVersionString = res.code.versionString
+          }
+
+          vue.$store.commit('setWago', res)
+          vue.$store.commit('setPageInfo', {
+            title: res.name,
+            description: res.description.text,
+            unlisted: (res.visibility.hidden || res.visibility.private)
+          })
         })
       })
     },

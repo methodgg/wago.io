@@ -671,10 +671,10 @@ export default {
         if (this.tableData.c[i].id === wa) {
           table.d = this.tableData.c[i]
           var vue = this
-          this.http.post('/import/json/extract', {wagoID: this.wago._id, type: 'WEAKAURA', json: JSON.stringify(table)}).then((res) => {
-            if (res.success) {
+          this.http.post('/import/json/scan', {wagoID: this.wago._id, type: 'WEAKAURA', json: JSON.stringify(table)}).then((res) => {
+            if (res.encoded) {
               vue.extractData = {}
-              vue.extractData.encoded = res.extracted
+              vue.extractData.encoded = res.encoded
               vue.extractData.name = wa
             }
           })

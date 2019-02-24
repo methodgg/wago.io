@@ -1512,7 +1512,7 @@ export default {
       })
     },
     saveFromScratch () {
-      this.http.post('/import/json/save', { json: this.tableString, type: 'MDT', create: true }).then((res) => {
+      this.http.post('/import/create', { json: this.tableString, type: 'MDT', create: true }).then((res) => {
         if (res.success && res.wagoID) {
           this.$router.push('/' + res.wagoID)
         }

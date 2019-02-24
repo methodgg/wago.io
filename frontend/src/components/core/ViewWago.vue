@@ -21,7 +21,7 @@
       <md-card id="wago-header" ref="header" v-bind:class="{'md-hide-xsmall': hideMobileHeader}">
         <md-layout>
           <div>
-            <h3>{{ wago.name }} <span class="version-number" v-if="currentVersionString">v{{ currentVersionString }}</span></h3>
+            <h3>{{ wago.name }} <span class="version-number" v-if="currentVersionString && !currentVersionString.match(/undefined/)">v{{ currentVersionString }}</span></h3>
             <md-subheader>{{ wago.type }} <span :href="wago.url" @click.prevent="copyURL" style="margin-left: 16px; opacity: .54">{{ wago.url }}</span></md-subheader>
           </div>
           <!-- ACTIONS -->
@@ -31,11 +31,11 @@
               <md-icon v-else>star_border</md-icon> {{ $t("Favorite") }}
             </md-button>
             <md-button v-if="wago.user && User && wago.UID && wago.UID === User.UID && wago.code && wago.code.encoded" @click="generateNextVersionData(); $refs['newImportDialog'].open()" id="newImportButton"><md-icon>input</md-icon> {{ $t("Import new string") }}</md-button>
-            <md-button v-if="hasUnsavedChanges && wago.code && wago.code.encoded && !wago.alerts.blacklist" @click="copyEncoded" class="copy-import-button">
+            <md-button v-if="hasUnsavedChanges && wago.code && wago.code.encoded && !wago.code.alerts.blacklist" @click="copyEncoded" class="copy-import-button">
               <md-icon>assignment</md-icon> {{ $t("Copy [-type-] import string", {type: wago.type}) }}
               <md-tooltip md-direction="bottom" class="CopyWarningTooltip"><strong>{{ $t("You have unsaved changes") }}</strong><br>{{ $t("Be sure to save or fork to generate a new string with your modifications") }}</md-tooltip>
             </md-button>
-            <md-button v-else-if="wago.code && wago.code.encoded && !wago.alerts.blacklist" @click="copyEncoded" class="copy-import-button">
+            <md-button v-else-if="wago.code && wago.code.encoded && !wago.code.alerts.blacklist" @click="copyEncoded" class="copy-import-button">
               <md-icon>assignment</md-icon> {{ $t("Copy [-type-] import string", {type: wago.type}) }}
             </md-button>
             <md-button v-if="wago.image && wago.image.files.tga" :href="wago.image.files.tga" class="copy-import-button"><md-icon>file_download</md-icon> {{ $t("Download tga file") }}</md-button>
@@ -90,7 +90,7 @@
           <div class="item" v-if="wago.type === 'WEAKAURA'">
             <div class="md-title">{{ $t("[-count-] install", { count: wago.installCount }) }}</div>
           </div>
-          <div class="item" style="float:right" v-if="enableCompanionBeta && wago.type === 'WEAKAURA' && wago.code && wago.code.encoded && !wago.alerts.blacklist">
+          <div class="item" style="float:right" v-if="enableCompanionBeta && wago.type === 'WEAKAURA' && wago.code && wago.code.encoded && !wago.code.alerts.blacklist">
             <a v-if="showCompanionHelp" href="#" style="line-height:40px; margin-right:16px" @click="$router.push('/wa-companion')" @mouseover="setCompanionHelpShow(true)" @mouseout="setCompanionHelpShow(false, 4000)">{{ $t("What's this?") }}</a>
             <div class="md-button copy-import-button" @click="sendToCompanionApp" @mouseover="setCompanionHelpShow(true)" @mouseout="setCompanionHelpShow(false, 4000)">
               <md-icon>airplay</md-icon> {{ $t("Send to WeakAura Companion App") }}
@@ -118,11 +118,11 @@
           <div>
             <md-button @click="toTop"><md-icon>arrow_upward</md-icon> {{ $t("To top") }}</md-button>
           </div>
-          <md-button v-if="hasUnsavedChanges && wago.code && wago.code.encoded && !wago.alerts.blacklist" @click="copyEncoded" class="copy-import-button">
+          <md-button v-if="hasUnsavedChanges && wago.code && wago.code.encoded && !wago.code.alerts.blacklist" @click="copyEncoded" class="copy-import-button">
             <md-icon>assignment</md-icon> {{ $t("Copy [-type-] import string", {type: wago.type}) }}
             <md-tooltip md-direction="bottom" class="CopyWarningTooltip"><strong>{{ $t("You have unsaved changes") }}</strong><br>{{ $t("Be sure to save or fork to generate a new string with your modifications") }}</md-tooltip>
           </md-button>          
-          <md-button v-else-if="wago.code && wago.code.encoded && !wago.alerts.blacklist" @click="copyEncoded" class="copy-import-button">
+          <md-button v-else-if="wago.code && wago.code.encoded && !wago.code.alerts.blacklist" @click="copyEncoded" class="copy-import-button">
             <md-icon>assignment</md-icon> {{ $t("Copy [-type-] import string", {type: wago.type}) }}
           </md-button>
         </div>
@@ -144,9 +144,9 @@
                 <md-button v-bind:class="{'md-toggle': showPanel === 'collections'}" v-if="wago.type !== 'COLLECTION'" @click="toggleFrame('collections')">{{ $t("[-count-] collection", {count:  wago.collectionCount}) }}</md-button>
                 <md-button v-bind:class="{'md-toggle': showPanel === 'versions'}" v-if="wago.versions && wago.versions.total > 1" @click="toggleFrame('versions')" ref="versionsButton">{{ $t("[-count-] version", { count: wago.versions.total }) }}</md-button>
                 <md-button v-bind:class="{'md-toggle': showPanel === 'diffs'}" v-if="hasCodeDiffs" @click="toggleFrame('diffs')" ref="diffsButton">{{ $t("Code Diffs") }}</md-button>
-                <md-button v-bind:class="{'md-toggle': showPanel === 'embed'}" v-if="!wago.alerts.blacklist && wago.code && wago.code.encoded" @click="toggleFrame('embed')">{{ $t("Embed") }}</md-button>
+                <md-button v-bind:class="{'md-toggle': showPanel === 'embed'}" @click="toggleFrame('embed')">{{ $t("Embed") }}</md-button>
                 <md-button v-bind:class="{'md-toggle': showPanel === 'builder'}" v-if="wago.type === 'MDT'" @click="toggleFrame('builder')">{{ $t("Builder") }}</md-button>
-                <md-button v-bind:class="{'md-toggle': showPanel === 'editor'}" v-if="wago.code" @click="toggleFrame('editor')">{{ $t("Editor") }}</md-button>
+                <md-button v-bind:class="{'md-toggle': showPanel === 'editor'}" @click="toggleFrame('editor')">{{ $t("Editor") }}</md-button>
                 <!--<md-button v-bind:class="{'md-toggle': showPanel === 'codereview'}" v-if="(User && User.access && (User.access.beta)) && wago.type === 'WEAKAURA' && wago.code" @click="toggleFrame('codereview')">{{ $t("Code Review") }}</md-button>-->
               </md-button-toggle>
               
@@ -173,13 +173,13 @@
                 {{ $t("This import is hidden only those with the URL may view it") }}
               </ui-warning>
 
-              <ui-warning v-if="wago.alerts.blacklist" mode="alert">
+              <ui-warning v-if="wago.code && wago.code.alerts.blacklist" mode="alert">
                 {{ $t("Blacklisted code detected") }}<br>
-                <div v-for="func in wago.alerts.blacklist">{{ func }}</div>
+                <div v-for="func in wago.code.alerts.blacklist">{{ func }}</div>
               </ui-warning>
-              <ui-warning v-else-if="wago.alerts.malicious" mode="alert">
+              <ui-warning v-else-if="wago.code && wago.code.alerts.malicious" mode="alert">
                 {{ $t("Possible malicious code detected") }}<br>
-                <div v-for="func in wago.alerts.malicious">{{ func }}</div>
+                <div v-for="func in wago.code.alerts.malicious">{{ func }}</div>
               </ui-warning>
 
               <ui-warning v-if="!isLatestVersion()" mode="info" :html="$t('A more recent version of this import is available view the latest version [-url-]', {url: '/' + $store.state.wago.slug})"></ui-warning>          
@@ -213,8 +213,8 @@
                   </div>   
                   <md-input-container>
                     <label for="visibilty">{{ $t("Visibility") }}</label>
-                    <md-select name="visibilty" id="visibilty" v-model="editVisibility" @selected="onUpdateVisibility()">
-                      <md-option value="Public" selected>{{ $t("Public") }}</md-option>
+                    <md-select name="visibilty" id="visibilty" v-model="editVisibility">
+                      <md-option value="Public">{{ $t("Public") }}</md-option>
                       <md-option value="Hidden">{{ $t("Hidden (only viewable with link)") }}</md-option>
                       <md-option value="Private">{{ $t("Private (only you may view)") }}</md-option>
                     </md-select>
@@ -290,7 +290,7 @@
               <!-- DESCRIPTIONS FRAME -->
               <div id="wago-description-container" class="wago-container" v-if="showPanel=='description'">
                 <div id="wago-description" style="padding-top:6px">
-                  <div v-if="wago.code && wago.code.changelog.text" class="changelog-text">
+                  <div v-if="wago.code && wago.code.changelog && wago.code.changelog.text" class="changelog-text">
                     <div>v{{ wago.code.versionString }}</div>
                     <formatted-text :text="wago.code.changelog" :enableLinks="wago.user.enableLinks"></formatted-text>
                   </div>
@@ -456,6 +456,9 @@
 
               <!-- EMBED FRAME -->
               <div id="wago-embed-container" class="wago-container" v-if="showPanel=='embed' && wago.code && wago.code.encoded">
+                <ui-warning v-if="wago.code.alerts.blacklist" mode="alert">
+                  {{ $t("Embeds will not work for imports with blacklisted code") }}
+                </ui-warning>
                 <template v-if="wago.type === 'MDT'">
                   <h2>{{ $t("Embed iframe") }}</h2>
                   <md-card id="wago-embed">
@@ -537,17 +540,17 @@
               <!-- BUILDER FRAME -->
               <div id="wago-builder-container" class="wago-container" v-if="showPanel=='builder'">
                 <div id="wago-builder">
-                  <build-mdt v-if="wago.type=='MDT'" @set-has-unsaved-changes="setHasUnsavedChanges" @update-encoded="updateEncoded" @update-version="updateVersion"></build-mdt>
+                  <build-mdt v-if="wago.type=='MDT' && wago.code" @set-has-unsaved-changes="setHasUnsavedChanges" @update-encoded="updateEncoded" @update-version="updateVersion"></build-mdt>
                 </div>
               </div>
 
               <!-- EDITOR FRAME -->
               <div id="wago-editor-container" class="wago-container" v-if="showPanel=='editor'">
                 <div id="wago-editor">
-                  <edit-weakaura v-if="wago.type=='WEAKAURA'" @set-has-unsaved-changes="setHasUnsavedChanges" :unsavedTable="hasUnsavedChanges" @update-encoded="updateEncoded" @update-version="updateVersion"></edit-weakaura>
-                  <edit-plater v-else-if="wago.type=='PLATER'" @set-has-unsaved-changes="setHasUnsavedChanges" :unsavedTable="hasUnsavedChanges" @update-encoded="updateEncoded" @update-version="updateVersion"></edit-plater>
-                  <edit-snippet v-else-if="wago.type=='SNIPPET'" @update-version="updateVersion"></edit-snippet>
-                  <edit-common v-else @set-has-unsaved-changes="setHasUnsavedChanges" @update-encoded="updateEncoded" @update-version="updateVersion"></edit-common>
+                  <edit-weakaura v-if="wago.type=='WEAKAURA' && wago.code" @set-has-unsaved-changes="setHasUnsavedChanges" :unsavedTable="hasUnsavedChanges" @update-encoded="updateEncoded" @update-version="updateVersion"></edit-weakaura>
+                  <edit-plater v-else-if="wago.type=='PLATER' && wago.code" @set-has-unsaved-changes="setHasUnsavedChanges" :unsavedTable="hasUnsavedChanges" @update-encoded="updateEncoded" @update-version="updateVersion"></edit-plater>
+                  <edit-snippet v-else-if="wago.type=='SNIPPET' && wago.code" @update-version="updateVersion"></edit-snippet>
+                  <edit-common v-else-if="wago.code" @set-has-unsaved-changes="setHasUnsavedChanges" @update-encoded="updateEncoded" @update-version="updateVersion"></edit-common>
                 </div>
               </div>
 
@@ -779,6 +782,13 @@ export default {
   watch: {
     '$route': 'fetchWago',
     pasteURL: 'onUpdatePasteURL',
+    editVisibility: function (v) {
+      // since calling update onchange on the select element seems to call it on display as well, so watch the var instead
+      // TODO: refactor this cleaner
+      if (this.showPanel === 'config') {
+        this.onUpdateVisibility()
+      }
+    },
     newImportString: function (val) {
       var vue = this
 
@@ -1025,33 +1035,17 @@ export default {
         res.categories = res.categories.map((cat) => {
           return Categories.match(cat, vue.$t)
         })
-        if (res.code && res.code.json) {
-          res.code.obj = JSON.parse(res.code.json)
-          res.code.json = JSON.stringify(res.code.obj, null, 2)
-        }
 
-        if (res.code && res.code.versionString) {
-          this.currentVersionString = res.code.versionString
-          this.currentVersion.semver = semver.valid(semver.coerce(this.currentVersionString || '1.0.0'))
-          this.currentVersion.major = semver.major(this.currentVersion.semver)
-          this.currentVersion.minor = semver.minor(this.currentVersion.semver)
-          this.currentVersion.patch = semver.patch(this.currentVersion.semver)
-        }
-
-        if (res.versions && res.versions.versions[0].versionString) {
+        if (res.versions && res.versions.total > 0 && res.versions.versions[0].versionString) {
           this.latestVersion.semver = semver.valid(semver.coerce(res.versions.versions[0].versionString || '1.0.0'))
+          if (!this.latestVersion.semver) {
+            this.latestVersion.semver = '1.0.0'
+          }
           this.latestVersion.major = semver.major(this.latestVersion.semver)
           this.latestVersion.minor = semver.minor(this.latestVersion.semver)
           this.latestVersion.patch = semver.patch(this.latestVersion.semver)
 
           this.generateNextVersionData()
-          this.leftDiff = this.latestVersion.semver
-          if (this.leftDiff !== this.currentVersion.semver) {
-            this.rightDiff = this.currentVersion.semver
-          }
-          else if (res.versions.versions[1]) {
-            this.rightDiff = semver.valid(semver.coerce(res.versions.versions[1].versionString))
-          }
         }
 
         if (res.versions && res.versions.total > 10) {
@@ -1069,6 +1063,51 @@ export default {
         }
 
         vue.$store.commit('setWago', res)
+        if (!params.version) {
+          params.version = this.latestVersion.semver
+        }
+        var getCode
+        if (res.codeURL) {
+          getCode = vue.http.get(res.codeURL)
+        }
+        else {
+          getCode = vue.http.get('/lookup/wago/code', params)
+        }
+        getCode.then((code) => {
+          if (code && code.json) {
+            code.obj = JSON.parse(code.json)
+            code.json = JSON.stringify(code.obj, null, 2)
+          }
+          this.wago.code = code
+
+          if (code && code.versionString) {
+            this.currentVersionString = code.versionString
+            this.currentVersion.semver = semver.valid(semver.coerce(this.currentVersionString || '1.0.0'))
+            if (!this.currentVersion.semver) {
+              this.currentVersion.semver = '1.0.0'
+            }
+            this.currentVersion.major = semver.major(this.currentVersion.semver)
+            this.currentVersion.minor = semver.minor(this.currentVersion.semver)
+            this.currentVersion.patch = semver.patch(this.currentVersion.semver)
+
+            this.leftDiff = this.latestVersion.semver
+            if (this.leftDiff !== this.currentVersion.semver) {
+              this.rightDiff = this.currentVersion.semver
+            }
+            else if (res.versions.versions[1]) {
+              this.rightDiff = semver.valid(semver.coerce(res.versions.versions[1].versionString))
+            }
+          }
+
+          // make sure we're using custom url
+          if (vue.isLatestVersion()) {
+            vue.$router.replace('/' + res.slug)
+          }
+          else {
+            vue.$router.replace('/' + res.slug + '/' + vue.version)
+          }
+        })
+
         // initial config
         this.editName = res.name
         this.editSlug = res.slug
@@ -1087,13 +1126,6 @@ export default {
 
         vue.doNotReloadWago = true
         window.preventScroll = true
-        // make sure we're using custom url
-        if (vue.isLatestVersion()) {
-          vue.$router.replace('/' + res.slug)
-        }
-        else {
-          vue.$router.replace('/' + res.slug + '/' + vue.version)
-        }
         setTimeout(function () {
           vue.doNotReloadWago = false
           window.preventScroll = undefined
@@ -1208,8 +1240,6 @@ export default {
         else {
           window.eventHub.$emit('showSnackBar', this.$t('Import string failed to copy please upgrade to a modern browser'))
         }
-        document.querySelector('.copy-import-button:not([hidden])').focus()
-        return copied
       }
       catch (e) {
         console.error(e.message)
@@ -1348,7 +1378,7 @@ export default {
       }
     },
     isLatestVersion () {
-      if (!this.wago.versions || this.wago.versions.total <= 1) {
+      if (!this.$route.params.version || !this.wago.versions || this.wago.versions.total <= 1) {
         return true
       }
       return (this.currentVersionString && this.currentVersionString.replace(/-.*/, '') === this.latestVersion.semver)

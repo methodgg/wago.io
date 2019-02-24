@@ -1,8 +1,8 @@
 {
-  "name": "eplan_advantage",
+  "name": "wago",
   "version": "1.0.0",
-  "description": "ePlan Advantage web app",
-  "author": "WPS Disaster Management Solutions",
+  "description": "Wago",
+  "author": "Ora",
   "private": true,
   "scripts": {
     "dev": "gulp && node build/dev-server.js",
@@ -75,7 +75,7 @@
     "friendly-errors-webpack-plugin": "^1.7.0",
     "gulp": "^3.9.1",
     "html-webpack-plugin": "^2.28.0",
-    "http-proxy-middleware": "^0.17.3",
+    "http-proxy-middleware": "^0.19.1",
     "i18next-scanner": "^1.8.0",
     "inject-loader": "^3.0.0",
     "karma-coverage": "^1.1.2",
