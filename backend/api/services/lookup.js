@@ -29,6 +29,26 @@ module.exports = function (fastify, opts, next) {
     }
     
     doc.popularity.views++
+    // quick hack to stop counting mdt embeds
+    if (!req.headers.referer.match(/embed/)) {
+      doc.popularity.viewsThisWeek++
+
+      var ipAddress = req.headers['x-forwarded-for'] ||
+        req.connection.remoteAddress || 
+        req.socket.remoteAddress ||
+        (req.connection.socket ? req.connection.socket.remoteAddress : null)
+
+      ViewsThisWeek.find({viewed: { $gt: new Date().getTime() - 1000 * 60 * 20 }, source: ipAddress, wagoID: doc._id}).then((recent) => {
+        if (!recent || recent.length === 0) {
+          doc.save()
+          
+          var pop = new ViewsThisWeek()
+          pop.wagoID = doc._id
+          pop.source = ipAddress
+          pop.save()
+        }
+      })
+    }
 
     if (!req.query.embed) {
       doc.popularity.viewsThisWeek++    

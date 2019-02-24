@@ -267,7 +267,7 @@
               <div @mouseover="setTargetHover(false, false, false, pull - 1)" @mouseleave="setTargetHover()">
                 <md-list-item v-bind:class="{selected: currentPull === pull - 1}"
                   @click="selectPull(pull - 1)">
-                  <div class="md-list-text-container">
+                  <div class="md-list-text-container" v-if="pullDetails[pull - 1]">
                     <span>{{ $t('Pull [-num-]', { num : pull}) }}; {{ pullDetails[pull - 1].percent }}%</span>
                     <span v-html="pullDetails[pull - 1].hList"></span>
                     <md-progress :md-progress="pullDetails[pull - 1].percentRunningTotal"></md-progress>
@@ -286,6 +286,25 @@
                   </div>
                 </md-list-item>
               </div>
+              <template v-for="reapPct in reapingPercents">
+                <div v-if="isReapingSelected() && reapingPullDetails[reapPct] && reapingPullDetails[reapPct].pull === pull && reapingPullDetails[reapPct].targets && reapingPullDetails[reapPct].targets.length" 
+                  @mouseover="setReapingHover(pull - 1)" @mouseleave="setTargetHover()">
+                  <md-list-item v-bind:class="{selected: currentReapingPull === reapPct}"
+                    @click="selectReapingPull(reapPct)">
+                    <div class="md-list-text-container">
+                      <span>{{ $t('Reaping [-num-]%', { num : reapPct}) }}</span>
+                      <span v-html="reapingPullDetails[reapPct].hList"></span>
+                      <div v-show-slide="currentReapingPull === reapPct" class="mdtGroupDetails">
+                        <div>
+                          <template v-for="(iconURL, targetIndex) in reapingPullDetails[reapPct].targets">
+                            <div :style="{'background-image': 'url(' + iconURL + ')'}" class="reapingTargetIcon"></div>
+                          </template>
+                        </div>
+                      </div>
+                    </div>
+                  </md-list-item>
+                </div>
+              </template>
             </template>
             <md-list-item @click="createPull()" style="margin-bottom: 16px" v-if="!readonly">
               <div class="md-list-text-container">
@@ -316,12 +335,13 @@
       <div class="tooltipPOI" v-if="tooltipPOI" v-html="tooltipPOI.replace(/\\n/g, '<br>')"></div>
       <div class="tooltipEnemy" v-else-if="tooltipEnemy.name">
         <mdt-enemy-portrait :size="56" :mapID="mapID" :offset="getEnemyPortraitOffset(tooltipEnemy.enemyIndex, 56)" />
-        <span v-if="tooltipEnemy.isBoss" style="margin-left:-3px">💀 </span><strong>{{ tooltipEnemy.name }}</strong><br>
-        {{ $t('Level [-level-] [-type-]', {level: tooltipEnemy.level, type: tooltipEnemy.creatureType}) }}<br>
-        {{ $t('[-hp-] HP @ +10', {hp: calcEnemyHealth(tooltipEnemy, true)}) }}<br>
-        <span v-if="tooltipEnemy.clone && isInfested(tooltipEnemy.clone)" style="color:red">{{ $t('Infested') }}<br></span>
+        <span v-if="tooltipEnemy.isBoss" style="margin-left:-3px">💀 </span><strong>{{ tooltipEnemy.name }}</strong>
+        <span>{{ $t('Level [-level-] [-type-]', {level: tooltipEnemy.level, type: tooltipEnemy.creatureType}) }}</span>
+        <span>{{ $t('[-hp-] HP @ +10', {hp: calcEnemyHealth(tooltipEnemy, true)}) }}</span>
+        <span v-if="tooltipEnemy.clone && isReapingSelected() && tooltipEnemy.reaping" style="color:#8f6dd3" v-html="$t('Reaping [-spirit-]', {spirit: displayReaping(tooltipEnemy.reaping), interpolation: { escapeValue: false }})"></span>
+        <span v-if="tooltipEnemy.clone && isInfested(tooltipEnemy.clone)" style="color:red">{{ $t('Infested') }}</span>
         <span v-if="tooltipEnemy.clone && tooltipEnemy.clone.g > 0">{{ $t('Group [-num-]', {num: tooltipEnemy.clone.g}) }}</span>
-        <span v-if="tooltipEnemy.clone && tooltipEnemy.clone.pull >= 0">{{ $t('Pull [-num-]', {num: tooltipEnemy.clone.pull + 1}) }}<br></span>
+        <span v-if="tooltipEnemy.clone && tooltipEnemy.clone.pull >= 0">{{ $t('Pull [-num-]', {num: tooltipEnemy.clone.pull + 1}) }}</span>
       </div>
     </div>
     <md-dialog v-model="userNoteEditText" ref="userNoteEdit" id="mdtEditNote">
@@ -395,6 +415,9 @@ export default {
         117: { name: 'Reaping', icon: 'Ability_Racial_EmbraceoftheLoa_Bwonsomdi' }
       },
       currentPull: -1,
+      reapingPercents: [20, 40, 60, 80, 100],
+      reapingPullDetails: {},
+      currentReapingPull: -1,
       annotationMode: false,
       annotationClass: 'standard',
       isPainting: false,
@@ -869,6 +892,18 @@ export default {
       }
     },
 
+    setReapingHover (pullIndex) {
+      // highlights all previously pulled enemies
+      for (let i = 0; i < this.enemies.length; i++) {
+        for (let k = 0; k < this.enemies[i].clones.length; k++) {
+          // if hovering over an avatar
+          if (pullIndex >= 0) {
+            this.$set(this.enemies[i].clones[k], 'hover', this.enemies[i].clones[k].pull <= pullIndex)
+          }
+        }
+      }
+    },
+
     moveTooltip () {
       if (this.tooltipEnemy || this.tooltipPOI) {
         var canvas = document.getElementById('mdtStage').getBoundingClientRect()
@@ -918,7 +953,7 @@ export default {
       if (this.enemies[creatureIndex].clones[cloneIndex].g && this.enemies[creatureIndex].clones[cloneIndex].pull >= 0) {
         this.removeGroupFromPull(this.enemies[creatureIndex].clones[cloneIndex].pull, this.enemies[creatureIndex].clones[cloneIndex].g)
       }
-      // othersise just remove the solo creature
+      // otherwise just remove the solo creature
       else if (this.tableData.value.pulls[this.currentPull][creatureIndex] && this.enemies[creatureIndex].clones[cloneIndex].pull >= 0) {
         if (this.tableData.value.pulls[this.currentPull][creatureIndex].indexOf(cloneIndex + 1) >= 0) {
           this.$delete(this.tableData.value.pulls[this.currentPull][creatureIndex], this.tableData.value.pulls[this.currentPull][creatureIndex].indexOf(cloneIndex + 1))
@@ -1034,6 +1069,18 @@ export default {
       return !!clone.infested[week]
     },
 
+    isReapingSelected (clone) {
+      return this.selectedAffixes.indexOf(117) >= 0
+    },
+
+    displayReaping (creatureID) {
+      const c = this.getReapingCreature(creatureID)
+      if (c && c.name && c.portrait) {
+        return `<img src="${c.portrait}"/> ${c.name}`
+      }
+      return ''
+    },
+
     isCreatureNoTarget (creatureID) {
       if (this.mapID === 15 && this.tableData.freeholdCrewSelected) {
         var i = this.freeholdCrew(true)
@@ -1067,12 +1114,18 @@ export default {
 
     selectPull (pullIndex) {
       this.currentPull = pullIndex
+      this.currentReapingPull = -1
+    },
+    selectReapingPull (reapingPct) {
+      this.currentPull = -1
+      this.currentReapingPull = reapingPct
     },
 
     createPull () {
       this.tableData.value.pulls.push(new Array(this.enemies.length))
       this.currentPull = this.tableData.value.pulls.length - 1
       this.updatePullDetails(this.currentPull)
+      this.updateReapingPulls()
       this.$nextTick(() => {
         var o = document.getElementById('mdtOptions')
         o.scrollTop = o.scrollHeight
@@ -1130,7 +1183,6 @@ export default {
       else {
         max = required.normal
       }
-
       if (!targets) {
         targets = this.pullEnemyList(pullIndex, true)
       }
@@ -1139,7 +1191,6 @@ export default {
         if (!targets.hasOwnProperty(key) || key === '_groups') continue
         current = current + targets[key].forces * targets[key].count
       }
-
       if (runningTotal && pullIndex > 0) {
         var sum = 0
         for (let i = 0; i <= pullIndex; i++) {
@@ -1211,6 +1262,52 @@ export default {
       details.percentRunningTotal = this.pullPercent(pullIndex, true, targets)
 
       this.pullDetails.splice(pullIndex, 1, details)
+
+      if (this.isReapingSelected()) {
+        this.updateReapingPulls()
+      }
+    },
+
+    updateReapingPulls () {
+      var reapPct = 0
+      var reapTargets = {}
+      this.reapingPullDetails = {20: {hList: '', targets: []}, 40: {hList: '', targets: []}, 80: {hList: '', targets: []}, 60: {hList: '', targets: []}, 100: {hList: '', targets: []}}
+      this.pullDetails.forEach((pull, pullIndex) => {
+        reapPct += pull.percent
+        pull.groups.forEach((g) => {
+          g.targets.forEach((target) => {
+            if (target.reaping) {
+              reapTargets[target.reaping] = (reapTargets[target.reaping] || 0) + 1
+            }
+          })
+        })
+        this.reapingPercents.forEach((reapIndex) => {
+          if (reapPct >= reapIndex && reapPct - pull.percent < reapIndex) {
+            this.reapingPullDetails[reapIndex].pull = pullIndex + 1
+            Object.keys(reapTargets).forEach((target) => {
+              const creature = this.getReapingCreature(target)
+              this.reapingPullDetails[reapIndex].hList = this.reapingPullDetails[reapIndex].hList + reapTargets[target] + 'x ' + creature.name + ', '
+              for (let i = 0; i < reapTargets[target]; i++) {
+                this.reapingPullDetails[reapIndex].targets.push(creature.portrait)
+              }
+            })
+            this.reapingPullDetails[reapIndex].hList = this.reapingPullDetails[reapIndex].hList.slice(0, -2)
+          }
+        })
+      })
+    },
+
+    getReapingCreature (creatureID) {
+      switch ('' + creatureID) {
+        case '148716':
+          return {name: 'Risen Soul', portrait: 'https://media.wago.io/wow-ui-textures/ICONS/ability_warlock_soulsiphon.PNG'}
+        case '148893':
+          return {name: 'Tormented Soul', portrait: 'https://media.wago.io/wow-ui-textures/ICONS/Spell_Shadow_SoulLeech_1.PNG'}
+        case '148894':
+          return {name: 'Lost Soul', portrait: 'https://media.wago.io/wow-ui-textures/ICONS/Ability_Warlock_ImprovedSoulLeech.PNG'}
+      }
+      console.log('no match', creatureID, typeof creatureID)
+      return false
     },
 
     freeholdCrew (index) {
@@ -1510,6 +1607,7 @@ export default {
 #mdtPulls .selected > div { background-color: rgba(99, 233, 30, 0.1); padding-top: 16px }
 #mdtPulls .selected > button { display: none }
 #mdtPulls .md-list-text-container > * { white-space: normal }
+#mdtPulls .reapingTargetIcon { display: inline-block; overflow: hidden; vertical-align: middle; box-sizing: initial; width: 36px; height: 36px; border-radius: 36px; background-position: -4px -4px; background-size: 120%;}
 .mdtGroupDetails > div { margin: 15px 0; }
 .mdtGroupDetails .groupnum:before { content: 'Group'; font-size: 9px; position: absolute; top: -15px; right: 6px; text-align: right }
 .mdtGroupDetails .singlepull:before { content: 'Singles'; font-size: 9px; position: absolute; top: -15px; right: 6px; text-align: right }
@@ -1519,6 +1617,8 @@ export default {
 #mdtTooltip .tooltipPOI { max-width: 240px }
 #mdtTooltip .tooltipPOI span + span { font-size: 90%; color: #DDD }
 #mdtTooltip .tooltipEnemy { width: 210px; position: relative; }
+#mdtTooltip .tooltipEnemy span { display: block }
+#mdtTooltip .tooltipEnemy span img { max-height: 16px }
 #mdtTooltip .tooltipEnemy .enemyPortrait { position: absolute; left: -48px; top: -48px; border: 2px solid black; }
 #mdtAnnotateMenu { position: absolute; top: 36px; left: 18px; width: 50px; border: 1px solid black; background: #212121; opacity: .9 }
 #mdtAnnotateMenu .annotate-label { text-align: center; text-decoration: underline; font-weight: bold; font-size: 12px }
