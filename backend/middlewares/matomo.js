@@ -1,8 +1,12 @@
 const MatomoTracker = require('matomo-tracker')
-const matomo = new MatomoTracker(1, 'https://logging.wago.io/matomo.php')
+const matomoWeb = new MatomoTracker(1, 'https://logging.wago.io/matomo.php')
+const matomoAPI = new MatomoTracker(2, 'https://logging.wago.io/matomo.php')
 const md5 = require('md5')
 
-matomo.on('error', function(err) {
+matomoWeb.on('error', function(err) {
+  console.log('ERROR SENDING TO MATOMO', err)
+})
+matomoAPI.on('error', function(err) {
   console.log('ERROR SENDING TO MATOMO', err)
 })
 
@@ -44,5 +48,10 @@ module.exports = function (data) {
   if (!trackProp.url) {
     trackProp.url = 'https://wago-missing-url/'
   }
-  matomo.track(trackProp)
+  if (this.req.raw.url.match(/^\/api\//)) {
+    matomoAPI.track(trackProp)
+  }
+  else {
+    matomoWeb.track(trackProp)
+  }
 }
