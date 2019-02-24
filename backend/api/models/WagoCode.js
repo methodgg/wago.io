@@ -29,8 +29,8 @@ Schema.index({json: 'text', lua: 'text'})
 Schema.statics.lookup = async function(id, version) {
   try {
     var doc
-    if (version && typeof version === 'string' && version.match(/\d+\.\d+\.\d+/)) {
-      doc = await this.findOne({auraID: id, versionString: version}).exec()
+    if (version && typeof version === 'string' && version.replace(/-\d+$/, '').match(/\d+\.\d+\.\d+/)) {
+      doc = await this.findOne({auraID: id, versionString: version.replace(/-\d+$/, '')}).exec()
     }
     else if (version && parseInt(version) == version && version > 0) {
       doc = await this.findOne({auraID: id}).sort({updated: 1}).skip(parseInt(version) - 1).exec()
