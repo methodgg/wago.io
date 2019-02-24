@@ -197,21 +197,6 @@ module.exports = function (fastify, opts, next) {
       })
       return
     }
-    const getCode = async () => {
-      if (doc.type === 'COLLECTION') {
-        return
-      }
-      if (req.query.version) {
-        wago.codeURL = `/lookup/wago/code?id=${doc._id}&version=${req.query.version}`
-      }
-      else if (doc.latestVersion && doc.latestVersion.versionString) {
-        wago.codeURL = `/lookup/wago/code?id=${doc._id}&version=${doc.latestVersion.versionString}`
-      }
-      else {
-        wago.codeURL = `/lookup/wago/code?id=${doc._id}`
-      }
-      return
-    }
     const getVersionHistory = async () => {
       if (doc.type === 'COLLECTION') {
         return
@@ -229,6 +214,14 @@ module.exports = function (fastify, opts, next) {
         versionHistory.push({version: v.version, versionString: versionString, size: (v.json && v.json.length || v.lua && v.lua.length || v.encoded && v.encoded.length || 0), date: v.updated, changelog: v.changelog})
       })
       wago.versions = {total: versions.length, versions: versionHistory}
+
+      // include code URL for selected version
+      if (req.query.version) {
+        wago.codeURL = `/lookup/wago/code?id=${doc._id}&version=${req.query.version}`
+      }
+      else {
+        wago.codeURL = `/lookup/wago/code?id=${doc._id}&version=${wago.versions.versions[0].versionString}`
+      }
       return
     }
     const getComments = async () => {
@@ -269,7 +262,7 @@ module.exports = function (fastify, opts, next) {
       return
     }
     // run tasks in parallel
-    await Promise.all([getUser(), isMyStar(), getScreenshots(), getVideos(), getMedia(), getCollections(), getCode(), getVersionHistory(), getComments(), getFork()])
+    await Promise.all([getUser(), isMyStar(), getScreenshots(), getVideos(), getMedia(), getCollections(), getVersionHistory(), getComments(), getFork()])
     return res.send(wago)
   })
 
