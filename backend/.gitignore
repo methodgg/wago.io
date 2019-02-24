@@ -10,6 +10,7 @@ selenium-debug.log
 ecosystem.json
 config.js
 api/lua/addons/*
+run-tmp/*
 fastify-wago.crt
 fastify-wago.csr
 fastify-wago.key

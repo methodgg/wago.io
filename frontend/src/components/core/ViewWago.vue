@@ -3,7 +3,7 @@
     <ui-warning v-if="wago.error === 'page_not_found'" mode="alert">
       404 {{ $t("No results found") }}
     </ui-warning>
-    <ui-warning v-else-if="(wago.type === 'PLATER' && (!User || !User.access || !User.access.beta))" mode="alert">
+    <ui-warning v-else-if="(wago.type === 'ENCOUNTERNOTES' && (!User || !User.access || !User.access.beta))" mode="alert">
       Error: Wago beta access is required to view this page.
     </ui-warning>
     <ui-warning v-else-if="wago.error" mode="alert">
@@ -147,7 +147,6 @@
                 <md-button v-bind:class="{'md-toggle': showPanel === 'embed'}" @click="toggleFrame('embed')">{{ $t("Embed") }}</md-button>
                 <md-button v-bind:class="{'md-toggle': showPanel === 'builder'}" v-if="wago.type === 'MDT'" @click="toggleFrame('builder')">{{ $t("Builder") }}</md-button>
                 <md-button v-bind:class="{'md-toggle': showPanel === 'editor'}" @click="toggleFrame('editor')">{{ $t("Editor") }}</md-button>
-                <!--<md-button v-bind:class="{'md-toggle': showPanel === 'codereview'}" v-if="(User && User.access && (User.access.beta)) && wago.type === 'WEAKAURA' && wago.code" @click="toggleFrame('codereview')">{{ $t("Code Review") }}</md-button>-->
               </md-button-toggle>
               
               <ui-image v-if="wago.image" :img="wago.image.files" class="wago-media"></ui-image>

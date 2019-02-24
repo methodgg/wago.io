@@ -234,7 +234,7 @@ module.exports = function (fastify, opts, next) {
       }
     }
 
-    if (test.PLATER && decoded && req.user && req.user.access.beta) {
+    if (test.PLATER && decoded) {
       // check if valid and what type of import
       // general profile
       if (decoded && !Array.isArray(decoded.obj) && decoded.obj.OptionsPanelDB && decoded.obj.OptionsPanelDB.PlaterOptionsPanelFrame) {
