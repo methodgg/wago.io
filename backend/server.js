@@ -1,184 +1,151 @@
-/**
- * Module Dependencies
- */
-const config        = require('./config'),
-  restify       = require('restify'),
-  mongoose      = require('mongoose'),
-  CookieParser  = require('restify-cookies')
+// --- SETUP FASTIFY
+global.config = require('./config')
+var fastifyOpt = {
+  ignoreTrailingSlash: true,
+  maxParamLength: 1048576,
+  bodyLimit: 1048576 * 15,
+  trustProxy: true
+}
+if (config.env === 'production') {
+  fastifyOpt.https = {
+    http2: true,
+    key: require('fs').readFileSync('./fastify-wago.key'),
+    cert: require('fs').readFileSync('./fastify-wago.crt')
+  }
+}
+const fastify = require('fastify')(fastifyOpt)
 
-/**
- * Global Modules
- */
-
+// --- GLOBAL MODULES
 global.async = require('async')
-global.fs = require('fs')
-global._ = require('lodash')
-global.keyd = require('keyd')
-global.request = require('request')
-global.videoParser = require('js-video-url-parser')
+global.axios = require('axios')
+global.bluebird = require('bluebird')
 global.commonRegex = require('./commonRegex')
+global.fs = require('fs').promises
+global.mongoose = require('mongoose')
 
-/**
- * Initialize Data Server
- */
-global.server = restify.createServer({
-  name    : config.name,
-  version : config.version
+// --- FASTIFY PLUGINS
+fastify.register(require('fastify-cookie'))
+fastify.register(require('fastify-compress'))
+fastify.register(require('fastify-file-upload'), {
+  limits: { fileSize: 1048576 * 15 },
 })
+fastify.register(require('./middlewares/fastify-rate-limit'))
 
-var runTask = require('./api/services/tasks') // localhost tasks
-require('./api/services/status') // status monitor
+// --- DECORATORS
+fastify.decorateRequest('track', require('./middlewares/matomo'))
+fastify.decorateRequest('trackError', require('./middlewares/matomoErrors'))
+fastify.decorateReply('cache', require('./middlewares/cache'))
+fastify.setErrorHandler(require('./middlewares/errors'))
 
-/**
- * CORS
- */
-const corsMiddleware = require('restify-cors-middleware')
-const corsOpts = {
-  origins: ['https://wago.io', 'https://*.wago.io', 'http://ubuntu:8080'],
-  allowHeaders: ['Cookie', 'Authorization', 'x-auth-token'],
-  exposeHeaders: ['Set-Cookie', 'wotm'],
-  ignoreCors: ['/data/:key', '/lookup/weakauras', '/wago/raw/encoded']
-}
-const cors = corsMiddleware(corsOpts)
-// replace cors.actual of standard middleware to add ignoreCors paths
-cors.actual = require('./middlewares/corsActual').handler(corsOpts)
-server.pre(cors.preflight)
-server.use(cors.actual)
+// --- HOOKS & MIDDLEWARES
+fastify.addHook('preValidation', require('./middlewares/cors'))
+fastify.addHook('preHandler', require('./middlewares/setDefaults'))
+fastify.addHook('preHandler', require('./middlewares/analytics'))
+fastify.addHook('preHandler', require('./middlewares/auth'))
+fastify.addHook('preHandler', require('./middlewares/getRegion'))
 
-/**
- * Middleware
- */
-server.use(restify.acceptParser(server.acceptable))
-server.use(restify.queryParser())
-server.use(restify.bodyParser({mapParams: false}))
-server.use(restify.gzipResponse())
-server.use(CookieParser.parse)
-server.use(require('./middlewares/rateLimiter')) // rate limiter
-server.use(require('./middlewares/defaults')) // set default vars
-server.use(require('./middlewares/SessionAuth')) // set req.user
-server.use(require('./middlewares/APIAuth')) // set req.user
-server.use(require('./middlewares/wowRegion')) // set req.wowRegion
-server.use(require('./middlewares/analytics')) // set req.wowRegion
+// --- ROUTES
+fastify.get('/logout', (req, res) => {res.redirect('/auth/logout')})
+fastify.get('/ping', (req, res) => {res.send({pong: true, host: config.base_url})})
+fastify.get('/favicon.ico', (req, res) => {res.redirect('https://media.wago.io/favicon/favicon.ico')})
+fastify.get('/loaderio-ea4a5150f4d42634b2499beaf72f04a9.txt', (req, res) => {res.send('loaderio-ea4a5150f4d42634b2499beaf72f04a9')})
+fastify.register(require('./api/services/account'), { prefix: '/account' })
+fastify.register(require('./api/services/admin'), { prefix: '/admin' })
+fastify.register(require('./api/services/api'), { prefix: '/api' })
+fastify.register(require('./api/services/auth'), { prefix: '/auth' })
+fastify.register(require('./api/services/comments'), { prefix: '/comments' })
+fastify.register(require('./api/services/data'), { prefix: '/data' })
+fastify.register(require('./api/services/html'), { prefix: '/html' }) // pre-render content, embeds; called by proxy
+fastify.register(require('./api/services/import'), { prefix: '/import' })
+fastify.register(require('./api/services/lookup'), { prefix: '/lookup' })
+fastify.register(require('./api/services/search'), { prefix: '/search' })
+fastify.register(require('./api/services/wago'), { prefix: '/wago' })
+fastify.register(require('./api/services/webhooks'))
 
-
-server.on('restifyError', (req, res, next) => {
-  console.log('after?')
-})
-
-
-/**
- * Logging
- */
-const winston = require('winston')
-const DailyRotateFile = require('winston-daily-rotate-file')
-const logger = winston.createLogger({
-  format: winston.format.combine(winston.format.timestamp(), winston.format.json()),
-  transports: [
-    new winston.transports.File({ filename: 'logs/errors.log', level: 'error', handleExceptions: true, maxsize: 5242880, maxFiles: 5 }),
-    new winston.transports.File({ filename: 'logs/warning.log', level: 'warn', maxsize: 5242880, maxFiles: 5 }),
-    new winston.transports.File({ filename: 'logs/info.log', maxsize: 5242880, maxFiles: 5 }),
-  ]
-})
-if (config.env !== 'production') {
-  logger.add(new winston.transports.Console({
-    format: winston.format.json(),
-    handleExceptions: true,
-    colorize: true,
-    json: false,
-    level: 'debug'
-  }))
-}
-global.logger = logger
-logger.info("Server startup")
-/** npm logging levels
-  error: 0, 
-  warn: 1, 
-  info: 2, 
-  verbose: 3, 
-  debug: 4, 
-  silly: 5 
- */
-const expressWinston = require('express-winston')
-server.use(expressWinston.logger({
-  winstonInstance: winston.createLogger({
-    transports: [
-      new winston.transports.File({ filename: 'logs/info.log', maxsize: 5242880, maxFiles: 5 })
-    ],
-    format: winston.format.combine(winston.format.timestamp(), winston.format.json()),
-    msg: "HTTP {{res.statusCode}} {{req.method}} {{res.responseTime}}ms {{req.url}}",
-  }),
-  meta: true, 
-  requestFilter: function (req, propName) { 
-    if (propName === 'headers') {
-      req[propName]['x-auth-token'] = undefined
-      req[propName]['cookie'] = undefined
-    }
-    return req[propName] 
-  },
-  dynamicMeta: function (req, res) {
-    if (req.user)
-      return {user: req.user.account.username}
-    else
-      return undefined
-  },
-  ignoreRoute: function (req, res) { return false; } // optional: allows to skip some log messages based on request and/or response
-}))
-
-
-/**
- * Service requests
- */
-require('./api/services/account')
-require('./api/services/admin')
-require('./api/services/api')
-require('./api/services/auth') // authentication service
-require('./api/services/comments') 
-require('./api/services/import') 
-require('./api/services/lookup')
-require('./api/services/search')
-require('./api/services/wago')
-
-/**
- * Lift Server, Connect to DB & Bind Routes
- */
-server.listen(config.port, function() {
-  mongoose.connection.on('error', function(err) {
-    logger.error('Mongoose default connection error: ' + err)
-    process.exit(1)
-  })
-
-  mongoose.connection.on('open', function(err) {
-    if (err) {
-      logger.error('Mongoose default connection error: ' + err)
-      process.exit(1)
-    }
-  })
-
-  global.db = mongoose.connect(config.db.uri)
-  mongoose.Promise = global.Promise
-
-  var models = fs.readdirSync('./api/models')
-
-  _.forEach(models, (model) => {
-    if (model.indexOf('.js')<0) return
-
-    var filename = model.split('.')[0]
-    global[filename] = require('./api/models/' + filename)
-  })
-
-  global['Categories'] = require('../frontend/src/components/libs/categories')
-
-  // build global vars on runtime
-  runTask('random')
-  runTask('top10')
-  runTask('news')
-
-  /**
-   * Save site data into memory
-   */
-  SiteData.find().exec().then((data) => {
-    data.forEach(function(d) {
-      global[d._id] = d.value
+// --- START SERVER AND CONNECT TO MONGO
+const startServer = async () => {
+  try {
+    await fastify.listen(config.port, '0.0.0.0')
+    console.log(`Fastify listening on ${fastify.server.address().port}`)
+    await mongoose.connect(config.db.uri, {useNewUrlParser: true, useCreateIndex: true, useFindAndModify: false})
+    const models = await fs.readdir('./api/models')
+    models.forEach((model) => {
+      if (model.indexOf('.js')<0) return
+      model = model.split('.')[0]
+      global[model] = require('./api/models/' + model)
     })
-  })
-})
+    global.Categories = require('../frontend/src/components/libs/categories')
+
+    // update memory-store of semi-static data
+    if (config.env !== 'crontasks') {
+      require('./middlewares/updateInMemoryData')()
+      setInterval(require('./middlewares/updateInMemoryData'), 60 * 1000)
+    }
+    // setup simulated crontasks
+    if (config.env === 'development' || config.env === 'crontasks') {
+      const cronTasks = require('./api/helpers/cronTasks')
+      // to allow tracking outside of standard request scope
+      const cronReq = {
+        track: require('./middlewares/matomo'),
+        trackError: require('./middlewares/matomoErrors')
+      }      
+      var minute = Math.floor((new Date()-new Date().setHours(0,0,0,0)) / 60000) // start at x minutes from midnight
+      const runCron = async () => {
+        if (minute % 240 === 0) { // every 4 hours
+          if (config.env === 'crontasks') {
+            await cronTasks.UpdatePatreonAccounts(cronReq)
+          }
+          await cronTasks.UpdateWeeklyMDT(cronReq)
+        }
+        if (minute % 60 === 0) { // every hour
+          await cronTasks.ComputeViewsThisWeek(cronReq)
+        }
+        if (minute % 20 === 0) { // every 20 minutes
+          await cronTasks.UpdateLatestAddonReleases(cronReq)
+        }
+        if (minute % 5 === 0) { // every 5 minutes
+          await cronTasks.UpdateTopTenLists(cronReq)
+        }
+        await cronTasks.UpdateWagoOfTheMoment(cronReq)
+        await cronTasks.UpdateLatestNews(cronReq)
+
+        // once per week make sure elasticsearch is sync'd up with Mongo
+        if (minute === 30 && (new Date).getDay() === 0) {
+          var syncStream = WagoItem.synchronize()
+          syncStream.on('error', function(err){
+            cronReq.trackError(err, 'Elastic Sync Error WagoItem')
+          })
+          syncStream.on('close', function() {
+            cronReq.track({e_a: 'Elastic Sync Complete', e_c: 'WagoItem', e_n: 'WagoItem'})
+          })
+        }
+        else if (minute === 30 && (new Date).getDay() === 1) {
+          var syncStream = User.synchronize()
+          syncStream.on('error', function(err){
+            cronReq.trackError(err, 'Elastic Sync Error User')
+          })
+          syncStream.on('close', function() {
+            cronReq.track({e_a: 'Elastic Sync Complete', e_c: 'User', e_n: 'User'})
+          })
+        }
+
+        minute++
+        // reset at midnight
+        if (minute === 1440) {
+          minute = 0
+        }
+      }
+      // run cron at launch and every minute thereafter
+      runCron()
+      setInterval(runCron, 60 * 1000)
+    }
+
+    if (config.env === 'development') {
+      // require('./unitTests')
+    }
+  } catch (err) {
+    console.log('FASTIFY ERROR', err)
+    process.exit(1)
+  }
+}
+startServer()

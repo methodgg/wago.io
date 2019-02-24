@@ -1,4 +1,5 @@
-var mongoose = require('mongoose')
+const mongoose = require('mongoose')
+const videoParser = require('js-video-url-parser')
 
 // define the schema for our user model
 var Schema = mongoose.Schema({

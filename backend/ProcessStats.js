@@ -20,15 +20,25 @@ var totalTriggers = 0
 var totalAurasWithAtLeastOneTrigger = 0
 var totalAurasWithAtLeastTwoTriggers = 0
 var totalAurasInsideGroups = 0
+var SetDurationInfo = 0
+var hooksecurefunc = 0
 var i = 0
 function getStats(c) {
-  WagoItem.find({type: "WEAKAURAS2"}).select('_id').limit(1000).skip(1000*c).then((docs) => {
+  WagoItem.find({type: "WEAKAURAS2"}).select('_id popularity').limit(1000).skip(1000*c).then((docs) => {
     totalImports = totalImports + docs.length
     totalAuras = totalAuras + docs.length
     async.forEach(docs, (wago, done) => {
       i++
       WagoCode.findOne({auraID: wago._id}).sort({updated: -1}).then((code) => {
         try {
+          if (!code) return done()
+
+          if (code.json.match(/SetDurationInfo/)) {
+            SetDurationInfo += wago.popularity.installed_count      
+          }
+          if (code.json.match(/hooksecurefunc/)) {
+            hooksecurefunc += wago.popularity.installed_count       
+          }
           var json = JSON.parse(code.json)
 
           var triggers = 0
@@ -107,7 +117,8 @@ function getStats(c) {
       })
     }, () => {
       console.log('c=', c)
-      console.log('totalWeakAuraImports =', totalImports, 'totalGroups =', totalGroups, 'totalAurasInsideGroups =', totalAurasInsideGroups, 'totalTriggers =', totalTriggers, 'totalAurasWithAtLeastOneTrigger =', totalAurasWithAtLeastOneTrigger, 'totalAurasWithAtLeastTwoTriggers =', totalAurasWithAtLeastTwoTriggers)
+      console.log('totalWeakAuraImports =', totalImports, 'totalWithhooksecurefunc =', hooksecurefunc, 'totalWithSetDurationInfo =', SetDurationInfo, 'totalGroups =', totalGroups, 'totalAurasInsideGroups =', totalAurasInsideGroups, 'totalTriggers =', totalTriggers, 'totalAurasWithAtLeastOneTrigger =', totalAurasWithAtLeastOneTrigger, 'totalAurasWithAtLeastTwoTriggers =', totalAurasWithAtLeastTwoTriggers)
+
       getStats(++c)
     })
   })

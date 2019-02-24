@@ -14,11 +14,11 @@ const Schema = new mongoose.Schema({
   }]
 })
 
-Schema.statics.findUnread = function(userID) {
+Schema.statics.findUnread = async function(userID) {
   return this.find({usersTagged: {$elemMatch: {userID: userID, read: false}}}).select('wagoID').exec()
 }
 
-Schema.statics.findMentions = function(userID) {
+Schema.statics.findMentions = async function(userID) {
   return this.find({"usersTagged.userID": userID}).select('wagoID usersTagged.$').exec()
 }
 

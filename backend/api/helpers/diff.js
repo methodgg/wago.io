@@ -1,22 +1,21 @@
 const async = require('async')
 const exec = require('shelljs.exec')
-const fs = require('fs')
 
 module.exports = {
-  Lua: (codeA, codeB) => {
-    return makeDiffs({Lua: codeA}, {Lua: codeB})
+  Lua: async (codeA, codeB) => {
+    return await makeDiffs({Lua: codeA}, {Lua: codeB})
   },
 
-  Plater: (jsonA, jsonB) => {
+  Plater: async (jsonA, jsonB) => {
     try {
       jsonA = JSON.parse(jsonA)
       jsonB = JSON.parse(jsonB)
     }
     catch (e) {
-      return makeDiffs({}, {})
+      return await makeDiffs({}, {})
     }
     if (!Array.isArray(jsonA) || !Array.isArray(jsonB)) {
-      return makeDiffs({}, {})
+      return await makeDiffs({}, {})
     }
     else if (typeof jsonA[8] === 'number' && typeof jsonB[8] === 'number') { // Plater script
       var tblA = {}
@@ -29,74 +28,62 @@ module.exports = {
       tblB['On Show'] = jsonB[13]
       tblB['On Update'] = jsonB[10]
       tblB['On Hide'] = jsonB[12]
-      return makeDiffs(tblA, tblB)
+      return await makeDiffs(tblA, tblB)
     }
     else if (typeof jsonA[8] === 'object' && typeof jsonB[8] === 'object') { // Plater hook
-      return makeDiffs(jsonA[8], jsonB[8]) 
+      return await makeDiffs(jsonA[8], jsonB[8]) 
     }
   },
   
-  WeakAuras: (jsonA, jsonB) => {
+  WeakAuras: async (jsonA, jsonB) => {
     var tblA = JSON.parse(jsonA)
     var tblB = JSON.parse(jsonB)
 
     var customA = getCustomCodeWA(tblA.c || [tblA.d])
     var customB = getCustomCodeWA(tblB.c || [tblB.d])
 
-    return makeDiffs(customA, customB)
+    return await makeDiffs(customA, customB)
   }
 }
 
 
-function makeDiffs (compareA, compareB) {
-  return new Promise((resolve, reject) => {
-    var diffs = []
-    var keys = arrayUnique(Object.keys(compareA).concat(Object.keys(compareB)))
-    async.each(keys, (key, done) => {
-      if (compareA[key] === compareB[key]) {
-        return done()
-      }
-      if (typeof compareA[key] !== 'string') {
-        compareA[key] = ''
-      }
-      if (typeof compareB[key] !== 'string') {
-        compareB[key] = ''
-      }
-      if (compareA[key].match(/^--/)) {
-        compareA[key] = ' ' + compareA[key]
-      }
-      if (compareB[key].match(/^--/)) {
-        compareB[key] = ' ' + compareB[key]
-      }
-      makeTmpFile(compareA[key]).then((fileA) => {
-        makeTmpFile(compareB[key]).then((fileB) => {
-          let diff = exec(`git diff --no-index --color=never ${fileA} ${fileB}`)
-          if (diff && diff.stdout) {
-            diff = diff.stdout.split(/\n/g).slice(4).join('\n')
-            diffs.push(`--- a/${key}\n+++ b/${key}\n${diff}`)
-          }
-          fs.unlink(fileA, () => {})
-          fs.unlink(fileB, () => {})
-          done()
-        })
-      })
-    }, () => {
-      resolve(diffs)
-    })    
-  })
+async function makeDiffs (compareA, compareB) {
+  var diffs = []
+  var keys = arrayUnique(Object.keys(compareA).concat(Object.keys(compareB)))
+  for (let i = 0; i < keys.length; i++) {
+    let key = keys[i]
+    if (compareA[key] === compareB[key]) {
+      continue
+    }
+    if (typeof compareA[key] !== 'string') {
+      compareA[key] = ''
+    }
+    if (typeof compareB[key] !== 'string') {
+      compareB[key] = ''
+    }
+    if (compareA[key].match(/^--/)) {
+      compareA[key] = ' ' + compareA[key]
+    }
+    if (compareB[key].match(/^--/)) {
+      compareB[key] = ' ' + compareB[key]
+    }
+    var fileA = await makeTmpFile(compareA[key])
+    var fileB = await makeTmpFile(compareB[key])
+    let diff = await exec(`git diff --no-index --color=never ${fileA} ${fileB}`)
+    if (diff && diff.stdout) {
+      diff = diff.stdout.split(/\n/g).slice(4).join('\n')
+      diffs.push(`--- a/${key}\n+++ b/${key}\n${diff}`)
+    }
+    fs.unlink(fileA)
+    fs.unlink(fileB)
+  }
+  return diffs  
 }
 
-function makeTmpFile(contents) {
-  return new Promise((resolve, reject) => {
-    var tmp = Math.random().toString(36)
-    var filename = __dirname + '/../../diffs/' + new Date().getTime() + tmp
-    fs.writeFile(filename, contents, (err) => {
-      if (err) {
-        return reject(err)
-      }
-      resolve(filename)
-    })
-  })
+async function makeTmpFile(contents) {
+  const filename = __dirname + '/../../run-tmp/' + new Date().getTime() + Math.random().toString(36).substring(7) + '.diff'
+  await fs.writeFile(filename, contents)
+  return filename
 }
 
 // ported from frontend's table editor

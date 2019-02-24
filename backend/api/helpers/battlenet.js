@@ -1,6 +1,4 @@
 const config = require('../../config')
-const axios = require('axios')
-const fs = require('fs')
 const querystring = require('querystring')
 const async = require('async')
 const mdtWeekReset = 670
@@ -24,33 +22,35 @@ function getHost (region) {
   }
 }
 
-function getToken (region) {
-  return new Promise((resolve, reject) => {
-    if (region === 'CN') {
-      tokenURL = 'https://www.battlenet.com.cn/oauth/token'
-    }
-    else {
-      tokenURL = 'https://us.battle.net/oauth/token'
-    }
-    axios.post(tokenURL, querystring.stringify({
+// TODO: Keep token in memory with expiry
+async function getToken (region) {
+  if (region === 'CN') {
+    tokenURL = 'https://www.battlenet.com.cn/oauth/token'
+  }
+  else {
+    tokenURL = 'https://us.battle.net/oauth/token'
+  }
+  try {
+    const response = await axios.post(tokenURL, querystring.stringify({
       grant_type: 'client_credentials'
     }), {
       auth: {
         username: config.auth.battlenet.clientID,
         password: config.auth.battlenet.clientSecret
       }
-    }).then(function (response) {
-      if (response && response.data && response.data.access_token) {
-        resolve(response.data.access_token)
-      }
-      else {
-        reject('No token')
-      }
-    }).catch((e) => {
-      console.log('error getting token')
-      reject(e.message)
     })
-  })
+  
+    if (response && response.data && response.data.access_token) {
+      return response.data.access_token
+    }
+    else {
+      return false
+    }
+  }
+  catch (e) {
+    console.log('ERR BNET TOKEN', region, e.message)
+    return false
+  }
 }
 
 function getAPI (region, endpoint, token) {
@@ -65,219 +65,77 @@ function getAPI (region, endpoint, token) {
   })
 }
 
+async function updateMDTWeek(region, token) {
+  const result = await getAPI(region, '/data/wow/mythic-keystone/period/index', token)
+  var week = (result.data.current_period.id - mdtWeekReset) % 12
+  if (!week) week = 12
+  SiteData.findByIdAndUpdate('mdtWeek' + region, {value: week}, {upsert: true}).exec()
+}
+
 module.exports = {
-  updateMDTWeek: (region) => {
-    return new Promise((resolve, reject) => {
-      async.parallel({
-        CN: (done) => {
-          return done()
-          // china MDT data currently not available via API
-          // use Taiwan below and hope it matches?
-          // if (!region || region === 'CN') {
-          //   getToken('CN').then((token) => {
-          //     getAPI('CN', '/data/wow/mythic-keystone/period/index', token).then((res) => {
-          //       var week = 1
-          //       try {
-          //         week = (res.data.current_period.id - mdtWeekReset) % 12
-          //         if (!week) week = 12
-          //         SiteData.findByIdAndUpdate('mdtWeekCN', {value: week}, {upsert: true}).exec()
-          //         global['mdtWeekCN'] = week
-          //         done()
-          //       }
-          //       catch (e) {
-          //         logger.error({label: 'Error updating MDT Week', region: 'CN', msg: e.message})
-          //         done()
-          //       }
-          //     }).catch((e) => {
-          //       logger.error({label: 'Error updating MDT Week', region: 'CN', msg: e.message})
-          //       done()
-          //     })
-          //   })
-          // }
-          // else {
-          //   done()
-          // }
-        },
-        other: (alldone) => {
-          if (!region || region !== 'CN') {
-            getToken().then((token) => {
-              async.parallel({
-                NA: (done) => {
-                  if (!region || region === 'NA') {
-                    getAPI('NA', '/data/wow/mythic-keystone/period/index', token).then((res) => {
-                      var week = 1
-                      try {
-                        week = (res.data.current_period.id - mdtWeekReset) % 12
-                        if (!week) week = 12
-                        SiteData.findByIdAndUpdate('mdtWeekNA', {value: week}, {upsert: true}).exec()
-                        global['mdtWeekNA'] = week
-                        done()
-                      }
-                      catch (e) {
-                        logger.error({label: 'Error updating MDT Week', region: 'NA', msg: e.message})
-                        done()
-                      }
-                    }).catch((e) => {
-                      logger.error({label: 'Error updating MDT Week', region: 'NA', msg: e.message})
-                      done()
-                    })
-                  }
-                  else {
-                    done()
-                  }
-                },
-                EU: (done) => {
-                  if (!region || region === 'EU') {
-                    getAPI('EU', '/data/wow/mythic-keystone/period/index', token).then((res) => {
-                      var week = 1
-                      try {
-                        week = (res.data.current_period.id - mdtWeekReset) % 12
-                        if (!week) week = 12
-                        SiteData.findByIdAndUpdate('mdtWeekEU', {value: week}, {upsert: true}).exec()
-                        global['mdtWeekEU'] = week
-                        done()
-                      }
-                      catch (e) {
-                        logger.error({label: 'Error updating MDT Week', region: 'EU', msg: e.message})
-                        done()
-                      }
-                    }).catch((e) => {
-                      logger.error({label: 'Error updating MDT Week', region: 'EU', msg: e.message})
-                      done()
-                    })
-                  }
-                  else {
-                    done()
-                  }
-                },
-                KR: (done) => {
-                  if (!region || region === 'KR') {
-                    getAPI('NA', '/data/wow/mythic-keystone/period/index', token).then((res) => {
-                      var week = 1
-                      try {
-                        week = (res.data.current_period.id - mdtWeekReset) % 12
-                        if (!week) week = 12
-                        SiteData.findByIdAndUpdate('mdtWeekKR', {value: week}, {upsert: true}).exec()
-                        global['mdtWeekKR'] = week
-                        done()
-                      }
-                      catch (e) {
-                        logger.error({label: 'Error updating MDT Week', region: 'KR', msg: e.message})
-                        done()
-                      }
-                    }).catch((e) => {
-                      logger.error({label: 'Error updating MDT Week', region: 'KR', msg: e.message})
-                      done()
-                    })
-                  }
-                  else {
-                    done()
-                  }
-                },
-                TW: (done) => {
-                  if (!region || region === 'TW') {
-                    getAPI('TW', '/data/wow/mythic-keystone/period/index', token).then((res) => {
-                      var week = 1
-                      try {
-                        week = (res.data.current_period.id - mdtWeekReset) % 12
-                        if (!week) week = 12
-                        SiteData.findByIdAndUpdate('mdtWeekTW', {value: week}, {upsert: true}).exec()
-                        global['mdtWeekTW'] = week
-                        SiteData.findByIdAndUpdate('mdtWeekCN', {value: week}, {upsert: true}).exec()
-                        global['mdtWeekCN'] = week
-                        done()
-                      }
-                      catch (e) {
-                        logger.error({label: 'Error updating MDT Week', region: 'TW', msg: e.message})
-                        done()
-                      }
-                    }).catch((e) => {
-                      logger.error({label: 'Error updating MDT Week', region: 'TW', msg: e.message})
-                      done()
-                    })
-                  }
-                  else {
-                    done()
-                  }
-                }
-              }, () => {
-                alldone()
-              })
-            })
-          }
-          else {
-            done()
-          }
-        }
-      }, () => {
-        resolve()
-      })
-    })
+  updateMDTWeeks: async (region) => {
+    const token = await getToken()
+    await updateMDTWeek('NA', token)
+    await updateMDTWeek('EU', token)
+    await updateMDTWeek('KR', token)
+    await updateMDTWeek('TW', token)
+    
+    // const tokenCN = await getToken('CN')
+    // await updateMDTWeek('CN', tokenCN)
   },
 
-  lookupSpell: (spellID, locale) => {
+  lookupSpell: async (spellID, locale) => {
     if (!locale) {
       locale = 'en_US'
     }
     var spellLookup = `spell/${spellID}`
-    return new Promise((resolve, reject) => {
-      BlizzData.findOne({_id: spellLookup, locale: locale}).then((doc) => {
-        if (doc && doc.value) {
-          return resolve(doc.value)
+    const doc = await BlizzData.findOne({_id: spellLookup, locale: locale}).exec()
+    if (doc && doc.value) {
+      return doc.value
+    }
+    const token = await getToken()
+    var result = await getAPI('NA', '/wow/' + spellLookup, token)
+    try {
+      // blizz API gives lowercase icon name, so find the actual case-sensitive filename
+      const regex = new RegExp('^' + result.data.icon + '\.png$', 'i')
+      const files = await fs.readdir('/nfs/media/wow-ui-textures/ICONS')
+      for (let i = 0; i < files.length; i++) {
+        if (files[i].match(regex)) {
+          result.data.iconFile = files[i]
+          BlizzData.findOneAndUpdate({_id: spellLookup, locale: locale}, {_id: spellLookup, locale: locale, value: result.data}, {upsert: true}).exec()
+          return result.data
         }
-        getToken().then((token) => {
-          getAPI('NA', '/wow/' + spellLookup, token).then((res) => {
-            try {
-              // blizz API gives lowercase icon name, so find the actual case-sensitive filename
-              const regex = new RegExp('^' + res.data.icon + '\.png$', 'i')
-              fs.readdir('/nfs/media/wow-ui-textures/ICONS', (err, files) => {
-                if (err) {
-                  throw err
-                }
-                for (let i = 0; i < files.length; i++) {
-                  if (files[i].match(regex)) {
-                    res.data.iconFile = files[i]
-                    BlizzData.findOneAndUpdate({_id: spellLookup, locale: locale}, {_id: spellLookup, locale: locale, value: res.data}, {upsert: true}).exec()
-                    return resolve(res.data)
-                  }
-                }
-                BlizzData.findOneAndUpdate({_id: spellLookup, locale: locale}, {_id: spellLookup, locale: locale, value: res.data}, {upsert: true}).exec()
-                return resolve(res.data)
-              })
-            }
-            catch (e) {
-              reject(e)
-            }
-          }).catch ((e) => {
-            resolve({error: 'not found'})
-          })
-        })
-      })
-    })
+      }
+      BlizzData.findOneAndUpdate({_id: spellLookup, locale: locale}, {_id: spellLookup, locale: locale, value: result.data}, {upsert: true}).exec()
+      return result.data
+    }
+    catch (e) {
+      console.log('ERR BNET SPELL ID', spellID, e.message)
+      return {}
+    }
   },
 
-  searchSpell: (text, locale) => {
+  searchSpell: async (text, locale) => {
     if (!locale) {
       locale = 'en_US'
     }
-    return new Promise((resolve, reject) => {
-      BlizzData.findOne({$or: [{'value.name': {$regex: new RegExp('^' + text + '$', 'i')}}, {'value.icon': {$regex: new RegExp('^' + text + '$', 'i')}}], locale: locale}).then((doc) => {
-        if (doc && doc.value) {
-          return resolve(doc.value)
+    const doc = await BlizzData.findOne({$or: [{'value.name': {$regex: new RegExp('^' + text + '$', 'i')}}, {'value.icon': {$regex: new RegExp('^' + text + '$', 'i')}}], locale: locale})
+    if (doc && doc.value) {
+      return doc.value
+    }
+    try {
+      const files = await fs.readdir('/nfs/media/wow-ui-textures/ICONS')
+      const regex = new RegExp('^' + text + '\.png$', 'i')
+      for (let i = 0; i < files.length; i++) {
+        if (files[i].match(regex)) {
+          return {id: -1, icon: text, iconFile: files[i]}
         }
-        fs.readdir('/nfs/media/wow-ui-textures/ICONS', (err, files) => {
-          if (err) {
-            throw err
-          }
-          const regex = new RegExp('^' + text + '\.png$', 'i')
-          for (let i = 0; i < files.length; i++) {
-            if (files[i].match(regex)) {
-              return resolve({id: -1, icon: text, iconFile: files[i]})
-            }
-          }
-          resolve({error: 'not found'})
-        })
-      })
-    })
+      }
+      return {error: 'not found'}
+    }
+    catch (e) {
+      console.log('ERR BNET SEARCH SPELL', text, e.message)
+      return {error: 'not found'}
+    }
   }
 }

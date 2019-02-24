@@ -1,45 +1,41 @@
 
 const config = require('../../config')
-const Axios = require('axios')
 const bcrypt = require('bcrypt')      
-const md5 = require('md5')
 const jwt = require('jsonwebtoken')
-const OAuth = require('oauth')
-const oauthSignature = require('oauth-signature')
+// const OAuth = require('oauth')
+// const oauthSignature = require('oauth-signature')
 const querystring = require('querystring')
 
 const image = require('../helpers/image')
 
-function makeSession(req, res, token, user) {
+async function makeSession(req, res, token, user) {
   token.expires = Date.now() + 90 * 24 * 60 * 60 * 1000 // require re-login 90 days from now
   token.userAgent = req.headers['user-agent']
 
   // if this is an existing sesssion and we've already verified the SID then update it now
   if (token.SID) {
-    var promise = UserSessions.findByIdAndUpdate(token.SID, token).exec()
+    var userDoc = await UserSessions.findByIdAndUpdate(token.SID, token).exec()
   }
 
   // else if this is a brand new session
   else if (!req.headers['x-auth-token']) {
-    var session = new UserSessions(token)
-    var promise = session.save()
+    var userDoc = await new UserSessions(token).save()
   }
   else if (req.headers['x-auth-token']) {
     try {
       // if user has an existing expired session then we can validate and re-use it
       var session = jwt.verify(req.headers['x-auth-token'], config.jwtSecret)
       if (session && session.SID) {
-        UserSessions.findById(session.SID).then(function(doc) {
-          // if session matches, update with new information
-          if (doc && doc.UID === token.UID) {
-            token.SID = session.SID
-            return makeSession(req, res, token, user)
-          }
-          else {
-            req.headers['x-auth-token'] = false
-            return makeSession(req, res, token, user)
-          }
-        })
+        var sessionDoc = await UserSessions.findById(session.SID).exec()
+        // if session matches, update with new information
+        if (sessionDoc && sessionDoc.UID === token.UID) {
+          token.SID = session.SID
+          return makeSession(req, res, token, user)
+        }
+        else {
+          req.headers['x-auth-token'] = false
+          return makeSession(req, res, token, user)
+        }
       }
       else {
         req.headers['x-auth-token'] = false
@@ -48,218 +44,184 @@ function makeSession(req, res, token, user) {
     }
     // no valid session is found then create a new one
     catch (e) {
-      var session = new UserSessions(token)
-      var promise = session.save()
+      var userDoc = await new UserSessions(token).save()
     }
   }
 
-  // sign and return token
-  if (promise) {
-    promise.then(function(doc) {
-      // drop prototypes so we are A-OK for JWT
-      doc = JSON.parse(JSON.stringify(doc))
-      var token = jwt.sign(doc, config.jwtSecret, function(err, token) {
-        if (!err && token) {
-          var who = {}
-          who.UID = user._id
-          who.name = user.account.username || 'User-' + user._id.toString()
-          who.avatar = user.avatarURL
-          who.css = user.roleClass
-          who.patron = user.patreon && user.patreon.amount_cents >= 100
-          who.gold_patron = user.patreon && user.patreon.amount_cents >= 400
-      
-          who.battlenet = user.battlenet || false
-          who.facebook = user.facebook || false
-          who.discord = user.discord || false
-          who.google = user.google || false
-          who.patreon = user.patreon || false
-          who.twitter = user.twitter || false
-          if (user.account.password) {
-            who.localAcct = true
-          }
-      
-          who.defaultImportVisibility = user.account.default_aura_visibility
-          who.profileVisibility = user.profile.visibility
-      
-          who.access = {}
-          who.access.human = user.account.verified_human
-          who.access.customSlug = user.access.custom_slug
-          who.access.beta = user.access.beta
-          who.access.animatedAvatar = user.access.animatedAvatar
-          if (user.roles.admin.access) {
-            who.access.admin = user.roles.admin
-          }
-          
-          who.config = user.config
+  // drop prototypes so we are A-OK for JWT
+  userDoc = JSON.parse(JSON.stringify(userDoc))
+  try {
+    var token = jwt.sign(userDoc, config.jwtSecret)
+    if (token) {
+      var who = {}
+      who.UID = user._id
+      who.name = user.account.username || 'User-' + user._id.toString()
+      who.avatar = user.avatarURL
+      who.css = user.roleClass
+      who.patron = user.patreon && user.patreon.amount_cents >= 100
+      who.gold_patron = user.patreon && user.patreon.amount_cents >= 400
 
-          async.parallel({
-            comments: (cb) => {
-              Comments.findUnread(user._id).then((mentions) => {
-                who.unreadMentions = mentions
-                cb()
-              })
-            },
-      
-            collections: (cb) => {
-              WagoItem.find({_userId: user._id, type: 'COLLECTION'}).select('_id name').sort('name').then((collections) => {
-                who.collections = collections
-                cb()
-              })
-            }
-          }, () => {
-            // return user info when finished
-            var data = {login: true, token: token, user: who}
-            return res.send(200, data)
-          })
-        }
-        else {
-          logger.error({label: 'Auth token error', userSession: doc, err: err})
-          res.send(500, {error: "server_error"})
-        }
-      })
-    }).catch(err => {
-      logger.warn({label: 'User does not exist', err: err})
-      return res.send(403, {error: 'unknown_user'})
-    })
+      who.battlenet = user.battlenet || false
+      who.facebook = user.facebook || false
+      who.discord = user.discord || false
+      who.google = user.google || false
+      who.patreon = user.patreon || false
+      who.twitter = user.twitter || false
+      if (user.account.password) {
+        who.localAcct = true
+      }
+
+      who.defaultImportVisibility = user.account.default_aura_visibility
+      who.profileVisibility = user.profile.visibility
+
+      who.access = {}
+      who.access.human = user.account.verified_human
+      who.access.customSlug = user.access.custom_slug
+      who.access.beta = user.access.beta
+      who.access.animatedAvatar = user.access.animatedAvatar
+      if (user.roles.isAdmin.access) {
+        who.access.admin = user.roles.isAdmin
+      }
+      who.config = user.config
+
+      const unreadComments = Comments.findUnread(user._id)
+      const myCollections = WagoItem.find({_userId: user._id, type: 'COLLECTION', deleted: false}).select('_id name').sort('name').exec()
+      who.unreadMentions = await unreadComments
+      who.collections = await myCollections
+      // return user info when finished
+      var data = {login: true, token: token, user: who}
+      return res.send(data)
+    }
+    else {
+      return res.code(403).send({error: "unknown_user"})
+    }
+  }
+  catch (e) {
+    req.trackError(e)
+    return res.code(403).send({error: "invalid_token"})
   }
 }
 
-// update password
-server.post('/auth/changepass', (req, res) => {
-  if (!req.user || !req.body.newPass) {
-    res.send(403, {error: 'forbidden'})
-  }
-  // if user does not currently have a password then we don't need further validation, just save and return
-  if (!req.user.account.password) {
-    bcrypt.hash(req.body.newPass, 10).then((pass) => {
-      req.user.account.password = pass
-      req.user.save().then(() => {
+module.exports = function (fastify, opts, next) {
+  // update password
+  fastify.post('/changepass', async (req, res) => {
+    if (!req.user || !req.body.newPass) {
+      res.send(403, {error: 'forbidden'})
+    }
+    // if user does not currently have a password then we don't need further validation, just save and return
+    if (!req.user.account.password) {
+      const hashed = await bcrypt.hash(req.body.newPass, 10)
+      req.user.account.password = hashed
+      await req.user.save()
+      res.send({success: true})
+    }
+    else {
+      const authenticated = await bcrypt.compare(req.body.password, req.user.account.password)
+      if (authenticated) {
+        const hashed = await bcrypt.hash(req.body.newPass, 10)
+        req.user.account.password = hashed
+        await req.user.save()
         res.send({success: true})
-      })
-    })
-  }
-  else {
-    bcrypt.compare(req.body.password, req.user.account.password).then((auth) => {
-      if (auth) {
-        bcrypt.hash(req.body.newPass, 10).then((pass) => {
-          req.user.account.password = pass
-          req.user.save().then(() => {
-            res.send({success: true})
-          })
-        })
       }
       else {
         res.send({error: 'Incorrect password'})
       }
-    })
+    }
+  })
+  // logout
+  const Logout = async (req, res) => {
+    if (req.user && req.user.SID) {
+      UserSessions.findById(req.user.SID).remove().exec()
+    }
+    res.clearCookie('token')
+    res.send({action: 'logout!'})
   }
-})
+  fastify.post('/logout', Logout)
+  fastify.get('/logout', Logout)
 
-// Log out of Wago
-server.post('/auth/logout', Logout)
-server.get('/logout', Logout)
-function Logout (req, res, next) {
-  if (req.user && req.user.SID) {
-    UserSessions.findById(req.user.SID).remove().exec()
-  }
-  res.clearCookie('token')
-  res.send({action: 'logout!'})
+  // attempt to log into Wago
+  const Login = async (req, res) => {
+    switch(req.params.provider) {
+      case 'battlenet':
+        battlenetAuth(req, res)
+        break
+
+      case 'battlenetCN':
+        battlenetAuth(req, res, 'CN')
+        break
+        
+      case 'discord':
+        discordAuth(req, res)
+        break
+        
+      case 'facebook':
+        facebookAuth(req, res)
+        break
+        
+      case 'google':
+        googleAuth(req, res)
+        break
+              
+      case 'patreon':
+        patreonAuth(req, res)
+        break
+
+      case 'twitter':
+        twitterAuth(req, res)
+        break
+
+      case 'login':
+        localAuth(req, res)
+        break
+
+      case 'create':
+        createUser(req, res)
+        break
+
+      case 'user':
+      case 'refresh':
+        res.redirect('/account/whoami')
+        break;
+
+      default:
+        return res.code(404).send({error: 'invalid_provider', provider: req.params.provider})
+    }
+  }  
+  fastify.post('/:provider', Login)
+  fastify.get('/:provider', Login)
+
+  next()
 }
-
-// attempt to log into Wago
-server.post('/auth/:provider', doAuth)
-server.get('/auth/:provider', doAuth)
-function doAuth (req, res, next) {
-  switch(req.params.provider) {
-    case 'battlenet':
-      battlenetAuth(req, res)
-      break
-
-    case 'battlenetCN':
-      battlenetAuth(req, res, 'CN')
-      break
-      
-    case 'discord':
-      discordAuth(req, res)
-      break
-      
-    case 'facebook':
-      facebookAuth(req, res)
-      break
-      
-    case 'google':
-      googleAuth(req, res)
-      break
-            
-    case 'patreon':
-      patreonAuth(req, res)
-      break
-
-    case 'twitter':
-      twitterAuth(req, res)
-      break
-
-    case 'login':
-      localAuth(req, res)
-      break
-
-    case 'create':
-      createUser(req, res)
-      break
-
-    case 'user':
-    case 'refresh':
-      res.redirect('/account/whoami', next)
-      break;
-
-    default:
-      res.send(404, {error: 'invalid_provider', provider: req.params.provider})
-  }
-}
-
-server.get('/auth', (req, res, next) => {
-  res.redirect('/account/whoami', next)
-})
 
 // Login with username/password against wago database
-function localAuth (req, res) {
-  logger.info({label: 'Attempt login', service: 'wago'})
+async function localAuth (req, res) {
   // find user(s) with entered email
-  User.findByUsername(req.body.username).then(function(user) {
-    if (!user || !user.account.password) {
-      return res.send(403, {error: "invalid_login"})
-    }
-    // check if password is a match
-    bcrypt.compare(req.body.password, user.account.password).then((auth) => {
-      // if password is a match return true
-      if (auth) {
-        logger.info({label: 'Successful login', service: 'wago'})
-        var who = {}
-        who.UID = user._id.toString()
-
-        return makeSession(req, res, who, user)
-      }
-      else {
-        logger.info({label: 'Failed login', service: 'wago'})
-
-        // otherwise no match
-        return res.send({error: "invalid_login"})
-      }
-    })
-  })  
+  const user = await User.findByUsername(req.body.username)
+  if (!user || !user.account.password) {
+    return res.code(403).send({error: "invalid_login"})
+  }
+  // check if password is a match
+  const auth = await bcrypt.compare(req.body.password, user.account.password)
+  // if password is a match return true
+  if (auth) {
+    var who = {}
+    who.UID = user._id.toString()
+    return makeSession(req, res, who, user)
+  }
+  return res.code(403).send({error: "invalid_login"})
 }
 
 // create local user
-function createUser (req, res) {
+/*async function createUser (req, res) {
   if (!req.body.password || req.body.password.length < 6) {
     return res.send(403, {error: 'bad password'})
   }
-  User.findByUsername(req.body.username).then(function(user) {
-    if (user) {
-      return res.send(403, {error: "Error: Username already exists"})
-    }
+  var user = await User.findByUsername(req.body.username)
+  if (user) {
+    return res.send(403, {error: "Error: Username already exists"})
+  }
     
-    Axios.post('https://www.google.com/recaptcha/api/siteverify', querystring.stringify({
+  const google = await axios.post('https://www.google.com/recaptcha/api/siteverify', querystring.stringify({
       secret: '6LfMCGkUAAAAACj35VLnGhJFq2cFqwSj3Hh-5UFq',
       response: req.body.recaptcha,
       remoteip: req.connection.remoteAddress
@@ -286,20 +248,12 @@ function createUser (req, res) {
       }
     })
   })
-}
+}*/
 
 // Login through Blizzard Battle.net
-function battlenetAuth(req, res, region) {
-  logger.info({label: 'Attempt login', service: 'battlenet'})
-  var key, secret
-  if (req.headers.origin === 'https://t1000.wago.io') {
-    key = config.auth.battlenet.betaClientID
-    secret = config.auth.battlenet.betaClientSecret
-  }
-  else {
-    key = config.auth.battlenet.clientID
-    secret = config.auth.battlenet.clientSecret
-  }
+async function battlenetAuth(req, res, region) {  
+  var key = config.auth.battlenet.clientID
+  var secret = config.auth.battlenet.clientSecret
   var tokenURL
   var userURL
   var battlenetField = 'battlenet'
@@ -313,7 +267,7 @@ function battlenetAuth(req, res, region) {
     tokenURL = 'https://us.battle.net/oauth/token'
     userURL = 'https://us.battle.net/oauth/userinfo'
   }
-  Axios.post(tokenURL, querystring.stringify({
+  const response = await axios.post(tokenURL, querystring.stringify({
     redirect_uri: req.headers.origin + '/auth/battlenet',
     scope: 'wow.profile account.public',
     grant_type: 'authorization_code',
@@ -323,285 +277,241 @@ function battlenetAuth(req, res, region) {
       username: key,
       password: secret
     }
-  }).then(function (response) {
-    var authResponse = {}
-    Axios.get(userURL, {
-      headers: {
-        Authorization: 'Bearer ' + response.data.access_token
-      }
-    }).then((authRes) => {
-      if (authRes.data.id) {
-        authResponse.id = authRes.data.id
-        authResponse.name = authRes.data.battletag
-        oAuthLogin(req, res, battlenetField, authResponse, (user) => {
-          // get user name/id, then check each region until characters are found
-          async.parallel({
-            us: function getUS(callback) {
-              if (region === 'global') {
-                getWoWProfile('us', response.data.access_token, callback)
-              }
-              else {
-                callback(null, [])
-              }
-            },
-            eu: function getEU(callback) {
-              if (region === 'global') {
-                getWoWProfile('eu', response.data.access_token, callback)
-              }
-              else {
-                callback(null, [])
-              }
-            },
-            tw: function getTW(callback) {
-              if (region === 'global') {
-                getWoWProfile('tw', response.data.access_token, callback)
-              }
-              else {
-                callback(null, [])
-              }
-            },
-            kr: function getKR(callback) {
-              if (region === 'global') {
-                getWoWProfile('kr', response.data.access_token, callback)
-              }
-              else {
-                callback(null, [])
-              }
-            },
-            cn: function getCN(callback) {
-              if (region === 'CN') {
-                getWoWProfile('cn', response.data.access_token, callback)
-              }
-              else {
-                callback(null, [])
-              }
-            }
-          }, (err, results) => {
-            if (err) {
-              user[battlenetField].updateStatus = 'Error: ' + err
-              user.save()
-            }
-            else if (results) {
-              var chars = []
-              var mostRecent = 0
-              var avatarURL = ''
-              Object.keys(results).forEach((region) => {
-                results[region].forEach((c) => {
-                  if (c.level >= 100) {
-                    chars.push({region: region, realm: c.realm, name: c.name, guild: c.guild, guildRealm: c.guildRealm })
-                    if (mostRecent < c.lastModified) {
-                      mostRecent = c.lastModified
-                      avatarURL = 'http://render-' + region + '.worldofwarcraft.com/character/' + c.thumbnail
-                    }
-                  }
-                })
-              })
-              if (chars.length > 0) {
-                image.avatarFromURL(avatarURL, user._id.toString(), battlenetField, (img) => {
-                  if (!img.error) {
-                    user[battlenetField].avatar = img
-                  }
-                  user[battlenetField].characters = chars
-                  user[battlenetField].updateStatus = 'done'
-                  user.account.verified_human = true
-                  user.save()
-                })
-              }
-              else {
-                user[battlenetField].updateStatus = 'Error: No characters found.'
-                user.save()
-              }
-            }
-          })
-        })
-      }
-      else {
-        logger.error({label: 'Failed battlenet user found', err: err.response})
-        return res.send(403, {error: 'no_account_found'})
-      }
-    }).catch((err) => {
-      logger.error({label: 'Failed battlenet user fetch', err: err.response})
-      return res.send(403, {error: 'no_account_found'})
-    })
-  }).catch((err) => {
-    logger.error({label: 'Failed battlenet auth', err: err.response})
-    return res.send(403, {error: 'no_account_found'})
   })
-}
-
-// Login through Discord
-function discordAuth(req, res) {
-  logger.info({label: 'Attempt login', service: 'discord'})
-
-  Axios.post('https://discordapp.com/api/oauth2/token', querystring.stringify({
-    code: req.body.code || req.query.code,
-    client_id: config.auth.discord.clientID,
-    client_secret: config.auth.discord.clientSecret,
-    redirect_uri: req.headers.origin + '/auth/discord',
-    grant_type: 'authorization_code'
-  }), {
+  const authResponse = await axios.get(userURL, {
     headers: {
-      "Content-Type": "application/x-www-form-urlencoded"
+      Authorization: 'Bearer ' + response.data.access_token
     }
-  }).then(function (response) {
-    Axios.get('https://discordapp.com/api/v6/users/@me', {
-      headers: {
-        Authorization: 'Bearer ' + response.data.access_token
-      }
-    }).then(function (authResponse) {
-      if (!authResponse.data.id) {
-        return res.send(403, {error: "invalid_discord"})
-      }
-
-      // success
-      oAuthLogin(req, res, 'discord', authResponse.data)
-    })
-  }).catch(function (err) {    
-    logger.error({label: 'Failed discord auth', err: err.response})
-    res.send(500, err)
   })
-}
-
-// Login through facebook
-function facebookAuth(req, res) {
-  logger.info({label: 'Attempt login', service: 'facebook'})
-
-  Axios.post('https://graph.facebook.com/v2.4/oauth/access_token', {
-    code: req.body.code || req.query.code,
-    client_id: config.auth.facebook.clientID,
-    client_secret: config.auth.facebook.clientSecret,
-    redirect_uri: req.headers.origin + '/auth/facebook',
-  }).then(function (response) {
-    var responseJson = response.data
-    Axios.get('https://graph.facebook.com/v2.5/me', {params: { access_token: responseJson.access_token }}).then(function (authResponse) {
-      if (!authResponse.data.id) {
-        return res.send(403, {error: "invalid_facebook"})
-      }
-
-      // success
-      oAuthLogin(req, res, 'facebook', authResponse.data)
-    })
-  }).catch(function (err) {    
-    logger.error({label: 'Failed facebook auth', err: err.response})
-    res.send(500, err)
-  })
-}
-
-// Login through Google
-function googleAuth(req, res) {
-  logger.info({label: 'Attempt login', service: 'google'})
-
-  Axios.post('https://www.googleapis.com/oauth2/v4/token', querystring.stringify({
-    code: req.body.code || req.query.code,
-    client_id: config.auth.google.clientID,
-    client_secret: config.auth.google.clientSecret,
-    redirect_uri: req.headers.origin + '/auth/google',
-    grant_type: 'authorization_code'
-  }), {
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded"
+  if (authResponse && authResponse.data.id) {
+    var auth = {
+      id: authResponse.data.id,
+      name: authResponse.data.name
     }
-  }).then((response) => {
-    if (response.data && response.data.id_token){
-      var profile = jwt.decode(response.data.id_token)
-      oAuthLogin(req, res, 'google', profile)
-    }
-    else {
-      res.send(500, {error: 'invalid token'})
-    }
-  }).catch(function (err) {
-    logger.error({label: 'Failed google auth', err: err.response})
-    res.send(500, err)
-  })
-}
-
-// Login through Patreon
-function patreonAuth(req, res) {
-  logger.info({label: 'Attempt login', service: 'patreon'})
-
-  Axios.post('https://api.patreon.com/oauth2/token', querystring.stringify({
-    code: req.query.code,
-    client_id: config.auth.patreon.clientID,
-    client_secret: config.auth.patreon.clientSecret,
-    redirect_uri:  req.headers.origin + '/auth/patreon',
-    grant_type: 'authorization_code'
-  }), {
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded"
-    }
-  }).then((response) => {
-    if (response.data.access_token) {
-      Axios.get('https://api.patreon.com/oauth2/api/current_user', {
-        headers: {
-          Authorization: 'Bearer ' + response.data.access_token
+    // get user and return, then fetch characters. Browser checks updateStatus until update is complete.
+    oAuthLogin(req, res, battlenetField, auth, async (user) => {
+      if (region === 'global') {
+        var profiles = {}
+        try {
+          profiles.us = await getWoWProfile('us', response.data.access_token)
+          profiles.us = profiles.us.data.characters
         }
-      })
-      .then((userResponse) => {
-        oAuthLogin(req, res, 'patreon', userResponse.data)
-      })
-      .catch(function (err) {
-        res.send(500, err)
-      })
-    }    
-  }).catch(function (err) {
-    logger.error({label: 'Failed patreon auth', err: err.response})
-    res.send(500, err)
-  })
-}
+        catch (e) {
+          profiles.us = []
+        }
+        try {
+          profiles.eu = await getWoWProfile('eu', response.data.access_token)
+          profiles.eu = profiles.eu.data.characters
+        }
+        catch (e) {
+          profiles.eu = []
+        }
+        try {
+          profiles.kr = await getWoWProfile('kr', response.data.access_token)
+          profiles.kr = profiles.kr.data.characters
+        }
+        catch (e) {
+          profiles.kr = []
+        }
+        try {
+          profiles.tw = await getWoWProfile('tw', response.data.access_token)
+          profiles.tw = profiles.tw.data.characters
+        }
+        catch (e) {
+          profiles.tw = []
+        }
+        profiles.cn = []
+      }
+      else if (region === 'CN') {
+        var profiles = {us: [], eu: [], kr: [], tw: []}
+        try {
+          profiles.cn = await getWoWProfile('cn', response.data.access_token)
+          profiles.cn = profiles.cn.data.characters
+        }
+        catch (e) {
+          profiles.cn = []
+        }
+      }
 
-// Login through Twitter
-var Twitter = require("node-twitter-api")
-global.twitterRequestSecrets = {}
-function twitterAuth(req, res) {
-  logger.info({label: 'Attempt login', service: 'twitter'})
-
-  var twitter = new Twitter({
-    consumerKey: config.auth.twitter.clientID,
-    consumerSecret: config.auth.twitter.clientSecret,
-    callback: req.headers.origin + '/auth/twitter',
-  })
-  if (!req.body.oauth_token) {
-    twitter.getRequestToken(function(err, requestToken, requestSecret) {
-      if (err) {
-        logger.error({label: 'Twitter token error', err: err})
-        res.status(500).send(err);
-      }
-      else {
-        twitterRequestSecrets[requestToken] = requestSecret;
-        res.send({requestToken: requestToken})
-        // delete from memory and invalidate this req token after 1 minute
-        setTimeout(function () {
-          delete twitterRequestSecrets[requestToken]
-        }, 60000)
-      }
-    })
-  }
-  else if (req.body.oauth_token && twitterRequestSecrets[req.body.oauth_token]) {
-    twitter.getAccessToken(req.body.oauth_token, twitterRequestSecrets[req.body.oauth_token], req.body.oauth_verifier, function(err, accessToken, accessSecret) {
-      if (err) {
-        res.status(500).send(err)
-      }
-      else {
-        twitter.verifyCredentials(accessToken, accessSecret, function(err, user) {
-          if (err) {
-            res.status(500).send(err);
-          }
-          else {
-            oAuthLogin(req, res, 'twitter', user)
+      var chars = []
+      var mostRecent = 0
+      var avatarURL = ''
+      Object.keys(profiles).forEach((region) => {
+        if (!profiles[region] || !profiles[region].length) {
+          return
+        }
+        profiles[region].forEach((c) => {
+          if (c.level >= 110) {
+            chars.push({region: region, realm: c.realm, name: c.name, guild: c.guild, guildRealm: c.guildRealm })
+            if (mostRecent < c.lastModified) {
+              mostRecent = c.lastModified
+              avatarURL = 'http://render-' + region + '.worldofwarcraft.com/character/' + c.thumbnail
+            }
           }
         })
+      })
+      if (chars.length > 0) {
+        const img = await image.avatarFromURL(avatarURL, user._id.toString(), battlenetField)
+        if (!img.error) {
+          user[battlenetField].avatar = img
+        }
+        user[battlenetField].characters = chars
+        user[battlenetField].updateStatus = 'done'
+        user.account.verified_human = true
+        user.save()
       }
+      else {
+        user[battlenetField].updateStatus = 'Error: No characters found.'
+        user.save()
+      }       
     })
   }
   else {
-    res.send({error: 'invalid_token'})
+    return res.code(403).send({error: 'Unable to auth with Blizzard'})
   }
 }
 
-function oAuthLogin(req, res, provider, authUser, callback) {
-  // oAuth JSON profile assumed good at this point, log user in, register social login to existing user, or register as new user
-  logger.info({label: 'Successful login', service: provider})
+// Login through Discord
+async function discordAuth(req, res) {
+  try {
+    const response = axios.post('https://discordapp.com/api/oauth2/token', querystring.stringify({
+      code: req.body.code || req.query.code,
+      client_id: config.auth.discord.clientID,
+      client_secret: config.auth.discord.clientSecret,
+      redirect_uri: req.headers.origin + '/auth/discord',
+      grant_type: 'authorization_code'
+    }), {
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded"
+      }
+    })
+    const authResponse = await axios.get('https://discordapp.com/api/v6/users/@me', {
+      headers: {
+        Authorization: 'Bearer ' + response.data.access_token
+      }
+    })
+    if (!authResponse.data.id) {
+      throw 'invalid'
+    }
+    oAuthLogin(req, res, 'discord', authResponse.data)
+  }
+  catch (e) {
+    req.trackError(e, 'Failed Discord Auth')
+    return res.code(403).send({error: 'Unable to auth with Discord'})
+  }
+}
 
+// Login through facebook
+async function facebookAuth(req, res) {
+  try {
+    const response = await axios.post('https://graph.facebook.com/v2.4/oauth/access_token', {
+      code: req.body.code || req.query.code,
+      client_id: config.auth.facebook.clientID,
+      client_secret: config.auth.facebook.clientSecret,
+      redirect_uri: req.headers.origin + '/auth/facebook',
+    })
+    const authResponse = await axios.get('https://graph.facebook.com/v2.5/me', {params: { access_token: response.data.access_token }})
+    if (!authResponse.data.id) {
+      throw 'invalid'
+    }
+    oAuthLogin(req, res, 'facebook', authResponse.data)
+  }
+  catch (e) {
+    req.trackError(e, 'Failed Facebook Auth')
+    return res.code(403).send({error: 'Unable to auth with Facebook'})
+  }
+}
+
+// Login through Google
+async function googleAuth(req, res) {
+  try {
+    const response = await axios.post('https://www.googleapis.com/oauth2/v4/token', querystring.stringify({
+      code: req.body.code || req.query.code,
+      client_id: config.auth.google.clientID,
+      client_secret: config.auth.google.clientSecret,
+      redirect_uri: req.headers.origin + '/auth/google',
+      grant_type: 'authorization_code'
+    }), {
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded"
+      }
+    })
+    if (!authResponse.data.id_token) {
+      throw 'invalid'
+    }
+    var profile = jwt.decode(response.data.id_token)
+    oAuthLogin(req, res, 'google', profile)
+  }
+  catch (e) {
+    req.trackError(e, 'Failed Google Auth')
+    return res.code(403).send({error: 'Unable to auth with Google'})
+  }
+}
+
+// Login through Patreon
+async function patreonAuth(req, res) {
+  try {
+    const response = await axios.post('https://api.patreon.com/oauth2/token', querystring.stringify({
+      code: req.query.code,
+      client_id: config.auth.patreon.clientID,
+      client_secret: config.auth.patreon.clientSecret,
+      redirect_uri:  req.headers.origin + '/auth/patreon',
+      grant_type: 'authorization_code'
+    }), {
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded"
+      }
+    })
+    const authResponse = await axios.get('https://api.patreon.com/oauth2/api/current_user', {
+      headers: {
+        Authorization: 'Bearer ' + response.data.access_token
+      }
+    })
+    if (!authResponse.data.id) {
+      throw invalid
+    }
+    oAuthLogin(req, res, 'patreon', authResponse.data)
+  }
+  catch (e) {
+    req.trackError(e, 'Failed Patreon Auth')
+    return res.code(403).send({error: 'Unable to auth with Patreon'})
+  }
+}
+
+// Login through Twitter
+const Twitter = require("twitter-lite") // because oauth 1a is a pain in the butt
+const twitter = new Twitter({
+  consumer_key: config.auth.twitter.clientID,
+  consumer_secret: config.auth.twitter.clientSecret,
+})
+global.twitterRequestSecrets = {}
+async function twitterAuth(req, res) {
+  try {
+    if (!req.body.oauth_token) {
+      const response = await twitter.getRequestToken(req.headers.origin + '/auth/twitter')
+      twitterRequestSecrets[response.oauth_token] = response.oauth_token_secret
+      res.send({requestToken: response.oauth_token})
+      // delete from memory and invalidate this req token after 1 minute
+      setTimeout(function () {
+        delete twitterRequestSecrets[response.oauth_token]
+      }, 60000)
+    }
+    else if (req.body.oauth_token && twitterRequestSecrets[req.body.oauth_token]) {
+      const authResponse = await twitter.getAccessToken({key: req.body.oauth_token, secret: twitterRequestSecrets[req.body.oauth_token], verifier: req.body.oauth_verifier})
+      if (!authResponse.user_id) {
+        throw 'invalid'
+      }
+      oAuthLogin(req, res, 'twitter', authResponse)
+    }
+  }
+  catch (e) {
+    req.trackError(e, 'Failed Twitter Auth')
+    return res.code(403).send({error: 'Unable to auth with Twitter'})
+  }
+}
+
+async function oAuthLogin(req, res, provider, authUser, callback) {
+  // oAuth JSON profile assumed good at this point, log user in, register social login to existing user, or register as new user
   var query
   var profile
   var newAcctName
@@ -684,146 +594,141 @@ function oAuthLogin(req, res, provider, authUser, callback) {
     break
 
   case 'twitter':
-    query = {"twitter.id": authUser.id_str}
+    query = {"twitter.id": authUser.user_id}
     profile = {
-      id: authUser.id_str,
+      id: authUser.user_id,
       name: '@' + authUser.screen_name,
     }
     newAcctName = authUser.screen_name
     avatarURL = authUser.profile_image_url_https
   break
-
   }
-  // if valid login
-  User.findOne(query).then((oauthUser) => {
-    // if already logged in and oauth matches
-    if (req.user && ((oauthUser && req.user._id.equals(oauthUser._id)))) {
-      image.avatarFromURL(avatarURL, req.user._id.toString(), provider, (img) => {
-        if (!img.error) {
-          profile.avatar = img
-        }
 
-        // update profile
-        if (oauthUser[provider] && oauthUser[provider].options) {
-          profile.options = oauthUser[provider].options
-        }
-        if (oauthUser[provider] && oauthUser[provider].webhooks) {
-          profile.webhooks = oauthUser[provider].webhooks
-        }
-        req.user[provider] = profile
-        // if human detected then set verified flag
-        if (humanDetected) {
-          req.user.account.verified_human = true
-        }
-        if (paid>=100) {
-          req.user.roles.subscriber = true
-        }
-        if (paid>=400) {
-          req.user.roles.gold_subscriber = true
-        }
-        req.user.save().then((user) => {
-          var who = {}
-          who.UID = user._id
-          if (callback) {
-            callback(user)
-          }
-          return makeSession(req, res, who, user)
-        })
-      })       
+  var oauthUser = await User.findOne(query)
+  // if already logged in and oauth matches
+  if (req.user && ((oauthUser && req.user._id.equals(oauthUser._id)))) {
+    var img = await image.avatarFromURL(avatarURL, oauthUser._id.toString(), provider)
+    if (!img.error) {
+      profile.avatar = img
     }
 
-    // if not registered then create a new account
-    else if (!oauthUser) {
-      var user
-      if (req.user) {
-        user = req.user
-      } 
-      else {
-        user = new User()
+    // update profile
+    if (oauthUser[provider] && oauthUser[provider].options) {
+      profile.options = oauthUser[provider].options
+    }
+    if (oauthUser[provider] && oauthUser[provider].webhooks) {
+      profile.webhooks = oauthUser[provider].webhooks
+    }
+    req.user[provider] = profile
+    // if human detected then set verified flag
+    if (humanDetected) {
+      req.user.account.verified_human = true
+    }
+    if (paid>=100) {
+      req.user.roles.subscriber = true
+    }
+    if (paid>=400) {
+      req.user.roles.gold_subscriber = true
+    }
+    makeSession(req, res, {UID: req.user._id}, req.user)
+    await req.user.save()
+    if (callback) {
+      callback(req.user)
+    }
+    return 
+  }
+
+  // if not registered then create a new account
+  else if (!oauthUser) {
+    var user
+    if (req.user) {
+      user = req.user
+    } 
+    else {
+      user = new User()
+    }
+    var img = await image.avatarFromURL(avatarURL, oauthUser._id.toString(), provider)
+    if (!img.error) {
+      profile.avatar = img
+    }
+    user[provider] = profile
+    if (humanDetected) {
+      user.account.verified_human = true
+    }
+    if (paid>=100) {
+      user.roles.subscriber = true
+    }
+    if (paid>=400) {
+      user.roles.gold_subscriber = true
+    }
+
+    // if user exists but this is a new oauth then save it
+    if (req.user) {
+      makeSession(req, res, {UID: user._id}, user)
+      await user.save()
+      if (callback) {
+        callback(user)
       }
-      image.avatarFromURL(avatarURL, user._id.toString(), provider, (img) => {
-        if (!img.error) {
-          profile.avatar = img
-        }
-        user[provider] = profile
-        if (humanDetected) {
-          user.account.verified_human = true
-        }
-        if (paid>=100) {
-          user.roles.subscriber = true
-        }
-        if (paid>=400) {
-          user.roles.gold_subscriber = true
-        }
-
-        // if user exists but this is a new oauth then save it
-        if (req.user) {
-          user.save().then((newuser) => {
-            var who = {}
-            who.UID = newuser._id
-            if (callback) {
-              callback(newuser)
-            }
-            return makeSession(req, res, who, newuser)
-          })
-        }
-        else {
-          // if brand new user, check if we can use the username
-          User.findByUsername(newAcctName).then((testUser) => {
-            // if username exists then assign unique name
-            if (testUser) {
-              user.account.username = newAcctName + user._id.toString()
-            }
-            else {
-              user.account.username = newAcctName
-            }
-            user.search.username = user.account.username.toLowerCase()
-
-            user.save().then((newuser) => {
-              var who = {}
-              who.UID = newuser._id
-              if (callback) {
-                callback(newuser)
-              }
-              return makeSession(req, res, who, newuser)
-            })
-          })
-        }
-      })
+      return 
     }
+    else {
+      // if brand new user, check if we can use the username
+      const exists = await User.findByUsername(newAcctName)
+      // if username exists then assign unique name
+      if (exists) {
+        user.account.username = newAcctName + user._id.toString()
+      }
+      else {
+        user.account.username = newAcctName
+      }
+      user.search.username = user.account.username.toLowerCase()
 
-    // if oauth is registered in wago then update profile and log user in
-    else if (oauthUser) {
-      image.avatarFromURL(avatarURL, oauthUser._id.toString(), provider, (img) => {
-        if (!img.error) {
-          profile.avatar = img
-        }
-        var who = {}
-        who.UID = oauthUser._id
-        // update profile
-        if (oauthUser[provider] && oauthUser[provider].options) {
-          profile.options = oauthUser[provider].options
-        }
-        if (oauthUser[provider] && oauthUser[provider].webhooks) {
-          profile.webhooks = oauthUser[provider].webhooks
-        }
-        oauthUser[provider] = profile
-
-        oauthUser.save().then((user) => {
-          var who = {}
-          who.UID = user._id
-          if (callback) {
-            callback(user)
-          }
-          return makeSession(req, res, who, user)
-        })
-      })
+      makeSession(req, res, {UID: user._id}, user)
+      await user.save()
+      if (callback) {
+        callback(user)
+      }
+      return 
     }
-  })
+  }
+
+  // if oauth is registered in wago then update profile and log user in
+  else if (oauthUser) {
+    var img = await image.avatarFromURL(avatarURL, oauthUser._id.toString(), provider)
+    if (!img.error) {
+      profile.avatar = img
+    }
+    var who = {}
+    who.UID = oauthUser._id
+    // update profile
+    if (oauthUser[provider] && oauthUser[provider].options) {
+      profile.options = oauthUser[provider].options
+    }
+    if (oauthUser[provider] && oauthUser[provider].webhooks) {
+      profile.webhooks = oauthUser[provider].webhooks
+    }
+    if (humanDetected) {
+      user.account.verified_human = true
+    }
+    if (paid>=100) {
+      user.roles.subscriber = true
+    }
+    if (paid>=400) {
+      user.roles.gold_subscriber = true
+    }
+    oauthUser[provider] = profile
+
+    makeSession(req, res, who, oauthUser)
+    await oauthUser.save()
+    if (callback) {
+      callback(oauthUser)
+    }
+    return 
+  }
 }
 
 
-function getWoWProfile(region, token, callback) {
+async function getWoWProfile(region, token) {
   var url
   switch (region) {
     case 'us':
@@ -842,15 +747,12 @@ function getWoWProfile(region, token, callback) {
       url = 'https://gateway.battlenet.com.cn/wow/user/characters'
       break
     default:
-      logger.error({label: 'Unknown battlenet auth region', region: region})
-      return callback(null)
+      throw ('Unknown battlenet auth region ' + region)
   }
-  
-  Axios.get(url, { headers: { Authorization: 'Bearer ' + token } })
-    .then((charRes) => {
-      callback(null, charRes.data.characters)
-    })
-    .catch((err) => {
-      callback(err.message)
-    })
+  try {
+    return axios.get(url, { headers: { Authorization: 'Bearer ' + token } })
+  }
+  catch (e) {
+    req.trackError(e, 'BNET PROFILE')
+  }
 }

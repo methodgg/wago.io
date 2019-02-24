@@ -26,59 +26,51 @@ Schema.index({json: 'text', lua: 'text'})
  * Statics
  */
 // Find selected code version, or latest if not supplied
-Schema.statics.lookup = function(id, version) {
-  return new Promise((resolve, reject) => {
-    var find
+Schema.statics.lookup = async function(id, version) {
+  try {
+    var doc
     if (version && typeof version === 'string' && version.match(/\d+\.\d+\.\d+/)) {
-      find = this.findOne({auraID: id, versionString: version})
+      doc = await this.findOne({auraID: id, versionString: version}).exec()
     }
     else if (version && parseInt(version) == version && version > 0) {
-      find = this.findOne({auraID: id}).sort({updated: 1}).skip(parseInt(version) - 1)
+      doc = await this.findOne({auraID: id}).sort({updated: 1}).skip(parseInt(version) - 1).exec()
     }    
     else {
-      find = this.findOne({auraID: id}).sort({updated: -1})
+      doc = await this.findOne({auraID: id}).sort({updated: -1}).exec()
     }
-    find.then((doc) => {
-      if (!doc) {
-        return reject({err: 'No code found'})
-      }
-      if ((!doc.versionString || !doc.version || (version && doc.version > version)) || (!doc.version && !version)) {
-        // missing version numbers here, so add them in for all versions
-        WagoCode.find({auraID: id}).sort({updated: 1}).then((versions) => {
-          async.forEachOf(versions, (codeVersion, i, cb) => {
-            i++
-            if (codeVersion.version && codeVersion.versionString) {
-              return cb()
-            }
-            else if (!codeVersion.versionString && i == versions.length) {
-              codeVersion.versionString = '1.0.0'
-            }
-            else if (!codeVersion.versionString) {
-              codeVersion.versionString = '0.0.' + i
-            }
-            codeVersion.version = i            
-            codeVersion.save().then(() => {
-              if ((!version && i === versions.length) || i === version) {
-                doc.versionString = codeVersion.versionString
-                doc.version = codeVersion.version
-                doc.save().then(() => {
-                  resolve(doc)
-                })
-              }
-              cb()
-            })
-          }, () => {
-            resolve(doc)
-          })
-        })
-      }
-      else {
-        resolve(doc)
-      }
-    }).catch((e) => {
-      logger.error(e)
-    })
-  })
+    if (!doc) {
+      return {err: 'No code found'}
+    }
+    if ((!doc.versionString || !doc.version || (version && doc.version > version)) || (!doc.version && !version)) {
+      // missing version numbers here, so repopulate them in for all versions
+      var versions = WagoCode.find({auraID: id}).sort({updated: 1}).exec()
+      await async.forEachOf(versions, async (codeVersion, i, cb) => {
+        i++
+        if (codeVersion.version && codeVersion.versionString) {
+          return cb()
+        }
+        else if (!codeVersion.versionString && i == versions.length) {
+          codeVersion.versionString = '1.0.0'
+        }
+        else if (!codeVersion.versionString) {
+          codeVersion.versionString = '0.0.' + i
+        }
+        codeVersion.version = i            
+        codeVersion.save()
+        
+        if ((!version && i === versions.length) || i === version) {
+          doc.versionString = codeVersion.versionString
+          doc.version = codeVersion.version
+          doc.save()
+        }
+      })
+    }
+    return doc
+  }
+  catch (e) {
+    console.error(e.message)
+    return {}
+  }
 }
 
 
