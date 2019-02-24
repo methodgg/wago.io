@@ -48,7 +48,7 @@ module.exports = function (data) {
   if (!trackProp.url) {
     trackProp.url = 'https://wago-missing-url/'
   }
-  if (this.req.raw.url.match(/^\/api\//)) {
+  if (this.req && this.req.raw && this.req.raw.url.match(/^\/api\//)) {
     matomoAPI.track(trackProp)
   }
   else {
