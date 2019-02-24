@@ -639,7 +639,7 @@ async function oAuthLogin(req, res, provider, authUser, callback) {
   }
 
   // if not registered then create a new account
-  else if (!oauthUser) {
+  else if (!oauthUser && (req.user || newAcctName)) {
     var user
     if (req.user) {
       user = req.user
@@ -724,6 +724,9 @@ async function oAuthLogin(req, res, provider, authUser, callback) {
       callback(oauthUser)
     }
     return 
+  }
+  else {
+    return res.send({err: 'Invalid input'})
   }
 }
 

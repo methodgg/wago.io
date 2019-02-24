@@ -24,6 +24,7 @@ module.exports = function (fastify, opts, next) {
 
     // set constants
     var resultsPerPage = 20 // TODO: make this a global config
+    var updateUser = false
 
     // setup return object
     var Search = {}
@@ -68,7 +69,7 @@ module.exports = function (fastify, opts, next) {
       // if user is logged in and sort is different from their current config, then update default config
       if (req.user && req.user.config.searchOptions.sort != match[1]) {
         req.user.config.searchOptions.sort = match[1]
-        req.user.save()
+        updateUser = true
       }
     }
 
@@ -104,7 +105,7 @@ module.exports = function (fastify, opts, next) {
         // if user is logged in and relevance is different from their current config, then update config
         if (req.user && req.user.config.searchOptions.relevance != match[1]) {
           req.user.config.searchOptions.relevance = match[1]
-          req.user.save()
+          updateUser = true
         }
       }
       else {
@@ -113,7 +114,7 @@ module.exports = function (fastify, opts, next) {
         esSort.unshift('relevancy.standard')
         if (req.user && req.user.config.searchOptions.relevance !== 'standard') {
           req.user.config.searchOptions.relevance = 'standard'
-          req.user.save()
+          updateUser = true
         }
       }
     }
@@ -140,8 +141,8 @@ module.exports = function (fastify, opts, next) {
 
       // if user is logged in and expansion is different from their current config, then update config
       if (req.user && req.user.config.searchOptions.expansion != match[1]) {
-        req.user.config.searchOptions.expansion = match[1]
-        req.user.save()
+        req.user.config.searchOptions.expansion = match[1]        
+        updateUser = true
       }
     }
 
@@ -365,6 +366,11 @@ module.exports = function (fastify, opts, next) {
           }
         })
       }
+    }
+
+    // if we changed any default search settings
+    if (updateUser && req.user) {
+      req.user.save()
     }
 
     // check for actual search terms and protect against regex attacks
