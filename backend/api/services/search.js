@@ -112,7 +112,7 @@ module.exports = function (fastify, opts, next) {
         sort = 'relevancy.standard ' + sort
         esSort.unshift('relevancy.standard')
         if (req.user && req.user.config.searchOptions.relevance !== 'standard') {
-          req.user.config.searchOptions.relevance = match[1]
+          req.user.config.searchOptions.relevance = 'standard'
           req.user.save()
         }
       }
