@@ -172,9 +172,6 @@ module.exports = function (fastify, opts, next) {
       wago.collectionCount = 0
       wago.collections = []
       wago.myCollections = []
-      if (!doc.collect || !doc.collect.length) {
-        return
-      }
       if (req.user) {
         search = WagoItem.find({type: 'COLLECTION', collect: doc._id, deleted: false, "$or": [{ '_userId': req.user._id || null }, { private: false, hidden: false }]})
         count = WagoItem.countDocuments({type: 'COLLECTION', collect: doc._id, deleted: false, "$or": [{ '_userId': req.user._id || null }, { private: false, hidden: false }]})
