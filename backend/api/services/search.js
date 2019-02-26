@@ -22,7 +22,6 @@ module.exports = function (fastify, opts, next) {
     if (!sort) {
       sort = 'bestmatch'
     }
-    console.log('init sort', sort)
     // default expansion filter
     var expansion
     if (req.user && req.user.config.searchOptions.expansion) {
@@ -114,7 +113,6 @@ module.exports = function (fastify, opts, next) {
       // if strict relevance
       else if (relevance === 'strict') {
         // strict score sorts by total number of categories with secondary sorting on number of root categories
-        query = query.replace(match[0], '').replace(/\s{2,}/, ' ').trim()
         esSort.unshift('relevancy.standard')
         esSort.unshift('relevancy.strict')
       }
@@ -126,7 +124,7 @@ module.exports = function (fastify, opts, next) {
       }
 
       // if user is logged in and relevance is different from their current config, then update config
-      if (req.user && req.user.config.searchOptions.relevance != match[1]) {
+      if (req.user && req.user.config.searchOptions.relevance != relevance) {
         req.user.config.searchOptions.relevance = relevance
         updateUser = true
       }

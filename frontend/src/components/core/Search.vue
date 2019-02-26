@@ -229,7 +229,6 @@ export default {
       })
     },
     setSort: function (val) {
-      console.log('set sort', val, this.sortVal)
       if (val !== this.sortVal) {
         this.sortVal = val
         this.uiSearchValue = true

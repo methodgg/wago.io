@@ -69,7 +69,7 @@ async function makeDiffs (compareA, compareB) {
     }
     var fileA = await makeTmpFile(compareA[key])
     var fileB = await makeTmpFile(compareB[key])
-    let diff = await exec(`git diff --no-index --color=never ${fileA} ${fileB}`)
+    let diff = await exec(`git diff --no-index --color=never ${fileB} ${fileA}`)
     if (diff && diff.stdout) {
       diff = diff.stdout.split(/\n/g).slice(4).join('\n')
       diffs.push(`--- a/${key}\n+++ b/${key}\n${diff}`)
