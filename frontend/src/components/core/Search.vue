@@ -128,73 +128,23 @@ export default {
       this.isSearching = true
 
       // check if sort value needs to be added to query
-      var sort = opt.match(/sort:\s?(-?\w+)/i)
-      if (sort && sort[1] && !this.uiSearchValue) {
-        sort[1] = sort[1].toLowerCase()
-        if (sort[1] === 'date' || sort[1] === 'date' || sort[1] === 'stars' || sort[1] === 'stars' || sort[1] === 'views' || sort[1] === 'views' || sort[1] === 'bestmatch') {
-          this.sortVal = sort[1]
-          opt = opt.replace(/sort:\s?(-?\w+)/i, 'Sort: ' + this.sortVal)
-        }
-        else {
-          this.sortVal = 'standard'
-          opt = opt.replace(/sort:\s?(-?\w+)/i, 'Sort: ' + this.sortVal)
-        }
+      if (this.uiSearchValue) {
+        opt = opt + ' Sort: ' + this.sortVal
       }
-      else {
-        if (!this.sortVal) {
-          this.sortVal = 'bestmatch'
-        }
-        opt = opt.replace(/sort:\s?(-?\w+)/i, '')
-        opt = opt.trim() + ' sort: ' + this.sortVal
-      }
-      this.uiSearchValue = false
 
-      var expansion = opt.match(/expansion:\s?(\w+)/i)
-      if (expansion && expansion[1] && !this.uiExpansionValue) {
-        expansion[1] = expansion[1].toLowerCase()
-        if (expansion[1] === 'legion' || expansion[1] === 'bfa') {
-          this.filterExpansion = expansion[1]
-          opt = opt.replace(/expansion:\s?(-?\w+)/i, 'Expansion: ' + this.filterExpansion)
-        }
-        else {
-          this.filterExpansion = ''
-          opt = opt.replace(/expansion:\s?(-?\w+)/i, 'Expansion: ' + this.filterExpansion)
-        }
+      if (this.uiExpansionValue) {
+        opt = opt + ' Expansion: ' + this.filterExpansion
       }
-      else {
-        opt = opt.replace(/expansion:\s?(\w+)/i, '')
-        if (this.filterExpansion !== '') {
-          opt = opt.trim() + ' Expansion: ' + this.filterExpansion
-        }
-      }
-      this.uiExpansionValue = false
-
-      this.searchOptions = opt.trim() + ' '
 
       // check if we're searching for any localized tags
       const regex = /\btag:\s*"([^"]+)"|\btag:\s*([^\s]+)/ig
       var tagSearch = query.match(regex)
       if (tagSearch && tagSearch.length > 0) {
         // check for relevance if tags are found
-        var relevance = opt.match(/relevance:\s?(\w+)/i)
-        if (relevance && relevance[1] && !this.uiRelevanceValue) {
-          relevance[1] = relevance[1].toLowerCase()
-          if (relevance[1] === 'strict' || relevance[1] === 'relaxed') {
-            this.catRelevance = relevance[1]
-            opt = opt.replace(/relevance:\s?(-?\w+)/i, 'Relevance: ' + this.catRelevance)
-          }
-          else {
-            this.catRelevance = 'standard'
-            opt = opt.replace(/relevance:\s?(-?\w+)/i, 'Relevance: ' + this.catRelevance)
-          }
+        if (this.uiRelevanceValue) {
+          opt = opt + ' Relevance: ' + this.catRelevance
         }
-        else {
-          opt = opt.replace(/relevance:\s?(\w+)/i, '')
-          if (this.catRelevance !== 'standard') {
-            opt = opt.trim() + ' Relevance: ' + this.catRelevance
-          }
-        }
-        this.uiRelevanceValue = false
+
         this.tagContext = []
         this.tagMap = {}
         tagSearch.forEach((tagQuery) => {
@@ -236,6 +186,7 @@ export default {
         })
       }
 
+      this.searchOptions = opt.trim() + ' '
       this.$refs.searchInput.$el.focus()
 
       var vue = this
@@ -248,6 +199,16 @@ export default {
               return Categories.match(cat, vue.$t)
             })
           }
+        }
+
+        if (res.query.sort) {
+          vue.sortVal = res.query.sort
+        }
+        if (res.query.expansion) {
+          vue.filterExpansion = res.query.expansion
+        }
+        if (res.query.relevance) {
+          vue.catRelevance = res.query.relevance
         }
 
         vue.$set(vue.results, 'total', res.total)
@@ -268,6 +229,7 @@ export default {
       })
     },
     setSort: function (val) {
+      console.log('set sort', val, this.sortVal)
       if (val !== this.sortVal) {
         this.sortVal = val
         this.uiSearchValue = true

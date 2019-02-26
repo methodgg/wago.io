@@ -14,7 +14,32 @@ module.exports = function (fastify, opts, next) {
   fastify.get('/', async (req, res, skipSearch) => {
     // get input
     var query = req.query.q || req.body.q || ""
-    var sort = req.query.sort || req.body.sort || 'elastic'
+    var sort = req.query.sort || req.body.sort || false
+    // default sort order
+    if (!sort && req.user && req.user.config.searchOptions.sort) {
+      sort = req.user.config.searchOptions.sort
+    }
+    if (!sort) {
+      sort = 'bestmatch'
+    }
+    console.log('init sort', sort)
+    // default expansion filter
+    var expansion
+    if (req.user && req.user.config.searchOptions.expansion) {
+      expansion = req.user.config.searchOptions.expansion
+    }
+    else {
+      expansion = 'bfa'
+    }
+    // default tag relevance
+    var relevance
+    if (req.user && req.user.config.searchOptions.relevance) {
+      relevance = req.user.config.searchOptions.relevance
+    }
+    else {
+      relevance = 'standard'
+    }
+    
     var page = parseInt(req.query.page || req.body.page || 0)
     var esFilter = []
     var esSort = ['_score']
@@ -30,7 +55,6 @@ module.exports = function (fastify, opts, next) {
     var Search = {}
     Search.query = {}
     Search.query.q = query
-    Search.query.sort = sort
     Search.query.page = page
     Search.query.context = []
 
@@ -41,36 +65,33 @@ module.exports = function (fastify, opts, next) {
 
     // if search includes 'sort: mode'
     match = /\bsort:\s*"?(date|stars|views|bestmatch)"?/i.exec(query)
-    if (match.length) {
+    if (match && match.length) {
       query = query.replace(match[0], '').replace(/\s{2,}/, ' ').trim()
-      match[1] = match[1].toLowerCase()
+      sort = match[1].toLowerCase()
+    }    
+    Search.query.sort = sort
 
-      if (match[1] === 'date') {
-        sort = '-modified'
-        esSort.unshift({modified: 'desc'})
-      }
-      else if (match[1] === 'stars') {
-        sort = '-popularity.favorite_count'
-        esSort.unshift({'popularity.favorite_count': 'desc'})
-      }
-      else if (match[1] === 'views') {
-        sort = '-popularity.views'
-        esSort.unshift({'popularity.views': 'desc'})
-      }
-      else if (match[1] === 'popular') {
-        sort = '-popularity.viewsThisWeek'
-        esSort.unshift({'popularity.viewsThisWeek': 'desc'})
-      }
-      else if (match[1] === 'bestmatch') {
-        esSort.push({'popularity.viewsThisWeek': 'desc'})
-        esSort.push({modified: 'desc'})
-      }
+    if (sort === 'date') {
+      esSort.unshift({modified: 'desc'})
+    }
+    else if (sort === 'stars') {
+      esSort.unshift({'popularity.favorite_count': 'desc'})
+    }
+    else if (sort === 'views') {
+      esSort.unshift({'popularity.views': 'desc'})
+    }
+    else if (sort === 'popular') {
+      esSort.unshift({'popularity.viewsThisWeek': 'desc'})
+    }
+    else if (sort === 'bestmatch') {
+      esSort.push({'popularity.viewsThisWeek': 'desc'})
+      esSort.push({modified: 'desc'})
+    }
 
-      // if user is logged in and sort is different from their current config, then update default config
-      if (req.user && req.user.config.searchOptions.sort != match[1]) {
-        req.user.config.searchOptions.sort = match[1]
-        updateUser = true
-      }
+    // if user is logged in and sort is different from their current config, then update default config
+    if (req.user && req.user.config.searchOptions.sort != sort) {
+      req.user.config.searchOptions.sort = sort
+      updateUser = true
     }
 
     // if tags are included, check for relevancy search option to sort by relevancy scores
@@ -81,41 +102,33 @@ module.exports = function (fastify, opts, next) {
       match = /\brelevance:\s*"?(relaxed|strict|standard)"?/i.exec(query)
       if (match) {
         query = query.replace(match[0], '').replace(/\s{2,}/, ' ').trim()
-        // if relaxed relevance
-        if (match[1] === 'relaxed') {
-          // no filters
-        }
-
-        // if strict relevance
-        else if (match[1] === 'strict') {
-          // strict score sorts by total number of categories with secondary sorting on number of root categories
-          sort = 'relevancy.strict relevancy.standard ' + sort
-          query = query.replace(match[0], '').replace(/\s{2,}/, ' ').trim()
-          esSort.unshift('relevancy.standard')
-          esSort.unshift('relevancy.strict')
-        }
-
-        // standard 
-        else {
-          // standard score sorts by number of root categories
-          sort = 'relevancy.standard ' + sort
-          esSort.unshift('relevancy.standard')
-        }
-
-        // if user is logged in and relevance is different from their current config, then update config
-        if (req.user && req.user.config.searchOptions.relevance != match[1]) {
-          req.user.config.searchOptions.relevance = match[1]
-          updateUser = true
-        }
+        relevance = match[1]
       }
-      else {
-        // default to standard
-        sort = 'relevancy.standard ' + sort
+      Search.query.relevance = relevance
+
+      // if relaxed relevance
+      if (relevance === 'relaxed') {
+        // no filters
+      }
+
+      // if strict relevance
+      else if (relevance === 'strict') {
+        // strict score sorts by total number of categories with secondary sorting on number of root categories
+        query = query.replace(match[0], '').replace(/\s{2,}/, ' ').trim()
         esSort.unshift('relevancy.standard')
-        if (req.user && req.user.config.searchOptions.relevance !== 'standard') {
-          req.user.config.searchOptions.relevance = 'standard'
-          updateUser = true
-        }
+        esSort.unshift('relevancy.strict')
+      }
+
+      // standard 
+      else if (relevance === 'standard') {
+        // standard score sorts by number of root categories
+        esSort.unshift('relevancy.standard')
+      }
+
+      // if user is logged in and relevance is different from their current config, then update config
+      if (req.user && req.user.config.searchOptions.relevance != match[1]) {
+        req.user.config.searchOptions.relevance = relevance
+        updateUser = true
       }
     }
 
@@ -123,27 +136,30 @@ module.exports = function (fastify, opts, next) {
     match = /expansion:\s*"?(all|legion|bfa)"?/i.exec(query)
     if (match) {
       query = query.replace(match[0], '').replace(/\s{2,}/, ' ').trim()
-      if (match[1] === 'legion') {
-        // less than bfa release date AND does not have bfa beta tag
-        esFilter.push({ bool: { must: {range: { modified: { lt: "2018-07-17" } } }, must_not: { term: { "categories.keyword": 'beta-bfa' } } } })
-      }
+      expansion = match[1]
+    }
+    Search.query.expansion = expansion
 
-      // if battle for azeroth
-      else if (match[1] === 'bfa') {  
-        // greater than bfa release date OR has bfa beta tag      
-        esFilter.push({ bool: { should: [{range: { modified: { gte: "2018-07-17" } } }, { term: { "categories.keyword": 'beta-bfa' } }] } })
-      }
+    if (expansion === 'legion') {
+      // less than bfa release date AND does not have bfa beta tag
+      esFilter.push({ bool: { must: {range: { modified: { lt: "2018-07-17" } } }, must_not: { term: { "categories.keyword": 'beta-bfa' } } } })
+    }
 
-      // if showing all expansions
-      else if (match[1] === 'all') {
-        // no filter
-      }
+    // if battle for azeroth
+    else if (expansion === 'bfa') {  
+      // greater than bfa release date OR has bfa beta tag      
+      esFilter.push({ bool: { should: [{range: { modified: { gte: "2018-07-17" } } }, { term: { "categories.keyword": 'beta-bfa' } }] } })
+    }
 
-      // if user is logged in and expansion is different from their current config, then update config
-      if (req.user && req.user.config.searchOptions.expansion != match[1]) {
-        req.user.config.searchOptions.expansion = match[1]        
-        updateUser = true
-      }
+    // if showing all expansions
+    else if (expansion === 'all') {
+      // no filter
+    }
+
+    // if user is logged in and expansion is different from their current config, then update config
+    if (req.user && req.user.config.searchOptions.expansion != expansion) {
+      req.user.config.searchOptions.expansion = expansion       
+      updateUser = true
     }
 
     // check for import type
