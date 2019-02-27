@@ -91,8 +91,7 @@
             <div class="md-title">{{ $t("[-count-] install", { count: wago.installCount }) }}</div>
           </div>
           <div class="item" style="float:right" v-if="enableCompanionBeta && wago.type === 'WEAKAURA' && wago.code && wago.code.encoded && !wago.code.alerts.blacklist">
-            <a v-if="showCompanionHelp" href="#" style="line-height:40px; margin-right:16px" @click="$router.push('/wa-companion')" @mouseover="setCompanionHelpShow(true)" @mouseout="setCompanionHelpShow(false, 4000)">{{ $t("What's this?") }}</a>
-            <div class="md-button copy-import-button" @click="sendToCompanionApp" @mouseover="setCompanionHelpShow(true)" @mouseout="setCompanionHelpShow(false, 4000)">
+            <div id="sendToCompanionAppBtn" class="md-button copy-import-button" @click="sendToCompanionApp(true)">
               <md-icon>airplay</md-icon> {{ $t("Send to WeakAura Companion App") }}
             </div>
           </div>
@@ -108,6 +107,26 @@
           </md-layout>
         </md-card-header>
       </md-card>
+
+      <md-dialog md-open-from="#sendToCompanionAppBtn" md-close-to="#sendToCompanionAppBtn" ref="sendToCompanionAppDialog">
+        <md-dialog-title>WeakAuras Companion</md-dialog-title>
+
+        <md-dialog-content id="companion-info">
+          <p>{{ $t('The WeakAuras Companion desktop app acts as a bridge between Wago and your in-game addon, and allows you to keep your imports up to date as authors update their auras') }}</p>
+          <p>{{ $t('You must have the app installed for this function to work') }}</p>
+          <p v-html="$t('The app can be downloaded from [-url-]', {url: '<a href=\'https://weakauras.wtf/\' target=\'_blank\'>https://weakauras.wtf/</a>', interpolation: {'escapeValue': false}})"></p>
+        </md-dialog-content>
+
+        <md-dialog-actions>          
+          <md-checkbox v-model="disableCompanionWarning">{{ $t("Do not show this warning again") }}</md-checkbox>
+        </md-dialog-actions>
+
+        <md-dialog-actions>
+          <md-button class="md-primary" @click="$refs.sendToCompanionAppDialog.close()">{{ $t("Cancel") }}</md-button>
+          <md-button class="md-primary" @click="$refs.sendToCompanionAppDialog.close(); sendToCompanionApp(false)">{{ $t("Send To Companion") }}</md-button>
+        </md-dialog-actions>
+      </md-dialog>
+
 
       <md-card id="wago-floating-header" v-if="showFloatingHeader">
         <div class="floating-header">
@@ -775,7 +794,8 @@ export default {
       hasUnsavedChanges: false,
       showCompanionHelp: false,
       showCompanionHelpTimer: null,
-      enableCompanionBeta: false
+      enableCompanionBeta: false,
+      disableCompanionWarning: false
     }
   },
   watch: {
@@ -1193,12 +1213,25 @@ export default {
       }
       return list
     },
-    sendToCompanionApp () {
+    sendToCompanionApp (checkWarning) {
+      if (this.disableCompanionWarning) {
+        if (this.$store.state.user.UID) {
+          this.$set(this.$store.state.user, 'companionHideAlert', true)
+          this.http.post('/account/disableCompanionAlert')
+        }
+        else {
+          window.setCookie('disableCompanionAlert', 1, 30)
+        }
+      }
+      if (checkWarning && !this.disableCompanionWarning && !this.$store.state.user.companionHideAlert && !window.readCookie('disableCompanionAlert')) {
+        this.$refs.sendToCompanionAppDialog.open()
+        return
+      }
       openCustomProtocol(`weakauras-companion://wago/push/${this.wago.slug}`,
         () => {
           // fail
           this.$router.push('/wa-companion')
-          window.eventHub.$emit('showSnackBar', this.$t('Unable to launch WeakAura Companion app, please make sure you have it installed'))
+          window.eventHub.$emit('showSnackBar', this.$t('Unable to detect WeakAura Companion app, please make sure you have it installed and running'))
         },
         () => {
           // success
@@ -1207,15 +1240,9 @@ export default {
         () => {
           // unsupported
           this.$router.push('/wa-companion')
-          window.eventHub.$emit('showSnackBar', this.$t('Unable to launch WeakAura Companion app, please make sure you have it installed'))
+          window.eventHub.$emit('showSnackBar', this.$t('Unable to detect WeakAura Companion app, please make sure you have it installed and running'))
         }
       )
-      // var e = document.createElement('a')
-      // e.id = 'sendToCompanion'
-      // e.href = `weakauras-companion://wago/push/${this.wago.slug}`
-      // document.getElementsByTagName('body')[0].appendChild(e)
-      // e.click()
-      // e.parentNode.removeChild(e)
     },
     setCompanionHelpShow (enable, time) {
       clearTimeout(this.showCompanionHelpTimer)
@@ -2110,5 +2137,7 @@ ul:not(.md-list) > li.multiselect__element + li { margin-top: 0 }
 .CopyWarningTooltip { padding: 8px; border:5px solid #c1272d; font-size: 14px; height: auto; max-width: 450px; white-space:normal; background: black; right: -84px  }
 
 .usertext.markdown hr { opacity: .5 }
+
+#companion-info p { margin-bottom: 14px }
 
 </style>

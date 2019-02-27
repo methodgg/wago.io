@@ -281,6 +281,9 @@ async function updateMDTData (req, release) {
     enemies.forEach((creature) => {
       if (!creature || !creature.clones) return
       creature.clones.forEach((clone) => {
+        if (!clone) {
+          return
+        }
         mdtData.dungeonDimensions[mapID].maxX = Math.max(mdtData.dungeonDimensions[mapID].maxX, clone.x)
         mdtData.dungeonDimensions[mapID].minX = Math.min(mdtData.dungeonDimensions[mapID].minX, clone.x)
         mdtData.dungeonDimensions[mapID].maxY = Math.max(mdtData.dungeonDimensions[mapID].maxY, clone.y)

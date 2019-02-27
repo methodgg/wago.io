@@ -3,7 +3,7 @@
     <form novalidate @submit.stop.prevent="runSearch()" id="searchForm">
       <md-input-container>
         <label>{{ $t("Search") }}</label>
-        <md-input v-model.trim="searchString" ref="searchInput"></md-input>
+        <md-input v-model="searchString" ref="searchInput"></md-input>
         <md-button @click="runSearch()" :disabled="searchString.length<3">{{ $t("Search") }}</md-button>
       </md-input-container>
     </form>
@@ -101,24 +101,24 @@ export default {
       var opt = ''
       // if loaded via category menu
       if (this.contextSearchData && !query) {
-        this.contextSearchData = this.contextSearchData.replace(this.searchOptions, '').trim()
-        this.searchString = this.contextSearchData.trim()
+        this.contextSearchData = this.contextSearchData.replace(this.searchOptions, '')
+        this.searchString = this.contextSearchData
         query = this.contextSearchData
       }
       // if loaded direct
       else if (!query && this.$route.params.query) {
-        query = this.$route.params.query.replace(/\+/g, ' ').replace(this.searchOptions, '').trim()
-        this.searchString = query.trim()
+        query = this.$route.params.query.replace(/\+/g, ' ').replace(this.searchOptions, '')
+        this.searchString = query
       }
       // if loaded as component from other file
       else if (typeof query === 'string' && query) {
-        query = query.replace(this.searchOptions, '').trim()
+        query = query.replace(this.searchOptions.trim(), '')
         // this.$router.push('/search/' + query.replace(/\s+/g, '+'))
-        this.searchString = query.trim()
+        this.searchString = query
       }
       // if navigating forward/back
       else if (this.$route.params.query) {
-        query = this.$route.params.query.replace('+', ' ').replace(this.searchOptions, '').trim()
+        query = this.$route.params.query.replace('+', ' ').replace(this.searchOptions, '')
       }
       // something broke, no query found (empty string?)
       else {
@@ -163,10 +163,10 @@ export default {
                 if (s && s.text) {
                   tagMatch[2] = s.text
                   if (tagMatch[2].match(/\s/)) {
-                    this.searchString = this.searchString.replace(tagMatch[0], `tag: "${tagMatch[2]}"`).trim()
+                    this.searchString = this.searchString.replace(tagMatch[0], `tag: "${tagMatch[2]}"`)
                   }
                   else {
-                    this.searchString = this.searchString.replace(tagMatch[0], `tag: ${tagMatch[2]}`).trim()
+                    this.searchString = this.searchString.replace(tagMatch[0], `tag: ${tagMatch[2]}`)
                   }
                 }
               }
@@ -191,6 +191,7 @@ export default {
 
       var vue = this
       var params = { q: query + ' ' + opt }
+      this.searchString = this.searchString.trim()
 
       vue.http.get('/search', params).then((res) => {
         for (var i = 0; i < res.results.length; i++) {
@@ -218,7 +219,7 @@ export default {
         vue.$set(vue.results, 'meta', res.meta)
         // put text search at the end of the query
         if (res.query && res.query.textSearch) {
-          this.searchString = (this.searchString.replace(res.query.textSearch, '').replace(/\s+/g, ' ').trim() + ' ' + res.query.textSearch).trim()
+          this.searchString = (this.searchString.replace(res.query.textSearch, '').replace(/\s+/g, ' ') + ' ' + res.query.textSearch).trim()
         }
 
         this.isSearching = false

@@ -18,7 +18,7 @@ module.exports = function (fastify, opts, next) {
     var wagos = []
     var docs = await WagoItem.find({'$or' : [{_id: ids}, {custom_slug: ids}], deleted: false, type: 'WEAKAURAS2'}).populate('_userId').exec()
     await Promise.all(docs.map(async (doc) => {
-      if (doc.private && (!req.user || !req.user._id.equals(doc._userId))) {
+      if (doc.private && (!req.user || !req.user._id.equals(doc._userId._id))) {
         return
       }
       var wago = {}

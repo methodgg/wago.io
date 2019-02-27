@@ -75,5 +75,5 @@ export default {
 
 <style scoped>
   .btn { color: white; background: black; border: 1px solid white; border-radius: 4px; cursor: pointer; padding: 2px; font-size: 80%; margin-left: 12px; white-space: nowrap }
-  .key { color: white; background: #212121; width: 270px; border:0; font-family: monospace; padding: 2px 4px; font-size: 80%;}
+  .key { color: white; background: #212121; width: 405px; border:0; font-family: monospace; padding: 2px 4px; font-size: 80%;}
 </style>

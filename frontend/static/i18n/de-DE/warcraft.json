@@ -77,7 +77,7 @@
       "8443": "Rückkehr nach Karazhan",
       "8524": "Das Grabmal des Sargeras",
       "8527": "Die Kathedrale der Ewigen Nacht",
-      "8638": "Antorus, der Brennende Thron",
+      "8638": "Antorus der Brennende Thron",
       "8910": "Der Sitz des Triumvirats"
   },
   "bosses": {
@@ -89,7 +89,7 @@
       "76974": "Hans'gar & Franzok",
       "77182": "Erzfresser der Verschlinger",
       "77557": "Die Eisernen Jungfern",
-      "77692": "Kromog, Legende des Berges",
+      "77692": "Kromog Legende des Berges",
       "87420": "Schwarzfaust",
       "87441": "Farnspore",
       "87444": "Kargath Messerfaust",
@@ -123,7 +123,7 @@
       "104288": "Trilliax",
       "104415": "Chronomatische Anomalie",
       "104528": "Hochbotaniker Tel'arn",
-      "105393": "Il'gynoth, das Herz der Verderbnis",
+      "105393": "Il'gynoth das Herz der Verderbnis",
       "105503": "Gul'dan",
       "107699": "Aluriel die Zauberklinge",
       "110965": "Großmagistrix Elisande",
@@ -150,7 +150,7 @@
       "125075": "Varimathras",
       "122468": "Der Zirkel der Shivarra",
       "124691": "Aggramar",
-      "124828": "Argus, der Zerrütter"
+      "124828": "Argus der Zerrütter"
   },
   "professions": {
       "alchemy": "Alchemie",

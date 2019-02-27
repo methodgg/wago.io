@@ -333,8 +333,8 @@ module.exports = function (fastify, opts, next) {
       return res.code(403).send({error: "code not available"})
     }
 
-    if (req.query.version && code.versionString !== req.query.version.replace(/-\d+$/, '')) {
-      if (!req.query.version) {
+    if (!req.query.version || code.versionString !== req.query.version.replace(/-\d+$/, '')) {
+      if (!doc.latestVersion) {
         // save latest version data to wagoitem (for older imports)
         doc.latestVersion = {
           versionString: code.versionString,
@@ -344,7 +344,7 @@ module.exports = function (fastify, opts, next) {
             format: code.changelog.text || 'bbcode',
           }
         }
-        updateDoc = true
+        doc.save()
       }
 
       return res.code(302).redirect(`/lookup/wago/code?id=${req.query.id}&version=${code.versionString}`)

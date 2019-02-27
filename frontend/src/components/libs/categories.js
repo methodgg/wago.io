@@ -668,10 +668,13 @@ module.exports = {
   },
 
   getClones: function(id) {
-    var cats = this.categories(false)
-    var base = this.getCategory(id)[0]
-    var clones = []
+    const base = this.getCategory(id)[0]
+    if (!base) {
+      return []
+    }
 
+    const cats = this.categories(false)
+    var clones = []
     cats.forEach((cat) => {
       if (cat.text === base.text && cat.id !== base.id) {
         clones.push(cat.id)

@@ -233,7 +233,7 @@ export default {
         }
 
         if (res.token) {
-          window.SetCookie('token', res.token, 365)
+          window.setCookie('token', res.token, 365)
           vue.axios.defaults.headers = { 'x-auth-token': res.token }
         }
 

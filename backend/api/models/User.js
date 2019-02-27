@@ -13,6 +13,7 @@ const Schema = new mongoose.Schema({
     active : { type: Date, default: Date.now },
     verified_human : { type: Boolean, default: false },
     api_key : { type: String, index: true },
+    companionHideAlert: Boolean,
     reset : String
   },
   profile: {
@@ -148,6 +149,9 @@ const Schema = new mongoose.Schema({
  * Statics
  */
 Schema.statics.findByUsername = function(name) {
+  if (!name) {
+    return null
+  }
   return this.findOne({"search.username": name.toLowerCase()}).exec()
 }
 
@@ -164,10 +168,11 @@ Schema.statics.findByAPIKey = function(key) {
   })
 }
 Schema.methods.createAPIKey = function() {
-  var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-  var key = 'xxxxxxxx-xxxx-xxxxx-xxxx-xxxxxxxxxxxx'.replace(/x/g, function(c) {
-    return chars.charAt(Math.floor(Math.random() * chars.length))
-  })
+  var chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+  var key = ''
+  for (let i = 0; i < 64; i++) {
+    key += chars.charAt(Math.floor(Math.random() * chars.length))
+  }
 
   this.account.api_key = key
   this.save()
@@ -243,10 +248,7 @@ Schema.virtual('access.beta').get(function() {
   return false
 })
 Schema.virtual('access.api').get(function() {
-  if (this.roles.isAdmin.access) return true
-  if (this.roles.gold_subscriber || this.roles.subscriber || this.roles.ambassador || this.roles.developer || this.roles.isAdmin.moderator || this.roles.artContestWinnerAug2018 || this.roles.guild_member) return true
-
-  return false
+  return this.access.beta
 })
 
 Schema.virtual('roleclass').get(function() {

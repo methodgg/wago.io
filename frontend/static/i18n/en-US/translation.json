@@ -446,6 +446,7 @@
   "Documentation soon": "",
   "API key copied": "",
   "API key failed to copy please upgrade to a modern browser": "",
+  "Treat this key like your password": "Treat this key like your password, with it your Wago account can be accessed.",
   "Select Type": "",
   "Select User": "",
   "All Users": "",
@@ -567,5 +568,16 @@
   "Notes failed to copy please upgrade to a modern browser": "",
   "Reaping [-num-]%": "Reaping: [-num-]%",
   "Reaping [-spirit-]": "Reaping: [-spirit-]",
-  "Embeds will not work for imports with blacklisted code": ""
+  "Embeds will not work for imports with blacklisted code": "",
+  "Access to Wago [Beta] features": "",
+  "The WeakAuras Companion desktop app acts as a bridge between Wago and your in-game addon. It allows you to keep your imports up to date as authors update their auras.": "",
+  "You must have the app installed for this function to work.": "",
+  "The app can be downloaded from [-url-].": "",
+  "Do not show this warning again": "",
+  "Send To Companion": "",
+  "Unable to detect WeakAura Companion app, please make sure you have it installed and running.": "",
+  "The WeakAuras Companion desktop app acts as a bridge between Wago and your in-game addon, and allows you to keep your imports up to date as authors update their auras": "",
+  "You must have the app installed for this function to work": "",
+  "The app can be downloaded from [-url-]": "",
+  "Unable to detect WeakAura Companion app, please make sure you have it installed and running": ""
 }

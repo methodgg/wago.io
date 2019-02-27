@@ -185,7 +185,6 @@
   #col2 { padding-left:0 }
   #topwagos > .md-layout > .md-layout { width: 50% }
   #topwagos > .md-layout > .md-layout > ul { max-width: 100%; min-width: 100% }
-
 }
 
 @media (max-width: 600px) {

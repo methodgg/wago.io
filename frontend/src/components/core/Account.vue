@@ -153,7 +153,7 @@
         </md-card-content>
       </md-card>
     </md-layout>
-    <md-layout md-column>
+    <md-layout md-column id="col2">
       <md-card v-if="User">
         <h2>{{ $t("Account Status") }}</h2>
         <md-card-content>
@@ -175,24 +175,23 @@
             <span v-else-if="User.access.goldSub">[{{ $t("Gold Subscriber") }}]</span>
             <br>{{ $t("Animated avatars are enabled") }}
             <br>{{ $t("Custom URLs are enabled") }}
-            <!--<br>{{ $t("Access to Wago beta server") }} <a href="https://t1000.wago.io/">https://t1000.wago.io/</a>-->
-            <!--<br>{{ $t("API Key Enabled") }} <wago-api-key />-->
+            <br>{{ $t("Access to Wago [Beta] features") }}
           </ui-warning>
           <ui-warning v-else-if="User.access && User.access.sub" mode="ok">
             <span>[{{ $t("Subscriber") }}]</span>
             <br>{{ $t("Animated avatars are enabled") }}
-            <!--<br>{{ $t("Access to Wago beta server") }} <a href="https://t1000.wago.io/">https://t1000.wago.io/</a>-->
-            <!--<br>{{ $t("API Key Enabled") }} <wago-api-key />-->
+            <br>{{ $t("Access to Wago [Beta] features") }}
           </ui-warning>
         </md-card-content>
-        <!--<div v-if="User.access && User.access.api">
-          <h2>API</h2>
+        <div v-if="User.access && User.access.api">
+          <h2>API [Beta]</h2>
           <md-card-content>
             <p>{{ $t("You may use an API key to access Wago programmatically, through your own software or a third party app such as the WeakAuras Updater") }}</p>
+            <p>{{ $t("Treat this key like your password") }}</p>
             <wago-api-key />
             <p>{{ $t("Documentation soon") }}</p>
           </md-card-content>
-        </div>-->
+        </div>
         <div v-if="User.discord && User.discord.id">  
           <h2>Discord</h2>
           <md-card-content>
@@ -498,9 +497,16 @@ end`,
 }
 </script>
 
-<style>
+<style scoped>
 h2 { margin-left: 16px }
 .md-avatar { margin: 0 }
 .md-input-container.md-input-status .md-error { opacity: 1; transform: translate3d(0, 0, 0);}
 .md-button-toggle { flex-wrap: wrap }
+.md-card { margin-top: 0 }
+
+@media (min-width: 1281px) {
+  .md-column { margin-top: 16px; margin-right: 16px }
+  #col2 { padding-right: 16px }
+  #col2 .md-card { margin-bottom: 0 }
+}
 </style>

@@ -83,6 +83,7 @@ module.exports = (fastify, opts, next) => {
       }
       
       who.config = user.config
+      who.companionHideAlert = user.account.companionHideAlert
 
       const unreadComments = Comments.findUnread(user._id)
       const myCollections = WagoItem.find({_userId: user._id, type: 'COLLECTION', deleted: false}).select('_id name').sort('name').exec()
@@ -244,6 +245,16 @@ module.exports = (fastify, opts, next) => {
     }
 
     req.user.config.textSyntax = req.body.syntax
+    req.user.save()
+    res.send({succes: true})
+  })
+  
+  fastify.post('/disableCompanionAlert', (req, res) => {
+    if (!req.user) {
+      return res.code(403).send({error: "forbidden"})
+    }
+
+    req.user.account.companionHideAlert = true
     req.user.save()
     res.send({succes: true})
   })
