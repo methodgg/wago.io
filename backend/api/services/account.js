@@ -50,7 +50,6 @@ module.exports = (fastify, opts, next) => {
       who.css = user.roleClass
 
       who.battlenet = user.battlenet || false
-      who.facebook = user.facebook || false
       who.discord = user.discord || false
       who.google = user.google || false
       who.patreon = user.patreon || false
@@ -182,7 +181,6 @@ module.exports = (fastify, opts, next) => {
       // copying from oauth provider
       case 'battlenet':
       case 'discord':
-      case 'facebook':
       case 'google':
       case 'patreon':
       case 'twitter':

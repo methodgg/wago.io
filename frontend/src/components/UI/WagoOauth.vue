@@ -48,19 +48,6 @@
               <span v-else>{{ $t("Update profile") }}</span>
             </div>
           </md-list-item>
-          <md-list-item class="auth-facebook" href="#" @click.prevent="doAuth('facebook')">
-            <md-avatar>
-              <ui-image v-if="user && user.facebook && user.facebook.avatar && user.facebook.avatar.png" :img="user.facebook.avatar"></ui-image>
-              <ui-image v-else img="facebook"></ui-image>
-            </md-avatar>
-            <div class="md-list-text-container">
-              <span v-if="user && user.facebook">{{ user.facebook.name }}</span>
-              <span>Facebook</span>
-              <span v-if="!user || user.guest">{{ $t("Login with Facebook") }}</span>
-              <span v-else-if="!user || !user.facebook || !user.facebook.name">{{ $t("Connect to account") }}</span>
-              <span v-else>{{ $t("Update profile") }}</span>
-            </div>
-          </md-list-item>
           <md-list-item class="auth-google" href="#" @click.prevent="doAuth('google')">
             <md-avatar>
               <ui-image v-if="user && user.google && user.google.avatar && user.google.avatar.png" :img="user.google.avatar"></ui-image>

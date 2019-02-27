@@ -307,12 +307,24 @@ Vue.material.registerTheme('dark', {
   }
 })
 
+var dataServers
+if (process.env.NODE_ENV === 'development') {
+  dataServers = ['http://ubuntu:3030']
+}
+else {
+  // using round robin client-based load balancing
+  dataServers = ['https://data1.wago.io', 'https://data2.wago.io']
+}
+dataServers = dataServers.sort(() => {
+  return 0.5 - Math.random()
+})
+
 import axios from 'axios'
 import VueAxios from 'vue-axios'
 Vue.use(VueAxios, axios)
 // set default options
 // TODO: switch axios auth'ing to fetch
-Vue.axios.defaults.baseURL = 'https://data1.wago.io'
+Vue.axios.defaults.baseURL = dataServers[0]
 Vue.axios.defaults.withCredentials = true // to use cookies with CORS
 if (window.readCookie('token')) {
   Vue.axios.defaults.headers = { 'x-auth-token': window.readCookie('token') }
@@ -330,17 +342,6 @@ axios.interceptors.response.use(function (response) {
   return response
 })
 
-var dataServers
-if (process.env.NODE_ENV === 'development') {
-  dataServers = ['http://ubuntu:3030']
-}
-else {
-  // using round robin client-based load balancing
-  dataServers = ['https://data1.wago.io', 'https://data2.wago.io']
-}
-dataServers = dataServers.sort(() => {
-  return 0.5 - Math.random()
-})
 // setup http fetch helper
 const http = {
   install: function (Vue, options) {
@@ -600,15 +601,6 @@ Vue.use(VueAuth, {
     clientId: '314531302059540490',
     scope: 'identify'
   },
-  facebookData: {url: 'auth/facebook', method: 'POST', redirect: '/account'},
-  facebookOauth2Data: {
-    url: 'https://www.facebook.com/v2.10/dialog/oauth',
-    redirect: function () {
-      return this.options.getUrl() + '/auth/facebook'
-    },
-    clientId: '136578416972916',
-    scope: 'public_profile email'
-  },
   googleData: {url: 'auth/google', method: 'POST', redirect: '/account'},
   googleOauth2Data: {
     url: 'https://accounts.google.com/o/oauth2/auth',
@@ -624,7 +616,7 @@ Vue.use(VueAuth, {
     redirect: function () {
       return this.options.getUrl() + '/auth/patreon'
     },
-    clientId: '0974b50aed3dfeecb716edab97b5fd361c4434188e843e5d283582dc18e33e37',
+    clientId: '-lUfSkaxFXmH-l0EBKFchZ3LmYGnjwKSL-93pVhZm2qiQXhZmaaNMyx8LuS1OiZ-',
     scope: 'users pledges-to-me'
   }
 })

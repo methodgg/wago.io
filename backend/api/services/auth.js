@@ -62,7 +62,6 @@ async function makeSession(req, res, token, user) {
       who.gold_patron = user.patreon && user.patreon.amount_cents >= 400
 
       who.battlenet = user.battlenet || false
-      who.facebook = user.facebook || false
       who.discord = user.discord || false
       who.google = user.google || false
       who.patreon = user.patreon || false
@@ -133,7 +132,6 @@ module.exports = function (fastify, opts, next) {
     if (req.user && req.user.SID) {
       UserSessions.findById(req.user.SID).remove().exec()
     }
-    res.clearCookie('token')
     res.send({action: 'logout!'})
   }
   fastify.post('/logout', Logout)
@@ -152,10 +150,6 @@ module.exports = function (fastify, opts, next) {
         
       case 'discord':
         discordAuth(req, res)
-        break
-        
-      case 'facebook':
-        facebookAuth(req, res)
         break
         
       case 'google':
@@ -374,7 +368,7 @@ async function battlenetAuth(req, res, region) {
 // Login through Discord
 async function discordAuth(req, res) {
   try {
-    const response = axios.post('https://discordapp.com/api/oauth2/token', querystring.stringify({
+    const response = await axios.post('https://discordapp.com/api/oauth2/token', querystring.stringify({
       code: req.body.code || req.query.code,
       client_id: config.auth.discord.clientID,
       client_secret: config.auth.discord.clientSecret,
@@ -401,31 +395,10 @@ async function discordAuth(req, res) {
   }
 }
 
-// Login through facebook
-async function facebookAuth(req, res) {
-  try {
-    const response = await axios.post('https://graph.facebook.com/v2.4/oauth/access_token', {
-      code: req.body.code || req.query.code,
-      client_id: config.auth.facebook.clientID,
-      client_secret: config.auth.facebook.clientSecret,
-      redirect_uri: req.headers.origin + '/auth/facebook',
-    })
-    const authResponse = await axios.get('https://graph.facebook.com/v2.5/me', {params: { access_token: response.data.access_token }})
-    if (!authResponse.data.id) {
-      throw 'invalid'
-    }
-    oAuthLogin(req, res, 'facebook', authResponse.data)
-  }
-  catch (e) {
-    req.trackError(e, 'Failed Facebook Auth')
-    return res.code(403).send({error: 'Unable to auth with Facebook'})
-  }
-}
-
 // Login through Google
 async function googleAuth(req, res) {
   try {
-    const response = await axios.post('https://www.googleapis.com/oauth2/v4/token', querystring.stringify({
+    const authResponse = await axios.post('https://www.googleapis.com/oauth2/v4/token', querystring.stringify({
       code: req.body.code || req.query.code,
       client_id: config.auth.google.clientID,
       client_secret: config.auth.google.clientSecret,
@@ -439,7 +412,7 @@ async function googleAuth(req, res) {
     if (!authResponse.data.id_token) {
       throw 'invalid'
     }
-    var profile = jwt.decode(response.data.id_token)
+    const profile = jwt.decode(authResponse.data.id_token)
     oAuthLogin(req, res, 'google', profile)
   }
   catch (e) {
@@ -467,12 +440,13 @@ async function patreonAuth(req, res) {
         Authorization: 'Bearer ' + response.data.access_token
       }
     })
-    if (!authResponse.data.id) {
-      throw invalid
+    if (!authResponse.data.data.id) {
+      throw 'invalid'
     }
-    oAuthLogin(req, res, 'patreon', authResponse.data)
+    oAuthLogin(req, res, 'patreon', authResponse.data.data)
   }
   catch (e) {
+    console.log(e)
     req.trackError(e, 'Failed Patreon Auth')
     return res.code(403).send({error: 'Unable to auth with Patreon'})
   }
@@ -540,24 +514,6 @@ async function oAuthLogin(req, res, provider, authUser, callback) {
     newAcctName = authUser.username
     avatarURL = 'https://cdn.discordapp.com/avatars/' + authUser.id + '/' + authUser.avatar + '.png?size=64'
     break
-  
-  case 'facebook':
-    // id is not synced with previous version of wago, prefer to use email for lookups instead but somehow email is not always provided...? FB option somewhere?
-    if (authUser.email) { 
-      query = {"facebook.email": authUser.email}
-    }
-    else {
-      query = {"facebook.id": authUser.id}
-    }
-
-    profile = {
-      id: authUser.id, 
-      name: authUser.name,
-      email: authUser.email
-    }
-    newAcctName = authUser.name
-    avatarURL = authUser.picture
-    break
 
   case 'google':
     query = {"google.id": authUser.sub}
@@ -570,15 +526,15 @@ async function oAuthLogin(req, res, provider, authUser, callback) {
     break
 
   case 'patreon':
-    query = {"patreon.id": authUser.data.id}
+    query = {"patreon.id": authUser.id}
     try {
       profile = {
-        id: authUser.data.id,
-        name: authUser.data.attributes.vanity || authUser.data.attributes.first_name
+        id: authUser.id,
+        name: authUser.attributes.vanity || authUser.attributes.first_name
       }
-      avatarURL = authUser.data.attributes.thumb_url
-      if (authUser.data.relationships.pledges.data.length>0 && authUser.data.relationships.pledges.data[0].attributes) {
-        profile.amount_cents = authUser.data.relationships.pledges.data[0].attributes.amount_cents
+      avatarURL = authUser.attributes.thumb_url
+      if (authUser.relationships.pledges.data.length>0 && authUser.relationships.pledges.data[0].attributes) {
+        profile.amount_cents = authUser.relationships.pledges.data[0].attributes.amount_cents
       }
     }
     catch (e) {

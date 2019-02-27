@@ -33,7 +33,6 @@
                   <md-option value="adorable">{{ $t("Create new random avatar") }}</md-option>
                   <md-option value="battlenet" v-if="$store.state.user.battlenet && $store.state.user.battlenet.avatar && $store.state.user.battlenet.avatar.png">{{ $t("Import from Blizzard Battlenet profile") }}</md-option>
                   <md-option value="discord" v-if="$store.state.user.discord && $store.state.user.discord.avatar && $store.state.user.discord.avatar.png">{{ $t("Import from Discord profile") }}</md-option>
-                  <md-option value="facebook" v-if="$store.state.user.facebook && $store.state.user.facebook.avatar && $store.state.user.facebook.avatar.png">{{ $t("Import from Facebook profile") }}</md-option>
                   <md-option value="google" v-if="$store.state.user.google && $store.state.user.google.avatar && $store.state.user.google.avatar.png">{{ $t("Import from Google profile") }}</md-option>
                   <md-option value="patreon" v-if="$store.state.user.patreon && $store.state.user.patreon.avatar && $store.state.user.patreon.avatar.png">{{ $t("Import from Patreon profile") }}</md-option>
                   <md-option value="twitter" v-if="$store.state.user.twitter && $store.state.user.twitter.avatar && $store.state.user.twitter.avatar.png">{{ $t("Import from Twitter profile") }}</md-option>

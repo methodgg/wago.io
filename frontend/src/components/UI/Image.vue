@@ -23,11 +23,6 @@
         <source srcset="https://media.wago.io/avatars/social/discord.png" type="image/png">
         <img src="https://media.wago.io/avatars/social/discord.png" />
       </template>
-      <template v-else-if="img==='facebook'">
-        <source srcset="https://media.wago.io/avatars/social/facebook.webp" type="image/webp">
-        <source srcset="https://media.wago.io/avatars/social/facebook.png" type="image/png">
-        <img src="https://media.wago.io/avatars/social/facebook.png" />
-      </template>
       <template v-else-if="img==='google'">
         <source srcset="https://media.wago.io/avatars/social/google.webp" type="image/webp">
         <source srcset="https://media.wago.io/avatars/social/google.png" type="image/png">
