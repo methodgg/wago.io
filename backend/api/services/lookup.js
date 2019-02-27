@@ -27,6 +27,7 @@ module.exports = function (fastify, opts, next) {
     if (doc.private && (!req.user || !req.user._id.equals(doc._userId))) {
       return res.code(401).send({error: "page_not_accessible"})
     }
+    var saveDoc = false
     
     doc.popularity.views++
     // quick hack to stop counting mdt embeds
@@ -37,7 +38,7 @@ module.exports = function (fastify, opts, next) {
 
       ViewsThisWeek.find({viewed: { $gt: new Date().getTime() - 1000 * 60 * 20 }, source: ipAddress, wagoID: doc._id}).then((recent) => {
         if (!recent || recent.length === 0) {
-          doc.save()
+          saveDoc = true
           
           var pop = new ViewsThisWeek()
           pop.wagoID = doc._id
@@ -73,6 +74,7 @@ module.exports = function (fastify, opts, next) {
     wago.patch = wowPatches.patchByDate(doc.modified || doc.created)
     wago.description = { text: doc.description, format: doc.description_format }
     wago.categories = doc.categories
+    wago.regionType = doc.regionType
     
     wago.viewCount = doc.popularity.views
     wago.viewsThisWeek = doc.popularity.viewsThisWeek
@@ -202,6 +204,13 @@ module.exports = function (fastify, opts, next) {
       if (!versions) {
         return
       }
+      // if we need to add regionType to the doc, do so now
+      if (doc.type === 'WEAKAURAS2' && !doc.regionType) {
+        const json = JSON.parse(versions[0].json)
+        doc.regionType = json.d.regionType
+        wago.regionType = doc.regionType
+        saveDoc = true
+      }
       var versionHistory = []
       versions.forEach((v) => {
         var versionString = v.versionString
@@ -260,6 +269,10 @@ module.exports = function (fastify, opts, next) {
     }
     // run tasks in parallel
     await Promise.all([getUser(), isMyStar(), getScreenshots(), getVideos(), getMedia(), getCollections(), getVersionHistory(), getComments(), getFork()])
+
+    if (saveDoc) {
+      doc.save()
+    }
     return res.send(wago)
   })
 
@@ -331,8 +344,9 @@ module.exports = function (fastify, opts, next) {
             format: code.changelog.text || 'bbcode',
           }
         }
-        doc.save()
+        updateDoc = true
       }
+
       return res.code(302).redirect(`/lookup/wago/code?id=${req.query.id}&version=${code.versionString}`)
     }
           

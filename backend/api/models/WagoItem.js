@@ -59,11 +59,7 @@ const Schema = new mongoose.Schema({
   },
 
   // type=WEAKAURAS2
-  aura : {
-      wow_beta : Boolean,
-      screenshot : mongoose.Schema.Types.ObjectId,
-      code : mongoose.Schema.Types.ObjectId
-  },
+  regionType: { type: String, index: true, es_indexed: true },
 
   // type=COLLECTION
   collect : Array, // array of WagoItem _ids

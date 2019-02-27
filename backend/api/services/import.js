@@ -318,6 +318,7 @@ module.exports = function (fastify, opts, next) {
     // detect description
     if (wago.type === 'WEAKAURAS2' && json.d.desc) {
       wago.description = json.d.desc
+      wago.regionType = json.d.regionType
     }
     else if (wago.type === 'TOTALRP3' && json[2] && json[2].NT) {
       wago.description = json[2].NT
@@ -556,6 +557,7 @@ module.exports = function (fastify, opts, next) {
       var json = JSON.parse(scan.decoded)
       req.scanWA = scan
 
+      wago.regionType = json.d.regionType
       json.d.url = wago.url + '/' + wago.latestVersion.iteration
       json.d.version = wago.latestVersion.iteration
       json.d.semver = versionString
