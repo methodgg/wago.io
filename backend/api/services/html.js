@@ -72,8 +72,8 @@ module.exports = function (fastify, opts, next) {
       else if (doc) {
         data.title = doc.name
         data.description = doc.description || 'Wago.io is a database of sharable World of Warcraft addon elements'
-        // data.image = 'https://data.wago.io/html/twitter-card-image?id=' + doc._id
-        data.image = 'http://ubuntu:3030/html/twitter-card-image?id=' + doc._id
+        data.image = 'https://data.wago.io/html/twitter-card-image?id=' + doc._id
+        // data.image = 'http://ubuntu:3030/html/twitter-card-image?id=' + doc._id
       }
     }
     res.header('Content-Type', 'text/html')
@@ -82,7 +82,6 @@ module.exports = function (fastify, opts, next) {
 
   // generate image for twitter or disord preview
   fastify.get('/twitter-card-image', async (req, res) => {
-    console.log('img')
     if (!req.query.id) {
       res.code(404)
       res.send('No image here')
