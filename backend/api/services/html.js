@@ -97,7 +97,7 @@ module.exports = function (fastify, opts, next) {
       const img = await image.createTwitterCard(`/${screen.auraID}/${screen.localFile}`, doc.name)
       if (img) {
         res.header('Content-Type', 'image/png')
-        res.send(img)
+        res.cache(86400).send(img)
       }
     }
 
