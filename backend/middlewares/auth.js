@@ -3,11 +3,10 @@ const jwt = require('jsonwebtoken')
 const config = require('../config')
 
 module.exports = async function(req, res) {
-  if (req.raw.url.match(/^\/api\//) && req.query.key) {
-    var user = await User.findByAPIKey(req.query.key)
+  if (req.raw.url.match(/^\/api\//) && (req.query.key || req.headers['api-key'])) {
+    var user = await User.findByAPIKey(req.headers['api-key'] || req.query.key)
     if (user) {
       req.user = user
-      req.apiKey = req.query.key
       return
     }
     else {
