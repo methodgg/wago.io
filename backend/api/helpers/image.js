@@ -109,7 +109,6 @@ module.exports = {
     if (!file) {
       return false
     }
-    title = title+title+title
     title = title.replace(/[<>]/g, ' ')
     if (title.length > 45) {
       title = title.substr(0, 45)
@@ -126,7 +125,7 @@ module.exports = {
     const screenshot = await fs.readFile('/nfs/media/screenshots' + file)
     const bScreenshot = await sharp(screenshot).resize(485, 438, {fit: 'inside', position: 'right', background:{r:0, g: 0, b: 0, alpha: 0}}).extend(4).toBuffer()
     const {width, height} = await sharp(bScreenshot).metadata()
-    const bImage = await sharp('/nfs/media/site/twitter-card-bg.jpg').overlayWith(bScreenshot, {top: 80 + Math.round((484 - height) / 2), left: 454 + Math.round((584 - width) / 2)}).toBuffer()
+    const bImage = await sharp('/nfs/media/site/twitter-card-bg.jpg').overlayWith(bScreenshot, {top: 95 + Math.round((484 - height) / 2), left: 454 + Math.round((584 - width) / 2)}).toBuffer()
     return await sharp(bImage).overlayWith(titlebar, {top: 30, left: 50}).jpeg()
   }
 }
