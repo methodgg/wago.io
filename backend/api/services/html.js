@@ -85,6 +85,7 @@ module.exports = function (fastify, opts, next) {
     if (!req.query.id) {
       res.code(404)
       res.send('No image here')
+      return
     }
     const doc = await WagoItem.lookup(req.query.id)
     if (doc && doc.private) {
@@ -96,8 +97,9 @@ module.exports = function (fastify, opts, next) {
     if (screen && screen.localFile) {
       const img = await image.createTwitterCard(`/${screen.auraID}/${screen.localFile}`, doc.name)
       if (img) {
-        res.header('Content-Type', 'image/png')
+        res.header('Content-Type', 'image/jpeg')
         res.cache(86400).send(img)
+        return
       }
     }
 
