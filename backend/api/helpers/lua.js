@@ -11,7 +11,7 @@ const runLua = async function (luaScript, opt) {
     await fs.writeFile(filename, luaScript)
     var result = await execa('luajit', [filename], options)
     fs.unlink(filename)
-    if (!result || result.stderr || !result.stdout) {
+    if (!result || result.stderr || !result.stdout || result.stdout.match(/^"?Error/)) {
       return false
     }
     return result.stdout
@@ -27,6 +27,9 @@ module.exports = {
       return false
     }
     var result = await runLua('dofile("./wago.lua"); Deflate2JSON("' + str + '")')
+    if (!result) {
+      return false
+    }
     try {
       return {str: result, obj: JSON.parse(result)}
     }
@@ -53,6 +56,9 @@ module.exports = {
       return false
     }
     var result = await runLua('dofile("./wago.lua"); WA2JSON("' + str + '")')
+    if (!result) {
+      return false
+    }
     try {
       return {str: result, obj: JSON.parse(result)}
     }
@@ -77,7 +83,6 @@ module.exports = {
     var str = JSON.stringify(obj)
     var result = await runLua('dofile("./wago.lua"); JSON2WA("' + str.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim() + '")')
     if (!result || !result.match(commonRegex.looksLikeWeakAura)) {
-      console.log('no res')
       return false
     }
     return result
@@ -110,6 +115,9 @@ module.exports = {
       return false
     }
     var result = await runLua('dofile("./wago.lua"); Elv2JSON("' + str + '")')
+    if (!result) {
+      return false
+    }
     try {
       return {str: result, obj: JSON.parse(result)}
     }
@@ -145,6 +153,9 @@ module.exports = {
       return false
     }
     var result = await runLua('dofile("./wago.lua"); Vuhdo2JSON("' + str + '")')
+    if (!result) {
+      return false
+    }
     try {
       return {str: result, obj: JSON.parse(result)}
     }
@@ -205,6 +216,9 @@ module.exports = {
       return false
     }
     var result = await runLua('dofile("./wago.lua"); Plater2JSON("' + str + '")')
+    if (!result) {
+      return false
+    }
     try {
       return {str: result, obj: JSON.parse(result)}
     }
@@ -272,6 +286,9 @@ module.exports = {
     }
 
     var result = await runLua('dofile("./wago.lua"); TotalRP32JSON("' + str + '")')
+    if (!result) {
+      return false
+    }
     try {
       return {str: result, obj: JSON.parse(result)}
     }
