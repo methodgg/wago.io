@@ -383,17 +383,17 @@ module.exports = function (fastify, opts, next) {
       wagoCode.versionString = versionString
       wagoCode.changelog = code.changelog
     }
-    else if (doc.type === 'WEAKAURA') {
+    else if (doc.type === 'WEAKAURAS2') {
       var json = JSON.parse(code.json)
-      // check if json needs version information added
-      if (code.version && ((json.d.version !== code.version || json.d.url !== wago.url + '/' + code.version) || (json.c && json.c[0].version !== code.version) || (json.d.semver !== code.versionString))) {
-        json.d.url = wago.url + '/' + code.version
+      // check if json needs version information added or if encoded string not saved properly
+      if (code.version && (!code.encoded || ((json.d.version !== code.version || json.d.url !== doc.url + '/' + code.version) || (json.c && json.c[0].version !== code.version) || (json.d.semver !== code.versionString)))) {
+        json.d.url = doc.url + '/' + code.version
         json.d.version = code.version
         json.d.semver = code.versionString
 
         if (json.c) {
           for (let i = 0; i < json.c.length; i++) {
-            json.c[i].url = wago.url + '/' + code.version
+            json.c[i].url = doc.url + '/' + code.version
             json.c[i].version = code.version
             json.c[i].semver = code.versionString
           }
