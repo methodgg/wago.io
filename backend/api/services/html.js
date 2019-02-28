@@ -70,8 +70,12 @@ module.exports = function (fastify, opts, next) {
         return
       }
       else if (doc) {
-        data.title = doc.name
-        data.description = doc.description || 'Wago.io is a database of sharable World of Warcraft addon elements'
+        data.title = escapeHTML(doc.name)
+        if (doc.description) {
+          // remove line breaks and bbcode tags
+          
+          data.description = escapeHTML(doc.description.replace(/\n/g, ' ').replace(/\[\/?(?:b|center|code|color|face|font|i|justify|large|left|li|list|noparse|ol|php|quote|right|s|size|small|sub|sup|taggeduser|table|tbody|tfoot|thead|td|th|tr|u|ul|url|\*).*?\]/g, ''))
+        }
         data.image = 'https://data.wago.io/html/twitter-card-image?id=' + doc._id
         // data.image = 'http://ubuntu:3030/html/twitter-card-image?id=' + doc._id
       }
@@ -148,16 +152,14 @@ const TemplateEngine = function(html, data) {
   add(html.substr(cursor, html.length - cursor));
   code += 'return r.join("");';
 
-  // simple escape html
-  for (var item in data) {
-    if (data.hasOwnProperty(item) && typeof data[item] === 'string') {
-      data[item] = data[item].replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;")
-    }
-  }
   return new Function(code.replace(/[\r\t\n]/g, '')).apply(data);
+}
+
+const escapeHTML = (html) => {
+  return html.replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;")
 }
 
