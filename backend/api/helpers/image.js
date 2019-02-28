@@ -103,5 +103,29 @@ module.exports = {
     catch (e) {
       return {error: 'invalid_image'}
     }
+  },
+
+  createTwitterCard: async (file, title) => {
+    if (!file) {
+      return false
+    }
+    title = title.replace(/[<>]/g, ' ')
+    if (title.length > 80) {
+      title = title.substr(0, 80) + '...'
+    }
+    const titlebar = await sharp(new Buffer.from(
+      `<svg height="40" width="1038">
+        <defs>
+          <style>
+            @font-face {font-family: Roboto; src: url(/nfs/media/fonts/Roboto-Regular.ttf);}
+          </style>
+        </defs>
+        <text x="50%" y="50%" fill="#FFFFFF" text-anchor="middle" alignment-baseline="central" font-family="'Roboto'" style="font-size: 24;">${title}</text>
+      </svg>`)).png().toBuffer()
+    const screenshot = await fs.readFile('/nfs/media/screenshots' + file)
+    const bScreenshot = await sharp(screenshot).resize(485, 438, {fit: 'inside', position: 'right', background:{r:0, g: 0, b: 0, alpha: 0}}).extend(4).toBuffer()
+    const {width, height} = await sharp(bScreenshot).metadata()
+    const bImage = await sharp('/nfs/media/site/twitter-card-bg.png').overlayWith(bScreenshot, {top: Math.round(314 - height / 2), left: Math.round(718 - width / 2)}).toBuffer()
+    return await sharp(bImage).overlayWith(titlebar, {top: 30, left: 50}).jpeg()
   }
 }

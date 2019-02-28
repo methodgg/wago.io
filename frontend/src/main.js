@@ -313,6 +313,7 @@ if (process.env.NODE_ENV === 'development') {
 }
 else {
   // using round robin client-based load balancing
+  // dataServers = getServersByCountry(window.cfCountry) // attempt to detect country by cloudflare and assign regional data servers when available
   dataServers = ['https://data1.wago.io', 'https://data2.wago.io']
 }
 dataServers = dataServers.sort(() => {

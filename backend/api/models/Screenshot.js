@@ -33,8 +33,13 @@ Schema.virtual('url').get(function() {
     return "https://"+this.s3Server+"/"+this.original_bucket+"/"+encodeURIComponent(this.s3Key)
 })
 
-Schema.statics.findForWago = function(id) {
-  return this.find({"auraID": id}).sort({sort: 1, uploaded: 1}).exec()
+Schema.statics.findForWago = function(id, one) {
+  if (one) {
+    return this.findOne({auraID: id, localFile: {$exists: true}}).exec()
+  }
+  else {
+    return this.find({auraID: id, localFile: {$exists: true}}).exec()
+  }
 }
 
 const Screenshot = mongoose.model('AuraScreenshot', Schema)

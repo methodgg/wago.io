@@ -1,8 +1,9 @@
+const image = require('../helpers/image')
 
 module.exports = function (fastify, opts, next) {
   // generates .js for external embeds
   fastify.get('/embed-js', async (req, res, next) => {
-    res.header('Content-Type', 'text/plain')
+    res.header('Content-Type', 'text/javascript')
     
     const wago = await WagoItem.lookup(req.query.id)
     if (!wago) {
@@ -50,5 +51,112 @@ module.exports = function (fastify, opts, next) {
 
     res.send(js)
   })
+
+  // return static preview content for twitter/discord bots
+  fastify.get('/twitter-card-html', async (req, res) => {
+    // set defaults
+    var data = {
+      title: 'Wago.io',
+      description: 'Wago.io is a database of sharable World of Warcraft addon elements',
+      url: req.query.url,
+      image: 'https://media.wago.io/site/twitter-card-bg.png'
+    }
+    if (req.query.url && req.query.url.match(/^https:\/\/wago.io\/([^\/]+)/)) {
+      const wagoID = req.query.url.match(/^https:\/\/wago.io\/([^\/]+)/)
+      const doc = await WagoItem.lookup(wagoID[1])
+      if (doc && doc.private) {
+        res.code(404)
+        res.send('No content here!')
+        return
+      }
+      else if (doc) {
+        data.title = doc.name
+        data.description = doc.description || 'Wago.io is a database of sharable World of Warcraft addon elements'
+        // data.image = 'https://data.wago.io/html/twitter-card-image?id=' + doc._id
+        data.image = 'http://ubuntu:3030/html/twitter-card-image?id=' + doc._id
+      }
+    }
+    res.header('Content-Type', 'text/html')
+    res.send(TemplateEngine(previewTemplate, data))
+  })
+
+  // generate image for twitter or disord preview
+  fastify.get('/twitter-card-image', async (req, res) => {
+    console.log('img')
+    if (!req.query.id) {
+      res.code(404)
+      res.send('No image here')
+    }
+    const doc = await WagoItem.lookup(req.query.id)
+    if (doc && doc.private) {
+      res.code(404)
+      res.send('No content here!')
+      return
+    }
+    const screen = await Screenshot.findForWago(req.query.id, true)
+    if (screen && screen.localFile) {
+      const img = await image.createTwitterCard(`/${screen.auraID}/${screen.localFile}`, doc.name)
+      if (img) {
+        res.header('Content-Type', 'image/png')
+        res.send(img)
+      }
+    }
+
+    res.code(404)
+    res.send('No content here')
+  })
   next()
 }
+
+const previewTemplate = `<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=0">
+    <title><%this.title%></title>
+    <meta name="description" content="<%this.description.substr(0, 120)%>">
+    <meta name="og:type" content="article">
+    <meta name="og:title" content="<%this.title%>">
+    <meta name="og:url" content="<%this.url%>">
+    <meta name="og:image" content="<%this.image%>">
+    <meta name="og:description" content="<%this.description.substr(0, 120)%>">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@Wago_io">
+    <meta name="twitter:title" content="<%this.title%>">
+    <meta name="twitter:description" content="<%this.description.substr(0, 120)%>">
+    <meta name="twitter:image" content="<%this.image%>">
+ </head>
+<body>
+  <div id="app">
+    <img src="<%this.image%>"/>
+    <p><%this.description%></p>
+  </div>
+</body>`
+
+// thanks to http://krasimirtsonev.com/blog/article/Javascript-template-engine-in-just-20-line
+const TemplateEngine = function(html, data) {
+  var re = /<%([^%>]+)?%>/g, reExp = /(^( )?(if|for|else|switch|case|break|{|}))(.*)?/g, code = 'var r=[];\n', cursor = 0, match;
+  var add = function(line, js) {
+      js? (code += line.match(reExp) ? line + '\n' : 'r.push(' + line + ');\n') :
+          (code += line != '' ? 'r.push("' + line.replace(/"/g, '\\"') + '");\n' : '');
+      return add;
+  }
+  while(match = re.exec(html)) {
+      add(html.slice(cursor, match.index))(match[1], true);
+      cursor = match.index + match[0].length;
+  }
+  add(html.substr(cursor, html.length - cursor));
+  code += 'return r.join("");';
+
+  // simple escape html
+  for (var item in data) {
+    if (data.hasOwnProperty(item) && typeof data[item] === 'string') {
+      data[item] = data[item].replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;")
+    }
+  }
+  return new Function(code.replace(/[\r\t\n]/g, '')).apply(data);
+}
+

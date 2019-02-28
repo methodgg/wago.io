@@ -52,7 +52,7 @@
       <li>Identification of the material that is claimed to be infringing or to be the subject of infringing activity and that is to be removed or access to which is to be disabled, and information reasonably sufficient to permit us to locate the material.</li>
       <li>Information reasonably sufficient for us to contact you, such as email, address, telephone number.</li>
       <li>A statement that you a good faith belief that use of the material in the manner complained of is not authorized by the copyright owner, its agent, or the law.</li>
-      <li>A statement that the information in the notification is accurate, and under penalty of perjury, that you is authorized to act on behalf of the owner of an exclusive right that is allegedly infringed.</li>
+      <li>A statement that the information in the notification is accurate, and under penalty of perjury, that you are authorized to act on behalf of the owner of an exclusive right that is allegedly infringed.</li>
     </ol>
     <p> The notice should be addressed to dmca@wago.io.</p>
     <h2>7. Disclaimer of Warranties, Limitations of Liability and Indemnification.</h2>
