@@ -69,6 +69,13 @@ const Schema = new mongoose.Schema({
       wagoID: String
   }],
 
+  mediaReview: Number, // based on review revision number
+  attachedMedia: [new mongoose.Schema({
+    wowPath: String,
+    type: String, // audio, texture, bar, font
+    mediaPath: String
+  })],
+
   // type=IMAGE
   image :  [{
       original: String,

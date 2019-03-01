@@ -158,6 +158,7 @@
               <md-button-toggle class="md-accent" md-single>
                 <md-button v-bind:class="{'md-toggle': showPanel === 'config'}" v-if="wago.user && User && wago.UID && wago.UID === User.UID" @click="toggleFrame('config')">{{ $t("Config") }}</md-button>
                 <md-button v-bind:class="{'md-toggle': showPanel === 'description'}" @click="toggleFrame('description')">{{ $t("Description") }}</md-button>
+                <md-button v-if="(User && User.access && User.access.beta && wago && wago.attachedMedia && wago.attachedMedia.length)" v-bind:class="{'md-toggle': showPanel === 'media'}" @click="toggleFrame('media')">{{ $t("Media") }} [Beta]</md-button>
                 <md-button v-bind:class="{'md-toggle': showPanel === 'includedauras'}" @click="toggleFrame('includedauras')" v-if="wago.type === 'WEAKAURA'">{{ $t("Included Auras") }}</md-button>
                 <md-button v-bind:class="{'md-toggle': showPanel === 'comments'}" @click="toggleFrame('comments')"><span v-if="hasUnreadComments && showPanel !== 'comments'" class="commentAttn">{{$t("NEW")}}!! </span>{{ $t("[-count-] comment", {count: wago.commentCount }) }}</md-button>
                 <md-button v-bind:class="{'md-toggle': showPanel === 'collections'}" v-if="wago.type !== 'COLLECTION'" @click="toggleFrame('collections')">{{ $t("[-count-] collection", {count:  wago.collectionCount}) }}</md-button>
@@ -315,6 +316,22 @@
                   <formatted-text :text="wago.description.text && wago.description.text.length ? wago.description : {text: $t('No description for this import has been provided')}" :enableLinks="wago.user.enableLinks"></formatted-text>
                 </div>
               </div>
+
+              <!-- INCLUDED MEDIA FRAME -->
+              <div id="wago-media-container" class="wago-container" v-if="showPanel=='media'">
+                <div id="wago-media" style="padding-top:6px" v-if="wago.attachedMedia && wago.attachedMedia.length">
+                  <p>{{ $t("This WeakAura is using the following media files" )}}</p>
+                  <template v-for="(item, i) in wago.attachedMedia">
+                    <div>
+                      <span class="attached-media">
+                        {{ item.wowPath }}<br>
+                        <img v-if="item.mediaPath" :src="'https://media.wago.io' + item.mediaPath">
+                        <span v-else>This is a custom texture or otherwise unknown to Wago. In a future update custom textures can be attached to your imports.</span>
+                      </span>
+                    </div>
+                  </template>
+                </div>
+              </div>              
 
               <!-- INCLUDED AURAS FRAME -->
               <div id="wago-includedauras-container" class="wago-container" v-if="showPanel=='includedauras'">
@@ -2139,5 +2156,8 @@ ul:not(.md-list) > li.multiselect__element + li { margin-top: 0 }
 .usertext.markdown hr { opacity: .5 }
 
 #companion-info p { margin-bottom: 14px }
+
+.attached-media { padding: 16px; margin: 8px 0; display: inline-block; background: rgba(0,0,0,.5)}
+.attached-media img { max-width: 400px; max-height: 300px}
 
 </style>

@@ -75,6 +75,7 @@ module.exports = function (fastify, opts, next) {
     wago.description = { text: doc.description, format: doc.description_format }
     wago.categories = doc.categories
     wago.regionType = doc.regionType
+    wago.attachedMedia = doc.attachedMedia
     
     wago.viewCount = doc.popularity.views
     wago.viewsThisWeek = doc.popularity.viewsThisWeek
@@ -204,11 +205,19 @@ module.exports = function (fastify, opts, next) {
       if (!versions) {
         return
       }
-      // if we need to add regionType to the doc, do so now
-      if (doc.type === 'WEAKAURAS2' && !doc.regionType) {
+      // if we need to add regionType or textures to the doc, do so now
+      if (doc.type === 'WEAKAURAS2' && (!doc.regionType || !doc.mediaReview)) {
         const json = JSON.parse(versions[0].json)
-        doc.regionType = json.d.regionType
-        wago.regionType = doc.regionType
+        if (!doc.regionType) {
+          doc.regionType = json.d.regionType
+          wago.regionType = doc.regionType
+        }
+        if (!doc.mediaReview) {
+          var media = await require('../helpers/findMedia')(json)
+          doc.attachedMedia = media
+          doc.mediaReview = 1
+          wago.attachedMedia = doc.attachedMedia
+        }
         saveDoc = true
       }
       var versionHistory = []
@@ -385,7 +394,7 @@ module.exports = function (fastify, opts, next) {
     }
     else if (doc.type === 'WEAKAURAS2') {
       var json = JSON.parse(code.json)
-      // check if json needs version information added or if encoded string not saved properly
+      // check for any missing data
       if (code.version && (!code.encoded || ((json.d.version !== code.version || json.d.url !== doc.url + '/' + code.version) || (json.c && json.c[0].version !== code.version) || (json.d.semver !== code.versionString)))) {
         json.d.url = doc.url + '/' + code.version
         json.d.version = code.version
