@@ -60,9 +60,7 @@ module.exports = function (fastify, opts, next) {
       // several addons use Deflate - some prepend ! to identify deflate vs older format
       decoded = await lua.DecodeDeflate(req.body.importString.replace(/^!/, ''))
     }
-    console.log(decoded)
     if (!decoded && (test.WEAKAURA || test.MDT)) {
-      console.log('mdt')
       // MDT and old-format WA uses the same encoding
       decoded = await lua.DecodeWeakAura(req.body.importString)
     }
