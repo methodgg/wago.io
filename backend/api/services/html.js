@@ -61,8 +61,8 @@ module.exports = function (fastify, opts, next) {
       url: req.query.url,
       image: 'https://media.wago.io/site/twitter-card-bg.png'
     }
-    if (req.query.url && req.query.url.match(/^https:\/\/wago.io\/([^\/]+)/)) {
-      const wagoID = req.query.url.match(/^https:\/\/wago.io\/([^\/]+)/)
+    if (req.query.url && req.query.url.match(/^wago.io\/([^\/]+)/)) {
+      const wagoID = req.query.url.match(/^wago.io\/([^\/]+)/)
       const doc = await WagoItem.lookup(wagoID[1])
       if (doc && doc.private) {
         res.code(404)
@@ -99,7 +99,17 @@ module.exports = function (fastify, opts, next) {
     }
     const screen = await Screenshot.findForWago(req.query.id, true)
     if (screen && screen.localFile) {
-      const img = await image.createTwitterCard(`/${screen.auraID}/${screen.localFile}`, doc.name)
+      if (doc.type === 'WEAKAURAS2') {
+        doc.type = 'WEAKAURA'
+      }
+      var user
+      if (doc._userId) {
+        user = await User.findById(doc._userId).exec()
+        if (user) {
+          user = {name: user.account.username, avatar: user.profile.avatar.gif || user.profile.avatar.png}
+        }
+      }
+      const img = await image.createTwitterCard(`/${screen.auraID}/${screen.localFile}`, doc.name, doc.type, user)
       if (img) {
         res.header('Content-Type', 'image/jpeg')
         res.cache(86400).send(img)

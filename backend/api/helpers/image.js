@@ -105,7 +105,7 @@ module.exports = {
     }
   },
 
-  createTwitterCard: async (file, title) => {
+  createTwitterCard: async (file, title, type, user, category) => {
     if (!file) {
       return false
     }
@@ -113,19 +113,31 @@ module.exports = {
     if (title.length > 45) {
       title = title.substr(0, 45)
     }
-    const titlebar = await sharp(new Buffer.from(
-      `<svg height="60" width="1038">
-        <defs>
-          <style>
-            @font-face {font-family: Roboto; src: url(/nfs/media/fonts/Roboto-Regular.ttf);}
-          </style>
-        </defs>
-        <text x="50%" y="50%" fill="#FFFFFF" text-anchor="middle" alignment-baseline="central" font-family="'Roboto'" style="font-size: 40;">${title}</text>
-      </svg>`)).png().toBuffer()
-    const screenshot = await fs.readFile('/nfs/media/screenshots' + file)
-    const bScreenshot = await sharp(screenshot).resize(485, 438, {fit: 'inside', position: 'right', background:{r:0, g: 0, b: 0, alpha: 0}}).extend(4).toBuffer()
-    const {width, height} = await sharp(bScreenshot).metadata()
-    const bImage = await sharp('/nfs/media/site/twitter-card-bg.jpg').overlayWith(bScreenshot, {top: 95 + Math.round((484 - height) / 2), left: 454 + Math.round((584 - width) / 2)}).toBuffer()
-    return await sharp(bImage).overlayWith(titlebar, {top: 30, left: 50}).jpeg()
+    var svg = `
+    <svg height="388" width="689">
+      <defs>
+        <style>
+          @font-face {font-family: Roboto; src: url(/nfs/media/fonts/Roboto-Regular.ttf);}
+        </style>
+      </defs>
+      <text x="50%" y="40" fill="#FFFFFF" text-anchor="middle" alignment-baseline="central" font-family="'Roboto'" style="font-size: 40;">${title}</text>
+      <text x="15" y="100" fill="#000000" text-anchor="start" font-family="'Roboto'" style="font-size: 24;">${type}</text>
+      <text x="10" y="95" fill="#FFFFFF" text-anchor="start" font-family="'Roboto'" style="font-size: 24;">${type}</text>
+      -USER-
+    </svg>`
+    var avatar
+    if (user) {
+      svg = svg.replace(/-USER-/, `<text x="80" y="150" fill="#000000" text-anchor="start" font-family="'Roboto'" style="font-size: 24;">${user.name}</text><text x="75" y="145" fill="#FFFFFF" text-anchor="start" font-family="'Roboto'" style="font-size: 24;">${user.name}</text>`)
+      avatar = await sharp(await fs.readFile(user.avatar.replace(/.*?\/avatars\//, '/nfs/media/avatars/'))).resize(48, 48, {fit: 'inside'}).overlayWith(new Buffer.from(`<svg height="48" width="48"><circle cx="24" cy="24" r="24" fill="black" /></svg>`), {cutout: true}).toBuffer()
+    }
+    var metaImg = await sharp(new Buffer.from(svg)).png()
+    if (avatar) {
+      metaImg = await metaImg.overlayWith(avatar, {top: 114, left: 10}).png()
+    }
+    var image = await sharp('/nfs/media/site/twitter-card-bg.jpg').overlayWith(await metaImg.toBuffer(), {top: 0, left: 0}).toBuffer()
+    const screenshot = await sharp(await fs.readFile('/nfs/media/screenshots' + file)).resize(438, 279, {fit: 'inside', position: 'right', background:{r:0, g: 0, b: 0, alpha: 0}}).extend(4)
+    const {width, height} = await screenshot.metadata()
+    image = await sharp(image).overlayWith(await screenshot.toBuffer(), {top: 50 + Math.round((279 - height) / 2), left: 222 + Math.round((438 - width) / 2)}).jpeg().toBuffer()
+    return image
   }
 }

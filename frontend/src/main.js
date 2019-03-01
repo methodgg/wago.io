@@ -111,7 +111,7 @@ const store = new Vuex.Store({
       }
       state.locale = setLocale
       window.i18next.changeLanguage(setLocale)
-      window.setCookie('locale', setLocale)
+      window.setCookie('locale', setLocale, 365)
       location.reload()
     },
 
@@ -125,11 +125,11 @@ const store = new Vuex.Store({
       }
       state.user = JSON.parse(JSON.stringify(user))
       if (state.user.config && state.user.config.theme) {
-        window.setCookie('theme', state.user.config.theme)
+        window.setCookie('theme', state.user.config.theme, 365)
         document.body.className = 'theme-' + state.user.config.theme
       }
       if (state.user.config && state.user.config.editor) {
-        window.setCookie('editor', state.user.config.editor)
+        window.setCookie('editor', state.user.config.editor, 365)
       }
     },
 
@@ -200,14 +200,14 @@ const store = new Vuex.Store({
       state.loginRedirect = path
     },
     setEditorTheme (state, theme) {
-      window.setCookie('editorTheme', theme)
+      window.setCookie('editorTheme', theme, 365)
       state.editorTheme = theme
       Vue.set(state.user.config, 'editor', theme)
     },
     setTheme (state, theme) {
       window.setCookie('theme', theme)
       document.body.className = 'theme-' + theme
-      Vue.set(state.user.config, 'theme', theme)
+      Vue.set(state.user.config, 'theme', theme, 365)
       state.theme = theme
     },
 

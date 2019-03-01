@@ -228,7 +228,9 @@ export default {
     // get user account and locale settings
     if (!this.isEmbed) {
       this.http.get('/account/whoami', params).then((res) => {
+        console.log(res.locale)
         if (res.locale && vue.$store.state.locale !== res.locale) {
+          console.log('save locale')
           vue.$store.commit('setLocale', res.locale)
         }
 
