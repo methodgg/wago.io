@@ -10,7 +10,7 @@ module.exports = async (tbl) => {
   var _textures = []
   var unique = []
   textures.forEach((t) => {
-    if (unique.indexOf(t.wowPath) === -1) {
+    if (t && unique.indexOf(t.wowPath) === -1) {
       unique.push(t.wowPath)
       _textures.push(t)
     }
@@ -54,6 +54,9 @@ const regexFilepaths = [
 ]
 
 const parsePath = async (path) => {
+  if (!path) {
+    return false
+  }
   path = path.replace(/\\{2,}/g, '\\').replace(/\\/g, '/').replace(/\.{2,}/g, '.').replace(/^[\/("]*|[\/)"]*$/g, '')
   var data = {wowPath: path}
   for (let i = 0; i < regexFilepaths.length; i++) {
