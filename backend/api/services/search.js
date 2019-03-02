@@ -358,28 +358,26 @@ module.exports = function (fastify, opts, next) {
     match = /\b(?:alerts?|mentioned):\s*(1|true)\b/i.exec(query)
     if (match && req.user) {
       query = query.replace(match[0], '').replace(/\s{2,}/, ' ').trim()
-      if (match[1]=='1' || match[1].toLowerCase()=='true') {
-        Search.query.context.push({
-          query: match[0],
-          type: 'option',
-          option: {
-            name: 'alert',
-            enabled: true
-          }
-        })
-        const mentions = await Comments.findMentions(req.user._id)
-        searchSettings.topSearch = []
-        searchSettings.secondarySearch = []
-        mentions.forEach((comment) => {
-          // push unread comments to top of search results
-          if (!comment.usersTagged[0].read) {
-            searchSettings.topSearch.push(comment.wagoID)
-          }
-          else {
-            searchSettings.secondarySearch.push(comment.wagoID)
-          }
-        })
-      }
+      Search.query.context.push({
+        query: match[0],
+        type: 'option',
+        option: {
+          name: 'alert',
+          enabled: true
+        }
+      })
+      const mentions = await Comments.findMentions(req.user._id)
+      searchSettings.topSearch = []
+      searchSettings.secondarySearch = []
+      mentions.forEach((comment) => {
+        // push unread comments to top of search results
+        if (!comment.usersTagged[0].read) {
+          searchSettings.topSearch.push(comment.wagoID)
+        }
+        else {
+          searchSettings.secondarySearch.push(comment.wagoID)
+        }
+      })
     }
 
     // if we changed any default search settings
@@ -454,7 +452,7 @@ module.exports = function (fastify, opts, next) {
         esFilter.push({simple_query_string: {query: searchSettings.topSearch.slice(page * resultsPerPage, resultsPerPage).join(' '), fields: ["_id"] }})
       }
       else {
-        page -= Math.ceil(searchSettings.topSearch.length / resultsPerPage)
+        page = Math.max(0, page - Math.ceil(searchSettings.topSearch.length / resultsPerPage))
       }
     }
     if (searchSettings.secondarySearch && searchSettings.secondarySearch.length) {
@@ -492,7 +490,7 @@ module.exports = function (fastify, opts, next) {
     }
 
     Search.meta = {}
-    if (searchSettings.topSearch && Search.total < 20) {
+    if (searchSettings.topSearch && searchSettings.topSearch.length && Search.total && Search.total < 20) {
       Search.meta.forceNextPage = true
     }
 

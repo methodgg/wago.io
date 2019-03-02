@@ -26,7 +26,7 @@ module.exports = function (fastify, opts, next) {
     comment.usersTagged = []
 
     if (wago._userId && wago._userId._id && !wago._userId._id.equals(req.user._id)) {
-      tagged.push({userID: wago._userId._id.toString()})
+      comment.usersTagged.push({userID: wago._userId._id.toString()})
       comment.commentText = comment.commentText.replace('@' + wago._userId.profile.name, '[taggeduser]@' + wago._userId.profile.name + '[/taggeduser]')
       discord.onComment(req.user, wago._userId, wago)
     }
@@ -88,7 +88,7 @@ module.exports = function (fastify, opts, next) {
   })
 
   fastify.post('/clear', async (req, res) => {
-    if (!req.user || !req.user.unreadMentions || !req.body.comment) {
+    if (!req.user || !req.body.comment) {
       return res.code(403).send({error: "forbidden"})
     }
 
