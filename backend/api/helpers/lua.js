@@ -11,12 +11,14 @@ const runLua = async function (luaScript, opt) {
     await fs.writeFile(filename, luaScript)
     var result = await execa('luajit', [filename], options)
     fs.unlink(filename)
+    console.log(result)
     if (!result || result.stderr || !result.stdout || result.stdout.match(/^"?Error/)) {
       return false
     }
     return result.stdout
   }
   catch (e) {
+    console.log(e)
     // console.error("LUA ERR", e.message)
   }
 } 

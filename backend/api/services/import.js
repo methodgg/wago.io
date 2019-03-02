@@ -20,6 +20,12 @@ module.exports = function (fastify, opts, next) {
 
     if (req.body.type) {
       test[req.body.type.toUpperCase()] = true
+      switch (req.body.type.toUpperCase()) {
+        case 'WEAKAURA':
+        case 'PLATER':
+        case 'TOTALRP3':
+          test.DEFLATE = true
+      }
     }
     else {
       if (req.body.importString.match(commonRegex.RegexPasteBinLink)) {
@@ -54,6 +60,7 @@ module.exports = function (fastify, opts, next) {
         }
       }
     }
+    console.log(test)
     
     var decoded = null
     if (test.DEFLATE) {
