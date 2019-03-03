@@ -77,7 +77,7 @@ module.exports = function (fastify, opts, next) {
           data.description = escapeHTML(doc.description.replace(/\n/g, ' ').replace(/\[\/?(?:b|center|code|color|face|font|i|justify|large|left|li|list|noparse|ol|php|quote|right|s|size|small|sub|sup|taggeduser|table|tbody|tfoot|thead|td|th|tr|u|ul|url|\*).*?\]/g, ''))
         }
         data.image = 'https://data.wago.io/html/twitter-card-image?id=' + doc._id
-        // data.image = 'http://ubuntu:3030/html/twitter-card-image?id=' + doc._id
+        data.image = 'http://ubuntu:3030/html/twitter-card-image?id=' + doc._id
       }
     }
     res.header('Content-Type', 'text/html')

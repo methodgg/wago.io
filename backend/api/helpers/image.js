@@ -105,7 +105,7 @@ module.exports = {
     }
   },
 
-  createTwitterCard: async (file, title, type, user, category) => {
+  createTwitterCard: async (file, title) => {
     if (!file) {
       return false
     }
@@ -114,30 +114,19 @@ module.exports = {
       title = title.substr(0, 45)
     }
     var svg = `
-    <svg height="388" width="689">
+    <svg height="314" width="600">
       <defs>
         <style>
           @font-face {font-family: Roboto; src: url(/nfs/media/fonts/Roboto-Regular.ttf);}
         </style>
       </defs>
-      <text x="50%" y="40" fill="#FFFFFF" text-anchor="middle" alignment-baseline="central" font-family="'Roboto'" style="font-size: 40;">${title}</text>
-      <text x="15" y="100" fill="#000000" text-anchor="start" font-family="'Roboto'" style="font-size: 24;">${type}</text>
-      <text x="10" y="95" fill="#FFFFFF" text-anchor="start" font-family="'Roboto'" style="font-size: 24;">${type}</text>
-      -USER-
+      <text x="50%" y="37" fill="#FFFFFF" text-anchor="middle" alignment-baseline="central" font-family="'Roboto'" style="font-size: 22;">${title}</text>
     </svg>`
-    var avatar
-    if (user) {
-      svg = svg.replace(/-USER-/, `<text x="80" y="150" fill="#000000" text-anchor="start" font-family="'Roboto'" style="font-size: 24;">${user.name}</text><text x="75" y="145" fill="#FFFFFF" text-anchor="start" font-family="'Roboto'" style="font-size: 24;">${user.name}</text>`)
-      avatar = await sharp(await fs.readFile(user.avatar.replace(/.*?\/avatars\//, '/nfs/media/avatars/'))).resize(48, 48, {fit: 'inside'}).overlayWith(new Buffer.from(`<svg height="48" width="48"><circle cx="24" cy="24" r="24" fill="black" /></svg>`), {cutout: true}).toBuffer()
-    }
     var metaImg = await sharp(new Buffer.from(svg)).png()
-    if (avatar) {
-      metaImg = await metaImg.overlayWith(avatar, {top: 114, left: 10}).png()
-    }
     var image = await sharp('/nfs/media/site/twitter-card-bg.jpg').overlayWith(await metaImg.toBuffer(), {top: 0, left: 0}).toBuffer()
-    const screenshot = await sharp(await fs.readFile('/nfs/media/screenshots' + file)).resize(438, 279, {fit: 'inside', position: 'right', background:{r:0, g: 0, b: 0, alpha: 0}}).extend(4)
+    const screenshot = await sharp(await fs.readFile('/nfs/media/screenshots' + file)).resize(363, 226, {fit: 'inside', position: 'right', background:{r:0, g: 0, b: 0, alpha: 0}}).extend(4)
     const {width, height} = await screenshot.metadata()
-    image = await sharp(image).overlayWith(await screenshot.toBuffer(), {top: 50 + Math.round((279 - height) / 2), left: 222 + Math.round((438 - width) / 2)}).jpeg().toBuffer()
+    image = await sharp(image).overlayWith(await screenshot.toBuffer(), {left: 199 + Math.round((363 - width) / 2), top: 48 + Math.round((270 - height) / 2)}).jpeg().toBuffer()
     return image
   }
 }
