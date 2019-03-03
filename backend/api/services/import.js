@@ -60,7 +60,6 @@ module.exports = function (fastify, opts, next) {
         }
       }
     }
-    console.log(test)
     
     var decoded = null
     if (test.DEFLATE) {
@@ -249,6 +248,12 @@ module.exports = function (fastify, opts, next) {
         scan.type = 'PLATER'
         const scanDoc = await scan.save()
         return res.send({scan: scanDoc._id.toString(), type: 'PLATER', name: 'Plater Profile', categories: []})
+      }
+      // npc color
+      else if (decoded && !Array.isArray(decoded.obj) && decoded.obj.NpcColor) {
+        scan.type = 'PLATER'
+        const scanDoc = await scan.save()
+        return res.send({scan: scanDoc._id.toString(), type: 'PLATER', name: 'Plater NPC Colors', categories: []})
       }
       // animation
       else if (decoded && !Array.isArray(decoded.obj) && decoded.obj[1] && decoded.obj[1].animation_type) {
@@ -448,6 +453,10 @@ module.exports = function (fastify, opts, next) {
       if (!Array.isArray(json) && json[1] && json[1].animation_type) {    
         // plater profile        
         wago.categories.push('plater4')
+      }
+      else if (!Array.isArray(json) && json.NpcColor) {    
+        // plater npc color        
+        wago.categories.push('plater5')
       }
       else if (!Array.isArray(json)) {    
         // plater profile        

@@ -112,6 +112,7 @@ module.exports = {
       {id: "plater2", slug: "plater/plater-scripts", cls:"plater", text: t("Plater Scripts"), "systemtag": true, PLATER: true},
       {id: "plater3", slug: "plater/plater-mods", cls:"plater", text: t("Plater Mods"), "systemtag": true, PLATER: true},
       {id: "plater4", slug: "plater/plater-animations", cls:"plater", text: t("Plater Animations"), "systemtag": true, PLATER: true},
+      {id: "plater5", slug: "plater/plater-npc-colors", cls:"plater", text: t("Plater NPC Colors"), "systemtag": true, PLATER: true},
 
       {id: "platerpvp", slug: "plater/pvp", cls:"snippets", text: t("PvP"), root: true, PLATER: true},
       {id: "platerdungeons", slug: "plater/dungeons", cls:"snippets", text: t("Dungeons"), root: true, PLATER: true},

@@ -91,7 +91,7 @@ export default {
       return categories.getCategories(['role1', 'role2', 'role3'], this.$t)
     },
     plater: function () {
-      return categories.getCategories(['plater1', 'plater2', 'plater3', 'plater4'], this.$t)
+      return categories.getCategories(['plater1', 'plater2', 'plater3', 'plater4', 'plater5'], this.$t)
     },
     content: function () {
       return categories.getCategories(['platerpvp', 'platerdungeons', 'platerraidzuldazar', 'platerraidcrucible', 'platerraiduldir', 'platerutilities'], this.$t)
