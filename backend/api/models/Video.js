@@ -15,7 +15,7 @@ var Schema = mongoose.Schema({
 // create URL to thumbnail image
 Schema.virtual('thumbnail').get(function() {
   switch(this.source) {
-    case 'youtube': return 'http://img.youtube.com/vi/'+this.videoID+'/0.jpg'
+    case 'youtube': return 'https://img.youtube.com/vi/'+this.videoID+'/0.jpg'
     default: return this.thumb          
   }
 })
