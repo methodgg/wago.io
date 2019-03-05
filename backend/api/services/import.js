@@ -599,6 +599,7 @@ module.exports = function (fastify, opts, next) {
     }
     code.version = wago.latestVersion.iteration
     code.versionString = wago.latestVersion.versionString
+    wago.modified = Date.now()
     await code.save()
     await wago.save()
     res.send({success: true, wagoID: wago._id})
@@ -639,6 +640,7 @@ module.exports = function (fastify, opts, next) {
     else {
       wago.latestVersion.versionString = newVersion
     }
+    wago.modified = Date.now()
     await wago.save()
 
     var code = new WagoCode({
@@ -838,6 +840,7 @@ module.exports = function (fastify, opts, next) {
     else {
       wago.latestVersion.versionString = newVersion
     }
+    wago.modified = Date.now()
     await wago.save()
     var code = new WagoCode({
       auraID: wago._id, 
