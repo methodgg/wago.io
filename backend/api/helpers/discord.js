@@ -51,7 +51,7 @@ module.exports = {
   // when a comment is posted check for anyone that has starred it AND has the discord notification enabled
   onComment: async (owner, tagged, wago) => {
     var msg = `${owner.account.username} has posted a comment to ${wago.name}!\n${wago.url}`
-    const users = await User.find({_id: tagged._id}).select('discord').exec()
+    const users = await User.find({_id: tagged._id, "discord.options.messageOnComment": true}).select('discord').exec()
     users.forEach((user) => {
       sendChatMessage(user.discord.id, msg)
     })

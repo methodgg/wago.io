@@ -477,6 +477,9 @@ export default {
   },
   methods: {
     init () {
+      if (!this.tableData.week) {
+        this.tableData.week = 1
+      }
       this.selectedAffixes = this.mdtDungeonTable.affixWeeks[this.tableData.week - 1]
       this.enemies = this.mdtDungeonTable.dungeonEnemies
       for (let i = 0; i < this.enemies.length; i++) {
@@ -646,8 +649,8 @@ export default {
 
           var pos = stage.getPointerPosition()
           var scale = stage.scaleX()
-          var x = Math.round(((pos.x - stage.x()) / scale) / vue.mdtScale / 10) * 10
-          var y = Math.round(-((pos.y - stage.y()) / scale) / vue.mdtScale / 10) * 10
+          var x = Math.round((((pos.x - stage.x()) / scale) / vue.mdtScale) * 10) / 10
+          var y = Math.round((-((pos.y - stage.y()) / scale) / vue.mdtScale) * 10) / 10
           if (x < 0 || y > 0) {
             return
           }

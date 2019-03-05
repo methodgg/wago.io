@@ -240,13 +240,17 @@ module.exports = function (fastify, opts, next) {
       return
     }
     const getComments = async () => {
-      var count = await Comments.countDocuments({wagoID: wago._id}).exec()
+      const count = await Comments.countDocuments({wagoID: wago._id}).exec()
       wago.commentCount = count
+      if (count !== doc.popularity.comments_count) {
+        doc.popularity.comments_count = count
+        saveDoc = true
+      }
       wago.comments = []
-      var comments = await Comments.find({wagoID: wago._id}).sort({postDate: -1}).limit(10).populate('authorID').exec()
-      if (!comments) {
+      if (!count) {
         return
       }
+      const comments = await Comments.find({wagoID: wago._id}).sort({postDate: -1}).limit(10).populate('authorID').exec()
       comments.forEach((c) => {
         wago.comments.push({
           cid: c._id.toString(),
