@@ -5,10 +5,10 @@
       <md-toolbar id="topbar">
         <md-button class="md-icon-button md-hide-small-and-up" @click="toggleMobileNav()">
           <md-icon>menu</md-icon>
-        </md-button>      
+        </md-button>
         <h2 class="md-title" id="logo"><router-link to="/"><img src="./assets/wagoio-logo.png"/></router-link></h2>
         <h2 class="md-title" id="xmaslogo" v-if="today.getMonth() === 11"><router-link to="/"><img src="./assets/xmas-hat.png"/></router-link></h2>
-        
+
         <div id="h-nav" class="md-hide-xsmall">
           <form novalidate @submit.stop.prevent="goSearch(gSearch)" id="gSearch">
             <input type="text" v-model="gSearch" placeholder="Search Wago..." />
@@ -31,7 +31,7 @@
                     <md-option value="Snippet">Snippet</md-option>
                   </md-select>
                 </md-input-container>
-                
+
                 <md-input-container>
                   <label for="advSearchUser">{{ $t("Select User") }}</label>
                   <md-select name="advSearchUser" id="advSearchUser" v-model="advSearchUser" md-menu-class="advSearchSelect">
@@ -61,7 +61,7 @@
                     <md-option value="1 Month">{{ $t("Last Month") }}</md-option>
                   </md-select>
                 </md-input-container>
-                
+
                 <md-input-container>
                   <label>Text Search</label>
                   <md-input v-model="advSearchText"></md-input>
@@ -144,9 +144,10 @@
         </div>
 
         <md-list class="mainnav bottom">
-          <md-list-item target="_blank" href="https://www.patreon.com/wago"><img src="./assets/Patreon_White.png">{{ $t("Support the website") }}</md-list-item>
-          <md-list-item target="_blank" href="https://discord.gg/wa2"><img src="./assets/discord.png">{{ $t("Join WA Discord") }}</md-list-item>
-          <md-list-item target="_blank" href="https://github.com/oratory/wago.io"><img src="./assets/github.png">{{ $t("Open source") }}<md-divider></md-divider></md-list-item>
+          <md-list-item target="_blank" href="https://www.patreon.com/wago"><div><img src="./assets/Patreon_White.png"></div>{{ $t("Support the website") }}</md-list-item>
+          <md-list-item target="_blank" href="https://discord.gg/wa2"><div><img src="./assets/discord.png"></div>{{ $t("Join WA Discord") }}</md-list-item>
+          <md-list-item target="_blank" href="https://github.com/oratory/wago.io"><div><img src="./assets/github.png"></div>{{ $t("Open source") }}</md-list-item>
+          <md-list-item target="_blank" href="https://weakauras.wtf/"><div><img src="./assets/weakauralogo.png" style="height:23px"></div>WeakAuras Companion<md-divider></md-divider></md-list-item>
         </md-list>
           
         <div class='legal'>
@@ -533,7 +534,8 @@ export default {
 .mainnav .md-list-item.small { height: 16px; }
 .mainnav .md-list-item.small .md-list-item-container { font-size: 12px; height: 18px; }
 .mainnav.bottom .md-list-item-container { font-size: 90%; }
-.mainnav.bottom .md-list-item-container img { width: 90px; padding-right: 16px; }
+.mainnav.bottom .md-list-item-container img { max-width: 74px; }
+.mainnav.bottom .md-list-item a div { display: inline-block; width: 90px;  }
 #side-bottom {}
 #side-bottom .resource {  display: inline-block; padding: 8px 0 0 16px; color: default }
 #side-bottom .resource img { max-width: 30%; }
