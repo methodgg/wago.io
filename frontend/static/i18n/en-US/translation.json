@@ -575,5 +575,6 @@
   "The WeakAuras Companion desktop app acts as a bridge between Wago and your in-game addon, and allows you to keep your imports up to date as authors update their auras": "The WeakAuras Companion desktop app acts as a bridge between Wago and your in-game addon. This allows you to keep your imports up to date as authors update their auras.",
   "You must have the app installed for this function to work": "You must have the app installed for this function to work.",
   "The app can be downloaded from [-url-]": "The app can be downloaded from [-url-].",
-  "Unable to detect WeakAura Companion app, please make sure you have it installed and running": "Unable to detect WeakAura Companion app, please make sure you have it installed and running."
+  "Unable to detect WeakAura Companion app, please make sure you have it installed and running": "Unable to detect WeakAura Companion app, please make sure you have it installed and running.",
+  "This WeakAura is using the following media files": ""
 }

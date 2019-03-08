@@ -234,8 +234,11 @@ module.exports = function (fastify, opts, next) {
       if (req.query.version) {
         wago.codeURL = `/lookup/wago/code?id=${doc._id}&version=${req.query.version}`
       }
-      else {
+      else if (wago.versions.versions[0].versionString) {
         wago.codeURL = `/lookup/wago/code?id=${doc._id}&version=${wago.versions.versions[0].versionString}`
+      }
+      else {        
+        wago.codeURL = `/lookup/wago/code?id=${doc._id}`
       }
       return
     }

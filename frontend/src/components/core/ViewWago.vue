@@ -1114,7 +1114,10 @@ export default {
             code.obj = JSON.parse(code.json)
             code.json = JSON.stringify(code.obj, null, 2)
           }
-          this.wago.code = code
+          res.code = code
+          // TODO: make this better
+          this.$store.commit('setWago', res)
+          var dummyForceReload = this.wago.code // eslint-disable-line no-unused-vars
 
           if (code && code.versionString) {
             this.currentVersionString = code.versionString
