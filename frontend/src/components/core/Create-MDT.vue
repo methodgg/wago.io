@@ -49,7 +49,7 @@ export default {
           currentSublevel: 1,
           currentPull: 1,
           teeming: affixes.indexOf(5) >= 0,
-          currentDungeonIdx: this.mapID,
+          currentDungeonIdx: this.mapID + 1,
           pulls: this.pulls || []
         },
         week: week
@@ -71,7 +71,7 @@ export default {
     var dungeons = categories.raidCategories(['mdtdun'])[0].bosses
     for (let i = 0; i < dungeons.length; i++) {
       if (dungeons[i].slug.match(this.$route.params.dungeon)) {
-        this.mapID = parseInt(dungeons[i].id.replace(/[^\d]*/, ''))
+        this.mapID = parseInt(dungeons[i].id.replace(/[^\d]*/, '')) - 1
         this.dungeonName = this.$t(dungeons[i].text)
         break
       }

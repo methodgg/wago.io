@@ -78,20 +78,22 @@
               </template>
               <template v-for="(creature, i) in enemies">
                 <slot>1</slot>
-                <template v-for="(clone, j) in creature.clones">
-                  <slot>1</slot>
-                  <v-line v-if="clone.patrol && clone.sublevel === subMapID + 1 && (!clone.teeming || (clone.teeming && isTeemingSelected())) && (!clone.faction || (clone.faction === tableData.faction))" 
-                    @mouseover="setTargetHover(creature, clone, j, undefined, true)"
-                    @mouseleave="setTargetHover()"
-                    :config="{
-                      points: linePointsObjXY(clone.patrol),
-                      strokeWidth: 1,
-                      stroke: clone.hover ? '#77FD32' : '#150047',
-                      dash: [5, 3, 2, 3],
-                      lineCap: 'round',
-                      lineJoin: 'round'
-                    }"
-                  />
+                <template v-if="creature">
+                  <template v-for="(clone, j) in creature.clones">
+                    <slot>1</slot>
+                    <v-line v-if="clone && clone.patrol && clone.sublevel === subMapID + 1 && (!clone.teeming || (clone.teeming && isTeemingSelected())) && (!clone.faction || (clone.faction === tableData.faction))" 
+                      @mouseover="setTargetHover(creature, clone, j, undefined, true)"
+                      @mouseleave="setTargetHover()"
+                      :config="{
+                        points: linePointsObjXY(clone.patrol),
+                        strokeWidth: 1,
+                        stroke: clone.hover ? '#77FD32' : '#150047',
+                        dash: [5, 3, 2, 3],
+                        lineCap: 'round',
+                        lineJoin: 'round'
+                      }"
+                    />
+                  </template>
                 </template>
               </template>
               <v-image
@@ -104,35 +106,38 @@
               />
               <template v-for="(creature, i) in enemies">
                 <slot>1</slot>
-                <template v-for="(clone, j) in creature.clones">
+                <template v-if="creature">
                   <slot>1</slot>
-                  <v-circle v-if="(!clone.sublevel || clone.sublevel === subMapID + 1) && (!clone.teeming || (clone.teeming && isTeemingSelected())) && (!clone.faction || (clone.faction === tableData.faction))" 
-                    @click="selectCreature(i, j)" 
-                    @tap="selectCreature(i, j)" 
-                    @mouseover="setTargetHover(creature, clone, j)" 
-                    @mouseleave="setTargetHover()" 
-                    @mousemove="moveTooltip()"
-                    :config="{
-                      x: clone.x * mdtScale,
-                      y: clone.y * -mdtScale,
-                      radius: Math.round(5 * creature.scale * (creature.isBoss ? 1.7 : 1) * (mdtDungeonTable.scaleMultiplier || 1)) / mdtScale,
-                      fill: isCreatureNoTarget(creature.id) ? 'rgba(33, 33, 33, 0.6)' : 
-                            clone.hover ? 'rgba(119, 253, 50, 0.65)' : 
-                            clone.pull >= 0 ? 'rgba(99, 233, 30, 0.3)' : 
-                            'rgba(99, 233, 30, 0.0)',
-                      stroke: isCreatureNoTarget(creature.id) ? '#333333' :
-                              isInfested(clone) ? 'red' : 
-                              creature.isBoss ? 'gold' : 
-                              'black',
-                      strokeWidth: .5,
-                      strokeEnabled: ((creature.isBoss && isCreatureNoTarget(creature.id)) || isInfested(clone)),
-                      shadowColor: 'white',
-                      shadowOpacity: 1,
-                      shadowEnabled : clone.hoverAvatar || false,
-                      shadowOffset: {x: 0, y: 0},
-                      shadowBlur: 10,
-                    }"
-                  />
+                  <template v-for="(clone, j) in creature.clones">
+                    <slot>1</slot>
+                    <v-circle v-if="clone && (!clone.sublevel || clone.sublevel === subMapID + 1) && (!clone.teeming || (clone.teeming && isTeemingSelected())) && (!clone.faction || (clone.faction === tableData.faction))" 
+                      @click="selectCreature(i, j)" 
+                      @tap="selectCreature(i, j)" 
+                      @mouseover="setTargetHover(creature, clone, j)" 
+                      @mouseleave="setTargetHover()" 
+                      @mousemove="moveTooltip()"
+                      :config="{
+                        x: clone.x * mdtScale,
+                        y: clone.y * -mdtScale,
+                        radius: Math.round(5 * creature.scale * (creature.isBoss ? 1.7 : 1) * (mdtDungeonTable.scaleMultiplier || 1)) / mdtScale,
+                        fill: isCreatureNoTarget(creature.id) ? 'rgba(33, 33, 33, 0.6)' : 
+                              clone.hover ? 'rgba(119, 253, 50, 0.65)' : 
+                              clone.pull >= 0 ? 'rgba(99, 233, 30, 0.3)' : 
+                              'rgba(99, 233, 30, 0.0)',
+                        stroke: isCreatureNoTarget(creature.id) ? '#333333' :
+                                isInfested(clone) ? 'red' : 
+                                creature.isBoss ? 'gold' : 
+                                'black',
+                        strokeWidth: .5,
+                        strokeEnabled: ((creature.isBoss && isCreatureNoTarget(creature.id)) || isInfested(clone)),
+                        shadowColor: 'white',
+                        shadowOpacity: 1,
+                        shadowEnabled : clone.hoverAvatar || false,
+                        shadowOffset: {x: 0, y: 0},
+                        shadowBlur: 10,
+                      }"
+                    />
+                  </template>
                 </template>
               </template>
               <v-circle v-if="hoverSpecific.cloneIndex >= 0" 
@@ -287,7 +292,7 @@
                 </md-list-item>
               </div>
               <template v-for="reapPct in reapingPercents">
-                <div v-if="isReapingSelected() && reapingPullDetails[reapPct] && reapingPullDetails[reapPct].pull === pull && reapingPullDetails[reapPct].targets && reapingPullDetails[reapPct].targets.length" 
+                <div class="reaping-pull" v-if="isReapingSelected() && reapingPullDetails[reapPct] && reapingPullDetails[reapPct].pull === pull && reapingPullDetails[reapPct].targets && reapingPullDetails[reapPct].targets.length" 
                   @mouseover="setReapingHover(pull - 1)" @mouseleave="setTargetHover()">
                   <md-list-item v-bind:class="{selected: currentReapingPull === reapPct}"
                     @click="selectReapingPull(reapPct)">
@@ -483,7 +488,9 @@ export default {
       this.selectedAffixes = this.mdtDungeonTable.affixWeeks[this.tableData.week - 1]
       this.enemies = this.mdtDungeonTable.dungeonEnemies
       for (let i = 0; i < this.enemies.length; i++) {
-        this.enemies[i].enemyIndex = i
+        if (this.enemies[i]) {
+          this.enemies[i].enemyIndex = i
+        }
       }
       // boralus make sure faction value is set
       if (this.mapID === 18 && !this.tableData.faction) {
@@ -853,6 +860,9 @@ export default {
       }
       for (let i = 0; i < this.enemies.length; i++) {
         for (let k = 0; k < this.enemies[i].clones.length; k++) {
+          if (!this.enemies[i].clones[k]) {
+            continue
+          }
           // if hovering over an avatar
           if (pullIndex >= 0) {
             this.$set(this.enemies[i].clones[k], 'hover', this.enemies[i].clones[k].pull === pullIndex)
@@ -900,7 +910,7 @@ export default {
       for (let i = 0; i < this.enemies.length; i++) {
         for (let k = 0; k < this.enemies[i].clones.length; k++) {
           // if hovering over an avatar
-          if (pullIndex >= 0) {
+          if (pullIndex >= 0 && this.enemies[i].clones[k]) {
             this.$set(this.enemies[i].clones[k], 'hover', this.enemies[i].clones[k].pull <= pullIndex)
           }
         }
@@ -996,7 +1006,7 @@ export default {
     addGroupToPull (pullIndex, group) {
       this.enemies.forEach((creature, creatureIndex) => {
         creature.clones.forEach((clone, cloneIndex) => {
-          if (clone.g === group) {
+          if (clone && clone.g === group) {
             this.tableData.value.pulls[pullIndex][creatureIndex] = this.tableData.value.pulls[pullIndex][creatureIndex] || []
             if (this.tableData.value.pulls[pullIndex].length <= creatureIndex) {
               // increase array size to match required length
@@ -1012,7 +1022,7 @@ export default {
     removeGroupFromPull (pullIndex, group) {
       this.enemies.forEach((creature, creatureIndex) => {
         creature.clones.forEach((clone, cloneIndex) => {
-          if (clone.g === group && this.tableData.value.pulls[pullIndex][creatureIndex]) {
+          if (clone && clone.g === group && this.tableData.value.pulls[pullIndex][creatureIndex]) {
             this.$delete(this.tableData.value.pulls[pullIndex][creatureIndex], this.tableData.value.pulls[pullIndex][creatureIndex].indexOf(cloneIndex + 1))
             // use null instead of empty arrays
             if (!this.tableData.value.pulls[pullIndex][creatureIndex].length) {
@@ -1611,6 +1621,7 @@ export default {
 #mdtPulls .selected > button { display: none }
 #mdtPulls .md-list-text-container > * { white-space: normal }
 #mdtPulls .reapingTargetIcon { display: inline-block; overflow: hidden; vertical-align: middle; box-sizing: initial; width: 36px; height: 36px; border-radius: 36px; background-position: -4px -4px; background-size: 120%;}
+#mdtPulls .reaping-pull { background: rgba(55, 8, 63, 0.3) }
 .mdtGroupDetails > div { margin: 15px 0; }
 .mdtGroupDetails .groupnum:before { content: 'Group'; font-size: 9px; position: absolute; top: -15px; right: 6px; text-align: right }
 .mdtGroupDetails .singlepull:before { content: 'Singles'; font-size: 9px; position: absolute; top: -15px; right: 6px; text-align: right }
