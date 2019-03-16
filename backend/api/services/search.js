@@ -56,6 +56,7 @@ module.exports = function (fastify, opts, next) {
     Search.query.q = query
     Search.query.page = page
     Search.query.context = []
+    Search.meta = {}
 
     // our lookup object
     var lookup = {}
@@ -369,15 +370,15 @@ module.exports = function (fastify, opts, next) {
       const mentions = await Comments.findMentions(req.user._id)
       searchSettings.topSearch = []
       searchSettings.secondarySearch = []
-      mentions.forEach((comment) => {
+      for (const [mentionWagoID, unread] of Object.entries(mentions)) {
         // push unread comments to top of search results
-        if (!comment.usersTagged[0].read) {
-          searchSettings.topSearch.push(comment.wagoID)
+        if (unread) {
+          searchSettings.topSearch.push(mentionWagoID)
         }
         else {
-          searchSettings.secondarySearch.push(comment.wagoID)
+          searchSettings.secondarySearch.push(mentionWagoID)
         }
-      })
+      }
     }
 
     // if we changed any default search settings
@@ -446,16 +447,22 @@ module.exports = function (fastify, opts, next) {
     }
 
     // if we have top and secondary searches (unread comments and read comments)
-    if (searchSettings.topSearch && searchSettings.topSearch.length) {
+    if (searchSettings.topSearch && searchSettings.topSearch.length && page === 0) {
+      esFilter.push({simple_query_string: {query: searchSettings.topSearch.join(' '), fields: ["_id"] }})
       if (searchSettings.topSearch.length / resultsPerPage > page + 1) {
         searchSettings.secondarySearch = []
-        esFilter.push({simple_query_string: {query: searchSettings.topSearch.slice(page * resultsPerPage, resultsPerPage).join(' '), fields: ["_id"] }})
       }
       else {
         page = Math.max(0, page - Math.ceil(searchSettings.topSearch.length / resultsPerPage))
       }
+      if (searchSettings.secondarySearch) {
+        Search.meta.forceNextPage = true
+      }
     }
-    if (searchSettings.secondarySearch && searchSettings.secondarySearch.length) {
+    else if (searchSettings.secondarySearch && searchSettings.secondarySearch.length) {
+      if (searchSettings.topSearch && searchSettings.topSearch.length) {
+        page--
+      }
       esFilter.push({simple_query_string: {query: searchSettings.secondarySearch.slice(page * resultsPerPage, resultsPerPage).join(' '), fields: ["_id"] }})
     }
 
@@ -463,7 +470,7 @@ module.exports = function (fastify, opts, next) {
     const results = await WagoItem.esSearch(
       {query: { bool: { must: esQuery, filter: esFilter}}},
       {hydrate: true, sort: esSort, size: resultsPerPage, from: resultsPerPage*page})
-      
+
     if (!results) {
       Search.total = 0
       Search.results = []
@@ -487,11 +494,6 @@ module.exports = function (fastify, opts, next) {
     req.tracking.search = {
       query: Search.query.q.replace(/sort: \w+/, '').replace(/Expansion: \w+/, '').replace(/Relevance: \w+/, '').replace(/\s+/g, ' '),
       count: Search.total
-    }
-
-    Search.meta = {}
-    if (searchSettings.topSearch && searchSettings.topSearch.length && Search.total && Search.total < 20) {
-      Search.meta.forceNextPage = true
     }
 
     // sanitize results

@@ -19,7 +19,19 @@ Schema.statics.findUnread = async function(userID) {
 }
 
 Schema.statics.findMentions = async function(userID) {
-  return this.find({"usersTagged.userID": userID}).select('wagoID usersTagged.$').exec()
+  const comments = await this.find({"usersTagged.userID": userID}).select('wagoID usersTagged.$').exec()
+  var mentions = {}
+  comments.forEach((mention) => {
+    mention.usersTagged.forEach((tag) => {
+      if (tag.userID.equals(userID) && !tag.read) {
+        mentions[mention.wagoID] = 1
+      }
+      else if (tag.userID.equals(userID) && !mentions[mention.wagoID]) {
+        mentions[mention.wagoID] = 0
+      }
+    })    
+  })
+  return mentions
 }
 
 const Comments = mongoose.model('Comments', Schema)
