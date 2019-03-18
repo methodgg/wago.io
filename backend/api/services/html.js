@@ -47,7 +47,7 @@ module.exports = function (fastify, opts, next) {
     if (embed.theme.logo) {
       js = js + `document.write('<style>#wago-${embed.id} a{display:inline;padding:0 2px;margin:0;border:0}#wago-${embed.id} img{display:inline;padding:0;margin:0;border:0;height:50px}#wago-${embed.id} button{display:inline;padding:4px 16px;min-width: 130px;background-color:${embed.theme.buttonBG};cursor:pointer;color:${embed.theme.textColor};border:0;text-align:center;vertical-align:top;border-radius:6px}#wago-${embed.id} button:hover{background-color:${theme.buttonHover}}#wago-${wago._id} .clickToCopy{display:block;padding:0;margin:0;font-size:10px}#wago-${embed.id} .wagoName{display:block;padding:0;margin:4px 0;font-weight:bold;font-size:13px}</style>');`
     }
-    js = js + `document.write('<span id="wago-${embed.id}" class="wagoEmbed">${embed.theme.logoHTML}<button onclick="wagoCopy(this, wago.c${wago.id})" class="wagoCopyButton"><small class="clickToCopyWago">Click to copy import string from wago.io</small><div class="wagoName">${embed.name}</div></button></span>');`  
+    js = js + `document.write('<span id="wago-${embed.id}" class="wagoEmbed">${embed.theme.logoHTML}<button onclick="wagoCopy(this, wago[\'c${wago.id}\'])" class="wagoCopyButton"><small class="clickToCopyWago">Click to copy import string from wago.io</small><div class="wagoName">${embed.name}</div></button></span>');`  
 
     res.send(js)
   })
