@@ -41,9 +41,9 @@ Schema.statics.lookup = async function(id, version) {
     if (!doc) {
       return {err: 'No code found'}
     }
-    if ((!doc.versionString || !doc.version || (version && doc.version > version)) || (!doc.version && !version)) {
+    if (!doc.versionString || !doc.version || (version && doc.version > version) || doc.versionString.match(/undefined/) || (!doc.version && !version)) {
       // missing version numbers here, so repopulate them in for all versions
-      var versions = WagoCode.find({auraID: id}).sort({updated: 1}).exec()
+      var versions = await WagoCode.find({auraID: id}).sort({updated: 1}).exec()
       await async.forEachOf(versions, async (codeVersion, i, cb) => {
         i++
         if (codeVersion.version && codeVersion.versionString) {

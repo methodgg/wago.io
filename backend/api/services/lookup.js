@@ -198,7 +198,7 @@ module.exports = function (fastify, opts, next) {
       return
     }
     const getVersionHistory = async () => {
-      if (doc.type === 'COLLECTION') {
+      if (doc.type === 'COLLECTION' || doc.type === 'IMAGE') {
         return
       }
       var versions = await WagoCode.find({auraID: wago._id}).sort({updated: -1}).exec()
@@ -234,7 +234,7 @@ module.exports = function (fastify, opts, next) {
       if (req.query.version) {
         wago.codeURL = `/lookup/wago/code?id=${doc._id}&version=${req.query.version}`
       }
-      else if (wago.versions.versions[0].versionString) {
+      else if (wago.versions.versions[0] && wago.versions.versions[0].versionString) {
         wago.codeURL = `/lookup/wago/code?id=${doc._id}&version=${wago.versions.versions[0].versionString}`
       }
       else {        
@@ -349,7 +349,7 @@ module.exports = function (fastify, opts, next) {
       return res.code(403).send({error: "code not available"})
     }
 
-    if (!req.query.version || code.versionString !== req.query.version.replace(/-\d+$/, '')) {
+    if (!req.query.version || (code.versionString && code.versionString !== req.query.version.replace(/-\d+$/, ''))) {
       if (!doc.latestVersion) {
         // save latest version data to wagoitem (for older imports)
         doc.latestVersion = {
