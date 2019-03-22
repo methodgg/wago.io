@@ -378,6 +378,21 @@ end
 
 function JSON2MDT(json)
   local t = JSON:decode(json)
+  -- convert number enemy indexes to actual numbers from table <-> JSON conversion
+  -- why does this not work in a single iteration I have no idea
+  local strnums = true
+  while strnums do
+    strnums = false
+    for pullIndex, pull in ipairs(t.value.pulls) do
+      for key, value in pairs(pull) do
+        if type(key) == "string" and tonumber(key) then
+          strnums = true
+          t.value.pulls[pullIndex][key] = nil
+          t.value.pulls[pullIndex][tonumber(key)] = value
+        end
+      end
+    end
+  end
 
   if (t) then
     print(TableToStringMDT(t))
@@ -501,4 +516,3 @@ function JSON2TotalRP3(json)
   local t = JSON:decode(json)
   print(Serializer:Serialize(t))
 end
-

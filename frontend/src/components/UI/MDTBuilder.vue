@@ -120,13 +120,13 @@
                         x: clone.x * mdtScale,
                         y: clone.y * -mdtScale,
                         radius: Math.round(5 * creature.scale * (creature.isBoss ? 1.7 : 1) * (mdtDungeonTable.scaleMultiplier || 1)) / mdtScale,
-                        fill: isCreatureNoTarget(creature.id) ? 'rgba(33, 33, 33, 0.6)' : 
-                              clone.hover ? 'rgba(119, 253, 50, 0.65)' : 
-                              clone.pull >= 0 ? 'rgba(99, 233, 30, 0.3)' : 
-                              'rgba(99, 233, 30, 0.0)',
+                        fill: isCreatureNoTarget(creature.id) ? 'rgba(33, 33, 33, 0.6)' :
+                              clone.hover ? hexToRGB(clone.color, 0.65) :
+                              clone.pull >= 0 ? hexToRGB(clone.color, 0.4) :
+                              'rgba(0, 0, 0, 0)',
                         stroke: isCreatureNoTarget(creature.id) ? '#333333' :
-                                isInfested(clone) ? 'red' : 
-                                creature.isBoss ? 'gold' : 
+                                isInfested(clone) ? 'red' :
+                                creature.isBoss ? 'gold' :
                                 'black',
                         strokeWidth: .5,
                         strokeEnabled: ((creature.isBoss && isCreatureNoTarget(creature.id)) || isInfested(clone)),
@@ -270,8 +270,7 @@
           <md-list class="custom-list md-double-line md-dense" id="mdtPulls">
             <template v-for="pull in tableData.value.pulls.length">
               <div @mouseover="setTargetHover(false, false, false, pull - 1)" @mouseleave="setTargetHover()">
-                <md-list-item v-bind:class="{selected: currentPull === pull - 1}"
-                  @click="selectPull(pull - 1)">
+                <md-list-item class="mdt-pull" v-bind:class="{selected: currentPull === pull - 1}" @click="selectPull(pull - 1)" v-bind:style="{'border-left-color': '#' + (pullDetails[pull - 1].color || '228b22'), 'background-color': currentPull === pull - 1 ? hexToRGB(pullDetails[pull - 1].color, 0.1) : null}">
                   <div class="md-list-text-container" v-if="pullDetails[pull - 1]">
                     <span>{{ $t('Pull [-num-]', { num : pull}) }}; {{ pullDetails[pull - 1].percent }}%</span>
                     <span v-html="pullDetails[pull - 1].hList"></span>
@@ -967,13 +966,10 @@ export default {
         this.removeGroupFromPull(this.enemies[creatureIndex].clones[cloneIndex].pull, this.enemies[creatureIndex].clones[cloneIndex].g)
       }
       // otherwise just remove the solo creature
-      else if (this.tableData.value.pulls[this.currentPull][creatureIndex] && this.enemies[creatureIndex].clones[cloneIndex].pull >= 0) {
-        if (this.tableData.value.pulls[this.currentPull][creatureIndex].indexOf(cloneIndex + 1) >= 0) {
-          this.$delete(this.tableData.value.pulls[this.currentPull][creatureIndex], this.tableData.value.pulls[this.currentPull][creatureIndex].indexOf(cloneIndex + 1))
-        }
-        // use null instead of empty arrays
-        if (!this.tableData.value.pulls[this.currentPull][creatureIndex].length) {
-          this.$set(this.tableData.value.pulls[this.currentPull], creatureIndex, null)
+      else if (this.tableData.value.pulls[this.currentPull][creatureIndex + 1] && this.enemies[creatureIndex].clones[cloneIndex].pull >= 0) {
+        this.$delete(this.tableData.value.pulls[this.currentPull][creatureIndex + 1], this.tableData.value.pulls[this.currentPull][creatureIndex + 1].indexOf(cloneIndex + 1))
+        if (!this.tableData.value.pulls[this.currentPull][creatureIndex + 1].length) {
+          this.$delete(this.tableData.value.pulls[this.currentPull], creatureIndex + 1)
         }
         this.$delete(this.enemies[creatureIndex].clones[cloneIndex], 'pull')
       }
@@ -987,12 +983,13 @@ export default {
           this.addGroupToPull(this.currentPull, this.enemies[creatureIndex].clones[cloneIndex].g)
         }
         else {
-          this.tableData.value.pulls[this.currentPull][creatureIndex] = this.tableData.value.pulls[this.currentPull][creatureIndex] || []
-          if (this.tableData.value.pulls[this.currentPull].length <= creatureIndex) {
-            // increase array size to match required length
-            this.tableData.value.pulls[this.currentPull].push(...new Array(creatureIndex + 1 - this.tableData.value.pulls[this.currentPull].length))
+          const enemyIndex = creatureIndex + 1
+          if (Array.isArray(this.tableData.value.pulls[this.currentPull][enemyIndex])) {
+            this.tableData.value.pulls[this.currentPull][enemyIndex].push(cloneIndex + 1)
           }
-          this.tableData.value.pulls[this.currentPull][creatureIndex].push(cloneIndex + 1)
+          else {
+            this.$set(this.tableData.value.pulls[this.currentPull], enemyIndex, [cloneIndex + 1])
+          }
           this.$set(this.enemies[creatureIndex].clones[cloneIndex], 'pull', this.currentPull)
         }
 
@@ -1005,15 +1002,16 @@ export default {
 
     addGroupToPull (pullIndex, group) {
       this.enemies.forEach((creature, creatureIndex) => {
+        creatureIndex++
         creature.clones.forEach((clone, cloneIndex) => {
           if (clone && clone.g === group) {
-            this.tableData.value.pulls[pullIndex][creatureIndex] = this.tableData.value.pulls[pullIndex][creatureIndex] || []
-            if (this.tableData.value.pulls[pullIndex].length <= creatureIndex) {
-              // increase array size to match required length
-              this.tableData.value.pulls[pullIndex].push(...new Array(creatureIndex + 1 - this.tableData.value.pulls[pullIndex].length))
+            if (Array.isArray(this.tableData.value.pulls[this.currentPull][creatureIndex])) {
+              this.tableData.value.pulls[this.currentPull][creatureIndex].push(cloneIndex + 1)
             }
-            this.tableData.value.pulls[pullIndex][creatureIndex].push(cloneIndex + 1)
-            this.$set(this.enemies[creatureIndex].clones[cloneIndex], 'pull', pullIndex)
+            else {
+              this.$set(this.tableData.value.pulls[this.currentPull], creatureIndex, [cloneIndex + 1])
+            }
+            this.$set(this.enemies[creatureIndex - 1].clones[cloneIndex], 'pull', pullIndex)
           }
         })
       })
@@ -1021,14 +1019,14 @@ export default {
 
     removeGroupFromPull (pullIndex, group) {
       this.enemies.forEach((creature, creatureIndex) => {
+        creatureIndex++
         creature.clones.forEach((clone, cloneIndex) => {
           if (clone && clone.g === group && this.tableData.value.pulls[pullIndex][creatureIndex]) {
             this.$delete(this.tableData.value.pulls[pullIndex][creatureIndex], this.tableData.value.pulls[pullIndex][creatureIndex].indexOf(cloneIndex + 1))
-            // use null instead of empty arrays
             if (!this.tableData.value.pulls[pullIndex][creatureIndex].length) {
-              this.$set(this.tableData.value.pulls[pullIndex], creatureIndex, null)
+              this.$delete(this.tableData.value.pulls[pullIndex], creatureIndex)
             }
-            this.$delete(this.enemies[creatureIndex].clones[cloneIndex], 'pull')
+            this.$delete(this.enemies[creatureIndex - 1].clones[cloneIndex], 'pull')
           }
         })
       })
@@ -1135,7 +1133,7 @@ export default {
     },
 
     createPull () {
-      this.tableData.value.pulls.push(new Array(this.enemies.length))
+      this.tableData.value.pulls.push({color: '228b22'})
       this.currentPull = this.tableData.value.pulls.length - 1
       this.updatePullDetails(this.currentPull)
       this.updateReapingPulls()
@@ -1148,7 +1146,14 @@ export default {
     pullEnemyList (pullIndex, returnObj) {
       var targets = {_groups: []}
       var isTeeming = this.isTeemingSelected()
-      this.tableData.value.pulls[pullIndex].forEach((clones, enemyIndex) => {
+      for (const _enemyIndex in this.tableData.value.pulls[pullIndex]) {
+        if (!this.tableData.value.pulls[pullIndex].hasOwnProperty(_enemyIndex) || !parseInt(_enemyIndex)) {
+          continue
+        }
+
+        const clones = this.tableData.value.pulls[pullIndex][_enemyIndex]
+        const enemyIndex = _enemyIndex - 1
+
         // validate data
         if (!clones || !this.enemies[enemyIndex] || !this.enemies[enemyIndex].clones) {
           return
@@ -1174,7 +1179,7 @@ export default {
             targets._groups.push(this.enemies[enemyIndex].clones[cloneIndex].g)
           }
         })
-      })
+      }
       if (returnObj) {
         return targets
       }
@@ -1221,22 +1226,48 @@ export default {
       var targets = {}
       var isTeeming = this.isTeemingSelected()
 
-      this.tableData.value.pulls[pullIndex].forEach((clones, enemyIndex) => {
-        if (!clones || !this.enemies[enemyIndex] || !this.enemies[enemyIndex].clones) {
-          return
+      // if pull is saved in old format
+      if (Array.isArray(this.tableData.value.pulls[pullIndex])) {
+        var pullObj = {color: '228b22'}
+        this.tableData.value.pulls[pullIndex].forEach((clones, enemyIndex) => {
+          if (!clones || !this.enemies[enemyIndex] || !this.enemies[enemyIndex].clones) {
+            return
+          }
+          pullObj[enemyIndex] = clones
+        })
+        this.$set(this.tableData.pulls, pullIndex, pullObj)
+      }
+
+      for (const _enemyIndex in this.tableData.value.pulls[pullIndex]) {
+        if (!this.tableData.value.pulls[pullIndex].hasOwnProperty(_enemyIndex) || !parseInt(_enemyIndex)) {
+          continue
         }
+
+        const clones = this.tableData.value.pulls[pullIndex][_enemyIndex]
+        // convert string enemy ids to numeric
+        if (typeof _enemyIndex === 'string' && parseInt(_enemyIndex)) {
+          this.$delete(this.tableData.value.pulls[pullIndex], _enemyIndex)
+          this.$set(this.tableData.value.pulls[pullIndex], parseInt(_enemyIndex), clones)
+        }
+        const enemyIndex = parseInt(_enemyIndex) - 1
+        if (!clones) {
+          continue
+        }
+
         clones.forEach((cloneIndex) => {
           cloneIndex--
           if (!this.enemies[enemyIndex].clones[cloneIndex] || (this.enemies[enemyIndex].clones[cloneIndex].teeming && !isTeeming) || (this.enemies[enemyIndex].clones[cloneIndex].faction && this.tableData.faction !== this.enemies[enemyIndex].clones[cloneIndex].faction) || this.isCreatureNoTarget(this.enemies[enemyIndex].id)) {
             // if clone is set to current pullIndex, remove it
             if (this.enemies[enemyIndex].clones[cloneIndex] === pullIndex) {
               this.$set(this.enemies[enemyIndex].clones[cloneIndex], 'pull', -1)
+              this.$set(this.enemies[enemyIndex].clones[cloneIndex], 'color', null)
             }
             return
           }
 
           // add pull data
           this.$set(this.enemies[enemyIndex].clones[cloneIndex], 'pull', pullIndex)
+          this.$set(this.enemies[enemyIndex].clones[cloneIndex], 'color', this.tableData.value.pulls[pullIndex].color)
 
           groups[this.enemies[enemyIndex].clones[cloneIndex].g] = groups[this.enemies[enemyIndex].clones[cloneIndex].g] || []
           let meta = Object.assign({}, this.enemies[enemyIndex])
@@ -1255,9 +1286,9 @@ export default {
             targets._groups.push(this.enemies[enemyIndex].clones[cloneIndex].g)
           }
         })
-      })
+      }
 
-      var details = {groups: []}
+      var details = {groups: [], color: this.tableData.value.pulls[pullIndex].color || '228b22'}
       for (let g in groups) {
         if (!groups.hasOwnProperty(g)) continue
         details.groups.push({g: g, targets: groups[g]})
@@ -1319,7 +1350,7 @@ export default {
         case '148894':
           return {name: 'Lost Soul', portrait: 'https://media.wago.io/wow-ui-textures/ICONS/Ability_Warlock_ImprovedSoulLeech.PNG'}
       }
-      console.log('no match', creatureID, typeof creatureID)
+      console.log('unknown reaping creature', creatureID, typeof creatureID)
       return false
     },
 
@@ -1545,6 +1576,19 @@ export default {
     },
     toggleMDTOptions () {
       this.hideMobileOptions = !this.hideMobileOptions
+    },
+    hexToRGB (hex, alpha) {
+      if (!hex) {
+        hex = '228b22'
+      }
+      if (typeof alpha === 'undefined') {
+        alpha = 1
+      }
+      var rgb = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex)
+      if (!rgb) {
+        return this.hexToRGB('228b22')
+      }
+      return `rgba(${parseInt(rgb[1], 16)}, ${parseInt(rgb[2], 16)}, ${parseInt(rgb[3], 16)}, ${alpha})`
     }
   },
   computed: {
@@ -1617,11 +1661,12 @@ export default {
 .affixMeta { color: rgba(128,128,128,.6); font-size: 12px; position: absolute; left: 16px; top: 24px; }
 #changeAffixesBtn { margin-top: 0; }
 #mdtPulls .md-progress { margin-top: 4px }
-#mdtPulls .selected > div { background-color: rgba(99, 233, 30, 0.1); padding-top: 16px }
+#mdtPulls .selected > div { padding-top: 16px }
 #mdtPulls .selected > button { display: none }
+#mdtPulls .mdt-pull { border-left: 3px solid #228b22; }
 #mdtPulls .md-list-text-container > * { white-space: normal }
 #mdtPulls .reapingTargetIcon { display: inline-block; overflow: hidden; vertical-align: middle; box-sizing: initial; width: 36px; height: 36px; border-radius: 36px; background-position: -4px -4px; background-size: 120%;}
-#mdtPulls .reaping-pull { background: rgba(55, 8, 63, 0.3) }
+#mdtPulls .reaping-pull { border-left: 3px solid #37083f; background: rgba(55, 8, 63, 0.3) }
 .mdtGroupDetails > div { margin: 15px 0; }
 .mdtGroupDetails .groupnum:before { content: 'Group'; font-size: 9px; position: absolute; top: -15px; right: 6px; text-align: right }
 .mdtGroupDetails .singlepull:before { content: 'Singles'; font-size: 9px; position: absolute; top: -15px; right: 6px; text-align: right }
