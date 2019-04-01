@@ -28,6 +28,10 @@ const Schema = new mongoose.Schema({
 
   hidden : { type: Boolean, default: false, index: true, es_indexed: true },
   private : { type: Boolean, default: false, index: true, es_indexed: true },
+  restricted: { type: Boolean, default: false, index: true, es_indexed: true },
+  restrictedUsers: [{ type: String, index: true, es_indexed: true }], // user._id
+  restrictedGuilds: [{ type: String, index: true, es_indexed: true }], // guildKey 'region@Realm@Guild Name"
+  restrictedTwitchUsers: [{ type: String, index: true, es_indexed: true }], // user.twitch.id
   deleted : { type: Boolean, default: false, index: true, es_indexed: true },
 
   clone_of : String,

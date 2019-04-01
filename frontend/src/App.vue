@@ -79,6 +79,7 @@
         </div>
         <div id="hr-nav" class="md-hide-xsmall">
           <h2 class="md-title md-hide-small-and-up" id="logo"><router-link to="/"><img src="./assets/wagoio-logo.png"/></router-link></h2>
+          <img src="./assets/random.png" id="randombtn" @click="$router.push('/random')" />
           <select-locale display="code"></select-locale>
           <login-button></login-button>
         </div>
@@ -229,9 +230,7 @@ export default {
     // get user account and locale settings
     if (!this.isEmbed) {
       this.http.get('/account/whoami', params).then((res) => {
-        console.log(res.locale)
         if (res.locale && vue.$store.state.locale !== res.locale) {
-          console.log('save locale')
           vue.$store.commit('setLocale', res.locale)
         }
 
@@ -581,4 +580,6 @@ export default {
 
 .unreadCount { background: #c1272d; color: white; padding: 4px; border-radius: 2px;  }
 .md-snackbar-container { border: 1px solid black }
+
+#randombtn { height: 36px; opacity: 0.7; transition: all 1s ease-in; cursor: pointer; margin: 6px 8px }
 </style>

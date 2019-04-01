@@ -581,6 +581,14 @@ module.exports = function (fastify, opts, next) {
     }
   })
 
+  fastify.get('/random', async (req, res) => {
+    const count = await WagoItem.countDocuments({deleted: false, hidden: false, private: false, restricted: false})
+    const wago = await WagoItem.find({deleted: false, hidden: false, private: false, restricted: false}).limit(1).skip(Math.floor(Math.random() * count))
+    res.send({
+      slug: wago[0].slug
+    })
+  })
+
   // get site stats
   fastify.get('/statistics', async (req, res) => {
     if (!req.user || !req.user.access.beta) {
