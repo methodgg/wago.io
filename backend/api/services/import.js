@@ -602,6 +602,8 @@ module.exports = function (fastify, opts, next) {
     wago.modified = Date.now()
     await code.save()
     await wago.save()
+
+    discord.onUpdate(req.user, wago)
     res.send({success: true, wagoID: wago._id})
   })
   
@@ -702,6 +704,7 @@ module.exports = function (fastify, opts, next) {
         return res.code(400).send({error: 'invalid_import'})
     }
 
+    discord.onUpdate(req.user, wago)
     code.json = JSON.stringify(json)
     await code.save()
     res.send({success: true, wagoID: wago._id})
@@ -852,6 +855,7 @@ module.exports = function (fastify, opts, next) {
       },
       lua: req.body.lua
     })
+    discord.onUpdate(req.user, wago)
     await code.save()
     res.send({success: true, wagoID: wago._id})
   })
