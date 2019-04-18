@@ -81,13 +81,13 @@ module.exports = {
       {id: "gen15", slug: "general/pet-battles", cls:"misc", text: t("Pet Battles"), WEAKAURA: true, COLLECTION: true},
       {id: "gen16", slug: "general/warfronts", cls:"misc", text: t("Warfronts"), WEAKAURA: true, COLLECTION: true},
       {id: "gen17", slug: "general/island-expeditions", cls:"misc", text: t("Island Expeditions"), WEAKAURA: true, COLLECTION: true},
-      
+
       {id: "equip", slug: "equipment", cls:"equip", text: t("Equipment"), root: true, WEAKAURA: true, COLLECTION: true},
       {id: "legen", slug: "equipment/legendaries", cls:"equip", text: t("Legendaries"), WEAKAURA: true, COLLECTION: true},
       {id: "equip1", slug: "equipment/trinkets", cls:"equip", text: t("Trinkets"), WEAKAURA: true, COLLECTION: true},
       {id: "equip2", slug: "equipment/item-enhancements", cls:"equip", text: t("Item Enhancements"), WEAKAURA: true, COLLECTION: true},
       {id: "equip3", slug: "equipment/azerite-traits", cls:"equip", text: t("Azerite Traits"), WEAKAURA: true, COLLECTION: true},
-      
+
       {id: "mech", slug: "combat-mechanics", cls:"mechanics", text: t("Combat Mechanics"), root: true, WEAKAURA: true, COLLECTION: true},
       {id: "mech1", slug: "combat-mechanics/battle-resurrection", cls:"mechanics", text: t("Battle Resurrection"), WEAKAURA: true, COLLECTION: true},
       {id: "mech2", slug: "combat-mechanics/interrupts", cls:"mechanics", text: t("Interrupts"), WEAKAURA: true, COLLECTION: true},
@@ -119,6 +119,7 @@ module.exports = {
       {id: "platerraidzuldazar", slug: "plater/battle-of-zuldazar", cls:"snippets", text: t("warcraft:zones.10076"), root: true, PLATER: true},
       {id: "platerraidcrucible", slug: "plater/crucible-of-storms", cls:"snippets", text: t("warcraft:zones.10057"), root: true, PLATER: true},
       {id: "platerraiduldir", slug: "plater/uldir", cls:"snippets", text: t("warcraft:zones.9389"), root: true, PLATER: true},
+      {id: "platerraideternalpalace", slug: "plater/the-eternal-palace", cls:"snippets", text: t("warcraft:zones.10425"), root: true, PLATER: true},
       {id: "platerutilities", slug: "plater/utilities", cls:"snippets", text: t("Utilities"), root: true, PLATER: true},
 
       {id: "totalrp0", slug: "totalrp", cls:"rpcampaign", text: t("Total RP3"), systemtag: true, noselect: true, TOTALRP3: true},
@@ -134,19 +135,29 @@ module.exports = {
       {id: "totalrp10", slug: "totalrp/items/normal-mode", cls:"rpitem", text: t("Normal Mode"), TOTALRP3: true},
       {id: "totalrp11", slug: "totalrp/items/miscellaneous", cls:"rpitem", text: t("Miscellaneous"), TOTALRP3: true},
       {id: "totalrp12", slug: "totalrp/items/toys", cls:"rpitem", text: t("Toys"), TOTALRP3: true},
-      
+
       {id: "rplang1", slug: "totalrp/english", cls:"rplang", text: t("English"), root: true, TOTALRP3: true},
       {id: "rplang2", slug: "totalrp/french", cls:"rplang", text: t("French"), root: true, TOTALRP3: true},
       {id: "rplang3", slug: "totalrp/spanish", cls:"rplang", text: t("Spanish"), root: true, TOTALRP3: true},
       {id: "rplang4", slug: "totalrp/german", cls:"rplang", text: t("German"), root: true, TOTALRP3: true},
-      
 
-      // {id: "pve", slug: "pve", cls:"", text: t("PvE"), noselect: true, WEAKAURA: true},      
-      
+
+      // {id: "pve", slug: "pve", cls:"", text: t("PvE"), noselect: true, WEAKAURA: true},
+
+      {id: "raideternalpalace", slug: "pve/the-eternal-palace", cls:"eternalpalace", text: t("warcraft:zones.10425"), root: true, WEAKAURA: true, PLATER: true, COLLECTION: true},
+      {id: "raideternalpalace1", slug: "pve/the-eternal-palace/taloc-the-corrupted", cls:"eternalpalace", text: t("warcraft:bosses.151881"), WEAKAURA: true},
+      {id: "raideternalpalace2", slug: "pve/the-eternal-palace/mother", cls:"eternalpalace", text: t("warcraft:bosses.152364"), WEAKAURA: true},
+      {id: "raideternalpalace3", slug: "pve/the-eternal-palace/fetid-devourer", cls:"eternalpalace", text: t("warcraft:bosses.150653"), WEAKAURA: true},
+      {id: "raideternalpalace4", slug: "pve/the-eternal-palace/zekvoz-herald-of-nzoth", cls:"eternalpalace", text: t("warcraft:bosses.153142"), WEAKAURA: true},
+      {id: "raideternalpalace5", slug: "pve/the-eternal-palace/zul-reborn", cls:"eternalpalace", text: t("warcraft:bosses.152128"), WEAKAURA: true},
+      {id: "raideternalpalace6", slug: "pve/the-eternal-palace/mythrax-the-unraveler", cls:"eternalpalace", text: t("warcraft:bosses.152853"), WEAKAURA: true},
+      {id: "raideternalpalace7", slug: "pve/the-eternal-palace/vectis", cls:"eternalpalace", text: t("warcraft:bosses.151586"), WEAKAURA: true},
+      {id: "raideternalpalace8", slug: "pve/the-eternal-palace/ghuun", cls:"eternalpalace", text: t("warcraft:bosses.152910"), WEAKAURA: true},
+
       {id: "raidcrucible", slug: "pve/crucible-of-storms", cls:"crucible", text: t("warcraft:zones.10057"), root: true, WEAKAURA: true, PLATER: true, COLLECTION: true},
       {id: "raidcrucible1", slug: "pve/crucible-of-storms/the-restless-cabal", cls:"crucible", text: t("warcraft:bosses.146497"), WEAKAURA: true},
       {id: "raidcrucible2", slug: "pve/crucible-of-storms/uunat-harbinger-of-the-void", cls:"crucible", text: t("warcraft:bosses.145371"), WEAKAURA: true},
-      
+
       {id: "raidzuldazar", slug: "pve/battle-of-zuldazar", cls:"zuldazar", text: t("warcraft:zones.10076"), root: true, WEAKAURA: true, PLATER: true, COLLECTION: true},
       {id: "raidzuldazar1", slug: "pve/battle-of-zuldazar/frida-ironbellows", cls:"zuldazar", text: t("warcraft:bosses.144680"), WEAKAURA: true},
       {id: "raidzuldazar1b", slug: "pve/battle-of-zuldazar/ra-wani-kanae", cls:"zuldazar", text: t("warcraft:bosses.144683"), WEAKAURA: true},
@@ -218,7 +229,7 @@ module.exports = {
       {id: "dungeon7", slug: "pve/dungeons/halls-of-valor", cls:"dungeon", text: t("warcraft:zones.7672"), WEAKAURA: true},
       {id: "dungeon8", slug: "pve/dungeons/maw-of-souls", cls:"dungeon", text: t("warcraft:zones.7812"), WEAKAURA: true},
       {id: "dungeon9", slug: "pve/dungeons/neltharions-lair", cls:"dungeon", text: t("warcraft:zones.7546"), WEAKAURA: true},
-      {id: "dungeon11", slug: "pve/dungeons/return-to-karazhan", cls:"dungeon", text: t("warcraft:zones.8443"), WEAKAURA: true},  
+      {id: "dungeon11", slug: "pve/dungeons/return-to-karazhan", cls:"dungeon", text: t("warcraft:zones.8443"), WEAKAURA: true},
       {id: "dungeon13", slug: "pve/dungeons/seat-of-the-triumvirate", cls:"dungeon", text: t("warcraft:zones.8910"), WEAKAURA: true},
       {id: "dungeon10", slug: "pve/dungeons/vault-of-the-wardens", cls:"dungeon", text: t("warcraft:zones.7787"), WEAKAURA: true},
 
@@ -260,7 +271,7 @@ module.exports = {
 
       {id: "wpvp", slug: "pvp/world-pvp", cls:"pvp-world", text: t("World PvP"), root: true, WEAKAURA: true, COLLECTION: true},
       {id: "wpvp1", slug: "pvp/duels", cls:"pvp-world", text: t("Duels"), WEAKAURA: true},
-      
+
       // {id: "prof0", slug: "professions", cls:"prof", text: t("Professions"), noselect: true, WEAKAURA: true, COLLECTION: true},
       {id: "prof1", slug: "professions/gathering", cls:"prof-gathering", text: t("Gathering Professions"), root: true, WEAKAURA: true, COLLECTION: true},
       {id: "prof2", slug: "professions/gathering/herbalism", cls:"prof-gathering", text: t("warcraft:professions.herbalism"), WEAKAURA: true},
@@ -365,7 +376,7 @@ module.exports = {
       // {id: "mdtaffix15", slug: "affixes/relentless", cls:"affixes", text: t("Relentless"), MDT: true, systemtag: true, noselect: true},
       {id: "mdtaffix16", slug: "affixes/infested", cls:"affixes", text: t("Infested"), MDT: true, systemtag: true, noselect: true},
       {id: "mdtaffix117", slug: "affixes/reaping", cls:"affixes", text: t("Reaping"), MDT: true, systemtag: true, noselect: true},
-      
+
       {id: "mdtaffix-bfa-s1-w1", slug: "affixes/s1/week1", cls:"affixes", text: t("[-affix1-] [-affix2-] [-affix3-] [-affix4-]", {affix1: t('Raging'), affix2: t('Volcanic'), affix3: t('Tyrannical'), affix4: t('Infested')}), MDT: true, systemtag: true, noselect: true},
       {id: "mdtaffix-bfa-s1-w2", slug: "affixes/s1/week2", cls:"affixes", text: t("[-affix1-] [-affix2-] [-affix3-] [-affix4-]", {affix1: t('Teeming'), affix2: t('Explosive'), affix3: t('Fortified'), affix4: t('Infested')}), MDT: true, systemtag: true, noselect: true},
       {id: "mdtaffix-bfa-s1-w3", slug: "affixes/s1/week3", cls:"affixes", text: t("[-affix1-] [-affix2-] [-affix3-] [-affix4-]", {affix1: t('Bolstering'), affix2: t('Grievous'), affix3: t('Tyrannical'), affix4: t('Infested')}), MDT: true, systemtag: true, noselect: true},
@@ -480,7 +491,7 @@ module.exports = {
     })
     return matched
   },
-  
+
   // find category by searching id, localized text or url slug
   search: function (str, t, idPrefix) {
     if (!t) {
@@ -508,7 +519,7 @@ module.exports = {
     var cats = this.categories(t)
     var classes = []
     cats.forEach((cat, key) => {
-      if (cat.id === 'cl1' || cat.id === 'cl2' || cat.id === 'cl3' || cat.id === 'cl4' || cat.id === 'cl5' || cat.id === 'cl6' || 
+      if (cat.id === 'cl1' || cat.id === 'cl2' || cat.id === 'cl3' || cat.id === 'cl4' || cat.id === 'cl5' || cat.id === 'cl6' ||
       cat.id === 'cl7' || cat.id === 'cl8' || cat.id === 'cl9' || cat.id === 'cl10' || cat.id === 'cl11' || cat.id === 'cl12') {
         classes.push(cat)
       }
@@ -557,10 +568,10 @@ module.exports = {
   professionCategories: function (t) {
     var gathering = this.getCategories(['prof1'], t)[0]
     gathering.specs = this.getCategories(['prof2', 'prof3', 'prof4'], t)
-    
+
     var crafting = this.getCategories(['prof5'], t)[0]
     crafting.specs = this.getCategories(['prof5', 'prof6', 'prof7', 'prof8', 'prof9', 'prof10', 'prof11', 'prof12', 'prof13'], t)
-    
+
     var secondary = this.getCategories(['prof14'], t)[0]
     secondary.specs = this.getCategories(['prof15', 'prof16', 'prof17', 'prof18'], t)
 
@@ -628,18 +639,18 @@ module.exports = {
     })
     return children
   },
- 
+
   getCategory: function (id, t) {
     return this.getCategories([id], t)
   },
- 
+
   getCategories: function (ids, t, doNotSortAlpha) {
     var cats = this.categories(t)
     var selected = []
     ids.forEach((c) => {
       cats.forEach((cat) => {
         if (c instanceof RegExp && cat.id.match(c)) {
-          selected.push(cat) 
+          selected.push(cat)
         }
         else if (c == cat.id) {
           selected.push(cat)
@@ -683,7 +694,7 @@ module.exports = {
     })
     return clones
   },
-  
+
   getRoot: function (cat) {
     var cats = this.categories()
     for (var i = 0; i < cats.length; i++) {
@@ -714,7 +725,7 @@ module.exports = {
     }
     return groups
   },
-  
+
   relevanceScores: function (cats) {
     var scores = {
       standard: 0,
@@ -734,6 +745,6 @@ module.exports = {
   }
 }
 
-function filterArrayUnique(value, index, self) { 
+function filterArrayUnique(value, index, self) {
   return self.indexOf(value) === index;
 }

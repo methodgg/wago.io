@@ -93,7 +93,8 @@
     "9327": "Tol Dagor",
     "9424": "Waycrest Manor",
     "10057": "Crucible of Storms",
-    "10076": "Battle of Dazar'alor"
+    "10076": "Battle of Dazar'alor",
+    "10425": "The Eternal Palace"
   },
   "bosses": {
     "76809": "Blast Furnace",
@@ -187,7 +188,15 @@
     "146497": "Zaxasj the Speaker",
     "147564": "Opulence",
     "144747": "Conclave of the Chosen",
-    "133251": "Lady Jaina Proudmoore"
+    "133251": "Lady Jaina Proudmoore",
+    "151881": "Abyssal Commander Sivara",
+    "152364": "Rage of Azshara",
+    "150653": "Underwater Monstrosity",
+    "153142": "Lady Priscilla Ashvane",
+    "152128": "The Hatchery",
+    "152853": "The Queen's Court",
+    "151586": "Herald of N'zoth",
+    "152910": "Queen Azshara"
   },
   "professions": {
     "alchemy": "Alchemy",

@@ -1,5 +1,5 @@
 <template>
-  <div id="search-plater"> 
+  <div id="search-plater">
     <form novalidate @submit.stop.prevent="runSearch(searchString)" id="searchForm">
       <md-input-container>
         <label>{{ $t("Search") }}</label>
@@ -10,7 +10,7 @@
     <md-layout>
       <md-layout>
         <md-subheader>Plater</md-subheader>
-        <md-list class="md-double-line md-dense">          
+        <md-list class="md-double-line md-dense">
           <md-list-item class="md-inset plater">
             <category-image group="plater"></category-image>
             <div class="md-list-text-container">
@@ -22,7 +22,7 @@
           </md-list-item>
         </md-list>
 
-        <md-list class="md-double-line md-dense">          
+        <md-list class="md-double-line md-dense">
           <md-list-item class="md-inset snippets">
             <category-image group="snippets"></category-image>
             <div class="md-list-text-container">
@@ -36,7 +36,7 @@
 
         <md-subheader>{{ $t("Class Roles") }}</md-subheader>
         <md-list class="md-double-line md-dense">
-          
+
           <md-list-item class="md-inset roles">
             <category-image group="role"></category-image>
             <div class="md-list-text-container">
@@ -94,7 +94,7 @@ export default {
       return categories.getCategories(['plater1', 'plater2', 'plater3', 'plater4', 'plater5'], this.$t)
     },
     content: function () {
-      return categories.getCategories(['platerpvp', 'platerdungeons', 'platerraidzuldazar', 'platerraidcrucible', 'platerraiduldir', 'platerutilities'], this.$t)
+      return categories.getCategories(['platerpvp', 'platerdungeons', 'platerraidzuldazar', 'platerraidcrucible', 'platerraideternalpalace', 'platerraiduldir', 'platerutilities'], this.$t)
     }
   },
   mounted: function () {

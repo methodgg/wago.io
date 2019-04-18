@@ -1,5 +1,5 @@
 <template>
-  <div>    
+  <div>
     <img src="./../../assets/menu-warrior.png" v-if="group === 'cl-warrior'"/>
     <img src="./../../assets/menu-paladin.png" v-else-if="group === 'cl-paladin'"/>
     <img src="./../../assets/menu-hunter.png" v-else-if="group === 'cl-hunter'"/>
@@ -14,6 +14,7 @@
     <img src="./../../assets/menu-demonhunter.png" v-else-if="group === 'cl-demonhunter'"/>
     <img src="./../../assets/menu-zuldazar.png" v-if="group === 'zuldazar'"/>
     <img src="./../../assets/menu-cruciblestorms.png" v-if="group === 'crucible'"/>
+    <img src="./../../assets/menu-eternalpalace.png" v-if="group === 'eternalpalace'"/>
     <img src="./../../assets/menu-uldir.png" v-if="group === 'uldir'"/>
     <img src="./../../assets/menu-antorus.png" v-if="group === 'antorus'"/>
     <img src="./../../assets/menu-tombofsarg.png" v-else-if="group === 'tombofsargeras'"/>

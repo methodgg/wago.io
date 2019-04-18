@@ -1,5 +1,5 @@
 <template>
-  <div id="search-weakaura">    
+  <div id="search-weakaura">
     <form novalidate @submit.stop.prevent="runSearch(searchString)" id="searchForm">
       <md-input-container>
         <label>{{ $t("Search") }}</label>
@@ -35,7 +35,7 @@
             </div>
           </md-list-item>
         </md-list>
-        
+
         <md-subheader>{{ $t("PvP") }}</md-subheader>
         <md-list class="md-double-line md-dense">
           <md-list-item v-for="item in pvp" v-bind:key="item.id" :class="item.cls + ' md-inset'">
@@ -48,7 +48,7 @@
             </div>
           </md-list-item>
         </md-list>
-        
+
         <md-subheader>{{ $t("PTR") }}</md-subheader>
         <md-list class="md-double-line md-dense">
           <md-list-item v-for="raid in ptr" v-bind:key="raid.id" :class="raid.cls + ' md-inset'">
@@ -65,7 +65,7 @@
       </md-layout>
       <md-layout>
         <md-subheader>{{ $t("Miscellaneous") }}</md-subheader>
-        <md-list class="md-double-line md-dense">          
+        <md-list class="md-double-line md-dense">
           <md-list-item class="md-inset roles">
             <category-image group="role"></category-image>
             <div class="md-list-text-container">
@@ -118,7 +118,7 @@
               </span>
             </div>
           </md-list-item>
-        </md-list>        
+        </md-list>
 
       </md-layout>
       <md-layout>
@@ -133,7 +133,7 @@
               </span>
             </div>
           </md-list-item>
-          
+
           <md-list-item class="md-inset snippets">
             <category-image group="snippets"></category-image>
             <div class="md-list-text-container">
@@ -186,10 +186,10 @@ export default {
       return categories.classCategories(this.$t)
     },
     raids: function () {
-      return categories.raidCategories(['raidzuldazar', 'bfadungeon', 'raiduldir'], this.$t)
+      return categories.raidCategories(['raidcrucible', 'raidzuldazar', 'bfadungeon'], this.$t)
     },
     ptr: function () {
-      return categories.raidCategories(['raidcrucible'], this.$t)
+      return categories.raidCategories(['raideternalpalace'], this.$t)
     },
     misc: function () {
       return categories.getCategories(['gen1', 'gen7', 'gen2', 'gen6', 'gen9', 'gen10', 'gen11', 'gen12', 'gen14', 'gen13', 'gen8', 'gen15', 'gen16', 'gen17'], this.$t)
@@ -216,7 +216,7 @@ export default {
       return categories.getCategories(['snip1', 'snip2'], this.$t)
     },
     legacy: function () {
-      return categories.getCategories(['raidantorus', 'raidtomb', 'raidnh', 'raidtov', 'raiden', 'dungeon', 'raidhfc'], this.$t, true)
+      return categories.getCategories(['raiduldir', 'raidantorus', 'raidtomb', 'raidnh', 'raidtov', 'raiden', 'dungeon', 'raidhfc'], this.$t, true)
     }
   },
   mounted: function () {

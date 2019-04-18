@@ -1,7 +1,7 @@
 #content a:not(.md-button) { color: #d7373d }
 
 /**************
-* CATEGORIES 
+* CATEGORIES
 ***************/
 .md-chip { border-radius:4px!important; margin:0 6px 6px 0; background-repeat: no-repeat; background-position: 2px 5px; background-size: 22px 22px; text-shadow: 1px 1px rgba(0, 0, 0, 0.12); }
 .multiselect .md-chip { background-image: none!important; margin: 0}
@@ -160,6 +160,11 @@
 .md-chip.crucible { color: #3329b3!important; background-image: url('menu-cruciblestorms.png') }
 .crucible a, .crucible { color: #3329b3!important}
 .multiselect .md-chip.crucible { background-color: #3329b3!important; color: black!important }
+.theme-dark .crucible a, .theme-dark .crucible, .theme-dark .md-chip.crucible { color: #4c41dc!important}
+
+.md-chip.eternalpalace { color: #FF98EC!important; background-image: url('menu-eternalpalace.png') }
+.eternalpalace a, .eternalpalace { color: #FF98EC!important}
+.multiselect .md-chip.eternalpalace { background-color: #FF98EC!important; color: black!important }
 
 .md-chip.hellfirecitadel { color: #689E12!important; background-image: url('menu-hellfirecitadel.png') }
 .hellfirecitadel a, .hellfirecitadel { color: #689E12!important}
