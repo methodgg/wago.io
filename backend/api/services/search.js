@@ -288,7 +288,7 @@ module.exports = function (fastify, opts, next) {
         if (collection.hidden) {
           searchSettings.showHidden = true // show hidden imports if they are part of a hidden collection
         }
-        esFilter.push({simple_query_string: {query: collection.collect.join(' '), fields: ["_id"] }})
+        esFilter.push({simple_query_string: {query: '"'+collection.collect.join('" "')+'"', fields: ["_id"] }})
       }
     }
 
