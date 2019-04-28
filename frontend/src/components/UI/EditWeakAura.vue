@@ -20,7 +20,7 @@
           <md-menu-content>
             <md-menu-item v-for="(wa, key) in groupedWA" @click="extractWA(wa)" :key="key">{{ wa }}</md-menu-item>
           </md-menu-content>
-        </md-menu>        
+        </md-menu>
         <md-button @click="exportChanges"><md-icon>open_in_new</md-icon> {{ $t("Export/Fork changes") }}</md-button>
         <md-button v-if="canEdit" @click="generateNextVersionData(); $refs['saveChangesDialog'].open()" ref="saveChangesButton"><md-icon>save</md-icon> {{ $t("Save changes") }}</md-button>
       </div>
@@ -109,7 +109,6 @@ export default {
         /* eslint-disable no-unused-vars */
         /* eslint-disable no-eval */
         var root
-
         // if switching FROM table data TO a custom Fn
         if (fn && this.editorPrevious === 'tabledata') {
           this.$store.commit('setWagoJSON', this.aceEditor.getValue())
@@ -214,15 +213,24 @@ export default {
       if (!this.tableData.d) {
         return []
       }
-      var auras = this.tableData.c || [this.tableData.d]
+      this.tableData.d._table = 'd'
+      var auras = [this.tableData.d]
+      if (this.tableData.c && Array.isArray(this.tableData.c)) {
+        auras = auras.concat(this.tableData.c)
+      }
       if (typeof auras === 'object') {
         auras = Object.values(auras)
       }
-      var table = this.tableData.c && 'c' || 'd'
       var func = []
       // loop through each aura in array and look for pre-defined custom functions
       auras.forEach((item, key) => {
-        var ix = {index: key, table: table}
+        var ix
+        if (item._table === 'd') {
+          ix = {index: 0, table: 'd'}
+        }
+        else {
+          ix = {index: key - 1, table: 'c'}
+        }
 
         // actions functions
         if (item.actions) {
@@ -268,6 +276,10 @@ export default {
             func.push(item.id)
           }
           func.push({ id: item.id, name: this.$t('DisplayStacks'), ix: ix, path: 'customText' })
+        }
+
+        if (item.grow === 'CUSTOM' && item.customGrow) {
+          func.push({ id: item.id, name: this.$t('Custom Grow'), ix: ix, path: 'customGrow' })
         }
 
         // triggers

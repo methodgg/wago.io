@@ -31,16 +31,16 @@ module.exports = {
       return await makeDiffs(tblA, tblB)
     }
     else if (typeof jsonA[8] === 'object' && typeof jsonB[8] === 'object') { // Plater hook
-      return await makeDiffs(jsonA[8], jsonB[8]) 
+      return await makeDiffs(jsonA[8], jsonB[8])
     }
   },
-  
+
   WeakAuras: async (jsonA, jsonB) => {
     var tblA = JSON.parse(jsonA)
     var tblB = JSON.parse(jsonB)
 
-    var customA = getCustomCodeWA(tblA.c || [tblA.d])
-    var customB = getCustomCodeWA(tblB.c || [tblB.d])
+    var customA = getCustomCodeWA([tblA.d].concat(tblA.c))
+    var customB = getCustomCodeWA([tblB.d].concat(tblB.c))
 
     return await makeDiffs(customA, customB)
   }
@@ -77,7 +77,7 @@ async function makeDiffs (compareA, compareB) {
     fs.unlink(fileA)
     fs.unlink(fileB)
   }
-  return diffs  
+  return diffs
 }
 
 async function makeTmpFile(contents) {
@@ -95,7 +95,7 @@ function getCustomCodeWA(data) {
   var auras = Object.keys(data).map((key) => {
     return data[key];
   })
-  
+
   auras.forEach((item, key) => {
     // actions functions
     if (item.actions) {
@@ -130,6 +130,11 @@ function getCustomCodeWA(data) {
       code[item.id + ': DisplayStacks'] = item.customText
     }
 
+    // custom grow
+    if (item.grow === 'CUSTOM' && item.customGrow) {
+      code[item.id + ': CustomGrow'] = item.customGrow
+    }
+
     // triggers
     if (item.triggers && item.triggers['1']) {
       let n = 1
@@ -139,7 +144,7 @@ function getCustomCodeWA(data) {
       }
       while (item.triggers[k] && item.triggers[k].trigger) {
         if (item.triggers[k].trigger.type === 'custom' && item.triggers[k].trigger.custom) {
-         
+
           code[item.id + ': Trigger ('+k+')'] = item.triggers[k].trigger.custom
 
           // untrigger
