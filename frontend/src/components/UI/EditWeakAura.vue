@@ -282,6 +282,10 @@ export default {
           func.push({ id: item.id, name: this.$t('Custom Grow'), ix: ix, path: 'customGrow' })
         }
 
+        if (item.sort === 'custom' && item.customSort) {
+          func.push({ id: item.id, name: this.$t('Custom Sort'), ix: ix, path: 'customSort' })
+        }
+
         // triggers
         if (item.triggers && item.triggers['1']) {
           let n = 1

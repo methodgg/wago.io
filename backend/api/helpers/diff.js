@@ -134,6 +134,10 @@ function getCustomCodeWA(data) {
     if (item.grow === 'CUSTOM' && item.customGrow) {
       code[item.id + ': CustomGrow'] = item.customGrow
     }
+    // custom sort
+    if (item.grow === 'CUSTOM' && item.customSort) {
+      code[item.id + ': CustomSort'] = item.customSort
+    }
 
     // triggers
     if (item.triggers && item.triggers['1']) {
