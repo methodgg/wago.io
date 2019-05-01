@@ -280,7 +280,7 @@ async function battlenetAuth(req, res, region) {
   if (authResponse && authResponse.data.id) {
     var auth = {
       id: authResponse.data.id,
-      name: authResponse.data.name
+      name: authResponse.data.battletag
     }
     // get user and return, then fetch characters. Browser checks updateStatus until update is complete.
     oAuthLogin(req, res, battlenetField, auth, async (user) => {
@@ -328,6 +328,7 @@ async function battlenetAuth(req, res, region) {
       }
 
       var chars = []
+      var guilds = []
       var mostRecent = 0
       var avatarURL = ''
       Object.keys(profiles).forEach((region) => {
@@ -335,6 +336,12 @@ async function battlenetAuth(req, res, region) {
           return
         }
         profiles[region].forEach((c) => {
+          if (c.guild && c.guildRealm) {
+            var guildKey = `${region}@${c.guildRealm}@${c.guild}`
+            if (guilds.indexOf(guildKey) === -1) {
+              guilds.push(guildKey)
+            }
+          }
           if (c.level >= 110) {
             chars.push({region: region, realm: c.realm, name: c.name, guild: c.guild, guildRealm: c.guildRealm })
             if (mostRecent < c.lastModified) {
@@ -349,7 +356,9 @@ async function battlenetAuth(req, res, region) {
         if (!img.error) {
           user[battlenetField].avatar = img
         }
+        user[battlenetField].name = auth.name
         user[battlenetField].characters = chars
+        user[battlenetField].guilds = guilds
         user[battlenetField].updateStatus = 'done'
         user.account.verified_human = true
         user.save()
@@ -563,9 +572,11 @@ async function oAuthLogin(req, res, provider, authUser, callback) {
   var oauthUser = await User.findOne(query)
   // if already logged in and oauth matches
   if (req.user && ((oauthUser && req.user._id.equals(oauthUser._id)))) {
+    if (avatarURL) {
     var img = await image.avatarFromURL(avatarURL, oauthUser._id.toString(), provider)
     if (!img.error) {
       profile.avatar = img
+    }
     }
 
     // update profile
