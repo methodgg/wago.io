@@ -6,7 +6,7 @@ const mdtWeekReset = 670
 
 // where region is NA, EU, KR, TW or CN
 function getHost (region) {
-  switch (region) {
+  switch (region.toUpperCase()) {
     case 'NA':
       return 'https://us.api.blizzard.com'
     case 'EU':
@@ -39,7 +39,7 @@ async function getToken (region) {
         password: config.auth.battlenet.clientSecret
       }
     })
-  
+
     if (response && response.data && response.data.access_token) {
       return response.data.access_token
     }
@@ -58,7 +58,13 @@ function getAPI (region, endpoint, token) {
   if (namespace === 'dynamic-na') {
     namespace = 'dynamic-us'
   }
-  return axios.get(getHost(region) + endpoint + '?namespace=' + namespace, {
+  if (endpoint.match(/\?/)) {
+    endpoint = endpoint + '&namespace=' + namespace
+  }
+  else {
+    endpoint = endpoint + '?namespace=' + namespace
+  }
+  return axios.get(getHost(region) + endpoint, {
     headers: {
       Authorization: 'Bearer ' + token
     }
@@ -79,7 +85,7 @@ module.exports = {
     await updateMDTWeek('EU', token)
     await updateMDTWeek('KR', token)
     await updateMDTWeek('TW', token)
-    
+
     // const tokenCN = await getToken('CN')
     // await updateMDTWeek('CN', tokenCN)
   },
@@ -96,16 +102,17 @@ module.exports = {
     const token = await getToken()
     var result = await getAPI('NA', '/wow/' + spellLookup, token)
     try {
+      // icon file search disabled until updated to use s3
       // blizz API gives lowercase icon name, so find the actual case-sensitive filename
-      const regex = new RegExp('^' + result.data.icon + '\.png$', 'i')
-      const files = await fs.readdir('/nfs/media/wow-ui-textures/ICONS')
-      for (let i = 0; i < files.length; i++) {
-        if (files[i].match(regex)) {
-          result.data.iconFile = files[i]
-          BlizzData.findOneAndUpdate({_id: spellLookup, locale: locale}, {_id: spellLookup, locale: locale, value: result.data}, {upsert: true}).exec()
-          return result.data
-        }
-      }
+      // const regex = new RegExp('^' + result.data.icon + '\.png$', 'i')
+      // const files = await fs.readdir('/nfs/media/wow-ui-textures/ICONS')
+      // for (let i = 0; i < files.length; i++) {
+      //   if (files[i].match(regex)) {
+      //     result.data.iconFile = files[i]
+      //     BlizzData.findOneAndUpdate({_id: spellLookup, locale: locale}, {_id: spellLookup, locale: locale, value: result.data}, {upsert: true}).exec()
+      //     return result.data
+      //   }
+      // }
       BlizzData.findOneAndUpdate({_id: spellLookup, locale: locale}, {_id: spellLookup, locale: locale, value: result.data}, {upsert: true}).exec()
       return result.data
     }
@@ -124,6 +131,8 @@ module.exports = {
       return doc.value
     }
     try {
+      return {error: 'not found'}
+      // icon file search disabled until updated to use s3
       const files = await fs.readdir('/nfs/media/wow-ui-textures/ICONS')
       const regex = new RegExp('^' + text + '\.png$', 'i')
       for (let i = 0; i < files.length; i++) {
@@ -136,6 +145,20 @@ module.exports = {
     catch (e) {
       console.log('ERR BNET SEARCH SPELL', text, e.message)
       return {error: 'not found'}
+    }
+  },
+
+  lookupGuild: async (region, realm, guildname) => {
+    const token = await getToken()
+    try {
+      const guild = await getAPI(region, `/wow/guild/${realm}/${guildname}?fields=members`, token)
+      return guild.data
+    }
+    catch (e) {
+      if (e.response && e.response.status === 404) {
+        return "NOGUILD"
+      }
+      return {}
     }
   }
 }

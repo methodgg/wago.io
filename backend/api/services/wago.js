@@ -3,6 +3,7 @@ const mkdirp = require('mkdirp-promise')
 const Magic = require('promise-mmmagic')
 const magic = new Magic(Magic.MAGIC_MIME_TYPE)
 const videoParser = require('js-video-url-parser')
+const tmpDir = __dirname + '/../../run-tmp/'
 
 module.exports = function (fastify, opts, next) {
   // sets favorite for a wago
@@ -257,13 +258,24 @@ module.exports = function (fastify, opts, next) {
     var screen = new Screenshot({auraID: wago._id.toString()})
     screen.localFile = screen._id.toString() + '.' + match[1] // filename
 
-    // prepare save location
-    await mkdirp('/nfs/media/screenshots/' + wago._id)
+    // save tmp location TODO: make an s3.uploadBuffer func
+    await fs.writeFile(tmpDir + screen.localFile, buffer)
 
-    // store image
-    await fs.writeFile('/nfs/media/screenshots/' + wago._id + '/' + screen.localFile, buffer)
+    // upload to s3
+    const uploader = s3.uploadFile({
+      localFile: tmpDir + screen.localFile,
+      s3Params: {
+        Bucket: 'wago-media',
+        Key: `screenshots/${wago._id}/${screen.localFile}`
+      }
+    })
+    uploader.on('error', err => {
+      res.send({success: false})
+    })
+    uploader.on('end', async () => {
     await screen.save()
     res.send({success: true, _id: screen._id.toString(), src: screen.url})
+  })
   })
 
   // add image/video by URL
@@ -365,13 +377,24 @@ module.exports = function (fastify, opts, next) {
         screen.auraID = wago._id
         screen.localFile = screen._id.toString() + '.' + match[1] // filename
 
-        // prepare save location
-        await mkdirp('/nfs/media/screenshots/' + wago._id)
+        // save tmp location TODO: make an s3.uploadBuffer func
+        await fs.writeFile(tmpDir + screen.localFile, buffer)
 
-        // store image
-        await fs.writeFile('/nfs/media/screenshots/' + wago._id + '/' + screen.localFile, buffer)
+        // upload to s3
+        const uploader = s3.uploadFile({
+          localFile: tmpDir + screen.localFile,
+          s3Params: {
+            Bucket: 'wago-media',
+            Key: `screenshots/${wago._id}/${screen.localFile}`
+          }
+        })
+        uploader.on('error', err => {
+          res.send({success: false})
+        })
+        uploader.on('end', async () => {
         await screen.save()
         res.send({success: true, _id: screen._id.toString(), src: screen.url})
+        })
       }
       catch (e) {
         console.log(e)

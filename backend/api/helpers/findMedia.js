@@ -54,6 +54,7 @@ const regexFilepaths = [
 ]
 
 const parsePath = async (path) => {
+  return false // file search disabled until updated for s3
   if (!path) {
     return false
   }
@@ -70,7 +71,7 @@ const parsePath = async (path) => {
       }
     }
   }
-  
+
   return data
 }
 

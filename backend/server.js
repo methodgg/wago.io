@@ -22,6 +22,7 @@ global.bluebird = require('bluebird')
 global.commonRegex = require('./commonRegex')
 global.fs = require('fs').promises
 global.mongoose = require('mongoose')
+global.s3 = require('./s3Client')
 
 // --- FASTIFY PLUGINS
 fastify.register(require('fastify-cookie'))
