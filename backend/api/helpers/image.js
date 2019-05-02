@@ -6,6 +6,7 @@ const mkdirp = require('mkdirp-promise')
 const Magic = require('promise-mmmagic')
 const magic = new Magic(Magic.MAGIC_MIME_TYPE)
 const webpc = require('webp-converter')
+const s3 = require('../helpers/s3Client')
 const rimraf = require('rimraf')
 const nothing = () => {}
 
@@ -38,26 +39,18 @@ module.exports = {
       const png = sharp(buffer).resize(64, 64).resize({fit: 'fill'}).toFormat('png').toFile(saveToDirectory + '/u-' + time + '.png')
       await webp
       await png
-      const uploadPromise = new Promise(resolve => {
-        const uploader = s3.uploadDir({
-          localDir: saveToDirectory,
-          s3Params: {
-            Bucket: 'wago-media',
-            Prefix: `avatars/${userID}/`
-          }
-        })
-        uploader.on('error', err => {
-          resolve({error: 'invalid_image'})
-          rimraf(saveToDirectory, nothing)
-        })
-        uploader.on('end', () => {
-          resolve({webp: 'https://media.wago.io/avatars/' + userID + '/u-' + time + '.webp', png: 'https://media.wago.io/avatars/' + userID + '/u-' + time + '.png'})
-          rimraf(saveToDirectory, nothing)
-        })
+      await s3.uploadDir({
+        localDir: saveToDirectory,
+        s3Params: {
+          Bucket: 'wago-media',
+          Prefix: `avatars/${userID}/`
+        }
       })
-      return await uploadPromise
+      rimraf(saveToDirectory, nothing)
+      return {webp: 'https://media.wago.io/avatars/' + userID + '/u-' + time + '.webp', png: 'https://media.wago.io/avatars/' + userID + '/u-' + time + '.png'}
     }
     catch (e) {
+      console.log(e)
       rimraf(saveToDirectory, nothing)
       return {error: 'invalid_image'}
     }
@@ -92,26 +85,18 @@ module.exports = {
         await png
         returnData = {webp: 'https://media.wago.io/avatars/' + userID + '/b-' + time + '.webp', png: 'https://media.wago.io/avatars/' + userID + '/b-' + time + '.png'}
       }
-      const uploadPromise = new Promise(resolve => {
-        const uploader = s3.uploadDir({
-          localDir: saveToDirectory,
-          s3Params: {
-            Bucket: 'wago-media',
-            Prefix: `avatars/${userID}/`
-          }
-        })
-        uploader.on('error', err => {
-          resolve({error: 'invalid_image'})
-          rimraf(saveToDirectory, nothing)
-        })
-        uploader.on('end', () => {
-          resolve(returnData)
-          rimraf(saveToDirectory, nothing)
-        })
+      await s3.uploadDir({
+        localDir: saveToDirectory,
+        s3Params: {
+          Bucket: 'wago-media',
+          Prefix: `avatars/${userID}/`
+        }
       })
-      return await uploadPromise
+      rimraf(saveToDirectory, nothing)
+      return returnData
     }
     catch (e) {
+      rimraf(saveToDirectory, nothing)
       return {error: 'invalid_image'}
     }
   },
@@ -130,23 +115,15 @@ module.exports = {
       const png = sharp(buffer).toFormat('png').toFile(saveToFile + '.png')
       await webp
       await png
-      const uploadPromise = new Promise(resolve => {
-        const uploader = s3.uploadDir({
-          localDir: saveToDirectory,
-          s3Params: {
-            Bucket: 'wago-media',
-            Prefix: 'mdt/'
-          }
-        })
-        uploader.on('error', err => {
-          resolve({error: 'invalid_image'})
-        })
-        uploader.on('end', () => {
-          cloudflare.zones.purgeCache(config.cloudflare.zoneID, {files: [img.png, img.webp]})
-          resolve({web: 'https://media.wago.io/mdt/' + filename + '.webp', png: 'https://media.wago.io/mdt/' + filename + '.png'})
-        })
+      await s3.uploadDir({
+        localDir: saveToDirectory,
+        s3Params: {
+          Bucket: 'wago-media',
+          Prefix: 'mdt/'
+        }
       })
-      return await uploadPromise
+      cloudflare.zones.purgeCache(config.cloudflare.zoneID, {files: [img.png, img.webp]})
+      return {web: 'https://media.wago.io/mdt/' + filename + '.webp', png: 'https://media.wago.io/mdt/' + filename + '.png'}
     }
     catch (e) {
       return {error: 'invalid_image'}
