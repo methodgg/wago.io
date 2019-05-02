@@ -1,5 +1,6 @@
 const semver = require('semver')
 const mkdirp = require('mkdirp-promise')
+const s3 = require('../helpers/s3Client')
 const Magic = require('promise-mmmagic')
 const magic = new Magic(Magic.MAGIC_MIME_TYPE)
 const videoParser = require('js-video-url-parser')
