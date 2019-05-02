@@ -16,14 +16,6 @@ const s3ClientParams = {
 }
 
 module.exports = {
-  uploadDir: (params) => {
-    const client = s3.createClient(s3ClientParams)
-    return promise = new Promise((resolve, reject) => {
-      const uploader = client.uploadDir(params)
-      uploader.on('error', (e) => reject(e))
-      uploader.on('end', resolve)
-    })
-  },
   uploadFile: (params) => {
     const client = s3.createClient(s3ClientParams)
     return promise = new Promise((resolve, reject) => {

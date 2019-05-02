@@ -211,20 +211,17 @@ Schema.virtual('account.total_accounts').get(function() {
 
 // avatar url or default to adorable.io
 Schema.virtual('avatarURL').get(function() {
-  if (this.profile.avatar && this.profile.avatar.webp) {
+  if (this.profile.avatar && (this.profile.avatar.webp || this.profile.avatar.png)) {
     return this.profile.avatar
   }
   else {
-    var user = this
     const image = require('../helpers/image')
-    image.avatarFromURL('https://api.adorable.io/avatars/64/' + this._id.toString() + '.png', this._id.toString(), 'adorable', (img) => {
+    image.avatarFromURL('https://api.adorable.io/avatars/64/' + this._id.toString() + '.png', this._id.toString(), 'adorable').then((img) => {
       this.profile.avatar = img
-      this.save().then(() => {
-
-      })      
+      this.save()
     })
     // next time, this image will be saved locally but return remote image now instead of waiting
-    return 'https://api.adorable.io/avatars/64/' + this._id.toString() + '.png'
+    return {png: 'https://api.adorable.io/avatars/64/' + this._id.toString() + '.png'}
   }
 })
 

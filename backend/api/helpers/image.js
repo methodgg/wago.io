@@ -7,10 +7,8 @@ const Magic = require('promise-mmmagic')
 const magic = new Magic(Magic.MAGIC_MIME_TYPE)
 const webpc = require('webp-converter')
 const s3 = require('../helpers/s3Client')
-const rimraf = require('rimraf')
-const nothing = () => {}
 
-const tmpDir = __dirname + '/../../run-tmp/'
+const tmpDir = __dirname + '/../../run-tmp'
 
 module.exports = {
   avatarFromURL: async (url, userID) => {
@@ -18,8 +16,6 @@ module.exports = {
       return {error: 'bad_input'}
     }
 
-    const saveToDirectory = tmpDir + userID
-    await mkdirp(saveToDirectory)
     const arraybuffer = await axios.request({
       responseType: 'arraybuffer',
       url: url,
@@ -35,23 +31,32 @@ module.exports = {
         return {error: 'not_image'}
       }
       const time = Date.now()
-      const webp = sharp(buffer).resize(64, 64).resize({fit: 'fill'}).toFormat('webp').toFile(saveToDirectory + '/u-' + time + '.webp')
-      const png = sharp(buffer).resize(64, 64).resize({fit: 'fill'}).toFormat('png').toFile(saveToDirectory + '/u-' + time + '.png')
+      const webp = sharp(buffer).resize(64, 64).resize({fit: 'fill'}).toFormat('webp').toFile(tmpDir + '/u-' + time + '.webp')
+      const png = sharp(buffer).resize(64, 64).resize({fit: 'fill'}).toFormat('png').toFile(tmpDir + '/u-' + time + '.png')
       await webp
       await png
-      await s3.uploadDir({
-        localDir: saveToDirectory,
+      const webpUpload = s3.uploadFile({
+        localFile: tmpDir + '/u-' + time + '.webp',
         s3Params: {
           Bucket: 'wago-media',
-          Prefix: `avatars/${userID}/`
+          Key: `avatars/${userID}/u-${time}.webp`
         }
       })
-      rimraf(saveToDirectory, nothing)
+      const pngUpload = s3.uploadFile({
+        localFile: tmpDir + '/u-' + time + '.png',
+        s3Params: {
+          Bucket: 'wago-media',
+          Key: `avatars/${userID}/u-${time}.png`
+        }
+      })
+      await webpUpload
+      await pngUpload
+      fs.unlink(`${tmpDir}/u-${time}.webp`)
+      fs.unlink(`${tmpDir}/u-${time}.png`)
       return {webp: 'https://media.wago.io/avatars/' + userID + '/u-' + time + '.webp', png: 'https://media.wago.io/avatars/' + userID + '/u-' + time + '.png'}
     }
     catch (e) {
       console.log(e)
-      rimraf(saveToDirectory, nothing)
       return {error: 'invalid_image'}
     }
   },
@@ -61,42 +66,67 @@ module.exports = {
       return {error: 'bad_input', inputs: [file, userID, avatarFormat]}
     }
 
-    const saveToDirectory = tmpDir + userID
-    await mkdirp(saveToDirectory)
-
     const time = Date.now()
     var returnData = {}
     try {
       // if animated avatar format - must be gif format AND user must have access to animated avatars
       if (avatarFormat === 'animated') {
-        await fs.writeFile(saveToDirectory + '/b-' + time + '.gif', file)
-        const webp = await webpc.gwebp(saveToDirectory + '/b-' + time + '.gif', saveToDirectory + '/b-' + time + '.webp', '-q 90')
+        await fs.writeFile(tmpDir + '/b-' + time + '.gif', file)
+        const webp = await webpc.gwebp(tmpDir + '/b-' + time + '.gif', tmpDir + '/b-' + time + '.webp', '-q 90')
         if (webp.indexOf('100') >= 0) {
           returnData = {gif: 'https://media.wago.io/avatars/' + userID + '/b-' + time + '.gif', webp: 'https://media.wago.io/avatars/' + userID + '/b-' + time + '.webp'}
         }
         else {
           returnData = {gif: 'https://media.wago.io/avatars/' + userID + '/b-' + time + '.gif'}
         }
+
+        const webpUpload = s3.uploadFile({
+          localFile: tmpDir + '/b-' + time + '.webp',
+          s3Params: {
+            Bucket: 'wago-media',
+            Key: `avatars/${userID}/b-${time}.webp`
+          }
+        })
+        const gifUpload = s3.uploadFile({
+          localFile: tmpDir + '/b-' + time + '.gif',
+          s3Params: {
+            Bucket: 'wago-media',
+            Key: `avatars/${userID}/b-${time}.gif`
+          }
+        })
+        await webpUpload
+        await gifUpload
+        fs.unlink(`${tmpDir}/b-${time}.webp`)
+        fs.unlink(`${tmpDir}/b-${time}.gif`)
       }
       else {
-        const webp = sharp(file).resize(64, 64).resize({fit: 'fill'}).toFormat('webp').toFile(saveToDirectory + '/b-' + time + '.webp')
-        const png = sharp(file).resize(64, 64).resize({fit: 'fill'}).toFormat('png').toFile(saveToDirectory + '/b-' + time + '.png')
+        const webp = sharp(file).resize(64, 64).resize({fit: 'fill'}).toFormat('webp').toFile(tmpDir + '/b-' + time + '.webp')
+        const png = sharp(file).resize(64, 64).resize({fit: 'fill'}).toFormat('png').toFile(tmpDir + '/b-' + time + '.png')
         await webp
         await png
+        const webpUpload = s3.uploadFile({
+          localFile: tmpDir + '/b-' + time + '.webp',
+          s3Params: {
+            Bucket: 'wago-media',
+            Key: `avatars/${userID}/b-${time}.webp`
+          }
+        })
+        const pngUpload = s3.uploadFile({
+          localFile: tmpDir + '/b-' + time + '.png',
+          s3Params: {
+            Bucket: 'wago-media',
+            Key: `avatars/${userID}/b-${time}.png`
+          }
+        })
+        await webpUpload
+        await pngUpload
+        fs.unlink(`${tmpDir}/b-${time}.webp`)
+        fs.unlink(`${tmpDir}/b-${time}.png`)
         returnData = {webp: 'https://media.wago.io/avatars/' + userID + '/b-' + time + '.webp', png: 'https://media.wago.io/avatars/' + userID + '/b-' + time + '.png'}
       }
-      await s3.uploadDir({
-        localDir: saveToDirectory,
-        s3Params: {
-          Bucket: 'wago-media',
-          Prefix: `avatars/${userID}/`
-        }
-      })
-      rimraf(saveToDirectory, nothing)
       return returnData
     }
     catch (e) {
-      rimraf(saveToDirectory, nothing)
       return {error: 'invalid_image'}
     }
   },
@@ -106,24 +136,32 @@ module.exports = {
       return {error: 'bad_input', inputs: [buffer, filename]}
     }
 
-    const saveToDirectory = tmpDir + 'mdt/'
-    await mkdirp(saveToDirectory)
-    const saveToFile = saveToDirectory + filename
+    const saveToFile = tmpDir + filename
 
     try {
       const webp = sharp(buffer).toFormat('webp').toFile(saveToFile + '.webp')
       const png = sharp(buffer).toFormat('png').toFile(saveToFile + '.png')
       await webp
       await png
-      await s3.uploadDir({
-        localDir: saveToDirectory,
+      const webpUpload = s3.uploadFile({
+        localFile: saveToFile + '.webp',
         s3Params: {
           Bucket: 'wago-media',
-          Prefix: 'mdt/'
+          Key: `mdt/${filename}.webp`
         }
       })
+      const pngUpload = s3.uploadFile({
+        localFile: saveToFile + '.png',
+        s3Params: {
+          Bucket: 'wago-media',
+          Key: `mdt/${filename}.png`
+        }
+      })
+      await webpUpload
+      await pngUpload
+      const img = {webp: 'https://media.wago.io/mdt/' + filename + '.webp', png: 'https://media.wago.io/mdt/' + filename + '.png'}
       cloudflare.zones.purgeCache(config.cloudflare.zoneID, {files: [img.png, img.webp]})
-      return {web: 'https://media.wago.io/mdt/' + filename + '.webp', png: 'https://media.wago.io/mdt/' + filename + '.png'}
+      return img
     }
     catch (e) {
       return {error: 'invalid_image'}
