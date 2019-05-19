@@ -589,5 +589,12 @@
   "Grant Access To": "",
   "Custom Grow": "",
   "Custom Sort": "",
-  "Restricted (viewable for select users) [Beta]": ""
+  "Restricted (viewable for select users) [Beta]": "",
+  "The following guilds are associated to your account": "",
+  "Any imports restricted to these guilds are accessible by you": "",
+  "No guilds are associated to your account": "",
+  "Update your profile to gain access to any guild-restricted imports": "",
+  "Imports may be restricted by guild": "",
+  "Enter Username": "",
+  "Also Grant Access To": ""
 }

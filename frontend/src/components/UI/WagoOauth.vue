@@ -20,7 +20,7 @@
               <span v-else>{{ $t("Update profile") }}</span>
             </div>
           </md-list-item>
-          <md-list-item v-if="user && user.battlenet">
+          <md-list-item v-if="user && user.battlenet.name">
             <div v-if="user.battlenet.guilds && user.battlenet.guilds.length" class="md-list-text-container" style="margin-left:56px">
               <span>{{ $t("The following guilds are associated to your account") }}</span>
               <span>{{ $t("Any imports restricted to these guilds are accessible by you") }}</span>
