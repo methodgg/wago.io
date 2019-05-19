@@ -15,12 +15,12 @@
               <span v-if="user && user.battlenet && user.battlenet.name">{{ user.battlenet.name }}</span>
               <span>Blizzard Battle.net</span>
               <span v-if="!user || user.guest">{{ $t("Login with Blizzard") }}</span>
-              <span v-else-if="!user.battlenet || !user.battlenet.name">{{ $t("Connect to account") }}</span>
+              <span v-else-if="!user || !user.battlenet || !user.battlenet.name">{{ $t("Connect to account") }}</span>
               <span v-else-if="user && user.battlenet && user.battlenet.updateStatus === 'pending-API'" style="color:#c1272d">{{ $t("Profile update in progress") }}</span>
               <span v-else>{{ $t("Update profile") }}</span>
             </div>
           </md-list-item>
-          <md-list-item v-if="user && user.battlenet.name">
+          <md-list-item v-if="user && user.battlenet && user.battlenet.name && user.battlenet.updateStatus !== 'pending-API'">
             <div v-if="user.battlenet.guilds && user.battlenet.guilds.length" class="md-list-text-container" style="margin-left:56px">
               <span>{{ $t("The following guilds are associated to your account") }}</span>
               <span>{{ $t("Any imports restricted to these guilds are accessible by you") }}</span>
@@ -30,7 +30,7 @@
                 </template>
               </span>
             </div>
-            <div v-if="user && user.battlenet && !(user.battlenet.guilds || !user.battlenet.guilds.length)" class="md-list-text-container">
+            <div v-else class="md-list-text-container">
               <span>{{ $t("No guilds are associated to your account") }}</span>
               <span>{{ $t("Update your profile to gain access to any guild-restricted imports") }}</span>
             </div>
@@ -214,7 +214,7 @@ export default {
           code: this.code
         },
         success: function (res) {
-          console.log('success ' + this.context, res)
+          // console.log('success ' + this.context, res)
         },
         error: function (res) {
           window.eventHub.$emit('showSnackBar', vue.$t('An error occurred'))
