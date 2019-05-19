@@ -1235,7 +1235,7 @@ export default {
           }
           pullObj[enemyIndex] = clones
         })
-        this.$set(this.tableData.pulls, pullIndex, pullObj)
+        this.$set(this.tableData.value.pulls, pullIndex, pullObj)
       }
 
       for (const _enemyIndex in this.tableData.value.pulls[pullIndex]) {

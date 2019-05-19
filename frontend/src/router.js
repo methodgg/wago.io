@@ -28,6 +28,8 @@ const Stats = resolve => require(['@/components/core/Stats.vue'], resolve)
 
 const OAuth = resolve => require(['@/components/UI/WagoOauth.vue'], resolve)
 
+const Random = resolve => require(['@/components/UI/Random.vue'], resolve)
+
 import Categories from './components/libs/categories'
 
 function GetContextTag (params) {
@@ -139,10 +141,12 @@ export default {
     { path: '/p/:profile', component: ViewProfile, props: (route) => ({ contextSearch: 'User: ' + route.params.profile }) },
     { path: '/my/stars', component: Search, props: (route) => ({ contextSearch: 'Starred: True' }) },
     { path: '/my/mentions', component: Search, props: (route) => ({ contextSearch: 'Mentioned: True' }) },
+    { path: '/my/restricted', component: Search, props: (route) => ({ contextSearch: 'Restricted: True' }) },
 
     // pages
     { path: '/wa-companion', component: WACompanion },
     { path: '/stats', component: Stats },
+    { path: '/random', component: Random },
 
     // legal mumbo jumbo
     { path: '/terms-of-service', component: TermsOfService },

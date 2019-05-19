@@ -2,7 +2,7 @@
   <!-- original part of vue-material; modified for wago -->
   <div class="md-autocomplete"
     @focus="onFocus"
-    @blur="onBlur">
+    @blur="$emit('blur')">
     <md-menu
       md-align-trigger
       md-auto-width
@@ -238,6 +238,7 @@
         if (document.body.contains(this.backdropElement)) {
           document.body.removeChild(this.backdropElement);
         }
+        this.$emit('blur')
       },
       updateValues(value) {
         const newValue = value || this.$refs.input.value || this.value;
@@ -295,9 +296,12 @@
       if (this.searchButton) {
         this.searchButton.removeEventListener('click', this.makeFetchRequest);
       }
-      document.body.removeChild(this.backdropElement);
+      if (document.body.contains(this.backdropElement)) {
+        document.body.removeChild(this.backdropElement);
+      }
     },
     mounted() {
+      this.query = this.value
       this.$nextTick(() => {
         this.parentContainer = getClosestVueParent(this.$parent, 'md-input-container');
         this.menuContent = document.body.querySelector('.md-autocomplete-content');

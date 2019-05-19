@@ -10,7 +10,7 @@ module.exports = function (fastify, opts, next) {
       return res.code(404).send("document.write('Error. Wago not found.')")
     }
 
-    if (wago.hidden || wago.private) {
+    if (wago.hidden || wago.private || wago.restricted) {
       return res.code(403).send("document.write('Error. Not allowed to embed this Wago.')") 
     }
 

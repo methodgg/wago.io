@@ -133,7 +133,7 @@ module.exports = function (fastify, opts, next) {
     await wago.save()
     res.send({success: true})
   })
-  
+
   // update wago version
   fastify.post('/update/version', async (req, res) => {
     if (!req.user || !req.body.wagoID || !req.body.versionString) {
@@ -189,15 +189,51 @@ module.exports = function (fastify, opts, next) {
 
     wago.hidden = false
     wago.private = false
+    wago.restricted = false
+    wago.restrictedUsers = []
+    wago.restrictedGuilds = []
+    wago.restrictedTwitchSubs = []
     if (req.body.visibility === 'Hidden') {
       wago.hidden = true
+    }
+    else if (req.body.visibility === 'Restricted') {
+      wago.restricted = true
     }
     else if (req.body.visibility === 'Private') {
       wago.private = true
     }
 
     await wago.save()
-    res.send({success: true, hidden: wago.hidden, private: wago.private})
+    res.send({success: true, hidden: wago.hidden, private: wago.private, restricted: wago.restricted})
+  })
+
+   // update wago restriction access
+   fastify.post('/update/restrictions', async (req, res) => {
+    if (!req.user || !req.body.wagoID || !req.body.access) {
+      return res.code(403).send({error: "forbidden"})
+    }
+
+    var wago = await WagoItem.findById(req.body.wagoID).exec()
+    if (!wago || !wago.restricted || !wago._userId.equals(req.user._id)) {
+      return res.code(403).send({error: "forbidden"})
+    }
+
+    wago.restrictedUsers = []
+    wago.restrictedGuilds = []
+    wago.restrictedTwitchSubs = []
+    for (let i = 0; i < req.body.access.length; i++) {
+      if (req.body.access[i].type === 'user' && req.body.access[i].value) {
+        var lookup = await User.findOne({'search.username': req.body.access[i].value.toLowerCase()})
+        if (lookup) {
+          wago.restrictedUsers.push(lookup._id.toString())
+        }
+      }
+      else if (req.body.access[i].type === 'guild' && req.user.access.restrictGuild && req.body.access[i].value && req.user.battlenet.guilds.indexOf(req.body.access[i].value) >= 0) {
+        wago.restrictedGuilds.push(req.body.access[i].value)
+      }
+    }
+    await wago.save()
+    res.send({success: true, hidden: wago.hidden, private: wago.private, restricted: wago.restricted})
   })
 
   // update wago categories
@@ -231,6 +267,7 @@ module.exports = function (fastify, opts, next) {
   })
 
   // add image by base64 format
+
   fastify.post('/upload/image/base64', async (req, res) => {
     if (!req.user || !req.body.wagoID) {
       return res.code(403).send({error: "forbidden"})
@@ -239,7 +276,7 @@ module.exports = function (fastify, opts, next) {
     var wago = await WagoItem.findById(req.body.wagoID).exec()
     if (!wago || !wago._userId.equals(req.user._id)) {
       return res.code(403).send({error: "forbidden"})
-    }    
+    }
 
     var img = req.body.image || req.body.file || ''
     var match = img.match(/^data:image\/(png|jpg|gif|jpeg);base64,/i)
@@ -265,15 +302,15 @@ module.exports = function (fastify, opts, next) {
     // upload to s3
     try {
       await s3.uploadFile({
-      localFile: tmpDir + screen.localFile,
-      s3Params: {
-        Bucket: 'wago-media',
-        Key: `screenshots/${wago._id}/${screen.localFile}`
-      }
-    })
+        localFile: tmpDir + screen.localFile,
+        s3Params: {
+          Bucket: 'wago-media',
+          Key: `screenshots/${wago._id}/${screen.localFile}`
+        }
+      })
       fs.unlink(tmpDir + screen.localFile)
-    await screen.save()
-    res.send({success: true, _id: screen._id.toString(), src: screen.url})
+      await screen.save()
+      res.send({success: true, _id: screen._id.toString(), src: screen.url})
     }
     catch (e) {
       fs.unlink(tmpDir + screen.localFile)
@@ -290,8 +327,8 @@ module.exports = function (fastify, opts, next) {
     var wago = await WagoItem.findById(req.body.wagoID).exec()
     if (!wago || !wago._userId.equals(req.user._id)) {
       return res.code(403).send({error: "forbidden"})
-    }    
-      
+    }
+
     var isVideo = videoParser.parse(req.body.url)
     // if youtube video detected
     if (isVideo) {
@@ -364,7 +401,7 @@ module.exports = function (fastify, opts, next) {
         method: 'get'
       })
       var buffer = Buffer.from(arraybuffer.data, 'binary')
-  
+
       try {
         const mime = await magic.detect(buffer)
         const match = mime.match(/^image\/(png|jpg|gif|jpeg)/)
@@ -412,13 +449,13 @@ module.exports = function (fastify, opts, next) {
     var wago = await WagoItem.findById(req.body.wagoID).exec()
     if (!wago || !wago._userId.equals(req.user._id)) {
       return res.code(403).send({error: "forbidden"})
-    }  
+    }
 
     var screen = await Screenshot.findById(req.body.screen).exec()
     if (screen) {
       await screen.remove()
     }
-    res.send({success: true}) 
+    res.send({success: true})
   })
 
   // delete video
@@ -430,13 +467,13 @@ module.exports = function (fastify, opts, next) {
     var wago = await WagoItem.findById(req.body.wagoID).exec()
     if (!wago || !wago._userId.equals(req.user._id)) {
       return res.code(403).send({error: "forbidden"})
-    }  
+    }
 
     var video = await Video.findById(req.body.video).exec()
     if (video) {
       await video.remove()
     }
-    res.send({success: true}) 
+    res.send({success: true})
   })
 
   // sort screenshots
@@ -544,7 +581,7 @@ module.exports = function (fastify, opts, next) {
     if (!collection || !collection._userId.equals(req.user._id)) {
       return res.code(403).send({error: "forbidden"})
     }
-    
+
     var wago = await WagoItem.findById(req.body.wagoID).exec()
     if (!wago) {
       return res.code(404).send({error: "not found"})

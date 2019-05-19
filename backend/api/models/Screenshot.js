@@ -7,10 +7,6 @@ var Schema = mongoose.Schema({
     sort: {type: Number, default: 999},
     s3Key: String,
     uploaded : { type: Date, default: Date.now },
-    s3Server: { type: String, default: "s3-us-west-2.amazonaws.com"},
-    caption : { type: String, default: ""},
-    original_bucket: { type: String, default: "ss1.wago.io"},
-    thumb_bucket: { type: String, default: "ss2.wago.io"},
     file: {
       original: {
         png: String,
@@ -20,7 +16,7 @@ var Schema = mongoose.Schema({
       thumbnail: {
         png: String,
         webp: String,
-        gif: String 
+        gif: String
       }
     }
 }, {timestamps: true})

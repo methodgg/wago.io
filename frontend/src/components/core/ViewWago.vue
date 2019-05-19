@@ -117,7 +117,7 @@
           <p v-html="$t('The app can be downloaded from [-url-]', {url: '<a href=\'https://weakauras.wtf/\' target=\'_blank\'>https://weakauras.wtf/</a>', interpolation: {'escapeValue': false}})"></p>
         </md-dialog-content>
 
-        <md-dialog-actions>          
+        <md-dialog-actions>
           <md-checkbox v-model="disableCompanionWarning">{{ $t("Do not show this warning again") }}</md-checkbox>
         </md-dialog-actions>
 
@@ -140,7 +140,7 @@
           <md-button v-if="hasUnsavedChanges && wago.code && wago.code.encoded && !wago.code.alerts.blacklist" @click="copyEncoded" class="copy-import-button">
             <md-icon>assignment</md-icon> {{ $t("Copy [-type-] import string", {type: wago.type}) }}
             <md-tooltip md-direction="bottom" class="CopyWarningTooltip"><strong>{{ $t("You have unsaved changes") }}</strong><br>{{ $t("Be sure to save or fork to generate a new string with your modifications") }}</md-tooltip>
-          </md-button>          
+          </md-button>
           <md-button v-else-if="wago.code && wago.code.encoded && !wago.code.alerts.blacklist" @click="copyEncoded" class="copy-import-button">
             <md-icon>assignment</md-icon> {{ $t("Copy [-type-] import string", {type: wago.type}) }}
           </md-button>
@@ -148,7 +148,7 @@
       </md-card>
 
       <div id="wago-flex-container">
-        <div id="wago-col-main" style="position:relative">        
+        <div id="wago-col-main" style="position:relative">
           <md-button id="wago-tabs-toggle" class="md-icon-button md-raised" @click="toggleTabs">
             <md-icon>more_vert</md-icon>
           </md-button>
@@ -168,7 +168,7 @@
                 <md-button v-bind:class="{'md-toggle': showPanel === 'builder'}" v-if="wago.type === 'MDT'" @click="toggleFrame('builder')">{{ $t("Builder") }}</md-button>
                 <md-button v-bind:class="{'md-toggle': showPanel === 'editor'}" @click="toggleFrame('editor')">{{ $t("Editor") }}</md-button>
               </md-button-toggle>
-              
+
               <ui-image v-if="wago.image" :img="wago.image.files" class="wago-media"></ui-image>
               <!--<div v-else id="thumbnails" class="wago-media">
                 <template v-for="video in wago.videos">
@@ -188,6 +188,9 @@
               <ui-warning v-if="wago.visibility && wago.visibility.private">
                 {{ $t("This import is private only you may view it") }}
               </ui-warning>
+              <ui-warning v-else-if="wago.visibility && wago.visibility.restricted">
+                {{ $t("This import is restricted, you have been granted access to view it") }}
+              </ui-warning>
               <ui-warning v-else-if="wago.visibility && wago.visibility.hidden">
                 {{ $t("This import is hidden only those with the URL may view it") }}
               </ui-warning>
@@ -201,7 +204,7 @@
                 <div v-for="func in wago.code.alerts.malicious">{{ func }}</div>
               </ui-warning>
 
-              <ui-warning v-if="!isLatestVersion()" mode="info" :html="$t('A more recent version of this import is available view the latest version [-url-]', {url: '/' + $store.state.wago.slug})"></ui-warning>          
+              <ui-warning v-if="!isLatestVersion()" mode="info" :html="$t('A more recent version of this import is available view the latest version [-url-]', {url: '/' + $store.state.wago.slug})"></ui-warning>
 
               <!-- CONFIG FRAME -->
               <div id="wago-config-container" class="wago-container" v-if="showPanel=='config'">
@@ -223,21 +226,79 @@
                   <md-input-container :class="{ 'md-input-invalid': updateDescError, 'md-input-status': updateDescHasStatus }">
                     <label>{{ $t("Description") }}</label>
                     <md-textarea v-model="editDesc" @change="onUpdateDescription()" :debounce="600"></md-textarea>
-                    <span class="md-error" v-if="updateDescStatus.length>0">{{ updateDescStatus }}</span> 
-                  </md-input-container>     
+                    <span class="md-error" v-if="updateDescStatus.length>0">{{ updateDescStatus }}</span>
+                  </md-input-container>
                   <div style="margin-top:-24px">
                     <div class="md-radio md-theme-default"><div class="md-radio-container" style="opacity:0; width:0"></div><label class="md-radio-label">{{ $t("Description Format") }}</label></div>
                     <md-radio v-model="updateDescFormat" @change="onUpdateDescription()" md-value="bbcode">BBCode</md-radio>
                     <md-radio v-model="updateDescFormat" @change="onUpdateDescription()" md-value="markdown">Markdown</md-radio>
-                  </div>   
+                  </div>
                   <md-input-container>
                     <label for="visibilty">{{ $t("Visibility") }}</label>
                     <md-select name="visibilty" id="visibilty" v-model="editVisibility">
                       <md-option value="Public">{{ $t("Public") }}</md-option>
                       <md-option value="Hidden">{{ $t("Hidden (only viewable with link)") }}</md-option>
+                      <md-option value="Restricted" v-if="User && User.access && User.access.beta">{{ $t("Restricted (viewable for select users) [Beta]") }}</md-option>
                       <md-option value="Private">{{ $t("Private (only you may view)") }}</md-option>
                     </md-select>
                   </md-input-container>
+                  <div v-if="editVisibility === 'Restricted'" style="margin-left:1em">
+                    <template v-for="(rest, index) in wago.restrictions">
+                      <md-layout :key="index">
+                        <md-layout>
+                          <md-input-container>
+                            <label>{{ $t("Restricted Access Granted To") }}</label>
+                            <md-select v-model="rest.type" @change="onUpdateRestrictionsDebounce(index)">
+                              <md-option value="user">{{ $t("Username") }}</md-option>
+                              <md-option value="guild" v-if="User.access.restrictGuild && User.battlenet && User.battlenet.guilds && User.battlenet.guilds.length">{{ $t("Guild") }}</md-option>
+                              <!--<md-option value="twitchsubs" v-if="User.access.restrictSubs && User.twitch && User.twitch.id">{{ $t("Twitch Subscribers") }}</md-option>-->
+                              <md-option value="remove">{{ $t("Remove Access") }}</md-option>
+                            </md-select>
+                          </md-input-container>
+                        </md-layout>
+                        <md-layout style="flex:4">
+                          <md-input-container v-if="rest.type === 'user'">
+                          <label for="advSearchUserName">{{ $t("Enter Username") }}</label>
+                          <md-autocomplete v-model="rest.value" :fetch="autoCompleteUserName" :debounce="600" @change="onUpdateRestrictionsDebounce(index)"></md-autocomplete>
+                        </md-input-container>
+                        <md-input-container v-if="rest.type === 'guild'">
+                          <label>{{ $t("Select Guild") }}</label>
+                          <md-select v-model="rest.value" @change="onUpdateRestrictionsDebounce(index)">
+                            <template v-for="(guild, guildIndex) in User.battlenet.guilds">
+                              <md-option :key="guildIndex" :value="guild">{{ guild.replace(/@/, '-').replace(/@/, ' <') + '>' }}</md-option>
+                            </template>
+                          </md-select>
+                        </md-input-container>
+                        </md-layout>
+                      </md-layout>
+                    </template>
+                    <md-layout v-if="wago.restrictions.length < 20">
+                      <md-layout>
+                        <md-input-container>
+                          <label>{{ $t("Also Grant Access To") }}</label>
+                          <md-select v-model="newRestrictionType" @change="checkNewRestrictions">
+                            <md-option value="user">{{ $t("Username") }}</md-option>
+                            <md-option value="guild" v-if="User.access.restrictGuild && User.battlenet && User.battlenet.guilds && User.battlenet.guilds.length">{{ $t("Guild") }}</md-option>
+                            <!--<md-option value="twitchsubs" v-if="User.access.restrictSubs && User.twitch && User.twitch.id">{{ $t("Twitch Subscribers") }}</md-option>-->
+                          </md-select>
+                        </md-input-container>
+                      </md-layout>
+                      <md-layout style="flex:4">
+                        <md-input-container v-if="newRestrictionType === 'user'">
+                          <label for="advSearchUserName">{{ $t("Enter Username") }}</label>
+                          <md-autocomplete v-model="newRestrictionValue" :fetch="autoCompleteUserName" @blur="checkNewRestrictions"></md-autocomplete>
+                        </md-input-container>
+                        <md-input-container v-if="newRestrictionType === 'guild'">
+                          <label>{{ $t("Select Guild") }}</label>
+                          <md-select v-model="newRestrictionValue" @change="checkNewRestrictions">
+                            <template v-for="(guild, guildIndex) in User.battlenet.guilds">
+                              <md-option :key="guildIndex" :value="guild">{{ guild.replace(/@/, '-').replace(/@/, ' <') + '>' }}</md-option>
+                            </template>
+                          </md-select>
+                        </md-input-container>
+                      </md-layout>
+                    </md-layout>
+                  </div>
                   <div v-if="!wago.image && !wago.audio">
                     <div>
                       <label id="categoryLabel">{{ $t("Categories") }}</label>
@@ -302,7 +363,7 @@
                         <md-button class="md-primary" @click="onDeleteImport()">Delete</md-button>
                       </md-dialog-actions>
                     </md-dialog>
-                  </md-card-actions>        
+                  </md-card-actions>
                 </md-card>
               </div>
 
@@ -331,7 +392,7 @@
                     </div>
                   </template>
                 </div>
-              </div>              
+              </div>
 
               <!-- INCLUDED AURAS FRAME -->
               <div id="wago-includedauras-container" class="wago-container" v-if="showPanel=='includedauras'">
@@ -371,7 +432,7 @@
                             <md-button v-else class='chip-button' :href="selectVersion([ver])">{{ $t("View") }}</md-button>
                             <span class='version-num'>{{ ver.versionString }}</span>
                           </md-table-cell>
-                          <md-table-cell>                            
+                          <md-table-cell>
                             <md-button class='chip-button' v-bind:class="{'md-toggle': ver.version === viewNotes}" v-if="ver.changelog.text" @click="toggleViewNotes(ver.version)">{{ $t("View notes") }}</md-button>
                             <md-button v-if="User && wago.UID && wago.UID === User.UID" class='chip-button' @click="modifyVersion(ver)">{{ $t("Modify Version") }}</md-button>
                           </md-table-cell>
@@ -476,7 +537,7 @@
                             {{ coll.modified | moment("dddd, MMMM Do YYYY, h:mm a") }}
                           </md-table-cell>
                           <md-table-cell class="userlink">
-                            <md-avatar><ui-image :md-src="coll.user.avatar" alt="Avatar"></ui-image></md-avatar> 
+                            <md-avatar><ui-image :md-src="coll.user.avatar" alt="Avatar"></ui-image></md-avatar>
                             <router-link v-if="coll.user.profile" :to="coll.user.profile" :class="coll.user.class">{{ coll.user.name }}</router-link>
                             <span v-else :class="coll.user.class">{{ coll.user.name }}</span>
                           </md-table-cell>
@@ -500,22 +561,22 @@
                     <p>{{ $t("Embed a minimimally designed readonly MDT route on your own site") }} {{ $t("The frame is responsive and will look good at most site widths") }}</p>
                     <p>{{ $t("Most of the colors are customizable by including a parameter in the URL") }}</p>
                     <div id="embed-content">
-                      <div id="embed-inputs" class="field-group">                        
+                      <div id="embed-inputs" class="field-group">
                         <md-layout>
                           <div class="iframeColorPickers">
                             <span v-bind:style="{'color': (iframeColorEdit === 'background' ? '#d7373d' : 'inherit')}">{{ $t("Body Background") }}</span>
                             <button class='colorBtn' @click="setCustomizeIframeColor('background')" v-bind:style="{'background-color': iframeBackground}"></button>
-                            
-                            <span v-bind:style="{'color': (iframeColorEdit === 'menu' ? '#d7373d' : 'inherit')}">{{ $t("Menu Background") }}</span>              
+
+                            <span v-bind:style="{'color': (iframeColorEdit === 'menu' ? '#d7373d' : 'inherit')}">{{ $t("Menu Background") }}</span>
                             <button class='colorBtn' @click="setCustomizeIframeColor('menu')" v-bind:style="{'background-color': iframeMenu}"></button>
 
                             <md-button @click="copyIframe()">{{ $t("Copy code") }}</md-button>
                           </div>
-                          <div class="iframeColorPickers">                            
-                            <span v-bind:style="{'color': (iframeColorEdit === 'text1' ? '#d7373d' : 'inherit')}">{{ $t("Text 1") }}</span>              
+                          <div class="iframeColorPickers">
+                            <span v-bind:style="{'color': (iframeColorEdit === 'text1' ? '#d7373d' : 'inherit')}">{{ $t("Text 1") }}</span>
                             <button class='colorBtn' @click="setCustomizeIframeColor('text1')" v-bind:style="{'background-color': iframeText1}"></button>
-                            
-                            <span v-bind:style="{'color': (iframeColorEdit === 'text2' ? '#d7373d' : 'inherit')}">{{ $t("Text 2") }}</span>              
+
+                            <span v-bind:style="{'color': (iframeColorEdit === 'text2' ? '#d7373d' : 'inherit')}">{{ $t("Text 2") }}</span>
                             <button class='colorBtn' @click="setCustomizeIframeColor('text2')" v-bind:style="{'background-color': iframeText2}"></button>
 
                             <md-button @click="resetIframe()" v-if="iframeQueryString">{{ $t("Reset") }}</md-button>
@@ -523,7 +584,7 @@
                           <div id="color-picker">
                             <color-picker v-if="iframeColorEdit" v-model="customizeIframeColor" :disableAlpha="true" />
                           </div>
-                        </md-layout>                        
+                        </md-layout>
                         <md-input-container>
                           <label>{{ $t("Iframe code") }}</label>
                           <md-input readonly :value="'<iframe src=&quot;https://wago.io/' + wago._id + '/embed.html' + iframeQueryString + '&quot; style=&quot;width: 100%; height: 795px;&quot;></iframe>'"></md-input>
@@ -594,7 +655,7 @@
                 <div v-if="wago && wago.codeReview">
                   Global variables defined: {{ wago.codeReview.countGlobals }}.<br>
                   Profile runtime: {{ (parseFloat(wago.codeReview.profileRunTime) * 1000).toFixed(2) }}ms.<br>
-                  <div v-for="(errors, aura) in wago.codeReview.errors" :key="aura">Error in {{aura}}: 
+                  <div v-for="(errors, aura) in wago.codeReview.errors" :key="aura">Error in {{aura}}:
                     <div v-for="(err, index) in errors" :key="index" style="margin-left:12px">{{ err.block }}: {{err.message}}</div>
                   </div>
                   <md-table>
@@ -630,7 +691,7 @@
 
                 </div>
                 <div v-else>Loading...</div>
-              </div>          
+              </div>
 
               <div id="wago-importstring-container" class="wago-container" v-if="wago.code && wago.code.encoded">
                 <textarea id="wago-importstring" class="wago-importstring" spellcheck="false">{{ wago.code.encoded }}</textarea>
@@ -646,7 +707,7 @@
         <!--<div id="wago-col-side">
         </div>-->
       </div>
-    </div>    
+    </div>
 
     <div id="view-wago" v-if="!wagoExists">
       <md-spinner></md-spinner>
@@ -729,6 +790,7 @@ export default {
     'input-semver': require('../UI/Input-Semver.vue'),
     'view-diffs': require('../UI/ViewDiffs.vue'),
     'color-picker': require('vue-color').Chrome,
+    'md-autocomplete': require('../UI/md-autocomplete.vue'),
     editor: require('vue2-ace-editor'),
     Multiselect,
     CategorySelect,
@@ -812,7 +874,10 @@ export default {
       showCompanionHelp: false,
       showCompanionHelpTimer: null,
       enableCompanionBeta: false,
-      disableCompanionWarning: false
+      disableCompanionWarning: false,
+      newRestrictionType: 'user',
+      newRestrictionValue: '',
+      restrictionDebounceTimeout: null
     }
   },
   watch: {
@@ -1105,47 +1170,44 @@ export default {
         var getCode
         if (res.codeURL) {
           getCode = vue.http.get(res.codeURL)
+          getCode.then((code) => {
+            if (code && code.json) {
+              code.obj = JSON.parse(code.json)
+              code.json = JSON.stringify(code.obj, null, 2)
+            }
+            res.code = code
+            // TODO: make this better
+            this.$store.commit('setWago', res)
+            var dummyForceReload = this.wago.code // eslint-disable-line no-unused-vars
+
+            if (code && code.versionString) {
+              this.currentVersionString = code.versionString
+              this.currentVersion.semver = semver.valid(semver.coerce(this.currentVersionString || '1.0.0'))
+              if (!this.currentVersion.semver) {
+                this.currentVersion.semver = '1.0.0'
+              }
+              this.currentVersion.major = semver.major(this.currentVersion.semver)
+              this.currentVersion.minor = semver.minor(this.currentVersion.semver)
+              this.currentVersion.patch = semver.patch(this.currentVersion.semver)
+
+              this.leftDiff = this.latestVersion.semver
+              if (this.leftDiff !== this.currentVersion.semver) {
+                this.rightDiff = this.currentVersion.semver
+              }
+              else if (res.versions.versions[1]) {
+                this.rightDiff = semver.valid(semver.coerce(res.versions.versions[1].versionString))
+              }
+            }
+
+            // make sure we're using custom url
+            if (vue.isLatestVersion()) {
+              vue.$router.replace('/' + res.slug)
+            }
+            else {
+              vue.$router.replace('/' + res.slug + '/' + vue.version)
+            }
+          })
         }
-        else {
-          getCode = vue.http.get('/lookup/wago/code', params)
-        }
-        getCode.then((code) => {
-          if (code && code.json) {
-            code.obj = JSON.parse(code.json)
-            code.json = JSON.stringify(code.obj, null, 2)
-          }
-          res.code = code
-          // TODO: make this better
-          this.$store.commit('setWago', res)
-          var dummyForceReload = this.wago.code // eslint-disable-line no-unused-vars
-
-          if (code && code.versionString) {
-            this.currentVersionString = code.versionString
-            this.currentVersion.semver = semver.valid(semver.coerce(this.currentVersionString || '1.0.0'))
-            if (!this.currentVersion.semver) {
-              this.currentVersion.semver = '1.0.0'
-            }
-            this.currentVersion.major = semver.major(this.currentVersion.semver)
-            this.currentVersion.minor = semver.minor(this.currentVersion.semver)
-            this.currentVersion.patch = semver.patch(this.currentVersion.semver)
-
-            this.leftDiff = this.latestVersion.semver
-            if (this.leftDiff !== this.currentVersion.semver) {
-              this.rightDiff = this.currentVersion.semver
-            }
-            else if (res.versions.versions[1]) {
-              this.rightDiff = semver.valid(semver.coerce(res.versions.versions[1].versionString))
-            }
-          }
-
-          // make sure we're using custom url
-          if (vue.isLatestVersion()) {
-            vue.$router.replace('/' + res.slug)
-          }
-          else {
-            vue.$router.replace('/' + res.slug + '/' + vue.version)
-          }
-        })
 
         // initial config
         this.editName = res.name
@@ -1176,6 +1238,9 @@ export default {
         else if (res.visibility.private) {
           this.editVisibility = 'Private'
         }
+        else if (res.visibility.restricted) {
+          this.editVisibility = 'Restricted'
+        }
         else {
           this.editVisibility = 'Public'
         }
@@ -1193,7 +1258,7 @@ export default {
           title: res.name,
           description: res.description.text,
           image: res.screens && res.screens[0] && res.screens[0].src || false,
-          unlisted: (res.visibility.hidden || res.visibility.private)
+          unlisted: (res.visibility.hidden || res.visibility.private || res.visibility.restricted)
         })
       })
     },
@@ -1598,6 +1663,7 @@ export default {
       }).then((res) => {
         vue.wago.visibility.private = res.private
         vue.wago.visibility.hidden = res.hidden
+        vue.wago.visibility.restricted = res.restricted
       }).catch((err) => {
         console.error(err)
         window.eventHub.$emit('showSnackBar', vue.$t('Error could not save'))
@@ -1963,6 +2029,43 @@ export default {
           vue.wago.myCollections.push(res.collectionID)
         }
       })
+    },
+
+    checkNewRestrictions: function () {
+      this.$nextTick(() => {
+        if ((this.newRestrictionType && this.newRestrictionValue) || this.newRestrictionType === 'twitchsubs') {
+          this.wago.restrictions.push({type: this.newRestrictionType, value: this.newRestrictionValue})
+          this.newRestrictionType = 'user'
+          this.newRestrictionValue = ''
+          // onUpdateRestrictions is called here via reactivity
+        }
+      })
+    },
+
+    onUpdateRestrictions: function (index) {
+      if (typeof index === 'undefined' || ((this.wago.restrictions[index] && this.wago.restrictions[index].value) || this.wago.restrictions[index].type === 'twitchsubs' || this.wago.restrictions[index].type === 'remove')) {
+        if (typeof index !== 'undefined' && this.wago.restrictions[index].type === 'remove') {
+          this.wago.restrictions.splice(index, 1)
+        }
+        this.http.post('/wago/update/restrictions', {
+          wagoID: this.wago._id,
+          access: this.wago.restrictions
+        })
+      }
+    },
+
+    onUpdateRestrictionsDebounce: function (index) {
+      if (this.restrictionDebounceTimeout) {
+        window.clearTimeout(this.restrictionDebounceTimeout)
+      }
+
+      this.restrictionDebounceTimeout = setTimeout(() => {
+        this.onUpdateRestrictions(index)
+      }, 600)
+    },
+
+    autoCompleteUserName: function (q) {
+      return this.http.get('/search/username', {name: q.q})
     }
   }
 }
@@ -2084,7 +2187,7 @@ a.showvid:hover:before  .md-icon { opacity:1 }
   #wago-flex-container, #wago-header .md-layout, #wago-actions { flex-direction: column; align-items: flex-start; }
   #wago-actions button { padding: 0 }
   #wago-actions button.copy-import-button { padding: 0 8px }
-  #wago-actions .md-card .md-card-actions .md-button + .md-button { margin-left: 0}  
+  #wago-actions .md-card .md-card-actions .md-button + .md-button { margin-left: 0}
   #wago-tabs-toggle { display: block; position: absolute; top: 8px; left: 8px; z-index: 9; background-color: rgba(0, 0, 0, 0.7) }
   #wago-tabs { position: absolute; top: 48px; z-index: 999}
   #wago-content { padding-top: 40px; }

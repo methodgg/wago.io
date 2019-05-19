@@ -32,16 +32,15 @@ const Schema = new mongoose.Schema({
     }]
   },
   roles : {
-    isAdmin : { 
+    isAdmin : {
       access: { type: Boolean, default: false },
       super: { type: Boolean, default: false },
       blog: { type: Boolean, default: false },
-      moderator : { type: Boolean, default: false }      
+      moderator : { type: Boolean, default: false }
     },
     subscriber : { type: Boolean, default: false },
     gold_subscriber : { type: Boolean, default: false },
-    guild_subscriber : { type: Boolean, default: false }, // patron of guild level pledge
-    guild_member : { type: Boolean, default: false }, // member of guild with guild level pledge
+    pro_subscriber : { type: Boolean, default: false },
     ambassador : { type: Boolean, default: false },
     developer : { type: Boolean, default: false },
     artContestWinnerAug2018: { type: Boolean, default: false }
@@ -85,7 +84,8 @@ const Schema = new mongoose.Schema({
       name: {type: String, index: true},
       guild: {type: String, index: true},
       guildRealm: {type: String, index: true}
-    }]
+    }],
+    guilds: [{type: String, index: true}]
   },
   battlenetCN : {
     id : String,
@@ -123,6 +123,16 @@ const Schema = new mongoose.Schema({
     webhooks : {
       onCreate : String
     }
+  },
+  twitch: {
+    id: String,
+    name: String,
+    avatar : {
+      png: String,
+      webp: String
+    },
+    refreshToken: String,
+    subscribedTo: [String]
   },
   config: {
     theme : String,
@@ -178,7 +188,7 @@ Schema.methods.createAPIKey = function() {
   this.save()
   return key
 }
-  
+
 
 /**
  * Virtuals
@@ -228,24 +238,36 @@ Schema.virtual('avatarURL').get(function() {
 
 Schema.virtual('access.custom_slug').get(function() {
   if (this.roles.isAdmin.access) return true
-  if (this.roles.gold_subscriber || this.roles.ambassador || this.roles.developer || this.roles.artContestWinnerAug2018 || this.roles.guild_member) return true
+  if (this.roles.gold_subscriber || this.roles.pro_subscriber || this.roles.ambassador || this.roles.developer || this.roles.artContestWinnerAug2018) return true
 
   return false
 })
 Schema.virtual('access.animatedAvatar').get(function() {
   if (this.roles.isAdmin.access) return true
-  if (this.roles.gold_subscriber || this.roles.subscriber || this.roles.ambassador || this.roles.developer || this.roles.isAdmin.moderator || this.roles.artContestWinnerAug2018 || this.roles.guild_member) return true
+  if (this.roles.subscriber || this.roles.gold_subscriber || this.roles.pro_subscriber || this.roles.ambassador || this.roles.developer || this.roles.artContestWinnerAug2018) return true
 
   return false
 })
 Schema.virtual('access.beta').get(function() {
   if (this.roles.isAdmin.access) return true
-  if (this.roles.gold_subscriber || this.roles.subscriber || this.roles.ambassador || this.roles.developer || this.roles.isAdmin.moderator || this.roles.artContestWinnerAug2018 || this.roles.guild_member) return true
+  if (this.roles.subscriber || this.roles.gold_subscriber || this.roles.pro_subscriber || this.roles.ambassador || this.roles.developer  || this.roles.artContestWinnerAug2018) return true
 
   return false
 })
 Schema.virtual('access.api').get(function() {
-  return this.access.beta
+  return true
+})
+Schema.virtual('access.restrictGuild').get(function() {
+  if (this.roles.isAdmin.access) return true
+  if (this.roles.gold_subscriber || this.roles.pro_subscriber || this.roles.ambassador || this.roles.developer || this.roles.artContestWinnerAug2018) return true
+
+  return false
+})
+Schema.virtual('access.restrictSubs').get(function() {
+  if (this.roles.isAdmin.access) return true
+  if (this.roles.pro_subscriber || this.roles.ambassador || this.roles.developer) return true
+
+  return false
 })
 
 Schema.virtual('roleclass').get(function() {
@@ -253,7 +275,7 @@ Schema.virtual('roleclass').get(function() {
       return 'user-admin'
   else if (this.roles.isAdmin.moderator)
       return 'user-moderator'
-  else if (this.roles.gold_subscriber || this.roles.artContestWinnerAug2018 || this.roles.guild_member)
+  else if (this.roles.gold_subscriber || this.roles.artContestWinnerAug2018 || this.roles.pro_subscriber)
       return 'user-goldsub'
   else if (this.roles.subscriber)
       return 'user-sub'

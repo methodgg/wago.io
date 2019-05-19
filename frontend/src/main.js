@@ -619,6 +619,15 @@ Vue.use(VueAuth, {
     },
     clientId: '-lUfSkaxFXmH-l0EBKFchZ3LmYGnjwKSL-93pVhZm2qiQXhZmaaNMyx8LuS1OiZ-',
     scope: 'users pledges-to-me'
+  },
+  twitchData: {url: 'auth/twitch', method: 'POST', redirect: '/account'},
+  twitchOauth2Data: {
+    url: 'https://id.twitch.tv/oauth2/authorize',
+    redirect: function () {
+      return this.options.getUrl() + '/auth/twitch'
+    },
+    clientId: '7w1xvevo9x8jvn68eauydwrb0cknq0',
+    scope: 'channel:read:subscriptions'
   }
 })
 

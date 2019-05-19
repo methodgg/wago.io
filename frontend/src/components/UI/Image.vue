@@ -33,6 +33,11 @@
         <source srcset="https://media.wago.io/avatars/social/patreon.png" type="image/png">
         <img src="https://media.wago.io/avatars/social/patreon.png" />
       </template>
+      <template v-else-if="img==='twitch'">
+        <source srcset="https://media.wago.io/avatars/social/twitch.webp" type="image/webp">
+        <source srcset="https://media.wago.io/avatars/social/twitch.png" type="image/png">
+        <img src="https://media.wago.io/avatars/social/twitch.png" />
+      </template>
       <template v-else-if="img==='twitter'">
         <source srcset="https://media.wago.io/avatars/social/twitter.webp" type="image/webp">
         <source srcset="https://media.wago.io/avatars/social/twitter.png" type="image/png">

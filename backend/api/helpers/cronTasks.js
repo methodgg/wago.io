@@ -25,11 +25,11 @@ module.exports = {
   UpdateTopTenLists: async (req) => {
     try {
       var data = {}
-      data.faves = await WagoItem.find({hidden: false, private: false}).sort("-popularity.favorite_count").select('_id name popularity.favorite_count').limit(10).exec()
-      data.installs = await WagoItem.find({hidden: false, private: false}).sort("-popularity.installed_count").select('_id name popularity.installed_count').limit(10).exec()
-      data.newest = await WagoItem.find({hidden: false, private: false, $where: "this.created.getTime() == this.modified.getTime()"}).sort({"created": -1}).select('_id name created').limit(10).exec()
-      data.updates = await WagoItem.find({hidden: false, private: false, $where: "this.created.getTime() != this.modified.getTime()"}).sort({"modified": -1}).select('_id name modified').limit(10).exec()
-      data.popular = await WagoItem.find({hidden: false, private: false}).sort("-popularity.viewsThisWeek").select('_id name popularity.viewsThisWeek').limit(10).exec()
+      data.faves = await WagoItem.find({deleted: false, hidden: false, private: false, restricted: false}).sort("-popularity.favorite_count").select('_id name popularity.favorite_count').limit(10).exec()
+      data.installs = await WagoItem.find({deleted: false, hidden: false, private: false, restricted: false}).sort("-popularity.installed_count").select('_id name popularity.installed_count').limit(10).exec()
+      data.newest = await WagoItem.find({deleted: false, hidden: false, private: false, restricted: false, $where: "this.created.getTime() == this.modified.getTime()"}).sort({"created": -1}).select('_id name created').limit(10).exec()
+      data.updates = await WagoItem.find({deleted: false, hidden: false, private: false, restricted: false, $where: "this.created.getTime() != this.modified.getTime()"}).sort({"modified": -1}).select('_id name modified').limit(10).exec()
+      data.popular = await WagoItem.find({deleted: false, hidden: false, private: false, restricted: false}).sort("-popularity.viewsThisWeek").select('_id name popularity.viewsThisWeek').limit(10).exec()
       await SiteData.findOneAndUpdate({_id: 'Top10Lists'}, {value: data}, {upsert: true}).exec()
       return true
     }
@@ -43,7 +43,7 @@ module.exports = {
       {name: 'WeakAuras-2', host: 'wowace', url: 'https://www.wowace.com/projects/weakauras-2'},
       {name: 'VuhDo', host: 'curseforge', url: 'https://wow.curseforge.com/projects/vuhdo'},
       {name: 'ElvUI', host: 'tukui', url: 'https://www.tukui.org/download.php?ui=elvui'},
-      {name: 'MDT', host: 'curseforge', url: 'https://wow.curseforge.com/projects/method-dungeon-tools'},      
+      {name: 'MDT', host: 'curseforge', url: 'https://wow.curseforge.com/projects/method-dungeon-tools'},
     ]
     var releases = []
     for (let i = 0; i < addons.length; i++) {
@@ -59,13 +59,13 @@ module.exports = {
               var release = {}
               release.addon = addon.name
               release.active = true
-    
+
               var phase = scrape(file).find('.e-project-file-phase-wrapper .e-project-file-phase')
               release.phase = phase.attr('title')
               if (!release.phase || discovered.indexOf(release.phase) >= 0) {
                 return
               }
-    
+
               var version = scrape(file).find('.project-file-name-container a')
               if (addon.host === 'wowace') {
                 release.url = 'https://www.wowace.com' + version.attr('href')
@@ -74,7 +74,7 @@ module.exports = {
                 release.url = 'https://wow.curseforge.com' + version.attr('href')
               }
               release.version = version.text()
-    
+
               var date = scrape(file).find('abbr.standard-datetime')
               release.date = new Date(parseInt(date.attr('data-epoch')) * 1000)
 
@@ -84,7 +84,15 @@ module.exports = {
               if (!preExisting) {
                 // if a new release then de-activate the previous version(s)
                 AddonRelease.updateMany({addon: release.addon, phase: release.phase, version: {$ne: release.version}}, {$set: {active: false}}).exec()
-                if (addon.name === 'MDT') {
+                if (release.addon === 'WeakAuras-2' && release.phase === 'Release') {
+                  try {
+                    updateWAData(req, release)
+                  }
+                  catch (e) {
+                    req.trackError(e, 'Error parsing WA data')
+                  }
+                }
+                else if (release.addon === 'MDT' && release.phase === 'Release') {
                   try {
                     updateMDTData(req, release)
                   }
@@ -95,7 +103,7 @@ module.exports = {
               }
             }
             catch (e) {
-              req.trackError(e, 'Error parsing addon ' + addon.name)
+              req.trackError(e, 'Error parsing addon ' + release.addon)
             }
           })
         }
@@ -229,6 +237,107 @@ module.exports = {
     catch (e) {
       req.trackError(e, 'Cron: UpdateWeeklyMDT')
     }
+  },
+
+  UpdateGuildMembership: async (res) => {
+    var guildsChecked = []
+    const users = await User.find({"roles.gold_subscriber": true, "battlenet.guilds": {$exists: true}}).exec()
+    for (let i = 0; i < users.length; i++) {
+      for (k = 0; k < users[i].battlenet.guilds.length; k++) {
+        var guildKey = users[i].battlenet.guilds[k]
+        var accountIdsInGuild = []
+        var accountNamesInGuild = []
+        if (guildsChecked.indexOf(guildKey) === -1) {
+          console.log(guildKey)
+          guildsChecked.push(guildKey)
+          var [region, realm, guildname] = guildKey.split(/@/g)
+          const guild = await battlenet.lookupGuild(region, realm, guildname)
+          guild.members.forEach(async (member) => {
+            var memberUser = await User.findOne({"battlenet.characters.region": region, "battlenet.characters.name": member.character.name, "battlenet.characters.realm": member.character.realm})
+            if (!memberUser) {
+              return
+            }
+            if (accountNamesInGuild.indexOf(memberUser.account.username) === -1) {
+              accountIdsInGuild.push(memberUser._id)
+              accountNamesInGuild.push(memberUser.account.username)
+
+              if (memberUser.battlenet.guilds.indexOf(guildKey) === -1) {
+                memberUser.battlenet.guilds.push(guildKey)
+                await memberUser.save()
+              }
+            }
+          })
+
+          // remove old members
+          if (accountIdsInGuild.length) {
+            var exGuild = await User.find({"battlenet.guilds": guildKey, _id: {$nin: accountIdsInGuild}}).exec()
+            exGuild.forEach(async (exMember) => {
+              var i = exMember.battlenet.guilds.indexOf(guildKey)
+              exMember.battlenet.guilds.splice(i, 1)
+              await exMember.save()
+            })
+          }
+        }
+      }
+    }
+  },
+
+  UpdateTwitchSubs: async (req) => {
+    const users = await User.find({"roles.pro_subscriber": true, "twitch.refreshToken": {$exists: true}}).exec()
+    users.forEach(async (user) => {
+      try {
+        var refresh = await axios.post('https://id.twitch.tv/oauth2/token', querystring.stringify({
+          client_id: config.auth.twitch.clientID,
+          client_secret: config.auth.twitch.clientSecret,
+          grant_type: 'refresh_token',
+          refresh_token: user.twitch.refreshToken
+        }), {
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+          }
+        })
+        var validate = await axios.get('https://id.twitch.tv/oauth2/validate', {headers: {Authorization: 'OAuth ' + refresh.data.access_token }})
+        if (validate.data.user_id === user.twitch.id) {
+          user.twitch.refreshToken = refresh.data.refresh_token
+          await user.save()
+          var subs = await axios.get('https://api.twitch.tv/helix/subscriptions', {params: {broadcaster_id: user.twitch.id}, headers: {Authorization: 'Bearer ' + refresh.data.access_token }})
+          if (subs.data.data) {
+            var currentSubs = []
+            subs.data.data.forEach(async (subscriber) => {
+              var subUser = await User.findOne({"twitch.id": subscriber.user_id}).exec()
+              if (subUser) {
+                currentSubs.push(subUser._id)
+                if (subUser.twitch.subscribedTo.indexOf(user.twitch.id) === -1) {
+                  subUser.twitch.subscribedTo.push(user.twitch.id)
+                  await subUser.save()
+                }
+              }
+            })
+            // remove old subs
+            if (currentSubs.length) {
+              var exSubs = await User.find({"twitch.subscribedTo": user.twitch.id, _id: {$nin: currentSubs}}).exec()
+              exSubs.forEach(async (exSubscriber) => {
+                var i = exSubscriber.twitch.subscribedTo.indexOf(user.twitch.id)
+                exSubscriber.twitch.subscribedTo.splice(i, 1)
+                await exSubscriber.save()
+              })
+            }
+          }
+        }
+        else {
+          // no longer allowing link between wago and twitch
+          user.twitch.refreshToken = null
+          await user.save()
+        }
+      }
+      catch (e) {
+        if (e.response && e.response.status === 401 && user) {
+          user.twitch.refreshToken = null
+          await user.save()
+        }
+        req.trackError(e, 'Cron: UpdateTwitchSubs')
+      }
+    })
   }
 }
 
@@ -251,6 +360,37 @@ async function updateViewsThisWeek(docs) {
   else {
     return
   }
+}
+
+async function updateWAData (req, release) {
+  const addonDir = path.resolve(__dirname, '../lua', 'addons' ,'WeakAuras', release.version)
+  await mkdirp(addonDir)
+  const zipFile = path.resolve(addonDir, 'WeakAuras.zip')
+  const writer = require('fs').createWriteStream(zipFile)
+
+  const response = await axios({
+    url: release.url + '/download',
+    method: 'GET',
+    responseType: 'stream'
+  })
+
+  response.data.pipe(writer)
+  await new Promise((resolve, reject) => {
+    writer.on('finish', resolve)
+    writer.on('error', reject)
+  })
+  await decompress(zipFile, addonDir)
+  const waLua = await fs.readFile(addonDir + '/WeakAuras/WeakAuras.lua', 'utf8')
+  const versionMatch = waLua.match(/internalVersion\s?=\s?(\d+)/)
+  if (versionMatch && versionMatch[1]) {
+    const internalVersion = parseInt(versionMatch[1])
+    if (internalVersion) {
+      SiteData.set('weakAuraInternalVersion', internalVersion)
+      return
+    }
+  }
+  // if we get here then internalVersion is not found or is not an integer
+  req.trackError(e, 'Unable to find WeakAura internalVersion')
 }
 
 async function updateMDTData (req, release) {
@@ -348,7 +488,7 @@ async function buildStaticMDTPortraits(json, mapID, subMapID, teeming, faction) 
   else teeming = ''
 
   var imgName = `portraitMap-${mapID}-${subMapID}${teeming}`
-  
+
   if (faction) {
     imgName = imgName + '-Faction' + faction
   }
@@ -373,20 +513,20 @@ async function buildStaticMDTPortraits(json, mapID, subMapID, teeming, faction) 
     <div id="container"></div>
     <script>
       var multiplier = 5
-      
+
       var stage = new Konva.Stage({
         container: 'container',
         width: 1024 * multiplier,
         height: 768 * multiplier
       });
-  
+
       var layer = new Konva.Layer();
       var enemyPortraits = new Image()
       enemyPortraits.src = 'https://media.wago.io/mdt/portraits-${mapID}.png'
       enemyPortraits.crossOrigin = 'anonymous'
       enemyPortraits.onload = () => {`
       json.dungeonEnemies.forEach((creature, i) => {
-        if (!creature || !creature.clones) return 
+        if (!creature || !creature.clones) return
 
         creature.clones.forEach((clone, j) => {
           if ((!clone.sublevel || clone.sublevel === subMapID) && (!clone.teeming || (clone.teeming && teeming)) && (!clone.faction || (clone.faction === faction))) {
@@ -632,7 +772,7 @@ function generateStats(res) {
                     if (!json.c) {
                       json.c = [json.d]
                     }
-                    else {                      
+                    else {
                       countRegionTypes[json.d.regionType]++
                     }
                     for (let i = 0; i < json.c.length; i++) {
@@ -700,7 +840,7 @@ function generateStats(res) {
 
                 date = date.nextWeek()
                 cb()
-              })            
+              })
             })
           }, () => {
             done()

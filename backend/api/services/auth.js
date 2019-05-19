@@ -1,6 +1,6 @@
 
 const config = require('../../config')
-const bcrypt = require('bcrypt')      
+const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 // const OAuth = require('oauth')
 // const oauthSignature = require('oauth-signature')
@@ -66,6 +66,8 @@ async function makeSession(req, res, token, user) {
       who.google = user.google || false
       who.patreon = user.patreon || false
       who.twitter = user.twitter || false
+      who.twitch = user.twitch || false
+      who.twitch.refreshToken = undefined
       if (user.account.password) {
         who.localAcct = true
       }
@@ -78,6 +80,8 @@ async function makeSession(req, res, token, user) {
       who.access.customSlug = user.access.custom_slug
       who.access.beta = user.access.beta
       who.access.animatedAvatar = user.access.animatedAvatar
+      who.access.restrictGuild = user.access.restrictGuild
+      who.access.restrictSubs = user.access.restrictSubs
       if (user.roles.isAdmin.access) {
         who.access.admin = user.roles.isAdmin
       }
@@ -147,17 +151,21 @@ module.exports = function (fastify, opts, next) {
       case 'battlenetCN':
         battlenetAuth(req, res, 'CN')
         break
-        
+
       case 'discord':
         discordAuth(req, res)
         break
-        
+
       case 'google':
         googleAuth(req, res)
         break
-              
+
       case 'patreon':
         patreonAuth(req, res)
+        break
+
+      case 'twitch':
+        twitchAuth(req, res)
         break
 
       case 'twitter':
@@ -180,7 +188,7 @@ module.exports = function (fastify, opts, next) {
       default:
         return res.code(404).send({error: 'invalid_provider', provider: req.params.provider})
     }
-  }  
+  }
   fastify.post('/:provider', Login)
   fastify.get('/:provider', Login)
 
@@ -214,7 +222,7 @@ async function localAuth (req, res) {
   if (user) {
     return res.send(403, {error: "Error: Username already exists"})
   }
-    
+
   const google = await axios.post('https://www.google.com/recaptcha/api/siteverify', querystring.stringify({
       secret: '6LfMCGkUAAAAACj35VLnGhJFq2cFqwSj3Hh-5UFq',
       response: req.body.recaptcha,
@@ -245,7 +253,7 @@ async function localAuth (req, res) {
 }*/
 
 // Login through Blizzard Battle.net
-async function battlenetAuth(req, res, region) {  
+async function battlenetAuth(req, res, region) {
   var key = config.auth.battlenet.clientID
   var secret = config.auth.battlenet.clientSecret
   var tokenURL
@@ -366,7 +374,7 @@ async function battlenetAuth(req, res, region) {
       else {
         user[battlenetField].updateStatus = 'Error: No characters found.'
         user.save()
-      }       
+      }
     })
   }
   else {
@@ -461,6 +469,38 @@ async function patreonAuth(req, res) {
   }
 }
 
+// Login through Twitch
+async function twitchAuth(req, res) {
+  try {
+    const response = await axios.post('https://id.twitch.tv/oauth2/token', querystring.stringify({
+      code: req.body.code || req.query.code,
+      client_id: config.auth.twitch.clientID,
+      client_secret: config.auth.twitch.clientSecret,
+      redirect_uri: req.headers.origin + '/auth/twitch',
+      grant_type: 'authorization_code'
+    }), {
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded"
+      }
+    })
+    var authResponse = await axios.get('https://api.twitch.tv/helix/users', {
+      headers: {
+        Authorization: 'Bearer ' + response.data.access_token
+      }
+    })
+    if (!authResponse.data.data[0].id) {
+      throw 'invalid'
+    }
+    authResponse = authResponse.data.data[0]
+    authResponse.refreshToken = response.data.refresh_token
+    oAuthLogin(req, res, 'twitch', authResponse)
+  }
+  catch (e) {
+    req.trackError(e, 'Failed Twitch Auth')
+    return res.code(403).send({error: 'Unable to auth with Twitch'})
+  }
+}
+
 // Login through Twitter
 const Twitter = require("twitter-lite") // because oauth 1a is a pain in the butt
 const twitter = new Twitter({
@@ -507,13 +547,13 @@ async function oAuthLogin(req, res, provider, authUser, callback) {
     profile = {
       id: authUser.id,
       name: authUser.name,
-      updateStatus: 'pending'
+      updateStatus: 'pending-API'
     }
     humanDetected = authUser.maxLevel
     newAcctName = authUser.name
     avatarURL = authUser.avatar
     break
-    
+
   case 'discord':
     query = {"discord.id": authUser.id}
     profile = {
@@ -558,6 +598,16 @@ async function oAuthLogin(req, res, provider, authUser, callback) {
     }
     break
 
+  case 'twitch':
+    query = {"twitch.id": authUser.id}
+    profile = {
+      id: authUser.id,
+      name: authUser.display_name,
+      refreshToken: authUser.refresh_token
+    }
+    avatarURL = authUser.profile_image_url
+    break
+
   case 'twitter':
     query = {"twitter.id": authUser.user_id}
     profile = {
@@ -573,10 +623,10 @@ async function oAuthLogin(req, res, provider, authUser, callback) {
   // if already logged in and oauth matches
   if (req.user && ((oauthUser && req.user._id.equals(oauthUser._id)))) {
     if (avatarURL) {
-    var img = await image.avatarFromURL(avatarURL, oauthUser._id.toString(), provider)
-    if (!img.error) {
-      profile.avatar = img
-    }
+      var img = await image.avatarFromURL(avatarURL, oauthUser._id.toString(), provider)
+      if (!img.error) {
+        profile.avatar = img
+      }
     }
 
     // update profile
@@ -602,7 +652,7 @@ async function oAuthLogin(req, res, provider, authUser, callback) {
     if (callback) {
       callback(req.user)
     }
-    return 
+    return
   }
 
   // if not registered then create a new account
@@ -610,7 +660,7 @@ async function oAuthLogin(req, res, provider, authUser, callback) {
     var user
     if (req.user) {
       user = req.user
-    } 
+    }
     else {
       user = new User()
     }
@@ -636,7 +686,7 @@ async function oAuthLogin(req, res, provider, authUser, callback) {
       if (callback) {
         callback(user)
       }
-      return 
+      return
     }
     else {
       // if brand new user, check if we can use the username
@@ -655,7 +705,7 @@ async function oAuthLogin(req, res, provider, authUser, callback) {
       if (callback) {
         callback(user)
       }
-      return 
+      return
     }
   }
 
@@ -690,7 +740,7 @@ async function oAuthLogin(req, res, provider, authUser, callback) {
     if (callback) {
       callback(oauthUser)
     }
-    return 
+    return
   }
   else {
     return res.send({err: 'Invalid input'})

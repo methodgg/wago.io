@@ -136,7 +136,7 @@ var XBBCODE = (function() {
         "color": {
             openTag: function(params,content) {
                 params = params || '';
-                
+
                 var colorCode = (params.substr(1)).toLowerCase() || "black";
                 colorNamePattern.lastIndex = 0;
                 colorCodePattern.lastIndex = 0;
@@ -699,7 +699,7 @@ var XBBCODE = (function() {
             output = (' '+output.replace(exp, "$1<a href='$3' class='vr'>$2</a>$4")).substring(1);
 
             // then other links (no vr class)
-            exp = /(^|\s)((?:https?|ftp):\/\/[a-zA-Z0-9-+&@#\/%?=~_|!:,.;]*[a-zA-Z0-9-+&@#\/%=~_|])($|\s)/ig;
+            exp = /(^|\s)((?:https?|ftp|twitch):\/\/[a-zA-Z0-9-+&@#\/%?=~_|!:,.;]*[a-zA-Z0-9-+&@#\/%=~_|])($|\s)/ig;
             output = (' '+output.replace(exp, "$1<a href='$2' target='_blank'>$2</a>$3")).substring(1);
             output = (' '+output.replace(exp, "$1<a href='$2' target='_blank'>$2</a>$3")).substring(1);
         }
@@ -792,12 +792,12 @@ var XBBCODE = (function() {
         config.text = config.text.replace(/>/g, "]"); // escape ['s that aren't apart of tags
 
         if (config.enableURLs) {
-            urlPattern = /^(?:https?|file|c):(?:\/{1,3}|\\{1})[-a-zA-Z0-9:;,@#%&()~_?\+=\/\\\.]*$/
+            urlPattern = /^(?:https?|twitch):(?:\/{1,3}|\\{1})[-a-zA-Z0-9:;,@#%&()~_?\+=\/\\\.]*$/
             enableURLs = true
         }
         // if disabled then only allow wago.io links
         else {
-            urlPattern = /^(?:https?|file|c):(?:\/{1,3}|\\{1})wago\.io[-a-zA-Z0-9:;,@#%&()~_?\+=\/\\\.]*$/  
+            urlPattern = /^(?:https?):(?:\/{1,3}|\\{1})wago\.io[-a-zA-Z0-9:;,@#%&()~_?\+=\/\\\.]*$/
         }
 
         // process tags that don't have their content parsed

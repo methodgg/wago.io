@@ -123,6 +123,7 @@ Schema.statics.lookup = async function(slug) {
 Schema.virtual('visibility').get(function() {
   if (this.private) return "Private"
   else if (this.hidden) return "Hidden"
+  else if (this.restricted) return "Restricted"
   else return "Public"
 })
 
@@ -138,7 +139,7 @@ Schema.statics.randomOfTheMoment = async function(count, n) {
   if (!n) {
     n = 0
   }
-  var search = {"hidden": false, "private": false, "deleted": false, $or:[{type: 'WEAKAURAS2'}, {type: 'ELVUI'}, {type: 'VUHDO'}, {type: 'MDT'}], modified: {"$gte": new Date(2018, 7, 17)}}
+  var search = {"hidden": false, "restricted": false, "private": false, "deleted": false, $or:[{type: 'WEAKAURAS2'}, {type: 'ELVUI'}, {type: 'VUHDO'}, {type: 'MDT'}], modified: {"$gte": new Date(2018, 7, 17)}}
   if (!count) {
     count = await this.countDocuments(search).exec()
   }

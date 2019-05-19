@@ -8,6 +8,23 @@ const Schema = new mongoose.Schema({
     private: {type: Boolean, default: false}
 }, { timestamps: true });
 
+Schema.statics.get = function(key) {
+  return new Promise((resolve, reject) => {
+    this.findOne({_id: key}).then((data) => {
+      if (data) {
+        resolve(data.value)
+      }
+      else {
+        resolve(null)
+      }
+    })
+  })
+}
+
+Schema.statics.set = function(key, value) {
+  return this.findByIdAndUpdate(key, {value: value}, {upsert: true}).exec()
+}
+
 
 const SiteData = mongoose.model('SiteData', Schema)
 module.exports = SiteData

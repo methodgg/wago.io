@@ -18,7 +18,7 @@
             <md-input v-model="editName" @change="onUpdateName()" :debounce="600"></md-input>
             <span class="md-error" v-if="updateNameStatus.length>0">{{ updateNameStatus }}</span>
           </md-input-container>
-          
+
           <md-layout>
             <md-layout>
               <md-input-container :class="{ 'md-input-invalid': uploadAvatarError, 'md-input-status': uploadAvatarProgress }">
@@ -97,7 +97,7 @@
               <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'kuroir'}" @click="setEditorTheme('kuroir')">Kuroir</md-button>
               <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'katzenmilch'}" @click="setEditorTheme('katzenmilch')">KatzenMilch</md-button>
               <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'sqlserver'}" @click="setEditorTheme('sqlserver')">SQL Server</md-button>
-            </md-button-toggle>      
+            </md-button-toggle>
           </div>
           <div></div>
           <div v-if="selectTheme === 'dark'">
@@ -175,6 +175,7 @@
             <span v-else-if="User.access.goldSub">[{{ $t("Gold Subscriber") }}]</span>
             <br>{{ $t("Animated avatars are enabled") }}
             <br>{{ $t("Custom URLs are enabled") }}
+            <br>{{ $t("Imports may be restricted by guild") }}
             <br>{{ $t("Access to Wago [Beta] features") }}
           </ui-warning>
           <ui-warning v-else-if="User.access && User.access.sub" mode="ok">
@@ -184,15 +185,15 @@
           </ui-warning>
         </md-card-content>
         <div v-if="User.access && User.access.api">
-          <h2>API [Beta]</h2>
+          <h2>API</h2>
           <md-card-content>
             <p>{{ $t("You may use an API key to access Wago programmatically, through your own software or a third party app such as the WeakAuras Updater") }}</p>
             <p>{{ $t("Treat this key like your password") }}</p>
             <wago-api-key />
-            <p>{{ $t("Documentation soon") }}</p>
+            <p>Documentation and more endpoints soon™</p>
           </md-card-content>
         </div>
-        <div v-if="User.discord && User.discord.id">  
+        <div v-if="User.discord && User.discord.id">
           <h2>Discord</h2>
           <md-card-content>
             <md-checkbox v-model="discordOptionFaveUpdateMsg" @change="onChangeDiscordOptions">{{ $t("Recieve a private message on Discord whenever a Wago you have starred is updated") }}</md-checkbox><br>
@@ -208,7 +209,7 @@
       </md-card>
       <wago-oauth></wago-oauth>
     </md-layout>
-  </md-layout>   
+  </md-layout>
 </template>
 
 <script>
@@ -236,7 +237,7 @@ export default {
 function()
   local who = "${this.$store.state.user.name}"
   print("Hello " .. who)
-  
+
   if wago() then
     return true
   end

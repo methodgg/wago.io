@@ -16,9 +16,10 @@
               <md-image :md-src="result.thumbnail" v-if="result.thumbnail"></md-image>
             </div>
             <div class="searchText">
-              <router-link :to="'/' + result.slug">{{ result.name }}</router-link> 
+              <router-link :to="'/' + result.slug">{{ result.name }}</router-link>
               <span class="hidden-status" v-if="result.visibility.private">- Private -</span>
               <span class="hidden-status" v-if="result.visibility.hidden">- Hidden -</span>
+              <span class="hidden-status" v-if="result.visibility.restricted">- Restricted -</span>
               <md-subheader>
                 <span>{{ result.type }}</span>
                 <span>{{ result.date.modified || result.date.created | moment('LLL') }}</span>
@@ -34,10 +35,10 @@
               </div>
             </div>
           </div>
-        </div>        
+        </div>
         <div class="searchResult" v-else-if="!isSearching && results.total === 0">{{ $t("No results found") }}</div>
-      </md-layout>   
-    
+      </md-layout>
+
       <md-layout id="searchMeta" v-if="results && results.query">
         <search-meta :meta="results.query.context" :tagMap="tagMap" :textSearch="results.query.textSearch" :sort="sortVal" @setSort="setSort" :catRelevance="catRelevance" @setCategoryRelevance="setCategoryRelevance" :filterExpansion="filterExpansion" @setExpansion="setExpansion"></search-meta>
       </md-layout>

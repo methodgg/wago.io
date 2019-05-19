@@ -49,10 +49,15 @@ module.exports = (fastify, opts, next) => {
       who.avatar = user.avatarURL
       who.css = user.roleClass
 
+      if (user.battlenet && user.battlenet.guilds && user.battlenet.guilds.length) {
+        user.battlenet.guilds.sort()
+      }
       who.battlenet = user.battlenet || false
       who.discord = user.discord || false
       who.google = user.google || false
       who.patreon = user.patreon || false
+      who.twitch = user.twitch || false
+      who.twitch.refreshToken = undefined
       who.twitter = user.twitter || false
       if (user.account.password) {
         who.localAcct = true
@@ -67,6 +72,8 @@ module.exports = (fastify, opts, next) => {
       who.access.customSlug = user.access.custom_slug
       who.access.beta = user.access.beta
       who.access.animatedAvatar = user.access.animatedAvatar
+      who.access.restrictGuild = user.access.restrictGuild
+      who.access.restrictSubs = user.access.restrictSubs
       if (user.access.api) {
         who.access.api = true
         who.apiKey = user.account.api_key
@@ -81,7 +88,7 @@ module.exports = (fastify, opts, next) => {
       if (user.roles.isAdmin.access) {
         who.access.admin = user.roles.isAdmin
       }
-      
+
       who.config = user.config
       who.companionHideAlert = user.account.companionHideAlert
 
@@ -116,7 +123,7 @@ module.exports = (fastify, opts, next) => {
     else if (req.body.name.match(/[%/\\<>]/)) {
       return res.code(401).send({error: "invalid input"})
     }
-    
+
     // make sure username is unique
     const exists = await User.findByUsername(req.body.name)
     if (!exists) {
@@ -188,7 +195,7 @@ module.exports = (fastify, opts, next) => {
         if (req.user[req.body.avatar] && req.user[req.body.avatar].avatar) {
           req.user.profile.avatar = req.user[req.body.avatar].avatar
           req.user.save()
-          res.send({success: true, avatar: req.user.profile.avatar})        
+          res.send({success: true, avatar: req.user.profile.avatar})
         }
         break
     }
@@ -229,7 +236,7 @@ module.exports = (fastify, opts, next) => {
   })
 
   fastify.post('/update/theme', (req, res) => {
-    if (!req.user || !req.body.theme || !req.body.editor || !req.body.editor.match(/^(classic|dark)$/)) {
+    if (!req.user || !req.body.theme || !req.body.editor || !req.body.theme.match(/^(classic|dark)$/)) {
       return res.code(403).send({error: "forbidden"})
     }
 
@@ -248,7 +255,7 @@ module.exports = (fastify, opts, next) => {
     req.user.save()
     res.send({succes: true})
   })
-  
+
   fastify.post('/disableCompanionAlert', (req, res) => {
     if (!req.user) {
       return res.code(403).send({error: "forbidden"})
@@ -277,7 +284,7 @@ module.exports = (fastify, opts, next) => {
     else {
       req.user.discord.webhooks.onCreate = null
     }
-    
+
     req.user.save()
     res.send({succes: true})
   })

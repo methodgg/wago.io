@@ -1,15 +1,29 @@
 /**
  * /lookup requests
  */
- 
+
 const lua = require('../helpers/lua')
 const WCL = require('../helpers/WCL')
 const battlenet = require('../helpers/battlenet')
 const diff = require('../helpers/diff')
 const wowPatches = require('../helpers/wowPatches')
 
+const arrayMatch = function (arr1, arr2) {
+  if (!arr1.length || !arr2.length) {
+    return false
+  }
+  for (let i = 0; i < arr1.length; i++) {
+    for (let k = 0; k < arr2.length; k++) {
+      if (arr1[i] === arr2[k]) {
+        return true
+      }
+    }
+  }
+  return false
+}
+
 module.exports = function (fastify, opts, next) {
-  // returns data used on wago.io homepage 
+  // returns data used on wago.io homepage
   fastify.get('/index', (req, res) => {
     res.cache(60).send({top10: global.Top10Lists, news: global.LatestNews, addons: global.LatestAddons})
   })
@@ -27,8 +41,17 @@ module.exports = function (fastify, opts, next) {
     if (doc.private && (!req.user || !req.user._id.equals(doc._userId))) {
       return res.code(401).send({error: "page_not_accessible"})
     }
+
+    if (doc.restricted) {
+      if (!req.user) {
+        return res.code(401).send({error: "page_not_accessible"})
+      }
+      if (!req.user._id.equals(doc._userId) && doc.restrictedUsers.indexOf(req.user._id.toString()) === -1 && !arrayMatch(doc.restrictedGuilds, req.user.battlenet.guilds) && doc.restrictedTwitchUsers.indexOf(req.user.twitch.id) === -1) {
+        return res.code(401).send({error: "page_not_accessible"})
+      }
+    }
     var saveDoc = false
-    
+
     doc.popularity.views++
     // quick hack to stop counting mdt embeds
     if (req.headers.referer && !req.headers.referer.match(/embed/)) {
@@ -39,7 +62,7 @@ module.exports = function (fastify, opts, next) {
       ViewsThisWeek.find({viewed: { $gt: new Date().getTime() - 1000 * 60 * 20 }, source: ipAddress, wagoID: doc._id}).then((recent) => {
         if (!recent || recent.length === 0) {
           saveDoc = true
-          
+
           var pop = new ViewsThisWeek()
           pop.wagoID = doc._id
           pop.source = ipAddress
@@ -47,7 +70,7 @@ module.exports = function (fastify, opts, next) {
         }
       })
     }
-  
+
     var wago = {}
     wago._id = doc._id
     if (doc.type === 'WEAKAURAS2') {
@@ -68,7 +91,24 @@ module.exports = function (fastify, opts, next) {
     wago.name = doc.name
     wago.slug = doc.slug
     wago.url = doc.url
-    wago.visibility = { private: doc.private, hidden: doc.hidden, deleted: doc.deleted }
+    wago.visibility = { private: doc.private, hidden: doc.hidden, restricted: doc.restricted, deleted: doc.deleted }
+    wago.restrictions = []
+    if (doc.restricted && req.user._id.equals(doc._userId)) {
+      if (doc.restrictedUsers.length) {
+        doc.restrictedUsers.forEach(async (user) => {
+          var rUser = await User.findById(user)
+          wago.restrictions.push({type: 'user', value: rUser.account.username })
+        })
+      }
+      if (doc.restrictedGuilds.length) {
+        doc.restrictedGuilds.forEach((guild) => {
+          wago.restrictions.push({type: 'guild', value: guild })
+        })
+      }
+      if (doc.restrictedTwitchUsers.length) {
+        wago.restrictions.push({type: 'twitch' })
+      }
+    }
     wago.date = { created: doc.created, modified: doc.modified }
     wago.expires = doc.expires_at
     wago.patch = wowPatches.patchByDate(doc.modified || doc.created)
@@ -76,7 +116,7 @@ module.exports = function (fastify, opts, next) {
     wago.categories = doc.categories
     wago.regionType = doc.regionType
     wago.attachedMedia = doc.attachedMedia
-    
+
     wago.viewCount = doc.popularity.views
     wago.viewsThisWeek = doc.popularity.viewsThisWeek
     wago.commentCount = doc.popularity.comment_count
@@ -89,7 +129,7 @@ module.exports = function (fastify, opts, next) {
 
     const getUser = async () => {
       if (!wago.UID) {
-        wago.user = {          
+        wago.user = {
           name: null,
           searchable: false,
           roleClass: 'user-anon',
@@ -101,7 +141,7 @@ module.exports = function (fastify, opts, next) {
       const user = await User.findById(wago.UID).exec()
       if (!user) {
         // should always find a match but if something is whack...
-        wago.user = {          
+        wago.user = {
           name: null,
           searchable: false,
           roleClass: 'user-anon',
@@ -176,12 +216,12 @@ module.exports = function (fastify, opts, next) {
       wago.collections = []
       wago.myCollections = []
       if (req.user) {
-        search = WagoItem.find({type: 'COLLECTION', collect: doc._id, deleted: false, "$or": [{ '_userId': req.user._id || null }, { private: false, hidden: false }]})
-        count = WagoItem.countDocuments({type: 'COLLECTION', collect: doc._id, deleted: false, "$or": [{ '_userId': req.user._id || null }, { private: false, hidden: false }]})
+        search = WagoItem.find({type: 'COLLECTION', collect: doc._id, deleted: false, "$or": [{ '_userId': req.user._id || null }, { private: false, hidden: false, restricted: false }]})
+        count = WagoItem.countDocuments({type: 'COLLECTION', collect: doc._id, deleted: false, "$or": [{ '_userId': req.user._id || null }, { private: false, hidden: false, restricted: false }]})
       }
       else {
-        search = WagoItem.find({type: 'COLLECTION',collect: doc._id, deleted: false, private: false, hidden: false})
-        count = WagoItem.countDocuments({type: 'COLLECTION', collect: doc._id, deleted: false, private: false, hidden: false})
+        search = WagoItem.find({type: 'COLLECTION',collect: doc._id, deleted: false, private: false, hidden: false, restricted: false})
+        count = WagoItem.countDocuments({type: 'COLLECTION', collect: doc._id, deleted: false, private: false, hidden: false, restricted: false})
       }
 
       wago.collectionCount = await count.exec()
@@ -237,7 +277,7 @@ module.exports = function (fastify, opts, next) {
       else if (wago.versions.versions[0] && wago.versions.versions[0].versionString) {
         wago.codeURL = `/lookup/wago/code?id=${doc._id}&version=${wago.versions.versions[0].versionString}`
       }
-      else {        
+      else {
         wago.codeURL = `/lookup/wago/code?id=${doc._id}`
       }
       return
@@ -277,7 +317,7 @@ module.exports = function (fastify, opts, next) {
         return
       }
       var fork = await WagoItem.findById(doc.fork_of).exec()
-      if (!fork || fork.hidden || fork.private) {
+      if (!fork || fork.hidden || fork.private || fork.restricted) {
         return
       }
       wago.fork = {_id: fork._id.toString(), name: fork.name}
@@ -305,6 +345,14 @@ module.exports = function (fastify, opts, next) {
     if (doc.private && (!req.user || !req.user._id.equals(doc._userId))) {
       return res.code(404).send({error: "page_not_found"})
     }
+    if (doc.restricted) {
+      if (!req.user) {
+        return res.code(401).send({error: "page_not_accessible"})
+      }
+      if (!req.user._id.equals(doc._userId) && doc.restrictedUsers.indexOf(req.user._id.toString()) === -1 && !arrayMatch(doc.restrictedGuilds, req.user.battlenet.guilds) && doc.restrictedTwitchUsers.indexOf(req.user.twitch.id) === -1) {
+        return res.code(401).send({error: "page_not_accessible"})
+      }
+    }
     const left = WagoCode.lookup(doc._id, req.query.left)
     const right = WagoCode.lookup(doc._id, req.query.right)
     var tables = {left: await left, right: await right}
@@ -314,8 +362,8 @@ module.exports = function (fastify, opts, next) {
     }
     catch (e) {
       return res.send([])
-    }    
-    
+    }
+
     if (doc.type === 'SNIPPET') {
       return res.cache(604800).send(await diff.Lua(tables.left, tables.right))
     }
@@ -343,6 +391,14 @@ module.exports = function (fastify, opts, next) {
     if (doc.private && (!req.user || !req.user._id.equals(doc._userId))) {
       return res.code(401).send({error: "page_not_accessible"})
     }
+    if (doc.restricted) {
+      if (!req.user) {
+        return res.code(401).send({error: "page_not_accessible"})
+      }
+      if (!req.user._id.equals(doc._userId) && doc.restrictedUsers.indexOf(req.user._id.toString()) === -1 && !arrayMatch(doc.restrictedGuilds, req.user.battlenet.guilds) && doc.restrictedTwitchUsers.indexOf(req.user.twitch.id) === -1) {
+        return res.code(401).send({error: "page_not_accessible"})
+      }
+    }
 
     var code = await WagoCode.lookup(doc._id, req.query.version)
     if (!code) {
@@ -365,7 +421,7 @@ module.exports = function (fastify, opts, next) {
 
       return res.code(302).redirect(`/lookup/wago/code?id=${req.query.id}&version=${code.versionString}`)
     }
-          
+
     var versionString = code.versionString
     if (versionString !== '1.0.' + (code.version - 1) && versionString !== '0.0.' + code.version) {
       // append build # if version numbers are not sequential
@@ -383,7 +439,7 @@ module.exports = function (fastify, opts, next) {
         }
         wagoCode.alerts.blacklist.push(m[1].replace(/\\"/g, '"'))
       }
-      
+
       // check for functions that could be used for malintent
       while ((m = commonRegex.MaliciousCode.exec(code.json)) !== null) {
         if (!wagoCode.alerts.malicious) {
@@ -401,6 +457,7 @@ module.exports = function (fastify, opts, next) {
     }
     else if (doc.type === 'WEAKAURAS2') {
       var json = JSON.parse(code.json)
+      var compare = {}
       // check for any missing data
       if (code.version && (!code.encoded || ((json.d.version !== code.version || json.d.url !== doc.url + '/' + code.version) || (json.c && json.c[0].version !== code.version) || (json.d.semver !== code.versionString)))) {
         json.d.url = doc.url + '/' + code.version
@@ -422,6 +479,7 @@ module.exports = function (fastify, opts, next) {
         }
         code.save()
       }
+      wagoCode.compare = compare
       wagoCode.json = code.json
       wagoCode.encoded = code.encoded
       wagoCode.version = code.version
@@ -443,7 +501,7 @@ module.exports = function (fastify, opts, next) {
     if (!req.query.id) {
       return res.code(404).send({error: "page_not_found"})
     }
-    const docs = await WagoItem.find({"type": "COLLECTION", "collect": req.query.id, "deleted": false, "private": false, "hidden": false}).sort('-modified').skip(10).populate('_userId').exec()
+    const docs = await WagoItem.find({"type": "COLLECTION", "collect": req.query.id, "deleted": false, "private": false, "hidden": false, "restricted": false}).sort('-modified').skip(10).populate('_userId').exec()
     if (!docs) {
       return res.send([])
     }
@@ -467,10 +525,10 @@ module.exports = function (fastify, opts, next) {
     docs.forEach((c) => {
       comments.push({
         cid: c._id.toString(),
-        date: c.postDate, 
-        text: c.commentText, 
+        date: c.postDate,
+        text: c.commentText,
         format: 'bbcode',
-        author: { 
+        author: {
           name: c.authorID.account.username || 'User-' + c.authorID._id.toString(),
           avatar: c.authorID.avatarURL,
           class: c.authorID.roleclass,
@@ -510,7 +568,7 @@ module.exports = function (fastify, opts, next) {
       return res.code(404).send({error: "page_not_found"})
     }
 
-    const doc = await Blog.findOne({_id: req.query.id, publishStatus: 'publish'}).populate('_userId').exec()    
+    const doc = await Blog.findOne({_id: req.query.id, publishStatus: 'publish'}).populate('_userId').exec()
     if (doc) {
       res.cache(300).send({
         content: doc.content,
@@ -535,14 +593,14 @@ module.exports = function (fastify, opts, next) {
     if (!req.query.page) {
       return res.code(404).send({error: "page_not_found"})
     }
-    
+
     var pageNum = parseInt(req.query.page)
     if (pageNum <= 0) {
       return res.code(404).send({error: "page_not_found"})
     }
     // reduce to zero-index
     pageNum--
-    
+
     var data = {news: []}
     const blogPage = Blog.find({publishStatus: 'publish'}).populate('_userId').sort('-date').limit(3).skip(pageNum * 3).exec()
     const blogOldest = Blog.findOne({publishStatus: 'publish'}).sort('date').select('_id').exec()
@@ -602,13 +660,13 @@ module.exports = function (fastify, opts, next) {
       }
       else {
         stats[stats.length - 1].data.push(item.value)
-      }   
+      }
     })
-    res.cache(3600).send(stats) 
+    res.cache(3600).send(stats)
   })
 
 
-  // Blizzard web API proxy 
+  // Blizzard web API proxy
   fastify.get('/blizzard/spell', async (req, res) => {
     if (parseInt(req.query.id)) {
       const spell = await battlenet.lookupSpell(req.query.id)
@@ -623,5 +681,5 @@ module.exports = function (fastify, opts, next) {
     }
   })
 
-  next()  
+  next()
 }

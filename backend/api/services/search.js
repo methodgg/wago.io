@@ -38,7 +38,7 @@ module.exports = function (fastify, opts, next) {
     else {
       relevance = 'standard'
     }
-    
+
     var page = parseInt(req.query.page || req.body.page || 0)
     var esFilter = []
     var esSort = ['_score']
@@ -68,7 +68,7 @@ module.exports = function (fastify, opts, next) {
     if (match && match.length) {
       query = query.replace(match[0], '').replace(/\s{2,}/, ' ').trim()
       sort = match[1].toLowerCase()
-    }    
+    }
     Search.query.sort = sort
 
     if (sort === 'date') {
@@ -118,7 +118,7 @@ module.exports = function (fastify, opts, next) {
         esSort.unshift('relevancy.strict')
       }
 
-      // standard 
+      // standard
       else if (relevance === 'standard') {
         // standard score sorts by number of root categories
         esSort.unshift('relevancy.standard')
@@ -131,7 +131,7 @@ module.exports = function (fastify, opts, next) {
       }
     }
 
-    // check for expansion filter        
+    // check for expansion filter
     match = /expansion:\s*"?(all|legion|bfa)"?/i.exec(query)
     if (match) {
       query = query.replace(match[0], '').replace(/\s{2,}/, ' ').trim()
@@ -145,8 +145,8 @@ module.exports = function (fastify, opts, next) {
     }
 
     // if battle for azeroth
-    else if (expansion === 'bfa') {  
-      // greater than bfa release date OR has bfa beta tag      
+    else if (expansion === 'bfa') {
+      // greater than bfa release date OR has bfa beta tag
       esFilter.push({ bool: { should: [{range: { modified: { gte: "2018-07-17" } } }, { term: { "categories.keyword": 'beta-bfa' } }] } })
     }
 
@@ -157,7 +157,7 @@ module.exports = function (fastify, opts, next) {
 
     // if user is logged in and expansion is different from their current config, then update config
     if (req.user && req.user.config.searchOptions.expansion != expansion) {
-      req.user.config.searchOptions.expansion = expansion       
+      req.user.config.searchOptions.expansion = expansion
       updateUser = true
     }
 
@@ -169,7 +169,7 @@ module.exports = function (fastify, opts, next) {
 
       if (match[1] === 'WEAKAURA' || match[1] === 'WEAKAURA2' || match[1] === 'WEAKAURAS') {
         match[1] = 'WEAKAURAS2'
-      } 
+      }
       else if (match[1] === 'TOTALRP') {
         match[1] = 'TOTALRP3'
       }
@@ -299,7 +299,7 @@ module.exports = function (fastify, opts, next) {
       if (match[1] === '1' || match[1].toLowerCase() === 'true') {
         searchSettings.showAnon = 'allow'
         Search.query.context.push({
-          query: anonSearch[0],
+          query: match[0],
           type: 'option',
           option: {
             name: 'anon',
@@ -310,7 +310,7 @@ module.exports = function (fastify, opts, next) {
       else if (match[1] === '0' || match[1].toLowerCase() === 'false') {
         searchSettings.showAnon = 'hide'
         Search.query.context.push({
-          query: anonSearch[0],
+          query: match[0],
           type: 'option',
           option: {
             name: 'anon',
@@ -321,7 +321,7 @@ module.exports = function (fastify, opts, next) {
       else if (match[1].toLowerCase() === 'force') {
         searchSettings.showAnon = 'exclusive'
         Search.query.context.push({
-          query: anonSearch[0],
+          query: match[0],
           type: 'option',
           option: {
             name: 'anon',
@@ -330,6 +330,21 @@ module.exports = function (fastify, opts, next) {
           }
         })
       }
+    }
+
+    // check for restricted filter
+    match = /\brestricted:\s*(1|true)\b/i.exec(query)
+    if (match && req.user) {
+      query = query.replace(match[0], '').replace(/\s{2,}/, ' ').trim()
+      Search.query.context.push({
+        query: match[0],
+        type: 'option',
+        option: {
+          name: 'restricted',
+          enabled: true
+        }
+      })
+      esFilter.push({term: { restricted: true } })
     }
 
     // check for favorites
@@ -402,26 +417,50 @@ module.exports = function (fastify, opts, next) {
     else if (searchSettings.showAnon === 'exclusive') {
       esFilter.push({bool: { must_not: [{ exists: { field: "_userId" } }] } })
     }
-    
+
     // configure search per visibility settings
     var esShould = []
     if (searchSettings.userSearch && req.user && req.user._id.equals(searchSettings.userSearch)) {
       // no additional filters needed
     }
     else if (req.user && !searchSettings.showHidden) {
-      esShould.push({term: { _userId: { value: req.user._id, boost: 0 } } })
-      esShould.push({bool: {filter: [{ term: { private: { value: false, boost: 0 } } }, { term: { hidden: { value: false, boost: 0 } } }] } })
+      esShould.push({term: {_userId: {value: req.user._id, boost: 0 } } })
+      esShould.push({term: {restrictedUsers: {value: req.user._id.toString(), boost: 5}}})
+      if (req.user.battlenet && req.user.battlenet.guilds && req.user.battlenet.guilds.length) {
+        esShould.push({simple_query_string: {
+          query: `"${req.user.battlenet.guilds.join('" "')}"`,
+          fields: ["restrictedGuilds"],
+          minimum_should_match: 1
+        }})
+      }
+      if (req.user.twitch && req.user.twitch.id) {
+        esShould.push({term: {restrictedTwitchUsers: {value: req.user.twitch.id, boost: 5} } })
+      }
+      esShould.push({bool: {filter: [{term: {private: {value: false, boost: 0}}}, {term: {hidden: {value: false, boost: 0}}}, {term: {restricted: {value: false, boost: 0}}}]}})
     }
     else if (req.user) {
       esShould.push({term: { _userId: { value: req.user._id, boost: 0 } } })
-      esShould.push({term: { private: { value: false, boost: 0 } } })
+      esShould.push({ term: { restrictedUsers: { value: req.user._id.toString(), boost: 5 } } })
+      if (req.user.battlenet && req.user.battlenet.guilds && req.user.battlenet.guilds.length) {
+        esShould.push({simple_query_string: {
+          query: `"${req.user.battlenet.guilds.join('" "')}"`,
+          fields: ["restrictedGuilds"],
+          minimum_should_match: 1
+        }})
+      }
+      if (req.user.twitch && req.user.twitch.id) {
+        esShould.push({ term: { restrictedTwitchUsers: { value: req.user.twitch.id, boost: 5 } } })
+      }
+      esShould.push({bool: {filter: [{ term: { private: { value: false, boost: 0 } } }, { term: { restricted: { value: false, boost: 0 } } }] } })
     }
     else if (!searchSettings.showHidden) {
       esFilter.push({term: { private: false } })
       esFilter.push({term: { hidden: false } })
+      esFilter.push({term: { restricted: false } })
     }
-    else {      
+    else {
       esFilter.push({term: { private: false } })
+      esFilter.push({term: { restricted: false } })
     }
 
     if (esShould.length > 0) {
@@ -434,7 +473,7 @@ module.exports = function (fastify, opts, next) {
             query: esQuery,
             fields: ["description", "name^2", "custom_slug^2"],
             minimum_should_match: "-25%"
-          },          
+          },
         }
       ]
     }
@@ -511,7 +550,7 @@ module.exports = function (fastify, opts, next) {
       }
       item.type = wago.type
       item.description = {text: wago.description, type: wago.description_format}
-      item.visibility = {private: wago.private, hidden: wago.hidden}
+      item.visibility = {private: wago.private, hidden: wago.hidden, restricted: wago.restricted}
       item.date = {created: wago.created, modified: wago.modified}
       item.categories = wago.categories.slice(0, 5)
 
@@ -552,14 +591,14 @@ module.exports = function (fastify, opts, next) {
         item.user = { name: "a Guest" }
         item.user.searchable = false
         item.user.roleClass = 'user-default'
-        item.user.avatar = 'https://api.adorable.io/avatars/60/' + wago._id + '.png' 
+        item.user.avatar = 'https://api.adorable.io/avatars/60/' + wago._id + '.png'
       }
       return item
     }))
     res.send(Search)
   })
 
-    
+
   // search by name : autocomplete
   fastify.get('/username', async (req, res) => {
     if (!req.query.name || req.query.name.length < 3) {
@@ -578,7 +617,7 @@ module.exports = function (fastify, opts, next) {
                   value: req.query.name.toLowerCase(),
                   boost: 2
                 }
-              } 
+              }
             },
             {
               regexp: {
@@ -586,7 +625,7 @@ module.exports = function (fastify, opts, next) {
                   value: req.query.name.toLowerCase() + '.*',
                   boost: 1.2
                 }
-              } 
+              }
             },
             {
               regexp: {
@@ -594,11 +633,11 @@ module.exports = function (fastify, opts, next) {
                   value: '.*' + req.query.name.toLowerCase() + '.*',
                   boost: .9
                 }
-              } 
+              }
             }
           ]
         }
-      },          
+      },
     },
     { hydrate: true, sort: ['_score'], size: 10, from: 0})
     if (results && results.hits && results.hits.hits) {

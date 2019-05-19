@@ -100,6 +100,12 @@ const startServer = async () => {
         if (minute % 60 === 0) { // every hour
           await cronTasks.ComputeViewsThisWeek(cronReq)
         }
+        if (minute % 60 === 15) { // every hour at x:15
+          await cronTasks.UpdateGuildMembership(cronReq)
+        }
+        // if (minute % 60 === 45) { // every hour at x:45
+          // await cronTasks.UpdateTwitchSubs(cronReq)
+        // }
         if (minute % 20 === 0) { // every 20 minutes
           await cronTasks.UpdateLatestAddonReleases(cronReq)
         }

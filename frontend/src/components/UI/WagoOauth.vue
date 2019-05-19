@@ -7,7 +7,7 @@
         <md-list class="md-double-line">
           <md-list-item class="auth-battlenet" href="#" @click.prevent="doAuth('battlenet')">
             <md-avatar>
-              <ui-image v-if="user && user.battlenet && user.battlenet.updateStatus === 'pending'" img="loading"></ui-image>
+              <ui-image v-if="user && user.battlenet && user.battlenet.updateStatus === 'pending-API'" img="loading"></ui-image>
               <ui-image v-else-if="user && user.battlenet && user.battlenet.avatar && user.battlenet.avatar.png" :img="user.battlenet.avatar"></ui-image>
               <ui-image v-else img="battlenet"></ui-image>
             </md-avatar>
@@ -16,13 +16,28 @@
               <span>Blizzard Battle.net</span>
               <span v-if="!user || user.guest">{{ $t("Login with Blizzard") }}</span>
               <span v-else-if="!user.battlenet || !user.battlenet.name">{{ $t("Connect to account") }}</span>
-              <span v-else-if="user && user.battlenet && user.battlenet.updateStatus === 'pending'" style="color:#c1272d">{{ $t("Profile update in progress") }}</span>
+              <span v-else-if="user && user.battlenet && user.battlenet.updateStatus === 'pending-API'" style="color:#c1272d">{{ $t("Profile update in progress") }}</span>
               <span v-else>{{ $t("Update profile") }}</span>
+            </div>
+          </md-list-item>
+          <md-list-item v-if="user && user.battlenet">
+            <div v-if="user.battlenet.guilds && user.battlenet.guilds.length" class="md-list-text-container" style="margin-left:56px">
+              <span>{{ $t("The following guilds are associated to your account") }}</span>
+              <span>{{ $t("Any imports restricted to these guilds are accessible by you") }}</span>
+              <span>
+                <template v-for="guild in user.battlenet.guilds">
+                  {{ guild.replace(/@/g, ' - ')}}<br>
+                </template>
+              </span>
+            </div>
+            <div v-if="user && user.battlenet && !(user.battlenet.guilds || !user.battlenet.guilds.length)" class="md-list-text-container">
+              <span>{{ $t("No guilds are associated to your account") }}</span>
+              <span>{{ $t("Update your profile to gain access to any guild-restricted imports") }}</span>
             </div>
           </md-list-item>
           <md-list-item class="auth-battlenet" href="#" @click.prevent="doAuth('battlenetCN')">
             <md-avatar>
-              <ui-image v-if="user && user.battlenetCN && user.battlenetCN.updateStatus === 'pending'" img="loading"></ui-image>
+              <ui-image v-if="user && user.battlenetCN && user.battlenetCN.updateStatus === 'pending-API'" img="loading"></ui-image>
               <ui-image v-else-if="user && user.battlenetCN && user.battlenetCN.avatar && user.battlenetCN.avatar.png" :img="user.battlenetCN.avatar"></ui-image>
               <ui-image v-else img="battlenet"></ui-image>
             </md-avatar>
@@ -31,7 +46,7 @@
               <span>Blizzard Battle.net China</span>
               <span v-if="!user || user.guest">{{ $t("Login with Blizzard") }}</span>
               <span v-else-if="!user || !user.battlenetCN || !user">{{ $t("Connect to account") }}</span>
-              <span v-else-if="user.battlenetCN.updateStatus === 'pending'">{{ $t("Profile update in progress") }}</span>
+              <span v-else-if="user.battlenetCN.updateStatus === 'pending-API'">{{ $t("Profile update in progress") }}</span>
               <span v-else>{{ $t("Update profile") }}</span>
             </div>
           </md-list-item>
@@ -60,7 +75,7 @@
               <span v-else-if="!user || !user.google || !user.google.name">{{ $t("Connect to account") }}</span>
               <span v-else>{{ $t("Update profile") }}</span>
             </div>
-          </md-list-item>          
+          </md-list-item>
           <md-list-item class="auth-patreon" href="#" @click.prevent="doAuth('patreon')">
             <md-avatar>
               <ui-image v-if="user && user.patreon && user.patreon.avatar && user.patreon.avatar.png" :img="user.patreon.avatar"></ui-image>
@@ -74,6 +89,19 @@
               <span v-else>{{ $t("Update profile") }}</span>
             </div>
           </md-list-item>
+          <!--<md-list-item class="auth-twitch" href="#" @click.prevent="doAuth('twitch')">
+            <md-avatar>
+              <ui-image v-if="user && user.twitch && user.twitch.avatar && user.twitch.avatar.png" :img="user.twitch.avatar"></ui-image>
+              <ui-image v-else img="twitch"></ui-image>
+            </md-avatar>
+            <div class="md-list-text-container">
+              <span v-if="user && user.twitch">{{ user.twitch.name }}</span>
+              <span>Twitch</span>
+              <span v-if="!user || user.guest">{{ $t("Login with Twitch") }}</span>
+              <span v-else-if="!user || !user.twitch || !user.twitch.name">{{ $t("Connect to account") }}</span>
+              <span v-else>{{ $t("Update profile") }}</span>
+            </div>
+          </md-list-item>-->
           <md-list-item class="auth-twitter" href="#" @click.prevent="doAuth('twitter')">
             <md-avatar>
               <ui-image v-if="user && user.twitter && user.twitter.avatar && user.twitter.avatar.png" :img="user.twitter.avatar"></ui-image>
@@ -121,7 +149,7 @@ export default {
             console.log(err)
           })
       }
-      else if (provider === 'battlenet' && this.user && this.user.battlenet && this.user.battlenet.updateStatus === 'pending') {
+      else if (provider === 'battlenet' && this.user && this.user.battlenet && this.user.battlenet.updateStatus === 'pending-API') {
         // do nothing...
       }
       else {
@@ -132,9 +160,8 @@ export default {
     },
 
     checkUpdatedBnetProfile: (vue) => {
-      console.log('checking for updates', this.provider)
       vue.http.get('/account/whoami').then((res) => {
-        if (res && res.user && res.user.battlenet && res.user.battlenet.updateStatus !== 'pending') {
+        if (res && res.user && res.user.battlenet && res.user.battlenet.updateStatus !== 'pending-API') {
           vue.$store.commit('setUser', res.user)
         }
         else {
@@ -155,7 +182,7 @@ export default {
   },
   created () {
     var vue = this
-    if (this.user && this.user.battlenet && this.user.battlenet.updateStatus === 'pending') {
+    if (this.user && this.user.battlenet && this.user.battlenet.updateStatus === 'pending-API') {
       this.bnetUpdateTimer = setTimeout(() => {
         this.checkUpdatedBnetProfile(vue)
       }, 2000)
@@ -187,7 +214,7 @@ export default {
           code: this.code
         },
         success: function (res) {
-          // console.log('success ' + this.context)
+          console.log('success ' + this.context, res)
         },
         error: function (res) {
           window.eventHub.$emit('showSnackBar', vue.$t('An error occurred'))
