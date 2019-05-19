@@ -31,8 +31,8 @@ module.exports = {
         return {error: 'not_image'}
       }
       const time = Date.now()
-      const webp = sharp(buffer).resize(64, 64).resize({fit: 'fill'}).toFormat('webp').toFile(tmpDir + '/u-' + time + '.webp')
-      const png = sharp(buffer).resize(64, 64).resize({fit: 'fill'}).toFormat('png').toFile(tmpDir + '/u-' + time + '.png')
+      const webp = sharp(buffer).resize(64, 64).toFormat('webp').toFile(tmpDir + '/u-' + time + '.webp')
+      const png = sharp(buffer).resize(64, 64).toFormat('png').toFile(tmpDir + '/u-' + time + '.png')
       await webp
       await png
       const webpUpload = s3.uploadFile({
@@ -100,8 +100,8 @@ module.exports = {
         fs.unlink(`${tmpDir}/b-${time}.gif`)
       }
       else {
-        const webp = sharp(file).resize(64, 64).resize({fit: 'fill'}).toFormat('webp').toFile(tmpDir + '/b-' + time + '.webp')
-        const png = sharp(file).resize(64, 64).resize({fit: 'fill'}).toFormat('png').toFile(tmpDir + '/b-' + time + '.png')
+        const webp = sharp(file).resize(64, 64).toFormat('webp').toFile(tmpDir + '/b-' + time + '.webp')
+        const png = sharp(file).resize(64, 64).toFormat('png').toFile(tmpDir + '/b-' + time + '.png')
         await webp
         await png
         const webpUpload = s3.uploadFile({
