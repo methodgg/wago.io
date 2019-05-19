@@ -128,7 +128,7 @@ module.exports = function (fastify, opts, next) {
       return res.code(409).send({error: "malicious_code_found"})
     }
     if (code.versionString !== req.query.version) {
-      return res.code(302).redirect(`/api/raw/encoded?id=${req.query.id}&version=${code.versionString}&key=${req.query.key}`)
+      return res.code(302).redirect(`/api/raw/encoded?id=${req.query.id}&version=${code.versionString}&key=${req.query.key || ''}`)
     }
     res.header('Content-Type', 'text/plain')
     if (wago.type === 'WEAKAURA' && !code.encoded.match(/^!/)) {
