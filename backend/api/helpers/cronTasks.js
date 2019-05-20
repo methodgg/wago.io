@@ -241,14 +241,13 @@ module.exports = {
 
   UpdateGuildMembership: async (res) => {
     var guildsChecked = []
-    const users = await User.find({"roles.gold_subscriber": true, "battlenet.guilds": {$exists: true}}).exec()
+    const users = await User.find({"battlenet.guilds.1": {$exists: true}, $or: [{"roles.gold_subscriber": true}, {"roles.pro_subscriber": true}, {"roles.ambassador": true}, {"roles.developer": true}, {"roles.artContestWinnerAug2018": true}]}).exec()
     for (let i = 0; i < users.length; i++) {
       for (k = 0; k < users[i].battlenet.guilds.length; k++) {
         var guildKey = users[i].battlenet.guilds[k]
         var accountIdsInGuild = []
         var accountNamesInGuild = []
         if (guildsChecked.indexOf(guildKey) === -1) {
-          console.log(guildKey)
           guildsChecked.push(guildKey)
           var [region, realm, guildname] = guildKey.split(/@/g)
           const guild = await battlenet.lookupGuild(region, realm, guildname)
