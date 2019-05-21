@@ -31,10 +31,10 @@ Schema.virtual('url').get(function() {
 
 Schema.statics.findForWago = function(id, one) {
   if (one) {
-    return this.findOne({auraID: id, localFile: {$exists: true}}).exec()
+    return this.findOne({auraID: id, localFile: {$exists: true}}).sort({sort:1}).exec()
   }
   else {
-    return this.find({auraID: id, localFile: {$exists: true}}).exec()
+    return this.find({auraID: id, localFile: {$exists: true}}).sort({sort:1}).exec()
   }
 }
 
