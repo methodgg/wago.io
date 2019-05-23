@@ -97,6 +97,9 @@ function getCustomCodeWA(data) {
   })
 
   auras.forEach((item, key) => {
+    if (!item || typeof item !== 'object') {
+      return
+    }
     // actions functions
     if (item.actions) {
       // onInit
