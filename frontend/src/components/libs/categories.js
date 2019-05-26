@@ -467,7 +467,7 @@ module.exports = {
       {id: "beta-bfa", slug: "beta-bfa", cls:"snippets", text: t("Battle for Azeroth"), root: true, noselect: true, systemtag: true, WEAKAURA: true},
 
       // classic
-      {id: "classicdungeon", slug: "pve/dungeons", cls:"dungeon", text: t("Dungeons"), root: true, classic: true, prime: false},
+      {id: "classicdungeon", slug: "pve/dungeons", cls:"dungeon", text: t("Classic Dungeons"), root: true, classic: true, prime: false},
       {id: "classicdungeon1", slug: "pve/dungeons/ragefire-chasm", cls:"dungeon", text: t("warcraft:zones.2437"), classic: true, WEAKAURA: true},
       {id: "classicdungeon2", slug: "pve/dungeons/wailing-caverns", cls:"dungeon", text: t("warcraft:zones.718"), classic: true, WEAKAURA: true},
       {id: "classicdungeon3", slug: "pve/dungeons/the-deadmines", cls:"dungeon", text: t("warcraft:zones.1581"), classic: true, WEAKAURA: true},
@@ -738,8 +738,8 @@ module.exports = {
     return children
   },
 
-  getCategory: function (id, t) {
-    return this.getCategories([id], t)
+  getCategory: function (id, t, isClassic) {
+    return this.getCategories([id], t, null, isClassic)
   },
 
   getCategories: function (ids, t, doNotSortAlpha, isClassic) {
@@ -779,8 +779,9 @@ module.exports = {
 
   // returns array of all ids where the text matches the text of the given id
   getClones: function(id, isClassic) {
-    const base = this.getCategory(id)[0]
+    const base = this.getCategory(id, null, isClassic)[0]
     if (!base) {
+      console.log('nobase')
       return []
     }
 

@@ -18,9 +18,9 @@
           <md-list-item v-for="cls in classes" v-bind:key="cls.id" :class="cls.cls + ' md-inset'">
             <category-image :group="cls.cls"></category-image>
             <div class="md-list-text-container">
-              <router-link :to="'/weakauras/' + cls.slug">{{ cls.text }}</router-link>
+              <router-link :to="'/weakauras/classic/' + cls.slug">{{ cls.text }}</router-link>
               <span>
-                <router-link  v-for="spec in cls.specs" v-bind:key="spec.id" :to="'/weakauras/' + spec.slug">{{ spec.text.replace(cls.text, '').trim() }}</router-link>
+                <router-link  v-for="spec in cls.specs" v-bind:key="spec.id" :to="'/weakauras/classic/' + spec.slug">{{ spec.text.replace(cls.text, '').trim() }}</router-link>
               </span>
             </div>
           </md-list-item>
@@ -32,9 +32,9 @@
           <md-list-item v-for="raid in classicRaids" v-bind:key="raid.id" :class="raid.cls + ' md-inset'">
             <category-image :group="raid.cls"></category-image>
             <div class="md-list-text-container">
-              <router-link :to="'/weakauras/' + raid.slug">{{ raid.text }}</router-link>
+              <router-link :to="'/weakauras/classic/' + raid.slug">{{ raid.text }}</router-link>
               <span>
-                <router-link v-for="boss in raid.bosses" v-bind:key="boss.id" :to="'/weakauras/' + boss.slug">{{ boss.text }}</router-link>
+                <router-link v-for="boss in raid.bosses" v-bind:key="boss.id" :to="'/weakauras/classic/' + boss.slug">{{ boss.text }}</router-link>
               </span>
             </div>
           </md-list-item>
@@ -46,9 +46,9 @@
           <md-list-item v-for="raid in classicRaids2" v-bind:key="raid.id" :class="raid.cls + ' md-inset'">
             <category-image :group="raid.cls"></category-image>
             <div class="md-list-text-container">
-              <router-link :to="'/weakauras/' + raid.slug">{{ raid.text }}</router-link>
+              <router-link :to="'/weakauras/classic/' + raid.slug">{{ raid.text }}</router-link>
               <span>
-                <router-link v-for="boss in raid.bosses" v-bind:key="boss.id" :to="'/weakauras/' + boss.slug">{{ boss.text }}</router-link>
+                <router-link v-for="boss in raid.bosses" v-bind:key="boss.id" :to="'/weakauras/classic/' + boss.slug">{{ boss.text }}</router-link>
               </span>
             </div>
           </md-list-item>
@@ -59,9 +59,9 @@
           <md-list-item class="md-inset pvp">
             <category-image group="pvp-arena"></category-image>
             <div class="md-list-text-container">
-              <router-link to='/weakauras/pvp'>{{ $t("PvP") }}</router-link>
+              <router-link to='/weakauras/classic/pvp'>{{ $t("PvP") }}</router-link>
               <span>
-                <router-link v-for="item in pvp" v-bind:key="item.id" :to="'/weakauras/' + item.slug">{{ item.text }}</router-link>
+                <router-link v-for="item in pvp" v-bind:key="item.id" :to="'/weakauras/classic/' + item.slug">{{ item.text }}</router-link>
               </span>
             </div>
           </md-list-item>
@@ -73,9 +73,9 @@
           <md-list-item class="md-inset roles">
             <category-image group="role"></category-image>
             <div class="md-list-text-container">
-              <router-link to='/weakauras/class-roles'>{{ $t("Class Roles") }}</router-link>
+              <router-link to='/weakauras/classic/class-roles'>{{ $t("Class Roles") }}</router-link>
               <span>
-                <router-link v-for="item in roles" v-bind:key="item.id" :to="'/weakauras/' + item.slug">{{ item.text }}</router-link>
+                <router-link v-for="item in roles" v-bind:key="item.id" :to="'/weakauras/classic/' + item.slug">{{ item.text }}</router-link>
               </span>
             </div>
           </md-list-item>
@@ -83,9 +83,9 @@
           <md-list-item class="md-inset mechanics">
             <category-image group="mechanics"></category-image>
             <div class="md-list-text-container">
-              <router-link to='/weakauras/combat-mechanics'>{{ $t("Combat Mechanics") }}</router-link>
+              <router-link to='/weakauras/classic/combat-mechanics'>{{ $t("Combat Mechanics") }}</router-link>
               <span>
-                <router-link v-for="item in mechanics" v-bind:key="item.id" :to="'/weakauras/' + item.slug">{{ item.text }}</router-link>
+                <router-link v-for="item in mechanics" v-bind:key="item.id" :to="'/weakauras/classic/' + item.slug">{{ item.text }}</router-link>
               </span>
             </div>
           </md-list-item>
@@ -93,9 +93,9 @@
           <md-list-item class="md-inset equip">
             <category-image group="equip"></category-image>
             <div class="md-list-text-container">
-              <router-link to='/weakauras/equipment'>{{ $t("Equipment") }}</router-link>
+              <router-link to='/weakauras/classic/equipment'>{{ $t("Equipment") }}</router-link>
               <span>
-                <router-link v-for="item in equip" v-bind:key="item.id" :to="'/weakauras/' + item.slug">{{ item.text }}</router-link>
+                <router-link v-for="item in equip" v-bind:key="item.id" :to="'/weakauras/classic/' + item.slug">{{ item.text }}</router-link>
               </span>
             </div>
           </md-list-item>
@@ -103,9 +103,9 @@
           <md-list-item class="md-inset misc">
             <category-image group="misc"></category-image>
             <div class="md-list-text-container">
-              <router-link to='/weakauras/other'>{{ $t("General") }}</router-link>
+              <router-link to='/weakauras/classic/other'>{{ $t("General") }}</router-link>
               <span>
-                <router-link v-for="item in misc" v-bind:key="item.id" :to="'/weakauras/' + item.slug">{{ item.text }}</router-link>
+                <router-link v-for="item in misc" v-bind:key="item.id" :to="'/weakauras/classic/' + item.slug">{{ item.text }}</router-link>
               </span>
             </div>
           </md-list-item>
@@ -115,9 +115,9 @@
           <md-list-item v-for="prof in professions" v-bind:key="prof.id" :class="prof.cls + ' md-inset'">
             <category-image :group="prof.cls"></category-image>
             <div class="md-list-text-container">
-              <router-link :to="'/weakauras/' + prof.slug">{{ prof.text }}</router-link>
+              <router-link :to="'/weakauras/classic/' + prof.slug">{{ prof.text }}</router-link>
               <span>
-                <router-link  v-for="spec in prof.specs" v-bind:key="spec.id" :to="'/weakauras/' + spec.slug">{{ spec.text }}</router-link>
+                <router-link  v-for="spec in prof.specs" v-bind:key="spec.id" :to="'/weakauras/classic/' + spec.slug">{{ spec.text }}</router-link>
               </span>
             </div>
           </md-list-item>
@@ -128,9 +128,9 @@
           <md-list-item class="md-inset development">
             <category-image group="development"></category-image>
             <div class="md-list-text-container">
-              <router-link to="/weakauras/development">{{ $t("Development") }}</router-link>
+              <router-link to="/weakauras/classic/development">{{ $t("Development") }}</router-link>
               <span>
-                <router-link v-for="item in development" v-bind:key="item.id" :to="'/weakauras/' + item.slug">{{ item.text }}</router-link>
+                <router-link v-for="item in development" v-bind:key="item.id" :to="'/weakauras/classic/' + item.slug">{{ item.text }}</router-link>
               </span>
             </div>
           </md-list-item>
@@ -298,6 +298,7 @@ export default {
   components: {
     'category-image': require('../UI/CategoryImage.vue')
   },
+  props: ['contextGame'],
   methods: {
     runSearch: function () {
       this.$router.push('/search/' + this.searchString.trim().replace(/\s+/g, '+'))
@@ -305,6 +306,12 @@ export default {
     setGame: function (game) {
       this.game = game
       this.$store.commit('userSearchOption', {field: 'expansion', value: game})
+      if (game === 'classic') {
+        this.$router.replace('/weakauras/classic')
+      }
+      else {
+        this.$router.replace('/weakauras')
+      }
     }
   },
   data: function () {
@@ -366,7 +373,10 @@ export default {
       title: 'WeakAuras',
       description: this.$t('Browse WeakAura imports')
     })
-    if (this.$store.state.user && this.$store.state.user.config && this.$store.state.user.config.searchOptions.expansion === 'classic') {
+    if (this.contextGame) {
+      this.game = this.contextGame
+    }
+    else if (this.$store.state.user && this.$store.state.user.config && this.$store.state.user.config.searchOptions.expansion === 'classic') {
       this.game = 'classic'
     }
     else {

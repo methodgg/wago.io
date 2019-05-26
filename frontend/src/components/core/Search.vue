@@ -70,7 +70,7 @@ export default {
       contextSearchData: this.contextSearch
     }
   },
-  props: ['contextSearch'],
+  props: ['contextSearch', 'contextGame'],
   components: {
     'search-meta': require('../UI/SearchMeta.vue'),
     'formatted-text': require('../UI/FormattedText.vue')
@@ -83,6 +83,9 @@ export default {
       }
       else {
         this.contextSearchData = this.contextSearch
+      }
+      if (this.contextGame) {
+        this.setExpansion(this.contextGame, true)
       }
       this.runSearch(false)
     }
@@ -248,13 +251,28 @@ export default {
         this.$store.commit('userSearchOption', {field: 'relevance', value: val})
       }
     },
-    setExpansion: function (val) {
+    setExpansion: function (val, noSearch) {
       if (val !== this.filterExpansion) {
         this.filterExpansion = val
         this.uiExpansionValue = true
-        this.runSearch()
-
         this.$store.commit('userSearchOption', {field: 'expansion', value: val})
+
+        if (val === 'classic') {
+          if (this.$route.path.match(/\/bfa\//)) {
+            this.$router.push(this.$route.path.replace(/\/bfa\//, '/classic/'))
+          }
+          else {
+            this.$router.push(this.$route.path.replace(/^\/(\w+)\//, '/$1/classic/'))
+          }
+        }
+        else {
+          if (this.$route.path.match(/\/classic\//)) {
+            this.$router.push(this.$route.path.replace(/\/classic\//, '/'))
+          }
+        }
+        if (!noSearch) {
+          this.runSearch()
+        }
       }
     },
     searchMore: function () {
@@ -284,7 +302,11 @@ export default {
     }
   },
   mounted: function () {
-    if (this.$store.state.user && this.$store.state.user.config && this.$store.state.user.config.searchOptions.expansion) {
+    if (this.contextGame) {
+      this.uiExpansionValue = true
+      this.filterExpansion = this.contextGame
+    }
+    else if (this.$store.state.user && this.$store.state.user.config && this.$store.state.user.config.searchOptions.expansion) {
       this.uiExpansionValue = true
       this.filterExpansion = this.$store.state.user.config.searchOptions.expansion
     }

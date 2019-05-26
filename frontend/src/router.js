@@ -32,9 +32,24 @@ const Random = resolve => require(['@/components/UI/Random.vue'], resolve)
 
 import Categories from './components/libs/categories'
 
+function GetContextGame (params) {
+  console.log(params.c1)
+  if (params.c1.match(/^(bfa|classic)$/)) {
+    return params.c1
+  }
+  return false
+}
+
 function GetContextTag (params) {
   var tag
   var slug
+  // if first param is a game then ignore it here; used in GetContextGame
+  if (params.c1.match(/^(bfa|classic)$/)) {
+    params.c1 = params.c2
+    params.c2 = params.c3
+    params.c3 = params.c4
+    params.c4 = params.c5
+  }
   if (params.c4) {
     tag = params.c4
     slug = params.c1 + '/' + params.c2 + '/' + params.c3 + '/' + params.c4
@@ -67,18 +82,18 @@ function GetContextTag (params) {
     }
   }
 
+  var search = ''
+
   if (tag) {
     tag = tag.replace(/-/g, ' ')
     if (tag.match(/\s/)) {
       tag = '"' + tag + '"'
     }
-    return ' Tag: ' + tag
+    search = ' Tag: ' + tag
   }
 
-  return ''
+  return search
 }
-
-const defaultGame = 'bfa'
 
 export default {
   mode: 'history',
@@ -93,12 +108,13 @@ export default {
     { path: '/admin', component: Admin },
 
     // menus/categories
-    { path: '/weakauras', component: MenuWeakAuras, props: (route) => ({ gameMode: defaultGame }) },
-    { path: '/weakauras/:game(legion|bfa)', component: MenuWeakAuras, props: (route) => ({ gameMode: route.game }) },
-    { path: '/weakauras/:c1', component: Search, props: (route) => ({ contextSearch: 'Type: WeakAura' + GetContextTag(route.params) }) },
-    { path: '/weakauras/:c1/:c2', component: Search, props: (route) => ({ contextSearch: 'Type: WeakAura' + GetContextTag(route.params) }) },
-    { path: '/weakauras/:c1/:c2/:c3', component: Search, props: (route) => ({ contextSearch: 'Type: WeakAura' + GetContextTag(route.params) }) },
-    { path: '/weakauras/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ contextSearch: 'Type: WeakAura' + GetContextTag(route.params) }) },
+    { path: '/weakauras', component: MenuWeakAuras },
+    { path: '/weakauras/:c1(bfa|classic)', component: MenuWeakAuras, props: (route) => ({ contextGame: GetContextGame(route.params) }) },
+    { path: '/weakauras/:c1', component: Search, props: (route) => ({ contextGame: GetContextGame(route.params), contextSearch: 'Type: WeakAura' + GetContextTag(route.params) }) },
+    { path: '/weakauras/:c1/:c2', component: Search, props: (route) => ({ contextGame: GetContextGame(route.params), contextSearch: 'Type: WeakAura' + GetContextTag(route.params) }) },
+    { path: '/weakauras/:c1/:c2/:c3', component: Search, props: (route) => ({ contextGame: GetContextGame(route.params), contextSearch: 'Type: WeakAura' + GetContextTag(route.params) }) },
+    { path: '/weakauras/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ contextGame: GetContextGame(route.params), contextSearch: 'Type: WeakAura' + GetContextTag(route.params) }) },
+    { path: '/weakauras/:c1/:c2/:c3/:c4/:c5', component: Search, props: (route) => ({ contextGame: GetContextGame(route.params), contextSearch: 'Type: WeakAura' + GetContextTag(route.params) }) },
     { path: '/elvui', component: MenuElvUI },
     { path: '/elvui/:c1', component: Search, props: (route) => ({ contextSearch: 'Type: ElvUI' + GetContextTag(route.params) }) },
     { path: '/elvui/:c1/:c2', component: Search, props: (route) => ({ contextSearch: 'Type: ElvUI' + GetContextTag(route.params) }) },

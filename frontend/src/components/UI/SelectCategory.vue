@@ -47,7 +47,6 @@ export default {
   },
   watch: {
     game: function (val) {
-      console.log(val)
       this.setOptions(this.selectedCategories)
     }
   },
