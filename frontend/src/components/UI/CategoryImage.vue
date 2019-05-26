@@ -38,6 +38,13 @@
     <img src="./../../assets/menu-trialofvalor.png" v-else-if="group === 'trialofvalor'"/>
     <img src="./../../assets/menu-emeraldnightmare.png" v-else-if="group === 'emeraldnightmare'"/>
     <img src="./../../assets/menu-hellfirecitadel.png" v-else-if="group === 'hellfirecitadel'"/>
+    <img src="./../../assets/menu-worldboss.png" v-else-if="group === 'worldboss'"/>
+    <img src="./../../assets/menu-moltencore.png" v-else-if="group === 'moltencore'"/>
+    <img src="./../../assets/menu-blackwinglair.png" v-else-if="group === 'blackwinglair'"/>
+    <img src="./../../assets/menu-aq20.png" v-else-if="group === 'aq20'"/>
+    <img src="./../../assets/menu-aq40.png" v-else-if="group === 'aq40'"/>
+    <img src="./../../assets/menu-zulgurub.png" v-else-if="group === 'zulgurub'"/>
+    <img src="./../../assets/menu-naxxramas.png" v-else-if="group === 'naxxramas'"/>
     <img src="./../../assets/menu-vuhdo.png" v-else-if="group === 'vuhdo'"/>
     <img src="./../../assets/menu-plater.png" v-else-if="group === 'plater'"/>
     <img src="./../../assets/menu-encounternotes.png" v-else-if="group === 'encounternotes'"/>

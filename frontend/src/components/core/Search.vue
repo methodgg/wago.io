@@ -284,6 +284,11 @@ export default {
     }
   },
   mounted: function () {
+    if (this.$store.state.user && this.$store.state.user.config && this.$store.state.user.config.searchOptions.expansion) {
+      this.uiExpansionValue = true
+      this.filterExpansion = this.$store.state.user.config.searchOptions.expansion
+    }
+
     // wait for i18n then run search
     var vue = this
     this.$i18n.i18next.init(() => {

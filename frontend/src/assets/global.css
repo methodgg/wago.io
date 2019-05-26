@@ -186,6 +186,35 @@
 .speed a, .speed { color: #42bce4!important}
 .multiselect .md-chip.speed { background-color: #42bce4!important; color: black!important }
 
+/* Classic */
+.md-chip.worldboss { color: #CC0DBC!important; background-image: url('menu-worldboss.png') }
+.worldboss a, .worldboss { color: #CC0DBC!important}
+.multiselect .md-chip.worldboss { background-color: #CC0DBC!important; color: black!important }
+
+.md-chip.moltencore { color: #F6921A!important; background-image: url('menu-moltencore.png') }
+.moltencore a, .moltencore { color: #F6921A!important}
+.multiselect .md-chip.moltencore { background-color: #F6921A!important; color: black!important }
+
+.md-chip.blackwinglair { color: #007AEE!important; background-image: url('menu-blackwinglair.png') }
+.blackwinglair a, .blackwinglair { color: #007AEE!important}
+.multiselect .md-chip.blackwinglair { background-color: #007AEE!important; color: black!important }
+
+.md-chip.aq20 { color: #00EE7A!important; background-image: url('menu-aq20.png') }
+.aq20 a, .aq20 { color: #00EE7A!important}
+.multiselect .md-chip.aq20 { background-color: #00EE7A!important; color: black!important }
+
+.md-chip.aq40 { color: #DF86B2!important; background-image: url('menu-aq40.png') }
+.aq40 a, .aq40 { color: #DF86B2!important}
+.multiselect .md-chip.aq40 { background-color: #DF86B2!important; color: black!important }
+
+.md-chip.zulgurub { color: #B8FF25!important; background-image: url('menu-zulgurub.png') }
+.zulgurub a, .zulgurub { color: #B8FF25!important}
+.multiselect .md-chip.zulgurub { background-color: #B8FF25!important; color: black!important }
+
+.md-chip.naxxramas { color: #B3ACAC!important; background-image: url('menu-naxxramas.png') }
+.naxxramas a, .naxxramas { color: #B3ACAC!important}
+.multiselect .md-chip.naxxramas { background-color: #B3ACAC!important; color: black!important }
+
 /* ---- END CATEGORIES ---- */
 
 /* md fixes */

@@ -12,7 +12,7 @@
             <md-option value="date">{{ $t("Date") }}</md-option>
           </md-select>
         </md-input-container>
-        
+
         <md-input-container v-if="hasCategories">
           <label for="relevancy">{{ $t("Category Relevancy") }}</label>
           <md-select name="relevancy" id="relevancy" v-model="relevanceVal">
@@ -21,12 +21,13 @@
             <md-option value="strict">{{ $t("Strict") }}</md-option>
           </md-select>
         </md-input-container>
-        
+
         <md-input-container>
           <label for="expansion">{{ $t("Expansion Filter") }}</label>
           <md-select name="expansion" id="expansion" v-model="expansionVal">
             <md-option value="all">{{ $t("Search All") }}</md-option>
             <md-option value="bfa">{{ $t("Battle for Azeroth") }}</md-option>
+            <md-option value="classic">{{ $t("Classic") }}</md-option>
             <md-option value="legion">{{ $t("Legion") }}</md-option>
           </md-select>
         </md-input-container>
@@ -42,7 +43,7 @@
               <md-subheader>{{ context.query }}</md-subheader>
             </div>
           </md-list-item>
-          
+
           <md-list-item v-if="context.type === 'tag'" v-bind:key="index">
             <md-avatar class='square'><category-image :group="getCategory(context.tag).cls"></category-image></md-avatar>
             <div class="md-list-text-container">
@@ -50,7 +51,7 @@
               <md-subheader>{{ tagMap[context.tag] }}</md-subheader>
             </div>
           </md-list-item>
-          
+
           <md-list-item v-else-if="context.type === 'date'" v-bind:key="index">
             <md-avatar class="md-avatar-icon"><md-icon>date_range</md-icon></md-avatar>
             <div class="md-list-text-container">
@@ -58,7 +59,7 @@
               <md-subheader>{{ context.query }}</md-subheader>
             </div>
           </md-list-item>
-          
+
           <md-list-item v-if="context.type === 'user'" v-bind:key="index">
             <md-avatar><ui-image :img="context.image"></ui-image></md-avatar>
             <div class="md-list-text-container">
@@ -67,7 +68,7 @@
               <md-subheader>{{ context.query }}</md-subheader>
             </div>
           </md-list-item>
-          
+
           <md-list-item v-else-if="context.type === 'option' && context.option.name==='anon'" v-bind:key="index">
             <md-avatar class="md-avatar-icon"><md-icon>person</md-icon></md-avatar>
             <div class="md-list-text-container">
@@ -77,7 +78,7 @@
               <md-subheader>{{ context.query }}</md-subheader>
             </div>
           </md-list-item>
-          
+
           <md-list-item v-else-if="context.type === 'option' && context.option.name==='starred'" v-bind:key="index">
             <md-avatar class="md-avatar-icon"><md-icon>star</md-icon></md-avatar>
             <div class="md-list-text-container">
@@ -86,7 +87,7 @@
               <md-subheader>{{ context.query }}</md-subheader>
             </div>
           </md-list-item>
-          
+
           <md-list-item v-else-if="context.type === 'option' && context.option.name==='alert'" v-bind:key="index">
             <md-avatar class="md-avatar-icon"><md-icon>chat</md-icon></md-avatar>
             <div class="md-list-text-container">
@@ -97,7 +98,7 @@
           </md-list-item>
         </template>
 
-        <md-list-item v-if="textSearch"> 
+        <md-list-item v-if="textSearch">
           <md-avatar class="md-avatar-icon"><md-icon>search</md-icon></md-avatar>
           <div class="md-list-text-container">
             <span>{{ textSearch }}</span>

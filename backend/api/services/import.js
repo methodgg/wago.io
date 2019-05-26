@@ -477,10 +477,9 @@ module.exports = function (fastify, opts, next) {
       }
     }
 
-    // import for non-standard game
-    // if (req.body.gameMode === 'beta-bfa') {
-    //   wago.categories.push(req.body.gameMode)
-    // }
+    if (req.body.game === 'classic') {
+      wago.game = 'classic'
+    }
 
     if (wago.categories.length > 0) {
       wago.categories = Categories.validateCategories(wago.categories)

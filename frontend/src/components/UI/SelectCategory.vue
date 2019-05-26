@@ -22,7 +22,7 @@ export default {
     Categories,
     Multiselect
   },
-  props: ['selectedCategories', 'type'],
+  props: ['selectedCategories', 'type', 'game'],
   computed: {
     multiSelectValue: {
       get: function () {
@@ -45,6 +45,12 @@ export default {
       selectText: ''
     }
   },
+  watch: {
+    game: function (val) {
+      console.log(val)
+      this.setOptions(this.selectedCategories)
+    }
+  },
   methods: {
     setOptions (values) {
       if (!values) {
@@ -58,7 +64,7 @@ export default {
       if (values && values.length > 0) {
         this.selectText = ''
         if (values[0].root) {
-          var children = Categories.getChildren(values[0], this.type, this.$t)
+          var children = Categories.getChildren(values[0], this.type, this.$t, this.game === 'classic')
           this.categoryOptions = []
           // remove already selected categories
           for (var i = 0; i < children.length; i++) {
@@ -75,11 +81,11 @@ export default {
           }
         }
         else if (!values[0].systemtag && !values[0].noselect) {
-          this.categoryOptions = Categories.getChildren(values[values.length - 1], this.type, this.$t)
+          this.categoryOptions = Categories.getChildren(values[values.length - 1], this.type, this.$t, this.game === 'classic')
         }
       }
       else {
-        this.categoryOptions = Categories.rootCategories(this.$t, this.type)
+        this.categoryOptions = Categories.rootCategories(this.$t, this.type, this.game === 'classic')
       }
 
       // change max selections so the multiselect knows when to put up the no categories error

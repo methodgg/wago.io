@@ -47,30 +47,35 @@
           <div v-if="isScanning"><md-spinner md-indeterminate></md-spinner></div>
           <strong>{{ type }}</strong><br>
 
-          <md-input-container v-if="scanID">
-            <label for="name">{{ $t("Name") }}</label>
-            <md-input name="name" id="name" v-model="name"></md-input>
-          </md-input-container>
+          <md-layout v-if="scanID">
+            <md-layout md-flex="75">
+              <md-input-container>
+                <label for="name">{{ $t("Name") }}</label>
+                <md-input name="name" id="name" v-model="name"></md-input>
+              </md-input-container>
+            </md-layout>
+            <md-layout md-flex="25">
+              <md-input-container v-if="type === 'WeakAura'">
+                <label for="game">{{ $t("Game") }}</label>
+                <md-select name="game" id="game" v-model="game">
+                  <md-option value="bfa">{{ $t("Battle for Azeroth") }}</md-option>
+                  <md-option value="classic">{{ $t("Classic") }}</md-option>
+                </md-select>
+              </md-input-container>
+            </md-layout>
+          </md-layout>
 
           <div v-if="scanID">
             <label id="categoryLabel">{{ $t("Categories") }}</label>
             <md-button class="md-icon-button md-raised" @click="numCategorySets++">
               <md-icon>add</md-icon>
             </md-button>
-            <div v-for="n in numCategorySets">                
+            <div v-for="n in numCategorySets">
               <div v-if="scanID" class="has-category-select">
-                <category-select :selectedCategories="setCategories[n-1]" :type="type.toUpperCase()" @update="cat => {setCategories[numCategorySets-1] = cat}" ></category-select>
+                <category-select :game="game" :selectedCategories="setCategories[n-1]" :type="type.toUpperCase()" @update="cat => {setCategories[numCategorySets-1] = cat}" ></category-select>
               </div>
             </div>
           </div>
-
-          <!--<div v-if="scanID && type === 'WeakAura'">
-            <label id="betaLabel">{{ $t("Game") }}</label>
-            <md-button-toggle md-single class="md-accent md-warn">
-              <md-button class="md-toggle" @click="setGameMode('')">Legion Live</md-button>
-              <md-button @click="setGameMode('beta-bfa')">BFA Beta</md-button>
-            </md-button-toggle>
-          </div>-->
 
           <md-button class="md-raised" :disabled="disableSubmit" @click="submitImport()" style="margin-top:2em">Submit</md-button>
         </md-whiteframe>
@@ -251,7 +256,7 @@ export default {
       latestBlogs: [],
       addonReleases: [],
       numCategorySets: 1,
-      gameMode: ''
+      game: 'bfa'
     }
   },
   components: {
@@ -297,7 +302,7 @@ export default {
         expireAfter: this.expire,
         name: this.name,
         categories: JSON.stringify(flatten(this.setCategories)),
-        gameMode: this.gameMode
+        game: this.game
       }
       var vue = this
       this.http.post('/import/submit', post).then((res) => {
@@ -312,10 +317,6 @@ export default {
 
     onUpdateCategories () {
       // filters?
-    },
-
-    setGameMode (mode) {
-      this.gameMode = mode
     }
   },
   watch: {

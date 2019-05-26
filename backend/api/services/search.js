@@ -132,7 +132,8 @@ module.exports = function (fastify, opts, next) {
     }
 
     // check for expansion filter
-    match = /expansion:\s*"?(all|legion|bfa)"?/i.exec(query)
+    var expansionFilterIndex = null
+    match = /expansion:\s*"?(all|legion|bfa|classic)"?/i.exec(query)
     if (match) {
       query = query.replace(match[0], '').replace(/\s{2,}/, ' ').trim()
       expansion = match[1]
@@ -141,13 +142,22 @@ module.exports = function (fastify, opts, next) {
 
     if (expansion === 'legion') {
       // less than bfa release date AND does not have bfa beta tag
-      esFilter.push({ bool: { must: {range: { modified: { lt: "2018-07-17" } } }, must_not: { term: { "categories.keyword": 'beta-bfa' } } } })
+      esFilter.push({ bool: { must: [{match: {game: 'bfa'}}, {range: { modified: { lt: "2018-07-17" } } }], must_not: { term: { "categories.keyword": 'beta-bfa' } } } })
+      expansionFilterIndex = esFilter.length - 1
     }
 
     // if battle for azeroth
     else if (expansion === 'bfa') {
       // greater than bfa release date OR has bfa beta tag
-      esFilter.push({ bool: { should: [{range: { modified: { gte: "2018-07-17" } } }, { term: { "categories.keyword": 'beta-bfa' } }] } })
+      esFilter.push({ bool: { should: [{range: { modified: { gte: "2018-07-17" } } }, { term: { "categories.keyword": 'beta-bfa' } }], must: {match: {game: 'bfa'}} }})
+      expansionFilterIndex = esFilter.length - 1
+    }
+
+    // if wow classic
+    else if (expansion === 'classic') {
+      // must have classic tag
+      esFilter.push({match: { game: 'classic' } })
+      expansionFilterIndex = esFilter.length - 1
     }
 
     // if showing all expansions
@@ -258,9 +268,22 @@ module.exports = function (fastify, opts, next) {
         query = query.replace(m[0], '').replace(/\s{2,}/, ' ').trim()
         var tags = (m[1] || m[2]).split(/,\s?/g)
         tags.forEach((thisTag) => {
+          var clones = global.Categories.getClones(thisTag, expansion === 'classic')
+          // if this category does not exist in classic/vice versa then try without filter
+          // if found without filter then remove the filter - the user likely came into the search page from an external link
+          if (!clones.length) {
+            clones = global.Categories.getClones(thisTag)
+            if (clones.length && !isNaN(expansionFilterIndex)) {
+              esFilter.splice(expansionFilterIndex, 1)
+              expansionFilterIndex = null
+              Search.query.expansion = 'any'
+            }
+          }
+          if (!clones.length) {
+            return
+          }
+
           lookup.categories = lookup.categories || {"$all": []}
-          lookup.categories["$all"].push(thisTag)
-          esTags = [{ term: { "categories.keyword": thisTag } }]
 
           Search.query.context.push({
             query: m[0],
@@ -268,7 +291,8 @@ module.exports = function (fastify, opts, next) {
             tag: thisTag
           })
 
-          global.Categories.getClones(thisTag).forEach((clone) => {
+          var esTags = []
+          clones.forEach((clone) => {
             lookup.categories["$all"].push(clone)
             esTags.push({ term: { categories: clone } })
           })

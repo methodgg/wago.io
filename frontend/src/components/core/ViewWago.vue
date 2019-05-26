@@ -233,15 +233,28 @@
                     <md-radio v-model="updateDescFormat" @change="onUpdateDescription()" md-value="bbcode">BBCode</md-radio>
                     <md-radio v-model="updateDescFormat" @change="onUpdateDescription()" md-value="markdown">Markdown</md-radio>
                   </div>
-                  <md-input-container>
-                    <label for="visibilty">{{ $t("Visibility") }}</label>
-                    <md-select name="visibilty" id="visibilty" v-model="editVisibility">
-                      <md-option value="Public">{{ $t("Public") }}</md-option>
-                      <md-option value="Hidden">{{ $t("Hidden (only viewable with link)") }}</md-option>
-                      <md-option value="Restricted" v-if="User && User.access && User.access.beta">{{ $t("Restricted (viewable for select users) [Beta]") }}</md-option>
-                      <md-option value="Private">{{ $t("Private (only you may view)") }}</md-option>
-                    </md-select>
-                  </md-input-container>
+                  <md-layout md-row>
+                    <md-layout>
+                      <md-input-container>
+                        <label for="visibilty">{{ $t("Visibility") }}</label>
+                        <md-select name="visibilty" id="visibilty" v-model="editVisibility">
+                          <md-option value="Public">{{ $t("Public") }}</md-option>
+                          <md-option value="Hidden">{{ $t("Hidden (only viewable with link)") }}</md-option>
+                          <md-option value="Restricted" v-if="User && User.access && User.access.beta">{{ $t("Restricted (viewable for select users) [Beta]") }}</md-option>
+                          <md-option value="Private">{{ $t("Private (only you may view)") }}</md-option>
+                        </md-select>
+                      </md-input-container>
+                    </md-layout>
+                    <md-layout>
+                      <md-input-container>
+                        <label for="game">{{ $t("Game") }}</label>
+                        <md-select name="game" id="game" v-model="editGame">
+                          <md-option value="bfa">{{ $t("Battle for Azeroth") }}</md-option>
+                          <md-option value="classic">{{ $t("Classic") }}</md-option>
+                        </md-select>
+                      </md-input-container>
+                    </md-layout>
+                  </md-layout>
                   <div v-if="editVisibility === 'Restricted'" style="margin-left:1em">
                     <template v-for="(rest, index) in wago.restrictions">
                       <md-layout :key="index">
@@ -267,6 +280,22 @@
                             <template v-for="(guild, guildIndex) in User.battlenet.guilds">
                               <md-option :key="guildIndex" :value="guild">{{ guild.replace(/@/, '-').replace(/@/, ' <') + '>' }}</md-option>
                             </template>
+                          </md-select>
+                        </md-input-container>
+                        <md-input-container v-if="rest.type === 'guild'">
+                          <label>{{ $t("Select Rank(s)") }}</label>
+                          <md-select v-model="rest.rank" @change="onUpdateRestrictionsDebounce(index)">
+                            <md-option value="">Any</md-option>
+                            <md-option value="@0">0 ({{ $t("Guild Leader") }})</md-option>
+                            <md-option value="@0,@1">0 - 1</md-option>
+                            <md-option value="@0,@1,@2">0 - 2</md-option>
+                            <md-option value="@0,@1,@2,@3">0 - 3</md-option>
+                            <md-option value="@0,@1,@2,@3,@4">0 - 4</md-option>
+                            <md-option value="@0,@1,@2,@3,@4,@5">0 - 5</md-option>
+                            <md-option value="@0,@1,@2,@3,@4,@5,@6">0 - 6</md-option>
+                            <md-option value="@0,@1,@2,@3,@4,@5,@6,@7">0 - 7</md-option>
+                            <md-option value="@0,@1,@2,@3,@4,@5,@6,@7,@8">0 - 8</md-option>
+                            <md-option value="@0,@1,@2,@3,@4,@5,@6,@7,@8,@9">0 - 9</md-option>
                           </md-select>
                         </md-input-container>
                         </md-layout>
@@ -843,6 +872,7 @@ export default {
       updateDescError: false,
       updateDescFormat: this.$store.state.user.defaultEditorSyntax,
       editVisibility: 'Public',
+      editGame: '',
       showMoreCategories: false,
       editCategories: [],
       invalidCategories: false,
@@ -888,6 +918,11 @@ export default {
       // TODO: refactor this cleaner
       if (this.showPanel === 'config') {
         this.onUpdateVisibility()
+      }
+    },
+    editGame: function (v) {
+      if (this.showPanel === 'config') {
+        this.onUpdateGame()
       }
     },
     newImportString: function (val) {
@@ -1244,6 +1279,7 @@ export default {
         else {
           this.editVisibility = 'Public'
         }
+        this.editGame = res.game
         this.editCategories = Categories.groupSets(res.categories)
         this.numCategorySets = this.editCategories.length
 
@@ -1664,6 +1700,18 @@ export default {
         vue.wago.visibility.private = res.private
         vue.wago.visibility.hidden = res.hidden
         vue.wago.visibility.restricted = res.restricted
+      }).catch((err) => {
+        console.error(err)
+        window.eventHub.$emit('showSnackBar', vue.$t('Error could not save'))
+      })
+    },
+
+    onUpdateGame () {
+      var vue = this
+      this.http.post('/wago/update/game', {
+        wagoID: vue.wago._id,
+        game: this.editGame
+      }).then((res) => {
       }).catch((err) => {
         console.error(err)
         window.eventHub.$emit('showSnackBar', vue.$t('Error could not save'))

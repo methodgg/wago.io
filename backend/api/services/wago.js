@@ -547,6 +547,21 @@ module.exports = function (fastify, opts, next) {
     res.send({success: true})
   })
 
+  // set game/expansion
+  fastify.post('/update/game', async (req, res) => {
+    if (!req.user || !req.body.wagoID || !(req.body.game === 'bfa' || req.body.game === 'classic')) {
+      return res.code(403).send({error: "forbidden"})
+    }
+
+    var wago = await WagoItem.findById(req.body.wagoID).exec()
+    if (!wago || !wago._userId.equals(req.user._id)) {
+      return res.code(403).send({error: "forbidden"})
+    }
+
+    wago.game = req.body.game
+    await wago.save()
+    res.send({success: true})
+  })
 
   // Add to collection
   fastify.post('/collection/add', async (req, res) => {
