@@ -294,7 +294,7 @@ module.exports = function (fastify, opts, next) {
           var esTags = []
           clones.forEach((clone) => {
             lookup.categories["$all"].push(clone)
-            esTags.push({ term: { categories: clone } })
+            esTags.push({ term: { "categories.keyword": clone } })
           })
           esFilter.push({bool: { should: esTags } })
         })
