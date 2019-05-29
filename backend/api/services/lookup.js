@@ -262,7 +262,7 @@ module.exports = function (fastify, opts, next) {
         saveDoc = true
       }
       var versionHistory = []
-      versions.forEach((v) => {
+      versions.forEach((v, i) => {
         var versionString = v.versionString
         if (versionString !== '1.0.' + (v.version - 1) && versionString !== '0.0.' + v.version) {
           versionString = versionString + '-' + v.version
@@ -406,19 +406,17 @@ module.exports = function (fastify, opts, next) {
       return res.code(403).send({error: "code not available"})
     }
 
-    if (!req.query.version || (code.versionString && code.versionString !== req.query.version.replace(/-\d+$/, ''))) {
-      if (!doc.latestVersion) {
-        // save latest version data to wagoitem (for older imports)
-        doc.latestVersion = {
-          versionString: code.versionString,
-          iteration: code.version,
-          changelog: {
-            text: code.changelog.text || '',
-            format: code.changelog.text || 'bbcode',
-          }
+    if (!doc.latestVersion || !req.query.version || (code.versionString && code.versionString !== req.query.version.replace(/-\d+$/, ''))) {
+      // save latest version data to wagoitem (for older imports)
+      doc.latestVersion = {
+        versionString: code.versionString,
+        iteration: code.version,
+        changelog: {
+          text: code.changelog.text || '',
+          format: code.changelog.text || 'bbcode',
         }
-        doc.save()
       }
+      doc.save()
 
       return res.code(302).redirect(`/lookup/wago/code?id=${req.query.id}&version=${code.versionString}`)
     }
