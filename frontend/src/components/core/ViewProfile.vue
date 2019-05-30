@@ -35,15 +35,13 @@ export default {
       profile: {}
     }
   },
-  watch: {
-    '$route': 'fetchProfile'
-  },
   created: function () {
     this.fetchProfile()
   },
   methods: {
     fetchProfile () {
       var vue = this
+      console.log(this.$route.params)
       var who = this.$route.params.profile
       this.contextSearch = 'User: ' + who
       var params = {}

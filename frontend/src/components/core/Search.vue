@@ -79,7 +79,7 @@ export default {
     '$route' (to, from) {
       this.searchString = ''
       if (to.path.match(/^\/p\//) && to.params.profile) {
-        this.contextSearchData = 'User: ' + to.fullPath.replace(/^\/p\//, '')
+        this.contextSearchData = 'User: ' + to.fullPath.replace(/^\/p\//, '').replace(/^classic\//, '')
       }
       else {
         this.contextSearchData = this.contextSearch
