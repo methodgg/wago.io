@@ -24,7 +24,7 @@ const ViewProfile = resolve => require(['@/components/core/ViewProfile.vue'], re
 const News = resolve => require(['@/components/core/News.vue'], resolve)
 const Search = resolve => require(['@/components/core/Search.vue'], resolve)
 const WACompanion = resolve => require(['@/components/core/WA-Companion.vue'], resolve)
-const Stats = resolve => require(['@/components/core/Stats.vue'], resolve)
+// const Stats = resolve => require(['@/components/core/Stats.vue'], resolve)
 
 const OAuth = resolve => require(['@/components/UI/WagoOauth.vue'], resolve)
 
@@ -154,6 +154,7 @@ export default {
     { path: '/snippets/:c1/:c2/:c3', component: Search, props: (route) => ({ contextSearch: 'Type: Snippet' + GetContextTag(route.params) }) },
     { path: '/snippets/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ contextSearch: 'Type: Snippet' + GetContextTag(route.params) }) },
 
+    { path: '/p/classic/:profile', component: ViewProfile, props: (route) => ({ contextGame: 'classic', contextSearch: 'User: ' + route.params.profile }) },
     { path: '/p/:profile', component: ViewProfile, props: (route) => ({ contextSearch: 'User: ' + route.params.profile }) },
     { path: '/my/stars', component: Search, props: (route) => ({ contextSearch: 'Starred: True' }) },
     { path: '/my/mentions', component: Search, props: (route) => ({ contextSearch: 'Mentioned: True' }) },
@@ -161,7 +162,7 @@ export default {
 
     // pages
     { path: '/wa-companion', component: WACompanion },
-    { path: '/stats', component: Stats },
+    // { path: '/stats', component: Stats },
     { path: '/random', component: Random },
 
     // legal mumbo jumbo
