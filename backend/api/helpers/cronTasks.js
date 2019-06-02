@@ -260,7 +260,7 @@ module.exports = {
       guildsChecked.push(guildKey)
       const [region, realm, guildname] = guildKey.split(/@/g)
       const guild = await battlenet.lookupGuild(region, realm, guildname)
-      if (!guild) {
+      if (!guild || !guild.members) {
         // if unknown error (likely 500)
         return Promise.resolve()
       }
@@ -331,22 +331,25 @@ module.exports = {
 
         // remove old members
         let exGuild = await User.find({"battlenet.guilds": guildKey, _id: {$nin: accountIdsInGuild}}).exec()
-        let deletePromise = new Promise(async (deleteDone) => {
-          exGuild.forEach(async (exMember) => {
-            let re = new RegExp('^' + guildKey + '(@\\d)?$')
-            for (let g = exMember.battlenet.guilds.length - 1; g >= 0; g--) {
-              if (exMember.battlenet.guilds[g].match(re)) {
-                exMember.battlenet.guilds.splice(g, 1)
+        if (exGuild.length) {
+          let deletePromise = new Promise(async (deleteDone) => {
+            exGuild.forEach(async (exMember) => {
+              let re = new RegExp('^' + guildKey + '(@\\d)?$')
+              for (let g = exMember.battlenet.guilds.length - 1; g >= 0; g--) {
+                if (exMember.battlenet.guilds[g].match(re)) {
+                  exMember.battlenet.guilds.splice(g, 1)
+                }
               }
-            }
-            await exMember.save()
-            return deleteDone()
+              await exMember.save()
+              return deleteDone()
+            })
           })
-        })
-        await deletePromise
+          await deletePromise
+        }
         return Promise.resolve()
       }
     }
+
     for (let i = 0; i < users.length; i++) {
       await Promise.all(users[i].battlenet.guilds.map(guildKey => updateGuild(guildKey)))
     }

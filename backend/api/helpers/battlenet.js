@@ -151,7 +151,7 @@ module.exports = {
   lookupGuild: async (region, realm, guildname) => {
     const token = await getToken()
     try {
-      const guild = await getAPI(region, `/wow/guild/${realm}/${guildname}?fields=members`, token)
+      const guild = await getAPI(region, `/wow/guild/${encodeURI(realm)}/${encodeURI(guildname)}?fields=members`, token)
       return guild.data
     }
     catch (e) {
@@ -165,13 +165,11 @@ module.exports = {
   lookupCharacter: async (region, realm, name) => {
     const token = await getToken()
     try {
-      const char = await getAPI(region, `/wow/character/${realm}/${name}?fields=guild`, token)
-      console.log(char.data.name)
+      const char = await getAPI(region, `/wow/character/${encodeURI(realm)}/${encodeURI(name)}?fields=guild`, token)
       return char.data
     }
     catch (e) {
       if (e.response && e.response.status === 404) {
-        console.log('NOCHAR')
         return {error: "NOCHAR"}
       }
       return {}
