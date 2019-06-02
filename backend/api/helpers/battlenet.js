@@ -156,7 +156,23 @@ module.exports = {
     }
     catch (e) {
       if (e.response && e.response.status === 404) {
-        return "NOGUILD"
+        return {error: "NOGUILD"}
+      }
+      return {}
+    }
+  },
+
+  lookupCharacter: async (region, realm, name) => {
+    const token = await getToken()
+    try {
+      const char = await getAPI(region, `/wow/character/${realm}/${name}?fields=guild`, token)
+      console.log(char.data.name)
+      return char.data
+    }
+    catch (e) {
+      if (e.response && e.response.status === 404) {
+        console.log('NOCHAR')
+        return {error: "NOCHAR"}
       }
       return {}
     }

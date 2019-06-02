@@ -5,6 +5,7 @@ const jwt = require('jsonwebtoken')
 // const OAuth = require('oauth')
 // const oauthSignature = require('oauth-signature')
 const querystring = require('querystring')
+const battlenet = require('../helpers/battlenet')
 
 const image = require('../helpers/image')
 
@@ -339,26 +340,42 @@ async function battlenetAuth(req, res, region) {
       var guilds = []
       var mostRecent = 0
       var avatarURL = ''
-      Object.keys(profiles).forEach((region) => {
+      const regions = Object.keys(profiles)
+      const lookupProfiles = async function (region) {
         if (!profiles[region] || !profiles[region].length) {
-          return
+          return Promise.resolve()
         }
-        profiles[region].forEach((c) => {
-          if (c.guild && c.guildRealm) {
-            var guildKey = `${region}@${c.guildRealm}@${c.guild}`
-            if (guilds.indexOf(guildKey) === -1) {
-              guilds.push(guildKey)
-            }
+        await Promise.all(profiles[region].map(character => getCharacter(region, character)))
+      }
+      const getCharacter = async function (region, character) {
+        if (!character.realm || !character.name) {
+          return Promise.resolve()
+        }
+        const char = await battlenet.lookupCharacter(region, character.realm, character.name)
+        if (!char.name) {
+          return Promise.resolve()
+        }
+        if (char.guild && char.guild.realm) {
+          chars.push({region: region, realm: char.realm, name: char.name, guild: char.guild.name, guildRealm: char.guild.realm })
+          var guildKey = `${region}@${char.guild.realm}@${char.guild.name}`
+          if (guilds.indexOf(guildKey) === -1) {
+            guilds.push(guildKey)
           }
-          if (c.level >= 110) {
-            chars.push({region: region, realm: c.realm, name: c.name, guild: c.guild, guildRealm: c.guildRealm })
-            if (mostRecent < c.lastModified) {
-              mostRecent = c.lastModified
-              avatarURL = 'http://render-' + region + '.worldofwarcraft.com/character/' + c.thumbnail
-            }
+        }
+        else {
+          chars.push({region: region, realm: char.realm, name: char.name })
+        }
+        if (char.level >= 110) {
+          if (mostRecent < char.lastModified) {
+            mostRecent = char.lastModified
+            avatarURL = 'https://render-' + region + '.worldofwarcraft.com/character/' + char.thumbnail
           }
-        })
-      })
+        }
+        return Promise.resolve()
+      }
+
+      await Promise.all(regions.map(region => lookupProfiles(region)))
+
       if (chars.length > 0) {
         const img = await image.avatarFromURL(avatarURL, user._id.toString(), battlenetField)
         if (!img.error) {

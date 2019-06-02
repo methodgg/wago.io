@@ -240,44 +240,115 @@ module.exports = {
   },
 
   UpdateGuildMembership: async (res) => {
+    function guildRankSort(a, b) {
+      if (a.rank > b.rank) return -1
+      else if (a.rank < b.rank) return 1
+      return 0
+    }
+    function escapeRegExp(string) {
+      return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
+    }
     var guildsChecked = []
     const users = await User.find({"battlenet.guilds.1": {$exists: true}, $or: [{"roles.gold_subscriber": true}, {"roles.pro_subscriber": true}, {"roles.ambassador": true}, {"roles.developer": true}, {"roles.artContestWinnerAug2018": true}]}).exec()
-    for (let i = 0; i < users.length; i++) {
-      for (k = 0; k < users[i].battlenet.guilds.length; k++) {
-        var guildKey = users[i].battlenet.guilds[k]
-        var accountIdsInGuild = []
-        var accountNamesInGuild = []
-        if (guildsChecked.indexOf(guildKey) === -1) {
-          guildsChecked.push(guildKey)
-          var [region, realm, guildname] = guildKey.split(/@/g)
-          const guild = await battlenet.lookupGuild(region, realm, guildname)
-          guild.members.forEach(async (member) => {
-            var memberUser = await User.findOne({"battlenet.characters.region": region, "battlenet.characters.name": member.character.name, "battlenet.characters.realm": member.character.realm})
-            if (!memberUser) {
-              return
-            }
-            if (accountNamesInGuild.indexOf(memberUser.account.username) === -1) {
-              accountIdsInGuild.push(memberUser._id)
-              accountNamesInGuild.push(memberUser.account.username)
+    const updateGuild = async function (guildKey) {
+      const accountIdsInGuild = []
+      const accountNamesInGuild = []
+      if (guildKey.match(/@\d$/, '') || guildsChecked.indexOf(guildKey) >= 0) {
+        return Promise.resolve()
+      }
 
-              if (memberUser.battlenet.guilds.indexOf(guildKey) === -1) {
-                memberUser.battlenet.guilds.push(guildKey)
-                await memberUser.save()
+      guildsChecked.push(guildKey)
+      const [region, realm, guildname] = guildKey.split(/@/g)
+      const guild = await battlenet.lookupGuild(region, realm, guildname)
+      if (!guild) {
+        // if unknown error (likely 500)
+        return Promise.resolve()
+      }
+      else if (guild.error === 'NOGUILD') {
+        // if this guild no longer exists, remove all members from it
+        let exGuild = await User.find({"battlenet.guilds": guildKey}).exec()
+        let deletePromise = new Promise(async (deleteDone) => {
+          exGuild.forEach(async (exMember) => {
+            let re = new RegExp('^' + guildKey + '(@\\d)?$')
+            for (let g = exMember.battlenet.guilds.length - 1; g >= 0; g--) {
+              if (exMember.battlenet.guilds[g].match(re)) {
+                exMember.battlenet.guilds.splice(g, 1)
               }
             }
+            await exMember.save()
+            return deleteDone()
           })
+        })
+        await deletePromise
+        return Promise.resolve()
+      }
+      else {
+        // guild found! Match all wago users with guild
+        guild.members.sort(guildRankSort)
+        for (let j = 0; j < guild.members.length; j++) {
+          let memberUser = await User.findOne({"battlenet.characters.region": region, "battlenet.characters.name": guild.members[j].character.name, "battlenet.characters.realm": guild.members[j].character.realm})
+          if (!memberUser) {
+            continue
+          }
+          let saveDB = false
+          let guildRankKey = guildKey + '@' + guild.members[j].rank
 
-          // remove old members
-          if (accountIdsInGuild.length) {
-            var exGuild = await User.find({"battlenet.guilds": guildKey, _id: {$nin: accountIdsInGuild}}).exec()
-            exGuild.forEach(async (exMember) => {
-              var i = exMember.battlenet.guilds.indexOf(guildKey)
-              exMember.battlenet.guilds.splice(i, 1)
-              await exMember.save()
-            })
+          if (accountNamesInGuild.indexOf(guildRankKey) === -1) {
+            accountIdsInGuild.push(memberUser._id)
+            accountNamesInGuild.push(guildRankKey)
+          }
+
+          // if new member to guild
+          if (memberUser.battlenet.guilds.indexOf(guildKey) === -1) {
+            memberUser.battlenet.guilds.push(guildKey)
+            memberUser.battlenet.guilds.push(guildRankKey)
+            saveDB = true
+          }
+
+          // else check if member was previously in guild but maybe had a rank change
+          // by sorting by rank above we make sure the highest rank ends up being saved
+          // totally of a hack but it keeps it an elastic-friendly string
+          else if (memberUser.battlenet.guilds.indexOf(guildRankKey) === -1) {
+            let re = new RegExp('^' + escapeRegExp(guildKey) + '@\\d$')
+            for (let g = 0; g < memberUser.battlenet.guilds.length; g++) {
+              if (memberUser.battlenet.guilds[g].match(re)) {
+                memberUser.battlenet.guilds.splice(g, 1, guildRankKey)
+                saveDB = true
+                break
+              }
+            }
+            // if rank info was previously not saved
+            if (!saveDB) {
+              memberUser.battlenet.guilds.push(guildRankKey)
+              saveDB = true
+            }
+          }
+
+          if (saveDB) {
+            await memberUser.save()
           }
         }
+
+        // remove old members
+        let exGuild = await User.find({"battlenet.guilds": guildKey, _id: {$nin: accountIdsInGuild}}).exec()
+        let deletePromise = new Promise(async (deleteDone) => {
+          exGuild.forEach(async (exMember) => {
+            let re = new RegExp('^' + guildKey + '(@\\d)?$')
+            for (let g = exMember.battlenet.guilds.length - 1; g >= 0; g--) {
+              if (exMember.battlenet.guilds[g].match(re)) {
+                exMember.battlenet.guilds.splice(g, 1)
+              }
+            }
+            await exMember.save()
+            return deleteDone()
+          })
+        })
+        await deletePromise
+        return Promise.resolve()
       }
+    }
+    for (let i = 0; i < users.length; i++) {
+      await Promise.all(users[i].battlenet.guilds.map(guildKey => updateGuild(guildKey)))
     }
   },
 
