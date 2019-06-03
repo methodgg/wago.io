@@ -607,7 +607,13 @@ module.exports = function (fastify, opts, next) {
     await code.save()
     await wago.save()
 
+    // send message to starred users
     discord.onUpdate(req.user, wago)
+
+    // send update to webhook
+    if (req.user && !wago.hidden && !wago.private && !wago.restricted && req.user.discord && req.user.discord.webhooks && req.user.discord.webhooks.onCreate) {
+      discord.webhookOnUpdate(req.user, wago)
+    }
     res.send({success: true, wagoID: wago._id})
   })
 

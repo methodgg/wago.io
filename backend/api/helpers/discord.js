@@ -6,7 +6,7 @@ module.exports = {
     }
     // build message
     var msg = `${user.account.username} has imported a new ${wago.type} on Wago.io!`
-    var hookData = { 
+    var hookData = {
       "embeds": [{
         "title": "New "+wago.type+": "+wago.name,
         "url": wago.url,
@@ -15,16 +15,21 @@ module.exports = {
         "thumbnail": {"url": 'https://media.wago.io/favicon/mediumtile.png'}
       }]
     }
-    axios.post(user.discord.webhooks.onCreate, hookData)
+    try {
+      axios.post(user.discord.webhooks.onCreate, hookData)
+    }
+    catch (e) {
+      console.log('discord create webhook error', e.message)
+    }
   },
-  
+
   webhookOnUpdate: (user, wago) => {
     if (wago.type === 'WEAKAURAS2') {
       wago.type = 'WeakAura'
     }
     // build message
     var msg = `${user.account.username} has updated a ${wago.type} on Wago.io!`
-    var hookData = { 
+    var hookData = {
       "embeds": [{
         "title": wago.type+": "+wago.name,
         "url": wago.url,
@@ -33,7 +38,12 @@ module.exports = {
         "thumbnail": {"url": wago.thumb || 'https://media.wago.io/favicon/mediumtile.png'}
       }]
     }
-    axios.post(user.discord.webhooks.onCreate, hookData)
+    try {
+      axios.post(user.discord.webhooks.onCreate, hookData)
+    }
+    catch (e) {
+      console.log('discord update webhook error', e.message)
+    }
   },
 
   // when a wago is updated check for anyone that has starred it AND has the discord notification enabled
@@ -59,5 +69,10 @@ module.exports = {
 }
 
 function sendChatMessage (profileID, message) {
-  axios.post('http://discordbot:9999/sendtext', { profileID: profileID, message: message })
+  try {
+    axios.post('http://discordbot:9999/sendtext', { profileID: profileID, message: message })
+  }
+  catch (e) {
+    console.log('discord chat message error', e.message)
+  }
 }

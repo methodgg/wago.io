@@ -28,19 +28,24 @@ app.post('/sendtext', function (req, res) {
   // console.log(req.body)
   var text = req.body.message
   var profileID = req.body.profileID
-  bot.getDMChannel(profileID).then(function(channel) {
-    // console.log('channel found', channel, channel.id)
-    bot.createMessage(channel.id, text).then(function() {
-    // console.log('message sent')
+  try {
+    bot.getDMChannel(profileID).then(function(channel) {
+      // console.log('channel found', channel, channel.id)
+      bot.createMessage(channel.id, text).then(function() {
+      // console.log('message sent')
+      })
     })
-  })
+  }
+  catch (e) {
+    console.log(e.message)
+  }
 })
 
 // track discord beta key giveaway, record everyone's favorite wago
-bot.on("messageCreate", (msg) => {
-  if (msg.channel.id == '170293631448514560' && msg.content.match(/https:\/\/wago.io\/([^\s]*)/)) {
-    fs.appendFile('./contestFaves.txt', "\n"+msg.content.match(/https:\/\/wago.io\/([^\s]*)/)[1], function (err) {
-      if (err) console.error(err)
-    })
-  }
-})
+// bot.on("messageCreate", (msg) => {
+//   if (msg.channel.id == '170293631448514560' && msg.content.match(/https:\/\/wago.io\/([^\s]*)/)) {
+//     fs.appendFile('./contestFaves.txt', "\n"+msg.content.match(/https:\/\/wago.io\/([^\s]*)/)[1], function (err) {
+//       if (err) console.error(err)
+//     })
+//   }
+// })
