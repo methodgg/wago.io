@@ -1,9 +1,11 @@
 var moment = require('moment')
 var patches = [
-  {date: moment('2017-01-19T09:00:00Z'), beta: true, patch: "Legion PTR 7.2"},
-  {date: moment('2016-10-01T09:00:00Z'), beta: true, patch: "Legion PTR 7.1"},
-  {date: moment('2016-05-12T09:00:00Z'), beta: true, patch: "Legion Beta 7.0.3"},
-  {date: moment('2016-01-01T09:00:00Z'), beta: true, patch: "Legion Alpha 7.0.1"},
+  {date: moment('2019-05-17T03:00:00Z'), classic: true, patch: "WoW Classic 1.13.2"}, // wow classic this version will probably never change.
+
+  // {date: moment('2017-01-19T09:00:00Z'), beta: true, patch: "Legion PTR 7.2"},
+  // {date: moment('2016-10-01T09:00:00Z'), beta: true, patch: "Legion PTR 7.1"},
+  // {date: moment('2016-05-12T09:00:00Z'), beta: true, patch: "Legion Beta 7.0.3"},
+  // {date: moment('2016-01-01T09:00:00Z'), beta: true, patch: "Legion Alpha 7.0.1"},
 
   {date: moment('2018-03-12T03:00:00Z'), patch: "Battle for Azeroth 8.1.5"},
   {date: moment('2018-12-12T03:00:00Z'), patch: "Battle for Azeroth 8.1.0"},
@@ -23,14 +25,14 @@ var patches = [
 ]
 
 module.exports = {
-  patchByDate: function (strDate, beta) {
+  patchByDate: function (strDate, game) {
     var date = moment(strDate)
 
     for (var i=0; i < patches.length; i++) {
-      if (beta && patches[i].beta && date.isAfter(patches[i].date)) {
+      if (game === 'classic' && patches[i].classic) {
         return patches[i].patch
       }
-      else if (!beta && !patches[i].beta && date.isAfter(patches[i].date)) {
+      else if (date.isAfter(patches[i].date)) {
         return patches[i].patch
       }
     }
