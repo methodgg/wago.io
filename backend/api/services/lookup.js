@@ -440,8 +440,21 @@ module.exports = function (fastify, opts, next) {
     var wagoCode = {alerts: {}}
 
     // check for alerts
-    // functions blocked by WeakAuras
     if (code.json) {
+      const json = JSON.parse(code.json)
+      if (json.c) {
+        for (let i = 0; i < json.c.length; i++) {
+          if (json.c[i].internalVersion && json.c[i].internalVersion > global.weakAuraInternalVersion) {
+            wagoCode.alerts.newInternalVersion = {build: json.s, internalVersion: json.c[i].internalVersion, waInternalVersion: global.weakAuraInternalVersion}
+            break
+          }
+        }
+      }
+      if (!wagoCode.alerts.newInternalVersion && json.d && json.d.internalVersion && json.d.internalVersion > global.weakAuraInternalVersion) {
+        wagoCode.alerts.newInternalVersion = {build: json.s, internalVersion: json.d.internalVersion, waInternalVersion: global.weakAuraInternalVersion}
+      }
+
+      // functions blocked by WeakAuras
       while ((m = commonRegex.WeakAuraBlacklist.exec(code.json)) !== null) {
         if (!wagoCode.alerts.blacklist) {
           wagoCode.alerts.blacklist = []

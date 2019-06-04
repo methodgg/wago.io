@@ -204,6 +204,11 @@
                 <div v-for="func in wago.code.alerts.malicious">{{ func }}</div>
               </ui-warning>
 
+              <ui-warning v-else-if="wago.code && wago.code.alerts.newInternalVersion" mode="alert">
+                {{ $t("This WeakAura is made with build \"[-version-]\", which may include breaking changes with the current main addon release", {version: wago.code.alerts.newInternalVersion.build}) }}<br>
+                <div v-for="func in wago.code.alerts.malicious">{{ func }}</div>
+              </ui-warning>
+
               <ui-warning v-if="!isLatestVersion()" mode="info" :html="$t('A more recent version of this import is available view the latest version [-url-]', {url: '/' + $store.state.wago.slug})"></ui-warning>
 
               <!-- CONFIG FRAME -->
@@ -278,7 +283,7 @@
                           <label>{{ $t("Select Guild") }}</label>
                           <md-select v-model="rest.value" @change="onUpdateRestrictionsDebounce(index)">
                             <template v-for="(guild, guildIndex) in User.battlenet.guilds">
-                              <md-option :key="guildIndex" :value="guild">{{ guild.replace(/@/, '-').replace(/@/, ' <') + '>' }}</md-option>
+                              <md-option :key="guildIndex" :value="guild" v-if="!guild.match(/\d$/)">{{ guild.replace(/@/, '-').replace(/@/, ' <') + '>' }}</md-option>
                             </template>
                           </md-select>
                         </md-input-container>
@@ -321,7 +326,7 @@
                           <label>{{ $t("Select Guild") }}</label>
                           <md-select v-model="newRestrictionValue" @change="checkNewRestrictions">
                             <template v-for="(guild, guildIndex) in User.battlenet.guilds">
-                              <md-option :key="guildIndex" :value="guild">{{ guild.replace(/@/, '-').replace(/@/, ' <') + '>' }}</md-option>
+                              <md-option :key="guildIndex" :value="guild" v-if="!guild.match(/\d$/)">{{ guild.replace(/@/, '-').replace(/@/, ' <') + '>' }}</md-option>
                             </template>
                           </md-select>
                         </md-input-container>

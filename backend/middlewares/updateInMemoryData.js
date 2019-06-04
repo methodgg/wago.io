@@ -9,11 +9,12 @@ module.exports = async () => {
     'mdtWeekTW',
     'mdtWeekCN',
     'Top10Lists',
-    'WagoOfTheMoment'
+    'WagoOfTheMoment',
+    'weakAuraInternalVersion'
   ].forEach(async (item) => {
     var data = await SiteData.findById(item).exec()
     if (data && data.value) {
       global[item] = data.value
     }
-  })  
+  })
 }
