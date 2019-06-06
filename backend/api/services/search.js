@@ -24,7 +24,7 @@ module.exports = function (fastify, opts, next) {
     }
     // default expansion filter
     var expansion
-    if (req.user && req.user.config.searchOptions.expansion) {
+    if (req.user && req.user.config.searchOptions.expansion && req.user.config.searchOptions.expansion !== 'classic') {
       expansion = req.user.config.searchOptions.expansion
     }
     else {
@@ -165,6 +165,7 @@ module.exports = function (fastify, opts, next) {
     }
 
     // check for import type
+    var game = 'wow'
     match = /\btype:\s*"?(classic-weakaura|weakauras?2?|elvui|vuhdo|totalrp3?|collection|snippet|plater|mdt|encounternotes|image|audio)"?/i.exec(query)
     if (match) {
       query = query.replace(match[0], '').replace(/\s{2,}/, ' ').trim()
@@ -175,6 +176,10 @@ module.exports = function (fastify, opts, next) {
       }
       else if (match[1] === 'TOTALRP') {
         match[1] = 'TOTALRP3'
+      }
+
+      if (match[1].match(/classic/i)) {
+        game = 'classic'
       }
       // lookup.type = match[1]
       Search.query.context.push({
@@ -261,7 +266,7 @@ module.exports = function (fastify, opts, next) {
         query = query.replace(m[0], '').replace(/\s{2,}/, ' ').trim()
         var tags = (m[1] || m[2]).split(/,\s?/g)
         tags.forEach((thisTag) => {
-          var clones = global.Categories.getClones(thisTag, expansion === 'classic')
+          var clones = global.Categories.getClones(thisTag, game === 'classic')
           // if this category does not exist in classic/vice versa then try without filter
           // if found without filter then remove the filter - the user likely came into the search page from an external link
           if (!clones.length) {

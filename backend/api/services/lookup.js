@@ -111,7 +111,7 @@ module.exports = function (fastify, opts, next) {
     }
     wago.date = { created: doc.created, modified: doc.modified }
     wago.expires = doc.expires_at
-    wago.patch = wowPatches.patchByDate(doc.modified || doc.created, doc.game)
+    wago.patch = wowPatches.patchByDate(doc.modified || doc.created, doc.type.match(/CLASSIC/))
     wago.description = { text: doc.description, format: doc.description_format }
     wago.categories = doc.categories
     wago.regionType = doc.regionType
