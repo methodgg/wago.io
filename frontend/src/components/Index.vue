@@ -45,22 +45,20 @@
           </div>
 
           <div v-if="isScanning"><md-spinner md-indeterminate></md-spinner></div>
-          <strong>{{ type }}</strong><br>
+          <md-layout v-if="weakauramode">
+            <label for="weakauramode">{{ $t("Type") }}</label>
+            <md-select name="weakauramode" id="weakauramode" v-model="weakauramode">
+              <md-option value="WEAKAURAS2">WEAKAURA</md-option>
+              <md-option value="CLASSIC-WEAKAURA">CLASSIC-WEAKAURA</md-option>
+            </md-select>
+          </md-layout>
+          <strong v-else>{{ type === 'WEAKAURAS2' ? 'WEAKAURA' : type }}</strong><br>
 
           <md-layout v-if="scanID">
-            <md-layout md-flex="75">
+            <md-layout>
               <md-input-container>
                 <label for="name">{{ $t("Name") }}</label>
                 <md-input name="name" id="name" v-model="name"></md-input>
-              </md-input-container>
-            </md-layout>
-            <md-layout md-flex="25">
-              <md-input-container v-if="type === 'WeakAura'">
-                <label for="game">{{ $t("Game") }}</label>
-                <md-select name="game" id="game" v-model="game">
-                  <md-option value="bfa">{{ $t("Battle for Azeroth") }}</md-option>
-                  <md-option value="classic">{{ $t("Classic") }}</md-option>
-                </md-select>
               </md-input-container>
             </md-layout>
           </md-layout>
@@ -246,6 +244,7 @@ export default {
       importAs: 'Guest',
       expire: '3mo',
       name: '',
+      weakauramode: '',
       setCategories: [],
       categories: [],
       type: '',
@@ -300,6 +299,7 @@ export default {
         visibility: this.visibility,
         importAs: this.importAs,
         expireAfter: this.expire,
+        waMode: this.weakauramode,
         name: this.name,
         categories: JSON.stringify(flatten(this.setCategories)),
         game: this.game
@@ -362,6 +362,9 @@ export default {
           vue.importError = false
           vue.name = res.name
           vue.type = res.type
+          if (res.type.match(/WEAKAURA/)) {
+            this.weakauramode = res.type
+          }
           vue.disableSubmit = false
           // build category select
           if (res.categories) {

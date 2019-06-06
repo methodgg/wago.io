@@ -13,6 +13,22 @@
           </md-select>
         </md-input-container>
 
+        <md-input-container>
+          <label for="type">{{ $t("Import Type") }}</label>
+          <md-select name="type" id="type" v-model="typeVal">
+            <md-option value=""><em>All Imports</em></md-option>
+            <md-option value="ELVUI">ElvUI</md-option>
+            <md-option value="TOTALRP3">Total RP</md-option>
+            <md-option value="MDT">Method Dungeon Tools</md-option>
+            <md-option value="PLATER">Plater</md-option>
+            <md-option value="VUHDO">VuhDo</md-option>
+            <md-option value="WEAKAURAS2">WeakAura</md-option>
+            <md-option value="CLASSIC-WEAKAURA">Classic WeakAura</md-option>
+            <md-option value="COLLECTION">Collection</md-option>
+            <md-option value="SNIPPET">Snippet</md-option>
+          </md-select>
+        </md-input-container>
+
         <md-input-container v-if="hasCategories">
           <label for="relevancy">{{ $t("Category Relevancy") }}</label>
           <md-select name="relevancy" id="relevancy" v-model="relevanceVal">
@@ -22,12 +38,11 @@
           </md-select>
         </md-input-container>
 
-        <md-input-container>
+        <md-input-container v-if="hasExpansions">
           <label for="expansion">{{ $t("Expansion Filter") }}</label>
           <md-select name="expansion" id="expansion" v-model="expansionVal">
             <md-option value="all">{{ $t("Search All") }}</md-option>
             <md-option value="bfa">{{ $t("Battle for Azeroth") }}</md-option>
-            <md-option value="classic">{{ $t("Classic") }}</md-option>
             <md-option value="legion">{{ $t("Legion") }}</md-option>
           </md-select>
         </md-input-container>
@@ -154,6 +169,46 @@ export default {
         }
       }
       return false
+    },
+    hasExpansions: function () {
+      for (var i = 0; i < this.meta.length; i++) {
+        if (this.meta[i].type === 'type') {
+          this.typeVal = this.meta[i].wagoType
+          if (this.meta[i].wagoType.match(/CLASSIC-/)) {
+            return false
+          }
+        }
+      }
+      return true
+    }
+  },
+  data: () => {
+    return {
+      typeVal: ''
+    }
+  },
+  mounted: function () {
+    for (var i = 0; i < this.meta.length; i++) {
+      if (this.meta[i].type === 'type') {
+        this.typeVal = this.meta[i].wagoType
+      }
+    }
+    return ''
+  },
+  watch: {
+    typeVal (val) {
+      const types = {
+        ELVUI: 'ElvUI',
+        TOTALRP3: 'TotalRP',
+        MDT: 'MDT',
+        PLATER: 'Plater',
+        VUHDO: 'VuhDo',
+        WEAKAURAS2: 'WeakAura',
+        'CLASSIC-WEAKAURA': 'Classic-WeakAura',
+        COLLECTION: 'Collection',
+        SNIPPET: 'Snippet'
+      }
+      this.$emit('setImportType', types[val] || '')
     }
   },
   methods: {

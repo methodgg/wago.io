@@ -52,6 +52,7 @@
     <img src="./../../assets/menu-lang.png" v-else-if="group === 'rplang'"/>
 
     <img src="./../../assets/weakauras.png" v-else-if="group === 't-weakaura'"/>
+    <img src="./../../assets/weakauras.png" v-else-if="group === 't-classic-weakaura'"/>
     <img src="./../../assets/tukui.png" v-else-if="group === 't-elvui'"/>
     <img src="./../../assets/menu-mdt.png" v-else-if="group === 't-mdt'"/>
     <img src="./../../assets/menu-mdt.png" v-else-if="group === 't-methoddungeontools'"/>

@@ -89,6 +89,7 @@ const startServer = async () => {
         track: require('./middlewares/matomo'),
         trackError: require('./middlewares/matomoErrors')
       }
+
       var minute = Math.floor((new Date()-new Date().setHours(0,0,0,0)) / 60000) // start at x minutes from midnight
       const runCron = async () => {
         if (minute % 240 === 0) { // every 4 hours

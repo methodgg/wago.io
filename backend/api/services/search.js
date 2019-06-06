@@ -133,7 +133,7 @@ module.exports = function (fastify, opts, next) {
 
     // check for expansion filter
     var expansionFilterIndex = null
-    match = /expansion:\s*"?(all|legion|bfa|classic)"?/i.exec(query)
+    match = /expansion:\s*"?(all|legion|bfa)"?/i.exec(query)
     if (match) {
       query = query.replace(match[0], '').replace(/\s{2,}/, ' ').trim()
       expansion = match[1]
@@ -153,13 +153,6 @@ module.exports = function (fastify, opts, next) {
       expansionFilterIndex = esFilter.length - 1
     }
 
-    // if wow classic
-    else if (expansion === 'classic') {
-      // must have classic tag
-      esFilter.push({match: { game: 'classic' } })
-      expansionFilterIndex = esFilter.length - 1
-    }
-
     // if showing all expansions
     else if (expansion === 'all') {
       // no filter
@@ -172,7 +165,7 @@ module.exports = function (fastify, opts, next) {
     }
 
     // check for import type
-    match = /\btype:\s*"?(weakauras?2?|elvui|vuhdo|totalrp3?|collection|snippet|plater|mdt|encounternotes|image|audio)"?/i.exec(query)
+    match = /\btype:\s*"?(classic-weakaura|weakauras?2?|elvui|vuhdo|totalrp3?|collection|snippet|plater|mdt|encounternotes|image|audio)"?/i.exec(query)
     if (match) {
       query = query.replace(match[0], '').replace(/\s{2,}/, ' ').trim()
       match[1] = match[1].toUpperCase()
@@ -190,7 +183,7 @@ module.exports = function (fastify, opts, next) {
         wagoType: match[1]==='WEAKAURAS2' && 'WEAKAURA' || match[1],
         image: '/media/wagotypes/' + match[1] + '.png'
       })
-      esFilter.push({match: { type: match[1] } })
+      esFilter.push({ term: { "type.keyword": match[1] } })
     }
 
     // check for date range

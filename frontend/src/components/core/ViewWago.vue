@@ -239,26 +239,15 @@
                     <md-radio v-model="updateDescFormat" @change="onUpdateDescription()" md-value="markdown">Markdown</md-radio>
                   </div>
                   <md-layout md-row>
-                    <md-layout>
-                      <md-input-container>
-                        <label for="visibilty">{{ $t("Visibility") }}</label>
-                        <md-select name="visibilty" id="visibilty" v-model="editVisibility">
-                          <md-option value="Public">{{ $t("Public") }}</md-option>
-                          <md-option value="Hidden">{{ $t("Hidden (only viewable with link)") }}</md-option>
-                          <md-option value="Restricted" v-if="User && User.access && User.access.beta">{{ $t("Restricted (viewable for select users) [Beta]") }}</md-option>
-                          <md-option value="Private">{{ $t("Private (only you may view)") }}</md-option>
-                        </md-select>
-                      </md-input-container>
-                    </md-layout>
-                    <md-layout>
-                      <md-input-container>
-                        <label for="game">{{ $t("Game") }}</label>
-                        <md-select name="game" id="game" v-model="editGame">
-                          <md-option value="bfa">{{ $t("Battle for Azeroth") }}</md-option>
-                          <md-option value="classic">{{ $t("Classic") }}</md-option>
-                        </md-select>
-                      </md-input-container>
-                    </md-layout>
+                    <md-input-container>
+                      <label for="visibilty">{{ $t("Visibility") }}</label>
+                      <md-select name="visibilty" id="visibilty" v-model="editVisibility">
+                        <md-option value="Public">{{ $t("Public") }}</md-option>
+                        <md-option value="Hidden">{{ $t("Hidden (only viewable with link)") }}</md-option>
+                        <md-option value="Restricted" v-if="User && User.access && User.access.beta">{{ $t("Restricted (viewable for select users) [Beta]") }}</md-option>
+                        <md-option value="Private">{{ $t("Private (only you may view)") }}</md-option>
+                      </md-select>
+                    </md-input-container>
                   </md-layout>
                   <div v-if="editVisibility === 'Restricted'" style="margin-left:1em">
                     <template v-for="(rest, index) in wago.restrictions">

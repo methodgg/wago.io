@@ -6,6 +6,7 @@ const Account = resolve => require(['@/components/core/Account.vue'], resolve)
 const Admin = resolve => require(['@/components/core/Admin.vue'], resolve)
 
 const MenuWeakAuras = resolve => require(['@/components/core/Menu-WeakAuras.vue'], resolve)
+const MenuWeakAurasClassic = resolve => require(['@/components/core/Menu-ClassicWeakAuras.vue'], resolve)
 const MenuElvUI = resolve => require(['@/components/core/Menu-ElvUI.vue'], resolve)
 const MenuVuhdo = resolve => require(['@/components/core/Menu-Vuhdo.vue'], resolve)
 const MenuTotalRP = resolve => require(['@/components/core/Menu-TotalRP.vue'], resolve)
@@ -31,14 +32,6 @@ const OAuth = resolve => require(['@/components/UI/WagoOauth.vue'], resolve)
 const Random = resolve => require(['@/components/UI/Random.vue'], resolve)
 
 import Categories from './components/libs/categories'
-
-function GetContextGame (params) {
-  console.log(params.c1)
-  if (params.c1.match(/^(bfa|classic)$/)) {
-    return params.c1
-  }
-  return false
-}
 
 function GetContextTag (params) {
   var tag
@@ -109,12 +102,15 @@ export default {
 
     // menus/categories
     { path: '/weakauras', component: MenuWeakAuras },
-    { path: '/weakauras/:c1(bfa|classic)', component: MenuWeakAuras, props: (route) => ({ contextGame: GetContextGame(route.params) }) },
-    { path: '/weakauras/:c1', component: Search, props: (route) => ({ contextGame: GetContextGame(route.params), contextSearch: 'Type: WeakAura' + GetContextTag(route.params) }) },
-    { path: '/weakauras/:c1/:c2', component: Search, props: (route) => ({ contextGame: GetContextGame(route.params), contextSearch: 'Type: WeakAura' + GetContextTag(route.params) }) },
-    { path: '/weakauras/:c1/:c2/:c3', component: Search, props: (route) => ({ contextGame: GetContextGame(route.params), contextSearch: 'Type: WeakAura' + GetContextTag(route.params) }) },
-    { path: '/weakauras/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ contextGame: GetContextGame(route.params), contextSearch: 'Type: WeakAura' + GetContextTag(route.params) }) },
-    { path: '/weakauras/:c1/:c2/:c3/:c4/:c5', component: Search, props: (route) => ({ contextGame: GetContextGame(route.params), contextSearch: 'Type: WeakAura' + GetContextTag(route.params) }) },
+    { path: '/weakauras/:c1', component: Search, props: (route) => ({ contextSearch: 'Type: WeakAura' + GetContextTag(route.params) }) },
+    { path: '/weakauras/:c1/:c2', component: Search, props: (route) => ({ contextSearch: 'Type: WeakAura' + GetContextTag(route.params) }) },
+    { path: '/weakauras/:c1/:c2/:c3', component: Search, props: (route) => ({ contextSearch: 'Type: WeakAura' + GetContextTag(route.params) }) },
+    { path: '/weakauras/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ contextSearch: 'Type: WeakAura' + GetContextTag(route.params) }) },
+    { path: '/classic-weakauras', component: MenuWeakAurasClassic },
+    { path: '/classic-weakauras/:c1', component: Search, props: (route) => ({ contextSearch: 'Type: Classic-WeakAura' + GetContextTag(route.params) }) },
+    { path: '/classic-weakauras/:c1/:c2', component: Search, props: (route) => ({ contextSearch: 'Type: Classic-WeakAura' + GetContextTag(route.params) }) },
+    { path: '/classic-weakauras/:c1/:c2/:c3', component: Search, props: (route) => ({ contextSearch: 'Type: Classic-WeakAura' + GetContextTag(route.params) }) },
+    { path: '/classic-weakauras/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ contextSearch: 'Type: Classic-WeakAura' + GetContextTag(route.params) }) },
     { path: '/elvui', component: MenuElvUI },
     { path: '/elvui/:c1', component: Search, props: (route) => ({ contextSearch: 'Type: ElvUI' + GetContextTag(route.params) }) },
     { path: '/elvui/:c1/:c2', component: Search, props: (route) => ({ contextSearch: 'Type: ElvUI' + GetContextTag(route.params) }) },
@@ -154,7 +150,7 @@ export default {
     { path: '/snippets/:c1/:c2/:c3', component: Search, props: (route) => ({ contextSearch: 'Type: Snippet' + GetContextTag(route.params) }) },
     { path: '/snippets/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ contextSearch: 'Type: Snippet' + GetContextTag(route.params) }) },
 
-    { path: '/p/classic/:profile', component: ViewProfile, props: (route) => ({ contextGame: 'classic', contextSearch: 'User: ' + route.params.profile }) },
+    { path: '/p/classic/:profile', component: ViewProfile, props: (route) => ({ contextSearch: 'User: ' + route.params.profile }) },
     { path: '/p/:profile', component: ViewProfile, props: (route) => ({ contextSearch: 'User: ' + route.params.profile }) },
     { path: '/my/stars', component: Search, props: (route) => ({ contextSearch: 'Starred: True' }) },
     { path: '/my/mentions', component: Search, props: (route) => ({ contextSearch: 'Mentioned: True' }) },

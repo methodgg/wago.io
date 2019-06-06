@@ -41,7 +41,6 @@ export default {
   methods: {
     fetchProfile () {
       var vue = this
-      console.log(this.$route.params)
       var who = this.$route.params.profile
       this.contextSearch = 'User: ' + who
       var params = {}

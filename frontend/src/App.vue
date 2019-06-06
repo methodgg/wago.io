@@ -27,6 +27,7 @@
                     <md-option value="Plater">Plater</md-option>
                     <md-option value="VuhDo">VuhDo</md-option>
                     <md-option value="WeakAura">WeakAura</md-option>
+                    <md-option value="Classic-WeakAura">Classic WeakAura</md-option>
                     <md-option value="Collection">Collection</md-option>
                     <md-option value="Snippet">Snippet</md-option>
                   </md-select>
@@ -50,7 +51,7 @@
                   <md-checkbox v-model="advSearchStarred">Starred</md-checkbox>
                   <md-checkbox v-model="advSearchMentioned">Mentioned</md-checkbox>
                 </md-layout>
-                
+
                 <md-input-container>
                   <label for="advSearchDate">{{ $t("Date Modified") }}</label>
                   <md-select name="advSearchDate" id="advSearchDate" v-model="advSearchDate" md-menu-class="advSearchSelect">
@@ -130,6 +131,7 @@
           <md-list-item><router-link to='/totalrp'>Total RP</router-link></md-list-item>
           <md-list-item><router-link to='/vuhdo'>VuhDo</router-link></md-list-item>
           <md-list-item><router-link to='/weakauras'>WeakAuras</router-link><md-divider></md-divider></md-list-item>
+          <md-list-item><router-link to='/classic-weakauras'>Classic WeakAuras</router-link><md-divider></md-divider></md-list-item>
           <md-list-item><router-link to='/collections'>{{ $t("Collections") }}</router-link></md-list-item>
           <md-list-item><router-link to='/snippets'>{{ $t("Snippets") }}</router-link><md-divider></md-divider></md-list-item>
           <template v-if="LoggedIn">
@@ -137,7 +139,7 @@
             <md-list-item><router-link to="/my/mentions">{{ $t("My Mentions") }} <span class="unreadCount" v-if="User.unreadMentions.length > 0">{{ User.unreadMentions.length }}</span></router-link></md-list-item>
             <md-list-item><router-link to="/my/stars">{{ $t("My Favorites") }}</router-link><md-divider></md-divider></md-list-item>
           </template>
-        </md-list>     
+        </md-list>
         <div v-if="WotM.name" id="wotm">
           <strong>{{ $t("Wago of the Minute") }}</strong><br>
           <router-link :to="'/' + WotM.slug"><strong>{{ WotM.name }}</strong></router-link><br>
@@ -150,7 +152,7 @@
           <md-list-item target="_blank" href="https://github.com/oratory/wago.io"><div><img src="./assets/github.png"></div>{{ $t("Open source") }}</md-list-item>
           <md-list-item target="_blank" href="https://weakauras.wtf/"><div><img src="./assets/weakauralogo.png" style="height:23px"></div>WeakAuras Companion<md-divider></md-divider></md-list-item>
         </md-list>
-          
+
         <div class='legal'>
           <span>&copy; 2016-{{(new Date()).getFullYear()}} Wago.io</span>
           <span><router-link to="/terms-of-service">{{ $t("Terms of Service") }}</router-link></span>

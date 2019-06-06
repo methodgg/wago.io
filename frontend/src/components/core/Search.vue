@@ -40,7 +40,7 @@
       </md-layout>
 
       <md-layout id="searchMeta" v-if="results && results.query">
-        <search-meta :meta="results.query.context" :tagMap="tagMap" :textSearch="results.query.textSearch" :sort="sortVal" @setSort="setSort" :catRelevance="catRelevance" @setCategoryRelevance="setCategoryRelevance" :filterExpansion="filterExpansion" @setExpansion="setExpansion"></search-meta>
+        <search-meta :meta="results.query.context" :tagMap="tagMap" :textSearch="results.query.textSearch" :sort="sortVal" @setSort="setSort" @setImportType="setImportType" :catRelevance="catRelevance" @setCategoryRelevance="setCategoryRelevance" :filterExpansion="filterExpansion" @setExpansion="setExpansion"></search-meta>
       </md-layout>
     </md-layout>
     <p v-if="isSearchingMore">{{ $t("Loading more") }}</p>
@@ -78,15 +78,6 @@ export default {
   watch: {
     '$route' (to, from) {
       this.searchString = ''
-      if (to.path.match(/^\/p\//) && to.params.profile) {
-        this.contextSearchData = 'User: ' + to.fullPath.replace(/^\/p\//, '').replace(/^classic\//, '')
-      }
-      else {
-        this.contextSearchData = this.contextSearch
-      }
-      if (this.contextGame) {
-        this.setExpansion(this.contextGame, true)
-      }
       this.runSearch(false)
     }
   },
@@ -195,7 +186,7 @@ export default {
 
       var vue = this
       var params = { q: query + ' ' + opt }
-      this.searchString = this.searchString.trim()
+      this.searchString = this.searchString.trim().replace(/\s{2,}/, ' ')
 
       vue.http.get('/search', params).then((res) => {
         for (var i = 0; i < res.results.length; i++) {
@@ -241,6 +232,19 @@ export default {
 
         this.$store.commit('userSearchOption', {field: 'sort', value: val})
       }
+    },
+    setImportType: function (val) {
+      console.log(val)
+      const re = new RegExp('type:\\s' + val, 'i')
+      if (val && this.searchString.match(re)) {
+        return
+      }
+      var s = this.searchString.replace(/type:\s[\w-]+/i, '')
+      if (val) {
+        s = 'Type: ' + val + ' ' + s
+      }
+      this.searchString = s
+      this.runSearch()
     },
     setCategoryRelevance: function (val) {
       if (val !== this.catRelevance) {

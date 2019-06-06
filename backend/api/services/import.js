@@ -22,6 +22,7 @@ module.exports = function (fastify, opts, next) {
       test[req.body.type.toUpperCase()] = true
       switch (req.body.type.toUpperCase()) {
         case 'WEAKAURA':
+        case 'CLASSIC-WEAKAURA':
         case 'PLATER':
         case 'TOTALRP3':
           test.DEFLATE = true
@@ -90,8 +91,13 @@ module.exports = function (fastify, opts, next) {
     }
 
     // if decoded data looks like a valid WEAKAURA
-    if (test.WEAKAURA && decoded && decoded.obj.d && decoded.obj.d.id) {
+    if ((test.WEAKAURA || test['CLASSIC-WEAKAURA']) && decoded && decoded.obj.d && decoded.obj.d.id) {
       scan.type = 'WEAKAURAS2'
+
+      // check for classic import
+      if (decoded.obj.d.tocversion === 11302) {
+        scan.type = 'CLASSIC-WEAKAURA'
+      }
       const scanDoc = await scan.save()
 
       let categories = []
@@ -179,7 +185,7 @@ module.exports = function (fastify, opts, next) {
           }
         }
       }
-      return res.send({scan: scanDoc._id.toString(), type: 'WeakAura', name: decoded.obj.d.id, categories: categories})
+      return res.send({scan: scanDoc._id.toString(), type: scan.type, name: decoded.obj.d.id, categories: categories})
     }
 
     // if decoded data looks like a valid MDT
@@ -477,10 +483,6 @@ module.exports = function (fastify, opts, next) {
       }
     }
 
-    if (req.body.game === 'classic') {
-      wago.game = 'classic'
-    }
-
     if (wago.categories.length > 0) {
       wago.categories = Categories.validateCategories(wago.categories)
       wago.relevancy = Categories.relevanceScores(wago.categories)
@@ -500,7 +502,7 @@ module.exports = function (fastify, opts, next) {
     code.versionString = '1.0.0'
 
     // add additional fields to WA
-    if (wago.type === 'WEAKAURAS2') {
+    if (wago.type === 'WEAKAURAS2' || wago.type === 'CLASSIC-WEAKAURA') {
       json.wagoID = doc._id
       json.d.url = doc.url + '/1'
       json.d.version = 1
@@ -570,7 +572,7 @@ module.exports = function (fastify, opts, next) {
         format: req.body.changelogFormat || 'bbcode'
       }
     })
-    if (scan.type === 'WEAKAURAS2') {
+    if (scan.type === 'WEAKAURAS2' || wago.type === 'CLASSIC-WEAKAURA') {
       var versionString = wago.latestVersion.versionString
       if (versionString !== '1.0.' + (wago.latestVersion.iteration - 1) && versionString !== '0.0.' + wago.latestVersion.iteration) {
         versionString = versionString + '-' + wago.latestVersion.iteration
@@ -686,6 +688,7 @@ module.exports = function (fastify, opts, next) {
       break
 
       case 'WEAKAURAS2':
+      case 'CLASSIC-WEAKAURA':
         var versionString = wago.latestVersion.versionString
         if (versionString !== '1.0.' + (wago.latestVersion.iteration - 1) && versionString !== '0.0.' + wago.latestVersion.iteration) {
           versionString = versionString + '-' + wago.latestVersion.iteration
@@ -814,6 +817,7 @@ module.exports = function (fastify, opts, next) {
       case 'WEAKAURAS2':
       case 'WEAKAURA':
         req.body.type = 'WEAKAURAS2'
+      case 'CLASSIC-WEAKAURA':
         encoded = await lua.JSON2WeakAura(json)
       break
     }

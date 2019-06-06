@@ -16,64 +16,64 @@ module.exports = {
       {id: "cl12-1", slug: "classes/demon-hunter/havoc", cls:"cl-demonhunter", text: t("warcraft:classes.12-1"), WEAKAURA: true, ELVUI: true, VUHDO: true, PLATER: true, COLLECTION: true},
       {id: "cl12-2", slug: "classes/demon-hunter/vengeance", cls:"cl-demonhunter", text: t("warcraft:classes.12-2"), WEAKAURA: true, ELVUI: true, VUHDO: true, PLATER: true, COLLECTION: true},
 
-      {id: "cl11", slug: "classes/druid", cls:"cl-druid", text: t("warcraft:classes.11"), classic: true, root: true, WEAKAURA: true, ELVUI: true, VUHDO: true, PLATER: true, COLLECTION: true},
-      {id: "cl11-1", slug: "classes/druid/balance", cls:"cl-druid", text: t("warcraft:classes.11-1"), classic: true, WEAKAURA: true, ELVUI: true, VUHDO: true, PLATER: true, COLLECTION: true},
-      {id: "cl11-2", slug: "classes/druid/feral", cls:"cl-druid", text: t("warcraft:classes.11-2"), classic: true, WEAKAURA: true, ELVUI: true, VUHDO: true, PLATER: true, COLLECTION: true},
+      {id: "cl11", slug: "classes/druid", cls:"cl-druid", text: t("warcraft:classes.11"), "CLASSIC-WEAKAURA": true, root: true, WEAKAURA: true, ELVUI: true, VUHDO: true, PLATER: true, COLLECTION: true},
+      {id: "cl11-1", slug: "classes/druid/balance", cls:"cl-druid", text: t("warcraft:classes.11-1"), "CLASSIC-WEAKAURA": true, WEAKAURA: true, ELVUI: true, VUHDO: true, PLATER: true, COLLECTION: true},
+      {id: "cl11-2", slug: "classes/druid/feral", cls:"cl-druid", text: t("warcraft:classes.11-2"), "CLASSIC-WEAKAURA": true, WEAKAURA: true, ELVUI: true, VUHDO: true, PLATER: true, COLLECTION: true},
       {id: "cl11-3", slug: "classes/druid/guardian", cls:"cl-druid", text: t("warcraft:classes.11-3"), WEAKAURA: true, ELVUI: true, VUHDO: true, PLATER: true, COLLECTION: true},
-      {id: "cl11-4", slug: "classes/druid/restoration", cls:"cl-druid", text: t("warcraft:classes.11-4"), classic: true, WEAKAURA: true, ELVUI: true, VUHDO: true, PLATER: true, COLLECTION: true},
+      {id: "cl11-4", slug: "classes/druid/restoration", cls:"cl-druid", text: t("warcraft:classes.11-4"), "CLASSIC-WEAKAURA": true, WEAKAURA: true, ELVUI: true, VUHDO: true, PLATER: true, COLLECTION: true},
 
-      {id: "cl3", slug: "classes/hunter", cls:"cl-hunter", text: t("warcraft:classes.3"), classic: true, root: true, WEAKAURA: true, ELVUI: true, VUHDO: true, PLATER: true, COLLECTION: true},
-      {id: "cl3-1", slug: "classes/hunter/beast-mastery", cls:"cl-hunter", text: t("warcraft:classes.3-1"), classic: true, WEAKAURA: true, ELVUI: true, VUHDO: true, PLATER: true, COLLECTION: true},
-      {id: "cl3-2", slug: "classes/hunter/marksmanship", cls:"cl-hunter", text: t("warcraft:classes.3-2"), classic: true, WEAKAURA: true, ELVUI: true, VUHDO: true, PLATER: true, COLLECTION: true},
-      {id: "cl3-3", slug: "classes/hunter/survival", cls:"cl-hunter", text: t("warcraft:classes.3-3"), classic: true, WEAKAURA: true, ELVUI: true, VUHDO: true, PLATER: true, COLLECTION: true},
+      {id: "cl3", slug: "classes/hunter", cls:"cl-hunter", text: t("warcraft:classes.3"), "CLASSIC-WEAKAURA": true, root: true,WEAKAURA: true, ELVUI: true, VUHDO: true, PLATER: true, COLLECTION: true},
+      {id: "cl3-1", slug: "classes/hunter/beast-mastery", cls:"cl-hunter", text: t("warcraft:classes.3-1"), "CLASSIC-WEAKAURA": true, WEAKAURA: true, ELVUI: true, VUHDO: true, PLATER: true, COLLECTION: true},
+      {id: "cl3-2", slug: "classes/hunter/marksmanship", cls:"cl-hunter", text: t("warcraft:classes.3-2"), "CLASSIC-WEAKAURA": true, WEAKAURA: true, ELVUI: true, VUHDO: true, PLATER: true, COLLECTION: true},
+      {id: "cl3-3", slug: "classes/hunter/survival", cls:"cl-hunter", text: t("warcraft:classes.3-3"), "CLASSIC-WEAKAURA": true, WEAKAURA: true, ELVUI: true, VUHDO: true, PLATER: true, COLLECTION: true},
 
-      {id: "cl8", slug: "classes/mage", cls:"cl-mage", text: t("warcraft:classes.8"), root: true, classic: true, WEAKAURA: true, ELVUI: true, VUHDO: true, PLATER: true, COLLECTION: true},
-      {id: "cl8-1", slug: "classes/mage/arcane", cls:"cl-mage", text: t("warcraft:classes.8-1"), classic: true, WEAKAURA: true, ELVUI: true, VUHDO: true, PLATER: true, COLLECTION: true},
-      {id: "cl8-2", slug: "classes/mage/fire", cls:"cl-mage", text: t("warcraft:classes.8-2"), classic: true, WEAKAURA: true, ELVUI: true, VUHDO: true, PLATER: true, COLLECTION: true},
-      {id: "cl8-3", slug: "classes/mage/frost", cls:"cl-mage", text: t("warcraft:classes.8-3"), classic: true, WEAKAURA: true, ELVUI: true, VUHDO: true, PLATER: true, COLLECTION: true},
+      {id: "cl8", slug: "classes/mage", cls:"cl-mage", text: t("warcraft:classes.8"), root: true, "CLASSIC-WEAKAURA": true, WEAKAURA: true, ELVUI: true, VUHDO: true, PLATER: true, COLLECTION: true},
+      {id: "cl8-1", slug: "classes/mage/arcane", cls:"cl-mage", text: t("warcraft:classes.8-1"), "CLASSIC-WEAKAURA": true, WEAKAURA: true, ELVUI: true, VUHDO: true, PLATER: true, COLLECTION: true},
+      {id: "cl8-2", slug: "classes/mage/fire", cls:"cl-mage", text: t("warcraft:classes.8-2"), "CLASSIC-WEAKAURA": true, WEAKAURA: true, ELVUI: true, VUHDO: true, PLATER: true, COLLECTION: true},
+      {id: "cl8-3", slug: "classes/mage/frost", cls:"cl-mage", text: t("warcraft:classes.8-3"), "CLASSIC-WEAKAURA": true, WEAKAURA: true, ELVUI: true, VUHDO: true, PLATER: true, COLLECTION: true},
 
       {id: "cl10", slug: "classes/monk", cls:"cl-monk", text: t("warcraft:classes.10"), root: true, WEAKAURA: true, ELVUI: true, VUHDO: true, PLATER: true, COLLECTION: true},
       {id: "cl10-1", slug: "classes/monk/brewmaster", cls:"cl-monk", text: t("warcraft:classes.10-1"), WEAKAURA: true, ELVUI: true, VUHDO: true, PLATER: true, COLLECTION: true},
       {id: "cl10-2", slug: "classes/monk/mistweaver", cls:"cl-monk", text: t("warcraft:classes.10-2"), WEAKAURA: true, ELVUI: true, VUHDO: true, PLATER: true, COLLECTION: true},
       {id: "cl10-3", slug: "classes/monk/windwalker", cls:"cl-monk", text: t("warcraft:classes.10-3"), WEAKAURA: true, ELVUI: true, VUHDO: true, PLATER: true, COLLECTION: true},
 
-      {id: "cl2", slug: "classes/paladin", cls:"cl-paladin", text: t("warcraft:classes.2"), classic: true, root: true, WEAKAURA: true, ELVUI: true, VUHDO: true, PLATER: true, COLLECTION: true},
-      {id: "cl2-1", slug: "classes/paladin/holy", cls:"cl-paladin", text: t("warcraft:classes.2-1"), classic: true, WEAKAURA: true, ELVUI: true, VUHDO: true, PLATER: true, COLLECTION: true},
-      {id: "cl2-2", slug: "classes/paladin/protection", cls:"cl-paladin", text: t("warcraft:classes.2-2"), classic: true, WEAKAURA: true, ELVUI: true, VUHDO: true, PLATER: true, COLLECTION: true},
-      {id: "cl2-3", slug: "classes/paladin/retribution", cls:"cl-paladin", text: t("warcraft:classes.2-3"), classic: true, WEAKAURA: true, ELVUI: true, VUHDO: true, PLATER: true, COLLECTION: true},
+      {id: "cl2", slug: "classes/paladin", cls:"cl-paladin", text: t("warcraft:classes.2"), "CLASSIC-WEAKAURA": true, root: true,WEAKAURA: true, ELVUI: true, VUHDO: true, PLATER: true, COLLECTION: true},
+      {id: "cl2-1", slug: "classes/paladin/holy", cls:"cl-paladin", text: t("warcraft:classes.2-1"), "CLASSIC-WEAKAURA": true, WEAKAURA: true, ELVUI: true, VUHDO: true, PLATER: true, COLLECTION: true},
+      {id: "cl2-2", slug: "classes/paladin/protection", cls:"cl-paladin", text: t("warcraft:classes.2-2"), "CLASSIC-WEAKAURA": true, WEAKAURA: true, ELVUI: true, VUHDO: true, PLATER: true, COLLECTION: true},
+      {id: "cl2-3", slug: "classes/paladin/retribution", cls:"cl-paladin", text: t("warcraft:classes.2-3"), "CLASSIC-WEAKAURA": true, WEAKAURA: true, ELVUI: true, VUHDO: true, PLATER: true, COLLECTION: true},
 
-      {id: "cl5", slug: "classes/priest", cls:"cl-priest", text: t("warcraft:classes.5"), classic: true, root: true, WEAKAURA: true, ELVUI: true, VUHDO: true, PLATER: true, COLLECTION: true},
-      {id: "cl5-1", slug: "classes/priest/discipline", cls:"cl-priest", text: t("warcraft:classes.5-1"), classic: true, WEAKAURA: true, ELVUI: true, VUHDO: true, PLATER: true, COLLECTION: true},
-      {id: "cl5-2", slug: "classes/priest/holy", cls:"cl-priest", text: t("warcraft:classes.5-2"), classic: true, WEAKAURA: true, ELVUI: true, VUHDO: true, PLATER: true, COLLECTION: true},
-      {id: "cl5-3", slug: "classes/priest/shadow", cls:"cl-priest", text: t("warcraft:classes.5-3"), classic: true, WEAKAURA: true, ELVUI: true, VUHDO: true, PLATER: true, COLLECTION: true},
+      {id: "cl5", slug: "classes/priest", cls:"cl-priest", text: t("warcraft:classes.5"), "CLASSIC-WEAKAURA": true, root: true, WEAKAURA: true, ELVUI: true, VUHDO: true, PLATER: true, COLLECTION: true},
+      {id: "cl5-1", slug: "classes/priest/discipline", cls:"cl-priest", text: t("warcraft:classes.5-1"), "CLASSIC-WEAKAURA": true, WEAKAURA: true, ELVUI: true, VUHDO: true, PLATER: true, COLLECTION: true},
+      {id: "cl5-2", slug: "classes/priest/holy", cls:"cl-priest", text: t("warcraft:classes.5-2"), "CLASSIC-WEAKAURA": true, WEAKAURA: true, ELVUI: true, VUHDO: true, PLATER: true, COLLECTION: true},
+      {id: "cl5-3", slug: "classes/priest/shadow", cls:"cl-priest", text: t("warcraft:classes.5-3"), "CLASSIC-WEAKAURA": true, WEAKAURA: true, ELVUI: true, VUHDO: true, PLATER: true, COLLECTION: true},
 
-      {id: "cl4", slug: "classes/rogue", cls:"cl-rogue", text: t("warcraft:classes.4"), classic: true, root: true, WEAKAURA: true, ELVUI: true, VUHDO: true, PLATER: true, COLLECTION: true},
-      {id: "cl4-1", slug: "classes/rogue/assassination", cls:"cl-rogue", text: t("warcraft:classes.4-1"), classic: true, WEAKAURA: true, ELVUI: true, VUHDO: true, PLATER: true, COLLECTION: true},
+      {id: "cl4", slug: "classes/rogue", cls:"cl-rogue", text: t("warcraft:classes.4"), "CLASSIC-WEAKAURA": true, root: true,WEAKAURA: true, ELVUI: true, VUHDO: true, PLATER: true, COLLECTION: true},
+      {id: "cl4-1", slug: "classes/rogue/assassination", cls:"cl-rogue", text: t("warcraft:classes.4-1"), "CLASSIC-WEAKAURA": true, WEAKAURA: true, ELVUI: true, VUHDO: true, PLATER: true, COLLECTION: true},
       {id: "cl4-2", slug: "classes/rogue/outlaw", cls:"cl-rogue", text: t("warcraft:classes.4-2"), prime: true, WEAKAURA: true, ELVUI: true, VUHDO: true, PLATER: true, COLLECTION: true},
-      {id: "cl4-2c", slug: "classes/rogue/combat", cls:"cl-rogue", text: t("warcraft:classes.4-2c"), classic: true, prime: false, WEAKAURA: true, ELVUI: true, VUHDO: true, PLATER: true, COLLECTION: true},
-      {id: "cl4-3", slug: "classes/rogue/subtlety", cls:"cl-rogue", text: t("warcraft:classes.4-3"), classic: true, WEAKAURA: true, ELVUI: true, VUHDO: true, PLATER: true, COLLECTION: true},
+      {id: "cl4-2c", slug: "classes/rogue/combat", cls:"cl-rogue", text: t("warcraft:classes.4-2c"), "CLASSIC-WEAKAURA": true, prime: false, WEAKAURA: true, ELVUI: true, VUHDO: true, PLATER: true, COLLECTION: true},
+      {id: "cl4-3", slug: "classes/rogue/subtlety", cls:"cl-rogue", text: t("warcraft:classes.4-3"), "CLASSIC-WEAKAURA": true, WEAKAURA: true, ELVUI: true, VUHDO: true, PLATER: true, COLLECTION: true},
 
-      {id: "cl7", slug: "classes/shaman", cls:"cl-shaman", text: t("warcraft:classes.7"), classic: true, root: true, WEAKAURA: true, ELVUI: true, VUHDO: true, PLATER: true, COLLECTION: true},
-      {id: "cl7-1", slug: "classes/shaman/elemental", cls:"cl-shaman", text: t("warcraft:classes.7-1"), classic: true, WEAKAURA: true, ELVUI: true, VUHDO: true, PLATER: true, COLLECTION: true},
-      {id: "cl7-2", slug: "classes/shaman/enhancement", cls:"cl-shaman", text: t("warcraft:classes.7-2"), classic: true, WEAKAURA: true, ELVUI: true, VUHDO: true, PLATER: true, COLLECTION: true},
-      {id: "cl7-3", slug: "classes/shaman/restoration", cls:"cl-shaman", text: t("warcraft:classes.7-3"), classic: true, WEAKAURA: true, ELVUI: true, VUHDO: true, PLATER: true, COLLECTION: true},
+      {id: "cl7", slug: "classes/shaman", cls:"cl-shaman", text: t("warcraft:classes.7"), "CLASSIC-WEAKAURA": true, root: true,WEAKAURA: true, ELVUI: true, VUHDO: true, PLATER: true, COLLECTION: true},
+      {id: "cl7-1", slug: "classes/shaman/elemental", cls:"cl-shaman", text: t("warcraft:classes.7-1"), "CLASSIC-WEAKAURA": true, WEAKAURA: true, ELVUI: true, VUHDO: true, PLATER: true, COLLECTION: true},
+      {id: "cl7-2", slug: "classes/shaman/enhancement", cls:"cl-shaman", text: t("warcraft:classes.7-2"), "CLASSIC-WEAKAURA": true, WEAKAURA: true, ELVUI: true, VUHDO: true, PLATER: true, COLLECTION: true},
+      {id: "cl7-3", slug: "classes/shaman/restoration", cls:"cl-shaman", text: t("warcraft:classes.7-3"), "CLASSIC-WEAKAURA": true, WEAKAURA: true, ELVUI: true, VUHDO: true, PLATER: true, COLLECTION: true},
 
-      {id: "cl9", slug: "classes/warlock", cls:"cl-warlock", text: t("warcraft:classes.9"), classic: true, root: true, WEAKAURA: true, ELVUI: true, VUHDO: true, PLATER: true, COLLECTION: true},
-      {id: "cl9-1", slug: "classes/warlock/affliction", cls:"cl-warlock", text: t("warcraft:classes.9-1"), classic: true, WEAKAURA: true, ELVUI: true, VUHDO: true, PLATER: true, COLLECTION: true},
-      {id: "cl9-2", slug: "classes/warlock/demonology", cls:"cl-warlock", text: t("warcraft:classes.9-2"), classic: true, WEAKAURA: true, ELVUI: true, VUHDO: true, PLATER: true, COLLECTION: true},
-      {id: "cl9-3", slug: "classes/warlock/destruction", cls:"cl-warlock", text: t("warcraft:classes.9-3"), classic: true, WEAKAURA: true, ELVUI: true, VUHDO: true, PLATER: true, COLLECTION: true},
+      {id: "cl9", slug: "classes/warlock", cls:"cl-warlock", text: t("warcraft:classes.9"), "CLASSIC-WEAKAURA": true, root: true,WEAKAURA: true, ELVUI: true, VUHDO: true, PLATER: true, COLLECTION: true},
+      {id: "cl9-1", slug: "classes/warlock/affliction", cls:"cl-warlock", text: t("warcraft:classes.9-1"), "CLASSIC-WEAKAURA": true, WEAKAURA: true, ELVUI: true, VUHDO: true, PLATER: true, COLLECTION: true},
+      {id: "cl9-2", slug: "classes/warlock/demonology", cls:"cl-warlock", text: t("warcraft:classes.9-2"), "CLASSIC-WEAKAURA": true, WEAKAURA: true, ELVUI: true, VUHDO: true, PLATER: true, COLLECTION: true},
+      {id: "cl9-3", slug: "classes/warlock/destruction", cls:"cl-warlock", text: t("warcraft:classes.9-3"), "CLASSIC-WEAKAURA": true, WEAKAURA: true, ELVUI: true, VUHDO: true, PLATER: true, COLLECTION: true},
 
-      {id: "cl1", slug: "classes/warrior", cls:"cl-warrior", text: t("warcraft:classes.1"), classic: true, root: true, WEAKAURA: true, ELVUI: true, VUHDO: true, PLATER: true, COLLECTION: true},
-      {id: "cl1-1", slug: "classes/warrior/arms", cls:"cl-warrior", text: t("warcraft:classes.1-1"), classic: true, WEAKAURA: true, ELVUI: true, VUHDO: true, PLATER: true, COLLECTION: true},
-      {id: "cl1-2", slug: "classes/warrior/fury", cls:"cl-warrior", text: t("warcraft:classes.1-2"), classic: true, WEAKAURA: true, ELVUI: true, VUHDO: true, PLATER: true, COLLECTION: true},
-      {id: "cl1-3", slug: "classes/warrior/protection", cls:"cl-warrior", text: t("warcraft:classes.1-3"), classic: true, WEAKAURA: true, ELVUI: true, VUHDO: true, PLATER: true, COLLECTION: true},
+      {id: "cl1", slug: "classes/warrior", cls:"cl-warrior", text: t("warcraft:classes.1"), "CLASSIC-WEAKAURA": true, root: true,WEAKAURA: true, ELVUI: true, VUHDO: true, PLATER: true, COLLECTION: true},
+      {id: "cl1-1", slug: "classes/warrior/arms", cls:"cl-warrior", text: t("warcraft:classes.1-1"), "CLASSIC-WEAKAURA": true, WEAKAURA: true, ELVUI: true, VUHDO: true, PLATER: true, COLLECTION: true},
+      {id: "cl1-2", slug: "classes/warrior/fury", cls:"cl-warrior", text: t("warcraft:classes.1-2"), "CLASSIC-WEAKAURA": true, WEAKAURA: true, ELVUI: true, VUHDO: true, PLATER: true, COLLECTION: true},
+      {id: "cl1-3", slug: "classes/warrior/protection", cls:"cl-warrior", text: t("warcraft:classes.1-3"), "CLASSIC-WEAKAURA": true, WEAKAURA: true, ELVUI: true, VUHDO: true, PLATER: true, COLLECTION: true},
 
-      {id: "gen0", slug: "general", cls:"misc", text: t("General"), root: true, classic: true, WEAKAURA: true, COLLECTION: true},
+      {id: "gen0", slug: "general", cls:"misc", text: t("General"), root: true, "CLASSIC-WEAKAURA": true, WEAKAURA: true, COLLECTION: true},
       {id: "gen7", slug: "general/achievements", cls:"misc", text: t("Achievements"), WEAKAURA: true, COLLECTION: true},
-      {id: "gen2", slug: "general/questing", cls:"misc", text: t("Questing"), classic: true, WEAKAURA: true, COLLECTION: true},
-      {id: "gen6", slug: "general/non-combat", cls:"misc", text: t("Non-Combat"), classic: true, WEAKAURA: true, COLLECTION: true},
+      {id: "gen2", slug: "general/questing", cls:"misc", text: t("Questing"), "CLASSIC-WEAKAURA": true, WEAKAURA: true, COLLECTION: true},
+      {id: "gen6", slug: "general/non-combat", cls:"misc", text: t("Non-Combat"), "CLASSIC-WEAKAURA": true, WEAKAURA: true, COLLECTION: true},
       {id: "gen9", slug: "general/currency", cls:"misc", text: t("Currency"), WEAKAURA: true, COLLECTION: true},
-      {id: "gen10", slug: "general/reputation", cls:"misc", text: t("Reputation"), classic: true, WEAKAURA: true, COLLECTION: true},
+      {id: "gen10", slug: "general/reputation", cls:"misc", text: t("Reputation"), "CLASSIC-WEAKAURA": true, WEAKAURA: true, COLLECTION: true},
       {id: "gen11", slug: "general/collectibles", cls:"misc", text: t("Collectibles"), WEAKAURA: true, COLLECTION: true},
       {id: "gen12", slug: "general/world-events", cls:"misc", text: t("World Events"), WEAKAURA: true, COLLECTION: true},
       {id: "gen8", slug: "general/world-events/holidays", cls:"misc", text: t("Holidays"), WEAKAURA: true, COLLECTION: true},
@@ -83,19 +83,19 @@ module.exports = {
       {id: "gen16", slug: "general/warfronts", cls:"misc", text: t("Warfronts"), WEAKAURA: true, COLLECTION: true},
       {id: "gen17", slug: "general/island-expeditions", cls:"misc", text: t("Island Expeditions"), WEAKAURA: true, COLLECTION: true},
 
-      {id: "equip", slug: "equipment", cls:"equip", text: t("Equipment"), root: true, classic: true, WEAKAURA: true, COLLECTION: true},
+      {id: "equip", slug: "equipment", cls:"equip", text: t("Equipment"), root: true, "CLASSIC-WEAKAURA": true, WEAKAURA: true, COLLECTION: true},
       {id: "legen", slug: "equipment/legendaries", cls:"equip", text: t("Legendaries"), WEAKAURA: true, COLLECTION: true},
-      {id: "equip1", slug: "equipment/trinkets", cls:"equip", text: t("Trinkets"), classic: true, WEAKAURA: true, COLLECTION: true},
-      {id: "equip2", slug: "equipment/item-enhancements", cls:"equip", text: t("Item Enhancements"), classic: true, WEAKAURA: true, COLLECTION: true},
+      {id: "equip1", slug: "equipment/trinkets", cls:"equip", text: t("Trinkets"), "CLASSIC-WEAKAURA": true, WEAKAURA: true, COLLECTION: true},
+      {id: "equip2", slug: "equipment/item-enhancements", cls:"equip", text: t("Item Enhancements"), "CLASSIC-WEAKAURA": true, WEAKAURA: true, COLLECTION: true},
       {id: "equip3", slug: "equipment/azerite-traits", cls:"equip", text: t("Azerite Traits"), WEAKAURA: true, COLLECTION: true},
 
-      {id: "mech", slug: "combat-mechanics", cls:"mechanics", text: t("Combat Mechanics"), classic: true, root: true, WEAKAURA: true, COLLECTION: true},
+      {id: "mech", slug: "combat-mechanics", cls:"mechanics", text: t("Combat Mechanics"), "CLASSIC-WEAKAURA": true, root: true,WEAKAURA: true, COLLECTION: true},
       {id: "mech1", slug: "combat-mechanics/battle-resurrection", cls:"mechanics", text: t("Battle Resurrection"), WEAKAURA: true, COLLECTION: true},
-      {id: "mech2", slug: "combat-mechanics/interrupts", cls:"mechanics", text: t("Interrupts"), classic: true, WEAKAURA: true, COLLECTION: true},
-      {id: "mech3", slug: "combat-mechanics/theorycrafting", cls:"mechanics", text: t("Theorycrafting"), classic: true, WEAKAURA: true, COLLECTION: true},
+      {id: "mech2", slug: "combat-mechanics/interrupts", cls:"mechanics", text: t("Interrupts"), "CLASSIC-WEAKAURA": true, WEAKAURA: true, COLLECTION: true},
+      {id: "mech3", slug: "combat-mechanics/theorycrafting", cls:"mechanics", text: t("Theorycrafting"), "CLASSIC-WEAKAURA": true, WEAKAURA: true, COLLECTION: true},
       {id: "mech4", slug: "combat-mechanics/vehicles", cls:"mechanics", text: t("Vehicles"), WEAKAURA: true, COLLECTION: true},
-      {id: "mech5", slug: "combat-mechanics/consumables", cls:"mechanics", text: t("Consumables"), classic: true, WEAKAURA: true, COLLECTION: true},
-      {id: "mech6", slug: "combat-mechanics/group-buffs", cls:"mechanics", text: t("Group Buffs"), classic: true, WEAKAURA: true, COLLECTION: true},
+      {id: "mech5", slug: "combat-mechanics/consumables", cls:"mechanics", text: t("Consumables"), "CLASSIC-WEAKAURA": true, WEAKAURA: true, COLLECTION: true},
+      {id: "mech6", slug: "combat-mechanics/group-buffs", cls:"mechanics", text: t("Group Buffs"), "CLASSIC-WEAKAURA": true, WEAKAURA: true, COLLECTION: true},
 
       {id: "role0", slug: "class-roles", cls:"roles", text: t("Group Roles"), root: true, WEAKAURA: true, ELVUI: true, VUHDO: true, PLATER: true, COLLECTION: true},
       {id: "role4", slug: "class-roles/raid-leading", cls:"roles", text: t("Raid Leading"), WEAKAURA: true, COLLECTION: true},
@@ -246,9 +246,9 @@ module.exports = {
       {id: "bfadungeon9", slug: "pve/bfa-dungeons/tol-dagor", cls:"dungeon", text: t("warcraft:zones.9327"), WEAKAURA: true},
       {id: "bfadungeon10", slug: "pve/bfa-dungeons/waycrest-manor", cls:"dungeon", text: t("warcraft:zones.9424"), WEAKAURA: true},
 
-      {id: "pvp", slug: "pvp", cls:"pvp-arena", text: t("PvP"), root: true, classic: true, WEAKAURA: true, COLLECTION: true},
+      {id: "pvp", slug: "pvp", cls:"pvp-arena", text: t("PvP"), root: true, "CLASSIC-WEAKAURA": true, WEAKAURA: true, COLLECTION: true},
       {id: "arena", slug: "pvp/arena", cls:"pvp-arena", text: t("Arena"), WEAKAURA: true, COLLECTION: true},
-      {id: "bg", slug: "pvp/battlegrounds", cls:"pvp-arena", text: t("Battlegrounds"), classic: true, WEAKAURA: true, COLLECTION: true},
+      {id: "bg", slug: "pvp/battlegrounds", cls:"pvp-arena", text: t("Battlegrounds"), "CLASSIC-WEAKAURA": true, WEAKAURA: true, COLLECTION: true},
       // {id: "bg1", slug: "pvp/battlegrounds/alterac-valley", cls:"pvp-battleground", text: t("Alterac Valley"), WEAKAURA: true, "hideFromMenu": true},
       // {id: "bg2", slug: "pvp/battlegrounds/areathi-basin", cls:"pvp-battleground", text: t("Arathi Basin"), WEAKAURA: true, "hideFromMenu": true},
       // {id: "bg3", slug: "pvp/battlegrounds/deepwind-gorge", cls:"pvp-battleground", text: t("Deepwind Gorge"), WEAKAURA: true, "hideFromMenu": true},
@@ -261,8 +261,8 @@ module.exports = {
       // {id: "bg10", slug: "pvp/battlegrounds/twin-peaks", cls:"pvp-battleground", text: t("Twin Peaks"), WEAKAURA: true, "hideFromMenu": true},
       // {id: "bg11", slug: "pvp/battlegrounds/warsong-gulch", cls:"pvp-battleground", text: t("Warsong Gulch"), WEAKAURA: true, "hideFromMenu": true},
 
-      {id: "wpvp", slug: "pvp/world-pvp", cls:"pvp-arena", text: t("World PvP"), classic: true, WEAKAURA: true, COLLECTION: true},
-      {id: "wpvp1", slug: "pvp/duels", cls:"pvp-arena", text: t("Duels"), classic: true, WEAKAURA: true},
+      {id: "wpvp", slug: "pvp/world-pvp", cls:"pvp-arena", text: t("World PvP"), "CLASSIC-WEAKAURA": true, WEAKAURA: true, COLLECTION: true},
+      {id: "wpvp1", slug: "pvp/duels", cls:"pvp-arena", text: t("Duels"), "CLASSIC-WEAKAURA": true, WEAKAURA: true},
 
       // {id: "prof0", slug: "professions", cls:"prof", text: t("Professions"), noselect: true, WEAKAURA: true, COLLECTION: true},
       {id: "prof1", slug: "professions/gathering", cls:"prof-gathering", text: t("Gathering Professions"), root: true, WEAKAURA: true, COLLECTION: true},
@@ -467,105 +467,105 @@ module.exports = {
       {id: "beta-bfa", slug: "beta-bfa", cls:"snippets", text: t("Battle for Azeroth"), root: true, noselect: true, systemtag: true, WEAKAURA: true},
 
       // classic
-      {id: "classicdungeon", slug: "pve/dungeons", cls:"dungeon", text: t("Classic Dungeons"), root: true, classic: true, prime: false},
-      {id: "classicdungeon1", slug: "pve/dungeons/ragefire-chasm", cls:"dungeon", text: t("warcraft:zones.2437"), classic: true, WEAKAURA: true},
-      {id: "classicdungeon2", slug: "pve/dungeons/wailing-caverns", cls:"dungeon", text: t("warcraft:zones.718"), classic: true, WEAKAURA: true},
-      {id: "classicdungeon3", slug: "pve/dungeons/the-deadmines", cls:"dungeon", text: t("warcraft:zones.1581"), classic: true, WEAKAURA: true},
-      {id: "classicdungeon4", slug: "pve/dungeons/shadowfang-keep", cls:"dungeon", text: t("warcraft:zones.209"), classic: true, WEAKAURA: true},
-      {id: "classicdungeon5", slug: "pve/dungeons/blackfathom-deeps", cls:"dungeon", text: t("warcraft:zones.719"), classic: true, WEAKAURA: true},
-      {id: "classicdungeon6", slug: "pve/dungeons/the-stockade", cls:"dungeon", text: t("warcraft:zones.717"), classic: true, WEAKAURA: true},
-      {id: "classicdungeon7", slug: "pve/dungeons/gnomeregan", cls:"dungeon", text: t("warcraft:zones.721"), classic: true, WEAKAURA: true},
-      {id: "classicdungeon8", slug: "pve/dungeons/razorfen-kraul", cls:"dungeon", text: t("warcraft:zones.491"), classic: true, WEAKAURA: true},
-      {id: "classicdungeon9", slug: "pve/dungeons/the-scarlet-monastery", cls:"dungeon", text: t("warcraft:zones.796"), classic: true, WEAKAURA: true},
-      {id: "classicdungeon10", slug: "pve/dungeons/razorfen-downs", cls:"dungeon", text: t("warcraft:zones.722"), classic: true, WEAKAURA: true},
-      {id: "classicdungeon11", slug: "pve/dungeons/uldaman", cls:"dungeon", text: t("warcraft:zones.1337"), classic: true, WEAKAURA: true},
-      {id: "classicdungeon12", slug: "pve/dungeons/zul-ferrak", cls:"dungeon", text: t("warcraft:zones.1176"), classic: true, WEAKAURA: true},
-      {id: "classicdungeon13", slug: "pve/dungeons/mauradon", cls:"dungeon", text: t("warcraft:zones.2100"), classic: true, WEAKAURA: true},
-      {id: "classicdungeon14", slug: "pve/dungeons/temple-of-atal-hakkar", cls:"dungeon", text: t("warcraft:zones.1477"), classic: true, WEAKAURA: true},
-      {id: "classicdungeon15", slug: "pve/dungeons/blackrock-depths", cls:"dungeon", text: t("warcraft:zones.1584"), classic: true, WEAKAURA: true},
-      {id: "classicdungeon16", slug: "pve/dungeons/blackrock-spire", cls:"dungeon", text: t("warcraft:zones.1583"), classic: true, WEAKAURA: true},
-      {id: "classicdungeon17", slug: "pve/dungeons/dire-maul", cls:"dungeon", text: t("warcraft:zones.2557"), classic: true, WEAKAURA: true},
-      {id: "classicdungeon18", slug: "pve/dungeons/stratholme", cls:"dungeon", text: t("warcraft:zones.2017"), classic: true, WEAKAURA: true},
-      {id: "classicdungeon19", slug: "pve/dungeons/scholomance", cls:"dungeon", text: t("warcraft:zones.2057"), classic: true, WEAKAURA: true},
+      {id: "classicdungeon", slug: "pve/dungeons", cls:"dungeon", text: t("Classic Dungeons"), root: true, "CLASSIC-WEAKAURA": true, prime: false},
+      {id: "classicdungeon1", slug: "pve/dungeons/ragefire-chasm", cls:"dungeon", text: t("warcraft:zones.2437"), "CLASSIC-WEAKAURA": true, WEAKAURA: true},
+      {id: "classicdungeon2", slug: "pve/dungeons/wailing-caverns", cls:"dungeon", text: t("warcraft:zones.718"), "CLASSIC-WEAKAURA": true, WEAKAURA: true},
+      {id: "classicdungeon3", slug: "pve/dungeons/the-deadmines", cls:"dungeon", text: t("warcraft:zones.1581"), "CLASSIC-WEAKAURA": true, WEAKAURA: true},
+      {id: "classicdungeon4", slug: "pve/dungeons/shadowfang-keep", cls:"dungeon", text: t("warcraft:zones.209"), "CLASSIC-WEAKAURA": true, WEAKAURA: true},
+      {id: "classicdungeon5", slug: "pve/dungeons/blackfathom-deeps", cls:"dungeon", text: t("warcraft:zones.719"), "CLASSIC-WEAKAURA": true, WEAKAURA: true},
+      {id: "classicdungeon6", slug: "pve/dungeons/the-stockade", cls:"dungeon", text: t("warcraft:zones.717"), "CLASSIC-WEAKAURA": true, WEAKAURA: true},
+      {id: "classicdungeon7", slug: "pve/dungeons/gnomeregan", cls:"dungeon", text: t("warcraft:zones.721"), "CLASSIC-WEAKAURA": true, WEAKAURA: true},
+      {id: "classicdungeon8", slug: "pve/dungeons/razorfen-kraul", cls:"dungeon", text: t("warcraft:zones.491"), "CLASSIC-WEAKAURA": true, WEAKAURA: true},
+      {id: "classicdungeon9", slug: "pve/dungeons/the-scarlet-monastery", cls:"dungeon", text: t("warcraft:zones.796"), "CLASSIC-WEAKAURA": true, WEAKAURA: true},
+      {id: "classicdungeon10", slug: "pve/dungeons/razorfen-downs", cls:"dungeon", text: t("warcraft:zones.722"), "CLASSIC-WEAKAURA": true, WEAKAURA: true},
+      {id: "classicdungeon11", slug: "pve/dungeons/uldaman", cls:"dungeon", text: t("warcraft:zones.1337"), "CLASSIC-WEAKAURA": true, WEAKAURA: true},
+      {id: "classicdungeon12", slug: "pve/dungeons/zul-ferrak", cls:"dungeon", text: t("warcraft:zones.1176"), "CLASSIC-WEAKAURA": true, WEAKAURA: true},
+      {id: "classicdungeon13", slug: "pve/dungeons/mauradon", cls:"dungeon", text: t("warcraft:zones.2100"), "CLASSIC-WEAKAURA": true, WEAKAURA: true},
+      {id: "classicdungeon14", slug: "pve/dungeons/temple-of-atal-hakkar", cls:"dungeon", text: t("warcraft:zones.1477"), "CLASSIC-WEAKAURA": true, WEAKAURA: true},
+      {id: "classicdungeon15", slug: "pve/dungeons/blackrock-depths", cls:"dungeon", text: t("warcraft:zones.1584"), "CLASSIC-WEAKAURA": true, WEAKAURA: true},
+      {id: "classicdungeon16", slug: "pve/dungeons/blackrock-spire", cls:"dungeon", text: t("warcraft:zones.1583"), "CLASSIC-WEAKAURA": true, WEAKAURA: true},
+      {id: "classicdungeon17", slug: "pve/dungeons/dire-maul", cls:"dungeon", text: t("warcraft:zones.2557"), "CLASSIC-WEAKAURA": true, WEAKAURA: true},
+      {id: "classicdungeon18", slug: "pve/dungeons/stratholme", cls:"dungeon", text: t("warcraft:zones.2017"), "CLASSIC-WEAKAURA": true, WEAKAURA: true},
+      {id: "classicdungeon19", slug: "pve/dungeons/scholomance", cls:"dungeon", text: t("warcraft:zones.2057"), "CLASSIC-WEAKAURA": true, WEAKAURA: true},
 
-      {id: "raidworld", slug: "pve/single-raid", cls:"worldboss", text: t("Single Bosses"), root: true, prime: false, classic: true, WEAKAURA: true},
-      {id: "raidworld1", slug: "pve/single-raid/onyxia", cls:"worldboss", text: t("warcraft:bosses.10184"), classic: true, WEAKAURA: true},
-      {id: "raidworld2", slug: "pve/single-raid/azuregos", cls:"worldboss", text: t("warcraft:bosses.6109"), classic: true, WEAKAURA: true},
-      {id: "raidworld3", slug: "pve/single-raid/kazzak", cls:"worldboss", text: t("warcraft:bosses.12397"), classic: true, WEAKAURA: true},
-      {id: "raidworld4", slug: "pve/single-raid/lethon", cls:"worldboss", text: t("warcraft:bosses.14888"), classic: true, WEAKAURA: true},
-      {id: "raidworld5", slug: "pve/single-raid/emeriss", cls:"worldboss", text: t("warcraft:bosses.14889"), classic: true, WEAKAURA: true},
-      {id: "raidworld6", slug: "pve/single-raid/taerar", cls:"worldboss", text: t("warcraft:bosses.14890"), classic: true, WEAKAURA: true},
-      {id: "raidworld7", slug: "pve/single-raid/ysondre", cls:"worldboss", text: t("warcraft:bosses.14887"), classic: true, WEAKAURA: true},
+      {id: "raidworld", slug: "pve/single-raid", cls:"worldboss", text: t("Single Bosses"), root: true, prime: false, "CLASSIC-WEAKAURA": true, WEAKAURA: true},
+      {id: "raidworld1", slug: "pve/single-raid/onyxia", cls:"worldboss", text: t("warcraft:bosses.10184"), "CLASSIC-WEAKAURA": true, WEAKAURA: true},
+      {id: "raidworld2", slug: "pve/single-raid/azuregos", cls:"worldboss", text: t("warcraft:bosses.6109"), "CLASSIC-WEAKAURA": true, WEAKAURA: true},
+      {id: "raidworld3", slug: "pve/single-raid/kazzak", cls:"worldboss", text: t("warcraft:bosses.12397"), "CLASSIC-WEAKAURA": true, WEAKAURA: true},
+      {id: "raidworld4", slug: "pve/single-raid/lethon", cls:"worldboss", text: t("warcraft:bosses.14888"), "CLASSIC-WEAKAURA": true, WEAKAURA: true},
+      {id: "raidworld5", slug: "pve/single-raid/emeriss", cls:"worldboss", text: t("warcraft:bosses.14889"), "CLASSIC-WEAKAURA": true, WEAKAURA: true},
+      {id: "raidworld6", slug: "pve/single-raid/taerar", cls:"worldboss", text: t("warcraft:bosses.14890"), "CLASSIC-WEAKAURA": true, WEAKAURA: true},
+      {id: "raidworld7", slug: "pve/single-raid/ysondre", cls:"worldboss", text: t("warcraft:bosses.14887"), "CLASSIC-WEAKAURA": true, WEAKAURA: true},
 
-      {id: "raidmoltencore", slug: "pve/molten-core", cls:"moltencore", text: t("warcraft:zones.2717"), root: true, prime: false, classic: true, WEAKAURA: true, COLLECTION: true},
-      {id: "raidmoltencore1", slug: "pve/molten-core/lucifron", cls:"moltencore", text: t("warcraft:bosses.12118"), classic: true, WEAKAURA: true},
-      {id: "raidmoltencore2", slug: "pve/molten-core/magmadar", cls:"moltencore", text: t("warcraft:bosses.11982"), classic: true, WEAKAURA: true},
-      {id: "raidmoltencore3", slug: "pve/molten-core/gehennas", cls:"moltencore", text: t("warcraft:bosses.12259"), classic: true, WEAKAURA: true},
-      {id: "raidmoltencore4", slug: "pve/molten-core/garr", cls:"moltencore", text: t("warcraft:bosses.12057"), classic: true, WEAKAURA: true},
-      {id: "raidmoltencore5", slug: "pve/molten-core/shazzrah", cls:"moltencore", text: t("warcraft:bosses.12264"), classic: true, WEAKAURA: true},
-      {id: "raidmoltencore6", slug: "pve/molten-core/baron-geddon", cls:"moltencore", text: t("warcraft:bosses.12056"), classic: true, WEAKAURA: true},
-      {id: "raidmoltencore7", slug: "pve/molten-core/golemagg-the-incinerator", cls:"moltencore", text: t("warcraft:bosses.11988"), classic: true, WEAKAURA: true},
-      {id: "raidmoltencore8", slug: "pve/molten-core/sulfuron-harbinger", cls:"moltencore", text: t("warcraft:bosses.12098"), classic: true, WEAKAURA: true},
-      {id: "raidmoltencore9", slug: "pve/molten-core/majordomo-executus", cls:"moltencore", text: t("warcraft:bosses.12018"), classic: true, WEAKAURA: true},
-      {id: "raidmoltencore10", slug: "pve/molten-core/ragnaros", cls:"moltencore", text: t("warcraft:bosses.11502"), classic: true, WEAKAURA: true},
+      {id: "raidmoltencore", slug: "pve/molten-core", cls:"moltencore", text: t("warcraft:zones.2717"), root: true, prime: false, "CLASSIC-WEAKAURA": true, WEAKAURA: true, COLLECTION: true},
+      {id: "raidmoltencore1", slug: "pve/molten-core/lucifron", cls:"moltencore", text: t("warcraft:bosses.12118"), "CLASSIC-WEAKAURA": true, WEAKAURA: true},
+      {id: "raidmoltencore2", slug: "pve/molten-core/magmadar", cls:"moltencore", text: t("warcraft:bosses.11982"), "CLASSIC-WEAKAURA": true, WEAKAURA: true},
+      {id: "raidmoltencore3", slug: "pve/molten-core/gehennas", cls:"moltencore", text: t("warcraft:bosses.12259"), "CLASSIC-WEAKAURA": true, WEAKAURA: true},
+      {id: "raidmoltencore4", slug: "pve/molten-core/garr", cls:"moltencore", text: t("warcraft:bosses.12057"), "CLASSIC-WEAKAURA": true, WEAKAURA: true},
+      {id: "raidmoltencore5", slug: "pve/molten-core/shazzrah", cls:"moltencore", text: t("warcraft:bosses.12264"), "CLASSIC-WEAKAURA": true, WEAKAURA: true},
+      {id: "raidmoltencore6", slug: "pve/molten-core/baron-geddon", cls:"moltencore", text: t("warcraft:bosses.12056"), "CLASSIC-WEAKAURA": true, WEAKAURA: true},
+      {id: "raidmoltencore7", slug: "pve/molten-core/golemagg-the-incinerator", cls:"moltencore", text: t("warcraft:bosses.11988"), "CLASSIC-WEAKAURA": true, WEAKAURA: true},
+      {id: "raidmoltencore8", slug: "pve/molten-core/sulfuron-harbinger", cls:"moltencore", text: t("warcraft:bosses.12098"), "CLASSIC-WEAKAURA": true, WEAKAURA: true},
+      {id: "raidmoltencore9", slug: "pve/molten-core/majordomo-executus", cls:"moltencore", text: t("warcraft:bosses.12018"), "CLASSIC-WEAKAURA": true, WEAKAURA: true},
+      {id: "raidmoltencore10", slug: "pve/molten-core/ragnaros", cls:"moltencore", text: t("warcraft:bosses.11502"), "CLASSIC-WEAKAURA": true, WEAKAURA: true},
 
-      {id: "raidblackwinglair", slug: "pve/blackwing-lair", cls:"blackwinglair", text: t("warcraft:zones.2677"), root: true, prime: false, classic: true, WEAKAURA: true},
-      {id: "raidblackwinglair1", slug: "pve/blackwing-lair/razorgore-the-untamed", cls:"blackwinglair", text: t("warcraft:bosses.12435"), classic: true, WEAKAURA: true},
-      {id: "raidblackwinglair2", slug: "pve/blackwing-lair/vaelastrasz-the-corrupt", cls:"blackwinglair", text: t("warcraft:bosses.13020"), classic: true, WEAKAURA: true},
-      {id: "raidblackwinglair3", slug: "pve/blackwing-lair/broodlord-lashlayer", cls:"blackwinglair", text: t("warcraft:bosses.12017"), classic: true, WEAKAURA: true},
-      {id: "raidblackwinglair4", slug: "pve/blackwing-lair/firemaw", cls:"blackwinglair", text: t("warcraft:bosses.11983"), classic: true, WEAKAURA: true},
-      {id: "raidblackwinglair5", slug: "pve/blackwing-lair/ebonroc", cls:"blackwinglair", text: t("warcraft:bosses.14601"), classic: true, WEAKAURA: true},
-      {id: "raidblackwinglair6", slug: "pve/blackwing-lair/flamegor", cls:"blackwinglair", text: t("warcraft:bosses.11981"), classic: true, WEAKAURA: true},
-      {id: "raidblackwinglair7", slug: "pve/blackwing-lair/chromaggus", cls:"blackwinglair", text: t("warcraft:bosses.14020"), classic: true, WEAKAURA: true},
-      {id: "raidblackwinglair8", slug: "pve/blackwing-lair/nefarian", cls:"blackwinglair", text: t("warcraft:bosses.11583"), classic: true, WEAKAURA: true},
+      {id: "raidblackwinglair", slug: "pve/blackwing-lair", cls:"blackwinglair", text: t("warcraft:zones.2677"), root: true, prime: false, "CLASSIC-WEAKAURA": true, WEAKAURA: true},
+      {id: "raidblackwinglair1", slug: "pve/blackwing-lair/razorgore-the-untamed", cls:"blackwinglair", text: t("warcraft:bosses.12435"), "CLASSIC-WEAKAURA": true, WEAKAURA: true},
+      {id: "raidblackwinglair2", slug: "pve/blackwing-lair/vaelastrasz-the-corrupt", cls:"blackwinglair", text: t("warcraft:bosses.13020"), "CLASSIC-WEAKAURA": true, WEAKAURA: true},
+      {id: "raidblackwinglair3", slug: "pve/blackwing-lair/broodlord-lashlayer", cls:"blackwinglair", text: t("warcraft:bosses.12017"), "CLASSIC-WEAKAURA": true, WEAKAURA: true},
+      {id: "raidblackwinglair4", slug: "pve/blackwing-lair/firemaw", cls:"blackwinglair", text: t("warcraft:bosses.11983"), "CLASSIC-WEAKAURA": true, WEAKAURA: true},
+      {id: "raidblackwinglair5", slug: "pve/blackwing-lair/ebonroc", cls:"blackwinglair", text: t("warcraft:bosses.14601"), "CLASSIC-WEAKAURA": true, WEAKAURA: true},
+      {id: "raidblackwinglair6", slug: "pve/blackwing-lair/flamegor", cls:"blackwinglair", text: t("warcraft:bosses.11981"), "CLASSIC-WEAKAURA": true, WEAKAURA: true},
+      {id: "raidblackwinglair7", slug: "pve/blackwing-lair/chromaggus", cls:"blackwinglair", text: t("warcraft:bosses.14020"), "CLASSIC-WEAKAURA": true, WEAKAURA: true},
+      {id: "raidblackwinglair8", slug: "pve/blackwing-lair/nefarian", cls:"blackwinglair", text: t("warcraft:bosses.11583"), "CLASSIC-WEAKAURA": true, WEAKAURA: true},
 
-      {id: "raidtempleaq", slug: "pve/temple-of-ahn-qiraj", cls:"aq40", text: t("warcraft:zones.3428"), root: true, prime: false, classic: true, WEAKAURA: true},
-      {id: "raidtempleaq1", slug: "pve/ruins-of-ahn-qiraj/the-prophet-skeram", cls:"aq40", text: t("warcraft:bosses.15263"), classic: true, WEAKAURA: true},
-      {id: "raidtempleaq2", slug: "pve/ruins-of-ahn-qiraj/bug-trio", cls:"aq40", text: t("warcraft:bosses.15543"), classic: true, WEAKAURA: true},
-      {id: "raidtempleaq3", slug: "pve/ruins-of-ahn-qiraj/battleguard-sartura", cls:"aq40", text: t("warcraft:bosses.15516"), classic: true, WEAKAURA: true},
-      {id: "raidtempleaq4", slug: "pve/ruins-of-ahn-qiraj/fankriss-the-undying", cls:"aq40", text: t("warcraft:bosses.15510"), classic: true, WEAKAURA: true},
-      {id: "raidtempleaq5", slug: "pve/ruins-of-ahn-qiraj/viscidus", cls:"aq40", text: t("warcraft:bosses.15299"), classic: true, WEAKAURA: true},
-      {id: "raidtempleaq6", slug: "pve/ruins-of-ahn-qiraj/princess-huhuran", cls:"aq40", text: t("warcraft:bosses.15509"), classic: true, WEAKAURA: true},
-      {id: "raidtempleaq7", slug: "pve/ruins-of-ahn-qiraj/twin-emperors", cls:"aq40", text: t("warcraft:bosses.15276"), classic: true, WEAKAURA: true},
-      {id: "raidtempleaq8", slug: "pve/ruins-of-ahn-qiraj/ouro", cls:"aq40", text: t("warcraft:bosses.15517"), classic: true, WEAKAURA: true},
-      {id: "raidtempleaq9", slug: "pve/ruins-of-ahn-qiraj/cthun", cls:"aq40", text: t("warcraft:bosses.15727"), classic: true, WEAKAURA: true},
+      {id: "raidtempleaq", slug: "pve/temple-of-ahn-qiraj", cls:"aq40", text: t("warcraft:zones.3428"), root: true, prime: false, "CLASSIC-WEAKAURA": true, WEAKAURA: true},
+      {id: "raidtempleaq1", slug: "pve/ruins-of-ahn-qiraj/the-prophet-skeram", cls:"aq40", text: t("warcraft:bosses.15263"), "CLASSIC-WEAKAURA": true, WEAKAURA: true},
+      {id: "raidtempleaq2", slug: "pve/ruins-of-ahn-qiraj/bug-trio", cls:"aq40", text: t("warcraft:bosses.15543"), "CLASSIC-WEAKAURA": true, WEAKAURA: true},
+      {id: "raidtempleaq3", slug: "pve/ruins-of-ahn-qiraj/battleguard-sartura", cls:"aq40", text: t("warcraft:bosses.15516"), "CLASSIC-WEAKAURA": true, WEAKAURA: true},
+      {id: "raidtempleaq4", slug: "pve/ruins-of-ahn-qiraj/fankriss-the-undying", cls:"aq40", text: t("warcraft:bosses.15510"), "CLASSIC-WEAKAURA": true, WEAKAURA: true},
+      {id: "raidtempleaq5", slug: "pve/ruins-of-ahn-qiraj/viscidus", cls:"aq40", text: t("warcraft:bosses.15299"), "CLASSIC-WEAKAURA": true, WEAKAURA: true},
+      {id: "raidtempleaq6", slug: "pve/ruins-of-ahn-qiraj/princess-huhuran", cls:"aq40", text: t("warcraft:bosses.15509"), "CLASSIC-WEAKAURA": true, WEAKAURA: true},
+      {id: "raidtempleaq7", slug: "pve/ruins-of-ahn-qiraj/twin-emperors", cls:"aq40", text: t("warcraft:bosses.15276"), "CLASSIC-WEAKAURA": true, WEAKAURA: true},
+      {id: "raidtempleaq8", slug: "pve/ruins-of-ahn-qiraj/ouro", cls:"aq40", text: t("warcraft:bosses.15517"), "CLASSIC-WEAKAURA": true, WEAKAURA: true},
+      {id: "raidtempleaq9", slug: "pve/ruins-of-ahn-qiraj/cthun", cls:"aq40", text: t("warcraft:bosses.15727"), "CLASSIC-WEAKAURA": true, WEAKAURA: true},
 
-      {id: "raidnaxxramas", slug: "pve/naxxramas", cls:"naxxramas", text: t("warcraft:zones.3456"), root: true, prime: false, classic: true, WEAKAURA: true},
-      {id: "raidnaxxramas1", slug: "pve/naxxramas/anub-rekhan", cls:"naxxramas", text: t("warcraft:bosses.15956"), classic: true, WEAKAURA: true},
-      {id: "raidnaxxramas2", slug: "pve/naxxramas/grand-widow-faerlina", cls:"naxxramas", text: t("warcraft:bosses.15953"), classic: true, WEAKAURA: true},
-      {id: "raidnaxxramas3", slug: "pve/naxxramas/maexxna", cls:"naxxramas", text: t("warcraft:bosses.15952"), classic: true, WEAKAURA: true},
-      {id: "raidnaxxramas4", slug: "pve/naxxramas/noth-the-plaguebringer", cls:"naxxramas", text: t("warcraft:bosses.15954"), classic: true, WEAKAURA: true},
-      {id: "raidnaxxramas5", slug: "pve/naxxramas/heigan-the-unclean", cls:"naxxramas", text: t("warcraft:bosses.15936"), classic: true, WEAKAURA: true},
-      {id: "raidnaxxramas6", slug: "pve/naxxramas/loatheb", cls:"naxxramas", text: t("warcraft:bosses.16011"), classic: true, WEAKAURA: true},
-      {id: "raidnaxxramas7", slug: "pve/naxxramas/patchwerk", cls:"naxxramas", text: t("warcraft:bosses.16028"), classic: true, WEAKAURA: true},
-      {id: "raidnaxxramas8", slug: "pve/naxxramas/grobbulus", cls:"naxxramas", text: t("warcraft:bosses.15931"), classic: true, WEAKAURA: true},
-      {id: "raidnaxxramas9", slug: "pve/naxxramas/gluth", cls:"naxxramas", text: t("warcraft:bosses.15932"), classic: true, WEAKAURA: true},
-      {id: "raidnaxxramas10", slug: "pve/naxxramas/thaddius", cls:"naxxramas", text: t("warcraft:bosses.15928"), classic: true, WEAKAURA: true},
-      {id: "raidnaxxramas11", slug: "pve/naxxramas/instructor-razuvious", cls:"naxxramas", text: t("warcraft:bosses.16061"), classic: true, WEAKAURA: true},
-      {id: "raidnaxxramas12", slug: "pve/naxxramas/gothik-the-harvester", cls:"naxxramas", text: t("warcraft:bosses.16060"), classic: true, WEAKAURA: true},
-      {id: "raidnaxxramas13", slug: "pve/naxxramas/the-four-horsemen", cls:"naxxramas", text: t("warcraft:bosses.181366"), classic: true, WEAKAURA: true},
-      {id: "raidnaxxramas14", slug: "pve/naxxramas/sapphiron", cls:"naxxramas", text: t("warcraft:bosses.15989"), classic: true, WEAKAURA: true},
-      {id: "raidnaxxramas15", slug: "pve/naxxramas/kel-thuzad", cls:"naxxramas", text: t("warcraft:bosses.15990"), classic: true, WEAKAURA: true},
+      {id: "raidnaxxramas", slug: "pve/naxxramas", cls:"naxxramas", text: t("warcraft:zones.3456"), root: true, prime: false, "CLASSIC-WEAKAURA": true, WEAKAURA: true},
+      {id: "raidnaxxramas1", slug: "pve/naxxramas/anub-rekhan", cls:"naxxramas", text: t("warcraft:bosses.15956"), "CLASSIC-WEAKAURA": true, WEAKAURA: true},
+      {id: "raidnaxxramas2", slug: "pve/naxxramas/grand-widow-faerlina", cls:"naxxramas", text: t("warcraft:bosses.15953"), "CLASSIC-WEAKAURA": true, WEAKAURA: true},
+      {id: "raidnaxxramas3", slug: "pve/naxxramas/maexxna", cls:"naxxramas", text: t("warcraft:bosses.15952"), "CLASSIC-WEAKAURA": true, WEAKAURA: true},
+      {id: "raidnaxxramas4", slug: "pve/naxxramas/noth-the-plaguebringer", cls:"naxxramas", text: t("warcraft:bosses.15954"), "CLASSIC-WEAKAURA": true, WEAKAURA: true},
+      {id: "raidnaxxramas5", slug: "pve/naxxramas/heigan-the-unclean", cls:"naxxramas", text: t("warcraft:bosses.15936"), "CLASSIC-WEAKAURA": true, WEAKAURA: true},
+      {id: "raidnaxxramas6", slug: "pve/naxxramas/loatheb", cls:"naxxramas", text: t("warcraft:bosses.16011"), "CLASSIC-WEAKAURA": true, WEAKAURA: true},
+      {id: "raidnaxxramas7", slug: "pve/naxxramas/patchwerk", cls:"naxxramas", text: t("warcraft:bosses.16028"), "CLASSIC-WEAKAURA": true, WEAKAURA: true},
+      {id: "raidnaxxramas8", slug: "pve/naxxramas/grobbulus", cls:"naxxramas", text: t("warcraft:bosses.15931"), "CLASSIC-WEAKAURA": true, WEAKAURA: true},
+      {id: "raidnaxxramas9", slug: "pve/naxxramas/gluth", cls:"naxxramas", text: t("warcraft:bosses.15932"), "CLASSIC-WEAKAURA": true, WEAKAURA: true},
+      {id: "raidnaxxramas10", slug: "pve/naxxramas/thaddius", cls:"naxxramas", text: t("warcraft:bosses.15928"), "CLASSIC-WEAKAURA": true, WEAKAURA: true},
+      {id: "raidnaxxramas11", slug: "pve/naxxramas/instructor-razuvious", cls:"naxxramas", text: t("warcraft:bosses.16061"), "CLASSIC-WEAKAURA": true, WEAKAURA: true},
+      {id: "raidnaxxramas12", slug: "pve/naxxramas/gothik-the-harvester", cls:"naxxramas", text: t("warcraft:bosses.16060"), "CLASSIC-WEAKAURA": true, WEAKAURA: true},
+      {id: "raidnaxxramas13", slug: "pve/naxxramas/the-four-horsemen", cls:"naxxramas", text: t("warcraft:bosses.181366"), "CLASSIC-WEAKAURA": true, WEAKAURA: true},
+      {id: "raidnaxxramas14", slug: "pve/naxxramas/sapphiron", cls:"naxxramas", text: t("warcraft:bosses.15989"), "CLASSIC-WEAKAURA": true, WEAKAURA: true},
+      {id: "raidnaxxramas15", slug: "pve/naxxramas/kel-thuzad", cls:"naxxramas", text: t("warcraft:bosses.15990"), "CLASSIC-WEAKAURA": true, WEAKAURA: true},
 
-      {id: "raidzulgurub", slug: "pve/zul-gurub", cls:"zulgurub", text: t("warcraft:zones.1977"), root: true, prime: false, classic: true, WEAKAURA: true},
-      {id: "raidzulgurub2", slug: "pve/zul-gurub/high-priestess-jeklik", cls:"zulgurub", text: t("warcraft:bosses.14517"), classic: true, WEAKAURA: true},
-      {id: "raidzulgurub1", slug: "pve/zul-gurub/high-priest-venoxis", cls:"zulgurub", text: t("warcraft:bosses.14507"), classic: true, WEAKAURA: true},
-      {id: "raidzulgurub3", slug: "pve/zul-gurub/high-priestess-mar-li", cls:"zulgurub", text: t("warcraft:bosses.14510"), classic: true, WEAKAURA: true},
-      {id: "raidzulgurub6", slug: "pve/zul-gurub/bloodlord-mandokir", cls:"zulgurub", text: t("warcraft:bosses.11382"), classic: true, WEAKAURA: true},
-      {id: "raidzulgurub7", slug: "pve/zul-gurub/edge-of-madness", cls:"zulgurub", text: t("warcraft:bosses.15083"), classic: true, WEAKAURA: true},
-      {id: "raidzulgurub4", slug: "pve/zul-gurub/high-priest-thekal", cls:"zulgurub", text: t("warcraft:bosses.14509"), classic: true, WEAKAURA: true},
-      {id: "raidzulgurub8", slug: "pve/zul-gurub/gahzranka", cls:"zulgurub", text: t("warcraft:bosses.15114"), classic: true, WEAKAURA: true},
-      {id: "raidzulgurub5", slug: "pve/zul-gurub/high-priestess-arlokk", cls:"zulgurub", text: t("warcraft:bosses.14515"), classic: true, WEAKAURA: true},
-      {id: "raidzulgurub9", slug: "pve/zul-gurub/jindo-the-hexer", cls:"zulgurub", text: t("warcraft:bosses.11380"), classic: true, WEAKAURA: true},
-      {id: "raidzulgurub10", slug: "pve/zul-gurub/hakkar", cls:"zulgurub", text: t("warcraft:bosses.14834"), classic: true, WEAKAURA: true},
+      {id: "raidzulgurub", slug: "pve/zul-gurub", cls:"zulgurub", text: t("warcraft:zones.1977"), root: true, prime: false, "CLASSIC-WEAKAURA": true, WEAKAURA: true},
+      {id: "raidzulgurub2", slug: "pve/zul-gurub/high-priestess-jeklik", cls:"zulgurub", text: t("warcraft:bosses.14517"), "CLASSIC-WEAKAURA": true, WEAKAURA: true},
+      {id: "raidzulgurub1", slug: "pve/zul-gurub/high-priest-venoxis", cls:"zulgurub", text: t("warcraft:bosses.14507"), "CLASSIC-WEAKAURA": true, WEAKAURA: true},
+      {id: "raidzulgurub3", slug: "pve/zul-gurub/high-priestess-mar-li", cls:"zulgurub", text: t("warcraft:bosses.14510"), "CLASSIC-WEAKAURA": true, WEAKAURA: true},
+      {id: "raidzulgurub6", slug: "pve/zul-gurub/bloodlord-mandokir", cls:"zulgurub", text: t("warcraft:bosses.11382"), "CLASSIC-WEAKAURA": true, WEAKAURA: true},
+      {id: "raidzulgurub7", slug: "pve/zul-gurub/edge-of-madness", cls:"zulgurub", text: t("warcraft:bosses.15083"), "CLASSIC-WEAKAURA": true, WEAKAURA: true},
+      {id: "raidzulgurub4", slug: "pve/zul-gurub/high-priest-thekal", cls:"zulgurub", text: t("warcraft:bosses.14509"), "CLASSIC-WEAKAURA": true, WEAKAURA: true},
+      {id: "raidzulgurub8", slug: "pve/zul-gurub/gahzranka", cls:"zulgurub", text: t("warcraft:bosses.15114"), "CLASSIC-WEAKAURA": true, WEAKAURA: true},
+      {id: "raidzulgurub5", slug: "pve/zul-gurub/high-priestess-arlokk", cls:"zulgurub", text: t("warcraft:bosses.14515"), "CLASSIC-WEAKAURA": true, WEAKAURA: true},
+      {id: "raidzulgurub9", slug: "pve/zul-gurub/jindo-the-hexer", cls:"zulgurub", text: t("warcraft:bosses.11380"), "CLASSIC-WEAKAURA": true, WEAKAURA: true},
+      {id: "raidzulgurub10", slug: "pve/zul-gurub/hakkar", cls:"zulgurub", text: t("warcraft:bosses.14834"), "CLASSIC-WEAKAURA": true, WEAKAURA: true},
 
-      {id: "raidruinsaq", slug: "pve/ruins-of-ahn-qiraj", cls:"aq20", text: t("warcraft:zones.3429"), root: true, prime: false, classic: true, WEAKAURA: true},
-      {id: "raidruinsaq1", slug: "pve/ruins-of-ahn-qiraj/kurinaxx", cls:"aq20", text: t("warcraft:bosses.15348"), classic: true, WEAKAURA: true},
-      {id: "raidruinsaq2", slug: "pve/ruins-of-ahn-qiraj/general-rajaxx", cls:"aq20", text: t("warcraft:bosses.15341"), classic: true, WEAKAURA: true},
-      {id: "raidruinsaq3", slug: "pve/ruins-of-ahn-qiraj/moam", cls:"aq20", text: t("warcraft:bosses.15340"), classic: true, WEAKAURA: true},
-      {id: "raidruinsaq4", slug: "pve/ruins-of-ahn-qiraj/buru-the-gorger", cls:"aq20", text: t("warcraft:bosses.15370"), classic: true, WEAKAURA: true},
-      {id: "raidruinsaq5", slug: "pve/ruins-of-ahn-qiraj/ayamiss-the-hunter", cls:"aq20", text: t("warcraft:bosses.15369"), classic: true, WEAKAURA: true},
-      {id: "raidruinsaq6", slug: "pve/ruins-of-ahn-qiraj/ossirian-the-unscarred", cls:"aq20", text: t("warcraft:bosses.15339"), classic: true, WEAKAURA: true},
+      {id: "raidruinsaq", slug: "pve/ruins-of-ahn-qiraj", cls:"aq20", text: t("warcraft:zones.3429"), root: true, prime: false, "CLASSIC-WEAKAURA": true, WEAKAURA: true},
+      {id: "raidruinsaq1", slug: "pve/ruins-of-ahn-qiraj/kurinaxx", cls:"aq20", text: t("warcraft:bosses.15348"), "CLASSIC-WEAKAURA": true, WEAKAURA: true},
+      {id: "raidruinsaq2", slug: "pve/ruins-of-ahn-qiraj/general-rajaxx", cls:"aq20", text: t("warcraft:bosses.15341"), "CLASSIC-WEAKAURA": true, WEAKAURA: true},
+      {id: "raidruinsaq3", slug: "pve/ruins-of-ahn-qiraj/moam", cls:"aq20", text: t("warcraft:bosses.15340"), "CLASSIC-WEAKAURA": true, WEAKAURA: true},
+      {id: "raidruinsaq4", slug: "pve/ruins-of-ahn-qiraj/buru-the-gorger", cls:"aq20", text: t("warcraft:bosses.15370"), "CLASSIC-WEAKAURA": true, WEAKAURA: true},
+      {id: "raidruinsaq5", slug: "pve/ruins-of-ahn-qiraj/ayamiss-the-hunter", cls:"aq20", text: t("warcraft:bosses.15369"), "CLASSIC-WEAKAURA": true, WEAKAURA: true},
+      {id: "raidruinsaq6", slug: "pve/ruins-of-ahn-qiraj/ossirian-the-unscarred", cls:"aq20", text: t("warcraft:bosses.15339"), "CLASSIC-WEAKAURA": true, WEAKAURA: true},
     ]
     // add sortVal
     for (var i = 0; i < cats.length; i++) {
@@ -608,11 +608,11 @@ module.exports = {
   },
 
   // make list of classes, then sort them alphabetically for the current locale, then get specs and return
-  classCategories: function (t, isClassic) {
+  classCategories: function (t, addon) {
     var cats = this.categories(t)
     var classes = []
     cats.forEach((cat, key) => {
-      if (cat.root && ((isClassic && cat.classic) || (!isClassic && (typeof cat.prime === 'undefined' || cat.prime))) && cat.id.match(/^cl\d/)) {
+      if (cat.root && cat.id.match(/^cl\d/) && (!addon || cat[addon])) {
         classes.push(cat)
       }
     })
@@ -627,7 +627,7 @@ module.exports = {
     classes.forEach((cls, k) => {
       cls.specs = []
       cats.forEach((cat) => {
-        if (((isClassic && cat.classic) || (!isClassic && (typeof cat.prime === 'undefined' || cat.prime))) && cat.id !== cls.id && (cat.id).indexOf(cls.id + '-') === 0) {
+        if (cat.id !== cls.id && (cat.id).indexOf(cls.id + '-') === 0 && (!addon || cat[addon])) {
           classes[k].specs = classes[k].specs || []
           classes[k].specs.push(cat)
         }
@@ -657,12 +657,12 @@ module.exports = {
     return raids
   },
 
-  professionCategories: function (t, isClassic) {
+  professionCategories: function (t, addon) {
     var gathering = this.getCategories(['prof1'], t)[0]
     var crafting = this.getCategories(['prof5'], t)[0]
     var secondary = this.getCategories(['prof14'], t)[0]
 
-    if (isClassic) {
+    if (addon && addon.match(/CLASSIC/)) {
       gathering.specs = this.getCategories(['prof2', 'prof3', 'prof4'], t)
       crafting.specs = this.getCategories(['prof6', 'prof7', 'prof8', 'prof9', 'prof12', 'prof13'], t)
       secondary.specs = this.getCategories(['prof16', 'prof17', 'prof18'], t)
@@ -676,10 +676,10 @@ module.exports = {
     return [crafting, gathering, secondary]
   },
 
-  rootCategories: function (t, type, isClassic) {
+  rootCategories: function (t, type, addon) {
     var roots = []
     this.categories(t).forEach((cat) => {
-      if (cat.root && (!type || cat[type]) && !cat.noselect && ((isClassic && cat.classic) || (!isClassic && (typeof cat.prime === 'undefined' || cat.prime)))) {
+      if (cat.root && (!type || cat[type]) && !cat.noselect && (!addon || cat[addon])) {
         roots.push(cat)
       }
     })
@@ -726,31 +726,31 @@ module.exports = {
     return systemTags
   },
 
-  getChildren: function (parent, type, t, isClassic) {
+  getChildren: function (parent, type, t, addon) {
     var children = []
     // build regex
     var re = new RegExp(parent.slug.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&") + '/[^/]+$')
     this.categories(t).forEach((cat) => {
-      if (re.exec(cat.slug) && parent.id !== cat.id && !cat.systemtag && (!type || cat[type]) && ((isClassic && cat.classic) || (!isClassic && (typeof cat.prime === 'undefined' || cat.prime)))) {
+      if (re.exec(cat.slug) && parent.id !== cat.id && !cat.systemtag && (!type || cat[type]) && (!addon || cat[addon])) {
         children.push(cat)
       }
     })
     return children
   },
 
-  getCategory: function (id, t, isClassic) {
-    return this.getCategories([id], t, null, isClassic)
+  getCategory: function (id, t, addon) {
+    return this.getCategories([id], t, null, addon)
   },
 
-  getCategories: function (ids, t, doNotSortAlpha, isClassic) {
+  getCategories: function (ids, t, doNotSortAlpha, addon) {
     var cats = this.categories(t)
     var selected = []
     ids.forEach((c) => {
       cats.forEach((cat) => {
-        if (c instanceof RegExp && cat.id.match(c) && ((isClassic && cat.classic) || (!isClassic && (typeof cat.prime === 'undefined' || cat.prime)))) {
+        if (c instanceof RegExp && cat.id.match(c) && (!addon || cat[addon])) {
           selected.push(cat)
         }
-        else if (c == cat.id && ((isClassic && cat.classic) || (!isClassic && (typeof cat.prime === 'undefined' || cat.prime)))) {
+        else if (c == cat.id && (!addon || cat[addon])) {
           selected.push(cat)
         }
       })
@@ -778,8 +778,8 @@ module.exports = {
   },
 
   // returns array of all ids where the text matches the text of the given id
-  getClones: function(id, isClassic) {
-    const base = this.getCategory(id, null, isClassic)[0]
+  getClones: function(id, addon) {
+    const base = this.getCategory(id, null, addon)[0]
     if (!base) {
       console.log('nobase')
       return []
@@ -788,7 +788,7 @@ module.exports = {
     const cats = this.categories(false)
     var clones = []
     cats.forEach((cat) => {
-      if (cat.text === base.text && ((isClassic && cat.classic) || (!isClassic && (typeof cat.prime === 'undefined' || cat.prime)))) {
+      if (cat.text === base.text && (!addon || cat[addon])) {
         clones.push(cat.id)
       }
     })
