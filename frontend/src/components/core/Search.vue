@@ -261,19 +261,6 @@ export default {
         this.uiExpansionValue = true
         this.$store.commit('userSearchOption', {field: 'expansion', value: val})
 
-        if (val === 'classic') {
-          if (this.$route.path.match(/\/bfa\//)) {
-            this.$router.push(this.$route.path.replace(/\/bfa\//, '/classic/'))
-          }
-          else {
-            this.$router.push(this.$route.path.replace(/^\/(\w+)\//, '/$1/classic/'))
-          }
-        }
-        else {
-          if (this.$route.path.match(/\/classic\//)) {
-            this.$router.push(this.$route.path.replace(/\/classic\//, '/'))
-          }
-        }
         if (!noSearch) {
           this.runSearch()
         }
