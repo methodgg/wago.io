@@ -87,10 +87,10 @@
             <div class="md-title">{{ $t("[-count-] star", { count: wago.favoriteCount }) }}</div>
             <div class="md-subhead">{{ $t("[-count-] view", { count: wago.viewCount }) }}</div>
           </div>
-          <div class="item" v-if="wago.type === 'WEAKAURA'">
+          <div class="item" v-if="wago.type.match(/WEAKAURA/)">
             <div class="md-title">{{ $t("[-count-] install", { count: wago.installCount }) }}</div>
           </div>
-          <div class="item" style="float:right" v-if="enableCompanionBeta && wago.type === 'WEAKAURA' && wago.code && wago.code.encoded && !wago.code.alerts.blacklist">
+          <div class="item" style="float:right" v-if="enableCompanionBeta && wago.type.match(/WEAKAURA/) && wago.code && wago.code.encoded && !wago.code.alerts.blacklist">
             <div id="sendToCompanionAppBtn" class="md-button copy-import-button" @click="sendToCompanionApp(true)">
               <md-icon>airplay</md-icon> {{ $t("Send to WeakAura Companion App") }}
             </div>
@@ -666,7 +666,7 @@
               <!-- EDITOR FRAME -->
               <div id="wago-editor-container" class="wago-container" v-if="showPanel=='editor'">
                 <div id="wago-editor">
-                  <edit-weakaura v-if="wago.type=='WEAKAURA' && wago.code" @set-has-unsaved-changes="setHasUnsavedChanges" :unsavedTable="hasUnsavedChanges" @update-encoded="updateEncoded" @update-version="updateVersion"></edit-weakaura>
+                  <edit-weakaura v-if="wago.type.match(/WEAKAURA/) && wago.code" @set-has-unsaved-changes="setHasUnsavedChanges" :unsavedTable="hasUnsavedChanges" @update-encoded="updateEncoded" @update-version="updateVersion"></edit-weakaura>
                   <edit-plater v-else-if="wago.type=='PLATER' && wago.code" @set-has-unsaved-changes="setHasUnsavedChanges" :unsavedTable="hasUnsavedChanges" @update-encoded="updateEncoded" @update-version="updateVersion"></edit-plater>
                   <edit-snippet v-else-if="wago.type=='SNIPPET' && wago.code" @update-version="updateVersion"></edit-snippet>
                   <edit-common v-else-if="wago.code" @set-has-unsaved-changes="setHasUnsavedChanges" @update-encoded="updateEncoded" @update-version="updateVersion"></edit-common>
