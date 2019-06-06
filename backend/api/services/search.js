@@ -142,14 +142,14 @@ module.exports = function (fastify, opts, next) {
 
     if (expansion === 'legion') {
       // less than bfa release date AND does not have bfa beta tag
-      esFilter.push({ bool: { must: [{match: {game: 'bfa'}}, {range: { modified: { lt: "2018-07-17" } } }], must_not: { term: { "categories.keyword": 'beta-bfa' } } } })
+      esFilter.push({ bool: { should: [{bool: {must: [{match: {game: 'bfa'}}, {range: { modified: { lt: "2018-07-17" } } }], must_not: { term: { "categories.keyword": 'beta-bfa'}}}}, {regexp: {"type.keyword": {value: 'CLASSIC-.+'}}}]}})
       expansionFilterIndex = esFilter.length - 1
     }
 
     // if battle for azeroth
     else if (expansion === 'bfa') {
       // greater than bfa release date OR has bfa beta tag
-      esFilter.push({ bool: { should: [{range: { modified: { gte: "2018-07-17" } } }, { term: { "categories.keyword": 'beta-bfa' } }], must: {match: {game: 'bfa'}} }})
+      esFilter.push({ bool: { should: [{bool: {must: [{match: {game: 'bfa'}}, {range: { modified: { gte: "2018-07-17" } } }], must_not: { term: { "categories.keyword": 'beta-bfa'}}}}, {regexp: {"type.keyword": {value: 'CLASSIC-.+'}}}]}})
       expansionFilterIndex = esFilter.length - 1
     }
 
