@@ -1,5 +1,5 @@
 <template>
-  <div id="search-collections">    
+  <div id="search-collections">
     <form novalidate @submit.stop.prevent="runSearch(searchString)" id="searchForm">
       <md-input-container>
         <label>{{ $t("Search") }}</label>
@@ -32,7 +32,7 @@
             </div>
           </md-list-item>
         </md-list>
-        
+
         <md-subheader>{{ $t("Legion PvE") }}</md-subheader>
         <md-list class="md-double-line md-dense">
           <md-list-item v-for="raid in legionRaids" v-bind:key="raid.id" :class="raid.cls + ' md-inset'">
@@ -45,7 +45,7 @@
       </md-layout>
       <md-layout>
         <md-subheader>{{ $t("Miscellaneous") }}</md-subheader>
-        <md-list class="md-double-line md-dense">          
+        <md-list class="md-double-line md-dense">
           <md-list-item class="md-inset roles">
             <category-image group="role"></category-image>
             <div class="md-list-text-container">
@@ -92,18 +92,18 @@
               <router-link :to="'/collections/' + prof.slug">{{ prof.text }}</router-link>
             </div>
           </md-list-item>
-        </md-list>        
+        </md-list>
 
       </md-layout>
       <md-layout>
         <md-subheader>{{ $t("PvP") }}</md-subheader>
         <md-list class="md-double-line md-dense">
-          <md-list-item v-for="item in pvp" v-bind:key="item.id" :class="item.cls + ' md-inset'">
-            <category-image :group="item.cls"></category-image>
+          <md-list-item class="md-inset pvp">
+            <category-image group="pvp-arena"></category-image>
             <div class="md-list-text-container">
-              <router-link :to="'/collections/' + item.slug">{{ item.text }}</router-link>
+              <router-link to="/collections/pvp">{{ $t("PvP") }}</router-link>
               <span>
-                <router-link v-for="zone in item.bosses" v-bind:key="zone.id" :to="'/collections/' + zone.slug">{{ zone.text }}</router-link>
+                <router-link v-for="item in pvp" v-bind:key="item.id" :to="'/collections/' + item.slug">{{ item.text }}</router-link>
               </span>
             </div>
           </md-list-item>
@@ -120,7 +120,7 @@
               </span>
             </div>
           </md-list-item>
-          
+
           <md-list-item class="md-inset snippets">
             <category-image group="snippets"></category-image>
             <div class="md-list-text-container">
@@ -185,7 +185,7 @@ export default {
       return categories.getCategories(['role4', 'role1', 'role2', 'role3'], this.$t)
     },
     pvp: function () {
-      return categories.raidCategories(['arena', 'bg', 'wpvp'], this.$t)
+      return categories.getCategories([/^(arena|bg|wpvp1?)$/], this.$t, null)
     },
     mechanics: function () {
       return categories.getCategories([/^mech[\d]+/], this.$t)
