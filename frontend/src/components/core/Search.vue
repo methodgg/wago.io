@@ -234,7 +234,6 @@ export default {
       }
     },
     setImportType: function (val) {
-      console.log(val)
       const re = new RegExp('type:\\s' + val, 'i')
       if (val && this.searchString.match(re)) {
         return

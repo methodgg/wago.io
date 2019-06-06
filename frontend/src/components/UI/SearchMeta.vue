@@ -173,7 +173,6 @@ export default {
     hasExpansions: function () {
       for (var i = 0; i < this.meta.length; i++) {
         if (this.meta[i].type === 'type') {
-          this.typeVal = this.meta[i].wagoType
           if (this.meta[i].wagoType.match(/CLASSIC-/)) {
             return false
           }
@@ -208,6 +207,7 @@ export default {
         COLLECTION: 'Collection',
         SNIPPET: 'Snippet'
       }
+      console.log('set to', types[val] || '')
       this.$emit('setImportType', types[val] || '')
     }
   },
