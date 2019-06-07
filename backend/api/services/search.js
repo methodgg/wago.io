@@ -149,7 +149,7 @@ module.exports = function (fastify, opts, next) {
     // if battle for azeroth
     else if (expansion === 'bfa') {
       // greater than bfa release date OR has bfa beta tag
-      esFilter.push({ bool: { should: [{bool: {must: [{match: {game: 'bfa'}}, {range: { modified: { gte: "2018-07-17" } } }], must_not: { term: { "categories.keyword": 'beta-bfa'}}}}, {regexp: {"type.keyword": {value: 'CLASSIC-.+'}}}]}})
+      esFilter.push({ bool: { should: [{bool: {must: [{match: {game: 'bfa'}}, {range: { modified: { gte: "2018-07-17" } } }]}}, {regexp: {"type.keyword": {value: 'CLASSIC-.+'}}}]}})
       expansionFilterIndex = esFilter.length - 1
     }
 
