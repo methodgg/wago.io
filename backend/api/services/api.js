@@ -30,7 +30,7 @@ module.exports = function (fastify, opts, next) {
 
     var ids = req.query.ids.split(',').slice(0, 200)
     var wagos = []
-    var docs = await WagoItem.find({'$or' : [{_id: ids}, {custom_slug: ids}], deleted: false, type: 'WEAKAURAS2'}).populate('_userId').exec()
+    var docs = await WagoItem.find({'$and': [{'$or' : [{_id: ids}, {custom_slug: ids}]}, {'$or': [{type: 'WEAKAURAS2'}, {type:'CLASSIC-WEAKAURA'}]}], deleted: false}).populate('_userId').exec()
     await Promise.all(docs.map(async (doc) => {
       if (doc.private && (!req.user || !req.user._id.equals(doc._userId._id))) {
         return
