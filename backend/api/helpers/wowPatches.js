@@ -25,14 +25,11 @@ var patches = [
 ]
 
 module.exports = {
-  patchByDate: function (strDate, game) {
+  patchByDate: function (strDate, isClassic) {
     var date = moment(strDate)
 
     for (var i=0; i < patches.length; i++) {
-      if (game === 'classic' && patches[i].classic) {
-        return patches[i].patch
-      }
-      else if (date.isAfter(patches[i].date)) {
+      if (date.isAfter(patches[i].date) && ((isClassic && patches[i].classic) || (!isClassic && !patches[i].classic))) {
         return patches[i].patch
       }
     }
