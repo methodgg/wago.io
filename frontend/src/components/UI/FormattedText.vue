@@ -54,11 +54,12 @@ export default {
         const regexes = [
           {re: /(\.\.\.)?[\w@_\\.\-()]+\\/, class: 'error-filepath'},
           {re: /[\w@_\\.\-()]+\.lua/, class: 'error-filename'},
+          {re: /^Time:(.*?\d+ \d{4})$/, class: 'error-keyvar', replace: (s) => {return `Time: <span class="error-keyvar">${s.slice(5)}</span>`}}, // eslint-disable-line
           {re: /:(\d+)/, class: 'error-linenum', replace: (s) => {return `:<span class="error-linenum">${s.slice(1)}</span>`}}, // eslint-disable-line
           {re: /[\b\s[:](nil|Infinite|&lt;([a-z]+)&gt;|\d+\.?\d?)[\b\s:\]]/, class: 'error-keyvar'},
           {re: /&quot;[^<>]*?&quot;/, class: 'error-quoted'},
           {re: /(`|').*?'/, class: 'error-quoted'},
-           {re: /^([^\s]+) =/, class: 'error-assignment', replace: (s) => {return `<span class="error-assignment">${s.slice(0, -2)}</span> =`}}, // eslint-disable-line
+          {re: /^([^\s]+) =/, class: 'error-assignment', replace: (s) => {return `<span class="error-assignment">${s.slice(0, -2)}</span> =`}}, // eslint-disable-line
         ]
         const regexString = new RegExp(regexes.map(a => a.re.source).join('|'), 'gm')
         let m
