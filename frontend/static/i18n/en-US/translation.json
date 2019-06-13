@@ -599,5 +599,7 @@
   "Also Grant Access To": "",
   "Classic PvE": "",
   "Select Rank(s)": "",
-  "Guild Leader": ""
+  "Guild Leader": "",
+  "This WeakAura is made with build \"[-version-]\", which may include breaking changes with the current main addon release": "",
+  "Import Type": ""
 }

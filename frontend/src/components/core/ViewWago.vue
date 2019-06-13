@@ -156,17 +156,19 @@
             <md-layout id="wago-tabs" v-bind:class="{'md-hide-xsmall': hideTabs}">
               <!-- FRAME TOGGLES -->
               <md-button-toggle class="md-accent" md-single>
-                <md-button v-bind:class="{'md-toggle': showPanel === 'config'}" v-if="wago.user && User && wago.UID && wago.UID === User.UID" @click="toggleFrame('config')">{{ $t("Config") }}</md-button>
-                <md-button v-bind:class="{'md-toggle': showPanel === 'description'}" @click="toggleFrame('description')">{{ $t("Description") }}</md-button>
+                <md-button v-if="wago.user && User && wago.UID && wago.UID === User.UID" v-bind:class="{'md-toggle': showPanel === 'config'}" @click="toggleFrame('config')">{{ $t("Config") }}</md-button>
+                <md-button v-if="wago.type == 'ERROR'" v-bind:class="{'md-toggle': showPanel === 'description'}" @click="toggleFrame('description')">{{ $t("Report") }}</md-button>
+                <md-button v-if="wago.type !== 'ERROR'" v-bind:class="{'md-toggle': showPanel === 'description'}" @click="toggleFrame('description')">{{ $t("Description") }}</md-button>
+                <md-button v-if="wago.referrals" v-bind:class="{'md-toggle': showPanel === 'referrals'}" @click="toggleFrame('referrals')">{{ $t("External Links") }}</md-button>
                 <md-button v-if="(User && User.access && User.access.beta && wago && wago.attachedMedia && wago.attachedMedia.length)" v-bind:class="{'md-toggle': showPanel === 'media'}" @click="toggleFrame('media')">{{ $t("Media") }} [Beta]</md-button>
-                <md-button v-bind:class="{'md-toggle': showPanel === 'includedauras'}" @click="toggleFrame('includedauras')" v-if="wago.type === 'WEAKAURA'">{{ $t("Included Auras") }}</md-button>
+                <md-button v-if="wago.type === 'WEAKAURA'" v-bind:class="{'md-toggle': showPanel === 'includedauras'}" @click="toggleFrame('includedauras')">{{ $t("Included Auras") }}</md-button>
                 <md-button v-bind:class="{'md-toggle': showPanel === 'comments'}" @click="toggleFrame('comments')"><span v-if="hasUnreadComments && showPanel !== 'comments'" class="commentAttn">{{$t("NEW")}}!! </span>{{ $t("[-count-] comment", {count: wago.commentCount }) }}</md-button>
-                <md-button v-bind:class="{'md-toggle': showPanel === 'collections'}" v-if="wago.type !== 'COLLECTION'" @click="toggleFrame('collections')">{{ $t("[-count-] collection", {count:  wago.collectionCount}) }}</md-button>
-                <md-button v-bind:class="{'md-toggle': showPanel === 'versions'}" v-if="wago.versions && wago.versions.total > 1" @click="toggleFrame('versions')" ref="versionsButton">{{ $t("[-count-] version", { count: wago.versions.total }) }}</md-button>
-                <md-button v-bind:class="{'md-toggle': showPanel === 'diffs'}" v-if="hasCodeDiffs" @click="toggleFrame('diffs')" ref="diffsButton">{{ $t("Code Diffs") }}</md-button>
-                <md-button v-bind:class="{'md-toggle': showPanel === 'embed'}" @click="toggleFrame('embed')">{{ $t("Embed") }}</md-button>
-                <md-button v-bind:class="{'md-toggle': showPanel === 'builder'}" v-if="wago.type === 'MDT'" @click="toggleFrame('builder')">{{ $t("Builder") }}</md-button>
-                <md-button v-bind:class="{'md-toggle': showPanel === 'editor'}" @click="toggleFrame('editor')">{{ $t("Editor") }}</md-button>
+                <md-button v-if="wago.type !== 'COLLECTION'" v-bind:class="{'md-toggle': showPanel === 'collections'}" @click="toggleFrame('collections')">{{ $t("[-count-] collection", {count:  wago.collectionCount}) }}</md-button>
+                <md-button v-if="wago.versions && wago.versions.total > 1" v-bind:class="{'md-toggle': showPanel === 'versions'}" @click="toggleFrame('versions')" ref="versionsButton">{{ $t("[-count-] version", { count: wago.versions.total }) }}</md-button>
+                <md-button v-if="hasCodeDiffs" v-bind:class="{'md-toggle': showPanel === 'diffs'}" @click="toggleFrame('diffs')" ref="diffsButton">{{ $t("Code Diffs") }}</md-button>
+                <md-button v-if="wago.type !== 'ERROR'" v-bind:class="{'md-toggle': showPanel === 'embed'}" @click="toggleFrame('embed')">{{ $t("Embed") }}</md-button>
+                <md-button v-if="wago.type === 'MDT'" v-bind:class="{'md-toggle': showPanel === 'builder'}" @click="toggleFrame('builder')">{{ $t("Builder") }}</md-button>
+                <md-button v-if="wago.type !== 'ERROR'" v-bind:class="{'md-toggle': showPanel === 'editor'}" @click="toggleFrame('editor')">{{ $t("Editor") }}</md-button>
               </md-button-toggle>
 
               <ui-image v-if="wago.image" :img="wago.image.files" class="wago-media"></ui-image>
@@ -397,8 +399,37 @@
                     <div>v{{ wago.code.versionString }}</div>
                     <formatted-text :text="wago.code.changelog" :enableLinks="wago.user.enableLinks"></formatted-text>
                   </div>
-                  <formatted-text :text="wago.description.text && wago.description.text.length ? wago.description : {text: $t('No description for this import has been provided')}" :enableLinks="wago.user.enableLinks"></formatted-text>
+                  <formatted-text v-if="wago.type !== 'ERROR' || wago.description.text" :text="wago.description.text && wago.description.text.length ? wago.description : {text: $t('No description for this import has been provided')}" :enableLinks="wago.user.enableLinks"></formatted-text>
+                  <formatted-text v-if="wago.type === 'ERROR' && wago.code" :text="wago.errorReport" id="errorReport"></formatted-text>
                 </div>
+              </div>
+
+              <!-- REFERRALS FRAME -->
+              <div id="wago-versions-container" class="wago-container" v-if="showPanel=='referrals'">
+                <p>{{ $t("External linked clicked through to this page") }}</p>
+                <md-card id="wago-referrals">
+                  <md-table>
+                    <md-table-header>
+                      <md-table-row>
+                        <md-table-head>{{ $t("URL") }}</md-table-head>
+                        <md-table-head class="md-end">{{ $t("Clicks") }}</md-table-head>
+                      </md-table-row>
+                    </md-table-header>
+
+                    <md-table-body>
+                      <template v-for="(ref, key) in wago.referrals">
+                        <md-table-row>
+                          <md-table-cell>
+                            <a :href="ref.url" target="_blank">{{ ref.url }}</a>
+                          </md-table-cell>
+                          <md-table-cell class="md-end">
+                            {{ ref.count  }}
+                          </md-table-cell>
+                        </md-table-row>
+                      </template>
+                    </md-table-body>
+                  </md-table>
+                </md-card>
               </div>
 
               <!-- INCLUDED MEDIA FRAME -->
@@ -1205,9 +1236,12 @@ export default {
               code.json = JSON.stringify(code.obj, null, 2)
             }
             res.code = code
-            // TODO: make this better
             this.$store.commit('setWago', res)
-            var dummyForceReload = this.wago.code // eslint-disable-line no-unused-vars
+            this.$set(this.wago, 'code', code)
+
+            if (this.wago.type === 'ERROR') {
+              this.$set(this.wago, 'errorReport', {format: 'error', text: this.wago.code.text})
+            }
 
             if (code && code.versionString) {
               this.currentVersionString = code.versionString
@@ -1244,7 +1278,10 @@ export default {
         this.editDesc = res.description.text
         this.updateDescFormat = res.description.format || this.$store.state.user.defaultEditorSyntax
 
-        if (!this.wago.description.text && (this.wago.type === 'WEAKAURA' || this.wago.type === 'PLATER')) {
+        if (this.wago.type === 'SNIPPET') {
+          this.showPanel = 'editor'
+        }
+        else if (!this.wago.description.text && (this.wago.type === 'WEAKAURA' || this.wago.type === 'CLASSIC-WEAKAURA' || this.wago.type === 'PLATER')) {
           this.showPanel = 'editor'
         }
         else if (!this.wago.description.text && this.wago.type === 'MDT') {
@@ -2211,6 +2248,8 @@ a.showvid:hover:before  .md-icon { opacity:1 }
 #embed-inputs .md-select { max-width: 200px}
 #embed-inputs .md-has-select.md-input-container {margin-bottom:0}
 #embed-inputs .md-has-select.md-input-container:after {height:0}
+
+.md-table .md-table-head.md-end, .md-table .md-table-cell.md-end .md-table-cell-container { text-align: right; justify-content: flex-end }
 
 
 #wago-collections .md-avatar { margin: 0 16px 0 0 }

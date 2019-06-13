@@ -343,6 +343,7 @@ axios.interceptors.response.use(function (response) {
   return response
 })
 
+var refSent = false
 // setup http fetch helper
 const http = {
   install: function (Vue, options) {
@@ -364,10 +365,10 @@ const http = {
 
       get: function (url, params) {
         // add referer for analytics
-        if (document.referer && !document.referer.match(/^https:\/\/wago.io/) && !url.match(/^\/account\//)) {
+        if (!refSent && document.referrer && !document.referrer.match(/^https:\/\/wago.io/) && !url.match(/^\/account\//)) {
           params = params || {}
-          params._ref = document.referer
-          document.referer = null
+          params._ref = document.referrer
+          refSent = true
         }
 
         // prepend API server

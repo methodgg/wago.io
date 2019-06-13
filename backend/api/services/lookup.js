@@ -128,6 +128,29 @@ module.exports = function (fastify, opts, next) {
     wago.UID = doc._userId
     wago.alerts = {}
 
+    if (req.query._ref && !req.query._ref.match(/^https:\/\/wago.io/)) {
+      var foundRef = false
+      if (doc.type === 'ERROR' && doc.expires_at) {
+        doc.expires_at = null
+        wago.expires = null
+      }
+      for (let i = 0; i < doc.referrals.length; i++) {
+        if (doc.referrals[i].url === req.query._ref) {
+          doc.referrals[i].count++
+          foundRef = true
+          break
+        }
+      }
+      if (!foundRef) {
+        doc.referrals.push({url: req.query._ref, count: 1})
+      }
+      saveDoc = true
+    }
+
+    if (doc.type === 'ERROR' || (req.user && req.user._id === wago.UID && req.user.access.referrals)) {
+      wago.referrals = doc.referrals
+    }
+
     const getUser = async () => {
       if (!wago.UID) {
         wago.user = {
@@ -476,6 +499,9 @@ module.exports = function (fastify, opts, next) {
       wagoCode.version = code.version
       wagoCode.versionString = versionString
       wagoCode.changelog = code.changelog
+    }
+    else if (doc.type === 'ERROR') {
+      wagoCode.text = code.encoded
     }
     else if (doc.type === 'WEAKAURAS2') {
       var json = JSON.parse(code.json)

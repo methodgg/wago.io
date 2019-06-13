@@ -308,6 +308,12 @@ module.exports = function (fastify, opts, next) {
       return res.send({scan: scanDoc._id.toString(), type: 'Vuhdo', name: name})
     }
 
+    if (req.body.importString.match(commonRegex.LuaError)) {
+      scan.type = 'ERROR'
+      const scanDoc = await scan.save()
+      return res.send({scan: scanDoc._id.toString(), type: 'Lua Error', name: 'Error Report'})
+    }
+
     if (req.body.importString.match(commonRegex.LuaKeyWord)) {
       scan.type = 'SNIPPET'
       const scanDoc = await scan.save()

@@ -26,6 +26,7 @@
             <md-option value="CLASSIC-WEAKAURA">Classic WeakAura</md-option>
             <md-option value="COLLECTION">Collection</md-option>
             <md-option value="SNIPPET">Snippet</md-option>
+            <md-option value="ERROR">Error Log</md-option>
           </md-select>
         </md-input-container>
 
@@ -205,9 +206,9 @@ export default {
         WEAKAURAS2: 'WeakAura',
         'CLASSIC-WEAKAURA': 'Classic-WeakAura',
         COLLECTION: 'Collection',
-        SNIPPET: 'Snippet'
+        SNIPPET: 'Snippet',
+        ERROR: 'Error'
       }
-      console.log('set to', types[val] || '')
       this.$emit('setImportType', types[val] || '')
     }
   },

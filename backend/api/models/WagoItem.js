@@ -48,6 +48,10 @@ const Schema = new mongoose.Schema({
       comments_count : { type: Number, default: 0, index: true, es_indexed: true }
   },
 
+  referrals : [
+    {url: String, count: { type: Number, default: 0}}
+  ],
+
   latestVersion : {
     versionString : String,
     iteration: Number,

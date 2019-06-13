@@ -248,6 +248,12 @@ Schema.virtual('access.animatedAvatar').get(function() {
 
   return false
 })
+Schema.virtual('access.referrals').get(function() {
+  if (this.roles.isAdmin.access) return true
+  if (this.roles.subscriber || this.roles.gold_subscriber || this.roles.pro_subscriber || this.roles.ambassador || this.roles.developer || this.roles.artContestWinnerAug2018) return true
+
+  return false
+})
 Schema.virtual('access.beta').get(function() {
   if (this.roles.isAdmin.access) return true
   if (this.roles.subscriber || this.roles.gold_subscriber || this.roles.pro_subscriber || this.roles.ambassador || this.roles.developer  || this.roles.artContestWinnerAug2018) return true

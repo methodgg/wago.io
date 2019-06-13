@@ -166,7 +166,7 @@ module.exports = function (fastify, opts, next) {
 
     // check for import type
     var game = 'wow'
-    match = /\btype:\s*"?(classic-weakaura|weakauras?2?|elvui|vuhdo|totalrp3?|collection|snippet|plater|mdt|encounternotes|image|audio)"?/i.exec(query)
+    match = /\btype:\s*"?(classic-weakaura|weakauras?2?|elvui|vuhdo|totalrp3?|collection|snippet|plater|mdt|encounternotes|image|audio|error)"?/i.exec(query)
     if (match) {
       query = query.replace(match[0], '').replace(/\s{2,}/, ' ').trim()
       match[1] = match[1].toUpperCase()
@@ -188,7 +188,10 @@ module.exports = function (fastify, opts, next) {
         wagoType: match[1]==='WEAKAURAS2' && 'WEAKAURA' || match[1],
         image: '/media/wagotypes/' + match[1] + '.png'
       })
-      esFilter.push({ term: { "type.keyword": match[1] } })
+      esFilter.push({ term: { 'type.keyword': match[1] } })
+    }
+    else {
+      esFilter.push({ bool: { must_not: { term: { 'type.keyword': 'ERROR'}}}})
     }
 
     // check for date range
