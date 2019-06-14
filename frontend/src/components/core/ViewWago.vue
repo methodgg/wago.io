@@ -1259,7 +1259,6 @@ export default {
               this.$set(this.wago, 'errorReport', [{format: 'error', text: this.wago.code.text.trim() + '\n'}])
             }
             else if (this.wago.type === 'ERROR' && this.wago.code.obj) {
-              code.obj = code.obj.splice(0, 100)
               var errs = []
               code.obj.forEach(e => {
                 errs.push({format: 'error', text: `${e.message}\nTime:${e.time}\nCount: ${e.counter}\nStack: ${e.stack}\n\nLocals: ${e.locals || '<none>'}\n`})

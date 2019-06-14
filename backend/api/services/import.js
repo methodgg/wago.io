@@ -313,8 +313,12 @@ module.exports = function (fastify, opts, next) {
       return res.send({scan: scanDoc._id.toString(), type: 'Vuhdo', name: name})
     }
 
-    if (test.BUGSACK && decoded.obj) {
+    if (test.BUGSACK && decoded.obj && Array.isArray(decoded.obj)) {
       scan.type = 'ERROR'
+      if (decoded.obj.length > 25) {
+        // if more than 25 then just take the most recent 25
+        scan.decoded = JSON.stringify(decoded.obj.splice(-25))
+      }
       const scanDoc = await scan.save()
       return res.send({scan: scanDoc._id.toString(), type: 'Lua Error', name: 'Error Reports'})
     }
