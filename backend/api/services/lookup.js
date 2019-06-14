@@ -463,7 +463,7 @@ module.exports = function (fastify, opts, next) {
     var wagoCode = {alerts: {}}
 
     // check for alerts
-    if (code.json) {
+    if (doc.type !== 'ERROR' && code.json) {
       const json = JSON.parse(code.json)
       if (json.c) {
         for (let i = 0; i < json.c.length; i++) {
@@ -501,7 +501,12 @@ module.exports = function (fastify, opts, next) {
       wagoCode.changelog = code.changelog
     }
     else if (doc.type === 'ERROR') {
-      wagoCode.text = code.encoded
+      if (code.json) {
+        wagoCode.json = code.json
+      }
+      else {
+        wagoCode.text = code.text
+      }
     }
     else if (doc.type === 'WEAKAURAS2') {
       var json = JSON.parse(code.json)

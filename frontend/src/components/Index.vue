@@ -63,7 +63,7 @@
             </md-layout>
           </md-layout>
 
-          <div v-if="scanID">
+          <div v-if="scanID && type !== 'Lua Error'">
             <label id="categoryLabel">{{ $t("Categories") }}</label>
             <md-button class="md-icon-button md-raised" @click="numCategorySets++">
               <md-icon>add</md-icon>

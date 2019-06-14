@@ -159,7 +159,7 @@
                 <md-button v-if="wago.user && User && wago.UID && wago.UID === User.UID" v-bind:class="{'md-toggle': showPanel === 'config'}" @click="toggleFrame('config')">{{ $t("Config") }}</md-button>
                 <md-button v-if="wago.type == 'ERROR'" v-bind:class="{'md-toggle': showPanel === 'description'}" @click="toggleFrame('description')">{{ $t("Report") }}</md-button>
                 <md-button v-if="wago.type !== 'ERROR'" v-bind:class="{'md-toggle': showPanel === 'description'}" @click="toggleFrame('description')">{{ $t("Description") }}</md-button>
-                <md-button v-if="wago.referrals" v-bind:class="{'md-toggle': showPanel === 'referrals'}" @click="toggleFrame('referrals')">{{ $t("External Links") }}</md-button>
+                <md-button v-if="wago.referrals && wago.referrals.length" v-bind:class="{'md-toggle': showPanel === 'referrals'}" @click="toggleFrame('referrals')">{{ $t("External Links") }}</md-button>
                 <md-button v-if="(User && User.access && User.access.beta && wago && wago.attachedMedia && wago.attachedMedia.length)" v-bind:class="{'md-toggle': showPanel === 'media'}" @click="toggleFrame('media')">{{ $t("Media") }} [Beta]</md-button>
                 <md-button v-if="wago.type === 'WEAKAURA'" v-bind:class="{'md-toggle': showPanel === 'includedauras'}" @click="toggleFrame('includedauras')">{{ $t("Included Auras") }}</md-button>
                 <md-button v-bind:class="{'md-toggle': showPanel === 'comments'}" @click="toggleFrame('comments')"><span v-if="hasUnreadComments && showPanel !== 'comments'" class="commentAttn">{{$t("NEW")}}!! </span>{{ $t("[-count-] comment", {count: wago.commentCount }) }}</md-button>
@@ -324,7 +324,7 @@
                       </md-layout>
                     </md-layout>
                   </div>
-                  <div v-if="!wago.image && !wago.audio">
+                  <div v-if="!wago.image && !wago.audio && wago.type !== 'ERROR'">
                     <div>
                       <label id="categoryLabel">{{ $t("Categories") }}</label>
                       <md-button class="md-icon-button md-raised" @click="numCategorySets++">
@@ -400,7 +400,22 @@
                     <formatted-text :text="wago.code.changelog" :enableLinks="wago.user.enableLinks"></formatted-text>
                   </div>
                   <formatted-text v-if="wago.type !== 'ERROR' || wago.description.text" :text="wago.description.text && wago.description.text.length ? wago.description : {text: $t('No description for this import has been provided')}" :enableLinks="wago.user.enableLinks"></formatted-text>
-                  <formatted-text v-if="wago.type === 'ERROR' && wago.code" :text="wago.errorReport" id="errorReport"></formatted-text>
+                  <template v-if="wago.type === 'ERROR' && wago.errorReport && wago.errorReport.length > 1">
+                    <md-tabs @change="selectError">
+                      <md-tab v-for="(error, key) in wago.errorReport" :md-label="key + 1" :key="key" :id="'err' + (key + 1)" :md-active="selectedError === key + 1">
+                        <ui-warning v-if="error.text.match(/ADDON_ACTION_BLOCKED/)" mode="alert">
+                          {{ $t("ADDON_ACTION_BLOCKED usually refers to addon taint and the stack detailed below is probably not the cause of this error") }}
+                        </ui-warning>
+                        <formatted-text :text="error"></formatted-text>
+                      </md-tab>
+                    </md-tabs>
+                  </template>
+                  <template v-else-if="wago.type === 'ERROR' && wago.errorReport && wago.errorReport.length === 1">
+                    <ui-warning v-if="wago.errorReport[0].text.match(/ADDON_ACTION_BLOCKED/)" mode="alert">
+                      {{ $t("ADDON_ACTION_BLOCKED usually refers to addon taint and the stack detailed below is probably not the cause of this error") }}
+                    </ui-warning>
+                    <formatted-text :text="wago.errorReport[0]"></formatted-text>
+                  </template>
                 </div>
               </div>
 
@@ -909,6 +924,7 @@ export default {
       pasteURLUploading: false,
       uploadImages: '',
       uploadFileProgress: [],
+      selectedError: 1,
       currentVersionString: '',
       currentVersion: {},
       latestVersion: {},
@@ -1239,8 +1255,16 @@ export default {
             this.$store.commit('setWago', res)
             this.$set(this.wago, 'code', code)
 
-            if (this.wago.type === 'ERROR') {
-              this.$set(this.wago, 'errorReport', {format: 'error', text: this.wago.code.text})
+            if (this.wago.type === 'ERROR' && this.wago.code.text) {
+              this.$set(this.wago, 'errorReport', [{format: 'error', text: this.wago.code.text.trim() + '\n'}])
+            }
+            else if (this.wago.type === 'ERROR' && this.wago.code.obj) {
+              code.obj = code.obj.splice(0, 100)
+              var errs = []
+              code.obj.forEach(e => {
+                errs.push({format: 'error', text: `${e.message}\nTime:${e.time}\nCount: ${e.counter}\nStack: ${e.stack}\n\nLocals: ${e.locals || '<none>'}\n`})
+              })
+              this.$set(this.wago, 'errorReport', errs)
             }
 
             if (code && code.versionString) {
@@ -1606,6 +1630,23 @@ export default {
       catch (d) {
         return document.body.removeChild(n)
       }
+    },
+
+    selectError (k) {
+      this.doNotReloadWago = true
+      window.preventScroll = true
+      this.selectedError = k + 1
+      if (k) {
+        this.$router.replace('/' + this.editSlug + '#' + this.selectedError)
+      }
+      else {
+        this.$router.replace('/' + this.editSlug)
+      }
+      var vue = this
+      setTimeout(function () {
+        vue.doNotReloadWago = false
+        window.preventScroll = undefined
+      }, 600)
     },
 
     onUpdateName () {
@@ -2145,6 +2186,11 @@ export default {
 
     autoCompleteUserName: function (q) {
       return this.http.get('/search/username', {name: q.q})
+    }
+  },
+  mounted: function () {
+    if (window.location.hash && parseInt(window.location.hash.replace(/#/, ''))) {
+      this.selectedError = parseInt(window.location.hash.replace(/#/, ''))
     }
   }
 }

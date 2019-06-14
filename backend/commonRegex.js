@@ -4,6 +4,7 @@ module.exports = {
   LuaError: /\.lua:\d+:/,
   LuaKeyWord: /\b(and|break|do|else|elseif|end|false|for|if|in|local|nil|not|repeat|return|then|true|until|while|_G|_VERSION|getfenv|getmetatable|ipairs|load|module|next|pairs|pcall|print|rawequal|rawget|rawset|select|setfenv|setmetatable|tonumber|tostring|type|unpack|xpcall|coroutine|debug|math|package|string|table|SetAttribute|SetAllPoints|CreateFrame|unit|player|target)\b.*\s/,
   RegexPasteBinLink: /^https?:\/\/pastebin.com\/([\w]+)$/,
+  looksLikeBugSack: /^!BugSack![a-zA-Z0-9\(\)]*$/,
   looksLikeDeflate: /^[a-zA-Z0-9\(\)]*$/,
   looksLikeElvUI: /^[a-zA-Z0-9=\+\/]*$/,
   looksLikeGrid: /^\[=== (.*) profile ===\]\n[ABCDEF0-9\n]+\n\[===/m,

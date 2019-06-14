@@ -60,6 +60,11 @@ module.exports = function (fastify, opts, next) {
           test.DEFLATE = true
         }
       }
+      if (req.body.importString.match(commonRegex.looksLikeBugSack)) {
+        req.body.importString = req.body.importString.replace(/^!BugSack!/, '')
+        test.BUGSACK = true
+        test.DEFLATE = true
+      }
     }
 
     var decoded = null
@@ -308,6 +313,12 @@ module.exports = function (fastify, opts, next) {
       return res.send({scan: scanDoc._id.toString(), type: 'Vuhdo', name: name})
     }
 
+    if (test.BUGSACK && decoded.obj) {
+      scan.type = 'ERROR'
+      const scanDoc = await scan.save()
+      return res.send({scan: scanDoc._id.toString(), type: 'Lua Error', name: 'Error Reports'})
+    }
+
     if (req.body.importString.match(commonRegex.LuaError)) {
       scan.type = 'ERROR'
       const scanDoc = await scan.save()
@@ -499,6 +510,16 @@ module.exports = function (fastify, opts, next) {
     var code = new WagoCode({auraID: doc._id})
     if (wago.type === 'SNIPPET') {
       code.lua = scan.input
+    }
+    else if (wago.type === 'ERROR') {
+      if (scan.decoded) {
+        code.json = scan.decoded
+      }
+      else {
+        code.text = scan.input
+      }
+      console.log(Object.keys(scan))
+      console.log(code)
     }
     else {
       code.encoded = scan.input

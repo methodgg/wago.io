@@ -52,11 +52,12 @@ export default {
 
       else if (this.text.format === 'error') {
         const regexes = [
-          {re: /(\.\.\.)?[\w@_\\.\-()]+\\/, class: 'error-filepath'},
-          {re: /[\w@_\\.\-()]+\.lua/, class: 'error-filename'},
-          {re: /^Time:(.*?\d+ \d{4})$/, class: 'error-keyvar', replace: (s) => {return `Time: <span class="error-keyvar">${s.slice(5)}</span>`}}, // eslint-disable-line
+          {re: /(\.\.\.)?[!\w@_\\.\-()]+\\/, class: 'error-filepath'},
+          {re: /[^\\]+?\.lua/, class: 'error-filename'},
+          {re: /^Time:.*$/, class: 'error-keyvar', replace: (s) => {return `Time: <span class="error-keyvar">${s.slice(5)}</span>`}}, // eslint-disable-line
           {re: /:(\d+)/, class: 'error-linenum', replace: (s) => {return `:<span class="error-linenum">${s.slice(1)}</span>`}}, // eslint-disable-line
-          {re: /[\b\s[:](nil|Infinite|&lt;([a-z]+)&gt;|\d+\.?\d?)[\b\s:\]]/, class: 'error-keyvar'},
+          {re: /ADDON_ACTION_BLOCKED/, class: 'error-warning'},
+          {re: /[\b\s[:](nil|Infinite|&lt;[a-z]+&gt;|\d+\.?\d?)[\b\s:\]]/, class: 'error-keyvar'},
           {re: /&quot;[^<>]*?&quot;/, class: 'error-quoted'},
           {re: /(`|').*?'/, class: 'error-quoted'},
           {re: /^([^\s]+) =/, class: 'error-assignment', replace: (s) => {return `<span class="error-assignment">${s.slice(0, -2)}</span> =`}}, // eslint-disable-line
@@ -89,7 +90,7 @@ export default {
             }
           }
         }
-        return html
+        return `<div class="error-report">${html}</div>`
       }
 
       else {
@@ -127,15 +128,25 @@ export default {
 .noFormat img, .noFormat table {
   display: none!important;
 }
+.usertext { margin-bottom: 1em}
 .usertext.bbcode ol, .usertext.bbcode ul { margin: 0}
 .usertext.bbcode ol, .usertext.bbcode ul, .usertext.bbcode li { white-space: normal}
 
-#errorReport { white-space: pre; }
+.error-report { white-space: pre; }
 .error-filepath { color: #25c7fe;}
 .error-filename { color: #95c7fe; font-weight: bold}
 .error-linenum { color: #56f442; font-weight: bold}
 .error-keyvar { color: #DCBB8a}
+.error-warning { color: #C1272D; font-weight: bold}
 .error-quoted { color: #10A810}
 .error-assignment { color: #FFA500}
+
+#wago-description .md-tabs .md-tabs-navigation { height: auto; }
+#wago-description .md-tabs .md-tabs-wrapper {transition: none}
+#wago-description .md-tabs .md-tabs-navigation-scroll-container {flex-wrap: wrap}
+#wago-description .md-tabs .warning {margin-left: 0; margin-bottom: 1em}
+#wago-description .md-theme-default.md-tabs>.md-tabs-navigation .md-tab-indicator {display: none}
+#wago-description .md-theme-default.md-tabs>.md-tabs-navigation .md-tab-header.md-active, #wago-description .md-theme-default.md-tabs>.md-tabs-navigation .md-tab-header:focus {background: #d7373d}
+#wago-description .md-theme-default.md-tabs>.md-tabs-navigation .md-tab-header:hover {color: white}
 </style>
 
