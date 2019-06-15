@@ -601,5 +601,11 @@
   "Select Rank(s)": "",
   "Guild Leader": "",
   "This WeakAura is made with build \"[-version-]\", which may include breaking changes with the current main addon release": "",
-  "Import Type": ""
+  "Import Type": "",
+  "Report": "",
+  "External Links": "",
+  "ADDON_ACTION_BLOCKED usually refers to addon taint and the stack detailed below is probably not the cause of this error": "",
+  "External linked clicked through to this page": "",
+  "URL": "",
+  "Clicks": ""
 }

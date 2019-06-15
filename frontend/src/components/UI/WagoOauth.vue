@@ -25,7 +25,7 @@
               <span>{{ $t("The following guilds are associated to your account") }}</span>
               <span>{{ $t("Any imports restricted to these guilds are accessible by you") }}</span>
               <span>
-                <template v-for="guild in user.battlenet.guilds">
+                <template v-for="guild in user.battlenet.guilds" v-if="!guild.match(/\d$/)">
                   {{ guild.replace(/@/g, ' - ')}}<br>
                 </template>
               </span>

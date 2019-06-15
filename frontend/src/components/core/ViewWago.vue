@@ -1263,6 +1263,7 @@ export default {
               code.obj.forEach(e => {
                 errs.push({format: 'error', text: `${e.message}\nTime:${e.time}\nCount: ${e.counter}\nStack: ${e.stack}\n\nLocals: ${e.locals || '<none>'}\n`})
               })
+              errs = errs.reverse()
               this.$set(this.wago, 'errorReport', errs)
             }
 

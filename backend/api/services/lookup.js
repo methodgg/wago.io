@@ -444,7 +444,7 @@ module.exports = function (fastify, opts, next) {
         iteration: latestCode.version,
         changelog: {
           text: latestCode.changelog.text || '',
-          format: latestCode.changelog.text || 'bbcode',
+          format: latestCode.changelog.format || 'bbcode',
         }
       }
       doc.save()

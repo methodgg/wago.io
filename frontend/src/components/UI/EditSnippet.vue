@@ -3,7 +3,7 @@
     <div class="flex-container">
       <div class="flex-col flex-left">
       </div>
-      <div class="flex-col flex-right">    
+      <div class="flex-col flex-right">
         <md-button @click="exportChanges"><md-icon>open_in_new</md-icon> {{ $t("Export/Fork changes") }}</md-button>
         <md-button v-if="canEdit" @click="generateNextVersionData(); $refs['saveChangesDialog'].open()" ref="saveChangesButton"><md-icon>save</md-icon> {{ $t("Save changes") }}</md-button>
       </div>
@@ -30,7 +30,8 @@
         </md-dialog-actions>
       </md-dialog>
     </div>
-    
+
+    <!--<monaco-editor v-model="editorContent" theme="vs-dark" @init="editorInit" :language="aceLanguage" :style="{width:'100%', height: '500px'}"></monaco-editor>-->
     <editor v-model="editorContent" @init="editorInit" :lang="aceLanguage" :theme="editorTheme" width="100%" height="500"></editor>
     <export-modal :lua="luaCode" :type="wago.type" :showExport="showExport" :wagoID="wago._id" @hideExport="hideExport"></export-modal>
   </div>
@@ -38,6 +39,7 @@
 
 <script>
 const semver = require('semver')
+// import MonacoEditor from 'vue-monaco'
 
 export default {
   name: 'edit-common',
@@ -59,6 +61,7 @@ export default {
     editor: require('vue2-ace-editor'),
     'export-modal': require('./ExportLua.vue'),
     'input-semver': require('../UI/Input-Semver.vue')
+    // MonacoEditor
   },
   methods: {
     editorInit: function (editor) {
