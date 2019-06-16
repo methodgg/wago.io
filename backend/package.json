@@ -27,7 +27,7 @@
     "mkdirp-promise": "^5.0.1",
     "mmmagic": "^0.5.2",
     "moment": "^2.24.0",
-    "mongoosastic": "^4.4.1",
+    "mongoosastic": "^4.5.0",
     "mongoose": "^5.4.9",
     "node-object-hash": "^1.4.2",
     "promise-mmmagic": "0.0.2",
