@@ -64,17 +64,17 @@ module.exports = function (fastify, opts, next) {
         WagoFavorites.addInstall(doc, 'WA-Updater-' + req.headers['identifier'], ipAddress)
       }
 
-      // if (doc.latestVersion.iteration && doc.regionType) {
-      //   wago.version = doc.latestVersion.iteration
-      //   wago.versionString = doc.latestVersion.versionString
-      //   if (typeof doc.latestVersion.changelog === 'string') {
-      //     doc.latestVersion.changelog = JSON.parse(doc.latestVersion.changelog)
-      //   }
-      //   wago.changelog = doc.latestVersion.changelog
-      //   wago.regionType = doc.regionType
-      //   wagos.push(wago)
-      //   return
-      // }
+      if (doc.latestVersion.iteration && doc.regionType) {
+        wago.version = doc.latestVersion.iteration
+        wago.versionString = doc.latestVersion.versionString
+        if (typeof doc.latestVersion.changelog === 'string') {
+          doc.latestVersion.changelog = JSON.parse(doc.latestVersion.changelog)
+        }
+        wago.changelog = doc.latestVersion.changelog
+        wago.regionType = doc.regionType
+        wagos.push(wago)
+        return
+      }
 
       var code = await WagoCode.lookup(wago._id)
       const json = JSON.parse(code.json)
