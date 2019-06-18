@@ -122,7 +122,6 @@ module.exports = function (fastify, opts, next) {
       if (doc.restrictedGuilds.length) {
         doc.restrictedGuilds.forEach((guild) => {
           let m = guild.match(/(.*)@(\d+)$/)
-          console.log(m)
           if (m && m[1]) {
             wago.restrictions.push({type: 'guild', value: m[1], rank: m[2] })
           }
