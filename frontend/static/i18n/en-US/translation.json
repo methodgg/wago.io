@@ -607,5 +607,16 @@
   "ADDON_ACTION_BLOCKED usually refers to addon taint and the stack detailed below is probably not the cause of this error": "",
   "External linked clicked through to this page": "",
   "URL": "",
-  "Clicks": ""
+  "Clicks": "",
+  "Imports restricted to these guilds may accessible by you if permitted by your guild rank": "",
+  "Everyone (Ranks 0-9)": "",
+  "Ranks 0-8": "",
+  "Ranks 0-7": "",
+  "Ranks 0-6": "",
+  "Ranks 0-5": "",
+  "Ranks 0-4": "",
+  "Ranks 0-3": "",
+  "Ranks 0-2": "",
+  "Ranks 0-1": "",
+  "Guild Leader (Rank 0)": ""
 }

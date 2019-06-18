@@ -229,7 +229,7 @@ module.exports = function (fastify, opts, next) {
         }
       }
       else if (req.body.access[i].type === 'guild' && req.user.access.restrictGuild && req.body.access[i].value && req.user.battlenet.guilds.indexOf(req.body.access[i].value) >= 0) {
-        wago.restrictedGuilds.push(req.body.access[i].value)
+        wago.restrictedGuilds.push(req.body.access[i].value + '@' + (req.body.access[i].rank || '9'))
       }
     }
     await wago.save()
