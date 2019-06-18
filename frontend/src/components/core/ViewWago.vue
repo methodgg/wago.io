@@ -265,35 +265,34 @@
                             </md-select>
                           </md-input-container>
                         </md-layout>
-                        <md-layout style="flex:4">
+                        <md-layout class="resticted-options">
                           <md-input-container v-if="rest.type === 'user'">
-                          <label for="advSearchUserName">{{ $t("Enter Username") }}</label>
-                          <md-autocomplete v-model="rest.value" :fetch="autoCompleteUserName" :debounce="600" @change="onUpdateRestrictionsDebounce(index)"></md-autocomplete>
-                        </md-input-container>
-                        <md-input-container v-if="rest.type === 'guild'">
-                          <label>{{ $t("Select Guild") }}</label>
-                          <md-select v-model="rest.value" @change="onUpdateRestrictionsDebounce(index)">
-                            <template v-for="(guild, guildIndex) in User.battlenet.guilds">
-                              <md-option :key="guildIndex" :value="guild" v-if="!guild.match(/\d$/)">{{ guild.replace(/@/, '-').replace(/@/, ' <') + '>' }}</md-option>
-                            </template>
-                          </md-select>
-                        </md-input-container>
-                        <md-input-container v-if="rest.type === 'guild'">
-                          <label>{{ $t("Select Rank(s)") }}</label>
-                          <md-select v-model="rest.rank" @change="onUpdateRestrictionsDebounce(index)">
-                            <md-option value="">Any</md-option>
-                            <md-option value="@0">0 ({{ $t("Guild Leader") }})</md-option>
-                            <md-option value="@0,@1">0 - 1</md-option>
-                            <md-option value="@0,@1,@2">0 - 2</md-option>
-                            <md-option value="@0,@1,@2,@3">0 - 3</md-option>
-                            <md-option value="@0,@1,@2,@3,@4">0 - 4</md-option>
-                            <md-option value="@0,@1,@2,@3,@4,@5">0 - 5</md-option>
-                            <md-option value="@0,@1,@2,@3,@4,@5,@6">0 - 6</md-option>
-                            <md-option value="@0,@1,@2,@3,@4,@5,@6,@7">0 - 7</md-option>
-                            <md-option value="@0,@1,@2,@3,@4,@5,@6,@7,@8">0 - 8</md-option>
-                            <md-option value="@0,@1,@2,@3,@4,@5,@6,@7,@8,@9">0 - 9</md-option>
-                          </md-select>
-                        </md-input-container>
+                            <label for="advSearchUserName">{{ $t("Enter Username") }}</label>
+                            <md-autocomplete v-model="rest.value" :fetch="autoCompleteUserName" :debounce="600" @change="onUpdateRestrictionsDebounce(index)"></md-autocomplete>
+                          </md-input-container>
+                          <md-input-container v-if="rest.type === 'guild'">
+                            <label>{{ $t("Select Guild") }}</label>
+                            <md-select v-model="rest.value" @change="onUpdateRestrictionsDebounce(index)">
+                              <template v-for="(guild, guildIndex) in User.battlenet.guilds">
+                                <md-option :key="guildIndex" :value="guild" v-if="!guild.match(/\d$/)">{{ guild.replace(/@/, '-').replace(/@/, ' <') + '>' }}</md-option>
+                              </template>
+                            </md-select>
+                          </md-input-container>
+                          <md-input-container v-if="rest.type === 'guild'">
+                            <label>{{ $t("Select Rank(s)") }}</label>
+                            <md-select v-model="rest.rank" @change="onUpdateRestrictionsDebounce(index)">
+                              <md-option value="9">{{ $t("Everyone (Ranks 0-9)") }}</md-option>
+                              <md-option value="8">{{ $t("Ranks 0-8") }}</md-option>
+                              <md-option value="7">{{ $t("Ranks 0-7") }}</md-option>
+                              <md-option value="6">{{ $t("Ranks 0-6") }}</md-option>
+                              <md-option value="5">{{ $t("Ranks 0-5") }}</md-option>
+                              <md-option value="4">{{ $t("Ranks 0-4") }}</md-option>
+                              <md-option value="3">{{ $t("Ranks 0-3") }}</md-option>
+                              <md-option value="2">{{ $t("Ranks 0-2") }}</md-option>
+                              <md-option value="1">{{ $t("Ranks 0-1") }}</md-option>
+                              <md-option value="0">{{ $t("Guild Leader (Rank 0)") }}</md-option>
+                            </md-select>
+                          </md-input-container>
                         </md-layout>
                       </md-layout>
                     </template>
@@ -308,7 +307,7 @@
                           </md-select>
                         </md-input-container>
                       </md-layout>
-                      <md-layout style="flex:4">
+                      <md-layout class="resticted-options">
                         <md-input-container v-if="newRestrictionType === 'user'">
                           <label for="advSearchUserName">{{ $t("Enter Username") }}</label>
                           <md-autocomplete v-model="newRestrictionValue" :fetch="autoCompleteUserName" @blur="checkNewRestrictions"></md-autocomplete>
@@ -2167,6 +2166,9 @@ export default {
         if (typeof index !== 'undefined' && this.wago.restrictions[index].type === 'remove') {
           this.wago.restrictions.splice(index, 1)
         }
+        else if (typeof index !== 'undefined' && typeof this.wago.restrictions[index].rank === 'undefined') {
+          this.$set(this.wago.restrictions[index], 'rank', '9')
+        }
         this.http.post('/wago/update/restrictions', {
           wagoID: this.wago._id,
           access: this.wago.restrictions
@@ -2392,5 +2394,7 @@ ul:not(.md-list) > li.multiselect__element + li { margin-top: 0 }
 
 .attached-media { padding: 16px; margin: 8px 0; display: inline-block; background: rgba(0,0,0,.5)}
 .attached-media img { max-width: 400px; max-height: 300px}
+
+ .resticted-options { flex: 4; flex-wrap: nowrap}
 
 </style>

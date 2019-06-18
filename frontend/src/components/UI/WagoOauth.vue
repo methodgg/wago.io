@@ -23,7 +23,7 @@
           <md-list-item v-if="user && user.battlenet && user.battlenet.name && user.battlenet.updateStatus !== 'pending-API'">
             <div v-if="user.battlenet.guilds && user.battlenet.guilds.length" class="md-list-text-container" style="margin-left:56px">
               <span>{{ $t("The following guilds are associated to your account") }}</span>
-              <span>{{ $t("Any imports restricted to these guilds are accessible by you") }}</span>
+              <span>{{ $t("Imports restricted to these guilds may accessible by you if permitted by your guild rank") }}</span>
               <span>
                 <template v-for="guild in user.battlenet.guilds" v-if="!guild.match(/\d$/)">
                   {{ guild.replace(/@/g, ' - ')}}<br>

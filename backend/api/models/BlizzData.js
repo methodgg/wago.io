@@ -5,7 +5,8 @@ const mongoose = require('mongoose'),
 const Schema = new mongoose.Schema({
     _id: { type: String },
     value: Mixed,
-    locale: { type: String, index: true }
+    locale: { type: String, index: true },
+    expires_at :  { type: Date, expires: 1 }
 }, { timestamps: true });
 
 

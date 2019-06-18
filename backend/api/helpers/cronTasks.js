@@ -290,7 +290,6 @@ module.exports = {
           if (!memberUser) {
             continue
           }
-          let saveDB = false
           let guildRankKey = guildKey + '@' + guild.members[j].rank
 
           if (accountNamesInGuild.indexOf(guildRankKey) === -1) {
@@ -301,32 +300,29 @@ module.exports = {
           // if new member to guild
           if (memberUser.battlenet.guilds.indexOf(guildKey) === -1) {
             memberUser.battlenet.guilds.push(guildKey)
-            memberUser.battlenet.guilds.push(guildRankKey)
-            saveDB = true
+            for (let k = guild.members[j].rank; k <= 9; k++) {
+              memberUser.battlenet.guilds.push(`${guildKey}@${k}`)
+            }
           }
 
-          // else check if member was previously in guild but maybe had a rank change
-          // by sorting by rank above we make sure the highest rank ends up being saved
-          // totally of a hack but it keeps it an elastic-friendly string
+          // else they are already in guild, but since they may have changed ranks
+          // remove everything and re-add all current ranks
           else if (memberUser.battlenet.guilds.indexOf(guildRankKey) === -1) {
             let re = new RegExp('^' + escapeRegExp(guildKey) + '@\\d$')
             for (let g = 0; g < memberUser.battlenet.guilds.length; g++) {
               if (memberUser.battlenet.guilds[g].match(re)) {
-                memberUser.battlenet.guilds.splice(g, 1, guildRankKey)
-                saveDB = true
+                memberUser.battlenet.guilds.splice(g, 1)
                 break
               }
             }
-            // if rank info was previously not saved
-            if (!saveDB) {
-              memberUser.battlenet.guilds.push(guildRankKey)
-              saveDB = true
+            for (let k = guild.members[j].rank; k <= 9; k++) {
+              memberUser.battlenet.guilds.push(`${guildKey}@${k}`)
             }
           }
 
-          if (saveDB) {
-            await memberUser.save()
-          }
+          memberUser.battlenet.guilds = [...new Set(memberUser.battlenet.guilds)]
+
+          await memberUser.save()
         }
 
         // remove old members
@@ -351,7 +347,9 @@ module.exports = {
     }
 
     for (let i = 0; i < users.length; i++) {
-      await Promise.all(users[i].battlenet.guilds.map(guildKey => updateGuild(guildKey)))
+      for (let j = 0; j < users[i].battlenet.guilds.length; j++) {
+        await updateGuild(users[i].battlenet.guilds[j])
+      }
     }
   },
 

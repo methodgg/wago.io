@@ -357,9 +357,17 @@ async function battlenetAuth(req, res, region) {
         }
         if (char.guild && char.guild.realm) {
           chars.push({region: region, realm: char.realm, name: char.name, guild: char.guild.name, guildRealm: char.guild.realm })
-          var guildKey = `${region}@${char.guild.realm}@${char.guild.name}`
-          if (guilds.indexOf(guildKey) === -1) {
-            guilds.push(guildKey)
+          const guild = await battlenet.lookupGuild(region, char.guild.realm, char.guild.name)
+          if (guild && guild.members) {
+            for (let j = 0; j < guild.members.length; j++) {
+              if (char.realm === guild.members[j].character.realm && char.name === guild.members[j].character.name) {
+                guilds.push(`${region}@${char.guild.realm}@${char.guild.name}`)
+                for (let k = guild.members[j].rank; k <= 9; k++) {
+                  guilds.push(`${region}@${char.guild.realm}@${char.guild.name}@${k}`)
+                }
+                break
+              }
+            }
           }
         }
         else {
@@ -381,6 +389,7 @@ async function battlenetAuth(req, res, region) {
         if (!img.error) {
           user[battlenetField].avatar = img
         }
+        guilds = [...new Set(guilds)]
         user[battlenetField].name = auth.name
         user[battlenetField].characters = chars
         user[battlenetField].guilds = guilds
