@@ -252,7 +252,7 @@ module.exports = {
     const users = await User.find({"battlenet.guilds.1": {$exists: true}, $or: [{"roles.gold_subscriber": true}, {"roles.pro_subscriber": true}, {"roles.ambassador": true}, {"roles.developer": true}, {"roles.artContestWinnerAug2018": true}]}).exec()
     const updateGuild = async function (guildKey) {
       const accountIdsInGuild = []
-      const accountNamesInGuild = []
+      const accountsInGuild = []
       if (guildKey.match(/@\d$/, '') || guildsChecked.indexOf(guildKey) >= 0) {
         return Promise.resolve()
       }
@@ -290,11 +290,11 @@ module.exports = {
           if (!memberUser) {
             continue
           }
-          let guildRankKey = guildKey + '@' + guild.members[j].rank
 
-          if (accountNamesInGuild.indexOf(guildRankKey) === -1) {
+          var memberID = memberUser._id.toString()
+          if (accountsInGuild.indexOf(memberID) === -1) {
             accountIdsInGuild.push(memberUser._id)
-            accountNamesInGuild.push(guildRankKey)
+            accountsInGuild.push(memberID)
           }
 
           // if new member to guild
