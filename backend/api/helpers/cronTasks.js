@@ -307,7 +307,7 @@ module.exports = {
 
           // else they are already in guild, but since they may have changed ranks
           // remove everything and re-add all current ranks
-          else if (memberUser.battlenet.guilds.indexOf(guildRankKey) === -1) {
+          else {
             let re = new RegExp('^' + escapeRegExp(guildKey) + '@\\d$')
             for (let g = 0; g < memberUser.battlenet.guilds.length; g++) {
               if (memberUser.battlenet.guilds[g].match(re)) {
