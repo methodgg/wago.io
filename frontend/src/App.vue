@@ -150,7 +150,8 @@
           <md-list-item target="_blank" href="https://www.patreon.com/wago"><div><img src="./assets/Patreon_White.png"></div>{{ $t("Support the website") }}</md-list-item>
           <md-list-item target="_blank" href="https://discord.gg/wa2"><div><img src="./assets/discord.png"></div>{{ $t("Join WA Discord") }}</md-list-item>
           <md-list-item target="_blank" href="https://github.com/oratory/wago.io"><div><img src="./assets/github.png"></div>{{ $t("Open source") }}</md-list-item>
-          <md-list-item target="_blank" href="https://weakauras.wtf/"><div><img src="./assets/weakauralogo.png" style="height:23px"></div>WeakAuras Companion<md-divider></md-divider></md-list-item>
+          <md-list-item target="_blank" href="https://weakauras.wtf/"><div><img src="./assets/weakauralogo.png" style="height:23px"></div>WeakAuras Companion</md-list-item>
+          <!--<md-list-item target="_blank" href="https://www.nevermorenation.com/"><div><img src="./assets/nevermore.png"></div>Classic Raiding Guild<md-divider></md-divider></md-list-item>-->
         </md-list>
 
         <div class='legal'>
