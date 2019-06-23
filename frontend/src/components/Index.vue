@@ -18,6 +18,7 @@
               <md-select name="visibilty" id="visibilty" v-model="visibility">
                 <md-option value="Public" selected>{{ $t("Public") }}</md-option>
                 <md-option value="Hidden">{{ $t("Hidden (only viewable with link)") }}</md-option>
+                <md-option v-if="user.name" value="Restricted">{{ $t("Restricted (viewable for select users)") }}</md-option>
                 <md-option v-if="user.name" value="Private">{{ $t("Private (only you may view)") }}</md-option>
               </md-select>
             </md-input-container>
@@ -42,6 +43,79 @@
                 <md-option value="15m">{{ $t("15 minutes") }}</md-option>
               </md-select>
             </md-input-container>
+          </div>
+
+          <div v-if="visibility === 'Restricted'" style="margin-left:1em">
+            <template v-for="(rest, index) in restrictions">
+              <md-layout :key="index">
+                <md-layout>
+                  <md-input-container>
+                    <label>{{ $t("Access Granted To") }}</label>
+                    <md-select v-model="rest.type" @change="onUpdateRestrictionsDebounce(index)">
+                      <md-option value="user">{{ $t("Username") }}</md-option>
+                      <md-option value="guild" v-if="user.access.restrictGuild && user.battlenet && user.battlenet.guilds && user.battlenet.guilds.length">{{ $t("Guild") }}</md-option>
+                      <!--<md-option value="twitchsubs" v-if="user.access.restrictSubs && user.twitch && user.twitch.id">{{ $t("Twitch Subscribers") }}</md-option>-->
+                      <md-option v-if="index > 0" value="remove">{{ $t("Remove Access") }}</md-option>
+                    </md-select>
+                  </md-input-container>
+                </md-layout>
+                <md-layout class="resticted-options">
+                  <md-input-container v-if="rest.type === 'user'">
+                    <label for="advSearchUserName">{{ $t("Enter Username") }}</label>
+                    <md-autocomplete v-model="rest.value" :fetch="autoCompleteUserName" :debounce="600" @change="onUpdateRestrictionsDebounce(index)"></md-autocomplete>
+                  </md-input-container>
+                  <md-input-container v-if="rest.type === 'guild'">
+                    <label>{{ $t("Select Guild") }}</label>
+                    <md-select v-model="rest.value" @change="onUpdateRestrictionsDebounce(index)">
+                      <template v-for="(guild, guildIndex) in user.battlenet.guilds">
+                        <md-option :key="guildIndex" :value="guild" v-if="!guild.match(/\d$/)">{{ guild.replace(/@/, '-').replace(/@/, ' <') + '>' }}</md-option>
+                      </template>
+                    </md-select>
+                  </md-input-container>
+                  <md-input-container v-if="rest.type === 'guild' && rest.value">
+                    <label>{{ $t("Select Rank(s)") }} [ <a :href="getGuildLink(rest.value)" target="_blank">{{ $t("View Members") }}</a> ]</label>
+                    <md-select v-model="rest.rank" @change="onUpdateRestrictionsDebounce(index)">
+                      <md-option value="9">{{ $t("Everyone (Ranks 1-10)") }}</md-option>
+                      <md-option value="8">{{ $t("Ranks 1-9") }}</md-option>
+                      <md-option value="7">{{ $t("Ranks 1-8") }}</md-option>
+                      <md-option value="6">{{ $t("Ranks 1-7") }}</md-option>
+                      <md-option value="5">{{ $t("Ranks 1-6") }}</md-option>
+                      <md-option value="4">{{ $t("Ranks 1-5") }}</md-option>
+                      <md-option value="3">{{ $t("Ranks 1-4") }}</md-option>
+                      <md-option value="2">{{ $t("Ranks 1-3") }}</md-option>
+                      <md-option value="1">{{ $t("Ranks 1-2") }}</md-option>
+                      <md-option value="0">{{ $t("Guild Leader (Rank 1)") }}</md-option>
+                    </md-select>
+                  </md-input-container>
+                </md-layout>
+              </md-layout>
+            </template>
+            <md-layout v-if="restrictions.length < 20 && restrictions[0].value">
+              <md-layout>
+                <md-input-container>
+                  <label>{{ $t("Access Granted New") }}</label>
+                  <md-select v-model="newRestrictionType" @change="checkNewRestrictions">
+                    <md-option value="user">{{ $t("Username") }}</md-option>
+                    <md-option value="guild" v-if="user.access.restrictGuild && user.battlenet && user.battlenet.guilds && user.battlenet.guilds.length">{{ $t("Guild") }}</md-option>
+                    <!--<md-option value="twitchsubs" v-if="user.access.restrictSubs && user.twitch && user.twitch.id">{{ $t("Twitch Subscribers") }}</md-option>-->
+                  </md-select>
+                </md-input-container>
+              </md-layout>
+              <md-layout class="resticted-options">
+                <md-input-container v-if="newRestrictionType === 'user'">
+                  <label for="advSearchUserName">{{ $t("Enter Username") }}</label>
+                  <md-autocomplete v-model="newRestrictionValue" :fetch="autoCompleteUserName" @blur="checkNewRestrictions"></md-autocomplete>
+                </md-input-container>
+                <md-input-container v-if="newRestrictionType === 'guild'">
+                  <label>{{ $t("Select Guild") }}</label>
+                  <md-select v-model="newRestrictionValue" @change="checkNewRestrictions">
+                    <template v-for="(guild, guildIndex) in user.battlenet.guilds">
+                      <md-option :key="guildIndex" :value="guild" v-if="!guild.match(/\d$/)">{{ guild.replace(/@/, '-').replace(/@/, ' <') + '>' }}</md-option>
+                    </template>
+                  </md-select>
+                </md-input-container>
+              </md-layout>
+            </md-layout>
           </div>
 
           <div v-if="isScanning"><md-spinner md-indeterminate></md-spinner></div>
@@ -219,6 +293,8 @@
 
 #inputStringTextarea { overflow-x: hidden!important; overflow-y: hidden!important }
 
+.resticted-options { flex: 3; flex-wrap: nowrap}
+
 </style>
 
 <script>
@@ -255,13 +331,17 @@ export default {
       latestBlogs: [],
       addonReleases: [],
       numCategorySets: 1,
-      game: 'bfa'
+      game: 'bfa',
+      restrictions: [{type: 'user', value: ''}],
+      newRestrictionType: 'user',
+      newRestrictionValue: ''
     }
   },
   components: {
     CategorySelect,
     'vue-markdown': VueMarkdown,
-    'wago-news': WagoNews
+    'wago-news': WagoNews,
+    'md-autocomplete': require('./UI/md-autocomplete.vue')
   },
   computed: {
     user () {
@@ -304,6 +384,9 @@ export default {
         categories: JSON.stringify(flatten(this.setCategories)),
         game: this.game
       }
+      if (this.visibility === 'Restricted') {
+        post.restrictions = JSON.stringify(flatten(this.restrictions))
+      }
       var vue = this
       this.http.post('/import/submit', post).then((res) => {
         if (res.success && res.wagoID) {
@@ -317,6 +400,64 @@ export default {
 
     onUpdateCategories () {
       // filters?
+    },
+
+    checkNewRestrictions: function () {
+      this.$nextTick(() => {
+        console.log('check', this.newRestrictionType, this.newRestrictionValue)
+        if ((this.newRestrictionType && this.newRestrictionValue) || this.newRestrictionType === 'twitchsubs') {
+          this.restrictions.push({type: this.newRestrictionType, value: this.newRestrictionValue})
+          this.newRestrictionType = 'user'
+          this.newRestrictionValue = ''
+          console.log(this.restrictions)
+          // onUpdateRestrictions is called here via reactivity
+        }
+      })
+    },
+
+    onUpdateRestrictions: function (index) {
+      console.log('onupdate')
+      if (typeof index === 'undefined' || ((this.restrictions[index] && this.restrictions[index].value) || this.restrictions[index].type === 'twitchsubs' || this.restrictions[index].type === 'remove')) {
+        if (typeof index !== 'undefined' && this.restrictions[index].type === 'remove') {
+          this.restrictions.splice(index, 1)
+        }
+        else if (typeof index !== 'undefined' && typeof this.restrictions[index].rank === 'undefined') {
+          this.$set(this.restrictions[index], 'rank', '9')
+        }
+      }
+      this.checkNewRestrictions()
+    },
+
+    onUpdateRestrictionsDebounce: function (index) {
+      if (this.restrictionDebounceTimeout) {
+        window.clearTimeout(this.restrictionDebounceTimeout)
+      }
+
+      this.restrictionDebounceTimeout = setTimeout(() => {
+        this.onUpdateRestrictions(index)
+      }, 600)
+    },
+
+    getGuildLink: function (guildKey) {
+      const slug = (str) => {
+        return str.toLowerCase().replace(/\s/g, '-').replace(/'/g, '')
+      }
+      const guild = guildKey.split(/@/)
+      switch (guild[0]) {
+        case 'eu':
+          return `https://worldofwarcraft.com/en-gb/guild/eu/${slug(guild[1])}/${slug(guild[2])}`
+        case 'us':
+          return `https://worldofwarcraft.com/en-us/guild/us/${slug(guild[1])}/${slug(guild[2])}`
+        case 'kr':
+          return `https://worldofwarcraft.com/ko-kr/guild/kr/${slug(guild[1])}/${slug(guild[2])}`
+        case 'cn':
+          return `https://worldofwarcraft.com/zh-cn/guild/cn/${slug(guild[1])}/${slug(guild[2])}`
+      }
+      return '#'
+    },
+
+    autoCompleteUserName: function (q) {
+      return this.http.get('/search/username', {name: q.q})
     }
   },
   watch: {

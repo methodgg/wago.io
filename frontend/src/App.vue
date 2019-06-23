@@ -151,7 +151,7 @@
           <md-list-item target="_blank" href="https://discord.gg/wa2"><div><img src="./assets/discord.png"></div>{{ $t("Join WA Discord") }}</md-list-item>
           <md-list-item target="_blank" href="https://github.com/oratory/wago.io"><div><img src="./assets/github.png"></div>{{ $t("Open source") }}</md-list-item>
           <md-list-item target="_blank" href="https://weakauras.wtf/"><div><img src="./assets/weakauralogo.png" style="height:23px"></div>WeakAuras Companion</md-list-item>
-          <!--<md-list-item target="_blank" href="https://www.nevermorenation.com/"><div><img src="./assets/nevermore.png"></div>Classic Raiding Guild<md-divider></md-divider></md-list-item>-->
+          <md-list-item target="_blank" href="https://www.nevermorenation.com/teams/world-of-warcraft-classic/"><div><img src="./assets/nevermore.png"></div>Nevermore: Classic WoW<md-divider></md-divider></md-list-item>
         </md-list>
 
         <div class='legal'>
@@ -535,9 +535,10 @@ export default {
 .mainnav .md-list-item .md-list-item-container { min-height: auto; }
 .mainnav .md-list-item.small { height: 16px; }
 .mainnav .md-list-item.small .md-list-item-container { font-size: 12px; height: 18px; }
-.mainnav.bottom .md-list-item-container { font-size: 90%; }
+.mainnav.bottom .md-list-item-container { font-size: 90%; padding-right: 0 }
 .mainnav.bottom .md-list-item-container img { max-width: 74px; }
 .mainnav.bottom .md-list-item a div { display: inline-block; width: 90px;  }
+
 #side-bottom {}
 #side-bottom .resource {  display: inline-block; padding: 8px 0 0 16px; color: default }
 #side-bottom .resource img { max-width: 30%; }
@@ -585,4 +586,6 @@ export default {
 .md-snackbar-container { border: 1px solid black }
 
 #randombtn { height: 36px; opacity: 0.7; transition: all 1s ease-in; cursor: pointer; margin: 6px 8px }
+
+body.theme-dark .md-input-container label a { -webkit-text-fill-color: initial }
 </style>

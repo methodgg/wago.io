@@ -246,7 +246,7 @@
                       <md-select name="visibilty" id="visibilty" v-model="editVisibility">
                         <md-option value="Public">{{ $t("Public") }}</md-option>
                         <md-option value="Hidden">{{ $t("Hidden (only viewable with link)") }}</md-option>
-                        <md-option value="Restricted" v-if="User && User.access && User.access.beta">{{ $t("Restricted (viewable for select users) [Beta]") }}</md-option>
+                        <md-option value="Restricted">{{ $t("Restricted (viewable for select users)") }}</md-option>
                         <md-option value="Private">{{ $t("Private (only you may view)") }}</md-option>
                       </md-select>
                     </md-input-container>
@@ -279,18 +279,18 @@
                             </md-select>
                           </md-input-container>
                           <md-input-container v-if="rest.type === 'guild'">
-                            <label>{{ $t("Select Rank(s)") }}</label>
+                            <label>{{ $t("Select Rank(s)") }} [ <a :href="getGuildLink(rest.value)" target="_blank">{{ $t("View Members") }}</a> ]</label>
                             <md-select v-model="rest.rank" @change="onUpdateRestrictionsDebounce(index)">
-                              <md-option value="9">{{ $t("Everyone (Ranks 0-9)") }}</md-option>
-                              <md-option value="8">{{ $t("Ranks 0-8") }}</md-option>
-                              <md-option value="7">{{ $t("Ranks 0-7") }}</md-option>
-                              <md-option value="6">{{ $t("Ranks 0-6") }}</md-option>
-                              <md-option value="5">{{ $t("Ranks 0-5") }}</md-option>
-                              <md-option value="4">{{ $t("Ranks 0-4") }}</md-option>
-                              <md-option value="3">{{ $t("Ranks 0-3") }}</md-option>
-                              <md-option value="2">{{ $t("Ranks 0-2") }}</md-option>
-                              <md-option value="1">{{ $t("Ranks 0-1") }}</md-option>
-                              <md-option value="0">{{ $t("Guild Leader (Rank 0)") }}</md-option>
+                              <md-option value="9">{{ $t("Everyone (Ranks 1-10)") }}</md-option>
+                              <md-option value="8">{{ $t("Ranks 1-9") }}</md-option>
+                              <md-option value="7">{{ $t("Ranks 1-8") }}</md-option>
+                              <md-option value="6">{{ $t("Ranks 1-7") }}</md-option>
+                              <md-option value="5">{{ $t("Ranks 1-6") }}</md-option>
+                              <md-option value="4">{{ $t("Ranks 1-5") }}</md-option>
+                              <md-option value="3">{{ $t("Ranks 1-4") }}</md-option>
+                              <md-option value="2">{{ $t("Ranks 1-3") }}</md-option>
+                              <md-option value="1">{{ $t("Ranks 1-2") }}</md-option>
+                              <md-option value="0">{{ $t("Guild Leader (Rank 1)") }}</md-option>
                             </md-select>
                           </md-input-container>
                         </md-layout>
@@ -2186,6 +2186,24 @@ export default {
       }, 600)
     },
 
+    getGuildLink: function (guildKey) {
+      const slug = (str) => {
+        return str.toLowerCase().replace(/\s/g, '-').replace(/'/g, '')
+      }
+      const guild = guildKey.split(/@/)
+      switch (guild[0]) {
+        case 'eu':
+          return `https://worldofwarcraft.com/en-gb/guild/eu/${slug(guild[1])}/${slug(guild[2])}`
+        case 'us':
+          return `https://worldofwarcraft.com/en-us/guild/us/${slug(guild[1])}/${slug(guild[2])}`
+        case 'kr':
+          return `https://worldofwarcraft.com/ko-kr/guild/kr/${slug(guild[1])}/${slug(guild[2])}`
+        case 'cn':
+          return `https://worldofwarcraft.com/zh-cn/guild/cn/${slug(guild[1])}/${slug(guild[2])}`
+      }
+      return '#'
+    },
+
     autoCompleteUserName: function (q) {
       return this.http.get('/search/username', {name: q.q})
     }
@@ -2395,6 +2413,6 @@ ul:not(.md-list) > li.multiselect__element + li { margin-top: 0 }
 .attached-media { padding: 16px; margin: 8px 0; display: inline-block; background: rgba(0,0,0,.5)}
 .attached-media img { max-width: 400px; max-height: 300px}
 
- .resticted-options { flex: 4; flex-wrap: nowrap}
+.resticted-options { flex: 4; flex-wrap: nowrap}
 
 </style>

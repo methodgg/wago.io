@@ -428,8 +428,23 @@ module.exports = function (fastify, opts, next) {
       wago.private = true
     }
 
+    wago.restrictedUsers = []
+    wago.restrictedGuilds = []
+    wago.restrictedTwitchSubs = []
     if (req.user && req.body.visibility === 'Restricted') {
       wago.restricted = true
+      const restrictions = JSON.parse(req.body.restrictions)
+      for (let i = 0; i < restrictions.length; i++) {
+        if (restrictions[i].type === 'user' && restrictions[i].value) {
+          var lookup = await User.findOne({'search.username': restrictions[i].value.toLowerCase()})
+          if (lookup) {
+            wago.restrictedUsers.push(lookup._id.toString())
+          }
+        }
+        else if (restrictions[i].type === 'guild' && req.user.access.restrictGuild && restrictions[i].value && req.user.battlenet.guilds.indexOf(restrictions[i].value) >= 0) {
+          wago.restrictedGuilds.push(restrictions[i].value + '@' + (restrictions[i].rank || '9'))
+        }
+      }
     }
 
     // if forking then some fields will be copied from forked wago
