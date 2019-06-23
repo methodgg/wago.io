@@ -62,7 +62,7 @@ export default {
         this.blogs = JSON.parse(JSON.stringify(this.posts))
       }
       // if viewing a specific page
-      else if (newsID && parseInt(newsID) > 0) {
+      else if (newsID && newsID.match(/^\d+$/)) {
         this.LoadNewsPage(parseInt(newsID))
       }
       // if viewing a specific article
