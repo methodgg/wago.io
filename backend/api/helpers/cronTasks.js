@@ -5,6 +5,7 @@ const decompress = require('decompress')
 const image = require('./image')
 const lua = require('./lua')
 const md5 = require('md5')
+const moment = require('moment')
 const mkdirp = require('mkdirp-promise')
 const path = require('path')
 const puppeteer = require('puppeteer')
@@ -41,9 +42,9 @@ module.exports = {
   UpdateLatestAddonReleases: async (req) => {
     const addons = [
       {name: 'WeakAuras-2', host: 'wowace', url: 'https://www.wowace.com/projects/weakauras-2'},
-      {name: 'VuhDo', host: 'curseforge', url: 'https://wow.curseforge.com/projects/vuhdo'},
+      {name: 'VuhDo', host: 'curseforge', url: 'https://www.curseforge.com/wow/addons/vuhdo/files'},
       {name: 'ElvUI', host: 'tukui', url: 'https://www.tukui.org/download.php?ui=elvui'},
-      {name: 'MDT', host: 'curseforge', url: 'https://wow.curseforge.com/projects/method-dungeon-tools'},
+      {name: 'MDT', host: 'curseforge', url: 'https://www.curseforge.com/wow/addons/method-dungeon-tools/files'},
     ]
     var releases = []
     for (let i = 0; i < addons.length; i++) {
@@ -52,7 +53,7 @@ module.exports = {
         const response = await axios.get(addon.url)
         const scrape = cheerio.load(response.data)
         var discovered = []
-        if (addon.host === 'wowace' || addon.host === 'curseforge') {
+        if (addon.host === 'wowace') {
           const scraped = scrape('ul.cf-recentfiles li.file-tag')
           await Object.values(scraped).forEach(async (file) => {
             try {
@@ -92,7 +93,56 @@ module.exports = {
                     req.trackError(e, 'Error parsing WA data')
                   }
                 }
-                else if (release.addon === 'MDT' && release.phase === 'Release') {
+              }
+            }
+            catch (e) {
+              req.trackError(e, 'Error parsing addon ' + release.addon)
+            }
+          })
+        }
+        else if (addon.host === 'curseforge') {
+          const scraped = scrape('table.project-file-listing tbody tr')
+          const files = Object.values(scraped)
+          var types = {}
+          for (let i = 0; i <= files.length; i++) {
+            try {
+              var file = files[i]
+              var release = {}
+              release.addon = addon.name
+              release.active = true
+
+              var phase = scrape(file).find('td.mx-auto .mx-auto .text-white').text()
+              if (phase === 'A' && !types.alpha) {
+                types.alpha = true
+                release.phase = 'Alpha'
+              }
+              else if (phase === 'B' && !types.beta) {
+                types.beta = true
+                release.phase = 'Beta'
+              }
+              else if (phase === 'R' && !types.release) {
+                types.release = true
+                release.phase = 'Release'
+              }
+              else {
+                continue
+              }
+
+              var version = scrape(file).find('a[data-action="file-link"]')
+              release.url = 'https://www.curseforge.com' + version.attr('href')
+              release.version = version.text()
+              var date = scrape(file).find('td:nth-child(4)').text().trim()
+              if (!date) {
+                continue
+              }
+              release.date = moment(date, 'MMM D, YYYY').format('x')
+              releases.push(release)
+              discovered.push(release.phase)
+              const preExisting = await AddonRelease.findOneAndUpdate({addon: release.addon, phase: release.phase, version: release.version}, release, {upsert: true, new: false}).exec()
+              if (!preExisting) {
+                // if a new release then de-activate the previous version(s)
+                AddonRelease.updateMany({addon: release.addon, phase: release.phase, version: {$ne: release.version}}, {$set: {active: false}}).exec()
+                if (release.addon === 'MDT' && release.phase === 'Release') {
                   try {
                     updateMDTData(req, release)
                   }
@@ -105,7 +155,7 @@ module.exports = {
             catch (e) {
               req.trackError(e, 'Error parsing addon ' + release.addon)
             }
-          })
+          }
         }
         else if (addon.host === 'tukui') {
           try {
@@ -465,13 +515,13 @@ async function updateWAData (req, release) {
 }
 
 async function updateMDTData (req, release) {
+  console.log('update mdt')
   const addonDir = path.resolve(__dirname, '../lua', 'addons' ,'MDT', release.version)
   await mkdirp(addonDir)
   const zipFile = path.resolve(addonDir, 'MDT.zip')
   const writer = require('fs').createWriteStream(zipFile)
-
   const response = await axios({
-    url: release.url + '/download',
+    url: release.url.replace(/files\/(\d+)/, 'download/$1/file'),
     method: 'GET',
     responseType: 'stream'
   })
@@ -487,6 +537,7 @@ async function updateMDTData (req, release) {
   // calculate dimensions
   mdtData.dungeonDimensions = []
   mdtData.dungeonEnemies.forEach((enemies, mapID) => {
+    console.log(mapID)
     mdtData.dungeonDimensions.push({maxX: -9999999, minX: 9999999, maxY: -9999999, minY: 9999999})
     if (!enemies) return
     enemies.forEach((creature) => {
@@ -600,7 +651,7 @@ async function buildStaticMDTPortraits(json, mapID, subMapID, teeming, faction) 
         if (!creature || !creature.clones) return
 
         creature.clones.forEach((clone, j) => {
-          if ((!clone.sublevel || clone.sublevel === subMapID) && (!clone.teeming || (clone.teeming && teeming)) && (!clone.faction || (clone.faction === faction))) {
+          if (clone && (!clone.sublevel || clone.sublevel === subMapID) && (!clone.teeming || (clone.teeming && teeming)) && (!clone.faction || (clone.faction === faction))) {
             html = html + `
             var circle${i}_${j} = new Konva.Circle({
               x: ${clone.x * mdtScale} * multiplier,
