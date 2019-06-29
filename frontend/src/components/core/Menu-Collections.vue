@@ -173,7 +173,7 @@ export default {
       return categories.classCategories(this.$t)
     },
     bfaRaids: function () {
-      return categories.raidCategories(['raidcrucible', 'raidzuldazar', 'raiduldir', 'bfadungeon'], this.$t)
+      return categories.raidCategories(['raideternalpalace', 'raidcrucible', 'raidzuldazar', 'raiduldir', 'bfadungeon'], this.$t)
     },
     legionRaids: function () {
       return categories.raidCategories(['raidantorus', 'raidtomb', 'raidnh', 'dungeon'], this.$t)

@@ -49,7 +49,7 @@
           </md-list-item>
         </md-list>
 
-        <md-subheader>{{ $t("PTR") }}</md-subheader>
+        <!--<md-subheader>{{ $t("PTR") }}</md-subheader>
         <md-list class="md-double-line md-dense">
           <md-list-item v-for="raid in ptr" v-bind:key="raid.id" :class="raid.cls + ' md-inset'">
             <category-image :group="raid.cls"></category-image>
@@ -60,7 +60,7 @@
               </span>
             </div>
           </md-list-item>
-        </md-list>
+        </md-list>-->
 
       </md-layout>
       <md-layout>
@@ -187,7 +187,7 @@ export default {
       return categories.classCategories(this.$t)
     },
     raids: function () {
-      return categories.raidCategories(['raidcrucible', 'raidzuldazar', 'bfadungeon'], this.$t)
+      return categories.raidCategories(['raideternalpalace', 'raidcrucible', 'raidzuldazar', 'bfadungeon'], this.$t)
     },
     classicRaids: function () {
       return categories.raidCategories(['raidmoltencore', 'raidblackwinglair', 'raidtempleaq', 'raidnaxxramas'], this.$t)
