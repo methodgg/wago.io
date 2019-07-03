@@ -20,7 +20,7 @@ const runLua = async function (luaScript, opt) {
     console.log(e)
     // console.error("LUA ERR", e.message)
   }
-} 
+}
 
 module.exports = {
   DecodeDeflate: async (str, cb) => {
@@ -109,7 +109,7 @@ module.exports = {
     }
     return result
   },
-  
+
   DecodeElvUI: async (str, cb) => {
     if (!str || !str.match(commonRegex.looksLikeElvUI)) {
       return false
@@ -236,7 +236,7 @@ module.exports = {
   //   // generate lua file
   //   var luaScript = 'dofile("./wago.lua"); Grid2JSON("' + str + '")'
   //   var luaFile = tmpLuaFileName(str)
-    
+
   //   fs.writeFile(luaFile, luaScript, (err) => {
   //     if (err) {
   //       return res.send({error: 'server_error'})
@@ -248,7 +248,7 @@ module.exports = {
   //       fs.unlink(luaFile)
   //       cb(null, res)
   //     })
-  //   })    
+  //   })
   // },
 
   // JSON2Grid: (obj, cb) => {
@@ -276,9 +276,9 @@ module.exports = {
   //       fs.unlink(luaFile)
   //       cb(null, res)
   //     })
-  //   })    
+  //   })
   // },
-  
+
   DecodeTotalRP3: async (str, cb) => {
     // make sure import string is valid format
     if (!str || !str.match(commonRegex.looksLikeTotalRP3)) {
@@ -318,21 +318,21 @@ module.exports = {
     }
     return result
   },
-  
 
-  BuildMDT_DungeonTable: async (directory, cb) => {    
+
+  BuildMDT_DungeonTable: async (directory, cb) => {
     var luaCode = 'local MethodDungeonTools={dungeonTotalCount={}, mapPOIs={}, dungeonEnemies={}, scaleMultiplier={}}\nlocal dungeonIndex\n'
     // load in some tables from core file
     var core = await fs.readFile(directory+'/../MethodDungeonTools.lua', 'utf8')
     core = core.replace(/local AddonName, MethodDungeonTools = \.\.\./, 'local AddonName, MethodDungeonTools = "MDT", {}')
-    core = core.replace(/local affixWeeks =/, 'MethodDungeonTools.affixWeeks =')
+    core = core.replace(/local affixWeeks =/g, 'MethodDungeonTools.affixWeeks =')
     core = core.replace(/local dungeonList =/, 'MethodDungeonTools.dungeonList =')
     core = core.replace(/local dungeonSubLevels =/, 'MethodDungeonTools.dungeonSubLevels =')
     luaCode = luaCode + core
 
     // load in some tables from dungeonEnemies file
     core = await fs.readFile(directory+'/../DungeonEnemies.lua', 'utf8')
-    core = core.replace(/local MethodDungeonTools = MethodDungeonTools/, '')    
+    core = core.replace(/local MethodDungeonTools = MethodDungeonTools/, '')
     luaCode = luaCode + core
 
     var dungeonFiles = await fs.readdir(directory)
@@ -342,7 +342,7 @@ module.exports = {
         luaCode = luaCode + dungeon.replace(/local dungeonIndex/, 'dungeonIndex') + '\n'
       }
     }
-    
+
     var result = await runLua(`dofile("./wago.lua"); ${luaCode} Table2JSON(MethodDungeonTools)`)
     return result
   },
@@ -390,12 +390,12 @@ module.exports = {
   //   auras.forEach(WA => {
   //     const aura = keyd(WA)
   //     // onload and onstart
-  //     if (aura.get("actions.init.do_custom")) { 
+  //     if (aura.get("actions.init.do_custom")) {
   //       luaCodeBlocks.push(prepareCustomCode(aura.get("actions.init.custom"), `INIT:${auraID}:${WA.id}`, true))
   //     }
   //     if (aura.get("actions.start.do_custom")) {
   //       luaCodeBlocks.push(prepareCustomCode(aura.get("actions.start.custom"), `ONSHOW:${auraID}:${WA.id}`, true))
-  //     }      
+  //     }
 
   //     if (aura.get("trigger.type")=='custom') {
   //       luaCodeBlocks.push(prepareCustomCode(aura.get("trigger.custom"), `TRIGGER_1:${auraID}:${WA.id}`))
@@ -421,12 +421,12 @@ module.exports = {
   //         }
   //       }
   //     }
-      
+
   //     // trigger logic (must have at least 2 triggers)
   //     if (WA.disjunctive === 'custom') {
   //       luaCodeBlocks.push(prepareCustomCode(aura.get("customTriggerLogic"), `TRIGGER_LOGIC:${auraID}:${WA.id}`))
   //     }
-      
+
   //     // custom display text
   //     if ((typeof WA.displayText === 'string' && WA.displayText.indexOf('%c') > -1) ||
   //       (typeof WA.text1 === 'string' && WA.text1.indexOf('%c') > -1) ||
@@ -488,7 +488,7 @@ module.exports = {
   //     }
 
   //     // on hide
-  //     if (aura.get("actions.finish.do_custom")) { 
+  //     if (aura.get("actions.finish.do_custom")) {
   //       luaCodeBlocks.push(prepareCustomCode(aura.get("actions.finish.custom"), `ONHIDE:${auraID}:${WA.id}`, true))
   //     }
 
@@ -557,7 +557,7 @@ module.exports = {
   //           review.errors[auras[fn[2]].id] = review.errors[auras[fn[2]].id] || []
   //           review.errors[auras[fn[2]].id].push({ block: fn[1], message: m[2] })
   //         }
-          
+
   //         // extract profile on all function calls
   //         review.profile = {}
   //         var anon = {}
@@ -576,7 +576,7 @@ module.exports = {
   //           }
   //           // skip the first anonymous function of each block (which is itself)
   //           else if (m[2] === 'anonymous' && !anon[m[1]]) {
-  //             anon[m[1]] = true 
+  //             anon[m[1]] = true
   //           }
   //           else  {
   //             if (m[2] === 'anonymous') {
@@ -605,7 +605,7 @@ module.exports = {
   //       }
 
   //       cb(null, review)
-  //     }).catch(e => {     
+  //     }).catch(e => {
   //       cb(e)
   //     })
   //   })

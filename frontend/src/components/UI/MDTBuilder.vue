@@ -23,12 +23,12 @@
         <md-button class="md-hide-xsmall" v-if="canEdit" @click="$refs['saveChangesDialog'].open()" ref="saveChangesButton"><md-icon>save</md-icon> {{ $t("Save changes") }}</md-button>
         <md-button class="md-hide-xsmall" v-if="scratch" @click="saveFromScratch"><md-icon>save</md-icon> {{ $t("Save MDT") }}</md-button>
       </div>
-      <div class="flex-col flex-right" style="position:relative" v-if="readonly">     
+      <div class="flex-col flex-right" style="position:relative" v-if="readonly">
         <template v-for="(affixID, k) in selectedAffixes">
           <span v-html="displayAffix(affixID)" class="topaffix"></span>
-        </template> 
-        <md-button class="md-raised" disabled id="sumPct">  
-          <md-icon>functions</md-icon> 
+        </template>
+        <md-button class="md-raised" disabled id="sumPct">
+          <md-icon>functions</md-icon>
           <strong v-if="pullDetails.length">{{ Math.round(100*pullDetails[pullDetails.length - 1].percentRunningTotal)/100 }}%</strong>
           <strong v-else>0%</strong>
         </md-button>
@@ -81,7 +81,7 @@
                 <template v-if="creature">
                   <template v-for="(clone, j) in creature.clones">
                     <slot>1</slot>
-                    <v-line v-if="clone && clone.patrol && clone.sublevel === subMapID + 1 && (!clone.teeming || (clone.teeming && isTeemingSelected())) && (!clone.faction || (clone.faction === tableData.faction))" 
+                    <v-line v-if="clone && clone.patrol && clone.sublevel === subMapID + 1 && (!clone.teeming || (clone.teeming && isTeemingSelected())) && (!clone.faction || (clone.faction === tableData.faction))"
                       @mouseover="setTargetHover(creature, clone, j, undefined, true)"
                       @mouseleave="setTargetHover()"
                       :config="{
@@ -110,11 +110,11 @@
                   <slot>1</slot>
                   <template v-for="(clone, j) in creature.clones">
                     <slot>1</slot>
-                    <v-circle v-if="clone && (!clone.sublevel || clone.sublevel === subMapID + 1) && (!clone.teeming || (clone.teeming && isTeemingSelected())) && (!clone.faction || (clone.faction === tableData.faction))" 
-                      @click="selectCreature(i, j)" 
-                      @tap="selectCreature(i, j)" 
-                      @mouseover="setTargetHover(creature, clone, j)" 
-                      @mouseleave="setTargetHover()" 
+                    <v-circle v-if="clone && (!clone.sublevel || clone.sublevel === subMapID + 1) && (!clone.teeming || (clone.teeming && isTeemingSelected())) && (!clone.faction || (clone.faction === tableData.faction))"
+                      @click="selectCreature(i, j)"
+                      @tap="selectCreature(i, j)"
+                      @mouseover="setTargetHover(creature, clone, j)"
+                      @mouseleave="setTargetHover()"
                       @mousemove="moveTooltip()"
                       :config="{
                         x: clone.x * mdtScale,
@@ -140,7 +140,7 @@
                   </template>
                 </template>
               </template>
-              <v-circle v-if="hoverSpecific.cloneIndex >= 0" 
+              <v-circle v-if="hoverSpecific.cloneIndex >= 0"
                 :config="{
                   x: enemies[hoverSpecific.creatureIndex].clones[hoverSpecific.cloneIndex].x * mdtScale,
                   y: enemies[hoverSpecific.creatureIndex].clones[hoverSpecific.cloneIndex].y * -mdtScale,
@@ -198,7 +198,7 @@
             </div>
             <div class="md-icon-button" ref="annotate-line" @click="setAnnotate('line')" @mouseover="setPOITooltip('annotation', $t('Line Tool'))" @mouseout="setPOITooltip(null)">
               <md-ink-ripple />
-              <md-icon style="transform:rotate(-45deg); font-size: 28px; margin-left: -5px; margin-top: -2px">remove</md-icon>            
+              <md-icon style="transform:rotate(-45deg); font-size: 28px; margin-left: -5px; margin-top: -2px">remove</md-icon>
             </div>
             <div class="md-icon-button" ref="annotate-arrow" @click="setAnnotate('arrow')" @mouseover="setPOITooltip('annotation', $t('Arrow Tool'))" @mouseout="setPOITooltip(null)">
               <md-icon>call_made</md-icon>
@@ -230,7 +230,7 @@
       </md-layout>
       <md-layout id="mdtOptions" md-vertical-align="start" v-bind:class="{'hidden': hideMobileOptions}">
         <md-card v-if="!mdtLoading">
-          <md-card-area v-if="!readonly" class="md-hide-small-and-up">          
+          <md-card-area v-if="!readonly" class="md-hide-small-and-up">
             <md-button @click="exportChanges" v-if="wago._id"><md-icon>open_in_new</md-icon> {{ $t("Export/Fork changes") }}</md-button>
             <md-button v-if="canEdit" @click="$refs['saveChangesDialog'].open()" ref="saveChangesButton"><md-icon>save</md-icon> {{ $t("Save changes") }}</md-button>
           </md-card-area>
@@ -241,7 +241,7 @@
                 <span v-html="displayAffix(affixID)" class="affix"></span>
               </template>
               <md-button class="md-raised md-accent" @click="toggleAffixSelection" id="changeAffixesBtn">{{ $t("Change Affixes") }}</md-button>
-              <md-button class="md-raised" disabled id="sumPct"><md-icon>functions</md-icon> 
+              <md-button class="md-raised" disabled id="sumPct"><md-icon>functions</md-icon>
                 <span v-if="pullDetails.length">{{ Math.round(100*pullDetails[pullDetails.length - 1].percentRunningTotal)/100 }}%</span>
                 <span v-else>0%</span>
               </md-button>
@@ -281,7 +281,7 @@
                         <span v-else class="singlepull">➽</span>
                         <template v-for="(target, targetIndex) in details.targets">
                           <mdt-enemy-portrait :size="36" :mapID="mapID" :offset="getEnemyPortraitOffset(target.enemyIndex, 36)" :seasonalAffix="isInfested(target.clone)"
-                            @mouseover="setTargetHoverAvatar(pull - 1, detailIndex, targetIndex, true)" 
+                            @mouseover="setTargetHoverAvatar(pull - 1, detailIndex, targetIndex, true)"
                             @mouseleave="setTargetHoverAvatar(pull - 1, detailIndex, targetIndex, false)"
                           />
                         </template>
@@ -291,7 +291,7 @@
                 </md-list-item>
               </div>
               <template v-for="reapPct in reapingPercents">
-                <div class="reaping-pull" v-if="isReapingSelected() && reapingPullDetails[reapPct] && reapingPullDetails[reapPct].pull === pull && reapingPullDetails[reapPct].targets && reapingPullDetails[reapPct].targets.length" 
+                <div class="reaping-pull" v-if="isReapingSelected() && reapingPullDetails[reapPct] && reapingPullDetails[reapPct].pull === pull && reapingPullDetails[reapPct].targets && reapingPullDetails[reapPct].targets.length"
                   @mouseover="setReapingHover(pull - 1)" @mouseleave="setTargetHover()">
                   <md-list-item v-bind:class="{selected: currentReapingPull === reapPct}"
                     @click="selectReapingPull(reapPct)">
@@ -323,9 +323,9 @@
                 <md-list-item @click="setAffixWeek(k)">
                   <div class="affixWeek">
                     <template v-for="affixID in week">
-                      <span v-html="displayAffix(affixID)" class="affix"></span>             
+                      <span v-html="displayAffix(affixID)" class="affix"></span>
                     </template>
-                  </div>           
+                  </div>
                   <span class="affixMeta">{{ $t("Week [-num-]", {num: k + 1 }) }}</span>
                 </md-list-item>
               </template>
@@ -416,7 +416,8 @@ export default {
         14: { name: 'Quaking', icon: 'Spell_Nature_Earthquake' },
         15: { name: 'Relentless', icon: 'INV_Chest_Plate04' },
         16: { name: 'Infested', icon: 'Achievement_Nazmir_Boss_Ghuun' },
-        117: { name: 'Reaping', icon: 'Ability_Racial_EmbraceoftheLoa_Bwonsomdi' }
+        117: { name: 'Reaping', icon: 'Ability_Racial_EmbraceoftheLoa_Bwonsomdi' },
+        119: { name: 'Beguiling', icon: 'Spell_Shadow_MindShear' }
       },
       currentPull: -1,
       reapingPercents: [20, 40, 60, 80, 100],
@@ -1640,7 +1641,7 @@ export default {
 #builder { position: relative; min-height: 666px }
 #builder canvas { position: absolute; left: 0; top: 0; width:60%; max-width: 1000px; height: 666px; max-height: 666px; }
 #stageContainer { max-width:1000px; width:60%; height:666px; position: relative; flex: 2 }
-#mdtOptions .md-card { margin: 0; overflow: hidden; width: 100%; height: 666px; overflow-y: auto;} 
+#mdtOptions .md-card { margin: 0; overflow: hidden; width: 100%; height: 666px; overflow-y: auto;}
 #mdtOptions .md-card .md-sidenav-content { min-width: 75%; }
 #mdtOptions .md-sidenav-backdrop { position: fixed }
 /* embed options scrollbar */
