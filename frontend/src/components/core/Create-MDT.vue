@@ -32,7 +32,7 @@ export default {
       var week, affixes
       for (let i = 0; i < weeks.length; i++) {
         if (weeks[i].slug.match(this.$route.params.week)) {
-          week = parseInt(weeks[i].slug.replace(/affixes[/s1]?\/week/, ''))
+          week = parseInt(weeks[i].slug.replace(/affixes[/s123]?\/week/, ''))
           affixes = dungeonTable.affixWeeks[week - 1]
           break
         }

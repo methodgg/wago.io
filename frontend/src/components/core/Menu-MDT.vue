@@ -1,5 +1,5 @@
 <template>
-  <div id="search-mdt"> 
+  <div id="search-mdt">
     <form novalidate @submit.stop.prevent="runSearch(searchString)" id="searchForm">
       <md-input-container>
         <label>{{ $t("Search") }}</label>
@@ -28,7 +28,7 @@
           </div>
           <md-button @click="createMDT()" class="md-raised" :disabled="!newAffix || !newDungeon">{{ $t("Build") }}</md-button>
         </md-whiteframe>
-        
+
         <md-whiteframe id="import-wcl" v-if="$store.state.user && $store.state.user.access && $store.state.user.access.beta">
           <strong>{{ $t("Import route from WarcraftLogs") }} [Beta]</strong>
           <p>* Highly experimental *<br>I need logs and accompanying video please!</p>
@@ -65,7 +65,7 @@
           </md-list-item>
         </md-list>
         <md-subheader>{{ $t("BFA Season 2 Affix Weeks") }}</md-subheader>
-        <md-list class="md-double-line md-dense">          
+        <md-list class="md-double-line md-dense">
           <md-list-item class="md-inset affixWeek">
             <category-image group="affixWeek"></category-image>
             <div class="md-list-text-container">
@@ -78,9 +78,9 @@
               </span>
             </div>
           </md-list-item>
-        </md-list>  
+        </md-list>
         <md-subheader>{{ $t("Speed Goals") }}</md-subheader>
-        <md-list class="md-double-line md-dense">          
+        <md-list class="md-double-line md-dense">
           <md-list-item class="md-inset speed">
             <category-image group="speed"></category-image>
             <div class="md-list-text-container">
@@ -89,9 +89,9 @@
               </span>
             </div>
           </md-list-item>
-        </md-list> 
+        </md-list>
         <md-subheader>{{ $t("Individual Affixes") }}</md-subheader>
-        <md-list class="md-double-line md-dense">          
+        <md-list class="md-double-line md-dense">
           <md-list-item class="md-inset affixes">
             <category-image group="affixes"></category-image>
             <div class="md-list-text-container">
@@ -100,7 +100,7 @@
               </span>
             </div>
           </md-list-item>
-        </md-list>         
+        </md-list>
       </md-layout>
       <md-layout md-column>
         <md-subheader>{{ $t("Requires Class") }}</md-subheader>
@@ -169,7 +169,7 @@ export default {
   },
   watch: {
     currentWeek: function (val) {
-      this.newAffix = 'mdtaffix-bfa-s1-w' + val
+      this.newAffix = 'mdtaffix-bfa-s3-w' + val
     },
     wclURL: function (val) {
       this.wclDungeonIndex = -1
@@ -199,7 +199,10 @@ export default {
       return categories.raidCategories(['mdtdun'], this.$t)
     },
     affixesS2: function () {
-      return categories.getCategories([/^mdtaffix-bfa-s2-/], this.$t, true) // also in Create-MDT and data.newAffix
+      return categories.getCategories([/^mdtaffix-bfa-s2-/], this.$t, true)
+    },
+    affixesS3: function () {
+      return categories.getCategories([/^mdtaffix-bfa-s3-/], this.$t, true) // also in Create-MDT and data.newAffix
     },
     affixes: function () {
       return categories.getCategories([/^mdtaffix\d/], this.$t)
