@@ -5,6 +5,6 @@ module.exports = {
     { 'code': 'es-ES', 'lang': 'Español' },
     { 'code': 'fr-FR', 'lang': 'Français' },
     { 'code': 'ru-RU', 'lang': 'Русский' },
-    { 'code': 'zh-TW', 'lang': '简体中文' }
+    { 'code': 'zh-CN', 'lang': '简体中文' }
   ]
 }

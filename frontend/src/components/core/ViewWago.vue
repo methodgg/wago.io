@@ -404,7 +404,7 @@
                       <md-tab v-for="(error, key) in wago.errorReport" :md-label="key + 1" :key="key" :id="'err' + (key + 1)" :md-active="selectedError === key + 1">
                         <ui-warning v-if="error.text.match(/ADDON_ACTION_BLOCKED/)" mode="alert">
                           {{ $t("ADDON_ACTION_BLOCKED usually refers to addon taint and the stack detailed below is probably not the cause of this error") }}
-                        </ui-warning>
+                        </ui-warning><br>
                         <formatted-text :text="error"></formatted-text>
                       </md-tab>
                     </md-tabs>
@@ -412,7 +412,7 @@
                   <template v-else-if="wago.type === 'ERROR' && wago.errorReport && wago.errorReport.length === 1">
                     <ui-warning v-if="wago.errorReport[0].text.match(/ADDON_ACTION_BLOCKED/)" mode="alert">
                       {{ $t("ADDON_ACTION_BLOCKED usually refers to addon taint and the stack detailed below is probably not the cause of this error") }}
-                    </ui-warning>
+                    </ui-warning><br>
                     <formatted-text :text="wago.errorReport[0]"></formatted-text>
                   </template>
                 </div>
