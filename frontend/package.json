@@ -11,7 +11,9 @@
     "unit": "cross-env BABEL_ENV=test karma start test/unit/karma.conf.js --single-run",
     "e2e": "node test/e2e/runner.js",
     "test": "npm run unit && npm run e2e",
-    "lint": "eslint --ext .js,.vue src test/unit/specs test/e2e/specs"
+    "lint": "eslint --ext .js,.vue src test/unit/specs test/e2e/specs",
+    "snyk-protect": "snyk protect",
+    "prepare": "npm run snyk-protect"
   },
   "dependencies": {
     "@panter/vue-i18next": "^0.5.1",
@@ -36,7 +38,8 @@
     "vue-router": "^2.3.1",
     "vue-scrollto": "^2.15.0",
     "vue-simple-lightbox": "0.0.5",
-    "vuex": "^2.3.1"
+    "vuex": "^2.3.1",
+    "snyk": "^1.189.0"
   },
   "devDependencies": {
     "@websanova/vue-auth": "^2.18.1-beta",
@@ -126,5 +129,6 @@
     "> 1%",
     "last 2 versions",
     "not ie <= 8"
-  ]
+  ],
+  "snyk": true
 }
