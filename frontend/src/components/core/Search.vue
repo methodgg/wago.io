@@ -14,6 +14,7 @@
           <div class="searchResult" template v-for="(result, index) in results.results" v-bind:key="index" v-if="result">
             <div class="searchImg">
               <md-image :md-src="result.thumbnail" v-if="result.thumbnail"></md-image>
+              <placeholder-img :text="result.type" v-else></placeholder-img>
             </div>
             <div class="searchText">
               <router-link :to="'/' + result.slug">{{ result.name }}</router-link>
@@ -42,6 +43,7 @@
       <md-layout id="searchMeta" v-if="results && results.query">
         <search-meta :meta="results.query.context" :tagMap="tagMap" :textSearch="results.query.textSearch" :sort="sortVal" @setSort="setSort" @setImportType="setImportType" :catRelevance="catRelevance" @setCategoryRelevance="setCategoryRelevance" :filterExpansion="filterExpansion" @setExpansion="setExpansion"></search-meta>
       </md-layout>
+      <div v-if="!isSearching"><advert style="margin-top:0"/></div>
     </md-layout>
     <p v-if="isSearchingMore">{{ $t("Loading more") }}</p>
   </div>
@@ -49,6 +51,7 @@
 
 <script>
 import Categories from '../libs/categories'
+import Advert from '../UI/Advert.vue'
 export default {
   data: function () {
     return {
@@ -59,7 +62,7 @@ export default {
       searchOptions: 'sort: Date',
       tagContext: [],
       tagMap: {},
-      isSearching: false,
+      isSearching: true,
       isSearchingMore: false,
       sortVal: this.$store.state.user && this.$store.state.user.config && this.$store.state.user.config.searchOptions.sort || 'bestmatch',
       uiSearchValue: false,
@@ -73,7 +76,9 @@ export default {
   props: ['contextSearch', 'contextGame'],
   components: {
     'search-meta': require('../UI/SearchMeta.vue'),
-    'formatted-text': require('../UI/FormattedText.vue')
+    'formatted-text': require('../UI/FormattedText.vue'),
+    'placeholder-img': require('../UI/PlaceHolderImage.vue'),
+    Advert
   },
   watch: {
     '$route' (to, from) {
@@ -329,7 +334,7 @@ export default {
 #searchForm { padding: 16px; width: 100% }
 #searchForm button { margin-top: -3px }
 
-.searchResult { display: flex; padding: 0 8px; margin-bottom: 8px; max-width: 850px; min-width: 30% }
+.searchResult { display: flex; padding: 0 8px; margin-bottom: 8px; max-width: 850px; min-width: 650px;}
 .searchResult .searchImg { min-width: 120px; max-width: 120px; text-align: center }
 .searchResult .searchImg img { max-width: 100%; max-height: 6em; }
 .searchResult .searchText {  }
@@ -358,7 +363,7 @@ export default {
   #searchMeta > div { width: 100%; }
   #searchResults { order: 2 }
   .searchResult { flex-direction: column; }
-  .searchResult .searchImg { max-width: 100%; text-align: left; padding-left: 16px }
+  .searchResult .searchImg { max-width: 100%; min-width: auto; text-align: left; padding-left: 16px }
 }
 
 </style>

@@ -692,6 +692,9 @@ module.exports = {
 
   rootCategories: function (t, type, addon) {
     var roots = []
+    if (type === 'WEAKAURAS2') {
+      type = 'WEAKAURA'
+    }
     this.categories(t).forEach((cat) => {
       if (cat.root && (!type || cat[type]) && !cat.noselect && (!addon || cat[addon])) {
         roots.push(cat)

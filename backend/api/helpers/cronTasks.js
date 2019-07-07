@@ -135,7 +135,7 @@ module.exports = {
               if (!date) {
                 continue
               }
-              release.date = moment(date, 'MMM D, YYYY').format('x')
+              release.date = moment(date, 'MMM D, YYYY')
               releases.push(release)
               discovered.push(release.phase)
               const preExisting = await AddonRelease.findOneAndUpdate({addon: release.addon, phase: release.phase, version: release.version}, release, {upsert: true, new: false}).exec()

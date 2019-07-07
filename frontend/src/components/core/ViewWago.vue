@@ -18,95 +18,98 @@
         <h3>{{ wago.name }}</h3>
         <md-subheader><span v-for="(cat, n) in wago.categories" :key="n" :class="cat.cls" disabled v-if="cat.text">{{ cat.text }}</span></md-subheader>
       </div>
-      <md-card id="wago-header" ref="header" v-bind:class="{'md-hide-xsmall': hideMobileHeader}">
-        <md-layout>
-          <div>
-            <h3>{{ wago.name }} <span class="version-number" v-if="currentVersionString && !currentVersionString.match(/undefined/)">v{{ currentVersionString }}</span></h3>
-            <md-subheader>{{ wago.type }} <span :href="wago.url" @click.prevent="copyURL" style="margin-left: 16px; opacity: .54">{{ wago.url }}</span></md-subheader>
-          </div>
-          <!-- ACTIONS -->
-          <md-card-actions id="wago-actions" ref="action-buttons">
-            <md-button v-if="User.UID" @click="toggleFavorite">
-              <md-icon v-if="wago.myfave">star</md-icon>
-              <md-icon v-else>star_border</md-icon> {{ $t("Favorite") }}
-            </md-button>
-            <md-button v-if="wago.user && User && wago.UID && wago.UID === User.UID && wago.code && wago.code.encoded" @click="generateNextVersionData(); $refs['newImportDialog'].open()" id="newImportButton"><md-icon>input</md-icon> {{ $t("Import new string") }}</md-button>
-            <md-button v-if="hasUnsavedChanges && wago.code && wago.code.encoded && !wago.code.alerts.blacklist" @click="copyEncoded" class="copy-import-button">
-              <md-icon>assignment</md-icon> {{ $t("Copy [-type-] import string", {type: wago.type}) }}
-              <md-tooltip md-direction="bottom" class="CopyWarningTooltip"><strong>{{ $t("You have unsaved changes") }}</strong><br>{{ $t("Be sure to save or fork to generate a new string with your modifications") }}</md-tooltip>
-            </md-button>
-            <md-button v-else-if="wago.code && wago.code.encoded && !wago.code.alerts.blacklist" @click="copyEncoded" class="copy-import-button">
-              <md-icon>assignment</md-icon> {{ $t("Copy [-type-] import string", {type: wago.type}) }}
-            </md-button>
-            <md-button v-if="wago.image && wago.image.files.tga" :href="wago.image.files.tga" class="copy-import-button"><md-icon>file_download</md-icon> {{ $t("Download tga file") }}</md-button>
-          </md-card-actions>
-          <md-dialog v-if="wago.user && User && wago.UID && wago.UID === User.UID" md-open-from="#newImportButton" md-close-to="#newImportButton" ref="newImportDialog" id="newImportDialog" @open="focusFieldByRef('importStringField')">
-            <md-dialog-title>{{ $t("Import new string") }}</md-dialog-title>
-
-            <md-dialog-content>
-              <md-input-container :class="{ 'md-input-invalid': newImportString && newImportStringStatus.indexOf('Invalid') >= 0, 'md-input-status': newImportStringStatus }">
-                <label>{{ $t("Paste a new [-type-] string to update this Wago", {type: wago.type.toLowerCase() }) }}</label>
-                <md-input v-model="newImportString" ref="importStringField"></md-input>
-                <span class="md-error" v-if="newImportStringStatus.length>0">{{ newImportStringStatus }}</span>
-              </md-input-container>
-            </md-dialog-content>
-
-            <input-semver v-model="newImportVersion" :latestVersion="latestVersion"></input-semver>
-
-            <md-dialog-content>
-              <md-input-container class="changelog-notes">
-                <label>{{ $t("Changelog") }}</label>
-                <md-textarea v-model="newChangelog.text" :placeholder="$t('You may enter any patch notes or updates here')"></md-textarea>
-              </md-input-container>
-              <div>
-                <div class="md-radio md-theme-default"><label class="md-radio-label">{{ $t("Format") }}</label></div>
-                <md-radio v-model="newChangelog.format" md-value="bbcode">BBCode</md-radio>
-                <md-radio v-model="newChangelog.format" md-value="markdown">Markdown</md-radio>
-              </div>
-            </md-dialog-content>
-
-            <md-dialog-actions>
-              <md-button class="md-primary" @click="onUpdateImportString()" :disabled="!newImportString || newImportStringStatus.indexOf('Invalid') >= 0 || newImportVersionError.length > 0">{{ $t("Update") }}</md-button>
-              <md-button class="md-primary" @click="$refs['newImportDialog'].close()">{{ $t("Cancel") }}</md-button>
-            </md-dialog-actions>
-          </md-dialog>
-        </md-layout>
-        <md-card-header>
-          <md-avatar>
-            <ui-image :img="wago.user.avatar"></ui-image>
-          </md-avatar>
-          <div class="item">
-            <div class="md-title" v-if="wago.type === 'COLLECTION' && wago.UID && wago.user.searchable" v-html="$t('Collected by [-name-]', {name: `<a href='/p/${encodeURIComponent(wago.user.name)}' class='${wago.user.roleClass}'>${wago.user.name}</a>`, 'interpolation': {'escapeValue': false}})"></div>
-            <div class="md-title" v-else-if="wago.type === 'COLLECTION' && wago.UID" v-html="$t('Imported by [-name-]', {name: `<span class='${wago.user.roleClass}'>${wago.user.name}</span>`, 'interpolation': {'escapeValue': false}})"></div>
-            <div class="md-title" v-else-if="wago.UID && wago.user.searchable" v-html="$t('Imported by [-name-]', {name: `<a href='/p/${encodeURIComponent(wago.user.name)}' class='${wago.user.roleClass}'>${wago.user.name}</a>`, 'interpolation': {'escapeValue': false}})"></div>
-            <div class="md-title" v-else-if="wago.UID" v-html="$t('Imported by [-name-]', {name: `<span class='${wago.user.roleClass}'>${wago.user.name}</span>`, 'interpolation': {'escapeValue': false}})"></div>
-            <div class="md-title" v-else>{{ $t("Imported by guest") }}</div>
-            <div class="md-subhead">{{ wago.date.modified | moment('MMM Do YYYY') }} [{{ wago.patch }}]</div>
-          </div>
-          <div class="item">
-            <div class="md-title">{{ $t("[-count-] star", { count: wago.favoriteCount }) }}</div>
-            <div class="md-subhead">{{ $t("[-count-] view", { count: wago.viewCount }) }}</div>
-          </div>
-          <div class="item" v-if="wago.type.match(/WEAKAURA/)">
-            <div class="md-title">{{ $t("[-count-] install", { count: wago.installCount }) }}</div>
-          </div>
-          <div class="item" style="float:right" v-if="enableCompanionBeta && wago.type.match(/WEAKAURA/) && wago.code && wago.code.encoded && !wago.code.alerts.blacklist">
-            <div id="sendToCompanionAppBtn" class="md-button copy-import-button" @click="sendToCompanionApp(true)">
-              <md-icon>airplay</md-icon> {{ $t("Send to WeakAura Companion App") }}
+      <md-layout md-row>
+        <md-card id="wago-header" ref="header" v-bind:class="{'md-hide-xsmall': hideMobileHeader}">
+          <md-layout>
+            <div>
+              <h3>{{ wago.name }} <span class="version-number" v-if="currentVersionString && !currentVersionString.match(/undefined/)">v{{ currentVersionString }}</span></h3>
+              <md-subheader>{{ wago.type }} <span :href="wago.url" @click.prevent="copyURL" style="margin-left: 16px; opacity: .54">{{ wago.url }}</span></md-subheader>
             </div>
-          </div>
-          <div id="tags">
-            <md-chip v-for="(cat, n) in wago.categories" :key="n" :class="cat.cls" disabled v-if="cat.text && (n<5 || showMoreCategories)">{{ cat.text }}</md-chip>
-            <span @click="viewAllCategories()"><md-chip v-if="wago.categories.length > 5 && !showMoreCategories" class="show_more">{{ $t("[-count-] more", {count: wago.categories.length - 5}) }}</md-chip></span>
-          </div>
-          <md-layout id="thumbnails">
-            <template v-for="video in wago.videos">
-              <a class="showvid" :href="video.url" @click.prevent="showVideo(video.embed)"><md-icon>play_circle_outline</md-icon><md-image :md-src="video.thumb"></md-image></a>
-            </template>
-            <lightbox id="mylightbox" :images="wago.screens"></lightbox>
+            <!-- ACTIONS -->
+            <md-card-actions id="wago-actions" ref="action-buttons">
+              <md-button v-if="User.UID" @click="toggleFavorite">
+                <md-icon v-if="wago.myfave">star</md-icon>
+                <md-icon v-else>star_border</md-icon> {{ $t("Favorite") }}
+              </md-button>
+              <md-button v-if="wago.user && User && wago.UID && wago.UID === User.UID && wago.code && wago.code.encoded" @click="generateNextVersionData(); $refs['newImportDialog'].open()" id="newImportButton"><md-icon>input</md-icon> {{ $t("Import new string") }}</md-button>
+              <md-button v-if="hasUnsavedChanges && wago.code && wago.code.encoded && !wago.code.alerts.blacklist" @click="copyEncoded" class="copy-import-button">
+                <md-icon>assignment</md-icon> {{ $t("Copy [-type-] import string", {type: wago.type}) }}
+                <md-tooltip md-direction="bottom" class="CopyWarningTooltip"><strong>{{ $t("You have unsaved changes") }}</strong><br>{{ $t("Be sure to save or fork to generate a new string with your modifications") }}</md-tooltip>
+              </md-button>
+              <md-button v-else-if="wago.code && wago.code.encoded && !wago.code.alerts.blacklist" @click="copyEncoded" class="copy-import-button">
+                <md-icon>assignment</md-icon> {{ $t("Copy [-type-] import string", {type: wago.type}) }}
+              </md-button>
+              <md-button v-if="wago.image && wago.image.files.tga" :href="wago.image.files.tga" class="copy-import-button"><md-icon>file_download</md-icon> {{ $t("Download tga file") }}</md-button>
+            </md-card-actions>
+            <md-dialog v-if="wago.user && User && wago.UID && wago.UID === User.UID" md-open-from="#newImportButton" md-close-to="#newImportButton" ref="newImportDialog" id="newImportDialog" @open="focusFieldByRef('importStringField')">
+              <md-dialog-title>{{ $t("Import new string") }}</md-dialog-title>
+
+              <md-dialog-content>
+                <md-input-container :class="{ 'md-input-invalid': newImportString && newImportStringStatus.indexOf('Invalid') >= 0, 'md-input-status': newImportStringStatus }">
+                  <label>{{ $t("Paste a new [-type-] string to update this Wago", {type: wago.type.toLowerCase() }) }}</label>
+                  <md-input v-model="newImportString" ref="importStringField"></md-input>
+                  <span class="md-error" v-if="newImportStringStatus.length>0">{{ newImportStringStatus }}</span>
+                </md-input-container>
+              </md-dialog-content>
+
+              <input-semver v-model="newImportVersion" :latestVersion="latestVersion"></input-semver>
+
+              <md-dialog-content>
+                <md-input-container class="changelog-notes">
+                  <label>{{ $t("Changelog") }}</label>
+                  <md-textarea v-model="newChangelog.text" :placeholder="$t('You may enter any patch notes or updates here')"></md-textarea>
+                </md-input-container>
+                <div>
+                  <div class="md-radio md-theme-default"><label class="md-radio-label">{{ $t("Format") }}</label></div>
+                  <md-radio v-model="newChangelog.format" md-value="bbcode">BBCode</md-radio>
+                  <md-radio v-model="newChangelog.format" md-value="markdown">Markdown</md-radio>
+                </div>
+              </md-dialog-content>
+
+              <md-dialog-actions>
+                <md-button class="md-primary" @click="onUpdateImportString()" :disabled="!newImportString || newImportStringStatus.indexOf('Invalid') >= 0 || newImportVersionError.length > 0">{{ $t("Update") }}</md-button>
+                <md-button class="md-primary" @click="$refs['newImportDialog'].close()">{{ $t("Cancel") }}</md-button>
+              </md-dialog-actions>
+            </md-dialog>
           </md-layout>
-        </md-card-header>
-      </md-card>
+          <md-card-header>
+            <md-avatar>
+              <ui-image :img="wago.user.avatar"></ui-image>
+            </md-avatar>
+            <div class="item">
+              <div class="md-title" v-if="wago.type === 'COLLECTION' && wago.UID && wago.user.searchable" v-html="$t('Collected by [-name-]', {name: `<a href='/p/${encodeURIComponent(wago.user.name)}' class='${wago.user.roleClass}'>${wago.user.name}</a>`, 'interpolation': {'escapeValue': false}})"></div>
+              <div class="md-title" v-else-if="wago.type === 'COLLECTION' && wago.UID" v-html="$t('Imported by [-name-]', {name: `<span class='${wago.user.roleClass}'>${wago.user.name}</span>`, 'interpolation': {'escapeValue': false}})"></div>
+              <div class="md-title" v-else-if="wago.UID && wago.user.searchable" v-html="$t('Imported by [-name-]', {name: `<a href='/p/${encodeURIComponent(wago.user.name)}' class='${wago.user.roleClass}'>${wago.user.name}</a>`, 'interpolation': {'escapeValue': false}})"></div>
+              <div class="md-title" v-else-if="wago.UID" v-html="$t('Imported by [-name-]', {name: `<span class='${wago.user.roleClass}'>${wago.user.name}</span>`, 'interpolation': {'escapeValue': false}})"></div>
+              <div class="md-title" v-else>{{ $t("Imported by guest") }}</div>
+              <div class="md-subhead">{{ wago.date.modified | moment('MMM Do YYYY') }} [{{ wago.patch }}]</div>
+            </div>
+            <div class="item">
+              <div class="md-title">{{ $t("[-count-] star", { count: wago.favoriteCount }) }}</div>
+              <div class="md-subhead">{{ $t("[-count-] view", { count: wago.viewCount }) }}</div>
+            </div>
+            <div class="item" v-if="wago.type.match(/WEAKAURA/)">
+              <div class="md-title">{{ $t("[-count-] install", { count: wago.installCount }) }}</div>
+            </div>
+            <div class="item" style="float:right" v-if="enableCompanionBeta && wago.type.match(/WEAKAURA/) && wago.code && wago.code.encoded && !wago.code.alerts.blacklist">
+              <div id="sendToCompanionAppBtn" class="md-button copy-import-button" @click="sendToCompanionApp(true)">
+                <md-icon>airplay</md-icon> {{ $t("Send to WeakAura Companion App") }}
+              </div>
+            </div>
+            <div id="tags">
+              <md-chip v-for="(cat, n) in wago.categories" :key="n" :class="cat.cls" disabled v-if="cat.text && (n<5 || showMoreCategories)">{{ cat.text }}</md-chip>
+              <span @click="viewAllCategories()"><md-chip v-if="wago.categories.length > 5 && !showMoreCategories" class="show_more">{{ $t("[-count-] more", {count: wago.categories.length - 5}) }}</md-chip></span>
+            </div>
+            <md-layout id="thumbnails">
+              <template v-for="video in wago.videos">
+                <a class="showvid" :href="video.url" @click.prevent="showVideo(video.embed)"><md-icon>play_circle_outline</md-icon><md-image :md-src="video.thumb"></md-image></a>
+              </template>
+              <lightbox id="mylightbox" :images="wago.screens"></lightbox>
+            </md-layout>
+          </md-card-header>
+        </md-card>
+        <advert/>
+      </md-layout>
 
       <md-dialog md-open-from="#sendToCompanionAppBtn" md-close-to="#sendToCompanionAppBtn" ref="sendToCompanionAppDialog">
         <md-dialog-title>WeakAuras Companion</md-dialog-title>
@@ -126,7 +129,6 @@
           <md-button class="md-primary" @click="$refs.sendToCompanionAppDialog.close(); sendToCompanionApp(false)">{{ $t("Send To Companion") }}</md-button>
         </md-dialog-actions>
       </md-dialog>
-
 
       <md-card id="wago-floating-header" v-if="showFloatingHeader">
         <div class="floating-header">
@@ -835,6 +837,7 @@ import Lightbox from 'vue-simple-lightbox'
 import Multiselect from 'vue-multiselect'
 import CategorySelect from '../UI/SelectCategory.vue'
 import Search from '../core/Search.vue'
+import Advert from '../UI/Advert.vue'
 import semver from 'semver'
 const openCustomProtocol = require('../libs/customProtocolDetection')
 
@@ -859,6 +862,7 @@ export default {
     'view-diffs': require('../UI/ViewDiffs.vue'),
     'color-picker': require('vue-color').Chrome,
     'md-autocomplete': require('../UI/md-autocomplete.vue'),
+    Advert,
     editor: require('vue2-ace-editor'),
     Multiselect,
     CategorySelect,
@@ -2222,7 +2226,7 @@ export default {
 #copyFail .md-input-container { display: inline-block; position: relative}
 
 #view-wago > div { position: relative }
-#wago-header.md-card { padding-bottom:0!important; }
+#wago-header.md-card { padding-bottom:0!important; flex: 1}
 #wago-header.md-card, #wago-floating-header.md-card { padding: 16px; margin: 16px }
 #wago-header.md-card h3, #wago-floating-header.md-card h3 { margin: 0 }
 #wago-header.md-card h3 + .md-subheader, #wago-floating-header.md-card h3 + .md-subheader { padding:0; min-height:0 }
