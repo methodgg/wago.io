@@ -245,6 +245,7 @@ module.exports = {
       {id: "bfadungeon8", slug: "pve/bfa-dungeons/the-underrot", cls:"dungeon", text: t("warcraft:zones.9391"), WEAKAURA: true},
       {id: "bfadungeon9", slug: "pve/bfa-dungeons/tol-dagor", cls:"dungeon", text: t("warcraft:zones.9327"), WEAKAURA: true},
       {id: "bfadungeon10", slug: "pve/bfa-dungeons/waycrest-manor", cls:"dungeon", text: t("warcraft:zones.9424"), WEAKAURA: true},
+      {id: "bfadungeon11", slug: "pve/bfa-dungeons/operation-mechagon", cls:"dungeon", text: t("warcraft:zones.10225"), WEAKAURA: true},
 
       {id: "pvp", slug: "pvp", cls:"pvp-arena", text: t("PvP"), root: true, "CLASSIC-WEAKAURA": true, WEAKAURA: true, COLLECTION: true},
       {id: "arena", slug: "pvp/arena", cls:"pvp-arena", text: t("Arena"), WEAKAURA: true, COLLECTION: true},
