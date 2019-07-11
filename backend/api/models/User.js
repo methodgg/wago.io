@@ -42,6 +42,7 @@ const Schema = new mongoose.Schema({
     gold_subscriber : { type: Boolean, default: false },
     pro_subscriber : { type: Boolean, default: false },
     ambassador : { type: Boolean, default: false },
+    community_leader : { type: Boolean, default: false },
     developer : { type: Boolean, default: false },
     artContestWinnerAug2018: { type: Boolean, default: false }
   },
@@ -238,25 +239,25 @@ Schema.virtual('avatarURL').get(function() {
 
 Schema.virtual('access.custom_slug').get(function() {
   if (this.roles.isAdmin.access) return true
-  if (this.roles.gold_subscriber || this.roles.pro_subscriber || this.roles.ambassador || this.roles.developer || this.roles.artContestWinnerAug2018) return true
+  if (this.roles.gold_subscriber || this.roles.pro_subscriber || this.roles.ambassador || this.roles.community_leader || this.roles.developer || this.roles.artContestWinnerAug2018) return true
 
   return false
 })
 Schema.virtual('access.animatedAvatar').get(function() {
   if (this.roles.isAdmin.access) return true
-  if (this.roles.subscriber || this.roles.gold_subscriber || this.roles.pro_subscriber || this.roles.ambassador || this.roles.developer || this.roles.artContestWinnerAug2018) return true
+  if (this.roles.subscriber || this.roles.gold_subscriber || this.roles.pro_subscriber || this.roles.community_leader || this.roles.ambassador || this.roles.developer || this.roles.artContestWinnerAug2018) return true
 
   return false
 })
 Schema.virtual('access.referrals').get(function() {
   if (this.roles.isAdmin.access) return true
-  if (this.roles.subscriber || this.roles.gold_subscriber || this.roles.pro_subscriber || this.roles.ambassador || this.roles.developer || this.roles.artContestWinnerAug2018) return true
+  if (this.roles.subscriber || this.roles.gold_subscriber || this.roles.pro_subscriber || this.roles.community_leader || this.roles.ambassador || this.roles.developer || this.roles.artContestWinnerAug2018) return true
 
   return false
 })
 Schema.virtual('access.beta').get(function() {
   if (this.roles.isAdmin.access) return true
-  if (this.roles.subscriber || this.roles.gold_subscriber || this.roles.pro_subscriber || this.roles.ambassador || this.roles.developer  || this.roles.artContestWinnerAug2018) return true
+  if (this.roles.subscriber || this.roles.gold_subscriber || this.roles.pro_subscriber || this.roles.community_leader || this.roles.ambassador || this.roles.developer  || this.roles.artContestWinnerAug2018) return true
 
   return false
 })
