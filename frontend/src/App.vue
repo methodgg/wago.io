@@ -214,7 +214,9 @@ export default {
     // listen for link click events at the document level
     if (document.addEventListener) {
       document.addEventListener('click', (e) => {
-        interceptClickEvent(e, this)
+        if (!e.button) { // leftclick = 0; otherwise firefox overwrites other click actions
+          interceptClickEvent(e, this)
+        }
       })
     }
     else if (document.attachEvent) {

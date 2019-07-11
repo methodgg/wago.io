@@ -265,13 +265,13 @@ Schema.virtual('access.api').get(function() {
 })
 Schema.virtual('access.restrictGuild').get(function() {
   if (this.roles.isAdmin.access) return true
-  if (this.roles.gold_subscriber || this.roles.pro_subscriber || this.roles.ambassador || this.roles.developer || this.roles.artContestWinnerAug2018) return true
+  if (this.roles.gold_subscriber || this.roles.pro_subscriber || this.roles.ambassador || this.roles.community_leader || this.roles.developer || this.roles.artContestWinnerAug2018) return true
 
   return false
 })
 Schema.virtual('access.restrictSubs').get(function() {
   if (this.roles.isAdmin.access) return true
-  if (this.roles.pro_subscriber || this.roles.ambassador || this.roles.developer) return true
+  if (this.roles.pro_subscriber || this.roles.ambassador || this.roles.developer || this.roles.community_leader) return true
 
   return false
 })
@@ -285,7 +285,7 @@ Schema.virtual('roleclass').get(function() {
       return 'user-goldsub'
   else if (this.roles.subscriber)
       return 'user-sub'
-  else if (this.roles.ambassador || this.roles.developer)
+  else if (this.roles.ambassador || this.roles.developer || this.roles.community_leader)
       return 'user-goldsub'
 
   else

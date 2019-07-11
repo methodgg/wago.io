@@ -169,6 +169,7 @@
           <ui-warning v-if="User.access && (User.access.admin || User.access.goldSub || User.access.guild_subscriber || User.access.ambassador || User.access.contestWinner)" mode="gold">
             <span v-if="User.access.admin" style="padding-right:16px">[Wago.io Admin]</span>
             <span v-if="User.access.ambassador" style="padding-right:16px">[Wago.io Ambassador]</span>
+            <span v-if="User.access.community_leader" style="padding-right:16px">[Community Leader]</span>
             <span v-if="User.access.developer" style="padding-right:16px">[Addon Developer]</span>
             <span v-if="User.access.contestWinner" style="padding-right:16px">[{{ $t("Contest Winner") }}]</span>
             <span v-if="User.access.guild_subscriber">[{{ $t("Guild Subscriber") }}]</span>
