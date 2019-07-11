@@ -299,7 +299,7 @@ module.exports = {
       return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
     }
     var guildsChecked = []
-    const users = await User.find({"battlenet.guilds.1": {$exists: true}, $or: [{"roles.gold_subscriber": true}, {"roles.pro_subscriber": true}, {"roles.ambassador": true}, {"roles.developer": true}, {"roles.artContestWinnerAug2018": true}]}).exec()
+    const users = await User.find({"battlenet.guilds.1": {$exists: true}, $or: [{"roles.gold_subscriber": true}, {"roles.pro_subscriber": true}, {"roles.ambassador": true}, {"roles.developer": true}, {"roles.community_leader": true}, {"roles.artContestWinnerAug2018": true}]}).exec()
     const updateGuild = async function (guildKey) {
       const accountIdsInGuild = []
       const accountsInGuild = []

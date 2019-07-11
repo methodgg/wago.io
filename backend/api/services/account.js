@@ -83,6 +83,7 @@ module.exports = (fastify, opts, next) => {
       who.access.guild_subscriber = user.roles.guild_subscriber
       who.access.ambassador = user.roles.ambassador
       who.access.developer = user.roles.developer
+      who.access.community_leader = user.roles.community_leader
       who.access.contestWinner = user.roles.artContestWinnerAug2018
 
       if (user.roles.isAdmin.access) {
