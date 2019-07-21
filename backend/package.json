@@ -5,7 +5,7 @@
   "main": "server.js",
   "dependencies": {
     "async": "^2.6.1",
-    "axios": "^0.18.0",
+    "axios": "^0.19.0",
     "bcrypt": "^3.0.3",
     "bluebird": "^3.5.3",
     "cheerio": "^1.0.0-rc.2",
@@ -27,11 +27,11 @@
     "mkdirp-promise": "^5.0.1",
     "mmmagic": "^0.5.2",
     "moment": "^2.24.0",
-    "mongoosastic": "^4.4.1",
+    "mongoosastic": "^4.5.0",
     "mongoose": "^5.4.9",
     "node-object-hash": "^1.4.2",
     "promise-mmmagic": "0.0.2",
-    "puppeteer": "^1.12.2",
+    "puppeteer": "^1.18.1",
     "rimraf": "^2.6.3",
     "s3-client": "^4.4.2",
     "sharp": "^0.21.3",
@@ -43,7 +43,7 @@
   },
   "devDependencies": {
     "request-promise": "^4.2.4",
-    "tap": "^12.5.3"
+    "tap": "^12.7.0"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
