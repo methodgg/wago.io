@@ -39,15 +39,19 @@
     "shortid": "^2.2.14",
     "twitter-lite": "^0.9.1",
     "uninstall": "0.0.0",
-    "webp-converter": "^2.2.2"
+    "webp-converter": "^2.2.2",
+    "snyk": "^1.161.1"
   },
   "devDependencies": {
     "request-promise": "^4.2.4",
     "tap": "^12.5.3"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "snyk-protect": "snyk protect",
+    "prepare": "npm run snyk-protect"
   },
   "author": "Mark Bosley",
-  "license": "MIT"
+  "license": "MIT",
+  "snyk": true
 }
