@@ -107,7 +107,7 @@ body.theme-dark .d2h-code-line ins { background-color: #007c00; }
 body.theme-dark .d2h-del.d2h-change, body.theme-dark .d2h-del { background-color: #410000; border-color: #212121 }
 body.theme-dark .d2h-code-line del { background-color: #7c0000; }
 body.theme-dark .d2h-info { background-color: black }
-
+td.d2h-code-linenumber, td .d2h-code-line-prefix { -webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; }
 
 
 </style>
