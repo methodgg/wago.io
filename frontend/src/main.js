@@ -309,12 +309,12 @@ Vue.material.registerTheme('dark', {
 
 var dataServers
 if (process.env.NODE_ENV === 'development') {
-  dataServers = ['http://ubuntu:3030']
+  dataServers = ['http://io:3030']
 }
 else {
   // using round robin client-based load balancing
   // dataServers = getServersByCountry(window.cfCountry) // attempt to detect country by cloudflare and assign regional data servers when available
-  dataServers = ['https://data1.wago.io', 'https://data2.wago.io']
+  dataServers = ['https://data1.wago.io', 'https://data3.wago.io']
 }
 dataServers = dataServers.sort(() => {
   return 0.5 - Math.random()
