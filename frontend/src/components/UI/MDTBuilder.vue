@@ -81,7 +81,7 @@
                 <template v-if="creature">
                   <template v-for="(clone, j) in creature.clones">
                     <slot>1</slot>
-                    <v-line v-if="clone && clone.patrol && clone.sublevel === subMapID + 1 && (!clone.teeming || (clone.teeming && isTeemingSelected())) && (!clone.faction || (clone.faction === tableData.faction))"
+                    <v-line v-if="clone && clone.patrol && clone.sublevel === subMapID + 1 && (!clone.teeming || (clone.teeming && isTeemingSelected())) && (!clone.week || clone.week.indexOf(this.tableData.week)) && (!clone.faction || (clone.faction === tableData.faction))"
                       @mouseover="setTargetHover(creature, clone, j, undefined, true)"
                       @mouseleave="setTargetHover()"
                       :config="{
@@ -110,7 +110,7 @@
                   <slot>1</slot>
                   <template v-for="(clone, j) in creature.clones">
                     <slot>1</slot>
-                    <v-circle v-if="clone && (!clone.sublevel || clone.sublevel === subMapID + 1) && (!clone.teeming || (clone.teeming && isTeemingSelected())) && (!clone.faction || (clone.faction === tableData.faction))"
+                    <v-circle v-if="clone && (!clone.sublevel || clone.sublevel === subMapID + 1) && (!clone.teeming || (clone.teeming && isTeemingSelected())) && (!clone.week || clone.week.indexOf(this.tableData.week)) && (!clone.faction || (clone.faction === tableData.faction))"
                       @click="selectCreature(i, j)"
                       @tap="selectCreature(i, j)"
                       @mouseover="setTargetHover(creature, clone, j)"
@@ -1083,6 +1083,10 @@ export default {
 
     isReapingSelected (clone) {
       return this.selectedAffixes.indexOf(117) >= 0
+    },
+
+    isBeguildingSelected (clone) {
+      return this.selectedAffixes.indexOf(119) >= 0
     },
 
     displayReaping (creatureID) {

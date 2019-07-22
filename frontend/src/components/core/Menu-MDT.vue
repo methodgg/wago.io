@@ -22,7 +22,7 @@
             <md-input-container>
               <label for="affixes">{{ $t("Select Affixes") }}</label>
               <md-select name="affixes" id="affixes" v-model="newAffix">
-                <md-option v-for="(item, index) in affixesS2" :value="item.id" :key="index">{{ $t('Week [-num-] [-affixes-]', {num: index + 1, affixes: item.text}) }}</md-option>
+                <md-option v-for="(item, index) in affixesS3" :value="item.id" :key="index">{{ $t('Week [-num-] [-affixes-]', {num: index + 1, affixes: item.text}) }}</md-option>
               </md-select>
             </md-input-container>
           </div>
@@ -70,7 +70,7 @@
             <category-image group="affixWeek"></category-image>
             <div class="md-list-text-container">
               <span>
-                <router-link v-for="(item, index) in affixesS2" :to="'/mdt/' + item.slug" :key="index">
+                <router-link v-for="(item, index) in affixesS3" :to="'/mdt/' + item.slug" :key="index">
                   <span v-if="index + 1 === currentWeek" class="currentWeek">&#xab;</span>
                   <span v-bind:class="{currentWeek: index + 1 === currentWeek}">{{ $t('Week [-num-] [-affixes-]', {num: index + 1, affixes: item.text}) }}</span>
                   <span v-if="index + 1 === currentWeek" class="currentWeek">&#xbb;</span>
@@ -160,7 +160,7 @@ export default {
     return {
       searchString: 'Type: MDT ',
       newDungeon: '',
-      newAffix: 'mdtaffix-bfa-s2-w' + this.$store.state.MDTWeek,
+      newAffix: 'mdtaffix-bfa-s3-w' + this.$store.state.MDTWeek,
       wclURL: '',
       wclDungeons: [],
       wclDungeonIndex: -1,
