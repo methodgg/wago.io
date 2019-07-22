@@ -149,7 +149,7 @@ module.exports = {
   },
 
   lookupGuild: async (region, realm, guildname) => {
-    var url = `/wow/guild/${encodeURI(realm)}/${encodeURI(guildname)}?fields=members`
+    const url = `/wow/guild/${encodeURI(realm)}/${encodeURI(guildname)}?fields=members`
     const cached = await BlizzData.findOne({_id: region + '-' + url})
     if (cached) {
       return cached.value
@@ -157,7 +157,7 @@ module.exports = {
     const token = await getToken()
     try {
       const guild = await getAPI(region, url, token)
-      BlizzData.create({_id: region + '-' + url, value: guild.data, expires_at: new Date((new Date()).getTime() + 10 * 60000)})
+      await BlizzData.create({_id: region + '-' + url, value: guild.data, expires_at: new Date((new Date()).getTime() + 10 * 60000)})
       return guild.data
     }
     catch (e) {
@@ -169,7 +169,7 @@ module.exports = {
   },
 
   lookupCharacter: async (region, realm, name) => {
-    var url = `/wow/character/${encodeURI(realm)}/${encodeURI(name)}?fields=guild`
+    const url = `/wow/character/${encodeURI(realm)}/${encodeURI(name)}?fields=guild`
     const cached = await BlizzData.findOne({_id: region + '-' + url})
     if (cached) {
       return cached.value
@@ -177,7 +177,7 @@ module.exports = {
     const token = await getToken()
     try {
       const char = await getAPI(region, url, token)
-      BlizzData.create({_id: region + '-' + url, value: char.data, expires_at: new Date((new Date()).getTime() + 10 * 60000)})
+      await BlizzData.create({_id: region + '-' + url, value: char.data, expires_at: new Date((new Date()).getTime() + 10 * 60000)})
       return char.data
     }
     catch (e) {
