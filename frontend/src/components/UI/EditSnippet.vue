@@ -1,7 +1,14 @@
 <template>
   <div id="edit-common">
+    <div v-if="luacheck">
+      <strong>Luacheck</strong>
+      <p v-if="luacheck === 'loading'">{{ $t("Loading") }}</p>
+      <editor v-else-if="typeof luacheck === 'object' && luacheck[luacheckFile]" v-model="luacheck[luacheckFile]" @init="luacheckInit" :theme="editorTheme" width="100%" height="40"></editor>
+      <p v-else>{{ $t("Error could not load luacheck for this code") }}</p>
+    </div>
     <div class="flex-container">
       <div class="flex-col flex-left">
+        <md-button v-if="$store.state.user && $store.state.user.access && $store.state.user.access.beta && !luacheck" @click="runLuacheck()"><md-icon>center_focus_weak</md-icon> {{ $t("Luacheck") }} [Beta]</md-button>
       </div>
       <div class="flex-col flex-right">
         <md-button @click="exportChanges"><md-icon>open_in_new</md-icon> {{ $t("Export/Fork changes") }}</md-button>
@@ -52,7 +59,9 @@ export default {
       showExport: false,
       latestVersion: {semver: this.$store.state.wago.versions.versions[0].versionString},
       newImportVersion: {major: 1, minor: 0, patch: 1},
-      newChangelog: {}
+      newChangelog: {},
+      luacheck: null,
+      luacheckFile: 'Snippet'
     }
   },
   watch: {
@@ -73,6 +82,15 @@ export default {
         printMargin: false,
         minLines: 80,
         maxLines: 1000
+      })
+    },
+    luacheckInit: function (editor) {
+      window.braceRequires()
+      editor.setOptions({
+        scrollPastEnd: false,
+        printMargin: false,
+        maxLines: 100,
+        readOnly: true
       })
     },
 
@@ -125,6 +143,13 @@ export default {
       this.$set(this.newImportVersion, 'major', semver.major(this.newImportVersion.semver))
       this.$set(this.newImportVersion, 'minor', semver.minor(this.newImportVersion.semver))
       this.$set(this.newImportVersion, 'patch', semver.patch(this.newImportVersion.semver))
+    },
+
+    runLuacheck: function () {
+      this.luacheck = 'loading'
+      this.http.get('/lookup/wago/luacheck', {id: this.wago._id, version: this.$store.state.wago.code.version}).then((res) => {
+        this.luacheck = res
+      })
     }
   },
   computed: {

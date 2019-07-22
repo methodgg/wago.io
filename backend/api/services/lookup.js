@@ -6,6 +6,7 @@ const lua = require('../helpers/lua')
 const WCL = require('../helpers/WCL')
 const battlenet = require('../helpers/battlenet')
 const diff = require('../helpers/diff')
+const luacheck = require('../helpers/luacheck')
 const wowPatches = require('../helpers/wowPatches')
 
 const arrayMatch = function (arr1, arr2) {
@@ -406,6 +407,50 @@ module.exports = function (fastify, opts, next) {
     else {
       return res.cache(604800).send([])
     }
+  })
+
+  // return array of git-formatted diffs comparing two versions of code
+  fastify.get('/wago/luacheck', async (req, res) => {
+    if (!req.query.id) {
+      return res.code(404).send({error: "page_not_found"})
+    }
+    const doc = await WagoItem.lookup(req.query.id)
+    if (!doc || doc.deleted) {
+      return res.code(404).send({error: "page_not_found"})
+    }
+
+    if (doc.private && (!req.user || !req.user._id.equals(doc._userId))) {
+      return res.code(404).send({error: "page_not_found"})
+    }
+    if (doc.restricted) {
+      if (!req.user) {
+        return res.code(401).send({error: "page_not_accessible"})
+      }
+      if (!req.user._id.equals(doc._userId) && doc.restrictedUsers.indexOf(req.user._id.toString()) === -1 && !arrayMatch(doc.restrictedGuilds, req.user.battlenet.guilds) && doc.restrictedTwitchUsers.indexOf(req.user.twitch.id) === -1) {
+        return res.code(401).send({error: "page_not_accessible"})
+      }
+    }
+
+    const code = await WagoCode.lookup(doc._id, req.query.version)
+    if (code.luacheck) {
+      return res.cache(604800).send(code.luacheck)
+    }
+    var result
+    if (doc.type === 'SNIPPET') {
+      result = await luacheck.Lua(code.lua)
+    }
+    else if (doc.type === 'PLATER') {
+      result = await luacheck.Plater(code.json)
+    }
+    else if (doc.type === 'WEAKAURAS2') {
+      result = await luacheck.WeakAuras(code.json)
+    }
+    else {
+      return res.cache(604800).send([])
+    }
+    code.luacheck = JSON.stringify(result)
+    code.save()
+    res.cache(604800).send(result)
   })
 
   // returns a cache-able object of a wago's code

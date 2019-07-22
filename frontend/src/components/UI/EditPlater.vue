@@ -1,5 +1,11 @@
 <template>
   <div id="edit-plater">
+    <div v-if="luacheck && editorSelected !== 'tabledata'">
+      <strong>Luacheck</strong>
+      <p v-if="luacheck === 'loading'">{{ $t("Loading") }}</p>
+      <editor v-else-if="typeof luacheck === 'object' && luacheck[luacheckFile]" v-model="luacheck[luacheckFile]" @init="luacheckInit" :theme="editorTheme" width="100%" height="40"></editor>
+      <p v-else>{{ $t("Error could not load luacheck for this code") }}</p>
+    </div>
     <div class="flex-container">
       <div class="flex-col flex-left">
         <md-input-container>
@@ -13,6 +19,9 @@
             <md-subheader v-if="customFn(tableData).length === 0">{{ $t("No custom functions found") }}</md-subheader>
           </md-select>
         </md-input-container>
+      </div>
+      <div class="flex-col flex-left">
+        <md-button v-if="$store.state.user && $store.state.user.access && $store.state.user.access.beta && editorSelected !== 'tabledata' && !luacheck" @click="runLuacheck()"><md-icon>center_focus_weak</md-icon> {{ $t("Luacheck") }} [Beta]</md-button>
       </div>
       <div class="flex-col flex-right">       
         <md-button @click="exportChanges"><md-icon>open_in_new</md-icon> {{ $t("Export/Fork changes") }}</md-button>
@@ -68,7 +77,9 @@ export default {
       extractData: false,
       latestVersion: {semver: semver.valid(semver.coerce(this.$store.state.wago.versions.versions[0].versionString))},
       newImportVersion: {},
-      newChangelog: {}
+      newChangelog: {},
+      luacheck: null,
+      luacheckFile: null
     }
   },
   watch: {
@@ -78,12 +89,16 @@ export default {
         if (fn && fn !== 'tabledata') {
           var custFns = this.customFn(this.tableData)
           for (var i = 0; i < custFns.length; i++) {
-            if (typeof custFns[i] === 'object' && custFns[i].id && fn === custFns[i].path) {
-              fn = custFns[i]
+            if (typeof custFns[i] === 'object' && custFns[i].name && fn === custFns[i].path) {
+              this.luacheckFile = custFns[i].name
               break
             }
           }
         }
+        else {
+          this.luacheckFile = null
+        }
+
         // save current data to json object
         /* eslint-disable no-unused-vars */
         /* eslint-disable no-eval */
@@ -178,6 +193,15 @@ export default {
         printMargin: false,
         minLines: 80,
         maxLines: 1000
+      })
+    },
+    luacheckInit: function (editor) {
+      window.braceRequires()
+      editor.setOptions({
+        scrollPastEnd: false,
+        printMargin: false,
+        maxLines: 100,
+        readOnly: true
       })
     },
     customFn: function () {
@@ -285,6 +309,13 @@ export default {
     },
     hideExport: function () {
       this.showExport = false
+    },
+
+    runLuacheck: function () {
+      this.luacheck = 'loading'
+      this.http.get('/lookup/wago/luacheck', {id: this.wago._id, version: this.$store.state.wago.code.version}).then((res) => {
+        this.luacheck = res
+      })
     }
   },
   computed: {

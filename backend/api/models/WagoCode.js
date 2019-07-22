@@ -11,6 +11,7 @@ const Schema = new mongoose.Schema({
   version: Number, // incremental counter
   versionString: { type: String, index: true }, // semantic version number
   branch: String, // ex "8.0-beta", default is not set for live
+  luacheck: String,
   changelog: {
     text: String,
     format: String
