@@ -36,7 +36,7 @@ module.exports = function (data) {
     trackProp.url = 'https://data.wago.io' + this.req.url
   }
   trackProp.uid = md5(trackProp.cip + (this.user && this.user._id.toString() || ''))
-  if (this.query && this.query._ref && !this.query._ref.match(/^https:\/\/wago.io/)) {
+  if (this.query && this.query._ref && this.query._ref.match && !this.query._ref.match(/^https:\/\/wago.io/)) {
     trackProp.urlref = this.query._ref
   }
   trackProp.cvar = JSON.stringify({

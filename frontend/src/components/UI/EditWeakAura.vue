@@ -250,7 +250,7 @@ export default {
       // loop through each aura in array and look for pre-defined custom functions
       auras.forEach((item, key) => {
         var ix
-        if (item._table === 'd') {
+        if (key === 0) {
           ix = {index: 0, table: 'd'}
         }
         else {
@@ -633,7 +633,6 @@ export default {
           }
         }
       })
-
       return func
     },
 

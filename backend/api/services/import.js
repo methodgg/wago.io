@@ -609,6 +609,11 @@ module.exports = function (fastify, opts, next) {
       wago.latestVersion.versionString = newVersion
     }
 
+    wago.latestVersion.changelog = {
+      text: req.body.changelog,
+      format: req.body.changelogFormat || 'bbcode'
+    }
+
     var code = new WagoCode({
       auraID: wago._id,
       version: wago.latestVersion.iteration,
