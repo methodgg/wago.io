@@ -1,0 +1,64 @@
+
+module.exports = {
+  name: 'Wago-Backend',
+  version: '2.0.0',
+  host: 'Io',
+  env: process.env.NODE_ENV || 'development',
+  port: process.env.PORT || 3030,
+  base_url: process.env.BASE_URL || 'http://io:3030',
+  db: {
+    uri: 'mongodb://localhost/wago',
+  },
+  elasticServers: ['localhost:9200'],
+  jwtSecret: '',
+  supportedLocales: require('../i18nLocaleConfig').locales,
+  discordBotKey: '',
+  warcraftLogsKey: '',
+  digitalOcean: {
+    spaces: {
+      key: '',
+      secret: ''
+    }
+  },
+  auth: {
+    facebook : {
+      'clientID'      : '',
+      'clientSecret'  : ''
+    },
+    twitter: {
+      'clientID'       : '',
+      'clientSecret'    : ''
+    },
+    google: {
+      'clientID'      : '',
+      'clientSecret'  : ''
+    },
+    battlenet : {
+      'clientID'      : '',
+      'clientSecret'  : '',
+      'betaClientID'  : '',
+      'betaClientSecret' : ''
+    },
+    patreon: {
+      'clientID'      : '',
+      'clientSecret'  : '',
+      'refreshToken'  : ''
+    },
+    discord: {
+      'clientID'      : '',
+      'clientSecret'  : ''
+    },
+    twitch: {
+      'clientID'      : '',
+      'clientSecret'  : ''
+    }
+  },
+  cloudflare: {
+    'email' : '',
+    'apiKey' : '',
+    'zoneID' : ''
+  },
+  matomo: {
+    key: ''
+  }
+}
