@@ -14,6 +14,10 @@ module.exports = function (fastify, opts, next) {
   fastify.get('/', async (req, res, skipSearch) => {
     // get input
     var query = req.query.q || req.body.q || ""
+    if (typeof query !== 'string') {
+      query = ''
+    }
+
     var sort = req.query.sort || req.body.sort || false
     // default sort order
     if (!sort && req.user && req.user.config.searchOptions.sort) {
