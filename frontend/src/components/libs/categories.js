@@ -799,7 +799,6 @@ module.exports = {
   getClones: function(id, addon) {
     const base = this.getCategory(id, null, addon)[0]
     if (!base) {
-      console.log('nobase')
       return []
     }
 

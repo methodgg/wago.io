@@ -39,13 +39,13 @@ const Schema = new mongoose.Schema({
   fork_of: String,
 
   popularity : {
-      views : { type: Number, default: 0, index: true, es_indexed: true },
-      viewsThisWeek : { type: Number, default: 0, index: true, es_indexed: true },
-      embeds : { type: Number, default: 0 },
-      downloads : { type: Number, default: 0 },
-      favorite_count : { type: Number, default: 0, index: true, es_indexed: true },  // this should always match the length of favorites
-      installed_count : { type: Number, default: 0, index: true, es_indexed: true }, // count users of WA Companion that have this installed
-      comments_count : { type: Number, default: 0, index: true, es_indexed: true }
+    views : { type: Number, default: 0, index: true, es_indexed: true },
+    viewsThisWeek : { type: Number, default: 0, index: true, es_indexed: true },
+    embeds : { type: Number, default: 0 },
+    downloads : { type: Number, default: 0 },
+    favorite_count : { type: Number, default: 0, index: true, es_indexed: true },  // this should always match the length of favorites
+    installed_count : { type: Number, default: 0, index: true, es_indexed: true }, // count users of WA Companion that have this installed
+    comments_count : { type: Number, default: 0, index: true, es_indexed: true }
   },
 
   referrals : [
@@ -121,7 +121,7 @@ Schema.plugin(mongoosastic, {
  */
 // Look up wago by id or custom slug
 Schema.statics.lookup = async function(slug) {
-  return this.findOne({"$or": [{_id: slug}, {custom_slug: slug}]}).exec()
+  return await this.findOne({"$or": [{_id: slug}, {custom_slug: slug}]})
 }
 
 // virtuals

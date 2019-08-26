@@ -20,6 +20,7 @@ global.async = require('async')
 global.axios = require('axios')
 global.bluebird = require('bluebird')
 global.commonRegex = require('./commonRegex')
+global.redis = require('./redis')
 global.fs = require('fs').promises
 global.mongoose = require('mongoose')
 

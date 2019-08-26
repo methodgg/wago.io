@@ -34,6 +34,24 @@ module.exports = function (fastify, opts, next) {
     if (!req.query.id) {
       return res.code(404).send({error: "page_not_found"})
     }
+    
+    var doc = await redis.get(req.query.id)
+    if (doc) {
+      if (doc.private && (!req.user || !req.user._id.equals(doc._userId))) {
+        return res.code(401).send({error: "page_not_accessible"})
+      }
+  
+      if (doc.restricted) {
+        if (!req.user) {
+          return res.code(401).send({error: "page_not_accessible"})
+        }
+        if (!req.user._id.equals(doc._userId) && doc.restrictedUsers.indexOf(req.user._id.toString()) === -1 && !arrayMatch(doc.restrictedGuilds, req.user.battlenet.guilds) && doc.restrictedTwitchUsers.indexOf(req.user.twitch.id) === -1) {
+          return res.code(401).send({error: "page_not_accessible"})
+        }
+      }
+      return res.send(doc)
+    }
+
     var doc = await WagoItem.lookup(req.query.id)
     if (!doc || doc.deleted) {
       return res.code(404).send({error: "page_not_found"})
@@ -360,6 +378,7 @@ module.exports = function (fastify, opts, next) {
     if (saveDoc) {
       doc.save()
     }
+    redis.set(req.query.id, wago)
     return res.send(wago)
   })
 
