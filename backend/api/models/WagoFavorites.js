@@ -28,9 +28,11 @@ Schema.statics.addInstall = async function (wagoID, appID, ipAddress) {
   if (!exists) {
     await this.create({wagoID: wagoID, appID: appID, type: 'Install', timestamp: Date.now(), ipAddress: ipAddress})
     const num = await this.countDocuments({wagoID: wagoID, type: 'Install'})
-    const wago = await WagoItem.findOne({_id: wagoID})
-    wago.popularity.installed_count = num
-    await wago.save()
+    const wago = await WagoItem.findOne({_id: wagoID}).exec()
+    if (wago && wago.popularity) {
+      wago.popularity.installed_count = num
+      await wago.save()
+    }
   }
 }
 
