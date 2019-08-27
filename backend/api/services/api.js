@@ -36,7 +36,7 @@ module.exports = function (fastify, opts, next) {
       if (!doc) {
         doc = await redis.get(`API:WA:${ids[i]}`)
       }
-      if (doc) {
+      if (doc && typeof doc === 'object') {
         if ((doc.visibility && (doc.visibility.private || doc.visibility.restricted)) && (!req.user || !req.user._id.equals(doc._userId._id))) {
           continue
         }
