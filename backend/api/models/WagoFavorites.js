@@ -23,13 +23,14 @@ Schema.statics.removeStar = async function (wago, userID) {
   wago.save()
 }
 
-Schema.statics.addInstall = async function (wago, appID, ipAddress) {
-  const exists = await this.findOne({wagoID: wago._id, type: 'Install', $or: [{appID: appID}, {ipAddress: ipAddress}]}).exec()
+Schema.statics.addInstall = async function (wagoID, appID, ipAddress) {
+  const exists = await this.findOne({wagoID:wagoID, type: 'Install', $or: [{appID: appID}, {ipAddress: ipAddress}]}).exec()
   if (!exists) {
-    await this.create({wagoID: wago._id, appID: appID, type: 'Install', timestamp: Date.now(), ipAddress: ipAddress})
-    const num = await this.countDocuments({wagoID: wago._id, type: 'Install'})
+    await this.create({wagoID: wagoID, appID: appID, type: 'Install', timestamp: Date.now(), ipAddress: ipAddress})
+    const num = await this.countDocuments({wagoID: wagoID, type: 'Install'})
+    const wago = await WagoItems.findById(wagoID)
     wago.popularity.installed_count = num
-    wago.save()
+    await wago.save()
   }
 }
 
