@@ -84,7 +84,7 @@ module.exports = function (fastify, opts, next) {
       // if requested by WA Companion App, update installed count
       if (req.headers['identifier'] && req.headers['user-agent'].match(/Electron/)) {
         const ipAddress = req.raw.ip
-        WagoFavorites.addInstall(doc, 'WA-Updater-' + req.headers['identifier'], ipAddress)
+        WagoFavorites.addInstall(doc._id, 'WA-Updater-' + req.headers['identifier'], ipAddress)
       }
 
       if (doc.versions && doc.versions.versions && doc.versions.versions.length) {
