@@ -49,6 +49,57 @@ module.exports = function (fastify, opts, next) {
           return res.code(401).send({error: "page_not_accessible"})
         }
       }
+
+      var collectSearch
+      if (req.user) {
+        const star = await WagoFavorites.findOne({wagoID: doc._id, userID: req.user._id, type: 'Star'}).exec()
+        if (star) {
+          doc.myfave = true
+        }
+        
+        doc.collectionCount = await WagoItem.countDocuments({type: 'COLLECTION', collect: doc._id, deleted: false, "$or": [{ '_userId': req.user._id || null }, { private: false, hidden: false, restricted: false }]})
+        if (doc.collectionCount) {
+          collectSearch = WagoItem.find({type: 'COLLECTION', collect: doc._id, deleted: false, "$or": [{ '_userId': req.user._id || null }, { private: false, hidden: false, restricted: false }]})
+        }
+      }
+      else {
+        doc.collectionCount = await WagoItem.countDocuments({type: 'COLLECTION', collect: doc._id, deleted: false, private: false, hidden: false, restricted: false})
+        if (doc.collectionCount) {
+          collectSearch = WagoItem.find({type: 'COLLECTION',collect: doc._id, deleted: false, private: false, hidden: false, restricted: false})
+        }
+      }
+
+      if (collectSearch) {
+        doc.collections = []
+        doc.myCollections = []
+        var collections = await collectSearch.sort('-modified').limit(10).populate('_userId').exec()
+        collections.forEach((c) => {
+          doc.collections.push({name: c.name, _id: c._id, slug: c.slug, modified: c.modified, user: {name: c._userId.profile.name, class: c._userId.roleclass, avatar: c._userId.avatarURL, profile: c._userId.profile.url}})
+          doc.myCollections.push(c._id.toString())
+        })
+      }
+      
+      const count = await Comments.countDocuments({wagoID: doc._id}).exec()
+      doc.commentCount = count
+
+      doc.comments = []
+      const comments = await Comments.find({wagoID: doc._id}).sort({postDate: -1}).limit(10).populate('authorID').exec()
+      comments.forEach((c) => {
+        doc.comments.push({
+          cid: c._id.toString(),
+          date: c.postDate,
+          text: c.commentText,
+          format: 'bbcode',
+          canMod: (req.user && ((req.user.isAdmin && (req.user.isAdmin.moderator || req.user.isAdmin.super)) || req.user._id.equals(c.authorID._id) || req.user._id.equals(doc.UID))),
+          author: {
+            name: c.authorID.account.username || 'User-' + c.authorID._id.toString(),
+            avatar: c.authorID.avatarURL,
+            class: c.authorID.roleclass,
+            profile: c.authorID.profile.url,
+            enableLinks: c.authorID.account.verified_human
+          }
+        })
+      })
       return res.send(doc)
     }
 

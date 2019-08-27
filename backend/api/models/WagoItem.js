@@ -71,7 +71,7 @@ const Schema = new mongoose.Schema({
   regionType: { type: String, index: true, es_indexed: true },
 
   // type=COLLECTION
-  collect : Array, // array of WagoItem _ids
+  collect : { type: Array, index: true }, // array of WagoItem _ids
   collectHistory : [{
       modified: { type: Date, default: Date.now },
       action: String,
