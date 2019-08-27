@@ -667,6 +667,7 @@ module.exports = function (fastify, opts, next) {
     if (req.user && !wago.hidden && !wago.private && !wago.restricted && req.user.discord && req.user.discord.webhooks && req.user.discord.webhooks.onCreate) {
       discord.webhookOnUpdate(req.user, wago)
     }
+    redis.clear(wago)
     res.send({success: true, wagoID: wago._id})
   })
 
@@ -771,6 +772,7 @@ module.exports = function (fastify, opts, next) {
     discord.onUpdate(req.user, wago)
     code.json = JSON.stringify(json)
     await code.save()
+    redis.clear(wago)
     res.send({success: true, wagoID: wago._id})
   })
 
@@ -922,6 +924,7 @@ module.exports = function (fastify, opts, next) {
     })
     discord.onUpdate(req.user, wago)
     await code.save()
+    redis.clear(wago)
     res.send({success: true, wagoID: wago._id})
   })
 

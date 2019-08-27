@@ -11,6 +11,7 @@ ecosystem.json
 config.js
 api/lua/addons/*
 run-tmp/*
+redis-ca-certificate.crt
 fastify-wago.crt
 fastify-wago.csr
 fastify-wago.key
