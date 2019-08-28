@@ -35,7 +35,10 @@ module.exports = function (fastify, opts, next) {
       return res.code(404).send({error: "page_not_found"})
     }
     
-    var doc = await redis.get(req.query.id)
+    var doc
+    if (!req.query.version) {
+      doc = await redis.get(req.query.id)
+    }
     if (doc) {
       if (doc.private && (!req.user || !req.user._id.equals(doc._userId))) {
         return res.code(401).send({error: "page_not_accessible"})
@@ -429,7 +432,9 @@ module.exports = function (fastify, opts, next) {
     if (saveDoc) {
       doc.save()
     }
-    redis.set(req.query.id, wago)
+    if (!req.query.version) {
+      redis.set(req.query.id, wago)
+    }
     return res.send(wago)
   })
 
