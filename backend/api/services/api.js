@@ -74,7 +74,10 @@ module.exports = function (fastify, opts, next) {
       wago.modified = doc.modified || doc.date && doc.date.modified
       wago.forkOf = doc.fork_of
       wago.game = doc.game
-      if (doc.user && doc.user.name) {
+      if (doc.username) {
+        wago.username = doc.username
+      }
+      else  if (doc.user && doc.user.name) {
         wago.username = doc.user.name
       }
       else if (doc._userId) {
