@@ -63,7 +63,7 @@
     <md-layout md-row style="flex-wrap: nowrap">
       <md-layout id="stageContainer" md-vertical-align="start">
         <div id="builder" ref="canvas" v-bind:class="annotationClass">
-          <ui-loading v-if="mdtLoading"></ui-loading>
+          <ui-loading v-if="mdtLoading || !tableData"></ui-loading>
           <v-stage v-else-if="konvaStageConfig.width > 0" ref="mdtStage" id="mdtStage" :config="konvaStageConfig" @scroll.passive="zoomStage">
             <slot>1</slot> <!-- defined slots prevent Konva from spamming "<div>undefined</div>" -->
             <v-layer ref="mdtMap" v-if="mdtDungeonTable.dungeonSubLevels">
@@ -81,7 +81,7 @@
                 <template v-if="creature">
                   <template v-for="(clone, j) in creature.clones">
                     <slot>1</slot>
-                    <v-line v-if="clone && clone.patrol && clone.sublevel === subMapID + 1 && (!clone.teeming || (clone.teeming && isTeemingSelected())) && (!clone.week || clone.week.indexOf(this.tableData.week)) && (!clone.faction || (clone.faction === tableData.faction))"
+                    <v-line v-if="clone && clone.patrol && clone.sublevel === subMapID + 1 && (!clone.teeming || (clone.teeming && isTeemingSelected())) && (!clone.week || clone.week.indexOf(tableData.week)) && (!clone.faction || (clone.faction === tableData.faction))"
                       @mouseover="setTargetHover(creature, clone, j, undefined, true)"
                       @mouseleave="setTargetHover()"
                       :config="{
@@ -110,7 +110,7 @@
                   <slot>1</slot>
                   <template v-for="(clone, j) in creature.clones">
                     <slot>1</slot>
-                    <v-circle v-if="clone && (!clone.sublevel || clone.sublevel === subMapID + 1) && (!clone.teeming || (clone.teeming && isTeemingSelected())) && (!clone.week || clone.week.indexOf(this.tableData.week)) && (!clone.faction || (clone.faction === tableData.faction))"
+                    <v-circle v-if="clone && (!clone.sublevel || clone.sublevel === subMapID + 1) && (!clone.teeming || (clone.teeming && isTeemingSelected())) && (!clone.week || clone.week.indexOf(tableData.week)) && (!clone.faction || (clone.faction === tableData.faction))"
                       @click="selectCreature(i, j)"
                       @tap="selectCreature(i, j)"
                       @mouseover="setTargetHover(creature, clone, j)"
@@ -1166,7 +1166,7 @@ export default {
         clones.forEach((cloneIndex) => {
           cloneIndex--
           // if not being pulled or not on teeming map
-          if (!this.enemies[enemyIndex].clones[cloneIndex] || (this.enemies[enemyIndex].clones[cloneIndex].teeming && !isTeeming)) {
+          if (!this.enemies[enemyIndex].clones[cloneIndex] || (this.enemies[enemyIndex].clones[cloneIndex].teeming && !isTeeming) || (this.enemies[enemyIndex].clones[cloneIndex].week && !this.enemies[enemyIndex].clones[cloneIndex].week[this.tableData.week])) {
             // if clone is set to current pullIndex, remove it
             if (this.enemies[enemyIndex].clones[cloneIndex] === pullIndex) {
               this.$set(this.enemies[enemyIndex].clones[cloneIndex], 'pull', -1)
