@@ -170,10 +170,12 @@ module.exports = function (fastify, opts, next) {
 
     // check for import type
     var game = 'wow'
+    var matchType
     match = /\btype:\s*"?(classic-weakaura|weakauras?2?|elvui|vuhdo|totalrp3?|collection|snippet|plater|mdt|encounternotes|image|audio|error)"?/i.exec(query)
     if (match) {
       query = query.replace(match[0], '').replace(/\s{2,}/, ' ').trim()
       match[1] = match[1].toUpperCase()
+      matchType = match[1]
 
       if (match[1] === 'WEAKAURA' || match[1] === 'WEAKAURA2' || match[1] === 'WEAKAURAS') {
         match[1] = 'WEAKAURAS2'
@@ -182,7 +184,7 @@ module.exports = function (fastify, opts, next) {
         match[1] = 'TOTALRP3'
       }
 
-      if (match[1].match(/classic/i)) {
+      if (match[1].match(/CLASSIC/)) {
         game = 'classic'
       }
       // lookup.type = match[1]
@@ -273,7 +275,7 @@ module.exports = function (fastify, opts, next) {
         query = query.replace(m[0], '').replace(/\s{2,}/, ' ').trim()
         var tags = (m[1] || m[2]).split(/,\s?/g)
         tags.forEach((thisTag) => {
-          var clones = global.Categories.getClones(thisTag, game === 'classic')
+          var clones = global.Categories.getClones(thisTag, matchType)
           // if this category does not exist in classic/vice versa then try without filter
           // if found without filter then remove the filter - the user likely came into the search page from an external link
           if (!clones.length) {
@@ -547,6 +549,9 @@ module.exports = function (fastify, opts, next) {
     // initialize results
     if (results.hits && results.hits.hits) {
       Search.total = results.hits.total
+      if (typeof Search.total === 'object') {
+        Search.total = Search.total.value || 0
+      }
       Search.results = results.hits.hits
     }
     else if (results.length == resultsPerPage) {

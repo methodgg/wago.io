@@ -4,7 +4,7 @@
 
 <script>
 import XBBCode from '../libs/xbbcode'
-const markdown = require('markdown').markdown
+import flowchart from 'flowchart.js'
 
 export default {
   props: ['text', 'truncate', 'plaintext', 'enableLinks'],
@@ -15,8 +15,9 @@ export default {
       if (!this.text.text) {
         return ''
       }
+
       // format plaintext
-      else if (this.plaintext) {
+      if (this.plaintext) {
         var plaintext = this.text.text.replace(/\[\/?(?:b|center|code|color|face|font|i|justify|large|left|li|noparse|ol|php|quote|right|s|size|small|sub|sup|taggeduser|table|tbody|tfoot|td|th|tr|u|url|\*)*?.*?\]/g, '').replace(/\n/g, ' ')
 
         // if shortening the text
@@ -43,11 +44,35 @@ export default {
 
       // format markdown
       else if (this.text.format === 'markdown') {
-        html = markdown.toHTML(this.text.text)
+        const markdown = require('markdown-it')({linkify: true})
+        html = markdown.render(this.text.text)
         if (!this.enableLinks || this.truncate) {
           html = html.replace(/<\/?a(?:(?= )[^>]*)?>/g, '')
         }
-        return html.replace(/\n/, '<br>')
+        if (this.truncate) {
+          return html
+        }
+
+        if (html.match(/<code class="language-flowchart">/)) {
+          this.$nextTick(() => {
+            document.querySelectorAll('#wago-description .language-flowchart').forEach(element => {
+              try {
+                let code = element.textContent
+                if (!this.enableLinks) {
+                  code = code.replace(/:>/g, '')
+                }
+                let chart = flowchart.parse(code)
+                element.textContent = ''
+                chart.drawSVG(element)
+              }
+              catch (e) {
+                element.outerHTML = `<pre>flowchart complains: ${e}</pre>`
+              }
+            })
+          })
+        }
+
+        return html
       }
 
       else if (this.text.format === 'error') {
@@ -148,5 +173,7 @@ export default {
 #wago-description .md-theme-default.md-tabs>.md-tabs-navigation .md-tab-indicator {display: none}
 #wago-description .md-theme-default.md-tabs>.md-tabs-navigation .md-tab-header.md-active, #wago-description .md-theme-default.md-tabs>.md-tabs-navigation .md-tab-header:focus {background: #d7373d}
 #wago-description .md-theme-default.md-tabs>.md-tabs-navigation .md-tab-header:hover {color: white}
+
+#wago-description .language-flowchart { border: 1px solid #777; background: #DDD; display: inline-block;}
 </style>
 

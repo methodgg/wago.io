@@ -61,6 +61,7 @@ export default {
       searchString: '',
       searchOptions: 'sort: Date',
       tagContext: [],
+      searchTime: 0,
       tagMap: {},
       isSearching: true,
       isSearchingMore: false,
@@ -97,6 +98,14 @@ export default {
           }
           _this.runSearch(_this.searchString)
         }, 100)
+      }
+      // throttle searches
+      if (this.searchTime < +new Date() - 500) {
+        this.searchTime = +new Date()
+      }
+      else {
+        console.log(this.searchTime, +new Date() - 500)
+        return
       }
       var opt = ''
       // if loaded via category menu
@@ -192,6 +201,10 @@ export default {
       var vue = this
       var params = { q: query + ' ' + opt }
       this.searchString = this.searchString.trim().replace(/\s{2,}/, ' ')
+
+      if (!this.$store.state.user || !this.$store.state.user.name) {
+        params.cc = 1 // use cached results if we dont need to worry about auth
+      }
 
       vue.http.get('/search', params).then((res) => {
         for (var i = 0; i < res.results.length; i++) {

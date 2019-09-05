@@ -638,7 +638,7 @@ export default {
 
     runLuacheck: function () {
       this.luacheck = 'loading'
-      this.http.get('/lookup/wago/luacheck', {id: this.wago._id, version: this.$store.state.wago.code.version}).then((res) => {
+      this.http.get('/lookup/wago/luacheck', {id: this.wago._id, version: this.$store.state.wago.code.versionString}).then((res) => {
         this.luacheck = res
       })
     },

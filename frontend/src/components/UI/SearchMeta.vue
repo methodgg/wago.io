@@ -16,7 +16,7 @@
         <md-input-container>
           <label for="type">{{ $t("Import Type") }}</label>
           <md-select name="type" id="type" v-model="typeVal">
-            <md-option value=""><em>All Imports</em></md-option>
+            <md-option value="*"><em>All Imports</em></md-option>
             <md-option value="ELVUI">ElvUI</md-option>
             <md-option value="TOTALRP3">Total RP</md-option>
             <md-option value="MDT">Method Dungeon Tools</md-option>
@@ -197,6 +197,9 @@ export default {
   },
   watch: {
     typeVal (val) {
+      if (!val) {
+        return
+      }
       const types = {
         ELVUI: 'ElvUI',
         TOTALRP3: 'TotalRP',
@@ -208,6 +211,10 @@ export default {
         COLLECTION: 'Collection',
         SNIPPET: 'Snippet',
         ERROR: 'Error'
+      }
+      if (val === 'WEAKAURA') {
+        this.typeVal = 'WEAKAURAS2'
+        return
       }
       this.$emit('setImportType', types[val] || '')
     }

@@ -631,5 +631,7 @@
   "Ranks 1-2": "",
   "Guild Leader (Rank 1)": "",
   "Access Granted To": "",
-  "Access Granted New": ""
+  "Access Granted New": "",
+  "Error could not load luacheck for this code": "",
+  "Luacheck": ""
 }
