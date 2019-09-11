@@ -796,7 +796,10 @@ async function getWoWProfile(region, token) {
       throw ('Unknown battlenet auth region ' + region)
   }
   try {
-    return axios.get(url, { headers: { Authorization: 'Bearer ' + token } })
+    return axios.get(url, {
+      headers: { Authorization: 'Bearer ' + token },
+      proxy: config.axios.proxy
+    })
   }
   catch (e) {
     req.trackError(e, 'BNET PROFILE')

@@ -1,6 +1,5 @@
 const config = require('../../config')
 const querystring = require('querystring')
-const async = require('async')
 const mdtWeekReset = 670
 
 
@@ -37,7 +36,8 @@ async function getToken (region) {
       auth: {
         username: config.auth.battlenet.clientID,
         password: config.auth.battlenet.clientSecret
-      }
+      },
+      proxy: config.axios.proxy
     })
 
     if (response && response.data && response.data.access_token) {
@@ -67,7 +67,8 @@ function getAPI (region, endpoint, token) {
   return axios.get(getHost(region) + endpoint, {
     headers: {
       Authorization: 'Bearer ' + token
-    }
+    },
+    proxy: config.axios.proxy
   })
 }
 
