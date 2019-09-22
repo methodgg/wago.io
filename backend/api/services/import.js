@@ -24,6 +24,7 @@ module.exports = function (fastify, opts, next) {
         case 'WEAKAURA':
         case 'CLASSIC-WEAKAURA':
         case 'PLATER':
+        case 'MDT':
         case 'TOTALRP3':
           test.DEFLATE = true
       }
@@ -564,6 +565,9 @@ module.exports = function (fastify, opts, next) {
       }
       code.encoded = await lua.JSON2WeakAura(json)
       code.json = JSON.stringify(json)
+    }
+    else if (wago.type === 'MDT' && code.encoded.match(/^!/)) {
+      code.encoded = await lua.JSON2MDT(json)
     }
 
     await code.save()
