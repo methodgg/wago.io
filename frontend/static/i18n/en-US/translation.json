@@ -633,5 +633,6 @@
   "Access Granted To": "",
   "Access Granted New": "",
   "Error could not load luacheck for this code": "",
-  "Luacheck": ""
+  "Luacheck": "",
+  "Custom Text": ""
 }

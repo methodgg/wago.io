@@ -94,7 +94,7 @@ export default {
       return categories.getCategories(['plater1', 'plater2', 'plater3', 'plater4', 'plater5'], this.$t)
     },
     content: function () {
-      return categories.getCategories(['platerpvp', 'platerdungeons', 'platerraidzuldazar', 'platerraidcrucible', 'platerraideternalpalace', 'platerraiduldir', 'platerutilities'], this.$t)
+      return categories.getCategories(['platerpvp', 'platerdungeons', 'platerraidzuldazar', 'platerraidcrucible', 'platerraideternalpalace', 'platerraidnyalotha', 'platerraiduldir', 'platerutilities'], this.$t)
     }
   },
   mounted: function () {

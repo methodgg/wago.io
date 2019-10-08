@@ -14,6 +14,7 @@
     <img src="./../../assets/menu-demonhunter.png" v-else-if="group === 'cl-demonhunter'"/>
     <img src="./../../assets/menu-zuldazar.png" v-if="group === 'zuldazar'"/>
     <img src="./../../assets/menu-cruciblestorms.png" v-if="group === 'crucible'"/>
+    <img src="./../../assets/menu-nyalotha.png" v-if="group === 'nyalotha'"/>
     <img src="./../../assets/menu-eternalpalace.png" v-if="group === 'eternalpalace'"/>
     <img src="./../../assets/menu-uldir.png" v-if="group === 'uldir'"/>
     <img src="./../../assets/menu-antorus.png" v-if="group === 'antorus'"/>

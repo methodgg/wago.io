@@ -311,6 +311,14 @@ export default {
           func.push({ id: item.id, name: this.$t('Custom Sort'), ix: ix, path: 'customSort' })
         }
 
+        if (typeof item.customText === 'string' && item.subRegions && item.subRegions.length) {
+          for (let n = 0; n < item.subRegions.length; n++) {
+            if (item.subRegions[n].text_text && item.subRegions[n].text_text.match(/%c/)) {
+              func.push({ id: item.id, name: this.$t('Custom Text'), ix: ix, path: 'customText' })
+            }
+          }
+        }
+
         // triggers
         if (item.triggers && item.triggers['1']) {
           let n = 1

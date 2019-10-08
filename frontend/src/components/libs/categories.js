@@ -121,6 +121,7 @@ module.exports = {
       {id: "platerraidcrucible", slug: "plater/crucible-of-storms", cls:"snippets", text: t("warcraft:zones.10057"), root: true, PLATER: true},
       {id: "platerraiduldir", slug: "plater/uldir", cls:"snippets", text: t("warcraft:zones.9389"), root: true, PLATER: true},
       {id: "platerraideternalpalace", slug: "plater/the-eternal-palace", cls:"snippets", text: t("warcraft:zones.10425"), root: true, PLATER: true},
+      {id: "platerraidnyalotha", slug: "plater/nyalotha", cls:"snippets", text: t("warcraft:zones.nyalotha"), root: true, PLATER: true},
       {id: "platerutilities", slug: "plater/utilities", cls:"snippets", text: t("Utilities"), root: true, PLATER: true},
 
       {id: "totalrp0", slug: "totalrp", cls:"rpcampaign", text: t("Total RP3"), systemtag: true, noselect: true, TOTALRP3: true},
@@ -144,6 +145,20 @@ module.exports = {
 
 
       // {id: "pve", slug: "pve", cls:"", text: t("PvE"), noselect: true, WEAKAURA: true},
+      
+      {id: "raidnyalotha", slug: "pve/nyalotha", cls:"nyalotha", text: t("warcraft:zones.nyalotha"), root: true, WEAKAURA: true, PLATER: true, COLLECTION: true},
+      {id: "raidnyalotha1", slug: "pve/nyalotha/wrathion-the-black-emperor", cls:"nyalotha", text: t("warcraft:bosses.nya1"), WEAKAURA: true},
+      {id: "raidnyalotha2", slug: "pve/nyalotha/maut", cls:"nyalotha", text: t("warcraft:bosses.nya2"), WEAKAURA: true},
+      {id: "raidnyalotha3", slug: "pve/nyalotha/the-prophet-skitra", cls:"nyalotha", text: t("warcraft:bosses.nya3"), WEAKAURA: true},
+      {id: "raidnyalotha4", slug: "pve/nyalotha/dark-inquisitor-xanesh", cls:"nyalotha", text: t("warcraft:bosses.nya4"), WEAKAURA: true},
+      {id: "raidnyalotha5", slug: "pve/nyalotha/hivemind", cls:"nyalotha", text: t("warcraft:bosses.nya5"), WEAKAURA: true},
+      {id: "raidnyalotha6", slug: "pve/nyalotha/shadhar-the-insatiable", cls:"nyalotha", text: t("warcraft:bosses.nya6"), WEAKAURA: true},
+      {id: "raidnyalotha7", slug: "pve/nyalotha/drestagath", cls:"nyalotha", text: t("warcraft:bosses.nya7"), WEAKAURA: true},
+      {id: "raidnyalotha8", slug: "pve/nyalotha/vexiona", cls:"nyalotha", text: t("warcraft:bosses.nya8"), WEAKAURA: true},
+      {id: "raidnyalotha9", slug: "pve/nyalotha/ra-den-the-despoiled", cls:"nyalotha", text: t("warcraft:bosses.nya9"), WEAKAURA: true},
+      {id: "raidnyalotha10", slug: "pve/nyalotha/ilgynoth-corruption-reborn", cls:"nyalotha", text: t("warcraft:bosses.nya10"), WEAKAURA: true},
+      {id: "raidnyalotha11", slug: "pve/nyalotha/carapace-of-nzoth", cls:"nyalotha", text: t("warcraft:bosses.nya11"), WEAKAURA: true},
+      {id: "raidnyalotha12", slug: "pve/nyalotha/nzoth-the-corruptor", cls:"nyalotha", text: t("warcraft:bosses.nya12"), WEAKAURA: true},
 
       {id: "raideternalpalace", slug: "pve/the-eternal-palace", cls:"eternalpalace", text: t("warcraft:zones.10425"), root: true, WEAKAURA: true, PLATER: true, COLLECTION: true},
       {id: "raideternalpalace1", slug: "pve/the-eternal-palace/abyssal-commander-sivara", cls:"eternalpalace", text: t("warcraft:bosses.151881"), WEAKAURA: true},
