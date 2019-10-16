@@ -39,7 +39,7 @@ module.exports = function (fastify, opts, next) {
     if (!req.query.version) {
       doc = await redis.get(req.query.id)
     }
-    if (doc) {
+    if (doc && doc._id) {
       if (doc.private && (!req.user || !req.user._id.equals(doc._userId))) {
         return res.code(401).send({error: "page_not_accessible"})
       }
