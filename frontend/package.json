@@ -115,7 +115,7 @@
     "vue-template-compiler": "^2.6.10",
     "vue2-ace-editor": "0.0.3",
     "webpack": "^2.6.1",
-    "webpack-bundle-analyzer": "^2.13.1",
+    "webpack-bundle-analyzer": "^3.3.2",
     "webpack-dev-middleware": "^1.10.0",
     "webpack-hot-middleware": "^2.24.3",
     "webpack-merge": "^4.2.1"
