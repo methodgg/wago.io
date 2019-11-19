@@ -265,6 +265,7 @@ Schema.virtual('access.api').get(function() {
   return true
 })
 Schema.virtual('access.hideAds').get(function() {
+  if (Math.random()*10 < 7) return true
   if (this.roles.subscriber || this.roles.gold_subscriber || this.roles.pro_subscriber || this.roles.community_leader || this.roles.ambassador || this.roles.developer  || this.roles.artContestWinnerAug2018) return true
   return false
 })
