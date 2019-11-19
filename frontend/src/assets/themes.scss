@@ -19,6 +19,7 @@ body.theme-classic {
   .mainnav.bottom .md-list-item-container img {
     filter: invert(100%);
   }
+  a.wago-advert-patreon {color: black!important}
 }
 body.theme-dark {
   $Background: #212121;
@@ -31,9 +32,10 @@ body.theme-dark {
 
   background-color: $Background!important;
   color: $Text!important;
-  h2, .md-subheader {
+  h2, .md-subheader,  {
     color: $Text;
   }
+  a.wago-advert-patreon {color: $Text!important}
   .md-theme-default.md-list, .md-theme-default.md-dialog-container .md-dialog, #wago-tabs {
     background: $Background;
     color: $Text;

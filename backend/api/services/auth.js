@@ -83,6 +83,7 @@ async function makeSession(req, res, token, user) {
       who.access.animatedAvatar = user.access.animatedAvatar
       who.access.restrictGuild = user.access.restrictGuild
       who.access.restrictSubs = user.access.restrictSubs
+      who.hideAds = user.access.hideAds
       if (user.roles.isAdmin.access) {
         who.access.admin = user.roles.isAdmin
       }
@@ -279,12 +280,14 @@ async function battlenetAuth(req, res, region) {
     auth: {
       username: key,
       password: secret
-    }
+    },
+    proxy: config.axios.proxy
   })
   const authResponse = await axios.get(userURL, {
     headers: {
       Authorization: 'Bearer ' + response.data.access_token
-    }
+    },
+    proxy: config.axios.proxy
   })
   if (authResponse && authResponse.data.id) {
     var auth = {

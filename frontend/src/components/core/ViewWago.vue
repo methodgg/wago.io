@@ -20,7 +20,7 @@
       </div>
       <md-layout md-row>
         <md-card id="wago-header" ref="header" v-bind:class="{'md-hide-xsmall': hideMobileHeader}">
-          <md-layout>
+          <md-layout style="flex:0">
             <div>
               <h3>{{ wago.name }} <span class="version-number" v-if="currentVersionString && !currentVersionString.match(/undefined/)">v{{ currentVersionString }}</span></h3>
               <md-subheader>{{ wago.type }} <span :href="wago.url" @click.prevent="copyURL" style="margin-left: 16px; opacity: .54">{{ wago.url }}</span></md-subheader>
@@ -108,7 +108,7 @@
             </md-layout>
           </md-card-header>
         </md-card>
-        <advert/>
+        <advert ad="wago_import_desk_300x250" />
       </md-layout>
 
       <md-dialog md-open-from="#sendToCompanionAppBtn" md-close-to="#sendToCompanionAppBtn" ref="sendToCompanionAppDialog">
@@ -159,6 +159,7 @@
               <!-- FRAME TOGGLES -->
               <md-button-toggle class="md-accent" md-single>
                 <md-button v-if="wago.user && User && wago.UID && wago.UID === User.UID" v-bind:class="{'md-toggle': showPanel === 'config'}" @click="toggleFrame('config')">{{ $t("Config") }}</md-button>
+                <md-button v-if="wago.type == 'ERROR'" v-bind:class="{'md-toggle': showPanel === 'description'}" @click="toggleFrame('description')">{{ $t("Report") }}</md-button>
                 <md-button v-if="wago.type == 'ERROR'" v-bind:class="{'md-toggle': showPanel === 'description'}" @click="toggleFrame('description')">{{ $t("Report") }}</md-button>
                 <md-button v-if="wago.type !== 'ERROR'" v-bind:class="{'md-toggle': showPanel === 'description'}" @click="toggleFrame('description')">{{ $t("Description") }}</md-button>
                 <md-button v-if="wago.referrals && wago.referrals.length" v-bind:class="{'md-toggle': showPanel === 'referrals'}" @click="toggleFrame('referrals')">{{ $t("External Links") }}</md-button>
@@ -2257,7 +2258,7 @@ export default {
 #wago-content > div { margin: 0 8px 16px 0; width: 100%; }
 #addCollectionButton, #newCommentButton { margin-top: 0 }
 
-#wago-actions { flex: 1; padding: 0 }
+#wago-actions { flex: 1; padding: 0; align-items: flex-start }
 #wago-actions button { margin-top: 0 }
 .copy-import-button { border: 2px solid #c1272d; border-radius: 25px; margin: 4px 28px; display: inline-block }
 #wago-collections-container button { margin-left: -2px }

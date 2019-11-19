@@ -157,7 +157,8 @@
         </div>
       </md-layout>
 
-      <md-layout id="col2" :md-column-medium="true" md-vertical-align="start">
+      <md-layout id="col2" :md-column-medium="true" md-vertical-align="start">        
+        <!--<advert/>-->
         <md-whiteframe id="topwagos" v-if="top10Lists && top10Lists.faves">
           <md-layout>
             <md-layout>
@@ -302,6 +303,7 @@ import Categories from './libs/categories'
 import CategorySelect from './UI/SelectCategory.vue'
 import WagoNews from './core/News.vue'
 import VueMarkdown from 'vue-markdown'
+import Advert from './UI/Advert.vue'
 
 function flatten (arr) {
   return arr.reduce(function (flat, toFlatten) {
@@ -341,7 +343,8 @@ export default {
     CategorySelect,
     'vue-markdown': VueMarkdown,
     'wago-news': WagoNews,
-    'md-autocomplete': require('./UI/md-autocomplete.vue')
+    'md-autocomplete': require('./UI/md-autocomplete.vue'),
+    'advert': Advert
   },
   computed: {
     user () {

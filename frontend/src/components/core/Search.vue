@@ -11,31 +11,36 @@
       <md-layout>
         <ui-loading v-if="isSearching"></ui-loading>
         <div v-else-if="!isSearching && results.total > 0">
-          <div class="searchResult" template v-for="(result, index) in results.results" v-bind:key="index" v-if="result">
-            <div class="searchImg">
-              <md-image :md-src="result.thumbnail" v-if="result.thumbnail"></md-image>
-              <placeholder-img :text="result.type" v-else></placeholder-img>
-            </div>
-            <div class="searchText">
-              <router-link :to="'/' + result.slug">{{ result.name }}</router-link>
-              <span class="hidden-status" v-if="result.visibility.private">- Private -</span>
-              <span class="hidden-status" v-if="result.visibility.hidden">- Hidden -</span>
-              <span class="hidden-status" v-if="result.visibility.restricted">- Restricted -</span>
-              <md-subheader>
-                <span>{{ result.type }}</span>
-                <span>{{ result.date.modified || result.date.created | moment('LLL') }}</span>
-                <router-link v-if="result.user.searchable" :class="result.user.roleClass" :to="'/p/' + result.user.name">{{ result.user.name }}</router-link>
-                <span v-else :class="result.user.roleClass">{{ result.user.name }}</span>
-                <span>{{ $t("[-count-] view", { count: result.viewCount }) }}</span>
-                <span>{{ $t("[-count-] star", { count: result.favoriteCount }) }}</span>
-                <span>{{ $t("[-count-] comment", { count: result.commentCount }) }}</span>
-              </md-subheader>
-              <formatted-text :text="result.description" truncate="180" :plaintext="true"></Formatted-text>
-              <div class="searchTags">
-                <md-chip v-for="cat in result.categories" v-bind:key="cat.id" :class="cat.cls" disabled v-if="cat.text">{{ cat.text }}</md-chip>
+          <template v-for="(result, index) in results.results">
+            <div class="searchResult" v-if="result" v-bind:key="index">
+              <div class="searchImg">
+                <router-link :to="'/' + result.slug">
+                  <md-image :md-src="result.thumbnail" v-if="result.thumbnail"></md-image>
+                  <placeholder-img :text="result.type" v-else></placeholder-img>
+                </router-link>
               </div>
+              <div class="searchText">
+                <router-link :to="'/' + result.slug">{{ result.name || result.type }}</router-link>
+                <span class="hidden-status" v-if="result.visibility.private">- Private -</span>
+                <span class="hidden-status" v-if="result.visibility.hidden">- Hidden -</span>
+                <span class="hidden-status" v-if="result.visibility.restricted">- Restricted -</span>
+                <md-subheader>
+                  <span>{{ result.type }}</span>
+                  <span>{{ result.date.modified || result.date.created | moment('LLL') }}</span>
+                  <router-link v-if="result.user.searchable" :class="result.user.roleClass" :to="'/p/' + result.user.name">{{ result.user.name }}</router-link>
+                  <span v-else :class="result.user.roleClass">{{ result.user.name }}</span>
+                  <span>{{ $t("[-count-] view", { count: result.viewCount }) }}</span>
+                  <span>{{ $t("[-count-] star", { count: result.favoriteCount }) }}</span>
+                  <span>{{ $t("[-count-] comment", { count: result.commentCount }) }}</span>
+                </md-subheader>
+                <formatted-text :text="result.description" truncate="180" :plaintext="true"></Formatted-text>
+                <div class="searchTags">
+                  <md-chip v-for="cat in result.categories" v-bind:key="cat.id" :class="cat.cls" disabled v-if="cat.text">{{ cat.text }}</md-chip>
+                </div>        
+              </div>      
             </div>
-          </div>
+            <advert ad="wago_home_desk_728x90" :multi="false" v-if="(index %9 === 2 || (results.total < 3 && index === results.total - 1))" />
+          </template>
         </div>
         <div class="searchResult" v-else-if="!isSearching && results.total === 0">{{ $t("No results found") }}</div>
       </md-layout>
@@ -43,7 +48,8 @@
       <md-layout id="searchMeta" v-if="results && results.query">
         <search-meta :meta="results.query.context" :tagMap="tagMap" :textSearch="results.query.textSearch" :sort="sortVal" @setSort="setSort" @setImportType="setImportType" :catRelevance="catRelevance" @setCategoryRelevance="setCategoryRelevance" :filterExpansion="filterExpansion" @setExpansion="setExpansion"></search-meta>
       </md-layout>
-      <div v-if="!isSearching"><advert style="margin-top:0"/></div>
+      
+      <!--<div v-if="!isSearching"><advert style="margin-top:0"/></div>-->
     </md-layout>
     <p v-if="isSearchingMore">{{ $t("Loading more") }}</p>
   </div>
@@ -104,7 +110,6 @@ export default {
         this.searchTime = +new Date()
       }
       else {
-        console.log(this.searchTime, +new Date() - 500)
         return
       }
       var opt = ''

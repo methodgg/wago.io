@@ -90,6 +90,7 @@ module.exports = (fastify, opts, next) => {
         who.access.admin = user.roles.isAdmin
       }
 
+      who.hideAds = user.access.hideAds
       who.config = user.config
       who.companionHideAlert = user.account.companionHideAlert
 

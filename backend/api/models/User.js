@@ -264,6 +264,10 @@ Schema.virtual('access.beta').get(function() {
 Schema.virtual('access.api').get(function() {
   return true
 })
+Schema.virtual('access.hideAds').get(function() {
+  if (this.roles.subscriber || this.roles.gold_subscriber || this.roles.pro_subscriber || this.roles.community_leader || this.roles.ambassador || this.roles.developer  || this.roles.artContestWinnerAug2018) return true
+  return false
+})
 Schema.virtual('access.restrictGuild').get(function() {
   if (this.roles.isAdmin.access) return true
   if (this.roles.gold_subscriber || this.roles.pro_subscriber || this.roles.ambassador || this.roles.community_leader || this.roles.developer || this.roles.artContestWinnerAug2018) return true

@@ -62,7 +62,8 @@ const store = new Vuex.Store({
       title: 'Import',
       description: 'Database of sharable World of Warcraft addon elements',
       image: 'https://wago.io/media/favicon/apple-touch-icon-180x180.png'
-    }
+    },
+    lazyAds: {}
   },
   mutations: {
     // store.commit('setLocale', 'en-US')
@@ -213,6 +214,10 @@ const store = new Vuex.Store({
 
     saveMDT (state, table) {
       state.mdtDungeonTable = table
+    },
+
+    showAd (state, unit) {
+      state.lazyAds[unit] = true
     }
   },
   getters: {
@@ -237,11 +242,6 @@ const router = new VueRouter(
 Vue.router = router
 // called before any route changes
 router.beforeEach((to, from, next) => {
-  // scroll to top of page
-  if (!window.preventScroll) {
-    window.scrollTo(0, 0)
-  }
-
   // close mobile nav
   if (Vue.$refs && Vue.$refs['mobile-sidebar']) {
     Vue.$refs['mobile-sidebar'].close()
@@ -273,6 +273,16 @@ router.beforeEach((to, from, next) => {
 
   // disallow route change
   // next(false)
+})
+
+router.afterEach((to, from) => {
+  if (!window.preventScroll) {
+    window.scrollTo(0, 0)
+    if (!to.path.match(/^\/(login|account)/)) {
+      // eslint-disable-next-line
+      // load new ad
+    }
+  }
 })
 
 // setup vue-meta for header
@@ -314,7 +324,7 @@ if (process.env.NODE_ENV === 'development') {
 else {
   // using round robin client-based load balancing
   // dataServers = getServersByCountry(window.cfCountry) // attempt to detect country by cloudflare and assign regional data servers when available
-  dataServers = ['https://data1.wago.io', 'https://data3.wago.io']
+  dataServers = ['https://data1.wago.io', 'https://data2.wago.io', 'https://data3.wago.io']
 }
 dataServers = dataServers.sort(() => {
   return 0.5 - Math.random()
