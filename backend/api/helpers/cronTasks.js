@@ -50,7 +50,7 @@ module.exports = {
       var release = {}
       try {
         const response = await axios.get(addon.url)
-        if (addon.host === 'gisthub') {
+        if (addon.host === 'github') {
             try {
               release.addon = addon.name
               release.active = true
