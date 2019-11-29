@@ -41,123 +41,66 @@ module.exports = {
 
   UpdateLatestAddonReleases: async (req) => {
     const addons = [
-      {name: 'WeakAuras-2', host: 'wowace', url: 'https://www.wowace.com/projects/weakauras-2'},
-      {name: 'VuhDo', host: 'curseforge', url: 'https://www.curseforge.com/wow/addons/vuhdo/files'},
+      {name: 'WeakAuras-2', host: 'github', url: 'https://api.github.com/repos/weakAuras/WeakAuras2/releases/latest'},
+      {name: 'VuhDo', host: 'gitlab', url: 'https://gitlab.vuhdo.io/api/v4/projects/13/releases'},
       {name: 'ElvUI', host: 'tukui', url: 'https://www.tukui.org/download.php?ui=elvui'},
-      {name: 'MDT', host: 'curseforge', url: 'https://www.curseforge.com/wow/addons/method-dungeon-tools/files'},
+      {name: 'MDT', host: 'github', url: 'https://api.github.com/repos/Nnoggie/MethodDungeonTools/releases/latest'},
     ]
-    var releases = []
-    for (let i = 0; i < addons.length; i++) {
-      var addon = addons[i]
+    addons.forEach(async (addon) => {
+      var release = {}
       try {
         const response = await axios.get(addon.url)
-        const scrape = cheerio.load(response.data)
-        var discovered = []
-        if (addon.host === 'wowace') {
-          const scraped = scrape('ul.cf-recentfiles li.file-tag')
-          await Object.values(scraped).forEach(async (file) => {
+        if (addon.host === 'gisthub') {
             try {
-              var release = {}
               release.addon = addon.name
               release.active = true
-
-              var phase = scrape(file).find('.e-project-file-phase-wrapper .e-project-file-phase')
-              release.phase = phase.attr('title')
-              if (!release.phase || discovered.indexOf(release.phase) >= 0) {
-                return
-              }
-
-              var version = scrape(file).find('.project-file-name-container a')
-              if (addon.host === 'wowace') {
-                release.url = 'https://www.wowace.com' + version.attr('href')
-              }
-              else {
-                release.url = 'https://wow.curseforge.com' + version.attr('href')
-              }
-              release.version = version.text()
-
-              var date = scrape(file).find('abbr.standard-datetime')
-              release.date = new Date(parseInt(date.attr('data-epoch')) * 1000)
-
-              releases.push(release)
-              discovered.push(release.phase)
+            release.phase = 'Release'
+            release.url = response.data.url
+            release.version = response.data.name
+            release.date = response.data.published_at
               const preExisting = await AddonRelease.findOneAndUpdate({addon: release.addon, phase: release.phase, version: release.version}, release, {upsert: true, new: false}).exec()
               if (!preExisting) {
-                // if a new release then de-activate the previous version(s)
-                AddonRelease.updateMany({addon: release.addon, phase: release.phase, version: {$ne: release.version}}, {$set: {active: false}}).exec()
-                if (release.addon === 'WeakAuras-2' && release.phase === 'Release') {
-                  try {
-                    updateWAData(req, release)
+              AddonRelease.updateMany({addon: release.addon, version: {$ne: release.version}}, {$set: {active: false}}).exec()
+
+              if (release.addon === 'WeakAuras-2') {
+                updateWAData(req, release, response.data.assets)
                   }
-                  catch (e) {
-                    req.trackError(e, 'Error parsing WA data')
-                  }
+              else if (release.addon === 'MDT') {
+                updateMDTData(req, release, response.data)
                 }
               }
             }
             catch (e) {
-              req.trackError(e, 'Error parsing addon ' + release.addon)
+            req.trackError(e, 'Error fetching addon from GitHub API')
             }
-          })
         }
-        else if (addon.host === 'curseforge') {
-          const scraped = scrape('table.project-file-listing tbody tr')
-          const files = Object.values(scraped)
-          var types = {}
-          for (let i = 0; i <= files.length; i++) {
+        else if (addon.host === 'gitlab') {
             try {
-              var file = files[i]
-              var release = {}
               release.addon = addon.name
               release.active = true
-
-              var phase = scrape(file).find('td.mx-auto .mx-auto .text-white').text()
-              if (phase === 'A' && !types.alpha) {
-                types.alpha = true
-                release.phase = 'Alpha'
-              }
-              else if (phase === 'B' && !types.beta) {
-                types.beta = true
-                release.phase = 'Beta'
-              }
-              else if (phase === 'R' && !types.release) {
-                types.release = true
                 release.phase = 'Release'
+            for (let i = 0; i < response.data.length; i++) {
+              if (response.data[i].name.match(/^v[\d.-]+$/)) {
+                release.version = response.data[i].name
+                release.url = 'https://gitlab.vuhdo.io/vuhdo/vuhdo/-/releases' + release.version
+                release.date = response.data[i].released_at
+                break
               }
-              else {
-                continue
               }
-
-              var version = scrape(file).find('a[data-action="file-link"]')
-              release.url = 'https://www.curseforge.com' + version.attr('href')
-              release.version = version.text()
-              var date = scrape(file).find('td:nth-child(4)').text().trim()
-              if (!date) {
-                continue
+            if (!release.url) {
+              return
               }
-              release.date = moment(date, 'MMM D, YYYY')
-              releases.push(release)
-              discovered.push(release.phase)
               const preExisting = await AddonRelease.findOneAndUpdate({addon: release.addon, phase: release.phase, version: release.version}, release, {upsert: true, new: false}).exec()
               if (!preExisting) {
-                // if a new release then de-activate the previous version(s)
-                AddonRelease.updateMany({addon: release.addon, phase: release.phase, version: {$ne: release.version}}, {$set: {active: false}}).exec()
-                if (release.addon === 'MDT' && release.phase === 'Release') {
-                  try {
-                    updateMDTData(req, release)
-                  }
-                  catch (e) {
-                    req.trackError(e, 'Error parsing MDT data')
-                  }
-                }
+              AddonRelease.updateMany({addon: release.addon, version: {$ne: release.version}}, {$set: {active: false}}).exec()
               }
             }
             catch (e) {
-              req.trackError(e, 'Error parsing addon ' + release.addon)
-            }
+            req.trackError(e, 'Error fetching addon from GitHub API')
           }
         }
         else if (addon.host === 'tukui') {
+          const scrape = cheerio.load(response.data)
           try {
             var release = {}
             release.addon = addon.name
@@ -166,7 +109,6 @@ module.exports = {
             release.url = addon.url
             release.version = scrape('#version').children('.Premium').first().text()
             release.date = new Date(scrape('#version').children('.Premium').last().text())
-            releases.push(release)
             const preExisting = await AddonRelease.findOneAndUpdate({addon: release.addon, phase: release.phase, version: release.version}, release, {upsert: true, new: false}).exec()
             if (!preExisting) {
               // if a new release then de-activate the previous version(s)
@@ -181,8 +123,9 @@ module.exports = {
       catch (e) {
         req.trackError(e, 'Error fetching addon ' + addon.name)
       }
-    }
-    await SiteData.findOneAndUpdate({_id: 'LatestAddons'}, {value: releases}, {upsert: true}).exec()
+    })
+    const Latest = await AddonRelease.find({active: true})
+    await SiteData.set('LatestAddons', Latest)
     return true
   },
 
@@ -483,18 +426,25 @@ async function updateViewsThisWeek(docs) {
   }
 }
 
-async function updateWAData (req, release) {
+async function updateWAData (req, release, assets) {
   const addonDir = path.resolve(__dirname, '../lua', 'addons' ,'WeakAuras', release.version)
   await mkdirp(addonDir)
   const zipFile = path.resolve(addonDir, 'WeakAuras.zip')
   const writer = require('fs').createWriteStream(zipFile)
 
-  const response = await axios({
-    url: release.url + '/download',
-    method: 'GET',
-    responseType: 'stream'
-  })
+  var axiosDownload = {method: 'GET', responseType: 'stream'}
+  for (let i = 0; i < assets.length; i++) {
+    if (assets[i].name.match(/WeakAuras-[\d.]+\.zip/)) {
+      axiosDownload.url = assets[i].browser_download_url
+      break
+    }
+  }
+  if (!axiosDownload.url) {
+    req.trackError(e, 'Unable to find WeakAura download')
+    return false
+  }
 
+  const response = await axios(axiosDownload)
   response.data.pipe(writer)
   await new Promise((resolve, reject) => {
     writer.on('finish', resolve)
@@ -514,24 +464,28 @@ async function updateWAData (req, release) {
   req.trackError(e, 'Unable to find WeakAura internalVersion')
 }
 
-async function updateMDTData (req, release) {
-  console.log('update mdt')
+async function updateMDTData (req, release, assets) {
   const addonDir = path.resolve(__dirname, '../lua', 'addons' ,'MDT', release.version)
   await mkdirp(addonDir)
   const zipFile = path.resolve(addonDir, 'MDT.zip')
   const writer = require('fs').createWriteStream(zipFile)
-  const response = await axios({
-    url: release.url.replace(/files\/(\d+)/, 'download/$1/file'),
-    method: 'GET',
-    responseType: 'stream'
-  })
+
+  var axiosDownload = {method: 'GET', responseType: 'stream', url: assets.zipball_url}
+  if (!axiosDownload.url) {
+    req.trackError(e, 'Unable to find MDT download')
+    return false
+  }
+
+  const response = await axios(axiosDownload)
   response.data.pipe(writer)
   await new Promise((resolve, reject) => {
     writer.on('finish', resolve)
     writer.on('error', reject)
   })
   await decompress(zipFile, addonDir)
-  var mdtData = await lua.BuildMDT_DungeonTable(addonDir + '/MethodDungeonTools/BattleForAzeroth')
+  // get commit directory
+  const commit = await fs.readdir(addonDir)
+  var mdtData = await lua.BuildMDT_DungeonTable(`${addonDir}/${commit[1]}/BattleForAzeroth`)
   mdtData = JSON.parse(mdtData)
 
   // calculate dimensions
@@ -605,6 +559,7 @@ async function updateMDTData (req, release) {
 }
 
 async function buildStaticMDTPortraits(json, mapID, subMapID, teeming, faction) {
+  return
   const mdtScale = 539 / 450
   if (teeming) teeming = '-Teeming'
   else teeming = ''
@@ -973,6 +928,7 @@ function generateStats(res) {
     res.send({done: true})
   })
 }
+
 Date.prototype.nextWeek = function() {
   var date = new Date(this.valueOf())
   date.setDate(date.getDate() + 7)

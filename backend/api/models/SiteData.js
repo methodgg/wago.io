@@ -21,8 +21,8 @@ Schema.statics.get = function(key) {
   })
 }
 
-Schema.statics.set = function(key, value) {
-  return this.findByIdAndUpdate(key, {value: value}, {upsert: true}).exec()
+Schema.statics.set = async function(key, value) {
+  return await this.findOneAndUpdate({_id: key}, {value: value}, {upsert: true, new: true})
 }
 
 
