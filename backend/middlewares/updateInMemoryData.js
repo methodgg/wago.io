@@ -8,7 +8,7 @@ module.exports = async () => {
     'mdtWeekKR',
     'mdtWeekTW',
     'mdtWeekCN',
-    'Top10Lists',
+    'TopLists',
     'WagoOfTheMoment',
     'weakAuraInternalVersion'
   ].forEach(async (item) => {

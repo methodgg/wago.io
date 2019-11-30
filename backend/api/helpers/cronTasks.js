@@ -23,19 +23,65 @@ module.exports = {
     }
   },
 
-  UpdateTopTenLists: async (req) => {
+  UpdateTopLists: async (req) => {
     try {
-      var data = {}
-      data.faves = await WagoItem.find({deleted: false, hidden: false, private: false, restricted: false}).sort("-popularity.favorite_count").select('_id name popularity.favorite_count').limit(10).exec()
-      data.installs = await WagoItem.find({deleted: false, hidden: false, private: false, restricted: false}).sort("-popularity.installed_count").select('_id name popularity.installed_count').limit(10).exec()
-      data.newest = await WagoItem.find({deleted: false, hidden: false, private: false, restricted: false, $where: "this.created.getTime() == this.modified.getTime()"}).sort({"created": -1}).select('_id name created').limit(10).exec()
-      data.updates = await WagoItem.find({deleted: false, hidden: false, private: false, restricted: false, $where: "this.created.getTime() != this.modified.getTime()"}).sort({"modified": -1}).select('_id name modified').limit(10).exec()
-      data.popular = await WagoItem.find({deleted: false, hidden: false, private: false, restricted: false}).sort("-popularity.viewsThisWeek").select('_id name popularity.viewsThisWeek').limit(10).exec()
-      await SiteData.findOneAndUpdate({_id: 'Top10Lists'}, {value: data}, {upsert: true}).exec()
+      var data = []
+      // favorites
+      var imports = await WagoItem.find({deleted: false, hidden: false, private: false, restricted: false}).sort("-popularity.favorite_count").select('_id name popularity.favorite_count').limit(15).exec()
+      data.push({title: 'Favorites All Time', imports: imports.map(x => { return {count: x.popularity.favorite_count, display: '[-count-] star', name: x.name, slug: x.slug} }) })
+      imports = await WagoItem.find({type: 'WEAKAURAS2', deleted: false, hidden: false, private: false, restricted: false}).sort("-popularity.favorite_count").select('_id name popularity.favorite_count').limit(15).exec()
+      data.push({title: 'Favorite WeakAuras All Time', imports: imports.map(x => { return {count: x.popularity.favorite_count, display: '[-count-] star', name: x.name, slug: x.slug} }) })
+      imports = await WagoItem.find({type: 'CLASSIC-WEAKAURA', deleted: false, hidden: false, private: false, restricted: false}).sort("-popularity.favorite_count").select('_id name popularity.favorite_count').limit(15).exec()
+      data.push({title: 'Favorite Classic WeakAuras All Time', imports: imports.map(x => { return {count: x.popularity.favorite_count, display: '[-count-] star', name: x.name, slug: x.slug} }) })
+      imports = await WagoItem.find({type: 'MDT', deleted: false, hidden: false, private: false, restricted: false}).sort("-popularity.favorite_count").select('_id name popularity.favorite_count').limit(15).exec()
+      data.push({title: 'Favorite MDT All Time', imports: imports.map(x => { return {count: x.popularity.favorite_count, display: '[-count-] star', name: x.name, slug: x.slug} }) })
+      imports = await WagoItem.find({type: 'PLATER', deleted: false, hidden: false, private: false, restricted: false}).sort("-popularity.favorite_count").select('_id name popularity.favorite_count').limit(15).exec()
+      data.push({title: 'Favorite Plater All Time', imports: imports.map(x => { return {count: x.popularity.favorite_count, display: '[-count-] star', name: x.name, slug: x.slug} }) })
+      imports = await WagoItem.find({type: 'TOTALRP3', deleted: false, hidden: false, private: false, restricted: false}).sort("-popularity.favorite_count").select('_id name popularity.favorite_count').limit(15).exec()
+      data.push({title: 'Favorite Total RP All Time', imports: imports.map(x => { return {count: x.popularity.favorite_count, display: '[-count-] star', name: x.name, slug: x.slug} }) })
+      imports = await WagoItem.find({type: 'VUHDO', deleted: false, hidden: false, private: false, restricted: false}).sort("-popularity.favorite_count").select('_id name popularity.favorite_count').limit(15).exec()
+      data.push({title: 'Favorite VuhDo All Time', imports: imports.map(x => { return {count: x.popularity.favorite_count, display: '[-count-] star', name: x.name, slug: x.slug} }) })
+      imports = await WagoItem.find({type: 'ELVUI', deleted: false, hidden: false, private: false, restricted: false}).sort("-popularity.favorite_count").select('_id name popularity.favorite_count').limit(15).exec()
+      data.push({title: 'Favorite ElvUI All Time', imports: imports.map(x => { return {count: x.popularity.favorite_count, display: '[-count-] star', name: x.name, slug: x.slug} }), lastOfSection: true })
+      
+      // popular
+      imports = await WagoItem.find({deleted: false, hidden: false, private: false, restricted: false}).sort("-popularity.viewsThisWeek").select('_id name popularity.viewsThisWeek').limit(15).exec()
+      data.push({title: 'Popular This Week', imports: imports.map(x => { return {count: x.popularity.viewsThisWeek, display: '[-count-] view', name: x.name, slug: x.slug} }) })
+      imports = await WagoItem.find({type: 'WEAKAURAS2', deleted: false, hidden: false, private: false, restricted: false}).sort("-popularity.viewsThisWeek").select('_id name popularity.viewsThisWeek').limit(15).exec()
+      data.push({title: 'Popular WeakAuras This Week', imports: imports.map(x => { return {count: x.popularity.viewsThisWeek, display: '[-count-] view', name: x.name, slug: x.slug} }) })
+      imports = await WagoItem.find({type: 'CLASSIC-WEAKAURA', deleted: false, hidden: false, private: false, restricted: false}).sort("-popularity.viewsThisWeek").select('_id name popularity.viewsThisWeek').limit(15).exec()
+      data.push({title: 'Popular Classic WeakAuras This Week', imports: imports.map(x => { return {count: x.popularity.viewsThisWeek, display: '[-count-] view', name: x.name, slug: x.slug} }) })
+      imports = await WagoItem.find({type: 'MDT', deleted: false, hidden: false, private: false, restricted: false}).sort("-popularity.viewsThisWeek").select('_id name popularity.viewsThisWeek').limit(15).exec()
+      data.push({title: 'Popular MDT This Week', imports: imports.map(x => { return {count: x.popularity.viewsThisWeek, display: '[-count-] view', name: x.name, slug: x.slug} }) })
+      imports = await WagoItem.find({type: 'PLATER', deleted: false, hidden: false, private: false, restricted: false}).sort("-popularity.viewsThisWeek").select('_id name popularity.viewsThisWeek').limit(15).exec()
+      data.push({title: 'Popular Plater This Week', imports: imports.map(x => { return {count: x.popularity.viewsThisWeek, display: '[-count-] view', name: x.name, slug: x.slug} }) })
+      imports = await WagoItem.find({type: 'TOTALRP3', deleted: false, hidden: false, private: false, restricted: false}).sort("-popularity.viewsThisWeek").select('_id name popularity.viewsThisWeek').limit(15).exec()
+      data.push({title: 'Popular Total RP This Week', imports: imports.map(x => { return {count: x.popularity.viewsThisWeek, display: '[-count-] view', name: x.name, slug: x.slug} }) })
+      imports = await WagoItem.find({type: 'VUHDO', deleted: false, hidden: false, private: false, restricted: false}).sort("-popularity.viewsThisWeek").select('_id name popularity.viewsThisWeek').limit(15).exec()
+      data.push({title: 'Popular VuhDo This Week', imports: imports.map(x => { return {count: x.popularity.viewsThisWeek, display: '[-count-] view', name: x.name, slug: x.slug} }) })
+      imports = await WagoItem.find({type: 'ELVUI', deleted: false, hidden: false, private: false, restricted: false}).sort("-popularity.viewsThisWeek").select('_id name popularity.viewsThisWeek').limit(15).exec()
+      data.push({title: 'Popular ElvUI This Week', imports: imports.map(x => { return {count: x.popularity.viewsThisWeek, display: '[-count-] view', name: x.name, slug: x.slug} }), lastOfSection: true })
+
+      // installed
+      imports = await WagoItem.find({deleted: false, hidden: false, private: false, restricted: false}).sort("-popularity.installed_count").select('_id name popularity.installed_count').limit(15).exec()
+      data.push({title: 'Installed', imports: imports.map(x => { return {count: x.popularity.installed_count, display: '[-count-] install', name: x.name, slug: x.slug} }) })
+      imports = await WagoItem.find({type: 'WEAKAURAS2', deleted: false, hidden: false, private: false, restricted: false}).sort("-popularity.installed_count").select('_id name popularity.installed_count').limit(15).exec()
+      data.push({title: 'Installed WeakAuras', imports: imports.map(x => { return {count: x.popularity.installed_count, display: '[-count-] install', name: x.name, slug: x.slug} }) })
+      imports = await WagoItem.find({type: 'CLASSIC-WEAKAURA', deleted: false, hidden: false, private: false, restricted: false}).sort("-popularity.installed_count").select('_id name popularity.installed_count').limit(15).exec()
+      data.push({title: 'Installed Classic WeakAuras', imports: imports.map(x => { return {count: x.popularity.installed_count, display: '[-count-] install', name: x.name, slug: x.slug} }), lastOfSection: true })
+
+      // new and updated imports
+      imports = await WagoItem.find({deleted: false, hidden: false, private: false, restricted: false, $where: "this.created.getTime() != this.modified.getTime()"}).sort({"modified": -1}).select('_id name modified').limit(15).exec()
+      data.push({title: 'Recently Updated', imports: imports.map(x => { return {date: true, display: x.modified, name: x.name, slug: x.slug} }) })
+      imports = await WagoItem.find({deleted: false, hidden: false, private: false, restricted: false, $where: "this.created.getTime() == this.modified.getTime()"}).sort({"created": -1}).select('_id name created').limit(15).exec()
+      data.push({title: 'Newest Imports', imports: imports.map(x => { return {date: true, display: x.created, name: x.name, slug: x.slug} }) })
+
+      // save data
+      await SiteData.findOneAndUpdate({_id: 'TopLists'}, {value: data}, {upsert: true}).exec()
       return true
     }
     catch (e) {
-      req.trackError(e, 'Cron: UpdateTopTenLists')
+      req.trackError(e, 'Cron: UpdateTopLists')
     }
   },
 
@@ -51,34 +97,34 @@ module.exports = {
       try {
         const response = await axios.get(addon.url)
         if (addon.host === 'github') {
-            try {
-              release.addon = addon.name
-              release.active = true
+          try {
+            release.addon = addon.name
+            release.active = true
             release.phase = 'Release'
             release.url = response.data.url
             release.version = response.data.name
             release.date = response.data.published_at
-              const preExisting = await AddonRelease.findOneAndUpdate({addon: release.addon, phase: release.phase, version: release.version}, release, {upsert: true, new: false}).exec()
-              if (!preExisting) {
+            const preExisting = await AddonRelease.findOneAndUpdate({addon: release.addon, phase: release.phase, version: release.version}, release, {upsert: true, new: false}).exec()
+            if (!preExisting) {
               AddonRelease.updateMany({addon: release.addon, version: {$ne: release.version}}, {$set: {active: false}}).exec()
 
               if (release.addon === 'WeakAuras-2') {
                 updateWAData(req, release, response.data.assets)
-                  }
+              }
               else if (release.addon === 'MDT') {
                 updateMDTData(req, release, response.data)
-                }
               }
             }
-            catch (e) {
+          }
+          catch (e) {
             req.trackError(e, 'Error fetching addon from GitHub API')
-            }
+          }
         }
         else if (addon.host === 'gitlab') {
-            try {
-              release.addon = addon.name
-              release.active = true
-                release.phase = 'Release'
+          try {
+            release.addon = addon.name
+            release.active = true
+            release.phase = 'Release'
             for (let i = 0; i < response.data.length; i++) {
               if (response.data[i].name.match(/^v[\d.-]+$/)) {
                 release.version = response.data[i].name
@@ -86,16 +132,16 @@ module.exports = {
                 release.date = response.data[i].released_at
                 break
               }
-              }
+            }
             if (!release.url) {
               return
-              }
-              const preExisting = await AddonRelease.findOneAndUpdate({addon: release.addon, phase: release.phase, version: release.version}, release, {upsert: true, new: false}).exec()
-              if (!preExisting) {
-              AddonRelease.updateMany({addon: release.addon, version: {$ne: release.version}}, {$set: {active: false}}).exec()
-              }
             }
-            catch (e) {
+            const preExisting = await AddonRelease.findOneAndUpdate({addon: release.addon, phase: release.phase, version: release.version}, release, {upsert: true, new: false}).exec()
+            if (!preExisting) {
+              AddonRelease.updateMany({addon: release.addon, version: {$ne: release.version}}, {$set: {active: false}}).exec()
+            }
+          }
+          catch (e) {
             req.trackError(e, 'Error fetching addon from GitHub API')
           }
         }

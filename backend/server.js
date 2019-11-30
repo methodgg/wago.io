@@ -90,6 +90,7 @@ const startServer = async () => {
         track: require('./middlewares/matomo'),
         trackError: require('./middlewares/matomoErrors')
       }
+      await cronTasks.UpdateTopLists(cronReq)
 
       var minute = Math.floor((new Date()-new Date().setHours(0,0,0,0)) / 60000) // start at x minutes from midnight
       const runCron = async () => {
@@ -112,7 +113,7 @@ const startServer = async () => {
           await cronTasks.UpdateLatestAddonReleases(cronReq)
         }
         if (minute % 5 === 0) { // every 5 minutes
-          await cronTasks.UpdateTopTenLists(cronReq)
+          await cronTasks.UpdateTopLists(cronReq)
         }
         await cronTasks.UpdateWagoOfTheMoment(cronReq)
         await cronTasks.UpdateLatestNews(cronReq)
