@@ -395,7 +395,7 @@ module.exports = {
   updateValidCharacters: async (req) => {
     const fourWeeksAgo = new Date()
     fourWeeksAgo.setDate(fourWeeksAgo.getDate() - 28)
-    const users = await User.find({"battlenet.characters.1": {$exists: true}, $or: [{"battlenet.updateDate": {$exists: false}}, {"battlenet.updateDate": {$lt: fourWeeksAgo}}]}).limit(200).exec()
+    const users = await User.find({"battlenet.characters.1": {$exists: true}, $or: [{"battlenet.updateDate": {$exists: false}}, {"battlenet.updateDate": {$lt: fourWeeksAgo}}]}).limit(50).exec()
     for (let i = 0; i < users.length; i++) {
       var validChars = []
       for (let k = 0; k < users[i].battlenet.characters.length; k++) {
