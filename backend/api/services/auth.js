@@ -351,7 +351,7 @@ async function battlenetAuth(req, res, region) {
         await Promise.all(profiles[region].map(character => getCharacter(region, character)))
       }
       const getCharacter = async function (region, character) {
-        if (!character.realm || !character.name) {
+        if (!character.realm || !character.name || character.name.match(/\d/)) {
           return Promise.resolve()
         }
         const char = await battlenet.lookupCharacter(region, character.realm, character.name)
@@ -359,14 +359,14 @@ async function battlenetAuth(req, res, region) {
           return Promise.resolve()
         }
         if (char.guild && char.guild.realm) {
-          chars.push({region: region, realm: char.realm, name: char.name, guild: char.guild.name, guildRealm: char.guild.realm })
-          const guild = await battlenet.lookupGuild(region, char.guild.realm, char.guild.name)
+          chars.push({region: region, realm: char.realm.slug, name: char.name, guild: char.guild.name, guildRealm: char.guild.realm.slug, bnetID: char.id })
+          const guild = await battlenet.lookupGuild(region, char.guild.realm.slug, char.guild.name)
           if (guild && guild.members) {
             for (let j = 0; j < guild.members.length; j++) {
-              if (char.realm === guild.members[j].character.realm && char.name === guild.members[j].character.name) {
-                guilds.push(`${region}@${char.guild.realm}@${char.guild.name}`)
+              if (char.realm.slug === guild.members[j].character.realm.slug && char.name === guild.members[j].character.name) {
+                guilds.push(`${region}@${char.guild.realm.slug}@${char.guild.name}`)
                 for (let k = guild.members[j].rank; k <= 9; k++) {
-                  guilds.push(`${region}@${char.guild.realm}@${char.guild.name}@${k}`)
+                  guilds.push(`${region}@${char.guild.realm.slug}@${char.guild.name}@${k}`)
                 }
                 break
               }
@@ -374,7 +374,7 @@ async function battlenetAuth(req, res, region) {
           }
         }
         else {
-          chars.push({region: region, realm: char.realm, name: char.name })
+          chars.push({region: region, realm: char.realm.name, name: char.name, bnetID: char.id })
         }
         if (char.level >= 110) {
           if (mostRecent < char.lastModified) {
@@ -397,6 +397,7 @@ async function battlenetAuth(req, res, region) {
         user[battlenetField].characters = chars
         user[battlenetField].guilds = guilds
         user[battlenetField].updateStatus = 'done'
+        user[battlenetField].updateDate = new Date()
         user.account.verified_human = true
         user.save()
       }

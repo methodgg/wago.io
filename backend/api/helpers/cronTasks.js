@@ -325,7 +325,7 @@ module.exports = {
         // guild found! Match all wago users with guild
         guild.members.sort(guildRankSort)
         for (let j = 0; j < guild.members.length; j++) {
-          let memberUser = await User.findOne({"battlenet.characters.region": region, "battlenet.characters.name": guild.members[j].character.name, "battlenet.characters.realm": guild.members[j].character.realm})
+          let memberUser = await User.findOne({"battlenet.characters.region": region, "battlenet.characters.name": guild.members[j].character.name, "battlenet.characters.realm": guild.members[j].character.realm.slug})
           if (!memberUser) {
             continue
           }
@@ -387,8 +387,30 @@ module.exports = {
 
     for (let i = 0; i < users.length; i++) {
       for (let j = 0; j < users[i].battlenet.guilds.length; j++) {
-        await updateGuild(users[i].battlenet.guilds[j])
+        await battlenet.lookupCharacterStatus(users[i].battlenet.guilds[j])
       }
+    }
+  },
+
+  updateValidCharacters: async (req) => {
+    const fourWeeksAgo = new Date()
+    fourWeeksAgo.setDate(fourWeeksAgo.getDate() - 28)
+    const users = await User.find({"battlenet.characters.1": {$exists: true}, $or: [{"battlenet.updateDate": {$exists: false}}, {"battlenet.updateDate": {$lt: fourWeeksAgo}}]}).limit(200).exec()
+    for (let i = 0; i < users.length; i++) {
+      var validChars = []
+      for (let k = 0; k < users[i].battlenet.characters.length; k++) {
+        const status = await battlenet.lookupCharacterStatus(users[i].battlenet.characters[k].region, users[i].battlenet.characters[k].realm, users[i].battlenet.characters[k].name)
+        if (status.error || !status.is_valid || (users[i].battlenet.characters[k].bnetID && users[i].battlenet.characters[k].bnetID != status.id)) {
+          continue
+        }
+        else if (!users[i].battlenet.characters[k].bnetID) {
+          users[i].battlenet.characters[k].bnetID = status.id
+        }
+        validChars.push(users[i].battlenet.characters[k])
+      }
+      users[i].battlenet.updateDate = new Date()
+      users[i].battlenet.characters = validChars
+      await users[i].save()
     }
   },
 

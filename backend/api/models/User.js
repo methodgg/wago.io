@@ -79,12 +79,14 @@ const Schema = new mongoose.Schema({
       webp: String
     },
     updateStatus: String,
+    updateDate: Date,
     characters: [{
       region: {type: String, index: true},
       realm: {type: String, index: true},
       name: {type: String, index: true},
       guild: {type: String, index: true},
-      guildRealm: {type: String, index: true}
+      guildRealm: {type: String, index: true},
+      bnetID: Number
     }],
     guilds: [{type: String, index: true}]
   },
@@ -96,6 +98,7 @@ const Schema = new mongoose.Schema({
       webp: String
     },
     updateStatus: String,
+    updateDate: Date,
   },
   patreon : {
     id: String,

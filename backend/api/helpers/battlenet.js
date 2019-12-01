@@ -21,6 +21,10 @@ function getHost (region) {
   }
 }
 
+function getSlug (str) {
+  return encodeURI(str.toLowerCase().replace(/\s/g, '-'))
+}
+
 // TODO: Keep token in memory with expiry
 async function getToken (region) {
   if (region === 'CN') {
@@ -58,11 +62,32 @@ function getAPI (region, endpoint, token) {
   if (namespace === 'dynamic-na') {
     namespace = 'dynamic-us'
   }
+  if (endpoint.match(/^\/(profile|data\/wow\/guild)/)) {
+    namespace = namespace.replace(/dynamic/, 'profile')
+  }
+  endpoint = endpoint.toLowerCase()
   if (endpoint.match(/\?/)) {
     endpoint = endpoint + '&namespace=' + namespace
   }
   else {
     endpoint = endpoint + '?namespace=' + namespace
+  }
+  switch (region) {
+    case 'eu':
+      endpoint = endpoint + '&locale=en_GB'
+      break
+    case 'kr':
+      endpoint = endpoint + '&locale=ko_KR'
+      break
+    case 'tw':
+      endpoint = endpoint + '&locale=zh_TW'
+      break
+    case 'cn':
+      endpoint = endpoint + '&locale=zh_CN'
+      break
+    default:
+      endpoint = endpoint + '&locale=en_US'
+      break
   }
   return axios.get(getHost(region) + endpoint, {
     headers: {
@@ -150,7 +175,8 @@ module.exports = {
   },
 
   lookupGuild: async (region, realm, guildname) => {
-    const url = `/wow/guild/${encodeURI(realm)}/${encodeURI(guildname)}?fields=members`
+    // const url = `/wow/guild/${encodeURI(realm)}/${encodeURI(guildname)}?fields=members`
+    const url = `/data/wow/guild/${getSlug(realm)}/${getSlug(guildname)}/roster`
     const cached = await BlizzData.findOne({_id: region + '-' + url})
     if (cached) {
       return cached.value
@@ -159,10 +185,11 @@ module.exports = {
     try {
       const guild = await getAPI(region, url, token)
       await BlizzData.create({_id: region + '-' + url, value: guild.data, expires_at: new Date((new Date()).getTime() + 10 * 60000)})
+      console.log(guild.data)
       return guild.data
     }
     catch (e) {
-      if (e.response && e.response.status === 404) {
+      if (e.response && (e.response.status === 404 || e.response.status === 403)) {
         return {error: "NOGUILD"}
       }
       return {}
@@ -170,7 +197,8 @@ module.exports = {
   },
 
   lookupCharacter: async (region, realm, name) => {
-    const url = `/wow/character/${encodeURI(realm)}/${encodeURI(name)}?fields=guild`
+    // const url = `/wow/character/${encodeURI(realm)}/${encodeURI(name)}?fields=guild`
+    const url = `/profile/wow/character/${getSlug(realm)}/${getSlug(name)}`
     const cached = await BlizzData.findOne({_id: region + '-' + url})
     if (cached) {
       return cached.value
@@ -182,7 +210,24 @@ module.exports = {
       return char.data
     }
     catch (e) {
-      if (e.response && e.response.status === 404) {
+      if (e.response && (e.response.status === 404 || e.response.status === 403)) {
+        return {error: "NOCHAR"}
+      }
+      return {}
+    }
+  },
+
+  lookupCharacterStatus: async (region, realm, name) => {
+    const url = `/profile/wow/character/${getSlug(realm)}/${getSlug(name)}/status`
+    console.log(url)
+    const token = await getToken()
+    try {
+      const char = await getAPI(region, url, token)
+      await BlizzData.create({_id: region + '-' + url, value: char.data, expires_at: new Date((new Date()).getTime() + 10 * 60000)})
+      return char.data
+    }
+    catch (e) {
+      if (e.response && (e.response.status === 404 || e.response.status === 403)) {
         return {error: "NOCHAR"}
       }
       return {}
