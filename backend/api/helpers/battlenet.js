@@ -185,7 +185,6 @@ module.exports = {
     try {
       const guild = await getAPI(region, url, token)
       await BlizzData.create({_id: region + '-' + url, value: guild.data, expires_at: new Date((new Date()).getTime() + 10 * 60000)})
-      console.log(guild.data)
       return guild.data
     }
     catch (e) {
@@ -219,7 +218,6 @@ module.exports = {
 
   lookupCharacterStatus: async (region, realm, name) => {
     const url = `/profile/wow/character/${getSlug(realm)}/${getSlug(name)}/status`
-    console.log(url)
     const token = await getToken()
     try {
       const char = await getAPI(region, url, token)
