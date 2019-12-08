@@ -320,7 +320,6 @@ module.exports = function (fastify, opts, next) {
       return res.send({scan: scanDoc._id.toString(), type: 'Vuhdo', name: name})
     }
 
-    console.log(test, decoded)
     if (test.OPIE && decoded.obj && decoded.obj.name) {
       scan.type = 'OPIE'
       var name = decoded.obj.name
@@ -552,8 +551,6 @@ module.exports = function (fastify, opts, next) {
       else {
         code.text = scan.input
       }
-      console.log(Object.keys(scan))
-      console.log(code)
     }
     else {
       code.encoded = scan.input
