@@ -838,7 +838,6 @@ import Lightbox from 'vue-simple-lightbox'
 import Multiselect from 'vue-multiselect'
 import CategorySelect from '../UI/SelectCategory.vue'
 import Search from '../core/Search.vue'
-import Advert from '../UI/Advert.vue'
 import semver from 'semver'
 const openCustomProtocol = require('../libs/customProtocolDetection')
 
@@ -863,7 +862,6 @@ export default {
     'view-diffs': require('../UI/ViewDiffs.vue'),
     'color-picker': require('vue-color').Chrome,
     'md-autocomplete': require('../UI/md-autocomplete.vue'),
-    Advert,
     editor: require('vue2-ace-editor'),
     Multiselect,
     CategorySelect,

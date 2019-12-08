@@ -39,7 +39,7 @@
                 </div>        
               </div>      
             </div>
-            <advert ad="wago_home_desk_728x90" :multi="false" v-if="(index %9 === 2 || (results.total < 3 && index === results.total - 1))" />
+            <advert ad="wago_home_desk_728x90" :multi="false" v-if="!isCollection && (index %9 === 2 || (results.total < 3 && index === results.total - 1))" />
           </template>
         </div>
         <div class="searchResult" v-else-if="!isSearching && results.total === 0">{{ $t("No results found") }}</div>
@@ -49,7 +49,9 @@
         <search-meta :meta="results.query.context" :tagMap="tagMap" :textSearch="results.query.textSearch" :sort="sortVal" @setSort="setSort" @setImportType="setImportType" :catRelevance="catRelevance" @setCategoryRelevance="setCategoryRelevance" :filterExpansion="filterExpansion" @setExpansion="setExpansion"></search-meta>
       </md-layout>
       
-      <!--<div v-if="!isSearching"><advert style="margin-top:0"/></div>-->
+      <md-layout md-align="end" id="search-ad-container" v-if="!isCollection && !isSearching && !$isMobile && (!$store.state.user || !$store.state.user.hideAds)">
+        <advert ad="wago_snippetpage_300x600" />
+      </md-layout>
     </md-layout>
     <p v-if="isSearchingMore">{{ $t("Loading more") }}</p>
   </div>
@@ -57,7 +59,6 @@
 
 <script>
 import Categories from '../libs/categories'
-import Advert from '../UI/Advert.vue'
 export default {
   data: function () {
     return {
@@ -77,15 +78,15 @@ export default {
       uiRelevanceValue: false,
       filterExpansion: this.$store.state.user && this.$store.state.user.config && this.$store.state.user.config.searchOptions.expansion || 'all',
       uiExpansionValue: false,
-      contextSearchData: this.contextSearch
+      contextSearchData: this.contextSearch,
+      isCollection: false
     }
   },
   props: ['contextSearch', 'contextGame'],
   components: {
     'search-meta': require('../UI/SearchMeta.vue'),
     'formatted-text': require('../UI/FormattedText.vue'),
-    'placeholder-img': require('../UI/PlaceHolderImage.vue'),
-    Advert
+    'placeholder-img': require('../UI/PlaceHolderImage.vue')
   },
   watch: {
     '$route' (to, from) {
@@ -230,6 +231,13 @@ export default {
           vue.catRelevance = res.query.relevance
         }
 
+        if (res.query.q.match(/collection:/i)) {
+          vue.isCollection = true
+        }
+        else {
+          vue.isCollection = false
+        }
+
         vue.$set(vue.results, 'total', res.total)
         vue.$set(vue.results, 'query', res.query)
         vue.$set(vue.results, 'results', res.results)
@@ -352,7 +360,7 @@ export default {
 #searchForm { padding: 16px; width: 100% }
 #searchForm button { margin-top: -3px }
 
-.searchResult { display: flex; padding: 0 8px; margin-bottom: 8px; max-width: 850px; min-width: 650px;}
+.searchResult { display: flex; padding: 0 16px; margin-bottom: 8px; max-width: 850px; min-width: 650px;}
 .searchResult .searchImg { min-width: 120px; max-width: 120px; text-align: center }
 .searchResult .searchImg img { max-width: 100%; max-height: 6em; }
 .searchResult .searchText {  }
@@ -366,8 +374,11 @@ export default {
 
 #searchMeta .md-whiteframe { padding: 8px;}
 
+#search-ad-container {flex: auto!important; }
+#search-ad-container > div { margin-top: 0}
+
 @media (min-width: 601px) {
-  #searchLayout { flex-wrap: nowrap; }
+  #searchLayout { flex-wrap: nowrap; align-items: flex-start; }
   #searchLayout > .md-layout { flex: initial }
   #searchMeta { margin-right: 16px }
 }

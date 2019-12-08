@@ -51,6 +51,8 @@
         </md-list>
       </md-layout>
     </md-layout>
+    <advert ad="wago_weakauras_anchor" />
+    <div></div>
   </div>
 </template>
 
