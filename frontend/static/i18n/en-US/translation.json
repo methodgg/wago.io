@@ -29,7 +29,7 @@
   "3 hours": "3 hours",
   "15 minutes": "15 minutes",
   "Paste your import string here": "Paste your import string here.",
-  "Paste your WeakAura, ElvUI or Vuhdo string here": "Paste your WeakAura, ElvUI or Vuhdo string here.<br><br>Lua code snippets also supported.<br><br>KfPuv5skHQpPes....",
+  "Paste your WeakAura, ElvUI or Vuhdo string here": "Paste your import string here.<br><br>Lua code snippets also supported.<br><br>KfPuv5skHQpPes....",
   "Name": "Name",
   "Categories": "Categories",
   "[-count-] star": "[-count-] star",
@@ -634,5 +634,9 @@
   "Access Granted New": "",
   "Error could not load luacheck for this code": "",
   "Luacheck": "",
-  "Custom Text": ""
+  "Custom Text": "",
+  "Advertisement": "",
+  "Hide Ads": "",
+  "Per WeakAuras Companion App": "",
+  "Browse OPie imports": ""
 }

@@ -70,7 +70,7 @@
 
       <md-dialog-actions>
         <md-button v-if="extractData" class="md-primary" @click="extractCopy()">{{ $t("Copy string") }}</md-button>
-        <md-button class="md-primary" @click="this.$refs.extractFromGroupDialog.close()">{{ $t("Close") }}</md-button>
+        <md-button class="md-primary" @click="$refs.extractFromGroupDialog.close()">{{ $t("Close") }}</md-button>
       </md-dialog-actions>
     </md-dialog>
     <export-modal :json="tableString" :type="'WeakAura'" :showExport="showExport" :wagoID="wago._id" @hideExport="hideExport"></export-modal>
