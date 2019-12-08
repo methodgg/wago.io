@@ -20,6 +20,7 @@
             <md-option value="ELVUI">ElvUI</md-option>
             <md-option value="TOTALRP3">Total RP</md-option>
             <md-option value="MDT">Method Dungeon Tools</md-option>
+            <md-option value="OPIE">OPie</md-option>
             <md-option value="PLATER">Plater</md-option>
             <md-option value="VUHDO">VuhDo</md-option>
             <md-option value="WEAKAURAS2">WeakAura</md-option>
@@ -204,6 +205,7 @@ export default {
         ELVUI: 'ElvUI',
         TOTALRP3: 'TotalRP',
         MDT: 'MDT',
+        OPIE: 'OPIE',
         PLATER: 'Plater',
         VUHDO: 'VuhDo',
         WEAKAURAS2: 'WeakAura',

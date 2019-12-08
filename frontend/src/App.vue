@@ -24,6 +24,7 @@
                     <md-option value="ElvUI">ElvUI</md-option>
                     <md-option value="TotalRP">Total RP</md-option>
                     <md-option value="MDT">Method Dungeon Tools</md-option>
+                    <md-option value="Opie">OPie</md-option>
                     <md-option value="Plater">Plater</md-option>
                     <md-option value="VuhDo">VuhDo</md-option>
                     <md-option value="WeakAura">WeakAura</md-option>
@@ -128,6 +129,7 @@
           <md-list-item v-if="User && User.access && User.access.beta"><router-link to='/create-new-note'>Encounter Notes [Beta]</router-link></md-list-item>
           <!-- <md-list-item><router-link to='/grid2'>Grid2</router-link></md-list-item> -->
           <md-list-item><router-link to='/mdt'>Method Dungeon Tools</router-link></md-list-item>
+          <md-list-item><router-link to='/opie'>OPie</router-link></md-list-item>
           <md-list-item><router-link to='/plater'>Plater Nameplates</router-link></md-list-item>
           <md-list-item><router-link to='/totalrp'>Total RP</router-link></md-list-item>
           <md-list-item><router-link to='/vuhdo'>VuhDo</router-link></md-list-item>
@@ -189,13 +191,16 @@ function interceptClickEvent (e, vue) {
   }
 }
 
+import Advert from './components/UI/Advert.vue'
+
 export default {
   name: 'app',
   components: {
     'select-locale': require('./components/UI/SelectLocale.vue'),
     'login-button': require('./components/UI/LoginButton.vue'),
     'md-autocomplete': require('./components/UI/md-autocomplete.vue'),
-    'view-embed': require('./components/core/ViewEmbed.vue')
+    'view-embed': require('./components/core/ViewEmbed.vue'),
+    'advert': Advert
   },
   data: () => {
     return {
@@ -495,6 +500,14 @@ export default {
 <style>
 @import './assets/global.css';
 
+#app {
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  overflow: auto;
+}
+
 @media (min-width: 601px) {
   #app { pointer-events: none; }
   #app > * { width: 100%; max-width:100% }
@@ -512,12 +525,25 @@ export default {
     background: #ECECEC;
     z-index: 1
   }
-  #content { padding-left: 260px; pointer-events: auto; position: relative }
+  #content { padding-left: 260px; padding-bottom: 100px; pointer-events: auto; position: relative }
   #logo { text-align: left; padding: 8px 16px; }
   #logo img { max-height: 40px; }
   #xmaslogo img { width: 45px; position: absolute; left: 41px; top: -3px;}
   #h-nav { flex: 1 }
   #h-nav, #hr-nav { display: flex }
+}
+
+#mobile-anchor {
+  position: fixed;
+  bottom: 0;
+  width: 340px;
+  padding: 0;
+  height: 64px;
+  left: 50%;
+  margin: 0 0 0 -170px;
+}
+#mobile-anchor + div {
+  padding-top: 76px;
 }
 
 #app {

@@ -78,6 +78,10 @@
 .vuhdo a, .vuhdo { color: #6BB85E!important}
 .multiselect .md-chip.vuhdo { background-color: #6BB85E!important; color: black!important }
 
+.md-chip.opie { color: #2595E6!important; background-image: url('menu-opie.png') }
+.opie a, .opie { color: #2595E6!important}
+.multiselect .md-chip.opie { background-color: #2595E6!important; color: black!important }
+
 .md-chip.rpcampaign { color: #C3793A!important; background-image: url('menu-trpcamp.png') }
 .rpcampaign a, .rpcampaign { color: #C3793A!important}
 .multiselect .md-chip.rpcampaign { background-color: #C3793A!important; color: black!important }

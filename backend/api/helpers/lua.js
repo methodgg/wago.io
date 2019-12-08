@@ -11,6 +11,7 @@ const runLua = async function (luaScript, opt) {
     await fs.writeFile(filename, luaScript)
     var result = await execa('luajit', [filename], options)
     fs.unlink(filename)
+    console.log(result)
     if (!result || result.stderr || !result.stdout || result.stdout.match(/^"?Error/)) {
       return false
     }
@@ -225,6 +226,47 @@ module.exports = {
     catch (e) {
       return false
     }
+  },
+
+  DecodeOPie: async (str, cb) => {
+    if (!str || !str.match(commonRegex.looksLikeOpie)) {
+      return false
+    }
+    var result = await runLua('dofile("./wago.lua"); Opie2JSON("' + str + '")')
+    if (!result) {
+      return false
+    }
+    try {
+      return {str: result, obj: JSON.parse(result)}
+    }
+    catch (e) {
+      return false
+    }
+  },
+
+  JSON2OPie: async (obj) => {
+    try {
+      if (typeof obj === 'string') {
+        obj = JSON.parse(obj)
+      }
+    }
+    catch (e) {
+      console.error(e.message)
+      return false
+    }
+
+    // convert string "1" to int 1 so that lua handles the array properly
+    if (obj['1']) {
+      var tmp = obj['1']
+      delete obj['1']
+      obj[1] = tmp
+    }
+    var str = JSON.stringify(obj)
+    var result = await runLua('dofile("./wago.lua"); JSON2Opie("' + str.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim() + '")')
+    if (!result || !result.match(commonRegex.looksLikeOPie)) {
+      return false
+    }
+    return result
   },
 
   // Grid2JSON: (str, cb) => {

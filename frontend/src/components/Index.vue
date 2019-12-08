@@ -144,7 +144,7 @@
             </md-button>
             <div v-for="n in numCategorySets">
               <div v-if="scanID" class="has-category-select">
-                <category-select :game="game" :selectedCategories="setCategories[n-1]" :type="type.toUpperCase()" @update="cat => {setCategories[numCategorySets-1] = cat}" ></category-select>
+                <category-select :selectedCategories="setCategories[n-1]" @update="cat => {setCategories[n-1] = cat; onUpdateCategories()}" :type="type.toUpperCase()"></category-select>
               </div>
             </div>
           </div>
@@ -158,34 +158,55 @@
       </md-layout>
 
       <md-layout id="col2" :md-column-medium="true" md-vertical-align="start">        
-        <!--<advert/>-->
-        <md-whiteframe id="topwagos" v-if="top10Lists && top10Lists.faves">
+        <md-whiteframe id="topwagos" v-if="topLists && topLists[topID]">
           <md-layout>
             <md-layout>
               <md-list class="md-dense">
-                <md-list-item>
-                  <strong>{{ $t("Popular This Week") }}</strong>
+                <md-list-item class="top-list-header">
+                  <md-menu md-align-trigger md-size="6">
+                    <md-button class="md-dense" md-menu-trigger>{{ $t(topLists[topID].title) }}</md-button>
+                    <div class="top-list-note" v-if="topLists[topID].title.match(/Installed/)">{{ $t('Per WeakAuras Companion App') }}</div>
+                    <md-menu-content class="top-list-menu">
+                      <template v-for="(list, index) in topLists">
+                        <md-menu-item :key="index" @click="topID = index">{{ $t(list.title) }}</md-menu-item>
+                        <md-divider v-if="list.lastOfSection"></md-divider>
+                      </template>
+                    </md-menu-content>
+                  </md-menu>                  
                 </md-list-item>
-                <md-list-item v-for="(item, index) in top10Lists.popular" :key="index">
-                  <router-link :to="'/' + item._id">
+                <md-list-item v-for="(item, index) in topLists[topID].imports" :key="index">
+                  <router-link :to="'/' + item.slug">
                     <div class="md-list-text-container">
                       <span>{{ item.name }}</span>
-                      <span>{{ $t("[-count-] view", {count: item.popularity.viewsThisWeek}) }}</span>
+                      <span v-if="item.date">{{ item.display | moment('MMM Do YYYY LT') }}</span>
+                      <span v-else>{{ $t(item.display, item) }}</span>
                     </div>
+                  </router-link>
                   </router-link>
                 </md-list-item>
               </md-list>
             </md-layout>
             <md-layout>
-              <md-list class="md-dense">
-                <md-list-item>
-                  <strong>{{ $t("Favorites All Time") }}</strong>
+              <advert ad="wago_homeage_300x600" v-if="$screenWidth >= 1780 && !$isMobile && (!user || !user.hideAds)" />
+              <md-list class="md-dense" v-else-if="!$isMobile">
+                <md-list-item class="top-list-header">
+                  <md-menu md-align-trigger md-size="6">
+                    <md-button class="md-dense" md-menu-trigger>{{ $t(topLists[topID2].title) }} <span class="down-arrow"></span></md-button>
+                    <div class="top-list-note" v-if="topLists[topID2].title.match(/Installed/)">{{ $t('Per WeakAuras Companion App') }}</div>
+                    <md-menu-content class="top-list-menu">
+                      <template v-for="(list, index) in topLists">
+                        <md-menu-item :key="index" @click="topID2 = index">{{ $t(list.title) }}</md-menu-item>
+                        <md-divider v-if="list.lastOfSection"></md-divider>
+                      </template>
+                    </md-menu-content>
+                  </md-menu>
                 </md-list-item>
-                <md-list-item v-for="(item, index) in top10Lists.faves" :key="index">
-                  <router-link :to="'/' + item._id">
+                <md-list-item v-for="(item, index) in topLists[topID2].imports" :key="index">
+                  <router-link :to="'/' + item.slug">
                     <div class="md-list-text-container">
                       <span>{{ item.name }}</span>
-                      <span>{{ $t("[-count-] star", {count: item.popularity.favorite_count}) }}</span>
+                      <span v-if="item.date">{{ item.display | moment('MMM Do YYYY LT') }}</span>
+                      <span v-else>{{ $t(item.display, item) }}</span>
                     </div>
                   </router-link>
                 </md-list-item>
@@ -196,28 +217,28 @@
             <md-layout>
               <md-list class="md-dense">
                 <md-list-item>
-                  <strong>{{ $t("Recently Updated") }}</strong>
+                  <strong>{{ $t(topLists[topLists.length - 2].title) }}</strong>
                 </md-list-item>
-                <md-list-item v-for="(item, index) in top10Lists.updates" :key="index">
-                  <router-link :to="'/' + item._id">
+                <md-list-item v-for="(item, index) in topLists[topLists.length - 2].imports" :key="index" v-if="index < 3">
+                  <router-link :to="'/' + item.slug">
                     <div class="md-list-text-container">
                       <span>{{ item.name }}</span>
-                      <span>{{ item.modified | moment('MMM Do YYYY LT') }}</span>
+                      <span>{{ item.display | moment('MMM Do YYYY LT') }}</span>
                     </div>
                   </router-link>
                 </md-list-item>
               </md-list>
             </md-layout>
             <md-layout>
-              <md-list class="md-dense">
+              <md-list class="md-dense" id="newest-imports">
                 <md-list-item>
-                  <strong>{{ $t("Newest Imports") }}</strong>
+                  <strong>{{ $t(topLists[topLists.length - 1].title) }}</strong>
                 </md-list-item>
-                <md-list-item v-for="(item, index) in top10Lists.newest" :key="index">
-                  <router-link :to="'/' + item._id">
+                <md-list-item v-for="(item, index) in topLists[topLists.length - 1].imports" :key="index" v-if="index < 3">
+                  <router-link :to="'/' + item.slug">
                     <div class="md-list-text-container">
                       <span>{{ item.name }}</span>
-                      <span>{{ item.created | moment('MMM Do YYYY LT') }}</span>
+                      <span>{{ item.display | moment('MMM Do YYYY LT') }}</span>
                     </div>
                   </router-link>
                 </md-list-item>
@@ -249,8 +270,7 @@
 
 <style src="vue-multiselect/dist/vue-multiselect.min.css"></style>
 <style>
-#importform { z-index: 3 }
-#importform, #topwagos, #addonReleases { padding: 16px; width:100% }
+#importform, #addonReleases { padding: 16px; width:100% }
 #importform textarea { max-height: 110px; min-height:110px }
 #importform .field-group .md-input-container { display: inline-block; max-width: 32%; position: relative}
 .field-group2 .md-input-container, .field-group2 strong { display: inline-block; max-width: 49%;}
@@ -258,13 +278,17 @@
 
 @media (min-width: 1281px) {
   #col1, #col2 { padding: 16px }
-  #col2 { padding-left:0 }
+  #col2 { padding-left:0; max-width: 780px }
   #topwagos > .md-layout > .md-layout { width: 50% }
   #topwagos > .md-layout > .md-layout > ul { max-width: 100%; min-width: 100% }
+  #topwagos .md-layout .md-layout .md-list {padding: 0 16px}
+}
+@media (min-width: 560px) {
+  #importform { min-width: 560px;}
 }
 
-@media (max-width: 600px) {
-  #importform { display:none }
+@media (max-width: 1280px) {
+  #importform { display:block }
 }
 
 #inputStringWrapper { width: 100%; position: relative; }
@@ -282,8 +306,6 @@
     content: " ";
 }
 
-#topwagos .md-list-item { flex-wrap: wrap }
-
 #sitenews { width: 100%}
 #sitenews .md-card {margin: 16px 0 0; width:100%}
 #sitenews .md-card .md-subhead { opacity: 1 }
@@ -294,6 +316,20 @@
 
 .resticted-options { flex: 3; flex-wrap: nowrap}
 
+#topwagos {width: 100%; padding: 0}
+#topwagos .md-list-item { flex-wrap: wrap }
+#topwagos .md-layout .md-layout { justify-content: center; max-width:380px }
+#topwagos .md-list:after {background-color: inherit}
+.top-list-header .md-list-item-container {justify-content: normal}
+.top-list-header .md-list-item-container strong {padding: 0 12px;}
+.top-list-header .md-list-item-container a:hover {text-decoration: none}
+.top-list-header .md-button {padding: 0 16px 0 0; margin: 0; text-transform: none; font-weight: bold}
+.top-list-header .md-button:hover {background-color: inherit!important}
+.top-list-header .md-button:after { margin-top: 2px; position: absolute; top: 45%; right: 0; transform: translateY(-50%) scaleY(.45) scaleX(.85); transition: all .15s linear; content: "\25BC";}
+.top-list-menu .md-list-item {line-height: 18px;}
+.top-list-menu .md-list-item .md-list-item-container {font-size: 14px; min-height: 24px}
+.top-list-note {font-size:11px; margin: -12px 0 0}
+
 </style>
 
 <script>
@@ -301,7 +337,6 @@ import Categories from './libs/categories'
 import CategorySelect from './UI/SelectCategory.vue'
 import WagoNews from './core/News.vue'
 import VueMarkdown from 'vue-markdown'
-import Advert from './UI/Advert.vue'
 
 function flatten (arr) {
   return arr.reduce(function (flat, toFlatten) {
@@ -328,6 +363,9 @@ export default {
       scanID: '',
       disableSubmit: true,
       top10Lists: {},
+      topLists: [],
+      topID: 0,
+      topID2: 0,
       latestBlogs: [],
       addonReleases: [],
       numCategorySets: 1,
@@ -341,8 +379,7 @@ export default {
     CategorySelect,
     'vue-markdown': VueMarkdown,
     'wago-news': WagoNews,
-    'md-autocomplete': require('./UI/md-autocomplete.vue'),
-    'advert': Advert
+    'md-autocomplete': require('./UI/md-autocomplete.vue')
   },
   computed: {
     user () {
@@ -362,8 +399,17 @@ export default {
 
     var vue = this
     this.http.get('/lookup/index').then((res) => {
-      if (res.top10) {
-        vue.top10Lists = JSON.parse(JSON.stringify(res.top10))
+      if (res.topLists) {
+        vue.topID = parseInt(window.localStorage.getItem('topID'))
+        vue.topID2 = parseInt(window.localStorage.getItem('topID2'))
+        if (isNaN(vue.topID)) {
+          vue.topID = Math.floor(Math.random() * (vue.topLists.length - 2))
+          vue.topID2 = vue.topID
+        }
+        while (vue.topID2 === vue.topID) {
+          vue.topID2 = Math.floor(Math.random() * (vue.topLists.length - 2))
+        }
+        vue.topLists = JSON.parse(JSON.stringify(res.topLists))
       }
       if (res.news) {
         vue.latestBlogs = JSON.parse(JSON.stringify(res.news))
@@ -400,7 +446,9 @@ export default {
     },
 
     onUpdateCategories () {
-      // filters?
+      // force DOM update
+      this.numCategorySets++
+      this.numCategorySets--
     },
 
     checkNewRestrictions: function () {
@@ -522,6 +570,33 @@ export default {
           vue.scanID = res.scan
         }
       })
+    },
+
+    topID: function (val) {
+      if (val < 0) {
+        this.topID = this.topLists.length - 12
+      }
+      else if (val > this.topLists.length - 1) {
+        this.topID = 0
+      }
+      while (this.topID2 === this.topID) {
+        this.topID2 = Math.floor(Math.random() * (this.topLists.length))
+      }
+      window.localStorage.setItem('topID', this.topID)
+      window.localStorage.setItem('topID2', this.topID2)
+    },
+    topID2: function (val) {
+      if (val < 0) {
+        this.topID2 = this.topLists.length - 1
+      }
+      else if (val > this.topLists.length - 1) {
+        this.topID2 = 0
+      }
+      while (this.topID2 === this.topID) {
+        this.topID = Math.floor(Math.random() * (this.topLists.length))
+      }
+      window.localStorage.setItem('topID', this.topID)
+      window.localStorage.setItem('topID2', this.topID2)
     }
   }
 }

@@ -48,6 +48,7 @@
     <img src="./../../assets/menu-naxxramas.png" v-else-if="group === 'naxxramas'"/>
     <img src="./../../assets/menu-vuhdo.png" v-else-if="group === 'vuhdo'"/>
     <img src="./../../assets/menu-plater.png" v-else-if="group === 'plater'"/>
+    <img src="./../../assets/menu-opie.png" v-else-if="group === 'opie'"/>
     <img src="./../../assets/menu-encounternotes.png" v-else-if="group === 'encounternotes'"/>
     <img src="./../../assets/menu-trpcamp.png" v-else-if="group === 'rpcampaign'"/>
     <img src="./../../assets/menu-lang.png" v-else-if="group === 'rplang'"/>
@@ -57,6 +58,7 @@
     <img src="./../../assets/tukui.png" v-else-if="group === 't-elvui'"/>
     <img src="./../../assets/menu-mdt.png" v-else-if="group === 't-mdt'"/>
     <img src="./../../assets/menu-mdt.png" v-else-if="group === 't-methoddungeontools'"/>
+    <img src="./../../assets/menu-opie.png" v-else-if="group === 't-opie'"/>
     <img src="./../../assets/menu-vuhdo.png" v-else-if="group === 't-vuhdo'"/>
     <img src="./../../assets/menu-trpcamp.png" v-else-if="group === 't-totalrp' || group === 't-totalrp3'"/>
     <img src="./../../assets/menu-plater.png" v-else-if="group === 't-plater'"/>

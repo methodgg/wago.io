@@ -8,6 +8,7 @@ module.exports = {
   looksLikeDeflate: /^[a-zA-Z0-9\(\)]*$/,
   looksLikeElvUI: /^[a-zA-Z0-9=\+\/]*$/,
   looksLikeGrid: /^\[=== (.*) profile ===\]\n[ABCDEF0-9\n]+\n\[===/m,
+  looksLikeOPie: /^[a-zA-Z0-9]{7}\s[a-zA-Z0-9\s]*\.$/,
   looksLikeMDT: /^!?[a-zA-Z0-9\(\)]*$/,
   looksLikePlater: /^[a-zA-Z0-9\(\)]*$/,
   looksLikeTotalRP3: /^\^.+\^\^$|^![a-zA-Z0-9\(\)]*$/,

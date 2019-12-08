@@ -171,7 +171,7 @@ module.exports = function (fastify, opts, next) {
     // check for import type
     var game = 'wow'
     var matchType
-    match = /\btype:\s*"?(classic-weakaura|weakauras?2?|elvui|vuhdo|totalrp3?|collection|snippet|plater|mdt|encounternotes|image|audio|error)"?/i.exec(query)
+    match = /\btype:\s*"?(classic-weakaura|weakauras?2?|elvui|vuhdo|totalrp3?|collection|snippet|plater|mdt|opie|encounternotes|image|audio|error)"?/i.exec(query)
     if (match) {
       query = query.replace(match[0], '').replace(/\s{2,}/, ' ').trim()
       match[1] = match[1].toUpperCase()

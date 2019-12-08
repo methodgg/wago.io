@@ -61,6 +61,9 @@ module.exports = function (fastify, opts, next) {
           test.DEFLATE = true
         }
       }
+      if (req.body.importString.match(commonRegex.looksLikeOPie)) {
+        test.OPIE = true
+      }
       if (req.body.importString.match(commonRegex.looksLikeBugSack)) {
         req.body.importString = req.body.importString.replace(/^!BugSack!/, '')
         test.BUGSACK = true
@@ -82,6 +85,9 @@ module.exports = function (fastify, opts, next) {
     }
     if (!decoded && test.VUHDO) {
       decoded = await lua.DecodeVuhDo(req.body.importString)
+    }
+    if (!decoded && test.OPIE) {
+      decoded = await lua.DecodeOPie(req.body.importString)
     }
 
     var scan = new ImportScan()
@@ -312,6 +318,14 @@ module.exports = function (fastify, opts, next) {
       var name = decoded.obj.bouquetName && 'Vuhdo Bouquet' || decoded.obj.keyLayout && 'Vuhdo Key Layout' || 'Vuhdo Profile'
       const scanDoc = await scan.save()
       return res.send({scan: scanDoc._id.toString(), type: 'Vuhdo', name: name})
+    }
+
+    console.log(test, decoded)
+    if (test.OPIE && decoded.obj && decoded.obj.name) {
+      scan.type = 'OPIE'
+      var name = decoded.obj.name
+      const scanDoc = await scan.save()
+      return res.send({scan: scanDoc._id.toString(), type: 'Opie', name: name})
     }
 
     if (test.BUGSACK && decoded.obj && Array.isArray(decoded.obj)) {
@@ -741,6 +755,10 @@ module.exports = function (fastify, opts, next) {
 
       case 'VUHDO':
         code.encoded = await lua.JSON2VuhDo(json)
+      break
+
+      case 'OPIE':
+        code.encoded = await lua.JSON2OPie(json)
       break
 
       case 'WEAKAURAS2':
