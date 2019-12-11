@@ -107,7 +107,7 @@ module.exports = function (fastify, opts, next) {
       scan.type = 'WEAKAURAS2'
 
       // check for classic import
-      if (decoded.obj.d.tocversion && decoded.obj.d.tocversion.match(/^113/)) {
+      if (decoded.obj.d.tocversion && (decoded.obj.d.tocversion+'').match(/^113/)) {
         scan.type = 'CLASSIC-WEAKAURA'
       }
       const scanDoc = await scan.save()
