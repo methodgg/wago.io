@@ -89,7 +89,7 @@ module.exports = {
     const addons = [
       {name: 'WeakAuras-2', host: 'github', url: 'https://api.github.com/repos/weakAuras/WeakAuras2/releases/latest'},
       {name: 'VuhDo', host: 'gitlab', url: 'https://gitlab.vuhdo.io/api/v4/projects/13/releases'},
-      {name: 'ElvUI', host: 'tukui', url: 'https://www.tukui.org/download.php?ui=elvui'},
+      {name: 'ElvUI', host: 'tukui', url: 'https://www.tukui.org/api.php?ui=elvui'},
       {name: 'MDT', host: 'github', url: 'https://api.github.com/repos/Nnoggie/MethodDungeonTools/releases/latest'},
     ]
     addons.forEach(async (addon) => {
@@ -146,15 +146,13 @@ module.exports = {
           }
         }
         else if (addon.host === 'tukui') {
-          const scrape = cheerio.load(response.data)
           try {
-            var release = {}
             release.addon = addon.name
             release.active = true
             release.phase = 'Release'
-            release.url = addon.url
-            release.version = scrape('#version').children('.Premium').first().text()
-            release.date = new Date(scrape('#version').children('.Premium').last().text())
+            release.url = response.data.web_url
+            release.version = response.data.version
+            release.date = new Date(response.data.lastupdate)
             const preExisting = await AddonRelease.findOneAndUpdate({addon: release.addon, phase: release.phase, version: release.version}, release, {upsert: true, new: false}).exec()
             if (!preExisting) {
               // if a new release then de-activate the previous version(s)
