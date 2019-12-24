@@ -31,7 +31,7 @@
     "vue-markdown": "^2.2.4",
     "vue-material": "^0.7.4",
     "vue-meta": "^1.6.0",
-    "vue-moment": "^2.0.2",
+    "vue-moment": "^4.1.0",
     "vue-recaptcha": "^1.1.1",
     "vue-router": "^2.3.1",
     "vue-scrollto": "^2.15.0",
