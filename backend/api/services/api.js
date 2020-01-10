@@ -155,7 +155,7 @@ module.exports = function (fastify, opts, next) {
       if (!req.user) {
         return res.code(401).send({error: "import_is_private"})
       }
-      if (!req.user._id.equals(wago._userId) && wago.restrictedUsers.indexOf(req.user._id.toString()) === -1 && !arrayMatch(wago.restrictedGuilds, req.user.battlenet.guilds) && wago.restrictedTwitchUsers.indexOf(req.user.twitch.id) === -1) {
+      if (!req.user._id.equals(wago._userId) && (wago.restrictedUsers.indexOf(req.user._id.toString()) === -1 && !arrayMatch(wago.restrictedGuilds, req.user.battlenet.guilds) && wago.restrictedTwitchUsers.indexOf(req.user.twitch.id) === -1)) {
         return res.code(401).send({error: "import_is_private"})
       }
     }
