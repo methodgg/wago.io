@@ -203,9 +203,13 @@ module.exports = function (fastify, opts, next) {
     }
     else if (req.body.visibility === 'Restricted') {
       wago.restricted = true
+      redis.clear(`API:WA:${wago._id}`)
+      redis.clear(`API:WA:${wago.slug}`)
     }
     else if (req.body.visibility === 'Private') {
       wago.private = true
+      redis.clear(`API:WA:${wago._id}`)
+      redis.clear(`API:WA:${wago.slug}`)
     }
 
     await wago.save()

@@ -37,15 +37,6 @@ module.exports = function (fastify, opts, next) {
         doc = await redis.get(`API:WA:${ids[i]}`)
       }
       if (doc && typeof doc === 'object') {
-        if ((doc.visibility && (doc.visibility.private || doc.visibility.restricted)) && (!req.user || !req.user._id.equals(doc._userId._id))) {
-          continue
-        }
-  
-        if (doc.restricted && !req.user._id.equals(doc._userId)) {
-          if (doc.restrictedUsers.indexOf(req.user._id.toString()) === -1 && !arrayMatch(doc.restrictedGuilds, req.user.battlenet.guilds) && doc.restrictedTwitchUsers.indexOf(req.user.twitch.id) === -1) {
-            continue
-          }
-        }
         cached.push(doc)
       }
       else {
@@ -55,12 +46,12 @@ module.exports = function (fastify, opts, next) {
     var wagos = []
     var docs = await WagoItem.find({'$and': [{'$or' : [{_id: lookup}, {custom_slug: lookup}]}, {'$or': [{type: 'WEAKAURAS2'}, {type:'CLASSIC-WEAKAURA'}]}], deleted: false}).populate({path: '_userId', select: {restrictedGuilds: 1, restrictedTwitchUsers: 1, restrictedUsers: 1, account: 1}})
     await Promise.all(docs.concat(cached).map(async (doc) => {
-      if ((doc.private || doc.restricted) && (!req.user || !req.user._id.equals(doc._userId._id))) {
+      if (doc.private && (!req.user || !req.user._id.equals(doc._userId._id))) {
         return
       }
 
-      if (doc.restricted && !req.user._id.equals(doc._userId)) {
-        if (doc.restrictedUsers.indexOf(req.user._id.toString()) === -1 && !arrayMatch(doc.restrictedGuilds, req.user.battlenet.guilds) && doc.restrictedTwitchUsers.indexOf(req.user.twitch.id) === -1) {
+      if (doc.restricted && (!req.user || !req.user._id.equals(doc._userId._id))) {
+        if (!req.user || (doc.restrictedUsers.indexOf(req.user._id.toString()) === -1 && !arrayMatch(doc.restrictedGuilds, req.user.battlenet.guilds) && doc.restrictedTwitchUsers.indexOf(req.user.twitch.id) === -1)) {
           return
         }
       }
@@ -99,7 +90,9 @@ module.exports = function (fastify, opts, next) {
         wago.changelog = doc.versions.versions[0].changelog
         wago.regionType = doc.regionType
         wagos.push(wago)
-        redis.set(`API:WA:${wago.slug}`, wago, 4000)
+        if (!doc.restricted && !doc.private) {
+          redis.set(`API:WA:${wago.slug}`, wago, 4000)
+        }
         return
       }
       else if (doc.latestVersion && doc.latestVersion.iteration && doc.regionType) {
@@ -111,7 +104,9 @@ module.exports = function (fastify, opts, next) {
         wago.changelog = doc.latestVersion.changelog
         wago.regionType = doc.regionType
         wagos.push(wago)
-        redis.set(`API:WA:${wago.slug}`, wago, 4000)
+        if (!doc.restricted && !doc.private) {
+          redis.set(`API:WA:${wago.slug}`, wago, 4000)
+        }
         return
       }
 
