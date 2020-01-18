@@ -7,6 +7,8 @@ var patches = [
   // {date: moment('2016-05-12T09:00:00Z'), beta: true, patch: "Legion Beta 7.0.3"},
   // {date: moment('2016-01-01T09:00:00Z'), beta: true, patch: "Legion Alpha 7.0.1"},
 
+  {date: moment('2020-01-07T03:00:00Z'), patch: "Battle for Azeroth 8.3.0"},
+  {date: moment('2019-09-17T03:00:00Z'), patch: "Battle for Azeroth 8.2.5"},
   {date: moment('2019-06-25T03:00:00Z'), patch: "Battle for Azeroth 8.2.0"},
   {date: moment('2019-03-12T03:00:00Z'), patch: "Battle for Azeroth 8.1.5"},
   {date: moment('2018-12-12T03:00:00Z'), patch: "Battle for Azeroth 8.1.0"},
