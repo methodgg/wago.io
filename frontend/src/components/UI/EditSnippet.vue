@@ -3,7 +3,7 @@
     <div v-if="luacheck">
       <strong>Luacheck</strong>
       <p v-if="luacheck === 'loading'">{{ $t("Loading") }}</p>
-      <editor v-else-if="typeof luacheck === 'object' && luacheck[luacheckFile]" v-model="luacheck[luacheckFile]" @init="luacheckInit" :theme="editorTheme" width="100%" height="40"></editor>
+      <editor v-else-if="typeof luacheck === 'object' && luacheck[luacheckFile.toLowerCase()]" v-model="luacheck[luacheckFile.toLowerCase()]" @init="luacheckInit" :theme="editorTheme" width="100%" height="40"></editor>
       <p v-else>{{ $t("Error could not load luacheck for this code") }}</p>
     </div>
     <div class="flex-container">

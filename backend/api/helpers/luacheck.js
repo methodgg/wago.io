@@ -52,7 +52,7 @@ async function makeLuaCheck (lua) {
     let check = await exec(`luacheck ${luaFile} --config ${luacheckrc}`)
     if (check && check.stdout) {
       check = check.stdout.replace(new RegExp(luaFile+':?', 'g'), '').replace(/\u001b/g, '').replace(/\[\d+m/g, '').replace(/    /g, '').replace(/^Checking\s+/, '').replace(/ in 1 file/, '')
-      result[key] = check
+      result[key.toLowerCase()] = check
     }
     fs.unlink(luaFile)
   }
