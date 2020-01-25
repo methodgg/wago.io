@@ -193,17 +193,17 @@ module.exports = function (fastify, opts, next) {
     wago.url = doc.url
     wago.visibility = { private: doc.private, hidden: doc.hidden, restricted: doc.restricted, deleted: doc.deleted }
     wago.restrictions = []
-    wago.restrictedUsers = doc.restrictedUsers
-    wago.restrictedGuilds = doc.restrictedGuilds
-    wago.restrictedTwitchUsers = doc.restrictedTwitchUsers
-    if (doc.restrictedUsers.length) {
-      doc.restrictedUsers.forEach(async (user) => {
+    wago.restrictedUsers = doc.restrictedUsers || []
+    wago.restrictedGuilds = doc.restrictedGuilds || []
+    wago.restrictedTwitchUsers = doc.restrictedTwitchUsers || []
+    if (wago.restrictedUsers.length) {
+      wago.restrictedUsers.forEach(async (user) => {
         var rUser = await User.findById(user)
         wago.restrictions.push({type: 'user', value: rUser.account.username })
       })
     }
-    if (doc.restrictedGuilds.length) {
-      doc.restrictedGuilds.forEach((guild) => {
+    if (wago.restrictedGuilds.length) {
+      wago.restrictedGuilds.forEach((guild) => {
         let m = guild.match(/(.*)@(\d+)$/)
         if (m && m[1]) {
           wago.restrictions.push({type: 'guild', value: m[1], rank: m[2] })
@@ -213,7 +213,7 @@ module.exports = function (fastify, opts, next) {
         }
       })
     }
-    if (doc.restrictedTwitchUsers.length) {
+    if (wago.restrictedTwitchUsers.length) {
       // wago.restrictions.push({type: 'twitch' })
     }
     wago.date = { created: doc.created, modified: doc.modified }
@@ -436,7 +436,7 @@ module.exports = function (fastify, opts, next) {
       return
     }
     const getTranslations = async () => {
-      wago.translations = await WagoTranslation.getTranslations(doc._id)
+      // wago.translations = await WagoTranslation.getTranslations(doc._id)
       return
     }
     // run tasks in parallel
