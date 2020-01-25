@@ -39,12 +39,13 @@ module.exports = function (fastify, opts, next) {
     if (!req.query.version) {
       doc = await redis.get(req.query.id)
     }
+ 
     if (doc && doc._id) {
-      if (doc.private && (!req.user || !req.user._id.equals(doc._userId))) {
+      if (doc.visibility.private && (!req.user || !req.user._id.equals(doc._userId))) {
         return res.code(401).send({error: "page_not_accessible"})
       }
   
-      if (doc.restricted) {
+      if (doc.visibility.restricted) {
         if (!req.user) {
           return res.code(401).send({error: "page_not_accessible"})
         }
@@ -103,6 +104,13 @@ module.exports = function (fastify, opts, next) {
           }
         })
       })
+
+      if (!req.user._id.equals(doc._userId)) {
+        delete doc.restrictions
+        delete doc.restrictedUsers
+        delete doc.restrictedGuilds
+        delete doc.restrictedTwitchUsers
+      }
       return res.send(doc)
     }
 
@@ -185,27 +193,28 @@ module.exports = function (fastify, opts, next) {
     wago.url = doc.url
     wago.visibility = { private: doc.private, hidden: doc.hidden, restricted: doc.restricted, deleted: doc.deleted }
     wago.restrictions = []
-    if (doc.restricted && req.user._id.equals(doc._userId)) {
-      if (doc.restrictedUsers.length) {
-        doc.restrictedUsers.forEach(async (user) => {
-          var rUser = await User.findById(user)
-          wago.restrictions.push({type: 'user', value: rUser.account.username })
-        })
-      }
-      if (doc.restrictedGuilds.length) {
-        doc.restrictedGuilds.forEach((guild) => {
-          let m = guild.match(/(.*)@(\d+)$/)
-          if (m && m[1]) {
-            wago.restrictions.push({type: 'guild', value: m[1], rank: m[2] })
-          }
-          else {
-            wago.restrictions.push({type: 'guild', value: guild, rank: '9' })
-          }
-        })
-      }
-      if (doc.restrictedTwitchUsers.length) {
-        wago.restrictions.push({type: 'twitch' })
-      }
+    wago.restrictedUsers = doc.restrictedUsers
+    wago.restrictedGuilds = doc.restrictedGuilds
+    wago.restrictedTwitchUsers = doc.restrictedTwitchUsers
+    if (doc.restrictedUsers.length) {
+      doc.restrictedUsers.forEach(async (user) => {
+        var rUser = await User.findById(user)
+        wago.restrictions.push({type: 'user', value: rUser.account.username })
+      })
+    }
+    if (doc.restrictedGuilds.length) {
+      doc.restrictedGuilds.forEach((guild) => {
+        let m = guild.match(/(.*)@(\d+)$/)
+        if (m && m[1]) {
+          wago.restrictions.push({type: 'guild', value: m[1], rank: m[2] })
+        }
+        else {
+          wago.restrictions.push({type: 'guild', value: guild, rank: '9' })
+        }
+      })
+    }
+    if (doc.restrictedTwitchUsers.length) {
+      // wago.restrictions.push({type: 'twitch' })
     }
     wago.date = { created: doc.created, modified: doc.modified }
     wago.expires = doc.expires_at
@@ -426,14 +435,24 @@ module.exports = function (fastify, opts, next) {
       wago.fork = {_id: fork._id.toString(), name: fork.name}
       return
     }
+    const getTranslations = async () => {
+      wago.translations = await WagoTranslation.getTranslations(doc._id)
+      return
+    }
     // run tasks in parallel
-    await Promise.all([getUser(), isMyStar(), getScreenshots(), getVideos(), getMedia(), getCollections(), getVersionHistory(), getComments(), getFork()])
+    await Promise.all([getUser(), isMyStar(), getScreenshots(), getVideos(), getMedia(), getCollections(), getVersionHistory(), getComments(), getFork(), getTranslations()])
 
     if (saveDoc) {
       doc.save()
     }
     if (!req.query.version) {
       redis.set(req.query.id, wago)
+    }
+    if (!req.user._id.equals(doc._userId)) {
+      delete wago.restrictions
+      delete wago.restrictedUsers
+      delete wago.restrictedGuilds
+      delete wago.restrictedTwitchUsers
     }
     return res.send(wago)
   })
