@@ -105,7 +105,7 @@ module.exports = function (fastify, opts, next) {
         })
       })
 
-      if (!req.user._id.equals(doc._userId)) {
+      if (!req.user || !req.user._id.equals(doc._userId)) {
         delete doc.restrictions
         delete doc.restrictedUsers
         delete doc.restrictedGuilds
@@ -448,7 +448,7 @@ module.exports = function (fastify, opts, next) {
     if (!req.query.version) {
       redis.set(req.query.id, wago)
     }
-    if (!req.user._id.equals(doc._userId)) {
+    if (!req.user || !req.user._id.equals(doc._userId)) {
       delete wago.restrictions
       delete wago.restrictedUsers
       delete wago.restrictedGuilds
