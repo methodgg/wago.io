@@ -41,7 +41,7 @@ module.exports = function (fastify, opts, next) {
     }
  
     if (doc && doc._id) {
-      if (doc.visibility.private && (!req.user || !req.user._id.equals(doc._userId))) {
+      if (doc.visibility.private && (!req.user || !req.user._id.equals(doc.UID))) {
         return res.code(401).send({error: "page_not_accessible"})
       }
   
@@ -49,7 +49,7 @@ module.exports = function (fastify, opts, next) {
         if (!req.user) {
           return res.code(401).send({error: "page_not_accessible"})
         }
-        if (!req.user._id.equals(doc._userId) && doc.restrictedUsers.indexOf(req.user._id.toString()) === -1 && !arrayMatch(doc.restrictedGuilds, req.user.battlenet.guilds) && doc.restrictedTwitchUsers.indexOf(req.user.twitch.id) === -1) {
+        if (!req.user._id.equals(doc.UID) && doc.restrictedUsers.indexOf(req.user._id.toString()) === -1 && !arrayMatch(doc.restrictedGuilds, req.user.battlenet.guilds) && doc.restrictedTwitchUsers.indexOf(req.user.twitch.id) === -1) {
           return res.code(401).send({error: "page_not_accessible"})
         }
       }
@@ -105,7 +105,7 @@ module.exports = function (fastify, opts, next) {
         })
       })
 
-      if (!req.user || !req.user._id.equals(doc._userId)) {
+      if (!req.user || !req.user._id.equals(doc.UID)) {
         delete doc.restrictions
         delete doc.restrictedUsers
         delete doc.restrictedGuilds
@@ -448,7 +448,7 @@ module.exports = function (fastify, opts, next) {
     if (!req.query.version) {
       redis.set(req.query.id, wago)
     }
-    if (!req.user || !req.user._id.equals(doc._userId)) {
+    if (!req.user || !req.user._id.equals(wago.UID)) {
       delete wago.restrictions
       delete wago.restrictedUsers
       delete wago.restrictedGuilds
