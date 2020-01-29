@@ -121,8 +121,10 @@
     "10057": "Crucible of Storms",
     "10076": "Battle of Dazar'alor",
     "10225": "Operation Mechagon",
+    "10225a": "Mechagon Junkyard",
+    "10225b": "Mechagon Workshop",
     "10425": "The Eternal Palace",
-    "nyalotha": "Nya'lotha"
+    "nyalotha": "Ny'alotha"
   },
 
   "bosses": {
@@ -291,7 +293,7 @@
     "152853": "The Queen's Court",
     "151586": "Za'qul Herald of N'zoth",
     "152910": "Queen Azshara",
-    "nya1": "Wrathion, the Black Emperor",
+    "nya1": "Wrathion the Black Emperor",
     "nya2": "Maut",
     "nya3": "The Prophet Skitra",
     "nya4": "Dark Inquisitor Xanesh",
