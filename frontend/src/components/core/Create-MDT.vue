@@ -28,11 +28,11 @@ export default {
   },
   methods: {
     createMDT (dungeonTable) {
-      var weeks = categories.getCategories([/^mdtaffix-bfa-s3-/], this.$t)
+      var weeks = categories.getCategories([/^mdtaffix-bfa-s4-/], this.$t)
       var week, affixes
       for (let i = 0; i < weeks.length; i++) {
         if (weeks[i].slug.match(this.$route.params.week)) {
-          week = parseInt(weeks[i].slug.replace(/affixes[/s123]?\/week/, ''))
+          week = parseInt(weeks[i].slug.replace(/affixes[/s1234]?\/week/, ''))
           affixes = dungeonTable.affixWeeks[week - 1]
           break
         }

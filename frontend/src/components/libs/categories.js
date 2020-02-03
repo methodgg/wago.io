@@ -372,6 +372,8 @@ module.exports = {
       {id: "mdtdun22", slug: "pve/dungeons/the-underrot", cls:"dungeon", text: t("warcraft:zones.9391"), MDT: true, systemtag: true, noselect: true},
       {id: "mdtdun23", slug: "pve/dungeons/tol-dagor", cls:"dungeon", text: t("warcraft:zones.9327"), MDT: true, systemtag: true, noselect: true},
       {id: "mdtdun24", slug: "pve/dungeons/waycrest-manor", cls:"dungeon", text: t("warcraft:zones.9424"), MDT: true, systemtag: true, noselect: true},
+      {id: "mdtdun25", slug: "pve/dungeons/mechagon-junkyard", cls:"dungeon", text: t("warcraft:zones.10225a"), MDT: true, systemtag: true, noselect: true},
+      {id: "mdtdun26", slug: "pve/dungeons/mechagon-workshop", cls:"dungeon", text: t("warcraft:zones.10225b"), MDT: true, systemtag: true, noselect: true},
 
       {id: "mdtaffix", slug: "affixes", cls:"affixes", text: t("Affixes"), root: true, MDT: true, systemtag: true, noselect: true},
       // {id: "mdtaffix1", slug: "affixes/overflowing", cls:"affixes", text: t("Overflowing"), MDT: true, systemtag: true, noselect: true},
@@ -392,6 +394,7 @@ module.exports = {
       {id: "mdtaffix16", slug: "affixes/infested", cls:"affixes", text: t("Infested"), MDT: true, systemtag: true, noselect: true},
       {id: "mdtaffix117", slug: "affixes/reaping", cls:"affixes", text: t("Reaping"), MDT: true, systemtag: true, noselect: true},
       {id: "mdtaffix119", slug: "affixes/beguiling", cls:"affixes", text: t("Beguiling"), MDT: true, systemtag: true, noselect: true},
+      {id: "mdtaffix120", slug: "affixes/awakened", cls:"affixes", text: t("Awakened"), MDT: true, systemtag: true, noselect: true},
 
       {id: "mdtaffix-bfa-s1-w1", slug: "affixes/s1/week1", cls:"affixes", text: t("[-affix1-] [-affix2-] [-affix3-] [-affix4-]", {affix1: t('Raging'), affix2: t('Volcanic'), affix3: t('Tyrannical'), affix4: t('Infested')}), MDT: true, systemtag: true, noselect: true},
       {id: "mdtaffix-bfa-s1-w2", slug: "affixes/s1/week2", cls:"affixes", text: t("[-affix1-] [-affix2-] [-affix3-] [-affix4-]", {affix1: t('Teeming'), affix2: t('Explosive'), affix3: t('Fortified'), affix4: t('Infested')}), MDT: true, systemtag: true, noselect: true},
@@ -431,6 +434,19 @@ module.exports = {
       {id: "mdtaffix-bfa-s3-w10", slug: "affixes/week10", cls:"affixes", text: t("[-affix1-] [-affix2-] [-affix3-] [-affix4-]", {affix1: t('Bursting'), affix2: t('Volcanic'), affix3: t('Fortified'), affix4: t('Beguiling')}), MDT: true, systemtag: true, noselect: true},
       {id: "mdtaffix-bfa-s3-w11", slug: "affixes/week11", cls:"affixes", text: t("[-affix1-] [-affix2-] [-affix3-] [-affix4-]", {affix1: t('Bolstering'), affix2: t('Explosive'), affix3: t('Tyrannical'), affix4: t('Beguiling')}), MDT: true, systemtag: true, noselect: true},
       {id: "mdtaffix-bfa-s3-w12", slug: "affixes/week12", cls:"affixes", text: t("[-affix1-] [-affix2-] [-affix3-] [-affix4-]", {affix1: t('Sanguine'), affix2: t('Grievous'), affix3: t('Fortified'), affix4: t('Beguiling')}), MDT: true, systemtag: true, noselect: true},
+
+      {id: "mdtaffix-bfa-s4-w1", slug: "affixes/week1", cls:"affixes", text: t("[-affix1-] [-affix2-] [-affix3-] [-affix4-]", {affix1: t('Teeming'), affix2: t('Volcanic'), affix3: t('Tyrannical'), affix4: t('Awakened')}), MDT: true, systemtag: true, noselect: true},
+      {id: "mdtaffix-bfa-s4-w2", slug: "affixes/week2", cls:"affixes", text: t("[-affix1-] [-affix2-] [-affix3-] [-affix4-]", {affix1: t('Bolstering'), affix2: t('Skittish'), affix3: t('Fortified'), affix4: t('Awakened')}), MDT: true, systemtag: true, noselect: true},
+      {id: "mdtaffix-bfa-s4-w3", slug: "affixes/week3", cls:"affixes", text: t("[-affix1-] [-affix2-] [-affix3-] [-affix4-]", {affix1: t('Raging'), affix2: t('Necrotic'), affix3: t('Tyrannical'), affix4: t('Awakened')}), MDT: true, systemtag: true, noselect: true},
+      {id: "mdtaffix-bfa-s4-w4", slug: "affixes/week4", cls:"affixes", text: t("[-affix1-] [-affix2-] [-affix3-] [-affix4-]", {affix1: t('Teeming'), affix2: t('Quaking'), affix3: t('Fortified'), affix4: t('Awakened')}), MDT: true, systemtag: true, noselect: true},
+      {id: "mdtaffix-bfa-s4-w5", slug: "affixes/week5", cls:"affixes", text: t("[-affix1-] [-affix2-] [-affix3-] [-affix4-]", {affix1: t('Bursting'), affix2: t('Skittish'), affix3: t('Tyrannical'), affix4: t('Awakened')}), MDT: true, systemtag: true, noselect: true},
+      {id: "mdtaffix-bfa-s4-w6", slug: "affixes/week6", cls:"affixes", text: t("[-affix1-] [-affix2-] [-affix3-] [-affix4-]", {affix1: t('Sanguine'), affix2: t('Necrotic'), affix3: t('Fortified'), affix4: t('Awakened')}), MDT: true, systemtag: true, noselect: true},
+      {id: "mdtaffix-bfa-s4-w7", slug: "affixes/week7", cls:"affixes", text: t("[-affix1-] [-affix2-] [-affix3-] [-affix4-]", {affix1: t('Bolstering'), affix2: t('Grievous'), affix3: t('Tyrannical'), affix4: t('Awakened')}), MDT: true, systemtag: true, noselect: true},
+      {id: "mdtaffix-bfa-s4-w8", slug: "affixes/week8", cls:"affixes", text: t("[-affix1-] [-affix2-] [-affix3-] [-affix4-]", {affix1: t('Teeming'), affix2: t('Explosive'), affix3: t('Fortified'), affix4: t('Awakened')}), MDT: true, systemtag: true, noselect: true},
+      {id: "mdtaffix-bfa-s4-w9", slug: "affixes/week9", cls:"affixes", text: t("[-affix1-] [-affix2-] [-affix3-] [-affix4-]", {affix1: t('Raging'), affix2: t('Volcanic'), affix3: t('Tyrannical'), affix4: t('Awakened')}), MDT: true, systemtag: true, noselect: true},
+      {id: "mdtaffix-bfa-s4-w10", slug: "affixes/week10", cls:"affixes", text: t("[-affix1-] [-affix2-] [-affix3-] [-affix4-]", {affix1: t('Bursting'), affix2: t('Volcanic'), affix3: t('Fortified'), affix4: t('Awakened')}), MDT: true, systemtag: true, noselect: true},
+      {id: "mdtaffix-bfa-s4-w11", slug: "affixes/week11", cls:"affixes", text: t("[-affix1-] [-affix2-] [-affix3-] [-affix4-]", {affix1: t('Bolstering'), affix2: t('Explosive'), affix3: t('Tyrannical'), affix4: t('Awakened')}), MDT: true, systemtag: true, noselect: true},
+      {id: "mdtaffix-bfa-s4-w12", slug: "affixes/week12", cls:"affixes", text: t("[-affix1-] [-affix2-] [-affix3-] [-affix4-]", {affix1: t('Sanguine'), affix2: t('Grievous'), affix3: t('Fortified'), affix4: t('Awakened')}), MDT: true, systemtag: true, noselect: true},
 
       {id: "mdtspeed", slug: "speed", cls:"speed", text: t("Speed"), root: true, MDT: true},
       {id: "mdtspeed1", slug: "speed/easy-going", cls:"speed", text: t("Easy Going"), MDT: true },
@@ -631,7 +647,7 @@ module.exports = {
     var cats = this.categories(t) // search translated text
     var _cats = this.categories() // search i8n codes
     for (var i=0; i<cats.length; i++) {
-      if (cats[i].id === str.toLowerCase().trim()|| cats[i].text.toLowerCase().trim() === str.toLowerCase().trim() || _cats[i].text.replace(/-/, ' ') === str.toLowerCase().trim() || _cats[i].text.toLowerCase().trim() === str.toLowerCase().trim() || cats[i].slug === str) {
+      if (cats[i].id === str.toLowerCase().trim() || cats[i].text.toLowerCase().trim() === str.toLowerCase().replace(/-/g, ' ').trim() || _cats[i].text.replace(/-/g, ' ') === str.toLowerCase().replace(/-/g, ' ').trim() || _cats[i].text.toLowerCase().trim() === str.toLowerCase().trim() || cats[i].slug === str) {
         if (!idPrefix || cats[i].id.match(new RegExp('^' + idPrefix))) {
           cats[i].text = t(cats[i].text)
           return cats[i]

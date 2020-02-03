@@ -417,7 +417,8 @@ export default {
         15: { name: 'Relentless', icon: 'INV_Chest_Plate04' },
         16: { name: 'Infested', icon: 'Achievement_Nazmir_Boss_Ghuun' },
         117: { name: 'Reaping', icon: 'Ability_Racial_EmbraceoftheLoa_Bwonsomdi' },
-        119: { name: 'Beguiling', icon: 'Spell_Shadow_MindShear' }
+        119: { name: 'Beguiling', icon: 'Spell_Shadow_MindShear' },
+        120: { name: 'Awakening', icon: 'TRADE_ARCHAEOLOGY_NERUBIAN_OBELISK' }
       },
       currentPull: -1,
       reapingPercents: [20, 40, 60, 80, 100],
@@ -805,13 +806,31 @@ export default {
       var dir = this.mdtDungeonTable.dungeonMaps[0]
       var map = this.mdtDungeonTable.dungeonMaps[subMap + 1]
       this.mapTiles = []
-      for (let i = 1; i <= 12; i++) {
-        var row = (i - 1) % 4
-        var col = Math.floor((i - 1) / 4)
-        var image = new Image()
-        image.src = `https://media.wago.io/wow-ui-textures/Worldmap/${dir}/${map}${i}.PNG`
-        preload.push(image.src)
-        this.mapTiles.push({image, x: row * 256, y: col * 256})
+      var path = 'https://media.wago.io/wow-ui-textures/Worldmap'
+      if (map.match(/MechagonDungeon/)) {
+        path = 'https://media.wago.io/wow-ui-textures/WorldMap' // why do you do this Blizzard?
+      }
+
+      if (this.mdtDungeonTable.mapInfo && this.mdtDungeonTable.mapInfo.tileFormat === 15) {
+        let scale = 256 / 3.827
+        for (let i = 1; i <= 10; i++) {
+          for (let j = 1; j <= 15; j++) {
+            let image = new Image()
+            image.src = `${path}/${dir}/${map}${(i - 1) * 15 + j}.PNG`
+            preload.push(image.src)
+            this.mapTiles.push({image, x: (j - 1) * scale, y: (i - 1) * scale, width: scale, height: scale})
+          }
+        }
+      }
+      else {
+        for (let i = 1; i <= 12; i++) {
+          let row = (i - 1) % 4
+          let col = Math.floor((i - 1) / 4)
+          let image = new Image()
+          image.src = `${path}/${dir}/${map}${i}.PNG`
+          preload.push(image.src)
+          this.mapTiles.push({image, x: row * 256, y: col * 256})
+        }
       }
 
       // map POI images
@@ -1087,6 +1106,10 @@ export default {
 
     isBeguildingSelected (clone) {
       return this.selectedAffixes.indexOf(119) >= 0
+    },
+
+    isAwakeningSelected (clone) {
+      return this.selectedAffixes.indexOf(120) >= 0
     },
 
     displayReaping (creatureID) {

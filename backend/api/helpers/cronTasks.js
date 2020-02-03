@@ -8,7 +8,6 @@ const md5 = require('md5')
 const moment = require('moment')
 const mkdirp = require('mkdirp-promise')
 const path = require('path')
-const puppeteer = require('puppeteer')
 const querystring = require('querystring')
 
 module.exports = {
@@ -582,13 +581,14 @@ async function updateMDTData (req, release, assets) {
     let Obj = {
       affixWeeks: mdtData.affixWeeks,
       dungeonEnemies: mdtData.dungeonEnemies[mapID],
+      enemyHash: md5(JSON.stringify(mdtData.dungeonEnemies[mapID])),
       mapPOIs: mdtData.mapPOIs[mapID],
+      mapInfo: mdtData.mapInfo[mapID],
       dungeonTotalCount: mdtData.dungeonTotalCount[mapID],
       scaleMultiplier: mdtData.scaleMultiplier[mapID],
       dungeonSubLevels: mdtData.dungeonSubLevels[mapID],
       dungeonMaps: mdtData.dungeonMaps[mapID],
-      dungeonDimensions: mdtData.dungeonDimensions[mapID],
-      enemyHash: md5(JSON.stringify(mdtData.dungeonEnemies[mapID]))
+      dungeonDimensions: mdtData.dungeonDimensions[mapID]
     }
     if (mapID === 15) {
       Obj.freeholdCrews = mdtData.freeholdCrews
@@ -599,7 +599,7 @@ async function updateMDTData (req, release, assets) {
 
     // currentHash.value.enemyHash = null // force regenerate
     // if new portrait maps are required
-    if (currentHash.value.enemyHash !== Obj.enemyHash && Obj.dungeonMaps && Obj.dungeonEnemies && Obj.dungeonEnemies.length) {
+    if ((!currentHash || currentHash.value.enemyHash !== Obj.enemyHash) && Obj.dungeonMaps && Obj.dungeonEnemies && Obj.dungeonEnemies.length) {
       try {
         for (let subMapID = 1; subMapID <= Object.keys(Obj.dungeonMaps).length; subMapID++) {
           if (mapID === 18) {
@@ -625,7 +625,9 @@ async function updateMDTData (req, release, assets) {
 }
 
 async function buildStaticMDTPortraits(json, mapID, subMapID, teeming, faction) {
+  // this is very finicky so only run it locally to generate the images
   return
+  const puppeteer = require('puppeteer-firefox')
   const mdtScale = 539 / 450
   if (teeming) teeming = '-Teeming'
   else teeming = ''
@@ -711,8 +713,7 @@ async function buildStaticMDTPortraits(json, mapID, subMapID, teeming, faction) 
   </body>
   </html>`
 
-  // await fs.writeFile('./test.html', html, 'utf8')
-
+  // await fs.writeFile('../test.html', html, 'utf8')
   const browser = await puppeteer.launch()
   const page = await browser.newPage()
   await page.setContent(html)
@@ -723,7 +724,7 @@ async function buildStaticMDTPortraits(json, mapID, subMapID, teeming, faction) 
   await browser.close()
   const buffer = Buffer.from(base64.replace(/^data:image\/\w+;base64,/, ""), 'base64')
   await image.saveMdtPortraitMap(buffer, imgName)
-  console.log(imgName, 'mdt portrait map generated')
+  console.log(imgName, 'saved')
   return
 }
 

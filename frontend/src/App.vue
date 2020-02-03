@@ -154,7 +154,7 @@
           <md-list-item target="_blank" href="https://discord.gg/wa2"><div><img src="./assets/discord.png"></div>{{ $t("Join WA Discord") }}</md-list-item>
           <md-list-item target="_blank" href="https://github.com/oratory/wago.io"><div><img src="./assets/github.png"></div>{{ $t("Open source") }}</md-list-item>
           <md-list-item target="_blank" href="https://weakauras.wtf/"><div><img src="./assets/weakauralogo.png" style="height:23px"></div>WeakAuras Companion</md-list-item>
-          <md-list-item target="_blank" href="https://www.nevermorenation.com/teams/world-of-warcraft-classic/"><div><img src="./assets/nevermore.png"></div>Nevermore: Classic WoW<md-divider></md-divider></md-list-item>
+          <!--<md-list-item target="_blank" href="https://www.nevermorenation.com/teams/world-of-warcraft-classic/"><div><img src="./assets/nevermore.png"></div>Nevermore: Classic WoW<md-divider></md-divider></md-list-item>-->
         </md-list>
 
         <div class='legal'>
@@ -275,6 +275,10 @@ export default {
     }
 
     window.eventHub.$on('showSnackBar', this.showSnackBar)
+
+    if (this.$store.getters.i18nLanguage.match(/fa/)) {
+      document.body.classList.add('rtl-lang')
+    }
   },
   methods: {
     showSnackBar: function (text) {

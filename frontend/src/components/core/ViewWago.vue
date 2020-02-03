@@ -164,7 +164,8 @@
                 <md-button v-if="wago.type !== 'ERROR'" v-bind:class="{'md-toggle': showPanel === 'description'}" @click="toggleFrame('description')">{{ $t("Description") }}</md-button>
                 <md-button v-if="wago.referrals && wago.referrals.length" v-bind:class="{'md-toggle': showPanel === 'referrals'}" @click="toggleFrame('referrals')">{{ $t("External Links") }}</md-button>
                 <md-button v-if="(User && User.access && User.access.beta && wago && wago.attachedMedia && wago.attachedMedia.length)" v-bind:class="{'md-toggle': showPanel === 'media'}" @click="toggleFrame('media')">{{ $t("Media") }} [Beta]</md-button>
-                <md-button v-if="wago.type === 'WEAKAURA'" v-bind:class="{'md-toggle': showPanel === 'includedauras'}" @click="toggleFrame('includedauras')">{{ $t("Included Auras") }}</md-button>
+                <md-button v-if="wago.type === 'WEAKAURA' || wago.type === 'CLASSIC-WEAKAURA'" v-bind:class="{'md-toggle': showPanel === 'includedauras'}" @click="toggleFrame('includedauras')">{{ $t("Included Auras") }}</md-button>
+                <md-button v-if="wago.translations" v-bind:class="{'md-toggle': showPanel === 'translations'}" @click="toggleFrame('translations')">{{ $t("Translations") }}</md-button>
                 <md-button v-bind:class="{'md-toggle': showPanel === 'comments'}" @click="toggleFrame('comments')"><span v-if="hasUnreadComments && showPanel !== 'comments'" class="commentAttn">{{$t("NEW")}}!! </span>{{ $t("[-count-] comment", {count: wago.commentCount }) }}</md-button>
                 <md-button v-if="wago.type !== 'COLLECTION'" v-bind:class="{'md-toggle': showPanel === 'collections'}" @click="toggleFrame('collections')">{{ $t("[-count-] collection", {count:  wago.collectionCount}) }}</md-button>
                 <md-button v-if="wago.versions && wago.versions.total > 1" v-bind:class="{'md-toggle': showPanel === 'versions'}" @click="toggleFrame('versions')" ref="versionsButton">{{ $t("[-count-] version", { count: wago.versions.total }) }}</md-button>
@@ -472,6 +473,49 @@
                     <div>{{ item.name }} ({{ item.type }})</div>
                   </template>
                 </div>
+              </div>
+
+              <!-- TRANSLATIONS FRAME -->
+              <div id="wago-localizations-container" class="wago-container" v-if="showPanel=='translations'">
+                <p>{{ $t("Wago allows crowd-sourced translations for WeakAuras") }}</p>
+                <md-button-toggle md-single>
+                  <md-button @click="viewTranslation='de_DE'" :class="{'md-toggle': viewTranslation=='de_DE'}">de_DE</md-button>
+                  <md-button @click="viewTranslation='en_GB'" :class="{'md-toggle': viewTranslation=='en_GB'}">en_GB</md-button>
+                  <md-button @click="viewTranslation='en_US'" :class="{'md-toggle': viewTranslation=='en_US'}">en_US</md-button>
+                  <md-button @click="viewTranslation='es_ES'" :class="{'md-toggle': viewTranslation=='es_ES'}">es_ES</md-button>
+                  <md-button @click="viewTranslation='es_MX'" :class="{'md-toggle': viewTranslation=='es_MX'}">es_MX</md-button>
+                  <md-button @click="viewTranslation='fr_FR'" :class="{'md-toggle': viewTranslation=='fr_FR'}">fr_FR</md-button>
+                  <md-button @click="viewTranslation='it_IT'" :class="{'md-toggle': viewTranslation=='it_IT'}">it_IT</md-button>
+                  <md-button @click="viewTranslation='ko_KR'" :class="{'md-toggle': viewTranslation=='ko_KR'}">ko_KR</md-button>
+                  <md-button @click="viewTranslation='pt_BR'" :class="{'md-toggle': viewTranslation=='pt_BR'}">pt_BR</md-button>
+                  <md-button @click="viewTranslation='zh_CN'" :class="{'md-toggle': viewTranslation=='zh_CN'}">zh_CN</md-button>
+                  <md-button @click="viewTranslation='zh_TW'" :class="{'md-toggle': viewTranslation=='zh_TW'}">zh_TW</md-button>
+                </md-button-toggle>
+                <div class="translate-item translate-header">
+                  <div class="key">{{ $t('Key') }}</div>
+                  <div class="current">{{ $t('Current Text') }}</div>
+                  <div class="submit">
+                    <md-button-toggle md-single class="md-accent" id="translationModeButtons">
+                      <md-button @click="translationMode='set'" :class="{'md-toggle': translationMode=='set'}">{{ $t('Submit New Text for [-locale-]', {locale: viewTranslation}) }}</md-button>
+                      <md-button @click="translationMode='view'" :class="{'md-toggle': translationMode=='view'}">{{ $t('View Submitted Text for [-locale-]', {locale: viewTranslation}) }}</md-button>
+                    </md-button-toggle>
+                  </div>
+                </div>
+                <template v-for="(item, key) in wago.translations[viewTranslation.replace(/_/, '')]">
+                  <div class="translate-item" :key="key">
+                    <strong :title="key" class="key">{{ key }}</strong>
+                    <div class="current">
+                      <md-input-container>
+                        <md-textarea v-model="item.term || '< '+$t('Not translated')+' >'" disabled class="currentLang" :class="{'notLocalized': !item.term}"></md-textarea>
+                        <md-textarea v-if="viewMyLocalization !== viewTranslation && wago.translations[viewMyLocalization.replace(/_/, '')][key].term" v-model="viewMyLocalization+': '+wago.translations[viewMyLocalization.replace(/_/, '')][key].term" disabled class="myLang"></md-textarea>
+                      </md-input-container>
+                    </div>
+                    <md-input-container md-inline class="submit">
+                      <md-textarea v-model="item.term"></md-textarea>
+                    </md-input-container>
+                    <md-button class="view" :disabled="!item.submissions || !item.submissions.length">{{ item.submissions && item.submissions.length ? item.submissions.length : 'N/A' }}</md-button>
+                  </div>
+                </template>
               </div>
 
               <!-- COMMENTS FRAME -->
@@ -950,7 +994,9 @@ export default {
       disableCompanionWarning: false,
       newRestrictionType: 'user',
       newRestrictionValue: '',
-      restrictionDebounceTimeout: null
+      restrictionDebounceTimeout: null,
+      viewTranslation: 'en_US',
+      viewMyLocalization: 'en_US'
     }
   },
   watch: {
@@ -2418,4 +2464,22 @@ ul:not(.md-list) > li.multiselect__element + li { margin-top: 0 }
 
 .resticted-options { flex: 4; flex-wrap: nowrap}
 
+/* translations */
+.translate-item { padding: 16px; margin: 0 0 16px!important; display: flex; justify-content: space-between; background: rgba(0,0,0,.5); position: relative }
+.translate-item .key { max-width: 100px; min-width: 100px; margin-top: 4px; overflow: hidden; }
+.translate-item .current { flex-grow: 1; width: auto; margin: 0; width: 50% }
+.translate-item .current .md-input-container { flex-direction: column }
+.translate-item .current .md-input-container:after { height: 0}
+.translate-item .current .currentLang.notLocalized { font-style: oblique }
+.translate-item .current .currentLang { }
+.translate-item .current .myLang { font-size: 14px; opacity: .8}
+.translate-item .submit { flex-grow: 1; width: auto; margin: 0 0 0 16px!important; width: 50% }
+.translate-item .view { position: absolute; right: 16px; min-width: 20px; min-height: 16px; line-height: 24px; padding: 0; margin:0 0 0 8px}
+.translate-header > div {font-weight: bold; margin-top: 0!important; line-height:36px; text-transform: uppercase}
+.translate-header .current {margin-left: 16px; margin-right: -16px}
+.translate-item .md-input-container { padding-top:0; min-height:0;  margin: 0 0 0 16px!important}
+.translate-item .md-input-container .md-input { height: 16px; line-height: 16px;}
+#translationModeButtons { padding: 0}
+#wago-translate-container .md-button-toggle {padding-left:0}
+#wago-translate-container .md-button-toggle .md-button {text-transform: none}
 </style>

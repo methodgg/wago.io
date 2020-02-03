@@ -8,6 +8,10 @@ body  {
   .md-theme-default a:not(.md-button) {
     color: #d7373d;
   }
+  .md-theme-default code:not(.hljs) {
+    background: #111111;
+    color: #DDD;
+  }
 }
 body.theme-classic {
   .md-theme-default .md-checkbox-label {
@@ -20,6 +24,10 @@ body.theme-classic {
     filter: invert(100%);
   }
   a.wago-advert-patreon {color: black!important}
+  .md-theme-default code:not(.hljs) {
+    background: #EEEEEE;
+    color: #222;
+  }
 }
 body.theme-dark {
   $Background: #212121;
@@ -136,3 +144,24 @@ body.theme-dark {
 
 }
 .md-layout > .md-list:after { background-color: transparent }
+
+/* rtl support */
+.rtl-lang {
+  .md-sidenav-content, input, textarea, #gSearch, #inputStringWrapper, .md-input-container, .md-list-item-container, .md-list-text-container {
+    direction: rtl;
+  }
+  .md-input-container label {
+    left: auto;
+    right: 0;
+  }
+  .md-list-text-container {
+    text-align: right;
+  }
+  #gSearch {
+    text-align: left;
+    button { 
+      margin-left: 0;
+      margin-right: -48px;
+    }
+  }
+}

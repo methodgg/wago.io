@@ -22,7 +22,7 @@
             <md-input-container>
               <label for="affixes">{{ $t("Select Affixes") }}</label>
               <md-select name="affixes" id="affixes" v-model="newAffix">
-                <md-option v-for="(item, index) in affixesS3" :value="item.id" :key="index">{{ $t('Week [-num-] [-affixes-]', {num: index + 1, affixes: item.text}) }}</md-option>
+                <md-option v-for="(item, index) in affixesS4" :value="item.id" :key="index">{{ $t('Week [-num-] [-affixes-]', {num: index + 1, affixes: item.text}) }}</md-option>
               </md-select>
             </md-input-container>
           </div>
@@ -64,13 +64,13 @@
             </div>
           </md-list-item>
         </md-list>
-        <md-subheader>{{ $t("BFA Season 2 Affix Weeks") }}</md-subheader>
+        <md-subheader>{{ $t("BFA Season 4 Affix Weeks") }}</md-subheader>
         <md-list class="md-double-line md-dense">
           <md-list-item class="md-inset affixWeek">
             <category-image group="affixWeek"></category-image>
             <div class="md-list-text-container">
               <span>
-                <router-link v-for="(item, index) in affixesS3" :to="'/mdt/' + item.slug" :key="index">
+                <router-link v-for="(item, index) in affixesS4" :to="'/mdt/' + item.slug" :key="index">
                   <span v-if="index + 1 === currentWeek" class="currentWeek">&#xab;</span>
                   <span v-bind:class="{currentWeek: index + 1 === currentWeek}">{{ $t('Week [-num-] [-affixes-]', {num: index + 1, affixes: item.text}) }}</span>
                   <span v-if="index + 1 === currentWeek" class="currentWeek">&#xbb;</span>
@@ -162,7 +162,7 @@ export default {
     return {
       searchString: 'Type: MDT ',
       newDungeon: '',
-      newAffix: 'mdtaffix-bfa-s3-w' + this.$store.state.MDTWeek,
+      newAffix: 'mdtaffix-bfa-s4-w' + this.$store.state.MDTWeek,
       wclURL: '',
       wclDungeons: [],
       wclDungeonIndex: -1,
@@ -171,7 +171,7 @@ export default {
   },
   watch: {
     currentWeek: function (val) {
-      this.newAffix = 'mdtaffix-bfa-s3-w' + val
+      this.newAffix = 'mdtaffix-bfa-s4-w' + val
     },
     wclURL: function (val) {
       this.wclDungeonIndex = -1
@@ -205,6 +205,9 @@ export default {
     },
     affixesS3: function () {
       return categories.getCategories([/^mdtaffix-bfa-s3-/], this.$t, true) // also in Create-MDT and data.newAffix
+    },
+    affixesS4: function () {
+      return categories.getCategories([/^mdtaffix-bfa-s4-/], this.$t, true) // also in Create-MDT and data.newAffix
     },
     affixes: function () {
       return categories.getCategories([/^mdtaffix\d/], this.$t)

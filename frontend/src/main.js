@@ -36,7 +36,7 @@ window.clearCookie = function (name) {
 
 window.locales = require('../../i18nLocaleConfig').locales
 
-document.body.className = 'theme-' + (window.readCookie('theme') || 'dark')
+document.body.classList.add('theme-' + (window.readCookie('theme') || 'dark'))
 
 // The Vue build version to load with the `import` command
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
@@ -127,7 +127,12 @@ const store = new Vuex.Store({
       state.user = JSON.parse(JSON.stringify(user))
       if (state.user.config && state.user.config.theme) {
         window.setCookie('theme', state.user.config.theme, 365)
-        document.body.className = 'theme-' + state.user.config.theme
+        document.body.classList.forEach(t => {
+          if (t.match(/^theme-/)) {
+            document.body.classList.remove(t)
+          }
+        })
+        document.body.classList.add('theme-' + state.user.config.theme)
       }
       if (state.user.config && state.user.config.editor) {
         window.setCookie('editor', state.user.config.editor, 365)
@@ -207,7 +212,12 @@ const store = new Vuex.Store({
     },
     setTheme (state, theme) {
       window.setCookie('theme', theme)
-      document.body.className = 'theme-' + theme
+      document.body.classList.forEach(t => {
+        if (t.match(/^theme-/)) {
+          document.body.classList.remove(t)
+        }
+      })
+      document.body.classList.add('theme-' + theme)
       Vue.set(state.user.config, 'theme', theme, 365)
       state.theme = theme
     },

@@ -374,13 +374,13 @@ module.exports = {
     // load in some tables from dungeonEnemies file
     core = await fs.readFile(directory+'/../DungeonEnemies.lua', 'utf8')
     core = core.replace(/local MethodDungeonTools = MethodDungeonTools/, '')
-    luaCode = luaCode + core
+    luaCode = luaCode + "\n" + core
 
     var dungeonFiles = await fs.readdir(directory)
     for (let i = 0; i < dungeonFiles.length; i++) {
       if (dungeonFiles[i].match(/\.lua$/)) {
         const dungeon = await fs.readFile(directory+'/'+dungeonFiles[i], 'utf8')
-        luaCode = luaCode + dungeon.replace(/local dungeonIndex/, 'dungeonIndex') + '\n'
+        luaCode = luaCode + "\n" + dungeon.replace(/local dungeonIndex/, 'dungeonIndex') + '\n'
       }
     }
 
