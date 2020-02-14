@@ -15,7 +15,15 @@ const Schema = new mongoose.Schema({
 })
 
 Schema.statics.findUnread = async function(userID) {
-  return this.find({usersTagged: {$elemMatch: {userID: userID, read: false}}}).select('wagoID').exec()
+  const comments = await this.find({usersTagged: {$elemMatch: {userID: userID, read: false}}}).populate('wagoID._id wagoID.deleted').select('wagoID').exec()
+  console.log(comments)
+  var unread = []
+  comments.forEach(c => {
+    if (c.wagoID && c.wagoID._id && !c.wagoID.deleted) {
+      unread.push({_id: c._id, wagoID: c.wagoID._id})
+    }
+  })
+  return unread
 }
 
 Schema.statics.findMentions = async function(userID) {
