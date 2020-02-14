@@ -97,7 +97,11 @@
               </div>
             </div>
             <div id="tags">
-              <md-chip v-for="(cat, n) in wago.categories" :key="n" :class="cat.cls" disabled v-if="cat.text && (n<5 || showMoreCategories)">{{ cat.text }}</md-chip>
+              <template>
+                <a v-for="(cat, n) in wago.categories" :key="n" :href="'/' + typeSlug + cat.slug">
+                  <md-chip :class="cat.cls" disabled v-if="cat.text && (n<5 || showMoreCategories)">{{ cat.text }}</md-chip>
+                </a>
+              </template>
               <span @click="viewAllCategories()"><md-chip v-if="wago.categories.length > 5 && !showMoreCategories" class="show_more">{{ $t("[-count-] more", {count: wago.categories.length - 5}) }}</md-chip></span>
             </div>
             <md-layout id="thumbnails">
@@ -996,7 +1000,8 @@ export default {
       newRestrictionValue: '',
       restrictionDebounceTimeout: null,
       viewTranslation: 'en_US',
-      viewMyLocalization: 'en_US'
+      viewMyLocalization: 'en_US',
+      typeSlug: ''
     }
   },
   watch: {
@@ -1350,17 +1355,43 @@ export default {
         this.editDesc = res.description.text
         this.updateDescFormat = res.description.format || this.$store.state.user.defaultEditorSyntax
 
-        if (this.wago.type === 'SNIPPET') {
-          this.showPanel = 'editor'
-        }
-        else if (!this.wago.description.text && (this.wago.type === 'WEAKAURA' || this.wago.type === 'CLASSIC-WEAKAURA' || this.wago.type === 'PLATER')) {
-          this.showPanel = 'editor'
-        }
-        else if (!this.wago.description.text && this.wago.type === 'MDT') {
-          this.showPanel = 'builder'
-        }
-        else {
-          this.showPanel = 'description'
+        switch (this.wago.type) {
+          case 'COLLECTION':
+            this.showPanel = 'descriptions'
+            this.typeSlug = 'collections/'
+            break
+          case 'MDT':
+            this.showPanel = 'builder'
+            this.typeSlug = 'mdt/'
+            break
+          case 'OPIE':
+            this.showPanel = 'editor'
+            this.typeSlug = 'opie/'
+            break
+          case 'PLATER':
+            this.showPanel = 'editor'
+            this.typeSlug = 'plater/'
+            break
+          case 'SNIPPET':
+            this.showPanel = 'editor'
+            this.typeSlug = 'snippets/'
+            break
+          case 'TOTALRP3':
+            this.showPanel = 'description'
+            this.typeSlug = 'totalrp/'
+            break
+          case 'WEAKAURA':
+            this.showPanel = 'editor'
+            this.typeSlug = 'weakauras/'
+            break
+          case 'CLASSIC-WEAKAURA':
+            this.showPanel = 'editor'
+            this.typeSlug = 'classic-weakauras/'
+            break
+          default:
+            this.showPanel = 'description'
+            this.typeSlug = this.wago.type.toLowerCase() + '/'
+            break
         }
 
         vue.doNotReloadWago = true
