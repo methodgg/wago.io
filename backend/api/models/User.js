@@ -163,7 +163,7 @@ const Schema = new mongoose.Schema({
  * Statics
  */
 Schema.statics.findByUsername = function(name) {
-  if (!name) {
+  if (!name || typeof(name) !== 'string') {
     return null
   }
   return this.findOne({"search.username": name.toLowerCase()}).exec()

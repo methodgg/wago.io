@@ -96,7 +96,12 @@ module.exports = function (fastify, opts, next) {
       return
     }
     const doc = await WagoItem.lookup(req.query.id)
-    if (doc && doc.private) {
+    if (!doc) {
+      res.code(404)
+      res.send('No image here')
+      return
+    }
+    if (doc.private) {
       res.code(404)
       res.send('No content here!')
       return
