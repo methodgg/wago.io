@@ -319,6 +319,10 @@ export default {
           func.push({ id: item.id, name: this.$t('Custom Sort'), ix: ix, path: 'customSort' })
         }
 
+        if (item.sort === 'CUSTOM' && item.customAnchorPerUnit) {
+          func.push({ id: item.id, name: this.$t('Custom Anchor'), ix: ix, path: 'customAnchorPerUnit' })
+        }
+
         if (typeof item.customText === 'string' && item.subRegions && item.subRegions.length) {
           for (let n = 0; n < item.subRegions.length; n++) {
             if (item.subRegions[n].text_text && item.subRegions[n].text_text.match(/%c/)) {

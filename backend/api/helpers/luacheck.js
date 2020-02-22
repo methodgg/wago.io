@@ -120,6 +120,10 @@ function getCustomCodeWA(data) { // TODO: this is identical to the fn in diffs.j
     if (item.grow === 'CUSTOM' && item.customSort) {
       code[item.id + ': CustomSort'] = item.customSort
     }
+    // custom acnhor
+    if (item.anchorPerUnit === 'CUSTOM' && item.customAnchorPerUnit) {
+      code[item.id + ': CustomAnchor'] = item.customAnchorPerUnit
+    }
 
     // triggers
     if (item.triggers && item.triggers['1']) {
