@@ -1365,11 +1365,11 @@ export default {
             this.typeSlug = 'mdt/'
             break
           case 'OPIE':
-            this.showPanel = 'editor'
+            this.showPanel = this.wago.description.text ? 'description' : 'editor'
             this.typeSlug = 'opie/'
             break
           case 'PLATER':
-            this.showPanel = 'editor'
+            this.showPanel = this.wago.description.text ? 'description' : 'editor'
             this.typeSlug = 'plater/'
             break
           case 'SNIPPET':
@@ -1381,11 +1381,11 @@ export default {
             this.typeSlug = 'totalrp/'
             break
           case 'WEAKAURA':
-            this.showPanel = 'editor'
+            this.showPanel = this.wago.description.text ? 'description' : 'editor'
             this.typeSlug = 'weakauras/'
             break
           case 'CLASSIC-WEAKAURA':
-            this.showPanel = 'editor'
+            this.showPanel = this.wago.description.text ? 'description' : 'editor'
             this.typeSlug = 'classic-weakauras/'
             break
           default:
