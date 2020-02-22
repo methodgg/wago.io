@@ -1,3 +1,7 @@
+function normalize (str) {
+  return str.toLowerCase().replace(/[^a-z\d]/g, '-').trim()
+}
+
 module.exports = {
   categories: function (t) {
     if (!t) {
@@ -644,10 +648,13 @@ module.exports = {
       t = window.i18next.t
     }
 
+    var findStr = normalize(str)
+    console.log(str, findStr)
+
     var cats = this.categories(t) // search translated text
     var _cats = this.categories() // search i8n codes
     for (var i=0; i<cats.length; i++) {
-      if (cats[i].id === str.toLowerCase().trim() || cats[i].text.toLowerCase().trim() === str.toLowerCase().replace(/-/g, ' ').trim() || _cats[i].text.replace(/-/g, ' ') === str.toLowerCase().replace(/-/g, ' ').trim() || _cats[i].text.toLowerCase().trim() === str.toLowerCase().trim() || cats[i].slug === str) {
+      if (normalize(cats[i].id) === findStr || normalize(cats[i].text) === findStr || normalize(_cats[i].text) === findStr || normalize(cats[i].slug) === findStr) {
         if (!idPrefix || cats[i].id.match(new RegExp('^' + idPrefix))) {
           cats[i].text = t(cats[i].text)
           return cats[i]
