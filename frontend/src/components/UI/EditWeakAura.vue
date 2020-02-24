@@ -319,7 +319,7 @@ export default {
           func.push({ id: item.id, name: this.$t('Custom Sort'), ix: ix, path: 'customSort' })
         }
 
-        if (item.sort === 'CUSTOM' && item.customAnchorPerUnit) {
+        if (item.anchorPerUnit === 'CUSTOM' && item.customAnchorPerUnit) {
           func.push({ id: item.id, name: this.$t('Custom Anchor'), ix: ix, path: 'customAnchorPerUnit' })
         }
 
