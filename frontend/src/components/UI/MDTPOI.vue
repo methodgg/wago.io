@@ -33,6 +33,12 @@ export default {
         '-2': [3 * 32, 0, 32, 32], // left arrow
         2: [4 * 32, 0, 32, 32] // right arrow
       },
+      MECHBOT: { // sprite sheet 1x3 of 64x64 icons
+        0: [3 * 64, 0, 64, 64], // grey
+        1: [0 * 64, 0, 64, 64], // green
+        2: [1 * 64, 0, 64, 64], // red
+        3: [2 * 64, 0, 64, 64] // blue
+      },
       USERNOTEICONS: [], // sprite sheet 1x50 of 32x32 icons
       mdtDungeonTable: this.$store.state.mdtDungeonTable,
       tableData: JSON.parse(this.$store.state.wago.code.json)
@@ -52,6 +58,11 @@ export default {
       if (data.type === 'door' || data.type === 'mapLink') {
         image.src = require('../../assets/mapPOI/DOOR.png')
         return {image, animation: data.direction || 0, animations: this.DOOR, x: (data.x * this.mdtScale) - 16, y: -(data.y * this.mdtScale) - 16}
+      }
+
+      else if (data.type === 'mechagonBot' && data.botIndex) {
+        image.src = require('../../assets/mapPOI/MECHBOTS.png')
+        return {image, animation: data.botIndex || 0, animations: this.MECHBOT, x: (data.x * this.mdtScale) - 16, y: -(data.y * this.mdtScale) - 16, scaleX: 0.1, scaleY: 0.1}
       }
 
       else if (data.type && this.POIICONS[data.type]) {
@@ -141,6 +152,19 @@ export default {
           break
         case 'wmMaggotNote': // waycrest manor
           text = 'Note on Devouring Maggots:\nDevouring Maggots with the buff <em>Parasitic</em> will try to <em>Infest</em> Players\nUpon successfull cast of <em>Infest</em> the Devouring Maggot will disappear and spawn 2x Devouring Maggots after a debuff on the infested player runs out.\nYou can only gain 1 count for killing the initial Infested Maggot - the 2 newly spawned Infested Maggots do not give count.\n\nInfected Peasants spawn 3x Devouring Maggots which do give 1 count each.\nThese Devouring Maggots are mapped next to the Infected Peasants.'
+          break
+        case 'mechagonBot': // mechagon junkyard
+          switch (poi.botIndex) {
+            case 1:
+              text = 'Welding Bot'
+              break
+            case 2:
+              text = 'Grease Bot'
+              break
+            case 3:
+              text = 'Shock Bot'
+              break
+          }
           break
 
         default:
