@@ -16,12 +16,17 @@ module.exports = {
       return {error: 'bad_input'}
     }
 
-    const arraybuffer = await axios.request({
-      responseType: 'arraybuffer',
-      url: url,
-      method: 'get'
-    })
-    const buffer = Buffer.from(arraybuffer.data, 'binary')
+    try {
+      const arraybuffer = await axios.request({
+        responseType: 'arraybuffer',
+        url: url,
+        method: 'get'
+      })    
+      const buffer = Buffer.from(arraybuffer.data, 'binary')
+    }
+    catch (e) {
+      return {error: 'bad_input'}
+    }
 
     try {
       const mime = await magic.detect(buffer)
