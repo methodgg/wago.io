@@ -82,6 +82,7 @@ module.exports = function (fastify, opts, next) {
     }
     if (!decoded && test.ELVUI) {
       decoded = await lua.DecodeElvUI(req.body.importString)
+      console.log(decoded)
     }
     if (!decoded && test.VUHDO) {
       decoded = await lua.DecodeVuhDo(req.body.importString)
@@ -274,7 +275,7 @@ module.exports = function (fastify, opts, next) {
         return res.send({scan: scanDoc._id.toString(), type: 'PLATER', name: 'Plater NPC Colors', categories: []})
       }
       // animation
-      else if (decoded && !Array.isArray(decoded.obj) && decoded.obj[1] && decoded.obj[1].animation_type) {
+      else if (decoded && !Array.isArray(decoded.obj) && ((decoded.obj[1] && decoded.obj[1].animation_type) || decoded.obj['2'] && decoded.obj['2'].animation_type)) {
         scan.type = 'PLATER'
         const scanDoc = await scan.save()
         var name = 'Plater Animation'
@@ -288,13 +289,13 @@ module.exports = function (fastify, opts, next) {
         return res.send({scan: scanDoc._id.toString(), type: 'PLATER', name: 'Plater Animation', categories: []})
       }
       // if Plater Hook is found
-      else if (Array.isArray(decoded.obj) && typeof decoded.obj[8] === 'object' && typeof decoded.obj[0] === 'string') {
+      else if (Array.isArray(decoded.obj) && (typeof decoded.obj[8] === 'object' || typeof decoded.obj['9'] === 'object') && (typeof decoded.obj[0] === 'string' || typeof decoded.obj['1'] === 'string')) {
         scan.type = 'PLATER'
         const scanDoc = await scan.save()
         return res.send({scan: scanDoc._id.toString(), type: 'PLATER', name: decoded.obj[0], categories: []})
       }
       // if Plater Script is found
-      else if (Array.isArray(decoded.obj) && typeof decoded.obj[8] === 'number' && typeof decoded.obj[1] === 'string') {
+      else if (Array.isArray(decoded.obj) && (typeof decoded.obj[8] === 'number' || typeof decoded.obj['9'] === 'number') && (typeof decoded.obj[1] === 'string' || typeof decoded.obj['2'] === 'string')) {
         scan.type = 'PLATER'
         const scanDoc = await scan.save()
         return res.send({scan: scanDoc._id.toString(), type: 'PLATER', name: decoded.obj[1], categories: []})
@@ -559,22 +560,58 @@ module.exports = function (fastify, opts, next) {
     code.version = 1
     code.versionString = '1.0.0'
 
-    // add additional fields to WA
+    // add additional fields to WA and check for language terms
     if (wago.type === 'WEAKAURAS2' || wago.type === 'CLASSIC-WEAKAURA') {
       json.wagoID = doc._id
       json.d.url = doc.url + '/1'
       json.d.version = 1
       delete json.d.ignoreWagoUpdate // remove as this is a client-level setting for the WA companion app
       delete json.d.skipWagoUpdate
+
+      var keyTerms = []
+      if (json.d.language) {
+        var locales = Object.keys(json.d.language)
+        for (let i = 0; i < locales.length; i++) {
+          var terms = Object.entries(json.d.language[locales[i]])
+          for (let k = 0; k < terms.length; k++) {
+            await WagoTranslation.setTranslation(doc._id, locales[i], terms[k][0], terms[k][1])
+            keyTerms.push(terms[k][0])
+          }
+        }
+      }
       if (json.c) {
         for (var i = 0; i < json.c.length; i++) {
           json.c[i].url = doc.url + '/1'
           json.c[i].version = 1
           delete json.c[i].ignoreWagoUpdate
           delete json.c[i].skipWagoUpdate
+
+          if (json.c[i].language) {
+            var locales = Object.keys(json.c[i].language)
+            for (let i = 0; i < locales.length; i++) {
+              var terms = Object.entries(json.c[i].language[locales[i]])
+              for (let k = 0; k < terms.length; k++) {
+                await WagoTranslation.setTranslation(doc._id, locales[i], terms[k][0], terms[k][1])
+                keyTerms.push(terms[k][0])
+              }
+            }
+          }
         }
       }
+      await WagoTranslation.updateMany({wagoID: doc._id, key: {$nin: keyTerms}}, {active: false})
       code.encoded = await lua.JSON2WeakAura(json)
+      code.json = JSON.stringify(json)
+    }
+    else if (wago.type === 'PLATER') {
+      if (Array.isArray(json)) {
+        var tbl = {}
+        json.forEach((v, k) => {
+          tbl[''+(k+1)] = v
+        })
+        json = tbl
+      }
+      json.url = doc.url + '/1'
+      code.encoded = await lua.JSON2Plater(json)
       code.json = JSON.stringify(json)
     }
     else if (wago.type === 'MDT' && code.encoded.match(/^!/)) {
@@ -653,6 +690,18 @@ module.exports = function (fastify, opts, next) {
       json.wagoID = wago._id
       delete json.d.ignoreWagoUpdate // remove as this is a client-level setting for the WA companion app
       delete json.d.skipWagoUpdate
+
+      var keyTerms = []
+      if (json.d.language) {
+        var locales = Object.keys(json.d.language)
+        for (let i = 0; i < locales.length; i++) {
+          var terms = Object.entries(json.d.language[locales[i]])
+          for (let k = 0; k < terms.length; k++) {
+            await WagoTranslation.setTranslation(wago._id, locales[i], terms[k][0], terms[k][1])
+            keyTerms.push(terms[k][0])
+          }
+        }
+      }
       if (json.c) {
         for (var i = 0; i < json.c.length; i++) {
           json.c[i].url = wago.url + '/' + wago.latestVersion.iteration
@@ -660,9 +709,35 @@ module.exports = function (fastify, opts, next) {
           json.c[i].semver = versionString
           delete json.c[i].ignoreWagoUpdate
           delete json.c[i].skipWagoUpdate
+
+          if (json.c[i].language) {
+            var locales = Object.keys(json.c[i].language)
+            for (let i = 0; i < locales.length; i++) {
+              var terms = Object.entries(json.c[i].language[locales[i]])
+              for (let k = 0; k < terms.length; k++) {
+                await WagoTranslation.setTranslation(wago._id, locales[i], terms[k][0], terms[k][1])
+                keyTerms.push(terms[k][0])
+              }
+            }
+          }
         }
       }
+      await WagoTranslation.updateMany({wagoID: wago._id, key: {$nin: keyTerms}}, {active: false})
+
       code.encoded = await lua.JSON2WeakAura(json)
+      code.json = JSON.stringify(json)
+    }
+    else if (wago.type === 'PLATER') {
+      var json = JSON.parse(scan.decoded)
+      if (Array.isArray(json)) {
+        var tbl = {}
+        json.forEach((v, k) => {
+          tbl[''+(k+1)] = v
+        })
+        json = tbl
+      }
+      json.url = wago.url + '/' + wago.latestVersion.iteration
+      code.encoded = await lua.JSON2Plater(json)
       code.json = JSON.stringify(json)
     }
     else {
@@ -743,6 +818,15 @@ module.exports = function (fastify, opts, next) {
       break
 
       case 'PLATER':
+        if (Array.isArray(json)) {
+          var tbl = {}
+          json.forEach((v, k) => {
+            tbl[''+(k+1)] = v
+          })
+          json = tbl
+        }
+        json.url = wago.url + '/' + wago.latestVersion.iteration
+        code.json = JSON.stringify(json)
         code.encoded = await lua.JSON2Plater(json)
       break
 
@@ -771,6 +855,19 @@ module.exports = function (fastify, opts, next) {
         json.wagoID = wago._id
         delete json.d.ignoreWagoUpdate // remove as this is a client-level setting for the WA companion app
         delete json.d.skipWagoUpdate
+
+        var keyTerms = []
+        if (json.d.language) {
+          var locales = Object.keys(json.d.language)
+          for (let i = 0; i < locales.length; i++) {
+            var terms = Object.entries(json.d.language[locales[i]])
+            for (let k = 0; k < terms.length; k++) {
+              await WagoTranslation.setTranslation(wago._id, locales[i], terms[k][0], terms[k][1])
+              keyTerms.push(terms[k][0])
+            }
+          }
+        }
+
         if (json.c) {
           for (var i = 0; i < json.c.length; i++) {
             json.c[i].url = wago.url + '/' + wago.latestVersion.iteration
@@ -778,8 +875,21 @@ module.exports = function (fastify, opts, next) {
             json.c[i].semver = versionString
             delete json.c[i].ignoreWagoUpdate
             delete json.c[i].skipWagoUpdate
+
+            if (json.c[i].language) {
+              var locales = Object.keys(json.c[i].language)
+              for (let i = 0; i < locales.length; i++) {
+                var terms = Object.entries(json.c[i].language[locales[i]])
+                for (let k = 0; k < terms.length; k++) {
+                  await WagoTranslation.setTranslation(wago._id, locales[i], terms[k][0], terms[k][1])
+                  keyTerms.push(terms[k][0])
+                }
+              }
+            }
           }
         }
+        await WagoTranslation.updateMany({wagoID: wago._id, key: {$nin: keyTerms}}, {active: false})
+
         code.encoded = await lua.JSON2WeakAura(json)
       break
 

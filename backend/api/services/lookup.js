@@ -684,6 +684,34 @@ module.exports = function (fastify, opts, next) {
       wagoCode.versionString = versionString
       wagoCode.changelog = code.changelog
     }
+    else if (doc.type === 'PLATER') {
+      var json = JSON.parse(code.json)
+      var compare = {}
+      // check for any missing data
+      if (code.version && (!code.encoded || ((json.url !== doc.url + '/' + code.version)))) {
+        if (Array.isArray(json)) {
+          var tbl = {}
+          json.forEach((v, k) => {
+            tbl[''+(k+1)] = v
+          })
+          json = tbl
+        }
+        json.url = doc.url + '/1'
+        
+        code.json = JSON.stringify(json)
+        var encoded = await lua.JSON2Plater(json)
+        console.log(encoded)
+        if (encoded) {
+          code.encoded = encoded
+        }
+        code.save()
+      }
+      wagoCode.json = code.json
+      wagoCode.encoded = code.encoded
+      wagoCode.version = code.version
+      wagoCode.versionString = versionString
+      wagoCode.changelog = code.changelog
+    }
     else {
       wagoCode.json = code.json
       wagoCode.encoded = code.encoded
