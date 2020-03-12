@@ -1,5 +1,5 @@
 function normalize (str) {
-  return str.toLowerCase().replace(/[^a-z\d]/g, '-').trim()
+  return str.toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`'"~()\s]/g, '-').trim()
 }
 
 module.exports = {
@@ -649,7 +649,7 @@ module.exports = {
     }
 
     var findStr = normalize(str)
-    console.log(str, findStr)
+    console.log('norm', str, '=', findStr)
 
     var cats = this.categories(t) // search translated text
     var _cats = this.categories() // search i8n codes
