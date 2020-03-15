@@ -23,8 +23,21 @@ module.exports = function (fastify, opts, next) {
   })
 
   // returns basic data of requested weakauras; WA Companion uses to check for updates
-  fastify.get('/check/weakauras', async (req, res) => {
+  fastify.get('/check/:importType', async (req, res) => {
     if (!req.query.ids) {
+      return res.code(404).send({error: "page_not_found"})
+    }
+    var findType
+    var cacheType
+    if (req.params.importType === 'weakauras') {
+      findType = {'$or': [{type: 'WEAKAURAS2'}, {type:'CLASSIC-WEAKAURA'}]}
+      cacheType = 'WA'
+    }
+    else if (req.params.importType === 'plater') {
+      findType = {type: 'PLATER'}
+      cacheType = 'PL'
+    }
+    else {
       return res.code(404).send({error: "page_not_found"})
     }
 
@@ -32,10 +45,7 @@ module.exports = function (fastify, opts, next) {
     var cached = []
     var lookup = []
     for (let i = 0; i < ids.length; i++) {
-      var doc = await redis.get(ids[i])
-      if (!doc) {
-        doc = await redis.get(`API:WA:${ids[i]}`)
-      }
+      var doc = await redis.get(`API:${cacheType}:${ids[i]}`)
       if (doc && typeof doc === 'object') {
         cached.push(doc)
       }
@@ -44,7 +54,7 @@ module.exports = function (fastify, opts, next) {
       }
     }
     var wagos = []
-    var docs = await WagoItem.find({'$and': [{'$or' : [{_id: lookup}, {custom_slug: lookup}]}, {'$or': [{type: 'WEAKAURAS2'}, {type:'CLASSIC-WEAKAURA'}]}], deleted: false}).populate({path: '_userId', select: {restrictedGuilds: 1, restrictedTwitchUsers: 1, restrictedUsers: 1, account: 1}})
+    var docs = await WagoItem.find({'$and': [{'$or' : [{_id: lookup}, {custom_slug: lookup}]}, findType], deleted: false}).populate({path: '_userId', select: {restrictedGuilds: 1, restrictedTwitchUsers: 1, restrictedUsers: 1, account: 1}})
     await Promise.all(docs.concat(cached).map(async (doc) => {
       if (doc.private && (!req.user || !req.user._id.equals(doc._userId._id))) {
         return
@@ -91,7 +101,7 @@ module.exports = function (fastify, opts, next) {
         wago.regionType = doc.regionType
         wagos.push(wago)
         if (!doc.restricted && !doc.private) {
-          redis.set(`API:WA:${wago.slug}`, wago, 4000)
+          redis.set(`API:${cacheType}:${wago.slug}`, wago, 4000)
         }
         return
       }
@@ -105,15 +115,17 @@ module.exports = function (fastify, opts, next) {
         wago.regionType = doc.regionType
         wagos.push(wago)
         if (!doc.restricted && !doc.private) {
-          redis.set(`API:WA:${wago.slug}`, wago, 4000)
+          redis.set(`API:${cacheType}:${wago.slug}`, wago, 4000)
         }
         return
       }
 
       var code = await WagoCode.lookup(wago._id)
       const json = JSON.parse(code.json)
-      doc.regionType = json.d.regionType
-      wago.regionType = doc.regionType
+      if (req.params.importType === 'weakauras') {
+        doc.regionType = json.d.regionType
+        wago.regionType = doc.regionType
+      }
 
       wago.version = code.version
       var versionString = code.versionString
