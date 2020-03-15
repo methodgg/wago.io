@@ -82,7 +82,6 @@ module.exports = function (fastify, opts, next) {
     }
     if (!decoded && test.ELVUI) {
       decoded = await lua.DecodeElvUI(req.body.importString)
-      console.log(decoded)
     }
     if (!decoded && test.VUHDO) {
       decoded = await lua.DecodeVuhDo(req.body.importString)
@@ -260,22 +259,22 @@ module.exports = function (fastify, opts, next) {
       }
     }
 
-    if (test.PLATER && decoded) {
+    if (test.PLATER && decoded && decoded.obj) {
       // check if valid and what type of import
       // general profile
-      if (decoded && !Array.isArray(decoded.obj) && decoded.obj.OptionsPanelDB && decoded.obj.OptionsPanelDB.PlaterOptionsPanelFrame) {
+      if (decoded.obj.OptionsPanelDB && decoded.obj.OptionsPanelDB.PlaterOptionsPanelFrame) {
         scan.type = 'PLATER'
         const scanDoc = await scan.save()
         return res.send({scan: scanDoc._id.toString(), type: 'PLATER', name: 'Plater Profile', categories: []})
       }
       // npc color
-      else if (decoded && !Array.isArray(decoded.obj) && decoded.obj.NpcColor) {
+      else if (decoded.obj.NpcColor) {
         scan.type = 'PLATER'
         const scanDoc = await scan.save()
         return res.send({scan: scanDoc._id.toString(), type: 'PLATER', name: 'Plater NPC Colors', categories: []})
       }
       // animation
-      else if (decoded && !Array.isArray(decoded.obj) && ((decoded.obj[1] && decoded.obj[1].animation_type) || decoded.obj['2'] && decoded.obj['2'].animation_type)) {
+      else if ((decoded.obj[1] && decoded.obj[1].animation_type) || decoded.obj['2'] && decoded.obj['2'].animation_type) {
         scan.type = 'PLATER'
         const scanDoc = await scan.save()
         var name = 'Plater Animation'
@@ -289,13 +288,13 @@ module.exports = function (fastify, opts, next) {
         return res.send({scan: scanDoc._id.toString(), type: 'PLATER', name: 'Plater Animation', categories: []})
       }
       // if Plater Hook is found
-      else if (Array.isArray(decoded.obj) && (typeof decoded.obj[8] === 'object' || typeof decoded.obj['9'] === 'object') && (typeof decoded.obj[0] === 'string' || typeof decoded.obj['1'] === 'string')) {
+      else if ((typeof decoded.obj[8] === 'object' || typeof decoded.obj['9'] === 'object') && (typeof decoded.obj[0] === 'string' || typeof decoded.obj['1'] === 'string')) {
         scan.type = 'PLATER'
         const scanDoc = await scan.save()
         return res.send({scan: scanDoc._id.toString(), type: 'PLATER', name: decoded.obj[0], categories: []})
       }
       // if Plater Script is found
-      else if (Array.isArray(decoded.obj) && (typeof decoded.obj[8] === 'number' || typeof decoded.obj['9'] === 'number') && (typeof decoded.obj[1] === 'string' || typeof decoded.obj['2'] === 'string')) {
+      else if ((typeof decoded.obj[8] === 'number' || typeof decoded.obj['9'] === 'number') && (typeof decoded.obj[1] === 'string' || typeof decoded.obj['2'] === 'string')) {
         scan.type = 'PLATER'
         const scanDoc = await scan.save()
         return res.send({scan: scanDoc._id.toString(), type: 'PLATER', name: decoded.obj[1], categories: []})
@@ -611,6 +610,8 @@ module.exports = function (fastify, opts, next) {
         json = tbl
       }
       json.url = doc.url + '/1'
+      json.version = 1
+      json.semver = '1.0.0'
       code.encoded = await lua.JSON2Plater(json)
       code.json = JSON.stringify(json)
     }
@@ -675,11 +676,11 @@ module.exports = function (fastify, opts, next) {
         format: req.body.changelogFormat || 'bbcode'
       }
     })
+    var versionString = wago.latestVersion.versionString
+    if (versionString !== '1.0.' + (wago.latestVersion.iteration - 1) && versionString !== '0.0.' + wago.latestVersion.iteration) {
+      versionString = versionString + '-' + wago.latestVersion.iteration
+    }
     if (scan.type === 'WEAKAURAS2' || wago.type === 'CLASSIC-WEAKAURA') {
-      var versionString = wago.latestVersion.versionString
-      if (versionString !== '1.0.' + (wago.latestVersion.iteration - 1) && versionString !== '0.0.' + wago.latestVersion.iteration) {
-        versionString = versionString + '-' + wago.latestVersion.iteration
-      }
       var json = JSON.parse(scan.decoded)
       req.scanWA = scan
 
@@ -737,6 +738,8 @@ module.exports = function (fastify, opts, next) {
         json = tbl
       }
       json.url = wago.url + '/' + wago.latestVersion.iteration
+      json.version = wago.latestVersion.iteration
+      json.semver = versionString
       code.encoded = await lua.JSON2Plater(json)
       code.json = JSON.stringify(json)
     }
@@ -808,6 +811,10 @@ module.exports = function (fastify, opts, next) {
         format: req.body.changelogFormat || 'bbcode'
       }
     })
+    var versionString = wago.latestVersion.versionString
+    if (versionString !== '1.0.' + (wago.latestVersion.iteration - 1) && versionString !== '0.0.' + wago.latestVersion.iteration) {
+      versionString = versionString + '-' + wago.latestVersion.iteration
+    }
     switch (wago.type) {
       case 'ELVUI':
         code.encoded = await lua.JSON2ElvUI(json)
@@ -826,6 +833,8 @@ module.exports = function (fastify, opts, next) {
           json = tbl
         }
         json.url = wago.url + '/' + wago.latestVersion.iteration
+        json.version = wago.latestVersion.iteration
+        json.semver = versionString
         code.json = JSON.stringify(json)
         code.encoded = await lua.JSON2Plater(json)
       break
@@ -844,10 +853,6 @@ module.exports = function (fastify, opts, next) {
 
       case 'WEAKAURAS2':
       case 'CLASSIC-WEAKAURA':
-        var versionString = wago.latestVersion.versionString
-        if (versionString !== '1.0.' + (wago.latestVersion.iteration - 1) && versionString !== '0.0.' + wago.latestVersion.iteration) {
-          versionString = versionString + '-' + wago.latestVersion.iteration
-        }
 
         json.d.url = wago.url + '/' + wago.latestVersion.iteration
         json.d.version = wago.latestVersion.iteration

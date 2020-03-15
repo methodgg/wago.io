@@ -436,7 +436,7 @@ module.exports = function (fastify, opts, next) {
       return
     }
     const getTranslations = async () => {
-      // wago.translations = await WagoTranslation.getTranslations(doc._id)
+      wago.translations = await WagoTranslation.getTranslations(doc._id)
       return
     }
     // run tasks in parallel
@@ -688,7 +688,7 @@ module.exports = function (fastify, opts, next) {
       var json = JSON.parse(code.json)
       var compare = {}
       // check for any missing data
-      if (code.version && (!code.encoded || ((json.url !== doc.url + '/' + code.version)))) {
+      if (code.version && (!code.encoded || (json.version !== code.version))) {
         if (Array.isArray(json)) {
           var tbl = {}
           json.forEach((v, k) => {
@@ -696,7 +696,9 @@ module.exports = function (fastify, opts, next) {
           })
           json = tbl
         }
-        json.url = doc.url + '/1'
+        json.url = doc.url + '/' + code.version
+        json.version = code.version
+        json.semver = code.versionString
         
         code.json = JSON.stringify(json)
         var encoded = await lua.JSON2Plater(json)
