@@ -310,7 +310,7 @@ async function battlenetAuth(req, res, region) {
         try {
           let accounts = await getWoWProfile('eu', response.data.access_token)
           accounts = accounts.data.wow_accounts
-          profiles.equals = []
+          profiles.eu = []
           accounts.forEach(acc => {
             profiles.eu = profiles.eu.concat(acc.characters)
           })
