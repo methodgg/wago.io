@@ -308,22 +308,34 @@ async function battlenetAuth(req, res, region) {
           profiles.us = []
         }
         try {
-          profiles.eu = await getWoWProfile('eu', response.data.access_token)
-          profiles.eu = profiles.eu.data.characters
+          let accounts = await getWoWProfile('eu', response.data.access_token)
+          accounts = accounts.data.wow_accounts
+          profiles.equals = []
+          accounts.forEach(acc => {
+            profiles.eu = profiles.eu.concat(acc.characters)
+          })
         }
         catch (e) {
           profiles.eu = []
         }
         try {
-          profiles.kr = await getWoWProfile('kr', response.data.access_token)
-          profiles.kr = profiles.kr.data.characters
+          let accounts = await getWoWProfile('kr', response.data.access_token)
+          accounts = accounts.data.wow_accounts
+          profiles.kr = []
+          accounts.forEach(acc => {
+            profiles.kr = profiles.kr.concat(acc.characters)
+          })
         }
         catch (e) {
           profiles.kr = []
         }
         try {
-          profiles.tw = await getWoWProfile('tw', response.data.access_token)
-          profiles.tw = profiles.tw.data.characters
+          let accounts = await getWoWProfile('tw', response.data.access_token)
+          accounts = accounts.data.wow_accounts
+          profiles.tw = []
+          accounts.forEach(acc => {
+            profiles.tw = profiles.tw.concat(acc.characters)
+          })
         }
         catch (e) {
           profiles.tw = []
@@ -333,8 +345,12 @@ async function battlenetAuth(req, res, region) {
       else if (region === 'CN') {
         var profiles = {us: [], eu: [], kr: [], tw: []}
         try {
-          profiles.cn = await getWoWProfile('cn', response.data.access_token)
-          profiles.cn = profiles.cn.data.characters
+          let accounts = await getWoWProfile('cn', response.data.access_token)
+          accounts = accounts.data.wow_accounts
+          profiles.cn = []
+          accounts.forEach(acc => {
+            profiles.cn = profiles.cn.concat(acc.characters)
+          })
         }
         catch (e) {
           profiles.cn = []
