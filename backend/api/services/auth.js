@@ -297,8 +297,12 @@ async function battlenetAuth(req, res, region) {
       if (region === 'global') {
         var profiles = {}
         try {
-          profiles.us = await getWoWProfile('us', response.data.access_token)
-          profiles.us = profiles.us.data.characters
+          let accounts = await getWoWProfile('us', response.data.access_token)
+          accounts = accounts.data.wow_accounts
+          profiles.us = []
+          accounts.forEach(acc => {
+            profiles.us = profiles.us.concat(acc.characters)
+          })
         }
         catch (e) {
           profiles.us = []
@@ -352,7 +356,7 @@ async function battlenetAuth(req, res, region) {
         if (!character.realm || !character.name || character.name.match(/\d/)) {
           return Promise.resolve()
         }
-        const char = await battlenet.lookupCharacter(region, character.realm, character.name)
+        const char = await battlenet.lookupCharacter(region, character.realm.name, character.name)
         if (!char.name) {
           return Promise.resolve()
         }
@@ -780,19 +784,19 @@ async function getWoWProfile(region, token) {
   var url
   switch (region) {
     case 'us':
-      url = 'https://us.api.blizzard.com/wow/user/characters'
+      url = 'https://us.api.blizzard.com/profile/user/wow?namespace=profile-us&locale=en_US'
       break
     case 'eu':
-      url = 'https://eu.api.blizzard.com/wow/user/characters'
+      url = 'https://eu.api.blizzard.com/profile/user/wow?namespace=profile-eu&locale=en_GB'
       break
     case 'tw':
-      url = 'https://tw.api.blizzard.com/wow/user/characters'
+      url = 'https://tw.api.blizzard.com/profile/user/wow?namespace=profile-tw&locale=zh_TW'
       break
     case 'kr':
-      url = 'https://kr.api.blizzard.com/wow/user/characters'
+      url = 'https://kr.api.blizzard.com/profile/user/wow?namespace=profile-kr&locale=ko_KR'
       break
     case 'cn':
-      url = 'https://gateway.battlenet.com.cn/wow/user/characters'
+      url = 'https://gateway.battlenet.com.cn/profile/user/wow?namespace=profile-cn&locale=zh_CN'
       break
     default:
       throw ('Unknown battlenet auth region ' + region)
@@ -800,7 +804,7 @@ async function getWoWProfile(region, token) {
   try {
     return axios.get(url, {
       headers: { Authorization: 'Bearer ' + token },
-      proxy: config.axios.proxy
+      // proxy: config.axios.proxy
     })
   }
   catch (e) {
