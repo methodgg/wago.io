@@ -68,7 +68,7 @@ const startServer = async () => {
   try {
     await fastify.listen(config.port, '0.0.0.0')
     console.log(`Fastify listening on ${fastify.server.address().port}`)
-    await mongoose.connect(config.db.uri, {useNewUrlParser: true, useCreateIndex: true, useFindAndModify: false})
+    await mongoose.connect(config.db.uri, {useNewUrlParser: true, useCreateIndex: true, useFindAndModify: false, useUnifiedTopology: true})
     const models = await fs.readdir('./api/models')
     models.forEach((model) => {
       if (model.indexOf('.js')<0) return

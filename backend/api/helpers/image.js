@@ -203,10 +203,10 @@ module.exports = {
     })
     const screenshotBuffer = Buffer.from(screenshotFile.data, 'binary')
     var metaImg = await sharp(new Buffer.from(svg)).png()
-    var image = await sharp(backgroundBuffer).overlayWith(await metaImg.toBuffer(), {top: 0, left: 0}).toBuffer()
+    var image = await sharp(backgroundBuffer).composite([{input: await metaImg.toBuffer(), top: 0, left: 0}]).toBuffer()
     const screenshot = await sharp(screenshotBuffer).resize({width: 363, height: 226, fit: 'inside', position: 'right', background:{r:0, g: 0, b: 0, alpha: 0}}).extend(4)
     const {width, height} = await screenshot.metadata()
-    image = await sharp(image).overlayWith(await screenshot.toBuffer(), {left: 199 + Math.max(0, Math.round((562 - width) / 2)), top: 48 + Math.max(0, Math.round((274 - height) / 2))}).jpeg().toBuffer()
+    image = await sharp(image).composite([{input: await screenshot.toBuffer(), left: 199 + Math.max(0, Math.round((562 - width) / 2)), top: 48 + Math.max(0, Math.round((274 - height) / 2))}]).jpeg().toBuffer()
     return image
   }
 }

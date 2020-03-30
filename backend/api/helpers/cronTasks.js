@@ -1,7 +1,7 @@
 const battlenet = require('./battlenet')
 const cloudflare = require('cloudflare')({email: config.cloudflare.email, key: config.cloudflare.apiKey})
 const cheerio = require('cheerio')
-const decompress = require('decompress')
+const decompress = require('@atomic-reactor/decompress')
 const image = require('./image')
 const lua = require('./lua')
 const md5 = require('md5')
