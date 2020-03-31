@@ -59,12 +59,12 @@ module.exports = function (fastify, opts, next) {
       title: 'Wago.io',
       description: 'Wago.io is a database of sharable World of Warcraft addon elements',
       url: req.query.url,
-      image: 'https://media.wago.io/site/twitter-card-bg.png'
+      image: 'https://media.wago.io/site/twitter-card-bg.jpg'
     }
-    if (req.query.url && req.query.url.match(/^wago.io\/([^\/]+)/)) {
-      const wagoID = req.query.url.match(/^wago.io\/([^\/]+)/)
+    if (req.query.url && req.query.url.match(/wago.io\/([^\/]+)/)) {
+      const wagoID = req.query.url.match(/wago.io\/([^\/]+)/)
       const doc = await WagoItem.lookup(wagoID[1])
-      if (doc && doc.private) {
+      if (doc && (doc.private || doc.restricted)) {
         res.code(404)
         res.send('No content here!')
         return
