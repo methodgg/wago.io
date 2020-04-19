@@ -42,17 +42,17 @@ module.exports = (fastify, opts, next) => {
 
     // if user is logged in
     if (req.user) {
+      if (req.user.battlenet && req.user.battlenet.updateStatus === 'pending-API') {
+        req.user.battlenet.updateStatus = 'timeout'
+        await req.user.save()
+      }
+
       var user = req.user
       var who = {}
       who.UID = user._id
       who.name = user.account.username || 'User-' + user._id.toString()
       who.avatar = user.avatarURL
       who.css = user.roleClass
-
-      if (user.battlenet && user.battlenet.updateStatus === 'pending-API') {
-        user.battlenet.updateStatus = 'timeout'
-        await user.save()
-      }
 
       if (user.battlenet && user.battlenet.guilds && user.battlenet.guilds.length) {
         user.battlenet.guilds.sort()
