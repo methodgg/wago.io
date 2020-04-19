@@ -23,12 +23,7 @@ module.exports = {
         method: 'get'
       })    
       const buffer = Buffer.from(arraybuffer.data, 'binary')
-    }
-    catch (e) {
-      return {error: 'bad_input'}
-    }
-
-    try {
+      
       const mime = await magic.detect(buffer)
       const match = mime.match(/^image\/(png|jpg|gif|jpeg|webp)/)
       // if valid mime type is detected then save file
@@ -61,7 +56,6 @@ module.exports = {
       return {webp: 'https://media.wago.io/avatars/' + userID + '/u-' + time + '.webp', png: 'https://media.wago.io/avatars/' + userID + '/u-' + time + '.png'}
     }
     catch (e) {
-      console.log(e)
       return {error: 'invalid_image'}
     }
   },
