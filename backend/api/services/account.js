@@ -49,6 +49,11 @@ module.exports = (fastify, opts, next) => {
       who.avatar = user.avatarURL
       who.css = user.roleClass
 
+      if (user.battlenet && user.battlenet.updateStatus === 'pending-API') {
+        user.battlenet.updateStatus = 'timeout'
+        await user.save()
+      }
+
       if (user.battlenet && user.battlenet.guilds && user.battlenet.guilds.length) {
         user.battlenet.guilds.sort()
       }

@@ -22,7 +22,7 @@ function getHost (region) {
 }
 
 function getSlug (str) {
-  return encodeURI((str || '').toLowerCase().replace(/\s/g, '-'))
+  return encodeURI((str || '').toLowerCase().replace(/'/g, '').replace(/\s/g, '-'))
 }
 
 // TODO: Keep token in memory with expiry
