@@ -14,13 +14,15 @@
               <form id="login-form" novalidate v-on:submit.prevent="doLogin">
                 <md-input-container>
                   <label>{{ $t("Username") }}</label>
-                  <md-input type="text" id="login-name"></md-input>
+                  <md-input type="text" id="login-name" v-model="loginName"></md-input>
                 </md-input-container>
                 
                 <md-input-container>
                   <label>{{ $t("Password") }}</label>
-                  <md-input type="password" id="login-password"></md-input>
+                  <md-input type="password" id="login-password" v-model="loginPass"></md-input>
                 </md-input-container>
+              
+                <hcaptcha v-if="loginName" @verify="onVerifyCaptcha" />
                 
                 <md-button class="md-raised md-primary" type="submit">{{ $t("Log in") }}</md-button>
               </form>
@@ -30,27 +32,26 @@
         <md-card>
           <h2>{{ $t("Create Account") }}</h2>
           <md-card-content>
-            <ui-warning>
-              Temporarily disabled.
-            </ui-warning>
             <p>{{ $t("Wago does not collect email addresses and therefore has no forgotten password function; we recommend using one of the social logins") }}</p>
             <form id="create-acct" novalidate v-on:submit.prevent="createAcct">
               <md-input-container>
                 <label>{{ $t("Username") }}</label>
-                <md-input type="text" id="create-name" disabled></md-input>
+                <md-input type="text" id="create-name" v-model="createName"></md-input>
               </md-input-container>
 
               <md-input-container>
                 <label>{{ $t("Password") }}</label>
-                <md-input type="password" id="create-password" disabled></md-input>
+                <md-input type="password" id="create-password" v-model="createPass"></md-input>
               </md-input-container>
 
               <md-input-container>
                 <label>{{ $t("Confirm Password") }}</label>
-                <md-input type="password" id="create-password2" disabled></md-input>
+                <md-input type="password" id="create-password2" v-model="createPass2"></md-input>
               </md-input-container>
+              
+              <hcaptcha v-if="createName" @verify="onVerifyCaptcha" />
 
-              <md-button class="md-raised md-primary" type="submit" disabled>{{ $t("Create account") }}</md-button>
+              <md-button class="md-raised md-primary" type="submit">{{ $t("Create account") }}</md-button>
             </form>
           </md-card-content>
         </md-card>
@@ -63,16 +64,20 @@
 </template>
 
 <script>
-import VueRecaptcha from 'vue-recaptcha'
 export default {
   components: {
     'wago-oauth': require('../UI/WagoOauth.vue'),
-    VueRecaptcha
+    'hcaptcha': require('../UI/Hcaptcha.vue')
   },
   data: () => {
     return {
-      recaptchaValid: false,
-      submitForm: false
+      captchaValid: false,
+      submitForm: false,
+      createName: '',
+      createPass: '',
+      createPass2: '',
+      loginName: '',
+      loginPass: ''
     }
   },
   methods: {
@@ -87,8 +92,9 @@ export default {
       }
       // attempt to login
       vue.http.post('/auth/login', {
-        username: username,
-        password: password,
+        username: this.loginName,
+        password: this.loginPass,
+        captcha: this.captchaValid,
         initPath: window.initPath
       }).then((res) => {
         if (res.locale && vue.$store.state.locale !== res.locale) {
@@ -101,14 +107,15 @@ export default {
       })
     },
     createAcct: function () {
-      if (!this.recaptchaValid) {
+      if (!this.captchaValid) {
+        console.log('NOT VALID CAPTCHA')
         return
       }
       this.submitForm = true
       var vue = this
-      var username = document.getElementById('create-name').value.trim()
-      var password = document.getElementById('create-password2').value.trim()
-      var password2 = document.getElementById('create-password2').value.trim()
+      var username = this.createName
+      var password = this.createPass
+      var password2 = this.createPass2
 
       if (!username) {
         return window.eventHub.$emit('showSnackBar', vue.$t('Passwords do not match'))
@@ -123,7 +130,7 @@ export default {
       vue.http.post('/auth/create', {
         username: username,
         password: password,
-        recaptcha: this.recaptchaValid
+        captcha: this.captchaValid
       }).then((res) => {
         this.submitForm = false
         if (res.error) {
@@ -132,11 +139,12 @@ export default {
         // success is handled by http interceptor
       })
     },
-    onVerifyCaptcha: function (re) {
-      this.recaptchaValid = re
+    onVerifyCaptcha: function (v) {
+      this.captchaValid = v
+      console.log('valid?', this.captchaValid)
     },
     onExpiredCaptcha: function () {
-      this.recaptchaValid = false
+      this.captchaValid = false
     }
   },
   mounted: function () {

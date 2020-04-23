@@ -41,6 +41,11 @@ export default {
         script.setAttribute('src', '//m2d.m2.ai/pghb.wago.js')
         let container = document.getElementById(this.ad)
         container.appendChild(script)
+
+        let script2 = document.createElement('script')
+        script2.setAttribute('src', 'https://cdn.insurads.com/bootstrap/W8EATQEF.js')
+        let container2 = document.getElementById(this.ad)
+        container2.appendChild(script2)
       })
     }
     else {

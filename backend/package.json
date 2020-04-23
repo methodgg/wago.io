@@ -19,6 +19,7 @@
     "fastify-file-upload": "^1.0.0",
     "fastify-rate-limit": "^1.0.0",
     "hash-file": "^3.0.0",
+    "hcaptcha": "0.0.1",
     "js-video-url-parser": "^0.2.8",
     "jsonwebtoken": "^8.5.1",
     "locale": "^0.1.0",

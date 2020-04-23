@@ -2,10 +2,9 @@
 const config = require('../../config')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
-// const OAuth = require('oauth')
-// const oauthSignature = require('oauth-signature')
 const querystring = require('querystring')
 const battlenet = require('../helpers/battlenet')
+const hcaptchaVerify = require('hcaptcha').verify
 
 const image = require('../helpers/image')
 
@@ -199,24 +198,32 @@ module.exports = function (fastify, opts, next) {
 
 // Login with username/password against wago database
 async function localAuth (req, res) {
-  // find user(s) with entered email
-  const user = await User.findByUsername(req.body.username)
-  if (!user || !user.account.password) {
-    return res.code(403).send({error: "invalid_login"})
+  try {
+    var valid = await hcaptchaVerify(config.hcaptcha.secret, req.body.captcha)
+    if (valid && valid.success) {
+      // find user(s) with entered name
+      const user = await User.findByUsername(req.body.username)
+      if (!user || !user.account.password) {
+        return res.code(403).send({error: "invalid_login"})
+      }
+      // check if password is a match
+      const auth = await bcrypt.compare(req.body.password, user.account.password)
+      // if password is a match return true
+      if (auth) {
+        var who = {}
+        who.UID = user._id.toString()
+        return makeSession(req, res, who, user)
+      }
+    }
   }
-  // check if password is a match
-  const auth = await bcrypt.compare(req.body.password, user.account.password)
-  // if password is a match return true
-  if (auth) {
-    var who = {}
-    who.UID = user._id.toString()
-    return makeSession(req, res, who, user)
+  catch (e) {
+    console.log(e)
   }
   return res.code(403).send({error: "invalid_login"})
 }
 
 // create local user
-/*async function createUser (req, res) {
+async function createUser (req, res) {
   if (!req.body.password || req.body.password.length < 6) {
     return res.send(403, {error: 'bad password'})
   }
@@ -225,34 +232,28 @@ async function localAuth (req, res) {
     return res.send(403, {error: "Error: Username already exists"})
   }
 
-  const google = await axios.post('https://www.google.com/recaptcha/api/siteverify', querystring.stringify({
-      secret: '6LfMCGkUAAAAACj35VLnGhJFq2cFqwSj3Hh-5UFq',
-      response: req.body.recaptcha,
-      remoteip: req.connection.remoteAddress
-    })).then(function (google) {
-      if (google.data.success) {
-        logger.info('Passed captcha')
-        var user = new User()
-        user.account.username = req.body.username
-        user.search.username = req.body.username.toLowerCase()
-        // check if password is a match
-        bcrypt.hash(req.body.password, 10).then((pass) => {
-          user.account.password = pass
-          user.save().then((user) => {
-            var who = {}
-            who.UID = user._id
+  try {
+    var valid = await hcaptchaVerify(config.hcaptcha.secret, req.body.captcha)
+    if (valid && valid.success) {
+      var user = new User()
+      user.account.username = req.body.username
+      user.search.username = req.body.username.toLowerCase()
+      // check if password is a match
+      var pass = await bcrypt.hash(req.body.password, 10)
+      user.account.password = pass
+      await user.save()
+      var who = {}
+      who.UID = user._id
 
-            return makeSession(req, res, who, user)
-          })
-        })
-      }
-      else {
-        logger.info('Failed captcha')
-        return res.send(403, {error: 'bad captcha'})
-      }
-    })
-  })
-}*/
+      return makeSession(req, res, who, user)
+    }
+  }
+  catch (e) {
+    console.log(e)
+  }
+  
+  return res.send(403, {error: 'bad captcha'})
+}
 
 // Login through Blizzard Battle.net
 async function battlenetAuth(req, res, region) {
@@ -417,11 +418,11 @@ async function battlenetAuth(req, res, region) {
         user[battlenetField].updateStatus = 'done'
         user[battlenetField].updateDate = new Date()
         user.account.verified_human = true
-        user.save()
+        await user.save()
       }
       else {
         user[battlenetField].updateStatus = 'Error: No characters found.'
-        user.save()
+        await user.save()
       }
     })
   }
