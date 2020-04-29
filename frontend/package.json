@@ -21,7 +21,7 @@
     "i": "^0.3.5",
     "i18next": "^8.4.2",
     "i18next-xhr-backend": "^1.4.2",
-    "jquery": "^3.4.1",
+    "jquery": "^3.5.0",
     "konva": "^2.6.0",
     "moment": "^2.24.0",
     "v-show-slide": "^1.6.0",
