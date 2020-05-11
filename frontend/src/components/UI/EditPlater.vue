@@ -184,13 +184,10 @@ export default {
   },
   methods: {
     editorInit: function (editor) {
-      if (!Array.isArray(this.tableData)) {
-        this.scriptType = 'Profile'
-      }
-      else if (typeof this.tableData[8] === 'number') {
+      if (typeof this.tableData['8'] === 'number') {
         this.scriptType = 'Script'
       }
-      else if (typeof this.tableData[8] === 'object') {
+      else if (typeof this.tableData['9'] === 'object') {
         this.scriptType = 'Mod'
       }
       this.aceEditor = editor
@@ -219,24 +216,24 @@ export default {
       }
       var func = []
       if (this.scriptType === 'Script') {
+        if (this.tableData['12']) {
+          func.push({name: this.$t('Constructor'), path: '["12"]'})
+        }
+        if (this.tableData['14']) {
+          func.push({name: this.$t('On Show'), path: '["14"]'})
+        }
         if (this.tableData['11']) {
-          func.push({name: this.$t('Constructor'), path: '["11"]'})
+          func.push({name: this.$t('On Update'), path: '["11"]'})
         }
         if (this.tableData['13']) {
-          func.push({name: this.$t('On Show'), path: '["13"]'})
-        }
-        if (this.tableData['10']) {
-          func.push({name: this.$t('On Update'), path: '["10"]'})
-        }
-        if (this.tableData['12']) {
-          func.push({name: this.$t('On Hide'), path: '["12"]'})
+          func.push({name: this.$t('On Hide'), path: '["13"]'})
         }
       }
       else if (this.scriptType === 'Mod') {
-        var hooks = Object.keys(this.tableData[8])
+        var hooks = Object.keys(this.tableData['9'])
         hooks.sort()
         hooks.forEach((hook) => {
-          func.push({name: hook, path: `["8"]['${hook}']`})
+          func.push({name: hook, path: `["9"]['${hook}']`})
         })
       }
 
