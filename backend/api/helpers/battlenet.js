@@ -1,6 +1,6 @@
 const config = require('../../config')
 const querystring = require('querystring')
-const mdtWeekReset = 641
+const mdtWeekReset = 648
 
 
 // where region is NA, EU, KR, TW or CN
