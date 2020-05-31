@@ -617,7 +617,7 @@ if (window.location.hostname === 't1000.wago.io') {
   bnetClientID = 'knqu8yfycxhjzuufny6vja3z3jyzap8s'
 }
 else {
-  bnetClientID = '814f698f09d446a8b5ba7b1b6123fb3f'
+  bnetClientID = '32e7423b92714e888c73e087be3a9ad3'
 }
 
 // setup third party oauth authentication
@@ -651,7 +651,7 @@ Vue.use(VueAuth, {
     redirect: function () {
       return this.options.getUrl() + '/auth/discord'
     },
-    clientId: '314531302059540490',
+    clientId: '716425995854544986',
     scope: 'identify'
   },
   googleData: {url: 'auth/google', method: 'POST', redirect: '/account'},
