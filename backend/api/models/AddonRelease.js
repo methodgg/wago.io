@@ -5,6 +5,7 @@ const Schema = new mongoose.Schema({
   phase: String,
   url: String,
   version: String,
+  classicVersion: String,
   gameVersion: Number,
   date: Date,
   active: {type: Boolean, default: true}

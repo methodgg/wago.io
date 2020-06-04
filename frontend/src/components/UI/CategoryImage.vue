@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="category-image">
     <img src="./../../assets/menu-warrior.png" v-if="group === 'cl-warrior'"/>
     <img src="./../../assets/menu-paladin.png" v-else-if="group === 'cl-paladin'"/>
     <img src="./../../assets/menu-hunter.png" v-else-if="group === 'cl-hunter'"/>

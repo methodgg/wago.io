@@ -1,13 +1,16 @@
 <template>
   <div id="search-mdt">
-    <form novalidate @submit.stop.prevent="runSearch(searchString)" id="searchForm">
-      <md-input-container>
-        <label>{{ $t("Search") }}</label>
-        <md-input v-model="searchString" ref="searchInput"></md-input>
-        <md-button @click="runSearch(searchString)" :disabled="searchString.length<3">{{ $t("Search") }}</md-button>
-      </md-input-container>
-    </form>
-    <md-subheader>Method Dungeon Tools</md-subheader>
+    <h2 id="addon-name">Method Dungeon Tools</h2>
+    <md-layout>
+      <addon-info addon="mdt"></addon-info>
+      <form novalidate @submit.stop.prevent="runSearch(searchString)" id="searchForm">
+        <md-input-container>
+          <label>{{ $t("Search") }}</label>
+          <md-input v-model="searchString" ref="searchInput"></md-input>
+          <md-button @click="runSearch(searchString)" :disabled="searchString.length<3">{{ $t("Search") }}</md-button>
+        </md-input-container>
+      </form>
+    </md-layout>
     <md-layout>
       <md-layout md-column>
         <md-whiteframe id="create-mdt">
@@ -126,7 +129,8 @@
 import categories from '../libs/categories'
 export default {
   components: {
-    'category-image': require('../UI/CategoryImage.vue')
+    'category-image': require('../UI/CategoryImage.vue'),
+    'addon-info': require('../UI/AddonInfoBox.vue')
   },
   methods: {
     runSearch: function () {
@@ -222,19 +226,39 @@ export default {
       return this.$store.state.MDTWeek
     }
   },
-  mounted: function () {
+  mounted: async function () {
     this.$refs.searchInput.$el.focus()
     this.$store.commit('setPageInfo', {
       title: 'MDT',
       description: this.$t('Browse MDT imports')
     })
+
+    if (!this.$store.state.addons[0]) {
+      var vue = this
+      await this.http.get('/lookup/index').then((res) => {
+        if (res.addons) {
+          vue.addonReleases = JSON.parse(JSON.stringify(res.addons))
+          vue.$store.commit('setAddons', vue.addonReleases)
+        }
+      })
+    }
+
+    if (this.$store.state.addons[0]) {
+      this.$store.state.addons.forEach((addon) => {
+        if (addon.addon === 'MDT' && addon.phase === 'Release') {
+          this.addonData = addon
+          this.addonData.version = this.addonData.version.replace(/^v/, '')
+        }
+      })
+    }
   }
 }
 </script>
 
 <style>
-#create-mdt, #import-wcl { padding: 16px; margin: 16px; width:calc(100% - 16px); margin-right: 16px; flex-grow: 1; flex-basis: 0;}
-#searchForm { padding: 16px }
+h2#addon-name {margin: 16px 0 0 16px;}
+#create-mdt, #import-wcl, #addon-meta .md-whiteframe { padding: 16px; margin: 16px; width:calc(100% - 16px); margin-right: 16px; flex-grow: 1; flex-basis: 0;}
+#searchForm { padding: 16px; flex: 1 }
 #searchForm button { margin-top: -3px }
 
 #search-mdt .md-list-item img { height: 48px; padding-right: 16px; vertical-align:top}

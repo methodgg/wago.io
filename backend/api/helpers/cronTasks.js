@@ -152,7 +152,12 @@ module.exports = {
             release.url = response.data.web_url
             release.version = response.data.version
             release.date = new Date(response.data.lastupdate)
-            const preExisting = await AddonRelease.findOneAndUpdate({addon: release.addon, phase: release.phase, version: release.version}, release, {upsert: true, new: false}).exec()
+
+            if (addon.name === 'ElvUI') {
+              var classicResponse = await axios.get('https://www.tukui.org/api.php?classic-addon=2')
+              release.classicVersion = classicResponse.data.version
+            }
+            const preExisting = await AddonRelease.findOneAndUpdate({addon: release.addon, phase: release.phase, version: release.version, classicVersion: release.classicVersion}, release, {upsert: true, new: false}).exec()
             if (!preExisting) {
               // if a new release then de-activate the previous version(s)
               AddonRelease.updateMany({addon: release.addon, phase: release.phase, version: {$ne: release.version}}, {$set: {active: false}}).exec()

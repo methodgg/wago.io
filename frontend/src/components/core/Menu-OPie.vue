@@ -1,12 +1,16 @@
 <template>
   <div id="search-opie">
-    <form novalidate @submit.stop.prevent="runSearch(searchString)" id="searchForm">
-      <md-input-container>
-        <label>{{ $t("Search") }}</label>
-        <md-input v-model="searchString" ref="searchInput"></md-input>
-        <md-button @click="runSearch(searchString)" :disabled="searchString.length<3">{{ $t("Search") }}</md-button>
-      </md-input-container>
-    </form>
+    <h2 id="addon-name">OPie</h2>
+    <md-layout>
+      <addon-info addon="opie"></addon-info>
+      <form novalidate @submit.stop.prevent="runSearch(searchString)" id="searchForm">
+        <md-input-container>
+          <label>{{ $t("Search") }}</label>
+          <md-input v-model="searchString" ref="searchInput"></md-input>
+          <md-button @click="runSearch(searchString)" :disabled="searchString.length<3">{{ $t("Search") }}</md-button>
+        </md-input-container>
+      </form>
+    </md-layout>
     <md-layout>
       <md-layout>
         <md-subheader>OPie</md-subheader>
@@ -59,7 +63,8 @@
 import categories from '../libs/categories'
 export default {
   components: {
-    'category-image': require('../UI/CategoryImage.vue')
+    'category-image': require('../UI/CategoryImage.vue'),
+    'addon-info': require('../UI/AddonInfoBox.vue')
   },
   methods: {
     runSearch: function () {
@@ -96,7 +101,8 @@ export default {
 </script>
 
 <style>
-#searchForm { padding: 16px }
+h2#addon-name {margin: 16px 0 0 16px;}
+#searchForm { padding: 16px; flex: 1 }
 #searchForm button { margin-top: -3px }
 
 #search-opie .md-list-item img { height: 48px; padding-right: 16px; vertical-align:top}

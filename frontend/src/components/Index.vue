@@ -152,6 +152,56 @@
           <md-button class="md-raised" :disabled="disableSubmit" @click="submitImport()" style="margin-top:2em">Submit</md-button>
         </md-whiteframe>
 
+        <md-whiteframe id="currentcontent">
+          <h3>{{ $t('Current Content') }}</h3>
+          <md-layout md-row>
+            <router-link to="/weakauras/pve/nyalotha">
+              <md-layout md-column>
+                <md-ink-ripple />
+                <div>
+                  <md-layout md-row>
+                    <category-image group="nyalotha"></category-image>
+                    <div>
+                      <strong>WeakAuras</strong><br>
+                      <span class="nyalotha">{{ $t("warcraft:zones.nyalotha") }}</span>
+                    </div>
+                  </md-layout>
+                </div>
+              </md-layout>
+            </router-link>
+            
+            <router-link :to="'/mdt/affixes/week' + mdtWeek.num">
+              <md-layout md-column>
+                <md-ink-ripple />
+                <div>
+                  <md-layout md-row>
+                    <category-image group="t-mdt"></category-image>
+                    <div>
+                      <strong>{{ $t('Season [-season-] MDT, Week [-week-]', {season: 4, week: mdtWeek.num}) }}</strong><br>
+                      <span class="affixWeek">{{ mdtWeek.affixes }}</span>
+                    </div>
+                  </md-layout>
+                </div>
+              </md-layout>
+            </router-link>
+            
+            <router-link to="/classic-weakauras/pve/blackwing-lair">
+              <md-layout md-column>
+                <md-ink-ripple />
+                <div>
+                  <md-layout md-row>
+                    <category-image group="blackwinglair"></category-image>
+                    <div>
+                      <strong>Classic WeakAuras</strong><br>
+                      <span class="blackwinglair">{{ $t("warcraft:zones.2677") }}</span>
+                    </div>
+                  </md-layout>
+                </div>
+              </md-layout>
+            </router-link>
+          </md-layout>
+        </md-whiteframe>
+
         <div v-if="latestBlogs && latestBlogs.length > 0" id="sitenews">
           <wago-news :posts="latestBlogs"></wago-news>
         </div>
@@ -296,19 +346,29 @@
 
 .has-category-select { position: relative}
 .has-category-select:after {
-    height: 1px;
-    position: absolute;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    background-color: #B6B6B6;
-    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-    content: " ";
+  height: 1px;
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background-color: #B6B6B6;
+  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  content: " ";
 }
 
 #sitenews { width: 100%}
 #sitenews .md-card {margin: 16px 0 0; width:100%}
 #sitenews .md-card .md-subhead { opacity: 1 }
+
+#currentcontent {margin: 16px 0 0; width:100%; padding: 16px;}
+#currentcontent h3 {margin-top: 0}
+#currentcontent div a:not(.md-button) {color: inherit}
+#currentcontent div a:hover {text-decoration: none;}
+#currentcontent > .md-row {justify-content: space-between;}
+#currentcontent > .md-row .md-column {flex: 0 1 auto;; padding: 8px; position: relative;}
+#currentcontent > .md-row .md-column:hover {background-color: hsla(0,0%,60%,.2);}
+#currentcontent .category-image {align-self: center;}
+#currentcontent img {width: 32px; height: 32px; margin-right: 8px}
 
 #categoryLabel { margin-top: 10px; display: inline-block}
 
@@ -379,7 +439,8 @@ export default {
     CategorySelect,
     'vue-markdown': VueMarkdown,
     'wago-news': WagoNews,
-    'md-autocomplete': require('./UI/md-autocomplete.vue')
+    'md-autocomplete': require('./UI/md-autocomplete.vue'),
+    'category-image': require('./UI/CategoryImage.vue')
   },
   computed: {
     user () {
@@ -390,6 +451,11 @@ export default {
         this.expire = 'never'
       }
       return this.$store.state.user
+    },
+    mdtWeek () {
+      var weeks = Categories.getCategories([/^mdtaffix-bfa-s4-/], this.$t, true)
+      console.log({num: this.$store.state.MDTWeek, affixes: weeks[this.$store.state.MDTWeek - 1].text})
+      return {num: this.$store.state.MDTWeek, affixes: weeks[this.$store.state.MDTWeek - 1].text}
     }
   },
   mounted: function () {
@@ -416,6 +482,7 @@ export default {
       }
       if (res.addons) {
         vue.addonReleases = JSON.parse(JSON.stringify(res.addons))
+        vue.$store.commit('setAddons', vue.addonReleases)
       }
     })
   },

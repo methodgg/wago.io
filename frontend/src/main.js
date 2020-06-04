@@ -52,6 +52,7 @@ const store = new Vuex.Store({
     loggedIn: false,
     wotm: {},
     wago: {},
+    addons: {},
     snackBarText: 'alert',
     loginRedirect: '/',
     theme: window.readCookie('theme') || 'dark',
@@ -195,6 +196,9 @@ const store = new Vuex.Store({
     },
     setWago (state, wago) {
       state.wago = wago
+    },
+    setAddons (state, addons) {
+      state.addons = addons
     },
     setWagoJSON (state, json) {
       state.wago.code.json = json
