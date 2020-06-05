@@ -166,7 +166,7 @@ export default {
       return categories.categories(this.$t)
     },
     classes: function () {
-      return categories.classCategories(this.$t, 'CLASSIC-WEAKAURA')
+      return categories.classCategories(this.$t, 'CLASSIC-WEAKAURA', 'classic')
     },
     raids: function () {
       return categories.raidCategories(['raidcrucible', 'raidzuldazar', 'bfadungeon'], this.$t)
@@ -196,7 +196,7 @@ export default {
       return categories.getCategories([/^equip[\d]+/, 'legen'], this.$t, null, 'CLASSIC-WEAKAURA')
     },
     professions: function () {
-      return categories.professionCategories(this.$t, 'CLASSIC-WEAKAURA')
+      return categories.professionCategories(this.$t, 'CLASSIC-WEAKAURA', 'classic')
     },
     development: function () {
       return categories.getCategories(['gen5', 'gen3', 'gen4'], this.$t)

@@ -209,7 +209,7 @@ export default {
       return categories.categories(this.$t)
     },
     classes: function () {
-      return categories.classCategories(this.$t)
+      return categories.classCategories(this.$t, 'WEAKAURA', 'bfa')
     },
     raids: function () {
       return categories.raidCategories(['raidnyalotha', 'raideternalpalace', 'raidcrucible', 'raidzuldazar', 'bfadungeon'], this.$t)
@@ -239,7 +239,7 @@ export default {
       return categories.getCategories([/^equip[\d]+/, 'legen'], this.$t, null)
     },
     professions: function () {
-      return categories.professionCategories(this.$t)
+      return categories.professionCategories(this.$t, 'WEAKAURA', 'bfa')
     },
     development: function () {
       return categories.getCategories(['gen5', 'gen3', 'gen4'], this.$t)

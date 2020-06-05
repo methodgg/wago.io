@@ -157,7 +157,7 @@ export default {
       return categories.categories(this.$t)
     },
     classes: function () {
-      return categories.classCategories(this.$t)
+      return categories.classCategories(this.$t, 'WEAKAURA', 'legion')
     },
     raids: function () {
       return categories.raidCategories(['raidantorus', 'raidtomb', 'raidnh', 'raidtov', 'raiden', 'dungeon'], this.$t)
@@ -172,7 +172,7 @@ export default {
       return categories.raidCategories(['arena', 'bg'], this.$t)
     },
     professions: function () {
-      return categories.professionCategories(this.$t)
+      return categories.professionCategories(this.$t, 'WEAKAURA', 'legion')
     },
     development: function () {
       return categories.getCategories(['gen5', 'gen3', 'gen4'], this.$t)

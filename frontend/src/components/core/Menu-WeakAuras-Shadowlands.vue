@@ -212,7 +212,7 @@ export default {
       return categories.categories(this.$t)
     },
     classes: function () {
-      return categories.classCategories(this.$t)
+      return categories.classCategories(this.$t, 'WEAKAURA', 'shadowlands')
     },
     raids: function () {
       return categories.raidCategories(['raidnathria', 'torghast', 'sldungeon'], this.$t)
@@ -233,7 +233,7 @@ export default {
       return categories.getCategories([/^equip[12]+/, 'legen'], this.$t, null)
     },
     professions: function () {
-      return categories.professionCategories(this.$t)
+      return categories.professionCategories(this.$t, 'WEAKAURA', 'shadowlands')
     },
     development: function () {
       return categories.getCategories(['gen5', 'gen3', 'gen4'], this.$t)

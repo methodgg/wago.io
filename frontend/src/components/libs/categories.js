@@ -318,24 +318,24 @@ module.exports = {
       {id: "wpvp1", slug: "pvp/duels", cls:"pvp-arena", text: t("Duels"), "CLASSIC-WEAKAURA": true, WEAKAURA: true, legion: true, bfa: true, shadowlands: true, classic: true},
 
       // {id: "prof0", slug: "professions", cls:"prof", text: t("Professions"), noselect: true, WEAKAURA: true, COLLECTION: true},
-      {id: "prof1", slug: "professions/gathering", cls:"prof-gathering", text: t("Gathering Professions"), root: true, WEAKAURA: true, COLLECTION: true, legion: true, bfa: true, shadowlands: true, classic: true},
-      {id: "prof2", slug: "professions/gathering/herbalism", cls:"prof-gathering", text: t("warcraft:professions.herbalism"), WEAKAURA: true, legion: true, bfa: true, shadowlands: true, classic: true},
-      {id: "prof3", slug: "professions/gathering/mining", cls:"prof-gathering", text: t("warcraft:professions.mining"), WEAKAURA: true, legion: true, bfa: true, shadowlands: true, classic: true},
-      {id: "prof4", slug: "professions/gathering/skinning", cls:"prof-gathering", text: t("warcraft:professions.skinning"), WEAKAURA: true, legion: true, bfa: true, shadowlands: true, classic: true},
-      {id: "prof5", slug: "professions/crafting", cls:"prof-crafting", text: t("Crafting Professions"), root: true, WEAKAURA: true, COLLECTION: true, OPIE: true, legion: true, bfa: true, shadowlands: true, classic: true},
-      {id: "prof6", slug: "professions/crafting/alchemy", cls:"prof-crafting", text: t("warcraft:professions.alchemy"), WEAKAURA: true, OPIE: true, legion: true, bfa: true, shadowlands: true, classic: true},
-      {id: "prof7", slug: "professions/crafting/blacksmithing", cls:"prof-crafting", text: t("warcraft:professions.blacksmith"), WEAKAURA: true, OPIE: true, legion: true, bfa: true, shadowlands: true, classic: true},
-      {id: "prof8", slug: "professions/crafting/enchanting", cls:"prof-crafting", text: t("warcraft:professions.enchanting"), WEAKAURA: true, OPIE: true, legion: true, bfa: true, shadowlands: true, classic: true},
-      {id: "prof9", slug: "professions/crafting/engineering", cls:"prof-crafting", text: t("warcraft:professions.engineering"), WEAKAURA: true, OPIE: true, legion: true, bfa: true, shadowlands: true, classic: true},
+      {id: "prof1", slug: "professions/gathering", cls:"prof-gathering", text: t("Gathering Professions"), root: true, WEAKAURA: true, "CLASSIC-WEAKAURA": true, COLLECTION: true, legion: true, bfa: true, shadowlands: true, classic: true},
+      {id: "prof2", slug: "professions/gathering/herbalism", cls:"prof-gathering", text: t("warcraft:professions.herbalism"), WEAKAURA: true, "CLASSIC-WEAKAURA": true, legion: true, bfa: true, shadowlands: true, classic: true},
+      {id: "prof3", slug: "professions/gathering/mining", cls:"prof-gathering", text: t("warcraft:professions.mining"), WEAKAURA: true, "CLASSIC-WEAKAURA": true, legion: true, bfa: true, shadowlands: true, classic: true},
+      {id: "prof4", slug: "professions/gathering/skinning", cls:"prof-gathering", text: t("warcraft:professions.skinning"), WEAKAURA: true, "CLASSIC-WEAKAURA": true, legion: true, bfa: true, shadowlands: true, classic: true},
+      {id: "prof5", slug: "professions/crafting", cls:"prof-crafting", text: t("Crafting Professions"), root: true, WEAKAURA: true, "CLASSIC-WEAKAURA": true, COLLECTION: true, OPIE: true, legion: true, bfa: true, shadowlands: true, classic: true},
+      {id: "prof6", slug: "professions/crafting/alchemy", cls:"prof-crafting", text: t("warcraft:professions.alchemy"), WEAKAURA: true, "CLASSIC-WEAKAURA": true, OPIE: true, legion: true, bfa: true, shadowlands: true, classic: true},
+      {id: "prof7", slug: "professions/crafting/blacksmithing", cls:"prof-crafting", text: t("warcraft:professions.blacksmith"), WEAKAURA: true, "CLASSIC-WEAKAURA": true, OPIE: true, legion: true, bfa: true, shadowlands: true, classic: true},
+      {id: "prof8", slug: "professions/crafting/enchanting", cls:"prof-crafting", text: t("warcraft:professions.enchanting"), WEAKAURA: true, "CLASSIC-WEAKAURA": true, OPIE: true, legion: true, bfa: true, shadowlands: true, classic: true},
+      {id: "prof9", slug: "professions/crafting/engineering", cls:"prof-crafting", text: t("warcraft:professions.engineering"), WEAKAURA: true, "CLASSIC-WEAKAURA": true, OPIE: true, legion: true, bfa: true, shadowlands: true, classic: true},
       {id: "prof10", slug: "professions/crafting/inscription", cls:"prof-crafting", text: t("warcraft:professions.inscription"), WEAKAURA: true, OPIE: true, legion: true, bfa: true, shadowlands: true},
       {id: "prof11", slug: "professions/crafting/jewelcrafting", cls:"prof-crafting", text: t("warcraft:professions.jewelcrafting"), WEAKAURA: true, OPIE: true, legion: true, bfa: true, shadowlands: true},
-      {id: "prof12", slug: "professions/crafting/leatherworking", cls:"prof-crafting", text: t("warcraft:professions.leatherworking"), WEAKAURA: true, OPIE: true, legion: true, bfa: true, shadowlands: true, classic: true},
-      {id: "prof13", slug: "professions/crafting/tailoring", cls:"prof-crafting", text: t("warcraft:professions.tailoring"), WEAKAURA: true, OPIE: true, legion: true, bfa: true, shadowlands: true, classic: true},
-      {id: "prof14", slug: "professions/secondary", cls:"prof-secondary", text: t("Secondary Professions"), root: true, WEAKAURA: true, COLLECTION: true, OPIE: true, legion: true, bfa: true, shadowlands: true, classic: true},
+      {id: "prof12", slug: "professions/crafting/leatherworking", cls:"prof-crafting", text: t("warcraft:professions.leatherworking"), WEAKAURA: true, "CLASSIC-WEAKAURA": true, OPIE: true, legion: true, bfa: true, shadowlands: true, classic: true},
+      {id: "prof13", slug: "professions/crafting/tailoring", cls:"prof-crafting", text: t("warcraft:professions.tailoring"), WEAKAURA: true, "CLASSIC-WEAKAURA": true, OPIE: true, legion: true, bfa: true, shadowlands: true, classic: true},
+      {id: "prof14", slug: "professions/secondary", cls:"prof-secondary", text: t("Secondary Professions"), root: true, WEAKAURA: true, "CLASSIC-WEAKAURA": true, COLLECTION: true, OPIE: true, legion: true, bfa: true, shadowlands: true, classic: true},
       {id: "prof15", slug: "professions/secondary/archeology", cls:"prof-secondary", text: t("warcraft:professions.archeology"), WEAKAURA: true, OPIE: true, legion: true, bfa: true, shadowlands: true},
-      {id: "prof16", slug: "professions/secondary/cooking", cls:"prof-secondary", text: t("warcraft:professions.cooking"), WEAKAURA: true, OPIE: true, legion: true, bfa: true, shadowlands: true, classic: true},
-      {id: "prof17", slug: "professions/secondary/first-aid", cls:"prof-secondary", text: t("warcraft:professions.firstaid"), WEAKAURA: true, OPIE: true, legion: true, classic: true},
-      {id: "prof18", slug: "professions/secondary/fishing", cls:"prof-secondary", text: t("warcraft:professions.fishing"), WEAKAURA: true, OPIE: true, legion: true, bfa: true, shadowlands: true, classic: true},
+      {id: "prof16", slug: "professions/secondary/cooking", cls:"prof-secondary", text: t("warcraft:professions.cooking"), WEAKAURA: true, "CLASSIC-WEAKAURA": true, OPIE: true, legion: true, bfa: true, shadowlands: true, classic: true},
+      {id: "prof17", slug: "professions/secondary/first-aid", cls:"prof-secondary", text: t("warcraft:professions.firstaid"), WEAKAURA: true, "CLASSIC-WEAKAURA": true, OPIE: true, legion: true, classic: true},
+      {id: "prof18", slug: "professions/secondary/fishing", cls:"prof-secondary", text: t("warcraft:professions.fishing"), WEAKAURA: true, "CLASSIC-WEAKAURA": true, OPIE: true, legion: true, bfa: true, shadowlands: true, classic: true},
 
       {id: "oldraids", slug: "pve/legacy", cls:"", text: t("Legacy Content"), "menucol": 5, noselect: true},
 
@@ -676,7 +676,6 @@ module.exports = {
     }
 
     var findStr = normalize(str)
-    console.log('norm', str, '=', findStr)
 
     var cats = this.categories(t) // search translated text
     var _cats = this.categories() // search i8n codes
@@ -695,11 +694,11 @@ module.exports = {
   },
 
   // make list of classes, then sort them alphabetically for the current locale, then get specs and return
-  classCategories: function (t, addon) {
+  classCategories: function (t, addon, game) {
     var cats = this.categories(t)
     var classes = []
     cats.forEach((cat, key) => {
-      if (cat.root && cat.id.match(/^cl\d/) && (!addon || cat[addon])) {
+      if (cat.root && cat.id.match(/^cl\d/) && (!addon || cat[addon]) && (!game || cat[game])) {
         classes.push(cat)
       }
     })
@@ -714,7 +713,7 @@ module.exports = {
     classes.forEach((cls, k) => {
       cls.specs = []
       cats.forEach((cat) => {
-        if (cat.id !== cls.id && (cat.id).indexOf(cls.id + '-') === 0 && (!addon || cat[addon])) {
+        if (cat.id !== cls.id && (cat.id).indexOf(cls.id + '-') === 0 && (!addon || cat[addon]) && (!game || cat[game])) {
           classes[k].specs = classes[k].specs || []
           classes[k].specs.push(cat)
         }
@@ -744,21 +743,14 @@ module.exports = {
     return raids
   },
 
-  professionCategories: function (t, addon) {
+  professionCategories: function (t, addon, game) {
     var gathering = this.getCategories(['prof1'], t)[0]
     var crafting = this.getCategories(['prof5'], t)[0]
     var secondary = this.getCategories(['prof14'], t)[0]
 
-    if (addon && addon.match(/CLASSIC/)) {
-      gathering.specs = this.getCategories(['prof2', 'prof3', 'prof4'], t)
-      crafting.specs = this.getCategories(['prof6', 'prof7', 'prof8', 'prof9', 'prof12', 'prof13'], t)
-      secondary.specs = this.getCategories(['prof16', 'prof17', 'prof18'], t)
-    }
-    else {
-      gathering.specs = this.getCategories(['prof2', 'prof3', 'prof4'], t)
-      crafting.specs = this.getCategories(['prof6', 'prof7', 'prof8', 'prof9', 'prof10', 'prof11', 'prof12', 'prof13'], t)
-      secondary.specs = this.getCategories(['prof15', 'prof16', 'prof17', 'prof18'], t)
-    }
+    gathering.specs = this.getCategories(['prof2', 'prof3', 'prof4'], t, null, addon, game)
+    crafting.specs = this.getCategories(['prof6', 'prof7', 'prof8', 'prof9', 'prof10', 'prof11', 'prof12', 'prof13'], t, null, addon, game)
+    secondary.specs = this.getCategories(['prof15', 'prof16', 'prof17', 'prof18'], t, null, addon, game)
 
     return [crafting, gathering, secondary]
   },
@@ -819,10 +811,8 @@ module.exports = {
   getChildren: function (parent, type, t, addon) {
     var children = []
     // build regex
-    console.log(type, addon)
     var re = new RegExp(parent.slug.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&") + '/[^/]+$')
     this.categories(t).forEach((cat) => {
-      console.log(cat, cat[type], cat[addon])
       if (re.exec(cat.slug) && parent.id !== cat.id && !cat.systemtag && (!type || cat[type]) && (!addon || cat[addon])) {
         children.push(cat)
       }
@@ -830,19 +820,19 @@ module.exports = {
     return children
   },
 
-  getCategory: function (id, t, addon) {
-    return this.getCategories([id], t, null, addon)
+  getCategory: function (id, t, addon, game) {
+    return this.getCategories([id], t, null, addon, game)
   },
 
-  getCategories: function (ids, t, doNotSortAlpha, addon) {
+  getCategories: function (ids, t, doNotSortAlpha, addon, game) {
     var cats = this.categories(t)
     var selected = []
     ids.forEach((c) => {
       cats.forEach((cat) => {
-        if (c instanceof RegExp && cat.id.match(c) && (!addon || cat[addon])) {
+        if (c instanceof RegExp && cat.id.match(c) && (!addon || cat[addon]) && (!game || cat[game])) {
           selected.push(cat)
         }
-        else if (c == cat.id && (!addon || cat[addon])) {
+        else if (c == cat.id && (!addon || cat[addon]) && (!game || cat[game])) {
           selected.push(cat)
         }
       })
