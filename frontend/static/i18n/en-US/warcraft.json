@@ -124,7 +124,17 @@
     "10225a": "Mechagon Junkyard",
     "10225b": "Mechagon Workshop",
     "10425": "The Eternal Palace",
-    "nyalotha": "Ny'alotha"
+    "nyalotha": "Ny'alotha",
+    "TheNecroticWake": "The Necrotic Wake",
+    "Plaguefall": "Plaguefall",
+    "MistsOfTirnaScithe": "Mists Of Tirna Scithe",
+    "HallsOfAttonement": "Halls Of Attonement",
+    "TheaterOfPain": "Theater Of Pain",
+    "DeOtherSide": "De Other Side",
+    "SpiresOfAscension": "Spires Of Ascension",
+    "SanguineDepths": "Sanguine Depths",
+    "CastleNathria": "Castle Nathria",
+    "Torghast": "Torghast, Tower of the Damned"
   },
 
   "bosses": {
@@ -304,7 +314,15 @@
     "nya9": "Ra-den the Despoiled",
     "nya10": "Il'gynoth Corruption Reborn",
     "nya11": "Carapace of N'Zoth",
-    "nya12": "N'Zoth the Corruptor"
+    "Shriekwing": "Shriekwing",
+    "HungeringDestroyer": "Hungering Destroyer",
+    "KaelthasSunstrider": "Kael'thas Sunstrider",
+    "ArtificerXyMox": "Artificer Xy'Mox",
+    "LadyInervaDarkvein": "Lady Inerva Darkvein",
+    "TheCouncilOfBlood": "The Council Of Blood",
+    "Sludgefist": "Sludgefist",
+    "StoneborneGenerals": "Stoneborne Generals",
+    "SireDenathrius": "Sire Denathrius"
   },
   "professions": {
     "alchemy": "Alchemy",

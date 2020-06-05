@@ -107,8 +107,17 @@ module.exports = function (fastify, opts, next) {
       scan.type = 'WEAKAURAS2'
 
       // check for classic import
-      if (decoded.obj.d.tocversion && (decoded.obj.d.tocversion+'').match(/^113/)) {
-        scan.type = 'CLASSIC-WEAKAURA'
+      if (decoded.obj.d.tocversion) {
+        if ((decoded.obj.d.tocversion+'').match(/^113/)) {
+          scan.type = 'CLASSIC-WEAKAURA'
+          scan.game = 'classic'
+        }
+        else if ((decoded.obj.d.tocversion+'').match(/^80/)) {
+          scan.game = 'bfa'
+        }
+        else if ((decoded.obj.d.tocversion+'').match(/^90/)) {
+          scan.game = 'shadowlands'
+        }
       }
       const scanDoc = await scan.save()
 
@@ -197,7 +206,7 @@ module.exports = function (fastify, opts, next) {
           }
         }
       }
-      return res.send({scan: scanDoc._id.toString(), type: scan.type, name: decoded.obj.d.id, categories: categories})
+      return res.send({scan: scanDoc._id.toString(), type: scan.type, name: decoded.obj.d.id, categories: categories, game: scan.game})
     }
 
     // if decoded data looks like a valid MDT
@@ -385,6 +394,19 @@ module.exports = function (fastify, opts, next) {
     }
     else if (wago.type === 'PLATER' && !Array.isArray(json) && json.info && json.info.desc) {
       wago.description = json.info.desc
+    }
+
+    // detect game
+    if (wago.type.match(/WEAKAURA/) && json.d.tocversion) {
+      if ((json.d.tocversion+'').match(/^113/)) {
+        wago.game = 'classic'
+      }
+      else if ((json.d.tocversion+'').match(/^90/)) {
+        wago.game = 'sl' // shadowlands
+      }
+      else {
+        wago.game = 'bfa' // battle for azeroth
+      }
     }
 
     // set expiry option

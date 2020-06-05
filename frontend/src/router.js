@@ -5,7 +5,9 @@ const Logout = resolve => require(['@/components/core/Logout.vue'], resolve)
 const Account = resolve => require(['@/components/core/Account.vue'], resolve)
 const Admin = resolve => require(['@/components/core/Admin.vue'], resolve)
 
-const MenuWeakAuras = resolve => require(['@/components/core/Menu-WeakAuras.vue'], resolve)
+const MenuWeakAurasShadowlands = resolve => require(['@/components/core/Menu-WeakAuras-Shadowlands.vue'], resolve)
+const MenuWeakAurasBFA = resolve => require(['@/components/core/Menu-WeakAuras-BFA.vue'], resolve)
+const MenuWeakAurasLegion = resolve => require(['@/components/core/Menu-WeakAuras-Legion.vue'], resolve)
 const MenuWeakAurasClassic = resolve => require(['@/components/core/Menu-ClassicWeakAuras.vue'], resolve)
 const MenuElvUI = resolve => require(['@/components/core/Menu-ElvUI.vue'], resolve)
 const MenuVuhdo = resolve => require(['@/components/core/Menu-Vuhdo.vue'], resolve)
@@ -94,6 +96,7 @@ export default {
   routes: [
     // index/import form with dev log
     { path: '/', component: Index },
+    { path: '/test.html', component: Index },
 
     // auth
     { path: '/login', component: Login },
@@ -102,7 +105,10 @@ export default {
     { path: '/admin', component: Admin },
 
     // menus/categories
-    { path: '/weakauras', component: MenuWeakAuras },
+    { path: '/weakauras', component: MenuWeakAurasBFA },
+    { path: '/weakauras-shadowlands', component: MenuWeakAurasShadowlands },
+    { path: '/weakauras-bfa', component: MenuWeakAurasBFA },
+    { path: '/weakauras-legion', component: MenuWeakAurasLegion },
     { path: '/weakauras/:c1', component: Search, props: (route) => ({ contextSearch: 'Type: WeakAura' + GetContextTag(route.params) }) },
     { path: '/weakauras/:c1/:c2', component: Search, props: (route) => ({ contextSearch: 'Type: WeakAura' + GetContextTag(route.params) }) },
     { path: '/weakauras/:c1/:c2/:c3', component: Search, props: (route) => ({ contextSearch: 'Type: WeakAura' + GetContextTag(route.params) }) },

@@ -339,7 +339,7 @@
                       </md-button>
                       <div v-for="n in numCategorySets">
                         <div class="has-category-select">
-                          <category-select :selectedCategories="editCategories[n-1]" @update="cat => {editCategories[n-1] = cat; onUpdateCategories()}" :type="wago.type.toUpperCase()"></category-select>
+                          <category-select :selectedCategories="editCategories[n-1]" @update="cat => {editCategories[n-1] = cat; onUpdateCategories()}" :type="wago.type.toUpperCase()" :game="wago.game"></category-select>
                         </div>
                       </div>
                     </div>

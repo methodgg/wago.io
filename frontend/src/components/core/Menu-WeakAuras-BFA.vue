@@ -1,6 +1,12 @@
 <template>
   <div id="search-weakaura">
-    <h2 id="addon-name">WeakAuras</h2>
+    <md-layout md-row>
+      <h2 id="addon-name">WeakAuras - <span>Battle for Azeroth</span><!-- -
+        <span @click="isBeta=false" :class="{faded: isBeta}">{{ $t('Battle for Azeroth') }}</span>
+        <md-switch v-model="isBeta" class="md-primary"></md-switch>
+        <span @click="isBeta=true" :class="{faded: !isBeta}">{{ $t('Shadowlands Beta') }}</span>-->
+      </h2>
+    </md-layout>
     <md-layout>
       <addon-info addon="weakaura"></addon-info>
       <form novalidate @submit.stop.prevent="runSearch(searchString)" id="searchForm">
@@ -150,15 +156,18 @@
           </md-list-item>
         </md-list>
 
-        <md-subheader>{{ $t("Legacy Content") }}</md-subheader>
+        <md-subheader>{{ $t("Other Expansions") }}</md-subheader>
         <md-list class="md-double-line md-dense">
-          <md-list-item v-for="raid in legacy" v-bind:key="raid.id" :class="raid.cls + ' md-inset'">
-            <category-image :group="raid.cls"></category-image>
+          <!--<md-list-item class="torghast md-inset'">
+            <category-image group="torghast"></category-image>
             <div class="md-list-text-container">
-              <router-link :to="'/weakauras/' + raid.slug">{{ raid.text }}</router-link>
-              <span>
-                <router-link v-for="boss in raid.bosses" v-bind:key="boss.id" :to="'/weakauras/' + boss.slug">{{ boss.text }}</router-link>
-              </span>
+              <router-link to="/weakauras-shadowlands/">{{ $t('Shadowlands') }}</router-link>
+            </div>
+          </md-list-item>-->
+          <md-list-item class="antorus md-inset'">
+            <category-image group="antorus"></category-image>
+            <div class="md-list-text-container">
+              <router-link to="/weakauras-legion/">{{ $t('Legion') }}</router-link>
             </div>
           </md-list-item>
         </md-list>
@@ -184,7 +193,15 @@ export default {
   },
   data: function () {
     return {
-      searchString: 'Type: WeakAura '
+      searchString: 'Type: WeakAura ',
+      isBeta: false
+    }
+  },
+  watch: {
+    isBeta: function (val) {
+      if (val) {
+        this.$router.push('/weakauras-shadowlands')
+      }
     }
   },
   computed: {
@@ -255,8 +272,15 @@ export default {
 
 <style>
 h2#addon-name {margin: 16px 0 0 16px;}
+h2 .faded {opacity: .3}
+h2 span {font-size:80%; cursor: pointer}
 #searchForm { padding: 16px; flex: 1 }
 #searchForm button { margin-top: -3px }
+
+#addon-name .md-theme-default.md-switch {margin: 0 8px}
+#addon-name .md-theme-default.md-switch.md-checked .md-switch-container {background-color: rgba(0, 0, 0, 0.38);}
+#addon-name .md-theme-default.md-switch.md-checked .md-switch-thumb {background-color: #fafafa;}
+
 
 #search-weakaura .md-list-item img { height: 48px; padding-right: 16px; vertical-align:top}
 #search-weakaura a { margin-right: 12px }

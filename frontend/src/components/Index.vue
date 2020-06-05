@@ -126,7 +126,7 @@
               <md-option value="CLASSIC-WEAKAURA">CLASSIC-WEAKAURA</md-option>
             </md-select>
           </md-layout>
-          <strong v-else>{{ type === 'WEAKAURAS2' ? 'WEAKAURA' : type }}</strong><br>
+          <strong v-else>{{ importType === 'WEAKAURAS2' ? 'WEAKAURA' : importType }}</strong><br>
 
           <md-layout v-if="scanID">
             <md-layout>
@@ -137,14 +137,14 @@
             </md-layout>
           </md-layout>
 
-          <div v-if="scanID && type !== 'Lua Error'">
+          <div v-if="scanID && importType !== 'Lua Error'">
             <label id="categoryLabel">{{ $t("Categories") }}</label>
             <md-button class="md-icon-button md-raised" @click="numCategorySets++">
               <md-icon>add</md-icon>
             </md-button>
             <div v-for="n in numCategorySets">
               <div v-if="scanID" class="has-category-select">
-                <category-select :selectedCategories="setCategories[n-1]" @update="cat => {setCategories[n-1] = cat; onUpdateCategories()}" :type="type.toUpperCase()"></category-select>
+                <category-select :selectedCategories="setCategories[n-1]" @update="cat => {setCategories[n-1] = cat; onUpdateCategories()}" :type="(importType === 'WEAKAURAS2' ? 'WEAKAURA' : importType).toUpperCase()" :game="importGame"></category-select>
               </div>
             </div>
           </div>
@@ -320,7 +320,7 @@
 
 <style src="vue-multiselect/dist/vue-multiselect.min.css"></style>
 <style>
-#importform, #addonReleases { padding: 16px; width:100% }
+#importform, #addonReleases { z-index:5; padding: 16px; width:100% }
 #importform textarea { max-height: 110px; min-height:110px }
 #importform .field-group .md-input-container { display: inline-block; max-width: 32%; position: relative}
 .field-group2 .md-input-container, .field-group2 strong { display: inline-block; max-width: 49%;}
@@ -418,7 +418,8 @@ export default {
       weakauramode: '',
       setCategories: [],
       categories: [],
-      type: '',
+      importType: '',
+      importGame: '',
       isScanning: false,
       scanID: '',
       disableSubmit: true,
@@ -586,7 +587,8 @@ export default {
       vue.importError = false
       vue.importErrorMsg = ''
       vue.scanID = ''
-      vue.type = ''
+      vue.importType = ''
+      vue.importGame = ''
       vue.disableSubmit = true
 
       // ignore short strings (probably unintentional keypress)
@@ -618,7 +620,8 @@ export default {
           // if no errors setup the default fields
           vue.importError = false
           vue.name = res.name
-          vue.type = res.type
+          vue.importType = res.type
+          vue.importGame = res.game
           if (res.type.match(/WEAKAURA/)) {
             this.weakauramode = res.type
           }

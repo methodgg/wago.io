@@ -175,6 +175,14 @@
 .nyalotha a, .nyalotha { color: #5EE1A6!important}
 .multiselect .md-chip.nyalotha { background-color: #5EE1A6!important; color: black!important }
 
+.md-chip.nathria { color: #9693BD!important; background-image: url('menu-nathria.png') }
+.nathria a, .nathria { color: #9693BD!important}
+.multiselect .md-chip.nathria { background-color: #9693BD!important; color: black!important }
+
+.md-chip.torghast { color: #D80143!important; background-image: url('menu-torghast.png') }
+.torghast a, .torghast { color: #D80143!important}
+.multiselect .md-chip.torghast { background-color: #D80143!important; color: black!important }
+
 .md-chip.hellfirecitadel { color: #689E12!important; background-image: url('menu-hellfirecitadel.png') }
 .hellfirecitadel a, .hellfirecitadel { color: #689E12!important}
 .multiselect .md-chip.hellfirecitadel { background-color: #689E12!important; color: black!important }

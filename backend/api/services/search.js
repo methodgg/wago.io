@@ -137,7 +137,7 @@ module.exports = function (fastify, opts, next) {
 
     // check for expansion filter
     var expansionFilterIndex = null
-    match = /expansion:\s*"?(all|legion|bfa)"?/i.exec(query)
+    match = /expansion:\s*"?(all|legion|bfa|sl)"?/i.exec(query)
     if (match) {
       query = query.replace(match[0], '').replace(/\s{2,}/, ' ').trim()
       expansion = match[1]
@@ -154,6 +154,12 @@ module.exports = function (fastify, opts, next) {
     else if (expansion === 'bfa') {
       // greater than bfa release date OR has bfa beta tag
       esFilter.push({ bool: { should: [{bool: {must: [{match: {game: 'bfa'}}, {range: { modified: { gte: "2018-07-17" } } }]}}, {regexp: {"type.keyword": {value: 'CLASSIC-.+'}}}]}})
+      expansionFilterIndex = esFilter.length - 1
+    }
+
+    // if shadowlands
+    else if (expansion === 'sl') {
+      esFilter.push({ term: { game: 'sl' } })
       expansionFilterIndex = esFilter.length - 1
     }
 
