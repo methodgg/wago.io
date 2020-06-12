@@ -4,6 +4,7 @@ const s3 = require('../helpers/s3Client')
 const Magic = require('promise-mmmagic')
 const magic = new Magic(Magic.MAGIC_MIME_TYPE)
 const videoParser = require('js-video-url-parser')
+const crypto = require("crypto-js")
 const tmpDir = __dirname + '/../../run-tmp/'
 
 module.exports = function (fastify, opts, next) {
@@ -215,6 +216,62 @@ module.exports = function (fastify, opts, next) {
     await wago.save()
     redis.clear(wago)
     res.send({success: true, hidden: wago.hidden, private: wago.private, restricted: wago.restricted})
+  })
+  
+  // update wago name
+  fastify.post('/update/encryption', async (req, res) => {
+    if (!req.user || !req.body.wagoID) {
+      return res.code(403).send({error: "forbidden"})
+    }
+    var wago = await WagoItem.findById(req.body.wagoID).exec()
+    if (!wago || !wago._userId.equals(req.user._id)) {
+      return res.code(403).send({error: "forbidden"})
+    }
+
+    if ((req.body.decrypt || !wago.encrypted) && (req.body.visibility || req.body.cipherKey)) {
+      var code = await WagoCode.find({auraID: wago._id}).exec()
+      for (let i = 0; i < code.length; i++) {
+        if (wago.encrypted) {
+          try {
+            code[i].encoded = crypto.AES.decrypt(code[i].encoded, req.body.decrypt).toString(crypto.enc.Utf8)
+            code[i].json = crypto.AES.decrypt(code[i].json, req.body.decrypt).toString(crypto.enc.Utf8)
+            code[i].text = crypto.AES.decrypt(code[i].text, req.body.decrypt).toString(crypto.enc.Utf8)
+            code[i].lua = crypto.AES.decrypt(code[i].lua, req.body.decrypt).toString(crypto.enc.Utf8)
+          }
+          catch (e) {
+            console.log(e)
+            return res.send({error: 'Could not decrypt'})
+          }
+        }
+
+        if (req.body.cipherKey && !req.body.visibility) {
+          code[i].encoded = crypto.AES.encrypt(code[i].encoded, req.body.cipherKey)
+          code[i].json = crypto.AES.encrypt(code[i].json, req.body.cipherKey)
+          code[i].text = crypto.AES.encrypt(code[i].text, req.body.cipherKey)
+          code[i].lua = crypto.AES.encrypt(code[i].lua, req.body.cipherKey)
+          wago.encrypted = true
+          wago.hidden = false
+          wago.private = false
+          wago.restricted = false
+        }
+        await code[i].save()
+      }
+
+      if (req.body.visibility && !req.body.cipherKey) {
+        wago.encrypted = false
+        if (req.body.visibility === 'Hidden') {
+          wago.hidden = true
+        }
+        else if (req.body.visibility === 'Private') {
+          wago.private = true
+        }        
+      }
+    }
+    wago.encryptedCount++
+    await wago.save()
+
+    redis.clear(wago)
+    res.send({success: true})
   })
 
    // update wago restriction access

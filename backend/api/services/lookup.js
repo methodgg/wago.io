@@ -61,15 +61,15 @@ module.exports = function (fastify, opts, next) {
           doc.myfave = true
         }
         
-        doc.collectionCount = await WagoItem.countDocuments({type: 'COLLECTION', collect: doc._id, deleted: false, "$or": [{ '_userId': req.user._id || null }, { private: false, hidden: false, restricted: false }]})
+        doc.collectionCount = await WagoItem.countDocuments({type: 'COLLECTION', collect: doc._id, deleted: false, "$or": [{ '_userId': req.user._id || null }, { private: false, hidden: false, encrypted: false, restricted: false }]})
         if (doc.collectionCount) {
-          collectSearch = WagoItem.find({type: 'COLLECTION', collect: doc._id, deleted: false, "$or": [{ '_userId': req.user._id || null }, { private: false, hidden: false, restricted: false }]})
+          collectSearch = WagoItem.find({type: 'COLLECTION', collect: doc._id, deleted: false, "$or": [{ '_userId': req.user._id || null }, { private: false, hidden: false, encrypted: false, restricted: false }]})
         }
       }
       else {
-        doc.collectionCount = await WagoItem.countDocuments({type: 'COLLECTION', collect: doc._id, deleted: false, private: false, hidden: false, restricted: false})
+        doc.collectionCount = await WagoItem.countDocuments({type: 'COLLECTION', collect: doc._id, deleted: false, private: false, hidden: false, encrypted: false, restricted: false})
         if (doc.collectionCount) {
-          collectSearch = WagoItem.find({type: 'COLLECTION',collect: doc._id, deleted: false, private: false, hidden: false, restricted: false})
+          collectSearch = WagoItem.find({type: 'COLLECTION',collect: doc._id, deleted: false, private: false, hidden: false, encrypted: false, restricted: false})
         }
       }
 
@@ -191,7 +191,8 @@ module.exports = function (fastify, opts, next) {
     wago.name = doc.name
     wago.slug = doc.slug
     wago.url = doc.url
-    wago.visibility = { private: doc.private, hidden: doc.hidden, restricted: doc.restricted, deleted: doc.deleted }
+    wago.visibility = { private: doc.private, hidden: doc.hidden, encrypted: doc.encrypted, restricted: doc.restricted, deleted: doc.deleted, 
+      public: (!doc.private && !doc.hidden && !doc.encrypted && !doc.restricted && !doc.deleted)  }
     wago.restrictions = []
     wago.restrictedUsers = doc.restrictedUsers || []
     wago.restrictedGuilds = doc.restrictedGuilds || []
@@ -358,7 +359,7 @@ module.exports = function (fastify, opts, next) {
         return
       }
       // if we need to add regionType or textures to the doc, do so now
-      if (doc.type === 'WEAKAURAS2' && (!doc.regionType || !doc.mediaReview)) {
+      if (doc.type === 'WEAKAURAS2' && !doc.encrypted && (!doc.regionType || !doc.mediaReview)) {
         const json = JSON.parse(versions[0].json)
         if (!doc.regionType) {
           doc.regionType = json.d.regionType
@@ -391,6 +392,10 @@ module.exports = function (fastify, opts, next) {
       }
       else {
         wago.codeURL = `/lookup/wago/code?id=${doc._id}`
+      }
+
+      if (doc.encryptedCount) { // break cache if necessary
+        wago.codeURL = `${wago.codeURL}&c=${doc.encryptedCount}`
       }
       return
     }
@@ -574,6 +579,10 @@ module.exports = function (fastify, opts, next) {
       return res.code(403).send({error: "code not available"})
     }
 
+    if (doc.encrypted) {
+      return res.cache(604800).send(code)
+    }
+
     var latestCode
     if (req.query.version) {
       latestCode = await WagoCode.lookup(doc._id)
@@ -596,7 +605,7 @@ module.exports = function (fastify, opts, next) {
     }
 
     if (!req.query.version) {
-      return res.code(302).redirect(`/lookup/wago/code?id=${req.query.id}&version=${latestCode.versionString}`)
+      return res.code(302).redirect(`/lookup/wago/code?id=${req.query.id}&version=${latestCode.versionString}&c=${req.query.c}`)
     }
 
     var versionString = code.versionString

@@ -86,7 +86,6 @@ export default {
 
     if (this.$store.state.addons[0]) {
       this.$store.state.addons.forEach((addon) => {
-        console.log(addon)
         if (addon.addon.toLowerCase().indexOf(this.addon.toLowerCase()) >= 0 && addon.phase === 'Release') {
           this.addonData = addon
           this.addonData.version = this.addonData.version.replace(/^v/, '')

@@ -311,6 +311,10 @@ Vue.use(Vddl)
 import VShowSlide from 'v-show-slide'
 Vue.use(VShowSlide)
 
+// crypto
+import VueCryptojs from 'vue-cryptojs'
+Vue.use(VueCryptojs)
+
 // setup vue material
 import VueMaterial from 'vue-material'
 import 'vue-material/dist/vue-material.css'
@@ -331,6 +335,9 @@ Vue.material.registerTheme('dark', {
   }
 })
 
+Vue.use({install: function (v) {
+  v.prototype.$env = process.env.NODE_ENV
+}})
 var dataServers
 if (process.env.NODE_ENV === 'development') {
   dataServers = ['http://io:3030']

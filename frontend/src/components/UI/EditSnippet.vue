@@ -50,6 +50,7 @@ const semver = require('semver')
 
 export default {
   name: 'edit-common',
+  props: ['cipherKey'],
   data: function () {
     return {
       luaCode: this.$store.state.wago.code.lua,
@@ -103,6 +104,7 @@ export default {
       post.newVersion = this.newImportVersion.semver
       post.changelog = this.newChangelog.text
       post.changelogFormat = this.newChangelog.format
+      post.cipherKey = this.cipherKey
       var vue = this
       this.http.post('/import/lua/save', post).then((res) => {
         if (res.success) {

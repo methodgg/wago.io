@@ -27,7 +27,7 @@ export default {
       needsScan: true
     }
   },
-  props: ['json', 'type', 'showExport', 'wagoID'],
+  props: ['json', 'type', 'showExport', 'wagoID', 'cipherKey'],
   methods: {
     onOpen: function () {
       if (!this.needsScan) {

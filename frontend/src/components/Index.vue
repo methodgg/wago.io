@@ -18,6 +18,7 @@
               <md-select name="visibilty" id="visibilty" v-model="visibility">
                 <md-option value="Public" selected>{{ $t("Public") }}</md-option>
                 <md-option value="Hidden">{{ $t("Hidden (only viewable with link)") }}</md-option>
+                <md-option value="Encrypted">{{ $t("Encrypted (only viewable with password)") }}</md-option>
                 <md-option v-if="user.name" value="Restricted">{{ $t("Restricted (viewable for select users)") }}</md-option>
                 <md-option v-if="user.name" value="Private">{{ $t("Private (only you may view)") }}</md-option>
               </md-select>
@@ -42,6 +43,18 @@
                 <md-option value="3hr">{{ $t("3 hours") }}</md-option>
                 <md-option value="15m">{{ $t("15 minutes") }}</md-option>
               </md-select>
+            </md-input-container>
+          </div>
+
+          <div v-if="visibility === 'Encrypted'" style="margin: 0 0 8em 1em">
+            <md-input-container md-has-password>
+              <label>{{ $t('Password / Cipher Key') }}</label>
+              <md-input v-model="cipherKey" type="password" data-lpignore="true"></md-input>
+              <span class="md-note">
+                {{ $t('Your import will be encrypted before storing on the server. No one, including yourself, will be able to access it without the key.') }}<br>
+                {{ $t('Do not lose your key! There is NO WAY to recover encrypted data without it!') }}<br>
+                {{ $t('Note that some features performed by the server will not be available for encrypted imports.') }}
+              </span>
             </md-input-container>
           </div>
 
@@ -149,7 +162,7 @@
             </div>
           </div>
 
-          <md-button class="md-raised" :disabled="disableSubmit" @click="submitImport()" style="margin-top:2em">Submit</md-button>
+          <md-button class="md-raised" :disabled="disableSubmit || (visibility === 'Encrypted' && !cipherKey.length)" @click="submitImport()" style="margin-top:2em">Submit</md-button>
         </md-whiteframe>
 
         <md-whiteframe id="currentcontent">
@@ -390,6 +403,8 @@
 .top-list-menu .md-list-item .md-list-item-container {font-size: 14px; min-height: 24px}
 .top-list-note {font-size:11px; margin: -12px 0 0}
 
+
+span.md-note {height: 20px; position: absolute; bottom: -22px; font-size: 12px;}
 </style>
 
 <script>
@@ -433,7 +448,8 @@ export default {
       game: 'bfa',
       restrictions: [{type: 'user', value: ''}],
       newRestrictionType: 'user',
-      newRestrictionValue: ''
+      newRestrictionValue: '',
+      cipherKey: ''
     }
   },
   components: {
@@ -455,7 +471,7 @@ export default {
     },
     mdtWeek () {
       var weeks = Categories.getCategories([/^mdtaffix-bfa-s4-/], this.$t, true)
-      console.log({num: this.$store.state.MDTWeek, affixes: weeks[this.$store.state.MDTWeek - 1].text})
+      if (!this.$store.state.MDTWeek || !weeks[this.$store.state.MDTWeek - 1]) return {}
       return {num: this.$store.state.MDTWeek, affixes: weeks[this.$store.state.MDTWeek - 1].text}
     }
   },
@@ -499,7 +515,10 @@ export default {
         categories: JSON.stringify(flatten(this.setCategories)),
         game: this.game
       }
-      if (this.visibility === 'Restricted') {
+      if (this.visibility === 'Encrypted') {
+        post.cipherKey = this.cipherKey
+      }
+      else if (this.visibility === 'Restricted') {
         post.restrictions = JSON.stringify(flatten(this.restrictions))
       }
       var vue = this

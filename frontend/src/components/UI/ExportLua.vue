@@ -25,7 +25,7 @@ export default {
       needsScan: true
     }
   },
-  props: ['lua', 'type', 'showExport', 'wagoID'],
+  props: ['lua', 'type', 'showExport', 'wagoID', 'cipherKey'],
   methods: {
     onClose: function () {
       this.$emit('hideExport')

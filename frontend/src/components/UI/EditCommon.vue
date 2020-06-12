@@ -41,6 +41,7 @@ const semver = require('semver')
 
 export default {
   name: 'edit-common',
+  props: ['cipherKey'],
   data: function () {
     return {
       tableString: this.$store.state.wago.code.json,
@@ -82,6 +83,7 @@ export default {
       post.newVersion = this.newImportVersion.semver
       post.changelog = this.newChangelog.text
       post.changelogFormat = this.newChangelog.format
+      post.cipherKey = this.cipherKey
       var vue = this
       this.http.post('/import/json/save', post).then((res) => {
         if (res.success) {

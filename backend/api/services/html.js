@@ -10,7 +10,7 @@ module.exports = function (fastify, opts, next) {
       return res.code(404).send("document.write('Error. Wago not found.')")
     }
 
-    if (wago.hidden || wago.private || wago.restricted) {
+    if (wago.hidden || wago.private || wago.restricted || wago.encrypted) {
       return res.code(403).send("document.write('Error. Not allowed to embed this Wago.')") 
     }
 
@@ -64,7 +64,7 @@ module.exports = function (fastify, opts, next) {
     if (req.query.url && req.query.url.match(/wago.io\/([^\/]+)/)) {
       const wagoID = req.query.url.match(/wago.io\/([^\/]+)/)
       const doc = await WagoItem.lookup(wagoID[1])
-      if (doc && (doc.private || doc.restricted)) {
+      if (doc && (doc.private || doc.restricted || doc.encrypted)) {
         res.code(404)
         res.send('No content here!')
         return

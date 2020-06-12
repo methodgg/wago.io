@@ -62,7 +62,7 @@ const semver = require('semver')
 
 export default {
   name: 'edit-plater',
-  props: ['unsavedTable'],
+  props: ['unsavedTable', 'cipherKey'],
   data: function () {
     return {
       editorSelected: 'tabledata',
@@ -250,6 +250,7 @@ export default {
         post.newVersion = this.newImportVersion.semver
         post.changelog = this.newChangelog.text
         post.changelogFormat = this.newChangelog.format
+        post.cipherKey = this.cipherKey
         var vue = this
         this.http.post('/import/json/save', post).then((res) => {
           if (res.success) {

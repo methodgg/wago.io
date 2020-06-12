@@ -56,7 +56,7 @@ module.exports = function (fastify, opts, next) {
     var wagos = []
     var docs = await WagoItem.find({'$and': [{'$or' : [{_id: lookup}, {custom_slug: lookup}]}, findType], deleted: false}).populate({path: '_userId', select: {restrictedGuilds: 1, restrictedTwitchUsers: 1, restrictedUsers: 1, account: 1}})
     await Promise.all(docs.concat(cached).map(async (doc) => {
-      if (doc.private && (!req.user || !req.user._id.equals(doc._userId._id))) {
+      if ((doc.private && (!req.user || !req.user._id.equals(doc._userId._id))) || doc.encrypted) {
         return
       }
 
@@ -162,6 +162,9 @@ module.exports = function (fastify, opts, next) {
     }
     else if (wago.private && (!req.user || !req.user._id.equals(wago._userId))) {
       return res.code(401).send({error: "import_is_private"})
+    }
+    else if (wago.encrypted) {
+      return res.code(401).send({error: "import_is_encrypted"})
     }
     else if (wago.restricted) {
       if (!req.user) {

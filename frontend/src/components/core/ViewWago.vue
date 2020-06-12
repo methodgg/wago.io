@@ -32,11 +32,11 @@
                 <md-icon v-else>star_border</md-icon> {{ $t("Favorite") }}
               </md-button>
               <md-button v-if="wago.user && User && wago.UID && wago.UID === User.UID && wago.code && wago.code.encoded" @click="generateNextVersionData(); $refs['newImportDialog'].open()" id="newImportButton"><md-icon>input</md-icon> {{ $t("Import new string") }}</md-button>
-              <md-button v-if="hasUnsavedChanges && wago.code && wago.code.encoded && !wago.code.alerts.blacklist" @click="copyEncoded" class="copy-import-button">
+              <md-button v-if="hasUnsavedChanges && wago.code && wago.code.encoded && (!wago.code.alerts || !wago.code.alerts.blacklist)" @click="copyEncoded" class="copy-import-button">
                 <md-icon>assignment</md-icon> {{ $t("Copy [-type-] import string", {type: wago.type}) }}
                 <md-tooltip md-direction="bottom" class="CopyWarningTooltip"><strong>{{ $t("You have unsaved changes") }}</strong><br>{{ $t("Be sure to save or fork to generate a new string with your modifications") }}</md-tooltip>
               </md-button>
-              <md-button v-else-if="wago.code && wago.code.encoded && !wago.code.alerts.blacklist" @click="copyEncoded" class="copy-import-button">
+              <md-button v-else-if="wago.code && wago.code.encoded && (!wago.code.alerts || !wago.code.alerts.blacklist)" @click="copyEncoded" class="copy-import-button">
                 <md-icon>assignment</md-icon> {{ $t("Copy [-type-] import string", {type: wago.type}) }}
               </md-button>
               <md-button v-if="wago.image && wago.image.files.tga" :href="wago.image.files.tga" class="copy-import-button"><md-icon>file_download</md-icon> {{ $t("Download tga file") }}</md-button>
@@ -91,7 +91,7 @@
             <div class="item" v-if="wago.type.match(/WEAKAURA/)">
               <div class="md-title">{{ $t("[-count-] install", { count: wago.installCount }) }}</div>
             </div>
-            <div class="item" style="float:right" v-if="enableCompanionBeta && wago.type.match(/WEAKAURA/) && wago.code && wago.code.encoded && !wago.code.alerts.blacklist">
+            <div class="item" style="float:right" v-if="enableCompanionBeta && wago.type.match(/WEAKAURA/) && wago.code && wago.code.encoded && !wago.encrypted && (!wago.code.alerts && !wago.code.alerts.blacklist)">
               <div id="sendToCompanionAppBtn" class="md-button copy-import-button" @click="sendToCompanionApp(true)">
                 <md-icon>airplay</md-icon> {{ $t("Send to WeakAura Companion App") }}
               </div>
@@ -112,7 +112,6 @@
             </md-layout>
           </md-card-header>
         </md-card>
-        <advert ad="wago_import_desk_300x250" />
       </md-layout>
 
       <md-dialog md-open-from="#sendToCompanionAppBtn" md-close-to="#sendToCompanionAppBtn" ref="sendToCompanionAppDialog">
@@ -143,11 +142,11 @@
           <div>
             <md-button @click="toTop"><md-icon>arrow_upward</md-icon> {{ $t("To top") }}</md-button>
           </div>
-          <md-button v-if="hasUnsavedChanges && wago.code && wago.code.encoded && !wago.code.alerts.blacklist" @click="copyEncoded" class="copy-import-button">
+          <md-button v-if="hasUnsavedChanges && wago.code && wago.code.encoded && (!wago.code.alerts || !wago.code.alerts.blacklist)" @click="copyEncoded" class="copy-import-button">
             <md-icon>assignment</md-icon> {{ $t("Copy [-type-] import string", {type: wago.type}) }}
             <md-tooltip md-direction="bottom" class="CopyWarningTooltip"><strong>{{ $t("You have unsaved changes") }}</strong><br>{{ $t("Be sure to save or fork to generate a new string with your modifications") }}</md-tooltip>
           </md-button>
-          <md-button v-else-if="wago.code && wago.code.encoded && !wago.code.alerts.blacklist" @click="copyEncoded" class="copy-import-button">
+          <md-button v-else-if="wago.code && wago.code.encoded && (!wago.code.alerts || !wago.code.alerts.blacklist)" @click="copyEncoded" class="copy-import-button">
             <md-icon>assignment</md-icon> {{ $t("Copy [-type-] import string", {type: wago.type}) }}
           </md-button>
         </div>
@@ -162,6 +161,7 @@
             <md-layout id="wago-tabs" v-bind:class="{'md-hide-xsmall': hideTabs}">
               <!-- FRAME TOGGLES -->
               <md-button-toggle class="md-accent" md-single>
+                <template v-if="!requireCipherKey">
                 <md-button v-if="wago.user && User && wago.UID && wago.UID === User.UID" v-bind:class="{'md-toggle': showPanel === 'config'}" @click="toggleFrame('config')">{{ $t("Config") }}</md-button>
                 <md-button v-if="wago.type == 'ERROR'" v-bind:class="{'md-toggle': showPanel === 'description'}" @click="toggleFrame('description')">{{ $t("Report") }}</md-button>
                 <md-button v-if="wago.type == 'ERROR'" v-bind:class="{'md-toggle': showPanel === 'description'}" @click="toggleFrame('description')">{{ $t("Report") }}</md-button>
@@ -174,9 +174,11 @@
                 <md-button v-if="wago.type !== 'COLLECTION'" v-bind:class="{'md-toggle': showPanel === 'collections'}" @click="toggleFrame('collections')">{{ $t("[-count-] collection", {count:  wago.collectionCount}) }}</md-button>
                 <md-button v-if="wago.versions && wago.versions.total > 1" v-bind:class="{'md-toggle': showPanel === 'versions'}" @click="toggleFrame('versions')" ref="versionsButton">{{ $t("[-count-] version", { count: wago.versions.total }) }}</md-button>
                 <md-button v-if="hasCodeDiffs" v-bind:class="{'md-toggle': showPanel === 'diffs'}" @click="toggleFrame('diffs')" ref="diffsButton">{{ $t("Code Diffs") }}</md-button>
-                <md-button v-if="wago.type !== 'ERROR'" v-bind:class="{'md-toggle': showPanel === 'embed'}" @click="toggleFrame('embed')">{{ $t("Embed") }}</md-button>
+                  <md-button v-if="wago.type !== 'ERROR' && wago.public" v-bind:class="{'md-toggle': showPanel === 'embed'}" @click="toggleFrame('embed')">{{ $t("Embed") }}</md-button>
                 <md-button v-if="wago.type === 'MDT'" v-bind:class="{'md-toggle': showPanel === 'builder'}" @click="toggleFrame('builder')">{{ $t("Builder") }}</md-button>
                 <md-button v-if="wago.type !== 'ERROR'" v-bind:class="{'md-toggle': showPanel === 'editor'}" @click="toggleFrame('editor')">{{ $t("Editor") }}</md-button>
+                </template>
+                <md-button v-else class="md-toggle">{{ $t("Encrypted") }}</md-button>
               </md-button-toggle>
 
               <ui-image v-if="wago.image" :img="wago.image.files" class="wago-media"></ui-image>
@@ -189,6 +191,21 @@
             </md-layout>
 
             <md-layout id="wago-content">
+              <div v-if="requireCipherKey" class="wago-container">
+                <md-card>
+                  <ui-warning mode="warn">
+                    {{ $t("This import is encrypted. You must enter the password or cipher key to decrypt it.", {time: this.$moment(wago.expires).fromNow() }) }}
+                  </ui-warning>
+                  <form @submit.stop.prevent="decryptImport()">
+                    <md-input-container md-has-password>
+                      <label>{{ $t('Password / Cipher Key') }}</label>
+                      <md-input v-model="cipherKey" type="password" data-lpignore="true"></md-input>
+                    </md-input-container>
+                    <md-button class="md-raised" :disabled="!cipherKey.length || decryptLoading" @click="decryptImport()" style="margin-top:1em; max-width: 110px">{{ $t('Decrypt') }}</md-button>
+                  </form>
+                </md-card>
+              </div>
+
               <ui-warning v-if="wago.expires" mode="info">
                 {{ $t("This import will expire in [-time-]", {time: this.$moment(wago.expires).fromNow() }) }}<br>
               </ui-warning>
@@ -205,16 +222,16 @@
                 {{ $t("This import is hidden only those with the URL may view it") }}
               </ui-warning>
 
-              <ui-warning v-if="wago.code && wago.code.alerts.blacklist" mode="alert">
+              <ui-warning v-if="wago.code && wago.code.alerts && wago.code.alerts.blacklist" mode="alert">
                 {{ $t("Blacklisted code detected") }}<br>
                 <div v-for="func in wago.code.alerts.blacklist">{{ func }}</div>
               </ui-warning>
-              <ui-warning v-else-if="wago.code && wago.code.alerts.malicious" mode="alert">
+              <ui-warning v-else-if="wago.code && wago.code.alert && wago.code.alerts.malicious" mode="alert">
                 {{ $t("Possible malicious code detected") }}<br>
                 <div v-for="func in wago.code.alerts.malicious">{{ func }}</div>
               </ui-warning>
 
-              <ui-warning v-else-if="wago.code && wago.code.alerts.newInternalVersion" mode="alert">
+              <ui-warning v-else-if="wago.code && wago.code.alert && wago.code.alerts.newInternalVersion" mode="alert">
                 {{ $t("This WeakAura is made with build \"[-version-]\", which may include breaking changes with the current main addon release", {version: wago.code.alerts.newInternalVersion.build}) }}<br>
                 <div v-for="func in wago.code.alerts.malicious">{{ func }}</div>
               </ui-warning>
@@ -254,11 +271,26 @@
                       <md-select name="visibilty" id="visibilty" v-model="editVisibility">
                         <md-option value="Public">{{ $t("Public") }}</md-option>
                         <md-option value="Hidden">{{ $t("Hidden (only viewable with link)") }}</md-option>
-                        <md-option value="Restricted">{{ $t("Restricted (viewable for select users)") }}</md-option>
+                        <md-option value="Encrypted">{{ $t("Encrypted (only viewable with password)") }}</md-option>
+                        <md-option value="Restricted" v-if="!decryptKey">{{ $t("Restricted (viewable for select users)") }}</md-option>
                         <md-option value="Private">{{ $t("Private (only you may view)") }}</md-option>
                       </md-select>
                     </md-input-container>
                   </md-layout>
+                  <div v-if="editVisibility === 'Encrypted'" style="margin: 0 0 3em 1em">
+                    <md-input-container md-has-password>
+                      <label>{{ $t('Password / Cipher Key') }}</label>
+                      <md-input v-model="cipherKey" type="password" data-lpignore="true"></md-input>
+                      <span class="md-note">
+                        {{ $t('Your import will be encrypted before storing on the server. No one, including yourself, will be able to access it without the key.') }}<br>
+                        {{ $t('Do not lose your key! There is NO WAY to recover encrypted data without it!') }}<br>
+                        {{ $t('Note that some features performed by the server will not be available for encrypted imports.') }}
+                      </span>
+                    </md-input-container>
+                  </div>
+                  <md-button v-if="editVisibility === 'Encrypted' && cipherKey !== decryptKey && decryptKey" class="md-raised" :disabled="!cipherKey.length" @click="saveCipherKey()" style="align-self: flex-start">{{ $t('Save Key') }}</md-button>
+                  <md-button v-else-if="editVisibility !== 'Encrypted' && decryptKey" class="md-raised" :disabled="!cipherKey.length" @click="removeCipherKey()" style="align-self: flex-start">{{ $t('Remove Encryption') }}</md-button>
+                  <md-button v-else-if="editVisibility == 'Encrypted' && !decryptKey" class="md-raised" :disabled="!cipherKey.length" @click="saveCipherKey()" style="align-self: flex-start">{{ $t('Set Encryption') }}</md-button>
                   <div v-if="editVisibility === 'Restricted'" style="margin-left:1em">
                     <template v-for="(rest, index) in wago.restrictions">
                       <md-layout :key="index">
@@ -755,17 +787,17 @@
               <!-- BUILDER FRAME -->
               <div id="wago-builder-container" class="wago-container" v-if="showPanel=='builder'">
                 <div id="wago-builder">
-                  <build-mdt v-if="wago.type=='MDT' && wago.code" @set-has-unsaved-changes="setHasUnsavedChanges" @update-encoded="updateEncoded" @update-version="updateVersion"></build-mdt>
+                  <build-mdt v-if="wago.type=='MDT' && wago.code" @set-has-unsaved-changes="setHasUnsavedChanges" @update-encoded="updateEncoded" @update-version="updateVersion" :cipherKey="decryptKey"></build-mdt>
                 </div>
               </div>
 
               <!-- EDITOR FRAME -->
               <div id="wago-editor-container" class="wago-container" v-if="showPanel=='editor'">
                 <div id="wago-editor">
-                  <edit-weakaura v-if="wago.type.match(/WEAKAURA/) && wago.code" @set-has-unsaved-changes="setHasUnsavedChanges" :unsavedTable="hasUnsavedChanges" @update-encoded="updateEncoded" @update-version="updateVersion"></edit-weakaura>
-                  <edit-plater v-else-if="wago.type=='PLATER' && wago.code" @set-has-unsaved-changes="setHasUnsavedChanges" :unsavedTable="hasUnsavedChanges" @update-encoded="updateEncoded" @update-version="updateVersion"></edit-plater>
-                  <edit-snippet v-else-if="wago.type=='SNIPPET' && wago.code" @update-version="updateVersion"></edit-snippet>
-                  <edit-common v-else-if="wago.code" @set-has-unsaved-changes="setHasUnsavedChanges" @update-encoded="updateEncoded" @update-version="updateVersion"></edit-common>
+                  <edit-weakaura v-if="wago.type.match(/WEAKAURA/) && wago.code" @set-has-unsaved-changes="setHasUnsavedChanges" :unsavedTable="hasUnsavedChanges" @update-encoded="updateEncoded" @update-version="updateVersion" :cipherKey="decryptKey"></edit-weakaura>
+                  <edit-plater v-else-if="wago.type=='PLATER' && wago.code" @set-has-unsaved-changes="setHasUnsavedChanges" :unsavedTable="hasUnsavedChanges" @update-encoded="updateEncoded" @update-version="updateVersion" :cipherKey="decryptKey"></edit-plater>
+                  <edit-snippet v-else-if="wago.type=='SNIPPET' && wago.code" @update-version="updateVersion" :cipherKey="decryptKey"></edit-snippet>
+                  <edit-common v-else-if="wago.code" @set-has-unsaved-changes="setHasUnsavedChanges" @update-encoded="updateEncoded" @update-version="updateVersion" :cipherKey="decryptKey"></edit-common>
                 </div>
               </div>
 
@@ -1001,7 +1033,11 @@ export default {
       restrictionDebounceTimeout: null,
       viewTranslation: 'en_US',
       viewMyLocalization: 'en_US',
-      typeSlug: ''
+      typeSlug: '',
+      cipherKey: '',
+      decryptKey: '',
+      requireCipherKey: false,
+      decryptLoading: false
     }
   },
   watch: {
@@ -1300,51 +1336,12 @@ export default {
         if (res.codeURL) {
           getCode = vue.http.get(res.codeURL)
           getCode.then((code) => {
-            if (code && code.json) {
-              code.obj = JSON.parse(code.json)
-              code.json = JSON.stringify(code.obj, null, 2)
-            }
-            res.code = code
-            this.$store.commit('setWago', res)
-            this.$set(this.wago, 'code', code)
-
-            if (this.wago.type === 'ERROR' && this.wago.code.text) {
-              this.$set(this.wago, 'errorReport', [{format: 'error', text: this.wago.code.text.trim() + '\n'}])
-            }
-            else if (this.wago.type === 'ERROR' && this.wago.code.obj) {
-              var errs = []
-              code.obj.forEach(e => {
-                errs.push({format: 'error', text: `${e.message}\nTime:${e.time}\nCount: ${e.counter}\nStack: ${e.stack}\n\nLocals: ${e.locals || '<none>'}\n`})
-              })
-              errs = errs.reverse()
-              this.$set(this.wago, 'errorReport', errs)
-            }
-
-            if (code && code.versionString) {
-              this.currentVersionString = code.versionString
-              this.currentVersion.semver = semver.valid(semver.coerce(this.currentVersionString || '1.0.0'))
-              if (!this.currentVersion.semver) {
-                this.currentVersion.semver = '1.0.0'
+            if (res.visibility.encrypted) {
+              this.requireCipherKey = true
+              this.encryptedData = code
               }
-              this.currentVersion.major = semver.major(this.currentVersion.semver)
-              this.currentVersion.minor = semver.minor(this.currentVersion.semver)
-              this.currentVersion.patch = semver.patch(this.currentVersion.semver)
-
-              this.leftDiff = this.latestVersion.semver
-              if (this.leftDiff !== this.currentVersion.semver) {
-                this.rightDiff = this.currentVersion.semver
-              }
-              else if (res.versions.versions[1]) {
-                this.rightDiff = semver.valid(semver.coerce(res.versions.versions[1].versionString))
-              }
-            }
-
-            // make sure we're using custom url
-            if (vue.isLatestVersion()) {
-              vue.$router.replace('/' + res.slug)
-            }
             else {
-              vue.$router.replace('/' + res.slug + '/' + vue.version)
+              this.parseCodeObject(code)
             }
           })
         }
@@ -1407,6 +1404,9 @@ export default {
         else if (res.visibility.private) {
           this.editVisibility = 'Private'
         }
+        else if (res.visibility.encrypted) {
+          this.editVisibility = 'Encrypted'
+        }
         else if (res.visibility.restricted) {
           this.editVisibility = 'Restricted'
         }
@@ -1430,6 +1430,96 @@ export default {
           image: res.screens && res.screens[0] && res.screens[0].src || false,
           unlisted: (res.visibility.hidden || res.visibility.private || res.visibility.restricted)
         })
+      })
+    },
+    parseCodeObject (code) {
+      if (code && code.json) {
+        code.obj = JSON.parse(code.json)
+        code.json = JSON.stringify(code.obj, null, 2)
+      }
+      console.log(code)
+      this.$set(this.wago, 'code', code)
+      this.$store.commit('setWago', this.wago)
+
+      if (this.wago.type === 'ERROR' && this.wago.code.text) {
+        this.$set(this.wago, 'errorReport', [{format: 'error', text: this.wago.code.text.trim() + '\n'}])
+      }
+      else if (this.wago.type === 'ERROR' && this.wago.code.obj) {
+        var errs = []
+        code.obj.forEach(e => {
+          errs.push({format: 'error', text: `${e.message}\nTime:${e.time}\nCount: ${e.counter}\nStack: ${e.stack}\n\nLocals: ${e.locals || '<none>'}\n`})
+        })
+        errs = errs.reverse()
+        this.$set(this.wago, 'errorReport', errs)
+      }
+
+      if (code && code.versionString) {
+        this.currentVersionString = code.versionString
+        this.currentVersion.semver = semver.valid(semver.coerce(this.currentVersionString || '1.0.0'))
+        if (!this.currentVersion.semver) {
+          this.currentVersion.semver = '1.0.0'
+        }
+        this.currentVersion.major = semver.major(this.currentVersion.semver)
+        this.currentVersion.minor = semver.minor(this.currentVersion.semver)
+        this.currentVersion.patch = semver.patch(this.currentVersion.semver)
+
+        this.leftDiff = this.latestVersion.semver
+        if (this.leftDiff !== this.currentVersion.semver) {
+          this.rightDiff = this.currentVersion.semver
+        }
+        else if (this.wago.versions.versions[1]) {
+          this.rightDiff = semver.valid(semver.coerce(this.wago.versions.versions[1].versionString))
+        }
+      }
+
+      // make sure we're using custom url
+      if (this.isLatestVersion()) {
+        this.$router.replace('/' + this.wago.slug)
+      }
+      else {
+        this.$router.replace('/' + this.wago.slug + '/' + this.version)
+      }
+
+      this.requireCipherKey = false
+    },
+    decryptImport () {
+      try {
+        this.decryptLoading = true
+        var code = {}
+        code.encoded = this.$CryptoJS.AES.decrypt(this.encryptedData.encoded, this.cipherKey).toString(this.CryptoJS.enc.Utf8)
+        code.json = this.$CryptoJS.AES.decrypt(this.encryptedData.json, this.cipherKey).toString(this.CryptoJS.enc.Utf8)
+        code.text = this.$CryptoJS.AES.decrypt(this.encryptedData.text, this.cipherKey).toString(this.CryptoJS.enc.Utf8)
+        code.lua = this.$CryptoJS.AES.decrypt(this.encryptedData.lua, this.cipherKey).toString(this.CryptoJS.enc.Utf8)
+        this.parseCodeObject(code)
+        this.decryptKey = this.cipherKey
+      }
+      catch (e) {
+        window.eventHub.$emit('showSnackBar', this.$t('Incorrect password. Could not decrypt.'))
+      }
+      this.decryptLoading = false
+    },
+    removeCipherKey () {
+      var vue = this
+      this.http.post('/wago/update/encryption', {
+        wagoID: vue.wago._id,
+        decrypt: this.decryptKey,
+        visibility: this.editVisibility
+      }).then((res) => {
+        if (res.success) {
+          vue.decryptKey = ''
+        }
+      })
+    },
+    saveCipherKey () {
+      var vue = this
+      this.http.post('/wago/update/encryption', {
+        wagoID: vue.wago._id,
+        decrypt: this.decryptKey,
+        cipherKey: this.cipherKey
+      }).then((res) => {
+        if (res.success) {
+          vue.decryptKey = this.cipherKey
+        }
       })
     },
     setGameMode (mode) {
@@ -1844,6 +1934,9 @@ export default {
 
     onUpdateVisibility () {
       var vue = this
+      if (this.editVisibility === 'Encrypted' || this.decryptKey) {
+        return
+      }
       this.http.post('/wago/update/visibility', {
         wagoID: vue.wago._id,
         visibility: this.editVisibility
@@ -2058,6 +2151,7 @@ export default {
       post.newVersion = this.newImportVersion.semver
       post.changelog = this.newChangelog.text
       post.changelogFormat = this.newChangelog.format
+      post.cipherKey = this.decryptKey
       var vue = this
       this.http.post('/import/update', post).then((res) => {
         this.newChangelog = { text: '', format: this.$store.state.user.defaultEditorSyntax }
@@ -2338,6 +2432,8 @@ export default {
 .copy-import-button { border: 2px solid #c1272d; border-radius: 25px; margin: 4px 28px; display: inline-block }
 #wago-collections-container button { margin-left: -2px }
 #wago-floating-header .copy-import-button { margin: -2px 0 0 auto }
+
+span.md-note {height: 20px; position: absolute; bottom: -22px; font-size: 12px;}
 
 #thumbnails img { max-width: 190px; max-height: 107px; width: auto; height: auto; margin: 8px 8px 0 0 }
 

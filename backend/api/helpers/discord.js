@@ -1,6 +1,9 @@
 module.exports = {
   // broadcast to owner's discord when a new import is created
   webhookOnCreate: (user, wago) => {
+    if (wago.private || wago.restricted || wago.encrypted) {
+      return
+    }
     if (wago.type === 'WEAKAURAS2') {
       wago.type = 'WeakAura'
     }
@@ -24,9 +27,13 @@ module.exports = {
   },
 
   webhookOnUpdate: (user, wago) => {
+    if (wago.private || wago.restricted || wago.encrypted) {
+      return
+    }
     if (wago.type === 'WEAKAURAS2') {
       wago.type = 'WeakAura'
     }
+    
     // build message
     var msg = `${user.account.username} has updated a ${wago.type} on Wago.io!`
     var hookData = {

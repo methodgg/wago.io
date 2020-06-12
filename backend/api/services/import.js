@@ -3,6 +3,7 @@ const lua = require('../helpers/lua')
 const discord = require('../helpers/discord')
 const battlenet = require('../helpers/battlenet')
 const semver = require('semver')
+const crypto = require("crypto-js")
 
 module.exports = function (fastify, opts, next) {
 /**
@@ -464,6 +465,10 @@ module.exports = function (fastify, opts, next) {
       wago.private = true
     }
 
+    if (req.body.visibility === 'Encrypted') {
+      wago.encrypted = true
+    }
+
     wago.restrictedUsers = []
     wago.restrictedGuilds = []
     wago.restrictedTwitchSubs = []
@@ -641,8 +646,15 @@ module.exports = function (fastify, opts, next) {
       code.encoded = await lua.JSON2MDT(json)
     }
 
+    if (wago.encrypted && req.body.cipherKey) {
+      code.encoded = crypto.AES.encrypt(code.encoded, req.body.cipherKey)
+      code.json = crypto.AES.encrypt(code.json, req.body.cipherKey)
+      code.text = crypto.AES.encrypt(code.text, req.body.cipherKey)
+      code.lua = crypto.AES.encrypt(code.lua, req.body.cipherKey)
+    }
+
     await code.save()
-    if (req.body.importAs === 'User' && req.user && !wago.hidden && !wago.private && !wago.restricted && req.user.discord && req.user.discord.webhooks && req.user.discord.webhooks.onCreate) {
+    if (req.body.importAs === 'User' && req.user && !wago.hidden && !wago.private && !wago.encrypted && !wago.restricted && req.user.discord && req.user.discord.webhooks && req.user.discord.webhooks.onCreate) {
       discord.webhookOnCreate(req.user, wago)
     }
     res.send({success: true, wagoID: doc._id})
@@ -769,6 +781,14 @@ module.exports = function (fastify, opts, next) {
       code.encoded = scan.input
       code.json = scan.decoded
     }
+    
+    if (wago.encrypted && req.body.cipherKey) {
+      code.encoded = crypto.AES.encrypt(code.encoded, req.body.cipherKey)
+      code.json = crypto.AES.encrypt(code.json, req.body.cipherKey)
+      code.text = crypto.AES.encrypt(code.text, req.body.cipherKey)
+      code.lua = crypto.AES.encrypt(code.lua, req.body.cipherKey)
+    }
+
     code.version = wago.latestVersion.iteration
     code.versionString = wago.latestVersion.versionString
     wago.modified = Date.now()
@@ -927,6 +947,14 @@ module.exports = function (fastify, opts, next) {
 
     discord.onUpdate(req.user, wago)
     code.json = JSON.stringify(json)
+    
+    if (wago.encrypted && req.body.cipherKey) {
+      code.encoded = crypto.AES.encrypt(code.encoded, req.body.cipherKey)
+      code.json = crypto.AES.encrypt(code.json, req.body.cipherKey)
+      code.text = crypto.AES.encrypt(code.text, req.body.cipherKey)
+      code.lua = crypto.AES.encrypt(code.lua, req.body.cipherKey)
+    }
+
     await code.save()
     redis.clear(wago)
     res.send({success: true, wagoID: wago._id})
@@ -1079,6 +1107,13 @@ module.exports = function (fastify, opts, next) {
       lua: req.body.lua
     })
     discord.onUpdate(req.user, wago)
+    
+    if (wago.encrypted && req.body.cipherKey) {
+      code.encoded = crypto.AES.encrypt(code.encoded, req.body.cipherKey)
+      code.json = crypto.AES.encrypt(code.json, req.body.cipherKey)
+      code.text = crypto.AES.encrypt(code.text, req.body.cipherKey)
+      code.lua = crypto.AES.encrypt(code.lua, req.body.cipherKey)
+    }
     await code.save()
     redis.clear(wago)
     res.send({success: true, wagoID: wago._id})

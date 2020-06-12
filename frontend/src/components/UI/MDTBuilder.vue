@@ -368,7 +368,7 @@ const async = require('async')
 
 export default {
   name: 'build-mdt',
-  props: ['scratch', 'readonly'],
+  props: ['scratch', 'readonly', 'cipherKey'],
   data: function () {
     return {
       mdtScale: 539 / 450, // 1.197777 repeating, of course. Found by trial and error; there may be something that more accurately scales wow pixels into real pixels, but this is very close.
@@ -1557,6 +1557,7 @@ export default {
       else {
         post.json = this.tableString
       }
+      post.cipherKey = this.cipherKey
       post.newVersion = this.newImportVersion.semver
       var vue = this
       this.http.post('/import/json/save', post).then((res) => {

@@ -473,7 +473,7 @@ module.exports = function (fastify, opts, next) {
       if (req.user.twitch && req.user.twitch.id) {
         esShould.push({term: {restrictedTwitchUsers: {value: req.user.twitch.id, boost: 5} } })
       }
-      esShould.push({bool: {filter: [{term: {private: {value: false, boost: 0}}}, {term: {hidden: {value: false, boost: 0}}}, {term: {restricted: {value: false, boost: 0}}}]}})
+      esShould.push({bool: {filter: [{term: {private: {value: false, boost: 0}}}, {term: {encrypted: {value: false, boost: 0}}}, {term: {hidden: {value: false, boost: 0}}}, {term: {restricted: {value: false, boost: 0}}}]}})
     }
     else if (req.user) {
       esShould.push({term: { _userId: { value: req.user._id, boost: 0 } } })
@@ -488,15 +488,17 @@ module.exports = function (fastify, opts, next) {
       if (req.user.twitch && req.user.twitch.id) {
         esShould.push({ term: { restrictedTwitchUsers: { value: req.user.twitch.id, boost: 5 } } })
       }
-      esShould.push({bool: {filter: [{ term: { private: { value: false, boost: 0 } } }, { term: { restricted: { value: false, boost: 0 } } }] } })
+      esShould.push({bool: {filter: [{ term: { private: { value: false, boost: 0 } } }, {term: {encrypted: {value: false, boost: 0}}}, { term: { restricted: { value: false, boost: 0 } } }] } })
     }
     else if (!searchSettings.showHidden) {
       esFilter.push({term: { private: false } })
       esFilter.push({term: { hidden: false } })
+      esFilter.push({term: { encrypted: false } })
       esFilter.push({term: { restricted: false } })
     }
     else {
       esFilter.push({term: { private: false } })
+      esFilter.push({term: { encrypted: false } })
       esFilter.push({term: { restricted: false } })
     }
 
@@ -590,7 +592,7 @@ module.exports = function (fastify, opts, next) {
       }
       item.type = wago.type
       item.description = {text: wago.description, type: wago.description_format}
-      item.visibility = {private: wago.private, hidden: wago.hidden, restricted: wago.restricted}
+      item.visibility = {private: wago.private, hidden: wago.hidden, restricted: wago.restricted, encrypted: wago.encrypted}
       item.date = {created: wago.created, modified: wago.modified}
       item.categories = wago.categories.slice(0, 5)
 
