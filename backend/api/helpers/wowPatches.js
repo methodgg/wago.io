@@ -32,7 +32,6 @@ var patches = [
 module.exports = {
   patchByDate: function (strDate, game) {
     var date = moment(strDate)
-    console.log(date, game)
 
     for (var i=0; i < patches.length; i++) {
       if (date.isAfter(patches[i].date) && game === patches[i].game) {

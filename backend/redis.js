@@ -4,7 +4,8 @@ const client = redis.createClient(config.redis)
 var redisActive = false
 
 client.on("ready", function () {
-  redisActive = true
+  if (config.env !== 'development')
+    redisActive = true
 })
 client.on("connect", function () {
 })

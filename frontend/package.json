@@ -27,6 +27,7 @@
     "v-show-slide": "^1.6.0",
     "vue": "^2.6.10",
     "vue-axios": "^2.1.4",
+    "vue-cryptojs": "^2.1.4",
     "vue-h-ajax": "^0.1.1",
     "vue-konva": "^2.0.3",
     "vue-markdown": "^2.2.4",
