@@ -14,25 +14,57 @@ module.exports = {
     catch (e) {
       return await makeDiffs({}, {})
     }
+    var tblA = {}
+    var tblB = {}
     if (!Array.isArray(jsonA) || !Array.isArray(jsonB)) {
-      return await makeDiffs({}, {})
+      //default -> emtpy array compare
+      //return await makeDiffs({}, {})
     }
-    else if (typeof jsonA[8] === 'number' && typeof jsonB[8] === 'number') { // Plater script
-      var tblA = {}
-      var tblB = {}
-      tblA.Constructor = jsonA[11]
-      tblA['On Show'] = jsonA[13]
-      tblA['On Update'] = jsonA[10]
-      tblA['On Hide'] = jsonA[12]
-      tblB.Constructor = jsonB[11]
-      tblB['On Show'] = jsonB[13]
-      tblB['On Update'] = jsonB[10]
-      tblB['On Hide'] = jsonB[12]
-      return await makeDiffs(tblA, tblB)
+    else if ((typeof jsonA[8] === 'number' || jsonA.type === 'script') && (typeof jsonB[8] === 'number' || jsonA.type === 'script')) { // Plater script
+      if (typeof jsonA[8] === 'number') {
+        tblA.Constructor = jsonA[11]
+        tblA['On Show'] = jsonA[13]
+        tblA['On Update'] = jsonA[10]
+        tblA['On Hide'] = jsonA[12]
+	    tblA.Initialization = jsonA[14]
+      }
+      else {
+        tblA.Constructor = jsonA['12']
+        tblA['On Show'] = jsonA['14']
+        tblA['On Update'] = jsonA['11']
+        tblA['On Hide'] = jsonA['13']
+	    tblA.Initialization = jsonA['15']
+      }
+      if (typeof jsonA[8] === 'number') {
+        tblB.Constructor = jsonB[11]
+        tblB['On Show'] = jsonB[13]
+        tblB['On Update'] = jsonB[10]
+        tblB['On Hide'] = jsonB[12]
+	    tblB.Initialization = jsonA[14]
+      }
+      else {
+        tblB.Constructor = jsonB['12']
+        tblB['On Show'] = jsonB['14']
+        tblB['On Update'] = jsonB['11']
+        tblB['On Hide'] = jsonB['13']
+	    tblB.Initialization = jsonA['15']
+      }
     }
-    else if (typeof jsonA[8] === 'object' && typeof jsonB[8] === 'object') { // Plater hook
-      return await makeDiffs(jsonA[8], jsonB[8])
+    else if ((typeof jsonA[8] === 'object' || jsonA.type === 'hook') && (typeof jsonB[8] === 'object' || jsonA.type === 'hook')) { // Plater hook
+      if (typeof jsonA[8] === 'object') {
+        tblA = jsonA[8]
+      }
+      else {
+        tblA = jsonA['9']
+      }
+      if (typeof jsonB[8] === 'object') {
+        tblB = jsonB[8]
+      }
+      else {
+        tblB = jsonB['9']
+      }
     }
+    return await makeDiffs(tblA, tblB)
   },
 
   WeakAuras: async (jsonA, jsonB) => {

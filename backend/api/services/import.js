@@ -283,7 +283,7 @@ module.exports = function (fastify, opts, next) {
         return res.send({scan: scanDoc._id.toString(), type: 'PLATER', name: 'Plater NPC Colors', categories: []})
       }
       // animation
-      else if ((decoded.obj[1] && decoded.obj[1].animation_type) || decoded.obj['2'] && decoded.obj['2'].animation_type) {
+      else if ((decoded.obj[1] && decoded.obj[1].animation_type) || (decoded.obj['2'] && decoded.obj['2'].animation_type)) {
         scan.type = 'PLATER'
         const scanDoc = await scan.save()
         var name = 'Plater Animation'
@@ -296,13 +296,25 @@ module.exports = function (fastify, opts, next) {
         }
         return res.send({scan: scanDoc._id.toString(), type: 'PLATER', name: 'Plater Animation', categories: []})
       }
-      // if Plater Hook is found
+      // if Plater Hook is found - new data type
+      else if (decoded.obj.type === 'hook') {
+        scan.type = 'PLATER'
+        const scanDoc = await scan.save()
+        return res.send({scan: scanDoc._id.toString(), type: 'PLATER', name: decoded.obj[0], categories: []})
+      }	  
+      // if Plater Hook is found - old data type
       else if ((typeof decoded.obj[8] === 'object' || typeof decoded.obj['9'] === 'object') && (typeof decoded.obj[0] === 'string' || typeof decoded.obj['1'] === 'string')) {
         scan.type = 'PLATER'
         const scanDoc = await scan.save()
         return res.send({scan: scanDoc._id.toString(), type: 'PLATER', name: decoded.obj[0], categories: []})
       }
-      // if Plater Script is found
+      // if Plater Script is found - new data type
+      else if ((decoded.obj.type === 'script') {
+        scan.type = 'PLATER'
+        const scanDoc = await scan.save()
+        return res.send({scan: scanDoc._id.toString(), type: 'PLATER', name: decoded.obj[1], categories: []})
+      }
+      // if Plater Script is found - old data type
       else if ((typeof decoded.obj[8] === 'number' || typeof decoded.obj['9'] === 'number') && (typeof decoded.obj[1] === 'string' || typeof decoded.obj['2'] === 'string')) {
         scan.type = 'PLATER'
         const scanDoc = await scan.save()
@@ -386,8 +398,14 @@ module.exports = function (fastify, opts, next) {
     else if (wago.type === 'TOTALRP3' && json[2] && json[2].NT) {
       wago.description = json[2].NT
     }
+    else if (wago.type === 'PLATER' && json.type === 'script') {
+      wago.description = json['6']
+    }
     else if (wago.type === 'PLATER' && Array.isArray(json) && typeof json[8] === 'number') {
       wago.description = json[5]
+    }
+    else if (wago.type === 'PLATER' && json.type === 'hook') {
+      wago.description = json['3']
     }
     else if (wago.type === 'PLATER' && Array.isArray(json) && typeof json[8] === 'object') {
       wago.description = json[2]
@@ -402,6 +420,17 @@ module.exports = function (fastify, opts, next) {
         wago.game = 'classic'
       }
       else if ((json.d.tocversion+'').match(/^90/)) {
+        wago.game = 'sl' // shadowlands
+      }
+      else {
+        wago.game = 'bfa' // battle for azeroth
+      }
+    }
+    else if (wago.type.match(/PLATER/) && json.tocversion) {
+      if ((json.tocversion+'').match(/^113/)) {
+        wago.game = 'classic'
+      }
+      else if ((json.tocversion+'').match(/^90/)) {
         wago.game = 'sl' // shadowlands
       }
       else {
