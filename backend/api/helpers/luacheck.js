@@ -21,7 +21,7 @@ module.exports = {
       tbl['On Show'] = json['14']
       tbl['On Update'] = json['11']
       tbl['On Hide'] = json['13']
-	  tbl.Initialization = json['15']
+      tbl.Initialization = json['15']
       return await makeLuaCheck(tbl)
     }
     else if (json.type === 'hook') { // Plater hook
@@ -33,7 +33,7 @@ module.exports = {
       tbl['On Show'] = json[13]
       tbl['On Update'] = json[10]
       tbl['On Hide'] = json[12]
-	  tbl.Initialization = json[14]
+      tbl.Initialization = json[14]
       return await makeLuaCheck(tbl)
     }
     else if (typeof json[8] === 'object') { // Plater hook - fallback
