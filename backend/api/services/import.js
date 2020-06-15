@@ -301,7 +301,7 @@ module.exports = function (fastify, opts, next) {
         scan.type = 'PLATER'
         const scanDoc = await scan.save()
         return res.send({scan: scanDoc._id.toString(), type: 'PLATER', name: decoded.obj[0], categories: []})
-      }	  
+      }	 
       // if Plater Hook is found - old data type
       else if ((typeof decoded.obj[8] === 'object' || typeof decoded.obj['9'] === 'object') && (typeof decoded.obj[0] === 'string' || typeof decoded.obj['1'] === 'string')) {
         scan.type = 'PLATER'

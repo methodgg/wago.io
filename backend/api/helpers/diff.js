@@ -26,28 +26,28 @@ module.exports = {
         tblA['On Show'] = jsonA[13]
         tblA['On Update'] = jsonA[10]
         tblA['On Hide'] = jsonA[12]
-	    tblA.Initialization = jsonA[14]
+        tblA.Initialization = jsonA[14]
       }
       else {
         tblA.Constructor = jsonA['12']
         tblA['On Show'] = jsonA['14']
         tblA['On Update'] = jsonA['11']
         tblA['On Hide'] = jsonA['13']
-	    tblA.Initialization = jsonA['15']
+        tblA.Initialization = jsonA['15']
       }
       if (typeof jsonA[8] === 'number') {
         tblB.Constructor = jsonB[11]
         tblB['On Show'] = jsonB[13]
         tblB['On Update'] = jsonB[10]
         tblB['On Hide'] = jsonB[12]
-	    tblB.Initialization = jsonA[14]
+        tblB.Initialization = jsonA[14]
       }
       else {
         tblB.Constructor = jsonB['12']
         tblB['On Show'] = jsonB['14']
         tblB['On Update'] = jsonB['11']
         tblB['On Hide'] = jsonB['13']
-	    tblB.Initialization = jsonA['15']
+        tblB.Initialization = jsonA['15']
       }
     }
     else if ((typeof jsonA[8] === 'object' || jsonA.type === 'hook') && (typeof jsonB[8] === 'object' || jsonA.type === 'hook')) { // Plater hook
