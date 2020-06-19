@@ -197,12 +197,6 @@ module.exports = {
       return false
     }
 
-    // convert string "1" to int 1 so that lua handles the array properly
-    if (obj['1']) {
-      var tmp = obj['1']
-      delete obj['1']
-      obj[1] = tmp
-    }
     var str = JSON.stringify(obj)
     var result = await runLua('dofile("./wago.lua"); JSON2Plater("' + str.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim() + '")')
     if (!result || !result.match(commonRegex.looksLikePlater)) {
