@@ -307,7 +307,7 @@ module.exports = function (fastify, opts, next) {
       else if ((typeof decoded.obj[8] === 'object' || typeof decoded.obj['9'] === 'object') && (typeof decoded.obj[0] === 'string' || typeof decoded.obj['1'] === 'string')) {
         scan.type = 'PLATER'
         const scanDoc = await scan.save()
-        return res.send({scan: scanDoc._id.toString(), type: 'PLATER', name: decoded.obj[0], categories: []})
+        return res.send({scan: scanDoc._id.toString(), type: 'PLATER', name: decoded.obj[0] || decoded.obj['1'], categories: []})
       }
       // if Plater Script is found - new data type
       else if (decoded.obj.type === 'script') {
@@ -319,7 +319,7 @@ module.exports = function (fastify, opts, next) {
       else if ((typeof decoded.obj[8] === 'number' || typeof decoded.obj['9'] === 'number') && (typeof decoded.obj[1] === 'string' || typeof decoded.obj['2'] === 'string')) {
         scan.type = 'PLATER'
         const scanDoc = await scan.save()
-        return res.send({scan: scanDoc._id.toString(), type: 'PLATER', name: decoded.obj[1], categories: []})
+        return res.send({scan: scanDoc._id.toString(), type: 'PLATER', name: decoded.obj[1] || decoded.obj['2'], categories: []})
       }
     }
 
@@ -575,11 +575,11 @@ module.exports = function (fastify, opts, next) {
         // plater npc color
         wago.categories.push('plater5')
       }
-      else if ((Array.isArray(json) && typeof json[8] === 'number') || json.type === 'script') {
+      else if (json.type === 'script' || (Array.isArray(json) && typeof json[8] === 'number') || typeof json['9'] === 'number') {
         // plater script
         wago.categories.push('plater2')
       }
-      else if ((Array.isArray(json) && typeof json[8] === 'object') || json.type === 'hook') {
+      else if (json.type === 'hook' || (Array.isArray(json) && typeof json[8] === 'object') || typeof json['9'] === 'object') {
         // plater hook
         wago.categories.push('plater3')
       }
