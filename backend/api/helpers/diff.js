@@ -16,11 +16,8 @@ module.exports = {
     }
     var tblA = {}
     var tblB = {}
-    if (!Array.isArray(jsonA) || !Array.isArray(jsonB)) {
-      //default -> emtpy array compare
-      //return await makeDiffs({}, {})
-    }
-    else if ((typeof jsonA[8] === 'number' || jsonA.type === 'script') && (typeof jsonB[8] === 'number' || jsonA.type === 'script')) { // Plater script
+    
+    if ((typeof jsonA[8] === 'number' || jsonA.type === 'script') && (typeof jsonB[8] === 'number' || jsonA.type === 'script')) { // Plater script
       if (typeof jsonA[8] === 'number') {
         tblA.Constructor = jsonA[11]
         tblA['On Show'] = jsonA[13]
@@ -51,18 +48,9 @@ module.exports = {
       }
     }
     else if ((typeof jsonA[8] === 'object' || jsonA.type === 'hook') && (typeof jsonB[8] === 'object' || jsonA.type === 'hook')) { // Plater hook
-      if (typeof jsonA[8] === 'object') {
-        tblA = jsonA[8]
-      }
-      else {
-        tblA = jsonA['9']
-      }
-      if (typeof jsonB[8] === 'object') {
-        tblB = jsonB[8]
-      }
-      else {
-        tblB = jsonB['9']
-      }
+      tblA = jsonA['9'] || jsonA[8]
+      tblB = jsonB['9'] || jsonB[8]
+      console.log('sadfsd')
     }
     return await makeDiffs(tblA, tblB)
   },

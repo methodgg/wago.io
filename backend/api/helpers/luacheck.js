@@ -12,10 +12,7 @@ module.exports = {
     catch (e) {
       return []
     }
-    if (!Array.isArray(json)) {
-      return []
-    }
-    else if (json.type === 'script') { // Plater script
+    if (json.type === 'script') { // Plater script
       var tbl = {}
       tbl.Constructor = json['12']
       tbl['On Show'] = json['14']
