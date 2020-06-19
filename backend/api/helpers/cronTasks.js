@@ -1,11 +1,9 @@
 const battlenet = require('./battlenet')
 const cloudflare = require('cloudflare')({email: config.cloudflare.email, key: config.cloudflare.apiKey})
-const cheerio = require('cheerio')
 const decompress = require('@atomic-reactor/decompress')
 const image = require('./image')
 const lua = require('./lua')
 const md5 = require('md5')
-const moment = require('moment')
 const mkdirp = require('mkdirp-promise')
 const path = require('path')
 const querystring = require('querystring')
@@ -215,57 +213,44 @@ module.exports = {
 
   UpdatePatreonAccounts: async (req, nextURL) => {
     try {
-      const refreshToken = await SiteData.findById('PatreonRefreshToken').exec()
-      if (!refreshToken || !refreshToken.value) {
-        if (!refreshToken) {
-          // add a placeholder if not existing at all
-          await SiteData.findOneAndUpdate({_id: 'PatreonRefreshToken'}, {value: null, private: true}, {upsert: true}).exec()
-        }
-        throw {name: 'MissingData', stack: 'Missing required Patreon Refresh Token', message: 'Missing required Patreon Refresh Token'}
-      }
-      const token = await axios.post('https://api.patreon.com/oauth2/token', querystring.stringify({
-        refresh_token: refreshToken.value,
-        client_id: config.auth.patreon.clientID,
-        client_secret: config.auth.patreon.clientSecret,
-        grant_type: 'refresh_token'
-      }), {
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded"
-        }
-      })
-      if (token && token.data && token.data.access_token) {
-        await SiteData.findOneAndUpdate({_id: 'PatreonRefreshToken'}, {value: token.data.refresh_token, private: true}, {upsert: true}).exec()
-        if (!nextURL) {
-          nextURL = 'https://www.patreon.com/api/oauth2/api/campaigns/562591/pledges?include=patron.null'
-        }
-        while (nextURL) {
-          var response = await axios.get(nextURL, {headers: {Authorization: 'Bearer ' + token.data.access_token}})
-          var patrons = response.data.data
-          for (let i = 0; i < patrons.length; i++) {
-            if (!patrons[i] || !patrons[i].relationships || !patrons[i].relationships.patron || !patrons[i].relationships.patron.data || !patrons[i].relationships.patron.data.id) {
-              continue
-            }
-            var user = await User.findOne({"patreon.id": patrons[i].relationships.patron.data.id})
-            if (!user) {
-              continue
-            }
-            user.roles.subscriber = (!patrons[i].attributes.declined_since && patrons[i].attributes.amount_cents >= 100)
-            user.roles.gold_subscriber = (!patrons[i].attributes.declined_since && patrons[i].attributes.amount_cents >= 400)
-            user.roles.guild_subscriber = (!patrons[i].attributes.declined_since && patrons[i].attributes.amount_cents >= 1500)
-            await user.save()
+      nextURL = 'https://www.patreon.com/api/oauth2/v2/campaigns/562591/members?include=currently_entitled_tiers,user&fields%5Btier%5D=title'
+      while (nextURL) {
+        var response = await axios.get(nextURL, {headers: {Authorization: 'Bearer '+  config.auth.patreon.creatorToken}})
+        var patrons = response.data.data
+        for (let i = 0; i < patrons.length; i++) {
+          if (!patrons[i] || !patrons[i].relationships || !patrons[i].relationships.user || !patrons[i].relationships.user.data || !patrons[i].relationships.user.data.id) {
+            continue
           }
-          if (response.data.links && response.data.links.next) {
-            nextURL = response.data.links.next
+          var user = await User.findOne({"patreon.id": patrons[i].relationships.user.data.id})
+          if (!user) {
+            continue
           }
-          else {
-            nextURL = null
+          var tier
+          try {
+            tier = patrons[i].relationships.currently_entitled_tiers.data[0].id
           }
+          catch (e) {
+            tier = 0
+          }
+          // subscriber 1385924
+          // gold sub 1386010
+          user.roles.subscriber = tier > 0
+          user.roles.gold_subscriber = tier > 1385924
+          // user.roles.guild_subscriber = (!patrons[i].attributes.declined_since && patrons[i].attributes.amount_cents >= 1500)
+          await user.save()
+        }
+        if (response.data.links && response.data.links.next) {
+          nextURL = response.data.links.next
+        }
+        else {
+          nextURL = null
         }
       }
       return
     }
     catch (e) {
-      req.trackError(e, 'Cron: UpdatePatreonAccounts')
+      console.log(e.response.status, e.response.statusText, e.response.data, e.config.url)
+      // req.trackError(e, 'Cron: UpdatePatreonAccounts')
     }
     return
   },
