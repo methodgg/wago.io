@@ -1495,7 +1495,7 @@ export default {
         this.decryptKey = this.cipherKey
       }
       catch (e) {
-        window.eventHub.$emit('showSnackBar', this.$t('Incorrect password. Could not decrypt.'))
+        window.eventHub.$emit('showSnackBar', this.$t('Incorrect password - Could not decrypt.'))
       }
       this.decryptLoading = false
     },
