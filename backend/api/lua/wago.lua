@@ -467,15 +467,11 @@ end
 
 function JSON2Plater(json)
   local t = JSON:decode(json)
-  if t and t["1"] then
-    n = 1
-    while t[""..n] do
-      tinsert(t, t[""..n])
-      t[""..n] = nil
-      n = n+1
-    end
+  if (t) then
+    print(TableToDeflate(t))
+  else
+    print("")
   end
-  print(TableToDeflate(t))
 end
 
 

@@ -12,18 +12,28 @@ module.exports = {
     catch (e) {
       return []
     }
-    if (!Array.isArray(json)) {
-      return []
+    if (json.type === 'script') { // Plater script
+      var tbl = {}
+      tbl.Constructor = json['12']
+      tbl['On Show'] = json['14']
+      tbl['On Update'] = json['11']
+      tbl['On Hide'] = json['13']
+      tbl.Initialization = json['15']
+      return await makeLuaCheck(tbl)
     }
-    else if (typeof json[8] === 'number') { // Plater script
+    else if (json.type === 'hook') { // Plater hook
+      return await makeLuaCheck(json['9'])
+    }
+    else if (typeof json[8] === 'number') { // Plater script - fallback
       var tbl = {}
       tbl.Constructor = json[11]
       tbl['On Show'] = json[13]
       tbl['On Update'] = json[10]
       tbl['On Hide'] = json[12]
+      tbl.Initialization = json[14]
       return await makeLuaCheck(tbl)
     }
-    else if (typeof json[8] === 'object') { // Plater hook
+    else if (typeof json[8] === 'object') { // Plater hook - fallback
       return await makeLuaCheck(json[8])
     }
   },
