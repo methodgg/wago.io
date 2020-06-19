@@ -1,7 +1,7 @@
 <template>
   <div>
     <wago-app />  
-    <advert ad="wago_mobile_anchor" :forMobile="true" />
+    <advert ad="wago320x50" :forMobile="true" fixed="bottom" />
     <div></div>
   </div>
 </template>

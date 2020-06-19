@@ -8,7 +8,7 @@
             <a class="md-title vr" :href="'/news/' + news._id + '/' + slugify(news.title)">{{ news.title }}</a>
             <div class="md-subhead"><a :href="'/p/' + news.user.username" :class="'vr ' + news.user.css">{{ news.user.username }}</a>, {{ news.date | moment('MMM Do YYYY') }}</div>
           </md-card-header-text>
-          <vue-markdown v-if="news.format=='markdown'">{{ news.content }}</vue-markdown>
+          <div v-if="news.format=='markdown'" v-html="news.html"></div>
         </md-card>
       </div>
       <md-button :href="'/news/' + (pageNum - 1)" class="vr" v-if="pageNum > 1 && blogs[0]._id !== newest">{{ $t("View newer articles" )}}</md-button>
@@ -21,6 +21,18 @@
 
 <script>
 import VueMarkdown from 'vue-markdown'
+
+import MarkdownIt from 'markdown-it'
+import subscript from 'markdown-it-sub'
+import superscript from 'markdown-it-sup'
+import footnote from 'markdown-it-footnote'
+import deflist from 'markdown-it-deflist'
+import abbreviation from 'markdown-it-abbr'
+import insert from 'markdown-it-ins'
+import mark from 'markdown-it-mark'
+import katex from 'markdown-it-katex'
+import tasklists from 'markdown-it-task-lists'
+
 export default {
   components: {
     'vue-markdown': VueMarkdown
@@ -31,7 +43,17 @@ export default {
       loading: true,
       oldest: '',
       newest: false,
-      pageNum: 0
+      pageNum: 0,
+      md: new MarkdownIt()
+        .use(subscript)
+        .use(superscript)
+        .use(footnote)
+        .use(deflist)
+        .use(abbreviation)
+        .use(insert)
+        .use(mark)
+        .use(katex, { throwOnError: false, errorColor: ' #cc0000' })
+        .use(tasklists, { enabled: this.taskLists })
     }
   },
   props: ['posts'],
@@ -60,6 +82,9 @@ export default {
       // if loaded from other page
       if (this.posts) {
         this.blogs = JSON.parse(JSON.stringify(this.posts))
+        for (let i = 0; i < this.blogs.length; i++) {
+          this.blogs[i].html = this.renderMarkDown(this.blogs[i].content)
+        }
       }
       // if viewing a specific page
       else if (newsID && newsID.match(/^\d+$/)) {
@@ -90,6 +115,8 @@ export default {
             description: res.content.substring(0, 120)
           })
 
+          res.html = this.renderMarkDown(res.content)
+
           vue.blogs.push(res)
           vue.$router.replace('/news/' + newsID + '/' + vue.slugify(res.title))
         }
@@ -109,12 +136,25 @@ export default {
             title: res.news[0].title,
             description: res.news[0].content.substring(0, 120)
           })
+          for (let i = 0; i < res.news.length; i++) {
+            res.news[i].html = this.renderMarkDown(res.news[i].content)
+          }
           vue.blogs = vue.blogs.concat(res.news)
         }
         vue.oldest = res.oldest
         vue.newest = res.newest
         vue.loading = false
       })
+    },
+    renderMarkDown (markdown) {
+      this.md.set({
+        html: true,
+        xhtmlOut: true,
+        breaks: this.breaks,
+        linkify: true,
+        typographer: this.typographer
+      })
+      return this.md.render(markdown)
     }
   }
 }

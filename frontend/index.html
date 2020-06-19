@@ -7,9 +7,15 @@
     <title>Wago</title>
     <link rel="stylesheet" href="//media.wago.io/fonts/fonts.css">
     <script>window.cfCountry=null</script>
+    <script>if(window["nitroAds"]&&window["nitroAds"].loaded){document.getElementById("consent-box").style.display=window["__cmp"]?"":"none"}else{document.addEventListener("nitroAds.loaded",()=>(document.getElementById("consent-box").style.display=window["__cmp"]?"":"none"))}</script>
   </head>
   <body class="theme-dark">
     <div id="app"></div>
     <!-- built files will be auto injected -->
+    <div id="consent-box" style="display:none">
+      <button onclick="window.__cmp('showModal');">
+        Update cookie preferences
+      </button>
+    </div>
   </body>
 </html>

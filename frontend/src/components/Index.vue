@@ -249,9 +249,8 @@
                 </md-list-item>
               </md-list>
             </md-layout>
-            <md-layout>
-              <advert ad="wago_homeage_300x600" v-if="$screenWidth >= 1780 && !$isMobile && (!user || !user.hideAds)" />
-              <md-list class="md-dense" v-else-if="!$isMobile">
+            <md-layout v-if="!($screenWidth >= 1780 && !$isMobile && (!user || !user.hideAds))">
+              <md-list class="md-dense">
                 <md-list-item class="top-list-header">
                   <md-menu md-align-trigger md-size="6">
                     <md-button class="md-dense" md-menu-trigger>{{ $t(topLists[topID2].title) }} <span class="down-arrow"></span></md-button>
@@ -292,7 +291,7 @@
                 </md-list-item>
               </md-list>
             </md-layout>
-            <md-layout>
+            <md-layout v-if="!($screenWidth >= 1780 && !$isMobile && (!user || !user.hideAds))">
               <md-list class="md-dense" id="newest-imports">
                 <md-list-item>
                   <strong>{{ $t(topLists[topLists.length - 1].title) }}</strong>
@@ -314,15 +313,13 @@
           <md-table-header>
             <md-table-row>
               <md-table-head>{{ $t("Latest addons") }}</md-table-head>
-              <md-table-head>{{ $t("Version #") }}</md-table-head>
-              <md-table-head>{{ $t("Date") }}</md-table-head>
+              <md-table-head>{{ $t("Version") }}</md-table-head>
             </md-table-row>
           </md-table-header>
           <md-table-body>
             <md-table-row v-for="(addon, addonIndex) in addonReleases" :key="addonIndex" v-if="addon.addon !== 'Grid2'">
               <md-table-cell>{{ addon.addon }}</md-table-cell>
-              <md-table-cell><a :href="addon.url" target="_blank">{{ addon.version }}</a></md-table-cell>
-              <md-table-cell>{{ addon.date | moment('MMM Do YYYY') }}</md-table-cell>
+              <md-table-cell><a :href="addon.url" target="_blank">{{ addon.version }}</a><br><span>{{ addon.date | moment('MMM Do YYYY') }}</span></md-table-cell>
             </md-table-row>
           </md-table-body>
         </md-table>
@@ -341,9 +338,11 @@
 
 @media (min-width: 1281px) {
   #col1, #col2 { padding: 16px }
-  #col2 { padding-left:0; max-width: 780px }
+  #col1 { width: 100%; }
+  #col2 { padding-left: 0; width: 100% }
+  .ads-enabled #col2 { padding-left: 0; max-width: 780px; flex: 0}
   #topwagos > .md-layout > .md-layout { width: 50% }
-  #topwagos > .md-layout > .md-layout > ul { max-width: 100%; min-width: 100% }
+  #topwagos > .md-layout > .md-layout > ul { min-width: 100% }
   #topwagos .md-layout .md-layout .md-list {padding: 0 16px}
 }
 @media (min-width: 560px) {
@@ -389,7 +388,7 @@
 
 .resticted-options { flex: 3; flex-wrap: nowrap}
 
-#topwagos {width: 100%; padding: 0}
+#topwagos {padding: 0; width: 100%}
 #topwagos .md-list-item { flex-wrap: wrap }
 #topwagos .md-layout .md-layout { justify-content: center; max-width:380px }
 #topwagos .md-list:after {background-color: inherit}
@@ -403,6 +402,7 @@
 .top-list-menu .md-list-item .md-list-item-container {font-size: 14px; min-height: 24px}
 .top-list-note {font-size:11px; margin: -12px 0 0}
 
+#addonReleases span { color: #999999}
 
 span.md-note {height: 20px; position: absolute; bottom: -22px; font-size: 12px;}
 </style>

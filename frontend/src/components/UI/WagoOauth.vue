@@ -1,122 +1,120 @@
 <template>
   <div id="wago-oauth">
     <div v-if="!provider">
-      <md-card>
-        <h2 v-if="!user || user.guest">{{ $t("Or log in with")}}</h2>
-        <h2 v-else>{{ $t("Connect your account")}}</h2>
-        <md-list class="md-double-line">
-          <md-list-item class="auth-battlenet" href="#" @click.prevent="doAuth('battlenet')">
-            <md-avatar>
-              <ui-image v-if="user && user.battlenet && user.battlenet.updateStatus === 'pending-API'" img="loading"></ui-image>
-              <ui-image v-else-if="user && user.battlenet && user.battlenet.avatar && user.battlenet.avatar.png" :img="user.battlenet.avatar"></ui-image>
-              <ui-image v-else img="battlenet"></ui-image>
-            </md-avatar>
-            <div class="md-list-text-container">
-              <span v-if="user && user.battlenet && user.battlenet.name">{{ user.battlenet.name }}</span>
-              <span>Blizzard Battle.net</span>
-              <span v-if="!user || user.guest">{{ $t("Login with Blizzard") }}</span>
-              <span v-else-if="!user || !user.battlenet || !user.battlenet.name">{{ $t("Connect to account") }}</span>
-              <span v-else-if="user && user.battlenet && user.battlenet.updateStatus === 'pending-API'" style="color:#c1272d">{{ $t("Profile update in progress") }}</span>
-              <span v-else>{{ $t("Update profile") }}</span>
-            </div>
-          </md-list-item>
-          <md-list-item v-if="user && user.battlenet && user.battlenet.name && user.battlenet.updateStatus !== 'pending-API'">
-            <div v-if="user.battlenet.guilds && user.battlenet.guilds.length" class="md-list-text-container" style="margin-left:56px">
-              <span>{{ $t("The following guilds are associated to your account") }}</span>
-              <span>{{ $t("Imports restricted to these guilds may accessible by you if permitted by your guild rank") }}</span>
-              <span>
-                <template v-for="guild in user.battlenet.guilds" v-if="!guild.match(/\d$/)">
-                  {{ guild.replace(/@/g, ' - ')}}<br>
-                </template>
-              </span>
-            </div>
-            <div v-else class="md-list-text-container">
-              <span>{{ $t("No guilds are associated to your account") }}</span>
-              <span>{{ $t("Update your profile to gain access to any guild-restricted imports") }}</span>
-            </div>
-          </md-list-item>
-          <md-list-item class="auth-battlenet" href="#" @click.prevent="doAuth('battlenetCN')">
-            <md-avatar>
-              <ui-image v-if="user && user.battlenetCN && user.battlenetCN.updateStatus === 'pending-API'" img="loading"></ui-image>
-              <ui-image v-else-if="user && user.battlenetCN && user.battlenetCN.avatar && user.battlenetCN.avatar.png" :img="user.battlenetCN.avatar"></ui-image>
-              <ui-image v-else img="battlenet"></ui-image>
-            </md-avatar>
-            <div class="md-list-text-container">
-              <span v-if="user && user.battlenetCN">{{ user.battlenetCN.name }}</span>
-              <span>Blizzard Battle.net China</span>
-              <span v-if="!user || user.guest">{{ $t("Login with Blizzard") }}</span>
-              <span v-else-if="!user || !user.battlenetCN || !user">{{ $t("Connect to account") }}</span>
-              <span v-else-if="user.battlenetCN.updateStatus === 'pending-API'">{{ $t("Profile update in progress") }}</span>
-              <span v-else>{{ $t("Update profile") }}</span>
-            </div>
-          </md-list-item>
-          <md-list-item class="auth-discord" href="#" @click.prevent="doAuth('discord')">
-            <md-avatar>
-              <ui-image v-if="user && user.discord && user.discord.avatar && user.discord.avatar.png" :img="user.discord.avatar"></ui-image>
-              <ui-image v-else img="discord"></ui-image>
-            </md-avatar>
-            <div class="md-list-text-container">
-              <span v-if="user && user.discord">{{ user.discord.name }}</span>
-              <span>Discord</span>
-              <span v-if="!user || user.guest">{{ $t("Login with Discord") }}</span>
-              <span v-else-if="!user || !user.discord || !user.discord.name">{{ $t("Connect to account") }}</span>
-              <span v-else>{{ $t("Update profile") }}</span>
-            </div>
-          </md-list-item>
-          <md-list-item class="auth-google" href="#" @click.prevent="doAuth('google')">
-            <md-avatar>
-              <ui-image v-if="user && user.google && user.google.avatar && user.google.avatar.png" :img="user.google.avatar"></ui-image>
-              <ui-image v-else img="google"></ui-image>
-            </md-avatar>
-            <div class="md-list-text-container">
-              <span v-if="user && user.google">{{ user.google.name }}</span>
-              <span>Google</span>
-              <span v-if="!user || user.guest">{{ $t("Login with Google") }}</span>
-              <span v-else-if="!user || !user.google || !user.google.name">{{ $t("Connect to account") }}</span>
-              <span v-else>{{ $t("Update profile") }}</span>
-            </div>
-          </md-list-item>
-          <md-list-item class="auth-patreon" href="#" @click.prevent="doAuth('patreon')">
-            <md-avatar>
-              <ui-image v-if="user && user.patreon && user.patreon.avatar && user.patreon.avatar.png" :img="user.patreon.avatar"></ui-image>
-              <ui-image v-else img="patreon"></ui-image>
-            </md-avatar>
-            <div class="md-list-text-container">
-              <span v-if="user && user.patreon">{{ user.patreon.name }}</span>
-              <span>Patreon</span>
-              <span v-if="!user || user.guest">{{ $t("Login with Patreon") }}</span>
-              <span v-else-if="!user || !user.patreon || !user.patreon.name">{{ $t("Connect to account") }}</span>
-              <span v-else>{{ $t("Update profile") }}</span>
-            </div>
-          </md-list-item>
-          <!--<md-list-item class="auth-twitch" href="#" @click.prevent="doAuth('twitch')">
-            <md-avatar>
-              <ui-image v-if="user && user.twitch && user.twitch.avatar && user.twitch.avatar.png" :img="user.twitch.avatar"></ui-image>
-              <ui-image v-else img="twitch"></ui-image>
-            </md-avatar>
-            <div class="md-list-text-container">
-              <span v-if="user && user.twitch">{{ user.twitch.name }}</span>
-              <span>Twitch</span>
-              <span v-if="!user || user.guest">{{ $t("Login with Twitch") }}</span>
-              <span v-else-if="!user || !user.twitch || !user.twitch.name">{{ $t("Connect to account") }}</span>
-              <span v-else>{{ $t("Update profile") }}</span>
-            </div>
-          </md-list-item>-->
-          <md-list-item class="auth-twitter" href="#" @click.prevent="doAuth('twitter')">
-            <md-avatar>
-              <ui-image v-if="user && user.twitter && user.twitter.avatar && user.twitter.avatar.png" :img="user.twitter.avatar"></ui-image>
-              <ui-image v-else img="twitter"></ui-image>
-            </md-avatar>
-            <div class="md-list-text-container">
-              <span v-if="user && user.twitter">{{ user.twitter.name }}</span>
-              <span>Twitter</span>
-              <span v-if="!user || user.guest">{{ $t("Login with Twitter") }}</span>
-              <span v-else-if="!user || !user.twitter || !user.twitter.name">{{ $t("Connect to account") }}</span>
-              <span v-else>{{ $t("Update profile") }}</span>
-            </div>
-          </md-list-item>
-        </md-list>
-      </md-card>
+      <h2 v-if="!user || user.guest">{{ $t("Or log in with")}}</h2>
+      <h2 v-else>{{ $t("Connect your account")}}</h2>
+      <md-list class="md-double-line">
+        <md-list-item class="auth-battlenet" href="#" @click.prevent="doAuth('battlenet')">
+          <md-avatar>
+            <ui-image v-if="user && user.battlenet && user.battlenet.updateStatus === 'pending-API'" img="loading"></ui-image>
+            <ui-image v-else-if="user && user.battlenet && user.battlenet.avatar && user.battlenet.avatar.png" :img="user.battlenet.avatar"></ui-image>
+            <ui-image v-else img="battlenet"></ui-image>
+          </md-avatar>
+          <div class="md-list-text-container">
+            <span v-if="user && user.battlenet && user.battlenet.name">{{ user.battlenet.name }}</span>
+            <span>Blizzard Battle.net</span>
+            <span v-if="!user || user.guest">{{ $t("Login with Blizzard") }}</span>
+            <span v-else-if="!user || !user.battlenet || !user.battlenet.name">{{ $t("Connect to account") }}</span>
+            <span v-else-if="user && user.battlenet && user.battlenet.updateStatus === 'pending-API'" style="color:#c1272d">{{ $t("Profile update in progress") }}</span>
+            <span v-else>{{ $t("Update profile") }}</span>
+          </div>
+        </md-list-item>
+        <md-list-item v-if="user && user.battlenet && user.battlenet.name && user.battlenet.updateStatus !== 'pending-API'">
+          <div v-if="user.battlenet.guilds && user.battlenet.guilds.length" class="md-list-text-container" style="margin-left:56px">
+            <span>{{ $t("The following guilds are associated to your account") }}</span>
+            <span>{{ $t("Imports restricted to these guilds may accessible by you if permitted by your guild rank") }}</span>
+            <span>
+              <template v-for="guild in user.battlenet.guilds" v-if="!guild.match(/\d$/)">
+                {{ guild.replace(/@/g, ' - ')}}<br>
+              </template>
+            </span>
+          </div>
+          <div v-else class="md-list-text-container">
+            <span>{{ $t("No guilds are associated to your account") }}</span>
+            <span>{{ $t("Update your profile to gain access to any guild-restricted imports") }}</span>
+          </div>
+        </md-list-item>
+        <md-list-item class="auth-battlenet" href="#" @click.prevent="doAuth('battlenetCN')">
+          <md-avatar>
+            <ui-image v-if="user && user.battlenetCN && user.battlenetCN.updateStatus === 'pending-API'" img="loading"></ui-image>
+            <ui-image v-else-if="user && user.battlenetCN && user.battlenetCN.avatar && user.battlenetCN.avatar.png" :img="user.battlenetCN.avatar"></ui-image>
+            <ui-image v-else img="battlenet"></ui-image>
+          </md-avatar>
+          <div class="md-list-text-container">
+            <span v-if="user && user.battlenetCN">{{ user.battlenetCN.name }}</span>
+            <span>Blizzard Battle.net China</span>
+            <span v-if="!user || user.guest">{{ $t("Login with Blizzard") }}</span>
+            <span v-else-if="!user || !user.battlenetCN || !user">{{ $t("Connect to account") }}</span>
+            <span v-else-if="user.battlenetCN.updateStatus === 'pending-API'">{{ $t("Profile update in progress") }}</span>
+            <span v-else>{{ $t("Update profile") }}</span>
+          </div>
+        </md-list-item>
+        <md-list-item class="auth-discord" href="#" @click.prevent="doAuth('discord')">
+          <md-avatar>
+            <ui-image v-if="user && user.discord && user.discord.avatar && user.discord.avatar.png" :img="user.discord.avatar"></ui-image>
+            <ui-image v-else img="discord"></ui-image>
+          </md-avatar>
+          <div class="md-list-text-container">
+            <span v-if="user && user.discord">{{ user.discord.name }}</span>
+            <span>Discord</span>
+            <span v-if="!user || user.guest">{{ $t("Login with Discord") }}</span>
+            <span v-else-if="!user || !user.discord || !user.discord.name">{{ $t("Connect to account") }}</span>
+            <span v-else>{{ $t("Update profile") }}</span>
+          </div>
+        </md-list-item>
+        <md-list-item class="auth-google" href="#" @click.prevent="doAuth('google')">
+          <md-avatar>
+            <ui-image v-if="user && user.google && user.google.avatar && user.google.avatar.png" :img="user.google.avatar"></ui-image>
+            <ui-image v-else img="google"></ui-image>
+          </md-avatar>
+          <div class="md-list-text-container">
+            <span v-if="user && user.google">{{ user.google.name }}</span>
+            <span>Google</span>
+            <span v-if="!user || user.guest">{{ $t("Login with Google") }}</span>
+            <span v-else-if="!user || !user.google || !user.google.name">{{ $t("Connect to account") }}</span>
+            <span v-else>{{ $t("Update profile") }}</span>
+          </div>
+        </md-list-item>
+        <md-list-item class="auth-patreon" href="#" @click.prevent="doAuth('patreon')">
+          <md-avatar>
+            <ui-image v-if="user && user.patreon && user.patreon.avatar && user.patreon.avatar.png" :img="user.patreon.avatar"></ui-image>
+            <ui-image v-else img="patreon"></ui-image>
+          </md-avatar>
+          <div class="md-list-text-container">
+            <span v-if="user && user.patreon">{{ user.patreon.name }}</span>
+            <span>Patreon</span>
+            <span v-if="!user || user.guest">{{ $t("Login with Patreon") }}</span>
+            <span v-else-if="!user || !user.patreon || !user.patreon.name">{{ $t("Connect to account") }}</span>
+            <span v-else>{{ $t("Update profile") }}</span>
+          </div>
+        </md-list-item>
+        <!--<md-list-item class="auth-twitch" href="#" @click.prevent="doAuth('twitch')">
+          <md-avatar>
+            <ui-image v-if="user && user.twitch && user.twitch.avatar && user.twitch.avatar.png" :img="user.twitch.avatar"></ui-image>
+            <ui-image v-else img="twitch"></ui-image>
+          </md-avatar>
+          <div class="md-list-text-container">
+            <span v-if="user && user.twitch">{{ user.twitch.name }}</span>
+            <span>Twitch</span>
+            <span v-if="!user || user.guest">{{ $t("Login with Twitch") }}</span>
+            <span v-else-if="!user || !user.twitch || !user.twitch.name">{{ $t("Connect to account") }}</span>
+            <span v-else>{{ $t("Update profile") }}</span>
+          </div>
+        </md-list-item>-->
+        <md-list-item class="auth-twitter" href="#" @click.prevent="doAuth('twitter')">
+          <md-avatar>
+            <ui-image v-if="user && user.twitter && user.twitter.avatar && user.twitter.avatar.png" :img="user.twitter.avatar"></ui-image>
+            <ui-image v-else img="twitter"></ui-image>
+          </md-avatar>
+          <div class="md-list-text-container">
+            <span v-if="user && user.twitter">{{ user.twitter.name }}</span>
+            <span>Twitter</span>
+            <span v-if="!user || user.guest">{{ $t("Login with Twitter") }}</span>
+            <span v-else-if="!user || !user.twitter || !user.twitter.name">{{ $t("Connect to account") }}</span>
+            <span v-else>{{ $t("Update profile") }}</span>
+          </div>
+        </md-list-item>
+      </md-list>
     </div>
     <div v-else>
       <ui-warning mode="ok">
@@ -227,5 +225,6 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
+  h2 {margin: 16px}
 </style>

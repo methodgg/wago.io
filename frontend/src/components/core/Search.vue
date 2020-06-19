@@ -7,8 +7,8 @@
         <md-button @click="runSearch()" :disabled="searchString.length<3">{{ $t("Search") }}</md-button>
       </md-input-container>
     </form>
-    <md-layout id="searchLayout">
-      <md-layout>
+    <md-layout id="searchLayout" :class="{floatSideBar: floatSideBar}">
+      <md-layout id="searchResults">
         <ui-loading v-if="isSearching"></ui-loading>
         <div v-else-if="!isSearching && results.total > 0">
           <template v-for="(result, index) in results.results">
@@ -23,6 +23,7 @@
                 <router-link :to="'/' + result.slug">{{ result.name || result.type }}</router-link>
                 <span class="hidden-status" v-if="result.visibility.private">- Private -</span>
                 <span class="hidden-status" v-if="result.visibility.hidden">- Hidden -</span>
+                <span class="hidden-status" v-if="result.visibility.encrypted">- Encrypted -</span>
                 <span class="hidden-status" v-if="result.visibility.restricted">- Restricted -</span>
                 <md-subheader>
                   <span>{{ result.type }}</span>
@@ -39,18 +40,16 @@
                 </div>        
               </div>      
             </div>
-            <advert ad="wago_home_desk_728x90" :multi="false" v-if="!isCollection && (index %9 === 2 || (results.total < 3 && index === results.total - 1))" />
+            <advert :ad="'wago728x90-' + Math.ceil(index / 9)" :belowTheFold="index > 10" v-if="!isCollection && (index %9 === 2 || (results.total < 3 && index === results.total - 1))" />
           </template>
         </div>
         <div class="searchResult" v-else-if="!isSearching && results.total === 0">{{ $t("No results found") }}</div>
       </md-layout>
 
-      <md-layout id="searchMeta" v-if="results && results.query">
-        <search-meta :meta="results.query.context" :tagMap="tagMap" :textSearch="results.query.textSearch" :sort="sortVal" @setSort="setSort" @setImportType="setImportType" :catRelevance="catRelevance" @setCategoryRelevance="setCategoryRelevance" :filterExpansion="filterExpansion" @setExpansion="setExpansion"></search-meta>
-      </md-layout>
-      
-      <md-layout md-align="end" id="search-ad-container" v-if="!isCollection && !isSearching && !$isMobile && (!$store.state.user || !$store.state.user.hideAds)">
-        <advert ad="wago_snippetpage_300x600" />
+      <md-layout id="searchSide" v-if="results && results.query">
+        <md-layout id="searchMeta" v-if="results && results.query">
+          <search-meta :meta="results.query.context" :tagMap="tagMap" :textSearch="results.query.textSearch" :sort="sortVal" @setSort="setSort" @setImportType="setImportType" :catRelevance="catRelevance" @setCategoryRelevance="setCategoryRelevance" :filterExpansion="filterExpansion" @setExpansion="setExpansion"></search-meta>
+        </md-layout>
       </md-layout>
     </md-layout>
     <p v-if="isSearchingMore">{{ $t("Loading more") }}</p>
@@ -67,6 +66,7 @@ export default {
       },
       searchString: '',
       searchOptions: 'sort: Date',
+      floatSideBar: false,
       tagContext: [],
       searchTime: 0,
       tagMap: {},
@@ -188,9 +188,11 @@ export default {
               tagStrMatch = tagMatch[2]
             }
 
+            console.log('tags', tagStrMatch)
             var tags = tagStrMatch.split(/;|,/g)
             tags.forEach((thisTag) => {
               var category = Categories.search(thisTag, this.$t)
+              console.log('yyyy', thisTag, category)
               if (category) {
                 this.tagContext.push(category)
                 this.tagMap[category.id] = tagMatch[0]
@@ -243,6 +245,7 @@ export default {
         vue.$set(vue.results, 'results', res.results)
         vue.$set(vue.results, 'context', res.query.context)
         vue.$set(vue.results, 'meta', res.meta)
+        this.floatSideBar = false
         // put text search at the end of the query
         if (res.query && res.query.textSearch) {
           this.searchString = (this.searchString.replace(res.query.textSearch, '').replace(/\s+/g, ' ') + ' ' + res.query.textSearch).trim()
@@ -254,6 +257,31 @@ export default {
           this.searchMore()
         }
       })
+    },
+    watchScroll () {
+      try {
+        var content = document.getElementById('searchLayout')
+        var rect = content.getBoundingClientRect()
+        if (rect.y < 0) {
+          this.floatSideBar = true
+        }
+        else {
+          this.floatSideBar = false
+        }
+      }
+      catch (e) {
+        this.floatSideBar = false
+      }
+
+      // infinite search
+      if (!document.getElementById('searchLayout')) {
+        return
+      }
+      if (this.results && this.results.total && ((this.results.results && this.results.total > this.results.results.length) || (this.results.meta && this.results.meta.forceNextPage)) && !this.isSearching && !this.isSearchingMore) {
+        if (document.body.scrollHeight - 600 <= document.body.scrollTop + window.innerHeight || document.body.scrollHeight - 600 <= document.documentElement.scrollTop + window.innerHeight) {
+          this.searchMore()
+        }
+      }
     },
     setSort: function (val) {
       if (val !== this.sortVal) {
@@ -322,6 +350,12 @@ export default {
       })
     }
   },
+  created: function () {
+    window.addEventListener('scroll', this.watchScroll)
+  },
+  destroyed: function () {
+    window.removeEventListener('scroll', this.watchScroll)
+  },
   mounted: function () {
     if (this.contextGame) {
       this.uiExpansionValue = true
@@ -341,16 +375,16 @@ export default {
       title: 'Search'
     })
 
-    document.addEventListener('scroll', function (event) {
-      if (!document.getElementById('searchLayout')) {
-        return
-      }
-      if (vue.results && vue.results.total && ((vue.results.results && vue.results.total > vue.results.results.length) || (vue.results.meta && vue.results.meta.forceNextPage)) && !vue.isSearching && !vue.isSearchingMore) {
-        if (document.body.scrollHeight - 600 <= document.body.scrollTop + window.innerHeight || document.body.scrollHeight - 600 <= document.documentElement.scrollTop + window.innerHeight) {
-          vue.searchMore()
-        }
-      }
-    })
+    // document.addEventListener('scroll', function (event) {
+    //   if (!document.getElementById('searchLayout')) {
+    //     return
+    //   }
+    //   if (vue.results && vue.results.total && ((vue.results.results && vue.results.total > vue.results.results.length) || (vue.results.meta && vue.results.meta.forceNextPage)) && !vue.isSearching && !vue.isSearchingMore) {
+    //     if (document.body.scrollHeight - 600 <= document.body.scrollTop + window.innerHeight || document.body.scrollHeight - 600 <= document.documentElement.scrollTop + window.innerHeight) {
+    //       vue.searchMore()
+    //     }
+    //   }
+    // })
   }
 }
 </script>
@@ -360,7 +394,7 @@ export default {
 #searchForm { padding: 16px; width: 100% }
 #searchForm button { margin-top: -3px }
 
-.searchResult { display: flex; padding: 0 16px; margin-bottom: 8px; max-width: 850px; min-width: 650px;}
+.searchResult { display: flex; padding: 0 16px; margin-bottom: 8px; max-width: 850px; width: 100%;}
 .searchResult .searchImg { min-width: 120px; max-width: 120px; text-align: center }
 .searchResult .searchImg img { max-width: 100%; max-height: 6em; }
 .searchResult .searchText {  }
@@ -372,26 +406,36 @@ export default {
 .searchText .md-subheader span, .searchText .md-subheader a { padding: 0 16px 0 0}
 .searchTags .md-chip { height: auto; padding: 4px 6px 4px 20px; background-size: 18px 18px; background-position: 2px 2px }
 
+#searchSide {display: flex; justify-content: space-between; flex-wrap: nowrap;}
+
+#searchMeta, #search-ad-container {transition: margin 200ms ease; max-width: 408px}
+#searchMeta {max-width: 300px; }
 #searchMeta .md-whiteframe { padding: 8px;}
 
-#search-ad-container {flex: auto!important; }
+#search-ad-container {flex: auto!important; height: 0%; }
 #search-ad-container > div { margin-top: 0}
+
 
 @media (min-width: 601px) {
   #searchLayout { flex-wrap: nowrap; align-items: flex-start; }
-  #searchLayout > .md-layout { flex: initial }
   #searchMeta { margin-right: 16px }
+  #searchResults { max-width: 850px; width:100%; flex: initial }
+  .floatSideBar #searchSide {position: fixed; left: 1110px; top: 4px; width: calc(100% - 1110px);}
 }
 
 
+@media (max-width: 1700px) {
+  #search-ad-container {display: none}
+  
+}
 @media (max-width: 600px) {
   #searchLayout { flex-direction: column-reverse }
-  #searchForm { padding: 16px 16px 0 }
-  #searchMeta { order: 1; width: 100%; }
+  #searchForm { padding: 16px 16px 0; max-width: 100% }
+  #searchSide { order: 2; width: 100%; }
   #searchMeta .md-whiteframe { margin: 0 16px 16px }
   #searchMeta > div { width: 100%; }
-  #searchResults { order: 2 }
-  .searchResult { flex-direction: column; }
+  #searchResults { order: 1;}
+  .searchResult { flex-direction: column; max-width:100%; min-width: initial }
   .searchResult .searchImg { max-width: 100%; min-width: auto; text-align: left; padding-left: 16px }
 }
 

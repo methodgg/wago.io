@@ -173,7 +173,7 @@
         </md-list>
       </md-layout>
     </md-layout>
-    <advert ad="wago_weakauras_anchor" />
+    <advert ad="wago728x90" fixed="bottom" />
     <div></div>
   </div>
 </template>
@@ -268,7 +268,7 @@ h2 span {font-size:80%; cursor: pointer}
 #searchForm { padding: 16px; flex: 1 }
 #searchForm button { margin-top: -3px }
 
-#addon-name .md-theme-default.md-switch {margin: 0 8px}
+#addon-name .md-theme-default.md-switch {margin: 0 8px; zoom:0.8}
 #addon-name .md-theme-default.md-switch.md-checked .md-switch-container {background-color: rgba(0, 0, 0, 0.38);}
 #addon-name .md-theme-default.md-switch.md-checked .md-switch-thumb {background-color: #fafafa;}
 

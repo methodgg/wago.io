@@ -161,6 +161,7 @@
           <span>&copy; 2016-{{(new Date()).getFullYear()}} Wago.io</span>
           <span><router-link to="/terms-of-service">{{ $t("Terms of Service") }}</router-link></span>
           <span><router-link to="/privacy-policy">{{ $t("Privacy Policy") }}</router-link></span>
+          <span data-ccpa-link="1"></span>
         </div>
       </md-sidenav>
 
@@ -169,8 +170,12 @@
         <md-button @click.native="$refs.snackbar.close()">{{ $t("Close") }}</md-button>
       </md-snackbar>
 
-      <div id="content">
-        <router-view></router-view>
+      <div id="content-frame">
+        <md-layout md-row id="content">
+          <router-view></router-view>
+          <advert ad="wago300x250" :format="$screenWidth > 1025 ? 'video' : ''" fixed="sticky" v-if="this.$store.state.user.UID || this.$store.state.user.guest" />
+          <advert ad="wago300x250" :format="$screenWidth > 1025 ? 'video' : ''" :spacerOnly="true" v-if="this.$store.state.user.UID || this.$store.state.user.guest"  />
+        </md-layout>
       </div>
     </div>
     <div v-else>
@@ -529,7 +534,9 @@ export default {
     background: #ECECEC;
     z-index: 1
   }
-  #content { padding-left: 260px; padding-bottom: 100px; pointer-events: auto; position: relative }
+  #content { padding-left: 260px; padding-bottom: 100px; pointer-events: auto; position: relative; flex-wrap: nowrap;}
+  #content > div { flex: 1; width: 100%; }
+  #content > div + div { flex: 1; width: inherit; }
   #logo { text-align: left; padding: 8px 16px; }
   #logo img { max-height: 40px; }
   #xmaslogo img { width: 45px; position: absolute; left: 41px; top: -3px;}
@@ -595,7 +602,7 @@ export default {
 .wotm-controls { padding: 16px 16px 0; margin-bottom: -8px}
 .wotm-controls button { background: none; border: none; cursor: pointer}
 .legal { padding: 16px; }
-.legal span { font-size: 90%; padding: 0 0 8px; display: block; }
+.legal > span { font-size: 90%; padding: 0 0 8px; display: block; }
 
 @media (max-width: 800px) {
   #gSearch button { display: none }
@@ -621,4 +628,5 @@ export default {
 #randombtn { height: 36px; opacity: 0.7; transition: all 1s ease-in; cursor: pointer; margin: 6px 8px }
 
 body.theme-dark .md-input-container label a { -webkit-text-fill-color: initial }
+
 </style>

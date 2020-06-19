@@ -99,6 +99,7 @@ export default {
 .d2h-file-diff { overflow-x: auto }
 .d2h-tag { display: none }
 .d2h-diff-tbody>tr>td { height: auto }
+.d2h-code-line-ctn {white-space: pre-wrap}
 body.theme-dark .d2h-file-wrapper { border: 0 }
 body.theme-dark .d2h-file-header { border: 0; background: #333333 }
 body.theme-dark .d2h-info, body.theme-dark .d2h-code-linenumber { background: #333333; color: rgba(255, 255, 255, .6); border: 0 }

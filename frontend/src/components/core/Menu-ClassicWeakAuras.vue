@@ -137,7 +137,7 @@
         </md-list>
       </md-layout>
     </md-layout>
-    <advert ad="wago_weakauras_anchor" />
+    <advert ad="wago728x90" fixed="bottom" />
     <div></div>
   </div>
 </template>

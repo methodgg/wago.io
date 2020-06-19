@@ -1,5 +1,5 @@
 <template>
-  <div id="view-wago">
+  <div id="view-wago" :class="{hasFloatingBar: showFloatingHeader, enforceTop: showPanel === 'builder'}">
     <ui-warning v-if="wago.error === 'page_not_found'" mode="alert">
       404 {{ $t("No results found") }}
     </ui-warning>
@@ -162,21 +162,21 @@
               <!-- FRAME TOGGLES -->
               <md-button-toggle class="md-accent" md-single>
                 <template v-if="!requireCipherKey">
-                <md-button v-if="wago.user && User && wago.UID && wago.UID === User.UID" v-bind:class="{'md-toggle': showPanel === 'config'}" @click="toggleFrame('config')">{{ $t("Config") }}</md-button>
-                <md-button v-if="wago.type == 'ERROR'" v-bind:class="{'md-toggle': showPanel === 'description'}" @click="toggleFrame('description')">{{ $t("Report") }}</md-button>
-                <md-button v-if="wago.type == 'ERROR'" v-bind:class="{'md-toggle': showPanel === 'description'}" @click="toggleFrame('description')">{{ $t("Report") }}</md-button>
-                <md-button v-if="wago.type !== 'ERROR'" v-bind:class="{'md-toggle': showPanel === 'description'}" @click="toggleFrame('description')">{{ $t("Description") }}</md-button>
-                <md-button v-if="wago.referrals && wago.referrals.length" v-bind:class="{'md-toggle': showPanel === 'referrals'}" @click="toggleFrame('referrals')">{{ $t("External Links") }}</md-button>
-                <md-button v-if="(User && User.access && User.access.beta && wago && wago.attachedMedia && wago.attachedMedia.length)" v-bind:class="{'md-toggle': showPanel === 'media'}" @click="toggleFrame('media')">{{ $t("Media") }} [Beta]</md-button>
-                <md-button v-if="wago.type === 'WEAKAURA' || wago.type === 'CLASSIC-WEAKAURA'" v-bind:class="{'md-toggle': showPanel === 'includedauras'}" @click="toggleFrame('includedauras')">{{ $t("Included Auras") }}</md-button>
-                <md-button v-if="wago.translations" v-bind:class="{'md-toggle': showPanel === 'translations'}" @click="toggleFrame('translations')">{{ $t("Translations") }}</md-button>
-                <md-button v-bind:class="{'md-toggle': showPanel === 'comments'}" @click="toggleFrame('comments')"><span v-if="hasUnreadComments && showPanel !== 'comments'" class="commentAttn">{{$t("NEW")}}!! </span>{{ $t("[-count-] comment", {count: wago.commentCount }) }}</md-button>
-                <md-button v-if="wago.type !== 'COLLECTION'" v-bind:class="{'md-toggle': showPanel === 'collections'}" @click="toggleFrame('collections')">{{ $t("[-count-] collection", {count:  wago.collectionCount}) }}</md-button>
-                <md-button v-if="wago.versions && wago.versions.total > 1" v-bind:class="{'md-toggle': showPanel === 'versions'}" @click="toggleFrame('versions')" ref="versionsButton">{{ $t("[-count-] version", { count: wago.versions.total }) }}</md-button>
-                <md-button v-if="hasCodeDiffs" v-bind:class="{'md-toggle': showPanel === 'diffs'}" @click="toggleFrame('diffs')" ref="diffsButton">{{ $t("Code Diffs") }}</md-button>
+                  <md-button v-if="wago.user && User && wago.UID && wago.UID === User.UID" v-bind:class="{'md-toggle': showPanel === 'config'}" @click="toggleFrame('config')">{{ $t("Config") }}</md-button>
+                  <md-button v-if="wago.type == 'ERROR'" v-bind:class="{'md-toggle': showPanel === 'description'}" @click="toggleFrame('description')">{{ $t("Report") }}</md-button>
+                  <md-button v-if="wago.type == 'ERROR'" v-bind:class="{'md-toggle': showPanel === 'description'}" @click="toggleFrame('description')">{{ $t("Report") }}</md-button>
+                  <md-button v-if="wago.type !== 'ERROR'" v-bind:class="{'md-toggle': showPanel === 'description'}" @click="toggleFrame('description')">{{ $t("Description") }}</md-button>
+                  <md-button v-if="wago.referrals && wago.referrals.length" v-bind:class="{'md-toggle': showPanel === 'referrals'}" @click="toggleFrame('referrals')">{{ $t("External Links") }}</md-button>
+                  <md-button v-if="(User && User.access && User.access.beta && wago && wago.attachedMedia && wago.attachedMedia.length)" v-bind:class="{'md-toggle': showPanel === 'media'}" @click="toggleFrame('media')">{{ $t("Media") }} [Beta]</md-button>
+                  <md-button v-if="wago.type === 'WEAKAURA' || wago.type === 'CLASSIC-WEAKAURA'" v-bind:class="{'md-toggle': showPanel === 'includedauras'}" @click="toggleFrame('includedauras')">{{ $t("Included Auras") }}</md-button>
+                  <md-button v-if="wago.translations" v-bind:class="{'md-toggle': showPanel === 'translations'}" @click="toggleFrame('translations')">{{ $t("Translations") }}</md-button>
+                  <md-button v-bind:class="{'md-toggle': showPanel === 'comments'}" @click="toggleFrame('comments')"><span v-if="hasUnreadComments && showPanel !== 'comments'" class="commentAttn">{{$t("NEW")}}!! </span>{{ $t("[-count-] comment", {count: wago.commentCount }) }}</md-button>
+                  <md-button v-if="wago.type !== 'COLLECTION'" v-bind:class="{'md-toggle': showPanel === 'collections'}" @click="toggleFrame('collections')">{{ $t("[-count-] collection", {count:  wago.collectionCount}) }}</md-button>
+                  <md-button v-if="wago.versions && wago.versions.total > 1" v-bind:class="{'md-toggle': showPanel === 'versions'}" @click="toggleFrame('versions')" ref="versionsButton">{{ $t("[-count-] version", { count: wago.versions.total }) }}</md-button>
+                  <md-button v-if="hasCodeDiffs" v-bind:class="{'md-toggle': showPanel === 'diffs'}" @click="toggleFrame('diffs')" ref="diffsButton">{{ $t("Code Diffs") }}</md-button>
                   <md-button v-if="wago.type !== 'ERROR' && wago.public" v-bind:class="{'md-toggle': showPanel === 'embed'}" @click="toggleFrame('embed')">{{ $t("Embed") }}</md-button>
-                <md-button v-if="wago.type === 'MDT'" v-bind:class="{'md-toggle': showPanel === 'builder'}" @click="toggleFrame('builder')">{{ $t("Builder") }}</md-button>
-                <md-button v-if="wago.type !== 'ERROR'" v-bind:class="{'md-toggle': showPanel === 'editor'}" @click="toggleFrame('editor')">{{ $t("Editor") }}</md-button>
+                  <md-button v-if="wago.type === 'MDT'" v-bind:class="{'md-toggle': showPanel === 'builder'}" @click="toggleFrame('builder')">{{ $t("Builder") }}</md-button>
+                  <md-button v-if="wago.type !== 'ERROR'" v-bind:class="{'md-toggle': showPanel === 'editor'}" @click="toggleFrame('editor')">{{ $t("Editor") }}</md-button>
                 </template>
                 <md-button v-else class="md-toggle">{{ $t("Encrypted") }}</md-button>
               </md-button-toggle>
@@ -1332,20 +1332,21 @@ export default {
         if (!params.version) {
           params.version = this.latestVersion.semver
         }
+        if (res.visibility.encrypted) {
+          this.requireCipherKey = true
+        }
         var getCode
         if (res.codeURL) {
           getCode = vue.http.get(res.codeURL)
           getCode.then((code) => {
-            if (res.visibility.encrypted) {
-              this.requireCipherKey = true
+            if (this.requireCipherKey) {
               this.encryptedData = code
-              }
+            }
             else {
               this.parseCodeObject(code)
             }
           })
         }
-
         // initial config
         this.editName = res.name
         this.editSlug = res.slug
@@ -1719,14 +1720,10 @@ export default {
       this.$scrollTo('#app')
     },
     watchScroll () {
-      var header = this.$refs['action-buttons']
-      if (!header) {
-        this.showFloatingHeader = false
-      }
-      else {
-        var rect = header.$el.getBoundingClientRect()
-        var viewHeight = Math.max(document.documentElement.clientHeight, window.innerHeight)
-        this.showFloatingHeader = !!(rect.bottom < 0 || rect.top - viewHeight >= 0)
+      var top = document.getElementById('topbar')
+      if (top) {
+        var rect = top.getBoundingClientRect()
+        this.showFloatingHeader = !!(rect.bottom < 0)
       }
     },
     toggleViewNotes (v) {
