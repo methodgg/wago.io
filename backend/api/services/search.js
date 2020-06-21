@@ -32,7 +32,7 @@ module.exports = function (fastify, opts, next) {
       expansion = req.user.config.searchOptions.expansion
     }
     else {
-      expansion = 'bfa'
+      expansion = 'any'
     }
     // default tag relevance
     var relevance
@@ -135,50 +135,6 @@ module.exports = function (fastify, opts, next) {
       }
     }
 
-    // check for expansion filter
-    var expansionFilterIndex = null
-    match = /expansion:\s*"?(all|classic|legion|bfa|sl)"?/i.exec(query)
-    if (match) {
-      query = query.replace(match[0], '').replace(/\s{2,}/, ' ').trim()
-      expansion = match[1]
-    }
-    Search.query.expansion = expansion
-
-    // if (expansion === 'legion') {
-    //   // less than bfa release date AND does not have bfa beta tag
-    //   // esFilter.push({ bool: { should: [{bool: {must: [{match: {game: 'bfa'}}, {range: { modified: { lt: "2018-07-17" } } }], must_not: { term: { "categories.keyword": 'beta-bfa'}}}}, {regexp: {"type.keyword": {value: 'CLASSIC-.+'}}}]}})
-    //   expansionFilterIndex = esFilter.length - 1
-    // }
-
-    // // if battle for azeroth
-    // else if (expansion === 'bfa') {
-    //   // greater than bfa release date OR has bfa beta tag
-    //   // esFilter.push({ bool: { should: [{bool: {must: [{match: {game: 'bfa'}}, {range: { modified: { gte: "2018-07-17" } } }]}}, {regexp: {"type.keyword": {value: 'CLASSIC-.+'}}}]}})
-    //   expansionFilterIndex = esFilter.length - 1
-    // }
-
-    // // if shadowlands
-    // else if (expansion === 'sl') {
-    //   esFilter.push({ term: { game: 'sl' } })
-    //   expansionFilterIndex = esFilter.length - 1
-    // }
-
-    // // if showing all expansions
-    // else if (expansion === 'all') {
-    //   // no filter
-    // }
-
-    if (expansion !== 'all') {
-        esFilter.push({ term: { game: expansion } })
-        expansionFilterIndex = esFilter.length - 1
-    }
-
-    // if user is logged in and expansion is different from their current config, then update config
-    if (req.user && req.user.config.searchOptions.expansion != expansion) {
-      req.user.config.searchOptions.expansion = expansion
-      updateUser = true
-    }
-
     // check for import type
     var game = 'wow'
     var matchType
@@ -186,7 +142,6 @@ module.exports = function (fastify, opts, next) {
     if (match) {
       query = query.replace(match[0], '').replace(/\s{2,}/, ' ').trim()
       match[1] = match[1].toUpperCase()
-      matchType = match[1]
 
       if (match[1].match(/WEAKAURA/)) {
         match[1] = 'WEAKAURAS2'
@@ -198,6 +153,7 @@ module.exports = function (fastify, opts, next) {
       if (expansion === 'classic' && match[1] === 'WEAKAURAS2') {
         match[1] = 'CLASSIC-WEAKAURA'
       }
+      matchType = match[1]
       // lookup.type = match[1]
       Search.query.context.push({
         query: match[0],
@@ -209,6 +165,26 @@ module.exports = function (fastify, opts, next) {
     }
     else {
       esFilter.push({ bool: { must_not: { term: { 'type.keyword': 'ERROR'}}}})
+    }
+
+    // check for expansion filter
+    var expansionFilterIndex = null
+    match = /expansion:\s*"?(all|classic|legion|bfa|sl)"?/i.exec(query)
+    if (match) {
+      query = query.replace(match[0], '').replace(/\s{2,}/, ' ').trim()
+      expansion = match[1]
+    }
+    Search.query.expansion = expansion
+
+    if (expansion !== 'all' && matchType.match(/WEAKAURA/)) {
+        esFilter.push({ term: { game: expansion } })
+        expansionFilterIndex = esFilter.length - 1
+    }
+
+    // if user is logged in and expansion is different from their current config, then update config
+    if (req.user && req.user.config.searchOptions.expansion != expansion) {
+      req.user.config.searchOptions.expansion = expansion
+      updateUser = true
     }
 
     // check for date range
