@@ -18,9 +18,9 @@
           <md-list-item v-for="cls in classes" v-bind:key="cls.id" :class="cls.cls + ' md-inset'">
             <category-image :group="cls.cls"></category-image>
             <div class="md-list-text-container">
-              <router-link :to="'/weakauras/' + cls.slug">{{ cls.text }}</router-link>
+              <a href="#" @click.prevent="searchRoute(cls.slug)">{{ cls.text }}</a>
               <span>
-                <router-link  v-for="spec in cls.specs" v-bind:key="spec.id" :to="'/weakauras/' + spec.slug">{{ spec.text.replace(cls.text, '').trim() }}</router-link>
+                <a v-for="spec in cls.specs" v-bind:key="spec.id" href="#" @click.prevent="searchRoute(spec.slug)">{{ spec.text.replace(cls.text, '').trim() }}</a>
               </span>
             </div>
           </md-list-item>
@@ -32,9 +32,9 @@
           <md-list-item v-for="raid in raids" v-bind:key="raid.id" :class="raid.cls + ' md-inset'">
             <category-image :group="raid.cls"></category-image>
             <div class="md-list-text-container">
-              <router-link :to="'/weakauras/' + raid.slug">{{ raid.text }}</router-link>
+              <a href="#" @click.prevent="searchRoute(raid.slug)">{{ raid.text }}</a>
               <span>
-                <router-link  v-for="boss in raid.bosses" v-bind:key="boss.id" :to="'/weakauras/' + boss.slug">{{ boss.text }}</router-link>
+                <a v-for="boss in raid.bosses" v-bind:key="boss.id" href="#" @click.prevent="searchRoute(boss.slug)">{{ boss.text }}</a>
               </span>
             </div>
           </md-list-item>
@@ -46,9 +46,9 @@
           <md-list-item class="md-inset misc">
             <category-image group="misc"></category-image>
             <div class="md-list-text-container">
-              <router-link to="/weakauras/general">{{ $t("General") }}</router-link>
+              <a href="#" @click.prevent="searchRoute('general')">{{ $t("General") }}</a>
               <span>
-                <router-link v-for="item in misc" v-bind:key="item.id" :to="'/weakauras/' + item.slug">{{ item.text }}</router-link>
+                <a v-for="item in misc" v-bind:key="item.id" href="#" @click.prevent="searchRoute(item.slug)">{{ item.text }}</a>
               </span>
             </div>
           </md-list-item>
@@ -56,9 +56,9 @@
           <md-list-item class="md-inset roles">
             <category-image group="role"></category-image>
             <div class="md-list-text-container">
-              <router-link to="/weakauras/roles">{{ $t("Class Roles") }}</router-link>
+              <a href="#" @click.prevent="searchRoute('class-roles')">{{ $t("Class Roles") }}</a>
               <span>
-                <router-link v-for="item in roles" v-bind:key="item.id" :to="'/weakauras/' + item.slug">{{ item.text }}</router-link>
+                <a v-for="item in roles" v-bind:key="item.id" href="#" @click.prevent="searchRoute(item.slug)">{{ item.text }}</a>
               </span>
             </div>
           </md-list-item>
@@ -69,9 +69,9 @@
           <md-list-item v-for="item in pvp" v-bind:key="item.id" :class="item.cls + ' md-inset'">
             <category-image :group="item.cls"></category-image>
             <div class="md-list-text-container">
-              <router-link :to="'/weakauras/' + item.slug">{{ item.text }}</router-link>
+              <a href="#" @click.prevent="searchRoute(item.slug)">{{ item.text }}</a>
               <span>
-                <router-link v-for="zone in item.bosses" v-bind:key="zone.id" :to="'/weakauras/' + zone.slug">{{ zone.text }}</router-link>
+                <a v-for="zone in item.bosses" v-bind:key="zone.id" href="#" @click.prevent="searchRoute(zone.slug)">{{ zone.text }}</a>
               </span>
             </div>
           </md-list-item>
@@ -82,34 +82,22 @@
           <md-list-item v-for="prof in professions" v-bind:key="prof.id" :class="prof.cls + ' md-inset'">
             <category-image :group="prof.cls"></category-image>
             <div class="md-list-text-container">
-              <router-link :to="'/weakauras/' + prof.slug">{{ prof.text }}</router-link>
+              <a href="#" @click.prevent="searchRoute(prof.slug)">{{ prof.text }}</a>
               <span>
-                <router-link  v-for="spec in prof.specs" v-bind:key="spec.id" :to="'/weakauras/' + spec.slug">{{ spec.text }}</router-link>
+                <a  v-for="spec in prof.specs" v-bind:key="spec.id" href="#" @click.prevent="searchRoute(spec.slug)">{{ spec.text }}</a>
               </span>
             </div>
           </md-list-item>
-        </md-list>        
+        </md-list>      
 
-      </md-layout>
-      <md-layout>
         <md-subheader>{{ $t("Custom Code") }}</md-subheader>
         <md-list class="md-double-line md-dense">
           <md-list-item class="md-inset development">
             <category-image group="development"></category-image>
             <div class="md-list-text-container">
-              <router-link to="/weakauras/development">{{ $t("Development") }}</router-link>
+              <a href="#" @click.prevent="searchRoute('development')">{{ $t("Development") }}</a>
               <span>
-                <router-link v-for="item in development" v-bind:key="item.id" :to="'/weakauras/' + item.slug">{{ item.text }}</router-link>
-              </span>
-            </div>
-          </md-list-item>
-          
-          <md-list-item class="md-inset snippets">
-            <category-image group="snippets"></category-image>
-            <div class="md-list-text-container">
-              <router-link to="/weakauras/snippets">{{ $t("Code Snippets") }}</router-link>
-              <span>
-                <router-link v-for="item in snippets" v-bind:key="item.id" :to="'/weakauras/' + item.slug">{{ item.text }}</router-link>
+                <a v-for="item in development" v-bind:key="item.id" href="#" @click.prevent="searchRoute(item.slug)">{{ item.text }}</a>
               </span>
             </div>
           </md-list-item>
@@ -120,16 +108,17 @@
           <!--<md-list-item class="torghast md-inset'">
             <category-image group="torghast"></category-image>
             <div class="md-list-text-container">
-              <router-link to="/weakauras-shadowlands/">{{ $t('Shadowlands') }}</router-link>
+              <a to="/weakauras-shadowlands/">{{ $t('Shadowlands') }}</a>
             </div>
           </md-list-item>-->
           <md-list-item class="nyalotha md-inset'">
             <category-image group="nyalotha"></category-image>
             <div class="md-list-text-container">
-              <router-link to="/weakauras-bfa/">{{ $t('Battle for Azeroth') }}</router-link>
+              <a to="/weakauras-bfa/">{{ $t('Battle for Azeroth') }}</a>
             </div>
           </md-list-item>
-        </md-list>
+        </md-list>  
+
       </md-layout>
     </md-layout>
     <advert ad="wago728x90" fixed="bottom" />
@@ -145,7 +134,12 @@ export default {
   },
   methods: {
     runSearch: function () {
+      this.$store.commit('userSearchOption', {field: 'expansion', value: 'legion'})
       this.$router.push('/search/' + this.searchString.trim().replace(/\s+/g, '+'))
+    },
+    searchRoute: function (slug) {
+      this.$store.commit('userSearchOption', {field: 'expansion', value: 'legion'})
+      this.$router.push('/weakauras/' + slug)
     }
   },
   data: function () {
@@ -201,6 +195,7 @@ h2#addon-name span {font-size: 80%}
 #searchForm { padding: 16px; flex: 1 }
 #searchForm button { margin-top: -3px }
 
+#search-weakaura { margin-bottom: 90px}
 #search-weakaura .md-list-item img { height: 48px; padding-right: 16px; vertical-align:top}
 #search-weakaura a { margin-right: 12px }
 #search-weakaura .md-list-item.md-inset .md-list-item-container { padding-left: 24px; flex-wrap: wrap; padding-bottom: 16px }
@@ -208,6 +203,7 @@ h2#addon-name span {font-size: 80%}
 #search-weakaura .md-list-text-container > a { font-size: 18px; font-weight: bold; line-height: 19px; }
 #search-weakaura .md-list-text-container span{ white-space: normal; line-height: 22px}
 #search-weakaura .md-layout { align-items: flex-start}
+#search-weakaura .md-layout > .md-layout {max-width:450px}
 
 #search-weakaura .md-subheader { width: 100% }
 #search-weakaura .md-subheader + .md-list { width: 100% }

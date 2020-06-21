@@ -28,7 +28,7 @@ module.exports = function (fastify, opts, next) {
     }
     // default expansion filter
     var expansion
-    if (req.user && req.user.config.searchOptions.expansion && req.user.config.searchOptions.expansion !== 'classic') {
+    if (req.user && req.user.config.searchOptions.expansion) {
       expansion = req.user.config.searchOptions.expansion
     }
     else {
@@ -137,35 +137,40 @@ module.exports = function (fastify, opts, next) {
 
     // check for expansion filter
     var expansionFilterIndex = null
-    match = /expansion:\s*"?(all|legion|bfa|sl)"?/i.exec(query)
+    match = /expansion:\s*"?(all|classic|legion|bfa|sl)"?/i.exec(query)
     if (match) {
       query = query.replace(match[0], '').replace(/\s{2,}/, ' ').trim()
       expansion = match[1]
     }
     Search.query.expansion = expansion
 
-    if (expansion === 'legion') {
-      // less than bfa release date AND does not have bfa beta tag
-      esFilter.push({ bool: { should: [{bool: {must: [{match: {game: 'bfa'}}, {range: { modified: { lt: "2018-07-17" } } }], must_not: { term: { "categories.keyword": 'beta-bfa'}}}}, {regexp: {"type.keyword": {value: 'CLASSIC-.+'}}}]}})
-      expansionFilterIndex = esFilter.length - 1
-    }
+    // if (expansion === 'legion') {
+    //   // less than bfa release date AND does not have bfa beta tag
+    //   // esFilter.push({ bool: { should: [{bool: {must: [{match: {game: 'bfa'}}, {range: { modified: { lt: "2018-07-17" } } }], must_not: { term: { "categories.keyword": 'beta-bfa'}}}}, {regexp: {"type.keyword": {value: 'CLASSIC-.+'}}}]}})
+    //   expansionFilterIndex = esFilter.length - 1
+    // }
 
-    // if battle for azeroth
-    else if (expansion === 'bfa') {
-      // greater than bfa release date OR has bfa beta tag
-      esFilter.push({ bool: { should: [{bool: {must: [{match: {game: 'bfa'}}, {range: { modified: { gte: "2018-07-17" } } }]}}, {regexp: {"type.keyword": {value: 'CLASSIC-.+'}}}]}})
-      expansionFilterIndex = esFilter.length - 1
-    }
+    // // if battle for azeroth
+    // else if (expansion === 'bfa') {
+    //   // greater than bfa release date OR has bfa beta tag
+    //   // esFilter.push({ bool: { should: [{bool: {must: [{match: {game: 'bfa'}}, {range: { modified: { gte: "2018-07-17" } } }]}}, {regexp: {"type.keyword": {value: 'CLASSIC-.+'}}}]}})
+    //   expansionFilterIndex = esFilter.length - 1
+    // }
 
-    // if shadowlands
-    else if (expansion === 'sl') {
-      esFilter.push({ term: { game: 'sl' } })
-      expansionFilterIndex = esFilter.length - 1
-    }
+    // // if shadowlands
+    // else if (expansion === 'sl') {
+    //   esFilter.push({ term: { game: 'sl' } })
+    //   expansionFilterIndex = esFilter.length - 1
+    // }
 
-    // if showing all expansions
-    else if (expansion === 'all') {
-      // no filter
+    // // if showing all expansions
+    // else if (expansion === 'all') {
+    //   // no filter
+    // }
+
+    if (expansion !== 'all') {
+        esFilter.push({ term: { game: expansion } })
+        expansionFilterIndex = esFilter.length - 1
     }
 
     // if user is logged in and expansion is different from their current config, then update config
@@ -183,21 +188,21 @@ module.exports = function (fastify, opts, next) {
       match[1] = match[1].toUpperCase()
       matchType = match[1]
 
-      if (match[1] === 'WEAKAURA' || match[1] === 'WEAKAURA2' || match[1] === 'WEAKAURAS') {
+      if (match[1].match(/WEAKAURA/)) {
         match[1] = 'WEAKAURAS2'
       }
       else if (match[1] === 'TOTALRP') {
         match[1] = 'TOTALRP3'
       }
 
-      if (match[1].match(/CLASSIC/)) {
-        game = 'classic'
+      if (expansion === 'classic' && match[1] === 'WEAKAURAS2') {
+        match[1] = 'CLASSIC-WEAKAURA'
       }
       // lookup.type = match[1]
       Search.query.context.push({
         query: match[0],
         type: 'type',
-        wagoType: match[1]==='WEAKAURAS2' && 'WEAKAURA' || match[1],
+        wagoType: match[1].match(/WEAKAURA/) && 'WEAKAURA' || match[1],
         image: '/media/wagotypes/' + match[1] + '.png'
       })
       esFilter.push({ term: { 'type.keyword': match[1] } })
@@ -289,7 +294,9 @@ module.exports = function (fastify, opts, next) {
             if (clones.length && !isNaN(expansionFilterIndex)) {
               esFilter.splice(expansionFilterIndex, 1)
               expansionFilterIndex = null
-              Search.query.expansion = 'any'
+              if (!Search.query.expansion) {
+                Search.query.expansion = 'any'
+              }
             }
           }
           if (!clones.length) {

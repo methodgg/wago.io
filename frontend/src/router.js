@@ -14,7 +14,8 @@ const MenuVuhdo = resolve => require(['@/components/core/Menu-Vuhdo.vue'], resol
 const MenuTotalRP = resolve => require(['@/components/core/Menu-TotalRP.vue'], resolve)
 const MenuOPie = resolve => require(['@/components/core/Menu-OPie.vue'], resolve)
 const MenuPlater = resolve => require(['@/components/core/Menu-Plater.vue'], resolve)
-const MenuMDT = resolve => require(['@/components/core/Menu-MDT.vue'], resolve)
+const MenuMDTBFA = resolve => require(['@/components/core/Menu-MDT-BFA.vue'], resolve)
+const MenuMDTShadowlands = resolve => require(['@/components/core/Menu-MDT-Shadowlands.vue'], resolve)
 const CreateMDT = resolve => require(['@/components/core/Create-MDT.vue'], resolve)
 const CreateEncounterNotes = resolve => require(['@/components/core/Create-Notes.vue'], resolve)
 const MenuCollections = resolve => require(['@/components/core/Menu-Collections.vue'], resolve)
@@ -143,7 +144,9 @@ export default {
     { path: '/totalrp/:c1/:c2', component: Search, props: (route) => ({ contextSearch: 'Type: TotalRP' + GetContextTag(route.params) }) },
     { path: '/totalrp/:c1/:c2/:c3', component: Search, props: (route) => ({ contextSearch: 'Type: TotalRP' + GetContextTag(route.params) }) },
     { path: '/totalrp/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ contextSearch: 'Type: TotalRP' + GetContextTag(route.params) }) },
-    { path: '/mdt', component: MenuMDT },
+    { path: '/mdt', component: MenuMDTBFA },
+    { path: '/mdt-shadowlands', component: MenuMDTShadowlands },
+    { path: '/mdt-bfa', component: MenuMDTBFA },
     { path: '/mdt/:c1', component: Search, props: (route) => ({ contextSearch: 'Type: MDT' + GetContextTag(route.params) }) },
     { path: '/mdt/:c1/:c2', component: Search, props: (route) => ({ contextSearch: 'Type: MDT' + GetContextTag(route.params) }) },
     { path: '/mdt/:c1/:c2/:c3', component: Search, props: (route) => ({ contextSearch: 'Type: MDT' + GetContextTag(route.params) }) },

@@ -18,9 +18,22 @@
           <md-list-item v-for="cls in classes" v-bind:key="cls.id" :class="cls.cls + ' md-inset'">
             <category-image :group="cls.cls"></category-image>
             <div class="md-list-text-container">
-              <router-link :to="'/classic-weakauras/' + cls.slug">{{ cls.text }}</router-link>
+              <a href="#" @click.prevent="searchRoute(cls.slug)">{{ cls.text }}</a>
               <span>
-                <router-link  v-for="spec in cls.specs" v-bind:key="spec.id" :to="'/classic-weakauras/' + spec.slug">{{ spec.text.replace(cls.text, '').trim() }}</router-link>
+                <a v-for="spec in cls.specs" v-bind:key="spec.id" href="#" @click.prevent="searchRoute(spec.slug)">{{ spec.text.replace(cls.text, '').trim() }}</a>
+              </span>
+            </div>
+          </md-list-item>
+        </md-list>
+        
+        <md-subheader>{{ $t("Professions") }}</md-subheader>
+        <md-list class="md-double-line md-dense">
+          <md-list-item v-for="prof in professions" v-bind:key="prof.id" :class="prof.cls + ' md-inset'">
+            <category-image :group="prof.cls"></category-image>
+            <div class="md-list-text-container">
+              <a href="#" @click.prevent="searchRoute(prof.slug)">{{ prof.text }}</a>
+              <span>
+                <a v-for="spec in prof.specs" v-bind:key="spec.id"  href="#" @click.prevent="searchRoute(spec.slug)">{{ spec.text }}</a>
               </span>
             </div>
           </md-list-item>
@@ -32,9 +45,53 @@
           <md-list-item v-for="raid in classicRaids" v-bind:key="raid.id" :class="raid.cls + ' md-inset'">
             <category-image :group="raid.cls"></category-image>
             <div class="md-list-text-container">
-              <router-link :to="'/classic-weakauras/' + raid.slug">{{ raid.text }}</router-link>
+              <a href="#" @click.prevent="searchRoute(raid.slug)">{{ raid.text }}</a>
               <span>
-                <router-link v-for="boss in raid.bosses" v-bind:key="boss.id" :to="'/classic-weakauras/' + boss.slug">{{ boss.text }}</router-link>
+                <a v-for="boss in raid.bosses" v-bind:key="boss.id" href="#" @click.prevent="searchRoute(boss.slug)">{{ boss.text }}</a>
+              </span>
+            </div>
+          </md-list-item>
+        </md-list>
+        
+
+        <md-subheader>{{ $t("Miscellaneous") }}</md-subheader>
+        <md-list class="md-double-line md-dense">
+          <md-list-item class="md-inset roles">
+            <category-image group="role"></category-image>
+            <div class="md-list-text-container">
+              <a href="#" @click.prevent="searchRoute('class-roles')">{{ $t("Class Roles") }}</a>
+              <span>
+                <a v-for="item in roles" v-bind:key="item.id" href="#" @click.prevent="searchRoute(item.slug)">{{ item.text }}</a>
+              </span>
+            </div>
+          </md-list-item>
+
+          <md-list-item class="md-inset mechanics">
+            <category-image group="mechanics"></category-image>
+            <div class="md-list-text-container">
+              <a href="#" @click.prevent="searchRoute('combat-mechanics')">{{ $t("Combat Mechanics") }}</a>
+              <span>
+                <a v-for="item in mechanics" v-bind:key="item.id" href="#" @click.prevent="searchRoute(item.slug)">{{ item.text }}</a>
+              </span>
+            </div>
+          </md-list-item>
+
+          <md-list-item class="md-inset equip">
+            <category-image group="equip"></category-image>
+            <div class="md-list-text-container">
+              <a href="#" @click.prevent="searchRoute('equipment')">{{ $t("Equipment") }}</a>
+              <span>
+                <a v-for="item in equip" v-bind:key="item.id" href="#" @click.prevent="searchRoute(item.slug)">{{ item.text }}</a>
+              </span>
+            </div>
+          </md-list-item>
+
+          <md-list-item class="md-inset misc">
+            <category-image group="misc"></category-image>
+            <div class="md-list-text-container">
+              <a href="#" @click.prevent="searchRoute('general')">{{ $t("General") }}</a>
+              <span>
+                <a v-for="item in misc" v-bind:key="item.id" href="#" @click.prevent="searchRoute(item.slug)">{{ item.text }}</a>
               </span>
             </div>
           </md-list-item>
@@ -46,9 +103,9 @@
           <md-list-item v-for="raid in classicRaids2" v-bind:key="raid.id" :class="raid.cls + ' md-inset'">
             <category-image :group="raid.cls"></category-image>
             <div class="md-list-text-container">
-              <router-link :to="'/classic-weakauras/' + raid.slug">{{ raid.text }}</router-link>
+              <a href="#" @click.prevent="searchRoute(raid.slug)">{{ raid.text }}</a>
               <span>
-                <router-link v-for="boss in raid.bosses" v-bind:key="boss.id" :to="'/classic-weakauras/' + boss.slug">{{ boss.text }}</router-link>
+                <a v-for="boss in raid.bosses" v-bind:key="boss.id" href="#" @click.prevent="searchRoute(boss.slug)">{{ boss.text }}</a>
               </span>
             </div>
           </md-list-item>
@@ -59,65 +116,9 @@
           <md-list-item class="md-inset pvp">
             <category-image group="pvp-arena"></category-image>
             <div class="md-list-text-container">
-              <router-link to='/classic-weakauras/pvp'>{{ $t("PvP") }}</router-link>
+              <a href="#" @click.prevent="searchRoute('pvp')">{{ $t("PvP") }}</a>
               <span>
-                <router-link v-for="item in pvp" v-bind:key="item.id" :to="'/classic-weakauras/' + item.slug">{{ item.text }}</router-link>
-              </span>
-            </div>
-          </md-list-item>
-        </md-list>
-      </md-layout>
-      <md-layout>
-        <md-subheader>{{ $t("Miscellaneous") }}</md-subheader>
-        <md-list class="md-double-line md-dense">
-          <md-list-item class="md-inset roles">
-            <category-image group="role"></category-image>
-            <div class="md-list-text-container">
-              <router-link to='/classic-weakauras/class-roles'>{{ $t("Class Roles") }}</router-link>
-              <span>
-                <router-link v-for="item in roles" v-bind:key="item.id" :to="'/classic-weakauras/' + item.slug">{{ item.text }}</router-link>
-              </span>
-            </div>
-          </md-list-item>
-
-          <md-list-item class="md-inset mechanics">
-            <category-image group="mechanics"></category-image>
-            <div class="md-list-text-container">
-              <router-link to='/classic-weakauras/combat-mechanics'>{{ $t("Combat Mechanics") }}</router-link>
-              <span>
-                <router-link v-for="item in mechanics" v-bind:key="item.id" :to="'/classic-weakauras/' + item.slug">{{ item.text }}</router-link>
-              </span>
-            </div>
-          </md-list-item>
-
-          <md-list-item class="md-inset equip">
-            <category-image group="equip"></category-image>
-            <div class="md-list-text-container">
-              <router-link to='/classic-weakauras/equipment'>{{ $t("Equipment") }}</router-link>
-              <span>
-                <router-link v-for="item in equip" v-bind:key="item.id" :to="'/classic-weakauras/' + item.slug">{{ item.text }}</router-link>
-              </span>
-            </div>
-          </md-list-item>
-
-          <md-list-item class="md-inset misc">
-            <category-image group="misc"></category-image>
-            <div class="md-list-text-container">
-              <router-link to='/classic-weakauras/general'>{{ $t("General") }}</router-link>
-              <span>
-                <router-link v-for="item in misc" v-bind:key="item.id" :to="'/classic-weakauras/' + item.slug">{{ item.text }}</router-link>
-              </span>
-            </div>
-          </md-list-item>
-        </md-list>
-        <md-subheader>{{ $t("Professions") }}</md-subheader>
-        <md-list class="md-double-line md-dense">
-          <md-list-item v-for="prof in professions" v-bind:key="prof.id" :class="prof.cls + ' md-inset'">
-            <category-image :group="prof.cls"></category-image>
-            <div class="md-list-text-container">
-              <router-link :to="'/classic-weakauras/' + prof.slug">{{ prof.text }}</router-link>
-              <span>
-                <router-link  v-for="spec in prof.specs" v-bind:key="spec.id" :to="'/classic-weakauras/' + spec.slug">{{ spec.text }}</router-link>
+                <a v-for="item in pvp" v-bind:key="item.id" href="#" @click.prevent="searchRoute(item.slug)">{{ item.text }}</a>
               </span>
             </div>
           </md-list-item>
@@ -128,9 +129,9 @@
           <md-list-item class="md-inset development">
             <category-image group="development"></category-image>
             <div class="md-list-text-container">
-              <router-link to="/classic-weakauras/development">{{ $t("Development") }}</router-link>
+              <a href="#" @click.prevent="searchRoute('development')">{{ $t("Development") }}</a>
               <span>
-                <router-link v-for="item in development" v-bind:key="item.id" :to="'/classic-weakauras/' + item.slug">{{ item.text }}</router-link>
+                <a v-for="item in development" v-bind:key="item.id" href="#" @click.prevent="searchRoute(item.slug)">{{ item.text }}</a>
               </span>
             </div>
           </md-list-item>
@@ -152,13 +153,17 @@ export default {
   props: ['contextGame'],
   methods: {
     runSearch: function () {
+      this.$store.commit('userSearchOption', {field: 'expansion', value: 'classic'})
       this.$router.push('/search/' + this.searchString.trim().replace(/\s+/g, '+'))
+    },
+    searchRoute: function (slug) {
+      this.$store.commit('userSearchOption', {field: 'expansion', value: 'classic'})
+      this.$router.push('/classic-weakauras/' + slug)
     }
   },
   data: function () {
     return {
-      searchString: 'Type: Classic-WeakAura ',
-      game: 'bfa'
+      searchString: 'Type: WeakAura '
     }
   },
   computed: {
@@ -231,6 +236,7 @@ h2#addon-name span {font-size: 80%}
 #search-weakaura .md-list-text-container > a, #search-weakaura .md-list-text-container > .parent-category { font-size: 18px; font-weight: bold; line-height: 19px; }
 #search-weakaura .md-list-text-container span{ white-space: normal; line-height: 22px}
 #search-weakaura .md-layout { align-items: flex-start}
+#search-weakaura .md-layout > .md-layout {max-width:450px}
 
 #search-weakaura .md-subheader { width: 100% }
 #search-weakaura .md-subheader + .md-list { width: 100% }

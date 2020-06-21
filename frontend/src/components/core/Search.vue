@@ -188,11 +188,9 @@ export default {
               tagStrMatch = tagMatch[2]
             }
 
-            console.log('tags', tagStrMatch)
             var tags = tagStrMatch.split(/;|,/g)
             tags.forEach((thisTag) => {
               var category = Categories.search(thisTag, this.$t)
-              console.log('yyyy', thisTag, category)
               if (category) {
                 this.tagContext.push(category)
                 this.tagMap[category.id] = tagMatch[0]

@@ -1,6 +1,10 @@
 <template>
   <div id="search-mdt">
-    <h2 id="addon-name">Method Dungeon Tools</h2>
+    <h2 id="addon-name">Method Dungeon Tools -
+      <span @click="isBeta=false" :class="{faded: isBeta}">{{ $t('Battle for Azeroth') }}</span>
+      <!--<md-switch v-model="isBeta" class="md-primary"></md-switch>
+      <span @click="isBeta=true" :class="{faded: !isBeta}">{{ $t('Shadowlands Beta') }}</span>-->
+    </h2>
     <md-layout>
       <addon-info addon="mdt"></addon-info>
       <form novalidate @submit.stop.prevent="runSearch(searchString)" id="searchForm">
@@ -32,7 +36,7 @@
           <md-button @click="createMDT()" class="md-raised" :disabled="!newAffix || !newDungeon">{{ $t("Build") }}</md-button>
         </md-whiteframe>
 
-        <md-whiteframe id="import-wcl" v-if="$store.state.user && $store.state.user.access && $store.state.user.access.beta">
+        <!--<md-whiteframe id="import-wcl" v-if="$store.state.user && $store.state.user.access && $store.state.user.access.beta">
           <strong>{{ $t("Import route from WarcraftLogs") }} [Beta]</strong>
           <p>* Highly experimental *<br>I need logs and accompanying video please!</p>
           <div class="field-group">
@@ -51,22 +55,8 @@
               <ui-image img="loading"></ui-image>
             </md-avatar>
           </div>
-        </md-whiteframe>
-      </md-layout>
-      <md-layout md-column>
-        <md-subheader>{{ $t("BFA Dungeons") }}</md-subheader>
-        <md-list class="md-double-line md-dense">
-          <md-list-item v-for="dun in dungeons" v-bind:key="dun.id" :class="dun.cls + ' md-inset'">
-            <category-image :group="dun.cls"></category-image>
-            <div class="md-list-text-container">
-              <span>
-                <div v-for="boss in dun.bosses" v-bind:key="boss.id" v-bind:class="{'inline-dungeon-link': boss.slug.match(/\//g).length > 2}">
-                  <router-link :to="'/mdt/' + boss.slug">{{ boss.text }}</router-link>
-                </div>
-              </span>
-            </div>
-          </md-list-item>
-        </md-list>
+        </md-whiteframe>-->
+        
         <md-subheader>{{ $t("BFA Season 4 Affix Weeks") }}</md-subheader>
         <md-list class="md-double-line md-dense">
           <md-list-item class="md-inset affixWeek">
@@ -78,6 +68,21 @@
                   <span v-bind:class="{currentWeek: index + 1 === currentWeek}">{{ $t('Week [-num-] [-affixes-]', {num: index + 1, affixes: item.text}) }}</span>
                   <span v-if="index + 1 === currentWeek" class="currentWeek">&#xbb;</span>
                 </router-link>
+              </span>
+            </div>
+          </md-list-item>
+        </md-list>
+      </md-layout>
+      <md-layout md-column>
+        <md-subheader>{{ $t("BFA Dungeons") }}</md-subheader>
+        <md-list class="md-double-line md-dense">
+          <md-list-item v-for="dun in dungeons" v-bind:key="dun.id" :class="dun.cls + ' md-inset'">
+            <category-image :group="dun.cls"></category-image>
+            <div class="md-list-text-container">
+              <span>
+                <div v-for="boss in dun.bosses" v-bind:key="boss.id" v-bind:class="{'inline-dungeon-link': boss.slug.match(/\//g).length > 2}">
+                  <router-link :to="'/mdt/' + boss.slug">{{ boss.text }}</router-link>
+                </div>
               </span>
             </div>
           </md-list-item>
@@ -170,10 +175,16 @@ export default {
       wclURL: '',
       wclDungeons: [],
       wclDungeonIndex: -1,
-      wclLoading: false
+      wclLoading: false,
+      isBeta: false
     }
   },
   watch: {
+    isBeta: function (val) {
+      if (val) {
+        this.$router.push('/mdt-shadowlands')
+      }
+    },
     currentWeek: function (val) {
       this.newAffix = 'mdtaffix-bfa-s4-w' + val
     },
@@ -257,6 +268,8 @@ export default {
 
 <style>
 h2#addon-name {margin: 16px 0 0 16px;}
+h2 .faded {opacity: .3}
+h2 span {font-size:80%; cursor: pointer}
 #create-mdt, #import-wcl, #addon-meta .md-whiteframe { padding: 16px; margin: 16px; width:calc(100% - 16px); margin-right: 16px; flex-grow: 1; flex-basis: 0;}
 #searchForm { padding: 16px; flex: 1 }
 #searchForm button { margin-top: -3px }
@@ -268,6 +281,7 @@ h2#addon-name {margin: 16px 0 0 16px;}
 #search-mdt .md-list-text-container > a { font-size: 18px; font-weight: bold; line-height: 19px; }
 #search-mdt .md-list-text-container span{ white-space: normal; line-height: 22px}
 #search-mdt .md-layout { align-items: flex-start}
+#search-mdt .md-layout > .md-layout {max-width:450px}
 .md-list:after { background-color: transparent!important }
 .currentWeek { color: gold }
 .inline-dungeon-link { display: inline-block; margin-left: 16px }

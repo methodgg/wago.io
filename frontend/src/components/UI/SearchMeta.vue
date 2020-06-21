@@ -44,8 +44,10 @@
           <label for="expansion">{{ $t("Expansion Filter") }}</label>
           <md-select name="expansion" id="expansion" v-model="expansionVal">
             <md-option value="all">{{ $t("Search All") }}</md-option>
+            <!--<md-option value="sl">{{ $t("Shadowlands Beta") }}</md-option>-->
             <md-option value="bfa">{{ $t("Battle for Azeroth") }}</md-option>
             <md-option value="legion">{{ $t("Legion") }}</md-option>
+            <md-option value="classic">{{ $t("Classic") }}</md-option>
           </md-select>
         </md-input-container>
       </div>
@@ -174,13 +176,11 @@ export default {
     },
     hasExpansions: function () {
       for (var i = 0; i < this.meta.length; i++) {
-        if (this.meta[i].type === 'type') {
-          if (this.meta[i].wagoType.match(/CLASSIC-/)) {
-            return false
-          }
+        if (this.meta[i].type === 'type' && this.meta[i].wagoType.match(/WEAKAURA/)) {
+          return true
         }
       }
-      return true
+      return false
     }
   },
   data: () => {

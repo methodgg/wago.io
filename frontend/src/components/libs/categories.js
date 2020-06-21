@@ -404,6 +404,16 @@ module.exports = {
       {id: "mdtdun24", slug: "pve/dungeons/waycrest-manor", cls:"dungeon", text: t("warcraft:zones.9424"), MDT: true, systemtag: true, noselect: true},
       {id: "mdtdun25", slug: "pve/dungeons/mechagon-junkyard", cls:"dungeon", text: t("warcraft:zones.10225a"), MDT: true, systemtag: true, noselect: true},
       {id: "mdtdun26", slug: "pve/dungeons/mechagon-workshop", cls:"dungeon", text: t("warcraft:zones.10225b"), MDT: true, systemtag: true, noselect: true},
+      
+      {id: "mdt-sldun", slug: "pve/shadowlands-dungeons", cls:"dungeon", text: t("Dungeons"), root: true, MDT: true, systemtag: true, noselect: true},
+      {id: "mdt-sldun27", slug: "pve/shadowlands-dungeons/the-necrotic-wake", cls:"dungeon", text: t("warcraft:zones.TheNecroticWake"), MDT: true, systemtag: true, noselect: true},
+      {id: "mdt-sldun28", slug: "pve/shadowlands-dungeons/plaguefall", cls:"dungeon", text: t("warcraft:zones.Plaguefall"), MDT: true, systemtag: true, noselect: true},
+      {id: "mdt-sldun29", slug: "pve/shadowlands-dungeons/mists-of-tirna-scithe", cls:"dungeon", text: t("warcraft:zones.MistsOfTirnaScithe"), MDT: true, systemtag: true, noselect: true},
+      {id: "mdt-sldun30", slug: "pve/shadowlands-dungeons/halls-of-attonement", cls:"dungeon", text: t("warcraft:zones.HallsOfAttonement"), MDT: true, systemtag: true, noselect: true},
+      {id: "mdt-sldun31", slug: "pve/shadowlands-dungeons/theater-of-pain", cls:"dungeon", text: t("warcraft:zones.TheaterOfPain"), MDT: true, systemtag: true, noselect: true},
+      {id: "mdt-sldun32", slug: "pve/shadowlands-dungeons/de-other-side", cls:"dungeon", text: t("warcraft:zones.DeOtherSide"), MDT: true, systemtag: true, noselect: true},
+      {id: "mdt-sldun33", slug: "pve/shadowlands-dungeons/spires-of-ascension", cls:"dungeon", text: t("warcraft:zones.SpiresOfAscension"), MDT: true, systemtag: true, noselect: true},
+      {id: "mdt-sldun34", slug: "pve/shadowlands-dungeons/sanguine-depths", cls:"dungeon", text: t("warcraft:zones.SanguineDepths"), MDT: true, systemtag: true, noselect: true},
 
       {id: "mdtaffix", slug: "affixes", cls:"affixes", text: t("Affixes"), root: true, MDT: true, systemtag: true, noselect: true},
       // {id: "mdtaffix1", slug: "affixes/overflowing", cls:"affixes", text: t("Overflowing"), MDT: true, systemtag: true, noselect: true},
@@ -732,6 +742,7 @@ module.exports = {
         }
       })
     })
+
     raids.forEach((raid, k) => {
       raids[k].bosses = []
       cats.forEach((cat) => {
