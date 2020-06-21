@@ -176,7 +176,7 @@ module.exports = function (fastify, opts, next) {
     }
     Search.query.expansion = expansion
 
-    if (expansion !== 'all' && matchType.match(/WEAKAURA/)) {
+    if (expansion !== 'all' && matchType && matchType.match(/WEAKAURA/)) {
         esFilter.push({ term: { game: expansion } })
         expansionFilterIndex = esFilter.length - 1
     }
