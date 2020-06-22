@@ -365,9 +365,8 @@ export default {
     }
 
     // wait for i18n then run search
-    var vue = this
     this.$i18n.i18next.init(() => {
-      vue.runSearch()
+      this.runSearch()
     })
     this.$store.commit('setPageInfo', {
       title: 'Search'

@@ -135,10 +135,19 @@ module.exports = function (fastify, opts, next) {
       }
     }
 
+    // check for expansion filter
+    var expansionFilterIndex = null
+    match = /expansion:\s*"?(all|classic|legion|bfa|sl)"?/i.exec(query)
+    if (match) {
+      query = query.replace(match[0], '').replace(/\s{2,}/, ' ').trim()
+      expansion = match[1]
+    }
+    Search.query.expansion = expansion
+
     // check for import type
     var game = 'wow'
     var matchType
-    match = /\btype:\s*"?(classic-weakaura|weakauras?2?|elvui|vuhdo|totalrp3?|collection|snippet|plater|mdt|opie|encounternotes|image|audio|error)"?/i.exec(query)
+    match = /\btype:\s*"?(weakauras?2?|elvui|vuhdo|totalrp3?|collection|snippet|plater|mdt|opie|encounternotes|image|audio|error)"?/i.exec(query)
     if (match) {
       query = query.replace(match[0], '').replace(/\s{2,}/, ' ').trim()
       match[1] = match[1].toUpperCase()
@@ -166,15 +175,6 @@ module.exports = function (fastify, opts, next) {
     else {
       esFilter.push({ bool: { must_not: { term: { 'type.keyword': 'ERROR'}}}})
     }
-
-    // check for expansion filter
-    var expansionFilterIndex = null
-    match = /expansion:\s*"?(all|classic|legion|bfa|sl)"?/i.exec(query)
-    if (match) {
-      query = query.replace(match[0], '').replace(/\s{2,}/, ' ').trim()
-      expansion = match[1]
-    }
-    Search.query.expansion = expansion
 
     if (expansion !== 'all' && matchType && matchType.match(/WEAKAURA/)) {
         esFilter.push({ term: { game: expansion } })

@@ -24,7 +24,6 @@
             <md-option value="PLATER">Plater</md-option>
             <md-option value="VUHDO">VuhDo</md-option>
             <md-option value="WEAKAURAS2">WeakAura</md-option>
-            <md-option value="CLASSIC-WEAKAURA">Classic WeakAura</md-option>
             <md-option value="COLLECTION">Collection</md-option>
             <md-option value="SNIPPET">Snippet</md-option>
             <md-option value="ERROR">Error Log</md-option>
@@ -209,7 +208,7 @@ export default {
         PLATER: 'Plater',
         VUHDO: 'VuhDo',
         WEAKAURAS2: 'WeakAura',
-        'CLASSIC-WEAKAURA': 'Classic-WeakAura',
+        'CLASSIC-WEAKAURA': 'WeakAura',
         COLLECTION: 'Collection',
         SNIPPET: 'Snippet',
         ERROR: 'Error'
