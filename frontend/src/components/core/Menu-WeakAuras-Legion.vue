@@ -108,13 +108,13 @@
           <!--<md-list-item class="torghast md-inset'">
             <category-image group="torghast"></category-image>
             <div class="md-list-text-container">
-              <a to="/weakauras-shadowlands/">{{ $t('Shadowlands') }}</a>
+              <router-link to="/shadowlands-weakauras/">{{ $t('Shadowlands') }}</router-link>
             </div>
           </md-list-item>-->
           <md-list-item class="nyalotha md-inset'">
             <category-image group="nyalotha"></category-image>
             <div class="md-list-text-container">
-              <a to="/weakauras-bfa/">{{ $t('Battle for Azeroth') }}</a>
+              <router-link to="/bfa-weakauras/">{{ $t('Battle for Azeroth') }}</router-link>
             </div>
           </md-list-item>
         </md-list>  
@@ -139,7 +139,7 @@ export default {
     },
     searchRoute: function (slug) {
       this.$store.commit('userSearchOption', {field: 'expansion', value: 'legion'})
-      this.$router.push('/weakauras/' + slug)
+      this.$router.push('/legion-weakauras/' + slug)
     }
   },
   data: function () {

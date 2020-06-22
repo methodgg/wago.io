@@ -149,13 +149,13 @@
           <md-list-item class="nyalotha md-inset'">
             <category-image group="nyalotha"></category-image>
             <div class="md-list-text-container">
-              <router-link to="/weakauras-bfa/">{{ $t('Battle for Azeroth') }}</router-link>
+              <router-link to="/bfa-weakauras/">{{ $t('Battle for Azeroth') }}</router-link>
             </div>
           </md-list-item>
           <md-list-item class="antorus md-inset'">
             <category-image group="antorus"></category-image>
             <div class="md-list-text-container">
-              <router-link to="/weakauras-legion/">{{ $t('Legion') }}</router-link>
+              <router-link to="/legion-weakauras/">{{ $t('Legion') }}</router-link>
             </div>
           </md-list-item>
         </md-list>
@@ -196,7 +196,7 @@ export default {
       if (!val) {
         var router = this.$router
         setTimeout(function () {
-          router.push('/weakauras')
+          router.push('/bfa-weakauras')
         }, 150)
       }
     }

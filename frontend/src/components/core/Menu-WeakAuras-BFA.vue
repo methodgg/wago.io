@@ -149,13 +149,13 @@
           <!--<md-list-item class="torghast md-inset'">
             <category-image group="torghast"></category-image>
             <div class="md-list-text-container">
-              <router-link to="/weakauras-shadowlands/">{{ $t('Shadowlands') }}</router-link>
+              <router-link to="/shadowlands-weakauras/">{{ $t('Shadowlands') }}</router-link>
             </div>
           </md-list-item>-->
           <md-list-item class="antorus md-inset'">
             <category-image group="antorus"></category-image>
             <div class="md-list-text-container">
-              <router-link to="/weakauras-legion/">{{ $t('Legion') }}</router-link>
+              <router-link to="/legion-weakauras/">{{ $t('Legion') }}</router-link>
             </div>
           </md-list-item>
         </md-list>
@@ -182,7 +182,7 @@ export default {
     },
     searchRoute: function (slug) {
       this.$store.commit('userSearchOption', {field: 'expansion', value: 'bfa'})
-      this.$router.push('/weakauras/' + slug)
+      this.$router.push('/bfa-weakauras/' + slug)
     }
   },
   data: function () {
