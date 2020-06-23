@@ -5,7 +5,7 @@ const mongoose = require('mongoose'),
 
 const Schema = new mongoose.Schema({
   account : {
-    username : { type: String, index: true, es_index: true },
+    username : { type: String, index: true, es_index: true, maxlength: 128 },
     password : String,
     hidden : { type: Boolean, default: false, es_index: true },
     default_aura_visibility : { type: String, default: "Public" },
@@ -149,7 +149,7 @@ const Schema = new mongoose.Schema({
     }
   },
   search: {
-    username: {type: String, index: true}
+    username: {type: String, index: true, maxlength: 128}
   }
 }, { minimize: true });
 
