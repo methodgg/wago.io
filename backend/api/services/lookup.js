@@ -541,7 +541,7 @@ module.exports = function (fastify, opts, next) {
     else if (doc.type === 'PLATER') {
       result = await luacheck.Plater(code.json)
     }
-    else if (doc.type === 'WEAKAURAS2') {
+    else if (doc.type === 'WEAKAURAS2' || doc.type === 'CLASSIC-WEAKAURA') {
       result = await luacheck.WeakAuras(code.json)
     }
     else {
