@@ -17,7 +17,7 @@ module.exports = function (req, res, next) {
   // if preflight check
   if (method === 'OPTIONS') {
     res.header('Access-Control-Request-Headers', 'GET, OPTIONS')
-    res.header('Access-Control-Allow-Headers', 'set-cookie,cookie,wotm,authorization,x-auth-token,accept,accept-version,content-type,request-id,origin,identifier')
+    res.header('Access-Control-Allow-Headers', 'set-cookie,cookie,wotm,authorization,x-auth-token,accept,accept-version,content-type,request-id,origin,identifier,api-key')
     
     return res.code(204).send('')
   }
