@@ -45,10 +45,10 @@ export default {
           break
 
         case 'mdt':
-          links.push({url: 'https://www.method.gg/dungeontools', name: this.$t('View Website')})
+          // links.push({url: 'https://www.method.gg/dungeontools', name: this.$t('View Website')})
           links.push({url: 'https://discord.gg/ttcM6uJ', name: this.$t('Join Discord')})
           if (this.addonData.version) {
-            links.push({url: 'https://github.com/Nnoggie/MethodDungeonTools/releases', name: this.$t('Latest Version [-version-]', {version: this.addonData.version})})
+            links.push({url: 'https://github.com/Nnoggie/MythicDungeonTools/releases', name: this.$t('Latest Version [-version-]', {version: this.addonData.version})})
           }
           break
 

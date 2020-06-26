@@ -19,7 +19,7 @@
             <md-option value="*"><em>All Imports</em></md-option>
             <md-option value="ELVUI">ElvUI</md-option>
             <md-option value="TOTALRP3">Total RP</md-option>
-            <md-option value="MDT">Method Dungeon Tools</md-option>
+            <md-option value="MDT">Mythic Dungeon Tools</md-option>
             <md-option value="OPIE">OPie</md-option>
             <md-option value="PLATER">Plater</md-option>
             <md-option value="VUHDO">VuhDo</md-option>
@@ -226,7 +226,7 @@ export default {
     },
     getLabel: function (v) {
       switch (v) {
-        case 'MDT': return 'Method Dungeon Tools'
+        case 'MDT': return 'Mythic Dungeon Tools'
         default: return v
       }
     }

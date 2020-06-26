@@ -1,6 +1,6 @@
 <template>
   <div id="search-mdt">
-    <h2 id="addon-name">Method Dungeon Tools
+    <h2 id="addon-name">Mythic Dungeon Tools
       <span @click="isBeta=false" :class="{faded: isBeta}">{{ $t('Battle for Azeroth') }}</span>
       <md-switch v-model="isBeta" class="md-primary"></md-switch>
       <span @click="isBeta=true" :class="{faded: !isBeta}">{{ $t('Shadowlands Beta') }}</span>
