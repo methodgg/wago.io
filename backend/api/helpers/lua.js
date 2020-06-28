@@ -356,18 +356,18 @@ module.exports = {
 
 
   BuildMDT_DungeonTable: async (directory, cb) => {
-    var luaCode = 'local MethodDungeonTools={dungeonTotalCount={}, mapPOIs={}, dungeonEnemies={}, scaleMultiplier={}}\nlocal dungeonIndex\n'
+    var luaCode = 'local MythicDungeonTools={dungeonTotalCount={}, mapPOIs={}, dungeonEnemies={}, scaleMultiplier={}}\nlocal dungeonIndex\n'
     // load in some tables from core file
-    var core = await fs.readFile(directory+'/../MethodDungeonTools.lua', 'utf8')
-    core = core.replace(/local AddonName, MethodDungeonTools = \.\.\./, 'local AddonName, MethodDungeonTools = "MDT", {}')
-    core = core.replace(/local affixWeeks =/g, 'MethodDungeonTools.affixWeeks =')
-    core = core.replace(/local dungeonList =/, 'MethodDungeonTools.dungeonList =')
-    core = core.replace(/local dungeonSubLevels =/, 'MethodDungeonTools.dungeonSubLevels =')
+    var core = await fs.readFile(directory+'/../MythicDungeonTools.lua', 'utf8')
+    core = core.replace(/local AddonName, MythicDungeonTools = \.\.\./, 'local AddonName, MythicDungeonTools = "MDT", {}')
+    core = core.replace(/local affixWeeks =/g, 'MythicDungeonTools.affixWeeks =')
+    core = core.replace(/local dungeonList =/, 'MythicDungeonTools.dungeonList =')
+    core = core.replace(/local dungeonSubLevels =/, 'MythicDungeonTools.dungeonSubLevels =')
     luaCode = luaCode + core
 
     // load in some tables from dungeonEnemies file
     core = await fs.readFile(directory+'/../DungeonEnemies.lua', 'utf8')
-    core = core.replace(/local MethodDungeonTools = MethodDungeonTools/, '')
+    core = core.replace(/local MythicDungeonTools = MythicDungeonTools/, '')
     luaCode = luaCode + "\n" + core
 
     var dungeonFiles = await fs.readdir(directory)
@@ -378,7 +378,7 @@ module.exports = {
       }
     }
 
-    var result = await runLua(`dofile("./wago.lua"); ${luaCode} Table2JSON(MethodDungeonTools)`)
+    var result = await runLua(`dofile("./wago.lua"); ${luaCode} Table2JSON(MythicDungeonTools)`)
     return result
   },
 
