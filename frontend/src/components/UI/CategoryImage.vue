@@ -59,7 +59,6 @@
     <img src="./../../assets/weakauras.png" v-else-if="group === 't-classic-weakaura'"/>
     <img src="./../../assets/tukui.png" v-else-if="group === 't-elvui'"/>
     <img src="./../../assets/menu-dungeon.png" v-else-if="group === 't-mdt'"/>
-    <img src="./../../assets/menu-dungeon.png" v-else-if="group === 't-methoddungeontools'"/>
     <img src="./../../assets/menu-opie.png" v-else-if="group === 't-opie'"/>
     <img src="./../../assets/menu-vuhdo.png" v-else-if="group === 't-vuhdo'"/>
     <img src="./../../assets/menu-trpcamp.png" v-else-if="group === 't-totalrp' || group === 't-totalrp3'"/>

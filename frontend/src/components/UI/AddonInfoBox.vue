@@ -53,7 +53,7 @@ export default {
           break
 
         case 'totalrp3':
-          links.push({url: 'https://www.curseforge.com/wow/addons/total-rp-3', name: this.$t('View on Curse')})
+          links.push({url: 'https://www.curseforge.com/wow/addons/total-rp-3-extended', name: this.$t('View on Curse')})
           links.push({url: 'http://discord.totalrp3.info/', name: this.$t('Join Discord')})
           break
 

@@ -34,13 +34,97 @@
               <md-button v-if="wago.user && User && wago.UID && wago.UID === User.UID && wago.code && wago.code.encoded" @click="generateNextVersionData(); $refs['newImportDialog'].open()" id="newImportButton"><md-icon>input</md-icon> {{ $t("Import new string") }}</md-button>
               <md-button v-if="hasUnsavedChanges && wago.code && wago.code.encoded && (!wago.code.alerts || !wago.code.alerts.blacklist)" @click="copyEncoded" class="copy-import-button">
                 <md-icon>assignment</md-icon> {{ $t("Copy [-type-] import string", {type: wago.type}) }}
+                <md-button @click="openHelpDialog" id="helpImportingButton" class="md-icon-button md-raised"><md-icon>help</md-icon></md-button>
                 <md-tooltip md-direction="bottom" class="CopyWarningTooltip"><strong>{{ $t("You have unsaved changes") }}</strong><br>{{ $t("Be sure to save or fork to generate a new string with your modifications") }}</md-tooltip>
               </md-button>
               <md-button v-else-if="wago.code && wago.code.encoded && (!wago.code.alerts || !wago.code.alerts.blacklist)" @click="copyEncoded" class="copy-import-button">
                 <md-icon>assignment</md-icon> {{ $t("Copy [-type-] import string", {type: wago.type}) }}
+                <md-button @click="openHelpDialog" id="helpImportingButton" class="md-icon-button md-raised"><md-icon>help</md-icon></md-button>
               </md-button>
               <md-button v-if="wago.image && wago.image.files.tga" :href="wago.image.files.tga" class="copy-import-button"><md-icon>file_download</md-icon> {{ $t("Download tga file") }}</md-button>
             </md-card-actions>
+            <md-dialog md-open-from="#helpImportingButton" md-close-to="#helpImportingButton" ref="helpDialog" id="helpDialog">
+              <md-dialog-title>{{ $t("How do I import this?") }}</md-dialog-title>
+
+              <md-dialog-content v-if="wago.type.match(/WEAKAURA/)">
+                <ol>
+                  <li>{{ $t('Open the WeakAuras interface by clicking the WA icon by your minimap') }}  <img src="https://media.wago.io/site/wa-minimap-icon.png" />
+                  {{ $t('Alternatively type the "/wa" command into your chat window') }} <img src="https://media.wago.io/site/wa-chatcommand.png" /></li>
+                  <li>{{ $t('In the upper left area of the WeakAuras interface click the Import button') }} <img src="https://media.wago.io/site/wa-importbutton.png" /></li>
+                  <li>{{ $t('Paste the string into the window with ctrl-V (or command-V on a Mac)') }} <img src="https://media.wago.io/site/wa-encoded.png" /></li>
+                  <li>{{ $t('A box will appear showing some basic information about the WeakAura') }}<br>
+                    {{ $t('The Show Code button will let you review any custom code before importing') }}<br>
+                    {{ $t('The Import button will save the WeakAura to your configuration') }} <img src="https://media.wago.io/site/wa-importinfo.png" style="width:450px" />
+                  </li>
+                  <li>
+                    {{ $t('Once imported, you\'ll find the options panel for this WeakAura on the right of side of the interface') }}<br>
+                    {{ $t('For most users, the Display tab and maybe Custom Options tab will have settings to customize what you have just imported') }} <img src="https://media.wago.io/site/wa-tabs.png" />
+                  </li>
+                </ol>
+              </md-dialog-content>
+
+              <md-dialog-content v-else-if="wago.type.match(/ELVUI/)">
+                <ol>
+                  <li>{{ $t('Open the ElvUI configuration window by clicking the ElvUI button in your system menu') }} <img src="https://media.wago.io/site/elvui-escmenu.png" />
+                  {{ $t('Alternatively type the "/elvui" command into your chat window') }} <img src="https://media.wago.io/site/elvui-chatcommand.png" /></li>
+                  <li>{{ $t('At the bottom of the left navigation click the Profiles button') }} <img src="https://media.wago.io/site/elvui-profiles.png" /></li>
+                  <li>{{ $t('Click the Import Profile button') }} <img src="https://media.wago.io/site/elvui-importprofile.png" /></li>
+                  <li>{{ $t('Paste the string into the window with ctrl-V (or command-V on a Mac)') }} <img src="https://media.wago.io/site/elvui-encoded.png" /></li>
+                  <li>{{ $t('Click import, and your interface should immediately change') }}<br>
+                    {{ $t('Then click close and adjust as necessary through ElvUI\'s options') }} <img src="https://media.wago.io/site/elvui-import.png" />
+                  </li>
+                </ol>
+              </md-dialog-content>
+
+              <md-dialog-content v-else-if="wago.type.match(/MDT/)">
+                <ol>
+                  <li>{{ $t('Open the MDT configuration window by clicking the MDT icon by your mini map') }} <img src="https://media.wago.io/site/mdt-minimapicon.png" />
+                  {{ $t('Alternatively type the "/mdt" command into your chat window') }} <img src="https://media.wago.io/site/mdt-chatcmd.png" /></li>
+                  <li>{{ $t('In the control panel at the top right of the window click the Import button') }} <img src="https://media.wago.io/site/mdt-importbutton.png" /></li>
+                  <li>{{ $t('Paste the string into the window with ctrl-V (or command-V on a Mac), click OK, then click Import') }} <img src="https://media.wago.io/site/mdt-encoded.png" /></li>
+                  <li>{{ $t('The display will update to your newly imported MDT route') }}</li>
+                </ol>
+              </md-dialog-content>
+
+              <md-dialog-content v-else-if="wago.type.match(/OPIE/)">
+                <ol>
+                  <li>{{ $t('Open the OPie configuration window by opening the Interface Options (in Escape menu), select the Addons tab and selcting OPie') }} <img src="https://media.wago.io/site/opie-menu.png" />
+                  {{ $t('Alternatively type the "/opie" command into your chat window') }} <img src="https://media.wago.io/site/opie-chatcmd.png" /></li>
+                  <li>{{ $t('Select the Custom Rings submenu, then click the New Ring button') }} <img src="https://media.wago.io/site/opie-newring.png" /></li>
+                  <li>{{ $t('Select the Import snapshot option and paste the string into the Snapshot field with ctrl-V (or command-V on a Mac), then click Add Ring') }} <img src="https://media.wago.io/site/opie-encoded.png" /></li>
+                  <li>{{ $t('Set a binding and make any adjustments as necessary') }}</li>
+                </ol>
+              </md-dialog-content>
+
+              <md-dialog-content v-else-if="wago.type.match(/PLATER/)">
+                <ol>
+                  <li>{{ $t('Open the Plater configuration by typing /plater into your chat window') }} <img src="https://media.wago.io/site/plater-chatcmd.png" /></li>
+                  <li>{{ $t('Select Scripting, Modding, Profiles or whatever matches what you are importing') }} <img src="https://media.wago.io/site/plater-menu.png" /></li>
+                  <li>{{ $t('Click the import button') }} <img src="https://media.wago.io/site/plater-import.png" /></li>
+                  <li>{{ $t('Paste the string into the window with ctrl-V (or command-V on a Mac), then click Okay') }} <img src="https://media.wago.io/site/plater-encoded.png" /></li>
+                </ol>
+              </md-dialog-content>
+
+              <md-dialog-content v-else-if="wago.type.match(/TOTALRP3/)">
+                <ol>
+                  <li>{{ $t('Open the Total RP3 Extended Objects Database by clicking the button in the TRP3 menu') }} <img src="https://media.wago.io/site/trp3-database.png" /></li>
+                  <li>{{ $t('Click the Quick object import button in the lower left area') }} <img src="https://media.wago.io/site/trp3-import.png" /></li>
+                  <li>{{ $t('Paste the string into the window with ctrl-V (or command-V on a Mac), click Import, then Accept to confirm') }} <img src="https://media.wago.io/site/trp3-encoded.png" /></li>
+                  <li>{{ $t('It will be listed in your database to view and use as you like') }}</li>
+                </ol>
+              </md-dialog-content>
+
+              <md-dialog-content v-else-if="wago.type.match(/VUHDO/)">
+                <ol>
+                  <li>{{ $t('Open the Vuhdo configuration window by clicking the Vuhdo icon by your mini map') }} <img src="https://media.wago.io/site/vuhdo-minimap.png" />
+                  {{ $t('Alternatively type the "/vuhdo opt" command into your chat window') }} <img src="https://media.wago.io/site/vuhdo-chatcmd.png" /></li>
+                  <li>{{ $t('Click the Import button in the upper left area to import a Bouquet') }} <img src="https://media.wago.io/site/vuhdo-import.png" />
+                  {{ $t('Vuhdo Profiles and Key Layouts can be imported from the Tools tab at the bottom') }} <img src="https://media.wago.io/site/vuhdo-tools.png" /></li>
+                  <li>{{ $t('Paste the string into the window with ctrl-V (or command-V on a Mac), click Okay, then Yes to confirm') }} <img src="https://media.wago.io/site/vuhdo-encoded.png" /></li>
+                </ol>
+              </md-dialog-content>
+            </md-dialog>
+
             <md-dialog v-if="wago.user && User && wago.UID && wago.UID === User.UID" md-open-from="#newImportButton" md-close-to="#newImportButton" ref="newImportDialog" id="newImportDialog" @open="focusFieldByRef('importStringField')">
               <md-dialog-title>{{ $t("Import new string") }}</md-dialog-title>
 
@@ -144,10 +228,12 @@
           </div>
           <md-button v-if="hasUnsavedChanges && wago.code && wago.code.encoded && (!wago.code.alerts || !wago.code.alerts.blacklist)" @click="copyEncoded" class="copy-import-button">
             <md-icon>assignment</md-icon> {{ $t("Copy [-type-] import string", {type: wago.type}) }}
+            <md-button @click="openHelpDialog()" id="helpImportingButton" class="md-icon-button md-raised"><md-icon>help</md-icon></md-button>
             <md-tooltip md-direction="bottom" class="CopyWarningTooltip"><strong>{{ $t("You have unsaved changes") }}</strong><br>{{ $t("Be sure to save or fork to generate a new string with your modifications") }}</md-tooltip>
           </md-button>
           <md-button v-else-if="wago.code && wago.code.encoded && (!wago.code.alerts || !wago.code.alerts.blacklist)" @click="copyEncoded" class="copy-import-button">
             <md-icon>assignment</md-icon> {{ $t("Copy [-type-] import string", {type: wago.type}) }}
+            <md-button @click="openHelpDialog()" id="helpImportingButton" class="md-icon-button md-raised"><md-icon>help</md-icon></md-button>
           </md-button>
         </div>
       </md-card>
@@ -194,7 +280,7 @@
               <div v-if="requireCipherKey" class="wago-container">
                 <md-card>
                   <ui-warning mode="warn">
-                    {{ $t("This import is encrypted. You must enter the password or cipher key to decrypt it.", {time: this.$moment(wago.expires).fromNow() }) }}
+                    {{ $t("This import is encrypted") }} {{ $t("You must enter the password or cipher key to decrypt it") }}
                   </ui-warning>
                   <form @submit.stop.prevent="decryptImport()">
                     <md-input-container md-has-password>
@@ -282,9 +368,9 @@
                       <label>{{ $t('Password / Cipher Key') }}</label>
                       <md-input v-model="cipherKey" type="password" data-lpignore="true"></md-input>
                       <span class="md-note">
-                        {{ $t('Your import will be encrypted before storing on the server. No one, including yourself, will be able to access it without the key.') }}<br>
+                        {{ $t('Your import will be encrypted before storing on the server') }}<br>
                         {{ $t('Do not lose your key! There is NO WAY to recover encrypted data without it!') }}<br>
-                        {{ $t('Note that some features performed by the server will not be available for encrypted imports.') }}
+                        {{ $t('Note that some features performed by the server will not be available for encrypted imports') }}
                       </span>
                     </md-input-container>
                   </div>
@@ -942,6 +1028,7 @@ export default {
     'view-diffs': require('../UI/ViewDiffs.vue'),
     'color-picker': require('vue-color').Chrome,
     'md-autocomplete': require('../UI/md-autocomplete.vue'),
+    'addon-info': require('../UI/AddonInfoBox.vue'),
     editor: require('vue2-ace-editor'),
     Multiselect,
     CategorySelect,
@@ -1438,7 +1525,6 @@ export default {
         code.obj = JSON.parse(code.json)
         code.json = JSON.stringify(code.obj, null, 2)
       }
-      console.log(code)
       this.$set(this.wago, 'code', code)
       this.$store.commit('setWago', this.wago)
 
@@ -1495,7 +1581,7 @@ export default {
         this.decryptKey = this.cipherKey
       }
       catch (e) {
-        window.eventHub.$emit('showSnackBar', this.$t('Incorrect password - Could not decrypt.'))
+        window.eventHub.$emit('showSnackBar', this.$t('Incorrect password - Could not decrypt'))
       }
       this.decryptLoading = false
     },
@@ -1522,6 +1608,9 @@ export default {
           vue.decryptKey = this.cipherKey
         }
       })
+    },
+    openHelpDialog () {
+      this.$refs['helpDialog'].open()
     },
     setGameMode (mode) {
       var vue = this
@@ -2409,7 +2498,7 @@ export default {
 
 #wago-floating-header { position: fixed; top:-16px; right:0; left: 260px; z-index: 9; opacity: .95 }
 #wago-floating-header .floating-header { display: flex; justify-content: flex-start; align-content: stretch; align-items: flex-start}
-#wago-floating-header .floating-header div { flex: 0 1 auto; vertical-align:top; margin-right: 24px}
+#wago-floating-header .floating-header div:not(.md-ink-ripple) { flex: 0 1 auto; vertical-align:top; margin-right: 24px}
 #wago-floating-header button { margin-top: 0 }
 .version-number { padding-left: 8px; opacity: .54; font-size: 14px }
 @media (max-width: 600px) {
@@ -2429,6 +2518,14 @@ export default {
 .copy-import-button { border: 2px solid #c1272d; border-radius: 25px; margin: 4px 28px; display: inline-block }
 #wago-collections-container button { margin-left: -2px }
 #wago-floating-header .copy-import-button { margin: -2px 0 0 auto }
+
+#helpImportingButton {position: absolute; right: 0; top: -3px; margin: 0;}
+#helpImportingButton:hover {background: rgba(193,39,45,.2)}
+#helpImportingButton i.md-icon {color:inherit}
+.copy-import-button {position: relative; padding-right: 50px}
+#helpDialog .md-dialog {max-width: 750px}
+#helpDialog img {margin: 6px; max-width: 80%; display: block}
+#helpDialog li {margin-bottom: 16px}
 
 span.md-note {height: 20px; position: absolute; bottom: -22px; font-size: 12px;}
 

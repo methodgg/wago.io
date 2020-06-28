@@ -51,9 +51,9 @@
               <label>{{ $t('Password / Cipher Key') }}</label>
               <md-input v-model="cipherKey" type="password" data-lpignore="true"></md-input>
               <span class="md-note">
-                {{ $t('Your import will be encrypted before storing on the server. No one, including yourself, will be able to access it without the key.') }}<br>
+                {{ $t('Your import will be encrypted before storing on the server') }}<br>
                 {{ $t('Do not lose your key! There is NO WAY to recover encrypted data without it!') }}<br>
-                {{ $t('Note that some features performed by the server will not be available for encrypted imports.') }}
+                {{ $t('Note that some features performed by the server will not be available for encrypted imports') }}
               </span>
             </md-input-container>
           </div>
