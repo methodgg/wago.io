@@ -231,12 +231,21 @@ module.exports = function (fastify, opts, next) {
     if ((req.body.decrypt || !wago.encrypted) && (req.body.visibility || req.body.cipherKey)) {
       var code = await WagoCode.find({auraID: wago._id}).exec()
       for (let i = 0; i < code.length; i++) {
+        console.log('enc?', wago.encrypted, code.length)
         if (wago.encrypted) {
           try {
-            code[i].encoded = crypto.AES.decrypt(code[i].encoded, req.body.decrypt).toString(crypto.enc.Utf8)
-            code[i].json = crypto.AES.decrypt(code[i].json, req.body.decrypt).toString(crypto.enc.Utf8)
-            code[i].text = crypto.AES.decrypt(code[i].text, req.body.decrypt).toString(crypto.enc.Utf8)
-            code[i].lua = crypto.AES.decrypt(code[i].lua, req.body.decrypt).toString(crypto.enc.Utf8)
+            if (code[i].encoded) {
+              code[i].encoded = crypto.AES.decrypt(code[i].encoded, req.body.decrypt).toString(crypto.enc.Utf8)
+            }
+            if (code[i].json) {
+              code[i].json = crypto.AES.decrypt(code[i].json, req.body.decrypt).toString(crypto.enc.Utf8)
+            }
+            if (code[i].text) {
+              code[i].text = crypto.AES.decrypt(code[i].text, req.body.decrypt).toString(crypto.enc.Utf8)
+            }
+            if (code[i].lua) {
+              code[i].lua = crypto.AES.decrypt(code[i].lua, req.body.decrypt).toString(crypto.enc.Utf8)
+            }
           }
           catch (e) {
             console.log(e)
@@ -249,10 +258,6 @@ module.exports = function (fastify, opts, next) {
           code[i].json = crypto.AES.encrypt(code[i].json, req.body.cipherKey)
           code[i].text = crypto.AES.encrypt(code[i].text, req.body.cipherKey)
           code[i].lua = crypto.AES.encrypt(code[i].lua, req.body.cipherKey)
-          wago.encrypted = true
-          wago.hidden = false
-          wago.private = false
-          wago.restricted = false
         }
         await code[i].save()
       }
@@ -265,6 +270,12 @@ module.exports = function (fastify, opts, next) {
         else if (req.body.visibility === 'Private') {
           wago.private = true
         }        
+      }
+      else {
+        wago.encrypted = true
+        wago.hidden = false
+        wago.private = false
+        wago.restricted = false
       }
     }
     wago.encryptedCount++
