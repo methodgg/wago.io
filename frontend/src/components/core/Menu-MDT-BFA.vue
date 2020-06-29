@@ -283,7 +283,7 @@ h2 span {font-size:80%; cursor: pointer}
 #search-mdt .md-layout { align-items: flex-start}
 #search-mdt .md-layout > .md-layout {max-width:450px}
 .md-list:after { background-color: transparent!important }
-.currentWeek { color: gold }
+.currentWeek { color: #55b955 }
 .inline-dungeon-link { display: inline-block; margin-left: 16px }
 .inline-dungeon-link a { margin-right:0 }
 </style>

@@ -33,7 +33,7 @@
     <img src="./../../assets/menu-gathering.png" v-if="group === 'prof-gathering'"/>
     <img src="./../../assets/menu-crafting.png" v-else-if="group === 'prof-crafting'"/>
     <img src="./../../assets/menu-secondaryprof.png" v-else-if="group === 'prof-secondary'"/>
-    <img src="./../../assets/menu-affixWeek.png" v-else-if="group === 'affixWeek'"/>
+    <img src="./../../assets/menu-mdt.png" v-else-if="group === 'affixWeek'"/>
     <img src="./../../assets/menu-affixes.png" v-else-if="group === 'affixes'"/>
     <img src="./../../assets/menu-speed.png" v-else-if="group === 'speed'"/>
     <img src="./../../assets/menu-development.png" v-else-if="group === 'development'"/>
