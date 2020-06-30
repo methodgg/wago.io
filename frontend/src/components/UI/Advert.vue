@@ -1,7 +1,7 @@
 <template>
   <md-card ref="adcontainer" :class="['wago-ad-container', format === 'video' || format === 'video-only' ? 'wago-video-ad-container' : 'wago-ad-container-' + adSizes[0][0] + 'x' + adSizes[0][1], stickiedTop ? 'stickiedTop' : '', fixed ? 'fixed-' + fixed : '', spacerOnly ? 'ad-spacer' : '']" v-if="showAds">
     <div v-if="!spacerOnly">
-      <span class="wago-advert-text">{{ $t('Advertisement') }} - <a href="https://www.patreon.com/wago" target="_blank" class="wago-advert-patreon">{{ $t('Hide Ads') }}</a></span>
+      <span class="wago-advert-text">{{ $t('Advertisement') }} - <a href="https://www.patreon.com/wago" target="_blank" rel="noopener" class="wago-advert-patreon">{{ $t('Hide Ads') }}</a></span>
     
       <div :key="uid">
         <div id="wagoVideoAd" v-if="format === 'video' || format === 'video-only'" class="video-ad-box"></div>

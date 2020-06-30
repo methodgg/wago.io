@@ -405,7 +405,7 @@
                             </md-select>
                           </md-input-container>
                           <md-input-container v-if="rest.type === 'guild'">
-                            <label>{{ $t("Select Rank(s)") }} [ <a :href="getGuildLink(rest.value)" target="_blank">{{ $t("View Members") }}</a> ]</label>
+                            <label>{{ $t("Select Rank(s)") }} [ <a :href="getGuildLink(rest.value)" target="_blank" rel="noopener">{{ $t("View Members") }}</a> ]</label>
                             <md-select v-model="rest.rank" @change="onUpdateRestrictionsDebounce(index)">
                               <md-option value="9">{{ $t("Everyone (Ranks 1-10)") }}</md-option>
                               <md-option value="8">{{ $t("Ranks 1-9") }}</md-option>
@@ -560,7 +560,7 @@
                       <template v-for="(ref, key) in wago.referrals">
                         <md-table-row>
                           <md-table-cell>
-                            <a :href="ref.url" target="_blank">{{ ref.url }}</a>
+                            <a :href="ref.url" target="_blank" rel="noopener">{{ ref.url }}</a>
                           </md-table-cell>
                           <md-table-cell class="md-end">
                             {{ ref.count  }}

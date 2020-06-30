@@ -149,14 +149,28 @@
           <router-link :to="'/' + WotM.slug"><md-image :md-src="WotM.screenshot" /></router-link>
         </div>
 
-        <md-list class="mainnav bottom">
-          <md-list-item target="_blank" href="https://www.patreon.com/wago"><div><img src="./assets/Patreon_White.png"></div>{{ $t("Support the website") }}</md-list-item>
-          <md-list-item target="_blank" href="https://discord.gg/wa2"><div><img src="./assets/discord.png"></div>{{ $t("Join WA Discord") }}</md-list-item>
-          <md-list-item target="_blank" href="https://github.com/oratory/wago.io"><div><img src="./assets/github.png"></div>{{ $t("Open source") }}</md-list-item>
-          <md-list-item target="_blank" href="https://weakauras.wtf/"><div><img src="./assets/weakauralogo.png" style="height:23px"></div>WeakAuras Companion</md-list-item>
-          <!--<md-list-item target="_blank" href="https://www.nevermorenation.com/teams/world-of-warcraft-classic/"><div><img src="./assets/nevermore.png"></div>Nevermore: Classic WoW<md-divider></md-divider></md-list-item>-->
-        </md-list>
-
+        <ul class="md-list mainnav bottom md-theme-default">
+          <li class="md-list-item">
+            <a href="https://www.patreon.com/wago" target="_blank" rel="noopener" class="md-list-item-container md-button">
+              <div><img src="./assets/Patreon_White.png"></div>{{ $t("Support the website") }}
+            </a>
+          </li>
+          <li class="md-list-item">
+            <a href="https://discord.gg/wa2" target="_blank" rel="noopener" class="md-list-item-container md-button">
+              <div><img src="./assets/discord.png"></div>{{ $t("Join WA Discord") }}
+            </a>
+          </li>
+          <li class="md-list-item">
+            <a href="https://github.com/oratory/wago.io" target="_blank" rel="noopener" class="md-list-item-container md-button">
+              <div><img src="./assets/github.png"></div>{{ $t("Open source") }}
+            </a>
+          </li>
+          <li class="md-list-item">
+            <a href="https://weakauras.wtf/" target="_blank" rel="noopener" class="md-list-item-container md-button">
+              <div><img src="./assets/weakauralogo.png"></div>WeakAuras Companion
+            </a>
+          </li>
+        </ul>
         <div class='legal'>
           <span>&copy; 2016-{{(new Date()).getFullYear()}} Wago.io</span>
           <span><router-link to="/terms-of-service">{{ $t("Terms of Service") }}</router-link></span>

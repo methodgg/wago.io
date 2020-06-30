@@ -4,7 +4,7 @@
       <md-layout>
         <md-avatar class='square'><category-image :group="'t-' + addon"></category-image></md-avatar>
         <md-layout md-column>
-          <a v-for="(link, id) in links" :href="link.url" target="_blank">{{ link.name }}</a>
+          <a v-for="(link, id) in links" :href="link.url" target="_blank" rel="noopener">{{ link.name }}</a>
         </md-layout>
       </md-layout>
     </md-whiteframe>

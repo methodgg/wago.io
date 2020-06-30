@@ -86,7 +86,7 @@
                     </md-select>
                   </md-input-container>
                   <md-input-container v-if="rest.type === 'guild' && rest.value">
-                    <label>{{ $t("Select Rank(s)") }} [ <a :href="getGuildLink(rest.value)" target="_blank">{{ $t("View Members") }}</a> ]</label>
+                    <label>{{ $t("Select Rank(s)") }} [ <a :href="getGuildLink(rest.value)" target="_blank" rel="noopener">{{ $t("View Members") }}</a> ]</label>
                     <md-select v-model="rest.rank" @change="onUpdateRestrictionsDebounce(index)">
                       <md-option value="9">{{ $t("Everyone (Ranks 1-10)") }}</md-option>
                       <md-option value="8">{{ $t("Ranks 1-9") }}</md-option>
@@ -319,7 +319,7 @@
           <md-table-body>
             <md-table-row v-for="(addon, addonIndex) in addonReleases" :key="addonIndex" v-if="addon.addon !== 'Grid2'">
               <md-table-cell>{{ addon.addon }}</md-table-cell>
-              <md-table-cell><a :href="addon.url" target="_blank">{{ addon.version }}</a><br><span>{{ addon.date | moment('MMM Do YYYY') }}</span></md-table-cell>
+              <md-table-cell><a :href="addon.url" target="_blank" rel="noopener">{{ addon.version }}</a><br><span>{{ addon.date | moment('MMM Do YYYY') }}</span></md-table-cell>
             </md-table-row>
           </md-table-body>
         </md-table>
