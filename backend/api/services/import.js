@@ -24,6 +24,8 @@ module.exports = function (fastify, opts, next) {
       switch (req.body.type.toUpperCase()) {
         case 'WEAKAURA':
         case 'CLASSIC-WEAKAURA':
+          test.WEAKAURA = true
+          break
         case 'PLATER':
         case 'MDT':
         case 'TOTALRP3':
