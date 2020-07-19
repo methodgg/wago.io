@@ -23,6 +23,7 @@
     "hcaptcha": "0.0.1",
     "js-video-url-parser": "^0.2.8",
     "jsonwebtoken": "^8.5.1",
+    "jszip": "^3.5.0",
     "locale": "^0.1.0",
     "matomo-tracker": "^2.2.1",
     "md5": "^2.2.1",
