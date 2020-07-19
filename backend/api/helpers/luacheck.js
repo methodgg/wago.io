@@ -22,7 +22,6 @@ module.exports = {
       return await makeLuaCheck(tbl)
     }
     else if (json.type === 'hook' || json['9']) { // Plater hook
-      console.log(json['9'])
       return await makeLuaCheck(json['9'])
     }
     else if (typeof json[8] === 'number') { // Plater script - fallback
@@ -63,7 +62,7 @@ async function makeLuaCheck (lua) {
     }
     if (lua[key].match(/^\s?function\s?\(/)) {
       lua[key] = lua[key].replace(/-- luacheck:/g, `--`) // don't ignore potential malicous hidings
-      lua[key] = lua[key].replace(/^\s?function\s?\(/, `local fn_${key.replace(/[^a-zA-Z0-9]/g, '')} = function(`) // name anonymous function
+      lua[key] = lua[key].replace(/^\s?function\s?\(/m, `local fn_${key.replace(/[^a-zA-Z0-9]/g, '')} = function(`) // name anonymous function
       lua[key] += `\nfn_${key.replace(/[^a-zA-Z0-9]/g, '')}()` // and then "call" the function so luacheck recognizes that it's used
     }
     let file = new Date().getTime() + Math.random().toString(36).substring(7) + '.lua'
