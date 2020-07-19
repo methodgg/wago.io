@@ -4,6 +4,7 @@
 
 <script>
 import XBBCode from '../libs/xbbcode'
+import mdUnderline from '../libs/markdownUnderline'
 import flowchart from 'flowchart.js'
 
 export default {
@@ -45,6 +46,7 @@ export default {
       // format markdown
       else if (this.text.format === 'markdown') {
         const markdown = require('markdown-it')({linkify: true})
+        markdown.use(mdUnderline)
         html = markdown.render(this.text.text)
         if (!this.enableLinks || this.truncate) {
           html = html.replace(/<\/?a(?:(?= )[^>]*)?>/g, '')
