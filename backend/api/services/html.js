@@ -23,10 +23,10 @@ module.exports = function (fastify, opts, next) {
     }
     var theme = {}
     if (req.query.style === 'light') {
-      var theme = {buttonBG: '#FFF', buttonHover: '#F4F4F4', textColor: 'rgba(0,0,0,.87)', logo: 'https://media.wago.io/favicon/apple-touch-icon-57x57.png'}
+      var theme = {buttonBG: '#FFF', buttonHover: '#F4F4F4', textColor: 'rgba(0,0,0,.87)', logo: 'https://media.wago.io/logo/57x57.png'}
     }
     else if (req.query.style === 'dark') {
-      var theme = {buttonBG: '#000', buttonHover: '#040404', textColor: 'rgba(255,255,255,.87)', logo: 'https://media.wago.io/favicon/apple-touch-icon-57x57.png'}
+      var theme = {buttonBG: '#000', buttonHover: '#040404', textColor: 'rgba(255,255,255,.87)', logo: 'https://media.wago.io/logo/57x57.png'}
     }
 
     var embed = {}
