@@ -60,7 +60,7 @@ async function makeLuaCheck (lua) {
     if (!lua[key] || typeof lua[key] !== 'string') {
       continue
     }
-    if (lua[key].match(/^\s?function\s?\(/)) {
+    if (lua[key].match(/^\s?function\s?\(/m)) {
       lua[key] = lua[key].replace(/-- luacheck:/g, `--`) // don't ignore potential malicous hidings
       lua[key] = lua[key].replace(/^\s?function\s?\(/m, `local fn_${key.replace(/[^a-zA-Z0-9]/g, '')} = function(`) // name anonymous function
       lua[key] += `\nfn_${key.replace(/[^a-zA-Z0-9]/g, '')}()` // and then "call" the function so luacheck recognizes that it's used
