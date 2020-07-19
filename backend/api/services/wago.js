@@ -231,7 +231,6 @@ module.exports = function (fastify, opts, next) {
     if ((req.body.decrypt || !wago.encrypted) && (req.body.visibility || req.body.cipherKey)) {
       var code = await WagoCode.find({auraID: wago._id}).exec()
       for (let i = 0; i < code.length; i++) {
-        console.log('enc?', wago.encrypted, code.length)
         if (wago.encrypted) {
           try {
             if (code[i].encoded) {

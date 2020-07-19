@@ -17,7 +17,6 @@ global['WagoFavorites'] = require('./api/models/WagoFavorites')
 var i = 0
 WagoItem.find({"popularity.favorite_count": {"$gt": 0}}).select('popularity').then((docs) => {
   docs.forEach((wago) => {
-    console.log(wago._id, ++i)
     wago.popularity.favorites.forEach((userID) => {
       WagoFavorites.addStar(wago, userID)
     })

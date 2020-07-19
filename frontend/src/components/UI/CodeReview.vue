@@ -106,9 +106,7 @@ export default {
           }
           text = text.replace(/'(.*?)'/g, '<span class="colnum">$1</span>')
           if (this.comment && this.comment.falsePositive) {
-            console.log('HELLO')
             text = text.replace(/^(.*)\(0\):(.*)$/, '$1<p class="review-warning"><i class="side-warning material-icons" title="Code Alert!">warning</i>$2</p>')
-            console.log(text)
           }
           else {
             text = text.replace(/^(.*)\(0\):(.*)$/, '$1<p class="review-alert"><i class="side-alert material-icons" title="Code Alert!">error_outline</i>$2</p>')

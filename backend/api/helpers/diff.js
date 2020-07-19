@@ -50,7 +50,6 @@ module.exports = {
     else if ((typeof jsonA[8] === 'object' || jsonA.type === 'hook') && (typeof jsonB[8] === 'object' || jsonA.type === 'hook')) { // Plater hook
       tblA = jsonA['9'] || jsonA[8]
       tblB = jsonB['9'] || jsonB[8]
-      console.log('sadfsd')
     }
     return await makeDiffs(tblA, tblB)
   },
