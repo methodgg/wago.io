@@ -119,7 +119,7 @@ module.exports = function (fastify, opts, next) {
           scan.game = 'bfa'
         }
         else if ((decoded.obj.d.tocversion+'').match(/^90/)) {
-          scan.game = 'shadowlands'
+          scan.game = 'sl'
         }
       }
       const scanDoc = await scan.save()
