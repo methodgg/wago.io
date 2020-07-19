@@ -175,6 +175,7 @@
           <span>&copy; 2016-{{(new Date()).getFullYear()}} Wago.io</span>
           <span><router-link to="/terms-of-service">{{ $t("Terms of Service") }}</router-link></span>
           <span><router-link to="/privacy-policy">{{ $t("Privacy Policy") }}</router-link></span>
+          <span><a href="mailto:wagowebsite@gmail.com">{{ $t("Contact") }}</a></span>
           <span data-ccpa-link="1"></span>
         </div>
       </md-sidenav>
