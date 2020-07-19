@@ -260,7 +260,8 @@
                   <md-button v-if="wago.type !== 'COLLECTION'" v-bind:class="{'md-toggle': showPanel === 'collections'}" @click="toggleFrame('collections')">{{ $t("[-count-] collection", {count:  wago.collectionCount}) }}</md-button>
                   <md-button v-if="wago.versions && wago.versions.total > 1" v-bind:class="{'md-toggle': showPanel === 'versions'}" @click="toggleFrame('versions')" ref="versionsButton">{{ $t("[-count-] version", { count: wago.versions.total }) }}</md-button>
                   <md-button v-if="hasCodeDiffs" v-bind:class="{'md-toggle': showPanel === 'diffs'}" @click="toggleFrame('diffs')" ref="diffsButton">{{ $t("Code Diffs") }}</md-button>
-                  <md-button v-if="wago.type !== 'ERROR' && wago.public" v-bind:class="{'md-toggle': showPanel === 'embed'}" @click="toggleFrame('embed')">{{ $t("Embed") }}</md-button>
+                  <md-button v-if="wago.code && (wago.code.luacheck || wago.code.review) && wago.type !== 'SNIPPET'" v-bind:class="{'md-toggle': showPanel === 'codereview'}" @click="toggleFrame('codereview')">{{ $t("Code Review") }}</md-button>
+                  <md-button v-if="wago.type !== 'ERROR' && wago.visibility && wago.visibility.public" v-bind:class="{'md-toggle': showPanel === 'embed'}" @click="toggleFrame('embed')">{{ $t("Embed") }}</md-button>
                   <md-button v-if="wago.type === 'MDT'" v-bind:class="{'md-toggle': showPanel === 'builder'}" @click="toggleFrame('builder')">{{ $t("Builder") }}</md-button>
                   <md-button v-if="wago.type !== 'ERROR'" v-bind:class="{'md-toggle': showPanel === 'editor'}" @click="toggleFrame('editor')">{{ $t("Editor") }}</md-button>
                 </template>
@@ -291,6 +292,16 @@
                   </form>
                 </md-card>
               </div>
+
+              <ui-warning v-if="codeReview.alerts > 0" mode="alert" id="code-review-alert">
+                <md-icon>error_outline</md-icon> {{ $t('Wago has identified [-count-] alert during automated code review', {count: codeReview.alerts}) }}
+                <md-button v-if="showPanel !== 'codereview' && wago.type !== 'SNIPPET'" @click.prevent="toggleFrame('codereview')">[{{ $t("View Alerts") }}]</md-button>
+                <md-button v-else-if="showPanel !== 'editor' && wago.type === 'SNIPPET'" @click.prevent="toggleFrame('editor')">[{{ $t("View Alerts") }}]</md-button>
+                <template v-if="wago.user && User && wago.UID && wago.UID === User.UID">
+                  <p v-if="wago.type.match(/WEAKAURA/)" v-html="$t('Want some help fixing code review alerts? Come have a chat on the [-discord-].', {discord: `<a href='https://discord.gg/wa2'>WeakAuras Discord</a>`, interpolation: {escapeValue: false}})"></p>
+                  <p v-else-if="wago.type.match(/PLATER/)" v-html="$t('Want some help fixing code review alerts? Come have a chat on the [-discord-].', {discord: `<a href='https://discord.com/invite/AGSzAZX'>Plater Discord</a>`, interpolation: {escapeValue: false}})"></p>
+                </template>
+              </ui-warning>
 
               <ui-warning v-if="wago.expires" mode="info">
                 {{ $t("This import will expire in [-time-]", {time: this.$moment(wago.expires).fromNow() }) }}<br>
@@ -856,7 +867,7 @@
                       <md-subheader><span style="color:#777">{{ $t("Preview") }}</span></md-subheader>
                       <div id="embed-preview">
                         <span :id="'wago-'+wago._id" class="wagoEmbed">
-                          <a :href="wago.url" class='vr'><img src="https://media.wago.io/logo-57x57.png"></a>
+                          <a :href="wago.url" class='vr'><img src="https://media.wago.io/logo/57x57.png"></a>
                           <button @click="embedCopy(this, wago.code.encoded)" class="wagoCopyButton">
                             <small class="clickToCopyWago">Click to copy import string from wago.io</small>
                             <div class="wagoName">{{ wago.name }}</div>
@@ -880,54 +891,27 @@
               <!-- EDITOR FRAME -->
               <div id="wago-editor-container" class="wago-container" v-if="showPanel=='editor'">
                 <div id="wago-editor">
-                  <edit-weakaura v-if="wago.type.match(/WEAKAURA/) && wago.code" @set-has-unsaved-changes="setHasUnsavedChanges" :unsavedTable="hasUnsavedChanges" @update-encoded="updateEncoded" @update-version="updateVersion" :cipherKey="decryptKey"></edit-weakaura>
-                  <edit-plater v-else-if="wago.type=='PLATER' && wago.code" @set-has-unsaved-changes="setHasUnsavedChanges" :unsavedTable="hasUnsavedChanges" @update-encoded="updateEncoded" @update-version="updateVersion" :cipherKey="decryptKey"></edit-plater>
-                  <edit-snippet v-else-if="wago.type=='SNIPPET' && wago.code" @update-version="updateVersion" :cipherKey="decryptKey"></edit-snippet>
+                  <edit-weakaura v-if="wago.type.match(/WEAKAURA/) && wago.code" @set-has-unsaved-changes="setHasUnsavedChanges" :unsavedTable="hasUnsavedChanges" @update-encoded="updateEncoded" @update-version="updateVersion" :cipherKey="decryptKey" :loadFn="quickLoadEditorFn"></edit-weakaura>
+                  <edit-plater v-else-if="wago.type=='PLATER' && wago.code" @set-has-unsaved-changes="setHasUnsavedChanges" :unsavedTable="hasUnsavedChanges" @update-encoded="updateEncoded" @update-version="updateVersion" :cipherKey="decryptKey" :loadFn="quickLoadEditorFn"></edit-plater>
+                  <edit-snippet v-else-if="wago.type=='SNIPPET' && wago.code" @update-version="updateVersion" :cipherKey="decryptKey" :loadFn="quickLoadEditorFn"></edit-snippet>
                   <edit-common v-else-if="wago.code" @set-has-unsaved-changes="setHasUnsavedChanges" @update-encoded="updateEncoded" @update-version="updateVersion" :cipherKey="decryptKey"></edit-common>
                 </div>
               </div>
 
               <!-- CODE REVIEW FRAME -->
               <div id="wago-codereview-container" class="wago-container" v-if="showPanel=='codereview'">
-                <div v-if="wago && wago.codeReview">
-                  Global variables defined: {{ wago.codeReview.countGlobals }}.<br>
-                  Profile runtime: {{ (parseFloat(wago.codeReview.profileRunTime) * 1000).toFixed(2) }}ms.<br>
-                  <div v-for="(errors, aura) in wago.codeReview.errors" :key="aura">Error in {{aura}}:
-                    <div v-for="(err, index) in errors" :key="index" style="margin-left:12px">{{ err.block }}: {{err.message}}</div>
-                  </div>
-                  <md-table>
-                    <md-table-header>
-                      <md-table-row>
-                        <md-table-head>WeakAura</md-table-head>
-                        <md-table-head>Code Block</md-table-head>
-                        <md-table-head>Function</md-table-head>
-                        <md-table-head md-numeric>Called # Times</md-table-head>
-                        <md-table-head md-numeric>Processing Time</md-table-head>
-                      </md-table-row>
-                    </md-table-header>
-
-                    <md-table-body>
-                      <template v-for="(row, aura) in wago.codeReview.profile">
-                        <md-table-row v-for="(code, index) in row" :key="index" v-if="!code.func">
-                          <md-table-cell>{{ aura }}</md-table-cell>
-                          <md-table-cell>{{ code.block }}</md-table-cell>
-                          <md-table-cell></md-table-cell>
-                          <md-table-cell md-numeric></md-table-cell>
-                          <md-table-cell md-numeric>{{ (parseFloat(code.time) * 1000).toFixed(2) }}ms</md-table-cell>
-                        </md-table-row>
-                        <md-table-row v-for="(code, index) in row" :key="index" v-if="code.func">
-                          <md-table-cell>{{ aura }}</md-table-cell>
-                          <md-table-cell>{{ code.block }}</md-table-cell>
-                          <md-table-cell>{{ code.func }}()</md-table-cell>
-                          <md-table-cell md-numeric>{{ code.calls }}</md-table-cell>
-                          <md-table-cell md-numeric>{{ (parseFloat(code.time) * 1000).toFixed(2) }}ms</md-table-cell>
-                        </md-table-row>
-                      </template>
-                    </md-table-body>
-                  </md-table>
-
-                </div>
-                <div v-else>Loading...</div>
+                <template v-if="codeReview">
+                  <h2>{{ $t('Code Review') }}</h2>
+                  <p>{{ $t('Wago checks for common but problematic code.') }}</p>
+                  <codereview v-if="codeReview.stabilityChecks && codeReview.stabilityChecks.length" v-for="(test, k) in codeReview.stabilityChecks" :key="k" :review="test" :link="true" @loadFn="loadEditorFn(test.func)" @setComment="setCodeReviewComment" :author="wago.user && User && wago.UID && wago.UID === User.UID"></codereview>
+                  <codereview v-else name="Review">{{ $t('No problems found.') }}</codereview>
+                </template>
+                <br>
+                <template v-if="wago.code.luacheck">
+                  <h2>Luacheck</h2>
+                  <p>{{ $t('Luacheck detects various issues in lua code and reports warnings and syntax errors.') }}<br>{{ $t('Wago flags some of those warnings as alerts when run within the scope of your custom code and the WoW environment.') }}</p>
+                  <codereview v-for="key in luacheckKeys" :key="key" :name="key" :link="true" @loadFn="loadEditorFn(key)" :luacheck="true">{{wago.code.luacheck[key]}}</codereview>
+                </template>
               </div>
 
               <div id="wago-importstring-container" class="wago-container" v-if="wago.code && wago.code.encoded">
@@ -1032,7 +1016,8 @@ export default {
     editor: require('vue2-ace-editor'),
     Multiselect,
     CategorySelect,
-    Search
+    Search,
+    codereview: require('../UI/CodeReview')
   },
   created: function () {
     this.fetchWago()
@@ -1124,7 +1109,14 @@ export default {
       cipherKey: '',
       decryptKey: '',
       requireCipherKey: false,
-      decryptLoading: false
+      decryptLoading: false,
+      quickLoadEditorFn: null,
+      luacheckKeys: [],
+      codeReview: {
+        warnings: 0,
+        errors: 0,
+        alerts: 0
+      }
     }
   },
   watch: {
@@ -1254,10 +1246,10 @@ export default {
       else {
         var embedTheme = {}
         if (this.embedStyle === 'light') {
-          embedTheme = {buttonBG: '#FFF', buttonHover: '#F4F4F4', textColor: 'rgba(0,0,0,.87)', logo: 'https://media.wago.io/logo-57x57.png'}
+          embedTheme = {buttonBG: '#FFF', buttonHover: '#F4F4F4', textColor: 'rgba(0,0,0,.87)', logo: 'https://media.wago.io/logo/57x57.png'}
         }
         else {
-          embedTheme = {buttonBG: '#000', buttonHover: '#040404', textColor: 'rgba(255,255,255,.87)', logo: 'https://media.wago.io/logo-57x57.png'}
+          embedTheme = {buttonBG: '#000', buttonHover: '#040404', textColor: 'rgba(255,255,255,.87)', logo: 'https://media.wago.io/logo/57x57.png'}
         }
         return `<span id="wago-${this.wago._id}" class="wagoEmbed">
   <a href="https://wago.io/${this.wago.slug}">
@@ -1337,17 +1329,6 @@ export default {
           this.checkCompanionBeta()
         }, 500)
       }
-    },
-    loadCodeReview () {
-      var vue = this
-      vue.http.get('/lookup/codereview', {wagoID: this.wago._id}).then((res) => {
-        if (res) {
-          vue.$set(vue.wago, 'codeReview', res)
-          vue.$store.commit('setWago', vue.wago)
-        }
-      }).catch(e => {
-        console.error(e)
-      })
     },
     fetchWago () {
       this.checkCompanionBeta()
@@ -1525,6 +1506,33 @@ export default {
         code.obj = JSON.parse(code.json)
         code.json = JSON.stringify(code.obj, null, 2)
       }
+      this.codeReview.errors = 0
+      this.codeReview.warnings = 0
+      this.codeReview.alerts = 0
+      this.codeReview.stabilityChecks = []
+      if (code && code.luacheck && code.luacheck !== '{}') {
+        code.luacheck = JSON.parse(code.luacheck)
+        var luacheck = Object.values(code.luacheck)
+        this.luacheckKeys = Object.keys(code.luacheck)
+        this.luacheckKeys.sort()
+        for (let lc of luacheck) {
+          let c = lc.match(/^(\d+) error/)
+          if (c && c[1]) {
+            this.codeReview.errors += parseInt(c[1])
+          }
+          c = lc.match(/^(\d+) warning/)
+          if (c && c[1]) {
+            this.codeReview.warnings += parseInt(c[1])
+          }
+          c = lc.match(/\((E\d+|W111|W121)\)/g)
+          if (c && c.length) {
+            this.codeReview.alerts += c.length
+          }
+        }
+      }
+      else {
+        code.luacheck = null
+      }
       this.$set(this.wago, 'code', code)
       this.$store.commit('setWago', this.wago)
 
@@ -1539,6 +1547,99 @@ export default {
         errs = errs.reverse()
         this.$set(this.wago, 'errorReport', errs)
       }
+      // code review
+      else if (this.wago.type.match(/WEAKAURA/)) {
+        var auras = []
+        if (code.obj.d) {
+          auras = [code.obj.d]
+        }
+        if (code.obj.c && Array.isArray(code.obj.c)) {
+          auras = auras.concat(code.obj.c)
+        }
+        for (let item of auras) {
+          if (item.id.length > 127) {
+            this.codeReview.alerts++
+            this.codeReview.stabilityChecks.push({id: 'longID', name: item.id, display: this.$t('\'[-name-]\' id length is needlessly long.', {name: item.id}) + '(0):' + this.$t('This is the name used in the WeakAura interface and may cause an overflow error and crash the game.'), func: 'tabledata'})
+          }
+          let customText = null
+          let customFunc = null
+          if (item.customTextUpdate === 'update') {
+            if (((typeof item.displayText === 'string' && item.displayText.match(/%c/) > -1) ||
+            (typeof item.text1 === 'string' && item.text1.match(/%c/) > -1) ||
+            (typeof item.text2 === 'string' && item.text2.match(/%c/) > -1) ||
+            (typeof item.displayTextLeft === 'string' && item.displayTextLeft.match(/%c/) > -1) ||
+            (typeof item.displayTextRight === 'string' && item.displayTextRight.match(/%c/) > -1)) &&
+            item.customText) {
+              customText = item.customText
+              customFunc = `${item.id}: ${this.$t('Display Text')}`
+            }
+
+            else if (typeof item.displayStacks === 'string' && item.displayStacks.match(/%c/) > -1) {
+              customText = item.customText
+              customFunc = `${item.id}: ${this.$t('Display Stacks')}`
+            }
+
+            if (typeof item.customText === 'string' && item.subRegions && item.subRegions.length) {
+              for (let n = 0; n < item.subRegions.length; n++) {
+                if (item.subRegions[n].text_text && item.subRegions[n].text_text.match(/%c/)) {
+                  customText = item.customText
+                  customFunc = `${item.id}: ${this.$t('Custom Text')}`
+                  break
+                }
+              }
+            }
+            if (customText) {
+              // remove comments and function params
+              customText = customText.replace(/--.*?$/g, '').replace(/^[^]*?\)/m, '').trim()
+              let result
+              let ok
+              if (customText.match(/(time|GetTime)\(\)/)) {
+                result = this.$t('Timing or throttling code is detected.')
+                ok = 1
+              }
+              else if (customText.indexOf('return') === 0) {
+                result = this.$t('Immediate value return detected.')
+                ok = 1
+              }
+              else {
+                result = this.$t('Displays that update every frame can potentially cause slowdown are are almost always go against best practices. Every frame updates should be for a) time related displays or b) throttled so that the processing occurs on an interval. Neither are detected here.')
+                ok = 0
+              }
+              if (!ok && (!this.wago.codeReviewComments || !this.wago.codeReviewComments[`textEveryFrameDisplay:${item.id}`] || !this.wago.codeReviewComments[`textEveryFrameDisplay:${item.id}`].falsePositive)) {
+                this.codeReview.alerts++
+              }
+              this.codeReview.stabilityChecks.push({id: 'textEveryFrameDisplay', name: item.id, display: this.$t('\'[-name-]\' updates its display text every frame.', {name: customFunc}) + `(${ok}):${result}`, func: customFunc})
+            }
+
+            var customTrigger
+            for (let n = 0; n < Object.keys(item.triggers).length; n++) {
+              if (item.triggers['' + n] && item.triggers['' + n].trigger && item.triggers['' + n].trigger.type === 'custom' && item.triggers['' + n].trigger.check === 'update' && item.triggers['' + n].trigger.custom) {
+                customTrigger = item.triggers['' + n].trigger.custom
+                customFunc = `${item.id}: ${this.$t('Trigger ([-n-])', {n})}`
+
+                // remove comments and function params
+                customTrigger = customTrigger.replace(/--.*?$/g, '').replace(/^[^]*?\)/m, '').trim()
+                let result
+                let ok
+                if (customTrigger.match(/(time|GetTime)\(\)/)) {
+                  result = this.$t('Timing or throttling code is detected.')
+                  ok = 1
+                }
+                else {
+                  result = this.$t('Triggers that check on every frame should be throttled so that the processing occurs on an interval. No throttle could be detected here.')
+                  ok = 0
+                }
+                if (!ok) {
+                  this.codeReview.alerts++
+                }
+                this.codeReview.stabilityChecks.push({id: 'textEveryFrameTrigger', name: item.id, display: this.$t('\'[-name-]\' is processed every frame.', {name: customFunc}) + `(${ok}):${result}`, func: customFunc})
+              }
+            }
+          }
+        }
+      }
+
+      this.$set(this.wago, 'codeReview', this.codeReview)
 
       if (code && code.versionString) {
         this.currentVersionString = code.versionString
@@ -1801,9 +1902,6 @@ export default {
           setupPasteImage(this)
         })
       }
-      else if (frame === 'codereview') {
-        this.loadCodeReview()
-      }
     },
     toTop () {
       this.$scrollTo('#app')
@@ -1814,6 +1912,24 @@ export default {
         var rect = top.getBoundingClientRect()
         this.showFloatingHeader = !!(rect.bottom < 0)
       }
+    },
+    loadEditorFn (fn) {
+      this.quickLoadEditorFn = fn
+      this.toggleFrame('editor')
+      window.scrollTo(0, 0)
+      setTimeout(() => {
+        this.quickLoadEditorFn = false
+      }, 1000)
+    },
+    setCodeReviewComment (id, text, flag) {
+      let comment = {
+        author: this.wago.user,
+        date: Date.now(),
+        falsePositive: flag,
+        format: 'bbcode',
+        text: text
+      }
+      this.$set(this.wago.codeReviewComments, id, comment)
     },
     toggleViewNotes (v) {
       if (this.viewNotes === v) {
@@ -2703,4 +2819,6 @@ ul:not(.md-list) > li.multiselect__element + li { margin-top: 0 }
 #translationModeButtons { padding: 0}
 #wago-translate-container .md-button-toggle {padding-left:0}
 #wago-translate-container .md-button-toggle .md-button {text-transform: none}
+
+#wago-codereview-container h2 {padding-left: 0}
 </style>

@@ -20,5 +20,8 @@ export default {
 .warning { border-color: #afb42b; color: #afb42b; }
 .warning.alert { border-color: #c1272d; color: #c1272d; } 
 .warning.good, .warning.ok { border-color: #388e3c; color: #388e3c; } 
-.warning.info { border-color: #0288d1; color: #0288d1; } 
+.warning.info { border-color: #0288d1; color: #0288d1; }
+.warning.alert .md-button {color: #afb42b; min-height: 0; line-height: initial; margin: 0; padding: 3px 12px; text-transform: none}
+.warning.alert p {color: rgba(0, 0, 0, .87);}
+.theme-dark .warning.alert p {color: #DDD; font-weight: normal}
 </style>

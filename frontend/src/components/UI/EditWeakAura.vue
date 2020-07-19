@@ -1,11 +1,7 @@
 <template>
   <div id="edit-weakaura">
-    <div v-if="luacheck && editorSelected !== 'tabledata'">
-      <strong>Luacheck</strong>
-      <p v-if="luacheck === 'loading'">{{ $t("Loading") }}</p>
-      <editor v-else-if="typeof luacheck === 'object' && luacheck[luacheckFile.toLowerCase()]" v-model="luacheck[luacheckFile.toLowerCase()]" @init="luacheckInit" :theme="editorTheme" width="100%" height="40"></editor>
-      <p v-else>{{ $t("Error could not load luacheck for this code") }}</p>
-    </div>
+    <codereview v-if="codeReview && codeReviewFile >= 0 && codeReview.stabilityChecks && codeReview.stabilityChecks.length" name="Code Review" :review="codeReview.stabilityChecks[codeReviewFile]" @setComment="setCodeReviewComment" :author="wago.user && User && wago.UID && wago.UID === User.UID"></codereview>
+    <codereview v-if="luacheck && editorSelected !== 'tabledata'" name="Luacheck" :luacheck="true">{{luacheck[luacheckFile]}}</codereview>
     <div class="flex-container">
       <div class="flex-col flex-left">
         <md-input-container>
@@ -19,9 +15,6 @@
             <md-subheader v-if="customFn(tableData).length === 0">{{ $t("No custom functions found") }}</md-subheader>
           </md-select>
         </md-input-container>        
-      </div>
-      <div class="flex-col flex-left">
-        <md-button v-if="$store.state.user && $store.state.user.access && $store.state.user.access.beta && editorSelected !== 'tabledata' && !luacheck" @click="runLuacheck()"><md-icon>center_focus_weak</md-icon> {{ $t("Luacheck") }} [Beta]</md-button>
       </div>
       <div class="flex-col flex-right">
         <md-menu v-if="groupedWA" md-size="6" md-align-trigger>
@@ -82,7 +75,7 @@ const semver = require('semver')
 
 export default {
   name: 'edit-weakaura',
-  props: ['unsavedTable', 'cipherKey'],
+  props: ['unsavedTable', 'cipherKey', 'loadFn'],
   data: function () {
     return {
       editorSelected: 'tabledata',
@@ -98,27 +91,45 @@ export default {
       latestVersion: {semver: semver.valid(semver.coerce(this.$store.state.wago.versions.versions[0].versionString))},
       newImportVersion: {},
       newChangelog: {},
-      luacheck: null,
-      luacheckFile: null
+      luacheck: this.$store.state.wago.code.luacheck,
+      luacheckFile: null,
+      codeReview: this.$store.state.wago.codeReview,
+      codeReviewFile: -1
     }
   },
   watch: {
     editorSelected: function (fn) {
       var tmpUnsaved = this.unsavedTable
       try {
+        console.log(this.codeReview.stabilityChecks)
+        var custFns = this.customFn(this.tableData)
         if (fn && fn !== 'tabledata') {
           fn = fn.split(',')
-          var custFns = this.customFn(this.tableData)
-          for (var i = 0; i < custFns.length; i++) {
+          for (let i = 0; i < custFns.length; i++) {
             if (typeof custFns[i] === 'object' && custFns[i].id && fn[0] === custFns[i].id.replace(/,/g, '') && fn[1] === custFns[i].path) {
               fn = custFns[i]
               break
             }
           }
           this.luacheckFile = `${fn.id}: ${fn.name}`
+          if (this.codeReview.stabilityChecks) {
+            for (let i = 0; i < this.codeReview.stabilityChecks.length; i++) {
+              if (this.codeReview.stabilityChecks[i].func === this.luacheckFile) {
+                this.codeReviewFile = i
+                break
+              }
+            }
+          }
         }
         else {
           this.luacheckFile = null
+          this.codeReviewFile = -1
+          for (let i = 0; i < custFns.length; i++) {
+            if (this.codeReview.stabilityChecks[i].func === 'tabledata') {
+              this.codeReviewFile = i
+              break
+            }
+          }
         }
 
         // save current data to json object
@@ -211,13 +222,34 @@ export default {
   components: {
     editor: require('vue2-ace-editor'),
     'export-modal': require('./ExportJSON.vue'),
-    'input-semver': require('../UI/Input-Semver.vue')
+    'input-semver': require('../UI/Input-Semver.vue'),
+    codereview: require('./CodeReview')
   },
   mounted () {
     this.latestVersion.semver = semver.valid(semver.coerce(this.wago.versions.versions[0].versionString))
     this.latestVersion.major = semver.major(this.latestVersion.semver)
     this.latestVersion.minor = semver.minor(this.latestVersion.semver)
     this.latestVersion.patch = semver.patch(this.latestVersion.semver)
+
+    var custFns = this.customFn(this.tableData)
+    if (this.loadFn && this.loadFn !== 'tabledata') {
+      for (var i = 0; i < custFns.length; i++) {
+        if (typeof custFns[i] === 'object' && custFns[i].id && custFns[i].name && this.loadFn === `${custFns[i].id}: ${custFns[i].name}`) {
+          this.$nextTick(() => {
+            this.editorSelected = `${custFns[i].id},${custFns[i].path}`
+          })
+          break
+        }
+      }
+    }
+    else {
+      for (let i = 0; i < custFns.length; i++) {
+        if (this.codeReview.stabilityChecks[i].func === 'tabledata') {
+          this.codeReviewFile = i
+          break
+        }
+      }
+    }
   },
   methods: {
     editorInit: function (editor) {
@@ -240,6 +272,16 @@ export default {
         maxLines: 100,
         readOnly: true
       })
+    },
+    setCodeReviewComment (id, text, flag) {
+      let comment = {
+        author: this.wago.user,
+        date: Date.now(),
+        falsePositive: flag,
+        format: 'bbcode',
+        text: text
+      }
+      this.$set(this.wago.codeReviewComments, id, comment)
     },
     customFn: function (json) {
       // if single aura then place in array
@@ -300,7 +342,7 @@ export default {
           if (func.indexOf(item.id) < 0) {
             func.push(item.id)
           }
-          func.push({ id: item.id, name: this.$t('DisplayText'), ix: ix, path: 'customText' })
+          func.push({ id: item.id, name: this.$t('Display Text'), ix: ix, path: 'customText' })
         }
 
         // display stacks
@@ -308,7 +350,7 @@ export default {
           if (func.indexOf(item.id) < 0) {
             func.push(item.id)
           }
-          func.push({ id: item.id, name: this.$t('DisplayStacks'), ix: ix, path: 'customText' })
+          func.push({ id: item.id, name: this.$t('Display Stacks'), ix: ix, path: 'customText' })
         }
 
         if (item.grow === 'CUSTOM' && item.customGrow) {
@@ -811,6 +853,9 @@ export default {
     },
     wago: function () {
       return this.$store.state.wago
+    },
+    User () {
+      return this.$store.state.user
     },
     canEdit: function () {
       var user = this.$store.state.user

@@ -145,25 +145,33 @@ function getCustomCodeWA(data) {
       (typeof item.displayTextLeft === 'string' && item.displayTextLeft.indexOf('%c') > -1) ||
       (typeof item.displayTextRight === 'string' && item.displayTextRight.indexOf('%c') > -1)) &&
       item.customText) {
-      code[item.id + ': DisplayText'] = item.customText
+      code[item.id + ': Display Text'] = item.customText
     }
 
     // display stacks
     else if (typeof item.displayStacks === 'string' && item.displayStacks.indexOf('%c') > -1) {
-      code[item.id + ': DisplayStacks'] = item.customText
+      code[item.id + ': Display Stacks'] = item.customText
     }
 
     // custom grow
     if (item.grow === 'CUSTOM' && item.customGrow) {
-      code[item.id + ': CustomGrow'] = item.customGrow
+      code[item.id + ': Custom Grow'] = item.customGrow
     }
     // custom sort
     if (item.grow === 'CUSTOM' && item.customSort) {
-      code[item.id + ': CustomSort'] = item.customSort
+      code[item.id + ': Custom Sort'] = item.customSort
     }
     // custom acnhor
     if (item.anchorPerUnit === 'CUSTOM' && item.customAnchorPerUnit) {
-      code[item.id + ': CustomAnchor'] = item.customAnchorPerUnit
+      code[item.id + ': Custom Anchor'] = item.customAnchorPerUnit
+    }
+
+    if (typeof item.customText === 'string' && item.subRegions && item.subRegions.length) {
+      for (let n = 0; n < item.subRegions.length; n++) {
+        if (item.subRegions[n].text_text && item.subRegions[n].text_text.match(/%c/)) {
+          code[item.id + ': Custom Text'] = item.customText
+        }
+      }
     }
 
     // triggers

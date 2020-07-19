@@ -1,11 +1,6 @@
 <template>
-  <div id="edit-common">
-    <div v-if="luacheck">
-      <strong>Luacheck</strong>
-      <p v-if="luacheck === 'loading'">{{ $t("Loading") }}</p>
-      <editor v-else-if="typeof luacheck === 'object' && luacheck[luacheckFile.toLowerCase()]" v-model="luacheck[luacheckFile.toLowerCase()]" @init="luacheckInit" :theme="editorTheme" width="100%" height="40"></editor>
-      <p v-else>{{ $t("Error could not load luacheck for this code") }}</p>
-    </div>
+  <div id="edit-common">  
+    <codereview v-if="luacheck && luacheck.Snippet" name="Luacheck" :luacheck="true">{{luacheck.Snippet}}</codereview>
     <div class="flex-container">
       <div class="flex-col flex-left">
         <md-button v-if="$store.state.user && $store.state.user.access && $store.state.user.access.beta && !luacheck" @click="runLuacheck()"><md-icon>center_focus_weak</md-icon> {{ $t("Luacheck") }} [Beta]</md-button>
@@ -61,7 +56,7 @@ export default {
       latestVersion: {semver: this.$store.state.wago.versions.versions[0].versionString},
       newImportVersion: {major: 1, minor: 0, patch: 1},
       newChangelog: {},
-      luacheck: null,
+      luacheck: this.$store.state.wago.code.luacheck,
       luacheckFile: 'Snippet'
     }
   },
@@ -70,7 +65,8 @@ export default {
   components: {
     editor: require('vue2-ace-editor'),
     'export-modal': require('./ExportLua.vue'),
-    'input-semver': require('../UI/Input-Semver.vue')
+    'input-semver': require('../UI/Input-Semver.vue'),
+    codereview: require('./CodeReview')
     // MonacoEditor
   },
   methods: {

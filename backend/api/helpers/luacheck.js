@@ -12,7 +12,7 @@ module.exports = {
     catch (e) {
       return []
     }
-    if (json.type === 'script') { // Plater script
+    if (json.type === 'script' || json['11']) { // Plater script
       var tbl = {}
       tbl.Constructor = json['12']
       tbl['On Show'] = json['14']
@@ -21,7 +21,8 @@ module.exports = {
       tbl.Initialization = json['15']
       return await makeLuaCheck(tbl)
     }
-    else if (json.type === 'hook') { // Plater hook
+    else if (json.type === 'hook' || json['9']) { // Plater hook
+      console.log(json['9'])
       return await makeLuaCheck(json['9'])
     }
     else if (typeof json[8] === 'number') { // Plater script - fallback
@@ -47,32 +48,49 @@ module.exports = {
 
 async function makeLuaCheck (lua) {
   const keys = Object.keys(lua)
+  if (!keys.length) {
+    return {}
+  }
   const luacheckrc = __dirname + '/../lua/luacheck.cfg'
+  const checkDir = __dirname + '/../../run-tmp/' + new Date().getTime() + Math.random().toString(36).substring(7)
+  await fs.mkdir(checkDir)
   var result = {}
+  var fileMap = {}
   for (let i = 0; i < keys.length; i++) {
     const key = keys[i]
-    if (!lua[key]) {
+    if (!lua[key] || typeof lua[key] !== 'string') {
       continue
     }
     if (lua[key].match(/^\s?function\s?\(/)) {
+      lua[key] = lua[key].replace(/-- luacheck:/g, `--`) // don't ignore potential malicous hidings
       lua[key] = lua[key].replace(/^\s?function\s?\(/, `local fn_${key.replace(/[^a-zA-Z0-9]/g, '')} = function(`) // name anonymous function
       lua[key] += `\nfn_${key.replace(/[^a-zA-Z0-9]/g, '')}()` // and then "call" the function so luacheck recognizes that it's used
     }
-    const luaFile = await makeTmpFile(lua[key])
-    let check = await exec(`luacheck ${luaFile} --config ${luacheckrc}`)
-    if (check && check.stdout) {
-      check = check.stdout.replace(new RegExp(luaFile+':?', 'g'), '').replace(/\u001b/g, '').replace(/\[\d+m/g, '').replace(/    /g, '').replace(/^Checking\s+/, '').replace(/ in 1 file/, '')
-      result[key.toLowerCase()] = check
-    }
-    fs.unlink(luaFile)
+    let file = new Date().getTime() + Math.random().toString(36).substring(7) + '.lua'
+    fileMap[file] = key
+    await fs.writeFile(checkDir + '/' + file, lua[key])
   }
+  let check = await exec(`luacheck ${checkDir} --config ${luacheckrc}`)
+  if (check && check.stdout) {
+    let m
+    const luacheckRegex = /C?ecking .*?\/(\w+\.lua)\s+([\w\s]+)^([^]*?)^\w/gm
+    while ((m = luacheckRegex.exec(check.stdout)) !== null) {
+      if (m.index === luacheckRegex.lastIndex) {
+        luacheckRegex.lastIndex++
+      }
+      let key = fileMap[m[1]]
+      let results = (`${m[2]}${m[3].replace(/.*\.lua:/g, '')}`).trim()+'\n'
+      result[key] = results
+    }
+    // check = check.stdout.replace(new RegExp(luaFile+':?', 'g'), '').replace(/\u001b/g, '').replace(/\[\d+m/g, '').replace(/    /g, '').replace(/^Checking\s+/, '').replace(/ in 1 file/, '')
+  }
+  // cleanup
+  const files = Object.keys(fileMap)
+  for (let file of files) {
+    await fs.unlink(checkDir + '/' + file)
+  }
+  await fs.rmdir(checkDir)
   return result
-}
-
-async function makeTmpFile(contents) {
-  const filename = __dirname + '/../../run-tmp/' + new Date().getTime() + Math.random().toString(36).substring(7) + '.lua'
-  await fs.writeFile(filename, contents)
-  return filename
 }
 
 // ported from frontend's table editor
@@ -114,25 +132,33 @@ function getCustomCodeWA(data) { // TODO: this is identical to the fn in diffs.j
       (typeof item.displayTextLeft === 'string' && item.displayTextLeft.indexOf('%c') > -1) ||
       (typeof item.displayTextRight === 'string' && item.displayTextRight.indexOf('%c') > -1)) &&
       item.customText) {
-      code[item.id + ': DisplayText'] = item.customText
+      code[item.id + ': Display Text'] = item.customText
     }
 
     // display stacks
     else if (typeof item.displayStacks === 'string' && item.displayStacks.indexOf('%c') > -1) {
-      code[item.id + ': DisplayStacks'] = item.customText
+      code[item.id + ': Display Stacks'] = item.customText
     }
 
     // custom grow
     if (item.grow === 'CUSTOM' && item.customGrow) {
-      code[item.id + ': CustomGrow'] = item.customGrow
+      code[item.id + ': Custom Grow'] = item.customGrow
     }
     // custom sort
     if (item.grow === 'CUSTOM' && item.customSort) {
-      code[item.id + ': CustomSort'] = item.customSort
+      code[item.id + ': Custom Sort'] = item.customSort
     }
     // custom acnhor
     if (item.anchorPerUnit === 'CUSTOM' && item.customAnchorPerUnit) {
-      code[item.id + ': CustomAnchor'] = item.customAnchorPerUnit
+      code[item.id + ': Custom Anchor'] = item.customAnchorPerUnit
+    }
+
+    if (typeof item.customText === 'string' && item.subRegions && item.subRegions.length) {
+      for (let n = 0; n < item.subRegions.length; n++) {
+        if (item.subRegions[n].text_text && item.subRegions[n].text_text.match(/%c/)) {
+          code[item.id + ': Custom Text'] = item.customText
+        }
+      }
     }
 
     // triggers
@@ -175,11 +201,6 @@ function getCustomCodeWA(data) { // TODO: this is identical to the fn in diffs.j
           // stacks
           if (item.triggers[k].trigger.customStacks && item.triggers[k].trigger.customStacks.trim().length > 0) {
             code[item.id + ': Stack Info ('+k+')'] = item.triggers[k].trigger.customStacks
-          }
-
-          // custom variables
-          if (item.triggers[k].trigger.customVariables && item.triggers[k].trigger.customVariables.trim().length > 0) {
-            code[item.id + ': Custom Variables ('+k+')'] = item.triggers[k].trigger.customVariables
           }
 
           let overlayCount = 1

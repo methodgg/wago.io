@@ -102,5 +102,28 @@ module.exports = function (fastify, opts, next) {
     }
   })
 
+  fastify.post('/codereview', async (req, res) => {
+    if (!req.user || !req.body.block || !req.body.text || !req.body.wagoID) {
+      return res.code(403).send({error: "forbidden"})
+    }
+    
+    const wago = await WagoItem.findById(req.body.wagoID).exec()
+    if (!req.user._id.equals(wago._userId)) {
+      return res.code(403).send({error: "forbidden"})
+    }
+
+    const comment = {
+      wagoID: wago._id,
+      authorID: req.user._id,
+      commentText: req.body.text,
+      codeReview: req.body.block,
+      codeReviewFalsePositive: !!(req.body.falsePositive),
+      postDate: Date.now()      
+    }
+
+    await Comments.findOneAndUpdate({wagoID: wago._id, authorID: req.user._id, codeReview: req.body.block}, comment, {upsert: true}).exec()
+    res.send({success: 'ok'})
+  })
+
   next()
 }

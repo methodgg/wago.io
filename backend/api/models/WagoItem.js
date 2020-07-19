@@ -5,10 +5,10 @@ const mongoose = require('mongoose'),
 
 const Schema = new mongoose.Schema({
   _id : { type: String, default: shortid.generate, es_indexed: true },
-  custom_slug : { type: String, index: true, es_indexed: true },
+  custom_slug : { type: String, index: true, es_indexed: true, maxlength: 128 },
   _userId : { type: mongoose.Schema.Types.ObjectId, ref: 'Users', es_indexed: true },
 
-  name : { type: String, index: true, es_indexed: true},
+  name : { type: String, index: true, es_indexed: true, maxlength: 128},
   description : { type: String, default: "", es_indexed: true },
   description_format : { type: String, default: 'bbcode' },
   type : { type: String, index: true, es_indexed: true },

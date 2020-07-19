@@ -6,6 +6,8 @@ const Schema = new mongoose.Schema({
   wagoID: { type: String, ref: 'WagoItem', index: true },
   authorID: { type: ObjectId, ref: 'Users', index: true},
   commentText: {type: String, index: 'text'},
+  codeReview: {type: String, index: true, maxlength: 256},
+  codeReviewFalsePositive: {type: Boolean},
   postDate: { type: Date, default: +new Date() },
   usersTagged: [{
     _id: false,

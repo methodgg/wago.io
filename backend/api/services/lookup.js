@@ -83,11 +83,11 @@ module.exports = function (fastify, opts, next) {
         })
       }
       
-      const count = await Comments.countDocuments({wagoID: doc._id}).exec()
+      const count = await Comments.countDocuments({wagoID: doc._id, codeReview: null}).exec()
       doc.commentCount = count
 
       doc.comments = []
-      const comments = await Comments.find({wagoID: doc._id}).sort({postDate: -1}).limit(10).populate('authorID').exec()
+      const comments = await Comments.find({wagoID: doc._id, codeReview: null}).sort({postDate: -1}).limit(10).populate('authorID').exec()
       comments.forEach((c) => {
         doc.comments.push({
           cid: c._id.toString(),
@@ -400,7 +400,7 @@ module.exports = function (fastify, opts, next) {
       return
     }
     const getComments = async () => {
-      const count = await Comments.countDocuments({wagoID: wago._id}).exec()
+      const count = await Comments.countDocuments({wagoID: wago._id, codeReview: null}).exec()
       wago.commentCount = count
       if (count !== doc.popularity.comments_count) {
         doc.popularity.comments_count = count
@@ -410,7 +410,7 @@ module.exports = function (fastify, opts, next) {
       if (!count) {
         return
       }
-      const comments = await Comments.find({wagoID: wago._id}).sort({postDate: -1}).limit(10).populate('authorID').exec()
+      const comments = await Comments.find({wagoID: wago._id, codeReview: null}).sort({postDate: -1}).limit(10).populate('authorID').exec()
       comments.forEach((c) => {
         wago.comments.push({
           cid: c._id.toString(),
@@ -426,6 +426,24 @@ module.exports = function (fastify, opts, next) {
             enableLinks: c.authorID.account.verified_human
           }
         })
+      })
+
+      const codeReview = await Comments.find({wagoID: wago._id, codeReview: {$ne: null}}).populate('authorID').exec()
+      wago.codeReviewComments = {}
+      codeReview.forEach((c) => {
+        wago.codeReviewComments[c.codeReview] = {
+          date: c.postDate,
+          text: c.commentText,
+          format: 'bbcode',
+          falsePositive: c.codeReviewFalsePositive,
+          author: {
+            name: c.authorID.account.username || 'User-' + c.authorID._id.toString(),
+            avatar: c.authorID.avatarURL,
+            class: c.authorID.roleclass,
+            profile: c.authorID.profile.url,
+            enableLinks: c.authorID.account.verified_human
+          }
+        }
       })
       return
     }
@@ -653,6 +671,11 @@ module.exports = function (fastify, opts, next) {
       wagoCode.version = code.version
       wagoCode.versionString = versionString
       wagoCode.changelog = code.changelog
+      if (!code.luacheck) {
+        code.luacheck = JSON.stringify(await luacheck.Lua(code.lua))
+        await code.save()
+      }
+      wagoCode.luacheck = code.luacheck
     }
     else if (doc.type === 'ERROR') {
       if (code.json) {
@@ -662,11 +685,11 @@ module.exports = function (fastify, opts, next) {
         wagoCode.text = code.text
       }
     }
-    else if (doc.type === 'WEAKAURAS2') {
+    else if (doc.type === 'WEAKAURAS2' || doc.type === 'CLASSIC-WEAKAURA') {
       var json = JSON.parse(code.json)
       var compare = {}
       // check for any missing data
-      if (code.version && (!code.encoded || ((json.d.version !== code.version || json.d.url !== doc.url + '/' + code.version) || (json.c && json.c[0].version !== code.version) || (json.d.semver !== code.versionString)))) {
+      if (code.version && (!code.encoded || ((json.d.version !== code.version || json.d.url !== doc.url + '/' + code.version) || (json.c && json.c[0].version !== code.version) || (json.d.semver !== code.versionString))) || !code.luacheck) {
         json.d.url = doc.url + '/' + code.version
         json.d.version = code.version
         json.d.semver = code.versionString
@@ -684,8 +707,13 @@ module.exports = function (fastify, opts, next) {
         if (encoded) {
           code.encoded = encoded
         }
+        
+        if (!code.luacheck) {
+          code.luacheck = JSON.stringify(await luacheck.WeakAuras(code.json))
+        }
         code.save()
       }
+      wagoCode.luacheck = code.luacheck
       wagoCode.compare = compare
       wagoCode.json = code.json
       wagoCode.encoded = code.encoded
@@ -697,7 +725,7 @@ module.exports = function (fastify, opts, next) {
       var json = JSON.parse(code.json)
       var compare = {}
       // check for any missing data
-      if (code.version && (!code.encoded || (json.version !== code.version))) {
+      if (code.version && (!code.encoded || (json.version !== code.version)) || !code.luacheck) {
         if (Array.isArray(json)) {
           var tbl = {}
           json.forEach((v, k) => {
@@ -711,12 +739,15 @@ module.exports = function (fastify, opts, next) {
         
         code.json = JSON.stringify(json)
         var encoded = await lua.JSON2Plater(json)
-        console.log(encoded)
         if (encoded) {
           code.encoded = encoded
         }
+        if (!code.luacheck) {
+          code.luacheck = JSON.stringify(await luacheck.Plater(code.json))
+        }
         code.save()
       }
+      wagoCode.luacheck = code.luacheck
       wagoCode.json = code.json
       wagoCode.encoded = code.encoded
       wagoCode.version = code.version
@@ -754,7 +785,7 @@ module.exports = function (fastify, opts, next) {
     if (!req.query.id || !req.query.page) {
       return res.code(404).send({error: "page_not_found"})
     }
-    const docs = await Comments.find({wagoID: req.query.id}).sort({postDate: -1}).limit(10).skip(10 * parseInt(req.query.page)).populate('authorID').exec()
+    const docs = await Comments.find({wagoID: req.query.id, codeReview: null}).sort({postDate: -1}).limit(10).skip(10 * parseInt(req.query.page)).populate('authorID').exec()
     if (!docs) {
       return res.send([])
     }
