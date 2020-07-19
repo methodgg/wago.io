@@ -43,7 +43,7 @@
           <label for="expansion">{{ $t("Expansion Filter") }}</label>
           <md-select name="expansion" id="expansion" v-model="expansionVal">
             <md-option value="all">{{ $t("Search All") }}</md-option>
-            <!--<md-option value="sl">{{ $t("Shadowlands Beta") }}</md-option>-->
+            <md-option value="sl">{{ $t("Shadowlands Beta") }}</md-option>
             <md-option value="bfa">{{ $t("Battle for Azeroth") }}</md-option>
             <md-option value="legion">{{ $t("Legion") }}</md-option>
             <md-option value="classic">{{ $t("Classic") }}</md-option>

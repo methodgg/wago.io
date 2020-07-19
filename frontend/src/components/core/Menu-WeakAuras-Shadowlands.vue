@@ -182,7 +182,7 @@ export default {
     },
     searchRoute: function (slug) {
       this.$store.commit('userSearchOption', {field: 'expansion', value: 'sl'})
-      this.$router.push('/weakauras/' + slug)
+      this.$router.push('/shadowlands-weakauras/' + slug)
     }
   },
   data: function () {
@@ -193,6 +193,7 @@ export default {
   },
   watch: {
     isBeta: function (val) {
+      // little hack to show switch animation
       if (!val) {
         var router = this.$router
         setTimeout(function () {

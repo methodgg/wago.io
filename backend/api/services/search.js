@@ -267,13 +267,6 @@ module.exports = function (fastify, opts, next) {
           // if found without filter then remove the filter - the user likely came into the search page from an external link
           if (!clones.length) {
             clones = global.Categories.getClones(thisTag)
-            if (clones.length && !isNaN(expansionFilterIndex)) {
-              esFilter.splice(expansionFilterIndex, 1)
-              expansionFilterIndex = null
-              if (!Search.query.expansion) {
-                Search.query.expansion = 'any'
-              }
-            }
           }
           if (!clones.length) {
             return

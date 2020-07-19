@@ -1,10 +1,10 @@
 <template>
   <div id="search-weakaura">
     <md-layout md-row>
-      <h2 id="addon-name">WeakAuras - <span>Battle for Azeroth</span><!-- -
+      <h2 id="addon-name">WeakAuras -
         <span @click="isBeta=false" :class="{faded: isBeta}">{{ $t('Battle for Azeroth') }}</span>
         <md-switch v-model="isBeta" class="md-primary"></md-switch>
-        <span @click="isBeta=true" :class="{faded: !isBeta}">{{ $t('Shadowlands Beta') }}</span>-->
+        <span @click="isBeta=true" :class="{faded: !isBeta}">{{ $t('Shadowlands Beta') }}</span>
       </h2>
     </md-layout>
     <md-layout>
@@ -146,12 +146,12 @@
 
         <md-subheader>{{ $t("Other Expansions") }}</md-subheader>
         <md-list class="md-double-line md-dense">
-          <!--<md-list-item class="torghast md-inset'">
+          <md-list-item class="torghast md-inset'">
             <category-image group="torghast"></category-image>
             <div class="md-list-text-container">
               <router-link to="/shadowlands-weakauras/">{{ $t('Shadowlands') }}</router-link>
             </div>
-          </md-list-item>-->
+          </md-list-item>
           <md-list-item class="antorus md-inset'">
             <category-image group="antorus"></category-image>
             <div class="md-list-text-container">
@@ -194,7 +194,7 @@ export default {
   watch: {
     isBeta: function (val) {
       if (val) {
-        this.$router.push('/weakauras-shadowlands')
+        this.$router.push('/shadowlands-weakauras')
       }
     }
   },
