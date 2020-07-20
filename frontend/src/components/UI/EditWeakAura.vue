@@ -101,7 +101,6 @@ export default {
     editorSelected: function (fn) {
       var tmpUnsaved = this.unsavedTable
       try {
-        console.log(this.codeReview.stabilityChecks)
         var custFns = this.customFn(this.tableData)
         if (fn && fn !== 'tabledata') {
           fn = fn.split(',')
@@ -114,7 +113,7 @@ export default {
           this.luacheckFile = `${fn.id}: ${fn.name}`
           if (this.codeReview.stabilityChecks) {
             for (let i = 0; i < this.codeReview.stabilityChecks.length; i++) {
-              if (this.codeReview.stabilityChecks[i].func === this.luacheckFile) {
+              if (this.codeReview.stabilityChecks[i] && this.codeReview.stabilityChecks[i].func === this.luacheckFile) {
                 this.codeReviewFile = i
                 break
               }
@@ -125,7 +124,7 @@ export default {
           this.luacheckFile = null
           this.codeReviewFile = -1
           for (let i = 0; i < custFns.length; i++) {
-            if (this.codeReview.stabilityChecks[i].func === 'tabledata') {
+            if (this.codeReview.stabilityChecks[i] && this.codeReview.stabilityChecks[i].func === 'tabledata') {
               this.codeReviewFile = i
               break
             }
@@ -244,7 +243,7 @@ export default {
     }
     else {
       for (let i = 0; i < custFns.length; i++) {
-        if (this.codeReview.stabilityChecks[i].func === 'tabledata') {
+        if (this.codeReview.stabilityChecks[i] && this.codeReview.stabilityChecks[i].func === 'tabledata') {
           this.codeReviewFile = i
           break
         }

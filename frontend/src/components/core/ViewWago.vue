@@ -1629,7 +1629,7 @@ export default {
                   result = this.$t('Triggers that check on every frame should be throttled so that the processing occurs on an interval. No throttle could be detected here.')
                   ok = 0
                 }
-                if (!ok) {
+                if (!ok && (!this.wago.codeReviewComments || !this.wago.codeReviewComments[`textEveryFrameTrigger:${item.id}`] || !this.wago.codeReviewComments[`textEveryFrameTrigger:${item.id}`].falsePositive)) {
                   this.codeReview.alerts++
                 }
                 this.codeReview.stabilityChecks.push({id: 'textEveryFrameTrigger', name: item.id, display: this.$t('\'[-name-]\' is processed every frame.', {name: customFunc}) + `(${ok}):${result}`, func: customFunc})

@@ -427,10 +427,12 @@ module.exports = function (fastify, opts, next) {
           }
         })
       })
-
-      const codeReview = await Comments.find({wagoID: wago._id, codeReview: {$ne: null}}).populate('authorID').exec()
+      return
+    }
+    const codeReview = async () => {     
+      const comments = await Comments.find({wagoID: wago._id, codeReview: {$ne: null}}).populate('authorID').exec()
       wago.codeReviewComments = {}
-      codeReview.forEach((c) => {
+      comments.forEach((c) => {
         wago.codeReviewComments[c.codeReview] = {
           date: c.postDate,
           text: c.commentText,
@@ -463,7 +465,7 @@ module.exports = function (fastify, opts, next) {
       return
     }
     // run tasks in parallel
-    await Promise.all([getUser(), isMyStar(), getScreenshots(), getVideos(), getMedia(), getCollections(), getVersionHistory(), getComments(), getFork(), getTranslations()])
+    await Promise.all([getUser(), isMyStar(), getScreenshots(), getVideos(), getMedia(), getCollections(), getVersionHistory(), getComments(), codeReview(), getFork(), getTranslations()])
 
     if (saveDoc) {
       doc.save()
