@@ -32,7 +32,7 @@ module.exports = function (fastify, opts, next) {
       expansion = req.user.config.searchOptions.expansion
     }
     else {
-      expansion = 'any'
+      expansion = 'all'
     }
     // default tag relevance
     var relevance
