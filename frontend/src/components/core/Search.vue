@@ -147,7 +147,7 @@ export default {
         opt = opt + ' Sort: ' + this.sortVal
       }
 
-      if (this.uiExpansionValue) {
+      if (this.uiExpansionValue && this.filterExpansion && this.filterExpansion.match(/all|classic|legion|bfa|sl/)) {
         opt = opt + ' Expansion: ' + this.filterExpansion
       }
 
