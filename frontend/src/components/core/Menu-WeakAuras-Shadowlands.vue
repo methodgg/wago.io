@@ -207,7 +207,7 @@ export default {
       return categories.categories(this.$t)
     },
     classes: function () {
-      return categories.classCategories(this.$t, 'WEAKAURA', 'shadowlands')
+      return categories.classCategories(this.$t, 'WEAKAURA', 'sl')
     },
     raids: function () {
       return categories.raidCategories(['raidnathria', 'torghast', 'sldungeon'], this.$t)
@@ -250,8 +250,9 @@ export default {
       this.game = 'classic'
     }
     else {
-      this.game = 'bfa'
+      this.game = 'sl'
     }
+    this.http.get('/search/menu', {view: 'WeakAuras-Shadowlands'})
   }
 }
 </script>

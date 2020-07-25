@@ -259,6 +259,7 @@ export default {
         }
       })
     }
+    this.http.get('/search/menu', {view: 'MDT-Shadowlands'})
   }
 }
 </script>

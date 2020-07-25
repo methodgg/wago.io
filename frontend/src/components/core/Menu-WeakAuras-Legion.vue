@@ -185,6 +185,7 @@ export default {
       title: 'WeakAuras',
       description: this.$t('Browse WeakAura imports')
     })
+    this.http.get('/search/menu', {view: 'WeakAuras-Legion'})
   }
 }
 </script>

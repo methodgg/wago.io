@@ -251,6 +251,7 @@ export default {
     else {
       this.game = 'bfa'
     }
+    this.http.get('/search/menu', {view: 'WeakAuras-BFA'})
   }
 }
 </script>

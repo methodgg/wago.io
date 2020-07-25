@@ -616,6 +616,10 @@ module.exports = function (fastify, opts, next) {
     res.send(Search)
   })
 
+  fastify.get('/menu', async (req, res) => {
+    return res.send([])
+  })
+
 
   // search by name : autocomplete
   fastify.get('/username', async (req, res) => {

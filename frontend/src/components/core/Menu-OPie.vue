@@ -96,6 +96,7 @@ export default {
       title: 'OPie',
       description: this.$t('Browse OPie imports')
     })
+    this.http.get('/search/menu', {view: 'OPie'})
   }
 }
 </script>

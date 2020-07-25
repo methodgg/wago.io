@@ -95,6 +95,7 @@ export default {
       title: 'Vuhdo',
       description: this.$t('Browse Vudho imports')
     })
+    this.http.get('/search/menu', {view: 'Vuhdo'})
   }
 }
 </script>

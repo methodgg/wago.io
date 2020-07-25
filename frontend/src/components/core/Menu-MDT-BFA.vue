@@ -262,6 +262,7 @@ export default {
         }
       })
     }
+    this.http.get('/search/menu', {view: 'MDT-BFA'})
   }
 }
 </script>

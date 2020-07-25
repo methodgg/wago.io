@@ -214,6 +214,7 @@ export default {
       title: 'Collections',
       description: this.$t('Browse Collections')
     })
+    this.http.get('/search/menu', {view: 'Collections'})
   }
 }
 </script>

@@ -110,6 +110,7 @@ export default {
       title: 'Plater',
       description: this.$t('Browse Plater imports')
     })
+    this.http.get('/search/menu', {view: 'Plater'})
   }
 }
 </script>

@@ -91,6 +91,7 @@ export default {
       title: 'TotalRP',
       description: this.$t('Browse TotalRP imports')
     })
+    this.http.get('/search/menu', {view: 'TotalRP'})
   }
 }
 </script>

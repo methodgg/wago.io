@@ -79,6 +79,7 @@ export default {
       title: 'ElvUI',
       description: this.$t('Browse ElvUI imports')
     })
+    this.http.get('/search/menu', {view: 'ElvUI'})
   }
 }
 </script>
