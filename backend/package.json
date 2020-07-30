@@ -14,7 +14,7 @@
     "crypto-js": "^4.0.0",
     "execa": "^1.0.0",
     "fast-stringify": "^1.1.2",
-    "fastify": "^2.13.0",
+    "fastify": "^2.15.1",
     "fastify-compress": "^0.8.1",
     "fastify-cookie": "^2.1.7",
     "fastify-file-upload": "^1.0.0",
