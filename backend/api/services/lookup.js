@@ -673,6 +673,7 @@ module.exports = function (fastify, opts, next) {
       code.luacheck = null
     }
 
+    var codeUpdated = false
     if (doc.type === 'SNIPPET') {
       wagoCode.lua = code.lua
       wagoCode.version = code.version
@@ -703,7 +704,7 @@ module.exports = function (fastify, opts, next) {
       var json = JSON.parse(code.json)
       var compare = {}
       // check for any missing data
-      if (code.version && (!code.encoded || ((json.d.version !== code.version || json.d.url !== doc.url + '/' + code.version) || (json.c && json.c[0].version !== code.version) || (json.d.semver !== code.versionString))) || !code.luacheck) {
+      if (code.version && (!code.encoded || ((json.d.version !== code.version || json.d.url !== doc.url + '/' + code.version) || (json.c && json.c[0].version !== code.version) || (json.d.semver !== code.versionString)))) {
         json.d.url = doc.url + '/' + code.version
         json.d.version = code.version
         json.d.semver = code.versionString
@@ -720,13 +721,14 @@ module.exports = function (fastify, opts, next) {
         var encoded = await lua.JSON2WeakAura(code.json)
         if (encoded) {
           code.encoded = encoded
+          codeUpdated = true
         }
+      }
         
-        if (!code.luacheck) {
-          code.luacheckVersion = luacheck.Version
-          code.luacheck = JSON.stringify(await luacheck.WeakAuras(code.json, doc.game))
-        }
-        code.save()
+      if (!code.luacheck) {
+        code.luacheckVersion = luacheck.Version
+        code.luacheck = JSON.stringify(await luacheck.WeakAuras(code.json, doc.game))
+        codeUpdated = true
       }
       wagoCode.luacheck = code.luacheck
       wagoCode.compare = compare
@@ -740,7 +742,7 @@ module.exports = function (fastify, opts, next) {
       var json = JSON.parse(code.json)
       var compare = {}
       // check for any missing data
-      if (code.version && (!code.encoded || (json.version !== code.version)) || !code.luacheck) {
+      if (code.version && (!code.encoded || (json.version !== code.version))) {
         if (Array.isArray(json)) {
           var tbl = {}
           json.forEach((v, k) => {
@@ -756,12 +758,13 @@ module.exports = function (fastify, opts, next) {
         var encoded = await lua.JSON2Plater(json)
         if (encoded) {
           code.encoded = encoded
+          codeUpdated = true
         }
-        if (!code.luacheck) {
-          code.luacheckVersion = luacheck.Version
-          code.luacheck = JSON.stringify(await luacheck.Plater(code.json))
-        }
-        code.save()
+      }
+      if (!code.luacheck) {
+        code.luacheckVersion = luacheck.Version
+        code.luacheck = JSON.stringify(await luacheck.Plater(code.json))
+        codeUpdated = true
       }
       wagoCode.luacheck = code.luacheck
       wagoCode.json = code.json
@@ -776,6 +779,10 @@ module.exports = function (fastify, opts, next) {
       wagoCode.version = code.version
       wagoCode.versionString = versionString
       wagoCode.changelog = code.changelog
+    }
+
+    if (codeUpdated) {
+      await code.save()
     }
     res.cache(604800).send(wagoCode)
   })
