@@ -1,19 +1,20 @@
 <template>
   <div id="edit-plater">   
+    <codereview v-if="codeReview && codeReviewFile >= 0 && codeReview.stabilityChecks && codeReview.stabilityChecks.length" name="Code Review" :review="codeReview.stabilityChecks[codeReviewFile]" @setComment="" :author="false"></codereview>
     <codereview v-if="luacheck && editorSelected !== 'tabledata'" name="Luacheck" :luacheck="true">{{luacheck[luacheckFile]}}</codereview>
     <div class="flex-container">
       <div class="flex-col flex-left">
         <md-input-container>
-          <label for="customfn" v-html="$t('Edit [-file-]', {file: scriptType})"></label>
+          <label for="customfn" v-html="$t('Edit [-file-]', {file: editorFile})"></label>
           <md-select name="customfn" id="customfn" v-model="editorSelected" md-menu-class="customFn">
             <md-option value="tabledata" >{{ $t("Table data") }}</md-option>
-            <template v-for="fn in customFn(tableData)">
-              <md-subheader v-if="typeof fn === 'string'">{{ fn }}</md-subheader>
-              <md-option v-else :value="fn.path">{{ fn.name }}</md-option>
+            <template v-for="fn in customFn">
+              <md-subheader v-if="typeof(fn) === 'string'">{{ fn }}</md-subheader>
+              <md-option v-else :value="`${fn.id}: ${fn.name}`">{{ fn.name }}</md-option>
             </template>
-            <md-subheader v-if="customFn(tableData).length === 0">{{ $t("No custom functions found") }}</md-subheader>
+            <md-subheader v-if="!customFn.length">{{ $t("No custom functions found") }}</md-subheader>
           </md-select>
-        </md-input-container>
+        </md-input-container>   
       </div>
       <div class="flex-col flex-right">       
         <md-button @click="exportChanges"><md-icon>open_in_new</md-icon> {{ $t("Export/Fork changes") }}</md-button>
@@ -51,6 +52,7 @@
 
 <script>
 const semver = require('semver')
+import detectCustomCode from '../libs/detectCustomCode'
 
 export default {
   name: 'edit-plater',
@@ -62,6 +64,7 @@ export default {
       editorPreviousObj: {},
       tableData: JSON.parse(this.$store.state.wago.code.json),
       tableString: this.$store.state.wago.code.json,
+      editorFile: '',
       scriptType: '',
       aceLanguage: 'json',
       aceEditor: null,
@@ -71,24 +74,44 @@ export default {
       newImportVersion: {},
       newChangelog: {},
       luacheck: this.$store.state.wago.code.luacheck,
-      luacheckFile: null
+      luacheckFile: null,
+      codeReview: this.$store.state.wago.codeReview,
+      codeReviewFile: -1,
+      customFn: []
     }
   },
   watch: {
-    editorSelected: function (fn) {
+    editorSelected: function (newFn) {
       var tmpUnsaved = this.unsavedTable
       try {
-        if (fn && fn !== 'tabledata') {
-          var custFns = this.customFn(this.tableData)
-          for (var i = 0; i < custFns.length; i++) {
-            if (typeof custFns[i] === 'object' && custFns[i].name && fn === custFns[i].path) {
-              this.luacheckFile = custFns[i].name
+        var fn
+        this.customFn = detectCustomCode.Plater(this.tableData)
+        this.codeReviewFile = -1
+        if (newFn !== 'tabledata') {
+          this.luacheckFile = newFn
+          for (let i = 0; i < this.customFn.length; i++) {
+            if (typeof this.customFn[i] === 'object' && newFn === `${this.customFn[i].id}: ${this.customFn[i].name}`) {
+              fn = this.customFn[i]
               break
+            }
+          }
+          if (this.codeReview.stabilityChecks) {
+            for (let i = 0; i < this.codeReview.stabilityChecks.length; i++) {
+              if (this.codeReview.stabilityChecks[i] && this.codeReview.stabilityChecks[i].func === this.luacheckFile) {
+                this.codeReviewFile = i
+                break
+              }
             }
           }
         }
         else {
           this.luacheckFile = null
+          for (let i = 0; i < this.customFn.length; i++) {
+            if (this.codeReview.stabilityChecks[i] && this.codeReview.stabilityChecks[i].func === 'tabledata') {
+              this.codeReviewFile = i
+              break
+            }
+          }
         }
 
         // save current data to json object
@@ -115,7 +138,7 @@ export default {
           }
           this.$nextTick(() => {
             this.aceEditor.getSession().setMode('ace/mode/lua')
-            this.aceEditor.setValue(eval('root' + fn), -1)
+            this.aceEditor.setValue(eval('root' + fn.path), -1)
             var editor = this.aceEditor
             setTimeout(function () {
               editor.getSession().getUndoManager().reset()
@@ -128,14 +151,14 @@ export default {
           var updated = this.aceEditor.getValue().replace(/\\/g, '\\\\').replace(/\r\n|\n|\r/g, '\\n').replace(/"/g, '\\"')
 
           // update table data
-          eval('this.tableData' + this.editorPrevious + ' = "' + updated + '"')
+          eval('this.tableData' + this.editorPreviousObj.path + ' = "' + updated + '"')
 
           var json = JSON.stringify(this.tableData, null, 2)
           this.$store.commit('setWagoJSON', json)
 
           this.$nextTick(() => {
             // if switching TO table data
-            if (fn === 'tabledata') {
+            if (fn === 'tabledata' || !fn) {
               this.aceEditor.setValue(json, -1)
               this.aceEditor.getSession().setMode('ace/mode/json')
               this.setHasUnsavedChanges(tmpUnsaved)
@@ -144,7 +167,7 @@ export default {
             else {
               this.aceEditor.getSession().setMode('ace/mode/lua')
               root = this.tableData
-              this.aceEditor.setValue(eval('root' + fn), -1)
+              this.aceEditor.setValue(eval('root' + fn.path), -1)
               this.setHasUnsavedChanges(tmpUnsaved)
             }
             var editor = this.aceEditor
@@ -160,7 +183,13 @@ export default {
       }
 
       // set previous to what is set NOW, for next time
-      this.editorPrevious = fn
+      if (fn === 'tabledata') {
+        this.editorPrevious = fn
+      }
+      else {
+        this.editorPrevious = 'fn'
+        this.editorPreviousObj = fn
+      }
     }
   },
   components: {
@@ -175,13 +204,19 @@ export default {
     this.latestVersion.minor = semver.minor(this.latestVersion.semver)
     this.latestVersion.patch = semver.patch(this.latestVersion.semver)
 
-    if (this.loadFn) {
-      var custFns = this.customFn(this.tableData)
-      for (var i = 0; i < custFns.length; i++) {
-        if (this.loadFn === custFns[i].name) {
-          this.$nextTick(() => {
-            this.editorSelected = custFns[i].path
-          })
+    this.customFn = detectCustomCode.Plater(this.tableData)
+    if (this.loadFn && this.loadFn !== 'tabledata') {
+      for (let i = 0; i < this.customFn.length; i++) {
+        if (typeof this.customFn[i] === 'object' && (this.loadFn === `${this.customFn[i].id}: ${this.customFn[i].name}` || this.loadFn === this.customFn[i].name)) {
+          this.editorSelected = this.loadFn
+          break
+        }
+      }
+    }
+    else {
+      for (let i = 0; i < this.customFn.length; i++) {
+        if (this.codeReview.stabilityChecks[i] && this.codeReview.stabilityChecks[i].func === 'tabledata') {
+          this.codeReviewFile = i
           break
         }
       }
@@ -213,36 +248,6 @@ export default {
         maxLines: 100,
         readOnly: true
       })
-    },
-    customFn: function () {
-      // if single aura then place in array
-      if (!this.tableData || !this.scriptType || this.scriptType === 'Profile') {
-        return []
-      }
-      var func = []
-      if (this.scriptType === 'Script') {
-        if (this.tableData['12']) {
-          func.push({name: this.$t('Constructor'), path: '["12"]'})
-        }
-        if (this.tableData['14']) {
-          func.push({name: this.$t('On Show'), path: '["14"]'})
-        }
-        if (this.tableData['11']) {
-          func.push({name: this.$t('On Update'), path: '["11"]'})
-        }
-        if (this.tableData['13']) {
-          func.push({name: this.$t('On Hide'), path: '["13"]'})
-        }
-      }
-      else if (this.scriptType === 'Mod') {
-        var hooks = Object.keys(this.tableData['9'])
-        hooks.sort()
-        hooks.forEach((hook) => {
-          func.push({name: hook, path: `["9"]['${hook}']`})
-        })
-      }
-
-      return func
     },
 
     saveChanges: function () {

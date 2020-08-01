@@ -503,8 +503,8 @@ module.exports = function (fastify, opts, next) {
         return res.code(401).send({error: "page_not_accessible"})
       }
     }
-    const left = WagoCode.lookup(doc._id, req.query.left)
-    const right = WagoCode.lookup(doc._id, req.query.right)
+    const left = await WagoCode.lookup(doc._id, req.query.left)
+    const right = await WagoCode.lookup(doc._id, req.query.right)
     var tables = {left: await left, right: await right}
     try {
       tables.left = tables.left.json || tables.left.lua
@@ -513,14 +513,13 @@ module.exports = function (fastify, opts, next) {
     catch (e) {
       return res.send([])
     }
-
     if (doc.type === 'SNIPPET') {
       return res.cache(604800).send(await diff.Lua(tables.left, tables.right))
     }
     if (doc.type === 'PLATER') {
       return res.cache(604800).send(await diff.Plater(tables.left, tables.right))
     }
-    else if (doc.type === 'WEAKAURAS2') {
+    else if (doc.type.match(/WEAKAURA/)) {
       return res.cache(604800).send(await diff.WeakAuras(tables.left, tables.right))
     }
     else {
@@ -674,7 +673,13 @@ module.exports = function (fastify, opts, next) {
       wagoCode.versionString = versionString
       wagoCode.changelog = code.changelog
       if (!code.luacheck) {
-        code.luacheck = JSON.stringify(await luacheck.Lua(code.lua))
+        try {
+          JSON.parse(code.lua) // TODO: can we convert this into an actual WA/etc?
+          code.luacheck = '{}'
+        }
+        catch (e) {
+          code.luacheck = JSON.stringify(await luacheck.Lua(code.lua))
+        }
         await code.save()
       }
       wagoCode.luacheck = code.luacheck

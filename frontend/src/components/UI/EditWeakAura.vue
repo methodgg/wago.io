@@ -8,11 +8,11 @@
           <label for="customfn" v-html="$t('Edit [-file-]', {file: editorFile})"></label>
           <md-select name="customfn" id="customfn" v-model="editorSelected" md-menu-class="customFn">
             <md-option value="tabledata" >{{ $t("Table data") }}</md-option>
-            <template v-for="fn in customFn(tableData)">
-              <md-subheader v-if="typeof fn === 'string'">{{ fn }}</md-subheader>
-              <md-option v-else :value="fn.id && fn.id.replace(/,/g, '')+','+fn.path">{{ fn.name }}</md-option>
+            <template v-for="fn in customFn">
+              <md-subheader v-if="typeof(fn) === 'string'">{{ fn }}</md-subheader>
+              <md-option v-else :value="`${fn.id}: ${fn.name}`">{{ fn.name }}</md-option>
             </template>
-            <md-subheader v-if="customFn(tableData).length === 0">{{ $t("No custom functions found") }}</md-subheader>
+            <md-subheader v-if="!customFn.length">{{ $t("No custom functions found") }}</md-subheader>
           </md-select>
         </md-input-container>        
       </div>
@@ -72,6 +72,7 @@
 
 <script>
 const semver = require('semver')
+import detectCustomCode from '../libs/detectCustomCode'
 
 export default {
   name: 'edit-weakaura',
@@ -94,23 +95,24 @@ export default {
       luacheck: this.$store.state.wago.code.luacheck,
       luacheckFile: null,
       codeReview: this.$store.state.wago.codeReview,
-      codeReviewFile: -1
+      codeReviewFile: -1,
+      customFn: []
     }
   },
   watch: {
-    editorSelected: function (fn) {
+    editorSelected: function (newFn) {
       var tmpUnsaved = this.unsavedTable
       try {
-        var custFns = this.customFn(this.tableData)
-        if (fn && fn !== 'tabledata') {
-          fn = fn.split(',')
-          for (let i = 0; i < custFns.length; i++) {
-            if (typeof custFns[i] === 'object' && custFns[i].id && fn[0] === custFns[i].id.replace(/,/g, '') && fn[1] === custFns[i].path) {
-              fn = custFns[i]
+        var fn
+        this.customFn = detectCustomCode.WeakAura(this.tableData)
+        if (newFn !== 'tabledata') {
+          this.luacheckFile = newFn
+          for (let i = 0; i < this.customFn.length; i++) {
+            if (typeof this.customFn[i] === 'object' && newFn === `${this.customFn[i].id}: ${this.customFn[i].name}`) {
+              fn = this.customFn[i]
               break
             }
           }
-          this.luacheckFile = `${fn.id}: ${fn.name}`
           if (this.codeReview.stabilityChecks) {
             for (let i = 0; i < this.codeReview.stabilityChecks.length; i++) {
               if (this.codeReview.stabilityChecks[i] && this.codeReview.stabilityChecks[i].func === this.luacheckFile) {
@@ -123,7 +125,7 @@ export default {
         else {
           this.luacheckFile = null
           this.codeReviewFile = -1
-          for (let i = 0; i < custFns.length; i++) {
+          for (let i = 0; i < this.customFn.length; i++) {
             if (this.codeReview.stabilityChecks[i] && this.codeReview.stabilityChecks[i].func === 'tabledata') {
               this.codeReviewFile = i
               break
@@ -177,7 +179,7 @@ export default {
 
           this.$nextTick(() => {
             // if switching TO table data
-            if (fn === 'tabledata') {
+            if (fn === 'tabledata' || !fn) {
               this.aceEditor.setValue(json, -1)
               this.aceEditor.getSession().setMode('ace/mode/json')
               this.editorFile = this.tableData.d.id
@@ -230,19 +232,17 @@ export default {
     this.latestVersion.minor = semver.minor(this.latestVersion.semver)
     this.latestVersion.patch = semver.patch(this.latestVersion.semver)
 
-    var custFns = this.customFn(this.tableData)
+    this.customFn = detectCustomCode.WeakAura(this.tableData)
     if (this.loadFn && this.loadFn !== 'tabledata') {
-      for (var i = 0; i < custFns.length; i++) {
-        if (typeof custFns[i] === 'object' && custFns[i].id && custFns[i].name && this.loadFn === `${custFns[i].id}: ${custFns[i].name}`) {
-          this.$nextTick(() => {
-            this.editorSelected = `${custFns[i].id},${custFns[i].path}`
-          })
+      for (let i = 0; i < this.customFn.length; i++) {
+        if (typeof this.customFn[i] === 'object' && this.loadFn === `${this.customFn[i].id}: ${this.customFn[i].name}`) {
+          this.editorSelected = this.loadFn
           break
         }
       }
     }
     else {
-      for (let i = 0; i < custFns.length; i++) {
+      for (let i = 0; i < this.customFn.length; i++) {
         if (this.codeReview.stabilityChecks[i] && this.codeReview.stabilityChecks[i].func === 'tabledata') {
           this.codeReviewFile = i
           break
@@ -281,420 +281,6 @@ export default {
         text: text
       }
       this.$set(this.wago.codeReviewComments, id, comment)
-    },
-    customFn: function (json) {
-      // if single aura then place in array
-      if (!this.tableData.d) {
-        return []
-      }
-      this.tableData.d._table = 'd'
-      var auras = [this.tableData.d]
-      if (this.tableData.c && Array.isArray(this.tableData.c)) {
-        auras = auras.concat(this.tableData.c)
-      }
-      if (typeof auras === 'object') {
-        auras = Object.values(auras)
-      }
-      var func = []
-      // loop through each aura in array and look for pre-defined custom functions
-      auras.forEach((item, key) => {
-        var ix
-        if (key === 0) {
-          ix = {index: 0, table: 'd'}
-        }
-        else {
-          ix = {index: key - 1, table: 'c'}
-        }
-
-        // actions functions
-        if (item.actions) {
-          // onInit
-          if (item.actions.init && item.actions.init.do_custom) {
-            func.push(item.id)
-            func.push({id: item.id, name: this.$t('onInit'), ix: ix, path: 'actions.init.custom'})
-          }
-
-          // onShow
-          if (item.actions.start && item.actions.start.do_custom) {
-            if (func.indexOf(item.id) < 0) {
-              func.push(item.id)
-            }
-            func.push({id: item.id, name: this.$t('onShow'), ix: ix, path: 'actions.start.custom'})
-          }
-
-          // onHide
-          if (item.actions.finish && item.actions.finish.do_custom) {
-            if (func.indexOf(item.id) < 0) {
-              func.push(item.id)
-            }
-            func.push({id: item.id, name: this.$t('onHide'), ix: ix, path: 'actions.finish.custom'})
-          }
-        }
-
-        // display text
-        if (((typeof item.displayText === 'string' && item.displayText.indexOf('%c') > -1) ||
-        (typeof item.text1 === 'string' && item.text1.indexOf('%c') > -1) ||
-        (typeof item.text2 === 'string' && item.text2.indexOf('%c') > -1) ||
-        (typeof item.displayTextLeft === 'string' && item.displayTextLeft.indexOf('%c') > -1) ||
-        (typeof item.displayTextRight === 'string' && item.displayTextRight.indexOf('%c') > -1)) &&
-        item.customText) {
-          if (func.indexOf(item.id) < 0) {
-            func.push(item.id)
-          }
-          func.push({ id: item.id, name: this.$t('Display Text'), ix: ix, path: 'customText' })
-        }
-
-        // display stacks
-        else if (typeof item.displayStacks === 'string' && item.displayStacks.indexOf('%c') > -1) {
-          if (func.indexOf(item.id) < 0) {
-            func.push(item.id)
-          }
-          func.push({ id: item.id, name: this.$t('Display Stacks'), ix: ix, path: 'customText' })
-        }
-
-        if (item.grow === 'CUSTOM' && item.customGrow) {
-          func.push({ id: item.id, name: this.$t('Custom Grow'), ix: ix, path: 'customGrow' })
-        }
-
-        if (item.sort === 'custom' && item.customSort) {
-          func.push({ id: item.id, name: this.$t('Custom Sort'), ix: ix, path: 'customSort' })
-        }
-
-        if (item.anchorPerUnit === 'CUSTOM' && item.customAnchorPerUnit) {
-          func.push({ id: item.id, name: this.$t('Custom Anchor'), ix: ix, path: 'customAnchorPerUnit' })
-        }
-
-        if (typeof item.customText === 'string' && item.subRegions && item.subRegions.length) {
-          for (let n = 0; n < item.subRegions.length; n++) {
-            if (item.subRegions[n].text_text && item.subRegions[n].text_text.match(/%c/)) {
-              func.push({ id: item.id, name: this.$t('Custom Text'), ix: ix, path: 'customText' })
-            }
-          }
-        }
-
-        // triggers
-        if (item.triggers && item.triggers['1']) {
-          let n = 1
-          let k = '' + 1
-          if (item.triggers.disjunctive === 'custom' && item.triggers.customTriggerLogic && item.triggers.customTriggerLogic.trim().length > 0) {
-            func.push({ id: item.id, name: this.$t('Trigger Logic'), ix: ix, path: 'triggers.customTriggerLogic' })
-          }
-          while (item.triggers[k] && item.triggers[k].trigger) {
-            if (item.triggers[k].trigger.type === 'custom' && item.triggers[k].trigger.custom) {
-              if (func.indexOf(item.id) < 0) {
-                func.push(item.id)
-              }
-
-              func.push({ id: item.id, name: this.$t('Trigger ([-count-])', {count: k}), ix: ix, path: 'triggers[""+' + k + '].trigger.custom' })
-
-              // untrigger
-              if (item.triggers[k].untrigger && item.triggers[k].untrigger.custom && item.triggers[k].untrigger.custom.trim().length > 0 && item.triggers[k].trigger.custom_hide === 'custom') {
-                func.push({ id: item.id, name: this.$t('Untrigger ([-count-])', {count: k}), ix: ix, path: 'triggers[""+' + k + '].untrigger.custom' })
-              }
-
-              // duration
-              if (item.triggers[k].trigger.customDuration && item.triggers[k].trigger.customDuration.trim().length > 0) {
-                func.push({ id: item.id, name: this.$t('Duration Info ([-count-])', {count: k}), ix: ix, path: 'triggers[""+' + k + '].trigger.customDuration' })
-              }
-
-              // name
-              if (item.triggers[k].trigger.customName && item.triggers[k].trigger.customName.trim().length > 0) {
-                func.push({ id: item.id, name: this.$t('Name Info ([-count-])', {count: k}), ix: ix, path: 'triggers[""+' + k + '].trigger.customName' })
-              }
-
-              // icon
-              if (item.triggers[k].trigger.customIcon && item.triggers[k].trigger.customIcon.trim().length > 0) {
-                func.push({ id: item.id, name: this.$t('Icon Info ([-count-])', {count: k}), ix: ix, path: 'triggers[""+' + k + '].trigger.customIcon' })
-              }
-
-              // texture
-              if (item.triggers[k].trigger.customTexture && item.triggers[k].trigger.customTexture.trim().length > 0) {
-                func.push({ id: item.id, name: this.$t('Texture Info ([-count-])', {count: k}), ix: ix, path: 'triggers[""+' + k + '].trigger.customTexture' })
-              }
-
-              // stacks
-              if (item.triggers[k].trigger.customStacks && item.triggers[k].trigger.customStacks.trim().length > 0) {
-                func.push({ id: item.id, name: this.$t('Stack Info ([-count-])', {count: k}), ix: ix, path: 'triggers[""+' + k + '].trigger.customStacks' })
-              }
-
-              // custom variables
-              if (item.triggers[k].trigger.customVariables && item.triggers[k].trigger.customVariables.trim().length > 0) {
-                func.push({ id: item.id, name: this.$t('Custom Variables ([-count-])', {count: k}), ix: ix, path: 'triggers[""+' + k + '].trigger.customVariables' })
-              }
-
-              let overlayCount = 1
-              while (item.triggers[k].trigger['customOverlay' + overlayCount]) {
-                if (item.triggers[k].trigger['customOverlay' + overlayCount].trim().length > 0) {
-                  func.push({ id: item.id, name: this.$t('Overlay [-num-] ([-count-])', {num: overlayCount, count: k}), ix: ix, path: 'triggers[""+' + k + '].trigger["customOverlay' + overlayCount + '"]' })
-                }
-                overlayCount++
-              }
-            }
-
-            n++
-            k = '' + n
-          }
-        }
-        else {
-          // primary trigger (old format)
-          if (item.trigger && item.trigger.type === 'custom' && item.trigger.custom) {
-            if (func.indexOf(item.id) < 0) {
-              func.push(item.id)
-            }
-
-            func.push({ id: item.id, name: this.$t('Trigger ([-count-])', {count: 1}), ix: ix, path: 'trigger.custom' })
-
-            // main untrigger
-            if (item.untrigger && item.untrigger.custom && item.untrigger.custom.trim().length > 0) {
-              func.push({ id: item.id, name: this.$t('Untrigger ([-count-])', {count: 1}), ix: ix, path: 'untrigger.custom' })
-            }
-
-            // duration
-            if (item.trigger && item.trigger.customDuration && item.trigger.customDuration.trim().length > 0) {
-              func.push({ id: item.id, name: this.$t('Duration Info ([-count-])', {count: 1}), ix: ix, path: 'trigger.customDuration' })
-            }
-
-            // overlay
-            if (item.trigger && item.trigger.customOverlay1 && item.trigger.customOverlay1.trim().length > 0) {
-              var overlayCount = 1
-              while (item.trigger['customOverlay' + overlayCount] && item.trigger['customOverlay' + overlayCount].trim().length > 0) {
-                func.push({ id: item.id, name: this.$t('Overlay [-num-] ([-count-])', {num: overlayCount, count: 1}), ix: ix, path: 'trigger.customOverlay' + overlayCount })
-                overlayCount++
-              }
-            }
-
-            // name
-            if (item.trigger && item.trigger.customName && item.trigger.customName.trim().length > 0) {
-              func.push({ id: item.id, name: this.$t('Name Info ([-count-])', {count: 1}), ix: ix, path: 'trigger.customName' })
-            }
-
-            // icon
-            if (item.trigger && item.trigger.customIcon && item.trigger.customIcon.trim().length > 0) {
-              func.push({ id: item.id, name: this.$t('Icon Info ([-count-])', {count: 1}), ix: ix, path: 'trigger.customIcon' })
-            }
-
-            // texture
-            if (item.trigger && item.trigger.customTexture && item.trigger.customTexture.trim().length > 0) {
-              func.push({ id: item.id, name: this.$t('Texture Info ([-count-])', {count: 1}), ix: ix, path: 'trigger.customTexture' })
-            }
-
-            // stacks
-            if (item.trigger && item.trigger.customStacks && item.trigger.customStacks.trim().length > 0) {
-              func.push({ id: item.id, name: this.$t('Stack Info ([-count-])', {count: 1}), ix: ix, path: 'trigger.customStacks' })
-            }
-          }
-
-          // secondary triggers
-          if (item.additional_triggers && item.additional_triggers.length > 0) {
-            for (let k = 0; k < item.additional_triggers.length; k++) {
-              if (item.additional_triggers[k].trigger && item.additional_triggers[k].trigger.type === 'custom' && item.additional_triggers[k].trigger.custom) {
-                if (func.indexOf(item.id) < 0) {
-                  func.push(item.id)
-                }
-
-                func.push({ id: item.id, name: this.$t('Trigger ([-count-])', {count: k + 2}), ix: ix, path: 'additional_triggers[' + k + '].trigger.custom' })
-
-                // untrigger
-                if (item.additional_triggers[k].untrigger && item.additional_triggers[k].untrigger.custom && item.additional_triggers[k].untrigger.custom.trim().length > 0) {
-                  func.push({ id: item.id, name: this.$t('Untrigger ([-count-])', {count: k + 2}), ix: ix, path: 'additional_triggers[' + k + '].untrigger.custom' })
-                }
-
-                // duration
-                if (item.trigger && item.trigger.customDuration && item.trigger.customDuration.trim().length > 0) {
-                  func.push({ id: item.id, name: this.$t('Duration Info ([-count-])', {count: k + 2}), ix: ix, path: 'additional_triggers[' + k + '].trigger.customDuration' })
-                }
-
-                // name
-                if (item.trigger && item.trigger.customName && item.trigger.customName.trim().length > 0) {
-                  func.push({ id: item.id, name: this.$t('Name Info ([-count-])', {count: k + 2}), ix: ix, path: 'additional_triggers[' + k + '].trigger.customName' })
-                }
-
-                // icon
-                if (item.trigger && item.trigger.customIcon && item.trigger.customIcon.trim().length > 0) {
-                  func.push({ id: item.id, name: this.$t('Icon Info ([-count-])', {count: k + 2}), ix: ix, path: 'additional_triggers[' + k + '].trigger.customIcon' })
-                }
-
-                // texture
-                if (item.trigger && item.trigger.customTexture && item.trigger.customTexture.trim().length > 0) {
-                  func.push({ id: item.id, name: this.$t('Texture Info ([-count-])', {count: k + 2}), ix: ix, path: 'additional_triggers[' + k + '].trigger.customTexture' })
-                }
-
-                // stacks
-                if (item.trigger && item.trigger.customStacks && item.trigger.customStacks.trim().length > 0) {
-                  func.push({ id: item.id, name: this.$t('Stack Info ([-count-])', {count: k + 2}), ix: ix, path: 'additional_triggers[' + k + '].trigger.customStacks' })
-                }
-              }
-            }
-
-            if (func.indexOf(item.id) < 0) {
-              func.push(item.id)
-            }
-
-            // trigger logic (must have at least 2 triggers)
-            if (item.disjunctive === 'custom' && item.customTriggerLogic && item.customTriggerLogic.trim().length > 0) {
-              func.push({ id: item.id, name: this.$t('Trigger Logic'), ix: ix, path: 'customTriggerLogic' })
-            }
-          }
-        }
-
-        // conditions
-        if (item.conditions && item.conditions.length) {
-          for (let k = 0; k < item.conditions.length; k++) {
-            if (item.conditions[k].changes && item.conditions[k].changes.length) {
-              for (let k2 = 0; k2 < item.conditions[k].changes.length; k2++) {
-                if (typeof item.conditions[k].changes[k2] === 'object' && item.conditions[k].changes[k2].property === 'customcode' && item.conditions[k].changes[k2].value && item.conditions[k].changes[k2].value.custom) {
-                  func.push({ id: item.id, name: this.$t('Condition [-num-] - [-prop-]', {num: k + 1, prop: k2 + 1}), ix: ix, path: `conditions[${k}].changes[${k2}].value.custom` })
-                }
-              }
-            }
-          }
-        }
-
-        // animation onStart functions
-        if (item.animation && item.animation.start) {
-          // animate alpha
-          if (item.animation.start.use_alpha && item.animation.start.alphaType === 'custom' && item.animation.start.alphaFunc && item.animation.start.alphaFunc.trim().length > 0) {
-            if (func.indexOf(item.id) < 0) {
-              func.push(item.id)
-            }
-
-            func.push({ id: item.id, name: this.$t('onStart animate alpha'), ix: ix, path: 'animation.start.alphaFunc' })
-          }
-
-          // animate color
-          if (item.animation.start.use_color && item.animation.start.colorType === 'custom' && item.animation.start.colorFunc && item.animation.start.colorFunc.trim().length > 0) {
-            if (func.indexOf(item.id) < 0) {
-              func.push(item.id)
-            }
-
-            func.push({ id: item.id, name: this.$t('onStart animate color'), ix: ix, path: 'animation.start.colorFunc' })
-          }
-
-          // animate rotation
-          if (item.animation.start.use_rotate && item.animation.start.rotateType === 'custom' && item.animation.start.rotateFunc && item.animation.start.rotateFunc.trim().length > 0) {
-            if (func.indexOf(item.id) < 0) {
-              func.push(item.id)
-            }
-
-            func.push({ id: item.id, name: this.$t('onStart animate rotation'), ix: ix, path: 'animation.start.rotateFunc' })
-          }
-
-          // animate scale
-          if (item.animation.start.use_scale && item.animation.start.scaleType === 'custom' && item.animation.start.scaleFunc && item.animation.start.scaleFunc.trim().length > 0) {
-            if (func.indexOf(item.id) < 0) {
-              func.push(item.id)
-            }
-
-            func.push({ id: item.id, name: this.$t('onStart animate scale'), ix: ix, path: 'animation.start.scaleFunc' })
-          }
-
-          // animate translation
-          if (item.animation.start.use_translate && item.animation.start.translateType === 'custom' && item.animation.start.translateFunc && item.animation.start.translateFunc.trim().length > 0) {
-            if (func.indexOf(item.id) < 0) {
-              func.push(item.id)
-            }
-
-            func.push({ id: item.id, name: this.$t('onStart animate translation'), ix: ix, path: 'animation.start.translateFunc' })
-          }
-        }
-
-        // animation main/ongoing functions
-        if (item.animation && item.animation.main) {
-          // animate alpha
-          if (item.animation.main.use_alpha && item.animation.main.alphaType === 'custom' && item.animation.main.alphaFunc && item.animation.main.alphaFunc.trim().length > 0) {
-            if (func.indexOf(item.id) < 0) {
-              func.push(item.id)
-            }
-
-            func.push({ id: item.id, name: this.$t('Main animate alpha'), ix: ix, path: 'animation.main.alphaFunc' })
-          }
-
-          // animate color
-          if (item.animation.main.use_color && item.animation.main.colorType === 'custom' && item.animation.main.colorFunc && item.animation.main.colorFunc.trim().length > 0) {
-            if (func.indexOf(item.id) < 0) {
-              func.push(item.id)
-            }
-
-            func.push({ id: item.id, name: this.$t('Main animate color'), ix: ix, path: 'animation.main.colorFunc' })
-          }
-
-          // animate rotation
-          if (item.animation.main.use_rotate && item.animation.main.rotateType === 'custom' && item.animation.main.rotateFunc && item.animation.main.rotateFunc.trim().length > 0) {
-            if (func.indexOf(item.id) < 0) {
-              func.push(item.id)
-            }
-
-            func.push({ id: item.id, name: this.$t('Main animate rotation'), ix: ix, path: 'animation.main.rotateFunc' })
-          }
-
-          // animate scale
-          if (item.animation.main.use_scale && item.animation.main.scaleType === 'custom' && item.animation.main.scaleFunc && item.animation.main.scaleFunc.trim().length > 0) {
-            if (func.indexOf(item.id) < 0) {
-              func.push(item.id)
-            }
-
-            func.push({ id: item.id, name: this.$t('Main animate scale'), ix: ix, path: 'animation.main.scaleFunc' })
-          }
-
-          // animate translation
-          if (item.animation.main.use_translate && item.animation.main.translateType === 'custom' && item.animation.main.translateFunc && item.animation.main.translateFunc.trim().length > 0) {
-            if (func.indexOf(item.id) < 0) {
-              func.push(item.id)
-            }
-
-            func.push({ id: item.id, name: this.$t('Main animate translation'), ix: ix, path: 'animation.main.translateFunc' })
-          }
-        }
-
-        // animation finish functions
-        if (item.animation && item.animation.finish) {
-          // animate alpha
-          if (item.animation.finish.use_alpha && item.animation.finish.alphaType === 'custom' && item.animation.finish.alphaFunc && item.animation.finish.alphaFunc.trim().length > 0) {
-            if (func.indexOf(item.id) < 0) {
-              func.push(item.id)
-            }
-
-            func.push({ id: item.id, name: this.$t('Finish animate alpha'), ix: ix, path: 'animation.finish.alphaFunc' })
-          }
-
-          // animate color
-          if (item.animation.finish.use_color && item.animation.finish.colorType === 'custom' && item.animation.finish.colorFunc && item.animation.finish.colorFunc.trim().length > 0) {
-            if (func.indexOf(item.id) < 0) {
-              func.push(item.id)
-            }
-
-            func.push({ id: item.id, name: this.$t('Finish animate color'), ix: ix, path: 'animation.finish.colorFunc' })
-          }
-
-          // animate rotation
-          if (item.animation.finish.use_rotate && item.animation.finish.rotateType === 'custom' && item.animation.finish.rotateFunc && item.animation.finish.rotateFunc.trim().length > 0) {
-            if (func.indexOf(item.id) < 0) {
-              func.push(item.id)
-            }
-
-            func.push({ id: item.id, name: this.$t('Finish animate rotation'), ix: ix, path: 'animation.finish.rotateFunc' })
-          }
-
-          // animate scale
-          if (item.animation.finish.use_scale && item.animation.finish.scaleType === 'custom' && item.animation.finish.scaleFunc && item.animation.finish.scaleFunc.trim().length > 0) {
-            if (func.indexOf(item.id) < 0) {
-              func.push(item.id)
-            }
-
-            func.push({ id: item.id, name: this.$t('Finish animate scale'), ix: ix, path: 'animation.finish.scaleFunc' })
-          }
-
-          // animate translation
-          if (item.animation.finish.use_translate && item.animation.finish.translateType === 'custom' && item.animation.finish.translateFunc && item.animation.finish.translateFunc.trim().length > 0) {
-            if (func.indexOf(item.id) < 0) {
-              func.push(item.id)
-            }
-
-            func.push({ id: item.id, name: this.$t('Finish animate translation'), ix: ix, path: 'animation.finish.translateFunc' })
-          }
-        }
-      })
-      return func
     },
 
     runLuacheck: function () {

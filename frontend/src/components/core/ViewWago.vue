@@ -32,12 +32,12 @@
                 <md-icon v-else>star_border</md-icon> {{ $t("Favorite") }}
               </md-button>
               <md-button v-if="wago.user && User && wago.UID && wago.UID === User.UID && wago.code && wago.code.encoded" @click="generateNextVersionData(); $refs['newImportDialog'].open()" id="newImportButton"><md-icon>input</md-icon> {{ $t("Import new string") }}</md-button>
-              <md-button v-if="hasUnsavedChanges && wago.code && wago.code.encoded && (!wago.code.alerts || !wago.code.alerts.blacklist)" @click="copyEncoded" class="copy-import-button">
+              <md-button v-if="hasUnsavedChanges && wago.code && wago.code.encoded" @click="copyEncoded" class="copy-import-button">
                 <md-icon>assignment</md-icon> {{ $t("Copy [-type-] import string", {type: wago.type}) }}
                 <md-button @click="openHelpDialog" id="helpImportingButton" class="md-icon-button md-raised"><md-icon>help</md-icon></md-button>
                 <md-tooltip md-direction="bottom" class="CopyWarningTooltip"><strong>{{ $t("You have unsaved changes") }}</strong><br>{{ $t("Be sure to save or fork to generate a new string with your modifications") }}</md-tooltip>
               </md-button>
-              <md-button v-else-if="wago.code && wago.code.encoded && (!wago.code.alerts || !wago.code.alerts.blacklist)" @click="copyEncoded" class="copy-import-button">
+              <md-button v-else-if="wago.code && wago.code.encoded" @click="copyEncoded" class="copy-import-button">
                 <md-icon>assignment</md-icon> {{ $t("Copy [-type-] import string", {type: wago.type}) }}
                 <md-button @click="openHelpDialog" id="helpImportingButton" class="md-icon-button md-raised"><md-icon>help</md-icon></md-button>
               </md-button>
@@ -175,7 +175,7 @@
             <div class="item" v-if="wago.type.match(/WEAKAURA/)">
               <div class="md-title">{{ $t("[-count-] install", { count: wago.installCount }) }}</div>
             </div>
-            <div class="item" style="float:right" v-if="enableCompanionBeta && wago.type.match(/WEAKAURA/) && wago.code && wago.code.encoded && !wago.encrypted && (!wago.code.alerts && !wago.code.alerts.blacklist)">
+            <div class="item" style="float:right" v-if="enableCompanionBeta && wago.type.match(/WEAKAURA/) && wago.code && wago.code.encoded && !wago.encrypted">
               <div id="sendToCompanionAppBtn" class="md-button copy-import-button" @click="sendToCompanionApp(true)">
                 <md-icon>airplay</md-icon> {{ $t("Send to WeakAura Companion App") }}
               </div>
@@ -226,12 +226,12 @@
           <div>
             <md-button @click="toTop"><md-icon>arrow_upward</md-icon> {{ $t("To top") }}</md-button>
           </div>
-          <md-button v-if="hasUnsavedChanges && wago.code && wago.code.encoded && (!wago.code.alerts || !wago.code.alerts.blacklist)" @click="copyEncoded" class="copy-import-button">
+          <md-button v-if="hasUnsavedChanges && wago.code && wago.code.encoded" @click="copyEncoded" class="copy-import-button">
             <md-icon>assignment</md-icon> {{ $t("Copy [-type-] import string", {type: wago.type}) }}
             <md-button @click="openHelpDialog()" id="helpImportingButton" class="md-icon-button md-raised"><md-icon>help</md-icon></md-button>
             <md-tooltip md-direction="bottom" class="CopyWarningTooltip"><strong>{{ $t("You have unsaved changes") }}</strong><br>{{ $t("Be sure to save or fork to generate a new string with your modifications") }}</md-tooltip>
           </md-button>
-          <md-button v-else-if="wago.code && wago.code.encoded && (!wago.code.alerts || !wago.code.alerts.blacklist)" @click="copyEncoded" class="copy-import-button">
+          <md-button v-else-if="wago.code && wago.code.encoded" @click="copyEncoded" class="copy-import-button">
             <md-icon>assignment</md-icon> {{ $t("Copy [-type-] import string", {type: wago.type}) }}
             <md-button @click="openHelpDialog()" id="helpImportingButton" class="md-icon-button md-raised"><md-icon>help</md-icon></md-button>
           </md-button>
@@ -317,15 +317,6 @@
               </ui-warning>
               <ui-warning v-else-if="wago.visibility && wago.visibility.hidden">
                 {{ $t("This import is hidden only those with the URL may view it") }}
-              </ui-warning>
-
-              <ui-warning v-if="wago.code && wago.code.alerts && wago.code.alerts.blacklist" mode="alert">
-                {{ $t("Blacklisted code detected") }}<br>
-                <div v-for="func in wago.code.alerts.blacklist">{{ func }}</div>
-              </ui-warning>
-              <ui-warning v-else-if="wago.code && wago.code.alert && wago.code.alerts.malicious" mode="alert">
-                {{ $t("Possible malicious code detected") }}<br>
-                <div v-for="func in wago.code.alerts.malicious">{{ func }}</div>
               </ui-warning>
 
               <ui-warning v-else-if="wago.code && wago.code.alert && wago.code.alerts.newInternalVersion" mode="alert">
@@ -801,7 +792,7 @@
               <!-- EMBED FRAME -->
               <div id="wago-embed-container" class="wago-container" v-if="showPanel=='embed' && wago.code && wago.code.encoded">
                 <ui-warning v-if="wago.code.alerts.blacklist" mode="alert">
-                  {{ $t("Embeds will not work for imports with blacklisted code") }}
+                  {{ $t("Embeds will not work for imports with blocked functions") }}
                 </ui-warning>
                 <template v-if="wago.type === 'MDT'">
                   <h2>{{ $t("Embed iframe") }}</h2>
@@ -903,7 +894,9 @@
                 <template v-if="codeReview">
                   <h2>{{ $t('Code Review') }}</h2>
                   <p>{{ $t('Wago checks for common but problematic code.') }}</p>
-                  <codereview v-if="codeReview.stabilityChecks && codeReview.stabilityChecks.length" v-for="(test, k) in codeReview.stabilityChecks" :key="k" :review="test" :link="true" @loadFn="loadEditorFn(test.func)" @setComment="setCodeReviewComment" :author="wago.user && User && wago.UID && wago.UID === User.UID"></codereview>
+                  <template v-if="codeReview.stabilityChecks && codeReview.stabilityChecks.length">
+                    <codereview v-for="(test, k) in codeReview.stabilityChecks" :key="k" :review="test" :link="true" @loadFn="loadEditorFn(test.func)" @setComment="setCodeReviewComment" :author="wago.user && User && wago.UID && wago.UID === User.UID"></codereview>
+                  </template>
                   <codereview v-else name="Review">{{ $t('No problems found.') }}</codereview>
                 </template>
                 <br>
@@ -989,6 +982,7 @@ import Multiselect from 'vue-multiselect'
 import CategorySelect from '../UI/SelectCategory.vue'
 import Search from '../core/Search.vue'
 import semver from 'semver'
+import detectCustomCode from '../libs/detectCustomCode'
 const openCustomProtocol = require('../libs/customProtocolDetection')
 
 function flatten (arr) {
@@ -1308,7 +1302,7 @@ export default {
       if (!this.wago.versions || this.wago.versions.total <= 1) {
         return false
       }
-      if (this.wago.type === 'WEAKAURA' || this.wago.type === 'SNIPPET') {
+      if (this.wago.type.match(/WEAKAURA/) || this.wago.type === 'SNIPPET') {
         return true
       }
       if (this.wago.type === 'PLATER') {
@@ -1510,23 +1504,29 @@ export default {
       this.codeReview.warnings = 0
       this.codeReview.alerts = 0
       this.codeReview.stabilityChecks = []
+      const blockedRegex = /getfenv|setfenv|loadstring|pcall|SendMail|SetTradeMoney|AddTradeMoney|PickupTradeMoney|PickupPlayerMoney|TradeFrame|MailFrame|EnumerateFrames|RunScript|AcceptTrade|SetSendMailMoney|EditMacro|SlashCmdList|DevTools_DumpCommand|hash_SlashCmdList|CreateMacro|SetBindingMacro|GuildDisband|GuildUninvite|UninviteUnit/g
       if (code && code.luacheck && code.luacheck !== '{}') {
         code.luacheck = JSON.parse(code.luacheck)
-        var luacheck = Object.values(code.luacheck)
         this.luacheckKeys = Object.keys(code.luacheck)
         this.luacheckKeys.sort()
-        for (let lc of luacheck) {
-          let c = lc.match(/^(\d+) error/)
+        for (let lc of this.luacheckKeys) {
+          let c = code.luacheck[lc].match(/^(\d+) error/)
           if (c && c[1]) {
             this.codeReview.errors += parseInt(c[1])
           }
-          c = lc.match(/^(\d+) warning/)
+          c = code.luacheck[lc].match(/^(\d+) warning/)
           if (c && c[1]) {
             this.codeReview.warnings += parseInt(c[1])
           }
-          c = lc.match(/\((E\d+|W111|W121)\)/g)
+          c = code.luacheck[lc].match(/\((E\d+|W111|W121)\)/g)
           if (c && c.length) {
             this.codeReview.alerts += c.length
+          }
+          let blocked = code.luacheck[lc].match(blockedRegex)
+          if (blocked) {
+            blocked = [...new Set(blocked)]
+            this.codeReview.alerts += blocked.length
+            this.codeReview.stabilityChecks.push({id: 'blockedFn', name: lc, display: this.$t('\'[-name-]\' includes blocked functions. Blocked functions are normally blocked within the addon with normal use, and there is probably no reason you want to include this potential vulnerability.', {name: lc}) + '\n\n0:' + blocked.join('\n0:'), func: lc})
           }
         }
       }
@@ -1549,6 +1549,7 @@ export default {
       }
       // code review
       else if (this.wago.type.match(/WEAKAURA/)) {
+        var customCode = detectCustomCode.WeakAura(code.obj)
         var auras = []
         if (code.obj.d) {
           auras = [code.obj.d]
@@ -1561,80 +1562,52 @@ export default {
             this.codeReview.alerts++
             this.codeReview.stabilityChecks.push({id: 'longID', name: item.id, display: this.$t('\'[-name-]\' id length is needlessly long.', {name: item.id}) + '(0):' + this.$t('This is the name used in the WeakAura interface and may cause an overflow error and crash the game.'), func: 'tabledata'})
           }
-          let customText = null
-          let customFunc = null
-          if (item.customTextUpdate === 'update') {
-            if (((typeof item.displayText === 'string' && item.displayText.match(/%c/) > -1) ||
-            (typeof item.text1 === 'string' && item.text1.match(/%c/) > -1) ||
-            (typeof item.text2 === 'string' && item.text2.match(/%c/) > -1) ||
-            (typeof item.displayTextLeft === 'string' && item.displayTextLeft.match(/%c/) > -1) ||
-            (typeof item.displayTextRight === 'string' && item.displayTextRight.match(/%c/) > -1)) &&
-            item.customText) {
-              customText = item.customText
-              customFunc = `${item.id}: ${this.$t('Display Text')}`
+        }
+        for (let item of customCode) {
+          if (typeof item !== 'object') {
+            continue
+          }
+          if (item.displayEveryFrame) {
+            let lua = item.lua
+            // remove comments and function params
+            lua = lua.replace(/--.*?$/g, '').replace(/^[^]*?\)/m, '').trim()
+            let result
+            let ok
+            if (lua.match(/(time|GetTime)\(\)/)) {
+              result = this.$t('Timing or throttling code is detected.')
+              ok = 1
             }
-
-            else if (typeof item.displayStacks === 'string' && item.displayStacks.match(/%c/) > -1) {
-              customText = item.customText
-              customFunc = `${item.id}: ${this.$t('Display Stacks')}`
+            else if (lua.indexOf('return') === 0) {
+              result = this.$t('Immediate value return detected.')
+              ok = 1
             }
-
-            if (typeof item.customText === 'string' && item.subRegions && item.subRegions.length) {
-              for (let n = 0; n < item.subRegions.length; n++) {
-                if (item.subRegions[n].text_text && item.subRegions[n].text_text.match(/%c/)) {
-                  customText = item.customText
-                  customFunc = `${item.id}: ${this.$t('Custom Text')}`
-                  break
-                }
-              }
+            else {
+              result = this.$t('Displays that update every frame can potentially cause slowdown are are almost always go against best practices. Every frame updates should be for a) time related displays or b) throttled so that the processing occurs on an interval. Neither are detected here.')
+              ok = 0
             }
-            if (customText) {
-              // remove comments and function params
-              customText = customText.replace(/--.*?$/g, '').replace(/^[^]*?\)/m, '').trim()
-              let result
-              let ok
-              if (customText.match(/(time|GetTime)\(\)/)) {
-                result = this.$t('Timing or throttling code is detected.')
-                ok = 1
-              }
-              else if (customText.indexOf('return') === 0) {
-                result = this.$t('Immediate value return detected.')
-                ok = 1
-              }
-              else {
-                result = this.$t('Displays that update every frame can potentially cause slowdown are are almost always go against best practices. Every frame updates should be for a) time related displays or b) throttled so that the processing occurs on an interval. Neither are detected here.')
-                ok = 0
-              }
-              if (!ok && (!this.wago.codeReviewComments || !this.wago.codeReviewComments[`textEveryFrameDisplay:${item.id}`] || !this.wago.codeReviewComments[`textEveryFrameDisplay:${item.id}`].falsePositive)) {
-                this.codeReview.alerts++
-              }
-              this.codeReview.stabilityChecks.push({id: 'textEveryFrameDisplay', name: item.id, display: this.$t('\'[-name-]\' updates its display text every frame.', {name: customFunc}) + `(${ok}):${result}`, func: customFunc})
+            if (!ok && (!this.wago.codeReviewComments || !this.wago.codeReviewComments[`textEveryFrameDisplay:${item.id}`] || !this.wago.codeReviewComments[`textEveryFrameDisplay:${item.id}`].falsePositive)) {
+              this.codeReview.alerts++
             }
-
-            var customTrigger
-            for (let n = 0; n < Object.keys(item.triggers).length; n++) {
-              if (item.triggers['' + n] && item.triggers['' + n].trigger && item.triggers['' + n].trigger.type === 'custom' && item.triggers['' + n].trigger.check === 'update' && item.triggers['' + n].trigger.custom) {
-                customTrigger = item.triggers['' + n].trigger.custom
-                customFunc = `${item.id}: ${this.$t('Trigger ([-n-])', {n})}`
-
-                // remove comments and function params
-                customTrigger = customTrigger.replace(/--.*?$/g, '').replace(/^[^]*?\)/m, '').trim()
-                let result
-                let ok
-                if (customTrigger.match(/(time|GetTime)\(\)/)) {
-                  result = this.$t('Timing or throttling code is detected.')
-                  ok = 1
-                }
-                else {
-                  result = this.$t('Triggers that check on every frame should be throttled so that the processing occurs on an interval. No throttle could be detected here.')
-                  ok = 0
-                }
-                if (!ok && (!this.wago.codeReviewComments || !this.wago.codeReviewComments[`textEveryFrameTrigger:${item.id}`] || !this.wago.codeReviewComments[`textEveryFrameTrigger:${item.id}`].falsePositive)) {
-                  this.codeReview.alerts++
-                }
-                this.codeReview.stabilityChecks.push({id: 'textEveryFrameTrigger', name: item.id, display: this.$t('\'[-name-]\' is processed every frame.', {name: customFunc}) + `(${ok}):${result}`, func: customFunc})
-              }
+            this.codeReview.stabilityChecks.push({id: 'textEveryFrameDisplay', name: item.id, display: this.$t('\'[-name-]\' updates its display text every frame.', {name: `${item.id} ${item.name}`}) + `(${ok}):${result}`, func: `${item.id}: ${item.name}`})
+          }
+          else if (item.triggerEveryFrame) {
+            let lua = item.lua
+            // remove comments and function params
+            lua = lua.replace(/--.*?$/g, '').replace(/^[^]*?\)/m, '').trim()
+            let result
+            let ok
+            if (lua.match(/(time|GetTime)\(\)/)) {
+              result = this.$t('Timing or throttling code is detected.')
+              ok = 1
             }
+            else {
+              result = this.$t('Triggers that check on every frame should be throttled so that the processing occurs on an interval. No throttle could be detected here.')
+              ok = 0
+            }
+            if (!ok && (!this.wago.codeReviewComments || !this.wago.codeReviewComments[`textEveryFrameTrigger:${item.id}`] || !this.wago.codeReviewComments[`textEveryFrameTrigger:${item.id}`].falsePositive)) {
+              this.codeReview.alerts++
+            }
+            this.codeReview.stabilityChecks.push({id: 'textEveryFrameTrigger', name: item.id, display: this.$t('\'[-name-]\' is processed every frame.', {name: `${item.id} ${item.name}`}) + `(${ok}):${result}`, func: `${item.id}: ${item.name}`})
           }
         }
       }

@@ -110,6 +110,7 @@ export default {
           }
           else {
             text = text.replace(/^(.*)\(0\):(.*)$/, '$1<p class="review-alert"><i class="side-alert material-icons" title="Code Alert!">error_outline</i>$2</p>')
+            text = text.replace(/^0:(\w*)$/gm, '<p class="review-alert"><i class="side-alert material-icons" title="Code Alert!">error_outline</i>$1</p>')
           }
           text = text.replace(/^(.*)\(1\):(.*)$/, '$1<p class="review-ok"><i class="side-ok material-icons">done</i>$2</p>')
         }
@@ -213,7 +214,7 @@ export default {
 .code-review pre .global {color: #25c7fe }
 
 .code-review .para {height: auto!important}
-.code-review .para pre {white-space: normal; position: relative;}
+.code-review .para pre {white-space: pre-wrap; position: relative;}
 .code-review .para pre p {margin: 0 0 0 20px}
 .code-review .para pre p.review-alert {color: #ffb5b5}
 .code-review .para pre p.review-warning {color: #cc9700}

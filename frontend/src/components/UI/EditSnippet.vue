@@ -1,10 +1,7 @@
 <template>
   <div id="edit-common">  
-    <codereview v-if="luacheck && luacheck.Snippet" name="Luacheck" :luacheck="true">{{luacheck.Snippet}}</codereview>
+    <codereview v-if="luacheck && luacheck['Lua: Snippet']" name="Luacheck" :luacheck="true">{{luacheck['Lua: Snippet']}}</codereview>
     <div class="flex-container">
-      <div class="flex-col flex-left">
-        <md-button v-if="$store.state.user && $store.state.user.access && $store.state.user.access.beta && !luacheck" @click="runLuacheck()"><md-icon>center_focus_weak</md-icon> {{ $t("Luacheck") }} [Beta]</md-button>
-      </div>
       <div class="flex-col flex-right">
         <md-button @click="exportChanges"><md-icon>open_in_new</md-icon> {{ $t("Export/Fork changes") }}</md-button>
         <md-button v-if="canEdit" @click="generateNextVersionData(); $refs['saveChangesDialog'].open()" ref="saveChangesButton"><md-icon>save</md-icon> {{ $t("Save changes") }}</md-button>
