@@ -59,19 +59,19 @@ module.exports = {
       // actions functions
       if (item.actions) {
         // onInit
-        if (item.actions.init && item.actions.init.do_custom && item.actions.init.custom.trim()) {
+        if (item.actions.init && item.actions.init.do_custom && item.actions.init.custom && item.actions.init.custom.trim()) {
           func.push(item.id)
           func.push({id: item.id, name: 'onInit', ix: ix, path: 'actions.init.custom', lua: item.actions.init.custom})
         }
         // onShow
-        if (item.actions.start && item.actions.start.do_custom && item.actions.start.custom.trim()) {
+        if (item.actions.start && item.actions.start.do_custom && item.actions.start.custom && item.actions.start.custom.trim()) {
           if (func.indexOf(item.id) < 0) {
             func.push(item.id)
           }
           func.push({id: item.id, name: 'onShow', ix: ix, path: 'actions.start.custom', lua: item.actions.start.custom})
         }
         // onHide
-        if (item.actions.finish && item.actions.finish.do_custom && item.actions.finish.custom.trim()) {
+        if (item.actions.finish && item.actions.finish.do_custom && item.actions.finish.custom && item.actions.finish.custom.trim()) {
           if (func.indexOf(item.id) < 0) {
             func.push(item.id)
           }
@@ -79,34 +79,60 @@ module.exports = {
         }
       }
       // display text
-      if (((checkType(item.displayText) === 'string' && item.displayText.match(/%c/)) ||
-      (checkType(item.text1) === 'string' && item.text1.match(/%c/)) ||
-      (checkType(item.text2) === 'string' && item.text2.match(/%c/)) ||
-      (checkType(item.displayTextLeft) === 'string' && item.displayTextLeft.match(/%c/)) ||
-      (checkType(item.displayTextRight) === 'string' && item.displayTextRight.match(/%c/)) &&
-      item.customText.trim())) {
+      if (checkType(item.displayText) === 'string' && item.displayText.match(/%c/) && item.displayText.trim()) {
         if (func.indexOf(item.id) < 0) {
           func.push(item.id)
         }
-        func.push({ id: item.id, name: 'Display Text', ix: ix, path: 'customText', lua: item.customText, displayEveryFrame: item.customTextUpdate})
+        func.push({ id: item.id, name: 'Display Text', ix: ix, path: 'displayText', lua: item.displayText, displayEveryFrame: item.customTextUpdate})
       }
-      // display stacks
-      else if (checkType(item.displayStacks) === 'string' && item.displayStacks.match(/%c/) > -1 && item.customText.trim().length) {
+      else if (checkType(item.text1) === 'string' && item.text1.match(/%c/) && item.text1.trim()) {
+        if (func.indexOf(item.id) < 0) {
+          func.push(item.id)
+        }
+        func.push({ id: item.id, name: 'Display Stacks', ix: ix, path: 'text1', lua: item.text1, displayEveryFrame: item.customTextUpdate})
+      }
+      else if (checkType(item.text2) === 'string' && item.text2.match(/%c/) && item.text2.trim()) {
+        if (func.indexOf(item.id) < 0) {
+          func.push(item.id)
+        }
+        func.push({ id: item.id, name: 'Display Stacks', ix: ix, path: 'text2', lua: item.text2, displayEveryFrame: item.customTextUpdate})
+      }
+      else if (checkType(item.displayTextLeft) === 'string' && item.displayTextLeft.match(/%c/) && item.displayTextLeft.trim()) {
+        if (func.indexOf(item.id) < 0) {
+          func.push(item.id)
+        }
+        func.push({ id: item.id, name: 'Display Stacks', ix: ix, path: 'displayTextLeft', lua: item.displayTextLeft, displayEveryFrame: item.customTextUpdate})
+      }
+      else if (checkType(item.displayTextRight) === 'string' && item.displayTextRight.match(/%c/) && item.displayTextRight.trim()) {
+        if (func.indexOf(item.id) < 0) {
+          func.push(item.id)
+        }
+        func.push({ id: item.id, name: 'Display Stacks', ix: ix, path: 'displayTextRight', lua: item.displayTextRight, displayEveryFrame: item.customTextUpdate})
+      }
+      else if (checkType(item.customText) === 'string' && item.customText.match(/%c/) && item.customText.trim()) {
         if (func.indexOf(item.id) < 0) {
           func.push(item.id)
         }
         func.push({ id: item.id, name: 'Display Stacks', ix: ix, path: 'customText', lua: item.customText, displayEveryFrame: item.customTextUpdate})
       }
-      if (item.grow === 'CUSTOM' && item.customGrow.trim().length) {
+      // display stacks
+      else if (checkType(item.displayStacks) === 'string' && item.displayStacks.match(/%c/) > -1 && item.displayStacks.trim().length) {
+        if (func.indexOf(item.id) < 0) {
+          func.push(item.id)
+        }
+        func.push({ id: item.id, name: 'Display Stacks', ix: ix, path: 'customText', lua: item.customText, displayEveryFrame: item.customTextUpdate})
+      }
+
+      if (item.grow === 'CUSTOM' && item.customGrow && item.customGrow.trim().length) {
         func.push({ id: item.id, name: 'Custom Grow', ix: ix, path: 'customGrow', lua: item.customGrow})
       }
-      if (item.sort === 'custom' && item.customSort.trim().length) {
+      if (item.sort === 'custom' && item.customSort && item.customSort.trim().length) {
         func.push({ id: item.id, name: 'Custom Sort', ix: ix, path: 'customSort', lua: item.customSort})
       }
-      if (item.anchorPerUnit === 'CUSTOM' && item.customAnchorPerUnit.trim().length) {
+      if (item.anchorPerUnit === 'CUSTOM' && item.customAnchorPerUnit && item.customAnchorPerUnit.trim().length) {
         func.push({ id: item.id, name: 'Custom Anchor', ix: ix, path: 'customAnchorPerUnit', lua: item.customAnchorPerUnit})
       }
-      if (checkType(item.customText) === 'string' && item.subRegions && item.subRegions.length && item.customText.trim().length) {
+      if (checkType(item.customText) === 'string' && item.subRegions && item.subRegions.length && item.customText && item.customText.trim().length) {
         for (let n = 0; n < item.subRegions.length; n++) {
           if (item.subRegions[n].text_text && item.subRegions[n].text_text.match(/%c/)) {
             func.push({ id: item.id, name: 'Custom Text', ix: ix, path: 'customText', lua: item.customText, displayEveryFrame: item.customTextUpdate})
