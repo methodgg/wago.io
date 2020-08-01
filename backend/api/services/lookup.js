@@ -529,6 +529,8 @@ module.exports = function (fastify, opts, next) {
 
   // return array of git-formatted diffs comparing two versions of code
   fastify.get('/wago/luacheck', async (req, res) => {
+    return res.send({})
+
     if (!req.query.id) {
       return res.code(404).send({error: "page_not_found"})
     }
@@ -667,6 +669,10 @@ module.exports = function (fastify, opts, next) {
       }
     }
 
+    if (code.luacheckVersion || 1 < luacheck.Version) {
+      code.luacheck = null
+    }
+
     if (doc.type === 'SNIPPET') {
       wagoCode.lua = code.lua
       wagoCode.version = code.version
@@ -679,6 +685,7 @@ module.exports = function (fastify, opts, next) {
         }
         catch (e) {
           code.luacheck = JSON.stringify(await luacheck.Lua(code.lua))
+          code.luacheckVersion = luacheck.Version
         }
         await code.save()
       }
@@ -716,7 +723,8 @@ module.exports = function (fastify, opts, next) {
         }
         
         if (!code.luacheck) {
-          code.luacheck = JSON.stringify(await luacheck.WeakAuras(code.json))
+          code.luacheckVersion = luacheck.Version
+          code.luacheck = JSON.stringify(await luacheck.WeakAuras(code.json, doc.game))
         }
         code.save()
       }
@@ -750,6 +758,7 @@ module.exports = function (fastify, opts, next) {
           code.encoded = encoded
         }
         if (!code.luacheck) {
+          code.luacheckVersion = luacheck.Version
           code.luacheck = JSON.stringify(await luacheck.Plater(code.json))
         }
         code.save()

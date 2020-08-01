@@ -2,32 +2,37 @@ const exec = require('shelljs.exec')
 const detectCode = require(__dirname + '/../../../frontend/src/components/libs/detectCustomCode')
 
 module.exports = {
+  Version: 2,
+  
   Lua: async (code) => {
     return await makeLuaCheck([{id: 'Lua', name: 'Snippet', lua: code}])
   },
 
-  Plater: async (json) => {
+  Plater: async (json, game) => {
     if (typeof json === 'string') {
       json = JSON.parse(json)
     }
     const code = detectCode.Plater(json)
-    return await makeLuaCheck(code)
+    return await makeLuaCheck(code, game)
   },
 
-  WeakAuras: async (json) => {
+  WeakAuras: async (json, game) => {
     if (typeof json === 'string') {
       json = JSON.parse(json)
     }
     const code = detectCode.WeakAura(json)
-    return await makeLuaCheck(code)
+    return await makeLuaCheck(code, game)
   }
 }
 
-async function makeLuaCheck (code) {
+async function makeLuaCheck (code, game) {
   if (!code.length) {
     return {}
   }
-  const luacheckrc = __dirname + '/../lua/luacheck.cfg'
+  if (!game || !game.match(/classic|bfa/)) {
+    game = 'bfa'
+  }
+  const luacheckrc = __dirname + '/../lua/luacheck-' + game + '.lua'
   const checkDir = __dirname + '/../../run-tmp/' + new Date().getTime() + Math.random().toString(36).substring(7)
   await fs.mkdir(checkDir)
   var result = {}
