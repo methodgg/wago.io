@@ -38,7 +38,7 @@ async function makeLuaCheck (code, game) {
   var result = {}
   var fileMap = {}
   for (let i = 0; i < code.length; i++) {
-    if (typeof code[i] !== 'object' || !code[i].lua) {
+    if (typeof code[i] !== 'object' || !code[i].lua || code[i].skipLuacheck) {
       continue
     }
     var key = `${code[i].id}: ${code[i].name}`

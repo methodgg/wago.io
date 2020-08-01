@@ -79,48 +79,42 @@ module.exports = {
         }
       }
       // display text
-      if (checkType(item.displayText) === 'string' && item.displayText.match(/%c/) && item.displayText.trim()) {
+      if (checkType(item.displayText) === 'string' && item.displayText.match(/%c/) && item.customText && item.customText.trim()) {
         if (func.indexOf(item.id) < 0) {
           func.push(item.id)
         }
-        func.push({ id: item.id, name: 'Display Text', ix: ix, path: 'displayText', lua: item.displayText, displayEveryFrame: item.customTextUpdate})
+        func.push({ id: item.id, name: 'Display Text', ix: ix, path: 'customText', lua: item.customText, displayEveryFrame: item.customTextUpdate === 'update'})
       }
-      else if (checkType(item.text1) === 'string' && item.text1.match(/%c/) && item.text1.trim()) {
+      else if (checkType(item.text1) === 'string' && item.text1.match(/%c/) && item.customText && item.customText.trim()) {
         if (func.indexOf(item.id) < 0) {
           func.push(item.id)
         }
-        func.push({ id: item.id, name: 'Display Stacks', ix: ix, path: 'text1', lua: item.text1, displayEveryFrame: item.customTextUpdate})
+        func.push({ id: item.id, name: 'Display Stacks', ix: ix, path: 'customText', lua: item.customText, displayEveryFrame: item.customTextUpdate === 'update'})
       }
-      else if (checkType(item.text2) === 'string' && item.text2.match(/%c/) && item.text2.trim()) {
+      else if (checkType(item.text2) === 'string' && item.text2.match(/%c/) && item.customText && item.customText.trim()) {
         if (func.indexOf(item.id) < 0) {
           func.push(item.id)
         }
-        func.push({ id: item.id, name: 'Display Stacks', ix: ix, path: 'text2', lua: item.text2, displayEveryFrame: item.customTextUpdate})
+        func.push({ id: item.id, name: 'Display Stacks', ix: ix, path: 'customText', lua: item.customText, displayEveryFrame: item.customTextUpdate === 'update'})
       }
-      else if (checkType(item.displayTextLeft) === 'string' && item.displayTextLeft.match(/%c/) && item.displayTextLeft.trim()) {
+      else if (checkType(item.displayTextLeft) === 'string' && item.displayTextLeft.match(/%c/) && item.customText && item.customText.trim()) {
         if (func.indexOf(item.id) < 0) {
           func.push(item.id)
         }
-        func.push({ id: item.id, name: 'Display Stacks', ix: ix, path: 'displayTextLeft', lua: item.displayTextLeft, displayEveryFrame: item.customTextUpdate})
+        func.push({ id: item.id, name: 'Display Stacks', ix: ix, path: 'customText', lua: item.customText, displayEveryFrame: item.customTextUpdate === 'update'})
       }
-      else if (checkType(item.displayTextRight) === 'string' && item.displayTextRight.match(/%c/) && item.displayTextRight.trim()) {
+      else if (checkType(item.displayTextRight) === 'string' && item.displayTextRight.match(/%c/) && item.customText && item.customText.trim()) {
         if (func.indexOf(item.id) < 0) {
           func.push(item.id)
         }
-        func.push({ id: item.id, name: 'Display Stacks', ix: ix, path: 'displayTextRight', lua: item.displayTextRight, displayEveryFrame: item.customTextUpdate})
-      }
-      else if (checkType(item.customText) === 'string' && item.customText.match(/%c/) && item.customText.trim()) {
-        if (func.indexOf(item.id) < 0) {
-          func.push(item.id)
-        }
-        func.push({ id: item.id, name: 'Display Stacks', ix: ix, path: 'customText', lua: item.customText, displayEveryFrame: item.customTextUpdate})
+        func.push({ id: item.id, name: 'Display Stacks', ix: ix, path: 'customText', lua: item.customText, displayEveryFrame: item.customTextUpdate === 'update'})
       }
       // display stacks
-      else if (checkType(item.displayStacks) === 'string' && item.displayStacks.match(/%c/) > -1 && item.displayStacks.trim().length) {
+      else if (checkType(item.displayStacks) === 'string' && item.displayStacks.match(/%c/) > -1 && item.customText && item.customText.trim()) {
         if (func.indexOf(item.id) < 0) {
           func.push(item.id)
         }
-        func.push({ id: item.id, name: 'Display Stacks', ix: ix, path: 'customText', lua: item.customText, displayEveryFrame: item.customTextUpdate})
+        func.push({ id: item.id, name: 'Display Stacks', ix: ix, path: 'customText', lua: item.customText, displayEveryFrame: item.customTextUpdate === 'update'})
       }
 
       if (item.grow === 'CUSTOM' && item.customGrow && item.customGrow.trim().length) {
@@ -135,7 +129,7 @@ module.exports = {
       if (checkType(item.customText) === 'string' && item.subRegions && item.subRegions.length && item.customText && item.customText.trim().length) {
         for (let n = 0; n < item.subRegions.length; n++) {
           if (item.subRegions[n].text_text && item.subRegions[n].text_text.match(/%c/)) {
-            func.push({ id: item.id, name: 'Custom Text', ix: ix, path: 'customText', lua: item.customText, displayEveryFrame: item.customTextUpdate})
+            func.push({ id: item.id, name: 'Custom Text', ix: ix, path: 'customText', lua: item.customText, displayEveryFrame: item.customTextUpdate === 'update'})
           }
         }
       }
@@ -178,7 +172,7 @@ module.exports = {
             }
             // custom variables
             if (item.triggers[k].trigger.customVariables && item.triggers[k].trigger.customVariables.trim().length) {
-              func.push({ id: item.id, name: 'Custom Variables (' + k + ')', ix: ix, path: 'triggers[""+' + k + '].trigger.customVariables', lua: item.triggers[k].trigger.customVariables })
+              func.push({ id: item.id, name: 'Custom Variables (' + k + ')', ix: ix, path: 'triggers[""+' + k + '].trigger.customVariables', lua: item.triggers[k].trigger.customVariables, skipLuacheck: true })
             }
             let overlayCount = 1
             while (item.triggers[k].trigger['customOverlay' + overlayCount]) {
