@@ -29,7 +29,7 @@ async function makeLuaCheck (code, game) {
   if (!code.length) {
     return {}
   }
-  if (!game || !game.match(/classic|bfa/)) {
+  if (!game || !game.match(/classic|bfa|sl/)) {
     game = 'bfa'
   }
   const luacheckrc = __dirname + '/../lua/luacheck-' + game + '.lua'
