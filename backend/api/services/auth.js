@@ -575,6 +575,10 @@ async function twitterAuth(req, res) {
       }
       oAuthLogin(req, res, 'twitter', authResponse)
     }
+    else {
+      req.trackError({message: 'Invalid oauth token'}, 'Failed Twitter Auth')
+      return res.code(403).send({error: 'Unable to auth with Twitter'})
+    }
   }
   catch (e) {
     req.trackError(e, 'Failed Twitter Auth')

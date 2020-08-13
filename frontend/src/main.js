@@ -339,13 +339,16 @@ Vue.use({install: function (v) {
   v.prototype.$env = process.env.NODE_ENV
 }})
 var dataServers
+var authServer
 if (process.env.NODE_ENV === 'development') {
   dataServers = ['http://io:3030']
+  authServer = 'http://io:3030'
 }
 else {
   // using round robin client-based load balancing
   // dataServers = getServersByCountry(window.cfCountry) // attempt to detect country by cloudflare and assign regional data servers when available
   dataServers = ['https://data1.wago.io', 'https://data2.wago.io', 'https://data3.wago.io', 'https://data4.wago.io']
+  authServer = 'https://data.wago.io' // uses round-robin dns so ensures auth requests go to the same server (required for twitter in-memory auth)
 }
 dataServers = dataServers.sort(() => {
   return 0.5 - Math.random()
@@ -404,7 +407,12 @@ const http = {
 
         // prepend API server
         var host
-        if (!url.match(/^http/)) {
+        if (!url.match(/^http/) && url.match(/^\/auth/)) {
+          host = authServer
+          url = host + url
+          dataServers.push(host)
+        }
+        else if (!url.match(/^http/)) {
           host = dataServers.shift()
           url = host + url
           dataServers.push(host)
@@ -444,7 +452,12 @@ const http = {
       },
       post: function (url, params) {
         // prepend API server
-        if (!url.match(/^http/)) {
+        if (!url.match(/^http/) && url.match(/^\/auth/)) {
+          host = authServer
+          url = host + url
+          dataServers.push(host)
+        }
+        else if (!url.match(/^http/)) {
           var host = dataServers.shift()
           url = host + url
           dataServers.push(host)
