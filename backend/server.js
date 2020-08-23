@@ -16,8 +16,10 @@ if (config.env === 'production') {
 const fastify = require('fastify')(fastifyOpt)
 
 // --- GLOBAL MODULES
+const Redis = require("ioredis")
+global.RedisConnect = new Redis(config.redis)
 const {Queue, Worker, QueueScheduler, QueueEvents} = require('bullmq')
-global.taskQueue = new Queue('taskQueue', {connection: config.redis})
+global.taskQueue = new Queue('taskQueue', {connection: RedisConnect})
 global.async = require('async')
 global.axios = require('axios')
 global.bluebird = require('bluebird')
@@ -82,7 +84,7 @@ const startServer = async () => {
     // setup queues and workers
     const runTask = require('./api/helpers/tasks')
     const updateLocalCache = require('./middlewares/updateLocalCache')
-    new QueueScheduler(`taskQueue:${config.host}`)
+    new QueueScheduler(`taskQueue:${config.host}`, {connection: RedisConnect})
     const localWorker = new Worker(`taskQueue:${config.host}`, async (job) => {
       if (job.name === 'UpdateCache') {
         updateLocalCache.run(job.data)
@@ -90,15 +92,15 @@ const startServer = async () => {
       else {
         await runTask(job.name, job.data)
       }
-    }, {connection: config.redis})
+    }, {connection: RedisConnect})
     updateLocalCache.run()
 
-    new QueueScheduler('taskQueue')
+    new QueueScheduler('taskQueue', {connection: RedisConnect})
     const worker = new Worker('taskQueue', async (job) => {
       await runTask(job.name, job.data)
     }, {
       concurrency: 3,
-      connection: config.redis
+      connection: RedisConnect
     })
     // localWorker.on('completed', (job) => {
     //   console.log(`${job.id} ${job.name} has completed!`);
