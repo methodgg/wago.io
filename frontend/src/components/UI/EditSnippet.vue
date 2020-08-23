@@ -1,6 +1,6 @@
 <template>
   <div id="edit-common">  
-    <codereview v-if="luacheck && luacheck['Lua: Snippet']" name="Luacheck" :luacheck="true">{{luacheck['Lua: Snippet']}}</codereview>
+    <codereview v-if="this.$store.state.wago.code.luacheck && this.$store.state.wago.code.luacheck['Lua: Snippet']" name="Luacheck" :luacheck="true">{{this.$store.state.wago.code.luacheck['Lua: Snippet']}}</codereview>
     <div class="flex-container">
       <div class="flex-col flex-right">
         <md-button @click="exportChanges"><md-icon>open_in_new</md-icon> {{ $t("Export/Fork changes") }}</md-button>
@@ -53,7 +53,6 @@ export default {
       latestVersion: {semver: this.$store.state.wago.versions.versions[0].versionString},
       newImportVersion: {major: 1, minor: 0, patch: 1},
       newChangelog: {},
-      luacheck: this.$store.state.wago.code.luacheck,
       luacheckFile: 'Snippet'
     }
   },
@@ -138,13 +137,6 @@ export default {
       this.$set(this.newImportVersion, 'major', semver.major(this.newImportVersion.semver))
       this.$set(this.newImportVersion, 'minor', semver.minor(this.newImportVersion.semver))
       this.$set(this.newImportVersion, 'patch', semver.patch(this.newImportVersion.semver))
-    },
-
-    runLuacheck: function () {
-      this.luacheck = 'loading'
-      this.http.get('/lookup/wago/luacheck', {id: this.wago._id, version: this.$store.state.wago.code.version}).then((res) => {
-        this.luacheck = res
-      })
     }
   },
   computed: {

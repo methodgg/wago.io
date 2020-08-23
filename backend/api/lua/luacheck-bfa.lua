@@ -39,6 +39,7 @@ std = {
     "securecall",
   },
   read_globals = {
+    "Wago",
     -- common addons
     "BigWigs",
     "BigWigsLoader",
@@ -49,7 +50,6 @@ std = {
     "MDT",
     "Plater",
     "WeakAuras",
-    "SendMail",
 
     -- WeakAuras    
     "WeakAuras_DropDownMenu",

@@ -14,7 +14,7 @@
     "lint": "eslint --ext .js,.vue src test/unit/specs test/e2e/specs"
   },
   "dependencies": {
-    "@hcaptcha/vue-hcaptcha": "^0.2.1",
+    "@hcaptcha/vue-hcaptcha": "^0.2.2",
     "@panter/vue-i18next": "^0.5.1",
     "axios": "^0.19.0",
     "bundle-loader": "^0.5.5",
@@ -23,6 +23,7 @@
     "i18next-xhr-backend": "^1.4.2",
     "jquery": "^3.5.1",
     "konva": "^2.6.0",
+    "lua-fmt": "^2.6.0",
     "moment": "^2.24.0",
     "v-show-slide": "^1.6.0",
     "vue": "^2.6.10",
@@ -40,6 +41,7 @@
     "vuex": "^2.3.1"
   },
   "devDependencies": {
+    "@babel/runtime": "^7.11.0",
     "@websanova/vue-auth": "^2.18.1-beta",
     "apexcharts": "^2.6.0",
     "autoprefixer": "^6.7.2",

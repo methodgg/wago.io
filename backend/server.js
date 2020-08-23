@@ -16,6 +16,8 @@ if (config.env === 'production') {
 const fastify = require('fastify')(fastifyOpt)
 
 // --- GLOBAL MODULES
+const {Queue, Worker, QueueScheduler, QueueEvents} = require('bullmq')
+global.taskQueue = new Queue('taskQueue', {connection: config.redis})
 global.async = require('async')
 global.axios = require('axios')
 global.bluebird = require('bluebird')
@@ -77,76 +79,49 @@ const startServer = async () => {
     })
     global.Categories = require('../frontend/src/components/libs/categories')
 
-    // update memory-store of semi-static data
-    if (config.env !== 'crontasks') {
-      require('./middlewares/updateInMemoryData')()
-      setInterval(require('./middlewares/updateInMemoryData'), 60 * 1000)
-    }
+    // setup queues and workers
+    const runTask = require('./api/helpers/tasks')
+    const updateLocalCache = require('./middlewares/updateLocalCache')
+    new QueueScheduler(`taskQueue:${config.host}`)
+    const localWorker = new Worker(`taskQueue:${config.host}`, async (job) => {
+      if (job.name === 'UpdateCache') {
+        updateLocalCache.run(job.data)
+      }
+      else {
+        await runTask(job.name, job.data)
+      }
+    })
+    updateLocalCache.run()
+
+    new QueueScheduler('taskQueue')
+    const worker = new Worker('taskQueue', async (job) => {
+      await runTask(job.name, job.data)
+    }, {
+      concurrency: 3
+    })
+    // localWorker.on('completed', (job) => {
+    //   console.log(`${job.id} ${job.name} has completed!`);
+    // })
+    // localWorker.on('failed', (job, err) => {
+    //   console.log(`${job.id} has failed with ${err.message}`);
+    // })
+
     // setup simulated crontasks
     if (config.env === 'development' || config.env === 'crontasks') {
-      const cronTasks = require('./api/helpers/cronTasks')
-      // to allow tracking outside of standard request scope
-      const cronReq = {
-        track: require('./middlewares/matomo'),
-        trackError: require('./middlewares/matomoErrors')
+      const cleanup = await taskQueue.getRepeatableJobs()
+      for (let i = 0; i < cleanup.length; i++) {
+        await taskQueue.removeRepeatableByKey(cleanup[i].key)
       }
-
-      var minute = Math.floor((new Date()-new Date().setHours(0,0,0,0)) / 60000) // start at x minutes from midnight
-      const runCron = async () => {
-        if (minute % 240 === 0) { // every 4 hours
-          if (config.env === 'crontasks') {
-            await cronTasks.UpdatePatreonAccounts(cronReq)
-          }
-          await cronTasks.UpdateWeeklyMDT(cronReq)
-        }
-        if (minute % 60 === 0) { // every hour
-          await cronTasks.ComputeViewsThisWeek(cronReq)
-        }
-        if (minute % 60 === 15) { // every hour at x:15
-          await cronTasks.updateValidCharacters(cronReq)
-          await cronTasks.UpdateGuildMembership(cronReq)
-        }
-        // if (minute % 60 === 45) { // every hour at x:45
-          // await cronTasks.UpdateTwitchSubs(cronReq)
-        // }
-        if (minute % 20 === 0) { // every 20 minutes
-          await cronTasks.UpdateLatestAddonReleases(cronReq)
-        }
-        if (minute % 5 === 0) { // every 5 minutes
-          await cronTasks.UpdateTopLists(cronReq)
-        }
-        await cronTasks.UpdateWagoOfTheMoment(cronReq)
-        await cronTasks.UpdateLatestNews(cronReq)
-
-        // once per week make sure elasticsearch is sync'd up with Mongo
-        if (minute === 30 && (new Date).getDay() === 0) {
-          var syncStream = WagoItem.synchronize()
-          syncStream.on('error', function(err){
-            cronReq.trackError(err, 'Elastic Sync Error WagoItem')
-          })
-          syncStream.on('close', function() {
-            cronReq.track({e_a: 'Elastic Sync Complete', e_c: 'WagoItem', e_n: 'WagoItem'})
-          })
-        }
-        else if (minute === 30 && (new Date).getDay() === 1) {
-          var syncStream = User.synchronize()
-          syncStream.on('error', function(err){
-            cronReq.trackError(err, 'Elastic Sync Error User')
-          })
-          syncStream.on('close', function() {
-            cronReq.track({e_a: 'Elastic Sync Complete', e_c: 'User', e_n: 'User'})
-          })
-        }
-
-        minute++
-        // reset at midnight
-        if (minute === 1440) {
-          minute = 0
-        }
-      }
-      // run cron at launch and every minute thereafter
-      runCron()
-      setInterval(runCron, 60 * 1000)
+      await taskQueue.add('UpdateWagoOfTheMoment', null, {repeat: {cron: '* * * * *'}, priority: 3})
+      await taskQueue.add('UpdatePatreonAccounts', null, {repeat: {cron: '0 */4 * * *'}, priority: 3})
+      await taskQueue.add('UpdateWeeklyMDT', null, {repeat: {cron: '0 */4 * * *'}, priority: 3})
+      await taskQueue.add('UpdateTopLists', null, {repeat: {cron: '*/5 * * * *'}, priority: 3})
+      await taskQueue.add('UpdateValidCharacters', null, {repeat: {cron: '15 * * * *'}, priority: 3})
+      await taskQueue.add('UpdateGuildMembership', null, {repeat: {cron: '15 * * * *'}, priority: 3})
+      await taskQueue.add('ComputeViewsThisWeek', null, {repeat: {cron: '0 * * * *'}, priority: 4})
+      await taskQueue.add('UpdateLatestAddonReleases', null, {repeat: {cron: '*/20 * * * *'}, priority: 4})
+      await taskQueue.add('SyncElastic', {table: 'User'}, {repeat: {cron: '1 0 4,18 * *'}, priority: 10})
+      await taskQueue.add('SyncElastic', {table: 'WagoItem'}, {repeat: {cron: '1 0 7,21 * *'}, priority: 10})
     }
 
     if (config.env === 'development') {

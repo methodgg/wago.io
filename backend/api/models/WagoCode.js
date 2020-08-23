@@ -12,7 +12,7 @@ const Schema = new mongoose.Schema({
   versionString: { type: String, index: true }, // semantic version number
   branch: String, // ex "8.0-beta", default is not set for live
   luacheck: String,
-  luacheckVersion: Number,
+  luacheckVersion: Number, // processVersion alias
   changelog: {
     text: String,
     format: String
@@ -74,6 +74,12 @@ Schema.statics.lookup = async function(id, version) {
     return {}
   }
 }
+// alias processVersion -> luacheckVersion 
+// TODO: rename in database
+Schema.virtual('processVersion').
+  get(function() { return this.luacheckVersion }).
+  set(function(v) { this.set({ luacheckVersion: v })
+})
 
 
 // create the model for users and expose it to our app

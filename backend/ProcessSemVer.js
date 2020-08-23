@@ -47,7 +47,6 @@ function makeVersions(c) {
         })
       })
     }, () => {
-      console.log('c =', c, 'remaining =', remaining - n)
       setTimeout(() => {
         makeVersions(c+1)
       }, 30000)      

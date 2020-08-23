@@ -14,7 +14,18 @@ module.exports = {
       jsonB = JSON.parse(jsonB)
     }
     const codeA = detectCode.Plater(jsonA)
+    var tableA = sortJSON(jsonA)
+    tableA.semver = ''
+    tableA.url = ''
+    tableA.version = ''
+    codeA.unshift({id: 'TableData', name: 'Table data', path: '', lua: JSON.stringify(tableA, null, 2)})
+
     const codeB = detectCode.Plater(jsonB)
+    var tableB = sortJSON(jsonB)
+    tableB.semver = ''
+    tableB.url = ''
+    tableB.version = ''
+    codeB.unshift({id: 'TableData', name: 'Table data', path: '', lua: JSON.stringify(tableB, null, 2)})
     return await makeDiffs(codeA, codeB)
   },
 
@@ -26,7 +37,33 @@ module.exports = {
       jsonB = JSON.parse(jsonB)
     }
     const codeA = detectCode.WeakAura(jsonA)
+    var tableA = sortJSON(jsonA)
+    tableA.d.semver = ''
+    tableA.d.url = ''
+    tableA.d.version = ''
+    if (tableA.c) {
+      for (let i = 0; i < tableA.c.length; i++) {
+        tableA.c[i].semver = ''
+        tableA.c[i].url = ''
+        tableA.c[i].version = ''
+      }
+    }
+    codeA.unshift({id: 'TableData', name: 'Table data', path: '', lua: JSON.stringify(tableA, null, 2)})
+
     const codeB = detectCode.WeakAura(jsonB)
+    var tableB = sortJSON(jsonB)
+    tableB.d.semver = ''
+    tableB.d.url = ''
+    tableB.d.version = ''
+    if (tableB.c) {
+      for (let i = 0; i < tableB.c.length; i++) {
+        tableB.c[i].semver = ''
+        tableB.c[i].url = ''
+        tableB.c[i].version = ''
+      }
+    }
+    codeB.unshift({id: 'TableData', name: 'Table data', path: '', lua: JSON.stringify(tableB, null, 2)})
+
     return await makeDiffs(codeA, codeB)
   }
 }
@@ -95,4 +132,37 @@ function arrayUnique(array) {
       }
   }
   return a
+}
+
+function sortJSON(obj) {
+  // if a regular array then its already sorted but still sort any child objects
+  if (Array.isArray(obj)) {
+    for (let i = 0; i < obj.length; i++) {
+      if (obj[i] && typeof obj[i] == 'object') {
+        obj[i] = sortJSON(obj[i])
+      }
+    }
+    return obj
+  }
+
+  // sort object as expected
+  var sorted = {}
+  var keys
+  keys = Object.keys(obj)
+  keys.sort(function(key1, key2) {
+    if(key1 < key2) return -1
+    if(key1 > key2) return 1
+    return 0
+  })
+
+  for (var i in keys) {
+    var key = keys[i]
+    if (obj[key] && typeof obj[key] == 'object') {
+      sorted[key] = sortJSON(obj[key])
+    } else {
+      sorted[key] = obj[key]
+    }
+  }
+
+  return sorted
 }

@@ -617,66 +617,6 @@ module.exports = function (fastify, opts, next) {
     code.version = 1
     code.versionString = '1.0.0'
 
-    // add additional fields to WA and check for language terms
-    if (wago.type === 'WEAKAURAS2' || wago.type === 'CLASSIC-WEAKAURA') {
-      json.wagoID = doc._id
-      json.d.url = doc.url + '/1'
-      json.d.version = 1
-      delete json.d.ignoreWagoUpdate // remove as this is a client-level setting for the WA companion app
-      delete json.d.skipWagoUpdate
-
-      var keyTerms = []
-      if (json.d.language) {
-        var locales = Object.keys(json.d.language)
-        for (let i = 0; i < locales.length; i++) {
-          var terms = Object.entries(json.d.language[locales[i]])
-          for (let k = 0; k < terms.length; k++) {
-            await WagoTranslation.setTranslation(doc._id, locales[i], terms[k][0], terms[k][1])
-            keyTerms.push(terms[k][0])
-          }
-        }
-      }
-      if (json.c) {
-        for (var i = 0; i < json.c.length; i++) {
-          json.c[i].url = doc.url + '/1'
-          json.c[i].version = 1
-          delete json.c[i].ignoreWagoUpdate
-          delete json.c[i].skipWagoUpdate
-
-          if (json.c[i].language) {
-            var locales = Object.keys(json.c[i].language)
-            for (let i = 0; i < locales.length; i++) {
-              var terms = Object.entries(json.c[i].language[locales[i]])
-              for (let k = 0; k < terms.length; k++) {
-                await WagoTranslation.setTranslation(doc._id, locales[i], terms[k][0], terms[k][1])
-                keyTerms.push(terms[k][0])
-              }
-            }
-          }
-        }
-      }
-      await WagoTranslation.updateMany({wagoID: doc._id, key: {$nin: keyTerms}}, {active: false})
-      code.encoded = await lua.JSON2WeakAura(json)
-      code.json = JSON.stringify(json)
-    }
-    else if (wago.type === 'PLATER') {
-      if (Array.isArray(json)) {
-        var tbl = {}
-        json.forEach((v, k) => {
-          tbl[''+(k+1)] = v
-        })
-        json = tbl
-      }
-      json.url = doc.url + '/1'
-      json.version = 1
-      json.semver = '1.0.0'
-      code.encoded = await lua.JSON2Plater(json)
-      code.json = JSON.stringify(json)
-    }
-    else if (wago.type === 'MDT' && code.encoded.match(/^!/)) {
-      code.encoded = await lua.JSON2MDT(json)
-    }
-
     if (wago.encrypted && req.body.cipherKey) {
       code.encoded = crypto.AES.encrypt(code.encoded, req.body.cipherKey)
       code.json = crypto.AES.encrypt(code.json, req.body.cipherKey)
@@ -750,62 +690,8 @@ module.exports = function (fastify, opts, next) {
       req.scanWA = scan
 
       wago.regionType = json.d.regionType
-      json.d.url = wago.url + '/' + wago.latestVersion.iteration
-      json.d.version = wago.latestVersion.iteration
-      json.d.semver = versionString
-      json.wagoID = wago._id
-      delete json.d.ignoreWagoUpdate // remove as this is a client-level setting for the WA companion app
-      delete json.d.skipWagoUpdate
 
-      var keyTerms = []
-      if (json.d.language) {
-        var locales = Object.keys(json.d.language)
-        for (let i = 0; i < locales.length; i++) {
-          var terms = Object.entries(json.d.language[locales[i]])
-          for (let k = 0; k < terms.length; k++) {
-            await WagoTranslation.setTranslation(wago._id, locales[i], terms[k][0], terms[k][1])
-            keyTerms.push(terms[k][0])
-          }
-        }
-      }
-      if (json.c) {
-        for (var i = 0; i < json.c.length; i++) {
-          json.c[i].url = wago.url + '/' + wago.latestVersion.iteration
-          json.c[i].version = wago.latestVersion.iteration
-          json.c[i].semver = versionString
-          delete json.c[i].ignoreWagoUpdate
-          delete json.c[i].skipWagoUpdate
-
-          if (json.c[i].language) {
-            var locales = Object.keys(json.c[i].language)
-            for (let i = 0; i < locales.length; i++) {
-              var terms = Object.entries(json.c[i].language[locales[i]])
-              for (let k = 0; k < terms.length; k++) {
-                await WagoTranslation.setTranslation(wago._id, locales[i], terms[k][0], terms[k][1])
-                keyTerms.push(terms[k][0])
-              }
-            }
-          }
-        }
-      }
-      await WagoTranslation.updateMany({wagoID: wago._id, key: {$nin: keyTerms}}, {active: false})
-
-      code.encoded = await lua.JSON2WeakAura(json)
-      code.json = JSON.stringify(json)
-    }
-    else if (wago.type === 'PLATER') {
-      var json = JSON.parse(scan.decoded)
-      if (Array.isArray(json)) {
-        var tbl = {}
-        json.forEach((v, k) => {
-          tbl[''+(k+1)] = v
-        })
-        json = tbl
-      }
-      json.url = wago.url + '/' + wago.latestVersion.iteration
-      json.version = wago.latestVersion.iteration
-      json.semver = versionString
-      code.encoded = await lua.JSON2Plater(json)
+      code.encoded = scan.input
       code.json = JSON.stringify(json)
     }
     else {

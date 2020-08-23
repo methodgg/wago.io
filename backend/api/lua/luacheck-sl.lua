@@ -39,6 +39,7 @@ std = {
     "UninviteUnit",
   },
   read_globals = {
+    "Wago",
     -- common addons
     "BigWigs",
     "BigWigsLoader",

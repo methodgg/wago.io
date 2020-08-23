@@ -44,6 +44,8 @@ module.exports = (fastify, opts, next) => {
       await blog.save()
       res.send({success: true, blog: blog})
     }
+
+    taskQueue.add('UpdateLatestNews')
   })
 
   next()

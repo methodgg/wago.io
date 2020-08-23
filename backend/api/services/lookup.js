@@ -669,120 +669,65 @@ module.exports = function (fastify, opts, next) {
       }
     }
 
-    if (code.luacheckVersion || 1 < luacheck.Version) {
+    if (!code.processVersion || code.processVersion < 2) {
       code.luacheck = null
+      if (doc.type.match(/SNIPPET|WEAKAURA|PLATER/) && req.query.qupdate) {
+        var q = await taskQueue.getWaiting(0, 500)
+        var qa = await taskQueue.getActive(0, 20)
+        for (let i = 0; i < q.length; i++) {
+          if (req.query.qupdate == q[i].id) {
+            return res.send({Q: true, position: i+2}) // 0 index + 2 = 2nd in line if first in waiting
+          }
+        }
+        for (let i = 0; i < qa.length; i++) {
+          return res.send({Q: true, position: 1}) // 1 = currently processing
+        }
+        return res.send({Q: true, position: '500+'}) // TODO: Add some reporting because if the queue ever gets this high something is wrong
+      }
     }
 
-    var codeUpdated = false
     if (doc.type === 'SNIPPET') {
-      wagoCode.lua = code.lua
-      wagoCode.version = code.version
-      wagoCode.versionString = versionString
-      wagoCode.changelog = code.changelog
       if (!code.luacheck) {
-        try {
-          JSON.parse(code.lua) // TODO: can we convert this into an actual WA/etc?
-          code.luacheck = '{}'
-        }
-        catch (e) {
-          code.luacheck = JSON.stringify(await luacheck.Lua(code.lua))
-          code.luacheckVersion = luacheck.Version
-        }
-        await code.save()
-      }
-      wagoCode.luacheck = code.luacheck
-    }
-    else if (doc.type === 'ERROR') {
-      if (code.json) {
-        wagoCode.json = code.json
+        var q = await taskQueue.add('ProcessCode', {id: doc._id, version: code.version}, {priority: req.user && req.user.access.queueSkip && 2 || 5})
+        wagoCode.Q = q.id
       }
       else {
-        wagoCode.text = code.text
+        wagoCode.luacheck = code.luacheck
       }
     }
     else if (doc.type === 'WEAKAURAS2' || doc.type === 'CLASSIC-WEAKAURA') {
       var json = JSON.parse(code.json)
-      var compare = {}
       // check for any missing data
-      if (code.version && (!code.encoded || ((json.d.version !== code.version || json.d.url !== doc.url + '/' + code.version) || (json.c && json.c[0].version !== code.version) || (json.d.semver !== code.versionString)))) {
-        json.d.url = doc.url + '/' + code.version
-        json.d.version = code.version
-        json.d.semver = code.versionString
-
-        if (json.c) {
-          for (let i = 0; i < json.c.length; i++) {
-            json.c[i].url = doc.url + '/' + code.version
-            json.c[i].version = code.version
-            json.c[i].semver = code.versionString
-          }
-        }
-
-        code.json = JSON.stringify(json)
-        var encoded = await lua.JSON2WeakAura(code.json)
-        if (encoded) {
-          code.encoded = encoded
-          codeUpdated = true
-        }
+      if (code.version && (!code.encoded || ((json.d.version !== code.version || json.d.url !== doc.url + '/' + code.version) || (json.c && json.c[0].version !== code.version) || (json.d.semver !== code.versionString))) || !code.luacheck) {
+        var q = await taskQueue.add('ProcessCode', {id: doc._id, version: code.version}, {priority: req.user && req.user.access.queueSkip && 2 || 5})
+        wagoCode.Q = q.id
       }
-        
-      if (!code.luacheck) {
-        code.luacheckVersion = luacheck.Version
-        code.luacheck = JSON.stringify(await luacheck.WeakAuras(code.json, doc.game))
-        codeUpdated = true
+      else {
+        wagoCode.luacheck = code.luacheck
       }
-      wagoCode.luacheck = code.luacheck
-      wagoCode.compare = compare
-      wagoCode.json = code.json
-      wagoCode.encoded = code.encoded
-      wagoCode.version = code.version
-      wagoCode.versionString = versionString
-      wagoCode.changelog = code.changelog
     }
     else if (doc.type === 'PLATER') {
       var json = JSON.parse(code.json)
-      var compare = {}
       // check for any missing data
-      if (code.version && (!code.encoded || (json.version !== code.version))) {
-        if (Array.isArray(json)) {
-          var tbl = {}
-          json.forEach((v, k) => {
-            tbl[''+(k+1)] = v
-          })
-          json = tbl
-        }
-        json.url = doc.url + '/' + code.version
-        json.version = code.version
-        json.semver = code.versionString
-        
-        code.json = JSON.stringify(json)
-        var encoded = await lua.JSON2Plater(json)
-        if (encoded) {
-          code.encoded = encoded
-          codeUpdated = true
-        }
+      if (!code.version || json.version !== code.version || !code.luacheck) {
+        var q = await taskQueue.add('ProcessCode', {id: doc._id, version: code.version}, {priority: req.user && req.user.access.queueSkip && 2 || 5})
+        wagoCode.Q = q.id
       }
-      if (!code.luacheck) {
-        code.luacheckVersion = luacheck.Version
-        code.luacheck = JSON.stringify(await luacheck.Plater(code.json))
-        codeUpdated = true
+      else {
+        wagoCode.luacheck = code.luacheck
       }
-      wagoCode.luacheck = code.luacheck
-      wagoCode.json = code.json
-      wagoCode.encoded = code.encoded
-      wagoCode.version = code.version
-      wagoCode.versionString = versionString
-      wagoCode.changelog = code.changelog
-    }
-    else {
-      wagoCode.json = code.json
-      wagoCode.encoded = code.encoded
-      wagoCode.version = code.version
-      wagoCode.versionString = versionString
-      wagoCode.changelog = code.changelog
     }
 
-    if (codeUpdated) {
-      await code.save()
+    wagoCode.lua = code.lua
+    wagoCode.json = code.json
+    wagoCode.text = code.text
+    wagoCode.encoded = code.encoded
+    wagoCode.version = code.version
+    wagoCode.versionString = versionString
+    wagoCode.changelog = code.changelog
+
+    if (wagoCode.Q) {
+      return res.send(wagoCode)
     }
     res.cache(604800).send(wagoCode)
   })
@@ -859,8 +804,8 @@ module.exports = function (fastify, opts, next) {
       return res.code(404).send({error: "page_not_found"})
     }
 
-    const doc = await Blog.findOne({_id: req.query.id, publishStatus: 'publish'}).populate('_userId').exec()
-    if (doc) {
+    const doc = await Blog.findOne({_id: req.query.id}).populate('_userId').exec()
+    if (doc && (doc.publishStatus || (req.user && req.user.isAdmin && req.user.isAdmin.blog))) {
       res.cache(300).send({
         content: doc.content,
         date: doc.date,

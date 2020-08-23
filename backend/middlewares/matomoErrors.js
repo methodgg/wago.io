@@ -3,6 +3,9 @@ module.exports = function (error, label) {
     // axios error include the url
     label = 'Axios ' + error.config.url
   }
+  if (typeof error === 'string') {
+    error = {message: error}
+  }
   if (error.response && error.response.data && error.response.status) {
     error.message = error.response.status + ': ' + error.response.data
   }
@@ -12,8 +15,7 @@ module.exports = function (error, label) {
     e_n: error.message
   }
   if (config.env === 'development') {
-    console.error(label || '')
-    console.error(error)
+    console.error(err)
     return
   }
   if (this && this.req && this.req.track) {
