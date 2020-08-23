@@ -90,14 +90,15 @@ const startServer = async () => {
       else {
         await runTask(job.name, job.data)
       }
-    })
+    }, {connection: config.redis})
     updateLocalCache.run()
 
     new QueueScheduler('taskQueue')
     const worker = new Worker('taskQueue', async (job) => {
       await runTask(job.name, job.data)
     }, {
-      concurrency: 3
+      concurrency: 3,
+      connection: config.redis
     })
     // localWorker.on('completed', (job) => {
     //   console.log(`${job.id} ${job.name} has completed!`);
