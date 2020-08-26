@@ -18,14 +18,27 @@ module.exports = {
     tableA.semver = ''
     tableA.url = ''
     tableA.version = ''
-    codeA.unshift({id: 'TableData', name: 'Table data', path: '', lua: JSON.stringify(tableA, null, 2)})
 
     const codeB = detectCode.Plater(jsonB)
     var tableB = sortJSON(jsonB)
     tableB.semver = ''
     tableB.url = ''
     tableB.version = ''
-    codeB.unshift({id: 'TableData', name: 'Table data', path: '', lua: JSON.stringify(tableB, null, 2)})
+    for (const c of codeA) {
+      if (typeof c === 'object' && c.path) {
+        eval(`tableA.${c.path} = ''`)
+        eval(`tableB.${c.path} = ''`)
+      }
+    }
+    for (const c of codeB) {
+      if (typeof c === 'object' && c.path) {
+        eval(`tableA.${c.path} = ''`)
+        eval(`tableB.${c.path} = ''`)
+      }
+    }
+
+    codeA.push({id: jsonA['1'], name: 'Table data', path: '', lua: JSON.stringify(tableA, null, 2)})
+    codeB.push({id: jsonA['1'], name: 'Table data', path: '', lua: JSON.stringify(tableB, null, 2)})
     return await makeDiffs(codeA, codeB)
   },
 
@@ -48,7 +61,6 @@ module.exports = {
         tableA.c[i].version = ''
       }
     }
-    codeA.unshift({id: 'TableData', name: 'Table data', path: '', lua: JSON.stringify(tableA, null, 2)})
 
     const codeB = detectCode.WeakAura(jsonB)
     var tableB = sortJSON(jsonB)
@@ -62,7 +74,29 @@ module.exports = {
         tableB.c[i].version = ''
       }
     }
-    codeB.unshift({id: 'TableData', name: 'Table data', path: '', lua: JSON.stringify(tableB, null, 2)})
+    for (const code of codeA) {
+      if (typeof code === 'object' && code.path && code.ix && code.ix.table === 'c') {
+        eval(`tableA.c[${code.ix.index}].${code.path} = ''`)
+        eval(`tableB.c[${code.ix.index}].${code.path} = ''`)
+      }
+      if (typeof code === 'object' && code.path) {
+        eval(`tableA.d.${code.path} = ''`)
+        eval(`tableB.d.${code.path} = ''`)
+      }
+    }
+    for (const code of codeB) {
+      if (typeof code === 'object' && code.path && code.ix && code.ix.table === 'c') {
+        eval(`tableA.c[${code.ix.index}].${code.path} = ''`)
+        eval(`tableB.c[${code.ix.index}].${code.path} = ''`)
+      }
+      if (typeof code === 'object' && code.path) {
+        eval(`tableA.d.${code.path} = ''`)
+        eval(`tableB.d.${code.path} = ''`)
+      }
+    }
+    
+    codeA.push({id: jsonA.d.id, name: 'Table data', path: '', lua: JSON.stringify(tableA, null, 2)})
+    codeB.push({id: jsonA.d.id, name: 'Table data', path: '', lua: JSON.stringify(tableB, null, 2)})
 
     return await makeDiffs(codeA, codeB)
   }
