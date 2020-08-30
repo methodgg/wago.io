@@ -17,7 +17,7 @@ module.exports = {
     var result = {}
     var fileMap = {}
     for (let i = 0; i < code.length; i++) {
-      if (typeof code[i] !== 'object' || !code[i].lua || code[i].skipLuacheck) {
+      if (typeof code[i] !== 'object' || !code[i].lua || typeof code[i].lua !== 'string' || code[i].skipLuacheck) {
         continue
       }
       var key = `${code[i].id}: ${code[i].name}`
