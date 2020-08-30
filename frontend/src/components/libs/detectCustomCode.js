@@ -188,7 +188,7 @@ module.exports = {
       }
       else {
         // primary trigger (old format)
-        if (item.trigger && item.trigger.type === 'custom' && item.trigger.custom.trim().length) {
+        if (item.trigger && item.trigger.type === 'custom' && item.trigger.custom && item.trigger.custom.trim().length) {
           if (func.indexOf(item.id) < 0) {
             func.push(item.id)
           }
@@ -272,7 +272,7 @@ module.exports = {
       // conditions
       if (item.conditions && item.conditions.length) {
         for (let k = 0; k < item.conditions.length; k++) {
-          if (item.conditions[k].changes && item.conditions[k].changes.length) {
+          if (item.conditions[k] && item.conditions[k].changes && item.conditions[k].changes.length) {
             for (let k2 = 0; k2 < item.conditions[k].changes.length; k2++) {
               if (checkType(item.conditions[k].changes[k2]) === 'object' && item.conditions[k].changes[k2].property === 'customcode' && item.conditions[k].changes[k2].value && item.conditions[k].changes[k2].value.custom) {
                 func.push({ id: item.id, name: `Condition ${k+1} - ${k2+1}`, ix: ix, path: `conditions[${k}].changes[${k2}].value.custom`, lua: item.conditions[k].changes[k2].value.custom })
