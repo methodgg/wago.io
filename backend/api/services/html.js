@@ -59,7 +59,7 @@ module.exports = function (fastify, opts, next) {
       title: 'Wago.io',
       description: 'Wago.io is a database of sharable World of Warcraft addon elements',
       url: req.query.url,
-      image: 'https://media.wago.io/site/twitter-card-bg.jpg'
+      image: 'https://media.wago.io/site/wago-card-standard.jpg'
     }
     if (req.query.url && req.query.url.match(/wago.io\/([^\/]+)/)) {
       const wagoID = req.query.url.match(/wago.io\/([^\/]+)/)
@@ -72,15 +72,14 @@ module.exports = function (fastify, opts, next) {
       else if (doc) {
         data.title = escapeHTML(doc.name)
         if (doc.description) {
-          // remove line breaks and bbcode tags
-          
+          // remove line breaks and bbcode tags          
           data.description = escapeHTML(doc.description.replace(/\n/g, ' ').replace(/\[\/?(?:b|center|code|color|face|font|i|justify|large|left|li|list|noparse|ol|php|quote|right|s|size|small|sub|sup|taggeduser|table|tbody|tfoot|thead|td|th|tr|u|ul|url|\*).*?\]/g, ''))
         }
         if (config.env === 'development') {
-          data.image = 'http://io:3030/html/twitter-card-image?id=' + doc._id
+          data.image = 'http://io:3030/html/card-image?id=' + doc._id
         }
         else {
-          data.image = 'https://data.wago.io/html/twitter-card-image?id=' + doc._id
+          data.image = 'https://data.wago.io/html/card-image?id=' + doc._id
         }
       }
     }
@@ -89,10 +88,11 @@ module.exports = function (fastify, opts, next) {
   })
 
   // generate image for twitter or disord preview
-  fastify.get('/twitter-card-image', async (req, res) => {
+  fastify.get('/card-image', async (req, res) => {
     if (!req.query.id) {
-      res.code(404)
-      res.send('No image here')
+      img = await image.createCard(`../site/wago-card-standard.jpg`)
+      res.header('Content-Type', 'image/jpeg')
+      res.send(img)
       return
     }
     const doc = await WagoItem.lookup(req.query.id)
@@ -101,29 +101,50 @@ module.exports = function (fastify, opts, next) {
       res.send('No image here')
       return
     }
-    if (doc.private) {
+    if (doc.private || doc.encrypted || doc.restricted) {
       res.code(404)
       res.send('No content here!')
       return
     }
-    const screen = await Screenshot.findForWago(req.query.id, true)
-    if (screen && screen.localFile) {
-      if (doc.type === 'WEAKAURAS2') {
-        doc.type = 'WEAKAURA'
+    const screen = await Screenshot.findForWago(doc._id, true)
+    if (doc.type === 'WEAKAURAS2') {
+      doc.type = 'WEAKAURA'
+    }
+    else if (doc.type === 'MDT') {
+      doc.type = 'MDT Route'
+    }
+    var user
+    if (doc._userId) {
+      user = await User.findById(doc._userId).exec()
+      if (user) {
+        user = {name: user.account.username, avatar: user.profile.avatar.gif || user.profile.avatar.png}
       }
-      var user
-      if (doc._userId) {
-        user = await User.findById(doc._userId).exec()
-        if (user) {
-          user = {name: user.account.username, avatar: user.profile.avatar.gif || user.profile.avatar.png}
+    }
+    var internalImg = (req.headers.referer || '').match(/^https?:\/\/(io:8080|wago.io)/)
+    // const img = await image.createTwitterCard(`/${screen.auraID}/${screen.localFile}`, doc.name, doc.type, user)
+    var img 
+    if (screen && screen.localFile) {
+      img = await image.createCard(`/${screen.auraID}/${screen.localFile}`, doc.name, doc.type, user, internalImg)
+    }
+    else if (doc.type === 'MDT Route') {
+      for (const cat of doc.categories) {
+        var mdtID = cat.match(/^mdtdun(\d+)$/)
+        if (mdtID && mdtID[1] && (parseInt(mdtID[1]) >= 15 || parseInt(mdtID[1]) <= 26)) {
+          img = await image.createCard(`../mdt/wago-card-mdt${mdtID[1]}.jpg`, doc.name, doc.type, user, internalImg)
+          break
         }
       }
-      const img = await image.createTwitterCard(`/${screen.auraID}/${screen.localFile}`, doc.name, doc.type, user)
-      if (img) {
-        res.header('Content-Type', 'image/jpeg')
-        res.cache(86400).send(img)
-        return
-      }
+      if (!img) {
+        img = await image.createCard(`../site/wago-card-standard.jpg`, doc.name, doc.type, user, internalImg)
+      }      
+    }
+    else {
+      img = await image.createCard(`../site/wago-card-standard.jpg`, doc.name, doc.type, user, internalImg)
+    }
+    if (img) {
+      res.header('Content-Type', 'image/jpeg')
+      res.cache(43200).send(img)
+      return
     }
 
     res.code(404)
