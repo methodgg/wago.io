@@ -5,10 +5,10 @@ const mongoose = require('mongoose'),
 
 const Schema = new mongoose.Schema({
   _id : { type: String, default: shortid.generate, es_indexed: true },
-  custom_slug : { type: String, index: true, es_indexed: true, maxlength: 128 },
+  custom_slug : { type: String, index: true, es_indexed: true },
   _userId : { type: mongoose.Schema.Types.ObjectId, ref: 'Users', es_indexed: true },
 
-  name : { type: String, index: true, es_indexed: true, maxlength: 128},
+  name : { type: String, index: true, es_indexed: true },
   description : { type: String, default: "", es_indexed: true },
   description_format : { type: String, default: 'bbcode' },
   type : { type: String, index: true, es_indexed: true },
@@ -162,6 +162,15 @@ Schema.statics.randomOfTheMoment = async function(count, n) {
     }
   }
 }
+
+Schema.pre('validate', function() {
+  if (this.custom_slug && this.custom_slug.length > 128) {
+    this.custom_slug = this.custom_slug.substr(0, 128)
+  }
+  if (this.name.length > 128) {
+    this.name = this.name.substr(0, 128)
+  }
+})
 
 const WagoItem = mongoose.model('WagoItem', Schema)
 WagoItem.esSearch = bluebird.promisify(WagoItem.esSearch, {context: WagoItem})

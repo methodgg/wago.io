@@ -5,7 +5,7 @@ const mongoose = require('mongoose'),
 
 const Schema = new mongoose.Schema({
   account : {
-    username : { type: String, index: true, es_index: true, maxlength: 128 },
+    username : { type: String, index: true, es_index: true },
     password : String,
     hidden : { type: Boolean, default: false, es_index: true },
     default_aura_visibility : { type: String, default: "Public" },
@@ -309,6 +309,12 @@ Schema.virtual('roleclass').get(function() {
 // zzzzzz
 Schema.virtual('roleClass').get(function() {
   return this.roleclass
+})
+
+Schema.pre('validate', function() {
+  if (this.account.username.length > 128) {
+    this.account.username = this.account.username.substr(0, 128)
+  }
 })
 
 // add Mongoosastic plugin (elastic search)

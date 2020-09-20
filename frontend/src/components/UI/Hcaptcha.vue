@@ -1,11 +1,9 @@
 <template>
   <div>
-    <div id='hcap-script' />
+    <div id="hcap-script" />
   </div>
 </template>
 <script>
-// https://github.com/hCaptcha/vue-hcaptcha/blob/master/src/component/vue-hcaptcha.vue
-
 const CaptchaScript = (cb) => {
   let script = document.createElement('script')
   script.src = 'https://hcaptcha.com/1/api.js?render=explicit'
@@ -17,6 +15,13 @@ const CaptchaScript = (cb) => {
 module.exports = {
   name: 'VueHcaptcha',
   props: {
+    sitekey: {
+      type: String,
+      required: true
+    },
+    theme: {
+      type: String
+    },
     size: {
       type: String
     },
@@ -41,8 +46,8 @@ module.exports = {
     onloadScript () {
       // set options for VueHcaptcha to be passed to the onload script
       let opt = {
-        sitekey: '69d55f48-8b59-4e20-9dc5-a865baac19cf',
-        theme: this.$store.state.theme === 'dark' ? 'dark' : 'light',
+        sitekey: this.sitekey,
+        theme: this.theme ? this.theme : '',
         size: this.size ? this.size : '',
         tabindex: this.tabindex ? this.tabindex : '',
         callback: this.onVerify,

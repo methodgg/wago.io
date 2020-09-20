@@ -22,7 +22,7 @@
                   <md-input type="password" id="login-password" v-model="loginPass"></md-input>
                 </md-input-container>
               
-                <hcaptcha v-if="loginName" @verify="onVerifyCaptcha" />
+                <hcaptcha v-if="loginName && $env !== 'development'" :sitekey="hcaptchaSiteKey" theme="dark" @verify="onVerifyCaptcha"></hcaptcha>
                 
                 <md-button class="md-raised md-primary" type="submit">{{ $t("Log in") }}</md-button>
               </form>
@@ -49,7 +49,7 @@
                 <md-input type="password" id="create-password2" v-model="createPass2"></md-input>
               </md-input-container>
               
-              <hcaptcha v-if="createName" @verify="onVerifyCaptcha" />
+              <hcaptcha v-if="createName && $env !== 'development'" :sitekey="hcaptchaSiteKey" theme="dark" @verify="onVerifyCaptcha"></hcaptcha>
 
               <md-button class="md-raised md-primary" type="submit">{{ $t("Create account") }}</md-button>
             </form>
@@ -77,7 +77,8 @@ export default {
       createPass: '',
       createPass2: '',
       loginName: '',
-      loginPass: ''
+      loginPass: '',
+      hcaptchaSiteKey: '69d55f48-8b59-4e20-9dc5-a865baac19cf'
     }
   },
   methods: {
@@ -107,7 +108,7 @@ export default {
       })
     },
     createAcct: function () {
-      if (!this.captchaValid) {
+      if (!this.captchaValid && this.$env !== 'development') {
         console.log('NOT VALID CAPTCHA')
         return
       }

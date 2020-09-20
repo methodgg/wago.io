@@ -26,7 +26,8 @@ export default {
       adSizes: [[1, 1]],
       renderVisibleOnly: false,
       stickiedTop: false,
-      debounce: Date.now()
+      debounce: Date.now(),
+      fixFrame: null
     }
   },
 
@@ -113,7 +114,7 @@ export default {
         return
       }
       setTimeout(() => {
-        if (this.format === 'video') {
+        if (this.format === 'video' && this.$env !== 'development') {
           window['nitroAds'].createAd(`wagoVideoAd`, {
             format: 'video-ac',
             mediaQuery: '(min-width: 1025px)',
@@ -169,6 +170,24 @@ export default {
     else {
       console.log('unknown ad', this.ad)
     }
+    this.fixFrame = setInterval(() => {
+      var iframe = document.querySelector('#' + this.ad + '.ad-box iframe')
+      if (!iframe) {
+        return
+      }
+      var height = getComputedStyle(iframe).height
+      if (!height || height === '150px') { // 150 is the to-spec default iframe height
+        height = iframe.getAttribute('height')
+        if (height) {
+          iframe.style.height = parseInt(height) + 'px'
+        }
+      }
+    }, 1000)
+  },
+  beforeDestroy: function () {
+    if (this.fixFrame) {
+      clearInterval(this.fixFrame)
+    }
   },
   watch: {
     $route (to, from) {
@@ -192,7 +211,7 @@ export default {
       }
       var isEmbed = document.getElementById('embed-body')
       var user = this.$store.state.user
-      if (isEmbed || (user && user.hideAds) || this.screenWidth < this.adWidth + 32) {
+      if (isEmbed || (!user || user.hideAds) || this.screenWidth < this.adWidth + 32) {
         return false
       }
 
@@ -226,8 +245,6 @@ export default {
 .wago-ad-container.fixed-bottom {position: fixed; bottom: 0; left: calc(50% - 368px); z-index: 9;}
 .wago-ad-container-728x90.fixed-bottom {left: calc(50% - 368px);}
 .wago-ad-container-320x50.fixed-bottom {left: calc(50% - 160px);}
-
-.wago-ad-container.fixed-bottom + div {margin-bottom: 100px; min-height: 1px;}
 
 #topwagos .wago-ad-container { margin-left: 4px; box-shadow: 0 1px 5px rgba(0, 0, 0, 0.6), 0 2px 2px rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.12)}
 #wago_mobile_anchor {width:320px; height:50px;}

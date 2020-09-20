@@ -233,7 +233,13 @@ async function createUser (req, res) {
   }
 
   try {
-    var valid = await hcaptchaVerify(config.hcaptcha.secret, req.body.captcha)
+    var valid
+    if (config.env === 'development') {
+      valid = {success: true}
+    }
+    else {
+      valid = await hcaptchaVerify(config.hcaptcha.secret, req.body.captcha)
+    }
     if (valid && valid.success) {
       var user = new User()
       user.account.username = req.body.username
