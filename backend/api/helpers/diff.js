@@ -76,22 +76,34 @@ module.exports = {
     }
     for (const code of codeA) {
       if (typeof code === 'object' && code.path && code.ix && code.ix.table === 'c') {
-        eval(`tableA.c[${code.ix.index}].${code.path} = ''`)
-        eval(`tableB.c[${code.ix.index}].${code.path} = ''`)
+        try {
+          eval(`tableA.c[${code.ix.index}].${code.path} = ''`)
+          eval(`tableB.c[${code.ix.index}].${code.path} = ''`)
+        }
+        catch (e) {}
       }
       if (typeof code === 'object' && code.path) {
-        eval(`tableA.d.${code.path} = ''`)
-        eval(`tableB.d.${code.path} = ''`)
+        try {
+          eval(`tableA.d.${code.path} = ''`)
+          eval(`tableB.d.${code.path} = ''`)
+        }
+        catch (e) {}
       }
     }
     for (const code of codeB) {
       if (typeof code === 'object' && code.path && code.ix && code.ix.table === 'c') {
-        eval(`tableA.c[${code.ix.index}].${code.path} = ''`)
-        eval(`tableB.c[${code.ix.index}].${code.path} = ''`)
+        try {
+          eval(`tableA.c[${code.ix.index}].${code.path} = ''`)
+          eval(`tableB.c[${code.ix.index}].${code.path} = ''`)
+        }
+        catch (e) {}
       }
       if (typeof code === 'object' && code.path) {
-        eval(`tableA.d.${code.path} = ''`)
-        eval(`tableB.d.${code.path} = ''`)
+        try {
+          eval(`tableA.d.${code.path} = ''`)
+          eval(`tableB.d.${code.path} = ''`)
+        }
+        catch (e) {}
       }
     }
     
