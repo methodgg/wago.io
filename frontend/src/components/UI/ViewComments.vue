@@ -1,8 +1,11 @@
 <template>
   <div id="comments">
     <md-card-actions v-if="User.UID && replyID != -1">
-      <md-button @click="openReply(-1)" id="newCommentButton">
+      <md-button @click="openReply(-1)">
         <md-icon>comment</md-icon> {{ $t("New comment") }}
+      </md-button>
+      <md-button @click="clearAllAlerts()" v-if="hasUnread">
+        <md-icon>clear_all</md-icon> {{ $t("Clear all unread alerts") }}
       </md-button>
     </md-card-actions>
     <md-input-container v-else-if="User.UID">
@@ -135,6 +138,15 @@ export default {
         this.$store.commit('userClearMention', this.comments[commentIndex].cid)
       })
     },
+    clearAllAlerts () {
+      for (let c of this.comments) {
+        if (this.isUnread(c)) {
+          this.http.post('/comments/clear', {comment: c.cid}).then((res) => {
+            this.$store.commit('userClearMention', c.cid)
+          })
+        }
+      }
+    },
     submitComment () {
       var params = {}
       params.wagoID = this.wagoID
@@ -164,6 +176,14 @@ export default {
     },
     deleteCommentConfirmHTML () {
       return '<p>' + this.$t('The following comment will be irreversibly deleted') + '</p><br>' + this.deleteComment.html
+    },
+    hasUnread () {
+      for (let c of this.comments) {
+        if (this.isUnread(c)) {
+          return true
+        }
+      }
+      return false
     }
   }
 }
@@ -171,7 +191,8 @@ export default {
 
 <style>
 #comments .md-card { padding: 0; margin:0 0 16px 0 }
-#comments .md-card-actions { justify-content: start}
+#comments .md-card-actions { display: flex; justify-content: space-between}
+#comments .md-card-actions button { margin: 0 0 8px 0}
 #comments .md-card > p { padding: 16px}
 @media (max-width: 600px) {
   #comments .md-card { margin: 0 }
