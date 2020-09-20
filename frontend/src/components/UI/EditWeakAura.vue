@@ -17,6 +17,7 @@
         </md-input-container>        
       </div>
       <div class="flex-col flex-right">
+        <md-button v-if="editorSelected !== 'tabledata'" @click="formatCode"><md-icon>code</md-icon> {{ $t("Format Lua") }}</md-button>
         <md-menu v-if="groupedWA" md-size="6" md-align-trigger>
           <md-button md-menu-trigger id="extractFromGroupButton"><md-icon>call_missed_outgoing</md-icon> {{ $t("Extract from group") }}</md-button>
           <md-menu-content>
@@ -73,6 +74,7 @@
 <script>
 const semver = require('semver')
 import detectCustomCode from '../libs/detectCustomCode'
+import luamin from '../libs/luamin'
 
 export default {
   name: 'edit-weakaura',
@@ -288,6 +290,12 @@ export default {
       this.http.get('/lookup/wago/luacheck', {id: this.wago._id, version: this.$store.state.wago.code.versionString}).then((res) => {
         this.luacheck = res
       })
+    },
+
+    formatCode: function () {
+      var lua = this.aceEditor.getValue()
+      lua = luamin.Beautify(lua, {})
+      this.aceEditor.setValue(lua, -1)
     },
 
     saveChanges: function () {

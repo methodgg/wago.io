@@ -3,6 +3,7 @@
     <codereview v-if="this.$store.state.wago.code.luacheck && this.$store.state.wago.code.luacheck['Lua: Snippet']" name="Luacheck" :luacheck="true">{{this.$store.state.wago.code.luacheck['Lua: Snippet']}}</codereview>
     <div class="flex-container">
       <div class="flex-col flex-right">
+        <md-button v-if="editorSelected !== 'tabledata'" @click="formatCode"><md-icon>code</md-icon> {{ $t("Format Lua") }}</md-button>
         <md-button @click="exportChanges"><md-icon>open_in_new</md-icon> {{ $t("Export/Fork changes") }}</md-button>
         <md-button v-if="canEdit" @click="generateNextVersionData(); $refs['saveChangesDialog'].open()" ref="saveChangesButton"><md-icon>save</md-icon> {{ $t("Save changes") }}</md-button>
       </div>
@@ -38,6 +39,7 @@
 
 <script>
 const semver = require('semver')
+import luamin from '../libs/luamin'
 // import MonacoEditor from 'vue-monaco'
 
 export default {
@@ -85,6 +87,12 @@ export default {
         maxLines: 100,
         readOnly: true
       })
+    },
+
+    formatCode: function () {
+      var lua = this.aceEditor.getValue()
+      lua = luamin.Beautify(lua, {})
+      this.aceEditor.setValue(lua, -1)
     },
 
     saveChanges: function () {

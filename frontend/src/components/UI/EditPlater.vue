@@ -16,7 +16,8 @@
           </md-select>
         </md-input-container>   
       </div>
-      <div class="flex-col flex-right">       
+      <div class="flex-col flex-right">
+        <md-button v-if="editorSelected !== 'tabledata'" @click="formatCode"><md-icon>code</md-icon> {{ $t("Format Lua") }}</md-button>
         <md-button @click="exportChanges"><md-icon>open_in_new</md-icon> {{ $t("Export/Fork changes") }}</md-button>
         <md-button v-if="canEdit" @click="generateNextVersionData(); $refs['saveChangesDialog'].open()" ref="saveChangesButton"><md-icon>save</md-icon> {{ $t("Save changes") }}</md-button>
       </div>
@@ -53,6 +54,7 @@
 <script>
 const semver = require('semver')
 import detectCustomCode from '../libs/detectCustomCode'
+import luamin from '../libs/luamin'
 
 export default {
   name: 'edit-plater',
@@ -248,6 +250,12 @@ export default {
         maxLines: 100,
         readOnly: true
       })
+    },
+
+    formatCode: function () {
+      var lua = this.aceEditor.getValue()
+      lua = luamin.Beautify(lua, {})
+      this.aceEditor.setValue(lua, -1)
     },
 
     saveChanges: function () {
