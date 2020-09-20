@@ -151,7 +151,7 @@ module.exports = {
               func.push({ id: item.id, name: 'Untrigger (' + k + ')', ix: ix, path: 'triggers[""+' + k + '].untrigger.custom', lua: item.triggers[k].untrigger.custom })
             }
             // duration
-            if (item.triggers[k].trigger.customDuration && item.triggers[k].trigger.customDuration.trim().length) {
+            if (item.triggers[k].trigger.custom_hide === 'custom' && item.triggers[k].trigger.customDuration && item.triggers[k].trigger.customDuration.trim().length) {
               func.push({ id: item.id, name: 'Duration Info (' + k + ')', ix: ix, path: 'triggers[""+' + k + '].trigger.customDuration', lua: item.triggers[k].trigger.customDuration, triggerEveryFrame: item.triggers[k].trigger.check === 'update' })
             }
             // name
