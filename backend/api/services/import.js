@@ -690,7 +690,30 @@ module.exports = function (fastify, opts, next) {
       req.scanWA = scan
 
       wago.regionType = json.d.regionType
+      if ((json.d.tocversion+'').match(/^113/)) {
+        wago.game = 'classic'
+      }
+      else if ((json.d.tocversion+'').match(/^90/)) {
+        wago.game = 'sl' // shadowlands
+      }
+      else {
+        wago.game = 'bfa' // battle for azeroth
+      }
 
+      code.encoded = scan.input
+      code.json = JSON.stringify(json)
+    }
+    else if (scan.type === 'PLATER') {
+      var json = JSON.parse(scan.decoded)
+      if ((json.tocversion+'').match(/^113/)) {
+        wago.game = 'classic'
+      }
+      else if ((json.tocversion+'').match(/^90/)) {
+        wago.game = 'sl' // shadowlands
+      }
+      else {
+        wago.game = 'bfa' // battle for azeroth
+      }
       code.encoded = scan.input
       code.json = JSON.stringify(json)
     }
