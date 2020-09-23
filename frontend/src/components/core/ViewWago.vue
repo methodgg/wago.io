@@ -363,7 +363,7 @@
                       <md-select name="visibilty" id="visibilty" v-model="editVisibility">
                         <md-option value="Public">{{ $t("Public") }}</md-option>
                         <md-option value="Hidden">{{ $t("Hidden (only viewable with link)") }}</md-option>
-                        <md-option value="Encrypted">{{ $t("Encrypted (only viewable with password)") }}</md-option>
+                        <md-option value="Encrypted" v-if="wago.type !== 'COLLECTION'">{{ $t("Encrypted (only viewable with password)") }}</md-option>
                         <md-option value="Restricted" v-if="!decryptKey">{{ $t("Restricted (viewable for select users)") }}</md-option>
                         <md-option value="Private">{{ $t("Private (only you may view)") }}</md-option>
                       </md-select>
