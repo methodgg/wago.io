@@ -368,6 +368,11 @@ module.exports = function (fastify, opts, next) {
     // prepare image
     var data = img.replace(/^data:image\/\w+;base64,/, "")
     var buffer = Buffer.from(data, 'base64')
+    
+    if (Buffer.byteLength(buffer) > 15000000) {
+      return res.code(400).send({error: "too_large"})
+    }
+    
     // TODO: convert to webp when possible
     // TODO: convert gifs to mp4?
 
@@ -486,6 +491,9 @@ module.exports = function (fastify, opts, next) {
       var buffer = Buffer.from(arraybuffer.data, 'binary')
 
       try {
+        if (Buffer.byteLength(buffer) > 15000000) {
+          return res.code(400).send({error: "too_large"})
+        }
         const mime = await magic.detect(buffer)
         const match = mime.match(/^image\/(png|jpg|gif|jpeg)/)
         if (!match) {
