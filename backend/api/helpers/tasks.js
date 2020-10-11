@@ -533,7 +533,7 @@ async function ProcessCode(data) {
       json = sortJSON(json) // sort by key so that we can diff the full table
       code.json = JSON.stringify(json)
       var encoded = await lua.JSON2WeakAura(code.json)
-      if (encoded) {
+      if (encoded && encoded !== 'false') {
         code.encoded = encoded
       }
 
