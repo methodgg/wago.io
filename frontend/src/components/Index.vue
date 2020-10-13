@@ -461,12 +461,6 @@ export default {
   },
   computed: {
     user () {
-      var u = this.$store.state.user
-      if (u.UID && u.name) {
-        this.importAs = 'User'
-        this.visibility = u.defaultImportVisibility
-        this.expire = 'never'
-      }
       return this.$store.state.user
     },
     mdtWeek () {
@@ -479,6 +473,12 @@ export default {
     this.$store.commit('setPageInfo', {
       title: this.$t('Import')
     })
+    var u = this.$store.state.user
+    if (u.UID && u.name) {
+      this.importAs = 'User'
+      this.visibility = u.defaultImportVisibility
+      this.expire = 'never'
+    }
 
     var vue = this
     this.http.get('/lookup/index').then((res) => {
@@ -597,6 +597,14 @@ export default {
     }
   },
   watch: {
+    '$store.state.user': function () {
+      var u = this.$store.state.user
+      if (u.UID && u.name) {
+        this.importAs = 'User'
+        this.visibility = u.defaultImportVisibility
+        this.expire = 'never'
+      }
+    },
     importString: function (val) {
       val = val.trim()
       if (!val || val.match(/%SCAN%/)) {
