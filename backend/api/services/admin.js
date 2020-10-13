@@ -54,8 +54,9 @@ module.exports = (fastify, opts, next) => {
     }
     var data = {}
     data.redis = await redis.info()
-    data.waiting = await taskQueue.getWaiting()
-    data.active = await taskQueue.getActive()
+    data.waiting = await taskQueue.getWaiting(0, 50)
+    data.active = await taskQueue.getActive(0, 50)
+    data.completed = await taskQueue.getCompleted(0, 50)
     res.send(data)
   })
 

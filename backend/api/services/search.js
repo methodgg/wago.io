@@ -93,7 +93,7 @@ module.exports = function (fastify, opts, next) {
     }
 
     // if user is logged in and sort is different from their current config, then update default config
-    if (req.user && req.user.config.searchOptions.sort != sort) {
+    if (req.user && req.user.config.searchOptions.sort != sort && typeof sort === 'string') {
       req.user.config.searchOptions.sort = sort
       updateUser = true
     }

@@ -66,10 +66,15 @@
                 <span>Active Tasks</span>
               </div>
             </md-list-item>
+            <md-list-item @click="LoadStatus('completed')" v-bind:class="{selected: (statusSelected === 'completed')}">
+              <div class="md-list-text-container">
+                <span>Completed Tasks</span>
+              </div>
+            </md-list-item>
           </md-list>
         </md-layout>
         <md-layout md-flex="85">
-          <pre v-html="status[statusSelected]"></pre>
+          <editor v-model="statusJSON" @init="editorInit" :theme="$store.state.user.config.editor" lang="json" width="100%" height="500"></editor>
         </md-layout>
       </md-layout>
 
@@ -93,6 +98,7 @@ import VueMarkdown from 'vue-markdown'
 
 export default {
   components: {
+    editor: require('vue2-ace-editor'),
     'vue-markdown': VueMarkdown
   },
   data: function () {
@@ -105,7 +111,8 @@ export default {
       blogSelected: -1,
       blogID: '',
       statusSelected: 'redis',
-      status: {}
+      status: {redis: ''},
+      statusJSON: ''
     }
   },
   mounted: function () {
@@ -141,8 +148,20 @@ export default {
       }
     },
 
+    editorInit: function (editor) {
+      window.braceRequires()
+      editor.setOptions({
+        autoScrollEditorIntoView: true,
+        scrollPastEnd: true,
+        printMargin: false,
+        minLines: 80,
+        maxLines: 1000
+      })
+    },
+
     LoadStatus (frame) {
       this.statusSelected = frame
+      this.statusJSON = JSON.stringify(this.status[frame], null, 2)
     },
 
     onSubmitBlog () {
@@ -181,6 +200,7 @@ export default {
           if (res.redis.client_list) {
             res.redis.client_list = res.redis.client_list.replace(/\n/g, '<br>                  ')
           }
+          this.statusJSON = JSON.stringify(res.redis, null, 2)
           vue.status = res
         })
       }
