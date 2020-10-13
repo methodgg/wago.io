@@ -707,9 +707,11 @@ async function oAuthLogin(req, res, provider, authUser, callback) {
       req.user.roles.gold_subscriber = true
     }
     makeSession(req, res, {UID: req.user._id}, req.user)
-    await req.user.save()
     if (callback) {
       callback(req.user)
+    }
+    else {      
+      await req.user.save()
     }
     return
   }
@@ -741,9 +743,11 @@ async function oAuthLogin(req, res, provider, authUser, callback) {
     // if user exists but this is a new oauth then save it
     if (req.user) {
       makeSession(req, res, {UID: user._id}, user)
-      await user.save()
       if (callback) {
         callback(user)
+      }
+      else {      
+        await user.save()
       }
       return
     }
@@ -760,9 +764,11 @@ async function oAuthLogin(req, res, provider, authUser, callback) {
       user.search.username = user.account.username.toLowerCase()
 
       makeSession(req, res, {UID: user._id}, user)
-      await user.save()
       if (callback) {
         callback(user)
+      }
+      else {      
+        await user.save()
       }
       return
     }
@@ -795,9 +801,11 @@ async function oAuthLogin(req, res, provider, authUser, callback) {
     oauthUser[provider] = profile
 
     makeSession(req, res, who, oauthUser)
-    await oauthUser.save()
     if (callback) {
       callback(oauthUser)
+    }
+    else {
+      await oauthUser.save()
     }
     return
   }
