@@ -3,7 +3,8 @@
     <div id="admin" v-if="User && User.access.admin">
       <!-- FRAME TOGGLES -->
       <md-button-toggle class="md-accent" md-single>
-        <md-button v-if="User.access.admin.blog || User.access.admin.super" class="md-toggle" @click="toggleFrame('blogpost')">Blog Posts</md-button>
+        <md-button v-if="User.access.admin.blog || User.access.admin.super" :class="{'md-toggle': showPanel === 'blogpost'}" @click="toggleFrame('blogpost')">Blog Posts</md-button>
+        <md-button v-if="User.access.admin.super" :class="{'md-toggle': showPanel === 'status'}" @click="toggleFrame('status')">Status</md-button>
       </md-button-toggle>
     
       <!-- BLOG FRAME -->
@@ -45,6 +46,34 @@
           </md-card>
         </md-layout>
       </md-layout>
+
+      <!-- STATUS FRAME -->
+      <md-layout id="admin-blog-container" v-if="(User.access.admin.super) && showPanel=='status'">
+        <md-layout class="md-left" ref="blogSidebar" id="blog-sidebar" md-flex="15">
+          <md-list class="md-double-line">
+            <md-list-item @click="LoadStatus('redis')" v-bind:class="{selected: (statusSelected === 'redis')}">
+              <div class="md-list-text-container">
+                <span>Redis</span>
+              </div>
+            </md-list-item>
+            <md-list-item @click="LoadStatus('waiting')" v-bind:class="{selected: (statusSelected === 'waiting')}">
+              <div class="md-list-text-container">
+                <span>Waiting Tasks</span>
+              </div>
+            </md-list-item>
+            <md-list-item @click="LoadStatus('active')" v-bind:class="{selected: (statusSelected === 'active')}">
+              <div class="md-list-text-container">
+                <span>Active Tasks</span>
+              </div>
+            </md-list-item>
+          </md-list>
+        </md-layout>
+        <md-layout md-flex="85">
+          <pre v-html="status[statusSelected]"></pre>
+        </md-layout>
+      </md-layout>
+
+
       <md-dialog ref="blogPreviewFrame" id="adminPreviewFrame">
         <md-dialog-title>Preview Content</md-dialog-title>
         <md-dialog-content>
@@ -74,7 +103,9 @@ export default {
       blogContent: '',
       blogPublishStatus: 'draft',
       blogSelected: -1,
-      blogID: ''
+      blogID: '',
+      statusSelected: 'redis',
+      status: {}
     }
   },
   mounted: function () {
@@ -110,6 +141,10 @@ export default {
       }
     },
 
+    LoadStatus (frame) {
+      this.statusSelected = frame
+    },
+
     onSubmitBlog () {
       var blog = {
         title: this.blogTitle,
@@ -132,13 +167,23 @@ export default {
     toggleFrame (frame) {
       this.showPanel = frame
       var vue = this
-      this.http.get('/admin/blogs').then((res) => {
-        if (res.blogs) {
-          res.blogs.forEach((b) => {
-            vue.blogs.push(b)
-          })
-        }
-      })
+      if (frame === 'blogpost') {
+        this.http.get('/admin/blogs').then((res) => {
+          if (res.blogs) {
+            res.blogs.forEach((b) => {
+              vue.blogs.push(b)
+            })
+          }
+        })
+      }
+      else if (frame === 'status') {
+        this.http.get('/admin/status').then((res) => {
+          if (res.redis.client_list) {
+            res.redis.client_list = res.redis.client_list.replace(/\n/g, '<br>                  ')
+          }
+          vue.status = res
+        })
+      }
     }
   }
 }

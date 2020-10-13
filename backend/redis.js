@@ -71,5 +71,20 @@ module.exports = {
     }
   },
   clearWago: (key) => {
+  },
+  info: () => {
+    return new Promise((done) => {
+      try {
+        var info = Object.assign({}, client.server_info)
+        client.client('list', function(err, clients) {
+          info.client_list = clients
+          info.client_list_err = err
+          done(info)
+        })
+      }
+      catch (e) {
+        done(val)
+      }
+    })
   }
 }

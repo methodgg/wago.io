@@ -206,12 +206,12 @@ export default {
       // if (!this.$enableAds) {
       //   return false
       // }
-      if (!this.ad || (this.forMobile && !this.$isMobile) || (!this.forMobile && this.$isMobile)) {
+      if (!this.ad || (this.forMobile && !this.$isMobile) || (!this.forMobile && this.$isMobile) || this.$route.path === '/admin') {
         return false
       }
       var isEmbed = document.getElementById('embed-body')
       var user = this.$store.state.user
-      if (isEmbed || (!user || user.hideAds) || this.screenWidth < this.adWidth + 32) {
+      if (isEmbed || (!Object.keys(user).length || user.hideAds) || this.screenWidth < this.adWidth + 32) {
         return false
       }
 

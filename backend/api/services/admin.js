@@ -1,4 +1,3 @@
-
 module.exports = (fastify, opts, next) => {
   // get all blog posts
   fastify.get('/blogs', async (req, res) => {
@@ -46,6 +45,18 @@ module.exports = (fastify, opts, next) => {
     }
 
     taskQueue.add('UpdateLatestNews')
+  })
+
+  // lists current task queue
+  fastify.get('/status', async (req, res) => {
+    if (!req.user || !req.user.isAdmin.access || (!req.user.isAdmin.blog && !req.user.isAdmin.super)) {
+      return res.code(403).send({error: "forbidden"})
+    }
+    var data = {}
+    data.redis = await redis.info()
+    data.waiting = await taskQueue.getWaiting()
+    data.active = await taskQueue.getActive()
+    res.send(data)
   })
 
   next()
