@@ -2,9 +2,7 @@
   <div id="search-weakaura">
     <md-layout md-row>
       <h2 id="addon-name">WeakAuras -
-        <span @click="isBeta=false" :class="{faded: isBeta}">{{ $t('Battle for Azeroth') }}</span>
-        <md-switch v-model="isBeta" class="md-primary"></md-switch>
-        <span @click="isBeta=true" :class="{faded: !isBeta}">{{ $t('Shadowlands Beta') }}</span>
+        <span>{{ $t('Shadowlands') }}</span>
       </h2>
     </md-layout>
     <md-layout>

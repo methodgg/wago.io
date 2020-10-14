@@ -106,11 +106,11 @@ export default {
     { path: '/admin', component: Admin },
 
     // menus/categories
-    { path: '/weakauras', component: MenuWeakAurasBFA },
-    { path: '/weakauras/:c1', component: Search, props: (route) => ({ contextGame: 'bfa', contextSearch: 'Type: WeakAura' + GetContextTag(route.params) }) },
-    { path: '/weakauras/:c1/:c2', component: Search, props: (route) => ({ contextGame: 'bfa', contextSearch: 'Type: WeakAura' + GetContextTag(route.params) }) },
-    { path: '/weakauras/:c1/:c2/:c3', component: Search, props: (route) => ({ contextGame: 'bfa', contextSearch: 'Type: WeakAura' + GetContextTag(route.params) }) },
-    { path: '/weakauras/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ contextGame: 'bfa', contextSearch: 'Type: WeakAura' + GetContextTag(route.params) }) },
+    { path: '/weakauras', component: MenuWeakAurasShadowlands },
+    { path: '/weakauras/:c1', component: Search, props: (route) => ({ contextGame: 'sl', contextSearch: 'Type: WeakAura' + GetContextTag(route.params) }) },
+    { path: '/weakauras/:c1/:c2', component: Search, props: (route) => ({ contextGame: 'sl', contextSearch: 'Type: WeakAura' + GetContextTag(route.params) }) },
+    { path: '/weakauras/:c1/:c2/:c3', component: Search, props: (route) => ({ contextGame: 'sl', contextSearch: 'Type: WeakAura' + GetContextTag(route.params) }) },
+    { path: '/weakauras/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ contextGame: 'sl', contextSearch: 'Type: WeakAura' + GetContextTag(route.params) }) },
     { path: '/shadowlands-weakauras', component: MenuWeakAurasShadowlands },
     { path: '/shadowlands-weakauras/:c1', component: Search, props: (route) => ({ contextGame: 'sl', contextSearch: 'Type: WeakAura' + GetContextTag(route.params) }) },
     { path: '/shadowlands-weakauras/:c1/:c2', component: Search, props: (route) => ({ contextGame: 'sl', contextSearch: 'Type: WeakAura' + GetContextTag(route.params) }) },
