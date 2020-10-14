@@ -8,6 +8,7 @@ const mkdirp = require('mkdirp-promise')
 const path = require('path')
 const querystring = require('querystring')
 const updateDataCaches = require('../../middlewares/updateLocalCache')
+const Categories = require(__dirname + '/../../../frontend/src/components/libs/categories')
 const detectCode = require(__dirname + '/../../../frontend/src/components/libs/detectCustomCode')
 const luacheck = require('./luacheck')
 
@@ -53,10 +54,6 @@ module.exports = async (task, data) => {
       default:
         throw {name: 'Unknown task', message: 'Unknown task ' + task}
     }
-    logger({
-      e_c: 'Task Complete',
-      e_a: task
-    })
   }
   catch (e) {
     console.log(e)

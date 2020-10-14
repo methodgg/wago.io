@@ -4,6 +4,7 @@ var fastifyOpt = {
   ignoreTrailingSlash: true,
   maxParamLength: 1048576,
   bodyLimit: 1048576 * 15,
+  jsonBodyLimit: 1048576 * 15,
   trustProxy: true
 }
 if (config.env === 'production') {
@@ -19,6 +20,7 @@ const fastify = require('fastify')(fastifyOpt)
 const Redis = require("ioredis")
 global.RedisConnect = new Redis(config.redis)
 const {Queue, Worker, QueueScheduler, QueueEvents} = require('bullmq')
+const Profiler = require('./api/models/Profiler')
 global.taskQueue = new Queue('taskQueue', {connection: RedisConnect})
 global.async = require('async')
 global.axios = require('axios')
@@ -43,6 +45,13 @@ fastify.decorateReply('cache', require('./middlewares/cache'))
 fastify.setErrorHandler(require('./middlewares/errors'))
 
 // --- HOOKS & MIDDLEWARES
+fastify.addHook('onRequest', async (req, res, done) => {
+  await Profiler.startRequest(req)
+  done()
+})
+fastify.addHook('onResponse', (req, res, payload) => {
+  Profiler.logEvent(req.profiler, 'Response', res.statusCode)
+})
 fastify.addHook('preValidation', require('./middlewares/cors'))
 fastify.addHook('preHandler', require('./middlewares/setDefaults'))
 fastify.addHook('preHandler', require('./middlewares/analytics'))
@@ -95,19 +104,35 @@ const startServer = async () => {
     }, {connection: RedisConnect})
     updateLocalCache.run()
 
+    var profilerTasks = {}
     new QueueScheduler('taskQueue', {connection: RedisConnect})
     const worker = new Worker('taskQueue', async (job) => {
-      await runTask(job.name, job.data)
+      await runTask(job.name, job.data, profilerTasks[job.id])
     }, {
       concurrency: 3,
       connection: RedisConnect
     })
-    // localWorker.on('completed', (job) => {
-    //   console.log(`${job.id} ${job.name} has completed!`);
-    // })
-    // localWorker.on('failed', (job, err) => {
-    //   console.log(`${job.id} has failed with ${err.message}`);
-    // })
+    worker.on('active', async (job) => {
+      profilerTasks[job.id] = await Profiler.startTask(job)
+    })
+    worker.on('completed', async (job) => {
+      if (profilerTasks[job.id]) {
+        await Profiler.logEvent(profilerTasks[job.id], 'Complete', 200)
+        delete profilerTasks[job.id]
+      }
+    })
+    worker.on('failed', async (job) => {
+      if (profilerTasks[job.id]) {
+        await Profiler.logEvent(profilerTasks[job.id], 'Failed', 500)
+        delete profilerTasks[job.id]
+      }
+    })
+    worker.on('error', async (job) => {
+      if (profilerTasks[job.id]) {
+        await Profiler.logEvent(profilerTasks[job.id], 'Failed', 500)
+        delete profilerTasks[job.id]
+      }
+    })
 
     // setup simulated crontasks
     if (config.env === 'development' || config.env === 'crontasks') {
