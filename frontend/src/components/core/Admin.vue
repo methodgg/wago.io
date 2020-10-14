@@ -51,6 +51,11 @@
       <md-layout id="admin-blog-container" v-if="(User.access.admin.super) && showPanel=='status'">
         <md-layout class="md-left" ref="blogSidebar" id="blog-sidebar" md-flex="15">
           <md-list class="md-double-line">
+            <md-list-item @click="LoadStatus('requests')" v-bind:class="{selected: (statusSelected === 'requests')}">
+              <div class="md-list-text-container">
+                <span>Requests</span>
+              </div>
+            </md-list-item>
             <md-list-item @click="LoadStatus('redis')" v-bind:class="{selected: (statusSelected === 'redis')}">
               <div class="md-list-text-container">
                 <span>Redis</span>
@@ -74,7 +79,40 @@
           </md-list>
         </md-layout>
         <md-layout md-flex="85">
-          <editor v-model="statusJSON" @init="editorInit" :theme="$store.state.user.config.editor" lang="json" width="100%" height="500"></editor>
+          <editor v-if="statusSelected !== 'requests'" v-model="statusJSON" @init="editorInit" :theme="$store.state.user.config.editor" lang="json" width="100%" height="500"></editor>
+          <md-table-card v-else>
+            <md-table md-sort="timestamp" md-sort-type="desc" @sort="onSort">
+              <md-table-header>
+                <md-table-row>
+                  <md-table-head md-sort-by="timestamp">Time</md-table-head>
+                  <md-table-head md-sort-by="status">Status</md-table-head>
+                  <md-table-head md-sort-by="method">Method</md-table-head>
+                  <md-table-head md-sort-by="host">Host</md-table-head>
+                  <md-table-head md-sort-by="path">Path</md-table-head>
+                  <md-table-head md-sort-by="elapsed" md-numeric>Elapsed</md-table-head>
+                </md-table-row>
+              </md-table-header>
+
+              <md-table-body>
+                <md-table-row v-for="(row, rowIndex) in status.profiler" :key="rowIndex" :md-item="row">
+                  <md-table-cell>{{ row.timestamp | moment('HH:mm.SSS MMM Do YYYY') }}</md-table-cell>
+                  <md-table-cell>{{ row.statusCode || 'Processing' }}</md-table-cell>
+                  <md-table-cell>{{ row.method }}</md-table-cell>
+                  <md-table-cell>{{ row.host }}</md-table-cell>
+                  <md-table-cell>{{ row.route }}</md-table-cell>
+                  <md-table-cell md-numeric>{{ row.elapsed }}ms</md-table-cell>
+                </md-table-row>
+              </md-table-body>
+            </md-table>
+
+            <md-table-pagination
+              md-size="100"
+              md-total="1000"
+              md-page="1"
+              md-label="Rows"
+              md-separator="of"
+              @pagination="onPagination"></md-table-pagination>
+          </md-table-card>
         </md-layout>
       </md-layout>
 
@@ -110,9 +148,10 @@ export default {
       blogPublishStatus: 'draft',
       blogSelected: -1,
       blogID: '',
-      statusSelected: 'redis',
+      statusSelected: 'requests',
       status: {redis: ''},
-      statusJSON: ''
+      statusJSON: '',
+      profiler: []
     }
   },
   mounted: function () {
@@ -197,9 +236,6 @@ export default {
       }
       else if (frame === 'status') {
         this.http.get('/admin/status').then((res) => {
-          if (res.redis.client_list) {
-            res.redis.client_list = res.redis.client_list.replace(/\n/g, '<br>                  ')
-          }
           this.statusJSON = JSON.stringify(res.redis, null, 2)
           vue.status = res
         })

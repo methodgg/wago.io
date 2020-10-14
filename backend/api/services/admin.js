@@ -1,3 +1,5 @@
+const Profiler = require("../models/Profiler")
+
 module.exports = (fastify, opts, next) => {
   // get all blog posts
   fastify.get('/blogs', async (req, res) => {
@@ -57,6 +59,7 @@ module.exports = (fastify, opts, next) => {
     data.waiting = await taskQueue.getWaiting(0, 50)
     data.active = await taskQueue.getActive(0, 50)
     data.completed = await taskQueue.getCompleted(0, 50)
+    data.profiler = await Profiler.find({}).sort({timestamp: -1}).limit(1000)
     res.send(data)
   })
 
