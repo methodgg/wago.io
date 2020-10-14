@@ -411,7 +411,7 @@ module.exports = function (fastify, opts, next) {
 
     // if we changed any default search settings
     if (updateUser && req.user) {
-      req.user.save()
+      await req.user.save()
     }
 
     // check for actual search terms and protect against regex attacks

@@ -3,13 +3,12 @@ const mongoose = require('mongoose'),
 
 const Schema = new mongoose.Schema({
   // automatic _id
-  UID: { type: ObjectId, ref: 'Persons', index: true},
+  UID: { type: ObjectId, index: true},
   scopes: [String],
-  expires: { type: Date, default: +new Date() + 90*24*60*60*1000 },
+  expires: { type: Date, default: +new Date() + 90*24*60*60*1000, expires: 1 },
   forceUpdate: Boolean,
   requireLogin: Boolean,
-  userAgent: String,
-  IpAddress: [String]
+  userAgent: String
 }, {timestamps: true})
 
 /**
@@ -18,14 +17,6 @@ const Schema = new mongoose.Schema({
  */ 
 Schema.methods.requireUserUpdate = function(UID) {
   this.update({"UID": UID}, {forceUpdate: true}, {multi: true})
-}
-
-/**
- * Method UserSessions.addIpAddress(UID)
- * Adds IP address to user's session (to track session locations for mobile devices)
- */ 
-Schema.methods.addIpAddress = function(SID, IpAddress) {
-  this.update({"SID": SID}, {$addToSet: { IpAddress: IpAddress }})
 }
 
 const UserSessions = mongoose.model('UserSessions', Schema)
