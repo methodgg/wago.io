@@ -45,11 +45,10 @@ fastify.decorateReply('cache', require('./middlewares/cache'))
 fastify.setErrorHandler(require('./middlewares/errors'))
 
 // --- HOOKS & MIDDLEWARES
-fastify.addHook('onRequest', async (req, res, done) => {
+fastify.addHook('onRequest', async (req) => {
   await Profiler.startRequest(req)
-  done()
 })
-fastify.addHook('onResponse', (req, res, payload) => {
+fastify.addHook('onResponse', (req, res) => {
   Profiler.logEvent(req.profiler, 'Response', res.statusCode)
 })
 fastify.addHook('preValidation', require('./middlewares/cors'))
