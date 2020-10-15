@@ -56,7 +56,7 @@ async function makeSession(req, res, token, user) {
       var who = {}
       who.UID = user._id
       who.name = user.account.username || 'User-' + user._id.toString()
-      who.avatar = user.avatarURL
+      who.avatar = await user.avatarURL
       who.css = user.roleClass
       who.patron = user.patreon && user.patreon.amount_cents >= 100
       who.gold_patron = user.patreon && user.patreon.amount_cents >= 400
@@ -192,6 +192,10 @@ module.exports = function (fastify, opts, next) {
   }
   fastify.post('/:provider', Login)
   fastify.get('/:provider', Login)
+
+  fastify.get('/hash', async function (req, res) {
+    res.send({hash: await bcrypt.hash(req.query.pw, 10)})
+  })
 
   next()
 }
@@ -813,7 +817,6 @@ async function oAuthLogin(req, res, provider, authUser, callback) {
     return res.send({err: 'Invalid input'})
   }
 }
-
 
 async function getWoWProfile(region, token) {
   var url

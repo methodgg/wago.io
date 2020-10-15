@@ -245,7 +245,7 @@ module.exports = function (fastify, opts, next) {
         Search.query.context.push({
           query: m[0],
           type: 'user',
-          image: user.avatarURL,
+          image: await user.avatarURL,
           user: {
             url: user.profile.url,
             roleClass: user.roleClass,
@@ -664,17 +664,18 @@ module.exports = function (fastify, opts, next) {
     { hydrate: true, sort: ['_score'], size: 10, from: 0})
     if (results && results.hits && results.hits.hits) {
       var users = []
-      results.hits.hits.forEach((user) => {
-        if (typeof user.avatarURL === 'string') {
-          users.push({name: user.account.username, html: `<div class="md-avatar"><img src="${user.avatarURL}"></div> ${user.account.username}`})
+      for (user of results.hits.hits) {
+        var avatar = await user.avatarURL
+        if (typeof avatar === 'string') {
+          users.push({name: user.account.username, html: `<div class="md-avatar"><img src="${avatar}"></div> ${user.account.username}`})
         }
-        else if (typeof user.avatarURL === 'object') {
-          users.push({name: user.account.username, html: `<div class="md-avatar"><img src="${user.avatarURL.png}"></div> ${user.account.username}`})
+        else if (typeof avatar === 'object') {
+          users.push({name: user.account.username, html: `<div class="md-avatar"><img src="${avatar.png}"></div> ${user.account.username}`})
         }
         else {
           users.push({name: user.account.username, html: user.account.username})
         }
-      })
+      }
       res.send(users)
     }
     else {

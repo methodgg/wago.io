@@ -58,7 +58,7 @@ module.exports = function (fastify, opts, next) {
       canMod: true,
       author: {
         name: req.user.profile.name,
-        avatar: req.user.avatarURL,
+        avatar: await req.user.avatarURL,
         class: req.user.roleclass,
         profile: req.user.profile.url,
         enableLinks: req.user.account.verified_human

@@ -780,7 +780,8 @@
                             {{ coll.modified | moment("dddd, MMMM Do YYYY, h:mm a") }}
                           </md-table-cell>
                           <md-table-cell class="userlink">
-                            <md-avatar><ui-image :md-src="coll.user.avatar" alt="Avatar"></ui-image></md-avatar>
+                            
+                            <md-avatar><ui-image :img="coll.user.avatar" alt="Avatar"></ui-image></md-avatar>
                             <router-link v-if="coll.user.profile" :to="coll.user.profile" :class="coll.user.class">{{ coll.user.name }}</router-link>
                             <span v-else :class="coll.user.class">{{ coll.user.name }}</span>
                           </md-table-cell>
@@ -2711,7 +2712,7 @@ a.showvid:hover:before  .md-icon { opacity:1 }
 .md-table .md-table-head.md-end, .md-table .md-table-cell.md-end .md-table-cell-container { text-align: right; justify-content: flex-end }
 
 
-#wago-collections .md-avatar { margin: 0 16px 0 0 }
+#wago-collections .md-avatar { margin: 0 16px 0 0; width: 28px; min-width: 28px; height: 28px; min-height: 28px; }
 #wago-collections .userlink .md-table-cell-container { display: inline }
 
 #wago-header-toggle, #wago-tabs-toggle { display: none }

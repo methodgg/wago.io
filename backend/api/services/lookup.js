@@ -77,10 +77,10 @@ module.exports = function (fastify, opts, next) {
         doc.collections = []
         doc.myCollections = []
         var collections = await collectSearch.sort('-modified').limit(10).populate('_userId').exec()
-        collections.forEach((c) => {
-          doc.collections.push({name: c.name, _id: c._id, slug: c.slug, modified: c.modified, user: {name: c._userId.profile.name, class: c._userId.roleclass, avatar: c._userId.avatarURL, profile: c._userId.profile.url}})
+        for (let c of collections) {
+          doc.collections.push({name: c.name, _id: c._id, slug: c.slug, modified: c.modified, user: {name: c._userId.profile.name, class: c._userId.roleclass, avatar: await c._userId.avatarURL, profile: c._userId.profile.url}})
           doc.myCollections.push(c._id.toString())
-        })
+      }
       }
       
       const count = await Comments.countDocuments({wagoID: doc._id, codeReview: null}).exec()
@@ -88,7 +88,7 @@ module.exports = function (fastify, opts, next) {
 
       doc.comments = []
       const comments = await Comments.find({wagoID: doc._id, codeReview: null}).sort({postDate: -1}).limit(10).populate('authorID').exec()
-      comments.forEach((c) => {
+      for (let c of comments) {
         doc.comments.push({
           cid: c._id.toString(),
           date: c.postDate,
@@ -97,13 +97,13 @@ module.exports = function (fastify, opts, next) {
           canMod: (req.user && ((req.user.isAdmin && (req.user.isAdmin.moderator || req.user.isAdmin.super)) || req.user._id.equals(c.authorID._id) || req.user._id.equals(doc.UID))),
           author: {
             name: c.authorID.account.username || 'User-' + c.authorID._id.toString(),
-            avatar: c.authorID.avatarURL,
+            avatar: await c.authorID.avatarURL,
             class: c.authorID.roleclass,
             profile: c.authorID.profile.url,
             enableLinks: c.authorID.account.verified_human
           }
         })
-      })
+      }
 
       if (!req.user || !req.user._id.equals(doc.UID)) {
         delete doc.restrictions
@@ -266,7 +266,7 @@ module.exports = function (fastify, opts, next) {
         name: user.account.username,
         searchable: !user.account.hidden,
         roleClass: user.roleclass,
-        avatar: user.avatarURL,
+        avatar: await user.avatarURL,
         enableLinks: user.account.verified_human
       }
       return
@@ -342,12 +342,12 @@ module.exports = function (fastify, opts, next) {
         return
       }
       var collections = await search.sort('-modified').limit(10).populate('_userId').exec()
-      collections.forEach((c) => {
-        wago.collections.push({name: c.name, _id: c._id, slug: c.slug, modified: c.modified, user: {name: c._userId.profile.name, class: c._userId.roleclass, avatar: c._userId.avatarURL, profile: c._userId.profile.url}})
+      for (let c of collections) {
+        wago.collections.push({name: c.name, _id: c._id, slug: c.slug, modified: c.modified, user: {name: c._userId.profile.name, class: c._userId.roleclass, avatar: await c._userId.avatarURL, profile: c._userId.profile.url}})
         if (req.user && req.user._id.equals(c._userId._id)) {
           wago.myCollections.push(c._id.toString())
         }
-      })
+      }
       return
     }
     const getVersionHistory = async () => {
@@ -411,7 +411,7 @@ module.exports = function (fastify, opts, next) {
         return
       }
       const comments = await Comments.find({wagoID: wago._id, codeReview: null}).sort({postDate: -1}).limit(10).populate('authorID').exec()
-      comments.forEach((c) => {
+      for (let c of comments) {
         wago.comments.push({
           cid: c._id.toString(),
           date: c.postDate,
@@ -420,19 +420,19 @@ module.exports = function (fastify, opts, next) {
           canMod: (req.user && ((req.user.isAdmin && (req.user.isAdmin.moderator || req.user.isAdmin.super)) || req.user._id.equals(c.authorID._id) || req.user._id.equals(wago.UID))),
           author: {
             name: c.authorID.account.username || 'User-' + c.authorID._id.toString(),
-            avatar: c.authorID.avatarURL,
+            avatar: await c.authorID.avatarURL,
             class: c.authorID.roleclass,
             profile: c.authorID.profile.url,
             enableLinks: c.authorID.account.verified_human
           }
         })
-      })
+      }
       return
     }
     const codeReview = async () => {     
       const comments = await Comments.find({wagoID: wago._id, codeReview: {$ne: null}}).populate('authorID').exec()
       wago.codeReviewComments = {}
-      comments.forEach((c) => {
+      for (let c of comments) {
         wago.codeReviewComments[c.codeReview] = {
           date: c.postDate,
           text: c.commentText,
@@ -440,13 +440,13 @@ module.exports = function (fastify, opts, next) {
           falsePositive: c.codeReviewFalsePositive,
           author: {
             name: c.authorID.account.username || 'User-' + c.authorID._id.toString(),
-            avatar: c.authorID.avatarURL,
+            avatar: await c.authorID.avatarURL,
             class: c.authorID.roleclass,
             profile: c.authorID.profile.url,
             enableLinks: c.authorID.account.verified_human
           }
         }
-      })
+      }
       return
     }
     const getFork = async () => {
@@ -742,9 +742,9 @@ module.exports = function (fastify, opts, next) {
       return res.send([])
     }
     var collections = []
-    docs.forEach((c) => {
-      collections.push({name: c.name, slug: c.slug, modified: c.modified, user: {name: c._userId.profile.name, class: c._userId.roleclass, avatar: c._userId.avatarURL, profile: c._userId.profile.url}})
-    })
+    for (let c of docs) {
+      collections.push({name: c.name, slug: c.slug, modified: c.modified, user: {name: c._userId.profile.name, class: c._userId.roleclass, avatar: await c._userId.avatarURL, profile: c._userId.profile.url}})
+    }
     return res.send(collections)
   })
 
@@ -758,7 +758,7 @@ module.exports = function (fastify, opts, next) {
       return res.send([])
     }
     var comments = []
-    docs.forEach((c) => {
+    for (let c of docs) {
       comments.push({
         cid: c._id.toString(),
         date: c.postDate,
@@ -772,7 +772,7 @@ module.exports = function (fastify, opts, next) {
           enableLinks: c.authorID.account.verified_human
         }
       })
-    })
+    }
     return res.send(comments)
   })
 
