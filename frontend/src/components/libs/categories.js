@@ -160,9 +160,10 @@ module.exports = {
       
       {id: "raidnathria", slug: "pve/nathria", cls:"nathria", text: t("warcraft:zones.CastleNathria"), root: true, WEAKAURA: true, PLATER: true, COLLECTION: true, sl: true},
       {id: "raidnathria1", slug: "pve/nathria/shriekwing", cls:"nathria", text: t("warcraft:bosses.Shriekwing"), WEAKAURA: true, sl: true},
+      {id: "raidnathria10", slug: "pve/nathria/altimor-the-huntsman", cls:"nathria", text: t("warcraft:bosses.Altimor"), WEAKAURA: true, sl: true},
       {id: "raidnathria2", slug: "pve/nathria/hungering-destroyer", cls:"nathria", text: t("warcraft:bosses.HungeringDestroyer"), WEAKAURA: true, sl: true},
-      {id: "raidnathria3", slug: "pve/nathria/kaelthas-sunstrider", cls:"nathria", text: t("warcraft:bosses.KaelthasSunstrider"), WEAKAURA: true, sl: true},
       {id: "raidnathria4", slug: "pve/nathria/artificer-xymox", cls:"nathria", text: t("warcraft:bosses.ArtificerXyMox"), WEAKAURA: true, sl: true},
+      {id: "raidnathria3", slug: "pve/nathria/kaelthas-sunstrider", cls:"nathria", text: t("warcraft:bosses.SunKingsSalvation"), WEAKAURA: true, sl: true},
       {id: "raidnathria5", slug: "pve/nathria/lady-inerva-darkvein", cls:"nathria", text: t("warcraft:bosses.LadyInervaDarkvein"), WEAKAURA: true, sl: true},
       {id: "raidnathria6", slug: "pve/nathria/the-council-of-blood", cls:"nathria", text: t("warcraft:bosses.TheCouncilOfBlood"), WEAKAURA: true, sl: true},
       {id: "raidnathria7", slug: "pve/nathria/sludgefist", cls:"nathria", text: t("warcraft:bosses.Sludgefist"), WEAKAURA: true, sl: true},
