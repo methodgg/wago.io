@@ -166,7 +166,7 @@
               <div class="md-title" v-else-if="wago.UID && wago.user.searchable" v-html="$t('Imported by [-name-]', {name: `<a href='/p/${encodeURIComponent(wago.user.name)}' class='${wago.user.roleClass}'>${wago.user.name}</a>`, 'interpolation': {'escapeValue': false}})"></div>
               <div class="md-title" v-else-if="wago.UID" v-html="$t('Imported by [-name-]', {name: `<span class='${wago.user.roleClass}'>${wago.user.name}</span>`, 'interpolation': {'escapeValue': false}})"></div>
               <div class="md-title" v-else>{{ $t("Imported by guest") }}</div>
-              <div class="md-subhead">{{ wago.date.modified | moment('MMM Do YYYY') }} [{{ wago.patch }}]</div>
+              <div class="md-subhead" v-if="wago.type !== 'COLLECTION'">{{ wago.date.modified | moment('MMM Do YYYY') }} [{{ wago.patch }}]</div>
             </div>
             <div class="item">
               <div class="md-title">{{ $t("[-count-] star", { count: wago.favoriteCount }) }}</div>

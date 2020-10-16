@@ -120,6 +120,9 @@ export default {
         /* eslint-disable no-unused-vars */
         /* eslint-disable no-eval */
         var root
+        if (fn && parseInt(fn.path) >= 0) {
+          fn.path = `[${fn.path}]`
+        }
 
         // if switching FROM table data TO a custom Fn
         if (fn && this.editorPrevious === 'tabledata') {
@@ -151,7 +154,7 @@ export default {
         // if switching FROM a custom function
         else {
           var updated = this.aceEditor.getValue().replace(/\\/g, '\\\\').replace(/\r\n|\n|\r/g, '\\n').replace(/"/g, '\\"')
-
+          console.log(this.editorPreviousObj)
           // update table data
           eval('this.tableData' + this.editorPreviousObj.path + ' = "' + updated + '"')
 
@@ -185,8 +188,8 @@ export default {
       }
 
       // set previous to what is set NOW, for next time
-      if (fn === 'tabledata') {
-        this.editorPrevious = fn
+      if (newFn === 'tabledata') {
+        this.editorPrevious = newFn
       }
       else {
         this.editorPrevious = 'fn'

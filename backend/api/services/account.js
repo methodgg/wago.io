@@ -296,13 +296,13 @@ module.exports = (fastify, opts, next) => {
     res.send({succes: true})
   })
 
-  fastify.post('/api-key', (req, res) => {
+  fastify.post('/api-key', async (req, res) => {
     if (!req.user || !req.user.access.api) {
       return res.code(403).send({error: "forbidden"})
     }
 
     if (!req.user.account.api_key || req.body.new) {
-      var key = req.user.createAPIKey()
+      var key = await req.user.createAPIKey()
       res.send({key: key})
     }
     else {
