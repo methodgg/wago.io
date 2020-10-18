@@ -167,7 +167,7 @@ module.exports = {
       {id: "raidnathria5", slug: "pve/nathria/lady-inerva-darkvein", cls:"nathria", text: t("warcraft:bosses.LadyInervaDarkvein"), WEAKAURA: true, sl: true},
       {id: "raidnathria6", slug: "pve/nathria/the-council-of-blood", cls:"nathria", text: t("warcraft:bosses.TheCouncilOfBlood"), WEAKAURA: true, sl: true},
       {id: "raidnathria7", slug: "pve/nathria/sludgefist", cls:"nathria", text: t("warcraft:bosses.Sludgefist"), WEAKAURA: true, sl: true},
-      {id: "raidnathria8", slug: "pve/nathria/stoneborne-generals", cls:"nathria", text: t("warcraft:bosses.StoneborneGenerals"), WEAKAURA: true, sl: true},
+      {id: "raidnathria8", slug: "pve/nathria/stone-legion-generals", cls:"nathria", text: t("warcraft:bosses.StoneLegionGenerals"), WEAKAURA: true, sl: true},
       {id: "raidnathria9", slug: "pve/nathria/sire-denathrius", cls:"nathria", text: t("warcraft:bosses.SireDenathrius"), WEAKAURA: true, sl: true},
       
       {id: "raidnyalotha", slug: "pve/nyalotha", cls:"nyalotha", text: t("warcraft:zones.nyalotha"), root: true, WEAKAURA: true, PLATER: true, COLLECTION: true, bfa: true},
