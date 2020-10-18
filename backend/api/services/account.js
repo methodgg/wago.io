@@ -282,7 +282,7 @@ module.exports = (fastify, opts, next) => {
     }
     req.user.discord.options.messageOnFaveUpdate = req.body.msgOnFaveUpdate && true || false
     req.user.discord.options.messageOnComment  = req.body.msgOnComment && true || false
-    if (req.body.createWebhook && req.body.createWebhook.match(/^https:\/\/(ptb.)?discordapp.com\/api\/webhooks\/[^\s]+/)) {
+    if (req.body.createWebhook && req.body.createWebhook.match(/^https:\/\/(ptb.)?discord(app)?.com\/api\/webhooks\/[^\s]+/)) {
       req.user.discord.webhooks.onCreate = req.body.createWebhook
     }
     else if (req.body.createWebhook ) {
