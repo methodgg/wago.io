@@ -204,13 +204,13 @@ module.exports = function (fastify, opts, next) {
     }
     else if (req.body.visibility === 'Restricted') {
       wago.restricted = true
-      redis.clear(`API:WA:${wago._id}`)
-      redis.clear(`API:WA:${wago.slug}`)
+      redis.clear(`API:${wago._id}`)
+      redis.clear(`API:${wago.slug}`)
     }
     else if (req.body.visibility === 'Private') {
       wago.private = true
-      redis.clear(`API:WA:${wago._id}`)
-      redis.clear(`API:WA:${wago.slug}`)
+      redis.clear(`API:${wago._id}`)
+      redis.clear(`API:${wago.slug}`)
     }
 
     await wago.save()
@@ -281,6 +281,8 @@ module.exports = function (fastify, opts, next) {
     await wago.save()
 
     redis.clear(wago)
+    redis.clear(`API:${wago._id}`)
+    redis.clear(`API:${wago.slug}`)
     res.send({success: true})
   })
 

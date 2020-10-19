@@ -28,14 +28,11 @@ module.exports = function (fastify, opts, next) {
       return res.code(404).send({error: "page_not_found"})
     }
     var findType
-    var cacheType
     if (req.params.importType === 'weakauras') {
       findType = {'$or': [{type: 'WEAKAURAS2'}, {type:'CLASSIC-WEAKAURA'}]}
-      cacheType = 'WA'
     }
     else if (req.params.importType === 'plater') {
       findType = {type: 'PLATER'}
-      cacheType = 'PL'
     }
     else {
       return res.code(404).send({error: "page_not_found"})
@@ -45,7 +42,7 @@ module.exports = function (fastify, opts, next) {
     var cached = []
     var lookup = []
     for (let i = 0; i < ids.length; i++) {
-      var doc = await redis.get(`API:${cacheType}:${ids[i]}`)
+      var doc = await redis.get(`API:${ids[i]}`)
       if (doc && typeof doc === 'object') {
         cached.push(doc)
       }
@@ -84,7 +81,6 @@ module.exports = function (fastify, opts, next) {
       else if (doc._userId) {
         wago.username = doc._userId.account.username
       }
-
       // if requested by WA Companion App, update installed count
       if (req.headers['identifier'] && req.headers['user-agent'].match(/Electron/)) {
         const ipAddress = req.raw.ip
@@ -101,7 +97,7 @@ module.exports = function (fastify, opts, next) {
         wago.regionType = doc.regionType
         wagos.push(wago)
         if (!doc.restricted && !doc.private) {
-          redis.set(`API:${cacheType}:${wago.slug}`, wago, 4000)
+          redis.set(`API:${wago.slug}`, wago, 3600*8)
         }
         return
       }
@@ -115,7 +111,7 @@ module.exports = function (fastify, opts, next) {
         wago.regionType = doc.regionType
         wagos.push(wago)
         if (!doc.restricted && !doc.private) {
-          redis.set(`API:${cacheType}:${wago.slug}`, wago, 4000)
+          redis.set(`API:${wago.slug}`, wago, 3600*8)
         }
         return
       }
