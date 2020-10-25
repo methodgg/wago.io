@@ -233,11 +233,15 @@ module.exports = function (fastify, opts, next) {
     }
 
     // check if searching by user(s)
-    match = findAll(/\buser:\s*([^\s]+)|\buser:\s*"([^"]+)"/ig, query)
+    match = findAll(/\buser:\s*"([^"]+)"|\buser:\s*([^\s]+)/ig, query)
     if (match.length) {
       var m = match[0]
       query = query.replace(m[0], '').replace(/\s{2,}/, ' ').trim()
-      const user = await User.findOne({"search.username": (m[1] || m[2]).toLowerCase()}).exec()
+      let searchUser = m[2]
+      if (!searchUser) {
+        searchUser = m[1]
+      }
+      const user = await User.findOne({"search.username": searchUser.toLowerCase()}).exec()
       if (user) {
         searchSettings.userSearch = user._id
         // lookup._userId = user._id
