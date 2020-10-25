@@ -53,12 +53,16 @@ export default {
       else if (!values[0]) {
         // values = [values]
       }
+      let game = this.game
+      if (this.type === 'COLLECTION') {
+        game = game.replace(/legion|bfa/, 'sl')
+      }
 
       this.selectText = this.$t('Select')
       if (values && values.length > 0) {
         this.selectText = ''
         if (values[0].root) {
-          var children = Categories.getChildren(values[0], this.type, this.$t, this.game)
+          var children = Categories.getChildren(values[0], this.type, this.$t, game)
           this.categoryOptions = []
           // remove already selected categories
           for (var i = 0; i < children.length; i++) {
@@ -75,11 +79,11 @@ export default {
           }
         }
         else if (!values[0].systemtag && !values[0].noselect) {
-          this.categoryOptions = Categories.getChildren(values[values.length - 1], this.type, this.$t, this.game)
+          this.categoryOptions = Categories.getChildren(values[values.length - 1], this.type, this.$t, game)
         }
       }
       else {
-        this.categoryOptions = Categories.rootCategories(this.$t, this.type, this.game)
+        this.categoryOptions = Categories.rootCategories(this.$t, this.type, game)
       }
 
       // change max selections so the multiselect knows when to put up the no categories error
