@@ -1,6 +1,10 @@
 var moment = require('moment')
 var patches = [
-  {date: moment('2019-05-17T03:00:00Z'), game: 'classic', patch: "WoW Classic 1.13.2"}, // wow classic this version will probably never change.
+  {date: moment('2020-12-01T03:00:00Z'), game: 'classic', patch: "WoW Classic 1.13.6"},
+  {date: moment('2020-07-07T03:00:00Z'), game: 'classic', patch: "WoW Classic 1.13.5"},
+  {date: moment('2020-03-10T03:00:00Z'), game: 'classic', patch: "WoW Classic 1.13.4"},
+  {date: moment('2019-12-19T03:00:00Z'), game: 'classic', patch: "WoW Classic 1.13.3"},
+  {date: moment('2019-05-17T03:00:00Z'), game: 'classic', patch: "WoW Classic 1.13.2"},
 
   {date: moment('2020-10-13T03:00:00Z'), game: 'sl', patch: "Shadowlands 9.0.1", base: true},
   {date: moment('2020-06-01T03:00:00Z'), game: 'sl', patch: "Shadowlands 9.0.1 Beta"},
