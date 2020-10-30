@@ -1,10 +1,10 @@
 const battlenet = require('./battlenet')
-const cloudflare = require('cloudflare')({email: config.cloudflare.email, key: config.cloudflare.apiKey})
+const cloudflare = require('cloudflare')({token: config.cloudflare.dnsToken})
 const decompress = require('@atomic-reactor/decompress')
 const image = require('./image')
 const lua = require('./lua')
 const md5 = require('md5')
-const mkdirp = require('mkdirp-promise')
+const mkdirp = require('mkdirp')
 const path = require('path')
 const querystring = require('querystring')
 const updateDataCaches = require('../../middlewares/updateLocalCache')
@@ -376,10 +376,10 @@ async function UpdateLatestAddonReleases () {
             AddonRelease.updateMany({addon: release.addon, version: {$ne: release.version}}, {$set: {active: false}}).exec()
 
             if (release.addon === 'WeakAuras-2' && release.phase === 'Release') {
-              updateWAData(req, release, item.assets)
+              updateWAData(release, item.assets)
             }
             else if (release.addon === 'MDT' && release.phase === 'Release') {
-              updateMDTData(req, release, item)
+              updateMDTData(release, item)
             }
           }
         }
@@ -601,7 +601,7 @@ function sortJSON(obj) {
   return sorted
 }
 
-async function updateWAData (req, release, assets) {
+async function updateWAData (release, assets) {
   const addonDir = path.resolve(__dirname, '../lua', 'addons' ,'WeakAuras', release.version)
   await mkdirp(addonDir)
   const zipFile = path.resolve(addonDir, 'WeakAuras.zip')
@@ -615,7 +615,7 @@ async function updateWAData (req, release, assets) {
     }
   }
   if (!axiosDownload.url) {
-    req.trackError(e, 'Unable to find WeakAura download')
+    logError(e, 'Unable to find WeakAura download')
     return false
   }
 
@@ -636,20 +636,19 @@ async function updateWAData (req, release, assets) {
     }
   }
   // if we get here then internalVersion is not found or is not an integer
-  req.trackError(e, 'Unable to find WeakAura internalVersion')
+  logError(e, 'Unable to find WeakAura internalVersion')
 }
 
-async function updateMDTData (req, release, assets) {
+async function updateMDTData (release, assets) {
+  if (!assets.zipball_url) {
+    logError('Unable to find MDT download', assets)
+    return false
+  }
   const addonDir = path.resolve(__dirname, '../lua', 'addons' ,'MDT', release.version)
   await mkdirp(addonDir)
   const zipFile = path.resolve(addonDir, 'MDT.zip')
   const writer = require('fs').createWriteStream(zipFile)
-
   var axiosDownload = {method: 'GET', responseType: 'stream', url: assets.zipball_url}
-  if (!axiosDownload.url) {
-    req.trackError(e, 'Unable to find MDT download')
-    return false
-  }
 
   const response = await axios(axiosDownload)
   response.data.pipe(writer)
@@ -660,13 +659,13 @@ async function updateMDTData (req, release, assets) {
   await decompress(zipFile, addonDir)
   // get commit directory
   const commit = await fs.readdir(addonDir)
-  var mdtData = await lua.BuildMDT_DungeonTable(`${addonDir}/${commit[1]}/BattleForAzeroth`)
+  var mdtData = await lua.BuildMDT_DungeonTable(`${addonDir}/${commit[1]}`)
   mdtData = JSON.parse(mdtData)
 
   // calculate dimensions
   mdtData.dungeonDimensions = []
   mdtData.dungeonEnemies.forEach((enemies, mapID) => {
-    console.log(mapID)
+    // console.log(mapID)
     mdtData.dungeonDimensions.push({maxX: -9999999, minX: 9999999, maxY: -9999999, minY: 9999999})
     if (!enemies) return
     enemies.forEach((creature) => {
@@ -711,6 +710,7 @@ async function updateMDTData (req, release, assets) {
     // if new portrait maps are required
     if ((!currentHash || currentHash.value.enemyHash !== Obj.enemyHash) && Obj.dungeonMaps && Obj.dungeonEnemies && Obj.dungeonEnemies.length) {
       try {
+        console.log('make portrait map', mapID)
         for (let subMapID = 1; subMapID <= Object.keys(Obj.dungeonMaps).length; subMapID++) {
           if (mapID === 18) {
             await buildStaticMDTPortraits(Obj, mapID, subMapID, false, 1)
@@ -722,13 +722,15 @@ async function updateMDTData (req, release, assets) {
             await buildStaticMDTPortraits(Obj, mapID, subMapID, false)
             await buildStaticMDTPortraits(Obj, mapID, subMapID, true)
           }
+          break
         }
-        req.track({e_c: 'Generate MDT portrait maps', e_a: Obj.dungeonMaps['0'], e_n: Obj.dungeonMaps['0']})
+        logger({e_c: 'Generate MDT portrait maps', e_a: Obj.dungeonMaps['0'], e_n: Obj.dungeonMaps['0']})
       }
       catch (e) {
-        req.trackError(e, 'Generating MDT portrait maps ' + Obj.dungeonMaps['0'])
+        logError(e, 'Generating MDT portrait maps ' + Obj.dungeonMaps['0'])
       }
     }
+    break
   }
 
   return
@@ -736,7 +738,9 @@ async function updateMDTData (req, release, assets) {
 
 async function buildStaticMDTPortraits(json, mapID, subMapID, teeming, faction) {
   // this is very finicky so only run it locally to generate the images
+  if (config.env !== 'development') {
   return
+  }
   const puppeteer = require('puppeteer-firefox')
   const mdtScale = 539 / 450
   if (teeming) teeming = '-Teeming'
@@ -777,9 +781,10 @@ async function buildStaticMDTPortraits(json, mapID, subMapID, teeming, faction) 
 
       var layer = new Konva.Layer();
       var enemyPortraits = new Image()
-      enemyPortraits.src = 'https://media.wago.io/mdt/portraits-${mapID}.png'
-      enemyPortraits.crossOrigin = 'anonymous'
-      enemyPortraits.onload = () => {`
+      enemyPortraits.src = 'https://wago.io/mdt/portraits-${mapID}.png?'
+      enemyPortraits.crossOrigin = 'Anonymous'
+      enemyPortraits.onload = () => { console.log(enemyPortraits.src, 'loaded') `
+      
       json.dungeonEnemies.forEach((creature, i) => {
         if (!creature || !creature.clones) return
 
@@ -824,9 +829,18 @@ async function buildStaticMDTPortraits(json, mapID, subMapID, teeming, faction) 
   </html>`
 
   // await fs.writeFile('../test.html', html, 'utf8')
-  const browser = await puppeteer.launch()
+  console.log('launch puppeteer')
+  const browser = await puppeteer.launch({args: [
+    '--disable-web-security', // ignore cors errors
+  ]})
   const page = await browser.newPage()
+  await page.setCacheEnabled(false)
   await page.setContent(html)
+  
+  page.on('console', msg => {
+    for (let i = 0; i < msg.args().length; ++i)
+      console.log(`${i}: ${msg.args()[i]}`);
+  });
   await page.waitForSelector('img', {timeout: 120000})
   const base64 = await page.evaluate(() => {
     return document.getElementById('img').src
@@ -834,7 +848,6 @@ async function buildStaticMDTPortraits(json, mapID, subMapID, teeming, faction) 
   await browser.close()
   const buffer = Buffer.from(base64.replace(/^data:image\/\w+;base64,/, ""), 'base64')
   await image.saveMdtPortraitMap(buffer, imgName)
-  console.log(imgName, 'saved')
   return
 }
 

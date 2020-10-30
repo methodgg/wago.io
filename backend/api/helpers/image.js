@@ -133,29 +133,25 @@ module.exports = {
       return {error: 'bad_input', inputs: [buffer, filename]}
     }
 
-    const saveToFile = tmpDir + filename
-
+    const saveToFile = tmpDir + '/' + filename
     try {
-      const webp = sharp(buffer).toFormat('webp').toFile(saveToFile + '.webp')
-      const png = sharp(buffer).toFormat('png').toFile(saveToFile + '.png')
-      await webp
-      await png
-      const webpUpload = s3.uploadFile({
+      await sharp(buffer).toFormat('webp').toFile(saveToFile + '.webp')
+      await sharp(buffer).toFormat('png').toFile(saveToFile + '.png')
+      
+      await s3.uploadFile({
         localFile: saveToFile + '.webp',
         s3Params: {
           Bucket: 'wago-media',
           Key: `mdt/${filename}.webp`
         }
       })
-      const pngUpload = s3.uploadFile({
+      await s3.uploadFile({
         localFile: saveToFile + '.png',
         s3Params: {
           Bucket: 'wago-media',
           Key: `mdt/${filename}.png`
         }
       })
-      await webpUpload
-      await pngUpload
       const img = {webp: 'https://media.wago.io/mdt/' + filename + '.webp', png: 'https://media.wago.io/mdt/' + filename + '.png'}
       cloudflare.zones.purgeCache(config.cloudflare.zoneID, {files: [img.png, img.webp]})
       return img

@@ -933,12 +933,20 @@ module.exports = function (fastify, opts, next) {
         wago.categories.push('mdtdun' + json.value.currentDungeonIdx)
       }
 
+      if (req.body.affixes) {
+        (req.body.affixes.split(',')).forEach((affixID) => {
+          wago.categories.push('mdtaffix' + affixID)
+        })
+      }
+      else {
       const affixWeeks = await SiteData.findById('mdtAffixWeeks').exec()
       if (json.week && affixWeeks && affixWeeks.value[json.week - 1]) {
         affixWeeks.value[json.week - 1].forEach((affixID) => {
           wago.categories.push('mdtaffix' + affixID)
         })
       }
+      }
+      wago.categories = Categories.validateCategories(wago.categories)
       var doc = await wago.save()
       var code = new WagoCode()
       code.auraID = doc._id

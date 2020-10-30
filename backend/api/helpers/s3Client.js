@@ -23,5 +23,10 @@ module.exports = {
       uploader.on('error', (e) => reject(e))
       uploader.on('end', resolve)
     })
+  },
+
+  delete: (params) => {
+    const client = s3.createClient(s3ClientParams)
+    client.deleteObjects({s3Params: params})
   }
 }

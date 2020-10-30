@@ -5,6 +5,7 @@
     'border-radius': (size || 36) + 'px', 
     'background-image': 'url(https://media.wago.io/mdt/portraits-' + mapID + '.png)',
     'background-position': (-offset.x) + 'px ' + (-offset.y) + 'px',
+    'background-size': bgSize,
     border: seasonalAffix ? '1px solid red' : 'none'
     }"
     @click="click" @mouseover="mouseover" @mouseleave="mouseleave" @mousemove="mousemove"
@@ -27,6 +28,16 @@ export default {
     },
     mouseleave: function (e) {
       this.$emit('mouseleave', e)
+    }
+  },
+  computed: {
+    bgSize: function () {
+      switch (this.mapID) {
+        case 30:
+          return '1200%' // mists of tirna scithe
+        default:
+          return '3339%'
+      }
     }
   }
 }

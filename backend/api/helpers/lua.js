@@ -356,29 +356,49 @@ module.exports = {
 
 
   BuildMDT_DungeonTable: async (directory, cb) => {
-    var luaCode = 'local MythicDungeonTools={dungeonTotalCount={}, mapPOIs={}, dungeonEnemies={}, scaleMultiplier={}}\nlocal dungeonIndex\n'
+    var luaCode = 'local MDT={dungeonTotalCount={}, mapPOIs={}, dungeonEnemies={}, scaleMultiplier={}, L={}}\nlocal dungeonIndex\nfunction GetLocale() return "enUS" end\n'
+    
+    // load in lang files so it doesn't try to concatenate strings with nils
+    var lang = await fs.readFile(directory+'/Locales/enUS.lua', 'utf8')
+    lang = lang.replace(/local addonName, MDT = \.\.\./, '')
+    luaCode = luaCode + "\n--wago insert:Locales/enUS.lua\n" + lang
+
     // load in some tables from core file
-    var core = await fs.readFile(directory+'/../MythicDungeonTools.lua', 'utf8')
-    core = core.replace(/local AddonName, MythicDungeonTools = \.\.\./, 'local AddonName, MythicDungeonTools = "MDT", {}')
-    core = core.replace(/local affixWeeks =/g, 'MythicDungeonTools.affixWeeks =')
-    core = core.replace(/local dungeonList =/, 'MythicDungeonTools.dungeonList =')
-    core = core.replace(/local dungeonSubLevels =/, 'MythicDungeonTools.dungeonSubLevels =')
-    luaCode = luaCode + core
+    var core = await fs.readFile(directory+'/MythicDungeonTools.lua', 'utf8')
+    core = core.replace(/local AddonName, MDT = \.\.\./, 'local AddonName, MDT = "MDT", {}')
+    core = core.replace(/local affixWeeks =/g, 'MDT.affixWeeks =')
+    core = core.replace(/local dungeonList =/, 'MDT.dungeonList =')
+    core = core.replace(/local dungeonSubLevels =/, 'MDT.dungeonSubLevels =')
+    core = core.replace(/local L = MDT\.L/, '')
+    luaCode = luaCode + "\n--wago insert:MythicDungeonTools.lua\n" + core
 
     // load in some tables from dungeonEnemies file
-    core = await fs.readFile(directory+'/../DungeonEnemies.lua', 'utf8')
-    core = core.replace(/local MythicDungeonTools = MythicDungeonTools/, '')
-    luaCode = luaCode + "\n" + core
+    var enemies = await fs.readFile(directory+'/DungeonEnemies.lua', 'utf8')
+    enemies = enemies.replace(/local MDT = MDT/, '')
+    enemies = enemies.replace(/local L = MDT\.L/, '')
+    luaCode = luaCode + "\n--wago insert:DungeonEnemies.lua\n" + enemies
 
-    var dungeonFiles = await fs.readdir(directory)
+    var dungeonFiles = await fs.readdir(directory + '/Shadowlands')
     for (let i = 0; i < dungeonFiles.length; i++) {
       if (dungeonFiles[i].match(/\.lua$/)) {
-        const dungeon = await fs.readFile(directory+'/'+dungeonFiles[i], 'utf8')
-        luaCode = luaCode + "\n" + dungeon.replace(/local dungeonIndex/, 'dungeonIndex') + '\n'
+        let dungeon = await fs.readFile(directory+'/Shadowlands/'+dungeonFiles[i], 'utf8')
+        dungeon = dungeon.replace(/local dungeonIndex/, 'dungeonIndex')
+        dungeon = dungeon.replace(/local L = MDT\.L/, '')
+        luaCode = luaCode + `\n--wago insert:${directory}/${dungeonFiles[i]}\n` + dungeon
+      }
+    }
+    var dungeonFiles = await fs.readdir(directory + '/BattleForAzeroth')
+    for (let i = 0; i < dungeonFiles.length; i++) {
+      if (dungeonFiles[i].match(/\.lua$/)) {
+        let dungeon = await fs.readFile(directory+'/BattleForAzeroth/'+dungeonFiles[i], 'utf8')
+        dungeon = dungeon.replace(/local dungeonIndex/, 'dungeonIndex')
+        dungeon = dungeon.replace(/local L = MDT\.L/, '')
+        luaCode = luaCode + `\n--wago insert:${directory}/${dungeonFiles[i]}\n` + dungeon
       }
     }
 
-    var result = await runLua(`dofile("./wago.lua"); ${luaCode} Table2JSON(MythicDungeonTools)`)
+
+    var result = await runLua(`dofile("./wago.lua"); ${luaCode} Table2JSON(MDT)`)
     return result
   },
 

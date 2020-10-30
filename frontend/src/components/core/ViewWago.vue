@@ -880,7 +880,7 @@
               <!-- BUILDER FRAME -->
               <div id="wago-builder-container" class="wago-container" v-if="showPanel=='builder'">
                 <div id="wago-builder">
-                  <build-mdt v-if="wago.type=='MDT' && wago.code" @set-has-unsaved-changes="setHasUnsavedChanges" @update-encoded="updateEncoded" @update-version="updateVersion" :cipherKey="decryptKey"></build-mdt>
+                  <build-mdt v-if="wago.type=='MDT' && wago.code" @set-has-unsaved-changes="setHasUnsavedChanges" @update-encoded="updateEncoded" @update-version="updateVersion" :cipherKey="decryptKey" :affixes="wago.mdtAffixes"></build-mdt>
                 </div>
               </div>
 
@@ -1422,6 +1422,12 @@ export default {
           case 'MDT':
             this.showPanel = 'builder'
             this.typeSlug = 'mdt/'
+            this.wago.mdtAffixes = []
+            for (let cat of res.categories) {
+              if (cat.id && cat.id.match(/^mdtaffix\d+$/)) {
+                this.wago.mdtAffixes.push(cat.id)
+              }
+            }
             break
           case 'OPIE':
             this.showPanel = this.wago.description.text ? 'description' : 'editor'

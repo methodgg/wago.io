@@ -2,8 +2,6 @@
   <div id="search-mdt">
     <h2 id="addon-name">Mythic Dungeon Tools -
       <span @click="isBeta=false" :class="{faded: isBeta}">{{ $t('Battle for Azeroth') }}</span>
-      <!--<md-switch v-model="isBeta" class="md-primary"></md-switch>
-      <span @click="isBeta=true" :class="{faded: !isBeta}">{{ $t('Shadowlands Beta') }}</span>-->
     </h2>
     <md-layout>
       <addon-info addon="mdt"></addon-info>
@@ -81,7 +79,7 @@
             <div class="md-list-text-container">
               <span>
                 <div v-for="boss in dun.bosses" v-bind:key="boss.id" v-bind:class="{'inline-dungeon-link': boss.slug.match(/\//g).length > 2}">
-                  <router-link :to="'/mdt/' + boss.slug">{{ boss.text }}</router-link>
+                  <a href="#" @click.prevent="searchRoute(boss.slug)">{{ boss.text }}</a>
                 </div>
               </span>
             </div>
@@ -140,6 +138,10 @@ export default {
   methods: {
     runSearch: function () {
       this.$router.push('/search/' + this.searchString.trim().replace(/\s+/g, '+'))
+    },
+    searchRoute: function (slug) {
+      this.$store.commit('userSearchOption', {field: 'expansion', value: 'bfa'})
+      this.$router.push('/bfa-mdt/' + slug)
     },
     createMDT: function () {
       try {

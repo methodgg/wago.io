@@ -3,7 +3,7 @@
     <!-- BUILDER FRAME -->
     <div id="wago-builder-container" class="wago-container">
       <div id="wago-builder">
-        <build-mdt v-if="ready" :scratch="true"></build-mdt>
+        <build-mdt v-if="ready" :scratch="true" :affixes="affixes"></build-mdt>
         <ui-loading v-else-if="loading"></ui-loading>
         <div v-else>{{ $t("Error unknown dungeon or week" )}}</div>
       </div>
@@ -17,25 +17,35 @@ export default {
   components: {
     'build-mdt': require('../UI/MDTBuilder.vue')
   },
-  props: ['pulls'],
+  props: ['pulls', 'game', 'season'],
   data: function () {
     return {
       ready: false,
       loading: true,
       mapID: -1,
-      dungeonName: ''
+      dungeonName: '',
+      affixes: []
     }
   },
   methods: {
     createMDT (dungeonTable) {
-      var weeks = categories.getCategories([/^mdtaffix-bfa-s4-/], this.$t)
-      var week, affixes
-      for (let i = 0; i < weeks.length; i++) {
-        if (weeks[i].slug.match(this.$route.params.week)) {
-          week = parseInt(weeks[i].slug.replace(/affixes[/s1234]?\/week/, ''))
-          affixes = dungeonTable.affixWeeks[week - 1]
-          break
+      var week
+      let game = this.game || 'bfa'
+      let season = this.season
+      try {
+        week = parseInt(this.$route.params.week.replace(/[^\d]/g, ''))
+        if (!season && game === 'bfa') {
+          season = 4
         }
+        var category = categories.match(`mdtaffix-${game}-s${season}-w${week}`)
+        if (!category) {
+          this.loading = false
+          return
+        }
+        this.affixes = category.contains
+      }
+      catch (e) {
+        console.error(e)
       }
 
       if (this.mapID < 0 || !week) {
@@ -48,7 +58,7 @@ export default {
         value: {
           currentSublevel: 1,
           currentPull: 1,
-          teeming: affixes.indexOf(5) >= 0,
+          teeming: this.affixes.indexOf(5) >= 0,
           currentDungeonIdx: this.mapID + 1,
           pulls: this.pulls || []
         },
@@ -68,7 +78,7 @@ export default {
     }
   },
   created () {
-    var dungeons = categories.raidCategories(['mdtdun'])[0].bosses
+    var dungeons = categories.raidCategories(['mdt-sldun'])[0].bosses
     for (let i = 0; i < dungeons.length; i++) {
       if (dungeons[i].slug.match(this.$route.params.dungeon)) {
         this.mapID = parseInt(dungeons[i].id.replace(/[^\d]*/, '')) - 1

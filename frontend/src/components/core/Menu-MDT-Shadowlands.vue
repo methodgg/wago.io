@@ -1,9 +1,7 @@
 <template>
   <div id="search-mdt">
-    <h2 id="addon-name">Mythic Dungeon Tools
-      <span @click="isBeta=false" :class="{faded: isBeta}">{{ $t('Battle for Azeroth') }}</span>
-      <md-switch v-model="isBeta" class="md-primary"></md-switch>
-      <span @click="isBeta=true" :class="{faded: !isBeta}">{{ $t('Shadowlands Beta') }}</span>
+    <h2 id="addon-name">Mythic Dungeon Tools -
+      <span>{{ $t('Shadowlands') }}</span>
     </h2>
     <md-layout>
       <addon-info addon="mdt"></addon-info>
@@ -63,11 +61,11 @@
             <category-image group="affixWeek"></category-image>
             <div class="md-list-text-container">
               <span>
-                <router-link v-for="(item, index) in affixesS1" :to="'/mdt/' + item.slug" :key="index">
+                <a href="#" v-for="(item, index) in affixesS1" :key="index" @click.prevent="searchRoute(item.slug)">
                   <span v-if="index + 1 === currentWeek" class="currentWeek">&#xab;</span>
                   <span v-bind:class="{currentWeek: index + 1 === currentWeek}">{{ $t('Week [-num-] [-affixes-]', {num: index + 1, affixes: item.text}) }}</span>
                   <span v-if="index + 1 === currentWeek" class="currentWeek">&#xbb;</span>
-                </router-link>
+                </a>
               </span>
             </div>
           </md-list-item>
@@ -81,7 +79,7 @@
             <div class="md-list-text-container">
               <span>
                 <div v-for="boss in dun.bosses" v-bind:key="boss.id" v-bind:class="{'inline-dungeon-link': boss.slug.match(/\//g).length > 2}">
-                  <router-link :to="'/mdt/' + boss.slug">{{ boss.text }}</router-link>
+                  <a href="#" @click.prevent="searchRoute(boss.slug)">{{ boss.text }}</a>
                 </div>
               </span>
             </div>
@@ -93,7 +91,7 @@
             <category-image group="speed"></category-image>
             <div class="md-list-text-container">
               <span>
-                <router-link v-for="(item, index) in speed" :to="'/mdt/' + item.slug" v-bind:key="index">{{ item.text }}</router-link>
+                <a href="#" v-for="(item, index) in speed" @click.prevent="searchRoute(item.slug)" v-bind:key="index">{{ item.text }}</a>
               </span>
             </div>
           </md-list-item>
@@ -104,7 +102,7 @@
             <category-image group="affixes"></category-image>
             <div class="md-list-text-container">
               <span>
-                <router-link v-for="(item, index) in affixes" :to="'/mdt/' + item.slug" :key="index">{{ item.text }}</router-link>
+                <a href="#" v-for="(item, index) in affixes" @click.prevent="searchRoute(item.slug)" v-bind:key="index">{{ item.text }}</a>
               </span>
             </div>
           </md-list-item>
@@ -116,9 +114,9 @@
           <md-list-item v-for="cls in classes" v-bind:key="cls.id" :class="cls.cls + ' md-inset'">
             <category-image :group="cls.cls"></category-image>
             <div class="md-list-text-container">
-              <router-link :to="'/mdt/' + cls.slug">{{ cls.text }}</router-link>
+              <a href="#" @click.prevent="searchRoute(cls.slug)">{{ cls.text }}</a>
               <span>
-                <router-link v-for="spec in cls.specs" v-bind:key="spec.id" :to="'/mdt/' + spec.slug">{{ spec.text.replace(cls.text, '').trim() }}</router-link>
+                <a href="#" v-for="spec in cls.specs" @click.prevent="searchRoute(spec.slug)" v-bind:key="spec.id">{{ spec.text.replace(cls.text, '').trim() }}</a>
               </span>
             </div>
           </md-list-item>
@@ -141,11 +139,15 @@ export default {
     runSearch: function () {
       this.$router.push('/search/' + this.searchString.trim().replace(/\s+/g, '+'))
     },
+    searchRoute: function (slug) {
+      this.$store.commit('userSearchOption', {field: 'expansion', value: 'sl'})
+      this.$router.push('/shadowlands-weakauras/' + slug)
+    },
     createMDT: function () {
       try {
         var dungeon = categories.match(this.newDungeon).slug.split(/\//).pop()
         var week = categories.match(this.newAffix).slug.split(/\//).pop()
-        this.$router.push('/build-new-mdt/' + dungeon + '/' + week)
+        this.$router.push('/build-new-mdt/shadowlands-s1/' + dungeon + '/' + week)
       }
       catch (e) {
         console.error(e.message)
@@ -171,7 +173,7 @@ export default {
     return {
       searchString: 'Type: MDT ',
       newDungeon: '',
-      newAffix: 'mdtaffix-bfa-s4-w' + this.$store.state.MDTWeek,
+      newAffix: 'mdtaffix-sl-s1-w' + this.$store.state.MDTWeek,
       wclURL: '',
       wclDungeons: [],
       wclDungeonIndex: -1,
@@ -189,7 +191,7 @@ export default {
       }
     },
     currentWeek: function (val) {
-      this.newAffix = 'mdtaffix-bfa-s4-w' + val
+      this.newAffix = 'mdtaffix-sl-s1-w' + val
     },
     wclURL: function (val) {
       this.wclDungeonIndex = -1

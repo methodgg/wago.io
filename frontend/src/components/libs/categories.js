@@ -407,14 +407,14 @@ module.exports = {
       {id: "mdtdun26", slug: "pve/dungeons/mechagon-workshop", cls:"dungeon", text: t("warcraft:zones.10225b"), MDT: true, systemtag: true, noselect: true},
       
       {id: "mdt-sldun", slug: "pve/shadowlands-dungeons", cls:"dungeon", text: t("Dungeons"), root: true, MDT: true, systemtag: true, noselect: true},
-      {id: "mdt-sldun27", slug: "pve/shadowlands-dungeons/the-necrotic-wake", cls:"dungeon", text: t("warcraft:zones.TheNecroticWake"), MDT: true, systemtag: true, noselect: true},
-      {id: "mdt-sldun28", slug: "pve/shadowlands-dungeons/plaguefall", cls:"dungeon", text: t("warcraft:zones.Plaguefall"), MDT: true, systemtag: true, noselect: true},
-      {id: "mdt-sldun29", slug: "pve/shadowlands-dungeons/mists-of-tirna-scithe", cls:"dungeon", text: t("warcraft:zones.MistsOfTirnaScithe"), MDT: true, systemtag: true, noselect: true},
+      {id: "mdt-sldun29", slug: "pve/shadowlands-dungeons/de-other-side", cls:"dungeon", text: t("warcraft:zones.DeOtherSide"), MDT: true, systemtag: true, noselect: true},
       {id: "mdt-sldun30", slug: "pve/shadowlands-dungeons/halls-of-attonement", cls:"dungeon", text: t("warcraft:zones.HallsOfAttonement"), MDT: true, systemtag: true, noselect: true},
-      {id: "mdt-sldun31", slug: "pve/shadowlands-dungeons/theater-of-pain", cls:"dungeon", text: t("warcraft:zones.TheaterOfPain"), MDT: true, systemtag: true, noselect: true},
-      {id: "mdt-sldun32", slug: "pve/shadowlands-dungeons/de-other-side", cls:"dungeon", text: t("warcraft:zones.DeOtherSide"), MDT: true, systemtag: true, noselect: true},
-      {id: "mdt-sldun33", slug: "pve/shadowlands-dungeons/spires-of-ascension", cls:"dungeon", text: t("warcraft:zones.SpiresOfAscension"), MDT: true, systemtag: true, noselect: true},
-      {id: "mdt-sldun34", slug: "pve/shadowlands-dungeons/sanguine-depths", cls:"dungeon", text: t("warcraft:zones.SanguineDepths"), MDT: true, systemtag: true, noselect: true},
+      {id: "mdt-sldun31", slug: "pve/shadowlands-dungeons/mists-of-tirna-scithe", cls:"dungeon", text: t("warcraft:zones.MistsOfTirnaScithe"), MDT: true, systemtag: true, noselect: true},
+      {id: "mdt-sldun32", slug: "pve/shadowlands-dungeons/plaguefall", cls:"dungeon", text: t("warcraft:zones.Plaguefall"), MDT: true, systemtag: true, noselect: true},
+      {id: "mdt-sldun33", slug: "pve/shadowlands-dungeons/sanguine-depths", cls:"dungeon", text: t("warcraft:zones.SanguineDepths"), MDT: true, systemtag: true, noselect: true},
+      {id: "mdt-sldun34", slug: "pve/shadowlands-dungeons/spires-of-ascension", cls:"dungeon", text: t("warcraft:zones.SpiresOfAscension"), MDT: true, systemtag: true, noselect: true},
+      {id: "mdt-sldun35", slug: "pve/shadowlands-dungeons/the-necrotic-wake", cls:"dungeon", text: t("warcraft:zones.TheNecroticWake"), MDT: true, systemtag: true, noselect: true},
+      {id: "mdt-sldun36", slug: "pve/shadowlands-dungeons/theater-of-pain", cls:"dungeon", text: t("warcraft:zones.TheaterOfPain"), MDT: true, systemtag: true, noselect: true},
 
       {id: "mdtaffix", slug: "affixes", cls:"affixes", text: t("Affixes"), root: true, MDT: true, systemtag: true, noselect: true},
       // {id: "mdtaffix1", slug: "affixes/overflowing", cls:"affixes", text: t("Overflowing"), MDT: true, systemtag: true, noselect: true},
@@ -436,6 +436,10 @@ module.exports = {
       {id: "mdtaffix117", slug: "affixes/reaping", cls:"affixes", text: t("Reaping"), MDT: true, systemtag: true, noselect: true},
       {id: "mdtaffix119", slug: "affixes/beguiling", cls:"affixes", text: t("Beguiling"), MDT: true, systemtag: true, noselect: true},
       {id: "mdtaffix120", slug: "affixes/awakened", cls:"affixes", text: t("Awakened"), MDT: true, systemtag: true, noselect: true},
+      {id: "mdtaffix121", slug: "affixes/prideful", cls:"affixes", text: t("Prideful"), MDT: true, systemtag: true, noselect: true},
+      {id: "mdtaffix122", slug: "affixes/inspiring", cls:"affixes", text: t("Inspiring"), MDT: true, systemtag: true, noselect: true},
+      {id: "mdtaffix123", slug: "affixes/spiteful", cls:"affixes", text: t("Spiteful"), MDT: true, systemtag: true, noselect: true},
+      {id: "mdtaffix124", slug: "affixes/storming", cls:"affixes", text: t("Storming"), MDT: true, systemtag: true, noselect: true},
 
       {id: "mdtaffix-bfa-s1-w1", slug: "affixes/s1/week1", cls:"affixes", text: t("[-affix1-], [-affix2-], [-affix3-], [-affix4-]", {affix1: t('Raging'), affix2: t('Volcanic'), affix3: t('Tyrannical'), affix4: t('Infested')}), MDT: true, systemtag: true, noselect: true},
       {id: "mdtaffix-bfa-s1-w2", slug: "affixes/s1/week2", cls:"affixes", text: t("[-affix1-], [-affix2-], [-affix3-], [-affix4-]", {affix1: t('Teeming'), affix2: t('Explosive'), affix3: t('Fortified'), affix4: t('Infested')}), MDT: true, systemtag: true, noselect: true},
@@ -476,18 +480,31 @@ module.exports = {
       {id: "mdtaffix-bfa-s3-w11", slug: "affixes/s3/week11", cls:"affixes", text: t("[-affix1-], [-affix2-], [-affix3-], [-affix4-]", {affix1: t('Bolstering'), affix2: t('Explosive'), affix3: t('Tyrannical'), affix4: t('Beguiling')}), MDT: true, systemtag: true, noselect: true},
       {id: "mdtaffix-bfa-s3-w12", slug: "affixes/s3/week12", cls:"affixes", text: t("[-affix1-], [-affix2-], [-affix3-], [-affix4-]", {affix1: t('Sanguine'), affix2: t('Grievous'), affix3: t('Fortified'), affix4: t('Beguiling')}), MDT: true, systemtag: true, noselect: true},
 
-      {id: "mdtaffix-bfa-s4-w1", slug: "affixes/week1", cls:"affixes", text: t("[-affix1-], [-affix2-], [-affix3-], [-affix4-]", {affix1: t('Teeming'), affix2: t('Volcanic'), affix3: t('Tyrannical'), affix4: t('Awakened')}), MDT: true, systemtag: true, noselect: true},
-      {id: "mdtaffix-bfa-s4-w2", slug: "affixes/week2", cls:"affixes", text: t("[-affix1-], [-affix2-], [-affix3-], [-affix4-]", {affix1: t('Bolstering'), affix2: t('Skittish'), affix3: t('Fortified'), affix4: t('Awakened')}), MDT: true, systemtag: true, noselect: true},
-      {id: "mdtaffix-bfa-s4-w3", slug: "affixes/week3", cls:"affixes", text: t("[-affix1-], [-affix2-], [-affix3-], [-affix4-]", {affix1: t('Bursting'), affix2: t('Necrotic'), affix3: t('Tyrannical'), affix4: t('Awakened')}), MDT: true, systemtag: true, noselect: true},
-      {id: "mdtaffix-bfa-s4-w4", slug: "affixes/week4", cls:"affixes", text: t("[-affix1-], [-affix2-], [-affix3-], [-affix4-]", {affix1: t('Sanguine'), affix2: t('Quaking'), affix3: t('Fortified'), affix4: t('Awakened')}), MDT: true, systemtag: true, noselect: true},
-      {id: "mdtaffix-bfa-s4-w5", slug: "affixes/week5", cls:"affixes", text: t("[-affix1-], [-affix2-], [-affix3-], [-affix4-]", {affix1: t('Bolstering'), affix2: t('Explosive'), affix3: t('Tyrannical'), affix4: t('Awakened')}), MDT: true, systemtag: true, noselect: true},
-      {id: "mdtaffix-bfa-s4-w6", slug: "affixes/week6", cls:"affixes", text: t("[-affix1-], [-affix2-], [-affix3-], [-affix4-]", {affix1: t('Bursting'), affix2: t('Volcanic'), affix3: t('Fortified'), affix4: t('Awakened')}), MDT: true, systemtag: true, noselect: true},
-      {id: "mdtaffix-bfa-s4-w7", slug: "affixes/week7", cls:"affixes", text: t("[-affix1-], [-affix2-], [-affix3-], [-affix4-]", {affix1: t('Raging'), affix2: t('Necrotic'), affix3: t('Tyrannical'), affix4: t('Awakened')}), MDT: true, systemtag: true, noselect: true},
-      {id: "mdtaffix-bfa-s4-w8", slug: "affixes/week8", cls:"affixes", text: t("[-affix1-], [-affix2-], [-affix3-], [-affix4-]", {affix1: t('Teeming'), affix2: t('Quaking'), affix3: t('Fortified'), affix4: t('Awakened')}), MDT: true, systemtag: true, noselect: true},
-      {id: "mdtaffix-bfa-s4-w9", slug: "affixes/week9", cls:"affixes", text: t("[-affix1-], [-affix2-], [-affix3-], [-affix4-]", {affix1: t('Bursting'), affix2: t('Skittish'), affix3: t('Tyrannical'), affix4: t('Awakened')}), MDT: true, systemtag: true, noselect: true},
-      {id: "mdtaffix-bfa-s4-w10", slug: "affixes/week10", cls:"affixes", text: t("[-affix1-], [-affix2-], [-affix3-], [-affix4-]", {affix1: t('Bolstering'), affix2: t('Grievous'), affix3: t('Fortified'), affix4: t('Awakened')}), MDT: true, systemtag: true, noselect: true},
-      {id: "mdtaffix-bfa-s4-w11", slug: "affixes/week11", cls:"affixes", text: t("[-affix1-], [-affix2-], [-affix3-], [-affix4-]", {affix1: t('Raging'), affix2: t('Explosive'), affix3: t('Tyrannical'), affix4: t('Awakened')}), MDT: true, systemtag: true, noselect: true},
-      {id: "mdtaffix-bfa-s4-w12", slug: "affixes/week12", cls:"affixes", text: t("[-affix1-], [-affix2-], [-affix3-], [-affix4-]", {affix1: t('Sanguine'), affix2: t('Grievous'), affix3: t('Fortified'), affix4: t('Awakened')}), MDT: true, systemtag: true, noselect: true},
+      {id: "mdtaffix-bfa-s4-w1", slug: "affixes/s4/week1", cls:"affixes", contains: ['mdtaffix5', 'mdtaffix3', 'mdtaffix9', 'mdtaffix120'], text: t("[-affix1-], [-affix2-], [-affix3-], [-affix4-]", {affix1: t('Teeming'), affix2: t('Volcanic'), affix3: t('Tyrannical'), affix4: t('Awakened')}), MDT: true, systemtag: true, noselect: true},
+      {id: "mdtaffix-bfa-s4-w2", slug: "affixes/s4/week2", cls:"affixes", contains: ['mdtaffix7', 'mdtaffix2', 'mdtaffix10', 'mdtaffix120'], text: t("[-affix1-], [-affix2-], [-affix3-], [-affix4-]", {affix1: t('Bolstering'), affix2: t('Skittish'), affix3: t('Fortified'), affix4: t('Awakened')}), MDT: true, systemtag: true, noselect: true},
+      {id: "mdtaffix-bfa-s4-w3", slug: "affixes/s4/week3", cls:"affixes", contains: ['mdtaffix11', 'mdtaffix4', 'mdtaffix9', 'mdtaffix120'], text: t("[-affix1-], [-affix2-], [-affix3-], [-affix4-]", {affix1: t('Bursting'), affix2: t('Necrotic'), affix3: t('Tyrannical'), affix4: t('Awakened')}), MDT: true, systemtag: true, noselect: true},
+      {id: "mdtaffix-bfa-s4-w4", slug: "affixes/s4/week4", cls:"affixes", contains: ['mdtaffix8', 'mdtaffix14', 'mdtaffix10', 'mdtaffix120'], text: t("[-affix1-], [-affix2-], [-affix3-], [-affix4-]", {affix1: t('Sanguine'), affix2: t('Quaking'), affix3: t('Fortified'), affix4: t('Awakened')}), MDT: true, systemtag: true, noselect: true},
+      {id: "mdtaffix-bfa-s4-w5", slug: "affixes/s4/week5", cls:"affixes", contains: ['mdtaffix7', 'mdtaffix13', 'mdtaffix9', 'mdtaffix120'], text: t("[-affix1-], [-affix2-], [-affix3-], [-affix4-]", {affix1: t('Bolstering'), affix2: t('Explosive'), affix3: t('Tyrannical'), affix4: t('Awakened')}), MDT: true, systemtag: true, noselect: true},
+      {id: "mdtaffix-bfa-s4-w6", slug: "affixes/s4/week6", cls:"affixes", contains: ['mdtaffix11', 'mdtaffix3', 'mdtaffix10', 'mdtaffix120'], text: t("[-affix1-], [-affix2-], [-affix3-], [-affix4-]", {affix1: t('Bursting'), affix2: t('Volcanic'), affix3: t('Fortified'), affix4: t('Awakened')}), MDT: true, systemtag: true, noselect: true},
+      {id: "mdtaffix-bfa-s4-w7", slug: "affixes/s4/week7", cls:"affixes", contains: ['mdtaffix6', 'mdtaffix4', 'mdtaffix9', 'mdtaffix120'], text: t("[-affix1-], [-affix2-], [-affix3-], [-affix4-]", {affix1: t('Raging'), affix2: t('Necrotic'), affix3: t('Tyrannical'), affix4: t('Awakened')}), MDT: true, systemtag: true, noselect: true},
+      {id: "mdtaffix-bfa-s4-w8", slug: "affixes/s4/week8", cls:"affixes", contains: ['mdtaffix5', 'mdtaffix14', 'mdtaffix10', 'mdtaffix120'], text: t("[-affix1-], [-affix2-], [-affix3-], [-affix4-]", {affix1: t('Teeming'), affix2: t('Quaking'), affix3: t('Fortified'), affix4: t('Awakened')}), MDT: true, systemtag: true, noselect: true},
+      {id: "mdtaffix-bfa-s4-w9", slug: "affixes/s4/week9", cls:"affixes", contains: ['mdtaffix11', 'mdtaffix2', 'mdtaffix9', 'mdtaffix120'], text: t("[-affix1-], [-affix2-], [-affix3-], [-affix4-]", {affix1: t('Bursting'), affix2: t('Skittish'), affix3: t('Tyrannical'), affix4: t('Awakened')}), MDT: true, systemtag: true, noselect: true},
+      {id: "mdtaffix-bfa-s4-w10", slug: "affixes/s4/week10", cls:"affixes", contains: ['mdtaffix7', 'mdtaffix12', 'mdtaffix10', 'mdtaffix120'], text: t("[-affix1-], [-affix2-], [-affix3-], [-affix4-]", {affix1: t('Bolstering'), affix2: t('Grievous'), affix3: t('Fortified'), affix4: t('Awakened')}), MDT: true, systemtag: true, noselect: true},
+      {id: "mdtaffix-bfa-s4-w11", slug: "affixes/s4/week11", cls:"affixes", contains: ['mdtaffix6', 'mdtaffix13', 'mdtaffix9', 'mdtaffix120'], text: t("[-affix1-], [-affix2-], [-affix3-], [-affix4-]", {affix1: t('Raging'), affix2: t('Explosive'), affix3: t('Tyrannical'), affix4: t('Awakened')}), MDT: true, systemtag: true, noselect: true},
+      {id: "mdtaffix-bfa-s4-w12", slug: "affixes/s4/week12", cls:"affixes", contains: ['mdtaffix8', 'mdtaffix12', 'mdtaffix10', 'mdtaffix120'], text: t("[-affix1-], [-affix2-], [-affix3-], [-affix4-]", {affix1: t('Sanguine'), affix2: t('Grievous'), affix3: t('Fortified'), affix4: t('Awakened')}), MDT: true, systemtag: true, noselect: true},
+
+      {id: "mdtaffix-sl-s1-w1", slug: "affixes/shadowlands-s1/week-1", cls:"affixes", contains: ['mdtaffix10', 'mdtaffix11', 'mdtaffix124', 'mdtaffix121'], text: t("[-affix1-], [-affix2-], [-affix3-], [-affix4-]", {affix1: t('Fortified'), affix2: t('Bursting'), affix3: t('Storming'), affix4: t('Prideful')}), MDT: true, systemtag: true, noselect: true},
+      {id: "mdtaffix-sl-s1-w2", slug: "affixes/shadowlands-s1/week-2", cls:"affixes", contains: ['mdtaffix9', 'mdtaffix8', 'mdtaffix12', 'mdtaffix121'], text: t("[-affix1-], [-affix2-], [-affix3-], [-affix4-]", {affix1: t('Tyrannical'), affix2: t('Sanguine'), affix3: t('Grievous'), affix4: t('Prideful')}), MDT: true, systemtag: true, noselect: true},
+      {id: "mdtaffix-sl-s1-w3", slug: "affixes/shadowlands-s1/week-3", cls:"affixes", contains: ['mdtaffix10', 'mdtaffix122', 'mdtaffix13', 'mdtaffix121'], text: t("[-affix1-], [-affix2-], [-affix3-], [-affix4-]", {affix1: t('Fortified'), affix2: t('Inspiring'), affix3: t('Explosive'), affix4: t('Prideful')}), MDT: true, systemtag: true, noselect: true},
+      {id: "mdtaffix-sl-s1-w4", slug: "affixes/shadowlands-s1/week-4", cls:"affixes", contains: ['mdtaffix9', 'mdtaffix6', 'mdtaffix14', 'mdtaffix121'], text: t("[-affix1-], [-affix2-], [-affix3-], [-affix4-]", {affix1: t('Tyrannical'), affix2: t('Raging'), affix3: t('Quaking'), affix4: t('Prideful')}), MDT: true, systemtag: true, noselect: true},
+      {id: "mdtaffix-sl-s1-w5", slug: "affixes/shadowlands-s1/week-5", cls:"affixes", contains: ['mdtaffix10', 'mdtaffix11', 'mdtaffix3', 'mdtaffix121'], text: t("[-affix1-], [-affix2-], [-affix3-], [-affix4-]", {affix1: t('Fortified'), affix2: t('Bursting'), affix3: t('Volcanic'), affix4: t('Prideful')}), MDT: true, systemtag: true, noselect: true},
+      {id: "mdtaffix-sl-s1-w6", slug: "affixes/shadowlands-s1/week-6", cls:"affixes", contains: ['mdtaffix9', 'mdtaffix123', 'mdtaffix12', 'mdtaffix121'], text: t("[-affix1-], [-affix2-], [-affix3-], [-affix4-]", {affix1: t('Tyrannical'), affix2: t('Spiteful'), affix3: t('Grievous'), affix4: t('Prideful')}), MDT: true, systemtag: true, noselect: true},
+      {id: "mdtaffix-sl-s1-w7", slug: "affixes/shadowlands-s1/week-7", cls:"affixes", contains: ['mdtaffix10', 'mdtaffix7', 'mdtaffix124', 'mdtaffix121'], text: t("[-affix1-], [-affix2-], [-affix3-], [-affix4-]", {affix1: t('Fortified'), affix2: t('Bolstering'), affix3: t('Storming'), affix4: t('Prideful')}), MDT: true, systemtag: true, noselect: true},
+      {id: "mdtaffix-sl-s1-w8", slug: "affixes/shadowlands-s1/week-8", cls:"affixes", contains: ['mdtaffix9', 'mdtaffix122', 'mdtaffix4', 'mdtaffix121'], text: t("[-affix1-], [-affix2-], [-affix3-], [-affix4-]", {affix1: t('Tyrannical'), affix2: t('Inspiring'), affix3: t('Necrotic'), affix4: t('Prideful')}), MDT: true, systemtag: true, noselect: true},
+      {id: "mdtaffix-sl-s1-w9", slug: "affixes/shadowlands-s1/week-9", cls:"affixes", contains: ['mdtaffix10', 'mdtaffix8', 'mdtaffix14', 'mdtaffix121'], text: t("[-affix1-], [-affix2-], [-affix3-], [-affix4-]", {affix1: t('Fortified'), affix2: t('Sanguine'), affix3: t('Quaking'), affix4: t('Prideful')}), MDT: true, systemtag: true, noselect: true},
+      {id: "mdtaffix-sl-s1-w10", slug: "affixes/shadowlands-s1/week-10", cls:"affixes", contains: ['mdtaffix9', 'mdtaffix6', 'mdtaffix13', 'mdtaffix121'], text: t("[-affix1-], [-affix2-], [-affix3-], [-affix4-]", {affix1: t('Tyrannical'), affix2: t('Raging'), affix3: t('Explosive'), affix4: t('Prideful')}), MDT: true, systemtag: true, noselect: true},
+      {id: "mdtaffix-sl-s1-w11", slug: "affixes/shadowlands-s1/week-11", cls:"affixes", contains: ['mdtaffix10', 'mdtaffix123', 'mdtaffix3', 'mdtaffix121'], text: t("[-affix1-], [-affix2-], [-affix3-], [-affix4-]", {affix1: t('Fortified'), affix2: t('Spiteful'), affix3: t('Volcanic'), affix4: t('Prideful')}), MDT: true, systemtag: true, noselect: true},
+      {id: "mdtaffix-sl-s1-w12", slug: "affixes/shadowlands-s1/week-12", cls:"affixes", contains: ['mdtaffix9', 'mdtaffix7', 'mdtaffix4', 'mdtaffix121'], text: t("[-affix1-], [-affix2-], [-affix3-], [-affix4-]", {affix1: t('Tyrannical'), affix2: t('Bolstering'), affix3: t('Necrotic'), affix4: t('Prideful')}), MDT: true, systemtag: true, noselect: true},
 
       {id: "mdtspeed", slug: "speed", cls:"speed", text: t("Speed"), root: true, MDT: true},
       {id: "mdtspeed1", slug: "speed/easy-going", cls:"speed", text: t("Easy Going"), MDT: true },
@@ -702,6 +719,50 @@ module.exports = {
       return this.search('warcraft:'+str, t)
     }
     return false
+  },
+
+  findMDTSeason: function (a1, a2, a3, a4) {
+    var cats = this.categories()
+    if (parseInt(a1)) {
+      a1 = 'mdtaffix' + a1
+    }
+    if (parseInt(a2)) {
+      a2 = 'mdtaffix' + a2
+    }
+    if (parseInt(a3)) {
+      a3 = 'mdtaffix' + a3
+    }
+    if (parseInt(a4)) {
+      a4 = 'mdtaffix' + a4
+    }
+    for (var i=0; i<cats.length; i++) {
+      if (!cats[i].contains) {
+        continue
+      }
+      if (cats[i].contains.indexOf(a1) >= 0 && cats[i].contains.indexOf(a2) >= 0 && cats[i].contains.indexOf(a3) >= 0 && cats[i].contains.indexOf(a4) >= 0) {
+        try {
+          return cats[i].id.match(/mdtaffix-(\w+-s\d+)-/)[1]
+        }
+        catch (e) {
+        }
+      }
+    }
+    return null
+  },
+
+  getMDTAffixOptions: function (season) {
+    var cats = this.categories()
+    var regex = new RegExp('^mdtaffix-' + season + '-')
+    var opts = []
+    for (var i=0; i<cats.length; i++) {
+      if (!cats[i].contains || !cats[i].id.match(regex)) {
+        continue
+      }
+      opts.push(cats[i].contains.map((x) => {
+        return parseInt(x.replace(/[^\d]/g, ''))
+      }))
+    }
+    return opts
   },
 
   // make list of classes, then sort them alphabetically for the current locale, then get specs and return

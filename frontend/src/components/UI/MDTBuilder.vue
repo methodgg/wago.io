@@ -76,6 +76,12 @@
                 <slot>1</slot>
                 <mdt-poi :data="poi" :mdtScale="mdtScale" :mapID="mapID" @mouseover="setPOITooltip" @mouseout="setPOITooltip(null)" @mousemove="moveTooltip" @click="clickPOI" />
               </template>
+              
+              <!-- polygon hull wrapping pulls -->
+              <template v-for="(pull, id) in tableData.value.pulls">
+                <v-line :config="getHull(id)"></v-line>
+              </template>
+
               <template v-for="(creature, i) in enemies">
                 <slot>1</slot>
                 <template v-if="creature">
@@ -120,13 +126,14 @@
                         x: clone.x * mdtScale,
                         y: clone.y * -mdtScale,
                         radius: Math.round(5 * creature.scale * (creature.isBoss ? 1.7 : 1) * (mdtDungeonTable.scaleMultiplier || 1)) / mdtScale,
-                        fill: isCreatureNoTarget(creature.id) ? 'rgba(33, 33, 33, 0.6)' :
+                        fill: isCreatureNoTarget(creature.id) ? 'rgba(33, 33, 33, 0.4)' :
                               clone.hover ? hexToRGB(clone.color, 0.65) :
-                              clone.pull >= 0 ? hexToRGB(clone.color, 0.4) :
+                              clone.pull >= 0 ? hexToRGB(clone.color, 0.2) :
                               'rgba(0, 0, 0, 0)',
                         stroke: isCreatureNoTarget(creature.id) ? '#333333' :
                                 isInfested(clone) ? 'red' :
                                 creature.isBoss ? 'gold' :
+                                clone.pull >= 0 ? hexToRGB(clone.color, 1) :
                                 'black',
                         strokeWidth: .5,
                         strokeEnabled: ((creature.isBoss && isCreatureNoTarget(creature.id)) || isInfested(clone)),
@@ -270,7 +277,7 @@
           <md-list class="custom-list md-double-line md-dense" id="mdtPulls">
             <template v-for="pull in tableData.value.pulls.length">
               <div @mouseover="setTargetHover(false, false, false, pull - 1)" @mouseleave="setTargetHover()">
-                <md-list-item class="mdt-pull" v-bind:class="{selected: currentPull === pull - 1}" @click="selectPull(pull - 1)" v-bind:style="{'border-left-color': '#' + (pullDetails[pull - 1].color || '228b22'), 'background-color': currentPull === pull - 1 ? hexToRGB(pullDetails[pull - 1].color, 0.1) : null}">
+                <md-list-item class="mdt-pull" v-bind:class="{selected: currentPull === pull - 1}" @click="selectPull(pull - 1)" v-bind:style="{'border-left-color': '#' + (pullDetails[pull - 1].color || '228b22'), 'background-color': hexToRGB(pullDetails[pull - 1].color, 0.1)}">
                   <div class="md-list-text-container" v-if="pullDetails[pull - 1]">
                     <span>{{ $t('Pull [-num-]', { num : pull}) }}; {{ pullDetails[pull - 1].percent }}%</span>
                     <span v-html="pullDetails[pull - 1].hList"></span>
@@ -291,12 +298,13 @@
                 </md-list-item>
               </div>
               <template v-for="reapPct in reapingPercents">
-                <div class="reaping-pull" v-if="isReapingSelected() && reapingPullDetails[reapPct] && reapingPullDetails[reapPct].pull === pull && reapingPullDetails[reapPct].targets && reapingPullDetails[reapPct].targets.length"
-                  @mouseover="setReapingHover(pull - 1)" @mouseleave="setTargetHover()">
+                <div class="reaping-pull" v-if="reapingPullDetails[reapPct] && reapingPullDetails[reapPct].pull === pull && ((isReapingSelected() && reapingPullDetails[reapPct].targets && reapingPullDetails[reapPct].targets.length) || isPridefulSelected())"
+                  @mouseoverx="setReapingHover(pull - 1)" @mouseleave="setTargetHover()">
                   <md-list-item v-bind:class="{selected: currentReapingPull === reapPct}"
                     @click="selectReapingPull(reapPct)">
                     <div class="md-list-text-container">
-                      <span>{{ $t('Reaping [-num-]%', { num : reapPct}) }}</span>
+                      <span v-if="isReapingSelected()">{{ $t('Reaping [-num-]%', { num : reapPct}) }}</span>
+                      <span v-else-if="isPridefulSelected()">{{ $t('Manifestation of Pride [-num-]%', { num : reapPct}) }}</span>
                       <span v-html="reapingPullDetails[reapPct].hList"></span>
                       <div v-show-slide="currentReapingPull === reapPct" class="mdtGroupDetails">
                         <div>
@@ -319,7 +327,7 @@
 
           <md-sidenav class="md-right" ref="affixSelection">
             <md-list class="md-double-line md-dense" id="selectAffixWeek">
-              <template v-for="(week, k) in mdtDungeonTable.affixWeeks">
+              <template v-for="(week, k) in affixOptions">
                 <md-list-item @click="setAffixWeek(k)">
                   <div class="affixWeek">
                     <template v-for="affixID in week">
@@ -365,10 +373,12 @@
 <script>
 const semver = require('semver')
 const async = require('async')
+import Categories from '../libs/categories'
+const hull = require('hull.js')
 
 export default {
   name: 'build-mdt',
-  props: ['scratch', 'readonly', 'cipherKey'],
+  props: ['scratch', 'readonly', 'cipherKey', 'affixes'],
   data: function () {
     return {
       mdtScale: 539 / 450, // 1.197777 repeating, of course. Found by trial and error; there may be something that more accurately scales wow pixels into real pixels, but this is very close.
@@ -398,6 +408,7 @@ export default {
       tooltipEnemy: {},
       tooltipPOI: '',
       selectedAffixes: [],
+      affixOptions: [],
       hoverSpecific: {},
       dungeonAffixes: {
         1: { name: 'Overflowing', icon: 'inv_misc_volatilewater' },
@@ -418,11 +429,16 @@ export default {
         16: { name: 'Infested', icon: 'Achievement_Nazmir_Boss_Ghuun' },
         117: { name: 'Reaping', icon: 'Ability_Racial_EmbraceoftheLoa_Bwonsomdi' },
         119: { name: 'Beguiling', icon: 'Spell_Shadow_MindShear' },
-        120: { name: 'Awakening', icon: 'TRADE_ARCHAEOLOGY_NERUBIAN_OBELISK' }
+        120: { name: 'Awakening', icon: 'TRADE_ARCHAEOLOGY_NERUBIAN_OBELISK' },
+        121: { name: 'Prideful', icon: 'Spell_AnimaRevendreth_Buff' },
+        122: { name: 'Inspiring', icon: 'Spell_Holy_PrayerofSpirit' },
+        123: { name: 'Spiteful', icon: 'Spell_Holy_PrayerofShadowProtection' },
+        124: { name: 'Storming', icon: 'Spell_Nature_Cyclone' }
       },
       currentPull: -1,
       reapingPercents: [20, 40, 60, 80, 100],
       reapingPullDetails: {},
+      pridefulPullDetails: {},
       currentReapingPull: -1,
       annotationMode: false,
       annotationClass: 'standard',
@@ -486,7 +502,18 @@ export default {
       if (!this.tableData.week) {
         this.tableData.week = 1
       }
-      this.selectedAffixes = this.mdtDungeonTable.affixWeeks[this.tableData.week - 1]
+      if (this.affixes) {
+        this.selectedAffixes = this.affixes.map((x) => {
+          return parseInt(x.replace(/[^\d]/g, ''))
+        })
+      }
+      else {
+        this.selectedAffixes = this.mdtDungeonTable.affixWeeks[this.tableData.week - 1]
+      }
+      // get season
+      let season = Categories.findMDTSeason(this.selectedAffixes[0], this.selectedAffixes[1], this.selectedAffixes[2], this.selectedAffixes[3])
+      this.affixOptions = Categories.getMDTAffixOptions(season)
+      // console.log(this.affixOptions)
       this.enemies = this.mdtDungeonTable.dungeonEnemies
       for (let i = 0; i < this.enemies.length; i++) {
         if (this.enemies[i]) {
@@ -807,7 +834,7 @@ export default {
       var map = this.mdtDungeonTable.dungeonMaps[subMap + 1]
       this.mapTiles = []
       var path = 'https://media.wago.io/wow-ui-textures/Worldmap'
-      if (map.match(/MechagonDungeon/)) {
+      if (this.mapID >= 26) {
         path = 'https://media.wago.io/wow-ui-textures/WorldMap' // why do you do this Blizzard?
       }
 
@@ -856,6 +883,10 @@ export default {
       async.each(preload, (url, done) => {
         var img = new Image()
         img.onload = function () {
+          done()
+        }
+        img.onerror = function () {
+          console.log('img err')
           done()
         }
         img.src = url
@@ -1052,6 +1083,46 @@ export default {
       })
     },
 
+    getHull (pullIndex) {
+      if (!this.tableData.value.pulls[pullIndex]) {
+        return {}
+      }
+      var color = this.tableData.value.pulls[pullIndex].color
+      var vertices = []
+      for (let [creatureIndex, clones] of Object.entries(this.tableData.value.pulls[pullIndex])) {
+        if (!Array.isArray(clones)) {
+          continue
+        }
+        for (let cloneIndex of clones) {
+          if (this.enemies[creatureIndex - 1] && this.enemies[creatureIndex - 1].clones[cloneIndex - 1]) {
+            vertices.push([this.enemies[creatureIndex - 1].clones[cloneIndex - 1].x * this.mdtScale, -this.enemies[creatureIndex - 1].clones[cloneIndex - 1].y * this.mdtScale])
+          }
+        }
+      }
+      if (vertices.length < 2) {
+        return {}
+      }
+      var poly = hull(vertices, 80)
+      var x = poly[0][0]
+      var y = poly[0][1]
+      var polyPoints = []
+      for (let i = 0; i < poly.length; i++) {
+        polyPoints.push(poly[i][0] - x)
+        polyPoints.push(poly[i][1] - y)
+      }
+
+      return {
+        x: x,
+        y: y,
+        points: polyPoints,
+        tension: 0.2,
+        closed: true,
+        listening: false,
+        stroke: '#' + color,
+        fill: '#' + color + '33'
+      }
+    },
+
     displayAffix (affixID, textonly) {
       if (!this.dungeonAffixes || !this.dungeonAffixes[affixID]) {
         return ''
@@ -1063,13 +1134,13 @@ export default {
     },
 
     toggleAffixSelection () {
-      var scrollTop = window.pageYOffset || document.documentElement.scrollTop
+      // var scrollTop = window.pageYOffset || document.documentElement.scrollTop
       this.$refs.affixSelection.toggle()
-      document.documentElement.scrollTop = document.body.scrollTop = scrollTop
+      // document.documentElement.scrollTop = document.body.scrollTop = scrollTop
     },
 
     setAffixWeek (week) {
-      this.selectedAffixes = this.mdtDungeonTable.affixWeeks[week]
+      this.selectedAffixes = this.affixOptions[week]
       this.tableData.week = week + 1
       this.updateTableString()
       this.$refs.affixSelection.close()
@@ -1100,15 +1171,23 @@ export default {
       return !!clone.infested[week]
     },
 
-    isReapingSelected (clone) {
+    isReapingSelected () {
       return this.selectedAffixes.indexOf(117) >= 0
     },
 
-    isBeguildingSelected (clone) {
+    isPridefulSelected () {
+      return this.selectedAffixes.indexOf(121) >= 0
+    },
+
+    isReapingOrPridefulSelected () {
+      return this.isReapingSelected() || this.isPridefulSelected()
+    },
+
+    isBeguildingSelected () {
       return this.selectedAffixes.indexOf(119) >= 0
     },
 
-    isAwakeningSelected (clone) {
+    isAwakeningSelected () {
       return this.selectedAffixes.indexOf(120) >= 0
     },
 
@@ -1161,7 +1240,8 @@ export default {
     },
 
     createPull () {
-      this.tableData.value.pulls.push({color: '228b22'})
+      let colors = ['ff3eff', '3eff9e', 'ff3e3e', '3e9eff', 'fffb3e', '3eff3e', 'ff3e9e', '3effff', 'ff9b3e', '3e3eff', 'a1ff3e'] // matches MDT's high contrast pallette
+      this.tableData.value.pulls.push({color: colors[this.tableData.value.pulls.length % 11]})
       this.currentPull = this.tableData.value.pulls.length - 1
       this.updatePullDetails(this.currentPull)
       this.updateReapingPulls()
@@ -1335,7 +1415,7 @@ export default {
 
       this.pullDetails.splice(pullIndex, 1, details)
 
-      if (this.isReapingSelected()) {
+      if (this.isReapingOrPridefulSelected()) {
         this.updateReapingPulls()
       }
     },
@@ -1585,7 +1665,7 @@ export default {
       })
     },
     saveFromScratch () {
-      this.http.post('/import/create', { json: this.tableString, type: 'MDT', create: true }).then((res) => {
+      this.http.post('/import/create', { json: this.tableString, type: 'MDT', create: true, affixes: this.selectedAffixes.join(',') }).then((res) => {
         if (res.success && res.wagoID) {
           this.$router.push('/' + res.wagoID)
         }
