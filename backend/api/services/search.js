@@ -176,7 +176,7 @@ module.exports = function (fastify, opts, next) {
       esFilter.push({ bool: { must_not: { term: { 'type.keyword': 'ERROR'}}}})
     }
 
-    if (expansion !== 'all' && matchType && matchType.match(/WEAKAURA/)) {
+    if (expansion !== 'all' && matchType && matchType.match(/WEAKAURA|MDT/)) {
         esFilter.push({ term: { game: expansion } })
         expansionFilterIndex = esFilter.length - 1
     }
@@ -399,18 +399,9 @@ module.exports = function (fastify, opts, next) {
           enabled: true
         }
       })
-      const mentions = await Comments.findMentions(req.user._id)
-      searchSettings.topSearch = []
-      searchSettings.secondarySearch = []
-      for (const [mentionWagoID, unread] of Object.entries(mentions)) {
-        // push unread comments to top of search results
-        if (unread) {
-          searchSettings.topSearch.push(mentionWagoID)
-        }
-        else {
-          searchSettings.secondarySearch.push(mentionWagoID)
-        }
-      }
+      const mentions = await Comments.findMentions(req.user._id, req.query.includeRead)
+      esFilter.push({ids: { values: mentions } })
+      searchSettings.showHidden = true
     }
 
     // if we changed any default search settings
@@ -536,7 +527,7 @@ module.exports = function (fastify, opts, next) {
     }
     // initialize results
     if (results.hits && results.hits.hits) {
-      Search.total = results.hits.total
+      Search.total = results.hits.total.value
       if (typeof Search.total === 'object') {
         Search.total = Search.total.value || 0
       }

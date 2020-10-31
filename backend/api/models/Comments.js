@@ -27,16 +27,14 @@ Schema.statics.findUnread = async function(userID) {
   return unread
 }
 
-Schema.statics.findMentions = async function(userID) {
+Schema.statics.findMentions = async function(userID, includeRead) {
   const comments = await this.find({"usersTagged.userID": userID}).select('wagoID usersTagged.$').exec()
-  var mentions = {}
+
+  var mentions = []
   comments.forEach((mention) => {
     mention.usersTagged.forEach((tag) => {
-      if (tag.userID.equals(userID) && !tag.read) {
-        mentions[mention.wagoID] = 1
-      }
-      else if (tag.userID.equals(userID) && !mentions[mention.wagoID]) {
-        mentions[mention.wagoID] = 0
+      if (userID.equals(tag.userID) && (!tag.read || includeRead) && mentions.indexOf(mention.wagoID) < 0) {
+        mentions.push(mention.wagoID)
       }
     })    
   })

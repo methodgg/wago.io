@@ -43,10 +43,18 @@
           <label for="expansion">{{ $t("Expansion Filter") }}</label>
           <md-select name="expansion" id="expansion" v-model="expansionVal">
             <md-option value="all">{{ $t("Search All") }}</md-option>
-            <md-option value="sl">{{ $t("Shadowlands Beta") }}</md-option>
+            <md-option value="sl">{{ $t("Shadowlands") }}</md-option>
             <md-option value="bfa">{{ $t("Battle for Azeroth") }}</md-option>
             <md-option value="legion">{{ $t("Legion") }}</md-option>
             <md-option value="classic">{{ $t("Classic") }}</md-option>
+          </md-select>
+        </md-input-container>
+
+        <md-input-container v-if="hasMentions">
+          <label for="expansion">{{ $t("Include Read Mentions") }}</label>
+          <md-select v-model="includeReadMentionsVal">
+            <md-option value="">{{ $t("No") }}</md-option>
+            <md-option value="1">{{ $t("Yes") }}</md-option>
           </md-select>
         </md-input-container>
       </div>
@@ -139,14 +147,14 @@ export default {
   components: {
     'category-image': require('../UI/CategoryImage.vue')
   },
-  props: ['meta', 'textSearch', 'tagMap', 'sort', 'catRelevance', 'filterExpansion'],
+  props: ['meta', 'textSearch', 'tagMap', 'sort', 'catRelevance', 'filterExpansion', 'includeReadMentions'],
   computed: {
     sortVal: {
       get: function () {
         return this.sort
       },
       set: function (v) {
-        this.$emit('setSort', v)
+        this.$emit('setSort', v, this.runSearch)
       }
     },
     relevanceVal: {
@@ -154,7 +162,7 @@ export default {
         return this.catRelevance
       },
       set: function (v) {
-        this.$emit('setCategoryRelevance', v)
+        this.$emit('setCategoryRelevance', v, this.runSearch)
       }
     },
     expansionVal: {
@@ -162,7 +170,15 @@ export default {
         return this.filterExpansion
       },
       set: function (v) {
-        this.$emit('setExpansion', v)
+        this.$emit('setExpansion', v, this.runSearch)
+      }
+    },
+    includeReadMentionsVal: {
+      get: function () {
+        return this.includeReadMentions
+      },
+      set: function (v) {
+        this.$emit('setReadMentions', v, this.runSearch)
       }
     },
     hasCategories: function () {
@@ -173,9 +189,17 @@ export default {
       }
       return false
     },
+    hasMentions: function () {
+      for (var i = 0; i < this.meta.length; i++) {
+        if (this.meta[i].type === 'option' && this.meta[i].option.name === 'alert') {
+          return true
+        }
+      }
+      return false
+    },
     hasExpansions: function () {
       for (var i = 0; i < this.meta.length; i++) {
-        if (this.meta[i].type === 'type' && this.meta[i].wagoType.match(/WEAKAURA/)) {
+        if (this.meta[i].type === 'type' && this.meta[i].wagoType.match(/WEAKAURA|MDT/)) {
           return true
         }
       }
@@ -184,7 +208,8 @@ export default {
   },
   data: () => {
     return {
-      typeVal: ''
+      typeVal: '',
+      runSearch: true
     }
   },
   mounted: function () {
@@ -193,6 +218,9 @@ export default {
         this.typeVal = this.meta[i].wagoType
       }
     }
+    setTimeout(() => {
+      this.runSearch = false
+    }, 2000)
     return ''
   },
   watch: {

@@ -48,7 +48,7 @@
 
       <md-layout id="searchSide" v-if="results && results.query">
         <md-layout id="searchMeta" v-if="results && results.query">
-          <search-meta :meta="results.query.context" :tagMap="tagMap" :textSearch="results.query.textSearch" :sort="sortVal" @setSort="setSort" @setImportType="setImportType" :catRelevance="catRelevance" @setCategoryRelevance="setCategoryRelevance" :filterExpansion="filterExpansion" @setExpansion="setExpansion"></search-meta>
+          <search-meta :meta="results.query.context" :tagMap="tagMap" :textSearch="results.query.textSearch" :sort="sortVal" @setSort="setSort" @setImportType="setImportType" :catRelevance="catRelevance" @setCategoryRelevance="setCategoryRelevance" :filterExpansion="filterExpansion" @setExpansion="setExpansion" :includeReadMentions="includeReadMentions" @setReadMentions="setReadMentions"></search-meta>
         </md-layout>
       </md-layout>
     </md-layout>
@@ -72,17 +72,18 @@ export default {
       tagMap: {},
       isSearching: true,
       isSearchingMore: false,
-      sortVal: this.$store.state.user && this.$store.state.user.config && this.$store.state.user.config.searchOptions.sort || 'bestmatch',
+      sortVal: this.contextSort || this.$store.state.user && this.$store.state.user.config && this.$store.state.user.config.searchOptions.sort || 'bestmatch',
       uiSearchValue: false,
       catRelevance: this.$store.state.user && this.$store.state.user.config && this.$store.state.user.config.searchOptions.relevance || 'standard',
       uiRelevanceValue: false,
       filterExpansion: this.$store.state.user && this.$store.state.user.config && this.$store.state.user.config.searchOptions.expansion || 'all',
       uiExpansionValue: false,
       contextSearchData: this.contextSearch,
-      isCollection: false
+      isCollection: false,
+      includeReadMentions: ''
     }
   },
-  props: ['contextSearch', 'contextGame'],
+  props: ['contextSearch', 'contextGame', 'contextSort'],
   components: {
     'search-meta': require('../UI/SearchMeta.vue'),
     'formatted-text': require('../UI/FormattedText.vue'),
@@ -143,7 +144,7 @@ export default {
       this.isSearching = true
 
       // check if sort value needs to be added to query
-      if (this.uiSearchValue) {
+      if (this.uiSearchValue || this.contextSort) {
         opt = opt + ' Sort: ' + this.sortVal
       }
 
@@ -210,6 +211,10 @@ export default {
 
       if (!this.$store.state.user || !this.$store.state.user.name) {
         params.cc = 1 // use cached results if we dont need to worry about auth
+      }
+
+      if (query.match(/\b(?:alerts?|mentioned):\s*(1|true)\b/i)) {
+        params.includeRead = this.includeReadMentions
       }
 
       vue.http.get('/search', params).then((res) => {
@@ -322,12 +327,22 @@ export default {
         }
       }
     },
+    setReadMentions: function (val, noSearch) {
+      this.includeReadMentions = val
+
+      if (!noSearch) {
+        this.runSearch()
+      }
+    },
     searchMore: function () {
       var vue = this
       vue.isSearchingMore = true
 
       // setup query
       var params = { q: vue.results.query.q, sort: vue.results.query.sort, page: vue.results.query.page + 1 }
+      if (vue.results.query.q.match(/\b(?:alerts?|mentioned):\s*(1|true)\b/i)) {
+        params.includeRead = this.includeReadMentions
+      }
       // run search
       vue.http.get('/search', params).then((res) => {
         for (var i = 0; i < res.results.length; i++) {
@@ -337,12 +352,15 @@ export default {
             })
           }
         }
-
         // merge data
         var merged = vue.results.results.concat(res.results)
         vue.$set(vue.results, 'query', res.query)
         vue.$set(vue.results, 'results', merged)
         vue.$set(vue.results, 'meta', res.meta)
+
+        if (!res.results.length) {
+          vue.$set(vue.results, 'total', vue.results.results.length)
+        }
 
         vue.isSearchingMore = false
       })
@@ -368,10 +386,18 @@ export default {
     this.$i18n.i18next.init(() => {
       this.runSearch()
     })
-    this.$store.commit('setPageInfo', {
-      title: 'Search'
-    })
-
+    if (!this.$router.currentRoute.params.profile) {
+      if (this.$router.currentRoute.params.query) {
+        this.$store.commit('setPageInfo', {
+          title: 'Search | ' + this.$router.currentRoute.params.query.replace(/\+/g, ' ')
+        })
+      }
+      else {
+        this.$store.commit('setPageInfo', {
+          title: 'Search'
+        })
+      }
+    }
     // document.addEventListener('scroll', function (event) {
     //   if (!document.getElementById('searchLayout')) {
     //     return
