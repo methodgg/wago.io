@@ -352,7 +352,7 @@ async function UpdateLatestAddonReleases () {
     {name: 'MDT', host: 'github', url: 'https://api.github.com/repos/Nnoggie/MythicDungeonTools/releases'},
   ]
   var madeUpdate = false
-  addons.forEach(async (addon) => {
+  for (let addon of addons) {
     var release = {}
     try {
       const response = await axios.get(addon.url)
@@ -363,10 +363,10 @@ async function UpdateLatestAddonReleases () {
           release.addon = addon.name
           release.active = true
           release.phase = item.prerelease ? 'Pre-Release' : 'Release'
-          if (uniquePhases[release.phase]) {
+          if (uniquePhases[addon.name + release.phase]) {
             continue
           }
-          uniquePhases[release.phase] = true
+          uniquePhases[addon.name + release.phase] = true
           release.url = item.url
           release.version = item.name
           release.date = item.published_at
@@ -376,10 +376,10 @@ async function UpdateLatestAddonReleases () {
             AddonRelease.updateMany({addon: release.addon, version: {$ne: release.version}}, {$set: {active: false}}).exec()
 
             if (release.addon === 'WeakAuras-2' && release.phase === 'Release') {
-              updateWAData(release, item.assets)
+              await updateWAData(release, item.assets)
             }
             else if (release.addon === 'MDT' && release.phase === 'Release') {
-              updateMDTData(release, item)
+              await updateMDTData(release, item)
             }
           }
         }
@@ -429,7 +429,7 @@ async function UpdateLatestAddonReleases () {
       console.log(e)
       throw 'Error fetching addon ' + addon.name
     }
-  })
+  }
   if (madeUpdate) {
     const Latest = await AddonRelease.find({active: true})
     await SiteData.set('LatestAddons', Latest)  
