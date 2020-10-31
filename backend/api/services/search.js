@@ -527,7 +527,7 @@ module.exports = function (fastify, opts, next) {
     }
     // initialize results
     if (results.hits && results.hits.hits) {
-      Search.total = results.hits.total.value
+      Search.total = results.hits.total
       if (typeof Search.total === 'object') {
         Search.total = Search.total.value || 0
       }
