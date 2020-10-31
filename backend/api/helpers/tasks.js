@@ -373,7 +373,7 @@ async function UpdateLatestAddonReleases () {
           const preExisting = await AddonRelease.findOneAndUpdate({addon: release.addon, phase: release.phase, version: release.version}, release, {upsert: true, new: false}).exec()
           if (!preExisting) {
             madeUpdate = true
-            AddonRelease.updateMany({addon: release.addon, version: {$ne: release.version}}, {$set: {active: false}}).exec()
+            await AddonRelease.updateMany({addon: release.addon, version: {$ne: release.version}}, {$set: {active: false}}).exec()
 
             if (release.addon === 'WeakAuras-2' && release.phase === 'Release') {
               await updateWAData(release, item.assets)
@@ -402,7 +402,7 @@ async function UpdateLatestAddonReleases () {
         const preExisting = await AddonRelease.findOneAndUpdate({addon: release.addon, phase: release.phase, version: release.version}, release, {upsert: true, new: false}).exec()
         if (!preExisting) {
           madeUpdate = true
-          AddonRelease.updateMany({addon: release.addon, version: {$ne: release.version}}, {$set: {active: false}}).exec()
+          await AddonRelease.updateMany({addon: release.addon, version: {$ne: release.version}}, {$set: {active: false}}).exec()
         }
       }
       else if (addon.host === 'tukui') {
@@ -421,7 +421,7 @@ async function UpdateLatestAddonReleases () {
         if (!preExisting) {
           // if a new release then de-activate the previous version(s)
           madeUpdate = true
-          AddonRelease.updateMany({addon: release.addon, phase: release.phase, version: {$ne: release.version}}, {$set: {active: false}}).exec()
+          await AddonRelease.updateMany({addon: release.addon, phase: release.phase, version: {$ne: release.version}}, {$set: {active: false}}).exec()
         }
       }
     }
@@ -683,9 +683,9 @@ async function updateMDTData (release, assets) {
   })
 
   // save core data plus for each dungeon
-  SiteData.findByIdAndUpdate('mdtDungeonTable', {value: mdtData}, {upsert: true}).exec()
-  SiteData.findByIdAndUpdate('mdtAffixWeeks', {value: mdtData.affixWeeks}, {upsert: true}).exec()
-  cloudflare.zones.purgeCache(config.cloudflare.zoneID, {files: ['https://data.wago.io/data/mdtDungeonTable', 'https://data.wago.io/data/mdtAffixWeeks']})
+  await SiteData.findByIdAndUpdate('mdtDungeonTable', {value: mdtData}, {upsert: true}).exec()
+  await SiteData.findByIdAndUpdate('mdtAffixWeeks', {value: mdtData.affixWeeks}, {upsert: true}).exec()
+  await cloudflare.zones.purgeCache(config.cloudflare.zoneID, {files: ['https://data.wago.io/data/mdtDungeonTable', 'https://data.wago.io/data/mdtAffixWeeks']})
   for (let mapID = 0; mapID < mdtData.dungeonEnemies.length; mapID++) {
     let Obj = {
       affixWeeks: mdtData.affixWeeks,
@@ -703,8 +703,8 @@ async function updateMDTData (release, assets) {
       Obj.freeholdCrews = mdtData.freeholdCrews
     }
     const currentHash = await SiteData.findById('mdtDungeonTable-' + mapID).exec()
-    SiteData.findByIdAndUpdate('mdtDungeonTable-' + mapID, {value: Obj}, {upsert: true}).exec()
-    cloudflare.zones.purgeCache(config.cloudflare.zoneID, {files: ['https://data.wago.io/data/mdtDungeonTable-' + mapID]})
+    await SiteData.findByIdAndUpdate('mdtDungeonTable-' + mapID, {value: Obj}, {upsert: true}).exec()
+    await cloudflare.zones.purgeCache(config.cloudflare.zoneID, {files: ['https://data.wago.io/data/mdtDungeonTable-' + mapID]})
 
     // currentHash.value.enemyHash = null // force regenerate
     // if new portrait maps are required
@@ -730,7 +730,6 @@ async function updateMDTData (release, assets) {
         logError(e, 'Generating MDT portrait maps ' + Obj.dungeonMaps['0'])
       }
     }
-    break
   }
 
   return
