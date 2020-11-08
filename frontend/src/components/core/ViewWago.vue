@@ -250,7 +250,6 @@
                 <template v-if="!requireCipherKey">
                   <md-button v-if="wago.user && User && wago.UID && wago.UID === User.UID" v-bind:class="{'md-toggle': showPanel === 'config'}" @click="toggleFrame('config')">{{ $t("Config") }}</md-button>
                   <md-button v-if="wago.type == 'ERROR'" v-bind:class="{'md-toggle': showPanel === 'description'}" @click="toggleFrame('description')">{{ $t("Report") }}</md-button>
-                  <md-button v-if="wago.type == 'ERROR'" v-bind:class="{'md-toggle': showPanel === 'description'}" @click="toggleFrame('description')">{{ $t("Report") }}</md-button>
                   <md-button v-if="wago.type !== 'ERROR'" v-bind:class="{'md-toggle': showPanel === 'description'}" @click="toggleFrame('description')">{{ $t("Description") }}</md-button>
                   <md-button v-if="wago.referrals && wago.referrals.length" v-bind:class="{'md-toggle': showPanel === 'referrals'}" @click="toggleFrame('referrals')">{{ $t("External Links") }}</md-button>
                   <md-button v-if="(User && User.access && User.access.beta && wago && wago.attachedMedia && wago.attachedMedia.length)" v-bind:class="{'md-toggle': showPanel === 'media'}" @click="toggleFrame('media')">{{ $t("Media") }} [Beta]</md-button>
@@ -302,7 +301,7 @@
                   <md-button v-else-if="showPanel !== 'editor' && wago.type === 'SNIPPET'" @click.prevent="toggleFrame('editor')">[{{ $t("View Alerts") }}]</md-button>
                 </ui-warning>
                 <div class="wago-container" v-if="wago.user && User && wago.UID && wago.UID === User.UID && codeReview.alerts > 0">
-                  <span v-if="wago.type.match(/WEAKAURA/)" v-html="$t('Want some help fixing code review alerts? Come have a chat on the [-discord-].', {discord: `<a href='https://discord.gg/wa2'>WeakAuras Discord</a>`, interpolation: {escapeValue: false}})"></span>
+                  <span v-if="wago.type.match(/WEAKAURA/)" v-html="$t('Want some help fixing code review alerts? Come have a chat on the [-discord-].', {discord: `<a href='https://discord.gg/weakauras'>WeakAuras Discord</a>`, interpolation: {escapeValue: false}})"></span>
                   <span v-else-if="wago.type.match(/PLATER/)" v-html="$t('Want some help fixing code review alerts? Come have a chat on the [-discord-].', {discord: `<a href='https://discord.com/invite/AGSzAZX'>Plater Discord</a>`, interpolation: {escapeValue: false}})"></span>
                 </div>
               </template>

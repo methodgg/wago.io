@@ -65,7 +65,7 @@ export default {
         case 'weakaura':
           links.push({url: 'https://www.curseforge.com/wow/addons/weakauras-2', name: this.$t('View on Curse')})
           links.push({url: 'https://weakauras.wtf', name: this.$t('Download Companion App')})
-          links.push({url: 'https://discord.gg/wa2', name: this.$t('Join Discord')})
+          links.push({url: 'https://discord.gg/weakauras', name: this.$t('Join Discord')})
           if (this.addonData.version) {
             links.push({url: 'https://github.com/WeakAuras/WeakAuras2/releases', name: this.$t('Latest Version [-version-]', {version: this.addonData.version})})
           }

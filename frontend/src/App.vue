@@ -156,7 +156,7 @@
             </a>
           </li>
           <li class="md-list-item">
-            <a href="https://discord.gg/wa2" target="_blank" rel="noopener" class="md-list-item-container md-button">
+            <a href="https://discord.gg/weakauras" target="_blank" rel="noopener" class="md-list-item-container md-button">
               <div><img src="./assets/discord.png"></div>{{ $t("Join WA Discord") }}
             </a>
           </li>
