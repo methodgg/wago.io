@@ -1094,8 +1094,12 @@ export default {
           continue
         }
         for (let cloneIndex of clones) {
-          if (this.enemies[creatureIndex - 1] && this.enemies[creatureIndex - 1].clones[cloneIndex - 1]) {
-            vertices.push([this.enemies[creatureIndex - 1].clones[cloneIndex - 1].x * this.mdtScale, -this.enemies[creatureIndex - 1].clones[cloneIndex - 1].y * this.mdtScale])
+          if (this.enemies[creatureIndex - 1] && this.enemies[creatureIndex - 1].clones[cloneIndex - 1] && this.enemies[creatureIndex - 1].clones[cloneIndex - 1].sublevel === this.subMapID + 1) {
+            let padding = (Math.round(5 * this.enemies[creatureIndex - 1].scale * (this.enemies[creatureIndex - 1].isBoss ? 1.7 : 1) * (this.mdtDungeonTable.scaleMultiplier || 1)) / this.mdtScale) / 1.3
+            vertices.push([(this.enemies[creatureIndex - 1].clones[cloneIndex - 1].x - padding) * this.mdtScale, (-this.enemies[creatureIndex - 1].clones[cloneIndex - 1].y + padding) * this.mdtScale])
+            vertices.push([(this.enemies[creatureIndex - 1].clones[cloneIndex - 1].x - padding) * this.mdtScale, (-this.enemies[creatureIndex - 1].clones[cloneIndex - 1].y - padding) * this.mdtScale])
+            vertices.push([(this.enemies[creatureIndex - 1].clones[cloneIndex - 1].x + padding) * this.mdtScale, (-this.enemies[creatureIndex - 1].clones[cloneIndex - 1].y + padding) * this.mdtScale])
+            vertices.push([(this.enemies[creatureIndex - 1].clones[cloneIndex - 1].x + padding) * this.mdtScale, (-this.enemies[creatureIndex - 1].clones[cloneIndex - 1].y - padding) * this.mdtScale])
           }
         }
       }
