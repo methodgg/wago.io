@@ -672,23 +672,36 @@ module.exports = function (fastify, opts, next) {
     if (!code.processVersion || code.processVersion < 2) {
       code.luacheck = null
       if (doc.type.match(/SNIPPET|WEAKAURA|PLATER/) && req.query.qupdate) {
-        var q = await taskQueue.getWaiting(0, 500)
-        var qa = await taskQueue.getActive(0, 20)
-        for (let i = 0; i < q.length; i++) {
-          if (req.query.qupdate == q[i].id) {
+        var checkQ = await taskQueue.getWaiting(0, 500)
+        for (let i = 0; i < checkQ.length; i++) {
+          if (req.query.qupdate == checkQ[i].id) {
             return res.send({Q: true, position: i+2}) // 0 index + 2 = 2nd in line if first in waiting
           }
         }
-        for (let i = 0; i < qa.length; i++) {
+        checkQ = await taskQueue.getActive(0, 20)
+        for (let i = 0; i < checkQ.length; i++) {
+          if (req.query.qupdate == checkQ[i].id) {
           return res.send({Q: true, position: 1}) // 1 = currently processing
         }
+        }
+
+        checkQ = await taskQueue.getComplete(0, 500)
+        let foundComplete
+        for (let i = 0; i < checkQ.length; i++) {
+          if (req.query.qupdate == checkQ[i].id) {
+            foundComplete = true
+            break
+          }
+        }
+        if (!foundComplete) {
         return res.send({Q: true, position: '500+'}) // TODO: Add some reporting because if the queue ever gets this high something is wrong
       }
+    }
     }
 
     if (doc.type === 'SNIPPET') {
       if (!code.luacheck) {
-        var q = await taskQueue.add('ProcessCode', {id: doc._id, version: code.versionString}, {priority: req.user && req.user.access.queueSkip && 2 || 5, jobId: doc._id + ':' + code.version})
+        var q = await taskQueue.add('ProcessCode', {id: doc._id, version: code.versionString}, {priority: req.user && req.user.access.queueSkip && 2 || 5, jobId: `${doc._id}:${code.version}:${code.versionString}`})
         wagoCode.Q = q.id
       }
       else {
@@ -699,7 +712,7 @@ module.exports = function (fastify, opts, next) {
       var json = JSON.parse(code.json)
       // check for any missing data
       if (code.version && (!code.encoded || ((json.d.version !== code.version || json.d.url !== doc.url + '/' + code.version) || (json.c && json.c[0].version !== code.version) || (json.d.semver !== code.versionString))) || !code.luacheck) {
-        var q = await taskQueue.add('ProcessCode', {id: doc._id, version: code.versionString}, {priority: req.user && req.user.access.queueSkip && 2 || 5, jobId: doc._id + ':' + code.version})
+        var q = await taskQueue.add('ProcessCode', {id: doc._id, version: code.versionString}, {priority: req.user && req.user.access.queueSkip && 2 || 5, jobId: `${doc._id}:${code.version}:${code.versionString}`})
         wagoCode.Q = q.id
       }
       else {
@@ -710,7 +723,7 @@ module.exports = function (fastify, opts, next) {
       var json = JSON.parse(code.json)
       // check for any missing data
       if (!code.version || json.version !== code.version || !code.luacheck) {
-        var q = await taskQueue.add('ProcessCode', {id: doc._id, version: code.versionString}, {priority: req.user && req.user.access.queueSkip && 2 || 5, jobId: doc._id + ':' + code.version})
+        var q = await taskQueue.add('ProcessCode', {id: doc._id, version: code.versionString}, {priority: req.user && req.user.access.queueSkip && 2 || 5, jobId: `${doc._id}:${code.version}:${code.versionString}`})
         wagoCode.Q = q.id
       }
       else {
