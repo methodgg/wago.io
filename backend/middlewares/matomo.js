@@ -11,6 +11,9 @@ matomoAPI.on('error', function(err) {
 })
 
 module.exports = function (data) {
+  if (this.query && this.query.qupdate) {
+    return
+  }
   if (config.env === 'development') {
     // if tracking an event then log to dev console
     if (data.e_c) {
