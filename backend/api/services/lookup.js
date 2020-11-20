@@ -711,7 +711,7 @@ module.exports = function (fastify, opts, next) {
     else if (doc.type === 'WEAKAURAS2' || doc.type === 'CLASSIC-WEAKAURA') {
       var json = JSON.parse(code.json)
       // check for any missing data
-      if (code.version && (!code.encoded || ((json.d.version !== code.version || json.d.url !== doc.url + '/' + code.version) || (json.c && json.c[0].version !== code.version) || (json.d.semver !== code.versionString))) || !code.luacheck) {
+      if (code.version && (!code.encoded || ((json.d.version !== code.version || json.d.url !== doc.url + '/' + code.version) || (json.c && json.c[0] && json.c[0].version !== code.version) || (json.d.semver !== code.versionString))) || !code.luacheck) {
         var q = await taskQueue.add('ProcessCode', {id: doc._id, version: code.versionString}, {priority: req.user && req.user.access.queueSkip && 2 || 5, jobId: `${doc._id}:${code.version}:${code.versionString}`})
         wagoCode.Q = q.id
       }
