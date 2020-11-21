@@ -156,7 +156,7 @@ export default {
     { path: '/totalrp/:c1/:c2', component: Search, props: (route) => ({ contextSearch: 'Type: TotalRP' + GetContextTag(route.params) }) },
     { path: '/totalrp/:c1/:c2/:c3', component: Search, props: (route) => ({ contextSearch: 'Type: TotalRP' + GetContextTag(route.params) }) },
     { path: '/totalrp/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ contextSearch: 'Type: TotalRP' + GetContextTag(route.params) }) },
-    { path: '/mdt', component: MenuMDTBFA },
+    { path: '/mdt', component: MenuMDTShadowlands },
     { path: '/mdt/:c1', component: Search, props: (route) => ({ contextGame: 'bfa', contextSearch: 'Type: MDT' + GetContextTag(route.params) }) },
     { path: '/mdt/:c1/:c2', component: Search, props: (route) => ({ contextGame: 'bfa', contextSearch: 'Type: MDT' + GetContextTag(route.params) }) },
     { path: '/mdt/:c1/:c2/:c3', component: Search, props: (route) => ({ contextGame: 'bfa', contextSearch: 'Type: MDT' + GetContextTag(route.params) }) },

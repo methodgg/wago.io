@@ -131,12 +131,12 @@
                               clone.pull >= 0 ? hexToRGB(clone.color, 0.2) :
                               'rgba(0, 0, 0, 0)',
                         stroke: isCreatureNoTarget(creature.id) ? '#333333' :
-                                isInfested(clone) ? 'red' :
+                                isInspiring(clone) ? '#30d9ff' :
                                 creature.isBoss ? 'gold' :
                                 clone.pull >= 0 ? hexToRGB(clone.color, 1) :
                                 'black',
-                        strokeWidth: .5,
-                        strokeEnabled: ((creature.isBoss && isCreatureNoTarget(creature.id)) || isInfested(clone)),
+                        strokeWidth: creature.isBoss || isInspiring(clone) ? .5 : .2,
+                        strokeEnabled: true,
                         shadowColor: 'white',
                         shadowOpacity: 1,
                         shadowEnabled : clone.hoverAvatar || false,
@@ -152,16 +152,16 @@
                   x: enemies[hoverSpecific.creatureIndex].clones[hoverSpecific.cloneIndex].x * mdtScale,
                   y: enemies[hoverSpecific.creatureIndex].clones[hoverSpecific.cloneIndex].y * -mdtScale,
                   radius: Math.round(7 * enemies[hoverSpecific.creatureIndex].scale * (enemies[hoverSpecific.creatureIndex].isBoss ? 1.7 : 1) * (mdtDungeonTable.scaleMultiplier || 1)) / mdtScale,
-                  stroke: isInfested(enemies[hoverSpecific.creatureIndex].clones[hoverSpecific.cloneIndex]) ? 'red' : (enemies[hoverSpecific.creatureIndex].isBoss ? 'gold' : 'black'),
+                  stroke: isInspiring(enemies[hoverSpecific.creatureIndex].clones[hoverSpecific.cloneIndex]) ? '#30d9ff' : (enemies[hoverSpecific.creatureIndex].isBoss ? 'gold' : 'black'),
                   strokeWidth: 3,
                   strokeEnabled: true,
-                  fillPatternX: (-Math.round(7 * enemies[hoverSpecific.creatureIndex].scale * (enemies[hoverSpecific.creatureIndex].isBoss ? 1.7 : 1))) / mdtScale,
-                  fillPatternY: (-Math.round(7 * enemies[hoverSpecific.creatureIndex].scale * (enemies[hoverSpecific.creatureIndex].isBoss ? 1.7 : 1))) / mdtScale,
+                  fillPatternX: (-Math.round(7 * enemies[hoverSpecific.creatureIndex].scale * (enemies[hoverSpecific.creatureIndex].isBoss ? 1.7 : 1) * (mdtDungeonTable.scaleMultiplier || 1))) / mdtScale,
+                  fillPatternY: (-Math.round(7 * enemies[hoverSpecific.creatureIndex].scale * (enemies[hoverSpecific.creatureIndex].isBoss ? 1.7 : 1) * (mdtDungeonTable.scaleMultiplier || 1))) / mdtScale,
                   fillPatternImage: enemyPortraits,
                   fillPatternOffset: getEnemyPortraitOffset(hoverSpecific.creatureIndex, 115),
                   fillPatternRepeat: 'no-repeat',
-                  fillPatternScaleX: Math.round(7 * enemies[hoverSpecific.creatureIndex].scale * (enemies[hoverSpecific.creatureIndex].isBoss ? 1.7 : 1)) / 64,
-                  fillPatternScaleY: Math.round(7 * enemies[hoverSpecific.creatureIndex].scale * (enemies[hoverSpecific.creatureIndex].isBoss ? 1.7 : 1)) / 64,
+                  fillPatternScaleX: Math.round(7 * enemies[hoverSpecific.creatureIndex].scale * (enemies[hoverSpecific.creatureIndex].isBoss ? 1.7 : 1) * (mdtDungeonTable.scaleMultiplier || 1)) / 64,
+                  fillPatternScaleY: Math.round(7 * enemies[hoverSpecific.creatureIndex].scale * (enemies[hoverSpecific.creatureIndex].isBoss ? 1.7 : 1) * (mdtDungeonTable.scaleMultiplier || 1)) / 64,
                   listening: false
                 }"
               />
@@ -287,7 +287,7 @@
                         <span v-if="parseInt(details.g)" class="groupnum">{{ details.g }}</span>
                         <span v-else class="singlepull">➽</span>
                         <template v-for="(target, targetIndex) in details.targets">
-                          <mdt-enemy-portrait :size="36" :mapID="mapID" :offset="getEnemyPortraitOffset(target.enemyIndex, 36)" :seasonalAffix="isInfested(target.clone)"
+                          <mdt-enemy-portrait :size="36" :mapID="mapID" :offset="getEnemyPortraitOffset(target.enemyIndex, 36)" :inspiring="isInspiring(target, targetIndex)"
                             @mouseover="setTargetHoverAvatar(pull - 1, detailIndex, targetIndex, true)"
                             @mouseleave="setTargetHoverAvatar(pull - 1, detailIndex, targetIndex, false)"
                           />
@@ -351,7 +351,7 @@
         <span>{{ $t('Level [-level-] [-type-]', {level: tooltipEnemy.level, type: tooltipEnemy.creatureType}) }}</span>
         <span>{{ $t('[-hp-] HP @ +10', {hp: calcEnemyHealth(tooltipEnemy, true)}) }}</span>
         <span v-if="tooltipEnemy.clone && isReapingSelected() && tooltipEnemy.reaping" style="color:#8f6dd3" v-html="$t('Reaping [-spirit-]', {spirit: displayReaping(tooltipEnemy.reaping), interpolation: { escapeValue: false }})"></span>
-        <span v-if="tooltipEnemy.clone && isInfested(tooltipEnemy.clone)" style="color:red">{{ $t('Infested') }}</span>
+        <span v-if="tooltipEnemy.clone && isInspiring(tooltipEnemy.clone)" style="color:#30d9ff">{{ $t('Inspiring') }}</span>
         <span v-if="tooltipEnemy.clone && tooltipEnemy.clone.g > 0">{{ $t('Group [-num-]', {num: tooltipEnemy.clone.g}) }}</span>
         <span v-if="tooltipEnemy.clone && tooltipEnemy.clone.pull >= 0">{{ $t('Pull [-num-]', {num: tooltipEnemy.clone.pull + 1}) }}</span>
       </div>
@@ -1175,6 +1175,23 @@ export default {
       return !!clone.infested[week]
     },
 
+    isInspiring (target) {
+      if (!this.isInspiringSelected() || !target) {
+        return false
+      }
+      else if (Number.isInteger(target.cloneIndex) && Number.isInteger(target.enemyIndex) && this.enemies[target.enemyIndex] && this.enemies[target.enemyIndex].clones) {
+        return this.isInspiring(this.enemies[target.enemyIndex].clones[target.cloneIndex])
+      }
+      return target.inspiring
+      // var week = this.tableData.week % 3
+      // if (!week) {
+      //   week = 3
+      // }
+      // week--
+
+      // return !!clone.infested[week]
+    },
+
     isReapingSelected () {
       return this.selectedAffixes.indexOf(117) >= 0
     },
@@ -1187,8 +1204,8 @@ export default {
       return this.isReapingSelected() || this.isPridefulSelected()
     },
 
-    isBeguildingSelected () {
-      return this.selectedAffixes.indexOf(119) >= 0
+    isInspiringSelected () {
+      return this.selectedAffixes.indexOf(122) >= 0
     },
 
     isAwakeningSelected () {

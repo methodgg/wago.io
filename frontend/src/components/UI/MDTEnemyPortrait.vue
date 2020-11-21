@@ -6,7 +6,7 @@
     'background-image': 'url(https://media.wago.io/mdt/portraits-' + mapID + '.png)',
     'background-position': (-offset.x) + 'px ' + (-offset.y) + 'px',
     'background-size': bgSize,
-    border: seasonalAffix ? '1px solid red' : 'none'
+    border: inspiring ? '1px solid #30d9ff' : 'none'
     }"
     @click="click" @mouseover="mouseover" @mouseleave="mouseleave" @mousemove="mousemove"
   >
@@ -15,7 +15,7 @@
 
 <script>
 export default {
-  props: ['mapID', 'offset', 'size', 'seasonalAffix'],
+  props: ['mapID', 'offset', 'size', 'inspiring'],
   methods: {
     click: function (e) {
       this.$emit('click', e)
@@ -33,10 +33,26 @@ export default {
   computed: {
     bgSize: function () {
       switch (this.mapID) {
+        // 100% per x-sprites
+        case 28:
+          return '1500%'
+        case 29:
+          return '900%'
         case 30:
-          return '1200%' // mists of tirna scithe
+          return '1200%'
+        case 31:
+          return '1800%'
+        case 32:
+          return '1300%'
+        case 33:
+          return '1200%'
+        case 34:
+          return '1600%'
+        case 35:
+          return '1600%'
+
         default:
-          return '3339%'
+          return '3339%' // bfa
       }
     }
   }
