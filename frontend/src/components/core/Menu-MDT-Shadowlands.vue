@@ -141,7 +141,7 @@ export default {
     },
     searchRoute: function (slug) {
       this.$store.commit('userSearchOption', {field: 'expansion', value: 'sl'})
-      this.$router.push('/shadowlands-weakauras/' + slug)
+      this.$router.push('/shadowlands-mdt/' + slug)
     },
     createMDT: function () {
       try {
