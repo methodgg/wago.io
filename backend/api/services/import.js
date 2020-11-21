@@ -219,11 +219,20 @@ module.exports = function (fastify, opts, next) {
 
       let categories = []
       // assign dungeon category and name the import
-      let dungeon = Categories.getCategory('mdtdun' + decoded.obj.value.currentDungeonIdx)
+      let dungeon = Categories.getCategory('mdt-sldun' + decoded.obj.value.currentDungeonIdx)
+      if (!dungeon) {
+        dungeon = Categories.getCategory('mdtdun' + decoded.obj.value.currentDungeonIdx)
+      }
       if (dungeon && dungeon[0]) {
         categories.push(dungeon[0].id)
         if (decoded.obj.text === 'Default') {
-          decoded.obj.text = dungeon[0].text
+          if (!global.translations) {
+            global.translations = {}
+          }
+          if (!global.translations['en_US']) {
+            global.translations['en-US'] = JSON.parse(await fs.readFile(__dirname + '/../../../frontend/static/i18n/en-US/warcraft.json'))
+          }
+          decoded.obj.text = global.translations['en-US'].zones[dungeon[0].text.replace(/^.*\./, '')]
         }
       }
       return res.send({scan: scanDoc._id.toString(), type: 'MDT', name: decoded.obj.text, categories: categories})
@@ -556,7 +565,10 @@ module.exports = function (fastify, opts, next) {
       }
     }
     else if (wago.type === 'MDT') {
-      if (json.value.currentDungeonIdx && parseInt(json.value.currentDungeonIdx) > 0 && global.Categories.getCategory('mdtdun' + json.value.currentDungeonIdx)) {
+      if (json.value.currentDungeonIdx && parseInt(json.value.currentDungeonIdx) > 0 && global.Categories.getCategory('mdt-sldun' + json.value.currentDungeonIdx)) {
+        wago.categories.push('mdt-sldun' + json.value.currentDungeonIdx)
+      }
+      else if (json.value.currentDungeonIdx && parseInt(json.value.currentDungeonIdx) > 0 && global.Categories.getCategory('mdtdun' + json.value.currentDungeonIdx)) {
         wago.categories.push('mdtdun' + json.value.currentDungeonIdx)
       }
 

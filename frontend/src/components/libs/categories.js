@@ -408,7 +408,7 @@ module.exports = {
       
       {id: "mdt-sldun", slug: "pve/shadowlands-dungeons", cls:"dungeon", text: t("Dungeons"), root: true, MDT: true, systemtag: true, noselect: true},
       {id: "mdt-sldun29", slug: "pve/shadowlands-dungeons/de-other-side", cls:"dungeon", text: t("warcraft:zones.DeOtherSide"), MDT: true, systemtag: true, noselect: true},
-      {id: "mdt-sldun30", slug: "pve/shadowlands-dungeons/halls-of-attonement", cls:"dungeon", text: t("warcraft:zones.HallsOfAttonement"), MDT: true, systemtag: true, noselect: true},
+      {id: "mdt-sldun30", slug: "pve/shadowlands-dungeons/halls-of-atonement", cls:"dungeon", text: t("warcraft:zones.HallsOfAttonement"), MDT: true, systemtag: true, noselect: true},
       {id: "mdt-sldun31", slug: "pve/shadowlands-dungeons/mists-of-tirna-scithe", cls:"dungeon", text: t("warcraft:zones.MistsOfTirnaScithe"), MDT: true, systemtag: true, noselect: true},
       {id: "mdt-sldun32", slug: "pve/shadowlands-dungeons/plaguefall", cls:"dungeon", text: t("warcraft:zones.Plaguefall"), MDT: true, systemtag: true, noselect: true},
       {id: "mdt-sldun33", slug: "pve/shadowlands-dungeons/sanguine-depths", cls:"dungeon", text: t("warcraft:zones.SanguineDepths"), MDT: true, systemtag: true, noselect: true},
