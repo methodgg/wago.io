@@ -685,7 +685,7 @@ module.exports = function (fastify, opts, next) {
         }
         }
 
-        checkQ = await taskQueue.getComplete(0, 500)
+        checkQ = await taskQueue.getCompleted(0, 500)
         let foundComplete
         for (let i = 0; i < checkQ.length; i++) {
           if (req.query.qupdate == checkQ[i].id) {
