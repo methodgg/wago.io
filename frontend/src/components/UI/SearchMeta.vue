@@ -10,6 +10,7 @@
             <md-option value="stars">{{ $t("Stars") }}</md-option>
             <md-option value="views">{{ $t("Views") }}</md-option>
             <md-option value="date">{{ $t("Date") }}</md-option>
+            <md-option value="bestmatchv2">{{ $t("[test] Best Match v2") }}</md-option>
           </md-select>
         </md-input-container>
 

@@ -32,7 +32,7 @@ module.exports = function (fastify, opts, next) {
       expansion = req.user.config.searchOptions.expansion
     }
     else {
-      expansion = 'all'
+      expansion = 'sl'
     }
     // default tag relevance
     var relevance
@@ -68,7 +68,7 @@ module.exports = function (fastify, opts, next) {
     // build criteria to search for
 
     // if search includes 'sort: mode'
-    match = /\bsort:\s*"?(date|stars|views|bestmatch)"?/i.exec(query)
+    match = /\bsort:\s*"?(date|stars|views|bestmatch(v2)?)"?/i.exec(query)
     if (match && match.length) {
       query = query.replace(match[0], '').replace(/\s{2,}/, ' ').trim()
       sort = match[1].toLowerCase()
@@ -515,10 +515,51 @@ module.exports = function (fastify, opts, next) {
       esFilter.push({simple_query_string: {query: searchSettings.secondarySearch.slice(page * resultsPerPage, resultsPerPage).join(' '), fields: ["_id"] }})
     }
 
+    var results
+    // setup function_score
+    if (sort === 'bestmatchv2') {
+      results = await WagoItem.esSearch({
+        query: {
+          function_score: {
+            query: {
+              bool: {must: esQuery, filter: esFilter},
+            },
+            boost: 5,
+            functions: [{
+              gauss: {
+                modified: {
+                  origin: "now",
+                  scale: "120d",
+                  offset: "75d", 
+                  decay : 0.25
+                }
+              },
+            }, {
+              field_value_factor: {
+                field: "popularity.viewsThisWeek",
+                modifier: "log1p",
+                factor: .1
+              }
+            }, {
+              field_value_factor: {
+                field: "popularity.favorite_count",
+                modifier: "log2p",
+                factor: .001
+              }
+            }]
+          }
+        }
+      }, {hydrate: true, sort: esSort, size: resultsPerPage, from: resultsPerPage*page})
+    }
+    else {
+      results = await WagoItem.esSearch({
+        query: { bool: { must: esQuery, filter: esFilter}}},
+        {hydrate: true, sort: esSort, size: resultsPerPage, from: resultsPerPage*page
+      })
+    }
+
     // finally, run the search!
-    const results = await WagoItem.esSearch(
-      {query: { bool: { must: esQuery, filter: esFilter}}},
-      {hydrate: true, sort: esSort, size: resultsPerPage, from: resultsPerPage*page})
+    // const 
 
     if (!results) {
       Search.total = 0
