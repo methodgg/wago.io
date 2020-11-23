@@ -51,6 +51,7 @@ fastify.addHook('onRequest', async (req) => {
 fastify.addHook('onResponse', (req, res) => {
   Profiler.logEvent(req.profiler, 'Response', res.statusCode)
 })
+fastify.addHook('preValidation', require('./middlewares/rateLimit'))
 fastify.addHook('preValidation', require('./middlewares/cors'))
 fastify.addHook('preHandler', require('./middlewares/setDefaults'))
 fastify.addHook('preHandler', require('./middlewares/analytics'))
@@ -132,9 +133,9 @@ const startServer = async () => {
         delete profilerTasks[job.id]
       }
     })
-
+    
     // setup simulated crontasks
-    if (config.env === 'development' || config.env === 'crontasks') {
+    if (config.env === 'development' || config.host === 'SF2-01') {
       const cleanup = await taskQueue.getRepeatableJobs()
       for (let i = 0; i < cleanup.length; i++) {
         await taskQueue.removeRepeatableByKey(cleanup[i].key)
@@ -147,8 +148,8 @@ const startServer = async () => {
       await taskQueue.add('UpdateGuildMembership', null, {repeat: {cron: '15 * * * *'}, priority: 3})
       await taskQueue.add('ComputeViewsThisWeek', null, {repeat: {cron: '0 * * * *'}, priority: 4})
       await taskQueue.add('UpdateLatestAddonReleases', null, {repeat: {cron: '*/20 * * * *'}, priority: 4})
-      await taskQueue.add('SyncElastic', {table: 'User'}, {repeat: {cron: '1 0 4,18 * *'}, priority: 10})
-      await taskQueue.add('SyncElastic', {table: 'WagoItem'}, {repeat: {cron: '1 0 7,21 * *'}, priority: 10})
+      await taskQueue.add('SyncElastic', {table: 'User'}, {repeat: {cron: '0 10 15 * *'}, priority: 10})
+      await taskQueue.add('SyncElastic', {table: 'WagoItem'}, {repeat: {cron: '0 10 16 * *'}, priority: 10})
     }
 
     if (config.env === 'development') {
