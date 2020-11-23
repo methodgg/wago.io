@@ -4,7 +4,8 @@ const client = redis.createClient(config.redis)
 var redisActive = false
 
 client.on("ready", function () {
-  if (config.env !== 'development')
+  console.log('redis on')
+  // if (config.env !== 'development')
     redisActive = true
 })
 client.on("connect", function () {
@@ -16,7 +17,7 @@ client.on("reconnecting", function () {
 })
 client.on("error", function (err) {
   redisActive = false
-  // console.log("Redis Error " + err);
+  console.log("Redis Error " + err);
 })
 
 module.exports = {
@@ -33,8 +34,9 @@ module.exports = {
         catch (e) {
           return done()
         }
-        client.set(key, val, 'EX', expires || 3600)
       }
+      client.set(key, val, 'EX', expires || 3600)
+      done()      
     })
   },
   get: async (key) => {
@@ -86,5 +88,8 @@ module.exports = {
         done(val)
       }
     })
+  },
+  getClient: () => {
+    return client
   }
 }
