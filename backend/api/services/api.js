@@ -184,7 +184,7 @@ module.exports = function (fastify, opts, next) {
       return res.code(302).redirect(`/api/raw/encoded?id=${req.query.id}&version=${code.versionString}&key=${req.query.key || ''}`)
     }
     res.header('Content-Type', 'text/plain')
-    if (wago.type === 'WEAKAURA' && !code.encoded.match(/^!/)) {
+    if (wago.type === 'WEAKAURA' && !code.encoded.match(/^!/) && !wago.encrypted) {
       code.encoded = await lua.JSON2WeakAura(code.json)
       if (code.encoded) {
         code.save()
