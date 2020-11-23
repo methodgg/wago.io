@@ -347,7 +347,7 @@ if (process.env.NODE_ENV === 'development') {
 else {
   // using round robin client-based load balancing
   // dataServers = getServersByCountry(window.cfCountry) // attempt to detect country by cloudflare and assign regional data servers when available
-  dataServers = ['https://data1.wago.io', 'https://data2.wago.io', 'https://data3.wago.io', 'https://data4.wago.io']
+  dataServers = window.dataServers // populated by nginx
   authServer = 'https://data.wago.io' // uses round-robin dns so ensures auth requests go to the same server (required for twitter in-memory auth)
 }
 dataServers = dataServers.sort(() => {
@@ -360,6 +360,7 @@ Vue.use(VueAxios, axios)
 // set default options
 // TODO: switch axios auth'ing to fetch
 Vue.axios.defaults.baseURL = dataServers[0]
+Vue.axios.defaults.timeout = 10000
 Vue.axios.defaults.withCredentials = true // to use cookies with CORS
 if (window.readCookie('token')) {
   Vue.axios.defaults.headers = { 'x-auth-token': window.readCookie('token') }
@@ -397,7 +398,7 @@ const http = {
         }
       },
 
-      get: function (url, params) {
+      get: async function (url, params) {
         // add referer for analytics
         if (!refSent && document.referrer && !document.referrer.match(/^https:\/\/wago.io/) && !url.match(/^\/account\//)) {
           params = params || {}
@@ -430,13 +431,18 @@ const http = {
         }
 
         // ajax away!
-        return fetch(url, this.config(url)).then((res) => {
+        try {
+          var res = await fetch(url, this.config(url))
+          if (res.status === 429) {
+            console.log('Whoh! Easy on the F5 key!')
+            window.eventHub.$emit('showSnackBar', i18next.t('Error rate limit exceeded'))
+            return {}
+          }
           this.interceptHeaders(res)
-          return res.json()
-        }).then((json) => {
-          this.interceptJSON(json)
+          var json = await res.json()
           return json
-        }).catch((err) => {
+        }
+        catch (err) {
           // if we couldn't reach the server
           if (host && dataServers.length > 1) {
             // remove server from server list and try again
@@ -448,9 +454,9 @@ const http = {
             console.log('No servers available', err)
             window.eventHub.$emit('showSnackBar', i18next.t('Error could not reach data server'))
           }
-        })
+        }
       },
-      post: function (url, params) {
+      post: async function (url, params) {
         // prepend API server
         if (!url.match(/^http/) && url.match(/^\/auth/)) {
           host = authServer
@@ -473,23 +479,36 @@ const http = {
         config.body = JSON.stringify(params)
 
         // ajax away!
-        return fetch(url, config).then((res) => {
-          this.interceptHeaders(res)
-          return res.json()
-        }).then((json) => {
+        try {
+          var res = await fetch(url, config)
+          if (res.status === 429) {
+            console.log('Whoh! Easy on the F5 key!')
+            window.eventHub.$emit('showSnackBar', i18next.t('Error rate limit exceeded'))
+          }
+          var type = this.interceptHeaders(res)
+          var json
+          if (type.json) {
+            json = await res.json()
+          }
+          else if (type.blob) {
+            return res.blob()
+          }
           this.interceptJSON(json)
           return json
-        }).catch((err) => {
+        }
+        catch (err) {
+          // if we couldn't reach the server
           if (host && dataServers.length > 1) {
+            // remove server from server list and try again
             dataServers.splice(dataServers.indexOf(host), 1)
             url = url.replace(host, dataServers[0])
-            this.get(url, params)
+            return this.get(url, params)
           }
           else {
-            console.log(url, err)
+            console.log('No servers available', err)
             window.eventHub.$emit('showSnackBar', i18next.t('Error could not reach data server'))
           }
-        })
+        }
       },
       upload: function (url, file, params) {
         // prepend API server
@@ -512,6 +531,11 @@ const http = {
           }
           reader.readAsDataURL(file)
         })
+      },
+      dataServer: function () {
+        var host = dataServers.shift()
+        dataServers.push(host)
+        return host
       },
       // PostToWACompanion: function (action, id) {
       //   var e = document.createElement('a')
@@ -539,15 +563,28 @@ const http = {
       //   })
       // },
       interceptHeaders: function (res) {
+        var responseType = {}
         for (var pair of res.headers.entries()) {
           switch (pair[0]) {
             case 'wotm':
               store.commit('setWotm', pair[1])
               break
+            case 'content-type':
+              if (pair[1].match(/json/)) {
+                responseType.json = true
+              }
+              else if (pair[1].match(/zip/)) {
+                responseType.blob = true
+              }
+              break
           }
         }
+        return responseType
       },
       interceptJSON: function (json) {
+        if (typeof json !== 'object') {
+          return
+        }
         if (json.login && json.token && json.user) {
           window.setCookie('token', json.token, 365)
           store.commit('setUser', json.user)
@@ -637,8 +674,8 @@ Vue.use(require('vue-scrollto'), {
 
 // since b.net only allows a single callback per app we need a second key for a beta app
 var bnetClientID
-if (window.location.hostname === 't1000.wago.io') {
-  bnetClientID = 'knqu8yfycxhjzuufny6vja3z3jyzap8s'
+if (window.location.hostname === 'io') {
+  bnetClientID = '814f698f09d446a8b5ba7b1b6123fb3f'
 }
 else {
   bnetClientID = '32e7423b92714e888c73e087be3a9ad3'
