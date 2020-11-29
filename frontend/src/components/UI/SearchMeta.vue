@@ -6,11 +6,10 @@
         <md-input-container>
           <label for="sort">{{ $t("Sort") }}</label>
           <md-select name="sort" id="sort" v-model="sortVal">
-            <md-option value="bestmatch">{{ $t("Best Match") }}</md-option>
+            <md-option value="bestmatchv2">{{ $t("Best Match") }}</md-option>
             <md-option value="stars">{{ $t("Stars") }}</md-option>
             <md-option value="views">{{ $t("Views") }}</md-option>
             <md-option value="date">{{ $t("Date") }}</md-option>
-            <md-option value="bestmatchv2">{{ $t("[test] Best Match v2") }}</md-option>
           </md-select>
         </md-input-container>
 
@@ -152,6 +151,9 @@ export default {
   computed: {
     sortVal: {
       get: function () {
+        if (this.sort === 'bestmatch') {
+          return 'bestmatchv2'
+        }
         return this.sort
       },
       set: function (v) {

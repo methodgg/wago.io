@@ -23,8 +23,8 @@ module.exports = function (fastify, opts, next) {
     if (!sort && req.user && req.user.config.searchOptions.sort) {
       sort = req.user.config.searchOptions.sort
     }
-    if (!sort) {
-      sort = 'bestmatch'
+    if (!sort || sort === 'bestmatch') {
+      sort = 'bestmatchv2'
     }
     // default expansion filter
     var expansion
@@ -88,8 +88,9 @@ module.exports = function (fastify, opts, next) {
       esSort.unshift({'popularity.viewsThisWeek': 'desc'})
     }
     else if (sort === 'bestmatch') {
-      esSort.push({'popularity.viewsThisWeek': 'desc'})
-      esSort.push({modified: 'desc'})
+      sort = 'bestmatchv2'
+      // esSort.push({'popularity.viewsThisWeek': 'desc'})
+      // esSort.push({modified: 'desc'})
     }
 
     // if user is logged in and sort is different from their current config, then update default config
