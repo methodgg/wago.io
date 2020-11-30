@@ -27,7 +27,6 @@ module.exports = function (req, res, next) {
     else if (count > max) {
       return res.code(429).send({error: "Rate limit exceeded"})
     }
-    console.log(key, count, req.raw.url)
   })
 
   return next()
