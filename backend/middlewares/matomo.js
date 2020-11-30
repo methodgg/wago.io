@@ -71,7 +71,7 @@ module.exports = function (data) {
   else {
     arrMatomoWeb.push(trackProp)
     if ((arrMatomoWeb.length > 20 || (arrMatomoWeb.length && lastWebMinute !== trackProp.m))) {
-      matomoWeb.trackBulk(arrMatomoAPI.splice(0, 20))
+      matomoWeb.trackBulk(arrMatomoWeb.splice(0, 20))
       lastWebMinute = trackProp.m
     }
   }
