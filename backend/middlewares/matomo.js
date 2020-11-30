@@ -62,12 +62,14 @@ module.exports = function (data) {
   }
 
   if (trackProp.url.match(/^https:\/\/data\.wago\.io\/api\//)) {
+    arrMatomoAPI.push(trackProp)
     if ((arrMatomoAPI.length > 20 || (arrMatomoAPI.length && lastAPIMinute !== trackProp.m))) {
       matomoAPI.trackBulk(arrMatomoAPI.splice(0, 20))
       lastAPIMinute = trackProp.m
     }
   }
   else {
+    arrMatomoWeb.push(trackProp)
     if ((arrMatomoWeb.length > 20 || (arrMatomoWeb.length && lastWebMinute !== trackProp.m))) {
       matomoWeb.trackBulk(arrMatomoAPI.splice(0, 20))
       lastWebMinute = trackProp.m
