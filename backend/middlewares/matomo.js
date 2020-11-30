@@ -10,6 +10,11 @@ matomoAPI.on('error', function(err) {
   console.log('ERROR SENDING TO MATOMO', err)
 })
 
+var arrMatomoWeb = []
+var lastWebMinute = 0
+var arrMatomoAPI = []
+var lastAPIMinute = 0
+
 module.exports = function (data) {
   if (this.query && this.query.qupdate) {
     return
@@ -45,16 +50,27 @@ module.exports = function (data) {
   trackProp.cvar = JSON.stringify({
     '1': ['host', config.host]
   })
+  const d = new Date()
+  trackProp.h = d.getHours()
+  trackProp.m = d.getMinutes()
+  trackProp.s = d.getSeconds()
 
   trackProp = Object.assign(trackProp, data)
   
   if (!trackProp.url) {
     trackProp.url = 'https://wago-missing-url/'
   }
+
   if (trackProp.url.match(/^https:\/\/data\.wago\.io\/api\//)) {
-    matomoAPI.track(trackProp)
+    if ((arrMatomoAPI.length > 20 || (arrMatomoAPI.length && lastAPIMinute !== trackProp.m))) {
+      matomoAPI.trackBulk(arrMatomoAPI.splice(0, 20))
+      lastAPIMinute = trackProp.m
+    }
   }
   else {
-    matomoWeb.track(trackProp)
+    if ((arrMatomoWeb.length > 20 || (arrMatomoWeb.length && lastWebMinute !== trackProp.m))) {
+      matomoWeb.trackBulk(arrMatomoAPI.splice(0, 20))
+      lastWebMinute = trackProp.m
+    }
   }
 }
