@@ -282,7 +282,7 @@ module.exports = {
         }
       }
       // animation onStart functions
-      if (item.animation && item.animation.start) {
+      if (item.animation && item.animation.start && item.animation.start.type === 'custom') {
         // animate alpha
         if (item.animation.start.use_alpha && item.animation.start.alphaType === 'custom' && item.animation.start.alphaFunc && item.animation.start.alphaFunc.trim().length) {
           if (func.indexOf(item.id) < 0) {
@@ -320,7 +320,7 @@ module.exports = {
         }
       }
       // animation main/ongoing functions
-      if (item.animation && item.animation.main) {
+      if (item.animation && item.animation.main && item.animation.main.type === 'custom') {
         // animate alpha
         if (item.animation.main.use_alpha && item.animation.main.alphaType === 'custom' && item.animation.main.alphaFunc && item.animation.main.alphaFunc.trim().length) {
           if (func.indexOf(item.id) < 0) {
@@ -358,7 +358,7 @@ module.exports = {
         }
       }
       // animation finish functions
-      if (item.animation && item.animation.finish) {
+      if (item.animation && item.animation.finish && item.animation.finish.type === 'custom') {
         // animate alpha
         if (item.animation.finish.use_alpha && item.animation.finish.alphaType === 'custom' && item.animation.finish.alphaFunc && item.animation.finish.alphaFunc.trim().length) {
           if (func.indexOf(item.id) < 0) {

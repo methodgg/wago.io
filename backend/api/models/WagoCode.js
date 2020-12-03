@@ -34,8 +34,8 @@ Schema.statics.lookup = async function(id, version) {
     if (version && typeof version === 'string' && version.replace(/-\d+$/, '').match(/\d+\.\d+\.\d+/)) {
       doc = await this.findOne({auraID: id, versionString: version.replace(/-\d+$/, '')}).exec()
     }
-    else if (version && parseInt(version) == version && version > 0) {
-      doc = await this.findOne({auraID: id}).sort({updated: 1}).skip(parseInt(version) - 1).exec()
+    else if (version && parseInt(version) == version && parseInt(version) > 0) {
+      doc = await this.findOne({auraID: id, version: parseInt(version)}).sort({updated: 1}).exec()
     }    
     else {
       doc = await this.findOne({auraID: id}).sort({updated: -1}).exec()
@@ -43,6 +43,7 @@ Schema.statics.lookup = async function(id, version) {
     if (!doc) {
       return {err: 'No code found'}
     }
+    
     if (!doc.versionString || !doc.version || (version && doc.version > version) || doc.versionString.match(/undefined/) || (!doc.version && !version)) {
       // missing version numbers here, so repopulate them in for all versions
       var versions = await WagoCode.find({auraID: id}).sort({updated: 1}).exec()
@@ -57,13 +58,13 @@ Schema.statics.lookup = async function(id, version) {
         else if (!codeVersion.versionString) {
           codeVersion.versionString = '0.0.' + i
         }
-        codeVersion.version = i            
-        codeVersion.save()
+        codeVersion.version = i
+        await codeVersion.save()
         
         if ((!version && i === versions.length) || i === version) {
           doc.versionString = codeVersion.versionString
           doc.version = codeVersion.version
-          doc.save()
+          await doc.save()
         }
       })
     }

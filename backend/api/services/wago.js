@@ -154,6 +154,30 @@ module.exports = function (fastify, opts, next) {
       return res.code(403).send({error: "forbidden"})
     }
 
+    // large server lag has caused duplicate versions to be created in some rare occurrances which bugs out when modifying versions
+    // this will remove the problem duplicates
+    // TODO: find why this is happening in the first place and stop it
+    const hasDupes = await WagoItem.aggregate([
+      {$match: {auraID: wago._id}},
+      {$group: { 
+        _id: { version: "$version" }, 
+        uniqueIds: { $addToSet: "$_id" },
+        count: { $sum: 1 } 
+      }},
+      {$match: {count: {$gt: 1}}}
+    ])
+    for (let d = 0; d < hasDupes.length; d++) {
+      var dupes = await WagoItem.find({auraID: id, version: hasDupes[d]._id.version})
+      if (dupes.length <= 1) {
+        continue
+      }
+      for (let i = 1; i < dupes.length; i++) {
+        if (dupes[0].encoded === dupes[i].encoded) { // ensure the content is duplicated and not just the version number
+          await dupes[i].remove()
+        }
+      }
+    }
+
     var code = await WagoCode.lookup(wago._id, req.body.version)
     if (!code) {
       return res.code(404).send({error: "no_code"})
