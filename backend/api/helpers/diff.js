@@ -25,13 +25,21 @@ module.exports = {
     tableB.url = ''
     tableB.version = ''
     for (const c of codeA) {
-      if (typeof c === 'object' && c.path) {
+      if (typeof c === 'object' && c.path && c.path.match(/^\[/)) {
+        eval(`tableA${c.path} = ''`)
+        eval(`tableB${c.path} = ''`)
+      }
+      else if (typeof c === 'object' && c.path) {
         eval(`tableA.${c.path} = ''`)
         eval(`tableB.${c.path} = ''`)
       }
     }
     for (const c of codeB) {
-      if (typeof c === 'object' && c.path) {
+      if (typeof c === 'object' && c.path && c.path.match(/^\[/)) {
+        eval(`tableA${c.path} = ''`)
+        eval(`tableB${c.path} = ''`)
+      }
+      else if (typeof c === 'object' && c.path) {
         eval(`tableA.${c.path} = ''`)
         eval(`tableB.${c.path} = ''`)
       }
