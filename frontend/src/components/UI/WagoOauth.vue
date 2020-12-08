@@ -183,7 +183,7 @@ export default {
     if (this.user && this.user.battlenet && this.user.battlenet.updateStatus === 'pending-API') {
       this.bnetUpdateTimer = setTimeout(() => {
         this.checkUpdatedBnetProfile(vue)
-      }, 2000)
+      }, 2500)
     }
   },
   destroyed () {

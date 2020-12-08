@@ -1,7 +1,10 @@
 const config = require('../../config')
 const querystring = require('querystring')
+const redis = require('../../redis')
+const WoWChar = require('../models/WoWChar')
 const mdtWeekReset = 648
-
+const tmpDir = __dirname + '/../../run-tmp'
+const s3 = require('../helpers/s3Client')
 
 // where region is NA, EU, KR, TW or CN
 function getHost (region) {
@@ -25,8 +28,12 @@ function getSlug (str) {
   return encodeURI((str || '').toLowerCase().replace(/'/g, '').replace(/\s/g, '-'))
 }
 
-// TODO: Keep token in memory with expiry
+
 async function getToken (region) {
+  let token = await redis.get('BattleNetClientToken')
+  if (token) {
+    return token
+  }
   if (region === 'CN') {
     tokenURL = 'https://www.battlenet.com.cn/oauth/token'
   }
@@ -44,6 +51,9 @@ async function getToken (region) {
     })
 
     if (response && response.data && response.data.access_token) {
+      if (response.data.expires_in > 3600) { // should usually be 86399 (just over 24 hours)
+        await redis.set('BattleNetClientToken', response.data.access_token, response.data.expires_in - 300)
+      }
       return response.data.access_token
     }
     else {
@@ -193,28 +203,93 @@ module.exports = {
     }
   },
 
-  lookupCharacter: async (region, realm, name) => {
-    // const url = `/wow/character/${encodeURI(realm)}/${encodeURI(name)}?fields=guild`
+  lookupCharacter: async (region, realm, name, user) => {
     const url = `/profile/wow/character/${getSlug(realm)}/${getSlug(name)}`
-    const cached = await BlizzData.findOne({_id: region + '-' + url})
-    if (cached) {
-      return cached.value
-    }
     const token = await getToken()
     try {
-      const char = await getAPI(region, url, token)
-      await BlizzData.create({_id: region + '-' + url, value: char.data, expires_at: new Date((new Date()).getTime() + 10 * 60000)})
-      return char.data
+      var char = await WoWChar.find({region, realm, name}).exec()
+      if (char && char.updated > Date.now() - 3600000 * 48) {
+        return char
+      }
+      const summary = (await getAPI(region, url, token)).data
+      if (!summary || !summary.id) {
+        return {}
+      }
+      var char = await WoWChar.findOne({region, realm, name}).exec()
+      if (!char) {
+        char = new WoWChar({bnetID: summary.id, region, realm, realmSlug: summary.realm.slug, name})
+      }
+      else if (!char.bnetID !== summary.id) {
+        await WoWChar.findOneAndDelete({bnetID: summary.id})
+        char = new WoWChar({bnetID: summary.id, region, realm, realmSlug: summary.realm.slug, name})
+      }
+
+      if (user && user._id) {
+        char._userId = user._id
+        if (summary.level >= 50 && !user.account.verified_human) {
+          user.account.verified_human = true
+          await user.save()
+        }
+      }
+
+      if (summary.guild && summary.guild.name) {
+        char.guild = summary.guild.name
+        char.guildRealm = summary.guild.realm.name
+        char.guildRealmSlug = summary.guild.realm.slug
+      }
+
+      if (!char.bnetUpdate || char.bnetUpdate < summary.last_login_timestamp) {
+        const imageURL = `https://render-${region}.worldofwarcraft.com/character/${summary.realm.slug}/${summary.id % 256}/${summary.id}-inset.jpg`
+        const arraybuffer = await axios.request({
+          responseType: 'arraybuffer',
+          url: imageURL,
+          method: 'get'
+        })
+        if (char.mediaTimestamp) {
+          s3.delete({
+            Bucket: 'wago-media',
+            Key: `wowchar/${summary.id}/${char.mediaTimestamp}.jpg`
+          })
+        }
+        let time = Date.now()
+        await fs.writeFile(`${tmpDir}/w-${time}.jpg`, arraybuffer)
+        await s3.uploadFile({
+          localFile: `${tmpDir}/w-${time}.jpg`,
+          s3Params: {
+            Bucket: 'wago-media',
+            Key: `wowchar/${summary.id}/${time}.jpg`
+          }
+        })
+        char.mediaTimestamp = time
+        fs.unlink(`${tmpDir}/w-${time}.jpg`)
+      }
+      char.bnetUpdate = summary.last_login_timestamp
+      char.class = summary.character_class.id
+      char.faction = summary.faction.type
+      char.race = summary.race.id
+      char.achievements.points = summary.achievement_points
+      await char.save()
+
+      return char
     }
     catch (e) {
       if (e.response && (e.response.status === 404 || e.response.status === 403)) {
+        if (e.response.status === 404) {
+          // console.log('not found', region, realm, name)
+          await WoWChar.findOneAndDelete({region, realm, name}).exec()
+        }
         return {error: "NOCHAR"}
       }
+      // console.log(url, e)
       return {}
     }
   },
 
   lookupCharacterStatus: async (region, realm, name) => {
+    console.log(region, realm, name)
+    if (!realm) {
+      return {}
+    }
     const url = `/profile/wow/character/${getSlug(realm)}/${getSlug(name)}/status`
     const token = await getToken()
     try {

@@ -254,7 +254,7 @@ async function UpdateGuildMembership () {
       // guild found! Match all wago users with guild
       guild.members.sort(guildRankSort)
       for (let j = 0; j < guild.members.length; j++) {
-        let memberUser = await User.findOne({"battlenet.characters.region": region, "battlenet.characters.name": guild.members[j].character.name, "battlenet.characters.realm": guild.members[j].character.realm.slug})
+        let memberUser = await User.findOne({"battlenet.characters.region": region, "battlenet.characters.name": guild.members[j].character.name})
         if (!memberUser) {
           continue
         }
@@ -295,28 +295,21 @@ async function UpdateGuildMembership () {
 
       // remove old members
       let exGuild = await User.find({"battlenet.guilds": guildKey, _id: {$nin: accountIdsInGuild}}).exec()
-      if (exGuild.length) {
-        let deletePromise = new Promise(async (deleteDone) => {
-          exGuild.forEach(async (exMember) => {
+      for (let d = 0; d < exGuild.length; d++) {
             let re = new RegExp('^' + guildKey + '(@\\d)?$')
-            for (let g = exMember.battlenet.guilds.length - 1; g >= 0; g--) {
-              if (exMember.battlenet.guilds[g].match(re)) {
-                exMember.battlenet.guilds.splice(g, 1)
+        for (let g = exGuild[d].battlenet.guilds.length - 1; g >= 0; g--) {
+          if (exGuild[d].battlenet.guilds[g].match(re)) {
+            exGuild[d].battlenet.guilds.splice(g, 1)
               }
             }
-            await exMember.save()
-            return deleteDone()
-          })
-        })
-        await deletePromise
+        await exGuild[d].save()
       }
-      return Promise.resolve()
     }
   }
 
   for (let i = 0; i < users.length; i++) {
     for (let j = 0; j < users[i].battlenet.guilds.length; j++) {
-      await battlenet.lookupCharacterStatus(users[i].battlenet.guilds[j])
+      await updateGuild(users[i].battlenet.guilds[j])
     }
   }
 }

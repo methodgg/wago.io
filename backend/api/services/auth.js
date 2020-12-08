@@ -380,22 +380,24 @@ async function battlenetAuth(req, res, region) {
         await Promise.all(profiles[region].map(character => getCharacter(region, character)))
       }
       const getCharacter = async function (region, character) {
-        if (!character.realm || !character.name || character.name.match(/\d/)) {
+        if (!character.realm || !character.name || character.name.match(/\d/) || character.level < 30) {
           return Promise.resolve()
         }
-        const char = await battlenet.lookupCharacter(region, character.realm.name, character.name)
+        const char = await battlenet.lookupCharacter(region, character.realm.name, character.name, user)
+
         if (!char.name) {
           return Promise.resolve()
         }
-        if (char.guild && char.guild.realm) {
-          chars.push({region: region, realm: char.realm.slug, name: char.name, guild: char.guild.name, guildRealm: char.guild.realm.slug, bnetID: char.id })
-          const guild = await battlenet.lookupGuild(region, char.guild.realm.slug, char.guild.name)
+
+        if (char.guild && char.guildRealmSlug) {
+          chars.push({region: region, realm: char.realmSlug, name: char.name, guild: char.guild, guildRealm: char.guildRealmSlug, bnetID: char.bnetID })
+          const guild = await battlenet.lookupGuild(region, char.guildRealm, char.guild)
           if (guild && guild.members) {
             for (let j = 0; j < guild.members.length; j++) {
-              if (char.realm.slug === guild.members[j].character.realm.slug && char.name === guild.members[j].character.name) {
-                guilds.push(`${region}@${char.guild.realm.slug}@${char.guild.name}`)
+              if (char.realmSlug === guild.members[j].character.realm.slug && char.name === guild.members[j].character.name) {
+                guilds.push(`${region}@${char.guildRealmSlug}@${char.guild}`)
                 for (let k = guild.members[j].rank; k <= 9; k++) {
-                  guilds.push(`${region}@${char.guild.realm.slug}@${char.guild.name}@${k}`)
+                  guilds.push(`${region}@${char.guildRealmSlug}@${char.guild}@${k}`)
                 }
                 break
               }
@@ -403,9 +405,9 @@ async function battlenetAuth(req, res, region) {
           }
         }
         else {
-          chars.push({region: region, realm: char.realm.name, name: char.name, bnetID: char.id })
+          chars.push({region: region, realm: char.realm, name: char.name, bnetID: char.bnetID })
         }
-        if (char.level >= 110) {
+        if (char.level >= 50) {
           if (mostRecent < char.lastModified) {
             mostRecent = char.lastModified
             avatarURL = 'https://render-' + region + '.worldofwarcraft.com/character/' + char.thumbnail
@@ -422,16 +424,19 @@ async function battlenetAuth(req, res, region) {
           user[battlenetField].avatar = img
         }
         guilds = [...new Set(guilds)]
-        user[battlenetField].name = auth.name
-        user[battlenetField].characters = chars
-        user[battlenetField].guilds = guilds
-        user[battlenetField].updateStatus = 'done'
-        user[battlenetField].updateDate = new Date()
-        user.account.verified_human = true
-        await user.save()
+        // since there is a mongo version control conflict that I can't seem to find when modifying battlenet chars... refetch the user
+        let _user = await User.findById(user._id)
+        _user[battlenetField].name = auth.name
+        _user[battlenetField].characters = chars
+        _user[battlenetField].guilds = guilds
+        _user[battlenetField].updateStatus = 'done'
+        _user[battlenetField].updateDate = new Date()
+        _user.account.verified_human = true
+        await _user.save()
       }
       else {
         user[battlenetField].updateStatus = 'Error: No characters found.'
+        user[battlenetField].updateDate = new Date()
         await user.save()
       }
     })
@@ -610,7 +615,8 @@ async function oAuthLogin(req, res, provider, authUser, callback) {
     profile = {
       id: authUser.id,
       name: authUser.name,
-      updateStatus: 'pending-API'
+      updateStatus: 'pending-API',
+      updateDate: new Date()
     }
     humanDetected = authUser.maxLevel
     newAcctName = authUser.name

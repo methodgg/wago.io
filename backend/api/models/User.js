@@ -81,12 +81,13 @@ const Schema = new mongoose.Schema({
     updateStatus: String,
     updateDate: Date,
     characters: [{
+      _id: false,
       region: {type: String, index: true},
       realm: {type: String, index: true},
       name: {type: String, index: true},
       guild: {type: String, index: true},
       guildRealm: {type: String, index: true},
-      bnetID: Number
+      bnetID: {type: Number, index: true}
     }],
     guilds: [{type: String, index: true}]
   },
