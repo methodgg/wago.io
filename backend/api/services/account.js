@@ -42,7 +42,7 @@ module.exports = (fastify, opts, next) => {
 
     // if user is logged in
     if (req.user) {
-      if (req.user.battlenet && req.user.battlenet.updateStatus === 'pending-API' && req.user.battlenet.updateDate > Date.now() - 10000) {
+      if (req.user.battlenet && req.user.battlenet.updateStatus === 'pending-API' && (new Date(req.user.battlenet.updateDate)).getTime() + 10000 < Date.now()) {
         req.user.battlenet.updateStatus = 'timeout'
         await req.user.save()
       }
