@@ -21,8 +21,6 @@ const Schema = new mongoose.Schema({
     triggerTable: Boolean // for WA 7.3.6 release that broke imports with triggers Sept 5-6 2018
   }
 });
-// compound text index
-Schema.index({json: 'text', lua: 'text'})
 
 /**
  * Statics

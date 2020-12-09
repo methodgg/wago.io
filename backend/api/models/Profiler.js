@@ -1,9 +1,9 @@
 const mongoose = require('mongoose')
 
 const Schema = new mongoose.Schema({
-  route: {type: String, index: true},
+  route: {type: String},
   host: {type: String},
-  method: {type: String, index: true},
+  method: {type: String},
   statusCode: {type: Number},
   events: [{
     label: String,
