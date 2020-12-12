@@ -35,6 +35,7 @@ local LibDeflate = LibStub:GetLibrary("LibDeflate")
 local LibDeflate = LibStub:GetLibrary("LibDeflate")
 local LibSerialize = LibStub("LibSerialize")
 local configForDeflate = {level = 7}
+errorMsg = ""
 
 local JSON = (loadfile "./json.lua")()
 
