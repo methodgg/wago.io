@@ -646,7 +646,7 @@ module.exports = function (fastify, opts, next) {
         item.user = { name: "a Guest" }
         item.user.searchable = false
         item.user.roleClass = 'user-default'
-        item.user.avatar = 'https://api.adorable.io/avatars/60/' + wago._id + '.png'
+        item.user.avatar = 'https://api.hello-avatar.com/adorables/60/' + wago._id + '.png'
       }
       return item
     }))

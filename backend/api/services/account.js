@@ -187,7 +187,7 @@ module.exports = (fastify, opts, next) => {
     switch (req.body.avatar) {
       // generate new from adorable.io
       case 'adorable':
-        var img = await image.avatarFromURL('https://api.adorable.io/avatars/64/' + req.user._id.toString() + Date.now() + '.png', req.user._id.toString(), req.body.avatar)
+        var img = await image.avatarFromURL('https://api.hello-avatar.com/adorables/64/' + req.user._id.toString() + Date.now() + '.png', req.user._id.toString(), req.body.avatar)
         req.user.profile.avatar = img
         req.user.save()
         res.send({success: true, avatar: img})

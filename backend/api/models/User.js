@@ -224,19 +224,19 @@ Schema.virtual('account.total_accounts').get(function() {
   return num
 })
 
-// avatar url or default to adorable.io
+// avatar url or default to adorable.io - adorable.io down, new mirror at https://api.hello-avatar.com/adorables
 Schema.virtual('avatarURL').get(async function() {
   if (this.profile.avatar && (this.profile.avatar.webp || this.profile.avatar.png)) {
     return this.profile.avatar
   }
   else {
     const image = require('../helpers/image')
-    await image.avatarFromURL('https://api.adorable.io/avatars/64/' + this._id.toString() + '.png', this._id.toString(), 'adorable').then(async (img) => {
+    await image.avatarFromURL('https://api.hello-avatar.com/adorables/64/' + this._id.toString() + '.png', this._id.toString(), 'adorable').then(async (img) => {
       this.profile.avatar = img
       await this.save()
     })
     // next time, this image will be saved locally but return remote image now instead of waiting
-    return {png: 'https://api.adorable.io/avatars/64/' + this._id.toString() + '.png'}
+    return {png: 'https://api.hello-avatar.com/adorables/64/' + this._id.toString() + '.png'}
   }
 })
 
