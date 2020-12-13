@@ -25,7 +25,7 @@ const Schema = new mongoose.Schema({
   wow_patch : String,
   supports_patch: String,
   batch_import : String,
-  game: { type: String, default: 'bfa', index: true, es_indexed: true },
+  game: { type: String, default: 'sl', index: true, es_indexed: true },
 
   hidden : { type: Boolean, default: false, index: true, es_indexed: true },
   private : { type: Boolean, default: false, index: true, es_indexed: true },
