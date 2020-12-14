@@ -21,7 +21,7 @@ module.exports = function (req, res, next) {
     if (err) {
       console.error('RATE LIMIT ERROR', err)
     }
-    else if (count === 1) {
+    else if (count <= 5) {
       store.expire(key, expire)
     }
     else if (count > max) {
