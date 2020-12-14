@@ -56,6 +56,11 @@
                 <span>Requests</span>
               </div>
             </md-list-item>
+            <md-list-item @click="LoadStatus('dataservers')" v-bind:class="{selected: (statusSelected === 'dataservers')}">
+              <div class="md-list-text-container">
+                <span>Data Servers Ping</span>
+              </div>
+            </md-list-item>
             <md-list-item @click="LoadStatus('redis')" v-bind:class="{selected: (statusSelected === 'redis')}">
               <div class="md-list-text-container">
                 <span>Redis</span>
@@ -76,12 +81,23 @@
                 <span>Completed Tasks</span>
               </div>
             </md-list-item>
+            <md-list-item @click="LoadStatus('ratelimit')" v-bind:class="{selected: (statusSelected === 'ratelimit')}">
+              <div class="md-list-text-container">
+                <span>Rate Limits</span>
+              </div>
+            </md-list-item>
           </md-list>
         </md-layout>
         <md-layout md-flex="85">
-          <editor v-if="statusSelected !== 'requests'" v-model="statusJSON" @init="editorInit" :theme="$store.state.user.config.editor" lang="json" width="100%" height="500"></editor>
-          <md-table-card v-else>
-            <md-table md-sort="timestamp" md-sort-type="desc" @sort="onSort">
+          <form novalidate @submit.stop.prevent="submitRateLimit" v-if="statusSelected === 'ratelimit'" style="width:300px">
+            <md-input-container>
+              <label>IP Search</label>
+              <md-input v-model="rateLimitSearch"></md-input>
+            </md-input-container>
+          </form>
+          <editor v-if="statusSelected.match(/redis|waiting|active|completed|ratelimit/)" v-model="statusJSON" @init="editorInit" :theme="$store.state.user.config.editor" lang="json" width="100%" height="500"></editor>
+          <md-table-card v-else-if="statusSelected === 'requests'">
+            <md-table md-sort="timestamp" md-sort-type="desc" @sort="sortRequests">
               <md-table-header>
                 <md-table-row>
                   <md-table-head md-sort-by="timestamp">Time</md-table-head>
@@ -94,7 +110,7 @@
               </md-table-header>
 
               <md-table-body>
-                <md-table-row v-for="(row, rowIndex) in status.profiler" :key="rowIndex" :md-item="row">
+                <md-table-row v-for="(row, rowIndex) in requestTable[requestPage]" :key="rowIndex" :md-item="row">
                   <md-table-cell>{{ row.timestamp | moment('HH:mm.SSS MMM Do YYYY') }}</md-table-cell>
                   <md-table-cell>{{ row.statusCode || 'Processing' }}</md-table-cell>
                   <md-table-cell>{{ row.method }}</md-table-cell>
@@ -111,7 +127,24 @@
               md-page="1"
               md-label="Rows"
               md-separator="of"
-              @pagination="onPagination"></md-table-pagination>
+              @page="setPage"></md-table-pagination>
+          </md-table-card>
+          <md-table-card v-else-if="statusSelected === 'dataservers'">
+            <md-table>
+              <md-table-header>
+                <md-table-row>
+                  <md-table-head>Server</md-table-head>
+                  <md-table-head md-numeric>Ping Time</md-table-head>
+                </md-table-row>
+              </md-table-header>
+
+              <md-table-body>
+                <md-table-row v-for="(ping, server) in pingRequests" :key="server">
+                  <md-table-cell>{{ server.replace('https://', '') }}</md-table-cell>
+                  <md-table-cell md-numeric>{{ ping }}</md-table-cell>
+                </md-table-row>
+              </md-table-body>
+            </md-table>
           </md-table-card>
         </md-layout>
       </md-layout>
@@ -151,7 +184,10 @@ export default {
       statusSelected: 'requests',
       status: {redis: ''},
       statusJSON: '',
-      profiler: []
+      requestTable: [],
+      requestPage: 0,
+      pingRequests: {},
+      rateLimitSearch: ''
     }
   },
   mounted: function () {
@@ -198,8 +234,19 @@ export default {
       })
     },
 
-    LoadStatus (frame) {
+    LoadStatus: async function (frame) {
       this.statusSelected = frame
+      if (frame === 'dataservers') {
+        window.dataServers.forEach(async (server) => {
+          this.$set(this.pingRequests, server, 'Waiting')
+          let t = Date.now()
+          await this.http.get(server + '/ping')
+          this.$set(this.pingRequests, server, (Date.now() - t) + 'ms')
+        })
+      }
+      else if (frame === 'ratelimit') {
+        this.status.ratelimit = await this.http.get('/admin/ratelimit')
+      }
       this.statusJSON = JSON.stringify(this.status[frame], null, 2)
     },
 
@@ -222,6 +269,11 @@ export default {
       })
     },
 
+    async submitRateLimit () {
+      this.status.ratelimit = await this.http.get('/admin/ratelimit', {q: this.rateLimitSearch})
+      this.statusJSON = JSON.stringify(this.status.ratelimit, null, 2)
+    },
+
     toggleFrame (frame) {
       this.showPanel = frame
       var vue = this
@@ -238,8 +290,25 @@ export default {
         this.http.get('/admin/status').then((res) => {
           this.statusJSON = JSON.stringify(res.redis, null, 2)
           vue.status = res
+          vue.requestTable = []
+          vue.requestTable[0] = res.profiler.slice(1, 100)
+          vue.requestTable[1] = res.profiler.slice(100, 200)
+          vue.requestTable[2] = res.profiler.slice(200, 300)
+          vue.requestTable[3] = res.profiler.slice(300, 400)
+          vue.requestTable[4] = res.profiler.slice(400, 500)
+          vue.requestTable[5] = res.profiler.slice(500, 600)
+          vue.requestTable[6] = res.profiler.slice(600, 700)
+          vue.requestTable[7] = res.profiler.slice(700, 800)
+          vue.requestTable[8] = res.profiler.slice(800, 900)
+          vue.requestTable[9] = res.profiler.slice(900, 1000)
         })
       }
+    },
+    sortRequests (sort) {
+      console.log(sort)
+    },
+    setPage (page) {
+      this.requestPage = page - 1
     }
   }
 }
@@ -253,4 +322,5 @@ export default {
 #admin #blog-sidebar ul em { font-size: 80%; opacity: .8 }
 #adminPreviewFrame .md-dialog p { margin: 12px 0}
 #blogEditor { min-height: 600px }
+.md-table-cell-container {max-width: 400px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
 </style>

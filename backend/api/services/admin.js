@@ -1,3 +1,4 @@
+const redis = require("../../redis")
 const Profiler = require("../models/Profiler")
 
 module.exports = (fastify, opts, next) => {
@@ -60,6 +61,33 @@ module.exports = (fastify, opts, next) => {
     data.active = await taskQueue.getActive(0, 50)
     data.completed = await taskQueue.getCompleted(0, 50)
     data.profiler = await Profiler.find({}).sort({timestamp: -1}).limit(1000)
+    data.ratelimit = {}
+    res.send(data)
+  })
+
+  const redisClient = redis.getClient()
+  // get rate limit by ip
+  fastify.get('/ratelimit', async (req, res) => {
+    if (!req.user || !req.user.isAdmin.access ||  !req.user.isAdmin.super) {
+      return res.code(403).send({error: "forbidden"})
+    }
+    var data = {}
+    var auth = await new Promise(async (done, err) => {
+      redisClient.keys('rate:auth:*', (err, data) => {
+        done(data)
+      })
+    })
+    var common = await new Promise(async (done, err) => {
+      redisClient.keys('rate:wago:*', (err, data) => {
+        done(data)
+      })
+    })
+    data['Auth Keys'] = auth.length
+    data['Common Keys'] = common.length
+    if (req.query.q) {
+      data['rate:auth:' + req.query.q] = await redis.get('rate:auth:' + req.query.q)
+      data['rate:wago:' + req.query.q] = await redis.get('rate:wago:' + req.query.q)
+    }
     res.send(data)
   })
 
