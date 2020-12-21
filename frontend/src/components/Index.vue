@@ -75,7 +75,7 @@
                 <md-layout class="resticted-options">
                   <md-input-container v-if="rest.type === 'user'">
                     <label for="advSearchUserName">{{ $t("Enter Username") }}</label>
-                    <md-autocomplete v-model="rest.value" :fetch="autoCompleteUserName" :debounce="600" @change="onUpdateRestrictionsDebounce(index)"></md-autocomplete>
+                    <md-autocomplete v-model="rest.value" @md-changed="autoCompleteUserName" :debounce="600" @change="onUpdateRestrictionsDebounce(index)"></md-autocomplete>
                   </md-input-container>
                   <md-input-container v-if="rest.type === 'guild'">
                     <label>{{ $t("Select Guild") }}</label>
@@ -117,7 +117,7 @@
               <md-layout class="resticted-options">
                 <md-input-container v-if="newRestrictionType === 'user'">
                   <label for="advSearchUserName">{{ $t("Enter Username") }}</label>
-                  <md-autocomplete v-model="newRestrictionValue" :fetch="autoCompleteUserName" @blur="checkNewRestrictions"></md-autocomplete>
+                  <md-autocomplete v-model="newRestrictionValue" @md-changed="autoCompleteUserName" @blur="checkNewRestrictions"></md-autocomplete>
                 </md-input-container>
                 <md-input-container v-if="newRestrictionType === 'guild'">
                   <label>{{ $t("Select Guild") }}</label>
@@ -410,6 +410,7 @@ span.md-note {height: 20px; position: absolute; bottom: -22px; font-size: 12px;}
 <script>
 import Categories from './libs/categories'
 import CategorySelect from './UI/SelectCategory.vue'
+import CategoryImage from './UI/CategoryImage.vue'
 import WagoNews from './core/News.vue'
 import VueMarkdown from 'vue-markdown'
 
@@ -456,8 +457,7 @@ export default {
     CategorySelect,
     'vue-markdown': VueMarkdown,
     'wago-news': WagoNews,
-    'md-autocomplete': require('./UI/md-autocomplete.vue'),
-    'category-image': require('./UI/CategoryImage.vue')
+    'category-image': CategoryImage
   },
   computed: {
     user () {

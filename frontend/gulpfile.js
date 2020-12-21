@@ -25,4 +25,7 @@ gulp.task('i18next', function() {
       .pipe(gulp.dest('static'))
 });
 
-gulp.task('default', ['i18next'])
+gulp.task('default', gulp.series('i18next', function(done) { 
+  // default task code here
+  done()
+}))

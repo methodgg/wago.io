@@ -833,7 +833,6 @@ module.exports = {
     if (type === 'WEAKAURAS2') {
       type = 'WEAKAURA'
     }
-    console.log(addon)
     this.categories(t).forEach((cat) => {
       if (cat.root && (!type || cat[type]) && !cat.noselect && (!addon || cat[addon])) {
         roots.push(cat)

@@ -16,7 +16,7 @@ module.exports = function (req, res, next) {
     console.error('FAILED TO TRACK ANALYTICS', e)
   }
   // if no content then end response after tracking request
-  if (res.res.statusCode === 304) {
+  if (res.raw.statusCode === 304) {
     return res.send('')
   }
   next()

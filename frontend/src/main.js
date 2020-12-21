@@ -318,22 +318,23 @@ Vue.use(VueCryptojs)
 // setup vue material
 import VueMaterial from 'vue-material'
 import 'vue-material/dist/vue-material.css'
+
 Vue.use(VueMaterial)
-Vue.material.registerTheme({
-  default: {
-    primary: 'black'
-  }
-})
-Vue.material.registerTheme('dark', {
-  primary: {
-    color: 'grey',
-    hue: '800'
-  },
-  accent: {
-    color: 'grey',
-    hue: 300
-  }
-})
+// Vue.material.registerTheme({
+//   default: {
+//     primary: 'black'
+//   }
+// })
+// Vue.material.registerTheme('dark', {
+//   primary: {
+//     color: 'grey',
+//     hue: '800'
+//   },
+//   accent: {
+//     color: 'grey',
+//     hue: 300
+//   }
+// })
 
 Vue.use({install: function (v) {
   v.prototype.$env = process.env.NODE_ENV
@@ -636,32 +637,7 @@ const screenWidth = {
   }
 }
 Vue.use(screenWidth)
-
-var i18next = window.i18next = require('i18next')
-import VueI18Next from '@panter/vue-i18next'
-Vue.use(VueI18Next)
-
-import XHR from 'i18next-xhr-backend'
-i18next.use(XHR)
-  .init({
-    lng: store.state.locale,
-    fallbackLng: 'en-US',
-    ns: ['translation', 'warcraft'],
-    load: 'currentOnly',
-    returnEmptyString: false,
-    backend: {
-      loadPath: '/static/i18n/[-lng-]/[-ns-].json',
-      allowMultiLoading: false,
-      crossDomain: false
-    },
-    interpolation: {
-      prefix: '[-',
-      suffix: '-]'
-    }
-  })
-
 Vue.config.productionTip = false
-const i18n = new VueI18Next(i18next)
 
 // setup momentjs
 Vue.use(require('vue-moment'))
@@ -682,73 +658,80 @@ else {
 }
 
 // setup third party oauth authentication
-import VueAuth from '@websanova/vue-auth'
+import VueAuth from '@websanova/vue-auth/dist/vue-auth.esm.js'
+import driverAuthBearer from '@websanova/vue-auth/dist/drivers/auth/bearer.esm.js'
+import driverHttpAxios from '@websanova/vue-auth/dist/drivers/http/axios.1.x.esm.js'
+import driverRouterVueRouter from '@websanova/vue-auth/dist/drivers/router/vue-router.2.x.esm.js'
+
 Vue.use(VueAuth, {
-  auth: require('@websanova/vue-auth/drivers/auth/bearer.js'),
-  http: require('@websanova/vue-auth/drivers/http/axios.1.x.js'),
-  router: require('@websanova/vue-auth/drivers/router/vue-router.2.x.js'),
+  auth: driverAuthBearer,
+  http: driverHttpAxios,
+  router: driverRouterVueRouter,
   fetchData: {enabled: false},
-  battlenetData: {url: 'auth/battlenet', method: 'POST', redirect: '/account'},
-  battlenetOauth2Data: {
-    url: 'https://us.battle.net/oauth/authorize',
-    redirect: function () {
-      return this.options.getUrl() + '/auth/battlenet'
+  oauth2: {
+    battlenet: {
+      url: 'https://us.battle.net/oauth/authorize',
+      method: 'POST',
+      params: {
+        client_id: bnetClientID,
+        redirect_uri: 'auth/battlenet',
+        response_type: 'code',
+        scope: 'wow.profile'
+      }
     },
-    clientId: bnetClientID,
-    scope: 'wow.profile'
-  },
-  battlenetCNData: {url: 'auth/battlenetCN', method: 'POST', redirect: '/account'},
-  battlenetCNOauth2Data: {
-    url: 'https://www.battlenet.com.cn/oauth/authorize',
-    redirect: function () {
-      return this.options.getUrl() + '/auth/battlenetCN'
+    battlenetCN: {
+      url: 'https://www.battlenet.com.cn/oauth/authorize',
+      method: 'POST',
+      params: {
+        client_id: bnetClientID,
+        redirect_uri: 'auth/battlenetCN',
+        response_type: 'code',
+        scope: 'wow.profile'
+      }
     },
-    clientId: bnetClientID,
-    scope: 'wow.profile'
-  },
-  discordData: {url: 'auth/discord', method: 'POST', redirect: '/account'},
-  discordOauth2Data: {
-    url: 'https://discordapp.com/api/oauth2/authorize',
-    redirect: function () {
-      return this.options.getUrl() + '/auth/discord'
+    discord: {
+      url: 'https://discordapp.com/api/oauth2/authorize',
+      method: 'POST',
+      params: {
+        client_id: '716425995854544986',
+        redirect_uri: 'auth/discord',
+        response_type: 'code',
+        scope: 'identify'
+      }
     },
-    clientId: '716425995854544986',
-    scope: 'identify'
-  },
-  googleData: {url: 'auth/google', method: 'POST', redirect: '/account'},
-  googleOauth2Data: {
-    url: 'https://accounts.google.com/o/oauth2/auth',
-    redirect: function () {
-      return this.options.getUrl() + '/auth/google'
+    google: {
+      url: 'https://accounts.google.com/o/oauth2/auth',
+      params: {
+        client_id: '1066257896372-gn76b3s7sfra5s46861urve9rved56vd.apps.googleusercontent.com',
+        redirect_uri: 'auth/google',
+        response_type: 'code',
+        scope: 'profile openid'
+      }
     },
-    clientId: '1066257896372-gn76b3s7sfra5s46861urve9rved56vd.apps.googleusercontent.com',
-    scope: 'profile openid'
-  },
-  patreonData: {url: 'auth/patreon', method: 'POST', redirect: '/account'},
-  patreonOauth2Data: {
-    url: 'https://www.patreon.com/oauth2/authorize',
-    redirect: function () {
-      return this.options.getUrl() + '/auth/patreon'
-    },
-    clientId: '-lUfSkaxFXmH-l0EBKFchZ3LmYGnjwKSL-93pVhZm2qiQXhZmaaNMyx8LuS1OiZ-',
-    scope: 'users pledges-to-me'
-  },
-  twitchData: {url: 'auth/twitch', method: 'POST', redirect: '/account'},
-  twitchOauth2Data: {
-    url: 'https://id.twitch.tv/oauth2/authorize',
-    redirect: function () {
-      return this.options.getUrl() + '/auth/twitch'
-    },
-    clientId: '7w1xvevo9x8jvn68eauydwrb0cknq0',
-    scope: 'channel:read:subscriptions'
+    patreon: {
+      url: 'https://www.patreon.com/oauth2/authorize?f=1',
+      params: {
+        client_id: '-lUfSkaxFXmH-l0EBKFchZ3LmYGnjwKSL-93pVhZm2qiQXhZmaaNMyx8LuS1OiZ-',
+        redirect_uri: 'auth/patreon',
+        response_type: 'code',
+        scope:'users pledges-to-me'
+      }
+    }
   }
 })
 
 // setup global components
-Vue.component('ui-image', require('./components/UI/Image.vue'))
-Vue.component('ui-loading', require('./components/UI/Loading.vue'))
-Vue.component('ui-warning', require('./components/UI/Warning.vue'))
-Vue.component('advert', require('./components/UI/Advert.vue'))
+import UIImage from './components/UI/Image.vue'
+Vue.component('ui-image', UIImage)
+
+import UILoading from './components/UI/Loading.vue'
+Vue.component('ui-loading', UILoading)
+
+import UIWarning from './components/UI/Warning.vue'
+Vue.component('ui-warning', UIWarning)
+
+import UIAdvert from './components/UI/Advert.vue'
+Vue.component('advert', UIAdvert)
 
 window.braceRequires = function () {
   // ace editor themes and file types
@@ -797,14 +780,40 @@ window.braceRequires = function () {
 import VueKonva from 'vue-konva'
 Vue.use(VueKonva)
 
-/* eslint-disable no-unused-vars */
-window.eventHub = new Vue()
-var VueApp = new Vue({
-  el: '#app',
-  router,
-  http,
-  store,
-  i18n,
-  template: '<App/>',
-  components: { App }
-})
+window.i18next = window.i18next = require('i18next')
+import VueI18Next from '@panter/vue-i18next'
+
+import XHR from 'i18next-xhr-backend'
+Vue.use(VueI18Next)
+i18next.use(XHR)
+  .init({
+    lng: store.state.locale,
+    fallbackLng: 'en-US',
+    ns: ['translation', 'warcraft'],
+    load: 'currentOnly',
+    returnEmptyString: false,
+    backend: {
+      loadPath: '/static/i18n/[-lng-]/[-ns-].json',
+      allowMultiLoading: false,
+      crossDomain: false
+    },
+    interpolation: {
+      prefix: '[-',
+      suffix: '-]'
+    }
+  }, () => {    
+    const i18n = new VueI18Next(i18next)
+    /* eslint-disable no-unused-vars */
+    window.eventHub = new Vue()
+    new Vue({
+      el: '#app',
+      i18n,
+      router,
+      http,
+      store,
+      template: '<App/>',
+      render: h => h(App),
+    })
+  })
+
+

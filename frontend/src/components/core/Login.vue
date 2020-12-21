@@ -64,10 +64,12 @@
 </template>
 
 <script>
+import WagoOauth from '../UI/WagoOauth.vue'
+import Hcaptcha from '../UI/Hcaptcha.vue'
 export default {
   components: {
-    'wago-oauth': require('../UI/WagoOauth.vue'),
-    'hcaptcha': require('../UI/Hcaptcha.vue')
+    'wago-oauth': WagoOauth,
+    'hcaptcha': Hcaptcha
   },
   data: () => {
     return {

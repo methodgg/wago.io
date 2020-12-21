@@ -123,6 +123,7 @@ Quill.register(new Parchment.Attributor.Attribute('wowhead', 'data-wowhead', {sc
 import { quillEditor } from 'vue-quill-editor'
 import 'quill/dist/quill.core.css'
 import 'quill/dist/quill.snow.css'
+import InputSemver from '../UI/Input-Semver.vue'
 
 export default {
   props: ['scratch', 'cipherKey'],
@@ -250,7 +251,7 @@ export default {
     }
   },
   components: {
-    'input-semver': require('../UI/Input-Semver.vue'),
+    'input-semver': InputSemver,
     quill: quillEditor
   },
   mounted () {

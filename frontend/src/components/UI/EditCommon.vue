@@ -38,6 +38,8 @@
 
 <script>
 const semver = require('semver')
+import ExportJSON from './ExportJSON.vue'
+import InputSemver from '../UI/Input-Semver.vue'
 
 export default {
   name: 'edit-common',
@@ -58,8 +60,8 @@ export default {
   },
   components: {
     editor: require('vue2-ace-editor'),
-    'export-modal': require('./ExportJSON.vue'),
-    'input-semver': require('../UI/Input-Semver.vue')
+    'export-modal': ExportJSON,
+    'input-semver': InputSemver
   },
   methods: {
     editorInit: function (editor) {

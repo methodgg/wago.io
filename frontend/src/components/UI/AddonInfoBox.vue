@@ -12,10 +12,11 @@
 </template>
 
 <script>
+import CategoryImage from '../UI/CategoryImage.vue'
 export default {
   props: ['addon'],
   components: {
-    'category-image': require('../UI/CategoryImage.vue')
+    'category-image': CategoryImage
   },
   data: function () {
     return {

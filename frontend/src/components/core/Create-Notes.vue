@@ -10,9 +10,10 @@
 </template>
 
 <script>
+import EditEncounterNotes from '../UI/EditEncounterNotes.vue'
 export default {
   components: {
-    'build-notes': require('../UI/EditEncounterNotes.vue')
+    'build-notes': EditEncounterNotes
   },
   created () {
     this.$store.commit('setWago', {

@@ -5,9 +5,10 @@
 </template>
 
 <script>
+import ViewComments from '../UI/ViewComments.vue'
 export default {
   components: {
-    'view-comments': require('../UI/ViewComments.vue')
+    'view-comments': ViewComments
   }
   methods: {
     myFunc: function () {

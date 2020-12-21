@@ -399,7 +399,7 @@
                         <md-layout class="resticted-options">
                           <md-input-container v-if="rest.type === 'user'">
                             <label for="advSearchUserName">{{ $t("Enter Username") }}</label>
-                            <md-autocomplete v-model="rest.value" :fetch="autoCompleteUserName" :debounce="600" @change="onUpdateRestrictionsDebounce(index)"></md-autocomplete>
+                            <md-autocomplete v-model="rest.value" @md-changed="autoCompleteUserName" :debounce="600" @change="onUpdateRestrictionsDebounce(index)"></md-autocomplete>
                           </md-input-container>
                           <md-input-container v-if="rest.type === 'guild'">
                             <label>{{ $t("Select Guild") }}</label>
@@ -441,7 +441,7 @@
                       <md-layout class="resticted-options">
                         <md-input-container v-if="newRestrictionType === 'user'">
                           <label for="advSearchUserName">{{ $t("Enter Username") }}</label>
-                          <md-autocomplete v-model="newRestrictionValue" :fetch="autoCompleteUserName" @blur="checkNewRestrictions"></md-autocomplete>
+                          <md-autocomplete v-model="newRestrictionValue" @md-changed="autoCompleteUserName" @blur="checkNewRestrictions"></md-autocomplete>
                         </md-input-container>
                         <md-input-container v-if="newRestrictionType === 'guild'">
                           <label>{{ $t("Select Guild") }}</label>
@@ -551,13 +551,13 @@
 
               <!-- REFERRALS FRAME -->
               <div id="wago-versions-container" class="wago-container" v-if="showPanel=='referrals'">
-                <p>{{ $t("External linked clicked through to this page") }}</p>
+                <p>{{ $t("External sites clicked through to this page") }}</p>
                 <md-card id="wago-referrals">
                   <md-table>
                     <md-table-header>
                       <md-table-row>
-                        <md-table-head>{{ $t("URL") }}</md-table-head>
-                        <md-table-head class="md-end">{{ $t("Clicks") }}</md-table-head>
+                        <md-table-head>{{ $t("Linked From") }}</md-table-head>
+                        <md-table-head class="md-end">{{ $t("Count") }}</md-table-head>
                       </md-table-row>
                     </md-table-header>
 
@@ -984,6 +984,17 @@ import Categories from '../libs/categories'
 import Lightbox from 'vue-simple-lightbox'
 import Multiselect from 'vue-multiselect'
 import CategorySelect from '../UI/SelectCategory.vue'
+import FormattedText from '../UI/FormattedText.vue'
+import ViewComments from '../UI/ViewComments.vue'
+import EditCommon from '../UI/EditCommon.vue'
+import EditSnippet from '../UI/EditSnippet.vue'
+import EditPlater from '../UI/EditPlater.vue'
+import EditWeakAura from '../UI/EditWeakAura.vue'
+import MDTBuilder from '../UI/MDTBuilder.vue'
+import InputSemver from '../UI/Input-Semver.vue'
+import ViewDiffs from '../UI/ViewDiffs.vue'
+import AddonInfoBox from '../UI/AddonInfoBox.vue'
+import CodeReview from '../UI/CodeReview.vue'
 import Search from '../core/Search.vue'
 import semver from 'semver'
 import detectCustomCode from '../libs/detectCustomCode'
@@ -998,24 +1009,23 @@ window.enableCompanion = false
 
 export default {
   components: {
-    'view-comments': require('../UI/ViewComments.vue'),
-    'formatted-text': require('../UI/FormattedText.vue'),
+    'view-comments': ViewComments,
+    'formatted-text': FormattedText,
     Lightbox,
-    'edit-common': require('../UI/EditCommon.vue'),
-    'edit-snippet': require('../UI/EditSnippet.vue'),
-    'edit-plater': require('../UI/EditPlater.vue'),
-    'edit-weakaura': require('../UI/EditWeakAura.vue'),
-    'build-mdt': require('../UI/MDTBuilder.vue'),
-    'input-semver': require('../UI/Input-Semver.vue'),
-    'view-diffs': require('../UI/ViewDiffs.vue'),
+    'edit-common': EditCommon,
+    'edit-snippet': EditSnippet,
+    'edit-plater': EditPlater,
+    'edit-weakaura': EditWeakAura,
+    'build-mdt': MDTBuilder,
+    'input-semver':InputSemver,
+    'view-diffs': ViewDiffs,
     'color-picker': require('vue-color').Chrome,
-    'md-autocomplete': require('../UI/md-autocomplete.vue'),
-    'addon-info': require('../UI/AddonInfoBox.vue'),
+    'addon-info': AddonInfoBox,
     editor: require('vue2-ace-editor'),
     Multiselect,
     CategorySelect,
     Search,
-    codereview: require('../UI/CodeReview')
+    CodeReview
   },
   created: function () {
     this.fetchWago()

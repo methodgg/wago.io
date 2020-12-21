@@ -1,8 +1,7 @@
 const semver = require('semver')
 const mkdirp = require('mkdirp-promise')
 const s3 = require('../helpers/s3Client')
-const Magic = require('promise-mmmagic')
-const magic = new Magic(Magic.MAGIC_MIME_TYPE)
+const FileType = require('file-type')
 const videoParser = require('js-video-url-parser')
 const crypto = require("crypto-js")
 const tmpDir = __dirname + '/../../run-tmp/'
@@ -424,6 +423,7 @@ module.exports = function (fastify, opts, next) {
       res.send({success: true, _id: screen._id.toString(), src: screen.url})
     }
     catch (e) {
+      console.log(e)
       fs.unlink(tmpDir + screen.localFile)
       res.send({success: false})
     }
@@ -520,8 +520,8 @@ module.exports = function (fastify, opts, next) {
         if (Buffer.byteLength(buffer) > 15000000) {
           return res.code(400).send({error: "too_large"})
         }
-        const mime = await magic.detect(buffer)
-        const match = mime.match(/^image\/(png|jpg|gif|jpeg)/)
+        const f = await FileType.fromBuffer(buffer)
+        const match = f.mime.match(/^image\/(png|jpg|gif|jpeg|webp)/)
         if (!match) {
           return res.code(400).send({error: "invalid_image"})
         }

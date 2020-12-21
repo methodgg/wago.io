@@ -69,10 +69,12 @@ window.setColor = (item, color) => {
   head.appendChild(style)
 }
 
+import MDTBuilder from '../UI/MDTBuilder.vue'
+
 export default {
   props: ['wagoID'],
   components: {
-    'build-mdt': require('../UI/MDTBuilder.vue')
+    'build-mdt': MDTBuilder
   },
   created: function () {
     this.fetchWago()

@@ -26,8 +26,8 @@
 </template>
 
 <script>
-import { Diff2Html } from 'diff2html'
-import 'diff2html/dist/diff2html.min.css'
+const Diff2Html = require('diff2html')
+import 'diff2html/bundles/css/diff2html.min.css'
 import semver from 'semver'
 
 export default {
@@ -56,7 +56,7 @@ export default {
         right: this.compareB
       }).then((res) => {
         res.forEach((diff) => {
-          this.diffHTML.push(Diff2Html.getPrettyHtml(diff, {
+          this.diffHTML.push(Diff2Html.html(diff, {
             inputFormat: 'diff',
             showFiles: false,
             matching: 'lines'
@@ -96,12 +96,17 @@ export default {
 <style>
 #wago-diff .md-layout.md-row { flex-wrap: nowrap }
 #wago-diff .md-input-container { margin-right: 16px; max-width: 220px }
-.d2h-file-diff { overflow-x: auto }
-.d2h-tag { display: none }
-.d2h-diff-tbody>tr>td { height: auto }
-.d2h-code-line-ctn {white-space: pre-wrap}
+#wago-diff .d2h-file-diff { overflow-x: auto }
+#wago-diff .d2h-tag, .d2h-file-list-title, .d2h-file-header { display: none }
+#wago-diff .d2h-diff-tbody>tr>td { height: auto }
+#wago-diff .d2h-code-line-ctn {white-space: pre-wrap}
+#wago-diff .d2h-file-list-wrapper {margin-bottom:0}
+#wago-diff .d2h-file-name-wrapper a.d2h-file-name {pointer-events: none; color: black}
+body.theme-dark #wago-diff .d2h-file-name-wrapper a.d2h-file-name {color: white}
+body.theme-dark .d2h-file-stats .d2h-lines-added {border-color: #2b722b}
+body.theme-dark .d2h-file-stats .d2h-lines-deleted {border-color: #7f1e1e}
 body.theme-dark .d2h-file-wrapper { border: 0 }
-body.theme-dark .d2h-file-header { border: 0; background: #333333 }
+body.theme-dark .d2h-file-list { border: 0; background: #333333 }
 body.theme-dark .d2h-info, body.theme-dark .d2h-code-linenumber { background: #333333; color: rgba(255, 255, 255, .6); border: 0 }
 body.theme-dark .d2h-ins.d2h-change, body.theme-dark .d2h-ins { background-color: #004100; border-color: #212121 }
 body.theme-dark .d2h-code-line ins { background-color: #007c00; }

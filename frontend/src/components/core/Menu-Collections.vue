@@ -153,9 +153,10 @@
 
 <script>
 import categories from '../libs/categories'
+import CategoryImage from '../UI/CategoryImage.vue'
 export default {
   components: {
-    'category-image': require('../UI/CategoryImage.vue')
+    'category-image': CategoryImage
   },
   methods: {
     runSearch: function () {

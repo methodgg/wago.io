@@ -25,10 +25,12 @@
 </template>
 
 <script>
+import WagoSearch from './Search'
+import FormattedText from '../UI/FormattedText.vue'
 export default {
   components: {
-    'wago-search': require('./Search'),
-    'formatted-text': require('../UI/FormattedText.vue')
+    'wago-search': WagoSearch,
+    'formatted-text': FormattedText,
   },
   data: function () {
     return {

@@ -45,7 +45,7 @@
 
                 <md-input-container v-if="advSearchUser === 'user'" id="advSearchUserName">
                   <label for="advSearchUserName">{{ $t("User Name") }}</label>
-                  <md-autocomplete v-model="advSearchUserName" :fetch="autoCompleteUserName"></md-autocomplete>
+                  <md-autocomplete v-model="advSearchUserName" @md-changed="autoCompleteUserName"></md-autocomplete>
                 </md-input-container>
 
                 <md-layout md-row>
@@ -100,7 +100,7 @@
             <md-list-expand>
               <md-list>
                 <md-list-item><router-link :to="'/p/'+User.name">{{ $t("My Profile") }}</router-link></md-list-item>
-                <md-list-item><router-link to="/my/mentions">{{ $t("My Mentions") }} <span class="unreadCount" v-if="User.unreadMentions > 0">{{ User.unreadMentions }}</span></router-link></md-list-item>
+                <md-list-item><router-link to="/my/mentions">{{ $t("My Mentions") }} <span class="unreadCount" v-if="User.unreadMentions.length">{{ User.unreadMentions.length }}</span></router-link></md-list-item>
                 <md-list-item><router-link to="/my/stars">{{ $t("My Favorites") }}</router-link></md-list-item>
                 <md-list-item><router-link to="/account">{{ $t("Account Settings") }}</router-link></md-list-item>
                 <md-list-item v-if="User.access.admin"><router-link to="/admin">Admin</router-link></md-list-item>
@@ -108,7 +108,8 @@
             </md-list-expand>
           </md-list-item>
           <md-list-item v-else><router-link to='/login'>{{ $t("Login") }}</router-link></md-list-item>
-          <md-list-item><router-link to='/'>{{ $t("Import") }}</router-link><md-divider></md-divider></md-list-item>
+          <md-list-item><router-link to='/'>{{ $t("Import") }}</router-link></md-list-item>
+          <md-list-item><router-link to='/news'>{{ $t("Site News") }}</router-link><md-divider></md-divider></md-list-item>
           <md-list-item><router-link to='/elvui'>ElvUI</router-link></md-list-item>
           <md-list-item v-if="User && User.access && User.access.beta"><router-link to='/create-new-note'>Encounter Notes [Beta]</router-link></md-list-item>
           <!-- <md-list-item><router-link to='/grid2'>Grid2</router-link></md-list-item> -->
@@ -124,7 +125,8 @@
       </md-sidenav>
       <md-sidenav class="md-hide-xsmall" ref="full-sidebar" id="full-sidebar">
         <md-list class="mainnav">
-          <md-list-item><router-link to='/'>{{ $t("Import") }}</router-link><md-divider></md-divider></md-list-item>
+          <md-list-item><router-link to='/'>{{ $t("Import") }}</router-link></md-list-item>
+          <md-list-item><router-link to='/news'>{{ $t("Site News") }}</router-link><md-divider></md-divider></md-list-item>
           <md-list-item><router-link to='/elvui'>ElvUI</router-link></md-list-item>
           <md-list-item v-if="User && User.access && User.access.beta"><router-link to='/create-new-note'>Encounter Notes [Beta]</router-link></md-list-item>
           <!-- <md-list-item><router-link to='/grid2'>Grid2</router-link></md-list-item> -->
@@ -139,7 +141,7 @@
           <md-list-item><router-link to='/snippets'>{{ $t("Snippets") }}</router-link><md-divider></md-divider></md-list-item>
           <template v-if="LoggedIn">
             <md-list-item><router-link :to="'/p/'+User.name">{{ $t("My Profile") }}</router-link></md-list-item>
-            <md-list-item><router-link to="/my/mentions">{{ $t("My Mentions") }} <span class="unreadCount" v-if="User.unreadMentions.length > 0">{{ User.unreadMentions.length }}</span></router-link></md-list-item>
+            <md-list-item><router-link to="/my/mentions">{{ $t("My Mentions") }} <span class="unreadCount" v-if="User.unreadMentions.length">{{ User.unreadMentions.length }}</span></router-link></md-list-item>
             <md-list-item><router-link to="/my/stars">{{ $t("My Favorites") }}</router-link><md-divider></md-divider></md-list-item>
           </template>
         </md-list>
@@ -174,9 +176,12 @@
         <div class='legal'>
           <span>&copy; 2016-{{(new Date()).getFullYear()}} Wago.io</span>
           <span><router-link to="/terms-of-service">{{ $t("Terms of Service") }}</router-link></span>
-          <span><router-link to="/privacy-policy">{{ $t("Privacy Policy") }}</router-link></span>
+          <span>
+            <router-link to="/privacy-policy">{{ $t("Privacy Policy") }}</router-link>
+            <div id="ncmp-consent-link"></div>
+          </span>
           <span><a href="mailto:wagowebsite@gmail.com">{{ $t("Contact") }}</a></span>
-          <span data-ccpa-link="1"></span>
+          <span data-ccpa-link="1" id="ccpa-content-link"></span>
         </div>
       </md-sidenav>
 
@@ -212,14 +217,16 @@ function interceptClickEvent (e, vue) {
 }
 
 import Advert from './components/UI/Advert.vue'
+import SelectLocale from './components/UI/SelectLocale.vue'
+import LoginButton from './components/UI/LoginButton.vue'
+import ViewEmbed from './components/core/ViewEmbed.vue'
 
 export default {
   name: 'app',
   components: {
-    'select-locale': require('./components/UI/SelectLocale.vue'),
-    'login-button': require('./components/UI/LoginButton.vue'),
-    'md-autocomplete': require('./components/UI/md-autocomplete.vue'),
-    'view-embed': require('./components/core/ViewEmbed.vue'),
+    'select-locale': SelectLocale,
+    'login-button': LoginButton,
+    'view-embed': ViewEmbed,
     'advert': Advert
   },
   data: () => {
@@ -495,7 +502,7 @@ export default {
         { name: 'robots', content: this.Page.robots }
       ],
       link: [
-        { rel: 'stylesheet', href: '//media.wago.io/fonts/fonts.css' },
+        { rel: 'stylesheet', href: '//media.wago.io/fonts/fonts.1601783774.css' },
 
         { rel: 'shortcut icon', href: 'https://media.wago.io/favicon/favicon.ico', type: 'image/x-icon' },
         { rel: 'apple-touch-icon', sizes: '57x57', href: 'https://media.wago.io/favicon/apple-touch-icon-57x57.png' },
@@ -531,7 +538,6 @@ export default {
   right: 0;
   overflow: auto;
 }
-
 @media (min-width: 601px) {
   #app { pointer-events: none; }
   #app > * { width: 100%; max-width:100% }
@@ -618,6 +624,8 @@ export default {
 .wotm-controls button { background: none; border: none; cursor: pointer}
 .legal { padding: 16px; }
 .legal > span { font-size: 90%; padding: 0 0 8px; display: block; }
+#ncmp-consent-link > button { font-size: inherit; padding: 10px 0 2px; display: block; border: 0; background: none; color: #d7373d; cursor: pointer }
+#ncmp-consent-link > button:hover { color: #ad1457; text-decoration: underline }
 
 @media (max-width: 800px) {
   #gSearch button { display: none }
@@ -643,5 +651,7 @@ export default {
 #randombtn { height: 36px; opacity: 0.7; transition: all 1s ease-in; cursor: pointer; margin: 6px 8px }
 
 body.theme-dark .md-input-container label a { -webkit-text-fill-color: initial }
+
+.ads-enabled #app {padding-bottom: 60px}
 
 </style>

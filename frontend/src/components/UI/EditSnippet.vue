@@ -41,6 +41,9 @@
 const semver = require('semver')
 import luamin from '../libs/luamin'
 // import MonacoEditor from 'vue-monaco'
+import InputSemver from '../UI/Input-Semver.vue'
+import ExportLua from './ExportLua'
+import CodeReview from './CodeReview'
 
 export default {
   name: 'edit-common',
@@ -62,9 +65,9 @@ export default {
   },
   components: {
     editor: require('vue2-ace-editor'),
-    'export-modal': require('./ExportLua.vue'),
-    'input-semver': require('../UI/Input-Semver.vue'),
-    codereview: require('./CodeReview')
+    'export-modal': ExportLua,
+    'input-semver': InputSemver,
+    codereview: CodeReview
     // MonacoEditor
   },
   methods: {

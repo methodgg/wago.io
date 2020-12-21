@@ -1,8 +1,7 @@
 const config = require('../../config')
-const cloudflare = require('cloudflare')({email: config.cloudflare.email, key: config.cloudflare.apiKey})
+const cloudflare = require('cloudflare')({token: config.cloudflare.dnsToken})
 const sharp = require('sharp')
-const Magic = require('promise-mmmagic')
-const magic = new Magic(Magic.MAGIC_MIME_TYPE)
+const FileType = require('file-type')
 const webpc = require('webp-converter')
 const s3 = require('../helpers/s3Client')
 
@@ -22,8 +21,8 @@ module.exports = {
       })    
       const buffer = Buffer.from(arraybuffer.data, 'binary')
       
-      const mime = await magic.detect(buffer)
-      const match = mime.match(/^image\/(png|jpg|gif|jpeg|webp)/)
+      const f = await FileType.fromBuffer(buffer)
+      const match = f.mime.match(/^image\/(png|jpg|gif|jpeg|webp)/)
       // if valid mime type is detected then save file
       if (!match) {
         return {error: 'not_image'}

@@ -55,6 +55,9 @@
 const semver = require('semver')
 import detectCustomCode from '../libs/detectCustomCode'
 import luamin from '../libs/luamin'
+import InputSemver from '../UI/Input-Semver.vue'
+import ExportJSON from '../UI/ExportJSON.vue'
+import CodeReview from './CodeReview'
 
 export default {
   name: 'edit-plater',
@@ -199,9 +202,9 @@ export default {
   },
   components: {
     editor: require('vue2-ace-editor'),
-    'export-modal': require('./ExportJSON.vue'),
-    'input-semver': require('./Input-Semver.vue'),
-    codereview: require('./CodeReview')
+    'export-modal': ExportJSON,
+    'input-semver': InputSemver,
+    CodeReview: CodeReview
   },
   mounted () {
     this.latestVersion.semver = semver.valid(semver.coerce(this.wago.versions.versions[0].versionString))

@@ -13,9 +13,10 @@
 
 <script>
 import categories from '../libs/categories'
+import MDTBuilder from '../UI/MDTBuilder.vue'
 export default {
   components: {
-    'build-mdt': require('../UI/MDTBuilder.vue')
+    'build-mdt': MDTBuilder
   },
   props: ['pulls', 'game', 'season'],
   data: function () {

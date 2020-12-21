@@ -58,6 +58,9 @@
 
 <script>
 import Categories from '../libs/categories'
+import SearchMeta from '../UI/SearchMeta.vue'
+import FormattedText from '../UI/FormattedText.vue'
+import PlaceHolderImage from '../UI/PlaceHolderImage.vue'
 export default {
   data: function () {
     return {
@@ -85,9 +88,9 @@ export default {
   },
   props: ['contextSearch', 'contextGame', 'contextSort'],
   components: {
-    'search-meta': require('../UI/SearchMeta.vue'),
-    'formatted-text': require('../UI/FormattedText.vue'),
-    'placeholder-img': require('../UI/PlaceHolderImage.vue')
+    'search-meta': SearchMeta,
+    'formatted-text': FormattedText,
+    'placeholder-img': PlaceHolderImage
   },
   watch: {
     '$route' (to, from) {

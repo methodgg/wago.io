@@ -234,7 +234,12 @@
 
 /* ---- END CATEGORIES ---- */
 
-/* md fixes */
+/* global md theme changes */
+
+#app .md-theme-default.md-toolbar, #app .md-theme-default.md-button-toggle.md-primary .md-toggle {
+  background: #000;
+  color: rgba(255, 255, 255, .87);
+}
 .md-select { z-index: 0 }
 
 /* User roles */

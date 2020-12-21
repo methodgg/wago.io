@@ -214,11 +214,15 @@
 </template>
 
 <script>
+
+import WagoOauth from '../UI/WagoOauth.vue'
+import FieldAPIKey from '../UI/WagoApiKey.vue'
+
 export default {
   components: {
-    'wago-oauth': require('../UI/WagoOauth.vue'),
+    'wago-oauth': WagoOauth,
     editor: require('vue2-ace-editor'),
-    'wago-api-key': require('../UI/WagoApiKey.vue')
+    'wago-api-key': FieldAPIKey
   },
   data: function () {
     return {

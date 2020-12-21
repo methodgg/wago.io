@@ -151,9 +151,7 @@ export default {
         // do nothing...
       }
       else {
-        this.$auth.oauth2({
-          provider: provider || this.provider
-        })
+        this.$auth.oauth2(provider || this.provider, {})
       }
     },
 
@@ -205,10 +203,10 @@ export default {
       })
     }
     else if (this.code) {
-      this.$auth.oauth2({
+      this.$auth.oauth2(this.provider, {
         code: true,
-        provider: this.provider,
-        params: {
+        url: '/auth/' + this.provider,
+        data: {
           code: this.code
         },
         success: function (res) {

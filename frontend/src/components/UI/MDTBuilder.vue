@@ -375,6 +375,11 @@ const semver = require('semver')
 const async = require('async')
 import Categories from '../libs/categories'
 const hull = require('hull.js')
+import ExportJSON from './ExportJSON'
+import MDTEnemyPortrait from './MDTEnemyPortrait'
+import MDTPOI from './MDTPOI'
+import InputSemver from '../UI/Input-Semver.vue'
+
 
 export default {
   name: 'build-mdt',
@@ -485,10 +490,10 @@ export default {
     }
   },
   components: {
-    'export-modal': require('./ExportJSON.vue'),
-    'mdt-enemy-portrait': require('./MDTEnemyPortrait.vue'),
-    'mdt-poi': require('./MDTPOI.vue'),
-    'input-semver': require('../UI/Input-Semver.vue'),
+    'export-modal': ExportJSON,
+    'mdt-enemy-portrait': MDTEnemyPortrait,
+    'mdt-poi': MDTPOI,
+    'input-semver': InputSemver,
     'color-picker': require('vue-color').Chrome
   },
   mounted () {
@@ -972,7 +977,7 @@ export default {
         var canvas = document.getElementById('mdtStage').getBoundingClientRect()
         var mouse = this.$refs.mdtStage.getStage().getPointerPosition()
         var box = document.getElementById('mdtTooltip')
-        if (!mouse) {
+        if (!mouse || !box) {
           return
         }
         var x = mouse.x + 10 + canvas.left
