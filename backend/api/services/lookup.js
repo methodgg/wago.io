@@ -290,7 +290,7 @@ module.exports = function (fastify, opts, next) {
       }
       wago.screens = []
       screens.forEach((screen) => {
-        wago.screens.push({_id: screen._id.toString(), src: screen.url, title: screen.caption})
+        wago.screens.push({_id: screen._id.toString(), src: screen.url, thumb: screen.url, title: screen.caption})
       })
       return
     }

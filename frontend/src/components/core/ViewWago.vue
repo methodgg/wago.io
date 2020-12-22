@@ -11,6 +11,7 @@
     </ui-warning>
     <ui-loading v-else-if="!wagoExists"></ui-loading>
     <div v-else style="position:relative">
+      <lightbox ref="lightbox" :media="wago.screens" :show-light-box="false"></lightbox>
       <md-button id="wago-header-toggle" class="md-icon-button md-raised" @click="toggleMobileHeader">
         <md-icon>view_agenda</md-icon>
       </md-button>
@@ -188,12 +189,12 @@
               </template>
               <span @click="viewAllCategories()"><md-chip v-if="wago.categories.length > 5 && !showMoreCategories" class="show_more">{{ $t("[-count-] more", {count: wago.categories.length - 5}) }}</md-chip></span>
             </div>
-            <md-layout id="thumbnails">
+            <div id="thumbnails">
               <template v-for="video in wago.videos">
                 <a class="showvid" :href="video.url" @click.prevent="showVideo(video.embed)"><md-icon>play_circle_outline</md-icon><md-image :md-src="video.thumb"></md-image></a>
               </template>
-              <lightbox id="mylightbox" :images="wago.screens"></lightbox>
-            </md-layout>
+              <img v-for="(image, k) in wago.screens" v-lazy="image.src || image.thumb" @click="$refs.lightbox.showImage(k)">
+            </div>
           </md-card-header>
         </md-card>
       </md-layout>
@@ -981,7 +982,8 @@ function setupPasteImage (vue) {
 }
 
 import Categories from '../libs/categories'
-import Lightbox from 'vue-simple-lightbox'
+import Lightbox from 'vue-image-lightbox'
+require('vue-image-lightbox/dist/vue-image-lightbox.min.css')
 import Multiselect from 'vue-multiselect'
 import CategorySelect from '../UI/SelectCategory.vue'
 import FormattedText from '../UI/FormattedText.vue'
@@ -2668,7 +2670,7 @@ export default {
 
 span.md-note {height: 20px; position: absolute; bottom: -22px; font-size: 12px;}
 
-#thumbnails img { max-width: 190px; max-height: 107px; width: auto; height: auto; margin: 8px 8px 0 0 }
+#thumbnails img { max-width: 190px; max-height: 107px; width: auto; height: auto; margin: 8px 8px 0 0; cursor: pointer }
 
 #tags { display: block; clear: both; padding-top: 16px}
 .wago-media { width: 160px; text-align: center  }
