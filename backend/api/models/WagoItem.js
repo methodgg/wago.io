@@ -167,7 +167,10 @@ Schema.pre('validate', function() {
   if (this.custom_slug && this.custom_slug.length > 128) {
     this.custom_slug = this.custom_slug.substr(0, 128)
   }
-  if (this.name.length > 128) {
+  if (!this.name) {
+    this.name = 'Import'
+  }
+  else if (this.name.length > 128) {
     this.name = this.name.substr(0, 128)
   }
 })
