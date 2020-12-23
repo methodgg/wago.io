@@ -10,7 +10,7 @@
     <md-layout id="searchLayout" :class="{floatSideBar: floatSideBar}">
       <md-layout id="searchResults">
         <ui-loading v-if="isSearching"></ui-loading>
-        <div v-else-if="!isSearching && results.total > 0">
+        <div v-else-if="!isSearching && results.results && results.results.length">
           <template v-for="(result, index) in results.results">
             <div class="searchResult" v-if="result" v-bind:key="index">
               <div class="searchImg">
@@ -246,7 +246,12 @@ export default {
           vue.isCollection = false
         }
 
-        vue.$set(vue.results, 'total', res.total)
+        if (res.total) {
+          vue.$set(vue.results, 'total', res.total)
+        }
+        else if (res.results && res.results.length) {
+          vue.$set(vue.results, 'total', res.total + 1)
+        }
         vue.$set(vue.results, 'query', res.query)
         vue.$set(vue.results, 'results', res.results)
         vue.$set(vue.results, 'context', res.query.context)

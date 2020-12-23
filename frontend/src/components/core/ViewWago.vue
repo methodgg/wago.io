@@ -996,7 +996,7 @@ import MDTBuilder from '../UI/MDTBuilder.vue'
 import InputSemver from '../UI/Input-Semver.vue'
 import ViewDiffs from '../UI/ViewDiffs.vue'
 import AddonInfoBox from '../UI/AddonInfoBox.vue'
-import CodeReview from '../UI/CodeReview.vue'
+import Codereview from '../UI/CodeReview.vue'
 import Search from '../core/Search.vue'
 import semver from 'semver'
 import detectCustomCode from '../libs/detectCustomCode'
@@ -1027,7 +1027,7 @@ export default {
     Multiselect,
     CategorySelect,
     Search,
-    CodeReview
+    Codereview
   },
   created: function () {
     this.fetchWago()
