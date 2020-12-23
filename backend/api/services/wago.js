@@ -228,17 +228,10 @@ module.exports = function (fastify, opts, next) {
     }
     else if (req.body.visibility === 'Restricted') {
       wago.restricted = true
-      redis.clear(`API:${wago._id}`)
-      redis.clear(`API:${wago.slug}`)
-      await cloudflare.zones.purgeCache(config.cloudflare.zoneID, {files: [
-        `https://data.wago.io/api/raw/encoded?id=${wago._id}`,
-        `https://data.wago.io/api/raw/encoded?id=${wago.slug}`,
-        `https://data.wago.io/api/raw/encoded?id=${wago._id}&version=${wago.latestVersion.versionString}`,
-        `https://data.wago.io/api/raw/encoded?id=${wago.slug}&version=${wago.latestVersion.versionString}`
-      ]})
     }
     else if (req.body.visibility === 'Private') {
       wago.private = true
+    }
       redis.clear(`API:${wago._id}`)
       redis.clear(`API:${wago.slug}`)
       await cloudflare.zones.purgeCache(config.cloudflare.zoneID, {files: [
@@ -247,7 +240,6 @@ module.exports = function (fastify, opts, next) {
         `https://data.wago.io/api/raw/encoded?id=${wago._id}&version=${wago.latestVersion.versionString}`,
         `https://data.wago.io/api/raw/encoded?id=${wago.slug}&version=${wago.latestVersion.versionString}`
       ]})      
-    }
 
     await wago.save()
     redis.clear(wago)
