@@ -569,7 +569,7 @@ module.exports = function (fastify, opts, next) {
     }
     // confused as to what happened here? some breaking version change I don't see?
     if (results.hits && results.hits.extTotal && !results.hits.total) {
-      results.hits.total = results.hits.total
+      results.hits.total = results.hits.extTotal
     }
     
     // initialize results
