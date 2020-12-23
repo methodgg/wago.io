@@ -1,3 +1,4 @@
+const cloudflare = require('cloudflare')({token: config.cloudflare.dnsToken})
 const semver = require('semver')
 const mkdirp = require('mkdirp-promise')
 const s3 = require('../helpers/s3Client')
@@ -229,11 +230,23 @@ module.exports = function (fastify, opts, next) {
       wago.restricted = true
       redis.clear(`API:${wago._id}`)
       redis.clear(`API:${wago.slug}`)
+      await cloudflare.zones.purgeCache(config.cloudflare.zoneID, {files: [
+        `https://data.wago.io/api/raw/encoded?id=${wago._id}`,
+        `https://data.wago.io/api/raw/encoded?id=${wago.slug}`,
+        `https://data.wago.io/api/raw/encoded?id=${wago._id}&version=${wago.latestVersion.versionString}`,
+        `https://data.wago.io/api/raw/encoded?id=${wago.slug}&version=${wago.latestVersion.versionString}`
+      ]})
     }
     else if (req.body.visibility === 'Private') {
       wago.private = true
       redis.clear(`API:${wago._id}`)
       redis.clear(`API:${wago.slug}`)
+      await cloudflare.zones.purgeCache(config.cloudflare.zoneID, {files: [
+        `https://data.wago.io/api/raw/encoded?id=${wago._id}`,
+        `https://data.wago.io/api/raw/encoded?id=${wago.slug}`,
+        `https://data.wago.io/api/raw/encoded?id=${wago._id}&version=${wago.latestVersion.versionString}`,
+        `https://data.wago.io/api/raw/encoded?id=${wago.slug}&version=${wago.latestVersion.versionString}`
+      ]})      
     }
 
     await wago.save()

@@ -180,8 +180,11 @@ module.exports = function (fastify, opts, next) {
     if (wago.type === 'WEAKAURA' && code.json && code.json.match(commonRegex.WeakAuraBlacklist)) {
       return res.code(409).send({error: "malicious_code_found"})
     }
-    if (code.versionString !== req.query.version) {
-      return res.code(302).redirect(`/api/raw/encoded?id=${req.query.id}&version=${code.versionString}&key=${req.query.key || ''}`)
+    if ((!req.query.p || code.versionString !== req.query.version) && (wago.restricted || wago.private)) {
+      return res.code(302).redirect(`/api/raw/encoded?id=${req.query.id}&version=${code.versionString}&key=${req.query.key || ''}&p=1`)
+    }
+    else if (code.versionString !== req.query.version && !(wago.restricted || wago.private)) {
+      return res.code(302).redirect(`/api/raw/encoded?id=${req.query.id}&version=${code.versionString}`)
     }
     res.header('Content-Type', 'text/plain')
     if (wago.type === 'WEAKAURA' && !code.encoded.match(/^!/) && !wago.encrypted) {
@@ -189,6 +192,9 @@ module.exports = function (fastify, opts, next) {
       if (code.encoded) {
         code.save()
       }
+    }
+    if (wago.restricted || wago.private) {
+      return res.send(code.encoded)
     }
     return res.cache(86400).send(code.encoded)
   })
