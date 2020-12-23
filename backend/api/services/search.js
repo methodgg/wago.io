@@ -567,8 +567,20 @@ module.exports = function (fastify, opts, next) {
       Search.results = []
       return res.send(Search)
     }
+    // confused as to what happened here? some breaking version change I don't see?
+    if (results.hits && results.hits.extTotal && !results.hits.total) {
+      results.hits.total = results.hits.total
+    }
+    
     // initialize results
     if (results.hits && results.hits.hits) {
+      Search.total = results.hits.total
+      if (typeof Search.total === 'object') {
+        Search.total = Search.total.value || 0
+      }
+      Search.results = results.hits.hits
+    }
+    else if (results.hits && results.hits.hits) {
       Search.total = results.hits.total
       if (typeof Search.total === 'object') {
         Search.total = Search.total.value || 0
