@@ -1,6 +1,7 @@
 // load our libs and functions on app startup
+const cloudflare = require('cloudflare')({token: config.cloudflare.dnsToken})
 const lua = require('../helpers/lua')
-const discord = require('../helpers/discord')
+const webhooks = require('../helpers/webhooks')
 const battlenet = require('../helpers/battlenet')
 const semver = require('semver')
 const crypto = require("crypto-js")
@@ -638,7 +639,7 @@ module.exports = function (fastify, opts, next) {
 
     await code.save()
     if (req.body.importAs === 'User' && req.user && !wago.hidden && !wago.private && !wago.encrypted && !wago.restricted && req.user.discord && req.user.discord.webhooks && req.user.discord.webhooks.onCreate) {
-      discord.webhookOnCreate(req.user, wago)
+      webhooks.discord.onCreate(req.user, wago)
     }
     res.send({success: true, wagoID: doc._id})
   })
@@ -747,14 +748,21 @@ module.exports = function (fastify, opts, next) {
     await code.save()
     await wago.save()
 
-    // send message to starred users
-    discord.onUpdate(req.user, wago)
+    // send message to starred users    
+    const discordHost = await SiteData.get('discordHost')
+    if (Queues[discordHost]) {
+      Queues[discordHost].add('DiscordMessage', {type: 'update', author: req.user._id, wago: wago._id, message: req.body.text})
+    }
 
     // send update to webhook
     if (req.user && !wago.hidden && !wago.private && !wago.restricted && req.user.discord && req.user.discord.webhooks && req.user.discord.webhooks.onCreate) {
-      discord.webhookOnUpdate(req.user, wago)
+      webhooks.discord.onUpdate(req.user, wago)
     }
     redis.clear(wago)
+    await cloudflare.zones.purgeCache(config.cloudflare.zoneID, {files: [
+      `https://data.wago.io/api/raw/encoded?id=${wago._id}`,
+      `https://data.wago.io/api/raw/encoded?id=${wago.slug}`
+    ]})  
     res.send({success: true, wagoID: wago._id})
   })
 
@@ -897,7 +905,7 @@ module.exports = function (fastify, opts, next) {
         return res.code(400).send({error: 'invalid_import'})
     }
 
-    discord.onUpdate(req.user, wago)
+    webhooks.discord.onUpdate(req.user, wago)
     code.json = JSON.stringify(json)
     
     if (wago.encrypted && req.body.cipherKey) {
@@ -969,7 +977,7 @@ module.exports = function (fastify, opts, next) {
       await code.save()
       // broadcast to discord webhook?
       if (req.body.importAs === 'User' && req.user && !wago.hidden && !wago.private && req.user.discord && req.user.discord.webhooks.onCreate) {
-        discord.webhookOnCreate(req.user, wago)
+        webhooks.discord.onCreate(req.user, wago)
       }
       res.send({success: true, wagoID: doc._id})
     }
@@ -1066,7 +1074,7 @@ module.exports = function (fastify, opts, next) {
       },
       lua: req.body.lua
     })
-    discord.onUpdate(req.user, wago)
+    webhooks.discord.onUpdate(req.user, wago)
     
     if (wago.encrypted && req.body.cipherKey) {
       code.encoded = crypto.AES.encrypt(code.encoded, req.body.cipherKey)
