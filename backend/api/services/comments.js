@@ -46,7 +46,6 @@ module.exports = function (fastify, opts, next) {
       else {
         comment.commentText = comment.commentText.replace('@' + user.profile.name, '[taggeduser]@' + user.profile.name + '[/taggeduser]')
         comment.usersTagged.push({userID: user._id.toString()})
-        console.log('send to ', user.profile.name)
         Queues[discordHost].add('DiscordMessage', {type: 'comment', author: req.user._id, to: user._id, wago: wago._id, message: req.body.text.replace(/\[(\w+)[^\]]*](.*?)\[\/\1]/g, '')})
         return
       }
