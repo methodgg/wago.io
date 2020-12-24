@@ -2,6 +2,7 @@ const mongoose = require('mongoose'),
       mongoosastic = require('mongoosastic'),
       shortid = require('shortid'),
       config = require('../../config')
+const image = require('../helpers/image')
 
 const Schema = new mongoose.Schema({
   _id : { type: String, default: shortid.generate, es_indexed: true },
@@ -49,6 +50,8 @@ const Schema = new mongoose.Schema({
     installed_count : { type: Number, default: 0, index: true, es_indexed: true }, // count users of WA Companion that have this installed
     comments_count : { type: Number, default: 0, index: true, es_indexed: true }
   },
+
+  imageGenerated : Number,
 
   referrals : [
     {url: String, count: { type: Number, default: 0}}
@@ -141,6 +144,87 @@ Schema.virtual('slug').get(function() {
 Schema.virtual('url').get(function() {
   return 'https://wago.io/'+this.slug
 })
+
+Schema.methods.getThumbnailURL = async function(size) {
+  if (!this.imageGenerated) {
+    var type = this.type
+    if (type === 'WEAKAURAS2') {
+      type = 'WEAKAURA'
+    }
+    const screen = await Screenshot.findForWago(this._id, true)
+    var user
+    if (this._userId) {
+      user = await User.findById(this._userId).exec()
+      if (user) {
+        user = {name: user.account.username, avatar: user.profile.avatar.gif || user.profile.avatar.png}
+      }
+    }
+    if (screen && screen.localFile) {
+      this.imageGenerated = await image.createCards(this._id, `${screen.auraID}/${screen.localFile}`, this.name, type, user)
+    }
+    else if (this.type === 'MDT') {
+      for (const cat of this.categories) {
+        var mdtID = cat.match(/^mdtdun(\d+)$/)
+        if (mdtID && mdtID[1] && (parseInt(mdtID[1]) >= 15 || parseInt(mdtID[1]) <= 26)) {
+          this.imageGenerated = await image.createCards(this._id, `../mdt/wago-card-mdt${mdtID[1]}.jpg`, this.name, 'MDT ROUTE', user)
+          break
+        }
+      }
+      if (!this.imageGenerated) {
+        this.imageGenerated = await image.createCards(this._id, `../site/wago-card-standard.jpg`, this.name, 'MDT ROUTE', user)
+      }      
+    }
+    else {
+      this.imageGenerated = await image.createCards(this._id, `../site/wago-card-standard.jpg`, this.name, type, user)
+    }
+    if (this.imageGenerated) {
+      await this.save()
+    }
+  }
+  if (!size) {
+    size = ''
+  }
+  return `https://media.wago.io/cards/${this._id}/t${size}-${this.imageGenerated}.jpg`
+}
+
+Schema.methods.getCardImageURL = async function() {
+  if (!this.imageGenerated) {
+    var type = this.type
+    if (type === 'WEAKAURAS2') {
+      type = 'WEAKAURA'
+    }
+    const screen = await Screenshot.findForWago(this._id, true)
+    var user
+    if (this._userId) {
+      user = await User.findById(this._userId).exec()
+      if (user) {
+        user = {name: user.account.username, avatar: user.profile.avatar.gif || user.profile.avatar.png}
+      }
+    }
+    if (screen && screen.localFile) {
+      this.imageGenerated = await image.createCards(this._id, `${screen.auraID}/${screen.localFile}`, this.name, type, user)
+    }
+    else if (this.type === 'MDT') {
+      for (const cat of this.categories) {
+        var mdtID = cat.match(/^mdtdun(\d+)$/)
+        if (mdtID && mdtID[1] && (parseInt(mdtID[1]) >= 15 || parseInt(mdtID[1]) <= 26)) {
+          this.imageGenerated = await image.createCards(this._id, `../mdt/wago-card-mdt${mdtID[1]}.jpg`, this.name, 'MDT ROUTE', user)
+          break
+        }
+      }
+      if (!this.imageGenerated) {
+        this.imageGenerated = await image.createCards(this._id, `../site/wago-card-standard.jpg`, this.name, 'MDT ROUTE', user)
+      }      
+    }
+    else {
+      this.imageGenerated = await image.createCards(this._id, `../site/wago-card-standard.jpg`, this.name, type, user)
+    }
+    if (this.imageGenerated) {
+      await this.save()
+    }
+  }
+  return `https://media.wago.io/cards/${this._id}/c-${this.imageGenerated}.jpg`
+}
 
 Schema.statics.randomOfTheMoment = async function(count, n) {
   if (!n) {

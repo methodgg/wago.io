@@ -232,14 +232,14 @@ module.exports = function (fastify, opts, next) {
     else if (req.body.visibility === 'Private') {
       wago.private = true
     }
-      redis.clear(`API:${wago._id}`)
-      redis.clear(`API:${wago.slug}`)
-      await cloudflare.zones.purgeCache(config.cloudflare.zoneID, {files: [
-        `https://data.wago.io/api/raw/encoded?id=${wago._id}`,
-        `https://data.wago.io/api/raw/encoded?id=${wago.slug}`,
-        `https://data.wago.io/api/raw/encoded?id=${wago._id}&version=${wago.latestVersion.versionString}`,
-        `https://data.wago.io/api/raw/encoded?id=${wago.slug}&version=${wago.latestVersion.versionString}`
-      ]})      
+    redis.clear(`API:${wago._id}`)
+    redis.clear(`API:${wago.slug}`)
+    await cloudflare.zones.purgeCache(config.cloudflare.zoneID, {files: [
+      `https://data.wago.io/api/raw/encoded?id=${wago._id}`,
+      `https://data.wago.io/api/raw/encoded?id=${wago.slug}`,
+      `https://data.wago.io/api/raw/encoded?id=${wago._id}&version=${wago.latestVersion.versionString}`,
+      `https://data.wago.io/api/raw/encoded?id=${wago.slug}&version=${wago.latestVersion.versionString}`
+    ]})      
 
     await wago.save()
     redis.clear(wago)
@@ -311,6 +311,12 @@ module.exports = function (fastify, opts, next) {
     redis.clear(wago)
     redis.clear(`API:${wago._id}`)
     redis.clear(`API:${wago.slug}`)
+    await cloudflare.zones.purgeCache(config.cloudflare.zoneID, {files: [
+      `https://data.wago.io/api/raw/encoded?id=${wago._id}`,
+      `https://data.wago.io/api/raw/encoded?id=${wago.slug}`,
+      `https://data.wago.io/api/raw/encoded?id=${wago._id}&version=${wago.latestVersion.versionString}`,
+      `https://data.wago.io/api/raw/encoded?id=${wago.slug}&version=${wago.latestVersion.versionString}`
+    ]})      
     res.send({success: true})
   })
 
@@ -576,6 +582,10 @@ module.exports = function (fastify, opts, next) {
 
     var screen = await Screenshot.findById(req.body.screen).exec()
     if (screen) {
+      if (screen.sort === 0) {
+        wago.imageGenerated = null
+        await wago.save()
+      }
       await screen.remove()
     }
     res.send({success: true})
@@ -616,6 +626,10 @@ module.exports = function (fastify, opts, next) {
       return mongoose.Types.ObjectId(s)
     })
     var screens = await Screenshot.find({_id: {$in: screenIDs}})
+    if (screens.length && screens[0]._id !== req.body.screens[0]) {
+      wago.imageGenerated = null
+      await wago.save()
+    }
     for (let i = 0; i < screens.length; i++) {
       if (screens[i].auraID === wago._id) {
         screens[i].sort = req.body.screens.indexOf(screens[i]._id.toString())

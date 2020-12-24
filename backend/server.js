@@ -21,6 +21,7 @@ const Redis = require("ioredis")
 global.RedisConnect = new Redis(config.redis)
 const {Queue, Worker, QueueScheduler, QueueEvents} = require('bullmq')
 const Profiler = require('./api/models/Profiler')
+const discordBot = require('./discordBot')
 global.taskQueue = new Queue('taskQueue', {connection: RedisConnect})
 global.async = require('async')
 global.axios = require('axios')
@@ -91,6 +92,10 @@ const startServer = async () => {
     global.Categories = require('../frontend/src/components/libs/categories')
 
     // setup queues and workers
+    global.Queues = {}
+    for (const host of config.dataHosts) {
+      Queues[host] = new Queue(`taskQueue:${host}`, {connection: RedisConnect})
+    }
     const runTask = require('./api/helpers/tasks')
     const updateLocalCache = require('./middlewares/updateLocalCache')
     new QueueScheduler(`taskQueue:${config.host}`, {connection: RedisConnect})
@@ -150,6 +155,9 @@ const startServer = async () => {
       await taskQueue.add('UpdateLatestAddonReleases', null, {repeat: {cron: '*/20 * * * *'}, priority: 4})
       await taskQueue.add('SyncElastic', {table: 'User'}, {repeat: {cron: '0 10 15 * *'}, priority: 10})
       await taskQueue.add('SyncElastic', {table: 'WagoItem'}, {repeat: {cron: '0 10 16 * *'}, priority: 10})
+
+      global.discordBot = require('./discordBot')
+      discordBot.start()
     }
 
     if (config.env === 'development') {

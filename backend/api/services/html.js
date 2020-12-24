@@ -75,81 +75,13 @@ module.exports = function (fastify, opts, next) {
           // remove line breaks and bbcode tags          
           data.description = escapeHTML(doc.description.replace(/\n/g, ' ').replace(/\[\/?(?:b|center|code|color|face|font|i|justify|large|left|li|list|noparse|ol|php|quote|right|s|size|small|sub|sup|taggeduser|table|tbody|tfoot|thead|td|th|tr|u|ul|url|\*).*?\]/g, ''))
         }
-        if (config.env === 'development') {
-          data.image = 'http://io:3030/html/card-image?id=' + doc._id
-        }
-        else {
-          data.image = 'https://data.wago.io/html/card-image?id=' + doc._id
-        }
+        data.image = await doc.getCardImageURL()
       }
     }
     res.header('Content-Type', 'text/html')
     res.send(TemplateEngine(previewTemplate, data))
   })
-
-  // generate image for twitter or disord preview
-  fastify.get('/card-image', async (req, res) => {
-    if (!req.query.id) {
-      img = await image.createCard(`../site/wago-card-standard.jpg`)
-      res.header('Content-Type', 'image/jpeg')
-      res.send(img)
-      return
-    }
-    const doc = await WagoItem.lookup(req.query.id)
-    if (!doc) {
-      res.code(404)
-      res.send('No image here')
-      return
-    }
-    if (doc.private || doc.encrypted || doc.restricted) {
-      res.code(404)
-      res.send('No content here!')
-      return
-    }
-    const screen = await Screenshot.findForWago(doc._id, true)
-    if (doc.type === 'WEAKAURAS2') {
-      doc.type = 'WEAKAURA'
-    }
-    else if (doc.type === 'MDT') {
-      doc.type = 'MDT Route'
-    }
-    var user
-    if (doc._userId) {
-      user = await User.findById(doc._userId).exec()
-      if (user) {
-        user = {name: user.account.username, avatar: user.profile.avatar.gif || user.profile.avatar.png}
-      }
-    }
-    var internalImg = (req.headers.referer || '').match(/^https?:\/\/(io:8080|wago.io)/)
-    // const img = await image.createTwitterCard(`/${screen.auraID}/${screen.localFile}`, doc.name, doc.type, user)
-    var img 
-    if (screen && screen.localFile) {
-      img = await image.createCard(`/${screen.auraID}/${screen.localFile}`, doc.name, doc.type, user, internalImg)
-    }
-    else if (doc.type === 'MDT Route') {
-      for (const cat of doc.categories) {
-        var mdtID = cat.match(/^mdtdun(\d+)$/)
-        if (mdtID && mdtID[1] && (parseInt(mdtID[1]) >= 15 || parseInt(mdtID[1]) <= 26)) {
-          img = await image.createCard(`../mdt/wago-card-mdt${mdtID[1]}.jpg`, doc.name, doc.type, user, internalImg)
-          break
-        }
-      }
-      if (!img) {
-        img = await image.createCard(`../site/wago-card-standard.jpg`, doc.name, doc.type, user, internalImg)
-      }      
-    }
-    else {
-      img = await image.createCard(`../site/wago-card-standard.jpg`, doc.name, doc.type, user, internalImg)
-    }
-    if (img) {
-      res.header('Content-Type', 'image/jpeg')
-      res.cache(43200).send(img)
-      return
-    }
-
-    res.code(404)
-    res.send('No content here')
-  })
+  
   next()
 }
 

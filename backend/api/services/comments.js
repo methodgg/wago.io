@@ -1,4 +1,3 @@
-var discord = require('../helpers/discord')
 
 module.exports = function (fastify, opts, next) {
   // post a new comment
@@ -25,10 +24,11 @@ module.exports = function (fastify, opts, next) {
 
     comment.usersTagged = []
 
-    if (wago._userId && wago._userId._id && !wago._userId._id.equals(req.user._id)) {
+    const discordHost = await SiteData.get('discordHost')
+    if (Queues[discordHost] && wago._userId && wago._userId._id && !wago._userId._id.equals(req.user._id)) {
       comment.usersTagged.push({userID: wago._userId._id.toString()})
       comment.commentText = comment.commentText.replace('@' + wago._userId.profile.name, '[taggeduser]@' + wago._userId.profile.name + '[/taggeduser]')
-      discord.onComment(req.user, wago._userId, wago)
+      Queues[discordHost].add('DiscordMessage', {type: 'comment', author: req.user._id, to: wago._userId, wago: wago._id, message: req.body.text})
     }
 
     var re = /@([^.,\/@#!$%\^&\*;:{}=`~()\s\[\]]+)/g

@@ -30,13 +30,8 @@ module.exports = {
   },
 
   queue: async (items) => {
-    if (!queues.length) {
-      for (const host of config.dataHosts) {
-        queues.push(new Queue(`taskQueue:${host}`, {connection: RedisConnect}))
-      }
-    }
-    for (const q of queues) {
-      q.add('UpdateCache', items)
+    for (const q in Queues) {
+      Queues[q].add('UpdateCache', items)
     }
   }
 }

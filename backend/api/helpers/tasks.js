@@ -27,6 +27,9 @@ module.exports = async (task, data) => {
       case 'ComputeViewsThisWeek':
         await ComputeViewsThisWeek()
       break
+      case 'DiscordMessage':
+        await DiscordMessage(data)
+      break
       case 'UpdateValidCharacters':
         await UpdateValidCharacters()
       break
@@ -183,6 +186,28 @@ async function UpdateTopLists () {
   // save data
   await SiteData.findOneAndUpdate({_id: 'TopLists'}, {value: data}, {upsert: true}).exec()
   await updateDataCaches.queue('TopLists')
+}
+
+async function DiscordMessage (data) {
+  if (global.discordBot) {
+    const author = await User.findById(data.author)
+    const wago = await WagoItem.lookup(data.wago)
+    if (data.type === 'comment') {
+      const sendTo = await User.findOne({_id: data.to, "discord.options.messageOnFaveUpdate": true}).select('discord').exec()
+      if (sendTo && !author._id.equals(sendTo._id)) {
+        discordBot.postComment(author, sendTo, wago, data.message)
+      }
+    }
+    else if (data.type === 'update') {
+      const stars = await WagoFavorites.find({type: 'Star', wagoID: wago._id})
+      for (let i = 0; i < stars.length; i++) {
+        const sendTo = await User.findOne({_id: stars[i].userID, "discord.options.messageOnFaveUpdate": true}).select('discord').exec()
+        if (sendTo && !author._id.equals(sendTo._id)) {
+          discordBot.postUpdate(author, sendTo, wago)
+        }
+      }
+    }
+  }
 }
 
 async function UpdateValidCharacters () {

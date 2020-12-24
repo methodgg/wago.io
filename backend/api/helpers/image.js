@@ -198,7 +198,7 @@ module.exports = {
   },
 
   
-  createCard: async (file, title, type, author, internal) => {
+  createCards: async (wagoID, file, title, type, author) => {
     if (!file) {
       return false
     }
@@ -208,9 +208,6 @@ module.exports = {
       method: 'get'
     })
     const screenshot = new sharp(Buffer.from(screenshotFile.data, 'binary'))
-    if (!title) {
-      return screenshot
-    }
     var entities = {
       "&": "&amp;",
       "<": "&lt;",
@@ -218,6 +215,7 @@ module.exports = {
       "\"": "&quot;",
       "'": "&#39;"
     }
+    const time = Date.now()
 
     title = title.replace(/[&<>"']/g, function(m) { return entities[m] })
     const scrn = await screenshot.metadata()
@@ -246,9 +244,8 @@ module.exports = {
       avatar = await new sharp(Buffer.from(avatarFile.data, 'binary')).resize(avatarSize, avatarSize).composite([{input: circle, blend: 'dest-in'}])
       author.name = author.name.replace(/[&<>"']/g, function(m) { return entities[m] })
     }
-    var image
     var wagoWatermark = ''
-    if (!file.match(/wago-card-standard/) && !internal) {
+    if (!file.match(/wago-card-standard/)) {
       wagoWatermark = `
       <g transform="scale(${logoScale}) translate(3970, 1800)">
         <path class="st0" d="M460,484.8h79.8c6-30.6,30.1-54.7,60.8-60.7v-79.9C526.2,351.2,467,410.4,460,484.8z"/>
@@ -260,6 +257,31 @@ module.exports = {
       </g>`
     }
     try {
+      const backgroundFile = screenshot.clone().resize({width: tWidth, height: tHeight}).modulate({brightness: .25}).blur(25)
+      const backgroundBuffer = await backgroundFile.toBuffer()// Buffer.from(backgroundFile.data, 'binary')
+      const resizedScreenshot = await screenshot.resize({width: tWidth, height: tHeight, fit: 'inside', background:{r:0, g: 0, b: 0, alpha: 0}})
+      var composite = [{input: await resizedScreenshot.toBuffer()}]
+      var thumb = await sharp(backgroundBuffer).resize({width: tWidth, height: tHeight}).composite(composite).toBuffer()
+      await sharp(thumb).resize({width: 600}).toFormat('jpg').toFile(tmpDir + '/t2-' + time + '.jpg')
+      await s3.uploadFile({
+        localFile: tmpDir + '/t2-' + time + '.jpg',
+        s3Params: {
+          Bucket: 'wago-media',
+          Key: `cards/${wagoID}/t2-${time}.jpg`
+        }
+      })
+      fs.unlink(`${tmpDir}/t2-${time}.jpg`)
+      
+      await sharp(thumb).resize({width: 180}).toFormat('jpg').toFile(tmpDir + '/t-' + time + '.jpg')
+      await s3.uploadFile({
+        localFile: tmpDir + '/t-' + time + '.jpg',
+        s3Params: {
+          Bucket: 'wago-media',
+          Key: `cards/${wagoID}/t-${time}.jpg`
+        }
+      })
+      fs.unlink(`${tmpDir}/t-${time}.jpg`)
+
       var authorSVG
       if (author && author.name && avatar) {
         authorSVG = `<text x="${avatarSize+8}" y="${tHeight-avatarSize+textSize/3+authorTextAdjust}" style="font-family: Roboto; font-size: ${textSize/1.8}; font-weight: bold; fill: #F2F2F2; stroke: #111111; stroke-width: 1px">${type}</text>
@@ -290,6 +312,7 @@ module.exports = {
         ${authorSVG}
         ${wagoWatermark}
       </svg>`
+      
       const metaImg = await sharp(new Buffer.from(svg))
       var titleSvg = `
       <svg height="${avatarSize+8}" width="${tWidth*20}" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -302,24 +325,31 @@ module.exports = {
       </svg>`
       const titleImg = await sharp(new Buffer.from(titleSvg)).trim().resize(tWidth - 8, textSize, {fit: 'inside', background: {r:0,g:0,b:0,alpha:0}}).trim()
       const titleMeta = (await titleImg.toBuffer({ resolveWithObject: true })).info
-      const backgroundFile = screenshot.clone().resize({width: tWidth, height: tHeight}).modulate({brightness: .25}).blur(25)
         // await axios.request({
         //   responseType: 'arraybuffer',
         //   url: 'https://media.wago.io/site/wago-card-bg.jpg',
         //   method: 'get'
         // })
-      const backgroundBuffer = await backgroundFile.toBuffer()// Buffer.from(backgroundFile.data, 'binary')
-      const resizedScreenshot = await screenshot.resize({width: tWidth, height: tHeight, fit: 'inside', background:{r:0, g: 0, b: 0, alpha: 0}})
-      var composite = [{input: await resizedScreenshot.toBuffer()}, {input: await metaImg.toBuffer()}]
+      composite.push({input: await metaImg.toBuffer()})
       if (author) {
         composite.push({input: await avatar.toBuffer(), top: tHeight-44, left: 4})
       }
       composite.push({input: await titleImg.toBuffer(), top: Math.floor(196 / titleMeta.height), left: Math.floor((tWidth - titleMeta.width) / 2), gravity: 'centre' })
-      image = await sharp(backgroundBuffer).resize({width: tWidth, height: tHeight}).composite(composite).jpeg()
+
+      await sharp(backgroundBuffer).resize({width: tWidth, height: tHeight}).composite(composite).toFormat('jpg').toFile(tmpDir + '/c-' + time + '.jpg')
+      await s3.uploadFile({
+        localFile: tmpDir + '/c-' + time + '.jpg',
+        s3Params: {
+          Bucket: 'wago-media',
+          Key: `cards/${wagoID}/c-${time}.jpg`
+        }
+      })
+      fs.unlink(`${tmpDir}/c-${time}.jpg`)
     }
     catch (e) {
       console.log(e)
+      return false
     }
-    return image
+    return time
   }
 }
