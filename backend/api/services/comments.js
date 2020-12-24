@@ -31,12 +31,13 @@ module.exports = function (fastify, opts, next) {
       Queues[discordHost].add('DiscordMessage', {type: 'comment', author: req.user._id, to: wago._userId, wago: wago._id, message: req.body.text.replace(/\[(\w+)[^\]]*](.*?)\[\/\1]/g, '')})
     }
 
-    var re = /@([^.,\/@#!$%\^&\*;:{}=`~()\s\[\]]+)/g
+    var re = /@([^.,\/@!$%\^&\*;:{}=`~()\s\[\]]+)/g
     mentions = []
     while ((m = re.exec(comment.commentText)) !== null) {
       mentions.push(m[1])
     }
 
+    console.log(mentions)
     await Promise.all(mentions.map(async (username) => {
       const user = await User.findByUsername(username)
       if (!user || comment.usersTagged.indexOf(user._id.toString()) >= 0 || (wago._userId && wago._userId._id && wago._userId._id.equals(user._id))) {
@@ -45,7 +46,8 @@ module.exports = function (fastify, opts, next) {
       else {
         comment.commentText = comment.commentText.replace('@' + user.profile.name, '[taggeduser]@' + user.profile.name + '[/taggeduser]')
         comment.usersTagged.push({userID: user._id.toString()})
-        Queues[discordHost].add('DiscordMessage', {type: 'comment', author: req.user._id, to: wago._userId, wago: wago._id, message: req.body.text.replace(/\[(\w+)[^\]]*](.*?)\[\/\1]/g, '')})
+        console.log('send to ', user.profile.name)
+        Queues[discordHost].add('DiscordMessage', {type: 'comment', author: req.user._id, to: user._id, wago: wago._id, message: req.body.text.replace(/\[(\w+)[^\]]*](.*?)\[\/\1]/g, '')})
         return
       }
     }))
