@@ -86,9 +86,9 @@ export default {
 
       else {
         // error / unknown POI
-        image.src = require('../../assets/mapPOI/POIICONS.png')
+        image.src = require('../../assets/mapPOI/USERNOTEICONS.png')
         console.log('Unknown POI type', data)
-        return {image, animation: 'error', animations: this.POIICONS, x: (data.x * this.mdtScale) - 7, y: -(data.y * this.mdtScale) - 7}
+        return {image, animation: 'error', animations: this.USERNOTEICONS, x: (data.d[0] * this.mdtScale) - 13.6, y: -(data.d[1] * this.mdtScale) - 16.6, scaleX: 0.85, scaleY: 0.85}
       }
     },
 

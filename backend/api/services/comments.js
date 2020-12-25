@@ -37,7 +37,6 @@ module.exports = function (fastify, opts, next) {
       mentions.push(m[1])
     }
 
-    console.log(mentions)
     await Promise.all(mentions.map(async (username) => {
       const user = await User.findByUsername(username)
       if (!user || comment.usersTagged.indexOf(user._id.toString()) >= 0 || (wago._userId && wago._userId._id && wago._userId._id.equals(user._id))) {

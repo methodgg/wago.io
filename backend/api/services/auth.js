@@ -204,7 +204,7 @@ module.exports = function (fastify, opts, next) {
 async function localAuth (req, res) {
   try {
     var valid = await hcaptchaVerify(config.hcaptcha.secret, req.body.captcha)
-    if (valid && valid.success) {
+    if ((valid && valid.success) || config.env === 'development') {
       // find user(s) with entered name
       const user = await User.findByUsername(req.body.username)
       if (!user || !user.account.password) {
@@ -281,7 +281,7 @@ async function battlenetAuth(req, res, region) {
     region = 'global'
     tokenURL = 'https://us.battle.net/oauth/token'
     userURL = 'https://us.battle.net/oauth/userinfo'
-  }
+  }  
   const response = await axios.post(tokenURL, querystring.stringify({
     redirect_uri: req.headers.origin + '/auth/battlenet',
     scope: 'wow.profile account.public',
@@ -720,7 +720,7 @@ async function oAuthLogin(req, res, provider, authUser, callback) {
     if (callback) {
       callback(req.user)
     }
-    else {      
+    else {
       await req.user.save()
     }
     return

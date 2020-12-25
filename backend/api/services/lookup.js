@@ -864,8 +864,8 @@ module.exports = function (fastify, opts, next) {
         _id: doc._id,
         publishStatus: doc.publishStatus,
         user: {
-          username: doc._userId.account.username,
-          css: doc._userId.roleclass
+          username: doc._userId ? doc._userId.account.username : 'Wago.io',
+          css: doc._userId ? doc._userId.roleclass : 'user-admin'
         }
       })
     })

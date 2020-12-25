@@ -639,6 +639,9 @@ const screenWidth = {
 Vue.use(screenWidth)
 Vue.config.productionTip = false
 
+import VueLazyLoad from 'vue-lazyload'
+Vue.use(VueLazyLoad)
+
 // setup momentjs
 Vue.use(require('vue-moment'))
 
