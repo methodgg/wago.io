@@ -506,7 +506,7 @@ async function googleAuth(req, res) {
 async function patreonAuth(req, res) {
   try {
     const response = await axios.post('https://api.patreon.com/oauth2/token', querystring.stringify({
-      code: req.query.code,
+      code: req.body.code || req.query.code,
       client_id: config.auth.patreon.clientID,
       client_secret: config.auth.patreon.clientSecret,
       redirect_uri:  req.headers.origin + '/auth/patreon',
