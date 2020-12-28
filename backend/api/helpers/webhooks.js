@@ -38,18 +38,19 @@ module.exports = {
       if (wago.private || wago.restricted || wago.encrypted) {
         return
       }
-      if (wago.type === 'WEAKAURAS2') {
-        wago.type = 'WeakAura'
+      let type = wago.type
+      if (type === 'WEAKAURAS2') {
+        type = 'WeakAura'
       }
-      else if (wago.type === 'CLASSIC-WEAKAURA') {
-        wago.type = 'Classic WeakAura'
+      else if (type === 'CLASSIC-WEAKAURA') {
+        type = 'Classic WeakAura'
       }
       // build message
       const avatar = await author.avatarURL
       const embed = new Discord.MessageEmbed()
         .setColor('#c1272d')
         .setTitle(`Updated Import: ${wago.name}`)
-        .setDescription(`${author.account.username} has updated the ${wago.type} import.`)
+        .setDescription(`${author.account.username} has updated the ${type} import.`)
         .setURL(wago.url)
         .setImage(await wago.getThumbnailURL())
         .setAuthor(author.account.username, avatar.png, `https://wago.io${author.profile.url}`)

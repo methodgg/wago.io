@@ -11,7 +11,7 @@
     </ui-warning>
     <ui-loading v-else-if="!wagoExists"></ui-loading>
     <div v-else style="position:relative">
-      <lightbox ref="lightbox" :media="wago.screens" :show-light-box="false"></lightbox>
+      <lightbox ref="lightbox" v-if="wago.screens && wago.screens.length" :media="wago.screens" :show-light-box="false"></lightbox>
       <md-button id="wago-header-toggle" class="md-icon-button md-raised" @click="toggleMobileHeader">
         <md-icon>view_agenda</md-icon>
       </md-button>
