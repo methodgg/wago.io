@@ -105,6 +105,7 @@ module.exports = function (fastify, opts, next) {
     if (decoded) {
       scan.decoded = decoded.str
     }
+    scan.input = JSON.stringify(decoded, null, 2) + ' UnitName'
 
     // if decoded data looks like a valid WEAKAURA
     if ((test.WEAKAURA || test['CLASSIC-WEAKAURA']) && decoded && decoded.obj.d && decoded.obj.d.id) {
@@ -377,7 +378,7 @@ module.exports = function (fastify, opts, next) {
       return res.send({scan: scanDoc._id.toString(), type: 'Lua Error', name: 'Error Report'})
     }
 
-    if (req.body.importString.match(commonRegex.LuaKeyWord)) {
+    if (req.body.importString.match(commonRegex.LuaKeyWord) || 1) {
       scan.type = 'SNIPPET'
       const scanDoc = await scan.save()
       return res.send({scan: scanDoc._id.toString(), type: 'Lua Snippet', name: 'Code Snippet'})

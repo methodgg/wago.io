@@ -1,0 +1,6 @@
+crowd translations for https://github.com/WeakAuras/WeakAuras2/issues/1134
+send to companion
+encounter notes wyiswyg (exorsus and angry assignments)
+detect and report bad or heavy CPU code
+request & bounty system
+build a better curse

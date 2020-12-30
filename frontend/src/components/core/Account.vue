@@ -208,7 +208,18 @@
           </md-card-content>
         </div>
       </md-card>
-      <wago-oauth></wago-oauth>
+      <md-card>
+        <wago-oauth></wago-oauth>
+      </md-card>
+      <!--<md-card>
+        <h2>{{ $t('Privacy Regulations') }}</h2>
+        <md-card-content>
+          <p>{{ $t('Right of Access - Request a complete copy of your personal and supplementary information stored by Wago.io') }}</p>
+        </md-card-content>
+        <md-card-actions>
+          <md-button md-button @click="getRoC" md-button md-raised md-theme-default>{{ $t('Download Information') }}</md-button>
+        </md-card-actions>
+      </md-card>-->
     </md-layout>
   </md-layout>
 </template>
@@ -454,7 +465,6 @@ end`,
       }
 
       if (this.newPassword.length >= 6 && this.confirmPassword.length >= 6 && this.newPassword === this.confirmPassword) {
-        console.log('changing')
         var vue = this
         this.http.post('/auth/changepass', {
           newPass: this.newPassword,
@@ -498,6 +508,18 @@ end`,
           window.eventHub.$emit('showSnackBar', vue.$t('Error could not save'))
         })
       })
+    },
+
+    getRoC () {
+      this.http.post('/account/right-of-access').then((res) => {
+        const blob = new Blob([res], {type: 'application/zip'})
+        const downloadUrl = URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = downloadUrl
+        a.download = 'wago-user.zip'
+        document.body.appendChild(a)
+        a.click()
+      })
     }
   }
 }
@@ -511,8 +533,8 @@ h2 { margin-left: 16px }
 .md-card { margin-top: 0 }
 
 @media (min-width: 1281px) {
-  .md-column { margin-top: 16px; margin-right: 16px }
-  #col2 { padding-right: 16px }
-  #col2 .md-card { margin-bottom: 0 }
+  .md-column { margin-top: 16px; }
+  #col2 { padding: 0; }
+  #col2 .md-card { margin-left: 0 }
 }
 </style>

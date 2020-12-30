@@ -186,6 +186,40 @@ async function UpdateTopLists () {
   // save data
   await SiteData.findOneAndUpdate({_id: 'TopLists'}, {value: data}, {upsert: true}).exec()
   await updateDataCaches.queue('TopLists')
+
+  // update spotlights
+  var spotlight = {}
+  spotlight.nyalotha = await WagoItem.find({deleted: false, hidden: false, private: false, restricted: false, encrypted: false, categories: 'raidnyalotha'}).sort("-popularity.viewsThisWeek").limit(6).exec()
+  spotlight.aq40 = await WagoItem.find({deleted: false, hidden: false, private: false, restricted: false, encrypted: false, categories: 'raidtempleaq'}).sort("-popularity.viewsThisWeek").limit(6).exec()
+  spotlight['mdt' + global.mdtWeekNA] = await WagoItem.find({deleted: false, hidden: false, private: false, restricted: false, encrypted: false, categories: {$all: Categories.getCategory('mdtaffix-bfa-s4-w' + global.mdtWeekNA)[0].contains}}).sort("-popularity.viewsThisWeek").limit(6).exec()
+  if (!spotlight['mdt' + global.mdtWeekEU]) {
+    spotlight['mdt' + global.mdtWeekEU] = await WagoItem.find({deleted: false, hidden: false, private: false, restricted: false, encrypted: false, categories: Categories.getCategory('mdtaffix-bfa-s4-w' + global.mdtWeekEU)[0].contains}).sort("-popularity.viewsThisWeek").limit(6).exec()
+  }
+  if (!spotlight['mdt' + global.mdtWeekKR]) {
+    spotlight['mdt' + global.mdtWeekKR] = await WagoItem.find({deleted: false, hidden: false, private: false, restricted: false, encrypted: false, categories: Categories.getCategory('mdtaffix-bfa-s4-w' + global.mdtWeekKR)[0].contains}).sort("-popularity.viewsThisWeek").limit(6).exec()
+  }
+  if (!spotlight['mdt' + global.mdtWeekTW]) {
+    spotlight['mdt' + global.mdtWeekTW] = await WagoItem.find({deleted: false, hidden: false, private: false, restricted: false, encrypted: false, categories: Categories.getCategory('mdtaffix-bfa-s4-w' + global.mdtWeekTW)[0].contains}).sort("-popularity.viewsThisWeek").limit(6).exec()
+  }
+  if (!spotlight['mdt' + global.mdtWeekCN]) {
+    spotlight['mdt' + global.mdtWeekCN] = await WagoItem.find({deleted: false, hidden: false, private: false, restricted: false, encrypted: false, categories: Categories.getCategory('mdtaffix-bfa-s4-w' + global.mdtWeekCN)[0].contains}).sort("-popularity.viewsThisWeek").limit(6).exec()
+  }
+  var _spotlight = {}
+  for await (const k of Object.keys(spotlight)) {
+    _spotlight[k] = []
+    for (const i in spotlight[k]) {
+      if (spotlight[k][i]._userId) {
+        let u = await User.findById(spotlight[k][i]._userId)
+        let user = {}
+        if (u) {
+          user = {name: u.account.username, avatar: await u.avatarURL, class: u.roleclass}
+        }
+        _spotlight[k].push({_id: spotlight[k][i]._id, name: spotlight[k][i].name, thumb: await spotlight[k][i].getThumbnailURL(), user: user})
+      }
+    }
+  }
+  await SiteData.findOneAndUpdate({_id: 'Spotlight'}, {value: _spotlight}, {upsert: true}).exec()
+  await updateDataCaches.queue('Spotlight')
 }
 
 async function DiscordMessage (data) {
@@ -321,12 +355,12 @@ async function UpdateGuildMembership () {
       // remove old members
       let exGuild = await User.find({"battlenet.guilds": guildKey, _id: {$nin: accountIdsInGuild}}).exec()
       for (let d = 0; d < exGuild.length; d++) {
-            let re = new RegExp('^' + guildKey + '(@\\d)?$')
+        let re = new RegExp('^' + guildKey + '(@\\d)?$')
         for (let g = exGuild[d].battlenet.guilds.length - 1; g >= 0; g--) {
           if (exGuild[d].battlenet.guilds[g].match(re)) {
             exGuild[d].battlenet.guilds.splice(g, 1)
-              }
-            }
+          }
+        }
         await exGuild[d].save()
       }
     }
@@ -367,7 +401,7 @@ async function UpdateLatestAddonReleases () {
     {name: 'WeakAuras-2', host: 'github', url: 'https://api.github.com/repos/weakAuras/WeakAuras2/releases'},
     {name: 'VuhDo', host: 'gitlab', url: 'https://gitlab.vuhdo.io/api/v4/projects/13/releases'},
     {name: 'ElvUI', host: 'tukui', url: 'https://www.tukui.org/api.php?ui=elvui'},
-    {name: 'MDT', host: 'github', url: 'https://api.github.com/repos/Nnoggie/MythicDungeonTools/releases'},
+    {name: 'DT', host: 'github', url: 'https://api.github.com/repos/LetsTimeIt/DungeonTools/releases'},
   ]
   var madeUpdate = false
   for (let addon of addons) {
@@ -396,8 +430,8 @@ async function UpdateLatestAddonReleases () {
             if (release.addon === 'WeakAuras-2' && release.phase === 'Release') {
               await updateWAData(release, item.assets)
             }
-            else if (release.addon === 'MDT' && release.phase === 'Release') {
-              await updateMDTData(release, item)
+            else if (release.addon === 'DT' && release.phase === 'Release') {
+              await updateDTData(release, item)
             }
           }
         }
@@ -456,6 +490,7 @@ async function UpdateLatestAddonReleases () {
 }
 
 async function SyncElastic(table) {
+  console.log("SYNC ELASTIC", table)
   var syncStream
   return await new Promise((done, reject) => {
     switch (table){
@@ -665,14 +700,14 @@ async function updateWAData (release, assets) {
   logError(e, 'Unable to find WeakAura internalVersion')
 }
 
-async function updateMDTData (release, assets) {
+async function updateDTData (release, assets) {
   if (!assets.zipball_url) {
     logError('Unable to find MDT download', assets)
     return false
   }
-  const addonDir = path.resolve(__dirname, '../lua', 'addons' ,'MDT', release.version)
+  const addonDir = path.resolve(__dirname, '../lua', 'addons' ,'DungeonTools', release.version)
   await mkdirp(addonDir)
-  const zipFile = path.resolve(addonDir, 'MDT.zip')
+  const zipFile = path.resolve(addonDir, 'DT.zip')
   const writer = require('fs').createWriteStream(zipFile)
   var axiosDownload = {method: 'GET', responseType: 'stream', url: assets.zipball_url}
 
@@ -685,6 +720,7 @@ async function updateMDTData (release, assets) {
   await decompress(zipFile, addonDir)
   // get commit directory
   const commit = await fs.readdir(addonDir)
+  console.log(`${addonDir}/${commit[1]}`)
   var mdtData = await lua.BuildMDT_DungeonTable(`${addonDir}/${commit[1]}`)
   mdtData = JSON.parse(mdtData)
 
@@ -712,7 +748,10 @@ async function updateMDTData (release, assets) {
   await SiteData.findByIdAndUpdate('mdtDungeonTable', {value: mdtData}, {upsert: true}).exec()
   await SiteData.findByIdAndUpdate('mdtAffixWeeks', {value: mdtData.affixWeeks}, {upsert: true}).exec()
   await cloudflare.zones.purgeCache(config.cloudflare.zoneID, {files: ['https://data.wago.io/data/mdtDungeonTable', 'https://data.wago.io/data/mdtAffixWeeks']})
-  for (let mapID = 0; mapID < mdtData.dungeonEnemies.length; mapID++) {
+  for (let mapID = 27; mapID < mdtData.dungeonEnemies.length; mapID++) {
+    if (!mdtData.dungeonEnemies[mapID]) {
+      continue
+    }
     let Obj = {
       affixWeeks: mdtData.affixWeeks,
       dungeonEnemies: mdtData.dungeonEnemies[mapID],
@@ -728,7 +767,7 @@ async function updateMDTData (release, assets) {
     if (mapID === 15) {
       Obj.freeholdCrews = mdtData.freeholdCrews
     }
-    const currentHash = await SiteData.findById('mdtDungeonTable-' + mapID).exec()
+    const currentHash = false // = await SiteData.findById('mdtDungeonTable-' + mapID).exec()
     await SiteData.findByIdAndUpdate('mdtDungeonTable-' + mapID, {value: Obj}, {upsert: true}).exec()
     await cloudflare.zones.purgeCache(config.cloudflare.zoneID, {files: ['https://data.wago.io/data/mdtDungeonTable-' + mapID]})
 
@@ -741,14 +780,13 @@ async function updateMDTData (release, assets) {
           if (mapID === 18) {
             await buildStaticMDTPortraits(Obj, mapID, subMapID, false, 1)
             await buildStaticMDTPortraits(Obj, mapID, subMapID, false, 2)
-            await buildStaticMDTPortraits(Obj, mapID, subMapID, true, 1)
-            await buildStaticMDTPortraits(Obj, mapID, subMapID, true, 2)
+            // await buildStaticMDTPortraits(Obj, mapID, subMapID, true, 1) // no teeming in shadowlands
+            // await buildStaticMDTPortraits(Obj, mapID, subMapID, true, 2)
           }
           else {
             await buildStaticMDTPortraits(Obj, mapID, subMapID, false)
-            await buildStaticMDTPortraits(Obj, mapID, subMapID, true)
+            // await buildStaticMDTPortraits(Obj, mapID, subMapID, true)
           }
-          break
         }
         logger({e_c: 'Generate MDT portrait maps', e_a: Obj.dungeonMaps['0'], e_n: Obj.dungeonMaps['0']})
       }
@@ -764,7 +802,7 @@ async function updateMDTData (release, assets) {
 async function buildStaticMDTPortraits(json, mapID, subMapID, teeming, faction) {
   // this is very finicky so only run it locally to generate the images
   if (config.env !== 'development') {
-  return
+    return
   }
   const puppeteer = require('puppeteer-firefox')
   const mdtScale = 539 / 450
@@ -806,7 +844,7 @@ async function buildStaticMDTPortraits(json, mapID, subMapID, teeming, faction) 
 
       var layer = new Konva.Layer();
       var enemyPortraits = new Image()
-      enemyPortraits.src = 'https://wago.io/mdt/portraits-${mapID}.png?'
+      enemyPortraits.src = 'https://wago.io/mdtports/portraits-${mapID}.png?' + Date.now()
       enemyPortraits.crossOrigin = 'Anonymous'
       enemyPortraits.onload = () => { console.log(enemyPortraits.src, 'loaded') `
       
@@ -820,13 +858,13 @@ async function buildStaticMDTPortraits(json, mapID, subMapID, teeming, faction) 
               x: ${clone.x * mdtScale} * multiplier,
               y: ${clone.y * -mdtScale} * multiplier,
               radius: ${Math.round(5 * creature.scale * (creature.isBoss ? 1.7 : 1) * (json.scaleMultiplier || 1)) / mdtScale} * multiplier,
-              fillPatternX: ${(-Math.round(5 * creature.scale * (creature.isBoss ? 1.7 : 1))) / mdtScale} * multiplier,
-              fillPatternY: ${(-Math.round(5 * creature.scale * (creature.isBoss ? 1.7 : 1))) / mdtScale} * multiplier,
+              fillPatternX: ${(-Math.round(5 * creature.scale * (creature.isBoss ? 1.7 : 1) * (json.scaleMultiplier || 1))) / mdtScale} * multiplier,
+              fillPatternY: ${(-Math.round(5 * creature.scale * (creature.isBoss ? 1.7 : 1) * (json.scaleMultiplier || 1))) / mdtScale} * multiplier,
               fillPatternImage: enemyPortraits,
               fillPatternOffset: ${getEnemyPortraitOffset(json.dungeonEnemies.length, i, 115)},
               fillPatternRepeat: 'no-repeat',
-              fillPatternScaleX: ${Math.round(5 * creature.scale * (creature.isBoss ? 1.7 : 1)) / 64} * multiplier,
-              fillPatternScaleY: ${Math.round(5 * creature.scale * (creature.isBoss ? 1.7 : 1)) / 64} * multiplier,
+              fillPatternScaleX: ${Math.round(5 * creature.scale * (creature.isBoss ? 1.7 : 1) * (json.scaleMultiplier || 1)) / 64} * multiplier,
+              fillPatternScaleY: ${Math.round(5 * creature.scale * (creature.isBoss ? 1.7 : 1) * (json.scaleMultiplier || 1)) / 64} * multiplier,
               stroke: '${creature.isBoss ? 'gold' : 'black'}',
               strokeWidth: .5 * multiplier
             })
@@ -888,7 +926,7 @@ function getEnemyPortraitOffset (numCreatures, creatureIndex, size) {
 
 /*
 
-  UpdateTwitchSubs: async (req) => {
+  UpdateTwitchSubs: async () => {
     const users = await User.find({"roles.pro_subscriber": true, "twitch.refreshToken": {$exists: true}}).exec()
     users.forEach(async (user) => {
       try {
@@ -941,7 +979,7 @@ function getEnemyPortraitOffset (numCreatures, creatureIndex, size) {
           user.twitch.refreshToken = null
           await user.save()
         }
-        req.trackError(e, 'Cron: UpdateTwitchSubs')
+        logError(e, 'Cron: UpdateTwitchSubs')
       }
     })
   }

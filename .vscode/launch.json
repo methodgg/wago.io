@@ -1,0 +1,10 @@
+{
+  "configurations": [
+    {
+      "type": "pwa-chrome",
+      "name": "http://io:3030",
+      "request": "launch",
+      "url": "http://io:3030"
+    }
+  ]
+}

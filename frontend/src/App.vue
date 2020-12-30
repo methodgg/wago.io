@@ -23,7 +23,7 @@
                     <md-option value=""><em>All Imports</em></md-option>
                     <md-option value="ElvUI">ElvUI</md-option>
                     <md-option value="TotalRP">Total RP</md-option>
-                    <md-option value="MDT">Mythic Dungeon Tools</md-option>
+                    <!--<md-option value="MDT">Mythic Dungeon Tools</md-option>-->
                     <md-option value="Opie">OPie</md-option>
                     <md-option value="Plater">Plater</md-option>
                     <md-option value="VuhDo">VuhDo</md-option>
@@ -113,7 +113,7 @@
           <md-list-item><router-link to='/elvui'>ElvUI</router-link></md-list-item>
           <md-list-item v-if="User && User.access && User.access.beta"><router-link to='/create-new-note'>Encounter Notes [Beta]</router-link></md-list-item>
           <!-- <md-list-item><router-link to='/grid2'>Grid2</router-link></md-list-item> -->
-          <md-list-item><router-link to='/mdt'>Mythic Dungeon Tools</router-link></md-list-item>
+          <!--<md-list-item><router-link to='/mdt'>Mythic Dungeon Tools</router-link></md-list-item>-->
           <md-list-item><router-link to='/plater'>Plater Nameplates</router-link></md-list-item>
           <md-list-item><router-link to='/totalrp'>Total RP</router-link></md-list-item>
           <md-list-item><router-link to='/vuhdo'>VuhDo</router-link></md-list-item>
@@ -130,7 +130,7 @@
           <md-list-item><router-link to='/elvui'>ElvUI</router-link></md-list-item>
           <md-list-item v-if="User && User.access && User.access.beta"><router-link to='/create-new-note'>Encounter Notes [Beta]</router-link></md-list-item>
           <!-- <md-list-item><router-link to='/grid2'>Grid2</router-link></md-list-item> -->
-          <md-list-item><router-link to='/mdt'>Mythic Dungeon Tools</router-link></md-list-item>
+          <!--<md-list-item><router-link to='/mdt'>Mythic Dungeon Tools</router-link></md-list-item>-->
           <md-list-item><router-link to='/opie'>OPie</router-link></md-list-item>
           <md-list-item><router-link to='/plater'>Plater Nameplates</router-link></md-list-item>
           <md-list-item><router-link to='/totalrp'>Total RP</router-link></md-list-item>

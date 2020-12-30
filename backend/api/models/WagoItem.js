@@ -37,6 +37,7 @@ const Schema = new mongoose.Schema({
   restrictedGuilds: [{ type: String, index: true, es_indexed: true }], // guildKey 'region@Realm@Guild Name"
   restrictedTwitchUsers: [{ type: String, index: true, es_indexed: true }], // user.twitch.id
   deleted : { type: Boolean, default: false, index: true, es_indexed: true },
+  blocked: { type: Boolean, default: false, index: true, es_indexed: true },
 
   clone_of : String,
   fork_of: String,
@@ -230,7 +231,7 @@ Schema.statics.randomOfTheMoment = async function(count, n) {
   if (!n) {
     n = 0
   }
-  var search = {hidden: false, restricted: false, private: false, encrypted: false, deleted: false, $or:[{type: 'WEAKAURAS2', modified: {"$gte": new Date(2020, 10, 13)}}, {type: 'MDT', modified: {"$gte": new Date(2020, 11, 24)}}, {type: ['CLASSIC-WEAKAURA', 'ELVUI', 'VUHDO', 'PLATER', 'TOTALRP3']}]}
+  var search = {hidden: false, restricted: false, private: false, encrypted: false, deleted: false, blocked: false, $or:[{type: 'WEAKAURAS2', modified: {"$gte": new Date(2020, 10, 13)}}, {type: 'MDT', modified: {"$gte": new Date(2020, 11, 24)}}, {type: ['CLASSIC-WEAKAURA', 'ELVUI', 'VUHDO', 'PLATER', 'TOTALRP3']}]}
   if (!count) {
     count = await this.countDocuments(search).exec()
   }

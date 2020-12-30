@@ -10,7 +10,7 @@ export default {
   props: ['text', 'truncate', 'plaintext', 'enableLinks'],
   mounted () {
     let monacoScript = document.createElement('script')
-    monacoScript.setAttribute('src', 'https://www.google.com/recaptcha/api.js')
+    // monacoScript.setAttribute('src', 'https://www.google.com/recaptcha/api.js')
     document.head.appendChild(monacoScript)
   },
   methods: {

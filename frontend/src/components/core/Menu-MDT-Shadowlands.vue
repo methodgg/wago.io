@@ -1,14 +1,18 @@
 <template>
-  <div id="search-mdt">
+  <div id="search-mdt" style="position:relative">
     <h2 id="addon-name">Mythic Dungeon Tools -
       <span>{{ $t('Shadowlands') }}</span>
     </h2>
+    <ui-warning mode="alert">
+      MDT is currently disabled on Wago.
+    </ui-warning>
+    <div style="position:absolute;top:108px;left:0;right:0;bottom:0;background:#212121AA;z-index:10"></div>
     <md-layout>
       <addon-info addon="mdt"></addon-info>
       <form novalidate @submit.stop.prevent="runSearch(searchString)" id="searchForm">
         <md-input-container>
           <label>{{ $t("Search") }}</label>
-          <md-input v-model="searchString" ref="searchInput"></md-input>
+          <md-input v-model="searchString" ref="searchInput" :disabled="true"></md-input>
           <md-button @click="runSearch(searchString)" :disabled="searchString.length<3">{{ $t("Search") }}</md-button>
         </md-input-container>
       </form>

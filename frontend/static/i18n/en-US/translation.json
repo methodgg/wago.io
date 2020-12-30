@@ -714,5 +714,145 @@
   "Alternatively type the \"/vuhdo opt\" command into your chat window": "Alternatively type the \"/vuhdo opt\" command into your chat window.",
   "Click the Import button in the upper left area to import a Bouquet": "Click the Import button in the upper left area to import a Bouquet.",
   "Vuhdo Profiles and Key Layouts can be imported from the Tools tab at the bottom": "Vuhdo Profiles and Key Layouts can be imported from the Tools tab at the bottom.",
-  "Paste the string into the window with ctrl-V (or command-V on a Mac), click Okay, then Yes to confirm": "Paste the string into the window with ctrl-V (or command-V on a Mac), click Okay, then Yes to confirm."
+  "Paste the string into the window with ctrl-V (or command-V on a Mac), click Okay, then Yes to confirm": "Paste the string into the window with ctrl-V (or command-V on a Mac), click Okay, then Yes to confirm.",
+  "Privacy Regulations": "",
+  "Right of Access - Request a complete copy of your personal and supplementary information stored by Wago": {
+    "io": ""
+  },
+  "Download Information": "",
+  "Contact": "",
+  "Display Text": "",
+  "Display Stacks": "",
+  "Wago has identified [-count-] alert during automated code review": "Wago has identified [-count-] alert during automated code review.",
+  "Wago has identified [-count-] alert during automated code review_plural": "Wago has identified [-count-] alerts during automated code review.",
+  "[-count-] alert": "[-count-] alert",
+  "[-count-] alert_plural": "[-count-] alerts",
+  "View Code": "",
+  "View Alerts": "",
+  "Luacheck looks for common but problematic code": {
+    "": ""
+  },
+  "No problems detected": {
+    "": ""
+  },
+  "Luacheck detects various issues in lua code and reports warnings and syntax errors": {
+    "": ""
+  },
+  "Wago flags some of those warnings as alerts when run within the scope of your custom code and the WoW environment": {
+    "": ""
+  },
+  "Timing code detected": {
+    "": ""
+  },
+  "Immediate value return detected": {
+    "": ""
+  },
+  "Displays that update every frame can potentially cause slowdown are are almost always go against best practices": {
+    " Every frame updates should be for a) time related displays or b) throttled so that the processing occurs on an interval": {
+      " Neither are detected here": {
+        "": ""
+      }
+    }
+  },
+  "[-name-] updates text every frame": {
+    "": ""
+  },
+  "Wago checks for common but problematic code": {
+    "": ""
+  },
+  "No problems found": {
+    "": ""
+  },
+  "'[-name-]' id length is needlessly long": {
+    "": ""
+  },
+  "This is the name used in the WeakAura interface and may cause an overflow error and crash the game": {
+    "": ""
+  },
+  "Timing or throttling code is detected": {
+    "": ""
+  },
+  "'[-name-]' updates its display text every frame": {
+    "": ""
+  },
+  "Trigger ([-n-])": "",
+  "Triggers that check on every frame should be throttled so that the processing occurs on an interval": {
+    " No throttle could be detected here": {
+      "": ""
+    }
+  },
+  "'[-name-]' is processed every frame": {
+    "": ""
+  },
+  "[-author-] has marked this as a false positive": "",
+  "Edit False Positive": "",
+  "[-author-] has replied with a comment": "",
+  "Edit Comment": "",
+  "Comment or Flag as a false positive": "",
+  "Comment": "",
+  "Flag as false positive and remove alert": "",
+  "Want some help fixing code review alerts? Come have a chat on the [-discord-]": {
+    "": ""
+  },
+  "Embeds will not work for imports with blocked functions": "",
+  "'[-name-]' includes blocked functions": {
+    " Blocked functions are normally blocked within the addon with normal use, and there is probably no reason you want to include this potential vulnerability": {
+      "": ""
+    }
+  },
+  "The code in this import is being processed and will automatically update this page once complete Position [-position-]": "The code in this import is being processed and will automatically update this page once complete. Queue position: [-position-]",
+  "Top [-category-] WeakAuras": "",
+  "Format Lua": "",
+  "Displays that update every frame can potentially cause slowdown are almost always go against best practices": {
+    " Every frame updates should be for a) time related displays or b) throttled so that the processing occurs on an interval": {
+      " Neither are detected here": {
+        "": ""
+      }
+    }
+  },
+  "Site News": "",
+  "View more [-category-] WeakAuras": "",
+  "Top Week [-num-] MDT Routes": "",
+  "View more Week [-num-] MDT Routes": "",
+  "Clear all unread alerts": "",
+  "Edit Profile": "",
+  "This profile page is private no one else may view it or search imports by this username": "",
+  "Add Featured Content": "",
+  "Discord Server": "",
+  "Feature Type": "",
+  "WoW Character Profile": "",
+  "Sub Type": "",
+  "My Imports": "",
+  "Curated Collection": "",
+  "Imports": "",
+  "Auto - By Current Popularity": "",
+  "Auto - By Stars": "",
+  "Auto - By Total Views": "",
+  "Auto - Recently Updated": "",
+  "Manual Selection": "",
+  "Showcase [-num-]": "",
+  "[-user-]'s popular imports": "",
+  "[-user-]'s most viewed imports": "",
+  "[-user-]'s most starred imports": "",
+  "[-user-]'s latest imports": "",
+  "[-user-]'s featured imports": "",
+  "Search More": "",
+  "Edit Feature": "",
+  "[-count-] views this week": "",
+  "[-count-] views this week_plural": "",
+  "[-count-] views": "",
+  "[-count-] views_plural": "",
+  "[-count-] stars": "",
+  "[-count-] stars_plural": "",
+  "Live Stream": "",
+  "Character": "",
+  "Manifestation of Pride [-num-]%": "",
+  "Include Read Mentions": "",
+  "No": "",
+  "Yes": "",
+  "Inspiring": "",
+  "External sites clicked through to this page": "",
+  "Linked From": "",
+  "Count": "",
+  "Wago has detected some possible malicious code - please review before installing": ""
 }
