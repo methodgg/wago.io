@@ -37,6 +37,9 @@ std = {
     "GuildDisband",
     "GuildUninvite",
     "securecall",
+    "SendMailMailButton",
+    "SendMailMoneyGold",
+    "MailFrameTab2",
   },
   read_globals = {
     "Wago",

@@ -583,6 +583,14 @@ async function ProcessCode(data) {
       code.processVersion = processVersions.PLATER
     break
   }
+  if (code.luacheck && code.luacheck.match(commonRegex.WeakAuraBlacklist)) {
+    doc.blocked = true
+    await doc.save()
+  }
+  else if (code.blocked) {
+    doc.blocked = false
+    await doc.save()
+  }
   await code.save()
 }
 

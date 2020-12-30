@@ -1,4 +1,7 @@
-max_line_length = false
+
+    "SendMailMailButton",
+    "SendMailMoneyGold",
+    "MailFrameTab2",max_line_length = false
 codes = true
 color = false
 ignore = {

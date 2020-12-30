@@ -296,6 +296,9 @@
               <ui-warning v-if="codeQueue && wago.code && wago.code.Q" mode="warn" :spinner="true" :html="$t('The code in this import is being processed and will automatically update this page once complete Position [-position-]', {position: codeQueue})"></ui-warning>
 
               <template v-else-if="codeReview.alerts > 0 && (!wago.code || !wago.code.Q)">
+                <ui-warning mode="alert" id="code-review-alert" v-if="codeReview.securityAlert">
+                  <div><md-icon>error_outline</md-icon> {{ $t('Wago has detected some possible malicious code - please review before installing') }}</div>
+                </ui-warning>
                 <ui-warning mode="alert" id="code-review-alert">
                   <div><md-icon>error_outline</md-icon> {{ $t('Wago has identified [-count-] alert during automated code review', {count: codeReview.alerts}) }}</div>
                   <md-button v-if="showPanel !== 'codereview' && wago.type !== 'SNIPPET'" @click.prevent="toggleFrame('codereview')">[{{ $t("View Alerts") }}]</md-button>
@@ -1552,7 +1555,7 @@ export default {
       this.codeReview.warnings = 0
       this.codeReview.alerts = 0
       this.codeReview.stabilityChecks = []
-      const blockedRegex = /getfenv|setfenv|loadstring|pcall|SendMail|SetTradeMoney|AddTradeMoney|PickupTradeMoney|PickupPlayerMoney|TradeFrame|MailFrame|EnumerateFrames|RunScript|AcceptTrade|SetSendMailMoney|EditMacro|SlashCmdList|DevTools_DumpCommand|hash_SlashCmdList|CreateMacro|SetBindingMacro|GuildDisband|GuildUninvite|UninviteUnit/g
+      const blockedRegex = /getfenv|setfenv|loadstring|pcall|SendMail|SetTradeMoney|AddTradeMoney|PickupTradeMoney|PickupPlayerMoney|TradeFrame|MailFrame|EnumerateFrames|RunScript|AcceptTrade|SetSendMailMoney|EditMacro|SlashCmdList|DevTools_DumpCommand|hash_SlashCmdList|CreateMacro|SetBindingMacro|GuildDisband|GuildUninvite|UninviteUnit|SendMailMailButton|SendMailMoneyGold|MailFrameTab2/g
       if (code && code.luacheck && code.luacheck !== '{}') {
         code.luacheck = JSON.parse(code.luacheck)
         this.luacheckKeys = Object.keys(code.luacheck)
@@ -1572,6 +1575,7 @@ export default {
           }
           let blocked = code.luacheck[lc].match(blockedRegex)
           if (blocked) {
+            this.codeReview.securityAlert = true
             blocked = [...new Set(blocked)]
             this.codeReview.alerts += blocked.length
             this.codeReview.stabilityChecks.push({id: 'blockedFn', name: lc, display: this.$t('\'[-name-]\' includes blocked functions. Blocked functions are normally blocked within the addon with normal use, and there is probably no reason you want to include this potential vulnerability.', {name: lc}) + '\n\n0:' + blocked.join('\n0:'), func: lc})
