@@ -2679,7 +2679,7 @@ span.md-note {height: 20px; position: absolute; bottom: -22px; font-size: 12px;}
 #tags { display: block; clear: both; padding-top: 16px}
 .wago-media { width: 160px; text-align: center  }
 .wago-media img, .wago-media a img { padding: 8px 16px; width: 100%; max-height: 120px; display: block; float: none }
-a.showvid { position: relative; display: block; cursor: pointer }
+a.showvid { position: relative; cursor: pointer }
 a.showvid:hover img { transform: scale(1.05); }
 a.showvid .md-icon { width:50px; height: 50px; position:absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); -webkit-transform: translate(-50%, -50%); opacity: .7; font-size: 50px; color: #fff; text-shadow: 0px 0px 30px rgba(0, 0, 0, 0.8); z-index: 9  }
 a.showvid:hover:before  .md-icon { opacity:1 }
