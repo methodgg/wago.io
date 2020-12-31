@@ -236,7 +236,10 @@ module.exports = function (fastify, opts, next) {
     wago.UID = doc._userId
     wago.alerts = {}
 
-    if (doc.type === 'ERROR' || (req.user && req.user._id === wago.UID && req.user.access.referrals)) {
+    if (doc.type === 'ERROR' || (req.user && req.user._id.equals(wago.UID) && req.user.access.referrals)) {
+      doc.referrals.sort((a, b) => {
+        return a.count < b.count ? 1 : a.count === b.count ? 0 : -1
+      })
       wago.referrals = doc.referrals
     }
 
