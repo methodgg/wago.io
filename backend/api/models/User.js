@@ -26,23 +26,6 @@ const Schema = new mongoose.Schema({
       text: String,
       format: String
     },
-    social: {
-      twitch: String,
-      twitter: String,
-      facebook: String,
-      youtube: String,
-      discord: String,
-      github: String
-    },
-    featured: [{
-      type: {type: String}, // hack since "type" is a keyword
-      subtype: String,
-      imports: String,
-      config: {
-        item: String,
-        select: [String]
-      }
-    }],
     guilds: [{
       default: { type: Boolean, default: false },
       guildID: ObjectId

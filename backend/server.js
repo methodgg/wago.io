@@ -138,7 +138,6 @@ const startServer = async () => {
         delete profilerTasks[job.id]
       }
     })
-    await taskQueue.add('UpdateLatestAddonReleases')
     
     // setup simulated crontasks
     if (config.env === 'development' || config.host === 'SF2-01') {

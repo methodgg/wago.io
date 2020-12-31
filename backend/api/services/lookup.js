@@ -8,8 +8,6 @@ const battlenet = require('../helpers/battlenet')
 const diff = require('../helpers/diff')
 const luacheck = require('../helpers/luacheck')
 const wowPatches = require('../helpers/wowPatches')
-const profileFeatures = require('../helpers/profileFeatures')
-const Profiler = require('../models/Profiler')
 
 const arrayMatch = function (arr1, arr2) {
   if (!arr1.length || !arr2.length) {
@@ -28,7 +26,7 @@ const arrayMatch = function (arr1, arr2) {
 module.exports = function (fastify, opts, next) {
   // returns data used on wago.io homepage
   fastify.get('/index', (req, res) => {
-    res.cache(60).send({topLists: global.TopLists, news: global.LatestNews, addons: global.LatestAddons, spotlight: global.Spotlight})
+    res.cache(60).send({topLists: global.TopLists, news: global.LatestNews, addons: global.LatestAddons})
   })
 
   // standard lookup for any import
@@ -39,7 +37,7 @@ module.exports = function (fastify, opts, next) {
     
     var doc
     if (!req.query.version) {
-      // doc = await redis.get(req.query.id)
+      doc = await redis.get(req.query.id)
     }
  
     if (doc && doc._id) {
@@ -238,10 +236,7 @@ module.exports = function (fastify, opts, next) {
     wago.UID = doc._userId
     wago.alerts = {}
 
-    if (doc.type === 'ERROR' || (req.user && req.user._id.equals(wago.UID) && req.user.access.referrals)) {
-      doc.referrals.sort((a, b) => {
-        return a.count < b.count ? 1 : a.count === b.count ? 0 : -1
-      })
+    if (doc.type === 'ERROR' || (req.user && req.user._id === wago.UID && req.user.access.referrals)) {
       wago.referrals = doc.referrals
     }
 
@@ -676,7 +671,7 @@ module.exports = function (fastify, opts, next) {
 
     if (!code.processVersion || code.processVersion < 2) {
       code.luacheck = null
-      if (doc.type.match(/SNIPPET|WEAKAURA|PLATER/i) && req.query.qupdate) {
+      if (doc.type.match(/SNIPPET|WEAKAURA|PLATER/) && req.query.qupdate) {
         var checkQ = await taskQueue.getWaiting(0, 500)
         for (let i = 0; i < checkQ.length; i++) {
           if (req.query.qupdate == checkQ[i].id) {
@@ -686,8 +681,8 @@ module.exports = function (fastify, opts, next) {
         checkQ = await taskQueue.getActive(0, 20)
         for (let i = 0; i < checkQ.length; i++) {
           if (req.query.qupdate == checkQ[i].id) {
-            return res.send({Q: true, position: 1}) // 1 = currently processing
-          }
+          return res.send({Q: true, position: 1}) // 1 = currently processing
+        }
         }
 
         checkQ = await taskQueue.getCompleted(0, 500)
@@ -699,9 +694,9 @@ module.exports = function (fastify, opts, next) {
           }
         }
         if (!foundComplete) {
-          return res.send({Q: true, position: '500+'}) // TODO: Add some reporting because if the queue ever gets this high something is wrong
-        }
+        return res.send({Q: true, position: '500+'}) // TODO: Add some reporting because if the queue ever gets this high something is wrong
       }
+    }
     }
 
     if (doc.type === 'SNIPPET') {
@@ -713,7 +708,7 @@ module.exports = function (fastify, opts, next) {
         wagoCode.luacheck = code.luacheck
       }
     }
-    else if (doc.type === 'WEAKAURAS2' || doc.type === 'CLASSIC-WEAKAURA' || doc.type === 'WeakAura') {
+    else if (doc.type === 'WEAKAURAS2' || doc.type === 'CLASSIC-WEAKAURA') {
       var json = JSON.parse(code.json)
       // check for any missing data
       if (code.version && (!code.encoded || ((json.d.version !== code.version || json.d.url !== doc.url + '/' + code.version) || (json.c && json.c[0] && json.c[0].version !== code.version) || (json.d.semver !== code.versionString))) || !code.luacheck) {
@@ -802,9 +797,6 @@ module.exports = function (fastify, opts, next) {
 
     const user = await User.findByUsername(req.query.user)
     if (!user) {
-      return res.code(404).send({error: "page_not_found"})
-    }
-    else if (user.account.hidden && !req.user._id.equals(user._id)) {
       return res.send({})
     }
     var profile = {}
@@ -812,11 +804,7 @@ module.exports = function (fastify, opts, next) {
     profile.name = user.account.username
     profile.roleClass = user.roleClass
     profile.description = user.profile.description
-    profile.description.format = profile.description.format || 'bbcode'
-    profile.enableLinks = user.account.verified_human
-    profile.avatar = await user.avatarURL
-    profile.social = user.profile.social
-    profile.featured = await profileFeatures.get(user._id, user.profile.featured)
+    profile.avatar = user.avatarURL
     if (req.user && req.user._id.equals(user._id)) {
       profile.mine = true
     }

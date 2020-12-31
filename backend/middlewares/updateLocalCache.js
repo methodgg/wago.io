@@ -17,7 +17,6 @@ module.exports = {
         'mdtWeekTW',
         'mdtWeekCN',
         'TopLists',
-        'Spotlight',
         'WagoOfTheMoment',
         'weakAuraInternalVersion'
       ]

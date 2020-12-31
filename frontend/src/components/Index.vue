@@ -165,72 +165,62 @@
           <md-button class="md-raised" :disabled="disableSubmit || (visibility === 'Encrypted' && !cipherKey.length)" @click="submitImport()" style="margin-top:2em">Submit</md-button>
         </md-whiteframe>
 
-        <div v-if="isTest && spotlight" class="spotlights3">
+        <md-whiteframe id="currentcontent">
           <h3>{{ $t('Current Content') }}</h3>
-          <md-layout md-row md-gutter="8">
-            <md-layout md-column>
-              <h3 class="nyalotha md-chip" v-html="$t('Top [-category-] WeakAuras', {category: $t(spotlights[0].text)})"></h3>
-              <template v-for="(item, index) in spotlight.nyalotha">
-                <router-link :to="'/' + item._id" :key="index" class="hotspot">
-                  <img :src="item.thumb" :alt="item.name">
-                  <div :alt="item.name">
-                    <span class="title">{{ item.name }}</span>
-                    <span class="author">
-                      <md-avatar>
-                        <ui-image :img="item.user.avatar"></ui-image>
-                      </md-avatar>
-                      <span :class="item.user.class">{{ item.user.name }}</span>
-                    </span>
-                  </div>
-                </router-link>
-              </template>
-              <router-link to="/bfa-weakauras/pve/nyalotha" class="spotlight-more nyalotha" v-html="$t('View more [-category-] WeakAuras', {category: $t(spotlights[0].text)})"></router-link>
-            </md-layout>
-            <md-layout md-column>
-              <h3 class="affixWeek md-chip" v-html="$t('Top Week [-num-] MDT Routes', {num: mdtWeek.num})"></h3>
-              <template v-for="(item, index) in spotlight['mdt' + mdtWeek.num]">
-                <router-link :to="'/' + item._id" :key="index" class="hotspot">
-                  <img :src="item.thumb" :alt="item.name">
-                  <div :alt="item.name">
-                    <span class="title">{{ item.name }}</span>
-                    <span class="author">
-                      <md-avatar>
-                        <ui-image :img="item.user.avatar"></ui-image>
-                      </md-avatar>
-                      <span :class="item.user.class">{{ item.user.name }}</span>
-                    </span>
-                  </div>
-                </router-link>
-              </template>
-              <router-link :to="'/mdt/affixes/week' + mdtWeek.num" class="spotlight-more affixWeek" v-html="$t('View more Week [-num-] MDT Routes', {num: mdtWeek.num})"></router-link>
-            </md-layout>
-            <md-layout md-column>
-              <h3 class="aq40 md-chip" v-html="$t('Top [-category-] WeakAuras', {category: $t(spotlights[2].text)})"></h3>
-              <template v-for="(item, index) in spotlight.aq40">
-                <router-link :to="'/' + item._id" :key="index" class="hotspot">
-                  <img :src="item.thumb" :alt="item.name">
-                  <div :alt="item.name">
-                    <span class="title">{{ item.name }}</span>
-                    <span class="author">
-                      <md-avatar>
-                        <ui-image :img="item.user.avatar"></ui-image>
-                      </md-avatar>
-                      <span :class="item.user.class">{{ item.user.name }}</span>
-                    </span>
-                  </div>
-                </router-link>
-              </template>
-              <router-link to="/classic-weakauras/pve/aq40" class="spotlight-more aq40" v-html="$t('View more [-category-] WeakAuras', {category: $t(spotlights[2].text)})"></router-link>
-            </md-layout>
+          <md-layout md-row>
+            <router-link to="/weakauras/pve/nyalotha">
+              <md-layout md-column>
+                <md-ink-ripple />
+                <div>
+                  <md-layout md-row>
+                    <category-image group="nyalotha"></category-image>
+                    <div>
+                      <strong>WeakAuras</strong><br>
+                      <span class="nyalotha">{{ $t("warcraft:zones.nyalotha") }}</span>
+                    </div>
+                  </md-layout>
+                </div>
+              </md-layout>
+            </router-link>
+            
+            <router-link :to="'/mdt/affixes/week' + mdtWeek.num">
+              <md-layout md-column>
+                <md-ink-ripple />
+                <div>
+                  <md-layout md-row>
+                    <category-image group="t-mdt"></category-image>
+                    <div>
+                      <strong>{{ $t('Season [-season-] MDT, Week [-week-]', {season: 4, week: mdtWeek.num}) }}</strong><br>
+                      <span class="affixWeek">{{ mdtWeek.affixes }}</span>
+                    </div>
+                  </md-layout>
+                </div>
+              </md-layout>
+            </router-link>
+            
+            <router-link to="/classic-weakauras/pve/blackwing-lair">
+              <md-layout md-column>
+                <md-ink-ripple />
+                <div>
+                  <md-layout md-row>
+                    <category-image group="blackwinglair"></category-image>
+                    <div>
+                      <strong>Classic WeakAuras</strong><br>
+                      <span class="blackwinglair">{{ $t("warcraft:zones.2677") }}</span>
+                    </div>
+                  </md-layout>
+                </div>
+              </md-layout>
+            </router-link>
           </md-layout>
-        </div>
+        </md-whiteframe>
 
         <div v-if="latestBlogs && latestBlogs.length > 0" id="sitenews">
           <wago-news :posts="latestBlogs"></wago-news>
         </div>
       </md-layout>
 
-      <md-layout id="col2" :md-column-medium="true" md-vertical-align="start" v-if="!isTest">        
+      <md-layout id="col2" :md-column-medium="true" md-vertical-align="start">        
         <md-whiteframe id="topwagos" v-if="topLists && topLists[topID]">
           <md-layout>
             <md-layout>
@@ -346,7 +336,6 @@
 .field-group2 .md-input-container, .field-group2 strong { display: inline-block; max-width: 49%;}
 #signinanon { padding-left: 32px;  margin-top: -8px; }
 
-
 @media (min-width: 1281px) {
   #col1, #col2 { padding: 16px }
   #col1 { width: 100%; }
@@ -416,41 +405,6 @@
 #addonReleases span { color: #999999}
 
 span.md-note {height: 20px; position: absolute; bottom: -22px; font-size: 12px;}
-
-h3.spotlight-tab {margin:16px 0 8px 0; font-size: 16px; padding-left: 28px; display: inline-block; width: auto; border: 1px solid #333; border-radius: 4px 4px 0 0; cursor: pointer}
-h3.spotlight-tab:hover, h3.spotlight-tab.selected {background-color: #333;}
-.spotlights > h3 {margin: 16px 0 0}
-.spotlights > .md-row {justify-content: space-between;}
-.spotlights > .md-row > div {display: flex; width: 100%}
-.spotlights .md-card .md-card-content a:not(.md-button) {display: block; color: inherit!important}
-.spotlights .md-card .md-card-content a:not(.md-button):hover {text-decoration: none}
-.spotlights .md-card {padding: 2px; margin: 0 0 8px; max-width: 33%;}
-.spotlights .md-card .md-card-content {padding: 8px}
-
-.spotlights2 > h3 {margin: 16px 0 0; min-width: 100%;}
-.spotlights2 {min-width: 100%; display: flex; flex-direction: row}
-.spotlights2 a.hotspot {display: flex; flex-direction:row; border: 1px solid #333; background: #333; margin: 0 2px 2px 0; width: calc(33% - 4px)}
-.spotlights2 a.hotspot:hover {border: 1px solid #444; background: #444}
-.spotlights2 a.hotspot img {height: 84px}
-.spotlights2 a.hotspot div {width: 100%; height: 84px; position: relative;}
-.spotlights2 a.hotspot div .title {position: absolute; top:4px; left: 4px; font-weight: bold; color: white}
-
-.spotlights3 {min-width: 100%; display: flex; flex-direction: column}
-.spotlights3 .md-chip {padding-left: 28px; font-size: 14px}
-.spotlights3 a.hotspot {display: flex; flex-direction:row; border: 1px solid #333; background: #333; margin: 0 2px 2px 0;}
-.spotlights3 a.hotspot:hover {border: 1px solid #444; background: #444}
-.spotlights3 a.hotspot > img {height: 84px; width: 161px}
-.spotlights3 a.hotspot > div {width: 100%; height: 84px; position: relative;}
-.spotlights3 a.hotspot div .title {position: absolute; top:4px; left: 4px; font-weight: bold; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 97%}
-.spotlights3 a.hotspot div .author {display: flex; align-items: center; position: absolute; bottom:4px; left: 4px; font-weight: bold; font-size:90%; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 97%}
-.spotlights3 a.hotspot div .author .md-avatar {width: 24px; min-width: 24px; height: 24px; min-height: 24px}
-.spotlights3 a.hotspot div .author span {display: block; margin-left: 8px}
-.spotlights3 .spotlight-more { padding: 12px; border: 1px solid #333; background: #333; margin: 0 2px 2px 0;}
-.spotlights3 .spotlight-more:hover { text-decoration: none!important; background: #444}
-
-@media (max-width: 560px) {
-  .spotlights .md-card {max-width: 100%}
-}
 </style>
 
 <script>
@@ -487,7 +441,6 @@ export default {
       disableSubmit: true,
       top10Lists: {},
       topLists: [],
-      spotlight: {},
       topID: 0,
       topID2: 0,
       latestBlogs: [],
@@ -497,8 +450,7 @@ export default {
       restrictions: [{type: 'user', value: ''}],
       newRestrictionType: 'user',
       newRestrictionValue: '',
-      cipherKey: '',
-      currentContentSpotlight: 'nyalotha'
+      cipherKey: ''
     }
   },
   components: {
@@ -508,13 +460,6 @@ export default {
     'category-image': CategoryImage
   },
   computed: {
-    spotlights () {
-      return [
-        Categories.getCategory('raidnyalotha')[0],
-        Categories.getCategory('mdtaffix-bfa-s4-w' + this.mdtWeek.num)[0],
-        Categories.getCategory('raidtempleaq')[0]
-      ]
-    },
     user () {
       return this.$store.state.user
     },
@@ -522,9 +467,6 @@ export default {
       var weeks = Categories.getCategories([/^mdtaffix-bfa-s4-/], this.$t, true)
       if (!this.$store.state.MDTWeek || !weeks[this.$store.state.MDTWeek - 1]) return {}
       return {num: this.$store.state.MDTWeek, affixes: weeks[this.$store.state.MDTWeek - 1].text}
-    },
-    isTest () {
-      return this.$env === 'development' || document.getElementById('test-content')
     }
   },
   mounted: function () {
@@ -552,7 +494,6 @@ export default {
         }
         vue.topLists = JSON.parse(JSON.stringify(res.topLists))
       }
-      vue.spotlight = res.spotlight
       if (res.news) {
         vue.latestBlogs = JSON.parse(JSON.stringify(res.news))
       }

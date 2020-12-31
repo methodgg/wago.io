@@ -445,7 +445,7 @@ module.exports = function (fastify, opts, next) {
       if (req.user.twitch && req.user.twitch.id) {
         esShould.push({term: {restrictedTwitchUsers: {value: req.user.twitch.id, boost: 5} } })
       }
-      esShould.push({bool: {filter: [{term: {private: {value: false, boost: 0}}}, {term: {blocked: {value: false, boost: 0}}}, {term: {encrypted: {value: false, boost: 0}}}, {term: {hidden: {value: false, boost: 0}}}, {term: {restricted: {value: false, boost: 0}}}]}})
+      esShould.push({bool: {filter: [{term: {private: {value: false, boost: 0}}}, {term: {encrypted: {value: false, boost: 0}}}, {term: {hidden: {value: false, boost: 0}}}, {term: {restricted: {value: false, boost: 0}}}]}})
     }
     else if (req.user) {
       esShould.push({term: { _userId: { value: req.user._id, boost: 0 } } })
@@ -460,18 +460,16 @@ module.exports = function (fastify, opts, next) {
       if (req.user.twitch && req.user.twitch.id) {
         esShould.push({ term: { restrictedTwitchUsers: { value: req.user.twitch.id, boost: 5 } } })
       }
-      esShould.push({bool: {filter: [{ term: { private: { value: false, boost: 0 } } }, {term: {blocked: {value: false, boost: 0}}}, {term: {encrypted: {value: false, boost: 0}}}, { term: { restricted: { value: false, boost: 0 } } }] } })
+      esShould.push({bool: {filter: [{ term: { private: { value: false, boost: 0 } } }, {term: {encrypted: {value: false, boost: 0}}}, { term: { restricted: { value: false, boost: 0 } } }] } })
     }
     else if (!searchSettings.showHidden) {
       esFilter.push({term: { private: false } })
-      esFilter.push({term: { blocked: false } })
       esFilter.push({term: { hidden: false } })
       esFilter.push({term: { encrypted: false } })
       esFilter.push({term: { restricted: false } })
     }
     else {
       esFilter.push({term: { private: false } })
-      esFilter.push({term: { blocked: false } })
       esFilter.push({term: { encrypted: false } })
       esFilter.push({term: { restricted: false } })
     }

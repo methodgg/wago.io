@@ -220,9 +220,7 @@ module.exports = {
         char = new WoWChar({bnetID: summary.id, region, realm, realmSlug: summary.realm.slug, name})
       }
       else if (!char.bnetID !== summary.id) {
-        if (summary.id) {
-          await WoWChar.findOneAndDelete({bnetID: summary.id})
-        }
+        await WoWChar.findOneAndDelete({bnetID: summary.id})
         char = new WoWChar({bnetID: summary.id, region, realm, realmSlug: summary.realm.slug, name})
       }
 
@@ -288,6 +286,7 @@ module.exports = {
   },
 
   lookupCharacterStatus: async (region, realm, name) => {
+    console.log(region, realm, name)
     if (!realm) {
       return {}
     }

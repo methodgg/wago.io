@@ -364,13 +364,13 @@ module.exports = {
     luaCode = luaCode + "\n--wago insert:Locales/enUS.lua\n" + lang
 
     // load in some tables from core file
-    var core = await fs.readFile(directory+'/DungeonTools.lua', 'utf8')
+    var core = await fs.readFile(directory+'/MythicDungeonTools.lua', 'utf8')
     core = core.replace(/local AddonName, MDT = \.\.\./, 'local AddonName, MDT = "MDT", {}')
     core = core.replace(/local affixWeeks =/g, 'MDT.affixWeeks =')
     core = core.replace(/local dungeonList =/, 'MDT.dungeonList =')
     core = core.replace(/local dungeonSubLevels =/, 'MDT.dungeonSubLevels =')
     core = core.replace(/local L = MDT\.L/, '')
-    luaCode = luaCode + "\n--wago insert:DungeonTools.lua\n" + core
+    luaCode = luaCode + "\n--wago insert:MythicDungeonTools.lua\n" + core
 
     // load in some tables from dungeonEnemies file
     var enemies = await fs.readFile(directory+'/DungeonEnemies.lua', 'utf8')

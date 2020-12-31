@@ -151,15 +151,20 @@
                 :config="{
                   x: enemies[hoverSpecific.creatureIndex].clones[hoverSpecific.cloneIndex].x * mdtScale,
                   y: enemies[hoverSpecific.creatureIndex].clones[hoverSpecific.cloneIndex].y * -mdtScale,
-                  radius: Math.round(5 * enemies[hoverSpecific.creatureIndex].scale * (enemies[hoverSpecific.creatureIndex].isBoss ? 1.7 : 1) * (mdtDungeonTable.scaleMultiplier || 1)) / mdtScale,
+                  radius: Math.round(7 * enemies[hoverSpecific.creatureIndex].scale * (enemies[hoverSpecific.creatureIndex].isBoss ? 1.7 : 1) * (mdtDungeonTable.scaleMultiplier || 1)) / mdtScale,
                   stroke: isInspiring(enemies[hoverSpecific.creatureIndex].clones[hoverSpecific.cloneIndex]) ? '#30d9ff' : (enemies[hoverSpecific.creatureIndex].isBoss ? 'gold' : 'black'),
-                  strokeWidth: 1,
+                  strokeWidth: 3,
                   strokeEnabled: true,
+                  fillPatternX: (-Math.round(7 * enemies[hoverSpecific.creatureIndex].scale * (enemies[hoverSpecific.creatureIndex].isBoss ? 1.7 : 1) * (mdtDungeonTable.scaleMultiplier || 1))) / mdtScale,
+                  fillPatternY: (-Math.round(7 * enemies[hoverSpecific.creatureIndex].scale * (enemies[hoverSpecific.creatureIndex].isBoss ? 1.7 : 1) * (mdtDungeonTable.scaleMultiplier || 1))) / mdtScale,
+                  fillPatternImage: enemyPortraits,
+                  fillPatternOffset: getEnemyPortraitOffset(hoverSpecific.creatureIndex, 115),
+                  fillPatternRepeat: 'no-repeat',
+                  fillPatternScaleX: Math.round(7 * enemies[hoverSpecific.creatureIndex].scale * (enemies[hoverSpecific.creatureIndex].isBoss ? 1.7 : 1) * (mdtDungeonTable.scaleMultiplier || 1)) / 64,
+                  fillPatternScaleY: Math.round(7 * enemies[hoverSpecific.creatureIndex].scale * (enemies[hoverSpecific.creatureIndex].isBoss ? 1.7 : 1) * (mdtDungeonTable.scaleMultiplier || 1)) / 64,
                   listening: false
                 }"
-              >
-
-              </v-circle>
+              />
               <template v-for="(obj, id) in tableData.objects">
                 <!-- note -->
                 <mdt-poi v-if="obj && obj.n && obj.d && obj.d[2] === subMapID + 1" :data="obj" :annotationsIndex="id" :mdtScale="mdtScale" :mapID="mapID" @mouseover="setPOITooltip(obj); setSelectedMoveAnnotation(id)" @mouseout="setPOITooltip(null); setSelectedMoveAnnotation(null)" @mousemove="moveTooltip" @click="clickPOI(obj, id)" />
