@@ -22,22 +22,6 @@ module.exports = {
       }
       var key = `${code[i].id}: ${code[i].name}`
       code[i].lua = code[i].lua.replace(/-- luacheck:/g, `--`) // don't ignore potential malicous hidings
-      
-      // detect defined functions and ensure they get called
-      const fnRegex = /([a-zA-Z0-9.:_]+)\s*=\s*function\s*\(|function\s*([a-zA-Z0-9.:_]+)/g
-      let fn
-      while ((fn = fnRegex.exec(code[i].lua)) !== null) {
-        // This is necessary to avoid infinite loops with zero-width matches
-        if (fn.index === fnRegex.lastIndex) {
-          fnRegex.lastIndex++
-        }
-        if (fn[1]) {
-          code[i].lua += `\n${fn[1]}()`
-        }
-        else if (fn[2]) {
-          code[i].lua += `\n${fn[2]}()`
-        }
-      }
 
       if (code[i].lua.match(/^\s*function\s*\(/m)) {
         code[i].lua = code[i].lua.replace(/^\s*function\s*\(/m, `local fn_${key.replace(/[^a-zA-Z0-9]/g, '')} = function(`) // name anonymous function
