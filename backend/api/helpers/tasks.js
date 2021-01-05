@@ -193,7 +193,7 @@ async function DiscordMessage (data) {
     const author = await User.findById(data.author)
     const wago = await WagoItem.lookup(data.wago)
     if (data.type === 'comment') {
-      const sendTo = await User.findOne({_id: data.to, "discord.options.messageOnFaveUpdate": true}).select('discord').exec()
+      const sendTo = await User.findOne({_id: data.to, "discord.options.messageOnComment": true}).select('discord').exec()
       if (sendTo && !author._id.equals(sendTo._id)) {
         discordBot.postComment(author, sendTo, wago, data.message)
       }
