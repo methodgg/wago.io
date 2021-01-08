@@ -1,16 +1,13 @@
 --[[
 Copyright (c) 2020 Ross Nichols
-
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
 to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 copies of the Software, and to permit persons to whom the Software is
 furnished to do so, subject to the following conditions:
-
 The above copyright notice and this permission notice shall be included in all
 copies or substantial portions of the Software.
-
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -18,10 +15,8 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
 Credits:
 The following projects served as inspiration for aspects of this project:
-
 1. LibDeflate, by Haoqian He. https://github.com/SafeteeWoW/LibDeflate
     For the CreateReader/CreateWriter functions.
 2. lua-MessagePack, by François Perrad. https://framagit.org/fperrad/lua-MessagePack
@@ -35,34 +30,26 @@ The following projects served as inspiration for aspects of this project:
 
 --[[
 # LibSerialize
-
 LibSerialize is a Lua library for efficiently serializing/deserializing arbitrary values.
 It supports serializing nils, numbers, booleans, strings, and tables containing these types.
-
 It is best paired with [LibDeflate](https://github.com/safeteeWow/LibDeflate), to compress
 the serialized output and optionally encode it for World of Warcraft addon or chat channels.
 IMPORTANT: if you decide not to compress the output and plan on transmitting over an addon
 channel, it still needs to be encoded, but encoding via `LibDeflate:EncodeForWoWAddonChannel()`
 or `LibCompress:GetAddonEncodeTable()` will likely inflate the size of the serialization
 by a considerable amount. See the usage below for an alternative.
-
 Note that serialization and compression are sensitive to the specifics of your data set.
 You should experiment with the available libraries (LibSerialize, AceSerializer, LibDeflate,
 LibCompress, etc.) to determine which combination works best for you.
-
-
 ## Usage:
-
 ```lua
 -- Dependencies: AceAddon-3.0, AceComm-3.0, LibSerialize, LibDeflate
 MyAddon = LibStub("AceAddon-3.0"):NewAddon("MyAddon", "AceComm-3.0")
 local LibSerialize = LibStub("LibSerialize")
 local LibDeflate = LibStub("LibDeflate")
-
 function MyAddon:OnEnable()
     self:RegisterComm("MyPrefix")
 end
-
 -- With compression (recommended):
 function MyAddon:Transmit(data)
     local serialized = LibSerialize:Serialize(data)
@@ -70,7 +57,6 @@ function MyAddon:Transmit(data)
     local encoded = LibDeflate:EncodeForWoWAddonChannel(compressed)
     self:SendCommMessage("MyPrefix", encoded, "WHISPER", UnitName("player"))
 end
-
 function MyAddon:OnCommReceived(prefix, payload, distribution, sender)
     local decoded = LibDeflate:DecodeForWoWAddonChannel(payload)
     if not decoded then return end
@@ -78,10 +64,8 @@ function MyAddon:OnCommReceived(prefix, payload, distribution, sender)
     if not decompressed then return end
     local success, data = LibSerialize:Deserialize(decompressed)
     if not success then return end
-
     -- Handle `data`
 end
-
 -- Without compression (custom codec):
 MyAddon._codec = LibDeflate:CreateCodec("\000", "\255", "")
 function MyAddon:Transmit(data)
@@ -94,77 +78,53 @@ function MyAddon:OnCommReceived(prefix, payload, distribution, sender)
     if not decoded then return end
     local success, data = LibSerialize:Deserialize(decoded)
     if not success then return end
-
     -- Handle `data`
 end
 ```
-
-
 ## API:
 * **`LibSerialize:SerializeEx(opts, ...)`**
-
     Arguments:
     * `opts`: options (see below)
     * `...`: a variable number of serializable values
-
     Returns:
     * result: `...` serialized as a string
-
 * **`LibSerialize:Serialize(...)`**
-
     Arguments:
     * `...`: a variable number of serializable values
-
     Returns:
     * `result`: `...` serialized as a string
-
     Calls `SerializeEx(opts, ...)` with the default options (see below)
-
 * **`LibSerialize:Deserialize(input)`**
-
     Arguments:
     * `input`: a string previously returned from `LibSerialize:Serialize()`
-
     Returns:
     * `success`: a boolean indicating if deserialization was successful
     * `...`: the deserialized value(s), or a string containing the encountered Lua error
-
 * **`LibSerialize:DeserializeValue(input)`**
-
     Arguments:
     * `input`: a string previously returned from `LibSerialize:Serialize()`
-
     Returns:
     * `...`: the deserialized value(s)
-
 * **`LibSerialize:IsSerializableType(...)`**
-
     Arguments:
     * `...`: a variable number of values
-
     Returns:
     * `result`: true if all of the values' types are serializable.
-
     Note that if you pass a table, it will be considered serializable
     even if it contains unserializable keys or values. Only the types
     of the arguments are checked.
-
 `Serialize()` will raise a Lua error if the input cannot be serialized.
 This will occur if any of the following exceed 16777215: any string length,
 any table key count, number of unique strings, number of unique tables.
 It will also occur by default if any unserializable types are encountered,
 though that behavior may be disabled (see options).
-
 `Deserialize()` and `DeserializeValue()` are equivalent, except the latter
 returns the deserialization result directly and will not catch any Lua
 errors that may occur when deserializing invalid input.
-
 Note that none of the serialization/deseriazation methods support reentrancy,
 and modifying tables during the serialization process is unspecified and
 should be avoided. Table serialization is multi-phased and assumes a consistent
 state for the key/value pairs across the phases.
-
-
 ## Options:
 The following serialization options are supported:
 * `errorOnUnserializableType`: `boolean` (default true)
@@ -172,18 +132,20 @@ The following serialization options are supported:
   * `false`: unserializable types will be ignored. If it's a table key or value,
      the key/value pair will be skipped. If it's one of the arguments to the
      call to SerializeEx(), it will be replaced with `nil`.
+* `stable`: `boolean` (default false)
+  * `true`: the resulting string will be stable, even if the input includes
+     maps. This option comes with an extra memory usage and CPU time cost.
+  * `false`: the resulting string will be unstable and will potentially differ
+     between invocations if the input includes maps
 * `filter`: `function(t, k, v) => boolean` (default nil)
   * If specified, the function will be called on every key/value pair in every
     table encountered during serialization. The function must return true for
     the pair to be serialized. It may be called multiple times on a table for
     the same key/value pair. See notes on reeentrancy and table modification.
-
 If an option is unspecified in the table, then its default will be used.
 This means that if an option `foo` defaults to true, then:
 * `myOpts.foo = false`: option `foo` is false
 * `myOpts.foo = nil`: option `foo` is true
-
-
 ## Customizing table serialization:
 For any serialized table, LibSerialize will check for the presence of a
 metatable key `__LibSerialize`. It will be interpreted as a table with
@@ -194,8 +156,6 @@ the following possible keys:
     be called multiple times on a table for the same key/value pair. See notes
     on reeentrancy and table modification. If combined with the `filter` option,
     both functions must return true.
-
-
 ## Examples:
 1. `LibSerialize:Serialize()` supports variadic arguments and arbitrary key types,
    maintaining a consistent internal table identity.
@@ -209,7 +169,6 @@ the following possible keys:
     assert(tab[ tab[false] ] == "hello")
     assert(str == "extra")
     ```
-
 2. Normally, unserializable types raise an error when encountered during serialization,
    but that behavior can be disabled in order to silently ignore them instead.
     ```lua
@@ -222,7 +181,6 @@ the following possible keys:
     assert(tab.a == 1)
     assert(tab.b == nil)
     ```
-
 3. Tables may reference themselves recursively and will still be serialized properly.
     ```lua
     local t = { a = 1 }
@@ -234,7 +192,6 @@ the following possible keys:
     assert(tab.t.t.t.t.t.t.a == 1)
     assert(tab[tab.t] == "test")
     ```
-
 4. You may specify a global filter that applies to all tables encountered during
    serialization, and to individual tables via their metatable.
     ```lua
@@ -257,23 +214,18 @@ the following possible keys:
     assert(tab.nested.b == nil)
     assert(tab.nested.c == nil)
     ```
-
-
 ## Encoding format:
 Every object is encoded as a type byte followed by type-dependent payload.
-
 For numbers, the payload is the number itself, using a number of bytes
 appropriate for the number. Small numbers can be embedded directly into
 the type byte, optionally with an additional byte following for more
 possible values. Negative numbers are encoded as their absolute value,
 with the type byte indicating that it is negative. Floats are decomposed
 into their eight bytes, unless serializing as a string is shorter.
-
 For strings and tables, the length/count is also encoded so that the
 payload doesn't need a special terminator. Small counts can be embedded
 directly into the type byte, whereas larger counts are encoded directly
 following the type byte, before the payload.
-
 Strings are stored directly, with no transformations. Tables are stored
 in one of three ways, depending on their layout:
 * Array-like: all keys are numbers starting from 1 and increasing by 1.
@@ -284,16 +236,12 @@ in one of three ways, depending on their layout:
     The table is encoded first with the values of the array-like keys,
     followed by key-value pairs for the map-like keys. For this version,
     two counts are encoded, one each for the two different portions.
-
 Strings and tables are also tracked as they are encountered, to detect reuse.
 If a string or table is reused, it is encoded instead as an index into the
 tracking table for that type. Strings must be >2 bytes in length to be tracked.
 Tables may reference themselves recursively.
-
-
 #### Type byte:
 The type byte uses the following formats to implement the above:
-
 * `NNNN NNN1`: a 7 bit non-negative int
 * `CCCC TT10`: a 2 bit type index and 4 bit count (strlen, #tab, etc.)
     * Followed by the type-dependent payload
@@ -303,7 +251,7 @@ The type byte uses the following formats to implement the above:
     * Followed by the type-dependent payload, including count(s) if needed
 --]]
 
-local MAJOR, MINOR = "LibSerialize", 1
+local MAJOR, MINOR = "LibSerialize", 4
 local LibSerialize
 if LibStub then
     LibSerialize = LibStub:NewLibrary(MAJOR, MINOR)
@@ -311,6 +259,13 @@ if LibStub then
 else
     LibSerialize = {}
 end
+
+-- Rev the serialization version when making a breaking change.
+-- Make sure to handle older versions properly within LibSerialize:DeserializeValue.
+-- NOTE: these normally can be idential, but due to a bug when revving MINOR to 2,
+-- we need to support both 1 and 2 as v1 serialization versions.
+local SERIALIZATION_VERSION = 1
+local DESERIALIZATION_VERSION = 2
 
 local assert = assert
 local error = error
@@ -335,9 +290,11 @@ local string_char = string.char
 local string_sub = string.sub
 local table_concat = table.concat
 local table_insert = table.insert
+local table_sort = table.sort
 
 local defaultOptions = {
-    errorOnUnserializableType = true
+    errorOnUnserializableType = true,
+    stable = false
 }
 
 local canSerializeFnOptions = {
@@ -369,11 +326,66 @@ local function GetRequiredBytesNumber(value)
     return 7
 end
 
+-- Returns whether the value (a number) is NaN.
+local function IsNaN(value)
+    -- With floating point optimizations enabled all comparisons involving
+    -- NaNs will return true. Without them, these will both return false.
+    return (value < 0) == (value >= 0)
+end
+
+-- Returns whether the value (a number) is finite, as opposed to being a
+-- NaN or infinity.
+local function IsFinite(value)
+    return value > -math_huge and value < math_huge and not IsNaN(value)
+end
+
 -- Returns whether the value (a number) is fractional,
 -- as opposed to a whole number.
 local function IsFractional(value)
     local _, fract = math_modf(value)
     return fract ~= 0
+end
+
+-- Returns whether the value (a number) needs to be represented as a floating
+-- point number due to either being fractional or non-finite.
+local function IsFloatingPoint(value)
+    return IsFractional(value) or not IsFinite(value)
+end
+
+-- Returns true if the given table key is an integer that can reside in the
+-- array section of a table (keys 1 through arrayCount).
+local function IsArrayKey(k, arrayCount)
+    return type(k) == "number" and k >= 1 and k <= arrayCount and not IsFloatingPoint(k)
+end
+
+-- Sort compare function which is used to sort table keys to ensure that the
+-- serialization of maps is stable. We arbitrarily put strings first, then
+-- numbers, and finally booleans.
+local function StableKeySort(a, b)
+    local aType = type(a)
+    local bType = type(b)
+    -- Put strings first
+    if aType == "string" and bType == "string" then
+        return a < b
+    elseif aType == "string" then
+        return true
+    elseif bType == "string" then
+        return false
+    end
+    -- Put numbers next
+    if aType == "number" and bType == "number" then
+        return a < b
+    elseif aType == "number" then
+        return true
+    elseif bType == "number" then
+        return false
+    end
+    -- Put booleans last
+    if aType == "boolean" and bType == "boolean" then
+        return (a and 1 or 0) < (b and 1 or 0)
+    else
+        error(("Unhandled sort type(s): %s, %s"):format(aType, bType))
+    end
 end
 
 -- Prints args to the chat window. To enable debug statements,
@@ -419,7 +431,6 @@ end
 -- 1. ReadBytes(bytelen)
 -- 2. ReaderBytesLeft()
 local function CreateReader(input)
-    local input = input
     local inputLen = #input
     local nextPos = 1
 
@@ -445,15 +456,19 @@ end
 --]]---------------------------------------------------------------------------
 
 local function FloatToString(n)
+    if IsNaN(n) then -- nan
+        return string_char(0xFF, 0xF8, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00)
+    end
+
     local sign = 0
     if n < 0.0 then
         sign = 0x80
         n = -n
     end
     local mant, expo = frexp(n)
-    if mant ~= mant then -- nan
-        return string_char(0xFF, 0xF8, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00)
-    elseif mant == math_huge or expo > 0x400 then
+
+    -- If n is infinity, mant will be infinity inside WoW, but NaN elsewhere.
+    if (mant == math_huge or IsNaN(mant)) or expo > 0x400 then
         if sign == 0 then -- inf
             return string_char(0x7F, 0xF0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00)
         else -- -inf
@@ -628,7 +643,7 @@ function LibSerialize:_ReadTable(entryCount, value)
         self:_AddReference(tableRefs, value)
     end
 
-    for i = 1, entryCount do
+    for _ = 1, entryCount do
         local k, v = self:_ReadPair(self._ReadObject)
         value[k] = v
     end
@@ -911,10 +926,14 @@ LibSerialize._WriterTable = {
         self:_WriteByte(readerIndexShift * self._ReaderIndex.NIL)
     end,
     ["number"] = function(self, num)
-        if IsFractional(num) then
+        if IsFloatingPoint(num) then
             -- DebugPrint("Serializing float:", num)
             -- Normally a float takes 8 bytes. See if it's cheaper to encode as a string.
             -- If we encode as a string, though, we'll need a byte for its length.
+            --
+            -- Note that we only string encode finite values due to potential differences
+            -- in encode/decode behaviour with such representations in some
+            -- environments.
             local sign = 0
             local numAbs = num
             if num < 0 then
@@ -922,7 +941,7 @@ LibSerialize._WriterTable = {
                 numAbs = -num
             end
             local asString = tostring(numAbs)
-            if #asString < 7 and tonumber(asString) == numAbs then
+            if #asString < 7 and tonumber(asString) == numAbs and IsFinite(numAbs) then
                 self:_WriteByte(sign + readerIndexShift * self._ReaderIndex.NUM_FLOATSTR_POS)
                 self:_WriteByte(#asString, 1)
                 self._writeString(asString)
@@ -1046,8 +1065,7 @@ LibSerialize._WriterTable = {
             local mapCount = 0
             local entireMapSerializable = true
             for k, v in pairs(tab) do
-                local isArrayKey = type(k) == "number" and k >= 1 and k <= arrayCount and not IsFractional(k)
-                if not isArrayKey then
+                if not IsArrayKey(k, arrayCount) then
                     if self:_ShouldSerialize(tab, k, v, opts, filter) then
                         mapCount = mapCount + 1
                     else
@@ -1112,13 +1130,30 @@ LibSerialize._WriterTable = {
                 end
 
                 local mapCountWritten = 0
-                for k, v in pairs(tab) do
-                    -- Exclude keys that have already been written via the previous loop.
-                    local isArrayKey = type(k) == "number" and k >= 1 and k <= arrayCount and not IsFractional(k)
-                    if not isArrayKey and (entireMapSerializable or self:_ShouldSerialize(tab, k, v, opts, filter)) then
+                if opts.stable then
+                    -- In order to ensure that the output is stable, we sort the map keys and write
+                    -- them in the sorted order.
+                    local mapKeys = {}
+                    for k, v in pairs(tab) do
+                        -- Exclude keys that have already been written via the previous loop.
+                        if not IsArrayKey(k, arrayCount) and (entireMapSerializable or self:_ShouldSerialize(tab, k, v, opts, filter)) then
+                            table_insert(mapKeys, k)
+                        end
+                    end
+                    table_sort(mapKeys, StableKeySort)
+                    for _, k in ipairs(mapKeys) do
                         self:_WriteObject(k, opts)
-                        self:_WriteObject(v, opts)
+                        self:_WriteObject(tab[k], opts)
                         mapCountWritten = mapCountWritten + 1
+                    end
+                else
+                    for k, v in pairs(tab) do
+                        -- Exclude keys that have already been written via the previous loop.
+                        if not IsArrayKey(k, arrayCount) and (entireMapSerializable or self:_ShouldSerialize(tab, k, v, opts, filter)) then
+                            self:_WriteObject(k, opts)
+                            self:_WriteObject(v, opts)
+                            mapCountWritten = mapCountWritten + 1
+                        end
                     end
                 end
                 assert(mapCount == mapCountWritten)
@@ -1135,10 +1170,26 @@ LibSerialize._WriterTable = {
                     self:_WriteInt(mapCount, required)
                 end
 
-                for k, v in pairs(tab) do
-                    if entireMapSerializable or self:_ShouldSerialize(tab, k, v, opts, filter) then
+                if opts.stable then
+                    -- In order to ensure that the output is stable, we sort the map keys and write
+                    -- them in the sorted order.
+                    local mapKeys = {}
+                    for k, v in pairs(tab) do
+                        if entireMapSerializable or self:_ShouldSerialize(tab, k, v, opts, filter) then
+                            table_insert(mapKeys, k)
+                        end
+                    end
+                    table_sort(mapKeys, StableKeySort)
+                    for _, k in ipairs(mapKeys) do
                         self:_WriteObject(k, opts)
-                        self:_WriteObject(v, opts)
+                        self:_WriteObject(tab[k], opts)
+                    end
+                else
+                    for k, v in pairs(tab) do
+                        if entireMapSerializable or self:_ShouldSerialize(tab, k, v, opts, filter) then
+                            self:_WriteObject(k, opts)
+                            self:_WriteObject(v, opts)
+                        end
                     end
                 end
             end
@@ -1160,7 +1211,7 @@ function LibSerialize:SerializeEx(opts, ...)
     local WriteString, FlushWriter = CreateWriter()
 
     self._writeString = WriteString
-    self:_WriteByte(MINOR)
+    self:_WriteByte(SERIALIZATION_VERSION)
 
     -- Create a combined options table, starting with the defaults
     -- and then overwriting any user-supplied keys.
@@ -1199,7 +1250,7 @@ function LibSerialize:DeserializeValue(input)
     -- Since there's only one compression version currently,
     -- no extra work needs to be done to decode the data.
     local version = self:_ReadByte()
-    assert(version == MINOR)
+    assert(version <= DESERIALIZATION_VERSION, "Unknown serialization version!")
 
     -- Since the objects we read may be nil, we need to explicitly
     -- track the number of results and assign by index so that we
