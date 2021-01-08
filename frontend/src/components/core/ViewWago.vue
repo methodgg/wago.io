@@ -1615,6 +1615,7 @@ export default {
             this.codeReview.stabilityChecks.push({id: 'longID', name: item.id, display: this.$t('\'[-name-]\' id length is needlessly long.', {name: item.id}) + '(0):' + this.$t('This is the name used in the WeakAura interface and may cause an overflow error and crash the game.'), func: 'tabledata'})
           }
         }
+        var detectedThrottles = {}
         for (let item of customCode) {
           if (typeof item !== 'object') {
             continue
@@ -1648,8 +1649,18 @@ export default {
             lua = lua.replace(/--.*?$/g, '').replace(/^[^]*?\)/m, '').trim()
             let result
             let ok
+            let trigger = item.name.match(/(\(\d+\))/)
+            console.log(trigger, item.id, detectedThrottles)
             if (lua.match(/(time|GetTime)\(\)/)) {
               result = this.$t('Timing or throttling code is detected.')
+              ok = 1
+              trigger = item.name.match(/^Trigger (\(\d+\))/)
+              if (trigger && trigger[1]) {
+                detectedThrottles[item.id + trigger[1]] = true
+              }
+            }
+            else if (trigger && trigger[1] && detectedThrottles[item.id + trigger[1]]) {
+              result = this.$t('Timing or throttling code is detected in trigger.')
               ok = 1
             }
             else {
