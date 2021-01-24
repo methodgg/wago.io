@@ -108,7 +108,7 @@ module.exports = function (fastify, opts, next) {
 
     // if decoded data looks like a valid WEAKAURA
     if ((test.WEAKAURA || test['CLASSIC-WEAKAURA']) && decoded && decoded.obj.d && decoded.obj.d.id) {
-      scan.type = 'WEAKAURAS2'
+      scan.type = 'WEAKAURA'
 
       // check for classic import
       if (decoded.obj.d.tocversion) {
@@ -404,7 +404,7 @@ module.exports = function (fastify, opts, next) {
 
     var wago = new WagoItem({type: scan.type})
     // detect description
-    if (wago.type === 'WEAKAURAS2' && json.d.desc) {
+    if (wago.type === 'WEAKAURA' && json.d.desc) {
       wago.description = json.d.desc
       wago.regionType = json.d.regionType
     }
@@ -698,7 +698,7 @@ module.exports = function (fastify, opts, next) {
     if (versionString !== '1.0.' + (wago.latestVersion.iteration - 1) && versionString !== '0.0.' + wago.latestVersion.iteration) {
       versionString = versionString + '-' + wago.latestVersion.iteration
     }
-    if (scan.type === 'WEAKAURAS2' || wago.type === 'CLASSIC-WEAKAURA') {
+    if (scan.type === 'WEAKAURA' || wago.type === 'CLASSIC-WEAKAURA') {
       var json = JSON.parse(scan.decoded)
       req.scanWA = scan
 
@@ -853,7 +853,7 @@ module.exports = function (fastify, opts, next) {
         code.encoded = await lua.JSON2OPie(json)
       break
 
-      case 'WEAKAURAS2':
+      case 'WEAKAURA':
       case 'CLASSIC-WEAKAURA':
 
         json.d.url = wago.url + '/' + wago.latestVersion.iteration
@@ -1019,9 +1019,7 @@ module.exports = function (fastify, opts, next) {
         encoded = await lua.JSON2VuhDo(json)
       break
 
-      case 'WEAKAURAS2':
       case 'WEAKAURA':
-        req.body.type = 'WEAKAURAS2'
       case 'CLASSIC-WEAKAURA':
         encoded = await lua.JSON2WeakAura(json)
       break

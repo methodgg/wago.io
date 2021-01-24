@@ -148,19 +148,19 @@ module.exports = function (fastify, opts, next) {
     // check for import type
     var game = 'wow'
     var matchType
-    match = /\btype:\s*"?(weakauras?2?|elvui|vuhdo|totalrp3?|collection|snippet|plater|mdt|opie|encounternotes|image|audio|error)"?/i.exec(query)
+    match = /\btype:\s*"?(weakauras?2?|elvui|vuhdo|totalrp3?|collection|snippet|plater|opie|encounternotes|image|audio|error)"?/i.exec(query)
     if (match) {
       query = query.replace(match[0], '').replace(/\s{2,}/, ' ').trim()
       match[1] = match[1].toUpperCase()
 
       if (match[1].match(/WEAKAURA/)) {
-        match[1] = 'WEAKAURAS2'
+        match[1] = 'WEAKAURA'
       }
       else if (match[1] === 'TOTALRP') {
         match[1] = 'TOTALRP3'
       }
 
-      if (expansion === 'classic' && match[1] === 'WEAKAURAS2') {
+      if (expansion === 'classic' && match[1] === 'WEAKAURA') {
         match[1] = 'CLASSIC-WEAKAURA'
       }
       matchType = match[1]

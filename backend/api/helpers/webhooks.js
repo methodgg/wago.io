@@ -7,7 +7,7 @@ module.exports = {
       if (wago.private || wago.restricted || wago.encrypted) {
         return
       }
-      if (wago.type === 'WEAKAURAS2') {
+      if (wago.type === 'WEAKAURA') {
         wago.type = 'WeakAura'
       }
       else if (wago.type === 'CLASSIC-WEAKAURA') {
@@ -39,7 +39,7 @@ module.exports = {
         return
       }
       let type = wago.type
-      if (type === 'WEAKAURAS2') {
+      if (type === 'WEAKAURA') {
         type = 'WeakAura'
       }
       else if (type === 'CLASSIC-WEAKAURA') {

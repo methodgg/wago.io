@@ -136,7 +136,7 @@ async function UpdateTopLists () {
   // favorites
   var imports = await WagoItem.find({deleted: false, hidden: false, private: false, restricted: false, encrypted: false}).sort("-popularity.favorite_count").select('_id name popularity.favorite_count').limit(15).exec()
   data.push({title: 'Favorites All Time', imports: imports.map(x => { return {count: x.popularity.favorite_count, display: '[-count-] star', name: x.name, slug: x.slug} }) })
-  imports = await WagoItem.find({type: 'WEAKAURAS2', deleted: false, hidden: false, private: false, restricted: false, encrypted: false}).sort("-popularity.favorite_count").select('_id name popularity.favorite_count').limit(15).exec()
+  imports = await WagoItem.find({type: 'WEAKAURA', deleted: false, hidden: false, private: false, restricted: false, encrypted: false}).sort("-popularity.favorite_count").select('_id name popularity.favorite_count').limit(15).exec()
   data.push({title: 'Favorite WeakAuras All Time', imports: imports.map(x => { return {count: x.popularity.favorite_count, display: '[-count-] star', name: x.name, slug: x.slug} }) })
   imports = await WagoItem.find({type: 'CLASSIC-WEAKAURA', deleted: false, hidden: false, private: false, restricted: false, encrypted: false}).sort("-popularity.favorite_count").select('_id name popularity.favorite_count').limit(15).exec()
   data.push({title: 'Favorite Classic WeakAuras All Time', imports: imports.map(x => { return {count: x.popularity.favorite_count, display: '[-count-] star', name: x.name, slug: x.slug} }) })
@@ -154,7 +154,7 @@ async function UpdateTopLists () {
   // popular
   imports = await WagoItem.find({deleted: false, hidden: false, private: false, restricted: false, encrypted: false}).sort("-popularity.viewsThisWeek").select('_id name popularity.viewsThisWeek').limit(15).exec()
   data.push({title: 'Popular This Week', imports: imports.map(x => { return {count: x.popularity.viewsThisWeek, display: '[-count-] view', name: x.name, slug: x.slug} }) })
-  imports = await WagoItem.find({type: 'WEAKAURAS2', deleted: false, hidden: false, private: false, restricted: false, encrypted: false}).sort("-popularity.viewsThisWeek").select('_id name popularity.viewsThisWeek').limit(15).exec()
+  imports = await WagoItem.find({type: 'WEAKAURA', deleted: false, hidden: false, private: false, restricted: false, encrypted: false}).sort("-popularity.viewsThisWeek").select('_id name popularity.viewsThisWeek').limit(15).exec()
   data.push({title: 'Popular WeakAuras This Week', imports: imports.map(x => { return {count: x.popularity.viewsThisWeek, display: '[-count-] view', name: x.name, slug: x.slug} }) })
   imports = await WagoItem.find({type: 'CLASSIC-WEAKAURA', deleted: false, hidden: false, private: false, restricted: false, encrypted: false}).sort("-popularity.viewsThisWeek").select('_id name popularity.viewsThisWeek').limit(15).exec()
   data.push({title: 'Popular Classic WeakAuras This Week', imports: imports.map(x => { return {count: x.popularity.viewsThisWeek, display: '[-count-] view', name: x.name, slug: x.slug} }) })
@@ -172,7 +172,7 @@ async function UpdateTopLists () {
   // installed
   imports = await WagoItem.find({deleted: false, hidden: false, private: false, restricted: false, encrypted: false}).sort("-popularity.installed_count").select('_id name popularity.installed_count').limit(15).exec()
   data.push({title: 'Installed', imports: imports.map(x => { return {count: x.popularity.installed_count, display: '[-count-] install', name: x.name, slug: x.slug} }) })
-  imports = await WagoItem.find({type: 'WEAKAURAS2', deleted: false, hidden: false, private: false, restricted: false, encrypted: false}).sort("-popularity.installed_count").select('_id name popularity.installed_count').limit(15).exec()
+  imports = await WagoItem.find({type: 'WEAKAURA', deleted: false, hidden: false, private: false, restricted: false, encrypted: false}).sort("-popularity.installed_count").select('_id name popularity.installed_count').limit(15).exec()
   data.push({title: 'Installed WeakAuras', imports: imports.map(x => { return {count: x.popularity.installed_count, display: '[-count-] install', name: x.name, slug: x.slug} }) })
   imports = await WagoItem.find({type: 'CLASSIC-WEAKAURA', deleted: false, hidden: false, private: false, restricted: false, encrypted: false}).sort("-popularity.installed_count").select('_id name popularity.installed_count').limit(15).exec()
   data.push({title: 'Installed Classic WeakAuras', imports: imports.map(x => { return {count: x.popularity.installed_count, display: '[-count-] install', name: x.name, slug: x.slug} }), lastOfSection: true })
@@ -503,7 +503,6 @@ async function ProcessCode(data) {
     break
 
     case 'WEAKAURA':
-    case 'WEAKAURAS2':
     case 'CLASSIC-WEAKAURA':
       var json = JSON.parse(code.json)
       json.wagoID = doc._id
@@ -1117,7 +1116,7 @@ function generateStats(res) {
             WagoCode.find({updated: {"$gte": dDate, "$lt": dDate.nextWeek()}}).then((wa) => {
               async.forEach(wa, (code, next) => {
                 // confirm import is a weakaura
-                WagoItem.findOne({_id: code.auraID, type: 'WEAKAURAS2'}).then((aura) => {
+                WagoItem.findOne({_id: code.auraID, type: 'WEAKAURA'}).then((aura) => {
                   if (aura) {
                     var json = JSON.parse(code.json)
                     if (!json.d) {

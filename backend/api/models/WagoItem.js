@@ -152,9 +152,6 @@ Schema.virtual('url').get(function() {
 Schema.methods.getThumbnailURL = async function(size) {
   if (!this.imageGenerated) {
     var type = this.type
-    if (type === 'WEAKAURAS2') {
-      type = 'WEAKAURA'
-    }
     const screen = await Screenshot.findForWago(this._id, true)
     var user
     if (this._userId) {
@@ -194,9 +191,6 @@ Schema.methods.getThumbnailURL = async function(size) {
 Schema.methods.getCardImageURL = async function() {
   if (!this.imageGenerated) {
     var type = this.type
-    if (type === 'WEAKAURAS2') {
-      type = 'WEAKAURA'
-    }
     const screen = await Screenshot.findForWago(this._id, true)
     var user
     if (this._userId) {
@@ -234,7 +228,7 @@ Schema.statics.randomOfTheMoment = async function(count, n) {
   if (!n) {
     n = 0
   }
-  var search = {hidden: false, restricted: false, private: false, encrypted: false, deleted: false, blocked: false, $or:[{type: 'WEAKAURAS2', modified: {"$gte": new Date(2020, 10, 13)}}, {type: 'MDT', modified: {"$gte": new Date(2020, 11, 24)}}, {type: ['CLASSIC-WEAKAURA', 'ELVUI', 'VUHDO', 'PLATER', 'TOTALRP3']}]}
+  var search = {hidden: false, restricted: false, private: false, encrypted: false, deleted: false, blocked: false, $or:[{type: 'WEAKAURA', modified: {"$gte": new Date(2020, 10, 13)}}, {type: ['CLASSIC-WEAKAURA', 'ELVUI', 'VUHDO', 'PLATER', 'TOTALRP3']}]}
   if (!count) {
     count = await this.countDocuments(search).exec()
   }

@@ -29,7 +29,7 @@ module.exports = function (fastify, opts, next) {
     }
     var findType
     if (req.params.importType === 'weakauras') {
-      findType = {'$or': [{type: 'WEAKAURAS2'}, {type:'CLASSIC-WEAKAURA'}]}
+      findType = {'$or': [{type:'CLASSIC-WEAKAURA'}, {type:'WEAKAURA'}]}
     }
     else if (req.params.importType === 'plater') {
       findType = {type: 'PLATER'}
@@ -93,7 +93,7 @@ module.exports = function (fastify, opts, next) {
         WagoFavorites.addInstall(doc._id, 'WA-Updater-' + req.headers['identifier'], ipAddress)
       }
 
-      if (doc.versions && doc.versions.versions && doc.versions.versions.length) {
+      if (doc.versions && doc.versions.versions && doc.versions.versions.length && doc.regionType) {
         wago.version = doc.versions.versions[0].version
         wago.versionString = doc.versions.versions[0].versionString
         if (typeof doc.versions.versions[0].changelog === 'string') {

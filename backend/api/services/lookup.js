@@ -173,12 +173,7 @@ module.exports = function (fastify, opts, next) {
 
     var wago = {}
     wago._id = doc._id
-    if (doc.type === 'WEAKAURAS2') {
-      wago.type = 'WEAKAURA'
-    }
-    else {
       wago.type = doc.type
-    }
     if (doc.description_format === '1' || !doc.description_format) {
       doc.description_format = 'bbcode'
     }
@@ -362,7 +357,7 @@ module.exports = function (fastify, opts, next) {
         return
       }
       // if we need to add regionType or textures to the doc, do so now
-      if (doc.type === 'WEAKAURAS2' && !doc.encrypted && (!doc.regionType || !doc.mediaReview)) {
+      if ((doc.type === 'WEAKAURA' || doc.type === 'CLASSIC-WEAKAURA') && !doc.encrypted && (!doc.regionType || !doc.mediaReview)) {
         const json = JSON.parse(versions[0].json)
         if (!doc.regionType) {
           doc.regionType = json.d.regionType
@@ -530,52 +525,6 @@ module.exports = function (fastify, opts, next) {
     }
   })
 
-  // return array of git-formatted diffs comparing two versions of code
-  fastify.get('/wago/luacheck', async (req, res) => {
-    return res.send({})
-
-    if (!req.query.id) {
-      return res.code(404).send({error: "page_not_found"})
-    }
-    const doc = await WagoItem.lookup(req.query.id)
-    if (!doc || doc.deleted) {
-      return res.code(404).send({error: "page_not_found"})
-    }
-
-    if (doc.private && (!req.user || !req.user._id.equals(doc._userId))) {
-      return res.code(404).send({error: "page_not_found"})
-    }
-    if (doc.restricted) {
-      if (!req.user) {
-        return res.code(401).send({error: "page_not_accessible"})
-      }
-      if (!req.user._id.equals(doc._userId) && doc.restrictedUsers.indexOf(req.user._id.toString()) === -1 && !arrayMatch(doc.restrictedGuilds, req.user.battlenet.guilds) && doc.restrictedTwitchUsers.indexOf(req.user.twitch.id) === -1) {
-        return res.code(401).send({error: "page_not_accessible"})
-      }
-    }
-
-    const code = await WagoCode.lookup(doc._id, req.query.version)
-    if (code.luacheck) {
-      return res.cache(604800).send(code.luacheck)
-    }
-    var result
-    if (doc.type === 'SNIPPET') {
-      result = await luacheck.Lua(code.lua)
-    }
-    else if (doc.type === 'PLATER') {
-      result = await luacheck.Plater(code.json)
-    }
-    else if (doc.type === 'WEAKAURAS2' || doc.type === 'CLASSIC-WEAKAURA') {
-      result = await luacheck.WeakAuras(code.json)
-    }
-    else {
-      return res.cache(604800).send([])
-    }
-    code.luacheck = JSON.stringify(result)
-    code.save()
-    res.cache(604800).send(result)
-  })
-
   // returns a cache-able object of a wago's code
   fastify.get('/wago/code', async (req, res) => {
     if (!req.query.id) {
@@ -674,7 +623,7 @@ module.exports = function (fastify, opts, next) {
 
     if (!code.processVersion || code.processVersion < 2) {
       code.luacheck = null
-      if (doc.type.match(/SNIPPET|WEAKAURA|PLATER/) && req.query.qupdate) {
+      if (doc.type.match(/SNIPPET|WEAKAURA|PLATER/i) && req.query.qupdate) {
         var checkQ = await taskQueue.getWaiting(0, 500)
         for (let i = 0; i < checkQ.length; i++) {
           if (req.query.qupdate == checkQ[i].id) {
@@ -711,7 +660,7 @@ module.exports = function (fastify, opts, next) {
         wagoCode.luacheck = code.luacheck
       }
     }
-    else if (doc.type === 'WEAKAURAS2' || doc.type === 'CLASSIC-WEAKAURA') {
+    else if (doc.type === 'WEAKAURA' || doc.type === 'CLASSIC-WEAKAURA') {
       var json = JSON.parse(code.json)
       // check for any missing data
       if (code.version && (!code.encoded || ((json.d.version !== code.version || json.d.url !== doc.url + '/' + code.version) || (json.c && json.c[0] && json.c[0].version !== code.version) || (json.d.semver !== code.versionString))) || !code.luacheck) {
