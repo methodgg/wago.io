@@ -641,20 +641,36 @@ module.exports = function (fastify, opts, next) {
       else if (wago.image && wago.image[0] && wago.image[0].files.jpg) {
         item.thumbnail = 'https://media.wago.io/images/' + wago.image[0].files.jpg
       }
-      else {
+      else if (wago.previewImage) {
+        item.thumbnail = wago.previewImage
+      }
+      else if (!wago.previewImage && typeof wago.previewImage !== 'string') {
         const thumbnail = await Screenshot.findOne({auraID: wago._id}).sort({sort:1}).exec()
         if (thumbnail) {
           item.thumbnail = thumbnail.url
+          wago.previewImage = thumbnail.url
+          await wago.save()
         }
+        else {
+          wago.previewImage = ''
+          await wago.save()
+      }
       }
 
       // get username
       if (wago._userId) {
-        var user = await User.findById(wago._userId).exec()
+        var user = await redis.get('UserProfile:'+wago._userId)
+        if (user) {
+          item.user = user
+        }
+        else {
+          user = await User.findById(wago._userId).exec()
         item.user = {name: user.account.username}
         item.user.searchable = !user.account.hidden
         item.user.roleClass = user.roleclass
         item.user.avatar = user.avatarURL
+          await redis.set('UserProfile:'+wago._userId, item.user)
+        }
       }
       else {
         item.user = { name: "a Guest" }

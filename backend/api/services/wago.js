@@ -43,7 +43,8 @@ module.exports = function (fastify, opts, next) {
       return res.code(403).send({error: "forbidden"})
     }
 
-    wago.name = req.body.name
+    wago.name = req.body.name    
+    wago.imageGenerated = null
     await wago.save()
     redis.clear(wago)
     res.send({success: true})
@@ -584,6 +585,7 @@ module.exports = function (fastify, opts, next) {
     if (screen) {
       if (screen.sort === 0) {
         wago.imageGenerated = null
+        wago.previewImage = null
         await wago.save()
       }
       await screen.remove()
@@ -628,6 +630,7 @@ module.exports = function (fastify, opts, next) {
     var screens = await Screenshot.find({_id: {$in: screenIDs}})
     if (screens.length && screens[0]._id !== req.body.screens[0]) {
       wago.imageGenerated = null
+      wago.previewImage = null
       await wago.save()
     }
     for (let i = 0; i < screens.length; i++) {

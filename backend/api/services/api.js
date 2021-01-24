@@ -51,7 +51,10 @@ module.exports = function (fastify, opts, next) {
       }
     }
     var wagos = []
-    var docs = await WagoItem.find({'$and': [{'$or' : [{_id: lookup}, {custom_slug: lookup}]}, findType], deleted: false, blocked: false}).populate({path: '_userId', select: {restrictedGuilds: 1, restrictedTwitchUsers: 1, restrictedUsers: 1, account: 1}})
+    var docs = []
+    if (lookup.length) {
+      docs = await WagoItem.find({'$and': [{'$or' : [{_id: lookup}, {custom_slug: lookup}]}, findType], deleted: false, blocked: false}).populate({path: '_userId', select: {restrictedGuilds: 1, restrictedTwitchUsers: 1, restrictedUsers: 1, account: 1}})
+    }
     await Promise.all(docs.concat(cached).map(async (doc) => {
       if ((doc.private && (!req.user || !req.user._id.equals(doc._userId._id))) || (!req.query.encrypted && doc.encrypted)) {
         return
@@ -100,7 +103,7 @@ module.exports = function (fastify, opts, next) {
         wago.regionType = doc.regionType
         wagos.push(wago)
         if (!doc.restricted && !doc.private) {
-          redis.set(`API:${wago.slug}`, wago, 3600*8)
+          redis.set(`API:${wago.slug}`, wago, 3600*48)
         }
         return
       }
@@ -114,17 +117,19 @@ module.exports = function (fastify, opts, next) {
         wago.regionType = doc.regionType
         wagos.push(wago)
         if (!doc.restricted && !doc.private) {
-          redis.set(`API:${wago.slug}`, wago, 3600*8)
+          redis.set(`API:${wago.slug}`, wago, 3600*48)
         }
         return
       }
 
       var code = await WagoCode.lookup(wago._id)
-      if (!doc.encrypted) {
+      if (!doc.encrypted && !doc.regionType && req.params.importType === 'weakauras') {
         const json = JSON.parse(code.json)
-        if (req.params.importType === 'weakauras') {
-          doc.regionType = json.d.regionType
-          wago.regionType = doc.regionType
+        doc.regionType = json.d.regionType
+        wago.regionType = doc.regionType
+        
+        if (!doc.restricted && !doc.private) {
+          redis.set(`API:${wago.slug}`, wago, 3600*48)
         }
       }
 

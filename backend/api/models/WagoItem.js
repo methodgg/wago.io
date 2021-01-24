@@ -53,6 +53,7 @@ const Schema = new mongoose.Schema({
   },
 
   imageGenerated : Number,
+  previewImage: String,
 
   referrals : [
     {url: String, count: { type: Number, default: 0}}

@@ -61,15 +61,15 @@ module.exports = {
     }
     if (typeof key === 'object' && key._id) {
       client.del(key._id)
-      client.del(`API:WA:${key._id}`)
+      client.del(`API:${key._id}`)
       if (key.custom_slug) {
         client.del(key.custom_slug)
-        client.del(`API:WA:${key.custom_slug}`)
+        client.del(`API:${key.custom_slug}`)
       }
     }
     else {
       client.del(key)
-      client.del(`API:WA:${key}`)
+      client.del(`API:${key}`)
     }
   },
   clearWago: (key) => {
