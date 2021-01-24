@@ -78,9 +78,15 @@ module.exports = {
       .setTimestamp()
       .setFooter('Wago.io', 'https://media.wago.io/favicon/favicon-16x16.png')
 
-    let discordUser = await client.users.fetch(to.discord.id)
-    let channel = await discordUser.createDM()
-    channel.send(embed)
+    try {
+      let discordUser = await client.users.fetch(to.discord.id)
+      let channel = await discordUser.createDM()
+      await channel.send(embed)
+    }
+    catch (e) {
+      console.error('discord send message error')
+      console.error(e)
+    }
   },
 
   postUpdate: async (author, to, wago) => {
@@ -99,8 +105,14 @@ module.exports = {
       embed.addFields({name: 'Changelog', value: wago.latestVersion.changelog.text.replace(/\[(\w+)[^\]]*](.*?)\[\/\1]/g, '')})
     }
 
-    let discordUser = await client.users.fetch(to.discord.id)
-    let channel = await discordUser.createDM()
-    channel.send(embed)
+    try {
+      let discordUser = await client.users.fetch(to.discord.id)
+      let channel = await discordUser.createDM()
+      channel.send(embed)
+    }
+    catch (e) {
+      console.error('discord send message error')
+      console.error(e)
+    }
   }
 }
