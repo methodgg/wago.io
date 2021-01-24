@@ -484,7 +484,7 @@ module.exports = function (fastify, opts, next) {
         {
           simple_query_string: {
             query: esQuery,
-            fields: ["description", "name^2", "custom_slug^2"],
+            fields: ["description", "name^2"],
             minimum_should_match: "-25%"
           },
         }

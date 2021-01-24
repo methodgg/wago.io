@@ -9,7 +9,9 @@ const Schema = new mongoose.Schema({
   custom_slug : { type: String, index: true, es_indexed: true },
   _userId : { type: mongoose.Schema.Types.ObjectId, ref: 'Users', es_indexed: true },
 
-  name : { type: String, index: true, es_indexed: true },
+  name : { type: String, index: true, es_indexed: true, es_cast: function(value) {
+    return `${value} ${this.custom_slug || ''}`.trim();
+  }},
   description : { type: String, default: "", es_indexed: true },
   description_format : { type: String, default: 'bbcode' },
   type : { type: String, index: true, es_indexed: true },
