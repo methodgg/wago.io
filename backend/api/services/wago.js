@@ -589,6 +589,7 @@ module.exports = function (fastify, opts, next) {
         await wago.save()
       }
       await screen.remove()
+      redis.clear(wago)
     }
     res.send({success: true})
   })
