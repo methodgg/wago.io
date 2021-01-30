@@ -416,6 +416,8 @@ module.exports = function (fastify, opts, next) {
     // setup database entry
     var screen = new Screenshot({auraID: wago._id.toString()})
     screen.localFile = screen._id.toString() + '.' + match[1] // filename
+    const sorted = await Screenshot.findOne({auraID: wago._id.toString()}).sort({sort: -1})
+    screen.sort = (sorted.sort || -1) + 1
 
     // save tmp location TODO: make an s3.uploadBuffer func
     await fs.writeFile(tmpDir + screen.localFile, buffer)
@@ -545,6 +547,8 @@ module.exports = function (fastify, opts, next) {
         var screen = new Screenshot()
         screen.auraID = wago._id
         screen.localFile = screen._id.toString() + '.' + match[1] // filename
+        const sorted = await Screenshot.findOne({auraID: wago._id.toString()}).sort({sort: -1})
+        screen.sort = (sorted.sort || -1) + 1
 
         // save tmp location TODO: make an s3.uploadBuffer func
         await fs.writeFile(tmpDir + screen.localFile, buffer)
