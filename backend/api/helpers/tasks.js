@@ -71,7 +71,7 @@ async function UpdateWagoOfTheMoment () {
 }
 
 async function UpdateLatestNews () {
-  const docs = await Blog.find({publishStatus: 'publish'}).sort('-date').limit(2).populate('_userId')
+  const docs = await Blog.find({publishStatus: 'publish'}).sort('-date').limit(1).populate('_userId')
   var news = []
   docs.forEach((item) => {
     news.push({

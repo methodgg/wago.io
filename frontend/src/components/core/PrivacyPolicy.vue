@@ -6,7 +6,7 @@
     <h2>Data Collected</h2>
     <p>We collect anonymous data from every visitor of the Websites to monitor traffic and fix bugs. For example, we collect information like web requests, the data sent in response to such requests, the internet protocol address, the browser type, the browser language, and a timestamp for the request.</p>
     <p>In order to enable certain Website features, we use Cookies (defined below) to store session information for your convenience. You can block or delete Cookies and still be able to use the Websites, although if you do you may not be able to use certain Website features.</p>
-    <p>Should you choose to delete your Personal Information (as defined in the <strong>Information We Collect</strong> section) from the Site, please contact us at <a href="mailto:info@method.gg">info@Method.gg</a> and we will follow up with such request as soon as possible.</p>
+    <p>Should you choose to delete your Personal Information (as defined in the <strong>Information We Collect</strong> section) from the Site, please contact us at <a href="mailto:contact@wago.io">contact@wago.io</a> and we will follow up with such request as soon as possible.</p>
     <p>Minors and children should not use the Websites. By using the Websites, you represent that you have the legal capacity to enter into a binding agreement.</p>
     <h2>Use of the Data</h2>
     <p>We only use your Personal Information as indicated in this Privacy Policy or Terms of Service, to provide you the Website services, to communicate with you about such services or the Websites, or to publicly display such information as you convey to us for public display.</p>
@@ -58,7 +58,7 @@
     <p>Please also note that the use of information obtained by certain third party providers is also subject to their own privacy policies and may differ from ours.</p>
     <h2>Children Under Thirteen</h2>
     <p>Method does not knowingly collect or store any Personal Information from children under thirteen (13) in the United States or under the relevant age threshold in other jurisdictions where the child is located. If you are under thirteen (13) years old in the United States, or under the relevant age threshold in the jurisdiction where you are located, you cannot use the Websites without the permission of your parent or guardian.</p>
-    <p>However, we may collect technical information required for delivering the service and for the support of our internal operations from all users of our Websites. If parents or guardians believe that we have unintentionally collected their children&rsquo;s Personal Information or otherwise used their children&rsquo;s Personal Information for another purpose, they may reach out to us&nbsp; at <span><a href="mailto:info@method.gg">info@Method.gg</a></span>. Parents should contact us immediately if they have any concerns.</p>
+    <p>However, we may collect technical information required for delivering the service and for the support of our internal operations from all users of our Websites. If parents or guardians believe that we have unintentionally collected their children&rsquo;s Personal Information or otherwise used their children&rsquo;s Personal Information for another purpose, they may reach out to us&nbsp; at <span><a href="mailto:contact@wago.io">contact@wago.io</a></span>. Parents should contact us immediately if they have any concerns.</p>
     <h2>Links</h2>
     <p>The Websites contain links to other websites. Please be aware that we are not responsible for the content or privacy practices of such other websites. We encourage our users to be aware when they leave our site, and to read the privacy policy and terms of use of any other site that collects personally identifiable information.</p>
     <h2>Security of your Personal Information </h2>
@@ -102,13 +102,13 @@
     <h3>Legal Obligation</h3>
     <p>We process your Personal Information for compliance with a legal obligation to which we are subject. &nbsp;</p>
     <h2>Your Rights to Your Personal Information</h2>
-    <p>You have the following rights in addition to your rights to view, correct, update, or request the deletion of your Personal Information. To access or delete your Personal Information, you can make a request by emailing <a href="mailto:info@method.gg">info@Method.gg</a>.</p>
-    <p>You may object to the processing of your Personal Information based on a legitimate interest on grounds relating to your particular situation. You may control the extent to which we market to you and you have the right to request that we stop sending you marketing messages at any time. You can make a request by emailing <a href="mailto:info@method.gg">info@Method.gg</a>.</p>
+    <p>You have the following rights in addition to your rights to view, correct, update, or request the deletion of your Personal Information. To access or delete your Personal Information, you can make a request by emailing <a href="mailto:contact@wago.io">contact@wago.io</a>.</p>
+    <p>You may object to the processing of your Personal Information based on a legitimate interest on grounds relating to your particular situation. You may control the extent to which we market to you and you have the right to request that we stop sending you marketing messages at any time. You can make a request by emailing <a href="mailto:contact@wago.io">contact@wago.io</a>.</p>
     <p>In certain circumstances, you can request that we transfer Personal Information that you have provided to us.</p>
-    <p>Where we rely on your consent in order to process your Personal Information, you have the right to withdraw such consent to further use of your Personal Information at any time. You can email <span><a href="mailto:info@method.gg">info@Method.gg</a></span> to update your marketing preferences.</p>
+    <p>Where we rely on your consent in order to process your Personal Information, you have the right to withdraw such consent to further use of your Personal Information at any time. You can email <span><a href="mailto:contact@wago.io">contact@wago.io</a></span> to update your marketing preferences.</p>
     <p>We hope that we can satisfy queries you may have about the way we process your Personal Information. However, if you have unresolved concerns you also have the right to complain to data protection authorities. You can bring the complaint in your member state of residence, or where an alleged infringement of data protection law occurred.</p>
     <h2>International Transfers</h2>
-    <p>Your Personal Information may be transferred to and processed in various countries where our central databases operate or other countries where Method or its partners maintain facilities or business operations. We use European Commission approved contract clauses to protect your Personal Information. If you have questions, please contact us at <a href="mailto:info@method.gg">info@Method.gg</a>.</p>
+    <p>Your Personal Information may be transferred to and processed in various countries where our central databases operate or other countries where Method or its partners maintain facilities or business operations. We use European Commission approved contract clauses to protect your Personal Information. If you have questions, please contact us at <a href="mailto:contact@wago.io">contact@wago.io</a>.</p>
     <h2>Disclosure to Users outside the US and the EEA</h2>
     <p>If you are a visitor to our Websites or other online products and services from outside the U.S., the Personal Information you provide will be collected, processed and stored directly on, or transferred to, servers in the United States or other countries where Method or its affiliates maintain facilities or business operations.</p>
     <p>No matter where your Personal Information is located, Method takes commercially reasonable measures to safeguard your privacy rights in accordance with this Privacy Policy. If you do not agree to the collection, processing, storage and transfer of your Personal Information, please do not provide your Personal Information when requested and stop using our Websites and other online products and services.</p>
@@ -148,7 +148,7 @@
     </ul>
     <p>Any CCPA-permitted financial incentive we offer will reasonably relate to your value and contain written terms that describe the program&rsquo;s material aspects.</p>
     <h3>Exercising Access, Data Portability, and Deletion Rights</h3>
-    <p>To exercise the access, data portability, and deletion rights described above, please submit a verifiable consumer request to us by emailing us at <span><a href="mailto:info@method.gg">info@Method.gg</a></span>.</p>
+    <p>To exercise the access, data portability, and deletion rights described above, please submit a verifiable consumer request to us by emailing us at <span><a href="mailto:contact@wago.io">contact@wago.io</a></span>.</p>
     <p>Only you, or a person registered with the California Secretary of State that you authorize to act on your behalf, may make a verifiable consumer request related to your Personal Information. You may also make a verifiable consumer request on behalf of your minor child.</p>
     <p>You have the right to request that the company disclose certain information to you about our collection and use of your personal information over the past 12 months. Once we receive and confirm your verifiable consumer request we will disclose to you:</p>
     <ul>
@@ -282,7 +282,7 @@
     </div>
     <h2>Changes to the Privacy Policy</h2>
     <p>We may amend this Privacy Policy from time to time. Use of information we collect now is subject to the Privacy Policy in effect at the time such information is used. If we make major changes in the way we collect or use information, we will notify you by posting an announcement on the Websites. A user is bound by any changes to the Privacy Policy when he or she uses the Services after such changes have been first posted.</p>
-    <p>Should you have any question or concern, please write to <a href="mailto:info@method.gg">info@Method.gg</a>.</p>
+    <p>Should you have any question or concern, please write to <a href="mailto:contact@wago.io">contact@wago.io</a>.</p>
     <h2>How &ldquo;Do Not Track&rdquo; requests are handled</h2>
     <p>Our Websites do not support &ldquo;Do Not Track&rdquo; requests. To determine whether any of the third-party services it uses honor the &ldquo;Do Not Track&rdquo; requests, please read their respective privacy policies.</p>
   </div>
