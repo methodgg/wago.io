@@ -180,7 +180,7 @@
             <router-link to="/privacy-policy">{{ $t("Privacy Policy") }}</router-link>
             <div id="ncmp-consent-link"></div>
           </span>
-          <span><a href="mailto:wagowebsite@gmail.com">{{ $t("Contact") }}</a></span>
+          <span><a href="mailto:contact@wago.io">{{ $t("Contact") }}</a></span>
           <span data-ccpa-link="1" id="ccpa-content-link"></span>
         </div>
       </md-sidenav>
