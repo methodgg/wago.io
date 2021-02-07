@@ -139,7 +139,7 @@ module.exports = function (fastify, opts, next) {
         // if any specs are selected without a class, or with multiple classes, we're just going to ignore them
         // ---
         // if single class is selected
-        if (decoded.obj.d.load['class'] && decoded.obj.d.load['class'].single) {
+        if (decoded.obj.d.load['class'] && decoded.obj.d.load['class'].single && decoded.obj.d.load.use_class) {
           class_id = guessCategory(decoded.obj.d.load['class'].single)
           if (class_id) {
             categories.push(class_id)
@@ -156,7 +156,7 @@ module.exports = function (fastify, opts, next) {
         }
 
         // if multi-select class is used
-        else if (decoded.obj.d.load.use_class && decoded.obj.d.load['class'] && decoded.obj.d.load['class'].multi) {
+        else if (decoded.obj.d.load.use_class && decoded.obj.d.load['class'] && decoded.obj.d.load['class'].multi && decoded.obj.d.load.use_class === false) {
           let list = []
           for (let classKey in decoded.obj.d.load['class'].multi) {
             if (!decoded.obj.d.load['class'].multi.hasOwnProperty(classKey)) {
