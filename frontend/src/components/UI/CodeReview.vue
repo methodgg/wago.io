@@ -116,7 +116,7 @@ export default {
         }
       }
       if (this.luacheck) {
-        this.height = (17 * (1 + text.match(/\n/g).length) + 8) + 'px'
+        this.height = (17 * (1 + (text.match(/\n/g) || []).length) + 8) + 'px'
       }
       return text.trim()
     },

@@ -279,6 +279,9 @@ module.exports = {
               }
             }
           }
+          if (item.conditions[k] && item.conditions[k].check && item.conditions[k].check.variable === 'customcheck' && item.conditions[k].check.value) {
+            func.push({ id: item.id, name: `Condition ${k+1} - Custom Check`, ix: ix, path: `conditions[${k}].check.value`, lua: item.conditions[k].check.value })
+          }
         }
       }
       // animation onStart functions

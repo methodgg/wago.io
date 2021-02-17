@@ -9,7 +9,7 @@ module.exports = {
       return {}
     }
     if (!game || !game.match(/classic|bfa|sl/)) {
-      game = 'bfa'
+      game = 'sl'
     }
     const luacheckrc = __dirname + '/../lua/luacheck-' + game + '.lua'
     const checkDir = __dirname + '/../../run-tmp/' + new Date().getTime() + Math.random().toString(36).substring(7)
