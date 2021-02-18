@@ -20,7 +20,7 @@
     "file-loader": "^6.2.0",
     "flowchart.js": "^1.15.0",
     "hull.js": "^1.0.1",
-    "i18next": "^8.4.3",
+    "i18next": "^19.8.5",
     "i18next-xhr-backend": "^1.4.2",
     "konva": "^7.2.1",
     "lua-fmt": "^2.6.0",
