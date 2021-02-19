@@ -531,7 +531,7 @@ module.exports = function (fastify, opts, next) {
 
     // if forking then some fields will be copied from forked wago
     if (scan.fork) {
-      const fork = await WagoItem.findById(wago.fork_of).exec()
+      const fork = await WagoItem.findById(scan.fork).exec()
       if (fork) {
         wago.fork_of = scan.fork
         wago.description = fork.description
