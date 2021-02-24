@@ -2,6 +2,7 @@
   <div id="app">
     <div id="maincontent" v-if="!isEmbed">
       <div id="copyContainer"></div>
+      <notification-banner id="1"><a href="https://addons.wago.io">Announcing Wago Addons, the nextgen WoW Addon Platform built by the Wago team. Developer signups now open - click here to get started.</a></notification-banner>
       <md-toolbar id="topbar">
         <md-button class="md-icon-button md-hide-small-and-up" @click="toggleMobileNav()">
           <md-icon>menu</md-icon>
@@ -78,6 +79,7 @@
               </md-menu-content>
             </md-menu>
           </form>
+          <div id="wago-addons-btn" v-if="showAddonsButton"><a href="https://addons.wago.io">Wago Addons</a></div>
         </div>
         <div id="hr-nav" class="md-hide-xsmall">
           <h2 class="md-title md-hide-small-and-up" id="logo"><router-link to="/"><img src="./assets/wagoio-logo.png"/></router-link></h2>
@@ -109,7 +111,8 @@
           </md-list-item>
           <md-list-item v-else><router-link to='/login'>{{ $t("Login") }}</router-link></md-list-item>
           <md-list-item><router-link to='/'>{{ $t("Import") }}</router-link></md-list-item>
-          <md-list-item><router-link to='/news'>{{ $t("Site News") }}</router-link><md-divider></md-divider></md-list-item>
+          <md-list-item><router-link to='/news'>{{ $t("Site News") }}</router-link></md-list-item>
+          <md-list-item><a href="https://addons.wago.io">Wago Addons</a><md-divider></md-divider></md-list-item>
           <md-list-item><router-link to='/elvui'>ElvUI</router-link></md-list-item>
           <md-list-item v-if="User && User.access && User.access.beta"><router-link to='/create-new-note'>Encounter Notes [Beta]</router-link></md-list-item>
           <!-- <md-list-item><router-link to='/grid2'>Grid2</router-link></md-list-item> -->
@@ -219,6 +222,7 @@ function interceptClickEvent (e, vue) {
 import Advert from './components/UI/Advert.vue'
 import SelectLocale from './components/UI/SelectLocale.vue'
 import LoginButton from './components/UI/LoginButton.vue'
+import NotificationBanner from './components/UI/NotificationBanner.vue'
 import ViewEmbed from './components/core/ViewEmbed.vue'
 
 export default {
@@ -227,6 +231,7 @@ export default {
     'select-locale': SelectLocale,
     'login-button': LoginButton,
     'view-embed': ViewEmbed,
+    'notification-banner': NotificationBanner,
     'advert': Advert
   },
   data: () => {
@@ -240,7 +245,8 @@ export default {
       advSearchStarred: false,
       advSearchMentioned: false,
       advSearchDate: '',
-      today: new Date()
+      today: new Date(),
+      showAddonsButton: window.localStorage.getItem('notification-1')
     }
   },
   created: function () {
@@ -600,12 +606,17 @@ export default {
 .mainnav.bottom .md-list-item-container img { max-width: 74px; }
 .mainnav.bottom .md-list-item a div { display: inline-block; width: 90px;  }
 
+#wago-addons-btn {border: 1px solid #a12126; margin: 0 16px; line-height: 30px; color: white; background: #2a090a url('./assets/robot.png'); background-size: 27%; background-repeat: no-repeat; background-position: top right;}
+#wago-addons-btn a {color: inherit; display: block; padding: 4px 52px 4px 12px; }
+#wago-addons-btn:hover {background-color: #1d0607}
+#wago-addons-btn a:hover {text-decoration: none;}
+
 #side-bottom {}
 #side-bottom .resource {  display: inline-block; padding: 8px 0 0 16px; color: default }
 #side-bottom .resource img { max-width: 30%; }
 .md-sidenav h2 { background: black; margin:0; padding: 16px 24px; text-align: center}
 #user-info { background: #CCC; padding: 16px 16px 0 }
-#gSearch { margin-left: 16px; white-space: nowrap; width: 100% }
+#gSearch { margin-left: 16px; white-space: nowrap; flex: 1; max-width: 640px; }
 #gSearch input { border:0; padding: 0 16px; line-height:40px; max-width: 640px;  width: 100%; outline: none; }
 #gSearch button { margin-left: -48px }
 #gSearch .md-menu { display: inline }

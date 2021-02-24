@@ -208,12 +208,7 @@
                       <strong>Classic WeakAuras</strong><br>
                       <span class="blackwinglair">{{ $t("warcraft:zones.2677") }}</span>
                     </div>
-                  </md-layout>
-                </div>
-              </md-layout>
-            </router-link>
-          </md-layout>
-        </md-whiteframe>
+        <cta-wago-addons />
 
         <div v-if="latestBlogs && latestBlogs.length > 0" id="sitenews">
           <wago-news :posts="latestBlogs"></wago-news>
@@ -411,6 +406,7 @@ span.md-note {height: 20px; position: absolute; bottom: -22px; font-size: 12px;}
 import Categories from './libs/categories'
 import CategorySelect from './UI/SelectCategory.vue'
 import CategoryImage from './UI/CategoryImage.vue'
+import CTA_WagoAddons from './UI/CTAWagoAddons.vue'
 import WagoNews from './core/News.vue'
 import VueMarkdown from 'vue-markdown'
 
