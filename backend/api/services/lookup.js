@@ -756,7 +756,7 @@ module.exports = function (fastify, opts, next) {
     profile.name = user.account.username
     profile.roleClass = user.roleClass
     profile.description = user.profile.description
-    profile.avatar = user.avatarURL
+    profile.avatar = await user.avatarURL
     if (req.user && req.user._id.equals(user._id)) {
       profile.mine = true
     }
