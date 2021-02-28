@@ -605,11 +605,9 @@ module.exports = function (fastify, opts, next) {
 
     var screen = await Screenshot.findById(req.body.screen).exec()
     if (screen) {
-      if (screen.sort === 0) {
-        wago.imageGenerated = null
-        wago.previewImage = null
-        await wago.save()
-      }
+      wago.imageGenerated = null
+      wago.previewImage = null
+      await wago.save()
       await screen.remove()
       redis.clear(wago)
     }
@@ -651,7 +649,7 @@ module.exports = function (fastify, opts, next) {
       return mongoose.Types.ObjectId(s)
     })
     var screens = await Screenshot.find({_id: {$in: screenIDs}})
-    if (screens.length && screens[0]._id !== req.body.screens[0]) {
+    if (screens.length) {
       wago.imageGenerated = null
       wago.previewImage = null
       await wago.save()
