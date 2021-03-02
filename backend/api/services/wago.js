@@ -676,12 +676,12 @@ module.exports = function (fastify, opts, next) {
     }
 
     req.body.videos = req.body.videos.split(',')
-    var screenIDs = req.body.videos.map((s) => {
+    var videoIDs = req.body.videos.map((s) => {
       return mongoose.Types.ObjectId(s)
     })
-    var videos = await Video.find({_id: {$in: screenIDs}})
+    var videos = await Video.find({_id: {$in: videoIDs}})
     for (let i = 0; i < videos.length; i++) {
-      if (videos[i].auraID === wago._id) {
+      if (videos[i].wagoID === wago._id) {
         videos[i].sort = req.body.videos.indexOf(videos[i]._id.toString())
         videos[i].save()
       }

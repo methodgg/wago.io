@@ -162,10 +162,10 @@
               <ui-image :img="wago.user.avatar"></ui-image>
             </md-avatar>
             <div class="item">
-              <div class="md-title" v-if="wago.type === 'COLLECTION' && wago.UID && wago.user.searchable" v-html="$t('Collected by [-name-]', {name: `<a href='/p/${encodeURIComponent(wago.user.name)}' class='${wago.user.roleClass}'>${wago.user.name}</a>`, 'interpolation': {'escapeValue': false}})"></div>
-              <div class="md-title" v-else-if="wago.type === 'COLLECTION' && wago.UID" v-html="$t('Imported by [-name-]', {name: `<span class='${wago.user.roleClass}'>${wago.user.name}</span>`, 'interpolation': {'escapeValue': false}})"></div>
-              <div class="md-title" v-else-if="wago.UID && wago.user.searchable" v-html="$t('Imported by [-name-]', {name: `<a href='/p/${encodeURIComponent(wago.user.name)}' class='${wago.user.roleClass}'>${wago.user.name}</a>`, 'interpolation': {'escapeValue': false}})"></div>
-              <div class="md-title" v-else-if="wago.UID" v-html="$t('Imported by [-name-]', {name: `<span class='${wago.user.roleClass}'>${wago.user.name}</span>`, 'interpolation': {'escapeValue': false}})"></div>
+              <div class="md-title" v-if="wago.type === 'COLLECTION' && wago.UID && wago.user.searchable" v-html="$t('Collected by [-name-]', {name: `<a href='/p/${encodeURIComponent(wago.user.name)}' class='${wago.user.roleClass}'>${escapeText(wago.user.name)}</a>`, 'interpolation': {'escapeValue': false}})"></div>
+              <div class="md-title" v-else-if="wago.type === 'COLLECTION' && wago.UID" v-html="$t('Imported by [-name-]', {name: `<span class='${wago.user.roleClass}'>${escapeText(wago.user.name)}</span>`, 'interpolation': {'escapeValue': false}})"></div>
+              <div class="md-title" v-else-if="wago.UID && wago.user.searchable" v-html="$t('Imported by [-name-]', {name: `<a href='/p/${encodeURIComponent(wago.user.name)}' class='${wago.user.roleClass}'>${escapeText(wago.user.name)}</a>`, 'interpolation': {'escapeValue': false}})"></div>
+              <div class="md-title" v-else-if="wago.UID" v-html="$t('Imported by [-name-]', {name: `<span class='${wago.user.roleClass}'>${escapeText(wago.user.name)}</span>`, 'interpolation': {'escapeValue': false}})"></div>
               <div class="md-title" v-else>{{ $t("Imported by guest") }}</div>
               <div class="md-subhead" v-if="wago.type !== 'COLLECTION'">{{ wago.date.modified | moment('MMM Do YYYY') }} [{{ wago.patch }}]</div>
             </div>
@@ -494,26 +494,26 @@
                     </md-layout>
                     <div v-if="wago.videos.length > 0">
                       <strong>{{ $t("Videos") }}</strong>
-                      <vddl-list :list="wago.screens" :horizontal="true" :drop="onVideoMoved">
-                        <vddl-draggable v-for="(item, index) in wago.videos" :key="item._id" :draggable="item" :index="index" effect-allowed="move" :moved="onVideoMoveOut">
-                          <span class="vddl-delete" @click="onVideoDelete(index)">❌</span>
+                      <div class="sortable" id="sorted-videos">
+                        <div v-for="(item, index) in wago.videos" :key="item._id" :id="'video-'+item._id">
+                          <span class="delete" @click="onVideoDelete(index)" :title="$t('Delete video')">❌</span>
                           <md-image :md-src="item.thumb"></md-image>
-                        </vddl-draggable>
-                      </vddl-list>
+                        </div>
+                      </div>
                     </div>
                     <div v-if="wago.screens.length > 0" class="config-screenshots">
                       <strong>{{ $t("Screenshots") }}</strong>
-                      <vddl-list :list="wago.screens" :horizontal="true" :drop="onScreenshotMoved">
-                        <vddl-draggable v-for="(item, index) in wago.screens" :key="item._id" :draggable="item" :index="index" effect-allowed="move" :moved="onScreenMoveOut">
-                          <span class="vddl-delete" @click="onScreenDelete(index)">❌</span>
+                      <div class="sortable" id="sorted-screenshots">
+                        <div v-for="(item, index) in wago.screens" :key="item._id" :id="'screenshot-'+item._id">
+                          <span class="delete" @click="onScreenDelete(index)" :title="$t('Delete image')">❌</span>
                           <md-image :md-src="item.src"></md-image>
-                        </vddl-draggable>
-                      </vddl-list>
+                        </div>
+                      </div>
                     </div>
                   </div>
 
                   <md-card-actions>
-                    <md-button id="deleteWago" @click="$refs['deleteWago'].open()">Delete</md-button>
+                    <md-button id="deleteWago" @click="$refs['deleteWago'].open()">Delete Import</md-button>
                     <md-dialog md-open-from="#deleteWago" md-close-to="#deleteWago" ref="deleteWago">
                       <md-dialog-title>{{ $t("Are you sure you want to delete this import?") }}</md-dialog-title>
                       <md-dialog-content>{{ $t("There is no way to undo this action") }}</md-dialog-content>
@@ -957,7 +957,7 @@ function copyTextToClipboard (text) {
   }
 }
 
-function setupPasteImage (vue) {
+function setupConfigEvents (vue) {
   document.getElementById('pasteURL').onpaste = function (event) {
     // use event.originalEvent.clipboard for newer chrome versions
     var items = (event.clipboardData || event.originalEvent.clipboardData).items
@@ -982,6 +982,48 @@ function setupPasteImage (vue) {
       reader.readAsDataURL(blob)
     }
   }
+  document.querySelectorAll('#sorted-screenshots > div').forEach(img => {
+    img.setAttribute('draggable', true)
+    img.ondrag = (item) => {
+      const selectedItem = item.target
+      const list = selectedItem.parentNode
+      const x = event.clientX
+      const y = event.clientY
+  
+      selectedItem.classList.add('drag-sort-active')
+      let swapItem = document.elementFromPoint(x, y) === null ? selectedItem : document.elementFromPoint(x, y)
+  
+      if (list === swapItem.parentNode) {
+        swapItem = swapItem !== selectedItem.nextSibling ? swapItem : swapItem.nextSibling
+        list.insertBefore(selectedItem, swapItem)
+      }
+    }
+    img.ondragend = (item) => {
+      item.target.classList.remove('drag-sort-active')
+      vue.saveSortedScreenshots()
+    }
+  })  
+  document.querySelectorAll('#sorted-videos > div').forEach(img => {
+    img.setAttribute('draggable', true)
+    img.ondrag = (item) => {
+      const selectedItem = item.target
+      const list = selectedItem.parentNode
+      const x = event.clientX
+      const y = event.clientY
+  
+      selectedItem.classList.add('drag-sort-active')
+      let swapItem = document.elementFromPoint(x, y) === null ? selectedItem : document.elementFromPoint(x, y)
+  
+      if (list === swapItem.parentNode) {
+        swapItem = swapItem !== selectedItem.nextSibling ? swapItem : swapItem.nextSibling
+        list.insertBefore(selectedItem, swapItem)
+      }
+    }
+    img.ondragend = (item) => {
+      item.target.classList.remove('drag-sort-active')
+      vue.saveSortedVideos()
+    }
+  })
 }
 
 import Categories from '../libs/categories'
@@ -1939,7 +1981,7 @@ export default {
       this.hideTabs = true
       if (frame === 'config') {
         this.$nextTick(function () {
-          setupPasteImage(this)
+          setupConfigEvents(this)
         })
       }
     },
@@ -2299,26 +2341,28 @@ export default {
       this.wago.screens.splice(index, 1)
     },
 
-    onScreenshotMoved (draggable) {
-      // insert video into dragged location
-      this.wago.screens.splice(draggable.index, 0, draggable.item)
-
-      // build sort list and send to server
+    saveSortedScreenshots () {
       var sort = []
-      this.wago.screens.forEach((screen) => {
-        if (sort.indexOf(screen._id) === -1) {
-          sort.push(screen._id)
-        }
+      var screens = []
+      document.querySelectorAll('#sorted-screenshots > div').forEach(img => {
+        const id = img.id.replace(/^screenshot-/, '')
+        sort.push(id)
+        this.wago.screens.forEach(screen => {
+          if (screen._id === id) {
+            screens.push(screen)
+          }
+        })
       })
-      var vue = this
+      this.$set(this.wago, 'screens', screens)
+      
       this.http.post('/wago/update/sort/screenshots', {
-        wagoID: vue.wago._id,
+        wagoID: this.wago._id,
         screens: sort.join(',')
-      }).then((res) => {
+      }).then(res => {
         // success, render is already up to date.
-      }).catch((err) => {
+      }).catch(err => {
         console.error(err)
-        window.eventHub.$emit('showSnackBar', vue.$t('Error could not save'))
+        window.eventHub.$emit('showSnackBar', this.$t('Error could not save'))
       })
     },
 
@@ -2334,26 +2378,28 @@ export default {
       this.wago.videos.splice(index, 1)
     },
 
-    onVideoMoved (draggable) {
-      // insert video into dragged location
-      this.wago.videos.splice(draggable.index, 0, draggable.item)
-
-      // build sort list and send to server
+    saveSortedVideos () {
       var sort = []
-      this.wago.videos.forEach((video) => {
-        if (sort.indexOf(video._id) === -1) {
-          sort.push(video._id)
-        }
+      var videos = []
+      document.querySelectorAll('#sorted-videos > div').forEach(img => {
+        const id = img.id.replace(/^video-/, '')
+        sort.push(id)
+        this.wago.videos.forEach(video => {
+          if (video._id === id) {
+            videos.push(video)
+          }
+        })
       })
-      var vue = this
+      this.$set(this.wago, 'videos', videos)
+      
       this.http.post('/wago/update/sort/videos', {
-        wagoID: vue.wago._id,
+        wagoID: this.wago._id,
         videos: sort.join(',')
-      }).then((res) => {
+      }).then(res => {
         // success, render is already up to date.
-      }).catch((err) => {
+      }).catch(err => {
         console.error(err)
-        window.eventHub.$emit('showSnackBar', vue.$t('Error could not save'))
+        window.eventHub.$emit('showSnackBar', this.$t('Error could not save'))
       })
     },
 
@@ -2622,6 +2668,10 @@ export default {
 
     autoCompleteUserName: function (q) {
       return this.http.get('/search/username', {name: q.q})
+    },
+
+    escapeText: function(str) {
+      return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;")
     }
   },
   mounted: function () {
@@ -2819,10 +2869,11 @@ ul.multiselect__content .multiselect__element .multiselect__option { padding: 0;
 ul.multiselect__content .multiselect__element .multiselect__option .md-chip { border-radius: 0; display: block; font-size: 13.5px; text-outline: none; box-shadow: none }
 ul:not(.md-list) > li.multiselect__element + li { margin-top: 0 }
 
-.vddl-draggable { display: inline-block; cursor: move; position: relative; }
-.vddl-draggable img { max-height:120px; max-width: 150px; margin: 0 4px 4px 0 }
-.vddl-draggable .vddl-delete { position: absolute; top: 2px; right: 2px; z-index: 3; opacity: .2; cursor: pointer}
-.vddl-draggable:hover .vddl-delete { opacity: 1}
+#sorted-screenshots > div, #sorted-videos > div {position: relative; display: inline-block; cursor: move}
+#sorted-screenshots > div img, #sorted-videos > div img {max-height:120px; max-width: 150px; margin: 4px; pointer-events: none;}
+#sorted-screenshots > div .delete, #sorted-videos > div .delete {position: absolute; top: 2px; right: 2px; z-index: 3; opacity: .5; cursor: pointer}
+#sorted-screenshots > div .delete:hover, , #sorted-videos > div .delete:hover {opacity: 1}
+.drag-sort-active {opacity: .2}
 
 .my-gallery a img { border-color: transparent }
 

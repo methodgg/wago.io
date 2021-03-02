@@ -1,7 +1,7 @@
 <template>
   <div id="cta-wago-addons">
-    <h2>Wago Addons</h2>
-    <p>Leading WoW addon developers use Wago Addons to manage and market their addon, monetizing these valuable assets through an innovative and sustainable compensation scheme.</p>
+    <h2>Coming Soon: The Wago App</h2>
+    <p>Launching Spring 2021, the Wago App will bring Addons to Wago! Developers can sign up now to manage, market, and monetise their addons with enhanced development tools that simplify your addon experience.</p>
     <md-button md-raised md-accent href="https://addons.wago.io">Find out more</md-button>
   </div>
 </template>
@@ -20,7 +20,7 @@
     margin: 0;
   }
   p {
-    max-width: 410px;
+    max-width: 430px;
     background: #242424CC;
     border-radius: 4px
   }
