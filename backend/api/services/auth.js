@@ -584,19 +584,20 @@ async function twitterAuth(req, res) {
       }, 60000)
     }
     else if (req.body.oauth_token && twitterRequestSecrets[req.body.oauth_token]) {
-      const authResponse = await twitter.getAccessToken({key: req.body.oauth_token, secret: twitterRequestSecrets[req.body.oauth_token], verifier: req.body.oauth_verifier})
+      const authResponse = await twitter.getAccessToken({oauth_token: req.body.oauth_token, oauth_verifier: req.body.oauth_verifier})
       if (!authResponse.user_id) {
         throw 'invalid'
       }
+      delete twitterRequestSecrets[req.body.oauth_token]
       oAuthLogin(req, res, 'twitter', authResponse)
     }
     else {
-      req.trackError({message: 'Invalid oauth token'}, 'Failed Twitter Auth')
+      req.trackError({message: 'Invalid oauth token'}, 'Failed Twitter Auth 1')
       return res.code(403).send({error: 'Unable to auth with Twitter'})
     }
   }
   catch (e) {
-    req.trackError(e, 'Failed Twitter Auth')
+    req.trackError(e, 'Failed Twitter Auth 2')
     return res.code(403).send({error: 'Unable to auth with Twitter'})
   }
 }
