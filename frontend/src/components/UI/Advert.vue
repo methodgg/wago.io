@@ -46,10 +46,6 @@ export default {
       this.$nextTick(() => {
         let body = document.querySelector('body')
 
-        let streamspread = document.createElement('script')
-        streamspread.setAttribute('src', 'https://adc.streamspread.com/js/fd23dd90-b346-4a09-ae30-817beb89a23a.js')
-        body.appendChild(streamspread)
-
         let nitropay = document.createElement('script')
         nitropay.setAttribute('src', 'https://s.nitropay.com/ads-437.js')
         body.appendChild(nitropay)

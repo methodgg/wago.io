@@ -1,6 +1,7 @@
 const config = require('../../config')
 const locale = require("locale")
 const image = require('../helpers/image')
+const redisClient = redis.getClient()
 
 // build localeArray
 var localeArray = []
@@ -9,10 +10,37 @@ config.supportedLocales.forEach(function(loc) {
 })
 var supportedLocales = new locale.Locales(localeArray)
 
+async function determineStream(ip) {
+  var streamEmbed = 'streamspread'
+  // determine method stream or advert
+  const streamCfg = global.EmbeddedStream || {}
+  const userViewingMethod = await redis.get('stream:method:' + ip)
+  // If enabled, online and exposure chance..
+  if (streamCfg.enabled && (userViewingMethod || Math.random() * 100 < streamCfg.exposure) && await redis.get('twitch:method:live')) {
+    // and we are not over max method viewer count...
+    const methodViewers = await redis.get('tally:active:methodviewers')
+    // then show method stream to user instead of streamspread
+    if (methodViewers < streamCfg.max || userViewingMethod) {
+      streamEmbed = 'method'
+      redisClient.incr('stream:method:' + ip, (err, count) => {
+        if (!err && count <= 5) {
+          redisClient.expire('stream:method:' + ip, 70)
+        }
+      })
+    }
+  }
+  return streamEmbed
+}
+
 module.exports = (fastify, opts, next) => {
 
+  fastify.get('/status', async (req, res) => {
+    // header checks
+    res.send({})
+  })
+
   // returns data on currently logged in user
-  fastify.get('/whoami', async (req, res, next) => {
+  fastify.get('/whoami', async (req, res) => {
     var data = {}
     // if user has locale preference saved
     if (req.user && req.user.locale && localeArray.indexOf(user.locale) !== -1) {
@@ -87,6 +115,8 @@ module.exports = (fastify, opts, next) => {
       who.access.goldSub = user.roles.gold_subscriber
       who.access.guild_subscriber = user.roles.guild_subscriber
       who.access.ambassador = user.roles.ambassador
+      who.access.methodRaider = user.roles.methodRaider
+      who.access.methodStreamer = user.roles.methodStreamer
       who.access.developer = user.roles.developer
       who.access.community_leader = user.roles.community_leader
       who.access.contestWinner = user.roles.artContestWinnerAug2018
@@ -96,6 +126,9 @@ module.exports = (fastify, opts, next) => {
       }
 
       who.hideAds = user.access.hideAds
+      if (!who.hideAds) {
+        data.streamEmbed = await determineStream(req.raw.ip)
+              }
       who.config = user.config
       who.companionHideAlert = user.account.companionHideAlert
 
@@ -108,6 +141,7 @@ module.exports = (fastify, opts, next) => {
     }
     else {
       data.guest = true
+      data.streamEmbed = await determineStream(req.raw.ip)
       // return user info
       res.send(data)
     }

@@ -140,6 +140,10 @@ const store = new Vuex.Store({
       }
     },
 
+    setStreamEmbed (state, streamEmbed) {
+      Vue.set(state, 'streamEmbed', streamEmbed)
+    },
+
     userClearMention (state, commentID) {
       if (!state.user || !state.user.UID) {
         return
@@ -384,6 +388,7 @@ var refSent = false
 const http = {
   install: function (Vue, options) {
     Vue.prototype.http = {
+      heartbeat: null,
       config: function (url) {
         var headers = {}
 
@@ -418,6 +423,9 @@ const http = {
           host = dataServers.shift()
           url = host + url
           dataServers.push(host)
+          
+          clearTimeout(this.heartbeat)
+          this.heartbeat = setTimeout(function() {this.get('/account/status')}.bind(this), 60000)
         }
 
         // append querystring to url
@@ -468,6 +476,9 @@ const http = {
           var host = dataServers.shift()
           url = host + url
           dataServers.push(host)
+
+          clearTimeout(this.heartbeat)
+          this.heartbeat = setTimeout(function() {this.get('/account/status')}.bind(this), 60000)
         }
 
         if (!params) {

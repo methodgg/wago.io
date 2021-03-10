@@ -371,7 +371,9 @@ async function battlenetAuth(req, res, region) {
       var chars = []
       var guilds = []
       var mostRecent = 0
-      var avatarURL = ''
+      var avatarURL = ''      
+      var methodRaider = false
+
       const regions = Object.keys(profiles)
       const lookupProfiles = async function (region) {
         if (!profiles[region] || !profiles[region].length) {
@@ -398,6 +400,9 @@ async function battlenetAuth(req, res, region) {
                 guilds.push(`${region}@${char.guildRealmSlug}@${char.guild}`)
                 for (let k = guild.members[j].rank; k <= 9; k++) {
                   guilds.push(`${region}@${char.guildRealmSlug}@${char.guild}@${k}`)
+                }
+                if (`${region}@${char.guildRealmSlug}@${char.guild}` === 'eu@twisting-nether@Method') {
+                  methodRaider = (guild.members[j].rank <= 4)
                 }
                 break
               }
@@ -431,6 +436,7 @@ async function battlenetAuth(req, res, region) {
         _user[battlenetField].guilds = guilds
         _user[battlenetField].updateStatus = 'done'
         _user[battlenetField].updateDate = new Date()
+        _user.roles.methodRaider = methodRaider
         _user.account.verified_human = true
         await _user.save()
       }

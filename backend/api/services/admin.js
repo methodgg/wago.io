@@ -1,5 +1,7 @@
 const redis = require("../../redis")
 const Profiler = require("../models/Profiler")
+const SiteData = require("../models/SiteData")
+const updateDataCaches = require('../../middlewares/updateLocalCache')
 
 module.exports = (fastify, opts, next) => {
   // get all blog posts
@@ -90,6 +92,136 @@ module.exports = (fastify, opts, next) => {
     }
     res.send(data)
   })
+
+  fastify.get('/stream', async (req, res) => {
+    if (!req.user || !req.user.isAdmin.access ||  !req.user.isAdmin.super) {
+      return res.code(403).send({error: "forbidden"})
+    }
+    var data = await SiteData.findById('EmbeddedStream').lean().exec()
+    data = data.value || {}
+    data.users = {
+      active: await redis.get('tally:active:users'),
+      methodviewers: await redis.get('tally:active:methodviewers')
+    }
+    data.methodOnline = await redis.get('twitch:method:live')
+    res.send(data)
+  })
+
+  fastify.post('/stream', async (req, res) => {
+    if (!req.user || !req.user.isAdmin.access ||  !req.user.isAdmin.super) {
+      return res.code(403).send({error: "forbidden"})
+    }
+    await SiteData.set('EmbeddedStream', {
+      enabled: req.body.enabled,
+      exposure: req.body.exposure,
+      max: req.body.max
+    })
+    await updateDataCaches.queue('EmbeddedStream')
+    res.send({success: true})
+  })
+
+  fastify.get('/get-user', async (req, res) => {
+    if (!req.user || !req.user.isAdmin.access ||  !req.user.isAdmin.super) {
+      return res.code(403).send({error: "forbidden"})
+    }
+    const user = await User.findById(req.query.user).select({'account.username':1, 'account.created':1, 'account.verified_human':1, 'account.hidden':1, 'battlenet':1, 'discord':1, 'patreon':1, 'twitter':1, 'google':1, 'profile':1, 'roles':1})
+    res.send(user)
+  })
+
+  fastify.get('/getusers', async (req, res) => {
+    if (!req.user || !req.user.isAdmin.access ||  !req.user.isAdmin.super) {
+      return res.code(403).send({error: "forbidden"})
+    }
+    const data = {
+      admin: await User.find({"roles.isAdmin.access": true}).select({'account.username': 1, 'profile.avatar': 1}).sort({'account.username': 1}).exec(),
+      gold: await User.find({"roles.gold_subscriber": true}).select({'account.username': 1, 'profile.avatar': 1}).sort({'account.username': 1}).exec(),
+      subs: await User.find({"roles.subscriber": true, "roles.gold_subscriber": {$ne: true}}).select({'account.username': 1, 'profile.avatar': 1}).sort({'account.username': 1}).exec(),
+      methodRaider: await User.find({"roles.methodRaider": true}).select({'account.username': 1, 'profile.avatar': 1}).sort({'account.username': 1}).exec(),
+      methodStreamer: await User.find({"roles.methodStreamer": true}).select({'account.username': 1, 'profile.avatar': 1}).sort({'account.username': 1}).exec(),
+      ambassador: await User.find({"roles.ambassador": true}).select({'account.username': 1, 'profile.avatar': 1}).sort({'account.username': 1}).exec(),
+      communityLeader: await User.find({"roles.community_leader": true}).select({'account.username': 1, 'profile.avatar': 1}).sort({'account.username': 1}).exec(),
+      developer: await User.find({"roles.developer": true}).select({'account.username': 1, 'profile.avatar': 1}).sort({'account.username': 1}).exec(),
+      contestWinner: await User.find({$or: [{"roles.artContestWinnerAug2018": true}]}).select({'account.username': 1, 'profile.avatar': 1}).sort({'account.username': 1}).exec(),
+    }
+    res.send(data)
+  })
+
+  fastify.post('/verify-human-user', async (req, res) => {
+    if (!req.user || !req.user.isAdmin.access ||  !req.user.isAdmin.super) {
+      return res.code(403).send({error: "forbidden"})
+    }
+    await User.findByIdAndUpdate(req.body.user, {'account.verified_human': true})
+    res.send({success: true})
+  })
+
+  fastify.post('/set-user-role', async (req, res) => {
+    if (!req.user || !req.user.isAdmin.access ||  !req.user.isAdmin.super) {
+      return res.code(403).send({error: "forbidden"})
+    }
+    if (!req.body.role.match(/^ambassador|methodStreamer|community_leader|developer$/)) {
+      return res.send({success: false})
+    }
+
+    var user = await User.findById(req.body.user)
+    user.roles[req.body.role] = req.body.value
+    console.log(user)
+    await user.save()
+    res.send({success: true})
+  })
+
+  fastify.get('/search-username', async (req, res) => {
+    if (!req.user || !req.user.isAdmin.access ||  !req.user.isAdmin.super) {
+      return res.code(403).send({error: "forbidden"})
+    }
+
+    if (!req.query.name) {
+      return res.send([])
+    }
+    const results = await User.esSearch({
+      query: {
+        bool: {
+          should: [
+            {
+              regexp: {
+                "account.username": {
+                  value: req.query.name.toLowerCase(),
+                  boost: 2
+                }
+              }
+            },
+            {
+              regexp: {
+                "account.username": {
+                  value: req.query.name.toLowerCase() + '.*',
+                  boost: 1.2
+                }
+              }
+            },
+            {
+              regexp: {
+                "account.username": {
+                  value: '.*' + req.query.name.toLowerCase() + '.*',
+                  boost: .9
+                }
+              }
+            }
+          ]
+        }
+      },
+    },
+    { hydrate: true, sort: ['_score'], size: 10, from: 0})
+    if (results && results.hits && results.hits.hits) {
+      var users = []
+      for (user of results.hits.hits) {
+        users.push({name: user.account.username, _id: user._id})
+      }
+      res.send(users)
+    }
+    else {
+      res.send([])
+    }
+  })
+
 
   next()
 }

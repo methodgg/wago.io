@@ -245,6 +245,7 @@
 /* User roles */
 .user-admin, .user-admin:hover { font-weight: bold; color:#B80000!important; }
 .user-moderator, .user-moderator:hover { font-weight: bold; color:#C9097D!important; }
+.user-method, .user-method:hover { font-weight: bold; color:#c09100!important; }
 .user-goldsub, .user-goldsub:hover, .user-ambassador, .user-ambassador:hover { font-weight: bold; color:#c09100!important; }
 .user-sub, .user-sub:hover { font-weight: bold; color:#9bbb59!important; }
 .user-default { color: rgba(0, 0, 0, 0.87)!important}

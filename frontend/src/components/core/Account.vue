@@ -166,9 +166,11 @@
             {{ $t("To enable hyperlinks in your descriptions, connect or update your Wago account with a Battlenet account with a max level character, or with a Patreon subscription") }}
           </ui-warning>
           <br>
-          <ui-warning v-if="User.access && (User.access.admin || User.access.goldSub || User.access.guild_subscriber || User.access.ambassador || User.access.contestWinner)" mode="gold">
+          <ui-warning v-if="User.access && (User.access.admin || User.access.goldSub || User.access.guild_subscriber || User.access.ambassador || User.access.contestWinner || User.access.methodRaider || User.access.methodStreamer)" mode="gold">
             <span v-if="User.access.admin" style="padding-right:16px">[Wago.io Admin]</span>
             <span v-if="User.access.ambassador" style="padding-right:16px">[Wago.io Ambassador]</span>
+            <span v-if="User.access.methodRaider" style="padding-right:16px">[Method Raider]</span>
+            <span v-if="User.access.methodStreamer" style="padding-right:16px">[Method Streamer]</span>
             <span v-if="User.access.community_leader" style="padding-right:16px">[Community Leader]</span>
             <span v-if="User.access.developer" style="padding-right:16px">[Addon Developer]</span>
             <span v-if="User.access.contestWinner" style="padding-right:16px">[{{ $t("Contest Winner") }}]</span>

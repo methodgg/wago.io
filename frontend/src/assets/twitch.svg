@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="32px" height="32px" viewBox="0 0 32 32" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 64 (93537) - https://sketch.com -->
+    <title>Twitch</title>
+    <desc>Created with Sketch.</desc>
+    <g id="Campaigns--!" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Create-Campaign" transform="translate(-1080.000000, -212.000000)">
+            <g id="Twitch" transform="translate(1080.000000, 212.000000)">
+                <circle id="Oval" fill="#6441A5" cx="16" cy="16" r="16"></circle>
+                <path d="M24,8 L24,17.1433596 L18.5426082,22.3670419 L15.8143715,22.3670419 L14.1084692,24 L12.4034852,24 L12.4034852,22.3670419 L9.33333333,22.3670419 L9.33333333,10.6117784 L10.0153269,8 L24,8 Z M22.6364065,9.30601479 L11.3802325,9.30601479 L11.3802325,18.7754384 L14.4499908,18.7754384 L14.4499908,20.734335 L16.4966275,18.7754384 L20.2481169,18.7754384 L22.6364065,16.4893473 L22.6364065,9.30601479 Z M20.2481957,11.9179188 L20.2481957,15.8368424 L18.8838149,15.8368424 L18.8838149,11.9179188 L20.2481957,11.9179188 Z M16.4964438,11.9179188 L16.4964438,15.8368424 L15.1321943,15.8368424 L15.1321943,11.9179188 L16.4964438,11.9179188 Z" id="Combined-Shape" fill="#FFFFFF"></path>
+            </g>
+        </g>
+    </g>
+</svg>

@@ -14,6 +14,7 @@ const luacheck = require('./luacheck')
 
 const logger = require('../../middlewares/matomo')
 const logError = require('../../middlewares/matomoErrors')
+const redis = require('../../redis')
 
 module.exports = async (task, data) => {
   try {
@@ -42,8 +43,14 @@ module.exports = async (task, data) => {
       case 'UpdateTopLists':
         await UpdateTopLists()
       break
+      case 'UpdateTwitchStatus':
+        await UpdateTwitchStatus()
+      break
       case 'UpdateWagoOfTheMoment':
         await UpdateWagoOfTheMoment()
+      break
+      case 'UpdateActiveUserCount':
+        await UpdateActiveUserCount()
       break
       case 'UpdateLatestNews':
         await UpdateLatestNews()
@@ -68,6 +75,45 @@ async function UpdateWagoOfTheMoment () {
   const data = await WagoItem.randomOfTheMoment()
   await SiteData.findOneAndUpdate({_id: 'WagoOfTheMoment'}, {value: data}, {upsert: true}).exec()
   await updateDataCaches.queue('WagoOfTheMoment')
+}
+
+async function UpdateActiveUserCount () {
+  const redisClient = redis.getClient()
+  const activeUsers = await new Promise(async (done, err) => {
+    redisClient.keys('rate:wago:*', (err, data) => {
+      done(data.length)
+    })
+  })
+  const methodStreams = await new Promise(async (done, err) => {
+    redisClient.keys('stream:method:*', (err, data) => {
+      done(data.length)
+    })
+  })
+  await redis.set('tally:active:users', activeUsers || 0)
+  await redis.set('tally:active:methodviewers', methodStreams || 0)
+}
+
+async function UpdateTwitchStatus () {
+  var twitchToken = await redis.get('twitch:appToken')
+  if (!twitchToken) {
+    console.log('get token', {
+      client_id: config.auth.twitch.clientID,
+      client_secret: config.auth.twitch.clientSecret,
+      grant_type: 'client_credentials'
+    })
+    const getToken = await axios.post(`https://id.twitch.tv/oauth2/token?client_id=${config.auth.twitch.clientID}&client_secret=${config.auth.twitch.clientSecret}&grant_type=client_credentials`)
+    if (getToken && getToken.data && getToken.data.access_token) {
+      twitchToken = getToken.data.access_token
+      redis.set('twitch:appToken', twitchToken, getToken.data.expires_in)
+    }
+  }
+  const req = await axios.get('https://api.twitch.tv/helix/streams?user_login=method', {
+    headers: {
+      'client-id': config.auth.twitch.clientID,
+      'Authorization': 'Bearer '+ twitchToken
+    }
+  })
+  redis.set('twitch:method:live', (req.data.data.length > 0))
 }
 
 async function UpdateLatestNews () {
@@ -313,6 +359,10 @@ async function UpdateGuildMembership () {
           }
         }
 
+        if (guildKey === 'eu@twisting-nether@Method') {
+          memberUser.roles.methodRaider = (guild.members[j].rank <= 4)
+        }
+
         memberUser.battlenet.guilds = [...new Set(memberUser.battlenet.guilds)]
 
         await memberUser.save()
@@ -327,6 +377,10 @@ async function UpdateGuildMembership () {
             exGuild[d].battlenet.guilds.splice(g, 1)
               }
             }
+        if (guildKey === 'eu@twisting-nether@Method') {
+          exGuild[d].roles.methodRaider = false
+        }
+        
         await exGuild[d].save()
       }
     }
@@ -337,6 +391,7 @@ async function UpdateGuildMembership () {
       await updateGuild(users[i].battlenet.guilds[j])
     }
   }
+  await updateGuild('eu@twisting-nether@Method')
 }
 
 async function ComputeViewsThisWeek ()  {

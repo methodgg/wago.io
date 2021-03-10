@@ -29,5 +29,11 @@ module.exports = function (req, res, next) {
     }
   })
 
+  store.get('stream:method:' + req.raw.ip, (err, val) => {
+    if (!err && val) {
+      store.expire('stream:method:' + req.raw.ip, 70)
+    }
+  })
+
   return next()
 }
