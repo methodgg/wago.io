@@ -42,6 +42,8 @@ const Schema = new mongoose.Schema({
     gold_subscriber : { type: Boolean, default: false },
     pro_subscriber : { type: Boolean, default: false },
     ambassador : { type: Boolean, default: false },
+    methodRaider : { type: Boolean, default: false },
+    methodStreamer : { type: Boolean, default: false },
     community_leader : { type: Boolean, default: false },
     developer : { type: Boolean, default: false },
     artContestWinnerAug2018: { type: Boolean, default: false }
