@@ -2,6 +2,7 @@ const redis = require("../../redis")
 const Profiler = require("../models/Profiler")
 const SiteData = require("../models/SiteData")
 const updateDataCaches = require('../../middlewares/updateLocalCache')
+const runTask = require('../helpers/tasks')
 
 module.exports = (fastify, opts, next) => {
   // get all blog posts
@@ -103,7 +104,7 @@ module.exports = (fastify, opts, next) => {
       active: await redis.get('tally:active:users'),
       methodviewers: await redis.get('tally:active:methodviewers')
     }
-    data.methodOnline = await redis.get('twitch:method:live')
+    data.channelOnline = await redis.get(`twitch:${data.channel || 'method'}:live`)
     res.send(data)
   })
 
@@ -114,10 +115,11 @@ module.exports = (fastify, opts, next) => {
     await SiteData.set('EmbeddedStream', {
       enabled: req.body.enabled,
       exposure: req.body.exposure,
-      max: req.body.max
+      max: req.body.max,
+      channel: req.body.channel
     })
-    await updateDataCaches.queue('EmbeddedStream')
-    res.send({success: true})
+    let online = await runTask('UpdateTwitchStatus', req.body.channel)
+    res.send({success: true, online: online})
   })
 
   fastify.get('/get-user', async (req, res) => {

@@ -20,47 +20,47 @@ module.exports = async (task, data) => {
   try {
     switch (task) {
       case 'UpdatePatreonAccounts':
-        await UpdatePatreonAccounts()
-      break
+        return await UpdatePatreonAccounts()
+
       case 'UpdateWeeklyMDT':
-        await UpdateWeeklyMDT()
-      break
+        return await UpdateWeeklyMDT()
+
       case 'ComputeViewsThisWeek':
-        await ComputeViewsThisWeek()
-      break
+        return await ComputeViewsThisWeek()
+
       case 'DiscordMessage':
-        await DiscordMessage(data)
-      break
+        return await DiscordMessage(data)
+
       case 'UpdateValidCharacters':
-        await UpdateValidCharacters()
-      break
+        return await UpdateValidCharacters()
+
       case 'UpdateGuildMembership':
-        await UpdateGuildMembership()
-      break
+        return await UpdateGuildMembership()
+
       case 'UpdateLatestAddonReleases':
-        await UpdateLatestAddonReleases()
-      break
+        return await UpdateLatestAddonReleases()
+
       case 'UpdateTopLists':
-        await UpdateTopLists()
-      break
+        return await UpdateTopLists()
+
       case 'UpdateTwitchStatus':
-        await UpdateTwitchStatus()
-      break
+        return await UpdateTwitchStatus(data)
+
       case 'UpdateWagoOfTheMoment':
-        await UpdateWagoOfTheMoment()
-      break
+        return await UpdateWagoOfTheMoment()
+
       case 'UpdateActiveUserCount':
-        await UpdateActiveUserCount()
-      break
+        return await UpdateActiveUserCount()
+
       case 'UpdateLatestNews':
-        await UpdateLatestNews()
-      break
+        return await UpdateLatestNews()
+
       case 'SyncElastic':
-        await SyncElastic(data.table)
-      break
+        return await SyncElastic(data.table)
+
       case 'ProcessCode':
-        await ProcessCode(data)
-      break
+        return await ProcessCode(data)
+
       default:
         throw {name: 'Unknown task', message: 'Unknown task ' + task}
     }
@@ -93,7 +93,7 @@ async function UpdateActiveUserCount () {
   await redis.set('tally:active:methodviewers', methodStreams || 0)
 }
 
-async function UpdateTwitchStatus () {
+async function UpdateTwitchStatus (channel) {
   var twitchToken = await redis.get('twitch:appToken')
   if (!twitchToken) {
     console.log('get token', {
@@ -107,13 +107,18 @@ async function UpdateTwitchStatus () {
       redis.set('twitch:appToken', twitchToken, getToken.data.expires_in)
     }
   }
-  const req = await axios.get('https://api.twitch.tv/helix/streams?user_login=method', {
+  if (!channel || typeof channel !== 'string') {
+    const stream = await SiteData.get('EmbeddedStream')
+    channel = stream.channel || 'method'
+  }
+  const req = await axios.get(`https://api.twitch.tv/helix/streams?user_login=${channel}`, {
     headers: {
       'client-id': config.auth.twitch.clientID,
       'Authorization': 'Bearer '+ twitchToken
     }
   })
-  redis.set('twitch:method:live', (req.data.data.length > 0))
+  redis.set(`twitch:${channel}:live`, (req.data.data.length > 0))
+  return (req.data.data.length > 0)
 }
 
 async function UpdateLatestNews () {

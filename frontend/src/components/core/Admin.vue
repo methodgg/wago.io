@@ -307,20 +307,27 @@
             </md-list-item>
           </md-list>
         </md-layout>
-        <md-layout md-flex="85">
+        <md-layout>
           <md-card>
             <md-card-content>
               Active Users on Site <strong>{{ activeUserCount.active }} </strong> - Currently Viewing Method Stream: <strong>{{ activeUserCount.methodviewers }}</strong><br>
-              Method Stream: 
-              <span v-if="methodStreamOnline" style="color:#00c500">[Online]</span> 
+              https://twitch.tv/{{channelStatus.name}}: 
+              <span v-if="channelStatus.online" style="color:#00c500">[Online]</span> 
               <span v-else style="color:#bf0000">[Offline]</span>
             </md-card-content>
             <md-card-content>
-              <md-checkbox v-model="methodStreamEnabled"><strong style="color:white">Method Stream Enabled</strong></md-checkbox>
+              <md-checkbox v-model="methodStreamEnabled"><strong style="color:white">Custom Stream Enabled</strong></md-checkbox>
             </md-card-content>
             <template v-if="methodStreamEnabled">
               <md-card-content>
-                <strong>Exposure of Method Stream: {{ methodStreamExposure }}%</strong> <small style="color:#AAA">({{ 100 - methodStreamExposure }}% Stream Spread)</small>
+                <strong>Stream Channel:</strong>
+                <md-input-container>
+                  <label>https://twitch.tv/...</label>
+                  <md-autocomplete v-model="methodStreamChannel" :list="commonChannels" :min-chars="0" :max-height="6" :debounce="500"></md-autocomplete>
+                </md-input-container>
+              </md-card-content>
+              <md-card-content>
+                <strong>Exposure of Custom Stream: {{ methodStreamExposure }}%</strong> <small style="color:#AAA">({{ 100 - methodStreamExposure }}% Stream Spread)</small>
                 <vue-slider v-model="methodStreamExposure" :width="200" tooltip="none" :disabled="!methodStreamEnabled"></vue-slider>
               </md-card-content>
               <md-card-content>
@@ -330,9 +337,17 @@
                 </md-input-container>
               </md-card-content>
             </template>
-            <md-card-actions>
+            <md-card-actions style="justify-content: flex-start">
               <md-button class="md-raised" @click="onSaveMethodStream()">Save</md-button>
             </md-card-actions>
+          </md-card>
+        </md-layout>
+        <md-layout>
+          <md-card>
+            <md-card-header>Embed Preview</md-card-header>
+            <md-card-content>
+              <stream-embed v-if="methodStreamChannel" :stream="methodStreamChannel" :preview="true" />
+            </md-card-content>
           </md-card>
         </md-layout>
       </md-layout>
@@ -458,12 +473,14 @@
 import VueMarkdown from 'vue-markdown'
 import VueSlider from 'vue-slider-component'
 import 'vue-slider-component/theme/material.css'
+import StreamEmbed from '../UI/StreamEmbed.vue'
 
 export default {
   components: {
     editor: require('vue2-ace-editor'),
     'vue-markdown': VueMarkdown,
-    VueSlider: VueSlider
+    VueSlider: VueSlider,
+    StreamEmbed: StreamEmbed
   },
   data: function () {
     return {
@@ -491,7 +508,12 @@ export default {
       methodStreamEnabled: false,
       methodStreamExposure: 0,
       methodStreamMax: 20,
-      methodStreamOnline: false,
+      methodStreamChannel: 'method',
+      channelStatus: {
+        online: false,
+        name: 'method'
+      },
+      commonChannels: [{name:'method'}, {name:'sco'}],
       activeUserCount: {}
     }
   },
@@ -636,7 +658,11 @@ export default {
           this.methodStreamExposure = res.exposure
           this.methodStreamMax = res.max
           this.activeUserCount = res.users
-          this.methodStreamOnline = res.methodOnline
+          this.methodStreamChannel = res.channel
+          this.channelStatus = {
+            name: res.channel,
+            online: res.channelOnline
+          }
         })
       }
       else if (frame === 'users') {
@@ -670,11 +696,16 @@ export default {
       const post = {
         enabled: this.methodStreamEnabled,
         exposure: this.methodStreamExposure,
-        max: Math.max(0, Math.min(1000000000, this.methodStreamMax))
+        max: Math.max(0, Math.min(1000000000, this.methodStreamMax)),
+        channel: this.methodStreamChannel
       }
       this.http.post('/admin/stream', post).then((res) => {
         if (res.success) {
           window.eventHub.$emit('showSnackBar', 'Stream settings saved.')
+          this.channelStatus = {
+            name: this.methodStreamChannel,
+            online: res.online
+          }
         }
         else {
           window.eventHub.$emit('showSnackBar', 'Error could not save.')
