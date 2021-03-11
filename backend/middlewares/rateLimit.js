@@ -29,9 +29,10 @@ module.exports = function (req, res, next) {
     }
   })
 
-  store.get('stream:method:' + req.raw.ip, (err, val) => {
+  const channel = (global.EmbeddedStream || {}).channel || 'method'
+  store.get(`stream:${channel}:${req.raw.ip}`, (err, val) => {
     if (!err && val) {
-      store.expire('stream:method:' + req.raw.ip, 70)
+      store.expire(`stream:${channel}:${req.raw.ip}`, 70)
     }
   })
 
