@@ -310,7 +310,7 @@
         <md-layout>
           <md-card>
             <md-card-content>
-              Active Users on Site <strong>{{ activeUserCount.active }} </strong> - Currently Viewing Method Stream: <strong>{{ activeUserCount.methodviewers }}</strong><br>
+              Active Users on Site <strong>{{ activeUserCount.active }} </strong> - Currently Viewing Method Stream: <strong>{{ activeUserCount.embedViewers }}</strong><br>
               https://twitch.tv/{{channelStatus.name}}: 
               <span v-if="channelStatus.online" style="color:#00c500">[Online]</span> 
               <span v-else style="color:#bf0000">[Offline]</span>

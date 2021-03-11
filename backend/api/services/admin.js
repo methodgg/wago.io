@@ -102,7 +102,7 @@ module.exports = (fastify, opts, next) => {
     data = data.value || {}
     data.users = {
       active: await redis.get('tally:active:users'),
-      methodviewers: await redis.get('tally:active:methodviewers')
+      embedViewers: await redis.get('tally:active:embedviewers')
     }
     data.channelOnline = await redis.get(`twitch:${data.channel || 'method'}:live`)
     res.send(data)
