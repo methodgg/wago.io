@@ -84,23 +84,20 @@ async function UpdateActiveUserCount () {
       done(data.length)
     })
   })
-  const methodStreams = await new Promise(async (done, err) => {
-    redisClient.keys('stream:method:*', (err, data) => {
+  const stream = await SiteData.get('EmbeddedStream')
+  channel = stream.channel || 'method'
+  const embedStreams = await new Promise(async (done, err) => {
+    redisClient.keys(`stream:${channel}:*`, (err, data) => {
       done(data.length)
     })
   })
   await redis.set('tally:active:users', activeUsers || 0)
-  await redis.set('tally:active:methodviewers', methodStreams || 0)
+  await redis.set('tally:active:embedviewers', embedStreams || 0)
 }
 
 async function UpdateTwitchStatus (channel) {
   var twitchToken = await redis.get('twitch:appToken')
   if (!twitchToken) {
-    console.log('get token', {
-      client_id: config.auth.twitch.clientID,
-      client_secret: config.auth.twitch.clientSecret,
-      grant_type: 'client_credentials'
-    })
     const getToken = await axios.post(`https://id.twitch.tv/oauth2/token?client_id=${config.auth.twitch.clientID}&client_secret=${config.auth.twitch.clientSecret}&grant_type=client_credentials`)
     if (getToken && getToken.data && getToken.data.access_token) {
       twitchToken = getToken.data.access_token

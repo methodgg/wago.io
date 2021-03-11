@@ -14,17 +14,17 @@ async function determineStream(ip) {
   var streamEmbed = 'streamspread'
   // determine method stream or advert
   const streamCfg = global.EmbeddedStream || {}
-  const userViewingMethod = await redis.get('stream:method:' + ip)
+  const userIsViewingEmbed = await redis.get(`stream:${streamCfg.channel}:${ip}`)
   // If enabled, online and exposure chance..
-  if (streamCfg.enabled && (userViewingMethod || Math.random() * 100 < streamCfg.exposure) && await redis.get('twitch:method:live')) {
+  if (streamCfg.enabled && streamCfg.channel && (userIsViewingEmbed || Math.random() * 100 < streamCfg.exposure) && await redis.get(`twitch:${streamCfg.channel}:live`)) {
     // and we are not over max method viewer count...
-    const methodViewers = await redis.get('tally:active:methodviewers')
+    const embedViewers = await redis.get('tally:active:embedviewers')
     // then show method stream to user instead of streamspread
-    if (methodViewers < streamCfg.max || userViewingMethod) {
-      streamEmbed = 'method'
-      redisClient.incr('stream:method:' + ip, (err, count) => {
+    if (embedViewers < streamCfg.max || userIsViewingEmbed) {
+      streamEmbed = streamCfg.channel
+      redisClient.incr(`stream:${streamCfg.channel}:${ip}`, (err, count) => {
         if (!err && count <= 5) {
-          redisClient.expire('stream:method:' + ip, 70)
+          redisClient.expire(`stream:${streamCfg.channel}:${ip}`, 70)
         }
       })
     }
