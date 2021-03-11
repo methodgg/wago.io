@@ -119,6 +119,7 @@ module.exports = (fastify, opts, next) => {
       channel: req.body.channel
     })
     let online = await runTask('UpdateTwitchStatus', req.body.channel)
+    await updateDataCaches.queue('EmbeddedStream')
     res.send({success: true, online: online})
   })
 
