@@ -25,6 +25,9 @@ async function determineStream(ip) {
       redisClient.incr(`stream:${streamCfg.channel}:${ip}`, (err, count) => {
         if (!err && count <= 5) {
           redisClient.expire(`stream:${streamCfg.channel}:${ip}`, 70)
+          if (count === 1) {
+            redisClient.incr('tally:active:embedviewers')
+        }
         }
       })
     }
