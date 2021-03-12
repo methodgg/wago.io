@@ -43,6 +43,9 @@ module.exports = function (data) {
     trackProp.cip = this.req.ip
     trackProp.url = 'https://data.wago.io' + this.req.url
   }
+  if (trackProp.url === 'https://data.wago.io/account/status') {
+    return
+  }
   trackProp.uid = md5(trackProp.cip + (this.user && this.user._id.toString() || ''))
   if (this.query && this.query._ref && this.query._ref.match && !this.query._ref.match(/^https:\/\/wago.io/)) {
     trackProp.urlref = this.query._ref
