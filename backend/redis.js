@@ -1,5 +1,6 @@
 const redis = require("redis")
 const client = redis.createClient(config.redis)
+const client2 = redis.createClient(config.redis2)
 
 var redisActive = false
 
@@ -55,6 +56,22 @@ module.exports = {
       })
     })
   },
+  get2: async (key) => {
+    if (!redisActive) {
+      return
+    }
+    return new Promise((done) => {
+      client2.get(key, (err, val) => {
+        try {
+          const json = JSON.parse(val)
+          done(json)
+        }
+        catch (e) {
+          done(val)
+        }
+      })
+    })
+  },
   clear: (key) => {
     if (!redisActive) {
       return
@@ -91,5 +108,8 @@ module.exports = {
   },
   getClient: () => {
     return client
+  },
+  getClient2: () => {
+    return client2
   }
 }

@@ -2,6 +2,7 @@ const config = require('../../config')
 const locale = require("locale")
 const image = require('../helpers/image')
 const redisClient = redis.getClient()
+const redisClient2 = redis.getClient2()
 
 // build localeArray
 var localeArray = []
@@ -14,7 +15,7 @@ async function determineStream(ip) {
   var streamEmbed = 'streamspread'
   // determine method stream or advert
   const streamCfg = global.EmbeddedStream || {}
-  const userIsViewingEmbed = await redis.get(`stream:${streamCfg.channel}:${ip}`)
+  const userIsViewingEmbed = await redis.get2(`stream:${streamCfg.channel}:${ip}`)
   // If enabled, online and exposure chance..
   if (streamCfg.enabled && streamCfg.channel && (userIsViewingEmbed || Math.random() * 100 < streamCfg.exposure) && await redis.get(`twitch:${streamCfg.channel}:live`)) {
     // and we are not over max method viewer count...
@@ -22,11 +23,11 @@ async function determineStream(ip) {
     // then show method stream to user instead of streamspread
     if (embedViewers < streamCfg.max || userIsViewingEmbed) {
       streamEmbed = streamCfg.channel
-      redisClient.incr(`stream:${streamCfg.channel}:${ip}`, (err, count) => {
+      redisClient2.incr(`stream:${streamCfg.channel}:${ip}`, (err, count) => {
         if (!err && count <= 5) {
-          redisClient.expire(`stream:${streamCfg.channel}:${ip}`, 70)
+          redisClient2.expire(`stream:${streamCfg.channel}:${ip}`, 70)
           if (count === 1) {
-            redisClient.incr('tally:active:embedviewers')
+            redisClient2.incr('tally:active:embedviewers')
         }
         }
       })

@@ -1,4 +1,4 @@
-const store = redis.getClient()
+const store = redis.getClient2()
 
 module.exports = function (req, res, next) {
   const method = req.raw.method && req.raw.method.toUpperCase && req.raw.method.toUpperCase()
@@ -30,11 +30,7 @@ module.exports = function (req, res, next) {
   })
 
   const channel = (global.EmbeddedStream || {}).channel || 'method'
-  store.get(`stream:${channel}:${req.raw.ip}`, (err, val) => {
-    if (!err && val) {
-      store.expire(`stream:${channel}:${req.raw.ip}`, 70)
-    }
-  })
+  store.expire(`stream:${channel}:${req.raw.ip}`, 70)
 
   return next()
 }

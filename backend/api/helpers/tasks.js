@@ -78,16 +78,16 @@ async function UpdateWagoOfTheMoment () {
 }
 
 async function UpdateActiveUserCount () {
-  const redisClient = redis.getClient()
+  const redisClient2 = redis.getClient2()
   const activeUsers = await new Promise(async (done, err) => {
-    redisClient.keys('rate:wago:*', (err, data) => {
+    redisClient2.keys('rate:wago:*', (err, data) => {
       done(data.length)
     })
   })
   const stream = await SiteData.get('EmbeddedStream')
   channel = stream.channel || 'method'
   const embedStreams = await new Promise(async (done, err) => {
-    redisClient.keys(`stream:${channel}:*`, (err, data) => {
+    redisClient2.keys(`stream:${channel}:*`, (err, data) => {
       done(data.length)
     })
   })
