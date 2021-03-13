@@ -384,11 +384,13 @@ axios.interceptors.response.use(function (response) {
 })
 
 var refSent = false
+const isEmbedPage = !!(document.getElementById('embed-body'))
 // setup http fetch helper
 const http = {
   install: function (Vue, options) {
     Vue.prototype.http = {
       heartbeat: null,
+      heartbeatCount: 0,
       config: function (url) {
         var headers = {}
 
@@ -425,9 +427,14 @@ const http = {
           dataServers.push(host)
           
           clearTimeout(this.heartbeat)
-          this.heartbeat = setTimeout(function() {this.get('/account/status')}.bind(this), 60000)
+          if (this.heartbeatCount < 10 && !isEmbedPage) {
+            this.heartbeat = setTimeout(function() {this.heartbeatCount++; this.get('/account/status')}.bind(this), 60000)
+          }
         }
 
+        if (url !== '/account/status') {
+          this.heartbeatCount = 0
+        }
         // append querystring to url
         if (params) {
           if (!url.match(/\?/)) {
@@ -478,13 +485,16 @@ const http = {
           dataServers.push(host)
 
           clearTimeout(this.heartbeat)
-          this.heartbeat = setTimeout(function() {this.get('/account/status')}.bind(this), 60000)
+          if (this.heartbeatCount < 10 && !isEmbedPage) {
+            this.heartbeat = setTimeout(function() {this.heartbeatCount++; this.get('/account/status')}.bind(this), 60000)
+          }
         }
 
         if (!params) {
           params = {}
         }
 
+        this.heartbeatCount = 0
         var config = this.config()
         config.method = 'post'
         config.headers['Accept'] = 'application/json'

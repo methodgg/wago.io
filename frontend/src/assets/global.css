@@ -241,6 +241,7 @@
   color: rgba(255, 255, 255, .87);
 }
 .md-select { z-index: 0 }
+#ss-player iframe {height: 240px}
 
 /* User roles */
 .user-admin, .user-admin:hover { font-weight: bold; color:#B80000!important; }
