@@ -501,7 +501,7 @@
                         </div>
                       </div>
                     </div>
-                    <div v-if="wago.screens.length > 0" class="config-screenshots">
+                    <div v-if="wago.screens && wago.screens.length > 0" class="config-screenshots">
                       <strong>{{ $t("Screenshots") }}</strong>
                       <div class="sortable" id="sorted-screenshots">
                         <div v-for="(item, index) in wago.screens" :key="item._id" :id="'screenshot-'+item._id">
