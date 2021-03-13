@@ -1,6 +1,5 @@
 const config = require('../../config')
 const querystring = require('querystring')
-const redis = require('../../redis')
 const WoWChar = require('../models/WoWChar')
 const mdtWeekReset = 648
 const tmpDir = __dirname + '/../../run-tmp'
