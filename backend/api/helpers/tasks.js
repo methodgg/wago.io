@@ -14,7 +14,7 @@ const luacheck = require('./luacheck')
 
 const logger = require('../../middlewares/matomo')
 const logError = require('../../middlewares/matomoErrors')
-const redis = require('../../redis')
+
 
 module.exports = async (task, data) => {
   try {
@@ -78,21 +78,28 @@ async function UpdateWagoOfTheMoment () {
 }
 
 async function UpdateActiveUserCount () {
-  const redisClient2 = redis.getClient2()
-  const activeUsers = await new Promise(async (done, err) => {
-    redisClient2.keys('rate:wago:*', (err, data) => {
-      done(data.length)
+  var activeUsers = 0
+  var embedUsers = 0
+  const scanStreamUsers = redis2.scanStream({
+    match: 'rate:wago:*'
     })
+  scanStreamUsers.on('data', (data) => {
+    activeUsers = activeUsers + data.length
   })
-  const stream = await SiteData.get('EmbeddedStream')
-  channel = stream.channel || 'method'
-  const embedStreams = await new Promise(async (done, err) => {
-    redisClient2.keys(`stream:${channel}:*`, (err, data) => {
-      done(data.length)
+  scanStreamUsers.on('end', () => {
+    redis.set('tally:active:users', activeUsers)
     })
+  const embed = await SiteData.get('EmbeddedStream')
+  channel = embed.channel || 'method'
+  const scanStreamEmbed = redis2.scanStream({
+    match: `stream:${channel}:*`
   })
-  await redis.set('tally:active:users', activeUsers || 0)
-  await redis.set('tally:active:embedviewers', embedStreams || 0)
+  scanStreamEmbed.on('data', (data) => {
+    embedUsers = activeUsers + data.length
+  })
+  scanStreamEmbed.on('end', () => {
+    redis.set('tally:active:embedviewers', embedUsers)
+  })
 }
 
 async function UpdateTwitchStatus (channel) {
@@ -101,7 +108,7 @@ async function UpdateTwitchStatus (channel) {
     const getToken = await axios.post(`https://id.twitch.tv/oauth2/token?client_id=${config.auth.twitch.clientID}&client_secret=${config.auth.twitch.clientSecret}&grant_type=client_credentials`)
     if (getToken && getToken.data && getToken.data.access_token) {
       twitchToken = getToken.data.access_token
-      redis.set('twitch:appToken', twitchToken, getToken.data.expires_in)
+      redis.set('twitch:appToken', twitchToken, 'EX', getToken.data.expires_in)
     }
   }
   if (!channel || typeof channel !== 'string') {

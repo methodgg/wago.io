@@ -1,10 +1,8 @@
-const store = redis.getClient2()
-
-module.exports = function (req, res, next) {
+module.exports = async function (req, res) {
   const method = req.raw.method && req.raw.method.toUpperCase && req.raw.method.toUpperCase()
   if (method === 'OPTIONS') {
     // OPTIONS for cors pre-flight.
-    return next()
+    return
   }
   var key, max, expire
   if (req.raw.url.match(/^\/auth\//)) {
@@ -17,20 +15,16 @@ module.exports = function (req, res, next) {
     max = 500
     expire = 60
   }
-  store.incr(key, (err, count) => {
-    if (err) {
-      console.error('RATE LIMIT ERROR', err)
-    }
-    else if (count <= 5) {
-      store.expire(key, expire)
-    }
-    else if (count > max) {
-      return res.code(429).send({error: "Rate limit exceeded"})
-    }
-  })
+  var count = await redis2.incr(key)
+  if (count === 1) {
+    redis2.expire(key, expire)
+  }
+  else if (count > max) {
+    return res.code(429).send({error: "Rate limit exceeded"})
+  }
 
   const channel = (global.EmbeddedStream || {}).channel || 'method'
-  store.expire(`stream:${channel}:${req.raw.ip}`, 70)
+  redis2.expire(`stream:${channel}:${req.raw.ip}`, 70)
 
-  return next()
+  return
 }

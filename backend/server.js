@@ -27,7 +27,8 @@ global.async = require('async')
 global.axios = require('axios')
 global.bluebird = require('bluebird')
 global.commonRegex = require('./commonRegex')
-global.redis = require('./redis')
+global.redis = new Redis(config.redis)
+global.redis2 = new Redis(config.redis2)
 global.fs = require('fs').promises
 global.mongoose = require('mongoose')
 

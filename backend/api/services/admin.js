@@ -1,4 +1,3 @@
-const redis = require("../../redis")
 const Profiler = require("../models/Profiler")
 const SiteData = require("../models/SiteData")
 const updateDataCaches = require('../../middlewares/updateLocalCache')
@@ -68,29 +67,38 @@ module.exports = (fastify, opts, next) => {
     res.send(data)
   })
 
-  const redisClient = redis.getClient()
   // get rate limit by ip
   fastify.get('/ratelimit', async (req, res) => {
     if (!req.user || !req.user.isAdmin.access ||  !req.user.isAdmin.super) {
       return res.code(403).send({error: "forbidden"})
     }
     var data = {}
-    var auth = await new Promise(async (done, err) => {
-      redisClient.keys('rate:auth:*', (err, data) => {
-        done(data)
+    data['Auth Keys'] = await new Promise((done) => {
+      var count = 0
+      const scanStreamUsers = redis2.scanStream({
+        match: 'rate:auth:' + (req.query.q || '*')
+      })
+      scanStreamUsers.on('data', (data) => {
+        count = count + data.length
+      })
+      scanStreamUsers.on('end', () => {
+        done(count)
       })
     })
-    var common = await new Promise(async (done, err) => {
-      redisClient.keys('rate:wago:*', (err, data) => {
-        done(data)
+
+    data['Common Keys'] = await new Promise((done) => {
+      var count = 0
+      const scanStreamUsers = redis2.scanStream({
+        match: 'rate:wago:' + (req.query.q || '*')
+      })
+      scanStreamUsers.on('data', (data) => {
+        count = count + data.length
+      })
+      scanStreamUsers.on('end', () => {
+        done(count)
       })
     })
-    data['Auth Keys'] = auth.length
-    data['Common Keys'] = common.length
-    if (req.query.q) {
-      data['rate:auth:' + req.query.q] = await redis.get('rate:auth:' + req.query.q)
-      data['rate:wago:' + req.query.q] = await redis.get('rate:wago:' + req.query.q)
-    }
+    
     res.send(data)
   })
 

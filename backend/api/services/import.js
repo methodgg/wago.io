@@ -758,7 +758,10 @@ module.exports = function (fastify, opts, next) {
     if (req.user && !wago.hidden && !wago.private && !wago.restricted && req.user.discord && req.user.discord.webhooks && req.user.discord.webhooks.onCreate) {
       webhooks.discord.onUpdate(req.user, wago)
     }
-    redis.clear(wago)
+    redis.del(wago._id)
+    redis.del(wago.slug)
+    redis.del('API:' + wago._id)
+    redis.del('API:' + wago.slug)
     await cloudflare.zones.purgeCache(config.cloudflare.zoneID, {files: [
       `https://data.wago.io/api/raw/encoded?id=${wago._id}`,
       `https://data.wago.io/api/raw/encoded?id=${wago.slug}`
@@ -916,7 +919,10 @@ module.exports = function (fastify, opts, next) {
     }
 
     await code.save()
-    redis.clear(wago)
+    redis.del(wago._id)
+    redis.del(wago.slug)
+    redis.del('API:' + wago._id)
+    redis.del('API:' + wago.slug)
     res.send({success: true, wagoID: wago._id})
   })
 
@@ -1081,7 +1087,10 @@ module.exports = function (fastify, opts, next) {
       code.lua = crypto.AES.encrypt(code.lua, req.body.cipherKey)
     }
     await code.save()
-    redis.clear(wago)
+    redis.del(wago._id)
+    redis.del(wago.slug)
+    redis.del('API:' + wago._id)
+    redis.del('API:' + wago.slug)
     res.send({success: true, wagoID: wago._id})
   })
 

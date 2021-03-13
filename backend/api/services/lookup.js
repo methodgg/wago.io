@@ -37,7 +37,7 @@ module.exports = function (fastify, opts, next) {
     
     var doc
     if (!req.query.version) {
-      doc = await redis.get(req.query.id)
+      doc = JSON.parse(await redis.get(req.query.id))
     }
  
     if (doc && doc._id) {
@@ -283,10 +283,15 @@ module.exports = function (fastify, opts, next) {
     }
     const getScreenshots = async () => {
       const screens = await Screenshot.findForWago(wago._id)
-      if (!screens) {
+      if (!screens || !screens.length) {
         return
       }
       wago.screens = []
+      if (screens[0].url && screens[0].url !== doc.previewImage) {
+        // solve older problem of preview img not updating correctly, this will fix it on page load
+        doc.previewImage = screens[0].url
+        saveDoc = true
+      }
       screens.forEach((screen) => {
         wago.screens.push({_id: screen._id.toString(), src: screen.url, thumb: screen.url, title: screen.caption})
       })
@@ -469,7 +474,7 @@ module.exports = function (fastify, opts, next) {
       doc.save()
     }
     if (!req.query.version) {
-      redis.set(req.query.id, wago)
+      redis.set(req.query.id, JSON.stringify(wago), 'EX', 3600)
     }
     if (!req.user || !req.user._id.equals(wago.UID)) {
       delete wago.restrictions

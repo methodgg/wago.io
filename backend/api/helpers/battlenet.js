@@ -52,7 +52,7 @@ async function getToken (region) {
 
     if (response && response.data && response.data.access_token) {
       if (response.data.expires_in > 3600) { // should usually be 86399 (just over 24 hours)
-        await redis.set('BattleNetClientToken', response.data.access_token, response.data.expires_in - 300)
+        await redis.set('BattleNetClientToken', response.data.access_token, 'EX', response.data.expires_in - 300)
       }
       return response.data.access_token
     }
@@ -220,7 +220,9 @@ module.exports = {
         char = new WoWChar({bnetID: summary.id, region, realm, realmSlug: summary.realm.slug, name})
       }
       else if (!char.bnetID !== summary.id) {
-        await WoWChar.findOneAndDelete({bnetID: summary.id})
+        if (summary.id) {
+          await WoWChar.findOneAndDelete({bnetID: summary.id})
+        }
         char = new WoWChar({bnetID: summary.id, region, realm, realmSlug: summary.realm.slug, name})
       }
 
@@ -286,7 +288,6 @@ module.exports = {
   },
 
   lookupCharacterStatus: async (region, realm, name) => {
-    console.log(region, realm, name)
     if (!realm) {
       return {}
     }
