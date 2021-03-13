@@ -84,7 +84,7 @@
             <div v-else>
               <div>
                 <md-avatar>
-                  <ui-image :img="selectedUser.profile.avatar"></ui-image>
+                  <ui-image v-if="selectedUser.profile" :img="selectedUser.profile.avatar"></ui-image>
                 </md-avatar>
                 <span class="md-list-item-text" style="font-size:150%; font-weight: bold; margin-left: 8px;">{{ selectedUser.account.username }}</span> 
                 <small style="opacity:.6; margin-left: 8px">{{ selectedUser._id }}</small>
@@ -310,7 +310,7 @@
         <md-layout>
           <md-card>
             <md-card-content>
-              Active Users on Site <strong>{{ activeUserCount.active }} </strong> - Currently Viewing Method Stream: <strong>{{ activeUserCount.embedViewers }}</strong><br>
+              Active Users on Site <strong>{{ activeUserCount.active }} </strong> - Currently Viewing Custom Stream: <strong>{{ activeUserCount.embedViewers }}</strong><br>
               https://twitch.tv/{{channelStatus.name}}: 
               <span v-if="channelStatus.online" style="color:#00c500">[Online]</span> 
               <span v-else style="color:#bf0000">[Offline]</span>
@@ -661,7 +661,7 @@ export default {
           this.methodStreamChannel = res.channel
           this.channelStatus = {
             name: res.channel,
-            online: res.channelOnline
+            online: res.channelOnline === 'true'
           }
         })
       }

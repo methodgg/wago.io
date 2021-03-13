@@ -95,7 +95,7 @@ async function UpdateActiveUserCount () {
     match: `stream:${channel}:*`
   })
   scanStreamEmbed.on('data', (data) => {
-    embedUsers = activeUsers + data.length
+    embedUsers = embedUsers + data.length
   })
   scanStreamEmbed.on('end', () => {
     redis.set('tally:active:embedviewers', embedUsers)
