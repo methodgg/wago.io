@@ -58,7 +58,6 @@ module.exports = (fastify, opts, next) => {
       return res.code(403).send({error: "forbidden"})
     }
     var data = {}
-    data.redis = await redis.info()
     data.waiting = await taskQueue.getWaiting(0, 50)
     data.active = await taskQueue.getActive(0, 50)
     data.completed = await taskQueue.getCompleted(0, 50)
@@ -232,6 +231,60 @@ module.exports = (fastify, opts, next) => {
       res.send([])
     }
   })
+
+  fastify.post('/redis/get', async (req, res) => {
+    if (!req.user || !req.user.isAdmin.access ||  !req.user.isAdmin.super) {
+      return res.code(403).send({error: "forbidden"})
+    }
+    var redisServ
+    if (req.body.server === 'cache') {
+      redisServ = redis
+    }
+    else if (req.body.server === 'rate') {
+      redisServ = redis2
+    }
+    if (!redisServ) {
+      return res.send({error: 'no server'})
+    }
+    res.send({value: await redisServ.get(req.body.key)})
+  })
+
+  fastify.post('/redis/delete', async (req, res) => {
+    if (!req.user || !req.user.isAdmin.access ||  !req.user.isAdmin.super) {
+      return res.code(403).send({error: "forbidden"})
+    }
+    var redisServ
+    if (req.body.server === 'cache') {
+      redisServ = redis
+    }
+    else if (req.body.server === 'rate') {
+      redisServ = redis2
+    }
+    if (!redisServ) {
+      return res.send({error: 'no server'})
+    }
+    redisServ.del(req.body.key)
+    res.send({success: true})
+  })
+
+  fastify.post('/redis/info', async (req, res) => {
+    if (!req.user || !req.user.isAdmin.access ||  !req.user.isAdmin.super) {
+      return res.code(403).send({error: "forbidden"})
+    }
+    var redisServ
+    if (req.body.server === 'cache') {
+      redisServ = redis
+    }
+    else if (req.body.server === 'rate') {
+      redisServ = redis2
+    }
+    if (!redisServ) {
+      return res.send({error: 'no server'})
+    }
+    res.send({info: await redisServ.info()})
+  })
+
+
 
 
   next()

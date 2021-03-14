@@ -198,7 +198,7 @@
               <template v-for="user of userList.gold">
                 <div v-if="user.account.username" @click="viewUser(user)">
                   <md-avatar>
-                    <ui-image :img="user.profile.avatar"></ui-image>
+                    <ui-image v-if="user.profile" :img="user.profile.avatar"></ui-image>
                   </md-avatar>
                   <span class="md-list-item-text user-goldsub">{{ user.account.username }}</span>
                 </div>
@@ -207,7 +207,7 @@
               <template v-for="user of userList.subs">
                 <div v-if="user.account.username" @click="viewUser(user)">
                   <md-avatar v-if="user.profile">
-                    <ui-image :img="user.profile.avatar"></ui-image>
+                    <ui-image v-if="user.profile" :img="user.profile.avatar"></ui-image>
                   </md-avatar>
                   <span class="md-list-item-text user-sub">{{ user.account.username }}</span>
                 </div>
@@ -220,7 +220,7 @@
               <template v-for="user of userList.admin">
                 <div v-if="user.account.username" @click="viewUser(user)">
                   <md-avatar>
-                    <ui-image :img="user.profile.avatar"></ui-image>
+                    <ui-image v-if="user.profile" :img="user.profile.avatar"></ui-image>
                   </md-avatar>
                   <span class="md-list-item-text user-admin">{{ user.account.username }}</span>
                 </div>
@@ -231,7 +231,7 @@
               <template v-for="user of userList.methodStreamer">
                 <div v-if="user.account.username" @click="viewUser(user)">
                   <md-avatar>
-                    <ui-image :img="user.profile.avatar"></ui-image>
+                    <ui-image v-if="user.profile" :img="user.profile.avatar"></ui-image>
                   </md-avatar>
                   <span class="md-list-item-text user-method">{{ user.account.username }}</span>
                 </div>
@@ -242,7 +242,7 @@
               <template v-for="user of userList.methodRaider">
                 <div v-if="user.account.username" @click="viewUser(user)">
                   <md-avatar v-if="user.profile">
-                    <ui-image :img="user.profile.avatar"></ui-image>
+                    <ui-image v-if="user.profile" :img="user.profile.avatar"></ui-image>
                   </md-avatar>
                   <span class="md-list-item-text user-method">{{ user.account.username }}</span>
                 </div>
@@ -253,7 +253,7 @@
               <template v-for="user of userList.ambassador">
                 <div v-if="user.account.username" @click="viewUser(user)">
                   <md-avatar v-if="user.profile">
-                    <ui-image :img="user.profile.avatar"></ui-image>
+                    <ui-image v-if="user.profile" :img="user.profile.avatar"></ui-image>
                   </md-avatar>
                   <span class="md-list-item-text user-goldsub">{{ user.account.username }}</span>
                 </div>
@@ -264,7 +264,7 @@
               <template v-for="user of userList.communityLeader">
                 <div v-if="user.account.username" @click="viewUser(user)">
                   <md-avatar v-if="user.profile">
-                    <ui-image :img="user.profile.avatar"></ui-image>
+                    <ui-image v-if="user.profile" :img="user.profile.avatar"></ui-image>
                   </md-avatar>
                   <span class="md-list-item-text user-goldsub">{{ user.account.username }}</span>
                 </div>
@@ -275,7 +275,7 @@
               <template v-for="user of userList.developer">
                 <div v-if="user.account.username" @click="viewUser(user)">
                   <md-avatar v-if="user.profile">
-                    <ui-image :img="user.profile.avatar"></ui-image>
+                    <ui-image v-if="user.profile" :img="user.profile.avatar"></ui-image>
                   </md-avatar>
                   <span class="md-list-item-text user-goldsub">{{ user.account.username }}</span>
                 </div>
@@ -286,7 +286,7 @@
               <template v-for="user of userList.contestWinner">
                 <div v-if="user.account.username" @click="viewUser(user)">
                   <md-avatar v-if="user.profile">
-                    <ui-image :img="user.profile.avatar"></ui-image>
+                    <ui-image v-if="user.profile" :img="user.profile.avatar"></ui-image>
                   </md-avatar>
                   <span class="md-list-item-text user-goldsub">{{ user.account.username }}</span>
                 </div>
@@ -386,21 +386,46 @@
                 <span>Completed Tasks</span>
               </div>
             </md-list-item>
-            <md-list-item @click="LoadStatus('ratelimit')" v-bind:class="{selected: (statusSelected === 'ratelimit')}">
+            <!--<md-list-item @click="LoadStatus('ratelimit')" v-bind:class="{selected: (statusSelected === 'ratelimit')}">
               <div class="md-list-text-container">
                 <span>Rate Limits</span>
               </div>
-            </md-list-item>
+            </md-list-item>-->
           </md-list>
         </md-layout>
         <md-layout md-flex="85">
+          <md-layout md-col v-if="statusSelected === 'redis'">
+            <form novalidate @submit.stop.prevent="submitRedisSearch" style="width:100%">
+              <div style="width:300px">
+                <md-input-container>
+                  <label for="advSearchType">{{ $t("Select Server") }}</label>
+                  <md-select v-model="redisServer" @change="loadRedisInfo">
+                    <md-option value="cache">1. Cache</md-option>
+                    <md-option value="rate">2. Rate/User</md-option>
+                  </md-select>
+                </md-input-container>
+              </div>
+              <md-layout>
+                <div style="width:300px">
+                  <md-input-container>
+                    <label>Key Search</label>
+                    <md-input v-model="redisKeySearch"></md-input>
+                  </md-input-container>
+                </div>
+                <md-button v-if="redisValue && redisValue !== 'null' && redisKeySearch" class="md-primary" @click="deleteRedisKey()">Delete Key</md-button>
+              </md-layout>
+            </form>
+            <editor v-model="redisValue" @init="editorInit" v-if="redisValue" :theme="$store.state.user.config.editor" lang="json" width="100%" height="30"></editor>
+            <h4>Redis.info()</h4>
+            <editor v-model="statusJSON" @init="editorInit" :theme="$store.state.user.config.editor" lang="json" width="100%" height="500"></editor>
+          </md-layout>
           <form novalidate @submit.stop.prevent="submitRateLimit" v-if="statusSelected === 'ratelimit'" style="width:300px">
             <md-input-container>
               <label>IP Search</label>
               <md-input v-model="rateLimitSearch"></md-input>
             </md-input-container>
           </form>
-          <editor v-if="statusSelected.match(/redis|waiting|active|completed|ratelimit/)" v-model="statusJSON" @init="editorInit" :theme="$store.state.user.config.editor" lang="json" width="100%" height="500"></editor>
+          <editor v-if="statusSelected.match(/waiting|active|completed|ratelimit/)" v-model="statusJSON" @init="editorInit" :theme="$store.state.user.config.editor" lang="json" width="100%" height="500"></editor>
           <md-table-card v-else-if="statusSelected === 'requests'">
             <md-table md-sort="timestamp" md-sort-type="desc" @sort="sortRequests">
               <md-table-header>
@@ -504,6 +529,10 @@ export default {
       searchUserName: '',
       selectedUser: null,
 
+      redisServer: 'cache',
+      redisKeySearch: '',
+      redisValue: '',
+
       siteConfigPanel: 'streams',
       methodStreamEnabled: false,
       methodStreamExposure: 0,
@@ -595,7 +624,7 @@ export default {
         autoScrollEditorIntoView: true,
         scrollPastEnd: true,
         printMargin: false,
-        minLines: 80,
+        minLines: 20,
         maxLines: 1000
       })
     },
@@ -612,6 +641,10 @@ export default {
       }
       else if (frame === 'ratelimit') {
         this.status.ratelimit = await this.http.get('/admin/ratelimit')
+      }
+      else if (frame === 'redis') {
+        this.loadRedisInfo()
+        return
       }
       this.statusJSON = JSON.stringify(this.status[frame], null, 2)
     },
@@ -670,7 +703,7 @@ export default {
       }
       else if (frame === 'status') {
         this.http.get('/admin/status').then((res) => {
-          this.statusJSON = JSON.stringify(res.redis, null, 2)
+          this.statusJSON = res.redis
           vue.status = res
           vue.requestTable = []
           vue.requestTable[0] = res.profiler.slice(1, 100)
@@ -711,6 +744,46 @@ export default {
           window.eventHub.$emit('showSnackBar', 'Error could not save.')
         }
       })
+    },
+
+    async submitRedisSearch () {
+      if (!this.redisKeySearch) {
+        this.redisValue = 'null'
+        return
+      }
+      var res = await this.http.post('/admin/redis/get', {
+        server: this.redisServer,
+        key: this.redisKeySearch
+      })
+      if (res && res.value) {
+        this.redisValue = res.value
+        try {
+          var json = JSON.parse(this.redisValue)
+          json = JSON.stringify(json, null, 2)
+          this.redisValue = json
+        }
+        catch (e) {
+          // not a json string
+        }
+      }
+      else {
+        this.redisValue = 'null'
+      }
+    },
+
+    async loadRedisInfo () {
+      var info = await this.http.post('/admin/redis/info', {server: this.redisServer})
+      this.statusJSON = info.info || info.error
+    },
+
+    async deleteRedisKey () {
+      var res = await this.http.post('/admin/redis/delete', {
+        server: this.redisServer,
+        key: this.redisKeySearch
+      })
+      if (res.success) {
+        this.redisValue = this.redisKeySearch + ' <DELETED>'
+      }
     }
   }
 }
