@@ -18,7 +18,8 @@ module.exports = {
         'mdtWeekCN',
         'TopLists',
         'WagoOfTheMoment',
-        'weakAuraInternalVersion'
+        'weakAuraInternalVersion',
+        'EmbeddedStream'
       ]
     }
     items.forEach(async (item) => {

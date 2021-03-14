@@ -42,7 +42,7 @@ module.exports = function (fastify, opts, next) {
     var cached = []
     var lookup = []
     for (let i = 0; i < ids.length; i++) {
-      var doc = JSON.parse(await redis.get(`API:${ids[i]}`))
+      var doc = await redis.getJSON(`API:${ids[i]}`)
       if (doc && typeof doc === 'object') {
         cached.push(doc)
       }
@@ -103,7 +103,7 @@ module.exports = function (fastify, opts, next) {
         wago.regionType = doc.regionType
         wagos.push(wago)
         if (!doc.restricted && !doc.private) {
-          redis.set(`API:${wago.slug}`, JSON.stringify(wago), 'EX', 3600*48)
+          redis.setJSON(`API:${wago.slug}`, wago, 'EX', 3600*48)
         }
         return
       }
@@ -117,7 +117,7 @@ module.exports = function (fastify, opts, next) {
         wago.regionType = doc.regionType
         wagos.push(wago)
         if (!doc.restricted && !doc.private) {
-          redis.set(`API:${wago.slug}`, JSON.stringify(wago), 'EX', 3600*48)
+          redis.setJSON(`API:${wago.slug}`, wago, 'EX', 3600*48)
         }
         return
       }
@@ -129,7 +129,7 @@ module.exports = function (fastify, opts, next) {
         wago.regionType = doc.regionType
         
         if (!doc.restricted && !doc.private) {
-          redis.set(`API:${wago.slug}`, JSON.stringify(wago), 'EX', 3600*48)
+          redis.setJSON(`API:${wago.slug}`, wago, 'EX', 3600*48)
         }
       }
 

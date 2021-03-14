@@ -46,10 +46,7 @@ module.exports = function (fastify, opts, next) {
     wago.name = req.body.name    
     wago.imageGenerated = null
     await wago.save()
-    redis.del(wago._id)
-    redis.del(wago.slug)
-    redis.del('API:' + wago._id)
-    redis.del('API:' + wago.slug)
+    redis.clear(wago)
     res.send({success: true})
   })
 
@@ -105,10 +102,7 @@ module.exports = function (fastify, opts, next) {
 
     // if removing a custom slug
     if (!req.body.slug) {
-      redis.del(wago._id)
-      redis.del(wago.slug)
-      redis.del('API:' + wago._id)
-      redis.del('API:' + wago.slug)
+      redis.clear(wago)
       wago.custom_slug = null
       await wago.save()
       res.send({success: true})
@@ -119,10 +113,7 @@ module.exports = function (fastify, opts, next) {
       if (!exists || exists._id === wago._id) {
         wago.custom_slug = req.body.slug
         await wago.save()
-        redis.del(wago._id)
-        redis.del(wago.slug)
-        redis.del('API:' + wago._id)
-        redis.del('API:' + wago.slug)
+        redis.clear(wago)
         res.send({success: true})
       }
       else {
@@ -145,10 +136,7 @@ module.exports = function (fastify, opts, next) {
     wago.description = req.body.desc || ''
     wago.description_format = req.body.format || 'bbcode'
     await wago.save()
-    redis.del(wago._id)
-    redis.del(wago.slug)
-    redis.del('API:' + wago._id)
-    redis.del('API:' + wago.slug)
+    redis.clear(wago)
     res.send({success: true})
   })
 
@@ -215,10 +203,7 @@ module.exports = function (fastify, opts, next) {
       }
       previous = next
     }
-    redis.del(wago._id)
-    redis.del(wago.slug)
-    redis.del('API:' + wago._id)
-    redis.del('API:' + wago.slug)
+    redis.clear(wago)
     res.send({success: true})
   })
 
@@ -248,10 +233,7 @@ module.exports = function (fastify, opts, next) {
     else if (req.body.visibility === 'Private') {
       wago.private = true
     }
-    redis.del(wago._id)
-    redis.del(wago.slug)
-    redis.del('API:' + wago._id)
-    redis.del('API:' + wago.slug)
+    redis.clear(wago)
     await cloudflare.zones.purgeCache(config.cloudflare.zoneID, {files: [
       `https://data.wago.io/api/raw/encoded?id=${wago._id}`,
       `https://data.wago.io/api/raw/encoded?id=${wago.slug}`,
@@ -325,10 +307,7 @@ module.exports = function (fastify, opts, next) {
     wago.encryptedCount++
     await wago.save()
 
-    redis.del(wago._id)
-    redis.del(wago.slug)
-    redis.del('API:' + wago._id)
-    redis.del('API:' + wago.slug)
+    redis.clear(wago)
     await cloudflare.zones.purgeCache(config.cloudflare.zoneID, {files: [
       `https://data.wago.io/api/raw/encoded?id=${wago._id}`,
       `https://data.wago.io/api/raw/encoded?id=${wago.slug}`,
@@ -364,10 +343,7 @@ module.exports = function (fastify, opts, next) {
       }
     }
     await wago.save()
-    redis.del(wago._id)
-    redis.del(wago.slug)
-    redis.del('API:' + wago._id)
-    redis.del('API:' + wago.slug)
+    redis.clear(wago)
     res.send({success: true, hidden: wago.hidden, private: wago.private, restricted: wago.restricted})
   })
 
@@ -398,10 +374,7 @@ module.exports = function (fastify, opts, next) {
 
     // check if this import should have any system tags applied
     await wago.save()
-    redis.del(wago._id)
-    redis.del(wago.slug)
-    redis.del('API:' + wago._id)
-    redis.del('API:' + wago.slug)
+    redis.clear(wago)
     res.send({success: true})
   })
 
@@ -465,10 +438,7 @@ module.exports = function (fastify, opts, next) {
       })
       fs.unlink(tmpDir + screen.localFile)
       await screen.save()
-      redis.del(wago._id)
-      redis.del(wago.slug)
-      redis.del('API:' + wago._id)
-      redis.del('API:' + wago.slug)
+      redis.clear(wago)
       res.send({success: true, _id: screen._id.toString(), src: screen.url})
     }
     catch (e) {
@@ -550,10 +520,7 @@ module.exports = function (fastify, opts, next) {
       // else thumbnail can be generated from existing data
       else {
         await video.save()
-        redis.del(wago._id)
-        redis.del(wago.slug)
-        redis.del('API:' + wago._id)
-        redis.del('API:' + wago.slug)
+        redis.clear(wago)
         res.send({success: true, _id: video._id.toString(), embed: video.embed, thumb: video.thumbnail, url: video.url, type: 'video'})
       }
     }
@@ -610,10 +577,7 @@ module.exports = function (fastify, opts, next) {
         })
         fs.unlink(tmpDir + screen.localFile)
         await screen.save()
-        redis.del(wago._id)
-        redis.del(wago.slug)
-        redis.del('API:' + wago._id)
-        redis.del('API:' + wago.slug)
+        redis.clear(wago)
         res.send({success: true, _id: screen._id.toString(), src: screen.url})
       }
       catch (e) {
@@ -641,10 +605,7 @@ module.exports = function (fastify, opts, next) {
       wago.previewImage = null
       await wago.save()
       await screen.remove()
-      redis.del(wago._id)
-      redis.del(wago.slug)
-      redis.del('API:' + wago._id)
-      redis.del('API:' + wago.slug)
+      redis.clear(wago)
     }
     res.send({success: true})
   })
@@ -663,10 +624,7 @@ module.exports = function (fastify, opts, next) {
     var video = await Video.findById(req.body.video).exec()
     if (video) {
       await video.remove()
-      redis.del(wago._id)
-      redis.del(wago.slug)
-      redis.del('API:' + wago._id)
-      redis.del('API:' + wago.slug)
+      redis.clear(wago)
     }
     res.send({success: true})
   })
@@ -698,10 +656,7 @@ module.exports = function (fastify, opts, next) {
         screens[i].save()
       }
     }
-    redis.del(wago._id)
-    redis.del(wago.slug)
-    redis.del('API:' + wago._id)
-    redis.del('API:' + wago.slug)
+    redis.clear(wago)
     res.send({success: true})
   })
 
@@ -727,10 +682,7 @@ module.exports = function (fastify, opts, next) {
         videos[i].save()
       }
     }
-    redis.del(wago._id)
-    redis.del(wago.slug)
-    redis.del('API:' + wago._id)
-    redis.del('API:' + wago.slug)
+    redis.clear(wago)
     res.send({success: true})
   })
 
@@ -752,10 +704,7 @@ module.exports = function (fastify, opts, next) {
 
     await wago.save()
     wago.unIndex()
-    redis.del(wago._id)
-    redis.del(wago.slug)
-    redis.del('API:' + wago._id)
-    redis.del('API:' + wago.slug)
+    redis.clear(wago)
     res.send({success: true})
   })
 
@@ -772,10 +721,7 @@ module.exports = function (fastify, opts, next) {
 
     wago.game = req.body.game
     await wago.save()
-    redis.del(wago._id)
-    redis.del(wago.slug)
-    redis.del('API:' + wago._id)
-    redis.del('API:' + wago.slug)
+    redis.clear(wago)
     res.send({success: true})
   })
 
@@ -798,10 +744,7 @@ module.exports = function (fastify, opts, next) {
     if (collection.collect.length === 0 || collection.collect.indexOf(req.body.wagoID) === -1) {
       collection.collect.push(req.body.wagoID)
       await collection.save()
-      redis.del(wago._id)
-      redis.del(wago.slug)
-      redis.del('API:' + wago._id)
-      redis.del('API:' + wago.slug)
+      redis.clear(wago)
     }
     res.send({success: true, added: true, name: collection.name, slug: collection.slug})
   })
@@ -827,10 +770,7 @@ module.exports = function (fastify, opts, next) {
       if (i > -1) {
         collection.collect.splice(i, 1)
         await collection.save()
-        redis.del(wago._id)
-        redis.del(wago.slug)
-        redis.del('API:' + wago._id)
-        redis.del('API:' + wago.slug)
+        redis.clear(wago)
       }
     }
     res.send({success: true, removed: true})
@@ -850,10 +790,7 @@ module.exports = function (fastify, opts, next) {
     var collection = new WagoItem({type:'COLLECTION', name: req.body.name, _userId: req.user._id})
     collection.collect.push(req.body.wagoID)
     await collection.save()
-    redis.del(wago._id)
-    redis.del(wago.slug)
-    redis.del('API:' + wago._id)
-    redis.del('API:' + wago.slug)
+    redis.clear(wago)
     res.send({success: true, name: collection.name, collectionID: collection._id})
   })
 
