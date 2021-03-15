@@ -1,7 +1,15 @@
 module.exports = function(redis) {
+  redis._get = redis.get
+  redis.get = async function(key) {
+    var val = await redis._get(key)
+    if (val === 'false') return false
+    if (val === 'true') return true
+    return val
+  }
+  
   redis.getJSON = async function(key) {
     try {
-      var val = await redis.get(key)
+      var val = await redis._get(key)
       var json = JSON.parse(val)
       return json
     }
