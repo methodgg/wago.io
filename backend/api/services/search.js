@@ -659,7 +659,7 @@ module.exports = function (fastify, opts, next) {
 
       // get username
       if (wago._userId) {
-        var user = await redis.get('UserProfile:'+wago._userId)
+        var user = await redis.getJSON('UserProfile:'+wago._userId)
         if (user) {
           item.user = user
         }
@@ -669,7 +669,7 @@ module.exports = function (fastify, opts, next) {
         item.user.searchable = !user.account.hidden
         item.user.roleClass = user.roleclass
         item.user.avatar = user.avatarURL
-          await redis.set('UserProfile:'+wago._userId, item.user)
+          await redis.setJSON('UserProfile:'+wago._userId, item.user, 'EX', 3600)
         }
       }
       else {
