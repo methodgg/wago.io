@@ -36,7 +36,10 @@ const Schema = new mongoose.Schema({
       access: { type: Boolean, default: false },
       super: { type: Boolean, default: false },
       blog: { type: Boolean, default: false },
-      moderator : { type: Boolean, default: false }
+      moderator : { type: Boolean, default: false },
+      config: {
+        embed: { type: Boolean, default: false }
+      }
     },
     subscriber : { type: Boolean, default: false },
     gold_subscriber : { type: Boolean, default: false },

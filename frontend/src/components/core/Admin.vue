@@ -1,16 +1,16 @@
 <template>
   <div>
-    <div id="admin" v-if="User && User.access.admin">
+    <div id="admin" v-if="User && User.access && User.access.admin" v-bind="User">
       <!-- FRAME TOGGLES -->
       <md-button-toggle class="md-accent" md-single>
+        <md-button v-if="User.access.admin.super || User.access.admin.config.embed" :class="{'md-toggle': showPanel === 'sitecfg'}" @click="toggleFrame('sitecfg')">Site Config</md-button>
         <md-button v-if="User.access.admin.blog || User.access.admin.super" :class="{'md-toggle': showPanel === 'blogpost'}" @click="toggleFrame('blogpost')">Blog Posts</md-button>
-        <md-button v-if="User.access.admin.super" :class="{'md-toggle': showPanel === 'sitecfg'}" @click="toggleFrame('sitecfg')">Site Config</md-button>
-        <md-button v-if="User.access.admin.super" :class="{'md-toggle': showPanel === 'users'}" @click="toggleFrame('users')">User Control</md-button>
+        <md-button v-if="User.access.admin.super || User.access.admin.moderator" :class="{'md-toggle': showPanel === 'users'}" @click="toggleFrame('users')">User Control</md-button>
         <md-button v-if="User.access.admin.super" :class="{'md-toggle': showPanel === 'status'}" @click="toggleFrame('status')">Status</md-button>
       </md-button-toggle>
     
       <!-- BLOG FRAME -->
-      <md-layout id="admin-blog-container" v-if="(User.access.admin.blog || User.access.admin.super) && showPanel=='blogpost'">
+      <md-layout id="admin-blog-container" v-if="(User.access.admin.super || User.access.admin.blog) && showPanel=='blogpost'">
         <md-layout class="md-left" ref="blogSidebar" id="blog-sidebar" md-flex="15">
           <md-list class="md-double-line">
             <md-list-item @click="LoadBlog(-1)" v-bind:class="{selected: (blogSelected === -1)}">
@@ -50,7 +50,7 @@
       </md-layout>
 
       <!-- USER CONTROL FRAME -->
-      <md-layout id="admin-users-container" v-if="(User.access.admin.super) && showPanel=='users'">
+      <md-layout id="admin-users-container" v-if="(User.access.admin.super || User.access.admin.moderator) && showPanel=='users'">
         <md-layout class="md-left" md-flex="15">
           <md-list class="md-double-line">
             <md-list-item @click="LoadUserPanel('subs')" v-bind:class="{selected: (userPanel === 'subs')}">
@@ -189,6 +189,38 @@
                     </div>
                   </md-list-item>
                 </md-list>
+                <div v-if="selectedUser.roles.isAdmin && selectedUser.roles.isAdmin.access">
+                  <md-list>
+                    <md-list-item>
+                      <div class="md-list-text-container">
+                        <span>Admin</span>
+                      </div>
+                    </md-list-item>
+                    <md-list-item>
+                      <div class="md-list-text-container">
+                        <span><md-checkbox v-model="selectedUser.roles.isAdmin.super" class="md-primary" disabled>Super Admin</md-checkbox></span>
+                      </div>
+                    </md-list-item>
+                    <md-list-item>
+                      <div class="md-list-text-container">
+                        <span><md-checkbox v-model="selectedUser.roles.isAdmin.blog" class="md-primary" disabled>Blog Posts</md-checkbox></span>
+                      </div>
+                    </md-list-item>
+                    <md-list-item>
+                      <div class="md-list-text-container">
+                        <span><md-checkbox v-model="selectedUser.roles.isAdmin.moderator" class="md-primary" disabled>User Moderator</md-checkbox></span>
+                      </div>
+                    </md-list-item>                    
+                    <md-list-item>
+                      <div class="md-list-text-container">
+                        <span>Site Config</span>
+                      </div>
+                    </md-list-item>
+                    <md-list-item>
+                      <span><md-checkbox v-model="selectedUser.roles.isAdmin.config.embed" class="md-primary" disabled>Stream Embed</md-checkbox></span>
+                    </md-list-item>
+                  </md-list>
+                </div>
               </md-layout>
             </div>
           </md-card>
@@ -297,7 +329,7 @@
       </md-layout>
 
       <!-- ADVERTISING FRAME -->
-      <md-layout id="admin-advert-container" v-if="(User.access.admin.blog || User.access.admin.super) && showPanel=='sitecfg'">
+      <md-layout id="admin-advert-container" v-if="(User.access.admin.super || User.access.admin.config.embed) && showPanel=='sitecfg'">
         <md-layout class="md-left" md-flex="15">
           <md-list class="md-double-line">
             <md-list-item @click="LoadAdvertConfig('streams')" v-bind:class="{selected: (siteConfigPanel === 'streams')}">
@@ -509,7 +541,7 @@ export default {
   },
   data: function () {
     return {
-      showPanel: 'blogpost',
+      showPanel: '',
       blogs: [],
       blogTitle: '',
       blogContent: '',
@@ -547,7 +579,22 @@ export default {
     }
   },
   mounted: function () {
-    this.toggleFrame('blogpost')
+    const p = () => {
+      if (!this.User || !this.User.access || !this.User.access.admin) {
+        setTimeout(p, 100)
+        return
+      }
+      if (this.User.access.admin.super || this.User.access.admin.config.embed) {
+        this.toggleFrame('sitecfg')
+      }
+      else if (this.User.access.admin.blog) {      
+        this.toggleFrame('blogpost')
+      }
+      else if (this.User.access.admin.moderator) {      
+        this.toggleFrame('users')
+      }
+    }
+    p()    
   },
   computed: {
     User () {
@@ -694,7 +741,7 @@ export default {
           this.methodStreamChannel = res.channel
           this.channelStatus = {
             name: res.channel,
-            online: res.channelOnline === 'true'
+            online: res.channelOnline === 'true' || res.channelOnline === true
           }
         })
       }

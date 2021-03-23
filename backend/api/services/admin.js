@@ -6,23 +6,17 @@ const runTask = require('../helpers/tasks')
 module.exports = (fastify, opts, next) => {
   // get all blog posts
   fastify.get('/blogs', async (req, res) => {
-    if (!req.user || !req.user.isAdmin.access || (!req.user.isAdmin.blog && !req.user.isAdmin.super)) {
+    if (!req.user || !req.user.isAdmin.access || !(req.user.isAdmin.super || req.user.isAdmin.blog)) {
       return res.code(403).send({error: "forbidden"})
     }
-    if (req.user.isAdmin.super) {
-      const blogs = await Blog.find({}).populate('_userId', 'account.username').select('_id title date publishStatus _userId').sort('-date').exec()
-      res.send({blogs: blogs})
-    }
-    else if (req.user.isAdmin.blog) {
-      const blog = await Blog.find({_userId: req.user._id}).select('_id title date publishStatus').sort('-date').exec()
-      res.send({blogs: blog})
-    }
+    const blogs = await Blog.find({}).populate('_userId', 'account.username').select('_id title date publishStatus _userId').sort('-date').exec()
+    res.send({blogs: blogs})
   })
 
 
   // creates or updates a blog post
   fastify.post('/blog', async (req, res) => {
-    if (!req.user || !req.user.isAdmin.access || (!req.user.isAdmin.blog && !req.user.isAdmin.super)) {
+    if (!req.user || !req.user.isAdmin.access || !(req.user.isAdmin.super || req.user.isAdmin.blog)) {
       return res.code(403).send({error: "forbidden"})
     }
 
@@ -54,7 +48,7 @@ module.exports = (fastify, opts, next) => {
 
   // lists current task queue
   fastify.get('/status', async (req, res) => {
-    if (!req.user || !req.user.isAdmin.access || (!req.user.isAdmin.blog && !req.user.isAdmin.super)) {
+    if (!req.user || !req.user.isAdmin.access || !req.user.isAdmin.super) {
       return res.code(403).send({error: "forbidden"})
     }
     var data = {}
@@ -68,7 +62,7 @@ module.exports = (fastify, opts, next) => {
 
   // get rate limit by ip
   fastify.get('/ratelimit', async (req, res) => {
-    if (!req.user || !req.user.isAdmin.access ||  !req.user.isAdmin.super) {
+    if (!req.user || !req.user.isAdmin.access || !req.user.isAdmin.super) {
       return res.code(403).send({error: "forbidden"})
     }
     var data = {}
@@ -102,7 +96,7 @@ module.exports = (fastify, opts, next) => {
   })
 
   fastify.get('/stream', async (req, res) => {
-    if (!req.user || !req.user.isAdmin.access ||  !req.user.isAdmin.super) {
+    if (!req.user || !req.user.isAdmin.access || !(req.user.isAdmin.super || req.user.isAdmin.config.embed)) {
       return res.code(403).send({error: "forbidden"})
     }
     var data = await SiteData.findById('EmbeddedStream').lean().exec()
@@ -116,7 +110,7 @@ module.exports = (fastify, opts, next) => {
   })
 
   fastify.post('/stream', async (req, res) => {
-    if (!req.user || !req.user.isAdmin.access ||  !req.user.isAdmin.super) {
+    if (!req.user || !req.user.isAdmin.access || !(req.user.isAdmin.super || req.user.isAdmin.config.embed)) {
       return res.code(403).send({error: "forbidden"})
     }
     await SiteData.set('EmbeddedStream', {
@@ -131,7 +125,7 @@ module.exports = (fastify, opts, next) => {
   })
 
   fastify.get('/get-user', async (req, res) => {
-    if (!req.user || !req.user.isAdmin.access ||  !req.user.isAdmin.super) {
+    if (!req.user || !req.user.isAdmin.access || !(req.user.isAdmin.super || req.user.isAdmin.moderator)) {
       return res.code(403).send({error: "forbidden"})
     }
     const user = await User.findById(req.query.user).select({'account.username':1, 'account.created':1, 'account.verified_human':1, 'account.hidden':1, 'battlenet':1, 'discord':1, 'patreon':1, 'twitter':1, 'google':1, 'profile':1, 'roles':1})
@@ -139,7 +133,7 @@ module.exports = (fastify, opts, next) => {
   })
 
   fastify.get('/getusers', async (req, res) => {
-    if (!req.user || !req.user.isAdmin.access ||  !req.user.isAdmin.super) {
+    if (!req.user || !req.user.isAdmin.access || !(req.user.isAdmin.super || req.user.isAdmin.moderator)) {
       return res.code(403).send({error: "forbidden"})
     }
     const data = {
@@ -157,7 +151,7 @@ module.exports = (fastify, opts, next) => {
   })
 
   fastify.post('/verify-human-user', async (req, res) => {
-    if (!req.user || !req.user.isAdmin.access ||  !req.user.isAdmin.super) {
+    if (!req.user || !req.user.isAdmin.access || !(req.user.isAdmin.super || req.user.isAdmin.moderator)) {
       return res.code(403).send({error: "forbidden"})
     }
     await User.findByIdAndUpdate(req.body.user, {'account.verified_human': true})
@@ -165,7 +159,7 @@ module.exports = (fastify, opts, next) => {
   })
 
   fastify.post('/set-user-role', async (req, res) => {
-    if (!req.user || !req.user.isAdmin.access ||  !req.user.isAdmin.super) {
+    if (!req.user || !req.user.isAdmin.access || !(req.user.isAdmin.super || req.user.isAdmin.moderator)) {
       return res.code(403).send({error: "forbidden"})
     }
     if (!req.body.role.match(/^ambassador|methodStreamer|community_leader|developer$/)) {
@@ -180,7 +174,7 @@ module.exports = (fastify, opts, next) => {
   })
 
   fastify.get('/search-username', async (req, res) => {
-    if (!req.user || !req.user.isAdmin.access ||  !req.user.isAdmin.super) {
+    if (!req.user || !req.user.isAdmin.access || !(req.user.isAdmin.super || req.user.isAdmin.moderator)) {
       return res.code(403).send({error: "forbidden"})
     }
 
@@ -233,7 +227,7 @@ module.exports = (fastify, opts, next) => {
   })
 
   fastify.post('/redis/get', async (req, res) => {
-    if (!req.user || !req.user.isAdmin.access ||  !req.user.isAdmin.super) {
+    if (!req.user || !req.user.isAdmin.access || !req.user.isAdmin.super) {
       return res.code(403).send({error: "forbidden"})
     }
     var redisServ
@@ -250,7 +244,7 @@ module.exports = (fastify, opts, next) => {
   })
 
   fastify.post('/redis/delete', async (req, res) => {
-    if (!req.user || !req.user.isAdmin.access ||  !req.user.isAdmin.super) {
+    if (!req.user || !req.user.isAdmin.access || !req.user.isAdmin.super) {
       return res.code(403).send({error: "forbidden"})
     }
     var redisServ
@@ -268,7 +262,7 @@ module.exports = (fastify, opts, next) => {
   })
 
   fastify.post('/redis/info', async (req, res) => {
-    if (!req.user || !req.user.isAdmin.access ||  !req.user.isAdmin.super) {
+    if (!req.user || !req.user.isAdmin.access || !req.user.isAdmin.super) {
       return res.code(403).send({error: "forbidden"})
     }
     var redisServ
