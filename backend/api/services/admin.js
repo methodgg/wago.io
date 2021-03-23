@@ -101,11 +101,12 @@ module.exports = (fastify, opts, next) => {
     }
     var data = await SiteData.findById('EmbeddedStream').lean().exec()
     data = data.value || {}
-    data.users = {
-      active: await redis.get('tally:active:users'),
-      embedViewers: await redis.get('tally:active:embedviewers')
+    data.activeUsers = await redis.get('tally:active:users')
+    if (!data.streams) data.streams = []
+    for (let i = 0; i < data.streams.length; i++) {
+      data.streams[i].online = await redis.get(`twitch:${data.streams[i].channel}:live`)
+      data.streams[i].viewing = await redis.get('tally:active:embed:' + data.streams[i].channel)
     }
-    data.channelOnline = await redis.get(`twitch:${data.channel || 'method'}:live`)
     res.send(data)
   })
 
@@ -113,15 +114,28 @@ module.exports = (fastify, opts, next) => {
     if (!req.user || !req.user.isAdmin.access || !(req.user.isAdmin.super || req.user.isAdmin.config.embed)) {
       return res.code(403).send({error: "forbidden"})
     }
-    await SiteData.set('EmbeddedStream', {
+    var streams = []
+    if (req.body.streams) {
+      req.body.streams.forEach(s => {
+        streams.push({
+          channel: s.channel,
+          exposure: s.exposure,
+          max: s.max
+        })
+      })
+    }
+    var data = {
       enabled: req.body.enabled,
-      exposure: req.body.exposure,
-      max: req.body.max,
-      channel: req.body.channel
-    })
-    let online = await runTask('UpdateTwitchStatus', req.body.channel)
+      streams: streams
+    }
+    await SiteData.set('EmbeddedStream', data)
+    const channelStatuses = await runTask('UpdateTwitchStatus', req.body.channel)
     await updateDataCaches.queue('EmbeddedStream')
-    res.send({success: true, online: online})
+    await streams.forEach(async (stream, i) => {
+      streams[i].online = channelStatuses[stream.channel]
+      streams[i].viewing = await redis.get('tally:active:embed:' + streams.channel)
+    })
+    res.send({success: true, streams: streams, enabled: data.enabled})
   })
 
   fastify.get('/get-user', async (req, res) => {

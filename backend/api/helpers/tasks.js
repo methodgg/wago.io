@@ -79,7 +79,6 @@ async function UpdateWagoOfTheMoment () {
 
 async function UpdateActiveUserCount () {
   var activeUsers = 0
-  var embedUsers = 0
   const scanStreamUsers = redis2.scanStream({
     match: 'rate:wago:*'
     })
@@ -89,17 +88,20 @@ async function UpdateActiveUserCount () {
   scanStreamUsers.on('end', () => {
     redis.set('tally:active:users', activeUsers)
     })
-  const embed = await SiteData.get('EmbeddedStream')
-  channel = embed.channel || 'method'
+  const cfg = await SiteData.get('EmbeddedStream')
+  var streams = cfg.streams
+  for (let i = 0; i < streams.length; i++) {
+    streams[i].count = 0
   const scanStreamEmbed = redis2.scanStream({
-    match: `stream:${channel}:*`
+      match: `stream:${streams[i].channel}:*`
   })
   scanStreamEmbed.on('data', (data) => {
-    embedUsers = embedUsers + data.length
+      streams[i].count = streams[i].count + data.length
   })
   scanStreamEmbed.on('end', () => {
-    redis.set('tally:active:embedviewers', embedUsers)
+      redis.set('tally:active:embed:' + streams[i].channel, streams[i].count)
   })
+}
 }
 
 async function UpdateTwitchStatus (channel) {
@@ -111,18 +113,24 @@ async function UpdateTwitchStatus (channel) {
       redis.set('twitch:appToken', twitchToken, 'EX', getToken.data.expires_in)
     }
   }
+  var streams = []
+  var status = {}
   if (!channel || typeof channel !== 'string') {
-    const stream = await SiteData.get('EmbeddedStream')
-    channel = stream.channel || 'method'
+    const cfg = await SiteData.get('EmbeddedStream')
+    streams = cfg.streams
   }
+  for (let i = 0; i < streams.length; i++) {
+    let channel = streams[i].channel
   const req = await axios.get(`https://api.twitch.tv/helix/streams?user_login=${channel}`, {
     headers: {
       'client-id': config.auth.twitch.clientID,
       'Authorization': 'Bearer '+ twitchToken
     }
   })
-  redis.set(`twitch:${channel}:live`, (req.data.data.length > 0))
-  return (req.data.data.length > 0)
+    await redis.set(`twitch:${channel}:live`, (req.data.data.length > 0))
+    status[channel] = (req.data.data.length > 0)
+  }
+  return status
 }
 
 async function UpdateLatestNews () {

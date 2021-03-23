@@ -11,26 +11,34 @@ config.supportedLocales.forEach(function(loc) {
 var supportedLocales = new locale.Locales(localeArray)
 
 async function determineStream(ip) {
-  var streamEmbed = 'streamspread'
   // determine method stream or advert
-  const streamCfg = global.EmbeddedStream || {}
-  var key = `stream:${streamCfg.channel}:${ip}`
-  const userIsViewingEmbed = await redis2.get(key)
-  // If enabled, online and exposure chance..
-  if (streamCfg.enabled && streamCfg.channel && (userIsViewingEmbed || Math.random() * 100 < streamCfg.exposure) && await redis.get(`twitch:${streamCfg.channel}:live`)) {
-    // and we are not over max method viewer count...
-    const embedViewers = await redis.get('tally:active:embedviewers')
-    // then show method stream to user instead of streamspread
-    if (embedViewers < streamCfg.max || userIsViewingEmbed) {
-      streamEmbed = streamCfg.channel
-      var n = await redis2.incr(key)
+  const streamCfg = global.EmbeddedStream || {streams:[]}
+  // If enabled
+  if (streamCfg.enabled && streamCfg.streams.length) {
+    // check if user is currently viewing an available stream
+    for (let i = 0; i < streamCfg.streams.length; i++) {
+      if (await redis2.get(`stream:${streamCfg.streams[i].channel}:${ip}`) && await redis.get(`twitch:${streamCfg.streams[i].channel}:live`)) {
+        return streamCfg.streams[i].channel
+      }
+    }
+    for (let i = 0; i < streamCfg.streams.length; i++) {
+      // check exposure chance
+      if (Math.random() * 100 < streamCfg.streams[i].exposure && await redis.get(`twitch:${streamCfg.streams[i].channel}:live`)) {
+        // and we are not over max viewer count...
+        const embedViewers = await redis.get('tally:active:embed:' + streamCfg.streams[i].channel)
+        // then show stream to user
+        if (embedViewers < streamCfg.streams[i].max) {
+          var n = await redis2.incr(`stream:${streamCfg.streams[i].channel}:${ip}`)
       if (n === 1) {
-        redis2.expire(key, 70)
-        redis.incr('tally:active:embedviewers')
+            redis2.expire(`stream:${streamCfg.streams[i].channel}:${ip}`, 70)
+            redis.incr('tally:active:embed:' + streamCfg.streams[i].channel)
         }
+          return streamCfg.streams[i].channel
         }
     }
-  return streamEmbed
+}
+  }
+  return 'streamspread'
 }
 
 module.exports = (fastify, opts, next) => {
