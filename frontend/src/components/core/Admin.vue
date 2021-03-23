@@ -342,7 +342,7 @@
         <md-layout>
           <md-card>
             <md-card-content>
-              Active Users on Site: <strong v-if="streamConfig.users">{{ streamConfig.users.active }}</strong><br>
+              Active Users on Site: <strong v-if="streamConfig.activeUsers">{{ streamConfig.activeUsers }}</strong><br>
               <md-checkbox v-model="streamConfig.enabled"><strong style="color:white">Custom Streams Enabled</strong></md-checkbox>
             </md-card-content>
             <div v-if="streamConfig.enabled" v-for="(stream, index) of streamConfig.streams" style="border: 1px solid #666; margin-bottom: 16px; position: relative">

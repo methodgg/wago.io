@@ -135,7 +135,7 @@ module.exports = (fastify, opts, next) => {
       streams[i].online = channelStatuses[stream.channel]
       streams[i].viewing = await redis.get('tally:active:embed:' + streams.channel)
     })
-    res.send({success: true, streams: streams, enabled: data.enabled})
+    res.send({success: true, streams: streams, enabled: data.enabled, activeUsers: await redis.get('tally:active:users')})
   })
 
   fastify.get('/get-user', async (req, res) => {
