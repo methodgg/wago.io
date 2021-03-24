@@ -28,7 +28,7 @@ async function determineStream(ip) {
         // and we are not over max viewer count...
         const embedViewers = parseInt(await redis.get('tally:active:embed:' + streamCfg.streams[i].channel))
         // then show stream to user
-        if (embedViewers < streamCfg.streams[i].max) {
+        if (embedViewers < parseInt(streamCfg.streams[i].max)) {
           var n = await redis2.incr(`stream:${streamCfg.streams[i].channel}:${ip}`)
       if (n === 1) {
             redis2.expire(`stream:${streamCfg.streams[i].channel}:${ip}`, 70)

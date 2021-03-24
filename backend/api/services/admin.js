@@ -254,7 +254,17 @@ module.exports = (fastify, opts, next) => {
     if (!redisServ) {
       return res.send({error: 'no server'})
     }
-    res.send({value: await redisServ.get(req.body.key)})
+    var value = await redisServ.get(req.body.key)
+    if (value) {
+      res.send({
+        key: req.body.key,
+        value: value,
+        ttl: await redisServ.ttl(req.body.key)
+      })
+    }
+    else {
+      res.send({value: null})
+    }
   })
 
   fastify.post('/redis/delete', async (req, res) => {

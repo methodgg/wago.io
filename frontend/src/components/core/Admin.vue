@@ -795,13 +795,13 @@ export default {
         key: this.redisKeySearch
       })
       if (res && res.value) {
-        this.redisValue = res.value
         try {
-          var json = JSON.parse(this.redisValue)
-          json = JSON.stringify(json, null, 2)
+          let json = JSON.stringify(res, null, 2)
+          console.log(json)
           this.redisValue = json
         }
         catch (e) {
+          console.log(e)
           // not a json string
         }
       }

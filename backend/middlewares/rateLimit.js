@@ -23,9 +23,12 @@ module.exports = async function (req, res) {
     return res.code(429).send({error: "Rate limit exceeded"})
   }
 
-  if (global.EmbeddedStream && global.EmbeddedStream.enabled) {
-    const channel = global.EmbeddedStream.channel || 'method'
-    redis2.expire(`stream:${channel}:${req.raw.ip}`, 70)
+  const streamCfg = global.EmbeddedStream || {streams:[]}
+  for (let i = 0; i < streamCfg.streams.length; i++) {
+    if (await redis2.get(`stream:${streamCfg.streams[i].channel}:${req.raw.ip}`)) {
+      redis2.expire(`stream:${streamCfg.streams[i].channel}:${req.raw.ip}`, 70)
+      return
+    }
   }
   return
 }
