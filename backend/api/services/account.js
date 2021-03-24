@@ -18,6 +18,7 @@ async function determineStream(ip) {
     // check if user is currently viewing an available stream
     for (let i = 0; i < streamCfg.streams.length; i++) {
       if (await redis2.get(`stream:${streamCfg.streams[i].channel}:${ip}`) && await redis.get(`twitch:${streamCfg.streams[i].channel}:live`)) {
+        redis2.expire(`stream:${streamCfg.streams[i].channel}:${ip}`, 70)
         return streamCfg.streams[i].channel
       }
     }
@@ -25,7 +26,7 @@ async function determineStream(ip) {
       // check exposure chance
       if (Math.random() * 100 < streamCfg.streams[i].exposure && await redis.get(`twitch:${streamCfg.streams[i].channel}:live`)) {
         // and we are not over max viewer count...
-        const embedViewers = await redis.get('tally:active:embed:' + streamCfg.streams[i].channel)
+        const embedViewers = parseInt(await redis.get('tally:active:embed:' + streamCfg.streams[i].channel))
         // then show stream to user
         if (embedViewers < streamCfg.streams[i].max) {
           var n = await redis2.incr(`stream:${streamCfg.streams[i].channel}:${ip}`)
