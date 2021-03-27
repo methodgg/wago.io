@@ -234,7 +234,7 @@ export default {
 .wago-video-ad-container { width: 408px!important; max-width: 408px!important; }
 
 .searchResult + .wago-ad-container { margin: 16px auto; }
-.wago-ad-container { min-width: 208px; align-self: flex-start; }
+.wago-ad-container.wago-video-ad-container { min-width: 208px; align-self: flex-start; margin-left: 0; }
 .wago-ad-container-300x250, .wago-ad-container-300x600 {width: 308px; min-width: 308px; max-width: 308px;}
 .wago-ad-container-728x90 {width: 736px; min-width: 736px; max-width:736px;}
 

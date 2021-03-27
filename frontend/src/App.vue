@@ -201,7 +201,7 @@
         </md-layout>
       </div>
     </div>
-    <div v-else>
+    <div v-else-if="!$isMobile">
       <view-embed :wagoID="embedID"></view-embed>
     </div>
   </div>
@@ -667,5 +667,9 @@ export default {
 body.theme-dark .md-input-container label a { -webkit-text-fill-color: initial }
 
 .ads-enabled #app {padding-bottom: 60px}
+@media only screen and (min-width: 1025px) {
+  .ads-enabled #content > :first-child {max-width: calc(100% - 425px);}
+}
+
 
 </style>

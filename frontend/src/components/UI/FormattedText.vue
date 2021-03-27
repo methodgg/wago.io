@@ -6,6 +6,21 @@
 import XBBCode from '../libs/xbbcode'
 import mdUnderline from '../libs/markdownUnderline'
 import flowchart from 'flowchart.js'
+import prism from 'markdown-it-prism'
+import 'prismjs/components/prism-lua'
+
+// Actual default values
+var md = require('markdown-it')({
+  highlight: function (str, lang) {
+    if (lang && hljs.getLanguage(lang)) {
+      try {
+        return hljs.highlight(lang, str).value;
+      } catch (__) {}
+    }
+
+    return ''; // use external default escaping
+  }
+});
 
 export default {
   props: ['text', 'truncate', 'plaintext', 'enableLinks'],
@@ -47,6 +62,7 @@ export default {
       else if (this.text.format === 'markdown') {
         const markdown = require('markdown-it')({linkify: true})
         markdown.use(mdUnderline)
+        markdown.use(prism)
         html = markdown.render(this.text.text)
         if (!this.enableLinks || this.truncate) {
           html = html.replace(/<\/?a(?:(?= )[^>]*)?>/g, '')
@@ -140,7 +156,7 @@ export default {
 
 </script>
 
-<style>
+<style lang="scss">
 .noFormat * {
   color: inherit!important;
   font-weight: inherit!important;
@@ -177,5 +193,25 @@ export default {
 #wago-description .md-theme-default.md-tabs>.md-tabs-navigation .md-tab-header:hover {color: white}
 
 #wago-description .language-flowchart { border: 1px solid #777; background: #DDD; display: inline-block;}
+
+.markdown pre {
+  padding: 8px; 
+  border: 2px solid #111; 
+  background: #1C1C1C; 
+  border-radius: 4px;
+  white-space: break-spaces;
+  code {
+    background-color: inherit!important;
+    color: #9CDCFE!important;
+    .token.keyword { color: #569CD6}
+    .token.ident { color: #9CDCFE}
+    .token.function { color: #DCDCAA}
+    .token.punctuation { color: #DCDCAA}
+    .token.string { color: #CE9178}
+    .token.number { color: #B5C078}
+    .token.comment { color: #6A8A35}
+    .token.operator { color: #DDD}
+  }
+}
 </style>
 
