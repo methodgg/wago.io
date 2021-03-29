@@ -19,7 +19,38 @@ module.exports = function (fastify, opts, next) {
     }
 
     var test = {}
+    var scan = new ImportScan({input: req.body.importString})
 
+    const addons = await fs.readdir('./api/helpers/encode-decode')
+    var decodedObj
+    for (let i = 0; i < addons.length; i++) {
+      if (scan.decoded || addons[i].indexOf('.js')<0) {
+        continue
+      }
+      let addon = require('../helpers/encode-decode/' + addons[i])
+      if (!decodedObj) {
+        decodedObj = await addon.decode(req.body.importString.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim(), lua.runLua)
+      }
+      let meta = decodedObj && addon.processMeta(decodedObj, req.body.type)
+      if (decodedObj && meta) {
+        scan.decoded = JSON.stringify(decodedObj)
+        scan.type = meta.type
+        scan.name = meta.name || meta.type
+        scan.game = meta.game || 'sl'
+        scan.categories = meta.categories || []
+        scan.fork = meta.fork || req.body.forkOf
+        scan.addon = addons[i]
+        await scan.save()
+        scan.scan = scan._id
+      }
+    }
+
+    if (scan.type) {
+      await scan.save()
+      return res.send({scan: scan._id, type: scan.type, name: scan.name, categories: scan.categories, game: scan.game})
+    }
+
+    // legacy import code follows
     if (req.body.type) {
       test[req.body.type.toUpperCase()] = true
       switch (req.body.type.toUpperCase()) {
@@ -397,12 +428,18 @@ module.exports = function (fastify, opts, next) {
       return res.code(400).send({error: 'scan_expired'})
     }
 
+    var wago = new WagoItem({type: scan.type})
     var json = {}
     if (scan.decoded) {
       json = JSON.parse(scan.decoded)
     }
 
-    var wago = new WagoItem({type: scan.type})
+    if (scan.game) {
+      wago.description = scan.description
+      wago.game = scan.game || 'sl'
+    }
+    else {
+      // legacy scan
     // detect description
     if (wago.type === 'WEAKAURA' && json.d.desc) {
       wago.description = json.d.desc
@@ -449,6 +486,7 @@ module.exports = function (fastify, opts, next) {
       else {
         wago.game = 'bfa' // battle for azeroth
       }
+    }
     }
 
     // set expiry option
@@ -638,6 +676,7 @@ module.exports = function (fastify, opts, next) {
     }
 
     await code.save()
+    await taskQueue.add('ProcessCode', {id: doc._id, version: code.versionString, addon: scan.addon}, {priority: req.user && req.user.access.queueSkip && 2 || 5, jobId: `${doc._id}:${code.version}:${code.versionString}`})
     if (req.body.importAs === 'User' && req.user && !wago.hidden && !wago.private && !wago.encrypted && !wago.restricted && req.user.discord && req.user.discord.webhooks && req.user.discord.webhooks.onCreate) {
       webhooks.discord.onCreate(req.user, wago)
     }

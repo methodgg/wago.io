@@ -23,11 +23,19 @@ const runLua = async function (luaScript, opt) {
 }
 
 module.exports = {
+  runLua: async (str) => {
+    return await runLua(`
+    ${wagoLua}
+    function runLua() 
+      ${str} 
+    end 
+    print(runLua())`)
+  },
   DecodeDeflate: async (str, cb) => {
     if (!str || !str.match(commonRegex.looksLikeDeflate)) {
       return false
     }
-    var result = await runLua('dofile("./wago.lua"); Deflate2JSON("' + str + '")')
+    var result = await runLua('dofile("./wago-legacy.lua"); Deflate2JSON("' + str + '")')
     if (!result) {
       return false
     }
@@ -48,7 +56,7 @@ module.exports = {
         return false
       }
     }
-    var result = await runLua('dofile("./wago.lua"); TableToDeflate("' + str.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim() + '")')
+    var result = await runLua('dofile("./wago-legacy.lua"); TableToDeflate("' + str.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim() + '")')
     return result
   },
 
@@ -56,7 +64,7 @@ module.exports = {
     if (!str || !str.match(commonRegex.looksLikeWeakAura)) {
       return false
     }
-    var result = await runLua('dofile("./wago.lua"); WA2JSON("' + str + '")')
+    var result = await runLua('dofile("./wago-legacy.lua"); WA2JSON("' + str + '")')
     if (!result) {
       return false
     }
@@ -82,7 +90,7 @@ module.exports = {
     }
 
     var str = JSON.stringify(obj)
-    var result = await runLua('dofile("./wago.lua"); JSON2WA("' + str.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim() + '")')
+    var result = await runLua('dofile("./wago-legacy.lua"); JSON2WA("' + str.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim() + '")')
     if (!result || !result.match(commonRegex.looksLikeWeakAura)) {
       return false
     }
@@ -103,7 +111,7 @@ module.exports = {
     }
 
     var str = JSON.stringify(obj)
-    var result = await runLua('dofile("./wago.lua"); JSON2MDT("' + str.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim() + '")')
+    var result = await runLua('dofile("./wago-legacy.lua"); JSON2MDT("' + str.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim() + '")')
     if (!result || !result.match(commonRegex.looksLikeMDT)) {
       return false
     }
@@ -114,7 +122,7 @@ module.exports = {
     if (!str || !str.match(commonRegex.looksLikeElvUI)) {
       return false
     }
-    var result = await runLua('dofile("./wago.lua"); Elv2JSON("' + str + '")')
+    var result = await runLua('dofile("./wago-legacy.lua"); Elv2JSON("' + str + '")')
     if (!result) {
       return false
     }
@@ -141,7 +149,7 @@ module.exports = {
     }
 
     var str = JSON.stringify(obj)
-    var result = await runLua('dofile("./wago.lua"); JSON2Elv("' + str.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim() + '")')
+    var result = await runLua('dofile("./wago-legacy.lua"); JSON2Elv("' + str.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim() + '")')
     if (!result || !result.match(commonRegex.looksLikeElvUI)) {
       return false
     }
@@ -152,7 +160,7 @@ module.exports = {
     if (!str || !str.match(commonRegex.looksLikeVuhDo)) {
       return false
     }
-    var result = await runLua('dofile("./wago.lua"); Vuhdo2JSON("' + str + '")')
+    var result = await runLua('dofile("./wago-legacy.lua"); Vuhdo2JSON("' + str + '")')
     if (!result) {
       return false
     }
@@ -179,7 +187,7 @@ module.exports = {
     }
 
     var str = JSON.stringify(obj)
-    var result = await runLua('dofile("./wago.lua"); JSON2Vuhdo("' + str.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim() + '")')
+    var result = await runLua('dofile("./wago-legacy.lua"); JSON2Vuhdo("' + str.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim() + '")')
     if (!result || !result.match(commonRegex.looksLikeVuhDo)) {
       return false
     }
@@ -198,7 +206,7 @@ module.exports = {
     }
 
     var str = JSON.stringify(obj)
-    var result = await runLua('dofile("./wago.lua"); JSON2Plater("' + str.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim() + '")')
+    var result = await runLua('dofile("./wago-legacy.lua"); JSON2Plater("' + str.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim() + '")')
     if (!result || !result.match(commonRegex.looksLikePlater)) {
       return false
     }
@@ -209,7 +217,7 @@ module.exports = {
     if (!str || !str.match(commonRegex.looksLikePlater)) {
       return false
     }
-    var result = await runLua('dofile("./wago.lua"); Plater2JSON("' + str + '")')
+    var result = await runLua('dofile("./wago-legacy.lua"); Plater2JSON("' + str + '")')
     if (!result) {
       return false
     }
@@ -225,7 +233,7 @@ module.exports = {
     if (!str || !str.match(commonRegex.looksLikeOpie)) {
       return false
     }
-    var result = await runLua('dofile("./wago.lua"); Opie2JSON("' + str + '")')
+    var result = await runLua('dofile("./wago-legacy.lua"); Opie2JSON("' + str + '")')
     if (!result) {
       return false
     }
@@ -255,7 +263,7 @@ module.exports = {
       obj[1] = tmp
     }
     var str = JSON.stringify(obj)
-    var result = await runLua('dofile("./wago.lua"); JSON2Opie("' + str.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim() + '")')
+    var result = await runLua('dofile("./wago-legacy.lua"); JSON2Opie("' + str.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim() + '")')
     if (!result || !result.match(commonRegex.looksLikeOPie)) {
       return false
     }
@@ -269,7 +277,7 @@ module.exports = {
   //   }
 
   //   // generate lua file
-  //   var luaScript = 'dofile("./wago.lua"); Grid2JSON("' + str + '")'
+  //   var luaScript = 'dofile("./wago-legacy.lua"); Grid2JSON("' + str + '")'
   //   var luaFile = tmpLuaFileName(str)
 
   //   fs.writeFile(luaFile, luaScript, (err) => {
@@ -297,7 +305,7 @@ module.exports = {
 
   //   // generate lua file
   //   var str = JSON.stringify(obj)
-  //   var luaScript = 'dofile("./wago.lua"); JSON2WA("' + str.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim() + '")'
+  //   var luaScript = 'dofile("./wago-legacy.lua"); JSON2WA("' + str.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim() + '")'
   //   var luaFile = tmpLuaFileName(str)
 
   //   fs.writeFile(luaFile, luaScript, (err) => {
@@ -320,7 +328,7 @@ module.exports = {
       return false
     }
 
-    var result = await runLua('dofile("./wago.lua"); TotalRP32JSON("' + str + '")')
+    var result = await runLua('dofile("./wago-legacy.lua"); TotalRP32JSON("' + str + '")')
     if (!result) {
       return false
     }
@@ -347,7 +355,7 @@ module.exports = {
     }
 
     var str = JSON.stringify(obj)
-    var result = await runLua('dofile("./wago.lua"); JSON2TotalRP3("' + str.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim() + '")')
+    var result = await runLua('dofile("./wago-legacy.lua"); JSON2TotalRP3("' + str.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim() + '")')
     if (!result || !result.match(commonRegex.looksLikeTotalRP3)) {
       return false
     }
@@ -398,7 +406,7 @@ module.exports = {
     }
 
 
-    var result = await runLua(`dofile("./wago.lua"); ${luaCode} Table2JSON(MDT)`)
+    var result = await runLua(`dofile("./wago-legacy.lua"); ${luaCode} Table2JSON(MDT)`)
     return result
   },
 

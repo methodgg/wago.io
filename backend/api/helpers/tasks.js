@@ -565,8 +565,21 @@ async function ProcessCode(data) {
   if (!doc || !code) {
     return
   }
-  // await new Promise(r => setTimeout(r, 2000))
   if (!data.id) return
+
+  if (data.addon) {
+    const addon = require('./encode-decode/' + data.addon)
+    if (addon && addon.addWagoData) {
+      let data = addon.addWagoData(code, doc)
+      if (data && data.code) {
+        code = data.code
+        code.encoded = await addon.encode(code.json.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim(), lua.runLua)
+      }
+      if (data && data.wago) {
+        doc = data.wago
+      }
+    }
+  }
 
   switch (doc.type) {
     case 'SNIPPET':
@@ -577,52 +590,6 @@ async function ProcessCode(data) {
     case 'WEAKAURA':
     case 'CLASSIC-WEAKAURA':
       var json = JSON.parse(code.json)
-      json.wagoID = doc._id
-      json.d.url = doc.url + '/' + code.version
-      json.d.version = code.version
-      json.d.semver = code.versionString
-
-      // var keyTerms = []
-      // if (json.d.language) {
-      //   var locales = Object.keys(json.d.language)
-      //   for (let i = 0; i < locales.length; i++) {
-      //     var terms = Object.entries(json.d.language[locales[i]])
-      //     for (let k = 0; k < terms.length; k++) {
-      //       await WagoTranslation.setTranslation(doc._id, locales[i], terms[k][0], terms[k][1])
-      //       keyTerms.push(terms[k][0])
-      //     }
-      //   }
-      // }
-      if (json.c) {
-        for (let i = 0; i < json.c.length; i++) {
-          json.c[i].url = doc.url + '/' + code.version
-          json.c[i].version = code.version
-          json.c[i].semver = code.versionString
-          delete json.c[i].ignoreWagoUpdate
-          delete json.c[i].skipWagoUpdate
-
-          // if (json.c[i].language) {
-          //   var locales = Object.keys(json.c[i].language)
-          //   for (let i = 0; i < locales.length; i++) {
-          //     var terms = Object.entries(json.c[i].language[locales[i]])
-          //     for (let k = 0; k < terms.length; k++) {
-          //       await WagoTranslation.setTranslation(doc._id, locales[i], terms[k][0], terms[k][1])
-          //       keyTerms.push(terms[k][0])
-          //     }
-          //   }
-          // }
-        }
-      }
-      
-      // await WagoTranslation.updateMany({wagoID: doc._id, key: {$nin: keyTerms}}, {active: false})
-
-      json = sortJSON(json) // sort by key so that we can diff the full table
-      code.json = JSON.stringify(json)
-      var encoded = await lua.JSON2WeakAura(code.json)
-      if (encoded && encoded !== 'false') {
-        code.encoded = encoded
-      }
-
       var customCode = detectCode.WeakAura(json)      
       code.luacheck = JSON.stringify(await luacheck.run(customCode, doc.game))
       code.processVersion = processVersions.WEAKAURA
