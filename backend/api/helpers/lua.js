@@ -22,6 +22,8 @@ const runLua = async function (luaScript, opt) {
   }
 }
 
+const wagoLua = require('fs').readFileSync('./api/lua/wago.lua', 'utf8')
+
 module.exports = {
   runLua: async (str) => {
     return await runLua(`
