@@ -4,6 +4,8 @@ View the other addons in use for further examples.
 
 ```js
 module.exports = {
+  typeMatch: /^MYADDON$/, // simple regex that should match your meta.type (see processMeta below)
+
   // Decodes an import string and returns a JSON object.
   // Receives `str` which is the raw import string, and `exec` which is a function to run Lua code.
   decode: async (encodedString, exec) => {
@@ -12,7 +14,7 @@ module.exports = {
       return false
     }
     // Lua code to decode string. This should return JSON:encode(table).
-    // The Lua code here has access to the contents of ../lua/wago.lua
+    // The Lua code here has access to the contents of ../../lua/wago.lua
     const lua = `
       local str = "${encodedString}" -- encodedString is already escaped for \\ and \"
       -- run some functions to get a table
@@ -31,7 +33,7 @@ module.exports = {
 
   encode: async (jsonString, exec) => {
     // Lua code to encode a JSON string into an import string. 
-    // The Lua code here has access to the contents of ../lua/wago.lua
+    // The Lua code here has access to the contents of ../../lua/wago.lua
     const lua = `
     local tbl = JSON:decode("${jsonString}") -- jsonString is already escaped for \\ and \"
     if not tbl then return "" end

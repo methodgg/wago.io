@@ -559,6 +559,7 @@ const processVersions = {
   SNIPPET: 2,
   WEAKAURA: 2
 }
+const encodeDecodeAddons = require('fs').readdirSync('./api/helpers/encode-decode')
 async function ProcessCode(data) {
   var doc = await WagoItem.lookup(data.id)
   var code = await WagoCode.lookup(data.id, data.version)
@@ -579,6 +580,25 @@ async function ProcessCode(data) {
         doc = data.wago
       }
     }
+  }
+  else if (doc.type) {
+    // match addon by type
+    for (let i = 0; i < encodeDecodeAddons.length; i++) {
+      if (data.addon || encodeDecodeAddons[i].indexOf('.js')<0) {
+        continue
+      }
+      let addon = require('./encode-decode/' + encodeDecodeAddons[i])
+      if (addon.typeMatch && doc.type.match(addon.typeMatch)) {
+        let data = addon.addWagoData(code, doc)
+        if (data && data.code) {
+          code = data.code
+          code.encoded = await addon.encode(code.json.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim(), lua.runLua)
+        }
+        if (data && data.wago) {
+          doc = data.wago
+        }
+      }
+    }    
   }
 
   switch (doc.type) {

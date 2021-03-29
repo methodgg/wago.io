@@ -1,4 +1,6 @@
 module.exports = {
+  typeMatch: /^(CLASSIC-)?WEAKAURA$/,
+
   decode: async (encodedString, exec) => {
     // test that string matches expected regex
     if (!encodedString.match(/^!?(WA:2!)?[a-zA-Z0-9\(\)]*$/)) {
@@ -109,7 +111,7 @@ module.exports = {
         meta.game = 'classic'
       }
       else if ((obj.d.tocversion+'').match(/^20/)) {
-        meta.type = 'TBC-WEAKAURA'
+        meta.type = 'CLASSIC-WEAKAURA'
         meta.game = 'tbc'
       }
       else if ((obj.d.tocversion+'').match(/^80/)) {

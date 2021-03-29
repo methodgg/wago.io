@@ -22,7 +22,7 @@ global.RedisConnect = new Redis(config.redis)
 const {Queue, Worker, QueueScheduler, QueueEvents} = require('bullmq')
 const Profiler = require('./api/models/Profiler')
 const discordBot = require('./discordBot')
-global.taskQueue = new Queue('taskQueue', {connection: RedisConnect})
+global.taskQueue = new Queue('taskQueueA', {connection: RedisConnect})
 global.async = require('async')
 global.axios = require('axios')
 global.bluebird = require('bluebird')
@@ -112,8 +112,8 @@ const startServer = async () => {
     updateLocalCache.run()
 
     var profilerTasks = {}
-    new QueueScheduler('taskQueue', {connection: RedisConnect})
-    const worker = new Worker('taskQueue', async (job) => {
+    new QueueScheduler('taskQueueA', {connection: RedisConnect})
+    const worker = new Worker('taskQueueA', async (job) => {
       await runTask(job.name, job.data, profilerTasks[job.id])
     }, {
       concurrency: 3,
