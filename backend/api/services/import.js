@@ -5,6 +5,7 @@ const webhooks = require('../helpers/webhooks')
 const battlenet = require('../helpers/battlenet')
 const semver = require('semver')
 const crypto = require("crypto-js")
+const encodeDecodeAddons = require('fs').readdirSync('./api/helpers/encode-decode')
 
 module.exports = function (fastify, opts, next) {
 /**
@@ -21,17 +22,19 @@ module.exports = function (fastify, opts, next) {
     var test = {}
     var scan = new ImportScan({input: req.body.importString})
 
-    const addons = await fs.readdir('./api/helpers/encode-decode')
     var decodedObj
-    for (let i = 0; i < addons.length; i++) {
-      if (scan.decoded || addons[i].indexOf('.js')<0) {
+    for (let i = 0; i < encodeDecodeAddons.length; i++) {
+      if (scan.decoded || encodeDecodeAddons[i].indexOf('.js')<0) {
         continue
       }
-      let addon = require('../helpers/encode-decode/' + addons[i])
-      if (!decodedObj) {
+      let addon = require('../helpers/encode-decode/' + encodeDecodeAddons[i])
+      if (!decodedObj && (!req.body.type || req.body.type.match(addon.typeMatch))) {
         decodedObj = await addon.decode(req.body.importString.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim(), lua.runLua)
       }
-      let meta = decodedObj && addon.processMeta(decodedObj, req.body.type)
+      if (!decodedObj || (req.body.type && !req.body.type.match(addon.typeMatch))) {
+        continue
+      }
+      let meta = addon.processMeta(decodedObj)
       if (decodedObj && meta) {
         scan.decoded = JSON.stringify(decodedObj)
         scan.type = meta.type
@@ -39,7 +42,7 @@ module.exports = function (fastify, opts, next) {
         scan.game = meta.game || 'sl'
         scan.categories = meta.categories || []
         scan.fork = meta.fork || req.body.forkOf
-        scan.addon = addons[i]
+        scan.addon = encodeDecodeAddons[i]
         await scan.save()
         scan.scan = scan._id
       }
@@ -582,27 +585,27 @@ module.exports = function (fastify, opts, next) {
       }
     }
     // otherwise check for system tags by import type
-    else if (wago.type === 'VUHDO') {
-      wago.categories.push('vuhdo0')
+    // else if (wago.type === 'VUHDO') {
+    //   wago.categories.push('vuhdo0')
 
-      if (json.bouquetName) {
-        wago.categories.push('vuhdo2')
-      }
-      else if (json.keyLayout) {
-        wago.categories.push('vuhdo3')
-      }
-      else { // vuhdo profile
-        wago.categories.push('vuhdo1')
-      }
-    }
-    else if (wago.type === 'TOTALRP3') {
-      if (json[2].TY === 'CA') {
-        wago.categories.push('totalrp1')
-      }
-      else if (json[2].TY === 'IT') {
-        wago.categories.push('totalrp4')
-      }
-    }
+    //   if (json.bouquetName) {
+    //     wago.categories.push('vuhdo2')
+    //   }
+    //   else if (json.keyLayout) {
+    //     wago.categories.push('vuhdo3')
+    //   }
+    //   else { // vuhdo profile
+    //     wago.categories.push('vuhdo1')
+    //   }
+    // }
+    // else if (wago.type === 'TOTALRP3') {
+    //   if (json[2].TY === 'CA') {
+    //     wago.categories.push('totalrp1')
+    //   }
+    //   else if (json[2].TY === 'IT') {
+    //     wago.categories.push('totalrp4')
+    //   }
+    // }
     else if (wago.type === 'MDT') {
       if (json.value.currentDungeonIdx && parseInt(json.value.currentDungeonIdx) > 0 && global.Categories.getCategory('mdt-sldun' + json.value.currentDungeonIdx)) {
         wago.categories.push('mdt-sldun' + json.value.currentDungeonIdx)
@@ -618,29 +621,29 @@ module.exports = function (fastify, opts, next) {
         })
       }
     }
-    else if (wago.type === 'PLATER') {
-      wago.categories.push('plater0')
-      if (!Array.isArray(json) && json[1] && json[1].animation_type) {
-        // plater profile
-        wago.categories.push('plater4')
-      }
-      else if (!Array.isArray(json) && json.NpcColor) {
-        // plater npc color
-        wago.categories.push('plater5')
-      }
-      else if (json.type === 'script' || (Array.isArray(json) && typeof json[8] === 'number') || typeof json['9'] === 'number') {
-        // plater script
-        wago.categories.push('plater2')
-      }
-      else if (json.type === 'hook' || (Array.isArray(json) && typeof json[8] === 'object') || typeof json['9'] === 'object') {
-        // plater hook
-        wago.categories.push('plater3')
-      }
-      else if (!Array.isArray(json)) {
-        // plater profile
-        wago.categories.push('plater1')
-      }
-    }
+    // else if (wago.type === 'PLATER') {
+    //   wago.categories.push('plater0')
+    //   if (!Array.isArray(json) && json[1] && json[1].animation_type) {
+    //     // plater profile
+    //     wago.categories.push('plater4')
+    //   }
+    //   else if (!Array.isArray(json) && json.NpcColor) {
+    //     // plater npc color
+    //     wago.categories.push('plater5')
+    //   }
+    //   else if (json.type === 'script' || (Array.isArray(json) && typeof json[8] === 'number') || typeof json['9'] === 'number') {
+    //     // plater script
+    //     wago.categories.push('plater2')
+    //   }
+    //   else if (json.type === 'hook' || (Array.isArray(json) && typeof json[8] === 'object') || typeof json['9'] === 'object') {
+    //     // plater hook
+    //     wago.categories.push('plater3')
+    //   }
+    //   else if (!Array.isArray(json)) {
+    //     // plater profile
+    //     wago.categories.push('plater1')
+    //   }
+    // }
 
     if (wago.categories.length > 0) {
       wago.categories = Categories.validateCategories(wago.categories)
@@ -817,8 +820,11 @@ module.exports = function (fastify, opts, next) {
     if (!wago) {
       return res.code(403).send({error: 'invalid_import'})
     }
+    var jsonString = ''
     try {
+      // this both validates the json and removes line breaks/etc
       var json = JSON.parse(req.body.json)
+      jsonString = JSON.stringify(json)
     }
     catch (e) {
       return res.code(403).send({error: 'invalid_import'})
@@ -844,7 +850,6 @@ module.exports = function (fastify, opts, next) {
       wago.latestVersion.versionString = newVersion
     }
     wago.modified = Date.now()
-    await wago.save()
 
     var code = new WagoCode({
       auraID: wago._id,
@@ -853,11 +858,31 @@ module.exports = function (fastify, opts, next) {
       changelog: {
         text: req.body.changelog,
         format: req.body.changelogFormat || 'bbcode'
-      }
+      },
+      json: jsonString
     })
     var versionString = wago.latestVersion.versionString
     if (versionString !== '1.0.' + (wago.latestVersion.iteration - 1) && versionString !== '0.0.' + wago.latestVersion.iteration) {
       versionString = versionString + '-' + wago.latestVersion.iteration
+    }
+
+    for (let i = 0; i < encodeDecodeAddons.length; i++) {
+      if (code.encoded || encodeDecodeAddons[i].indexOf('.js')<0) {
+        continue
+      }
+      let addon = require('../helpers/encode-decode/' + encodeDecodeAddons[i])
+      if (addon.typeMatch && wago.type.match(addon.typeMatch)) {
+        if (addon.addWagoData) {
+          let data = addon.addWagoData(code, wago)
+          if (data && data.code) {
+            code = data.code
+          }
+          if (data && data.wago) {
+            wago = data.wago
+          }
+        }
+        code.encoded = await addon.encode(code.json.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim(), lua.runLua)
+      }
     }
     switch (wago.type) {
       case 'ELVUI':
@@ -868,87 +893,82 @@ module.exports = function (fastify, opts, next) {
         code.encoded = await lua.JSON2MDT(json)
       break
 
-      case 'PLATER':
-        if (Array.isArray(json)) {
-          var tbl = {}
-          json.forEach((v, k) => {
-            tbl[''+(k+1)] = v
-          })
-          json = tbl
-        }
-        json.url = wago.url + '/' + wago.latestVersion.iteration
-        json.version = wago.latestVersion.iteration
-        json.semver = versionString
-        code.json = JSON.stringify(json)
-        code.encoded = await lua.JSON2Plater(json)
-      break
+      // case 'PLATER':
+      //   if (Array.isArray(json)) {
+      //     var tbl = {}
+      //     json.forEach((v, k) => {
+      //       tbl[''+(k+1)] = v
+      //     })
+      //     json = tbl
+      //   }
+      //   json.url = wago.url + '/' + wago.latestVersion.iteration
+      //   json.version = wago.latestVersion.iteration
+      //   json.semver = versionString
+      //   code.json = JSON.stringify(json)
+      //   code.encoded = await lua.JSON2Plater(json)
+      // break
 
       case 'TOTALRP3':
         code.encoded = await lua.JSON2TotalRP3(json)
       break
 
-      case 'VUHDO':
-        code.encoded = await lua.JSON2VuhDo(json)
-      break
+      // case 'VUHDO':
+      //   code.encoded = await lua.JSON2VuhDo(json)
+      // break
 
-      case 'OPIE':
-        code.encoded = await lua.JSON2OPie(json)
-      break
+      // case 'OPIE':
+      //   code.encoded = await lua.JSON2OPie(json)
+      // break
 
-      case 'WEAKAURA':
-      case 'CLASSIC-WEAKAURA':
+      // case 'WEAKAURA':
+      // case 'CLASSIC-WEAKAURA':
 
-        json.d.url = wago.url + '/' + wago.latestVersion.iteration
-        json.d.version = wago.latestVersion.iteration
-        json.d.semver = versionString
-        json.wagoID = wago._id
-        delete json.d.ignoreWagoUpdate // remove as this is a client-level setting for the WA companion app
-        delete json.d.skipWagoUpdate
+      //   json.d.url = wago.url + '/' + wago.latestVersion.iteration
+      //   json.d.version = wago.latestVersion.iteration
+      //   json.d.semver = versionString
+      //   json.wagoID = wago._id
+      //   delete json.d.ignoreWagoUpdate // remove as this is a client-level setting for the WA companion app
+      //   delete json.d.skipWagoUpdate
 
-        var keyTerms = []
-        if (json.d.language) {
-          var locales = Object.keys(json.d.language)
-          for (let i = 0; i < locales.length; i++) {
-            var terms = Object.entries(json.d.language[locales[i]])
-            for (let k = 0; k < terms.length; k++) {
-              await WagoTranslation.setTranslation(wago._id, locales[i], terms[k][0], terms[k][1])
-              keyTerms.push(terms[k][0])
-            }
-          }
-        }
+      //   var keyTerms = []
+      //   if (json.d.language) {
+      //     var locales = Object.keys(json.d.language)
+      //     for (let i = 0; i < locales.length; i++) {
+      //       var terms = Object.entries(json.d.language[locales[i]])
+      //       for (let k = 0; k < terms.length; k++) {
+      //         await WagoTranslation.setTranslation(wago._id, locales[i], terms[k][0], terms[k][1])
+      //         keyTerms.push(terms[k][0])
+      //       }
+      //     }
+      //   }
 
-        if (json.c) {
-          for (var i = 0; i < json.c.length; i++) {
-            json.c[i].url = wago.url + '/' + wago.latestVersion.iteration
-            json.c[i].version = wago.latestVersion.iteration
-            json.c[i].semver = versionString
-            delete json.c[i].ignoreWagoUpdate
-            delete json.c[i].skipWagoUpdate
+      //   if (json.c) {
+      //     for (var i = 0; i < json.c.length; i++) {
+      //       json.c[i].url = wago.url + '/' + wago.latestVersion.iteration
+      //       json.c[i].version = wago.latestVersion.iteration
+      //       json.c[i].semver = versionString
+      //       delete json.c[i].ignoreWagoUpdate
+      //       delete json.c[i].skipWagoUpdate
 
-            if (json.c[i].language) {
-              var locales = Object.keys(json.c[i].language)
-              for (let i = 0; i < locales.length; i++) {
-                var terms = Object.entries(json.c[i].language[locales[i]])
-                for (let k = 0; k < terms.length; k++) {
-                  await WagoTranslation.setTranslation(wago._id, locales[i], terms[k][0], terms[k][1])
-                  keyTerms.push(terms[k][0])
-                }
-              }
-            }
-          }
-        }
-        await WagoTranslation.updateMany({wagoID: wago._id, key: {$nin: keyTerms}}, {active: false})
+      //       if (json.c[i].language) {
+      //         var locales = Object.keys(json.c[i].language)
+      //         for (let i = 0; i < locales.length; i++) {
+      //           var terms = Object.entries(json.c[i].language[locales[i]])
+      //           for (let k = 0; k < terms.length; k++) {
+      //             await WagoTranslation.setTranslation(wago._id, locales[i], terms[k][0], terms[k][1])
+      //             keyTerms.push(terms[k][0])
+      //           }
+      //         }
+      //       }
+      //     }
+      //   }
+      //   await WagoTranslation.updateMany({wagoID: wago._id, key: {$nin: keyTerms}}, {active: false})
 
-        code.encoded = await lua.JSON2WeakAura(json)
-      break
-
-      default:
-        // this shouldn't be possible
-        return res.code(400).send({error: 'invalid_import'})
+        // code.encoded = await lua.JSON2WeakAura(json)
+      // break
     }
 
     webhooks.discord.onUpdate(req.user, wago)
-    code.json = JSON.stringify(json)
     
     if (wago.encrypted && req.body.cipherKey) {
       code.encoded = crypto.AES.encrypt(code.encoded, req.body.cipherKey)
@@ -957,11 +977,9 @@ module.exports = function (fastify, opts, next) {
       code.lua = crypto.AES.encrypt(code.lua, req.body.cipherKey)
     }
 
+    await wago.save()
     await code.save()
-    redis.del(wago._id)
-    redis.del(wago.slug)
-    redis.del('API:' + wago._id)
-    redis.del('API:' + wago.slug)
+    redis.clear(wago)
     res.send({success: true, wagoID: wago._id})
   })
 
@@ -1038,11 +1056,33 @@ module.exports = function (fastify, opts, next) {
     }
     try {
       var json = JSON.parse(req.body.json)
+      var jsonString = JSON.stringify(json)
     }
     catch (e) {
       return res.code(400).send({error: "Invalid data"})
     }
     var encoded
+    for (let i = 0; i < encodeDecodeAddons.length; i++) {
+      if (encoded || encodeDecodeAddons[i].indexOf('.js')<0) {
+        continue
+      }
+      let addon = require('../helpers/encode-decode/' + encodeDecodeAddons[i])
+      if (addon.typeMatch && req.body.type && req.body.type.match(addon.typeMatch)) {
+        encoded = await addon.encode(jsonString.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim(), lua.runLua)
+        let meta = addon.processMeta(json)
+        if (encoded && meta) {
+          const scan = await new ImportScan({type: req.body.type.toUpperCase(), input: encoded, decoded: req.body.json, fork: req.body.forkOf})
+          scan.decoded = jsonString
+          scan.type = meta.type
+          scan.name = meta.name || meta.type
+          scan.game = meta.game || 'sl'
+          scan.categories = meta.categories || []
+          scan.addon = encodeDecodeAddons[i]
+          await scan.save()
+          return res.send({scan: scan._id, type: scan.type, name: scan.name, categories: scan.categories, game: scan.game, encoded: encoded})
+        }
+      }
+    }
     switch (req.body.type.toUpperCase()) {
       case 'ELVUI':
         encoded = await lua.JSON2ElvUI(json)
@@ -1052,22 +1092,22 @@ module.exports = function (fastify, opts, next) {
         encoded = await lua.JSON2MDT(json)
       break
 
-      case 'PLATER':
-        encoded = await lua.JSON2Plater(json)
-      break
+      // case 'PLATER':
+      //   encoded = await lua.JSON2Plater(json)
+      // break
 
       case 'TOTALRP3':
         encoded = await lua.JSON2TotalRP3(json)
       break
 
-      case 'VUHDO':
-        encoded = await lua.JSON2VuhDo(json)
-      break
+      // case 'VUHDO':
+      //   encoded = await lua.JSON2VuhDo(json)
+      // break
 
-      case 'WEAKAURA':
-      case 'CLASSIC-WEAKAURA':
-        encoded = await lua.JSON2WeakAura(json)
-      break
+      // case 'WEAKAURA':
+      // case 'CLASSIC-WEAKAURA':
+      //   encoded = await lua.JSON2WeakAura(json)
+      // break
     }
     if (!encoded) {
       return res.code(400).send({error: "Invalid data"})
@@ -1126,10 +1166,7 @@ module.exports = function (fastify, opts, next) {
       code.lua = crypto.AES.encrypt(code.lua, req.body.cipherKey)
     }
     await code.save()
-    redis.del(wago._id)
-    redis.del(wago.slug)
-    redis.del('API:' + wago._id)
-    redis.del('API:' + wago.slug)
+    redis.clear(wago)
     res.send({success: true, wagoID: wago._id})
   })
 

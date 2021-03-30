@@ -52,7 +52,7 @@ module.exports = {
   // Returns object with related meta data: name, type, game, categories, etc.
   // Also functions as a validation for the data structure. 
   // This is kept separate from the decoding process because multiple addons can share a decode algorithm so this way means it's only decoded once.
-  processMeta: (obj, expectedType) => {
+  processMeta: (obj) => {
     // Return false if the object does not match the structure or missing key data fields; the import will not be allowed for this addon.
     if (!obj || !obj.someValueThatShouldBeHere) {
       return false
@@ -61,11 +61,6 @@ module.exports = {
 
     // This is the only required field.
     meta.type = 'MyAddon'
-
-    // expectedType is included when updating an existing import so it should be checked to ensure it's still the same.
-    if (expectedType && meta.type !== expectedType) {
-      return false
-    }
 
     // the remaining fields are optional.
     meta.game = "sl" // Expansion from object (example if toc version is stored to object; defaults to the most recent retail expansion).
@@ -94,3 +89,4 @@ module.exports = {
     return {code: code, wago: wago}
   }
 }
+```

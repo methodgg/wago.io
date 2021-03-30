@@ -30,7 +30,7 @@ module.exports = {
       end
 
       if not(decompressed) then
-        return false        
+        return ''        
       end
 
       local success, deserialized
@@ -40,7 +40,7 @@ module.exports = {
         success, deserialized = LibSerialize:Deserialize(decompressed)
       end
       if not(success) then
-        return false
+        return ''
       end
       return JSON:encode(deserialized)
     `
@@ -95,7 +95,7 @@ module.exports = {
     }
   },
 
-  processMeta: (obj, expectedType) => {
+  processMeta: (obj) => {
     var meta = {categories: []}
     if (!obj || !obj.d || !obj.d.id) {
       return false
@@ -120,10 +120,6 @@ module.exports = {
       else if ((obj.d.tocversion+'').match(/^90/)) {
         meta.game = 'sl'
       }
-    }
-
-    if (expectedType && meta.type !== expectedType) {
-      return false
     }
 
     if (obj.wagoID) {
