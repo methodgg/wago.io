@@ -7,11 +7,11 @@ module.exports = {
       return []
     }
     var func = []
-    if (data.type === 'script' || data['11']) { // Plater script      
-      func.push({ id: 'Script', name: 'Constructor', path: '11', lua: data['12'] })
-      func.push({ id: 'Script', name: 'On Show', path: '12', lua: data['14'] })
-      func.push({ id: 'Script', name: 'On Update', path: '13', lua: data['11'] })
-      func.push({ id: 'Script', name: 'On Hide', path: '14', lua: data['13'] })
+    if (data.type === 'script' || data['11']) { // Plater script
+      func.push({ id: 'Script', name: 'On Update', path: '11', lua: data['11'] })
+      func.push({ id: 'Script', name: 'Constructor', path: '12', lua: data['12'] })
+      func.push({ id: 'Script', name: 'On Hide', path: '13', lua: data['13'] })
+      func.push({ id: 'Script', name: 'On Show', path: '14', lua: data['14'] })
       func.push({ id: 'Script', name: 'Initialization', path: '15', lua: data['15'] })
       return func
     }
