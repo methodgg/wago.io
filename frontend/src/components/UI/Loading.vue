@@ -1,5 +1,5 @@
 <template>
-  <div id="loading" :class="theme">
+  <div id="loading">
     <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
       viewBox="0 300 1000 1000" xml:space="preserve">
     <g>
@@ -48,8 +48,8 @@ export default {
 .st0{fill:black;}
 .st1{fill:#C1272D;}
 
-.dark .st0{fill:#F2F2F2;}
-.dark .st1{fill:#C1272D;}
+.theme-dark .st0{fill:#F2F2F2;}
+.theme-dark .st1{fill:#C1272D;}
 
   /* WebKit and Opera browsers */ 
 @-webkit-keyframes spinner { 

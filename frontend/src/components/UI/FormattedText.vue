@@ -1,5 +1,7 @@
 <template>
-  <div v-html="formatText()" v-bind:class="{ noFormat: truncate && truncate > 0 }" :class="'usertext ' + (text.format || 'bbcode') "></div>
+  <div v-bind:class="{ noFormat: truncate && truncate > 0 }" :class="'usertext ' + (text.format || 'bbcode') ">
+    <slot></slot>
+  </div>
 </template>
 
 <script>
@@ -8,6 +10,7 @@ import mdUnderline from '../libs/markdownUnderline'
 import flowchart from 'flowchart.js'
 import prism from 'markdown-it-prism'
 import 'prismjs/components/prism-lua'
+import 'prismjs/components/prism-sass'
 
 // Actual default values
 var md = require('markdown-it')({
@@ -24,13 +27,20 @@ var md = require('markdown-it')({
 
 export default {
   props: ['text', 'truncate', 'plaintext', 'enableLinks'],
+  mounted: function() {
+    this.$el.innerHTML = this.formatText()
+  },
   methods: {
     formatText: function () {
-      var html
+      var html = this.$el.innerHTML
       // validate content
+      if (!this.text.text) {
+        this.text.text = html
+      }
       if (!this.text.text) {
         return ''
       }
+      console.log(this.text)
 
       // format plaintext
       if (this.plaintext) {
@@ -60,7 +70,7 @@ export default {
 
       // format markdown
       else if (this.text.format === 'markdown') {
-        const markdown = require('markdown-it')({linkify: true})
+        const markdown = require('markdown-it')({linkify: true, html: this.text.html})
         markdown.use(mdUnderline)
         markdown.use(prism)
         html = markdown.render(this.text.text)
@@ -194,23 +204,67 @@ export default {
 
 #wago-description .language-flowchart { border: 1px solid #777; background: #DDD; display: inline-block;}
 
-.markdown pre {
-  padding: 8px; 
-  border: 2px solid #111; 
-  background: #1C1C1C; 
-  border-radius: 4px;
-  white-space: break-spaces;
-  code {
-    background-color: inherit!important;
-    color: #9CDCFE!important;
-    .token.keyword { color: #569CD6}
-    .token.ident { color: #9CDCFE}
-    .token.function { color: #DCDCAA}
-    .token.punctuation { color: #DCDCAA}
-    .token.string { color: #CE9178}
-    .token.number { color: #B5C078}
-    .token.comment { color: #6A8A35}
-    .token.operator { color: #DDD}
+.markdown {
+  p > code {
+    padding: 4px; 
+    margin: 0 2px;
+    background: #111111!important;
+    color: #DDD!important;
+  }
+  pre {
+    padding: 8px; 
+    border: 2px solid #111; 
+    background: #1C1C1C; 
+    border-radius: 4px;
+    white-space: break-spaces;
+    code {
+      background-color: inherit!important;
+      color: #9CDCFE!important;
+      .token.keyword { color: #569CD6}
+      .token.ident { color: #9CDCFE}
+      .token.function { color: #DCDCAA}
+      .token.punctuation { color: #DCDCAA}
+      .token.string { color: #CE9178}
+      .token.number { color: #B5C078}
+      .token.comment { color: #6A8A35}
+      .token.operator { color: #DDD}
+      .token.selector { color: #D7B262}
+      .token.property-line { color: #438CA1; font-weight: bold}
+    }
+  }
+  table {
+    border-collapse: collapse;
+    th {
+      text-align: left;
+    }
+    th, td {
+      padding: 8px;
+      border: 1px solid #555;
+    }
+    th {background-color: #111;}
+    tr:nth-child(even) {background-color: #252525;}
+    tr:nth-child(odd) {background-color: #333;}
+  }
+  hr {
+    border: 0;
+    border-top: 1px solid #555;
+  }
+  .button {
+    display: inline-block;
+    background: #c1272d;
+    min-width: 88px;
+    min-height: 36px;
+    line-height: 36px;
+    margin: 6px 8px;
+    padding: 0 16px;
+    border: 0;
+    border-radius: 4px;
+    color: white!important;
+    font-weight: bold;
+    text-transform: uppercase; 
+  }
+  .button:hover {
+    text-decoration: none!important
   }
 }
 </style>

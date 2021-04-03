@@ -40,7 +40,7 @@ body.theme-dark {
 
   background-color: $Background!important;
   color: $Text!important;
-  h2, .md-subheader,  {
+  h2, .md-subheader {
     color: $Text;
   }
   a.wago-advert-patreon {color: $Text!important}
@@ -50,7 +50,7 @@ body.theme-dark {
   }
   .md-theme-default.md-card, .md-card .md-theme-default.md-list, .md-theme-default.md-menu-content .md-list, .md-theme-default.md-select-content .md-menu-item.md-selected, .md-theme-default.md-select-content .md-menu-item.md-checked,
   .md-whiteframe, .md-whiteframe .md-theme-default.md-list,
-  #full-sidebar .md-sidenav-content,  {
+  #full-sidebar .md-sidenav-content {
     background: $Background2;
     color: $Text;
   }
@@ -124,11 +124,9 @@ body.theme-dark {
     background-color: $Text3;
   }
   
-
   .searchText > a {
     color: $Links;
   }
-
   .user-default {
     color: white!important;
   }
@@ -141,8 +139,93 @@ body.theme-dark {
   .pvp-battleground, .md-chip.pvp-battleground, .pvp-battleground a {
     color: #0066af!important;
   }
-
 }
+
+body.theme-waluigi {
+  $Background: #2b043c;
+  $Background2: #3D0056;
+  $Background3: #4D076C;
+  $VeryDark: #190023;
+  $Links: #C5A81D;
+  $Text: #DDD;
+  $Text2: #B6B6B6;
+  $Text3: #999999;
+  background-color: $Background!important;
+  
+  #app .md-theme-default.md-button-toggle.md-primary .md-toggle, #app .md-theme-default.md-toolbar {background: $VeryDark}
+  #logo img {
+    filter: hue-rotate(25deg) contrast(1) brightness(4.3);
+    transform: scaleY(-1);
+  }
+  #loading svg {
+    filter: hue-rotate(25deg) contrast(1) brightness(4.3);
+    transform: scaleY(-1) translateY(260px);
+  }
+  #wago-addons-btn {border-color: $Links; background-color: $VeryDark;}
+  #cta-wago-addons {
+    background-color: $VeryDark;
+    border-color: $Links;
+    p {background: #190023A6;}
+    .md-button {background: $Links;}
+  }
+
+  .md-theme-default a:not(.md-button), #content a:not(.md-button) {
+    color: $Links;
+  }
+  .user-admin, .user-admin:hover {
+    color: $Links!important;
+  }
+  .copy-import-button, .md-theme-default.md-radio.md-checked .md-radio-container, .md-theme-default.md-checkbox.md-checked .md-checkbox-container {
+    border-color: $Links
+  }
+
+  #notification-banner, .md-button:not([disabled]).md-accent.md-raised, .md-button-toggle.md-accent .md-toggle, .md-radio .md-radio-container:after, .md-checkbox.md-checked .md-checkbox-container, .unreadCount, #app .md-theme-default.md-button-toggle.md-primary .md-toggle {
+    background-color: $Links;
+  }
+  .md-button-toggle.md-accent .md-toggle:hover:not([disabled]), #wago-versions .chip-button:hover, #wago-versions .chip-button.md-toggle {
+    background-color: #C7C700;
+  }
+
+  .md-list, .md-theme-default.md-dialog-container .md-dialog, .md-theme-default.md-list, #wago-tabs {
+    background: $Background;
+  }
+  .md-theme-default.md-card, .md-card .md-theme-default.md-list, .md-theme-default.md-menu-content .md-list, .md-theme-default.md-select-content .md-menu-item.md-selected, .md-theme-default.md-select-content .md-menu-item.md-checked, .md-whiteframe, .md-whiteframe .md-theme-default.md-list, #full-sidebar .md-sidenav-content {
+    background: $Background2;
+  }
+  #user-info, #gSearch input, #gSearch button, #advancedSearch, #advancedSearch .md-list, #full-sidebar .mainnav {
+    background: $Background3;
+  }
+  .md-select-content .md-menu-item.md-selected, .md-select-content .md-menu-item.md-checked {
+    background: $Background;
+  }
+  .md-checkbox-container {
+    border-color: $Text3;
+  }
+
+  #mobile-sidebar .md-sidenav-content, .md-list .md-list-item-expand .md-list-item-container { background: $Background2 }
+
+  .md-input-container {
+    &:after {
+      background-color: $Text2;
+    }
+    &.md-has-value input, &.md-has-value textarea, input, textarea, label, .md-icon:not(.md-icon-delete), &.md-has-select {
+      color: $Text2;
+      -webkit-text-fill-color: $Text2;
+    }
+  }  
+
+  .md-table tbody .md-table-row:hover .md-table-cell { 
+    background-color: $Background3;
+  }
+  .md-list:after {
+    background-color: $Text3;
+  }
+  .searchText > a {
+    color: $Links;
+  }
+}
+
+
 .md-layout > .md-list:after { background-color: transparent }
 
 /* rtl support */

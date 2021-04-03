@@ -55,7 +55,7 @@ Schema.virtual('embed').get(function() {
     embedURL = embedURL + '?' + embedParams
   }
 
-  return '<iframe src="'+embedURL+'" frameborder="0" scrolling="no"></iframe>'
+  return '<iframe src="'+embedURL+'" frameborder="0" scrolling="no" allow="autoplay"></iframe>'
 })
 
 Schema.virtual('url').get(function() {

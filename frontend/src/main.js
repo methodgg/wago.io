@@ -37,6 +37,9 @@ window.clearCookie = function (name) {
 window.locales = require('../../i18nLocaleConfig').locales
 
 document.body.classList.add('theme-' + (window.readCookie('theme') || 'dark'))
+if (window.readCookie('theme') === 'waluigi') {
+  document.body.classList.add('theme-dark')
+}
 
 // The Vue build version to load with the `import` command
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
@@ -226,6 +229,10 @@ const store = new Vuex.Store({
         }
       })
       document.body.classList.add('theme-' + theme)
+      if (theme === 'waluigi') {
+        document.body.classList.add('theme-dark')
+      }
+      
       Vue.set(state.user.config, 'theme', theme, 365)
       state.theme = theme
     },
@@ -385,12 +392,12 @@ axios.interceptors.response.use(function (response) {
 
 var refSent = false
 const isEmbedPage = !!(document.getElementById('embed-body'))
+var heartbeatCount = 0
 // setup http fetch helper
 const http = {
   install: function (Vue, options) {
     Vue.prototype.http = {
       heartbeat: null,
-      heartbeatCount: 0,
       config: function (url) {
         var headers = {}
 
@@ -416,6 +423,11 @@ const http = {
 
         // prepend API server
         var host
+
+        if (url !== '/account/status') {
+          heartbeatCount = 0
+        }
+
         if (!url.match(/^http/) && url.match(/^\/auth/)) {
           host = authServer
           url = host + url
@@ -427,13 +439,12 @@ const http = {
           dataServers.push(host)
           
           clearTimeout(this.heartbeat)
-          if (this.heartbeatCount < 10 && !isEmbedPage) {
-            this.heartbeat = setTimeout(function() {this.heartbeatCount++; this.get('/account/status')}.bind(this), 60000)
+          if (heartbeatCount < 30 && !isEmbedPage) {
+            this.heartbeat = setTimeout(function() {heartbeatCount++; this.get('/account/status')}.bind(this), 60000)
           }
+          else if (!isEmbedPage) {
+            store.commit('setStreamEmbed', 'streamspread')
         }
-
-        if (url !== '/account/status') {
-          this.heartbeatCount = 0
         }
         // append querystring to url
         if (params) {
@@ -485,8 +496,8 @@ const http = {
           dataServers.push(host)
 
           clearTimeout(this.heartbeat)
-          if (this.heartbeatCount < 10 && !isEmbedPage) {
-            this.heartbeat = setTimeout(function() {this.heartbeatCount++; this.get('/account/status')}.bind(this), 60000)
+          if (heartbeatCount < 30 && !isEmbedPage) {
+            this.heartbeat = setTimeout(function() {heartbeatCount++; this.get('/account/status')}.bind(this), 60000)
           }
         }
 

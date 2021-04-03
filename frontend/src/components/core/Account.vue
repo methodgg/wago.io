@@ -78,6 +78,7 @@
           <md-button-toggle md-single class="md-primary">
             <md-button v-bind:class="{'md-toggle': selectTheme === 'classic'}" @click="setTheme('classic')">{{ $t("Classic") }}</md-button>
             <md-button v-bind:class="{'md-toggle': selectTheme === 'dark'}" @click="setTheme('dark')">{{ $t("Dark") }}</md-button>
+            <md-button v-bind:class="{'md-toggle': selectTheme === 'waluigi'}" @click="setTheme('waluigi')">Wahh-go-uigi</md-button>
           </md-button-toggle>
           <p>{{ $t("Select editor theme") }}</p>
           <div v-if="selectTheme === 'classic'">
@@ -100,7 +101,7 @@
             </md-button-toggle>
           </div>
           <div></div>
-          <div v-if="selectTheme === 'dark'">
+          <div v-if="selectTheme === 'dark' || selectTheme === 'waluigi'">
             <md-button-toggle md-single class="md-primary">
               <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'ambiance'}" @click="setEditorTheme('ambiance')">Ambiance</md-button>
               <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'chaos'}" @click="setEditorTheme('chaos')">Chaos</md-button>
@@ -420,6 +421,10 @@ end`,
         defaultEditor = 'monokai'
         this.setEditorTheme(defaultEditor)
       }
+      else if (theme === 'waluigi') {
+        defaultEditor = 'cobalt'
+        this.setEditorTheme(defaultEditor)
+      }
 
       this.http.post('/account/update/theme', {
         theme: theme,
@@ -511,10 +516,11 @@ h2 { margin-left: 16px }
 .md-input-container.md-input-status .md-error { opacity: 1; transform: translate3d(0, 0, 0);}
 .md-button-toggle { flex-wrap: wrap }
 .md-card { margin-top: 0 }
+.button-main {background: #a12126;}
 
 @media (min-width: 1281px) {
-  .md-column { margin-top: 16px; margin-right: 16px }
-  #col2 { padding-right: 16px }
-  #col2 .md-card { margin-bottom: 0 }
+  .md-column { margin-top: 16px; }
+  #col2 { padding: 0; }
+  #col2 .md-card { margin-left: 0 }
 }
 </style>

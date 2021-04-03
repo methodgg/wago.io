@@ -4,8 +4,8 @@
       <div class="flex-col flex-left">
       </div>
       <div class="flex-col flex-right">    
-        <md-button @click="exportChanges" :disabled="wago.type === 'ELVUI' || wago.type === 'VUHDO'"><md-icon>open_in_new</md-icon> {{ $t("Export/Fork changes") }}</md-button>
-        <md-button v-if="canEdit" @click="generateNextVersionData(); $refs['saveChangesDialog'].open()" ref="saveChangesButton" :disabled="wago.type === 'ELVUI' || wago.type === 'VUHDO'"><md-icon>save</md-icon> {{ $t("Save changes") }}</md-button>
+        <md-button @click="exportChanges"><md-icon>open_in_new</md-icon> {{ $t("Export/Fork changes") }}</md-button>
+        <md-button v-if="canEdit" @click="generateNextVersionData(); $refs['saveChangesDialog'].open()" ref="saveChangesButton"><md-icon>save</md-icon> {{ $t("Save changes") }}</md-button>
       </div>
       <md-dialog md-open-from="#saveChangesButton" md-close-to="#saveChangesButton" ref="saveChangesDialog" id="saveChangesDialog" @open="focusFieldByRef('changelogText')">
         <md-dialog-title>{{ $t("Save Modifications") }}</md-dialog-title>

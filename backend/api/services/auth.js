@@ -110,7 +110,7 @@ module.exports = function (fastify, opts, next) {
   // update password
   fastify.post('/changepass', async (req, res) => {
     if (!req.user || !req.body.newPass) {
-      res.send(403, {error: 'forbidden'})
+      res.code(403).send({error: 'forbidden'})
     }
     // if user does not currently have a password then we don't need further validation, just save and return
     if (!req.user.account.password) {
@@ -229,11 +229,11 @@ async function localAuth (req, res) {
 // create local user
 async function createUser (req, res) {
   if (!req.body.password || req.body.password.length < 6) {
-    return res.send(403, {error: 'bad password'})
+    return res.code(403).send({error: 'bad password'})
   }
   var user = await User.findByUsername(req.body.username)
   if (user) {
-    return res.send(403, {error: "Error: Username already exists"})
+    return res.code(403).send({error: "Error: Username already exists"})
   }
 
   try {
@@ -262,7 +262,7 @@ async function createUser (req, res) {
     console.log(e)
   }
   
-  return res.send(403, {error: 'bad captcha'})
+  return res.code(403).send({error: 'bad captcha'})
 }
 
 // Login through Blizzard Battle.net
