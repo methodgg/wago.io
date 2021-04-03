@@ -146,7 +146,6 @@ module.exports = function (fastify, opts, next) {
     Search.query.expansion = expansion
 
     // check for import type
-    var game = 'wow'
     var matchType
     match = /\btype:\s*"?(weakauras?2?|elvui|vuhdo|totalrp3?|collection|snippet|plater|opie|encounternotes|image|audio|error)"?/i.exec(query)
     if (match) {
@@ -162,6 +161,9 @@ module.exports = function (fastify, opts, next) {
 
       if (expansion === 'classic' && match[1] === 'WEAKAURA') {
         match[1] = 'CLASSIC-WEAKAURA'
+      }
+      else if (expansion === 'tbc' && match[1] === 'WEAKAURA') {
+        match[1] = 'TBC-WEAKAURA'
       }
       matchType = match[1]
       // lookup.type = match[1]
@@ -517,7 +519,6 @@ module.exports = function (fastify, opts, next) {
       }
       esFilter.push({simple_query_string: {query: searchSettings.secondarySearch.slice(page * resultsPerPage, resultsPerPage).join(' '), fields: ["_id"] }})
     }
-
     var results
     // setup function_score
     if (sort === 'bestmatchv2') {
@@ -614,9 +615,6 @@ module.exports = function (fastify, opts, next) {
       item.name = wago.name
       item.slug = wago.slug
       item.url = wago.url
-      if (wago.type=='WEAKAURAS2' || wago.type=='WEAKAURA2') {
-          wago.type = 'WEAKAURA'
-      }
       item.type = wago.type
       item.description = {text: wago.description, type: wago.description_format}
       item.visibility = {private: wago.private, hidden: wago.hidden, restricted: wago.restricted, encrypted: wago.encrypted}
@@ -654,7 +652,7 @@ module.exports = function (fastify, opts, next) {
         else {
           wago.previewImage = ''
           await wago.save()
-      }
+        }
       }
 
       // get username
@@ -665,10 +663,10 @@ module.exports = function (fastify, opts, next) {
         }
         else {
           user = await User.findById(wago._userId).exec()
-        item.user = {name: user.account.username}
-        item.user.searchable = !user.account.hidden
-        item.user.roleClass = user.roleclass
-        item.user.avatar = user.avatarURL
+          item.user = {name: user.account.username}
+          item.user.searchable = !user.account.hidden
+          item.user.roleClass = user.roleclass
+          item.user.avatar = user.avatarURL
           await redis.setJSON('UserProfile:'+wago._userId, item.user, 'EX', 3600)
         }
       }
