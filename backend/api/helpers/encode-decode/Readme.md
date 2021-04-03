@@ -8,13 +8,13 @@ module.exports = {
 
   // Decodes an import string and returns a JSON object.
   // Receives `str` which is the raw import string, and `exec` which is a function to run Lua code.
-  decode: async (encodedString, exec) => {
+  decode: async (encodedString, execLua) => {
     // Test that string matches expected regex
     if (!encodedString.match(/^\w+$/)) {
       return false
     }
     // Lua code to decode the string. This should return JSON:encode(table).
-    // The Lua code here has access to the contents of ../../lua/wago.lua
+    // The Lua code here has access to the contents of https://github.com/oratory/wago.io/blob/master/backend/api/lua/wago.lua
     const lua = `
       local str = "${encodedString}" -- encodedString is already escaped for \\ and \"
       -- run some functions to get a table
@@ -22,7 +22,7 @@ module.exports = {
       return JSON:encode(myTable)
     `
     try {
-      let json = await exec(lua)
+      let json = await execLua(lua)
       // If successful, json is now a JSON string, so parse into an object and return it.
       return JSON.parse(json)
     }
@@ -31,9 +31,9 @@ module.exports = {
     }
   },
 
-  encode: async (jsonString, exec) => {
+  encode: async (jsonString, execLua) => {
     // Lua code to encode a JSON string into an import string. 
-    // The Lua code here has access to the contents of ../../lua/wago.lua
+    // The Lua code here has access to the contents of https://github.com/oratory/wago.io/blob/master/backend/api/lua/wago.lua
     const lua = `
     local tbl = JSON:decode("${jsonString}") -- jsonString is already escaped for \\ and \"
     if not tbl then return "" end
@@ -41,7 +41,7 @@ module.exports = {
     local encodedString = DoThat(tbl)
     return encodedString`
     try {
-      let encodedString = await exec(lua)
+      let encodedString = await execLua(lua)
       return encodedString
     }
     catch (e) {
