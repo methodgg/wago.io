@@ -23,15 +23,16 @@ module.exports = function (fastify, opts, next) {
     var scan = new ImportScan({input: req.body.importString})
 
     var decodedObj
-    for (let i = 0; i < encodeDecodeAddons.length; i++) {
-      if (scan.decoded || encodeDecodeAddons[i].indexOf('.js')<0) {
+    for (const addonFile in Addons) {
+      const addon = Addons[addonFile]
+      if (scan.decoded) {
         continue
       }
-      let addon = require('../helpers/encode-decode/' + encodeDecodeAddons[i])
-      if (!decodedObj && (!req.body.type || req.body.type.match(addon.typeMatch))) {
+      else if (!decodedObj && (!req.body.type || req.body.type.match(addon.typeMatch))) {
         decodedObj = await addon.decode(req.body.importString.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim(), lua.runLua)
       }
       if (!decodedObj || (req.body.type && !req.body.type.match(addon.typeMatch))) {
+        // if it was decoded but that decoding process is shared with a different addon (but import is NOT this addon) the move along
         continue
       }
       let meta = addon.processMeta(decodedObj)
@@ -42,14 +43,13 @@ module.exports = function (fastify, opts, next) {
         scan.game = meta.game || 'sl'
         scan.categories = meta.categories || []
         scan.fork = meta.fork || req.body.forkOf
-        scan.addon = encodeDecodeAddons[i]
+        scan.addon = addonFile
         await scan.save()
         scan.scan = scan._id
       }
     }
 
     if (scan.type) {
-      await scan.save()
       return res.send({scan: scan._id, type: scan.type, name: scan.name, categories: scan.categories, game: scan.game})
     }
 
@@ -734,6 +734,7 @@ module.exports = function (fastify, opts, next) {
 
     var code = new WagoCode({
       auraID: wago._id,
+      json: scan.decoded,
       version: wago.latestVersion.iteration,
       versionString: wago.latestVersion.versionString,
       changelog: {
@@ -745,41 +746,20 @@ module.exports = function (fastify, opts, next) {
     if (versionString !== '1.0.' + (wago.latestVersion.iteration - 1) && versionString !== '0.0.' + wago.latestVersion.iteration) {
       versionString = versionString + '-' + wago.latestVersion.iteration
     }
-    if (scan.type === 'WEAKAURA' || wago.type === 'CLASSIC-WEAKAURA' || wago.type === 'TBC-WEAKAURA') {
-      var json = JSON.parse(scan.decoded)
-      req.scanWA = scan
 
-      wago.regionType = json.d.regionType
-      if ((json.d.tocversion+'').match(/^113/)) {
-        wago.game = 'classic'
+    for (const addon of Object.values(Addons)) {
+      if (wago.type.match(addon.typeMatch)) {
+        if (addon.addWagoData) {
+          let data = addon.addWagoData(code, wago)
+          if (data && data.code) {
+            code = data.code
       }
-      else if ((json.d.tocversion+'').match(/^90/)) {
-        wago.game = 'sl' // shadowlands
+          if (data && data.wago) {
+            wago = data.wago
       }
-      else {
-        wago.game = 'bfa' // battle for azeroth
-      }
-
-      code.encoded = scan.input
-      code.json = JSON.stringify(json)
     }
-    else if (scan.type === 'PLATER') {
-      var json = JSON.parse(scan.decoded)
-      if ((json.tocversion+'').match(/^113/)) {
-        wago.game = 'classic'
+        code.encoded = await addon.encode(code.json.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim(), lua.runLua)
       }
-      else if ((json.tocversion+'').match(/^90/)) {
-        wago.game = 'sl' // shadowlands
-      }
-      else {
-        wago.game = 'bfa' // battle for azeroth
-      }
-      code.encoded = scan.input
-      code.json = JSON.stringify(json)
-    }
-    else {
-      code.encoded = scan.input
-      code.json = scan.decoded
     }
     
     if (wago.encrypted && req.body.cipherKey) {
@@ -871,12 +851,8 @@ module.exports = function (fastify, opts, next) {
       versionString = versionString + '-' + wago.latestVersion.iteration
     }
 
-    for (let i = 0; i < encodeDecodeAddons.length; i++) {
-      if (code.encoded || encodeDecodeAddons[i].indexOf('.js')<0) {
-        continue
-      }
-      let addon = require('../helpers/encode-decode/' + encodeDecodeAddons[i])
-      if (addon.typeMatch && wago.type.match(addon.typeMatch)) {
+    for (const addon of Object.values(Addons)) {
+      if (wago.type.match(addon.typeMatch)) {
         if (addon.addWagoData) {
           let data = addon.addWagoData(code, wago)
           if (data && data.code) {
@@ -1067,12 +1043,9 @@ module.exports = function (fastify, opts, next) {
       return res.code(400).send({error: "Invalid data"})
     }
     var encoded
-    for (let i = 0; i < encodeDecodeAddons.length; i++) {
-      if (encoded || encodeDecodeAddons[i].indexOf('.js')<0) {
-        continue
-      }
-      let addon = require('../helpers/encode-decode/' + encodeDecodeAddons[i])
-      if (addon.typeMatch && req.body.type && req.body.type.match(addon.typeMatch)) {
+    for (const addonFile in Addons) {
+      const addon = Addons[addonFile]
+      if (req.body.type && req.body.type.match(addon.typeMatch)) {
         encoded = await addon.encode(jsonString.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim(), lua.runLua)
         let meta = addon.processMeta(json)
         if (encoded && meta) {
@@ -1082,7 +1055,7 @@ module.exports = function (fastify, opts, next) {
           scan.name = meta.name || meta.type
           scan.game = meta.game || 'sl'
           scan.categories = meta.categories || []
-          scan.addon = encodeDecodeAddons[i]
+          scan.addon = addonFile
           await scan.save()
           return res.send({scan: scan._id, type: scan.type, name: scan.name, categories: scan.categories, game: scan.game, encoded: encoded})
         }

@@ -93,6 +93,14 @@ const startServer = async () => {
     })
     global.Categories = require('../frontend/src/components/libs/categories')
 
+    const encodeDecodeAddons = await fs.readdir('./api/helpers/encode-decode')
+    global.Addons = {}
+    encodeDecodeAddons.forEach((addon) => {
+      if (addon.indexOf('.js')<0) return
+      addon = addon.split('.')[0]
+      global.Addons[addon] = require('./api/helpers/encode-decode/' + addon)
+    })
+
     // setup queues and workers
     global.Queues = {}
     for (const host of config.dataHosts) {

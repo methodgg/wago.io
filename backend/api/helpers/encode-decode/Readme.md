@@ -13,7 +13,7 @@ module.exports = {
     if (!encodedString.match(/^\w+$/)) {
       return false
     }
-    // Lua code to decode string. This should return JSON:encode(table).
+    // Lua code to decode the string. This should return JSON:encode(table).
     // The Lua code here has access to the contents of ../../lua/wago.lua
     const lua = `
       local str = "${encodedString}" -- encodedString is already escaped for \\ and \"
@@ -49,7 +49,7 @@ module.exports = {
     }
   },
 
-  // Returns object with related meta data: name, type, game, categories, etc.
+  // Returns object with related meta data: name, type, game, categories
   // Also functions as a validation for the data structure. 
   // This is kept separate from the decoding process because multiple addons can share a decode algorithm so this way means it's only decoded once.
   processMeta: (obj) => {
@@ -59,22 +59,23 @@ module.exports = {
     }
     var meta = {}
 
-    // This is the only required field.
+    // This is the only required field and must be unique to your addon.
     meta.type = 'MyAddon'
 
     // the remaining fields are optional.
-    meta.game = "sl" // Expansion from object (example if toc version is stored to object; defaults to the most recent retail expansion).
+    meta.game = 'sl' // Expansion from object (example if toc version is stored to object; defaults to the most recent retail expansion).
+    // meta.game may be : 'sl', 'classic', 'tbc'
     
     // the remaining fields are both optional and only used for new imports - not when updating existing imports.
-    meta.name = "Name" // Name from object, or otherwise. Defaults to match the type field (user can modify this entry).
-    meta.description = "This is a neat import" // Description from object, or otherwise. Defaults to empty string (user can modify this entry).
-    meta.categories = ['cl12'] // Categories; view categories in ..*/frontend/src/components/libs/categories.js (user can modify this entry).
+    meta.name = 'Name' // Name from object, or otherwise. Defaults to match the type field (user can modify this entry).
+    meta.description = 'This is a neat import' // Description from object, or otherwise. Defaults to empty string (user can modify this entry).
+    meta.categories = ['cl12'] // Categories; view categories in /frontend/src/components/libs/categories.js (user can modify this entry).
     meta.fork = obj.wagoID // if your addon's data includes the wago ID it can be assigned here as a fork.
     return meta
   },
 
   // Returns modified code object and wago object after modifications.
-  // This function can be removed if no modifications are required.
+  // This function can be removed if no modifications are required; you probably won't need it without additional Wago integration.
   addWagoData: async (code, wago) => {
     if (code.json) {
       // usually the modified code will effect the json object
@@ -83,7 +84,7 @@ module.exports = {
       code.json = JSON.stringify(json)
     }
 
-    // usually only code is modified
+    // usually, only code is modified.
     return {code: code}
     // if both code and wago are modified, return both. 
     return {code: code, wago: wago}

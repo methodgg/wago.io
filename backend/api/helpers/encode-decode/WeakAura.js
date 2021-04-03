@@ -90,7 +90,6 @@ module.exports = {
       return encodedString
     }
     catch (e) {
-      console.log(e)
       return false
     }
   },
@@ -121,7 +120,6 @@ module.exports = {
         meta.game = 'sl'
       }
     }
-    console.log(meta)
 
     if (obj.wagoID) {
       meta.fork = obj.wagoID
@@ -241,6 +239,7 @@ module.exports = {
       return {code, wago}
     }
     catch (e) {
+      console.log(e)
       return
     }
   }

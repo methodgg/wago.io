@@ -568,8 +568,8 @@ async function ProcessCode(data) {
   }
   if (!data.id) return
 
-  if (data.addon) {
-    const addon = require('./encode-decode/' + data.addon)
+  if (data.addon && Addons[data.addon]) {
+    const addon = Addons[data.addon]
     if (addon && addon.addWagoData) {
       let data = addon.addWagoData(code, doc)
       if (data && data.code) {
@@ -583,12 +583,8 @@ async function ProcessCode(data) {
   }
   else if (doc.type) {
     // match addon by type
-    for (let i = 0; i < encodeDecodeAddons.length; i++) {
-      if (data.addon || encodeDecodeAddons[i].indexOf('.js')<0) {
-        continue
-      }
-      let addon = require('./encode-decode/' + encodeDecodeAddons[i])
-      if (addon.typeMatch && doc.type.match(addon.typeMatch)) {
+    for (const addon of Object.values(Addons)) {
+      if (doc.type.match(addon.typeMatch)) {
         let data = addon.addWagoData(code, doc)
         if (data && data.code) {
           code = data.code
@@ -643,12 +639,11 @@ async function ProcessCode(data) {
   }
   if (code.luacheck && code.luacheck.match(commonRegex.WeakAuraBlacklist)) {
     doc.blocked = true
-    await doc.save()
   }
   else if (code.blocked) {
     doc.blocked = false
-    await doc.save()
   }
+    await doc.save()
   await code.save()
 }
 
