@@ -41,6 +41,7 @@
     <img src="./../../assets/menu-trialofvalor.png" v-else-if="group === 'trialofvalor'"/>
     <img src="./../../assets/menu-emeraldnightmare.png" v-else-if="group === 'emeraldnightmare'"/>
     <img src="./../../assets/menu-hellfirecitadel.png" v-else-if="group === 'hellfirecitadel'"/>
+
     <img src="./../../assets/menu-worldboss.png" v-else-if="group === 'worldboss'"/>
     <img src="./../../assets/menu-moltencore.png" v-else-if="group === 'moltencore'"/>
     <img src="./../../assets/menu-blackwinglair.png" v-else-if="group === 'blackwinglair'"/>
@@ -48,6 +49,16 @@
     <img src="./../../assets/menu-aq40.png" v-else-if="group === 'aq40'"/>
     <img src="./../../assets/menu-zulgurub.png" v-else-if="group === 'zulgurub'"/>
     <img src="./../../assets/menu-naxxramas.png" v-else-if="group === 'naxxramas'"/>
+
+    <img src="./../../assets/menu-ssc.png" v-else-if="group === 'ssc'"/>
+    <img src="./../../assets/menu-tk.png" v-else-if="group === 'tk'"/>
+    <img src="./../../assets/menu-mthyjal.png" v-else-if="group === 'mthyjal'"/>
+    <img src="./../../assets/menu-bt.png" v-else-if="group === 'blacktemple'"/>
+    <img src="./../../assets/menu-sw.png" v-else-if="group === 'sunwell'"/>
+    <img src="./../../assets/menu-kara.png" v-else-if="group === 'karazhan'"/>
+    <img src="./../../assets/menu-gruul.png" v-else-if="group === 'gruul'"/>
+    <img src="./../../assets/menu-dungeontbc.png" v-else-if="group === 'dungeontbc'"/>
+
     <img src="./../../assets/menu-vuhdo.png" v-else-if="group === 'vuhdo'"/>
     <img src="./../../assets/menu-plater.png" v-else-if="group === 'plater'"/>
     <img src="./../../assets/menu-opie.png" v-else-if="group === 'opie'"/>
@@ -55,6 +66,7 @@
     <img src="./../../assets/menu-trpcamp.png" v-else-if="group === 'rpcampaign'"/>
     <img src="./../../assets/menu-lang.png" v-else-if="group === 'rplang'"/>
 
+    <img src="./../../assets/new-addon.png" v-else-if="group === 'new-addon'"/>
     <img src="./../../assets/weakauras.png" v-else-if="group === 't-weakaura'"/>
     <img src="./../../assets/weakauras.png" v-else-if="group === 't-classic-weakaura'"/>
     <img src="./../../assets/tukui.png" v-else-if="group === 't-elvui'"/>

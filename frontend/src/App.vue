@@ -2,7 +2,7 @@
   <div id="app">
     <div id="maincontent" v-if="!isEmbed">
       <div id="copyContainer"></div>
-      <notification-banner id="1"><a href="https://addons.wago.io">Announcing Wago Addons, the nextgen WoW Addon Platform built by the Wago team. Developer signups now open - click here to get started.</a></notification-banner>
+      <!--<notification-banner id="1"><a href="https://addons.wago.io">Announcing Wago Addons, the nextgen WoW Addon Platform built by the Wago team. Developer signups now open - click here to get started.</a></notification-banner>-->
       <md-toolbar id="topbar">
         <md-button class="md-icon-button md-hide-small-and-up" @click="toggleMobileNav()">
           <md-icon>menu</md-icon>
@@ -79,7 +79,7 @@
               </md-menu-content>
             </md-menu>
           </form>
-          <div id="wago-addons-btn" v-if="showAddonsButton"><a href="https://addons.wago.io">Wago Addons</a></div>
+          <div id="wago-addons-btn"><a href="https://addons.wago.io">Wago Addons</a></div>
         </div>
         <div id="hr-nav" class="md-hide-xsmall">
           <h2 class="md-title md-hide-small-and-up" id="logo"><router-link to="/"><img src="./assets/wagoio-logo.png"/></router-link></h2>
@@ -122,6 +122,7 @@
           <md-list-item><router-link to='/vuhdo'>VuhDo</router-link></md-list-item>
           <md-list-item><router-link to='/weakauras'>WeakAuras</router-link><md-divider></md-divider></md-list-item>
           <md-list-item><router-link to='/classic-weakauras'>Classic WeakAuras</router-link><md-divider></md-divider></md-list-item>
+          <md-list-item><router-link to='/tbc-weakauras'>TBC WeakAuras</router-link><md-divider></md-divider></md-list-item>
           <md-list-item><router-link to='/collections'>{{ $t("Collections") }}</router-link></md-list-item>
           <md-list-item><router-link to='/snippets'>{{ $t("Snippets") }}</router-link><md-divider></md-divider></md-list-item>
         </md-list>
@@ -138,8 +139,19 @@
           <md-list-item><router-link to='/plater'>Plater Nameplates</router-link></md-list-item>
           <md-list-item><router-link to='/totalrp'>Total RP</router-link></md-list-item>
           <md-list-item><router-link to='/vuhdo'>VuhDo</router-link></md-list-item>
-          <md-list-item><router-link to='/weakauras'>WeakAuras</router-link><md-divider></md-divider></md-list-item>
-          <md-list-item><router-link to='/classic-weakauras'>Classic WeakAuras</router-link><md-divider></md-divider></md-list-item>
+          <md-list-item class="multi-line">
+            <router-link to='/weakauras'>
+              <div class="md-list-text-container">
+                WeakAuras
+                <span class="game-select">
+                  <router-link to='/weakauras'>Shadowlands</router-link> - 
+                  <router-link to='/classic-weakauras'>Classic</router-link> - 
+                  <router-link to='/tbc-weakauras'>TBC</router-link>
+                </span>
+              </div>
+            </router-link>
+            <md-divider></md-divider>
+          </md-list-item>
           <md-list-item><router-link to='/collections'>{{ $t("Collections") }}</router-link></md-list-item>
           <md-list-item><router-link to='/snippets'>{{ $t("Snippets") }}</router-link><md-divider></md-divider></md-list-item>
           <template v-if="LoggedIn">
@@ -602,6 +614,7 @@ export default {
 .mainnav .md-list-item a { justify-content: start }
 .mainnav .md-list-item a span { margin-left: 8px; line-height: 18px }
 .mainnav .md-list-item { height: 36px }
+.mainnav .md-list-item.multi-line { height: 40px }
 .mainnav .md-list-item .md-list-item-container { min-height: auto; }
 .mainnav .md-list-item.small { height: 16px; }
 .mainnav .md-list-item.small .md-list-item-container { font-size: 12px; height: 18px; }
@@ -670,6 +683,10 @@ body.theme-dark .md-input-container label a { -webkit-text-fill-color: initial }
 @media only screen and (min-width: 1025px) {
   .ads-enabled #content > :first-child {max-width: calc(100% - 425px);}
 }
+
+.submenu-single-line {line-height: 36px!important;  min-height: 36px; display: block;}
+.game-select a {color: #999!important; font-size: 14px;}
+.game-select a:hover {text-decoration: none!important; color: #BBB!important}
 
 
 </style>

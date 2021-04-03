@@ -132,14 +132,7 @@
           </div>
 
           <div v-if="isScanning"><md-spinner md-indeterminate></md-spinner></div>
-          <md-layout v-if="weakauramode">
-            <label for="weakauramode">{{ $t("Type") }}</label>
-            <md-select name="weakauramode" id="weakauramode" v-model="weakauramode">
-              <md-option value="WEAKAURAS2">WEAKAURA</md-option>
-              <md-option value="CLASSIC-WEAKAURA">CLASSIC-WEAKAURA</md-option>
-            </md-select>
-          </md-layout>
-          <strong v-else>{{ importType === 'WEAKAURAS2' ? 'WEAKAURA' : importType }}</strong><br>
+          <strong>{{ importType === 'WEAKAURAS2' ? 'WEAKAURA' : importType }}</strong><br>
 
           <md-layout v-if="scanID">
             <md-layout>

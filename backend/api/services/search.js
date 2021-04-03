@@ -138,7 +138,7 @@ module.exports = function (fastify, opts, next) {
 
     // check for expansion filter
     var expansionFilterIndex = null
-    match = /expansion:\s*"?(all|classic|legion|bfa|sl)"?/i.exec(query)
+    match = /expansion:\s*"?(all|classic|tbc|legion|bfa|sl)"?/i.exec(query)
     if (match) {
       query = query.replace(match[0], '').replace(/\s{2,}/, ' ').trim()
       expansion = match[1]

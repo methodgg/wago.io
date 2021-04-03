@@ -8,7 +8,8 @@ const Admin = resolve => require(['@/components/core/Admin.vue'], resolve)
 const MenuWeakAurasShadowlands = resolve => require(['@/components/core/Menu-WeakAuras-Shadowlands.vue'], resolve)
 const MenuWeakAurasBFA = resolve => require(['@/components/core/Menu-WeakAuras-BFA.vue'], resolve)
 const MenuWeakAurasLegion = resolve => require(['@/components/core/Menu-WeakAuras-Legion.vue'], resolve)
-const MenuWeakAurasClassic = resolve => require(['@/components/core/Menu-ClassicWeakAuras.vue'], resolve)
+const MenuWeakAurasClassic = resolve => require(['@/components/core/Menu-WeakAuras-Classic.vue'], resolve)
+const MenuWeakAurasTBC = resolve => require(['@/components/core/Menu-WeakAuras-TBC.vue'], resolve)
 const MenuElvUI = resolve => require(['@/components/core/Menu-ElvUI.vue'], resolve)
 const MenuVuhdo = resolve => require(['@/components/core/Menu-Vuhdo.vue'], resolve)
 const MenuTotalRP = resolve => require(['@/components/core/Menu-TotalRP.vue'], resolve)
@@ -116,11 +117,6 @@ export default {
     { path: '/shadowlands-weakauras/:c1/:c2', component: Search, props: (route) => ({ contextGame: 'sl', contextSearch: 'Type: WeakAura' + GetContextTag(route.params) }) },
     { path: '/shadowlands-weakauras/:c1/:c2/:c3', component: Search, props: (route) => ({ contextGame: 'sl', contextSearch: 'Type: WeakAura' + GetContextTag(route.params) }) },
     { path: '/shadowlands-weakauras/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ contextGame: 'sl', contextSearch: 'Type: WeakAura' + GetContextTag(route.params) }) },
-    { path: '/classic-weakauras', component: MenuWeakAurasClassic },
-    { path: '/classic-weakauras/:c1', component: Search, props: (route) => ({ contextGame: 'classic', contextSearch: 'Type: WeakAura' + GetContextTag(route.params) }) },
-    { path: '/classic-weakauras/:c1/:c2', component: Search, props: (route) => ({ contextGame: 'classic', contextSearch: 'Type: WeakAura' + GetContextTag(route.params) }) },
-    { path: '/classic-weakauras/:c1/:c2/:c3', component: Search, props: (route) => ({ contextGame: 'classic', contextSearch: 'Type: WeakAura' + GetContextTag(route.params) }) },
-    { path: '/classic-weakauras/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ contextGame: 'classic', contextSearch: 'Type: WeakAura' + GetContextTag(route.params) }) },
     { path: '/bfa-weakauras', component: MenuWeakAurasBFA },
     { path: '/bfa-weakauras/:c1', component: Search, props: (route) => ({ contextGame: 'bfa', contextSearch: 'Type: WeakAura' + GetContextTag(route.params) }) },
     { path: '/bfa-weakauras/:c1/:c2', component: Search, props: (route) => ({ contextGame: 'bfa', contextSearch: 'Type: WeakAura' + GetContextTag(route.params) }) },
@@ -131,6 +127,16 @@ export default {
     { path: '/legion-weakauras/:c1/:c2', component: Search, props: (route) => ({ contextGame: 'legion', contextSearch: 'Type: WeakAura' + GetContextTag(route.params) }) },
     { path: '/legion-weakauras/:c1/:c2/:c3', component: Search, props: (route) => ({ contextGame: 'legion', contextSearch: 'Type: WeakAura' + GetContextTag(route.params) }) },
     { path: '/legion-weakauras/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ contextGame: 'legion', contextSearch: 'Type: WeakAura' + GetContextTag(route.params) }) },
+    { path: '/tbc-weakauras', component: MenuWeakAurasTBC },
+    { path: '/tbc-weakauras/:c1', component: Search, props: (route) => ({ contextGame: 'tbc', contextSearch: 'Type: WeakAura' + GetContextTag(route.params) }) },
+    { path: '/tbc-weakauras/:c1/:c2', component: Search, props: (route) => ({ contextGame: 'tbc', contextSearch: 'Type: WeakAura' + GetContextTag(route.params) }) },
+    { path: '/tbc-weakauras/:c1/:c2/:c3', component: Search, props: (route) => ({ contextGame: 'tbc', contextSearch: 'Type: WeakAura' + GetContextTag(route.params) }) },
+    { path: '/tbc-weakauras/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ contextGame: 'tbc', contextSearch: 'Type: WeakAura' + GetContextTag(route.params) }) },
+    { path: '/classic-weakauras', component: MenuWeakAurasClassic },
+    { path: '/classic-weakauras/:c1', component: Search, props: (route) => ({ contextGame: 'classic', contextSearch: 'Type: WeakAura' + GetContextTag(route.params) }) },
+    { path: '/classic-weakauras/:c1/:c2', component: Search, props: (route) => ({ contextGame: 'classic', contextSearch: 'Type: WeakAura' + GetContextTag(route.params) }) },
+    { path: '/classic-weakauras/:c1/:c2/:c3', component: Search, props: (route) => ({ contextGame: 'classic', contextSearch: 'Type: WeakAura' + GetContextTag(route.params) }) },
+    { path: '/classic-weakauras/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ contextGame: 'classic', contextSearch: 'Type: WeakAura' + GetContextTag(route.params) }) },
     { path: '/elvui', component: MenuElvUI },
     { path: '/elvui/:c1', component: Search, props: (route) => ({ contextSearch: 'Type: ElvUI' + GetContextTag(route.params) }) },
     { path: '/elvui/:c1/:c2', component: Search, props: (route) => ({ contextSearch: 'Type: ElvUI' + GetContextTag(route.params) }) },

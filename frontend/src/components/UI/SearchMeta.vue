@@ -46,6 +46,7 @@
             <md-option value="sl">{{ $t("Shadowlands") }}</md-option>
             <md-option value="bfa">{{ $t("Battle for Azeroth") }}</md-option>
             <md-option value="legion">{{ $t("Legion") }}</md-option>
+            <md-option value="tbc">{{ $t("The Burning Crusade") }}</md-option>
             <md-option value="classic">{{ $t("Classic") }}</md-option>
           </md-select>
         </md-input-container>

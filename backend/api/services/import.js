@@ -59,6 +59,7 @@ module.exports = function (fastify, opts, next) {
       switch (req.body.type.toUpperCase()) {
         case 'WEAKAURA':
         case 'CLASSIC-WEAKAURA':
+        case 'TBC-WEAKAURA':
           test.WEAKAURA = true
           break
         case 'PLATER':
@@ -141,7 +142,7 @@ module.exports = function (fastify, opts, next) {
     }
 
     // if decoded data looks like a valid WEAKAURA
-    if ((test.WEAKAURA || test['CLASSIC-WEAKAURA']) && decoded && decoded.obj.d && decoded.obj.d.id) {
+    if ((test.WEAKAURA || test['CLASSIC-WEAKAURA'] || test['TBC-WEAKAURA']) && decoded && decoded.obj.d && decoded.obj.d.id) {
       scan.type = 'WEAKAURA'
 
       // check for classic import
@@ -149,6 +150,10 @@ module.exports = function (fastify, opts, next) {
         if ((decoded.obj.d.tocversion+'').match(/^113/)) {
           scan.type = 'CLASSIC-WEAKAURA'
           scan.game = 'classic'
+        }
+        else if ((decoded.obj.d.tocversion+'').match(/^20/)) {
+          scan.type = 'TBC-WEAKAURA'
+          scan.game = 'tbc'
         }
         else if ((decoded.obj.d.tocversion+'').match(/^80/)) {
           scan.game = 'bfa'
@@ -740,7 +745,7 @@ module.exports = function (fastify, opts, next) {
     if (versionString !== '1.0.' + (wago.latestVersion.iteration - 1) && versionString !== '0.0.' + wago.latestVersion.iteration) {
       versionString = versionString + '-' + wago.latestVersion.iteration
     }
-    if (scan.type === 'WEAKAURA' || wago.type === 'CLASSIC-WEAKAURA') {
+    if (scan.type === 'WEAKAURA' || wago.type === 'CLASSIC-WEAKAURA' || wago.type === 'TBC-WEAKAURA') {
       var json = JSON.parse(scan.decoded)
       req.scanWA = scan
 
@@ -1084,9 +1089,9 @@ module.exports = function (fastify, opts, next) {
       }
     }
     switch (req.body.type.toUpperCase()) {
-      case 'ELVUI':
-        encoded = await lua.JSON2ElvUI(json)
-      break
+      // case 'ELVUI':
+      //   encoded = await lua.JSON2ElvUI(json)
+      // break
 
       case 'MDT':
         encoded = await lua.JSON2MDT(json)
@@ -1096,9 +1101,9 @@ module.exports = function (fastify, opts, next) {
       //   encoded = await lua.JSON2Plater(json)
       // break
 
-      case 'TOTALRP3':
-        encoded = await lua.JSON2TotalRP3(json)
-      break
+      // case 'TOTALRP3':
+      //   encoded = await lua.JSON2TotalRP3(json)
+      // break
 
       // case 'VUHDO':
       //   encoded = await lua.JSON2VuhDo(json)

@@ -232,6 +232,38 @@
 .naxxramas a, .naxxramas { color: #B3ACAC!important}
 .multiselect .md-chip.naxxramas { background-color: #B3ACAC!important; color: black!important }
 
+.md-chip.ssc { color: #48FF98!important; background-image: url('menu-naxxramas.png') }
+.ssc a, .ssc { color: #48FF98!important}
+.multiselect .md-chip.ssc { background-color: #48FF98!important; color: black!important }
+
+.md-chip.tk { color: #FF2DC8!important; background-image: url('menu-naxxramas.png') }
+.tk a, .tk { color: #FF2DC8!important}
+.multiselect .md-chip.tk { background-color: #FF2DC8!important; color: black!important }
+
+.md-chip.mthyjal { color: #FF492D!important; background-image: url('menu-naxxramas.png') }
+.mthyjal a, .mthyjal { color: #FF492D!important}
+.multiselect .md-chip.mthyjal { background-color: #FF492D!important; color: black!important }
+
+.md-chip.blacktemple { color: #09AD02!important; background-image: url('menu-bt.png') }
+.blacktemple a, .blacktemple { color: #09AD02!important}
+.multiselect .md-chip.blacktemple { background-color: #09AD02!important; color: black!important }
+
+.md-chip.sunwell { color: #02FFEA!important; background-image: url('menu-sw.png') }
+.sunwell a, .sunwell { color: #02FFEA!important}
+.multiselect .md-chip.sunwell { background-color: #02FFEA!important; color: black!important }
+
+.md-chip.karazhan { color: #48BAFF!important; background-image: url('menu-kara.png') }
+.karazhan a, .karazhan { color: #48BAFF!important}
+.multiselect .md-chip.karazhan { background-color: #48BAFF!important; color: black!important }
+
+.md-chip.gruul { color: #FF8748!important; background-image: url('menu-gruul.png') }
+.gruul a, .gruul { color: #FF8748!important}
+.multiselect .md-chip.gruul { background-color: #FF8748!important; color: black!important }
+
+.md-chip.dungeontbc { color: #F6A622!important; background-image: url('menu-dungeontbc.png') }
+.dungeontbc a, .dungeontbc { color: #F6A622!important}
+.multiselect .md-chip.dungeontbc { background-color: #F6A622!important; color: black!important }
+
 /* ---- END CATEGORIES ---- */
 
 /* global md theme changes */
