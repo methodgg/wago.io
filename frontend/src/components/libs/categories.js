@@ -748,12 +748,12 @@ module.exports = {
       {id: "raidbt9", slug: "pve/black-temple/illidan-stormrage", cls:"blacktemple", text: t("warcraft:bosses.22917"), "TBC-WEAKAURA": true, WEAKAURA: true, tbc: true},
 
       {id: "raidsw", slug: "pve/sunwell-plateau", cls:"sunwell", text: t("warcraft:zones.4075"), root: true, prime: false, "TBC-WEAKAURA": true, WEAKAURA: true, tbc: true},   
-      {id: "raidsw1", slug: "pve/sunwell-plateau/kalecgos", cls:"blacktemple", text: t("warcraft:bosses.24850"), "TBC-WEAKAURA": true, WEAKAURA: true, tbc: true}, 
-      {id: "raidsw2", slug: "pve/sunwell-plateau/brutallus", cls:"blacktemple", text: t("warcraft:bosses.24882"), "TBC-WEAKAURA": true, WEAKAURA: true, tbc: true}, 
-      {id: "raidsw3", slug: "pve/sunwell-plateau/felmyst", cls:"blacktemple", text: t("warcraft:bosses.25038"), "TBC-WEAKAURA": true, WEAKAURA: true, tbc: true}, 
-      {id: "raidsw4", slug: "pve/sunwell-plateau/eredar-twins", cls:"blacktemple", text: t("warcraft:bosses.25166"), "TBC-WEAKAURA": true, WEAKAURA: true, tbc: true}, 
-      {id: "raidsw5", slug: "pve/sunwell-plateau/muru", cls:"blacktemple", text: t("warcraft:bosses.25741"), "TBC-WEAKAURA": true, WEAKAURA: true, tbc: true}, 
-      {id: "raidsw6", slug: "pve/sunwell-plateau/kiljaeden", cls:"blacktemple", text: t("warcraft:bosses.25315"), "TBC-WEAKAURA": true, WEAKAURA: true, tbc: true}, 
+      {id: "raidsw1", slug: "pve/sunwell-plateau/kalecgos", cls:"sunwell", text: t("warcraft:bosses.24850"), "TBC-WEAKAURA": true, WEAKAURA: true, tbc: true}, 
+      {id: "raidsw2", slug: "pve/sunwell-plateau/brutallus", cls:"sunwell", text: t("warcraft:bosses.24882"), "TBC-WEAKAURA": true, WEAKAURA: true, tbc: true}, 
+      {id: "raidsw3", slug: "pve/sunwell-plateau/felmyst", cls:"sunwell", text: t("warcraft:bosses.25038"), "TBC-WEAKAURA": true, WEAKAURA: true, tbc: true}, 
+      {id: "raidsw4", slug: "pve/sunwell-plateau/eredar-twins", cls:"sunwell", text: t("warcraft:bosses.25166"), "TBC-WEAKAURA": true, WEAKAURA: true, tbc: true}, 
+      {id: "raidsw5", slug: "pve/sunwell-plateau/muru", cls:"sunwell", text: t("warcraft:bosses.25741"), "TBC-WEAKAURA": true, WEAKAURA: true, tbc: true}, 
+      {id: "raidsw6", slug: "pve/sunwell-plateau/kiljaeden", cls:"sunwell", text: t("warcraft:bosses.25315"), "TBC-WEAKAURA": true, WEAKAURA: true, tbc: true}, 
     ]
     // add sortVal
     for (var i = 0; i < cats.length; i++) {
