@@ -687,6 +687,10 @@ module.exports = function (fastify, opts, next) {
         wagoCode.luacheck = code.luacheck
       }
     }
+    else if (doc.type === 'MDT' && !code.encoded) {
+      code.encoded = await lua.JSON2MDT(code.json)
+      await code.save()
+    }
 
     wagoCode.lua = code.lua
     wagoCode.json = code.json
