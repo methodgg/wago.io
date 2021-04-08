@@ -42,7 +42,7 @@ module.exports = {
       {id: "cl10-3", slug: "classes/monk/windwalker", cls:"cl-monk", text: t("warcraft:classes.10-3"), WEAKAURA: true, ELVUI: true, VUHDO: true, PLATER: true, OPIE: true, COLLECTION: true, legion: true, bfa: true, sl: true},
 
       {id: "cl2", slug: "classes/paladin", cls:"cl-paladin", text: t("warcraft:classes.2"), "CLASSIC-WEAKAURA": true, "TBC-WEAKAURA": true, root: true,WEAKAURA: true, ELVUI: true, VUHDO: true, PLATER: true, OPIE: true, COLLECTION: true, legion: true, bfa: true, sl: true, classic: true, tbc: true},
-      {id: "cl2-1", slug: "classes/paladin/holy", cls:"cl-paladin", text: t("warcraft:classes.2-1"), "CLASSIC-WEAKAURA": true, "TBC-WEAKAURA": true, EAKAURA: true, ELVUI: true, VUHDO: true, PLATER: true, OPIE: true, COLLECTION: true, legion: true, bfa: true, sl: true, classic: true, tbc: true},
+      {id: "cl2-1", slug: "classes/paladin/holy", cls:"cl-paladin", text: t("warcraft:classes.2-1"), "CLASSIC-WEAKAURA": true, "TBC-WEAKAURA": true, WEAKAURA: true, ELVUI: true, VUHDO: true, PLATER: true, OPIE: true, COLLECTION: true, legion: true, bfa: true, sl: true, classic: true, tbc: true},
       {id: "cl2-2", slug: "classes/paladin/protection", cls:"cl-paladin", text: t("warcraft:classes.2-2"), "CLASSIC-WEAKAURA": true, "TBC-WEAKAURA": true, WEAKAURA: true, ELVUI: true, VUHDO: true, PLATER: true, OPIE: true, COLLECTION: true, legion: true, bfa: true, sl: true, classic: true, tbc: true},
       {id: "cl2-3", slug: "classes/paladin/retribution", cls:"cl-paladin", text: t("warcraft:classes.2-3"), "CLASSIC-WEAKAURA": true, "TBC-WEAKAURA": true, WEAKAURA: true, ELVUI: true, VUHDO: true, PLATER: true, OPIE: true, COLLECTION: true, legion: true, bfa: true, sl: true, classic: true, tbc: true},
 
