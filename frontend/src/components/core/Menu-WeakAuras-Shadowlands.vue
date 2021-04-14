@@ -210,7 +210,7 @@ export default {
       return categories.classCategories(this.$t, 'WEAKAURA', 'sl')
     },
     raids: function () {
-      return categories.raidCategories(['raidnathria', 'torghast', 'sldungeon'], this.$t)
+      return categories.raidCategories(['raidsantumdom', 'raidnathria', 'torghast', 'sldungeon'], this.$t)
     },
     misc: function () {
       return categories.getCategories(['gen1', 'gen7', 'gen2', 'gen6', 'gen9', 'gen10', 'gen11', 'gen12', 'gen13', 'gen8', 'gen15', 'gen18'], this.$t, null)

@@ -179,6 +179,10 @@
 .nathria a, .nathria { color: #9693BD!important}
 .multiselect .md-chip.nathria { background-color: #9693BD!important; color: black!important }
 
+.md-chip.sanctumdom { color: #5CE000!important; background-image: url('menu-sanctumofdom.png') }
+.sanctumdom a, .sanctumdom { color: #5CE000!important}
+.multiselect .md-chip.sanctumdom { background-color: #5CE000!important; color: black!important }
+
 .md-chip.torghast { color: #D80143!important; background-image: url('menu-torghast.png') }
 .torghast a, .torghast { color: #D80143!important}
 .multiselect .md-chip.torghast { background-color: #D80143!important; color: black!important }

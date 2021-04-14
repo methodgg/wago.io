@@ -158,6 +158,18 @@ module.exports = {
 
       // {id: "pve", slug: "pve", cls:"", text: t("PvE"), noselect: true, WEAKAURA: true},
       
+      {id: "raidsantumdom", slug: "pve/sanctum-of-domination", cls:"sanctumdom", text: t("warcraft:zones.SanctumOfDomination"), root: true, WEAKAURA: true, PLATER: true, COLLECTION: true, sl: true},
+      {id: "raidsantumdom1", slug: "pve/sanctum-of-domination/shriekwing", cls:"sanctumdom", text: t("warcraft:bosses.Tarragrue"), WEAKAURA: true, sl: true},
+      {id: "raidsantumdom2", slug: "pve/sanctum-of-domination/altimor-the-huntsman", cls:"sanctumdom", text: t("warcraft:bosses.EyeoftheJailer"), WEAKAURA: true, sl: true},
+      {id: "raidsantumdom3", slug: "pve/sanctum-of-domination/hungering-destroyer", cls:"sanctumdom", text: t("warcraft:bosses.TheNine"), WEAKAURA: true, sl: true},
+      {id: "raidsantumdom4", slug: "pve/sanctum-of-domination/artificer-xymox", cls:"sanctumdom", text: t("warcraft:bosses.RemnantofNerzhul"), WEAKAURA: true, sl: true},
+      {id: "raidsantumdom5", slug: "pve/sanctum-of-domination/kaelthas-sunstrider", cls:"sanctumdom", text: t("warcraft:bosses.SoulrenderDormazain"), WEAKAURA: true, sl: true},
+      {id: "raidsantumdom6", slug: "pve/sanctum-of-domination/lady-inerva-darkvein", cls:"sanctumdom", text: t("warcraft:bosses.PainsmithRaznal"), WEAKAURA: true, sl: true},
+      {id: "raidsantumdom7", slug: "pve/sanctum-of-domination/the-council-of-blood", cls:"sanctumdom", text: t("warcraft:bosses.GuardianoftheFirstOnes"), WEAKAURA: true, sl: true},
+      {id: "raidsantumdom8", slug: "pve/sanctum-of-domination/sludgefist", cls:"sanctumdom", text: t("warcraft:bosses.FatescribeRohKalo"), WEAKAURA: true, sl: true},
+      {id: "raidsantumdom9", slug: "pve/sanctum-of-domination/stone-legion-generals", cls:"sanctumdom", text: t("warcraft:bosses.Kelthuzad"), WEAKAURA: true, sl: true},
+      {id: "raidsantumdom10", slug: "pve/sanctum-of-domination/stone-legion-generals", cls:"sanctumdom", text: t("warcraft:bosses.SylvanasWindrunner"), WEAKAURA: true, sl: true},
+      
       {id: "raidnathria", slug: "pve/nathria", cls:"nathria", text: t("warcraft:zones.CastleNathria"), root: true, WEAKAURA: true, PLATER: true, COLLECTION: true, sl: true},
       {id: "raidnathria1", slug: "pve/nathria/shriekwing", cls:"nathria", text: t("warcraft:bosses.Shriekwing"), WEAKAURA: true, sl: true},
       {id: "raidnathria10", slug: "pve/nathria/altimor-the-huntsman", cls:"nathria", text: t("warcraft:bosses.Altimor"), WEAKAURA: true, sl: true},

@@ -16,6 +16,7 @@
     <img src="./../../assets/menu-cruciblestorms.png" v-if="group === 'crucible'"/>
     <img src="./../../assets/menu-torghast.png" v-if="group === 'torghast'"/>
     <img src="./../../assets/menu-nathria.png" v-if="group === 'nathria'"/>
+    <img src="./../../assets/menu-sanctumofdom.png" v-if="group === 'sanctumdom'"/>
     <img src="./../../assets/menu-nyalotha.png" v-if="group === 'nyalotha'"/>
     <img src="./../../assets/menu-eternalpalace.png" v-if="group === 'eternalpalace'"/>
     <img src="./../../assets/menu-uldir.png" v-if="group === 'uldir'"/>
