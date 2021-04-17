@@ -1,3 +1,25 @@
+const i18next = require('i18next')
+const i18nextBackend = require('i18next-fs-backend')
+
+const langs = ['de-DE', 'en-GB', 'en-US', 'es-ES', 'es-MX', 'fr-FR', 'it-IT', 'ko-KR', 'pl-PL', 'pt-BR', 'pt-PT', 'ru-RU', 'zh-CN']
+i18next.use(i18nextBackend).init({
+  initImmediate: true,
+  lng: 'en-US',
+  fallbackLng: 'en-US',
+  ns: ['warcraft'],
+  defaultNS: 'warcraft',
+  supportedLngs: langs,
+  preload: langs,
+  returnEmptyString: false,
+  backend: {
+    loadPath: __dirname + '/../../../frontend/static/i18n/[-lng-]/[-ns-].json',
+  },
+  interpolation: {
+    prefix: '[-',
+    suffix: '-]'
+  }
+})
+
 /**
  * API requests for WA Updater app or other uses
  */
@@ -20,6 +42,22 @@ module.exports = function (fastify, opts, next) {
   // returns array of latest versions details of supported addons
   fastify.get('/addons', (req, res) => {
     res.cache(300).send(global.LatestAddons)
+  })
+
+  fastify.get('/languages', async (req, res) => {
+    await i18next.reloadResources()
+    res.cache(300).send(langs)
+  })
+
+  // returns categories for queried language
+  fastify.get('/categories', (req, res) => {
+    const t = i18next.getFixedT(req.query.lang || 'en-US')
+    const cats = Categories.categories(t)
+    const categories = {}
+    cats.forEach(c => {
+      categories[c.id] = {name: c.text, slug: c.slug}
+    })
+    res.send(categories)
   })
 
   // returns basic data of requested weakauras; WA Companion uses to check for updates
