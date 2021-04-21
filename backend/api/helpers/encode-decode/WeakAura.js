@@ -82,11 +82,11 @@ module.exports = {
         if t.c[i].triggers and t.c[i].triggers["1"] then
           n = 1
           while t.c[i].triggers[""..n] do
-            if t.c.triggers[""..n].trigger and t.c.triggers[""..n].trigger.form and t.c.triggers[""..n].trigger.form.multi then
+            if t.c[i].triggers[""..n].trigger and t.c[i].triggers[""..n].trigger.form and t.c[i].triggers[""..n].trigger.form.multi then
               for form=0,20 do
-                if t.c.triggers[""..n].trigger.form.multi[""..form] then
-                  t.c.triggers[""..n].trigger.form.multi[form] = t.c.triggers[""..n].trigger.form.multi[""..form]
-                  t.c.triggers[""..n].trigger.form.multi[""..form] = nil
+                if t.c[i].triggers[""..n].trigger.form.multi[""..form] then
+                  t.c[i].triggers[""..n].trigger.form.multi[form] = t.c[i].triggers[""..n].trigger.form.multi[""..form]
+                  t.c[i].triggers[""..n].trigger.form.multi[""..form] = nil
                 end
               end
             end
