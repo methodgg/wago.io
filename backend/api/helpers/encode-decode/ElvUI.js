@@ -84,7 +84,7 @@ module.exports = {
       local serialData = Serializer:Serialize(t)
       if (serialData) then
         local exportString = string.format("%s::%s::%s", serialData, "profile", "my profile")
-        local compressedData = LibCompress:Compress(serialData)
+        local compressedData = LibCompress:Compress(exportString)
         local encodedData = LibBase64Elv:Encode(compressedData)
         return encodedData
       end
