@@ -62,6 +62,15 @@ module.exports = {
     if t.d.triggers and t.d.triggers["1"] then
       n = 1
       while t.d.triggers[""..n] do
+        if t.d.triggers[""..n].trigger and t.d.triggers[""..n].trigger.form and t.d.triggers[""..n].trigger.form.multi then
+          for form=0,20 do
+            if t.d.triggers[""..n].trigger.form.multi[""..form] then
+              t.d.triggers[""..n].trigger.form.multi[form] = t.d.triggers[""..n].trigger.form.multi[""..form]
+              t.d.triggers[""..n].trigger.form.multi[""..form] = nil
+            end
+          end
+        end
+
         tinsert(t.d.triggers, t.d.triggers[""..n])
         t.d.triggers[""..n] = nil
         n = n+1
@@ -73,6 +82,15 @@ module.exports = {
         if t.c[i].triggers and t.c[i].triggers["1"] then
           n = 1
           while t.c[i].triggers[""..n] do
+            if t.c.triggers[""..n].trigger and t.c.triggers[""..n].trigger.form and t.c.triggers[""..n].trigger.form.multi then
+              for form=0,20 do
+                if t.c.triggers[""..n].trigger.form.multi[""..form] then
+                  t.c.triggers[""..n].trigger.form.multi[form] = t.c.triggers[""..n].trigger.form.multi[""..form]
+                  t.c.triggers[""..n].trigger.form.multi[""..form] = nil
+                end
+              end
+            end
+
             tinsert(t.c[i].triggers, t.c[i].triggers[""..n])
             t.c[i].triggers[""..n] = nil
             n = n+1
