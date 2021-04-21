@@ -658,18 +658,18 @@ module.exports = function (fastify, opts, next) {
 
     if (doc.type === 'SNIPPET') {
       if (!code.luacheck) {
-        var q = await taskQueue.add('ProcessCode', {id: doc._id, version: code.versionString}, {priority: req.user && req.user.access.queueSkip && 2 || 5, jobId: `${doc._id}:${code.version}:${code.versionString}`})
+        var q = await taskQueue.add('ProcessCode', {id: doc._id, version: code.versionString}, {priority: req.user && req.user.access.queueSkip && 2 || 5})
         wagoCode.Q = q.id
       }
       else {
         wagoCode.luacheck = code.luacheck
       }
     }
-    else if (doc.type === 'WEAKAURA' || doc.type === 'CLASSIC-WEAKAURA') {
+    else if (doc.type === 'WEAKAURA' || doc.type === 'CLASSIC-WEAKAURA' || doc.type === 'TBC-WEAKAURA') {
       var json = JSON.parse(code.json)
       // check for any missing data
       if (code.version && (!code.encoded || ((json.d.version !== code.version || json.d.url !== doc.url + '/' + code.version) || (json.c && json.c[0] && json.c[0].version !== code.version) || (json.d.semver !== code.versionString))) || !code.luacheck) {
-        var q = await taskQueue.add('ProcessCode', {id: doc._id, version: code.versionString}, {priority: req.user && req.user.access.queueSkip && 2 || 5, jobId: `${doc._id}:${code.version}:${code.versionString}`})
+        var q = await taskQueue.add('ProcessCode', {id: doc._id, version: code.versionString}, {priority: req.user && req.user.access.queueSkip && 2 || 5})
         wagoCode.Q = q.id
       }
       else {
@@ -680,7 +680,7 @@ module.exports = function (fastify, opts, next) {
       var json = JSON.parse(code.json)
       // check for any missing data
       if (!code.version || json.version !== code.version || !code.luacheck) {
-        var q = await taskQueue.add('ProcessCode', {id: doc._id, version: code.versionString}, {priority: req.user && req.user.access.queueSkip && 2 || 5, jobId: `${doc._id}:${code.version}:${code.versionString}`})
+        var q = await taskQueue.add('ProcessCode', {id: doc._id, version: code.versionString}, {priority: req.user && req.user.access.queueSkip && 2 || 5})
         wagoCode.Q = q.id
       }
       else {
