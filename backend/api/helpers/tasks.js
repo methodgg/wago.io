@@ -567,7 +567,7 @@ async function ProcessCode(data) {
   if (!data.id) return
   var doc = await WagoItem.lookup(data.id)
   var code = await WagoCode.lookup(data.id, data.version)
-  if (!doc || !code || code.processing) {
+  if (!doc || !code) {
     return
   }
   code.processing = true
@@ -645,7 +645,6 @@ async function ProcessCode(data) {
   else if (code.blocked) {
     doc.blocked = false
   }
-  code.processing = false
     await doc.save()
   await code.save()
 }
