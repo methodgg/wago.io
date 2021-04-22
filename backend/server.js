@@ -166,8 +166,9 @@ const startServer = async () => {
       await taskQueue.add('UpdateGuildMembership', null, {repeat: {cron: '15 * * * *'}, priority: 3})
       await taskQueue.add('ComputeViewsThisWeek', null, {repeat: {cron: '0 * * * *'}, priority: 4})
       await taskQueue.add('UpdateLatestAddonReleases', null, {repeat: {cron: '*/20 * * * *'}, priority: 4})
-      await taskQueue.add('SyncElastic', {table: 'User'}, {repeat: {cron: '0 10 15 * *'}, priority: 10})
-      await taskQueue.add('SyncElastic', {table: 'WagoItem'}, {repeat: {cron: '0 10 16 * *'}, priority: 10})
+      await taskQueue.add('SyncElastic', {table: 'User'}, {repeat: {cron: '0 10 5 * *'}, priority: 10})
+      await taskQueue.add('SyncElastic', {table: 'WagoItem'}, {repeat: {cron: '0 10 15 * *'}, priority: 10})
+      await taskQueue.add('SyncMeili', {table: 'WagoItem'}, {repeat: {cron: '0 10 25 * *'}, priority: 10})
 
       global.discordBot = require('./discordBot')
       discordBot.start()

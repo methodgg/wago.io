@@ -12,6 +12,9 @@ const Categories = require(__dirname + '/../../../frontend/src/components/libs/c
 const detectCode = require(__dirname + '/../../../frontend/src/components/libs/detectCustomCode')
 const luacheck = require('./luacheck')
 
+const { MeiliSearch } = require('meilisearch')
+const meili = new MeiliSearch(config.meiliSearch)
+
 const logger = require('../../middlewares/matomo')
 const logError = require('../../middlewares/matomoErrors')
 
@@ -57,6 +60,9 @@ module.exports = async (task, data) => {
 
       case 'SyncElastic':
         return await SyncElastic(data.table)
+
+      case 'SyncMeili':
+        return await SyncMeili(data.table)
 
       case 'ProcessCode':
         return await ProcessCode(data)
@@ -555,6 +561,74 @@ async function SyncElastic(table) {
       done()
     })
   })
+}
+
+async function SyncMeili(table) {
+  console.log("SYNC MEILI", table)
+  switch (table){
+    case 'WagoItem':
+      const meiliWAIndex = meili.index('weakauras')
+
+      var count = 0
+      const cursor = WagoItem.find({
+        type: {$regex: /WEAKAURA$/}, 
+        _userId: {$exists: true}, 
+        expires_at: null,
+        $or: [{
+          hidden: false, 
+          restricted: false,
+          private: false, 
+          encrypted: false, 
+          deleted: false,
+          blocked: false
+        },
+        {
+          _meiliWA: true,
+          $or: [
+            {hidden: true},
+            {restricted: true},
+            {private: true},
+            {encrypted: true},
+            {deleted: true},
+            {blocked: true}
+          ]
+        }]
+      }).batchSize(50).cursor()
+
+      var addDocs = []
+      await cursor.eachAsync(async (doc) => {
+        count++
+        if (doc.hidden || doc.private || doc.encrypted || doc.restricted || doc.deleted || doc.blocked) {
+          await meiliWAIndex.deleteDocument(doc._id)
+          doc._meiliWA = false
+          await doc.save()
+        }
+        else {
+          addDocs.push({
+            id: doc._id,
+            name: doc.name,
+            description: doc.description,
+            categories: doc.categories,
+            expansion: doc.expansionIndex
+          })
+          if (addDocs.length >= 50) {
+            await meiliWAIndex.addDocuments(addDocs)
+            addDocs = []
+          }
+          if (!doc._meiliWA) {
+            doc._meiliWA = true
+            await doc.save()
+          }
+        }
+        if (count%1000 == 0) {
+          console.log('sync meili', count)
+        }
+      })
+      break
+
+    default:
+      return
+  }
 }
 
 const processVersions = {

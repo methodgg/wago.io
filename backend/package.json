@@ -33,6 +33,7 @@
     "locale": "^0.1.0",
     "matomo-tracker": "^2.2.4",
     "md5": "^2.3.0",
+    "meilisearch": "^0.18.1",
     "mkdirp-promise": "^5.0.1",
     "mmmagic": "^0.5.3",
     "moment": "^2.29.1",

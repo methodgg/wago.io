@@ -1,8 +1,11 @@
 const mongoose = require('mongoose'),
       mongoosastic = require('mongoosastic'),
+      { MeiliSearch } = require('meilisearch'),
       shortid = require('shortid'),
-      config = require('../../config')
+      config = require('../../config');
 const image = require('../helpers/image')
+
+const meili = new MeiliSearch(config.meiliSearch)
 
 const Schema = new mongoose.Schema({
   _id : { type: String, default: shortid.generate, es_indexed: true },
@@ -116,7 +119,9 @@ const Schema = new mongoose.Schema({
   // type=SNIPPET
   snippet : {
       code : mongoose.Schema.Types.ObjectId
-  }
+  },
+
+  _meiliWA: Boolean
 })
 
 // add Mongoosastic plugin (elastic search)
@@ -147,6 +152,13 @@ Schema.virtual('slug').get(function() {
 })
 Schema.virtual('url').get(function() {
   return 'https://wago.io/'+this.slug
+})
+Schema.virtual('expansionIndex').get(function() {
+  if (this.game === 'classic') return 0
+  else if (this.game === 'tbc') return 1
+  else if (this.game === 'legion') return 6
+  else if (this.game === 'bfa') return 7
+  else if (this.game === 'sl') return 8
 })
 
 Schema.methods.getThumbnailURL = async function(size) {
@@ -257,6 +269,73 @@ Schema.pre('validate', function() {
   }
 })
 
+const meiliWAIndex = meili.index('weakauras')
+function isValidMeili(doc) {
+  return !!doc._userId && !doc.expires_at && doc.type.match(/WEAKAURA$/)
+}
+async function setMeiliIndex() {
+  if (!isValidMeili(this)) {
+    return
+  }
+  try {
+    if (this._meiliWA && (this._doNotIndex || this.hidden || this.private || this.encrypted || this.restricted || this.deleted || this.blocked)) {
+      // delete index
+      await meiliWAIndex.deleteDocument(this._id)
+      this._meiliWA = false
+      await this.save()
+    }
+    else if ((this._doMeiliIndex || this._toggleVisibility) && !(this.hidden || this.private || this.encrypted || this.restricted || this.deleted || this.blocked)) {
+      // add/update index
+      await meiliWAIndex.addDocuments([{ // TODO: add batching
+        id: this._id,
+        name: this.name,
+        description: this.description,
+        categories: this.categories,
+        expansion: this.expansionIndex
+      }])
+      if (!this._meiliWA) {
+        this._meiliWA = true
+        await this.save()
+      }
+    }
+  }
+  catch (e) {
+    console.log('Meili error', e)
+  }
+
+}
+
+const watchText = ['name', 'description']
+const watchVisibility = ['hidden', 'private', 'encrypted', 'restricted', 'deleted', 'blocked']
+watchText.forEach(field => {
+  Schema.path(field).set(function(v) {
+    if (this[field] !== undefined) {
+      this._doMeiliIndex = (this[field] !== v || this.isNew)
+    }
+    return v
+  })
+})
+watchVisibility.forEach(field => {
+  Schema.path(field).set(function(v) {
+    this._toggleVisibility = (this._toggleVisibility || this[field] !== undefined)
+    if (v) {
+      this._doNotIndex = true
+    }
+    return v
+  })
+})
+Schema.path('categories').set(function(v) {
+  if (!this._doMeiliIndex && this.categories !== undefined) {
+    this._doMeiliIndex = (JSON.stringify(this.categories) !== JSON.stringify(v))
+  }
+  return v
+})
+Schema.post('save', setMeiliIndex)
+Schema.post('update', setMeiliIndex)
+Schema.post('remove', setMeiliIndex)
+
 const WagoItem = mongoose.model('WagoItem', Schema)
 WagoItem.esSearch = bluebird.promisify(WagoItem.esSearch, {context: WagoItem})
+
+
 module.exports = WagoItem

@@ -46,7 +46,7 @@ module.exports = function (fastify, opts, next) {
 
   fastify.get('/languages', async (req, res) => {
     await i18next.reloadResources()
-    res.cache(300).send(langs)
+    res.cache(3600).send(langs)
   })
 
   // returns categories for queried language
@@ -67,7 +67,7 @@ module.exports = function (fastify, opts, next) {
     }
     var findType
     if (req.params.importType === 'weakauras') {
-      findType = {'$or': [{type:'CLASSIC-WEAKAURA'}, {type:'WEAKAURA'}]}
+      findType = {'$or': [{type:'CLASSIC-WEAKAURA'}, {type:'TBC-WEAKAURA'}, {type:'WEAKAURA'}]}
     }
     else if (req.params.importType === 'plater') {
       findType = {type: 'PLATER'}
