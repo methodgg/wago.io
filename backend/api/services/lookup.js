@@ -687,6 +687,21 @@ module.exports = function (fastify, opts, next) {
         wagoCode.luacheck = code.luacheck
       }
     }
+    else if (doc.type === 'ELVUI' && !code.fix.encodeFix && code.updated > new Date('03/29/2021 00:00') && code.updated < new Date('04/23/2021 00:00')) {
+      code.fix.encodeFix = true
+      code.encoded = await Addons.ElvUI.encode(code.json.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim(), lua.runLua)
+      await code.save()
+    }
+    else if (doc.type === 'TOTALRP3' && !code.fix.encodeFix && code.updated > new Date('03/29/2021 00:00') && code.updated < new Date('04/23/2021 00:00')) {
+      code.fix.encodeFix = true
+      code.encoded = await Addons.TotalRP3.encode(code.json.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim(), lua.runLua)
+      await code.save()
+    }
+    else if (doc.type === 'VUHDO' && !code.fix.encodeFix && code.updated > new Date('03/29/2021 00:00') && code.updated < new Date('04/23/2021 00:00')) {
+      code.fix.encodeFix = true
+      code.encoded = await Addons.VuhDo.encode(code.json.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim(), lua.runLua)
+      await code.save()
+    }
     else if (doc.type === 'MDT' && !code.encoded) {
       code.encoded = await lua.JSON2MDT(code.json)
       await code.save()

@@ -18,7 +18,8 @@ const Schema = new mongoose.Schema({
     format: String
   },
   fix: {
-    triggerTable: Boolean // for WA 7.3.6 release that broke imports with triggers Sept 5-6 2018
+    triggerTable: Boolean, // for WA 7.3.6 release that broke imports with triggers Sept 5-6 2018
+    encodeFix: Boolean // for Elvui, VuhDo and TotalRP3 re-encoding that broke March 29-Apr 22 2021
   }
 });
 
