@@ -312,9 +312,9 @@ module.exports = {
       {id: "torghast1", slug: "pve/torghast/encounters", cls:"torghast", text: t("Encounters"), WEAKAURA: true, sl: true},
       {id: "torghast2", slug: "pve/torghast/anima", cls:"torghast", text: t("Anima"), WEAKAURA: true, sl: true},
 
-      {id: "pvp", slug: "pvp", cls:"pvp-arena", text: t("PvP"), root: true, "CLASSIC-WEAKAURA": true, "TBC-WEAKAURA": true, WEAKAURA: true, COLLECTION: true, legion: true, bfa: true, sl: true, classic: true},
-      {id: "arena", slug: "pvp/arena", cls:"pvp-arena", text: t("Arena"), WEAKAURA: true, "TBC-WEAKAURA": true, COLLECTION: true, legion: true, bfa: true, sl: true},
-      {id: "bg", slug: "pvp/battlegrounds", cls:"pvp-arena", text: t("Battlegrounds"), "CLASSIC-WEAKAURA": true, "TBC-WEAKAURA": true, WEAKAURA: true, COLLECTION: true, legion: true, bfa: true, sl: true, classic: true},
+      {id: "pvp", slug: "pvp", cls:"pvp-arena", text: t("PvP"), root: true, "CLASSIC-WEAKAURA": true, "TBC-WEAKAURA": true, WEAKAURA: true, COLLECTION: true, legion: true, tbc: true, bfa: true, sl: true, classic: true},
+      {id: "arena", slug: "pvp/arena", cls:"pvp-arena", text: t("Arena"), WEAKAURA: true, "TBC-WEAKAURA": true, COLLECTION: true, tbc: true, legion: true, bfa: true, sl: true},
+      {id: "bg", slug: "pvp/battlegrounds", cls:"pvp-arena", text: t("Battlegrounds"), "CLASSIC-WEAKAURA": true, "TBC-WEAKAURA": true, tbc: true, WEAKAURA: true, COLLECTION: true, legion: true, bfa: true, sl: true, classic: true},
       // {id: "bg1", slug: "pvp/battlegrounds/alterac-valley", cls:"pvp-battleground", text: t("Alterac Valley"), WEAKAURA: true, "hideFromMenu": true},
       // {id: "bg2", slug: "pvp/battlegrounds/areathi-basin", cls:"pvp-battleground", text: t("Arathi Basin"), WEAKAURA: true, "hideFromMenu": true},
       // {id: "bg3", slug: "pvp/battlegrounds/deepwind-gorge", cls:"pvp-battleground", text: t("Deepwind Gorge"), WEAKAURA: true, "hideFromMenu": true},
@@ -327,8 +327,8 @@ module.exports = {
       // {id: "bg10", slug: "pvp/battlegrounds/twin-peaks", cls:"pvp-battleground", text: t("Twin Peaks"), WEAKAURA: true, "hideFromMenu": true},
       // {id: "bg11", slug: "pvp/battlegrounds/warsong-gulch", cls:"pvp-battleground", text: t("Warsong Gulch"), WEAKAURA: true, "hideFromMenu": true},
 
-      {id: "wpvp", slug: "pvp/world-pvp", cls:"pvp-arena", text: t("World PvP"), "CLASSIC-WEAKAURA": true, "TBC-WEAKAURA": true, WEAKAURA: true, COLLECTION: true, legion: true, bfa: true, sl: true, classic: true},
-      {id: "wpvp1", slug: "pvp/duels", cls:"pvp-arena", text: t("Duels"), "CLASSIC-WEAKAURA": true, "TBC-WEAKAURA": true, WEAKAURA: true, legion: true, bfa: true, sl: true, classic: true},
+      {id: "wpvp", slug: "pvp/world-pvp", cls:"pvp-arena", text: t("World PvP"), "CLASSIC-WEAKAURA": true, "TBC-WEAKAURA": true, WEAKAURA: true, tbc: true, COLLECTION: true, legion: true, bfa: true, sl: true, classic: true},
+      {id: "wpvp1", slug: "pvp/duels", cls:"pvp-arena", text: t("Duels"), "CLASSIC-WEAKAURA": true, "TBC-WEAKAURA": true, WEAKAURA: true, tbc: true, legion: true, bfa: true, sl: true, classic: true},
 
       // {id: "prof0", slug: "professions", cls:"prof", text: t("Professions"), noselect: true, WEAKAURA: true, COLLECTION: true},
       {id: "prof1", slug: "professions/gathering", cls:"prof-gathering", text: t("Gathering Professions"), root: true, WEAKAURA: true, "CLASSIC-WEAKAURA": true, "TBC-WEAKAURA": true, COLLECTION: true, legion: true, bfa: true, sl: true, classic: true, tbc: true},
