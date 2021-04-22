@@ -626,10 +626,8 @@ module.exports = function (fastify, opts, next) {
       }
     }
 
-    const inProcess = req.query.qupdate
     if (!code.processVersion || code.processVersion < 2) {
       code.luacheck = null
-      inProcess = true
       if (doc.type.match(/SNIPPET|WEAKAURA|PLATER/i) && req.query.qupdate) {
         var checkQ = await taskQueue.getWaiting(0, 500)
         for (let i = 0; i < checkQ.length; i++) {
@@ -658,7 +656,6 @@ module.exports = function (fastify, opts, next) {
     }
     }
 
-    if (!inProcess) {
     if (doc.type === 'SNIPPET') {
       if (!code.luacheck) {
         var q = await taskQueue.add('ProcessCode', {id: doc._id, version: code.versionString}, {priority: req.user && req.user.access.queueSkip && 2 || 5})
@@ -711,7 +708,6 @@ module.exports = function (fastify, opts, next) {
     else if (doc.type === 'MDT' && !code.encoded) {
       code.encoded = await lua.JSON2MDT(code.json)
       await code.save()
-    }
     }
 
     wagoCode.lua = code.lua

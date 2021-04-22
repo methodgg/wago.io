@@ -13,6 +13,7 @@ const Schema = new mongoose.Schema({
   branch: String, // ex "8.0-beta", default is not set for live
   luacheck: String,
   luacheckVersion: Number, // processVersion alias
+  processing: Boolean,
   changelog: {
     text: String,
     format: String

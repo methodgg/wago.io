@@ -561,17 +561,19 @@ const processVersions = {
 }
 const encodeDecodeAddons = require('fs').readdirSync('./api/helpers/encode-decode')
 async function ProcessCode(data) {
+  if (!data.id) return
   var doc = await WagoItem.lookup(data.id)
   var code = await WagoCode.lookup(data.id, data.version)
-  if (!doc || !code) {
+  if (!doc || !code || code.processing) {
     return
   }
-  if (!data.id) return
+  code.processing = true
+  await code.save()
   if (data.addon && Addons[data.addon]) {
     const addon = Addons[data.addon]
     if (addon && addon.addWagoData) {
       let meta = addon.addWagoData && addon.addWagoData(code, doc)
-      if ((meta && meta.encode) || data.encode) {
+      if ((meta && meta.encode) || data.encode || !code.encoded) {
         code.encoded = await addon.encode(code.json.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim(), lua.runLua)
       }
       if (meta && meta.wago) {
@@ -584,7 +586,7 @@ async function ProcessCode(data) {
     for (const addon of Object.values(Addons)) {
       if (doc.type.match(addon.typeMatch)) {
         let meta = addon.addWagoData && addon.addWagoData(code, doc)
-        if ((meta && meta.encode) || data.encode) {
+        if ((meta && meta.encode) || data.encode || !code.encoded) {
           code.encoded = await addon.encode(code.json.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim(), lua.runLua)
         }
         if (meta && meta.wago) {
@@ -640,6 +642,7 @@ async function ProcessCode(data) {
   else if (code.blocked) {
     doc.blocked = false
   }
+  code.processing = false
     await doc.save()
   await code.save()
 }
