@@ -669,7 +669,7 @@ module.exports = function (fastify, opts, next) {
       var json = JSON.parse(code.json)
       // check for any missing data
       if (code.version && (!code.encoded || ((json.d.version !== code.version || json.d.url !== doc.url + '/' + code.version) || (json.c && json.c[0] && json.c[0].version !== code.version) || (json.d.semver !== code.versionString))) || !code.luacheck) {
-        var q = await taskQueue.add('ProcessCode', {id: doc._id, version: code.versionString}, {priority: req.user && req.user.access.queueSkip && 2 || 5})
+        var q = await taskQueue.add('ProcessCode', {id: doc._id, version: code.versionString}, {priority: req.user && req.user.access.queueSkip && 2 || 5, jobId: `${doc._id}:${code.version}:${code.versionString}`})
         wagoCode.Q = q.id
       }
       else {
@@ -680,7 +680,7 @@ module.exports = function (fastify, opts, next) {
       var json = JSON.parse(code.json)
       // check for any missing data
       if (!code.version || json.version !== code.version || !code.luacheck) {
-        var q = await taskQueue.add('ProcessCode', {id: doc._id, version: code.versionString}, {priority: req.user && req.user.access.queueSkip && 2 || 5})
+        var q = await taskQueue.add('ProcessCode', {id: doc._id, version: code.versionString}, {priority: req.user && req.user.access.queueSkip && 2 || 5, jobId: `${doc._id}:${code.version}:${code.versionString}`})
         wagoCode.Q = q.id
       }
       else {
@@ -689,19 +689,19 @@ module.exports = function (fastify, opts, next) {
     }
     else if (doc.type === 'ELVUI' && !code.encoded || (!code.fix.encodeFix && code.updated > new Date('03/29/2021 00:00') && code.updated < new Date('04/23/2021 00:00'))) {
       code.fix.encodeFix = true
-      var q = await taskQueue.add('ProcessCode', {id: doc._id, version: code.versionString, encode: true}, {priority: req.user && req.user.access.queueSkip && 2 || 5})
+      var q = await taskQueue.add('ProcessCode', {id: doc._id, version: code.versionString, encode: true}, {priority: req.user && req.user.access.queueSkip && 2 || 5, jobId: `${doc._id}:${code.version}:${code.versionString}`})
       wagoCode.Q = q.id
       await code.save()
     }
     else if (doc.type === 'TOTALRP3' && !code.encoded || (!code.fix.encodeFix && code.updated > new Date('03/29/2021 00:00') && code.updated < new Date('04/23/2021 00:00'))) {
       code.fix.encodeFix = true
-      var q = await taskQueue.add('ProcessCode', {id: doc._id, version: code.versionString, encode: true}, {priority: req.user && req.user.access.queueSkip && 2 || 5})
+      var q = await taskQueue.add('ProcessCode', {id: doc._id, version: code.versionString, encode: true}, {priority: req.user && req.user.access.queueSkip && 2 || 5, jobId: `${doc._id}:${code.version}:${code.versionString}`})
       wagoCode.Q = q.id
       await code.save()
     }
     else if (doc.type === 'VUHDO' && !code.encoded || (!code.fix.encodeFix && code.updated > new Date('03/29/2021 00:00') && code.updated < new Date('04/23/2021 00:00'))) {
       code.fix.encodeFix = true
-      var q = await taskQueue.add('ProcessCode', {id: doc._id, version: code.versionString, encode: true}, {priority: req.user && req.user.access.queueSkip && 2 || 5})
+      var q = await taskQueue.add('ProcessCode', {id: doc._id, version: code.versionString, encode: true}, {priority: req.user && req.user.access.queueSkip && 2 || 5, jobId: `${doc._id}:${code.version}:${code.versionString}`})
       wagoCode.Q = q.id
       await code.save()
     }

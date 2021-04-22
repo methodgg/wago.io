@@ -61,6 +61,9 @@ module.exports = async (task, data) => {
       case 'ProcessCode':
         return await ProcessCode(data)
 
+      case 'CleanTaskQueue':
+        return taskQueue.clean(10000)
+
       default:
         throw {name: 'Unknown task', message: 'Unknown task ' + task}
     }

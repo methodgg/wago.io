@@ -155,6 +155,7 @@ const startServer = async () => {
       for (let i = 0; i < cleanup.length; i++) {
         await taskQueue.removeRepeatableByKey(cleanup[i].key)
       }
+      await taskQueue.add('CleanTaskQueue', null, {repeat: {cron: '*/10 * * * *'}, priority: 10})
       await taskQueue.add('UpdateWagoOfTheMoment', null, {repeat: {cron: '* * * * *'}, priority: 3})
       await taskQueue.add('UpdateActiveUserCount', null, {repeat: {cron: '* * * * *'}, priority: 3})
       await taskQueue.add('UpdateTwitchStatus', null, {repeat: {cron: '* * * * *'}, priority: 3})
