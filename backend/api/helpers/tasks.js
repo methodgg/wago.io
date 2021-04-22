@@ -567,17 +567,15 @@ async function ProcessCode(data) {
     return
   }
   if (!data.id) return
-
   if (data.addon && Addons[data.addon]) {
     const addon = Addons[data.addon]
     if (addon && addon.addWagoData) {
-      let data = addon.addWagoData(code, doc)
-      if (data && data.code) {
-        code = data.code
+      let meta = addon.addWagoData && addon.addWagoData(code, doc)
+      if ((meta && meta.encode) || data.encode) {
         code.encoded = await addon.encode(code.json.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim(), lua.runLua)
       }
-      if (data && data.wago) {
-        doc = data.wago
+      if (meta && meta.wago) {
+        doc = meta.wago
       }
     }
   }
@@ -585,13 +583,12 @@ async function ProcessCode(data) {
     // match addon by type
     for (const addon of Object.values(Addons)) {
       if (doc.type.match(addon.typeMatch)) {
-        let data = addon.addWagoData(code, doc)
-        if (data && data.code) {
-          code = data.code
+        let meta = addon.addWagoData && addon.addWagoData(code, doc)
+        if ((meta && meta.encode) || data.encode) {
           code.encoded = await addon.encode(code.json.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim(), lua.runLua)
         }
-        if (data && data.wago) {
-          doc = data.wago
+        if (meta && meta.wago) {
+          doc = meta.wago
         }
       }
     }    

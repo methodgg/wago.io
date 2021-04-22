@@ -687,19 +687,22 @@ module.exports = function (fastify, opts, next) {
         wagoCode.luacheck = code.luacheck
       }
     }
-    else if (doc.type === 'ELVUI' && !code.fix.encodeFix && code.updated > new Date('03/29/2021 00:00') && code.updated < new Date('04/23/2021 00:00')) {
+    else if (doc.type === 'ELVUI' && !code.encoded || (!code.fix.encodeFix && code.updated > new Date('03/29/2021 00:00') && code.updated < new Date('04/23/2021 00:00'))) {
       code.fix.encodeFix = true
-      code.encoded = await Addons.ElvUI.encode(code.json.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim(), lua.runLua)
+      var q = await taskQueue.add('ProcessCode', {id: doc._id, version: code.versionString, encode: true}, {priority: req.user && req.user.access.queueSkip && 2 || 5})
+      wagoCode.Q = q.id
       await code.save()
     }
-    else if (doc.type === 'TOTALRP3' && !code.fix.encodeFix && code.updated > new Date('03/29/2021 00:00') && code.updated < new Date('04/23/2021 00:00')) {
+    else if (doc.type === 'TOTALRP3' && !code.encoded || (!code.fix.encodeFix && code.updated > new Date('03/29/2021 00:00') && code.updated < new Date('04/23/2021 00:00'))) {
       code.fix.encodeFix = true
-      code.encoded = await Addons.TotalRP3.encode(code.json.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim(), lua.runLua)
+      var q = await taskQueue.add('ProcessCode', {id: doc._id, version: code.versionString, encode: true}, {priority: req.user && req.user.access.queueSkip && 2 || 5})
+      wagoCode.Q = q.id
       await code.save()
     }
-    else if (doc.type === 'VUHDO' && !code.fix.encodeFix && code.updated > new Date('03/29/2021 00:00') && code.updated < new Date('04/23/2021 00:00')) {
+    else if (doc.type === 'VUHDO' && !code.encoded || (!code.fix.encodeFix && code.updated > new Date('03/29/2021 00:00') && code.updated < new Date('04/23/2021 00:00'))) {
       code.fix.encodeFix = true
-      code.encoded = await Addons.VuhDo.encode(code.json.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim(), lua.runLua)
+      var q = await taskQueue.add('ProcessCode', {id: doc._id, version: code.versionString, encode: true}, {priority: req.user && req.user.access.queueSkip && 2 || 5})
+      wagoCode.Q = q.id
       await code.save()
     }
     else if (doc.type === 'MDT' && !code.encoded) {
