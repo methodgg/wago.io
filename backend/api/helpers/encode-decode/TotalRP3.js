@@ -36,7 +36,10 @@ module.exports = {
     local t = JSON:decode("${json}")
     if not t then return "" end
 
-    return Serializer:Serialize(t)`
+    local serialized = Serializer:Serialize(t)
+    local compressed = LibDeflate:CompressDeflate(serialized, {level = 9})
+    local encoded = "!" .. LibDeflate:EncodeForPrint(compressed)
+    return encoded`
     try {
       let encodedString = await exec(lua)
       return encodedString

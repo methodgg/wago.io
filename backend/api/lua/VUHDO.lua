@@ -1,6 +1,7 @@
 VUHDO_LibCompress = LibStub:GetLibrary("LibCompress")
 pcall(function() dofile( "./libs/LibBase64-1.0/LibBase64-1.0.lua" ) end)
 VUHDO_LibBase64 = LibStub:GetLibrary("LibBase64-1.0")
+VUHDO_LibCompressEncode = VUHDO_LibCompress:GetAddonEncodeTable()
 
 local pairs = pairs;
 local type = type;

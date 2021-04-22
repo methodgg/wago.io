@@ -28,7 +28,10 @@ module.exports = {
   encode: async (json, exec) => {
     const lua = `
       local t = JSON:decode("${json}")
-      return VUHDO_compressAndPackTable(t)
+
+      local compressed = VUHDO_compressAndPackTable(t)
+      local encodedString = VUHDO_LibBase64.Encode(compressed)
+      return encodedString
     `
     try {
       let encodedString = await exec(lua)

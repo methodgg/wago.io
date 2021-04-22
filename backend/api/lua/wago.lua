@@ -22,6 +22,7 @@ pcall(function() dofile( "./libs/LibButtonGlow-1.0/LibButtonGlow-1.0.lua" ) end)
 pcall(function() dofile( "./libs/LibDeflate/LibDeflate.lua" ) end)
 pcall(function() dofile( "./libs/LibSerialize/LibSerialize.lua" ) end)
 dofile( "./base64.lua" )
+dofile( "./base85.lua" )
 
 dofile( "./VUHDO.lua" )
 
