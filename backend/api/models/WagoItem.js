@@ -279,7 +279,8 @@ Schema.virtual('meiliWAData').get(function () {
     installs: this.popularity.installed_count,
     stars: this.popularity.favorite_count,
     views: this.popularity.views,
-    viewsThisWeek: this.popularity.viewsThisWeek
+    viewsThisWeek: this.popularity.viewsThisWeek,
+    timestamp: this.modified.getTime()
   }
 })
 
