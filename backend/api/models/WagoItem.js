@@ -269,6 +269,20 @@ Schema.pre('validate', function() {
   }
 })
 
+Schema.virtual('meiliWAData').get(function () {
+  return {
+    id: this._id,
+    name: this.name,
+    description: this.description,
+    categories: this.categories,
+    expansion: this.expansionIndex,
+    installs: this.popularity.installed_count,
+    stars: this.popularity.favorite_count,
+    views: this.popularity.views,
+    viewsThisWeek: this.popularity.viewsThisWeek
+  }
+})
+
 const meiliWAIndex = meili.index('weakauras')
 function isValidMeili(doc) {
   return !!doc._userId && !doc.expires_at && doc.type.match(/WEAKAURA$/)
@@ -278,21 +292,24 @@ async function setMeiliIndex() {
     return
   }
   try {
+    meiliToDoWA = await redis.getJSON('meili:todo:weakauras') || []
     if (this._meiliWA && (this._doNotIndex || this.hidden || this.private || this.encrypted || this.restricted || this.deleted || this.blocked)) {
       // delete index
+      meiliToDoWA = meiliToDoWA.filter(doc => {
+        return doc.id !== this._id
+      })
+      redis.setJSON('meili:todo:weakauras', meiliToDoWA)
       await meiliWAIndex.deleteDocument(this._id)
       this._meiliWA = false
       await this.save()
     }
     else if ((this._doMeiliIndex || this._toggleVisibility) && !(this.hidden || this.private || this.encrypted || this.restricted || this.deleted || this.blocked)) {
       // add/update index
-      await meiliWAIndex.addDocuments([{ // TODO: add batching
-        id: this._id,
-        name: this.name,
-        description: this.description,
-        categories: this.categories,
-        expansion: this.expansionIndex
-      }])
+      meiliToDoWA = meiliToDoWA.filter(doc => {
+        return doc.id !== this._id
+      })
+      meiliToDoWA.push(this.meiliWAData)
+      redis.setJSON('meili:todo:weakauras', meiliToDoWA)
       if (!this._meiliWA) {
         this._meiliWA = true
         await this.save()

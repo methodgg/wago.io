@@ -565,12 +565,80 @@ async function SyncElastic(table) {
 
 async function SyncMeili(table) {
   console.log("SYNC MEILI", table)
+  const meiliWAIndex = meili.index('weakauras')
   switch (table){
-    case 'WagoItem':
-      const meiliWAIndex = meili.index('weakauras')
+    case 'WA:ToDo':
+      const todoDocs = await redis.getJSON('meili:todo:weakauras') || []
+      if (todoDocs.length) {
+        redis.setJSON('meili:todo:weakauras', [])
+        await meiliWAIndex.addDocuments(todoDocs)
+      }
+      break
+    case 'WA:Metrics':
+      const lastIndexDate = await redis.get('meili:WA:Metrics:Date')
+      var metricsDocs = []
+      if (!lastIndexDate) {
+        redis.set('meili:WA:Metrics:Date', new Date().toISOString())
+        return
+      }
+      var cursor = WagoItem.aggregate([
+        {$match: {_meiliWA: true}},
+        {$lookup: {
+          from: 'wagofavorites',
+          as: 'fave',
+          let: {wagoID: '$_id'},
+          pipeline: [{
+            $match: {
+              $expr: {$eq: ["$wagoID", "$$wagoID"]},
+              timestamp: {$gt: new Date(lastIndexDate)}
+            },
+          }]
+        }},
+        {$lookup: {
+          from: 'viewsthisweeks',
+          as: 'view',
+          let: {wagoID: '$_id'},
+          pipeline: [{
+            $match: {
+              $expr: {$eq: ["$wagoID", "$$wagoID"]},
+              viewed: {$gt: new Date(lastIndexDate)}
+            },
+          }]
+        }},
+        {$match: {
+          $or: [
+            {"fave.0": {$exists: true}},
+            {"view.0": {$exists: true}}
+          ]
+        }}
+      ]).cursor()
 
+      for await (const doc of cursor) {
+        metricsDocs.push({
+          id: doc._id,
+          installs: doc.popularity.installed_count,
+          stars: doc.popularity.favorite_count,
+          views: doc.popularity.views,
+          viewsThisWeek: doc.popularity.viewsThisWeek
+        })
+        if (metricsDocs.length >= 5000) {
+          await meiliWAIndex.updateDocuments(metricsDocs)
+          metricsDocs = []
+        }
+      }
+      
+      if (metricsDocs.length) {
+        await meiliWAIndex.updateDocuments(metricsDocs)
+        metricsDocs = []
+      }
+
+      redis.set('meili:WA:Metrics:Date', new Date().toISOString())
+      break
+
+    case 'WagoItem': // complete DB sync
       var count = 0
-      const cursor = WagoItem.find({
+      var syncDocs = []
+      var cursor = WagoItem.find({
         type: {$regex: /WEAKAURA$/}, 
         _userId: {$exists: true}, 
         expires_at: null,
@@ -593,9 +661,8 @@ async function SyncMeili(table) {
             {blocked: true}
           ]
         }]
-      }).batchSize(50).cursor()
+      }).batchSize(100).cursor()
 
-      var addDocs = []
       await cursor.eachAsync(async (doc) => {
         count++
         if (doc.hidden || doc.private || doc.encrypted || doc.restricted || doc.deleted || doc.blocked) {
@@ -604,16 +671,10 @@ async function SyncMeili(table) {
           await doc.save()
         }
         else {
-          addDocs.push({
-            id: doc._id,
-            name: doc.name,
-            description: doc.description,
-            categories: doc.categories,
-            expansion: doc.expansionIndex
-          })
-          if (addDocs.length >= 50) {
-            await meiliWAIndex.addDocuments(addDocs)
-            addDocs = []
+          syncDocs.push(doc.meiliWAData)
+          if (syncDocs.length >= 5000) {
+            await meiliWAIndex.addDocuments(syncDocs)
+            syncDocs = []
           }
           if (!doc._meiliWA) {
             doc._meiliWA = true
@@ -624,6 +685,10 @@ async function SyncMeili(table) {
           console.log('sync meili', count)
         }
       })
+      if (syncDocs.length) {        
+        await meiliWAIndex.addDocuments(syncDocs)
+      }
+      redis.set('meili:WA:Metrics:Date', new Date().toISOString())
       break
 
     default:
