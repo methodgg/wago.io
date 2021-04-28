@@ -239,12 +239,16 @@ module.exports = {
       wago.regionType = json.d.regionType
 
       json.wagoID = wago._id
+      json.d.wagoID = wago._id
       json.d.url = wago.url + '/' + code.version
       json.d.version = code.version
       json.d.semver = code.versionString
+      delete json.d.ignoreWagoUpdate
+      delete json.d.skipWagoUpdate
 
       if (json.c) {
         for (let i = 0; i < json.c.length; i++) {
+          json.c[i].wagoID = wago._id
           json.c[i].url = wago.url + '/' + code.version
           json.c[i].version = code.version
           json.c[i].semver = code.versionString
