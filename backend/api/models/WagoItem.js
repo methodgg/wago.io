@@ -161,6 +161,11 @@ Schema.virtual('expansionIndex').get(function() {
   else if (this.game === 'sl') return 8
 })
 
+Schema.methods.getRawThumbnail = async function() {
+  const screen = await Screenshot.findForWago(this._id, true)
+  return screen && screen.url || null
+}
+
 Schema.methods.getThumbnailURL = async function(size) {
   if (!this.imageGenerated) {
     var type = this.type
