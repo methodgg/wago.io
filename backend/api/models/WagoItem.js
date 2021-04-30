@@ -269,7 +269,7 @@ Schema.pre('validate', function() {
   }
 })
 
-Schema.virtual('meiliWAData').get(function () {
+Schema.virtual('meiliWAData').get(async function () {
   return {
     id: this._id,
     name: this.name,
@@ -280,6 +280,8 @@ Schema.virtual('meiliWAData').get(function () {
     stars: this.popularity.favorite_count,
     views: this.popularity.views,
     viewsThisWeek: this.popularity.viewsThisWeek,
+    versionString: this.latestVersion.versionString,
+    thumbnail: await this.getRawThumbnail(),
     timestamp: this.modified.getTime()
   }
 })
@@ -309,7 +311,7 @@ async function setMeiliIndex() {
       meiliToDoWA = meiliToDoWA.filter(doc => {
         return doc.id !== this._id
       })
-      meiliToDoWA.push(this.meiliWAData)
+      meiliToDoWA.push(await this.meiliWAData)
       redis.setJSON('meili:todo:weakauras', meiliToDoWA)
       if (!this._meiliWA) {
         this._meiliWA = true

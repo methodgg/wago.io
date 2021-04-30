@@ -698,9 +698,9 @@ async function SyncMeili(table) {
             {blocked: true}
           ]
         }]
-      }).batchSize(100).cursor()
+      }).cursor()
 
-      await cursor.eachAsync(async (doc) => {
+      for (let doc = await cursor.next(); doc != null; doc = await cursor.next()) {
         count++
         if (doc.hidden || doc.private || doc.encrypted || doc.restricted || doc.deleted || doc.blocked) {
           await meiliWAIndex.deleteDocument(doc._id)
@@ -708,7 +708,7 @@ async function SyncMeili(table) {
           await doc.save()
         }
         else {
-          syncDocs.push(doc.meiliWAData)
+          syncDocs.push(await doc.meiliWAData)
           if (syncDocs.length >= 5000) {
             await meiliWAIndex.addDocuments(syncDocs)
             syncDocs = []
@@ -721,7 +721,7 @@ async function SyncMeili(table) {
         if (count%1000 == 0) {
           console.log('sync meili', count)
         }
-      })
+      }
       if (syncDocs.length) {        
         await meiliWAIndex.addDocuments(syncDocs)
       }
