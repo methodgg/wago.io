@@ -2,6 +2,7 @@ const Profiler = require("../models/Profiler")
 const SiteData = require("../models/SiteData")
 const updateDataCaches = require('../../middlewares/updateLocalCache')
 const runTask = require('../helpers/tasks')
+const Streamers = require("../models/Streamer")
 
 module.exports = (fastify, opts, next) => {
   // get all blog posts
@@ -91,7 +92,7 @@ module.exports = (fastify, opts, next) => {
         done(count)
       })
     })
-    
+
     res.send(data)
   })
 
@@ -136,6 +137,36 @@ module.exports = (fastify, opts, next) => {
       streams[i].viewing = await redis.get('tally:active:embed:' + streams.channel)
     })
     res.send({success: true, streams: streams, enabled: data.enabled, activeUsers: await redis.get('tally:active:users')})
+  })
+
+  fastify.get('/getstreamers', async (req, res) => {
+    if (!req.user || !req.user.isAdmin.access || !(req.user.isAdmin.super || req.user.isAdmin.config.embed)) {
+      return res.code(403).send({error: "forbidden"})
+    }
+    const streams = await Streamers.find({}).sort({online: -1})
+    res.send(streams)
+  })
+
+  fastify.post('/streamer/add', async (req, res) => {
+    if (!req.user || !req.user.isAdmin.access || !(req.user.isAdmin.super || req.user.isAdmin.config.embed)) {
+      return res.code(403).send({error: "forbidden"})
+    }
+    const name = req.body.name
+    const exists = await Streamers.findOne({name: {$regex: new RegExp(name, 'i')}})
+    if (exists) {
+      return res.send({error: 'Streamer already exists: '+exists.name})
+    }
+    const streamer = new Streamers({name, game: 'Never seen'})
+    await streamer.save()
+    res.send({success: true})
+  })
+
+  fastify.post('/streamer/delete', async (req, res) => {
+    if (!req.user || !req.user.isAdmin.access || !(req.user.isAdmin.super || req.user.isAdmin.config.embed)) {
+      return res.code(403).send({error: "forbidden"})
+    }
+    await Streamers.findByIdAndDelete(req.body.id)
+    res.send({success: true})
   })
 
   fastify.get('/get-user', async (req, res) => {

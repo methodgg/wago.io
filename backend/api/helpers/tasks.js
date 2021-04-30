@@ -139,6 +139,43 @@ async function UpdateTwitchStatus (channel) {
     await redis.set(`twitch:${channel}:live`, (req.data.data.length > 0))
     status[channel] = (req.data.data.length > 0)
   }
+
+  const streamers = await Streamer.find({})
+  var getStreamURL = `https://api.twitch.tv/helix/streams?`
+  for (let i = 0; i < streamers.length; i++) {
+    getStreamURL = getStreamURL + `user_login=${streamers[i].name}&`
+    streamers[i].wagoViewers = await redis.get('tally:active:embed:' + streamers[i].name) || 0
+  }
+
+  const req = await axios.get(getStreamURL + 'first=100', {
+    headers: {
+      'client-id': config.auth.twitch.clientID,
+      'Authorization': 'Bearer '+ twitchToken
+    }
+  })
+
+  for (let i = 0; i < streamers.length; i++) {
+    for (let k = 0; k < req.data.data.length; k++) {
+      if (req.data.data[k].user_name.toLowerCase() === streamers[i].name.toLowerCase()) {
+        streamers[i].online = new Date(req.data.data[k].started_at)
+        streamers[i].game = req.data.data[k].game_name
+        streamers[i].title = req.data.data[k].title
+        streamers[i].viewers = req.data.data[k].viewer_count - streamers[i].wagoViewers
+        streamers[i].name = req.data.data[k].user_name
+        await streamers[i].save()
+        streamers[i].ok = true
+      }
+    }
+  }
+  for (let i = 0; i < streamers.length; i++) {
+    if (!streamers[i].ok) {
+      streamers[i].online = null
+      streamers[i].viewers = 0
+      await streamers[i].save()
+      await redis.set(`twitch:${channel}:live`, false)
+    }
+  }
+
   return status
 }
 

@@ -8,7 +8,7 @@
         <md-button v-if="User.access.admin.super || User.access.admin.moderator" :class="{'md-toggle': showPanel === 'users'}" @click="toggleFrame('users')">User Control</md-button>
         <md-button v-if="User.access.admin.super" :class="{'md-toggle': showPanel === 'status'}" @click="toggleFrame('status')">Status</md-button>
       </md-button-toggle>
-    
+
       <!-- BLOG FRAME -->
       <md-layout id="admin-blog-container" v-if="(User.access.admin.super || User.access.admin.blog) && showPanel=='blogpost'">
         <md-layout class="md-left" ref="blogSidebar" id="blog-sidebar" md-flex="15">
@@ -86,7 +86,7 @@
                 <md-avatar>
                   <ui-image v-if="selectedUser.profile" :img="selectedUser.profile.avatar"></ui-image>
                 </md-avatar>
-                <span class="md-list-item-text" style="font-size:150%; font-weight: bold; margin-left: 8px;">{{ selectedUser.account.username }}</span> 
+                <span class="md-list-item-text" style="font-size:150%; font-weight: bold; margin-left: 8px;">{{ selectedUser.account.username }}</span>
                 <small style="opacity:.6; margin-left: 8px">{{ selectedUser._id }}</small>
               </div>
               <md-layout>
@@ -210,7 +210,7 @@
                       <div class="md-list-text-container">
                         <span><md-checkbox v-model="selectedUser.roles.isAdmin.moderator" class="md-primary" disabled>User Moderator</md-checkbox></span>
                       </div>
-                    </md-list-item>                    
+                    </md-list-item>
                     <md-list-item>
                       <div class="md-list-text-container">
                         <span>Site Config</span>
@@ -333,59 +333,103 @@
         <md-layout class="md-left" md-flex="15">
           <md-list class="md-double-line">
             <md-list-item @click="LoadAdvertConfig('streams')" v-bind:class="{selected: (siteConfigPanel === 'streams')}">
-              <div class="md-list-text-container">
-                <span>Stream Embed</span>
-              </div>
+              <div class="md-list-text-container"><span>Embed Streams</span></div>
+            </md-list-item>
+            <md-list-item @click="LoadAdvertConfig('streamoverride')" v-bind:class="{selected: (siteConfigPanel === 'streamoverride')}">
+              <div class="md-list-text-container"><span>Stream Override</span></div>
             </md-list-item>
           </md-list>
         </md-layout>
-        <md-layout>
-          <md-card>
-            <md-card-content>
-              Active Users on Site: <strong v-if="streamConfig.activeUsers">{{ streamConfig.activeUsers }}</strong><br>
-              <md-checkbox v-model="streamConfig.enabled"><strong style="color:white">Custom Streams Enabled</strong></md-checkbox>
-            </md-card-content>
-            <div v-if="streamConfig.enabled" v-for="(stream, index) of streamConfig.streams" style="border: 1px solid #666; margin-bottom: 16px; position: relative">
-              <md-button class="md-icon-button md-raised" style="position: absolute; top: calc(50% - 16px); right: 8px;" @click="deleteStream(index)"><md-icon>delete</md-icon></md-button>
-              <md-card-content>
-                <strong>Stream Channel:</strong>
+        <template v-if="siteConfigPanel === 'streams'">
+          <div style="padding-left:16px">
+            <p>Active Users on Site: <strong v-if="streamConfig.activeUsers">{{ streamConfig.activeUsers }}</strong></p>
+            <ui-warning mode="alert">
+              Not yet implemented.
+            </ui-warning>
+            <md-table>
+              <md-table-header>
+                <md-table-row>
+                  <md-table-head>Name</md-table-head>
+                  <md-table-head>Online</md-table-head>
+                  <md-table-head md-numeric md-tooltip="Excluding embbed streams from Wago">Current Viewers</md-table-head>
+                  <md-table-head md-numeric>Wago Viewers</md-table-head>
+                  <md-table-head>Weighting</md-table-head>
+                </md-table-row>
+              </md-table-header>
+              <md-table-body>
+                <md-table-row v-for="(row, index) in streamerList" :key="index">
+                  <md-table-cell><strong>{{ row.name }}</strong><br>{{ row.game }}</md-table-cell>
+                  <md-table-cell>{{ calcOnlineDuration(row.online) }}</md-table-cell>
+                  <md-table-cell>{{ row.viewers }}</md-table-cell>
+                  <md-table-cell>{{ row.wagoViewers }} / {{ row.viewers }}</md-table-cell>
+                  <md-table-cell>{{ calcWagoWeighting(row) }}%</md-table-cell>
+                  <md-table-cell><md-button class="md-icon-button md-raised" @click="deleteStreamer(index)"><md-icon>delete</md-icon></md-button></md-table-cell>
+                </md-table-row>
+              </md-table-body>
+            </md-table>
+            <form @submit="addStreamer">
+              <md-card id="add-streamer">
+                <strong>Add Streamer:</strong>
                 <md-input-container>
                   <label>https://twitch.tv/...</label>
-                  <md-autocomplete v-model="stream.channel" :list="commonChannels" :min-chars="0" :max-height="6" :debounce="500" @input="stream.unknown=1"></md-autocomplete>
+                  <md-input v-model="addStreamerName"></md-input>
                 </md-input-container>
-                <strong>Exposure of <em>{{ stream.channel }}</em> Stream: {{ stream.exposure }}%</strong>
-                <vue-slider v-model="stream.exposure" :width="200" tooltip="none"></vue-slider>
-              </md-card-content>
+                <md-card-actions style="justify-content: space-between">
+                  <md-button class="md-raised" @click="addStreamer">Add streamer</md-button>
+                </md-card-actions>
+              </md-card>
+            </form>
+          </div>
+        </template>
+        <template v-if="siteConfigPanel === 'streamoverride'">
+          <md-layout>
+            <md-card>
               <md-card-content>
-                <strong>Status:</strong>
-                <span v-if="stream.unknown">Save config to update status</span>
-                <template v-else>
-                  <span v-if="stream.online" style="color:#00c500">[Online]</span> 
-                  <span v-else style="color:#bf0000">[Offline]</span>
-                  Currently Viewing <em>{{ stream.channel }}</em> Stream: <strong>{{ stream.viewing || 0 }}</strong>
-                </template>
+                Active Users on Site: <strong v-if="streamConfig.activeUsers">{{ streamConfig.activeUsers }}</strong><br>
+                <md-checkbox v-model="streamConfig.enabled"><strong style="color:white">Stream Override Enabled</strong></md-checkbox>
               </md-card-content>
-              <md-card-content>
-                <strong>Max number of active <em>{{ stream.channel }}</em> Streams before moving to next stream:</strong>
-                <md-input-container class="move-field-up">
-                  <md-input v-model="stream.max" type="number"></md-input>
-                </md-input-container>
-              </md-card-content>
-            </div>
-            <md-card-actions style="justify-content: space-between">
-              <md-button class="md-raised" @click="addStream()">Add new stream</md-button>
-              <md-button class="md-raised" style="justify-self: flex-start" @click="saveStreamConfig()">Save Stream Config</md-button>
-            </md-card-actions>
-          </md-card>
-        </md-layout>
-        <md-layout>
-          <md-card>
-            <md-card-header><div style="margin-bottom:62px">Embed Preview</div></md-card-header>
-            <div v-if="streamConfig.enabled" v-for="(stream, index) of streamConfig.streams" style="margin: 0 0 36px 16px">
-              <stream-embed v-if="stream.channel" :stream="stream.channel" :preview="true" />
-            </div>
-          </md-card>
-        </md-layout>
+              <div v-if="streamConfig.enabled" v-for="(stream, index) of streamConfig.streams" style="border: 1px solid #666; margin-bottom: 16px; position: relative">
+                <md-button class="md-icon-button md-raised" style="position: absolute; top: calc(50% - 16px); right: 8px;" @click="deleteStream(index)"><md-icon>delete</md-icon></md-button>
+                <md-card-content>
+                  <strong>Stream Channel:</strong>
+                  <md-input-container>
+                    <label>https://twitch.tv/...</label>
+                    <md-autocomplete v-model="stream.channel" :list="commonChannels" :min-chars="0" :max-height="6" :debounce="500" @input="stream.unknown=1"></md-autocomplete>
+                  </md-input-container>
+                  <strong>Exposure of <em>{{ stream.channel }}</em> Stream: {{ stream.exposure }}%</strong>
+                  <vue-slider v-model="stream.exposure" :width="200" tooltip="none"></vue-slider>
+                </md-card-content>
+                <md-card-content>
+                  <strong>Status:</strong>
+                  <span v-if="stream.unknown">Save config to update status</span>
+                  <template v-else>
+                    <span v-if="stream.online" style="color:#00c500">[Online]</span>
+                    <span v-else style="color:#bf0000">[Offline]</span>
+                    Currently Viewing <em>{{ stream.channel }}</em> Stream: <strong>{{ stream.viewing || 0 }}</strong>
+                  </template>
+                </md-card-content>
+                <md-card-content>
+                  <strong>Max number of active <em>{{ stream.channel }}</em> Streams before moving to next stream:</strong>
+                  <md-input-container class="move-field-up">
+                    <md-input v-model="stream.max" type="number"></md-input>
+                  </md-input-container>
+                </md-card-content>
+              </div>
+              <md-card-actions style="justify-content: space-between">
+                <md-button class="md-raised" @click="addStream()">Add new stream</md-button>
+                <md-button class="md-raised" style="justify-self: flex-start" @click="saveStreamConfig()">Save Stream Override</md-button>
+              </md-card-actions>
+            </md-card>
+          </md-layout>
+          <md-layout>
+            <md-card>
+              <md-card-header><div style="margin-bottom:62px">Embed Preview</div></md-card-header>
+              <div v-if="streamConfig.enabled" v-for="(stream, index) of streamConfig.streams" style="margin: 0 0 36px 16px">
+                <stream-embed v-if="stream.channel" :stream="stream.channel" :preview="true" />
+              </div>
+            </md-card>
+          </md-layout>
+        </template>
       </md-layout>
 
       <!-- STATUS FRAME -->
@@ -572,11 +616,18 @@ export default {
       siteConfigPanel: 'streams',
       streamConfig: {},
       commonChannels: [{name:'method'}, {name:'sco'}],
-      activeUserCount: {}
+      activeUserCount: {},
+      streamerList: [],
+      addStreamerName: '',
+      streamerUpdateInterval: null,
+      timeFormat: new Intl.RelativeTimeFormat('en', {
+        numeric: 'always',
+        style: 'long'
+      })
     }
   },
   mounted: function () {
-    const p = () => {
+    const p = async () => {
       if (!this.User || !this.User.access || !this.User.access.admin) {
         setTimeout(p, 100)
         return
@@ -584,14 +635,24 @@ export default {
       if (this.User.access.admin.super || this.User.access.admin.config.embed) {
         this.toggleFrame('sitecfg')
       }
-      else if (this.User.access.admin.blog) {      
+      else if (this.User.access.admin.blog) {
         this.toggleFrame('blogpost')
       }
-      else if (this.User.access.admin.moderator) {      
+      else if (this.User.access.admin.moderator) {
         this.toggleFrame('users')
       }
+
+      if (this.User.access.admin.super || this.User.access.admin.config.embed) {
+        this.streamerList = await this.http.get('/admin/getstreamers')
+        this.streamerUpdateInterval = setInterval(async () => {
+          this.streamerList = await this.http.get('/admin/getstreamers')
+        }, 60000)
+      }
     }
-    p()    
+    p()
+  },
+  destroyed: function () {
+    clearInterval(this.streamerUpdateInterval)
   },
   computed: {
     User () {
@@ -623,7 +684,7 @@ export default {
       }
     },
 
-    LoadAdvertConfig (panel) {
+    LoadAdvertConfig: async function (panel) {
       this.siteConfigPanel = panel
     },
 
@@ -631,7 +692,7 @@ export default {
       if (!this.userList.subs) {
         this.userList = await this.http.get('/admin/getusers')
       }
-      
+
       this.userPanel = panel
     },
     autoCompleteUserName: function (q) {
@@ -773,6 +834,48 @@ export default {
     deleteStream (index) {
       this.streamConfig.streams.splice(index, 1)
     },
+    async addStreamer (e) {
+      e.preventDefault()
+      if (this.addStreamerName.trim()) {
+        const res = await this.http.post('/admin/streamer/add', {name: this.addStreamerName})
+        if (res && res.success) {
+          this.streamerList.push({name: this.addStreamerName, game: 'Pending update', viewers: 0, wagoViewers: 0})
+          this.addStreamerName = ''
+        }
+        else if (res && res.error) {
+          window.eventHub.$emit('showSnackBar', res.error)
+        }
+        else {
+          window.eventHub.$emit('showSnackBar', i18next.t('An error has occurred'))
+        }
+      }
+    },
+    async deleteStreamer (index) {
+      const res = await this.http.post('/admin/streamer/delete', {id: this.streamerList[index]._id})
+      if (res && res.success) {
+        this.streamerList.splice(index, 1)
+      }
+    },
+    calcOnlineDuration (date) {
+      if (!date) {
+        return 'Offline'
+      }
+      const t = (new Date(date)).getTime()
+      const now = (new Date()).getTime()
+      const seconds = (t - now) / 1000
+      const rtf = new Intl.RelativeTimeFormat('en', { numeric: 'always', style: 'long' })
+      if (seconds > 60) {
+        return rtf.format(seconds, 'second').replace(/ ago/, '')
+      }
+      else if (seconds > 3600) {
+        return rtf.format(Math.round(seconds / 3600 * 10) / 10, 'minutes').replace(/ ago/, '')
+      }
+      return rtf.format(Math.round(seconds / 3600 * 10) / 10, 'hour').replace(/ ago/, '')
+    },
+    calcWagoWeighting (st) {
+      const total = this.streamerList.map(c => c.viewers).reduce((acc, cur) => acc + cur);
+      return (Math.round(st.viewers / total * 1000) / 10) || 0
+    },
     saveStreamConfig () {
       this.http.post('/admin/stream', {enabled: this.streamConfig.enabled, streams: this.streamConfig.streams}).then((res) => {
         if (res.success) {
@@ -853,4 +956,6 @@ export default {
 .view-user .md-checkbox {margin: 0}
 .view-user .md-list {margin-right: 16px}
 .view-user .md-list:after {background-color: transparent!important}
+
+#add-streamer {margin-left:0}
 </style>
