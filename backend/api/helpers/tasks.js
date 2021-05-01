@@ -165,6 +165,7 @@ async function UpdateTwitchStatus (channel) {
         streamers[i].name = req.data.data[k].user_name
         await streamers[i].save()
         streamers[i].ok = true
+        await redis.set(`twitch:${streamers[i].name}:live`, 1)
       }
     }
   }
@@ -173,7 +174,7 @@ async function UpdateTwitchStatus (channel) {
       streamers[i].online = null
       streamers[i].viewers = 0
       await streamers[i].save()
-      await redis.set(`twitch:${channel}:live`, false)
+      await redis.del(`twitch:${streamers[i].name}:live`)
     }
   }
 
