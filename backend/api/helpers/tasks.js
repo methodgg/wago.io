@@ -97,19 +97,28 @@ async function UpdateActiveUserCount () {
   scanStreamUsers.on('end', () => {
     redis.set('tally:active:users', activeUsers)
     })
-  const cfg = await SiteData.get('EmbeddedStream')
-  var streams = cfg.streams
+
+  await redis2.zremrangebyscore('streamViews', 0, Math.round(Date.now()/1000) - 70)
+  const streams = await redis2.zrange('streamViews', 0, -1)
+  let streamers = {}
   for (let i = 0; i < streams.length; i++) {
-    streams[i].count = 0
-  const scanStreamEmbed = redis2.scanStream({
-      match: `stream:${streams[i].channel}:*`
-  })
-  scanStreamEmbed.on('data', (data) => {
-      streams[i].count = streams[i].count + data.length
-  })
-  scanStreamEmbed.on('end', () => {
-      redis.set('tally:active:embed:' + streams[i].channel, streams[i].count)
-  })
+    try {
+      const st = streams[i].split(':')[0]
+      streamers[st] = streamers[st] || 0
+      streamers[st]++
+    }
+    catch {
+      continue
+    }
+  }
+
+  for (const [name, count] of Object.entries(streamers)) {
+    await redis.set('tally:active:embed:' + name, count)
+  }
+
+  const ousted = await Streamer.find({wagoViewers: {$gt: 0}, name: {$nin: Object.keys(streamers)}})
+  for (let i = 0; i < ousted.length; i++) {
+    await redis.del('tally:active:embed:' + ousted[i].name)
 }
 }
 

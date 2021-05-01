@@ -23,12 +23,12 @@ module.exports = async function (req, res) {
     return res.code(429).send({error: "Rate limit exceeded"})
   }
 
-  const streamCfg = global.EmbeddedStream || {streams:[]}
-  for (let i = 0; i < streamCfg.streams.length; i++) {
-    if (await redis2.get(`stream:${streamCfg.streams[i].channel}:${req.raw.ip}`)) {
-      redis2.expire(`stream:${streamCfg.streams[i].channel}:${req.raw.ip}`, 70)
-      return
-    }
+  // existing embed?
+  const current = await redis2.get(`currentstream:${req.raw.ip}`)
+  if (current && await redis.get(`twitch:${current}:live`)) {
+    redis2.zadd('streamViews', Math.round(Date.now()/1000), `${current}:${req.raw.ip}`)
+    redis2.expire(`currentstream:${req.raw.ip}`, 70)
+    return
   }
   return
 }
