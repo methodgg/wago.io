@@ -87,16 +87,8 @@ async function UpdateWagoOfTheMoment () {
 }
 
 async function UpdateActiveUserCount () {
-  var activeUsers = 0
-  const scanStreamUsers = redis2.scanStream({
-    match: 'rate:wago:*'
-    })
-  scanStreamUsers.on('data', (data) => {
-    activeUsers = activeUsers + data.length
-  })
-  scanStreamUsers.on('end', () => {
-    redis.set('tally:active:users', activeUsers)
-    })
+  await redis2.zremrangebyscore('activeUsers', 0, Math.round(Date.now()/1000) - 70)
+  await redis.set('tally:active:users', await redis2.zcount('activeUsers', '-inf', '+inf'))
 
   await redis2.zremrangebyscore('streamViews', 0, Math.round(Date.now()/1000) - 70)
   const streams = await redis2.zrange('streamViews', 0, -1)

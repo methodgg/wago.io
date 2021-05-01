@@ -47,6 +47,7 @@ async function determineStream(ip) {
 }
 
   const streamerList = await Streamer.find({online: {$ne: null}})
+  if (streamerList.length) {
   const total = streamerList.map(c => c.viewers > c.wagoViewers && c.viewers || 0).reduce((acc, cur) => acc + cur);
   const rng = Math.random() * total
   let acc = 0
@@ -61,6 +62,7 @@ async function determineStream(ip) {
       return streamerList[i].name
     }
     acc = acc + streamerList[i].viewers
+  }
   }
 
   return 'streamspread'
