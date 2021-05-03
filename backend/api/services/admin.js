@@ -143,8 +143,12 @@ module.exports = (fastify, opts, next) => {
     if (!req.user || !req.user.isAdmin.access || !(req.user.isAdmin.super || req.user.isAdmin.config.embed)) {
       return res.code(403).send({error: "forbidden"})
     }
-    const streams = await Streamers.find({}).sort({online: -1})
-    res.send(streams)
+    const streams = await Streamers.find({}).sort({online: -1, offline: -1})
+    const users = {
+      total: await redis.get('tally:active:users'),
+      viewing: streams.map(c => c.wagoViewers || 0).reduce((acc, cur) => acc + cur)
+    }
+    res.send({streams, users})
   })
 
   fastify.post('/streamer/add', async (req, res) => {
