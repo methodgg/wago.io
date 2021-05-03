@@ -87,38 +87,40 @@ async function UpdateWagoOfTheMoment () {
 }
 
 async function UpdateActiveUserCount () {
-  await redis2.zremrangebyscore('activeUsers', 0, Math.round(Date.now()/1000) - 50)
+  await redis2.zremrangebyscore('activeUsers', 0, Math.round(Date.now()/1000) - 90)
   await redis.set('tally:active:users', await redis2.zcount('activeUsers', '-inf', '+inf'))
 
-  await redis2.zremrangebyscore('premiumUsers', 0, Math.round(Date.now()/1000) - 50)
+  await redis2.zremrangebyscore('premiumUsers', 0, Math.round(Date.now()/1000) - 90)
   await redis.set('tally:active:users:sub', await redis2.zcount('premiumUsers', '-inf', '+inf'))
 
-  await redis2.zremrangebyscore('streamViews', 0, Math.round(Date.now()/1000) - 50)
+  await redis2.zremrangebyscore('streamViews', 0, Math.round(Date.now()/1000) - 90)
   const streams = await redis2.zrange('streamViews', 0, -1)
-  let streamers = {}
+  let viewers = {}
   for (let i = 0; i < streams.length; i++) {
     try {
       const st = streams[i].split(':')[0]
-      streamers[st] = streamers[st] || 0
-      streamers[st]++
+      viewers[st] = viewers[st] || 0
+      viewers[st]++
     }
     catch {
       continue
     }
   }
-  await redis.set('tally:active:users:streamspread', streamers.streamspread || 0)
+  await redis.set('tally:active:users:streamspread', viewers.streamspread || 0)
 
-  for (const [name, count] of Object.entries(streamers)) {
+  for (const [name, count] of Object.entries(viewers)) {
     await redis.set('tally:active:embed:' + name, count)
   }
 
-  const ousted = await Streamer.find({wagoViewers: {$gt: 0}, name: {$nin: Object.keys(streamers)}})
+  const ousted = await Streamer.find({wagoViewers: {$gt: 0}, name: {$nin: Object.keys(viewers)}})
   for (let i = 0; i < ousted.length; i++) {
     await redis.del('tally:active:embed:' + ousted[i].name)
 }
+
+  await UpdateTwitchStatus(null, viewers)
 }
 
-async function UpdateTwitchStatus (channel) {
+async function UpdateTwitchStatus (channel, viewers) {
   var twitchToken = await redis.get('twitch:appToken')
   if (!twitchToken) {
     const getToken = await axios.post(`https://id.twitch.tv/oauth2/token?client_id=${config.auth.twitch.clientID}&client_secret=${config.auth.twitch.clientSecret}&grant_type=client_credentials`)
@@ -149,7 +151,7 @@ async function UpdateTwitchStatus (channel) {
   var getStreamURL = `https://api.twitch.tv/helix/streams?`
   for (let i = 0; i < streamers.length; i++) {
     getStreamURL = getStreamURL + `user_login=${streamers[i].name}&`
-    streamers[i].wagoViewers = await redis.get('tally:active:embed:' + streamers[i].name) || 0
+    streamers[i].wagoViewers = viewers && viewers[streamers[i].name] || await redis.get('tally:active:embed:' + streamers[i].name) || 0
   }
 
   const req = await axios.get(getStreamURL + 'first=100', {
