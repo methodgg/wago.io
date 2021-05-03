@@ -13,12 +13,12 @@ module.exports = function (req, res, next) {
   }
   res.header('Vary', 'Origin')
   res.header('Access-Control-Allow-Credentials', true)
-  res.header('Access-Control-Expose-Headers', 'set-cookie,wotm')
+  res.header('Access-Control-Expose-Headers', 'set-cookie,wotm,embed-twitch')
   // if preflight check
   if (method === 'OPTIONS') {
     res.header('Access-Control-Request-Headers', 'GET, OPTIONS')
-    res.header('Access-Control-Allow-Headers', 'set-cookie,cookie,wotm,authorization,x-auth-token,accept,accept-version,content-type,request-id,origin,identifier,api-key')
-    
+    res.header('Access-Control-Allow-Headers', 'set-cookie,cookie,wotm,embed-twitch,authorization,x-auth-token,accept,accept-version,content-type,request-id,origin,identifier,api-key')
+
     return res.code(204).send('')
   }
   return next()

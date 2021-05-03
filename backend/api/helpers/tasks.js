@@ -159,6 +159,7 @@ async function UpdateTwitchStatus (channel) {
     for (let k = 0; k < req.data.data.length; k++) {
       if (req.data.data[k].user_name.toLowerCase() === streamers[i].name.toLowerCase()) {
         streamers[i].online = new Date(req.data.data[k].started_at)
+        streamers[i].offline = null
         streamers[i].game = req.data.data[k].game_name
         streamers[i].title = req.data.data[k].title
         streamers[i].viewers = req.data.data[k].viewer_count - streamers[i].wagoViewers
@@ -170,8 +171,9 @@ async function UpdateTwitchStatus (channel) {
     }
   }
   for (let i = 0; i < streamers.length; i++) {
-    if (!streamers[i].ok) {
+    if (!streamers[i].ok && streamers[i].online) {
       streamers[i].online = null
+      streamers[i].offline = Date.now()
       streamers[i].viewers = 0
       await streamers[i].save()
       await redis.del(`twitch:${streamers[i].name}:live`)

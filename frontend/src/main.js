@@ -144,7 +144,9 @@ const store = new Vuex.Store({
     },
 
     setStreamEmbed (state, streamEmbed) {
+      if (state.streamEmbed !== 'streamspread' && state.streamEmbed !== streamEmbed) {
       Vue.set(state, 'streamEmbed', streamEmbed)
+      }
     },
 
     userClearMention (state, commentID) {
@@ -428,10 +430,9 @@ const http = {
           heartbeatCount = 0
         }
 
-        if (!url.match(/^http/) && url.match(/^\/auth/)) {
+        if (url.match(/auth/)) {
           host = authServer
           url = host + url
-          dataServers.push(host)
         }
         else if (!url.match(/^http/)) {
           host = dataServers.shift()
@@ -442,7 +443,7 @@ const http = {
           if (heartbeatCount < 30 && !isEmbedPage) {
             this.heartbeat = setTimeout(function() {heartbeatCount++; this.get('/account/status')}.bind(this), 60000)
           }
-          else if (!isEmbedPage) {
+          else if (!isEmbedPage && store.state && store.state.user && (store.state.user.guest || !store.state.user.hideAds)) {
             store.commit('setStreamEmbed', 'streamspread')
         }
         }
@@ -485,10 +486,9 @@ const http = {
       },
       post: async function (url, params) {
         // prepend API server
-        if (!url.match(/^http/) && url.match(/^\/auth/)) {
+        if (url.match(/auth/)) {
           host = authServer
           url = host + url
-          dataServers.push(host)
         }
         else if (!url.match(/^http/)) {
           var host = dataServers.shift()
@@ -602,6 +602,9 @@ const http = {
             case 'wotm':
               store.commit('setWotm', pair[1])
               break
+            case 'embed-twitch':
+              store.commit('setStreamEmbed', pair[1])
+              break
             case 'content-type':
               if (pair[1].match(/json/)) {
                 responseType.json = true
@@ -653,7 +656,6 @@ const testAds = {
     var params = new URLSearchParams(window.location.search)
     Vue.prototype.$enableAds = false
     if (params.get('enable-ads') === 'true') {
-      console.log('ADS ENABLED')
       Vue.prototype.$enableAds = true
     }
   }
