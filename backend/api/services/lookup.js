@@ -474,7 +474,7 @@ module.exports = function (fastify, opts, next) {
       doc.save()
     }
     if (!req.query.version) {
-      redis.setJSON(req.query.id, wago, 'EX', 3600)
+      redis.setJSON(wago._id, wago, 'EX', 3600)
     }
     if (!req.user || !req.user._id.equals(wago.UID)) {
       delete wago.restrictions
