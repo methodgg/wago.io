@@ -90,6 +90,9 @@ async function UpdateActiveUserCount () {
   await redis2.zremrangebyscore('activeUsers', 0, Math.round(Date.now()/1000) - 70)
   await redis.set('tally:active:users', await redis2.zcount('activeUsers', '-inf', '+inf'))
 
+  await redis2.zremrangebyscore('premiumUsers', 0, Math.round(Date.now()/1000) - 70)
+  await redis.set('tally:active:users:sub', await redis2.zcount('premiumUsers', '-inf', '+inf'))
+
   await redis2.zremrangebyscore('streamViews', 0, Math.round(Date.now()/1000) - 70)
   const streams = await redis2.zrange('streamViews', 0, -1)
   let streamers = {}
@@ -103,6 +106,7 @@ async function UpdateActiveUserCount () {
       continue
     }
   }
+  await redis.set('tally:active:users:streamspread', streamers.streamspread || 0)
 
   for (const [name, count] of Object.entries(streamers)) {
     await redis.set('tally:active:embed:' + name, count)

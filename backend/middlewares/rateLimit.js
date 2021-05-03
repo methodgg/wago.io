@@ -22,16 +22,5 @@ module.exports = async function (req, res) {
   else if (count > max) {
     return res.code(429).send({error: "Rate limit exceeded"})
   }
-
-  // active users
-  redis2.zadd('activeUsers', Math.round(Date.now()/1000), req.raw.ip)
-
-  // existing embed?
-  const current = await redis2.get(`currentstream:${req.raw.ip}`)
-  if (current && await redis.get(`twitch:${current}:live`)) {
-    redis2.zadd('streamViews', Math.round(Date.now()/1000), `${current}:${req.raw.ip}`)
-    redis2.expire(`currentstream:${req.raw.ip}`, 70)
-    return
-  }
   return
 }

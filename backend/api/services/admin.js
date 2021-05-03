@@ -146,6 +146,8 @@ module.exports = (fastify, opts, next) => {
     const streams = await Streamers.find({}).sort({online: -1, offline: -1})
     const users = {
       total: await redis.get('tally:active:users'),
+      subs: await redis.get('tally:active:users:sub'),
+      streamspread: await redis.get('tally:active:users:streamspread'),
       viewing: streams.map(c => c.wagoViewers || 0).reduce((acc, cur) => acc + cur)
     }
     res.send({streams, users})

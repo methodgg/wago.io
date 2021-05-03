@@ -342,10 +342,11 @@
         </md-layout>
         <template v-if="siteConfigPanel === 'streams'">
           <div style="padding-left:16px">
-            <p>Active Users on Site: <strong v-if="streamConfig.activeUsers">{{ streamConfig.activeUsers }}</strong></p>
-            <ui-warning mode="alert">
-              Not yet implemented.
-            </ui-warning>
+            <p><span style="border-bottom: 1px solid #555">Active Users on Site: <strong>{{ activeUserCount.total || 0 }}</strong></span><br>
+              Premium Users on Site: <strong>{{ activeUserCount.subs || 0 }}</strong><br>
+              Active Streams: <strong>{{ activeUserCount.viewing || 0 }}</strong><br>
+              Streamspread Streams: <strong>{{ activeUserCount.streamspread || 0 }}</strong><br>
+            </p>
             <md-table>
               <md-table-header>
                 <md-table-row>
@@ -359,9 +360,10 @@
               <md-table-body>
                 <md-table-row v-for="(row, index) in streamerList" :key="index">
                   <md-table-cell><strong>{{ row.name }}</strong><br>{{ row.game }}</md-table-cell>
-                  <md-table-cell>{{ calcOnlineDuration(row.online) }}</md-table-cell>
-                  <md-table-cell>{{ row.viewers }}</md-table-cell>
-                  <md-table-cell>{{ row.wagoViewers }} / {{ row.viewers }}</md-table-cell>
+                  <md-table-cell v-if="row.online"><span style="color:#00e600">Online</span><br>{{ calcOnlineDuration(row.online) }}</md-table-cell>
+                  <md-table-cell v-else><span style="color:grey">Offline</span><br>{{ calcOnlineDuration(row.offline) }}</md-table-cell>
+                  <md-table-cell>{{ row.viewers || 0 }}</md-table-cell>
+                  <md-table-cell>{{ row.wagoViewers || 0 }} / {{ row.viewers || 0 }}</md-table-cell>
                   <md-table-cell>{{ calcWagoWeighting(row) }}%</md-table-cell>
                   <md-table-cell><md-button class="md-icon-button md-raised" @click="deleteStreamer(index)"><md-icon>delete</md-icon></md-button></md-table-cell>
                 </md-table-row>
@@ -643,9 +645,13 @@ export default {
       }
 
       if (this.User.access.admin.super || this.User.access.admin.config.embed) {
-        this.streamerList = await this.http.get('/admin/getstreamers')
+        let data = await this.http.get('/admin/getstreamers')
+        this.streamerList = data.streams
+        this.activeUserCount = data.users
         this.streamerUpdateInterval = setInterval(async () => {
-          this.streamerList = await this.http.get('/admin/getstreamers')
+          let data = await this.http.get('/admin/getstreamers')
+          this.streamerList = data.streams
+          this.activeUserCount = data.users
         }, 60000)
       }
     }
@@ -858,7 +864,7 @@ export default {
     },
     calcOnlineDuration (date) {
       if (!date) {
-        return 'Offline'
+        return ''
       }
       const t = (new Date(date)).getTime()
       const now = (new Date()).getTime()
@@ -873,7 +879,7 @@ export default {
       return rtf.format(Math.round(seconds / 3600 * 10) / 10, 'hour').replace(/ ago/, '')
     },
     calcWagoWeighting (st) {
-      const total = this.streamerList.map(c => c.viewers).reduce((acc, cur) => acc + cur);
+      const total = this.streamerList.map(c => c.viewers > c.wagoViewers && c.viewers || 0).reduce((acc, cur) => acc + cur);
       return (Math.round(st.viewers / total * 1000) / 10) || 0
     },
     saveStreamConfig () {
