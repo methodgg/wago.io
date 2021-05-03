@@ -15,11 +15,12 @@ module.exports = async function(req, res) {
   if (global['WagoOfTheMoment']) {
     res.header('wotm', encodeURIComponent(JSON.stringify(global['WagoOfTheMoment'] || {})))
   }
-  if (!req.url.match(/\/account/) && (!req.user || !req.user.access || !req.user.access.hideAds)) {
-    res.header('embed-twitch', await advert.determineStream(req.raw.ip))
-  }
-  else if (req.user && req.user.access && req.user.access.hideAds) {
+
+  if (req.user && req.user.access && req.user.access.hideAds) {
     redis2.zadd('premiumUsers', Math.round(Date.now()/1000), req.raw.ip)
+  }
+  else if (!req.url.match(/\/account/)) {
+    res.header('embed-twitch', await advert.determineStream(req.raw.ip))
   }
 
   // active users

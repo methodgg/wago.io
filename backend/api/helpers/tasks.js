@@ -87,13 +87,13 @@ async function UpdateWagoOfTheMoment () {
 }
 
 async function UpdateActiveUserCount () {
-  await redis2.zremrangebyscore('activeUsers', 0, Math.round(Date.now()/1000) - 70)
+  await redis2.zremrangebyscore('activeUsers', 0, Math.round(Date.now()/1000) - 50)
   await redis.set('tally:active:users', await redis2.zcount('activeUsers', '-inf', '+inf'))
 
-  await redis2.zremrangebyscore('premiumUsers', 0, Math.round(Date.now()/1000) - 70)
+  await redis2.zremrangebyscore('premiumUsers', 0, Math.round(Date.now()/1000) - 50)
   await redis.set('tally:active:users:sub', await redis2.zcount('premiumUsers', '-inf', '+inf'))
 
-  await redis2.zremrangebyscore('streamViews', 0, Math.round(Date.now()/1000) - 70)
+  await redis2.zremrangebyscore('streamViews', 0, Math.round(Date.now()/1000) - 50)
   const streams = await redis2.zrange('streamViews', 0, -1)
   let streamers = {}
   for (let i = 0; i < streams.length; i++) {
