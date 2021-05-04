@@ -127,31 +127,38 @@ async function UpdateTwitchStatus (channel) {
   }
 
   const streamers = await Streamer.find({})
-  var getStreamURL = `https://api.twitch.tv/helix/streams?`
+  var getStreams = []
   for (let i = 0; i < streamers.length; i++) {
-    getStreamURL = getStreamURL + `user_login=${streamers[i].name}&`
+    getStreams.push(`user_login=${streamers[i].name}&`)
 
     await redis2.zremrangebyscore(`streamUsers:${streamers[i].name}`, 0, Math.round(Date.now()/1000) - 90)
     let count = await redis2.zcount(`streamUsers:${streamers[i].name}`, '-inf', '+inf')
     streamers[i].wagoViewers = count
   }
 
-  const req = await axios.get(getStreamURL + 'first=100', {
+  var twitchStreamers = []
+  while (getStreams.length) {
+    let twitchUserQuery = getStreams.splice(0, 20)
+    let twitchReq = await axios.get(`https://api.twitch.tv/helix/streams?${twitchUserQuery.join('')}`, {
     headers: {
       'client-id': config.auth.twitch.clientID,
       'Authorization': 'Bearer '+ twitchToken
     }
   })
+    if (twitchReq && twitchReq.data && twitchReq.data.data) {
+      twitchStreamers = twitchStreamers.concat(twitchReq.data.data)
+    }
+  }
 
   for (let i = 0; i < streamers.length; i++) {
-    for (let k = 0; k < req.data.data.length; k++) {
-      if (req.data.data[k].user_name.toLowerCase() === streamers[i].name.toLowerCase()) {
-        streamers[i].online = new Date(req.data.data[k].started_at)
+    for (let k = 0; k < twitchStreamers.length; k++) {
+      if (twitchStreamers[k].user_name.toLowerCase() === streamers[i].name.toLowerCase()) {
+        streamers[i].online = new Date(twitchStreamers[k].started_at)
         streamers[i].offline = null
-        streamers[i].game = req.data.data[k].game_name
-        streamers[i].title = req.data.data[k].title
-        streamers[i].viewers = req.data.data[k].viewer_count - streamers[i].wagoViewers
-        streamers[i].name = req.data.data[k].user_name
+        streamers[i].game = twitchStreamers[k].game_name
+        streamers[i].title = twitchStreamers[k].title
+        streamers[i].viewers = twitchStreamers[k].viewer_count - streamers[i].wagoViewers
+        streamers[i].name = twitchStreamers[k].user_name
         await streamers[i].save()
         streamers[i].ok = true
         await redis.set(`twitch:${streamers[i].name}:live`, 1)
