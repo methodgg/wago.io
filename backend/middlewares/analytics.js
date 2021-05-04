@@ -1,3 +1,4 @@
+const advert = require('../api/helpers/advert')
 
 module.exports = async function (req, res) {
   if (req.raw.url.match(/^\/(auth)/) || req.raw.method.toUpperCase() !== 'GET') {

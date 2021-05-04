@@ -1,5 +1,3 @@
-const advert = require('../api/helpers/advert')
-
 module.exports = async function(req, res) {
   if (typeof req.body === 'string') {
     try {
