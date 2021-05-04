@@ -133,9 +133,7 @@ async function UpdateTwitchStatus (channel) {
 
     await redis2.zremrangebyscore(`streamUsers:${streamers[i].name}`, 0, Math.round(Date.now()/1000) - 90)
     let count = await redis2.zcount(`streamUsers:${streamers[i].name}`, '-inf', '+inf')
-    await redis.set('tally:active:embed:', count)
     streamers[i].wagoViewers = count
-    console.log(streamers[i].name, count)
   }
 
   const req = await axios.get(getStreamURL + 'first=100', {
@@ -165,6 +163,7 @@ async function UpdateTwitchStatus (channel) {
       streamers[i].online = null
       streamers[i].offline = Date.now()
       streamers[i].viewers = 0
+      streamers[i].wagoViewers = 0
       await streamers[i].save()
       await redis.del(`twitch:${streamers[i].name}:live`)
     }
