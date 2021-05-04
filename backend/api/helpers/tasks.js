@@ -93,34 +93,13 @@ async function UpdateActiveUserCount () {
   await redis2.zremrangebyscore('premiumUsers', 0, Math.round(Date.now()/1000) - 90)
   await redis.set('tally:active:users:sub', await redis2.zcount('premiumUsers', '-inf', '+inf'))
 
-  await redis2.zremrangebyscore('streamViews', 0, Math.round(Date.now()/1000) - 90)
-  const streams = await redis2.zrange('streamViews', 0, -1)
-  let viewers = {}
-  for (let i = 0; i < streams.length; i++) {
-    try {
-      const st = streams[i].split(':')[0]
-      viewers[st] = viewers[st] || 0
-      viewers[st]++
-    }
-    catch {
-      continue
-    }
-  }
-  await redis.set('tally:active:users:streamspread', viewers.streamspread || 0)
+  await redis2.zremrangebyscore('streamUsers:streamspread', 0, Math.round(Date.now()/1000) - 90)
+  await redis.set('tally:active:users:streamspread', await redis2.zcount('streamUsers:streamspread', '-inf', '+inf'))
 
-  for (const [name, count] of Object.entries(viewers)) {
-    await redis.set('tally:active:embed:' + name, count)
+  await UpdateTwitchStatus(null)
   }
 
-  const ousted = await Streamer.find({name: {$nin: Object.keys(viewers)}})
-  for (let i = 0; i < ousted.length; i++) {
-    await redis.del('tally:active:embed:' + ousted[i].name)
-}
-
-  await UpdateTwitchStatus(null, viewers)
-}
-
-async function UpdateTwitchStatus (channel, viewers) {
+async function UpdateTwitchStatus (channel) {
   var twitchToken = await redis.get('twitch:appToken')
   if (!twitchToken) {
     const getToken = await axios.post(`https://id.twitch.tv/oauth2/token?client_id=${config.auth.twitch.clientID}&client_secret=${config.auth.twitch.clientSecret}&grant_type=client_credentials`)
@@ -151,7 +130,12 @@ async function UpdateTwitchStatus (channel, viewers) {
   var getStreamURL = `https://api.twitch.tv/helix/streams?`
   for (let i = 0; i < streamers.length; i++) {
     getStreamURL = getStreamURL + `user_login=${streamers[i].name}&`
-    streamers[i].wagoViewers = viewers && viewers[streamers[i].name] || await redis.get('tally:active:embed:' + streamers[i].name) || 0
+
+    await redis2.zremrangebyscore(`streamUsers:${streamers[i].name}`, 0, Math.round(Date.now()/1000) - 90)
+    let count = await redis2.zcount(`streamUsers:${streamers[i].name}`, '-inf', '+inf')
+    await redis.set('tally:active:embed:', count)
+    streamers[i].wagoViewers = count
+    console.log(streamers[i].name, count)
   }
 
   const req = await axios.get(getStreamURL + 'first=100', {

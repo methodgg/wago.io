@@ -25,9 +25,9 @@ module.exports = async function (req, res) {
   if (req.user && req.user.access && req.user.access.hideAds) {
     redis2.zadd('premiumUsers', Math.round(Date.now()/1000), req.raw.ip)
   }
-  else if (!req.url.match(/\/account/)) {
+  else if (!req.url.match(/\/account\/whoami/)) {
     const stream = await advert.determineStream(req.raw.ip)
-    redis2.zadd('streamViews', Math.round(Date.now()/1000), req.raw.ip)
+    redis2.zadd(`streamUsers:${stream}`, Math.round(Date.now()/1000), req.raw.ip)
     res.header('embed-twitch', stream)
   }
 
