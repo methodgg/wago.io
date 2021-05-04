@@ -361,7 +361,7 @@
                 <md-table-row v-for="(row, index) in streamerList" :key="index">
                   <md-table-cell><strong>{{ row.name }}</strong><br>{{ row.game }}</md-table-cell>
                   <md-table-cell v-if="row.online"><span style="color:#00e600">Online</span><br>{{ calcOnlineDuration(row.online) }}</md-table-cell>
-                  <md-table-cell v-else><span style="color:grey">Offline</span><br>{{ calcOnlineDuration(row.offline) }}</md-table-cell>
+                  <md-table-cell v-else><span style="color:grey">Offline<br>{{ calcOnlineDuration(row.offline) }}</span></md-table-cell>
                   <md-table-cell>{{ row.viewers || 0 }}</md-table-cell>
                   <md-table-cell>{{ row.wagoViewers || 0 }} / {{ row.viewers || 0 }}</md-table-cell>
                   <md-table-cell>{{ calcWagoWeighting(row) }}%</md-table-cell>
@@ -879,7 +879,7 @@ export default {
       return rtf.format(Math.round(seconds / 3600 * 10) / 10, 'hour').replace(/ ago/, '')
     },
     calcWagoWeighting (st) {
-      const total = this.streamerList.map(c => c.viewers > c.wagoViewers && c.viewers || 0).reduce((acc, cur) => acc + cur);
+      const total = this.streamerList.map(c => c.viewers).reduce((acc, cur) => acc + cur);
       return (Math.round(st.viewers / total * 1000) / 10) || 0
     },
     saveStreamConfig () {

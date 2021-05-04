@@ -35,7 +35,7 @@ module.exports = {
 
     const streamerList = await Streamer.find({online: {$ne: null}})
     if (streamerList.length) {
-      const total = streamerList.map(c => c.viewers > c.wagoViewers && c.viewers || 0).reduce((acc, cur) => acc + cur);
+      const total = streamerList.map(c => c.viewers).reduce((acc, cur) => acc + cur);
       const rng = Math.random() * total
       let acc = 0
       for (let i = 0; i < streamerList.length; i++) {
