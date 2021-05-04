@@ -112,7 +112,7 @@ async function UpdateActiveUserCount () {
     await redis.set('tally:active:embed:' + name, count)
   }
 
-  const ousted = await Streamer.find({wagoViewers: {$gt: 0}, name: {$nin: Object.keys(viewers)}})
+  const ousted = await Streamer.find({name: {$nin: Object.keys(viewers)}})
   for (let i = 0; i < ousted.length; i++) {
     await redis.del('tally:active:embed:' + ousted[i].name)
 }

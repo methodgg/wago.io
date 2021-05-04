@@ -56,9 +56,9 @@ fastify.addHook('onResponse', (req, res) => {
 })
 fastify.addHook('preValidation', require('./middlewares/rateLimit'))
 fastify.addHook('preValidation', require('./middlewares/cors'))
+fastify.addHook('preHandler', require('./middlewares/auth'))
 fastify.addHook('preHandler', require('./middlewares/setDefaults'))
 fastify.addHook('preHandler', require('./middlewares/analytics'))
-fastify.addHook('preHandler', require('./middlewares/auth'))
 fastify.addHook('preHandler', require('./middlewares/getRegion'))
 
 // --- ROUTES

@@ -1,7 +1,7 @@
 
-module.exports = function (req, res, next) {
+module.exports = async function (req, res) {
   if (req.raw.url.match(/^\/(auth)/) || req.raw.method.toUpperCase() !== 'GET') {
-    return next()
+    return
   }
   try {
     var track = {}
@@ -19,5 +19,15 @@ module.exports = function (req, res, next) {
   if (res.raw.statusCode === 304) {
     return res.send('')
   }
-  next()
+
+  redis2.zadd('activeUsers', Math.round(Date.now()/1000), req.raw.ip)
+  if (req.user && req.user.access && req.user.access.hideAds) {
+    redis2.zadd('premiumUsers', Math.round(Date.now()/1000), req.raw.ip)
+  }
+  else if (!req.url.match(/\/account/)) {
+    const stream = await advert.determineStream(req.raw.ip)
+    redis2.zadd('streamViews', Math.round(Date.now()/1000), req.raw.ip)
+    res.header('embed-twitch', stream)
+  }
+
 }

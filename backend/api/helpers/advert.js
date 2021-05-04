@@ -3,8 +3,7 @@ module.exports = {
     // existing embed?
     const current = await redis2.get(`currentstream:${ip}`)
     if (current && (current === 'streamspread' || await redis.get(`twitch:${current}:live`))) {
-      redis2.zadd('streamViews', Math.round(Date.now()/1000), `${current}:${ip}`)
-      redis2.expire(`currentstream:${ip}`, 70)
+      await redis2.expire(`currentstream:${ip}`, 70)
       return current
     }
 
@@ -28,7 +27,6 @@ module.exports = {
           if (embedViewers < parseInt(streamOverride.streams[i].max)) {
             await redis2.set(`stream:${streamOverride.streams[i].channel}:${ip}`, 1, 'EX', 70)
             await redis2.set(`currentstream:${ip}`, streamOverride.streams[i].channel, 'EX', 70)
-            redis2.zadd('streamViews', Math.round(Date.now()/1000), `${streamOverride.streams[i].channel}:${ip}`)
             return streamOverride.streams[i].channel
           }
         }
@@ -42,12 +40,12 @@ module.exports = {
       let acc = 0
       for (let i = 0; i < streamerList.length; i++) {
         if (streamerList[i].wagoViewers >= streamerList[i].viewers) {
+          acc = acc + streamerList[i].viewers
           continue
         }
         if (rng < streamerList[i].viewers + acc) {
           await redis2.set(`stream:${streamerList[i].name}:${ip}`, 1, 'EX', 70)
           await redis2.set(`currentstream:${ip}`, streamerList[i].name, 'EX', 70)
-          redis2.zadd('streamViews', Math.round(Date.now()/1000), `${streamerList[i].name}:${ip}`)
           return streamerList[i].name
         }
         acc = acc + streamerList[i].viewers
