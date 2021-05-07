@@ -11,18 +11,11 @@ module.exports = {
     const streamOverride = global.EmbeddedStream || {streams:[]}
     // If enabled
     if (streamOverride.enabled && streamOverride.streams.length) {
-      // check if user is currently viewing an available stream
-      for (let i = 0; i < streamOverride.streams.length; i++) {
-        if (await redis2.get(`stream:${streamOverride.streams[i].channel}:${ip}`) && await redis.get(`twitch:${streamOverride.streams[i].channel}:live`)) {
-          redis2.expire(`stream:${streamOverride.streams[i].channel}:${ip}`, 70)
-          return streamOverride.streams[i].channel
-        }
-      }
       for (let i = 0; i < streamOverride.streams.length; i++) {
         // check exposure chance
         if (Math.random() * 100 < streamOverride.streams[i].exposure && await redis.get(`twitch:${streamOverride.streams[i].channel}:live`)) {
           // and we are not over max viewer count...
-          const embedViewers = parseInt(await redis.get('tally:active:embed:' + streamOverride.streams[i].channel))
+          const embedViewers = await redis2.zcount(`streamUsers:${streamOverride.streams[i].channel}`, '-inf', '+inf')
           // then show stream to user
           if (embedViewers < parseInt(streamOverride.streams[i].max)) {
             await redis2.set(`stream:${streamOverride.streams[i].channel}:${ip}`, 1, 'EX', 70)
