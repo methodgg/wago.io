@@ -131,10 +131,9 @@ async function UpdateTwitchStatus (channel) {
   for (let i = 0; i < streamers.length; i++) {
     getStreams.push(`user_login=${streamers[i].name}&`)
 
+    streamers[i].wagoViewersLast = await redis2.zcount(`streamUsers:${streamers[i].name}`, '-inf', '+inf')
     await redis2.zremrangebyscore(`streamUsers:${streamers[i].name}`, 0, Math.round(Date.now()/1000) - 70)
-    let count = await redis2.zcount(`streamUsers:${streamers[i].name}`, '-inf', '+inf')
-    streamers[i].wagoViewersLast = streamers[i].wagoViewers || 0
-    streamers[i].wagoViewers = count
+    streamers[i].wagoViewers = await redis2.zcount(`streamUsers:${streamers[i].name}`, '-inf', '+inf')
   }
 
   var twitchStreamers = []
