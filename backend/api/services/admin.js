@@ -106,7 +106,7 @@ module.exports = (fastify, opts, next) => {
     if (!data.streams) data.streams = []
     for (let i = 0; i < data.streams.length; i++) {
       data.streams[i].online = await redis.get(`twitch:${data.streams[i].channel}:live`)
-      data.streams[i].viewing = await redis.get('tally:active:embed:' + data.streams[i].channel)
+      data.streams[i].viewing = await redis2.zcount(`streamUsers:${data.streams[i].channel}`, '-inf', '+inf')
     }
     res.send(data)
   })
