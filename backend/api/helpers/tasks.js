@@ -133,6 +133,7 @@ async function UpdateTwitchStatus (channel) {
 
     await redis2.zremrangebyscore(`streamUsers:${streamers[i].name}`, 0, Math.round(Date.now()/1000) - 70)
     let count = await redis2.zcount(`streamUsers:${streamers[i].name}`, '-inf', '+inf')
+    streamers[i].wagoViewersLast = streamers[i].wagoViewers || 0
     streamers[i].wagoViewers = count
   }
 
@@ -157,7 +158,7 @@ async function UpdateTwitchStatus (channel) {
         streamers[i].offline = null
         streamers[i].game = twitchStreamers[k].game_name
         streamers[i].title = twitchStreamers[k].title
-        streamers[i].viewers = twitchStreamers[k].viewer_count - streamers[i].wagoViewers
+        streamers[i].viewers = twitchStreamers[k].viewer_count - streamers[i].wagoViewersLast
         streamers[i].name = twitchStreamers[k].user_name
         await streamers[i].save()
         streamers[i].ok = true

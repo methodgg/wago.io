@@ -363,7 +363,7 @@
                   <md-table-cell v-if="row.online"><span style="color:#00e600">Online</span><br>{{ calcOnlineDuration(row.online) }}</md-table-cell>
                   <md-table-cell v-else><span style="color:grey">Offline<br>{{ calcOnlineDuration(row.offline) }}</span></md-table-cell>
                   <md-table-cell>{{ row.viewers || 0 }}</md-table-cell>
-                  <md-table-cell>{{ row.wagoViewers || 0 }} / {{ row.viewers || 0 }}</md-table-cell>
+                  <md-table-cell>{{ row.wagoViewersLast || 0 }} / {{ row.viewers || 0 }}</md-table-cell>
                   <md-table-cell>{{ calcWagoWeighting(row) }}%</md-table-cell>
                   <md-table-cell><md-button class="md-icon-button md-raised" @click="deleteStreamer(index)"><md-icon>delete</md-icon></md-button></md-table-cell>
                 </md-table-row>
@@ -617,7 +617,7 @@ export default {
 
       siteConfigPanel: 'streams',
       streamConfig: {},
-      commonChannels: [{name:'method'}, {name:'sco'}],
+      commonChannels: [{name:'Method'}, {name:'Sco'}],
       activeUserCount: {},
       streamerList: [],
       addStreamerName: '',
@@ -845,7 +845,7 @@ export default {
       if (this.addStreamerName.trim()) {
         const res = await this.http.post('/admin/streamer/add', {name: this.addStreamerName})
         if (res && res.success) {
-          this.streamerList.push({name: this.addStreamerName, game: 'Pending update', viewers: 0, wagoViewers: 0})
+          this.streamerList.push({name: this.addStreamerName, game: 'Pending update', viewers: 0, wagoViewersLast: 0})
           this.addStreamerName = ''
         }
         else if (res && res.error) {
