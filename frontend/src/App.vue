@@ -647,6 +647,7 @@ export default {
 .md-list-item .md-list-item-container { padding-left: 16px }
 #wotm { padding: 16px }
 #wotm img { max-height: 200px }
+#wotm a { max-width: 100%; overflow: hidden; text-overflow: ellipsis; display: inline-block; }
 .wotm-controls { padding: 16px 16px 0; margin-bottom: -8px}
 .wotm-controls button { background: none; border: none; cursor: pointer}
 .legal { padding: 16px; }
