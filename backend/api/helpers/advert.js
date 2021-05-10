@@ -26,24 +26,24 @@ module.exports = {
       }
     }
 
-    const streamerList = await Streamer.find({online: {$ne: null}})
-    if (streamerList.length) {
-      const total = streamerList.map(c => c.viewers).reduce((acc, cur) => acc + cur);
-      const rng = Math.random() * total
-      let acc = 0
-      for (let i = 0; i < streamerList.length; i++) {
-        if (streamerList[i].wagoViewers >= streamerList[i].viewers) {
-          acc = acc + streamerList[i].viewers
-          continue
-        }
-        if (rng < streamerList[i].viewers + acc) {
-          await redis2.set(`stream:${streamerList[i].name}:${ip}`, 1, 'EX', 70)
-          await redis2.set(`currentstream:${ip}`, streamerList[i].name, 'EX', 70)
-          return streamerList[i].name
-        }
-        acc = acc + streamerList[i].viewers
-      }
-    }
+    // const streamerList = await Streamer.find({online: {$ne: null}})
+    // if (streamerList.length) {
+    //   const total = streamerList.map(c => c.viewers).reduce((acc, cur) => acc + cur);
+    //   const rng = Math.random() * total
+    //   let acc = 0
+    //   for (let i = 0; i < streamerList.length; i++) {
+    //     if (streamerList[i].wagoViewers >= streamerList[i].viewers) {
+    //       acc = acc + streamerList[i].viewers
+    //       continue
+    //     }
+    //     if (rng < streamerList[i].viewers + acc) {
+    //       await redis2.set(`stream:${streamerList[i].name}:${ip}`, 1, 'EX', 70)
+    //       await redis2.set(`currentstream:${ip}`, streamerList[i].name, 'EX', 70)
+    //       return streamerList[i].name
+    //     }
+    //     acc = acc + streamerList[i].viewers
+    //   }
+    // }
 
     await redis2.set(`currentstream:${ip}`, 'streamspread', 'EX', 70)
     return 'streamspread'
