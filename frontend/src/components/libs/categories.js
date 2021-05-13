@@ -101,7 +101,7 @@ module.exports = {
       {id: "mech4", slug: "combat-mechanics/vehicles", cls:"mechanics", text: t("Vehicles"), WEAKAURA: true, COLLECTION: true, legion: true, bfa: true, sl: true},
       {id: "mech5", slug: "combat-mechanics/consumables", cls:"mechanics", text: t("Consumables"), "CLASSIC-WEAKAURA": true, "TBC-WEAKAURA": true, WEAKAURA: true, COLLECTION: true, legion: true, bfa: true, sl: true, classic: true},
       {id: "mech6", slug: "combat-mechanics/group-buffs", cls:"mechanics", text: t("Group Buffs"), "CLASSIC-WEAKAURA": true, "TBC-WEAKAURA": true, WEAKAURA: true, COLLECTION: true, legion: true, bfa: true, sl: true, classic: true},
-      
+
       {id: "opie1", slug: "group-buffs", cls:"opie", text: t("Group Buffs"), OPIE: true, root: true},
       {id: "opie2", slug: "consumables", cls:"opie", text: t("Consumables"), OPIE: true, root: true},
       {id: "opie3", slug: "vehicles", cls:"opie", text: t("Vehicles"), OPIE: true, root: true},
@@ -137,7 +137,7 @@ module.exports = {
       {id: "platerutilities", slug: "plater/utilities", cls:"snippets", text: t("Utilities"), root: true, PLATER: true},
 
       {id: "totalrp0", slug: "totalrp", cls:"rpcampaign", text: t("Total RP3"), systemtag: true, noselect: true, TOTALRP3: true},
-      {id: "totalrp1", slug: "totalrp/campaigns", cls:"rpcampaign", text: t("Campaigns"), root: true, TOTALRP3: true, PLATER: true},
+      {id: "totalrp1", slug: "totalrp/campaigns", cls:"rpcampaign", text: t("Campaigns"), root: true, TOTALRP3: true},
       {id: "totalrp2", slug: "totalrp/campaigns/alliance-campaigns", cls:"rpcampaign", text: t("Alliance Campaigns"), TOTALRP3: true},
       {id: "totalrp3", slug: "totalrp/campaigns/horde-campaigns", cls:"rpcampaign", text: t("Horde Campaigns"), TOTALRP3: true},
       {id: "totalrp4", slug: "totalrp/items", cls:"rpitem", text: t("Items"), root: true, TOTALRP3: true},
@@ -157,7 +157,7 @@ module.exports = {
 
 
       // {id: "pve", slug: "pve", cls:"", text: t("PvE"), noselect: true, WEAKAURA: true},
-      
+
       {id: "raidsantumdom", slug: "pve/sanctum-of-domination", cls:"sanctumdom", text: t("warcraft:zones.SanctumOfDomination"), root: true, WEAKAURA: true, PLATER: true, COLLECTION: true, sl: true},
       {id: "raidsantumdom1", slug: "pve/sanctum-of-domination/shriekwing", cls:"sanctumdom", text: t("warcraft:bosses.Tarragrue"), WEAKAURA: true, sl: true},
       {id: "raidsantumdom2", slug: "pve/sanctum-of-domination/altimor-the-huntsman", cls:"sanctumdom", text: t("warcraft:bosses.EyeoftheJailer"), WEAKAURA: true, sl: true},
@@ -169,7 +169,7 @@ module.exports = {
       {id: "raidsantumdom8", slug: "pve/sanctum-of-domination/sludgefist", cls:"sanctumdom", text: t("warcraft:bosses.FatescribeRohKalo"), WEAKAURA: true, sl: true},
       {id: "raidsantumdom9", slug: "pve/sanctum-of-domination/stone-legion-generals", cls:"sanctumdom", text: t("warcraft:bosses.Kelthuzad"), WEAKAURA: true, sl: true},
       {id: "raidsantumdom10", slug: "pve/sanctum-of-domination/stone-legion-generals", cls:"sanctumdom", text: t("warcraft:bosses.SylvanasWindrunner"), WEAKAURA: true, sl: true},
-      
+
       {id: "raidnathria", slug: "pve/nathria", cls:"nathria", text: t("warcraft:zones.CastleNathria"), root: true, WEAKAURA: true, PLATER: true, COLLECTION: true, sl: true},
       {id: "raidnathria1", slug: "pve/nathria/shriekwing", cls:"nathria", text: t("warcraft:bosses.Shriekwing"), WEAKAURA: true, sl: true},
       {id: "raidnathria10", slug: "pve/nathria/altimor-the-huntsman", cls:"nathria", text: t("warcraft:bosses.Altimor"), WEAKAURA: true, sl: true},
@@ -181,7 +181,7 @@ module.exports = {
       {id: "raidnathria7", slug: "pve/nathria/sludgefist", cls:"nathria", text: t("warcraft:bosses.Sludgefist"), WEAKAURA: true, sl: true},
       {id: "raidnathria8", slug: "pve/nathria/stone-legion-generals", cls:"nathria", text: t("warcraft:bosses.StoneLegionGenerals"), WEAKAURA: true, sl: true},
       {id: "raidnathria9", slug: "pve/nathria/sire-denathrius", cls:"nathria", text: t("warcraft:bosses.SireDenathrius"), WEAKAURA: true, sl: true},
-      
+
       {id: "raidnyalotha", slug: "pve/nyalotha", cls:"nyalotha", text: t("warcraft:zones.nyalotha"), root: true, WEAKAURA: true, PLATER: true, COLLECTION: true, bfa: true},
       {id: "raidnyalotha1", slug: "pve/nyalotha/wrathion-the-black-emperor", cls:"nyalotha", text: t("warcraft:bosses.nya1"), WEAKAURA: true, bfa: true},
       {id: "raidnyalotha2", slug: "pve/nyalotha/maut", cls:"nyalotha", text: t("warcraft:bosses.nya2"), WEAKAURA: true, bfa: true},
@@ -307,6 +307,7 @@ module.exports = {
       {id: "sldungeon6", slug: "pve/shadowlands-dungeons/de-other-side", cls:"dungeon", text: t("warcraft:zones.DeOtherSide"), WEAKAURA: true, sl: true},
       {id: "sldungeon7", slug: "pve/shadowlands-dungeons/spires-of-ascension", cls:"dungeon", text: t("warcraft:zones.SpiresOfAscension"), WEAKAURA: true, sl: true},
       {id: "sldungeon8", slug: "pve/shadowlands-dungeons/sanguine-depths", cls:"dungeon", text: t("warcraft:zones.SanguineDepths"), WEAKAURA: true, COLLECTION: true, sl: true},
+      {id: "sldungeon9", slug: "pve/shadowlands-dungeons/tazavesh-the-veiled-market", cls:"dungeon", text: t("warcraft:zones.Tazavesh"), WEAKAURA: true, COLLECTION: true, sl: true},
 
       {id: "torghast", slug: "pve/torghast", cls:"torghast", text: t("warcraft:zones.Torghast"), root: true, WEAKAURA: true, COLLECTION: true, sl: true},
       {id: "torghast1", slug: "pve/torghast/encounters", cls:"torghast", text: t("Encounters"), WEAKAURA: true, sl: true},
@@ -417,7 +418,7 @@ module.exports = {
       {id: "mdtdun24", slug: "pve/dungeons/waycrest-manor", cls:"dungeon", text: t("warcraft:zones.9424"), MDT: true, systemtag: true, noselect: true},
       {id: "mdtdun25", slug: "pve/dungeons/mechagon-junkyard", cls:"dungeon", text: t("warcraft:zones.10225a"), MDT: true, systemtag: true, noselect: true},
       {id: "mdtdun26", slug: "pve/dungeons/mechagon-workshop", cls:"dungeon", text: t("warcraft:zones.10225b"), MDT: true, systemtag: true, noselect: true},
-      
+
       {id: "mdt-sldun", slug: "pve/shadowlands-dungeons", cls:"dungeon", text: t("Dungeons"), root: true, MDT: true, systemtag: true, noselect: true},
       {id: "mdt-sldun29", slug: "pve/shadowlands-dungeons/de-other-side", cls:"dungeon", text: t("warcraft:zones.DeOtherSide"), MDT: true, systemtag: true, noselect: true},
       {id: "mdt-sldun30", slug: "pve/shadowlands-dungeons/halls-of-atonement", cls:"dungeon", text: t("warcraft:zones.HallsOfAttonement"), MDT: true, systemtag: true, noselect: true},
@@ -759,13 +760,13 @@ module.exports = {
       {id: "raidbt8", slug: "pve/black-temple/the-illidari-council", cls:"blacktemple", text: t("warcraft:bosses.23426"), "TBC-WEAKAURA": true, WEAKAURA: true, tbc: true},
       {id: "raidbt9", slug: "pve/black-temple/illidan-stormrage", cls:"blacktemple", text: t("warcraft:bosses.22917"), "TBC-WEAKAURA": true, WEAKAURA: true, tbc: true},
 
-      {id: "raidsw", slug: "pve/sunwell-plateau", cls:"sunwell", text: t("warcraft:zones.4075"), root: true, prime: false, "TBC-WEAKAURA": true, WEAKAURA: true, tbc: true},   
-      {id: "raidsw1", slug: "pve/sunwell-plateau/kalecgos", cls:"sunwell", text: t("warcraft:bosses.24850"), "TBC-WEAKAURA": true, WEAKAURA: true, tbc: true}, 
-      {id: "raidsw2", slug: "pve/sunwell-plateau/brutallus", cls:"sunwell", text: t("warcraft:bosses.24882"), "TBC-WEAKAURA": true, WEAKAURA: true, tbc: true}, 
-      {id: "raidsw3", slug: "pve/sunwell-plateau/felmyst", cls:"sunwell", text: t("warcraft:bosses.25038"), "TBC-WEAKAURA": true, WEAKAURA: true, tbc: true}, 
-      {id: "raidsw4", slug: "pve/sunwell-plateau/eredar-twins", cls:"sunwell", text: t("warcraft:bosses.25166"), "TBC-WEAKAURA": true, WEAKAURA: true, tbc: true}, 
-      {id: "raidsw5", slug: "pve/sunwell-plateau/muru", cls:"sunwell", text: t("warcraft:bosses.25741"), "TBC-WEAKAURA": true, WEAKAURA: true, tbc: true}, 
-      {id: "raidsw6", slug: "pve/sunwell-plateau/kiljaeden", cls:"sunwell", text: t("warcraft:bosses.25315"), "TBC-WEAKAURA": true, WEAKAURA: true, tbc: true}, 
+      {id: "raidsw", slug: "pve/sunwell-plateau", cls:"sunwell", text: t("warcraft:zones.4075"), root: true, prime: false, "TBC-WEAKAURA": true, WEAKAURA: true, tbc: true},
+      {id: "raidsw1", slug: "pve/sunwell-plateau/kalecgos", cls:"sunwell", text: t("warcraft:bosses.24850"), "TBC-WEAKAURA": true, WEAKAURA: true, tbc: true},
+      {id: "raidsw2", slug: "pve/sunwell-plateau/brutallus", cls:"sunwell", text: t("warcraft:bosses.24882"), "TBC-WEAKAURA": true, WEAKAURA: true, tbc: true},
+      {id: "raidsw3", slug: "pve/sunwell-plateau/felmyst", cls:"sunwell", text: t("warcraft:bosses.25038"), "TBC-WEAKAURA": true, WEAKAURA: true, tbc: true},
+      {id: "raidsw4", slug: "pve/sunwell-plateau/eredar-twins", cls:"sunwell", text: t("warcraft:bosses.25166"), "TBC-WEAKAURA": true, WEAKAURA: true, tbc: true},
+      {id: "raidsw5", slug: "pve/sunwell-plateau/muru", cls:"sunwell", text: t("warcraft:bosses.25741"), "TBC-WEAKAURA": true, WEAKAURA: true, tbc: true},
+      {id: "raidsw6", slug: "pve/sunwell-plateau/kiljaeden", cls:"sunwell", text: t("warcraft:bosses.25315"), "TBC-WEAKAURA": true, WEAKAURA: true, tbc: true},
     ]
     // add sortVal
     for (var i = 0; i < cats.length; i++) {
@@ -918,6 +919,7 @@ module.exports = {
 
   rootCategories: function (t, type, addon) {
     var roots = []
+    console.log(type, addon)
     this.categories(t).forEach((cat) => {
       if (cat.root && (!type || cat[type]) && !cat.noselect && (!addon || cat[addon])) {
         roots.push(cat)

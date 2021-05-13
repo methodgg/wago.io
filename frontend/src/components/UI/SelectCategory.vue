@@ -57,6 +57,9 @@ export default {
       if (this.type === 'COLLECTION') {
         game = game.replace(/legion|bfa/, 'sl')
       }
+      else if (!this.type.match(/WEAKAURA/)) {
+        game = null
+      }
 
       this.selectText = this.$t('Select')
       if (values && values.length > 0) {

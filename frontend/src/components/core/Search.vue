@@ -171,9 +171,9 @@ export default {
           if ((tagMatch = regex.exec(tagSearch)) !== null) {
             // valid tag syntax found
             query = query.replace(tagMatch[0], '').trim()
-            var tagStrMatch
+            var tags = []
             if (tagMatch[1]) {
-              tagStrMatch = tagMatch[1]
+              tags.push(tagMatch[1])
             }
             else {
               // if i8n code found instead of translated text, then translate it
@@ -189,10 +189,9 @@ export default {
                   }
                 }
               }
-              tagStrMatch = tagMatch[2]
+              tags.push(tagMatch[2])
             }
 
-            var tags = tagStrMatch.split(/;|,/g)
             tags.forEach((thisTag) => {
               var category = Categories.search(thisTag, this.$t)
               if (category) {
