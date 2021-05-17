@@ -165,7 +165,7 @@ module.exports = function (fastify, opts, next) {
         const json = JSON.parse(code.json)
         doc.regionType = json.d.regionType
         wago.regionType = doc.regionType
-        
+
         if (!doc.restricted && !doc.private) {
           redis.setJSON(`API:${wago.slug}`, wago, 'EX', 3600*48)
         }
@@ -219,9 +219,6 @@ module.exports = function (fastify, opts, next) {
     var code = await WagoCode.lookup(wago._id, req.query.version)
     if (!code || !code.encoded) {
       return res.code(404).send({error: "page_not_found"})
-    }
-    if (wago.type === 'WEAKAURA' && code.json && code.json.match(commonRegex.WeakAuraBlacklist)) {
-      return res.code(409).send({error: "malicious_code_found"})
     }
     if ((!req.query.p || code.versionString !== req.query.version) && (wago.restricted || wago.private)) {
       return res.code(302).redirect(`/api/raw/encoded?id=${encodeURIComponent(req.query.id)}&version=${code.versionString}&key=${req.query.key || ''}&p=1`)
