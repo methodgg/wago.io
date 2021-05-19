@@ -1,11 +1,11 @@
 <template>
-  <div :class="{'embed-player': 1, preview: preview}" v-if="stream !== 'streamspread' && visible">
+  <div :class="{'embed-player': 1, preview: preview}" v-if="stream !== 'streamspread' && visible && showAds">
       <div class="embed-player-holder">
         <div class="embed-player-stream">
           <iframe :src="`https://player.twitch.tv?channel=${stream}&amp;parent=wago.io&amp;height=300&amp;width=420&amp;muted=true`" allowfullscreen="true" scrolling="no" frameborder="0" allow="autoplay; fullscreen" title="Twitch" sandbox="allow-modals allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox" width="420" height="300"></iframe>
         </div>
         <div class="embed-player-header">
-          <div class="embed-player-hl-close" @click="visible=false">
+          <div class="embed-player-hl-close" @click="closeStream()">
             <img class="embed-player-hl-close-icon" src="./../../assets/stream-close.png">
           </div>
         </div>
@@ -24,7 +24,7 @@ export default {
   props: { stream: String, preview: Boolean },
   data: () => {
     return {
-      visible: true
+      visible: (this.stream !== '__CLOSED__')
     }
   },
 
@@ -39,10 +39,23 @@ export default {
   destroyed () {
   },
   methods: {
+    closeStream () {
+      this.visible = false
+      this.http.post('/account/close-embed')
+    }
   },
   beforeDestroy: function () {
   },
   computed: {
+    showAds () {
+      var isEmbed = document.getElementById('embed-body')
+      var user = this.$store.state.user
+      if (isEmbed || (!Object.keys(user).length || user.hideAds) || this.screenWidth < this.adWidth + 32) {
+        return false
+      }
+
+      return true
+    },
   }
 }
 </script>

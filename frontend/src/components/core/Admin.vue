@@ -346,6 +346,7 @@
               Premium Users on Site: <strong>{{ activeUserCount.subs || 0 }}</strong><br>
               Active Streams: <strong>{{ activeUserCount.viewing || 0 }}</strong><br>
               Streamspread Streams: <strong>{{ activeUserCount.streamspread || 0 }}</strong><br>
+              Closed Streams: <strong>{{ activeUserCount.closed || 0 }}</strong><br>
             </p>
             <md-table>
               <md-table-header>
@@ -883,7 +884,17 @@ export default {
       return (Math.round(st.viewers / total * 1000) / 10) || 0
     },
     saveStreamConfig () {
+      this.streamConfig.streams.forEach((st, i) => {
+        console.log(st)
+        if (st.channel.toLowerCase() === 'sco') {
+          this.$set(this.streamConfig.streams[i], 'channel', 'Sco')
+        }
+        else if (st.channel.toLowerCase() === 'method') {
+          this.$set(this.streamConfig.streams[i], 'channel', 'Method')
+        }
+      })
       this.http.post('/admin/stream', {enabled: this.streamConfig.enabled, streams: this.streamConfig.streams}).then((res) => {
+
         if (res.success) {
           window.eventHub.$emit('showSnackBar', 'Stream settings saved.')
           this.streamConfig = res

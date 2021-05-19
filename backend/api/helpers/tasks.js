@@ -126,6 +126,8 @@ async function UpdateTwitchStatus (channel) {
     status[channel] = (req.data.data.length > 0)
   }
 
+  await redis2.zremrangebyscore(`streamUsers:__CLOSED__`, 0, Math.round(Date.now()/1000) - 70)
+
   const streamers = await Streamer.find({})
   var getStreams = []
   for (let i = 0; i < streamers.length; i++) {

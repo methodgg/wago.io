@@ -18,6 +18,12 @@ module.exports = (fastify, opts, next) => {
     res.send({})
   })
 
+  fastify.post('/close-embed', async (req, res) => {
+    await redis2.set(`stream:__CLOSED__:${req.raw.ip}`, 1, 'EX', 70)
+    await redis2.set(`currentstream:${req.raw.ip}`, '__CLOSED__', 'EX', 70)
+    res.send({})
+  })
+
   // returns data on currently logged in user
   fastify.get('/whoami', async (req, res) => {
     var data = {}

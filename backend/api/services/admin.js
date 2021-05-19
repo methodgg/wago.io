@@ -148,6 +148,7 @@ module.exports = (fastify, opts, next) => {
       total: await redis.get('tally:active:users'),
       subs: await redis.get('tally:active:users:sub'),
       streamspread: await redis.get('tally:active:users:streamspread'),
+      closed: await redis2.zcount(`streamUsers:__CLOSED__`, '-inf', '+inf'),
       viewing: streams.map(c => c.wagoViewers || 0).reduce((acc, cur) => acc + cur)
     }
     res.send({streams, users})
