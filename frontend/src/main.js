@@ -67,7 +67,14 @@ const store = new Vuex.Store({
       description: 'Database of sharable World of Warcraft addon elements',
       image: 'https://wago.io/media/favicon/apple-touch-icon-180x180.png'
     },
-    firstAd: false
+    firstAd: false,
+    linkApp: false,
+
+    socket: {
+      cid: Math.random().toString(36).substring(2, 15),
+      isConnected: false,
+      reconnectError: false,
+    }
   },
   mutations: {
     // store.commit('setLocale', 'en-US')
@@ -145,7 +152,7 @@ const store = new Vuex.Store({
 
     setStreamEmbed (state, streamEmbed) {
       if (state.streamEmbed !== 'streamspread' && state.streamEmbed !== streamEmbed) {
-      Vue.set(state, 'streamEmbed', streamEmbed)
+        Vue.set(state, 'streamEmbed', streamEmbed)
       }
     },
 
@@ -234,8 +241,8 @@ const store = new Vuex.Store({
       if (theme === 'waluigi') {
         document.body.classList.add('theme-dark')
       }
-      
-      Vue.set(state.user.config, 'theme', theme, 365)
+
+      App.set(state.user.config, 'theme', theme, 365)
       state.theme = theme
     },
 
@@ -245,7 +252,40 @@ const store = new Vuex.Store({
 
     showAd (state) {
       state.firstAd = true
-    }
+      if (state.socket.isConnected) {
+        Vue.prototype.$socket.sendObj({id: state.socket.id, action: 'getstream'})
+      }
+    },
+
+    linkApp (state) {
+      console.log('linking app')
+      state.linkApp = true
+    },
+
+    SOCKET_ONOPEN (state, event)  {
+      Vue.prototype.$socket = event.currentTarget
+      state.socket.isConnected = true
+      if (state.firstAd) {
+        Vue.prototype.$socket.sendObj({id: state.socket.cid, action: 'getstream'})
+      }
+    },
+    SOCKET_ONCLOSE (state, event)  {
+      state.socket.isConnected = false
+    },
+    SOCKET_ONERROR (state, event)  {
+      console.error(state, event)
+    },
+    // default handler called for all methods
+    SOCKET_ONMESSAGE (state, message)  {
+      console.log('socket message', message)
+    },
+    // mutations for reconnect methods
+    SOCKET_RECONNECT(state, count) {
+      console.info(state, count)
+    },
+    SOCKET_RECONNECT_ERROR(state) {
+      state.socket.reconnectError = true;
+    },
   },
   getters: {
     i18nLanguage (state) {
@@ -349,24 +389,31 @@ Vue.use(VueMaterial)
 //   }
 // })
 
+
 Vue.use({install: function (v) {
   v.prototype.$env = process.env.NODE_ENV
 }})
 var dataServers
 var authServer
+var socketServer
 if (process.env.NODE_ENV === 'development') {
   dataServers = ['http://io:3030']
   authServer = 'http://io:3030'
+  socketServer = 'ws://io:3030?cid='+store.state.socket.cid
 }
 else {
   // using round robin client-based load balancing
   // dataServers = getServersByCountry(window.cfCountry) // attempt to detect country by cloudflare and assign regional data servers when available
   dataServers = window.dataServers // populated by nginx
-  authServer = 'https://data.wago.io' // uses round-robin dns so ensures auth requests go to the same server (required for twitter in-memory auth)
+  authServer = 'https://data1.wago.io' // uses round-robin dns so ensures auth requests go to the same server (required for twitter in-memory auth)
+  socketServer = 'wss://data.wago.io'+store.state.socket.cid
 }
 dataServers = dataServers.sort(() => {
   return 0.5 - Math.random()
 })
+
+import VueNativeSock from 'vue-native-websocket'
+Vue.use(VueNativeSock, socketServer, { store: store, format: 'json' })
 
 import axios from 'axios'
 import VueAxios from 'vue-axios'
@@ -438,14 +485,14 @@ const http = {
           host = dataServers.shift()
           url = host + url
           dataServers.push(host)
-          
+
           clearTimeout(this.heartbeat)
           if (heartbeatCount < 30 && !isEmbedPage) {
             this.heartbeat = setTimeout(function() {heartbeatCount++; this.get('/account/status')}.bind(this), 60000)
           }
           else if (!isEmbedPage && store.state && store.state.user && (store.state.user.guest || !store.state.user.hideAds)) {
             store.commit('setStreamEmbed', 'streamspread')
-        }
+          }
         }
         // append querystring to url
         if (params) {
@@ -838,7 +885,7 @@ i18next.use(XHR)
       prefix: '[-',
       suffix: '-]'
     }
-  }, () => {    
+  }, () => {
     const i18n = new VueI18Next(i18next)
     /* eslint-disable no-unused-vars */
     window.eventHub = new Vue()

@@ -22,6 +22,7 @@
     "fastify-cookie": "^5.1.0",
     "fastify-file-upload": "^3.0.0",
     "fastify-rate-limit": "^4.1.0",
+    "fastify-websocket": "^3.2.0",
     "file-type": "^16.3.0",
     "hash-file": "^3.0.0",
     "hcaptcha": "0.0.2",
