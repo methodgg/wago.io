@@ -110,9 +110,6 @@ module.exports = (fastify, opts, next) => {
       }
 
       who.hideAds = user.access.hideAds
-      if (!who.hideAds) {
-        data.streamEmbed = await advert.determineStream(req.raw.ip)
-              }
       who.config = user.config
       who.companionHideAlert = user.account.companionHideAlert
 
@@ -125,7 +122,6 @@ module.exports = (fastify, opts, next) => {
     }
     else {
       data.guest = true
-      data.streamEmbed = await advert.determineStream(req.raw.ip)
       // return user info
       res.send(data)
     }
