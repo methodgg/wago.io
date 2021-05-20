@@ -13,7 +13,6 @@ module.exports = {
     if (streamOverride.enabled && streamOverride.streams.length) {
       for (let i = 0; i < streamOverride.streams.length; i++) {
         // check exposure chance
-        console.log(streamOverride, await redis.get(`twitch:${streamOverride.streams[i].channel}:live`))
         if (Math.random() * 100 < streamOverride.streams[i].exposure && await redis.get(`twitch:${streamOverride.streams[i].channel}:live`)) {
           // and we are not over max viewer count...
           const embedViewers = await redis2.zcount(`stream:${streamOverride.streams[i].channel}`, '-inf', '+inf')
