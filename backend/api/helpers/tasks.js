@@ -87,15 +87,6 @@ async function UpdateWagoOfTheMoment () {
 }
 
 async function UpdateActiveUserCount () {
-  await redis2.zremrangebyscore('activeUsers', 0, Math.round(Date.now()/1000) - 70)
-  await redis.set('tally:active:users', await redis2.zcount('activeUsers', '-inf', '+inf'))
-
-  await redis2.zremrangebyscore('premiumUsers', 0, Math.round(Date.now()/1000) - 70)
-  await redis.set('tally:active:users:sub', await redis2.zcount('premiumUsers', '-inf', '+inf'))
-
-  await redis2.zremrangebyscore('streamUsers:streamspread', 0, Math.round(Date.now()/1000) - 70)
-  await redis.set('tally:active:users:streamspread', await redis2.zcount('streamUsers:streamspread', '-inf', '+inf'))
-
   await UpdateTwitchStatus(null)
   }
 
@@ -126,16 +117,10 @@ async function UpdateTwitchStatus (channel) {
     status[channel] = (req.data.data.length > 0)
   }
 
-  await redis2.zremrangebyscore(`streamUsers:__CLOSED__`, 0, Math.round(Date.now()/1000) - 70)
-
   const streamers = await Streamer.find({})
   var getStreams = []
   for (let i = 0; i < streamers.length; i++) {
     getStreams.push(`user_login=${streamers[i].name}&`)
-
-    streamers[i].wagoViewersLast = await redis2.zcount(`streamUsers:${streamers[i].name}`, '-inf', '+inf')
-    await redis2.zremrangebyscore(`streamUsers:${streamers[i].name}`, 0, Math.round(Date.now()/1000) - 70)
-    streamers[i].wagoViewers = await redis2.zcount(`streamUsers:${streamers[i].name}`, '-inf', '+inf')
   }
 
   var twitchStreamers = []
@@ -159,7 +144,7 @@ async function UpdateTwitchStatus (channel) {
         streamers[i].offline = null
         streamers[i].game = twitchStreamers[k].game_name
         streamers[i].title = twitchStreamers[k].title
-        streamers[i].viewers = twitchStreamers[k].viewer_count - streamers[i].wagoViewersLast
+        streamers[i].viewers = twitchStreamers[k].viewer_count - streamers[i].wagoViewers
         streamers[i].name = twitchStreamers[k].user_name
         await streamers[i].save()
         streamers[i].ok = true

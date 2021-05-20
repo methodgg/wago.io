@@ -1,7 +1,6 @@
 const config = require('../../config')
 const locale = require("locale")
 const image = require('../helpers/image')
-const advert = require('../helpers/advert')
 
 
 // build localeArray

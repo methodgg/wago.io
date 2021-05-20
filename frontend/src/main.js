@@ -71,7 +71,6 @@ const store = new Vuex.Store({
     linkApp: false,
 
     socket: {
-      cid: Math.random().toString(36).substring(2, 15),
       isConnected: false,
       reconnectError: false,
     }
@@ -252,9 +251,6 @@ const store = new Vuex.Store({
 
     showAd (state) {
       state.firstAd = true
-      if (state.socket.isConnected) {
-        Vue.prototype.$socket.sendObj({id: state.socket.id, action: 'getstream'})
-      }
     },
 
     linkApp (state) {
@@ -265,9 +261,6 @@ const store = new Vuex.Store({
     SOCKET_ONOPEN (state, event)  {
       Vue.prototype.$socket = event.currentTarget
       state.socket.isConnected = true
-      if (state.firstAd) {
-        Vue.prototype.$socket.sendObj({id: state.socket.cid, action: 'getstream'})
-      }
     },
     SOCKET_ONCLOSE (state, event)  {
       state.socket.isConnected = false
@@ -275,11 +268,11 @@ const store = new Vuex.Store({
     SOCKET_ONERROR (state, event)  {
       console.error(state, event)
     },
-    // default handler called for all methods
-    SOCKET_ONMESSAGE (state, message)  {
-      console.log('socket message', message)
+    SOCKET_ONMESSAGE (state, data)  {
+      if (data.setStream) {
+        store.commit('setStreamEmbed', data.setStream)
+      }
     },
-    // mutations for reconnect methods
     SOCKET_RECONNECT(state, count) {
       console.info(state, count)
     },
@@ -399,21 +392,23 @@ var socketServer
 if (process.env.NODE_ENV === 'development') {
   dataServers = ['http://io:3030']
   authServer = 'http://io:3030'
-  socketServer = 'ws://io:3030?cid='+store.state.socket.cid
+  socketServer = 'ws://io:3030'
 }
 else {
   // using round robin client-based load balancing
   // dataServers = getServersByCountry(window.cfCountry) // attempt to detect country by cloudflare and assign regional data servers when available
   dataServers = window.dataServers // populated by nginx
   authServer = 'https://data1.wago.io' // uses round-robin dns so ensures auth requests go to the same server (required for twitter in-memory auth)
-  socketServer = 'wss://data.wago.io'+store.state.socket.cid
+  socketServer = 'wss://data.wago.io'
 }
 dataServers = dataServers.sort(() => {
   return 0.5 - Math.random()
 })
 
 import VueNativeSock from 'vue-native-websocket'
-Vue.use(VueNativeSock, socketServer, { store: store, format: 'json' })
+if (!isEmbedPage) {
+  Vue.use(VueNativeSock, socketServer, { store: store, format: 'json' })
+}
 
 import axios from 'axios'
 import VueAxios from 'vue-axios'
@@ -489,9 +484,6 @@ const http = {
           clearTimeout(this.heartbeat)
           if (heartbeatCount < 30 && !isEmbedPage) {
             this.heartbeat = setTimeout(function() {heartbeatCount++; this.get('/account/status')}.bind(this), 60000)
-          }
-          else if (!isEmbedPage && store.state && store.state.user && (store.state.user.guest || !store.state.user.hideAds)) {
-            store.commit('setStreamEmbed', 'streamspread')
           }
         }
         // append querystring to url
@@ -648,9 +640,6 @@ const http = {
           switch (pair[0]) {
             case 'wotm':
               store.commit('setWotm', pair[1])
-              break
-            case 'embed-twitch':
-              store.commit('setStreamEmbed', pair[1])
               break
             case 'content-type':
               if (pair[1].match(/json/)) {

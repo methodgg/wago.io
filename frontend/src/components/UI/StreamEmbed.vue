@@ -24,7 +24,7 @@ export default {
   props: { stream: String, preview: Boolean },
   data: () => {
     return {
-      visible: (this.stream !== '__CLOSED__')
+      visible: true
     }
   },
 
@@ -34,6 +34,9 @@ export default {
       let streamspread = document.createElement('script')
       streamspread.setAttribute('src', 'https://adc.streamspread.com/js/fd23dd90-b346-4a09-ae30-817beb89a23a.js')
       body.appendChild(streamspread)
+    }
+    else if (this.stream === '__CLOSED__') {
+      this.visible = false
     }
   },
   destroyed () {
@@ -50,7 +53,7 @@ export default {
     showAds () {
       var isEmbed = document.getElementById('embed-body')
       var user = this.$store.state.user
-      if (isEmbed || (!Object.keys(user).length || user.hideAds) || this.screenWidth < this.adWidth + 32) {
+      if (isEmbed || (!user || user.hideAds) || this.screenWidth < this.adWidth + 32) {
         return false
       }
 

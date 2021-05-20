@@ -364,7 +364,7 @@
                   <md-table-cell v-if="row.online"><span style="color:#00e600">Online</span><br>{{ calcOnlineDuration(row.online) }}</md-table-cell>
                   <md-table-cell v-else><span style="color:grey">Offline<br>{{ calcOnlineDuration(row.offline) }}</span></md-table-cell>
                   <md-table-cell>{{ row.viewers || 0 }}</md-table-cell>
-                  <md-table-cell>{{ row.wagoViewersLast || 0 }} / {{ row.viewers || 0 }}</md-table-cell>
+                  <md-table-cell>{{ row.wagoViewers || 0 }} / {{ row.viewers || 0 }}</md-table-cell>
                   <md-table-cell>{{ calcWagoWeighting(row) }}%</md-table-cell>
                   <md-table-cell><md-button class="md-icon-button md-raised" @click="deleteStreamer(index)"><md-icon>delete</md-icon></md-button></md-table-cell>
                 </md-table-row>
@@ -388,7 +388,7 @@
           <md-layout>
             <md-card>
               <md-card-content>
-                Active Users on Site: <strong v-if="streamConfig.activeUsers">{{ streamConfig.activeUsers }}</strong><br>
+                Active Users on Site: <strong v-if="streamConfig.activeUsers">{{ activeUserCount.total || 0 }}</strong><br>
                 <md-checkbox v-model="streamConfig.enabled"><strong style="color:white">Stream Override Enabled</strong></md-checkbox>
               </md-card-content>
               <div v-if="streamConfig.enabled" v-for="(stream, index) of streamConfig.streams" style="border: 1px solid #666; margin-bottom: 16px; position: relative">
@@ -408,7 +408,7 @@
                   <template v-else>
                     <span v-if="stream.online" style="color:#00c500">[Online]</span>
                     <span v-else style="color:#bf0000">[Offline]</span>
-                    Currently Viewing <em>{{ stream.channel }}</em> Stream: <strong>{{ stream.viewing || 0 }}</strong>
+                    Currently Viewing <em>{{ stream.channel }}</em> Stream: <strong>{{ countViewers(stream.channel) }}</strong>
                   </template>
                 </md-card-content>
                 <md-card-content>
@@ -653,7 +653,7 @@ export default {
           let data = await this.http.get('/admin/getstreamers')
           this.streamerList = data.streams
           this.activeUserCount = data.users
-        }, 60000)
+        }, 5000)
       }
     }
     p()
@@ -667,6 +667,13 @@ export default {
     }
   },
   methods: {
+    countViewers (channel) {
+      for (let i = 0; i < this.streamerList.length; i++) {
+        if (this.streamerList[i].name === channel) {
+          return this.streamerList[i].wagoViewers
+        }
+      }
+    },
     LoadBlog (index) {
       if (index === -1) {
         this.blogTitle = ''
@@ -846,7 +853,7 @@ export default {
       if (this.addStreamerName.trim()) {
         const res = await this.http.post('/admin/streamer/add', {name: this.addStreamerName})
         if (res && res.success) {
-          this.streamerList.push({name: this.addStreamerName, game: 'Pending update', viewers: 0, wagoViewersLast: 0})
+          this.streamerList.push({name: this.addStreamerName, game: 'Pending update', viewers: 0, wagoViewers: 0})
           this.addStreamerName = ''
         }
         else if (res && res.error) {

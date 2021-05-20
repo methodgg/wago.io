@@ -106,7 +106,7 @@ module.exports = (fastify, opts, next) => {
     if (!data.streams) data.streams = []
     for (let i = 0; i < data.streams.length; i++) {
       data.streams[i].online = await redis.get(`twitch:${data.streams[i].channel}:live`)
-      data.streams[i].viewing = await redis2.zcount(`streamUsers:${data.streams[i].channel}`, '-inf', '+inf')
+      data.streams[i].viewing = await redis2.zcount(`stream:${data.streams[i].channel}`, '-inf', '+inf')
     }
     res.send(data)
   })
@@ -144,12 +144,18 @@ module.exports = (fastify, opts, next) => {
       return res.code(403).send({error: "forbidden"})
     }
     const streams = await Streamers.find({}).sort({online: -1, offline: -1})
+    let streamViewers = 0
+    for (let i = 0; i < streams.length; i++) {
+      streams[i].wagoViewers = await redis2.zcount(`stream:${streams[i].name}`, '-inf', '+inf')
+      streams[i].viewers = streams[i].viewers - streams[i].wagoViewers
+      streamViewers = streamViewers + streams[i].wagoViewers
+    }
     const users = {
-      total: await redis.get('tally:active:users'),
-      subs: await redis.get('tally:active:users:sub'),
-      streamspread: await redis.get('tally:active:users:streamspread'),
-      closed: await redis2.zcount(`streamUsers:__CLOSED__`, '-inf', '+inf'),
-      viewing: streams.map(c => c.wagoViewers || 0).reduce((acc, cur) => acc + cur)
+      total: await redis2.zcount('activeUsers', '-inf', '+inf'),
+      subs: await redis2.zcount('premiumUsers', '-inf', '+inf'),
+      streamspread: await redis2.zcount('stream:streamspread', '-inf', '+inf'),
+      closed: await redis2.zcount(`stream:__CLOSED__`, '-inf', '+inf'),
+      viewing: streamViewers
     }
     res.send({streams, users})
   })

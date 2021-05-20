@@ -289,9 +289,6 @@ export default {
         if (res.locale && vue.$store.state.locale !== res.locale) {
           vue.$store.commit('setLocale', res.locale)
         }
-        if (res.streamEmbed) {
-          vue.$store.commit('setStreamEmbed', res.streamEmbed)
-        }
 
         if (res.token) {
           window.setCookie('token', res.token, 365)

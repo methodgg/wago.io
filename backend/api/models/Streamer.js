@@ -6,7 +6,6 @@ const Schema = new mongoose.Schema({
   offline: Date,
   viewers: Number,
   wagoViewers: Number,
-  wagoViewersLast: Number,
   title: String,
   game: String
 })
