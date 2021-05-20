@@ -39,7 +39,9 @@ fastify.register(require('fastify-compress'))
 fastify.register(require('fastify-file-upload'), {
   limits: { fileSize: 1048576 * 15 },
 })
-// fastify.register(require('./middlewares/fastify-rate-limit'))
+fastify.register(require('fastify-websocket'), {
+  options: { maxPayload: 1048576 }
+})
 
 // --- DECORATORS
 fastify.decorateRequest('track', require('./middlewares/matomo'))
