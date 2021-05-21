@@ -102,7 +102,7 @@ module.exports = (fastify, opts, next) => {
     }
     var data = await SiteData.findById('EmbeddedStream').lean().exec()
     data = data.value || {}
-    data.activeUsers = await redis.get('tally:active:users')
+    data.activeUsers = await redis2.zcount('totalSiteUsers', '-inf', '+inf')
     if (!data.streams) data.streams = []
     for (let i = 0; i < data.streams.length; i++) {
       data.streams[i].online = await redis.get(`twitch:${data.streams[i].channel}:live`)
@@ -136,7 +136,7 @@ module.exports = (fastify, opts, next) => {
       streams[i].online = channelStatuses[stream.channel]
       streams[i].viewing = await redis.get('tally:active:embed:' + streams.channel)
     })
-    res.send({success: true, streams: streams, enabled: data.enabled, activeUsers: await redis.get('tally:active:users')})
+    res.send({success: true, streams: streams, enabled: data.enabled, activeUsers: await redis2.zcount('totalSiteUsers', '-inf', '+inf')})
   })
 
   fastify.get('/getstreamers', async (req, res) => {
@@ -151,8 +151,8 @@ module.exports = (fastify, opts, next) => {
       streamViewers = streamViewers + streams[i].wagoViewers
     }
     const users = {
-      total: await redis2.zcount('activeUsers', '-inf', '+inf'),
-      subs: await redis2.zcount('premiumUsers', '-inf', '+inf'),
+      total: await redis2.zcount('totalSiteUsers', '-inf', '+inf'),
+      subs: await redis2.zcount('totalPremiumUsers', '-inf', '+inf'),
       streamspread: await redis2.zcount('stream:streamspread', '-inf', '+inf'),
       closed: await redis2.zcount(`stream:__CLOSED__`, '-inf', '+inf'),
       viewing: streamViewers

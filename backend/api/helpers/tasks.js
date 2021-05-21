@@ -86,10 +86,6 @@ async function UpdateWagoOfTheMoment () {
   await updateDataCaches.queue('WagoOfTheMoment')
 }
 
-async function UpdateActiveUserCount () {
-  await UpdateTwitchStatus(null)
-  }
-
 async function UpdateTwitchStatus (channel) {
   var twitchToken = await redis.get('twitch:appToken')
   if (!twitchToken) {
@@ -144,7 +140,7 @@ async function UpdateTwitchStatus (channel) {
         streamers[i].offline = null
         streamers[i].game = twitchStreamers[k].game_name
         streamers[i].title = twitchStreamers[k].title
-        streamers[i].viewers = twitchStreamers[k].viewer_count - streamers[i].wagoViewers
+        streamers[i].viewers = twitchStreamers[k].viewer_count - (streamers[i].wagoViewers || 0)
         streamers[i].name = twitchStreamers[k].user_name
         await streamers[i].save()
         streamers[i].ok = true
