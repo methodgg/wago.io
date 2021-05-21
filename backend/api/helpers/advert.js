@@ -15,7 +15,7 @@ module.exports = {
         // check exposure chance
         if (Math.random() * 100 < streamOverride.streams[i].exposure && await redis.get(`twitch:${streamOverride.streams[i].channel}:live`)) {
           // and we are not over max viewer count...
-          const embedViewers = await redis2.zcount(`stream:${streamOverride.streams[i].channel}`, '-inf', '+inf')
+          const embedViewers = await redis2.zcount(`streamViewers:${streamOverride.streams[i].channel}`, '-inf', '+inf')
           // then show stream to user
           if (embedViewers < parseInt(streamOverride.streams[i].max)) {
             // await redis2.set(`stream:${streamOverride.streams[i].channel}:${cid}`, 1, 'EX', 70)

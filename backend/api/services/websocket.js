@@ -10,7 +10,7 @@ module.exports = async function (connection, req) {
     redis2.zadd('totalPremiumUsers', 'NX', ZSCORE, cid)
   }
   const stream = await advert.determineStream()
-  redis2.zadd(`stream:${stream}`, 'NX', ZSCORE, cid)
+  redis2.zadd(`streamViewers:${stream}`, 'NX', ZSCORE, cid)
   connection.socket.send(JSON.stringify({setStream: stream}))
 
   connection.socket.on('close', () => {
@@ -18,7 +18,7 @@ module.exports = async function (connection, req) {
     if (req.user && req.user.access && req.user.access.hideAds) {
       redis2.zrem('totalPremiumUsers', cid)
     }
-    redis2.zrem(`stream:${stream}`, cid)
+    redis2.zrem(`streamViewers:${stream}`, cid)
   })
 }
 
@@ -28,8 +28,8 @@ async function restart() {
   redis2.zremrangebyscore('totalPremiumUsers', ZSCORE, ZSCORE)
   const streams = await Streamers.find({}).sort({online: -1, offline: -1})
   streams.forEach(stream => {
-    redis2.zremrangebyscore(`stream:${stream.name}`, ZSCORE, ZSCORE)
+    redis2.zremrangebyscore(`streamViewers:${stream.name}`, ZSCORE, ZSCORE)
   })
-  redis2.zremrangebyscore(`stream:streamspread`, ZSCORE, ZSCORE)
+  redis2.zremrangebyscore(`streamViewers:streamspread`, ZSCORE, ZSCORE)
 }
 restart()
