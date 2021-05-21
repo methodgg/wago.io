@@ -407,7 +407,12 @@ dataServers = dataServers.sort(() => {
 
 import VueNativeSock from 'vue-native-websocket'
 if (!isEmbedPage) {
-  Vue.use(VueNativeSock, socketServer, { store: store, format: 'json' })
+  Vue.use(VueNativeSock, socketServer, {
+    store: store,
+    format: 'json',
+    reconnection: true,
+    reconnectionDelay: 3000
+  })
 }
 
 import axios from 'axios'
