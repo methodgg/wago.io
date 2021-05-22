@@ -21,12 +21,18 @@ module.exports = async function (connection, req) {
   sockets[cid].send(JSON.stringify({setStream: stream}))
 
   // setup ping interval
-  sockets[cid].interval = setInterval(function ping() {
-    if (sockets[cid].isAlive === false) return sockets[cid].terminate()
-
+  sockets[cid].interval = setInterval(() => {
+    if (sockets[cid].isAlive === false) {
+      sockets[cid].close()
+      return sockets[cid].terminate()
+    }
     sockets[cid].isAlive = false
     sockets[cid].ping(noop)
   }, 30000)
+
+  sockets[cid].expire = setTimeout(() => {
+    sockets[cid].terminate()
+  }, 60000*25)
 
   sockets[cid].on('message', async (data) => {
     try {
@@ -48,6 +54,7 @@ module.exports = async function (connection, req) {
       await redis2.zrem(`streamViewers:${stream}`, cid)
     }
     clearInterval(sockets[cid].interval)
+    clearTimeout(sockets[cid].expire)
     delete sockets[cid]
   })
 }
