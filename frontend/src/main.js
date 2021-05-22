@@ -73,6 +73,7 @@ const store = new Vuex.Store({
     socket: {
       isConnected: false,
       reconnectError: false,
+      interval: null
     }
   },
   mutations: {
@@ -261,22 +262,30 @@ const store = new Vuex.Store({
     SOCKET_ONOPEN (state, event)  {
       Vue.prototype.$socket = event.currentTarget
       state.socket.isConnected = true
+      Vue.prototype.$socket.sendObj({do: 'getStream'})
+      console.log('open conn')
     },
     SOCKET_ONCLOSE (state, event)  {
+      console.log('close conn')
       state.socket.isConnected = false
+      clearInterval(state.socket.interval)
     },
     SOCKET_ONERROR (state, event)  {
-      console.error(state, event)
+      console.error('socker error', event)
     },
     SOCKET_ONMESSAGE (state, data)  {
-      if (data.setStream) {
+      if (data.ping) {
+        Vue.prototype.$socket.sendObj({pong: 1})
+      }
+      else if (data.setStream) {
         store.commit('setStreamEmbed', data.setStream)
       }
     },
     SOCKET_RECONNECT(state, count) {
-      console.info(state, count)
+      console.info('socket reconnect', count)
     },
     SOCKET_RECONNECT_ERROR(state) {
+      console.log('reconnect err')
       state.socket.reconnectError = true;
     },
   },
@@ -383,6 +392,7 @@ Vue.use(VueMaterial)
 // })
 
 
+const isEmbedPage = !!(document.getElementById('embed-body'))
 Vue.use({install: function (v) {
   v.prototype.$env = process.env.NODE_ENV
 }})
@@ -401,6 +411,7 @@ else {
   authServer = 'https://data1.wago.io' // uses round-robin dns so ensures auth requests go to the same server (required for twitter in-memory auth)
   socketServer = 'wss://data.wago.io'
 }
+
 dataServers = dataServers.sort(() => {
   return 0.5 - Math.random()
 })
@@ -440,13 +451,10 @@ axios.interceptors.response.use(function (response) {
 })
 
 var refSent = false
-const isEmbedPage = !!(document.getElementById('embed-body'))
-var heartbeatCount = 0
 // setup http fetch helper
 const http = {
   install: function (Vue, options) {
     Vue.prototype.http = {
-      heartbeat: null,
       config: function (url) {
         var headers = {}
 
@@ -473,10 +481,6 @@ const http = {
         // prepend API server
         var host
 
-        if (url !== '/account/status') {
-          heartbeatCount = 0
-        }
-
         if (url.match(/auth/)) {
           host = authServer
           url = host + url
@@ -485,11 +489,6 @@ const http = {
           host = dataServers.shift()
           url = host + url
           dataServers.push(host)
-
-          clearTimeout(this.heartbeat)
-          if (heartbeatCount < 30 && !isEmbedPage) {
-            this.heartbeat = setTimeout(function() {heartbeatCount++; this.get('/account/status')}.bind(this), 60000)
-          }
         }
         // append querystring to url
         if (params) {
@@ -538,18 +537,12 @@ const http = {
           var host = dataServers.shift()
           url = host + url
           dataServers.push(host)
-
-          clearTimeout(this.heartbeat)
-          if (heartbeatCount < 30 && !isEmbedPage) {
-            this.heartbeat = setTimeout(function() {heartbeatCount++; this.get('/account/status')}.bind(this), 60000)
-          }
         }
 
         if (!params) {
           params = {}
         }
 
-        this.heartbeatCount = 0
         var config = this.config()
         config.method = 'post'
         config.headers['Accept'] = 'application/json'
