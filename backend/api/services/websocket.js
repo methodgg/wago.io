@@ -12,11 +12,8 @@ module.exports = async function (connection, req) {
   const stream = await advert.determineStream()
   redis2.zadd(`streamViewers:${stream}`, ZSCORE, cid)
   connection.socket.send(JSON.stringify({setStream: stream}))
-  console.log('open socket')
 
-  connection.socket.on('close', () => {
-    console.log('close socket')
-    redis2.zrem('totalSiteUsers', cid)
+  connection.socket.on('close', async () => {
     if (req.user && req.user.access && req.user.access.hideAds) {
       redis2.zrem('totalPremiumUsers', cid)
     }

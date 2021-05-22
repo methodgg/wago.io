@@ -446,7 +446,7 @@
             </md-list-item>
             <md-list-item @click="LoadStatus('dataservers')" v-bind:class="{selected: (statusSelected === 'dataservers')}">
               <div class="md-list-text-container">
-                <span>Data Servers Ping</span>
+                <span>Data Servers</span>
               </div>
             </md-list-item>
             <md-list-item @click="LoadStatus('redis')" v-bind:class="{selected: (statusSelected === 'redis')}">
@@ -548,13 +548,15 @@
                 <md-table-row>
                   <md-table-head>Server</md-table-head>
                   <md-table-head md-numeric>Ping Time</md-table-head>
+                  <md-table-head md-numeric>Socket Connections</md-table-head>
                 </md-table-row>
               </md-table-header>
 
               <md-table-body>
-                <md-table-row v-for="(ping, server) in pingRequests" :key="server">
+                <md-table-row v-for="(data, server) in hostStatus" :key="server">
                   <md-table-cell>{{ server.replace('https://', '') }}</md-table-cell>
-                  <md-table-cell md-numeric>{{ ping }}</md-table-cell>
+                  <md-table-cell md-numeric>{{ data.ping }}</md-table-cell>
+                  <md-table-cell md-numeric>{{ data.connections }}</md-table-cell>
                 </md-table-row>
               </md-table-body>
             </md-table>
@@ -604,7 +606,7 @@ export default {
       statusJSON: '',
       requestTable: [],
       requestPage: 0,
-      pingRequests: {},
+      hostStatus: {},
       rateLimitSearch: '',
 
       userPanel: 'wait',
@@ -751,11 +753,13 @@ export default {
     LoadStatus: async function (frame) {
       this.statusSelected = frame
       if (frame === 'dataservers') {
-        window.dataServers.forEach(async (server) => {
-          this.$set(this.pingRequests, server, 'Waiting')
+        const servers = [...window.dataServers]
+        servers.sort()
+        servers.forEach(async (server) => {
+          this.$set(this.hostStatus, server, 'Waiting')
           let t = Date.now()
-          await this.http.get(server + '/ping')
-          this.$set(this.pingRequests, server, (Date.now() - t) + 'ms')
+          const res = await this.http.get(server + '/admin/status')
+          this.$set(this.hostStatus, server, {ping: (Date.now() - t) + 'ms', connections: res.connections})
         })
       }
       else if (frame === 'ratelimit') {
@@ -813,7 +817,7 @@ export default {
         this.LoadUserPanel('subs')
       }
       else if (frame === 'status') {
-        this.http.get('/admin/status').then((res) => {
+        this.http.get('/admin/tasks').then((res) => {
           this.statusJSON = res.redis
           vue.status = res
           vue.requestTable = []
@@ -965,6 +969,8 @@ export default {
 #adminPreviewFrame .md-dialog p { margin: 12px 0}
 #blogEditor { min-height: 600px }
 .md-table-cell-container {max-width: 400px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
+
+.md-table .md-table-cell.md-numeric .md-table-cell-container {justify-content: flex-end}
 
 .move-field-up {margin: 0; padding-top: 0; min-height: auto;}
 #admin-advert-container .md-card-content {max-width: 525px}

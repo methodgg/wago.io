@@ -47,8 +47,19 @@ module.exports = (fastify, opts, next) => {
     taskQueue.add('UpdateLatestNews')
   })
 
-  // lists current task queue
+  // lists current host status
   fastify.get('/status', async (req, res) => {
+    if (!req.user || !req.user.isAdmin.access || !req.user.isAdmin.super) {
+      return res.code(403).send({error: "forbidden", u: req.user})
+    }
+    const ZSCORE = parseInt(config.host.split(/-/)[1])
+    var data = {}
+    data.connections = await redis2.zcount('totalSiteUsers', ZSCORE, ZSCORE)
+    res.send(data)
+  })
+
+  // lists current task queue
+  fastify.get('/tasks', async (req, res) => {
     if (!req.user || !req.user.isAdmin.access || !req.user.isAdmin.super) {
       return res.code(403).send({error: "forbidden"})
     }
@@ -134,7 +145,7 @@ module.exports = (fastify, opts, next) => {
     await updateDataCaches.queue('EmbeddedStream')
     await streams.forEach(async (stream, i) => {
       streams[i].online = channelStatuses[stream.channel]
-      streams[i].viewing = await redis2.zcount(`streamViewers:${streams[i].name}`, '-inf', '+inf')
+      streams[i].viewing = await redis2.zcount(`streamViewers:${streams[i].channel}`, '-inf', '+inf')
     })
     res.send({success: true, streams: streams, enabled: data.enabled, activeUsers: await redis2.zcount('totalSiteUsers', '-inf', '+inf')})
   })
@@ -147,7 +158,7 @@ module.exports = (fastify, opts, next) => {
     let streamViewers = 0
     for (let i = 0; i < streams.length; i++) {
       streams[i].wagoViewers = await redis2.zcount(`streamViewers:${streams[i].name}`, '-inf', '+inf')
-      streams[i].viewers = streams[i].viewers - streams[i].wagoViewers
+      streams[i].viewers = Math.max(streams[i].viewers - streams[i].wagoViewers, 0)
       streamViewers = streamViewers + streams[i].wagoViewers
     }
     const users = {
