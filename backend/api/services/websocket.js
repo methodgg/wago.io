@@ -14,7 +14,7 @@ module.exports = async function (connection, req) {
   connection.socket.send(JSON.stringify({setStream: stream}))
 
   connection.socket.on('close', async () => {
-    redis2.zrem(`totalSiteUsers:${stream}`, cid)
+    redis2.zrem(`totalSiteUsers`, cid)
     if (req.user && req.user.access && req.user.access.hideAds) {
       redis2.zrem('totalPremiumUsers', cid)
     }
