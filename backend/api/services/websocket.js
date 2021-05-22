@@ -2,23 +2,40 @@
 const advert = require('../helpers/advert')
 const Streamers = require("../models/Streamer")
 const ZSCORE = parseInt(config.host.split(/-/)[1])
+const sockets = {}
 
 module.exports = async function (connection, req) {
   const cid = Math.random().toString(36).substring(2, 15)
-  redis2.zadd('totalSiteUsers', ZSCORE, cid)
-  if (req.user && req.user.access && req.user.access.hideAds) {
-    redis2.zadd('totalPremiumUsers', ZSCORE, cid)
-  }
-  const stream = await advert.determineStream()
-  redis2.zadd(`streamViewers:${stream}`, ZSCORE, cid)
-  connection.socket.send(JSON.stringify({setStream: stream}))
+  sockets[cid] = connection.socket
+  let stream
 
-  connection.socket.on('close', async () => {
-    redis2.zrem(`totalSiteUsers`, cid)
-    if (req.user && req.user.access && req.user.access.hideAds) {
-      redis2.zrem('totalPremiumUsers', cid)
+  sockets[cid].on('message', async (data) => {
+    if (data === 'ping') return // keeping the connection alive client-side
+    try {
+      data = JSON.parse(data)
     }
-    redis2.zrem(`streamViewers:${stream}`, cid)
+    catch (e) {return}
+
+    if (data.ready) {
+      // setup user
+      await redis2.zadd('totalSiteUsers', ZSCORE, cid)
+      if (req.user && req.user.access && req.user.access.hideAds) {
+        await redis2.zadd('totalPremiumUsers', ZSCORE, cid)
+      }
+      stream = await advert.determineStream()
+      await redis2.zadd(`streamViewers:${stream}`, ZSCORE, cid)
+      sockets[cid].send(JSON.stringify({setStream: stream}))
+    }
+  })
+
+  sockets[cid].on('close', async () => {
+    await redis2.zrem(`totalSiteUsers`, cid)
+    if (req.user && req.user.access && req.user.access.hideAds) {
+      await redis2.zrem('totalPremiumUsers', cid)
+    }
+    if (stream) {
+      await redis2.zrem(`streamViewers:${stream}`, cid)
+    }
   })
 }
 
