@@ -27,7 +27,7 @@ async function restart() {
   await redis2.zremrangebyscore('totalSiteUsers', ZSCORE, ZSCORE)
   await redis2.zremrangebyscore('totalPremiumUsers', ZSCORE, ZSCORE)
   const streams = await Streamers.find({})
-  streams.forEach(stream => {
+  streams.forEach(async (stream) => {
     await redis2.zremrangebyscore(`streamViewers:${stream.name}`, ZSCORE, ZSCORE)
   })
   await redis2.zremrangebyscore(`streamViewers:streamspread`, ZSCORE, ZSCORE)
