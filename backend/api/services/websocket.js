@@ -14,6 +14,7 @@ module.exports = async function (connection, req) {
   connection.socket.send(JSON.stringify({setStream: stream}))
 
   connection.socket.on('close', async () => {
+    redis2.zrem(`totalSiteUsers:${stream}`, cid)
     if (req.user && req.user.access && req.user.access.hideAds) {
       redis2.zrem('totalPremiumUsers', cid)
     }
@@ -23,12 +24,12 @@ module.exports = async function (connection, req) {
 
 // on server restart clear the current counts for this host
 async function restart() {
-  redis2.zremrangebyscore('totalSiteUsers', ZSCORE, ZSCORE)
-  redis2.zremrangebyscore('totalPremiumUsers', ZSCORE, ZSCORE)
+  await redis2.zremrangebyscore('totalSiteUsers', ZSCORE, ZSCORE)
+  await redis2.zremrangebyscore('totalPremiumUsers', ZSCORE, ZSCORE)
   const streams = await Streamers.find({})
   streams.forEach(stream => {
-    redis2.zremrangebyscore(`streamViewers:${stream.name}`, ZSCORE, ZSCORE)
+    await redis2.zremrangebyscore(`streamViewers:${stream.name}`, ZSCORE, ZSCORE)
   })
-  redis2.zremrangebyscore(`streamViewers:streamspread`, ZSCORE, ZSCORE)
+  await redis2.zremrangebyscore(`streamViewers:streamspread`, ZSCORE, ZSCORE)
 }
 restart()
