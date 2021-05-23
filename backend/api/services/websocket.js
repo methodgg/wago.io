@@ -2,70 +2,111 @@
 const advert = require('../helpers/advert')
 const Streamers = require("../models/Streamer")
 const ZSCORE = parseInt(config.host.split(/-/)[1])
-const sockets = {}
+const connections = []
+
+function makeCID() {
+  return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
+}
+let n = 0
+function Connection(conn, cid) {
+  const c = ++n
+  this.socket = conn.socket
+  this.cid = cid || makeCID()
+  this.alive = true
+  this.send = (obj) => {
+    this.socket.send(JSON.stringify(obj))
+  }
+  this.ping = () => {
+    clearInterval(this.pong)
+    this.alive = true
+    this.pong = setInterval(() => {
+      if (!this.alive) {
+        return this.socket.terminate()
+      }
+      this.alive = false
+      this.send({ping: 1})
+    }, 30000)
+  }
+  this.ping()
+  this.delete = async () => {
+    try {
+      clearInterval(this.pong)
+      await redis2.zrem(`totalSiteVisitors`, this.cid)
+      await redis2.zrem('totalPremiumVisitors', this.cid)
+      if (this.embedStream) {
+        await redis2.zrem(`embedVisitors:${this.embedStream}`, this.cid)
+      }
+      delete this
+    }
+    catch (e) {console.log(e)}
+  }
+  this.socket.on('close', () => {
+    this.delete()
+  })
+  this.socket.on('error', (e) => {
+    this.delete()
+    console.log('err', e)
+  })
+
+  this.socket.on('message', async (data) => {
+    try {
+      let json = JSON.parse(data)
+      data = json
+    }
+    catch {}
+    for (const [key, value] of Object.entries(data)) {
+      // ping-pong
+      if (key === 'pong') {
+        this.ping()
+      }
+      // hello: request-cid
+      else if (key === 'hello') {
+        if (value === 1) {
+          this.send({setCID: cid})
+        }
+        else if (value && typeof value === 'string') {
+          await redis2.zrem(`totalSiteVisitors`, this.cid)
+          await redis2.zrem('totalPremiumVisitors', this.cid)
+          if (this.embedStream) {
+            await redis2.zrem(`embedVisitors:${this.embedStream}`, this.cid)
+          }
+          this.cid = value
+        }
+        await redis2.zadd('totalSiteVisitors', ZSCORE, cid)
+        if (this.premiumUser) {
+          await redis2.zadd('totalPremiumVisitors', ZSCORE, cid)
+        }
+        if (this.embedStream) {
+          await redis2.zadd(`embedVisitors:${this.embedStream}`, ZSCORE, cid)
+        }
+      }
+      // do: getStream
+      else if (key === 'do' && value === 'getStream') {
+        this.embedStream = await advert.determineStream()
+        await redis2.zadd(`embedVisitors:${this.embedStream}`, ZSCORE, cid)
+        this.send({setStream: this.embedStream})
+      }
+    }
+  })
+}
+
 
 module.exports = async function (connection, req) {
-  const cid = Math.random().toString(36).substring(2, 15)
-  sockets[cid] = connection.socket
-  sockets[cid].sendObj = function (obj) {
-    return this.send(JSON.stringify(obj))
+  let cid = makeCID()
+  try {
+    connections.push(new Connection(connection, cid))
   }
-  let stream
-
-  // setup user
-  sockets[cid].isAlive = true
-  await redis2.zadd('totalSiteUsers', ZSCORE, cid)
-  if (req.user && req.user.access && req.user.access.hideAds) {
-    await redis2.zadd('totalPremiumUsers', ZSCORE, cid)
-  }
-
-  // setup ping interval
-  sockets[cid].interval = setInterval(() => {
-    if (sockets[cid].isAlive === false) {
-      sockets[cid].close()
-      return sockets[cid].terminate()
-    }
-    sockets[cid].isAlive = false
-    sockets[cid].sendObj({ping: 1})
-  }, 30000)
-
-  sockets[cid].on('message', async (data) => {
-    try {
-      data = JSON.parse(data)
-    }
-    catch (e) {return}
-    if (data.pong) {
-      sockets[cid].isAlive = true
-    }
-    else if (data.do === 'getStream') {
-      stream = await advert.determineStream()
-      await redis2.zadd(`streamViewers:${stream}`, ZSCORE, cid)
-      sockets[cid].sendObj({setStream: stream})
-    }
-  })
-
-  sockets[cid].on('close', async () => {
-    await redis2.zrem(`totalSiteUsers`, cid)
-    if (req.user && req.user.access && req.user.access.hideAds) {
-      await redis2.zrem('totalPremiumUsers', cid)
-    }
-    if (stream) {
-      await redis2.zrem(`streamViewers:${stream}`, cid)
-    }
-    clearInterval(sockets[cid].interval)
-    clearTimeout(sockets[cid].expire)
-    delete sockets[cid]
-  })
+  catch (e) {console.log(e)}
 }
 
 // on server restart clear the current counts for this host
 async function restart() {
-  await redis2.zremrangebyscore('totalSiteUsers', ZSCORE, ZSCORE)
-  await redis2.zremrangebyscore('totalPremiumUsers', ZSCORE, ZSCORE)
+  await redis2.zremrangebyscore('totalSiteVisitors', ZSCORE, ZSCORE)
+  await redis2.zremrangebyscore('totalPremiumVisitors', ZSCORE, ZSCORE)
   const streams = await Streamers.find({})
   streams.forEach(async (stream) => {
-    await redis2.zremrangebyscore(`streamViewers:${stream.name}`, ZSCORE, ZSCORE)
+    await redis2.zremrangebyscore(`embedVisitors:${stream.name}`, ZSCORE, ZSCORE)
   })
-  await redis2.zremrangebyscore(`streamViewers:streamspread`, ZSCORE, ZSCORE)
+  await redis2.zremrangebyscore(`embedVisitors:streamspread`, ZSCORE, ZSCORE)
 }
 restart()

@@ -156,7 +156,7 @@ async function UpdateTwitchStatus (channel) {
       streamers[i].wagoViewers = 0
       await streamers[i].save()
       await redis.del(`twitch:${streamers[i].name}:live`)
-      await redis2.zremrangebyscore(`streamViewers:${streamers[i].name}`, '-inf', '+inf')
+      await redis2.zremrangebyscore(`embedVisitors:${streamers[i].name}`, '-inf', '+inf')
     }
   }
 

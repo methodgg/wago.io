@@ -71,9 +71,9 @@ const store = new Vuex.Store({
     linkApp: false,
 
     socket: {
+      cid: null,
       isConnected: false,
-      reconnectError: false,
-      interval: null
+      reconnectError: false
     }
   },
   mutations: {
@@ -262,13 +262,14 @@ const store = new Vuex.Store({
     SOCKET_ONOPEN (state, event)  {
       Vue.prototype.$socket = event.currentTarget
       state.socket.isConnected = true
-      Vue.prototype.$socket.sendObj({do: 'getStream'})
-      console.log('open conn')
+      Vue.prototype.$socket.sendObj({hello: state.socket.cid || 1})
+      if (state.streamEmbed !== 'streamspread') {
+        Vue.prototype.$socket.sendObj({do: 'getStream'})
+      }
+
     },
     SOCKET_ONCLOSE (state, event)  {
-      console.log('close conn')
       state.socket.isConnected = false
-      clearInterval(state.socket.interval)
     },
     SOCKET_ONERROR (state, event)  {
       console.error('socker error', event)
@@ -279,6 +280,9 @@ const store = new Vuex.Store({
       }
       else if (data.setStream) {
         store.commit('setStreamEmbed', data.setStream)
+      }
+      else if (data.setCID) {
+        state.socket.cid = data.setCID
       }
     },
     SOCKET_RECONNECT(state, count) {
