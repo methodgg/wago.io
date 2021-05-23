@@ -1,20 +1,20 @@
 <template>
-  <div :class="{'embed-player': 1, preview: preview}" v-if="stream !== 'streamspread' && visible && showAds">
-      <div class="embed-player-holder">
-        <div class="embed-player-stream">
-          <iframe :src="`https://player.twitch.tv?channel=${stream}&amp;parent=wago.io&amp;height=300&amp;width=420&amp;muted=true`" allowfullscreen="true" scrolling="no" frameborder="0" allow="autoplay; fullscreen" title="Twitch" sandbox="allow-modals allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox" width="420" height="300"></iframe>
-        </div>
-        <div class="embed-player-header">
-          <div class="embed-player-hl-close" @click="closeStream()">
-            <img class="embed-player-hl-close-icon" src="./../../assets/stream-close.png">
-          </div>
-        </div>
-        <!--<div class="embed-player-hl-promo" style="margin-top: 0px;height: 56px">
-          <img class="embed-player-hl-channel-image" v-if="stream === 'sco'"src="https://media.wago.io/avatars/5e18cc1f484ae90a6d494120/b-1602585093194.png" style="margin-top:8px;margin-bottom: 8px">
-          <img class="embed-player-hl-channel-image" v-else src="./../../assets/method.png" style="margin-top:8px;margin-bottom: 8px">
-          <a class="embed-player-hl-link" :href="'https://twitch.tv/' + stream" target="_blank">twitch.tv/{{ stream }}</a>
-        </div>-->
+  <div :class="{'embed-player': 1, preview: preview}" v-if="stream !== '__streamspread' && visible && showAds">
+    <div class="embed-player-holder">
+      <div class="embed-player-stream">
+        <iframe :src="`https://player.twitch.tv?channel=${stream}&amp;parent=wago.io&amp;height=300&amp;width=420&amp;muted=true`" allowfullscreen="true" scrolling="no" frameborder="0" allow="autoplay; fullscreen" title="Twitch" sandbox="allow-modals allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox" width="420" height="300"></iframe>
       </div>
+      <div class="embed-player-header">
+        <div class="embed-player-hl-close" @click="closeStream()">
+          <img class="embed-player-hl-close-icon" src="./../../assets/stream-close.png">
+        </div>
+      </div>
+      <!--<div class="embed-player-hl-promo" style="margin-top: 0px;height: 56px">
+        <img class="embed-player-hl-channel-image" v-if="stream === 'sco'"src="https://media.wago.io/avatars/5e18cc1f484ae90a6d494120/b-1602585093194.png" style="margin-top:8px;margin-bottom: 8px">
+        <img class="embed-player-hl-channel-image" v-else src="./../../assets/method.png" style="margin-top:8px;margin-bottom: 8px">
+        <a class="embed-player-hl-link" :href="'https://twitch.tv/' + stream" target="_blank">twitch.tv/{{ stream }}</a>
+      </div>-->
+    </div>
   </div>
 </template>
 
@@ -29,13 +29,14 @@ export default {
   },
 
   created () {
-    if (this.stream === 'streamspread') {
+    console.log(this.stream, this.visible)
+    if (this.stream === '__streamspread') {
       let body = document.querySelector('body')
       let streamspread = document.createElement('script')
       streamspread.setAttribute('src', 'https://adc.streamspread.com/js/fd23dd90-b346-4a09-ae30-817beb89a23a.js')
       body.appendChild(streamspread)
     }
-    else if (this.stream === '__CLOSED__') {
+    else if (this.stream === '__closed') {
       this.visible = false
     }
   },
@@ -44,7 +45,7 @@ export default {
   methods: {
     closeStream () {
       this.visible = false
-      this.http.post('/account/close-embed')
+      // this.http.post('/account/close-embed')
     }
   },
   beforeDestroy: function () {

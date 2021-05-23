@@ -151,7 +151,7 @@ const store = new Vuex.Store({
     },
 
     setStreamEmbed (state, streamEmbed) {
-      if (state.streamEmbed !== 'streamspread' && state.streamEmbed !== streamEmbed) {
+      if (state.streamEmbed !== '__streamspread' && streamEmbed) {
         Vue.set(state, 'streamEmbed', streamEmbed)
       }
     },
@@ -263,7 +263,7 @@ const store = new Vuex.Store({
       Vue.prototype.$socket = event.currentTarget
       state.socket.isConnected = true
       Vue.prototype.$socket.sendObj({hello: state.socket.cid || 1})
-      if (state.streamEmbed !== 'streamspread') {
+      if (!state.streamEmbed) {
         Vue.prototype.$socket.sendObj({do: 'reqStream'})
       }
 

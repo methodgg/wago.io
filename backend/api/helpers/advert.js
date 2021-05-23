@@ -2,7 +2,7 @@ module.exports = {
   determineStream: async function () {
     // existing embed?
     // const current = await redis2.get(`currentstream:${cid}`)
-    // if (current && (current === 'streamspread' || current === '__CLOSED__' || await redis.get(`twitch:${current}:live`))) {
+    // if (current && (current === '__streamspread' || current === '__CLOSED__' || await redis.get(`twitch:${current}:live`))) {
     //   await redis2.expire(`currentstream:${cid}`, 70)
     //   return current
     // }
@@ -45,8 +45,8 @@ module.exports = {
     //   }
     // }
 
-    // await redis2.set(`currentstream:${cid}`, 'streamspread', 'EX', 70)
-    return 'streamspread'
+    // await redis2.set(`currentstream:${cid}`, '__streamspread', 'EX', 70)
+    return '__streamspread'
   },
 
   removeStream: async function (cid) {

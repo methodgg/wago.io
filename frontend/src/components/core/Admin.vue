@@ -342,9 +342,10 @@
         </md-layout>
         <template v-if="siteConfigPanel === 'streams'">
           <div style="padding-left:16px">
-            <p><span style="border-bottom: 1px solid #555">Active Users on Site: <strong>{{ activeUserCount.total || 0 }}</strong></span><br>
+            <p><span style="border-bottom: 1px solid #555">Total Users on Site: <strong>{{ activeUserCount.total || 0 }}</strong></span><br>
               Premium Users on Site: <strong>{{ activeUserCount.subs || 0 }}</strong><br>
               Active Streams: <strong>{{ activeUserCount.viewing || 0 }}</strong><br>
+              Stale Streams: <strong>{{ activeUserCount.stale || 0 }}</strong><br>
               Streamspread Streams: <strong>{{ activeUserCount.streamspread || 0 }}</strong><br>
               Closed Streams: <strong>{{ activeUserCount.closed || 0 }}</strong><br>
             </p>
@@ -968,7 +969,7 @@ export default {
 #admin #blog-sidebar ul em { font-size: 80%; opacity: .8 }
 #adminPreviewFrame .md-dialog p { margin: 12px 0}
 #blogEditor { min-height: 600px }
-.md-table-cell-container {max-width: 400px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
+.md-table-cell-container {white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
 
 .md-table .md-table-cell.md-numeric .md-table-cell-container {justify-content: flex-end}
 

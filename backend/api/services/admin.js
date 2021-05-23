@@ -164,8 +164,9 @@ module.exports = (fastify, opts, next) => {
     const users = {
       total: await redis2.zcard('totalSiteVisitors'),
       subs: await redis2.zcard('totalPremiumVisitors'),
-      streamspread: await redis2.zcard('embedVisitors:streamspread'),
-      closed: await redis2.zcard(`stream:__CLOSED__`),
+      streamspread: await redis2.zcard('embedVisitors:__streamspread'),
+      stale: await redis2.zcard('embedVisitors:__stale'),
+      closed: await redis2.zcard(`stream:__closed`),
       viewing: streamViewers
     }
     res.send({streams, users})

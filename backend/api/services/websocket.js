@@ -28,9 +28,20 @@ function Connection(conn, cid) {
     }, 30000)
   }
   this.ping()
+  this.startStaleTimer = () => {
+    clearTimeout(this.staleTimer)
+    this.staleTimer = setTimeout(async () => {
+      if (this.embedStream && this.embedStream !== '__streamspread') {
+        await redis2.zrem(`embedVisitors:${this.embedStream}`, this.cid)
+        this.embedStream = '__stale'
+        await redis2.zadd(`embedVisitors:${this.embedStream}`, ZSCORE, cid)
+      }
+    }, 20*60*1000)
+  }
   this.delete = async () => {
     try {
       clearInterval(this.pong)
+      clearTimeout(this.staleTimer)
       await redis2.zrem(`totalSiteVisitors`, this.cid)
       await redis2.zrem('totalPremiumVisitors', this.cid)
       if (this.embedStream) {
@@ -85,6 +96,7 @@ function Connection(conn, cid) {
         this.embedStream = await advert.determineStream()
         await redis2.zadd(`embedVisitors:${this.embedStream}`, ZSCORE, cid)
         this.send({setStream: this.embedStream})
+        this.startStaleTimer()
       }
     }
   })
@@ -107,6 +119,7 @@ async function restart() {
   streams.forEach(async (stream) => {
     await redis2.zremrangebyscore(`embedVisitors:${stream.name}`, ZSCORE, ZSCORE)
   })
-  await redis2.zremrangebyscore(`embedVisitors:streamspread`, ZSCORE, ZSCORE)
+  await redis2.zremrangebyscore(`embedVisitors:__streamspread`, ZSCORE, ZSCORE)
+  await redis2.zremrangebyscore(`embedVisitors:__stale`, ZSCORE, ZSCORE)
 }
 restart()
