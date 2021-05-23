@@ -80,8 +80,8 @@ function Connection(conn, cid) {
           await redis2.zadd(`embedVisitors:${this.embedStream}`, ZSCORE, cid)
         }
       }
-      // do: getStream
-      else if (key === 'do' && value === 'getStream') {
+      // do: reqStream
+      else if (key === 'do' && value === 'reqStream') {
         this.embedStream = await advert.determineStream()
         await redis2.zadd(`embedVisitors:${this.embedStream}`, ZSCORE, cid)
         this.send({setStream: this.embedStream})

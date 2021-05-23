@@ -264,7 +264,7 @@ const store = new Vuex.Store({
       state.socket.isConnected = true
       Vue.prototype.$socket.sendObj({hello: state.socket.cid || 1})
       if (state.streamEmbed !== 'streamspread') {
-        Vue.prototype.$socket.sendObj({do: 'getStream'})
+        Vue.prototype.$socket.sendObj({do: 'reqStream'})
       }
 
     },
