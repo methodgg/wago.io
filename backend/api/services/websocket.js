@@ -13,7 +13,7 @@ setInterval(async () => {
       clearTimeout(connection.staleTimer)
       await redis2.zrem(`totalSiteVisitors`, cid)
       await redis2.zrem('totalPremiumVisitors', cid)
-      if (this.embedStream) {
+      if (connection.embedStream) {
         await redis2.zrem(`embedVisitors:${connection.embedStream}`, cid)
       }
       connection.socket.close()
