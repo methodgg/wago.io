@@ -8,6 +8,8 @@ function makeCID() {
   return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
 }
 setInterval(async () => {
+  // console.log(Object.keys(connections))
+  // console.log(await redis2.zrange('totalSiteVisitors', 0, 99))
   for (const [cid, connection] of Object.entries(connections)) {
     if (!connection.alive) {
       clearTimeout(connection.staleTimer)
@@ -51,11 +53,12 @@ function Connection(conn, cid) {
   }
   this.startStaleTimer = () => {
     clearTimeout(this.staleTimer)
+    const that = this
     this.staleTimer = setTimeout(async () => {
-      if (this.embedStream && this.embedStream !== '__streamspread') {
-        await redis2.zrem(`embedVisitors:${this.embedStream}`, this.cid)
-        this.embedStream = '__stale'
-        await redis2.zadd(`embedVisitors:${this.embedStream}`, ZSCORE, this.cid)
+      if (that.embedStream && that.embedStream !== '__streamspread') {
+        await redis2.zrem(`embedVisitors:${that.embedStream}`, that.cid)
+        that.embedStream = '__stale'
+        await redis2.zadd(`embedVisitors:${that.embedStream}`, ZSCORE, that.cid)
       }
     }, 20*60*1000)
   }
@@ -69,6 +72,7 @@ function Connection(conn, cid) {
   this.socket.on('message', async (data) => {
     this.lastMsg = new Date().getTime()
     this.alive = true
+    const reply = {}
     try {
       let json = JSON.parse(data)
       data = json
@@ -79,7 +83,7 @@ function Connection(conn, cid) {
       if (key === 'hello') {
         let cid
         if (value === 1) {
-          this.send({setCID: this.cid})
+          reply.setCID = this.cid
           cid = this.cid
         }
         else if (value && typeof value === 'string') {
@@ -106,13 +110,19 @@ function Connection(conn, cid) {
       else if (key === 'do' && value === 'reqStream') {
         this.embedStream = await advert.determineStream()
         await redis2.zadd(`embedVisitors:${this.embedStream}`, ZSCORE, this.cid)
-        this.send({setStream: this.embedStream})
+        reply.setStream = this.embedStream
         this.startStaleTimer()
       }
       // do: reqStream
       else if (key === 'do' && value === 'reqWago') {
-        this.send({ident: data.ident, wago: 'test'})
+        reply.wago = 'test'
       }
+    }
+    if (Object.keys(reply).length) {
+      if (data.ident && !reply.ident) {
+        reply.ident = data.ident
+      }
+      this.send(reply)
     }
   })
 }

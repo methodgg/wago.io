@@ -689,6 +689,9 @@ const socket = {
           if (data.ping) {
             Vue.prototype.$socket.send({pong: 1})
           }
+          else if (data.error) {
+            window.eventHub.$emit('showSnackBar', `Socket Error: ${data.error}`)
+          }
           else if (data.ident && this.listeners[data.ident]) {
             this.listeners[data.ident](data)
           }
