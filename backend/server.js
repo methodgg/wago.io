@@ -64,7 +64,7 @@ fastify.addHook('preHandler', require('./middlewares/analytics'))
 fastify.addHook('preHandler', require('./middlewares/getRegion'))
 
 // --- ROUTES
-fastify.get('/', {websocket: true}, require('./api/services/websocket'))
+fastify.get('/ws', {websocket: true}, require('./api/services/websocket'))
 fastify.get('/logout', (req, res) => {res.redirect('/auth/logout')})
 fastify.get('/ping', (req, res) => {res.send({pong: true, host: config.base_url, you: req.raw.ip})})
 fastify.get('/favicon.ico', (req, res) => {res.redirect('https://media.wago.io/favicon/favicon.ico')})

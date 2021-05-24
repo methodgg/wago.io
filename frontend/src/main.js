@@ -388,14 +388,14 @@ var socketServer
 if (process.env.NODE_ENV === 'development') {
   dataServers = ['http://io:3030']
   authServer = 'http://io:3030'
-  socketServer = 'ws://io:3030'
+  socketServer = 'ws://io:3030/ws'
 }
 else {
   // using round robin client-based load balancing
   // dataServers = getServersByCountry(window.cfCountry) // attempt to detect country by cloudflare and assign regional data servers when available
   dataServers = window.dataServers // populated by nginx
   authServer = 'https://data1.wago.io' // uses round-robin dns so ensures auth requests go to the same server (required for twitter in-memory auth)
-  socketServer = 'wss://data.wago.io'
+  socketServer = 'wss://data.wago.io/ws'
 }
 
 dataServers = dataServers.sort(() => {
