@@ -16,16 +16,17 @@ setInterval(async () => {
       if (this.embedStream) {
         await redis2.zrem(`embedVisitors:${connection.embedStream}`, cid)
       }
+      connection.socket.close()
       delete connections[cid]
     }
-    else if (connection.lastMsg < new Date().getTime() - 30000) {
+    else if (connection.lastMsg < new Date().getTime() - 29000) {
       connection.ping()
     }
     else {
       // stable connection
     }
   }
-}, 10000)
+}, 30000)
 
 function Connection(conn, cid) {
   this.socket = conn.socket
@@ -78,7 +79,6 @@ function Connection(conn, cid) {
           }
           connections[value] = this
           connections[value].cid = value
-          this.alive = false
         }
         await redis2.zadd('totalSiteVisitors', ZSCORE, cid)
         if (this.premiumUser) {
