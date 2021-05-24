@@ -2,32 +2,43 @@
 const advert = require('../helpers/advert')
 const Streamers = require("../models/Streamer")
 const ZSCORE = parseInt(config.host.split(/-/)[1])
-const connections = []
+const connections = {}
 
 function makeCID() {
   return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
 }
-let n = 0
+setInterval(async () => {
+  for (const [cid, connection] of Object.entries(connections)) {
+    if (!connection.alive) {
+      clearTimeout(connection.staleTimer)
+      await redis2.zrem(`totalSiteVisitors`, cid)
+      await redis2.zrem('totalPremiumVisitors', cid)
+      if (this.embedStream) {
+        await redis2.zrem(`embedVisitors:${connection.embedStream}`, cid)
+      }
+      delete connections[cid]
+    }
+    else if (connection.lastMsg < new Date().getTime() - 30000) {
+      connection.ping()
+    }
+    else {
+      // stable connection
+    }
+  }
+}, 10000)
+
 function Connection(conn, cid) {
-  const c = ++n
   this.socket = conn.socket
   this.cid = cid || makeCID()
   this.alive = true
   this.send = (obj) => {
     this.socket.send(JSON.stringify(obj))
   }
+  this.lastMsg = new Date().getTime()
   this.ping = () => {
-    clearInterval(this.pong)
-    this.alive = true
-    this.pong = setInterval(() => {
-      if (!this.alive) {
-        return this.socket.terminate()
-      }
-      this.alive = false
-      this.send({ping: 1})
-    }, 30000)
+    this.alive = false
+    this.send({ping: 1})
   }
-  this.ping()
   this.startStaleTimer = () => {
     clearTimeout(this.staleTimer)
     this.staleTimer = setTimeout(async () => {
@@ -38,40 +49,24 @@ function Connection(conn, cid) {
       }
     }, 20*60*1000)
   }
-  this.delete = async () => {
-    try {
-      clearInterval(this.pong)
-      clearTimeout(this.staleTimer)
-      await redis2.zrem(`totalSiteVisitors`, this.cid)
-      await redis2.zrem('totalPremiumVisitors', this.cid)
-      if (this.embedStream) {
-        await redis2.zrem(`embedVisitors:${this.embedStream}`, this.cid)
-      }
-      delete this
-    }
-    catch (e) {console.log(e)}
-  }
   this.socket.on('close', () => {
-    this.delete()
+    this.alive = false
   })
   this.socket.on('error', (e) => {
-    this.delete()
-    console.log('err', e)
+    this.alive = false
   })
 
   this.socket.on('message', async (data) => {
+    this.lastMsg = new Date().getTime()
+    this.alive = true
     try {
       let json = JSON.parse(data)
       data = json
     }
     catch {}
     for (const [key, value] of Object.entries(data)) {
-      // ping-pong
-      if (key === 'pong') {
-        this.ping()
-      }
       // hello: request-cid
-      else if (key === 'hello') {
+      if (key === 'hello') {
         if (value === 1) {
           this.send({setCID: cid})
         }
@@ -81,7 +76,9 @@ function Connection(conn, cid) {
           if (this.embedStream) {
             await redis2.zrem(`embedVisitors:${this.embedStream}`, this.cid)
           }
-          this.cid = value
+          connections[value] = this
+          connections[value].cid = value
+          this.alive = false
         }
         await redis2.zadd('totalSiteVisitors', ZSCORE, cid)
         if (this.premiumUser) {
@@ -106,7 +103,7 @@ function Connection(conn, cid) {
 module.exports = async function (connection, req) {
   let cid = makeCID()
   try {
-    connections.push(new Connection(connection, cid))
+    connections[cid] = new Connection(connection, cid)
   }
   catch (e) {console.log(e)}
 }
