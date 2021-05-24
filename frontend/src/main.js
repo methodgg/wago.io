@@ -260,10 +260,12 @@ const store = new Vuex.Store({
     },
 
     SOCKET_OPEN (state, socket)  {
+      try {
       socket.send({hello: state.socket.cid || 1})
       if (!state.streamEmbed) {
         socket.send({do: 'reqStream'})
       }
+    } catch(e) {console.log(e)}
 
     },
     SOCKET_DATA (state, data)  {
@@ -665,7 +667,7 @@ Vue.use(http)
 const socket = {
   install: function (Vue) {
     Vue.prototype.$socket = {
-      send: (data, onReceive) => {
+      send: function (data, onReceive) {
         if (!this.connected) {
           throw 'Can not send while not connected to socket.'
         }
@@ -676,7 +678,7 @@ const socket = {
         const json = JSON.stringify(data)
         this.socket.send(json)
       },
-      connect: () => {
+      connect: function () {
         if (isEmbedPage) {
           return
         }
@@ -685,9 +687,9 @@ const socket = {
         connection.onmessage = (event) => {
           const data = JSON.parse(event.data)
           if (data.ping) {
-            this.send({pong: 1})
+            Vue.prototype.$socket.send({pong: 1})
           }
-          if (data.ident && this.listeners[data.ident]) {
+          else if (data.ident && this.listeners[data.ident]) {
             this.listeners[data.ident](data)
           }
           else {
@@ -698,21 +700,27 @@ const socket = {
         connection.onopen  = (event) => {
           this.connected = true
           this.socket = event.target
-          store.commit('SOCKET_OPEN', Vue.prototype.$socket)
+          store.commit('SOCKET_OPEN', this)
         }
 
         connection.onclose  = (event) => {
           connection.close()
           this.connected = false
           clearTimeout(this.reconnect)
-          this.reconnect = setTimeout(Vue.prototype.$socket.connect, 5000)
+          const that = this
+          this.reconnect = setTimeout(function() {
+            that.connect()
+          }, 5000)
         }
 
         connection.onerror  = (error, event) => {
           connection.close()
           this.connected = false
           clearTimeout(this.reconnect)
-          this.reconnect = setTimeout(Vue.prototype.$socket.connect, 5000)
+          const that = this
+          this.reconnect = setTimeout(function() {
+            that.connect()
+          }, 5000)
         }
       }
     }
