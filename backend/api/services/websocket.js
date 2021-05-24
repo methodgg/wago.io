@@ -10,26 +10,24 @@ function makeCID() {
 setInterval(async () => {
   // console.log(Object.keys(connections))
   // console.log(await redis2.zrange('totalSiteVisitors', 0, 99))
-  for (const [cid, connection] of Object.entries(connections)) {
+  for (const [oid, connection] of Object.entries(connections)) {
     if (!connection.alive) {
       clearTimeout(connection.staleTimer)
-      await redis2.zrem(`totalSiteVisitors`, cid)
-      await redis2.zrem('totalPremiumVisitors', cid)
+      await redis2.zrem(`totalSiteVisitors`, connection.cid)
+      await redis2.zrem('totalPremiumVisitors', connection.cid)
       if (connection.embedStream) {
-        await redis2.zrem(`embedVisitors:${connection.embedStream}`, cid)
+        await redis2.zrem(`embedVisitors:${connection.embedStream}`, connection.cid)
       }
-      connection.socket.close()
-      delete connections[cid]
+      delete connections[oid]
     }
-    else if (connection.lastMsg < new Date().getTime() - 29000) {
-      connection.alive = false
-      connection.send({ping: 1})
+    else if (connection.lastMsg < new Date().getTime() - 30000) {
+      connection.ping()
     }
     else {
       // stable connection
     }
   }
-}, 30000)
+}, 29000)
 
 function Connection(conn, cid) {
   this.socket = conn.socket
@@ -39,17 +37,9 @@ function Connection(conn, cid) {
     this.socket.send(JSON.stringify(obj))
   }
   this.lastMsg = new Date().getTime()
-  this.rename = (newCID) => {
-    let oldCID = this.cid
-    let clone = {}
-    for (let key in this) {
-      if (this.hasOwnProperty(key)) {
-        clone[key] = this[key]
-      }
-    }
-    clone.cid = newCID
-    delete connections[oldCID]
-    return clone
+  this.ping = function() {
+    this.alive = false
+    this.send({ping: 1})
   }
   this.startStaleTimer = () => {
     clearTimeout(this.staleTimer)
@@ -79,12 +69,15 @@ function Connection(conn, cid) {
     }
     catch {}
     for (const [key, value] of Object.entries(data)) {
+      // Ping-Pong
+      if (key === 'pong') {
+        this.alive = true
+        return
+      }
       // hello: request-cid
-      if (key === 'hello') {
-        let cid
+      else if (key === 'hello') {
         if (value === 1) {
           reply.setCID = this.cid
-          cid = this.cid
         }
         else if (value && typeof value === 'string') {
           await redis2.zrem(`totalSiteVisitors`, this.cid)
@@ -92,18 +85,17 @@ function Connection(conn, cid) {
           if (this.embedStream) {
             await redis2.zrem(`embedVisitors:${this.embedStream}`, this.cid)
           }
-          cid = value
-          connections[cid] = this.rename(cid)
-          if (connections[cid].staleTimer) {
-            connections[cid].startStaleTimer()
+          this.cid = value
+          if (this.staleTimer) {
+            this.startStaleTimer()
           }
         }
-        await redis2.zadd('totalSiteVisitors', ZSCORE, cid)
-        if (connections[cid].premiumUser) {
-          await redis2.zadd('totalPremiumVisitors', ZSCORE, cid)
+        await redis2.zadd('totalSiteVisitors', ZSCORE, this.cid)
+        if (this.premiumUser) {
+          await redis2.zadd('totalPremiumVisitors', ZSCORE, this.cid)
         }
-        if (connections[cid].embedStream) {
-          await redis2.zadd(`embedVisitors:${this.embedStream}`, ZSCORE, cid)
+        if (this.embedStream) {
+          await redis2.zadd(`embedVisitors:${this.embedStream}`, ZSCORE, this.cid)
         }
       }
       // do: reqStream
