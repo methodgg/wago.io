@@ -1,6 +1,6 @@
 <template>
   <div>
-    <wago-app />  
+    <wago-app />
     <advert ad="wago320x50" :forMobile="true" fixed="bottom" />
     <stream-embed v-if="stream" :stream="stream" />
   </div>
@@ -19,7 +19,9 @@ export default {
     stream: function() {
       return this.$store.state.streamEmbed
     }
+  },
+  created: function() {
+    this.$socket.connect()
   }
-
 }
 </script>

@@ -259,39 +259,21 @@ const store = new Vuex.Store({
       state.linkApp = true
     },
 
-    SOCKET_ONOPEN (state, event)  {
-      Vue.prototype.$socket = event.currentTarget
-      state.socket.isConnected = true
-      Vue.prototype.$socket.sendObj({hello: state.socket.cid || 1})
+    SOCKET_OPEN (state, socket)  {
+      socket.send({hello: state.socket.cid || 1})
       if (!state.streamEmbed) {
-        Vue.prototype.$socket.sendObj({do: 'reqStream'})
+        socket.send({do: 'reqStream'})
       }
 
     },
-    SOCKET_ONCLOSE (state, event)  {
-      state.socket.isConnected = false
-    },
-    SOCKET_ONERROR (state, event)  {
-      console.error('socker error', event)
-    },
-    SOCKET_ONMESSAGE (state, data)  {
-      if (data.ping) {
-        Vue.prototype.$socket.sendObj({pong: 1})
-      }
-      else if (data.setStream) {
+    SOCKET_DATA (state, data)  {
+      if (data.setStream) {
         store.commit('setStreamEmbed', data.setStream)
       }
       else if (data.setCID) {
         state.socket.cid = data.setCID
       }
-    },
-    SOCKET_RECONNECT(state, count) {
-      console.info('socket reconnect', count)
-    },
-    SOCKET_RECONNECT_ERROR(state) {
-      console.log('reconnect err')
-      state.socket.reconnectError = true;
-    },
+    }
   },
   getters: {
     i18nLanguage (state) {
@@ -420,15 +402,15 @@ dataServers = dataServers.sort(() => {
   return 0.5 - Math.random()
 })
 
-import VueNativeSock from 'vue-native-websocket'
-if (!isEmbedPage) {
-  Vue.use(VueNativeSock, socketServer, {
-    store: store,
-    format: 'json',
-    reconnection: true,
-    reconnectionDelay: 3000
-  })
-}
+// import VueNativeSock from 'vue-native-websocket'
+// if (!isEmbedPage) {
+//   Vue.use(VueNativeSock, socketServer, {
+//     store: store,
+//     format: 'json',
+//     // reconnection: true,
+//     reconnectionDelay: 3000
+//   })
+// }
 
 import axios from 'axios'
 import VueAxios from 'vue-axios'
@@ -679,6 +661,64 @@ const http = {
   }
 }
 Vue.use(http)
+
+const socket = {
+  install: function (Vue) {
+    Vue.prototype.$socket = {
+      send: (data, onReceive) => {
+        if (!this.connected) {
+          throw 'Can not send while not connected to socket.'
+        }
+        if (onReceive) {
+          data.ident = Math.random().toString(36).substring(2, 15)
+          this.listeners[data.ident] = onReceive
+        }
+        const json = JSON.stringify(data)
+        this.socket.send(json)
+      },
+      connect: () => {
+        if (isEmbedPage) {
+          return
+        }
+        this.listeners = {}
+        let connection = new WebSocket(socketServer)
+        connection.onmessage = (event) => {
+          const data = JSON.parse(event.data)
+          if (data.ping) {
+            this.send({pong: 1})
+          }
+          if (data.ident && this.listeners[data.ident]) {
+            this.listeners[data.ident](data)
+          }
+          else {
+            store.commit('SOCKET_DATA', data, this)
+          }
+        }
+
+        connection.onopen  = (event) => {
+          this.connected = true
+          this.socket = event.target
+          store.commit('SOCKET_OPEN', Vue.prototype.$socket)
+        }
+
+        connection.onclose  = (event) => {
+          connection.close()
+          this.connected = false
+          clearTimeout(this.reconnect)
+          this.reconnect = setTimeout(Vue.prototype.$socket.connect, 5000)
+        }
+
+        connection.onerror  = (error, event) => {
+          connection.close()
+          this.connected = false
+          clearTimeout(this.reconnect)
+          this.reconnect = setTimeout(Vue.prototype.$socket.connect, 5000)
+        }
+      }
+    }
+  }
+}
+Vue.use(socket)
 
 const isMobile = {
   install: (Vue) => {

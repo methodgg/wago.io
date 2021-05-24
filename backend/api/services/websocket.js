@@ -20,7 +20,8 @@ setInterval(async () => {
       delete connections[cid]
     }
     else if (connection.lastMsg < new Date().getTime() - 29000) {
-      connection.ping()
+      connection.alive = false
+      connection.send({ping: 1})
     }
     else {
       // stable connection
@@ -36,9 +37,17 @@ function Connection(conn, cid) {
     this.socket.send(JSON.stringify(obj))
   }
   this.lastMsg = new Date().getTime()
-  this.ping = () => {
-    this.alive = false
-    this.send({ping: 1})
+  this.rename = (newCID) => {
+    let oldCID = this.cid
+    let clone = {}
+    for (let key in this) {
+      if (this.hasOwnProperty(key)) {
+        clone[key] = this[key]
+      }
+    }
+    clone.cid = newCID
+    delete connections[oldCID]
+    return clone
   }
   this.startStaleTimer = () => {
     clearTimeout(this.staleTimer)
@@ -46,7 +55,7 @@ function Connection(conn, cid) {
       if (this.embedStream && this.embedStream !== '__streamspread') {
         await redis2.zrem(`embedVisitors:${this.embedStream}`, this.cid)
         this.embedStream = '__stale'
-        await redis2.zadd(`embedVisitors:${this.embedStream}`, ZSCORE, cid)
+        await redis2.zadd(`embedVisitors:${this.embedStream}`, ZSCORE, this.cid)
       }
     }, 20*60*1000)
   }
@@ -68,8 +77,10 @@ function Connection(conn, cid) {
     for (const [key, value] of Object.entries(data)) {
       // hello: request-cid
       if (key === 'hello') {
+        let cid
         if (value === 1) {
-          this.send({setCID: cid})
+          this.send({setCID: this.cid})
+          cid = this.cid
         }
         else if (value && typeof value === 'string') {
           await redis2.zrem(`totalSiteVisitors`, this.cid)
@@ -77,23 +88,30 @@ function Connection(conn, cid) {
           if (this.embedStream) {
             await redis2.zrem(`embedVisitors:${this.embedStream}`, this.cid)
           }
-          connections[value] = this
-          connections[value].cid = value
+          cid = value
+          connections[cid] = this.rename(cid)
+          if (connections[cid].staleTimer) {
+            connections[cid].startStaleTimer()
+          }
         }
         await redis2.zadd('totalSiteVisitors', ZSCORE, cid)
-        if (this.premiumUser) {
+        if (connections[cid].premiumUser) {
           await redis2.zadd('totalPremiumVisitors', ZSCORE, cid)
         }
-        if (this.embedStream) {
+        if (connections[cid].embedStream) {
           await redis2.zadd(`embedVisitors:${this.embedStream}`, ZSCORE, cid)
         }
       }
       // do: reqStream
       else if (key === 'do' && value === 'reqStream') {
         this.embedStream = await advert.determineStream()
-        await redis2.zadd(`embedVisitors:${this.embedStream}`, ZSCORE, cid)
+        await redis2.zadd(`embedVisitors:${this.embedStream}`, ZSCORE, this.cid)
         this.send({setStream: this.embedStream})
         this.startStaleTimer()
+      }
+      // do: reqStream
+      else if (key === 'do' && value === 'reqWago') {
+        this.send({ident: data.ident, wago: 'test'})
       }
     }
   })
