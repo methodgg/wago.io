@@ -1,8 +1,6 @@
 module.exports = function(data) {
   let codes = []
   if (data.type === 'script' || data['11']) { // Plater script
-    codes = checkTrigger(codes, `${keypath}.triggers[${i}]`, `${data.id}`, data.triggers[''+i].trigger, data.triggers[''+i].untrigger, i)
-
     if (isValidCodeString(data['12'])) {
       codes.push({name: `Constructor`, keypath: `['12']`, lua: data['12'].trim()})
     }

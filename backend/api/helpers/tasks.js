@@ -6,15 +6,15 @@ const lua = require('./lua')
 const md5 = require('md5')
 const mkdirp = require('mkdirp')
 const path = require('path')
-const querystring = require('querystring')
 const updateDataCaches = require('../../middlewares/updateLocalCache')
 const Categories = require(__dirname + '/../../../frontend/src/components/libs/categories')
-const detectCode = require(__dirname + '/../../../frontend/src/components/libs/detectCustomCode')
+const getCode = require('./code-detection/get-code')
 const luacheck = require('./luacheck')
 
 const { MeiliSearch } = require('meilisearch')
 const meili = new MeiliSearch(config.meiliSearch)
 
+const ENUM = require('../../middlewares/enum')
 const logger = require('../../middlewares/matomo')
 const logError = require('../../middlewares/matomoErrors')
 
@@ -725,7 +725,6 @@ async function ProcessCode(data) {
     return
   }
   code.processing = true
-  await code.save()
   if (data.addon && Addons[data.addon]) {
     const addon = Addons[data.addon]
     if (addon && addon.addWagoData) {
@@ -764,7 +763,9 @@ async function ProcessCode(data) {
     case 'TBC-WEAKAURA':
       var json = JSON.parse(code.json)
       code.customCode = getCode(json, doc.type)
+      if (!code.luacheck) {
       code.luacheck = JSON.stringify(await luacheck.run(code.customCode, doc.game))
+      }
       code.processVersion = ENUM.PROCESS_VERSION[doc.type]
     break
 
