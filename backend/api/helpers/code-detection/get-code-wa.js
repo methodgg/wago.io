@@ -17,7 +17,7 @@ module.exports = function(data, keypath) {
     }
   }
   else if (data.trigger && data.trigger.type === 'custom') { // old format
-    codes = checkTrigger(codes, `${keypath}.trigger`, `${data.id}`, data.trigger, data.untrigger, n)
+    codes = checkTrigger(codes, `${keypath}.trigger`, `${data.id}`, data.trigger, data.untrigger, 1)
     if (data.additional_triggers && data.additional_triggers.length) {
       data.additional_triggers.forEach((t, i) => {
         codes = checkTrigger(codes, `${keypath}.additional_triggers[${i+1}]`, `${data.id} - ${i+1}`, t.trigger, t.untrigger, i+2)
@@ -171,7 +171,7 @@ function checkTrigger(codes, keypath, id, trigger, untrigger, index) {
 }
 
 function checkActionCustom(codes, keypath, id, item) {
-  if (item.do_custom && isValidCodeString(item.custom)) {
+  if (item && item.do_custom && isValidCodeString(item.custom)) {
     codes.push({
       name: id,
       keypath: `${keypath}.custom`,
@@ -182,7 +182,7 @@ function checkActionCustom(codes, keypath, id, item) {
 }
 
 function checkActionCustomText(codes, keypath, id, item) {
-  if (isStringMatch(item.message, /%c/) && isValidCodeString(item.message_custom)) {
+  if (item && isStringMatch(item.message, /%c/) && isValidCodeString(item.message_custom)) {
     codes.push({
       name: id,
       keypath: `${keypath}.message_custom`,
