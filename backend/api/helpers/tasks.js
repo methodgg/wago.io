@@ -791,7 +791,9 @@ async function ProcessCode(data) {
       }
       
       code.customCode = getCode(json, doc.type)
+      if (!code.luacheck) {
       code.luacheck = JSON.stringify(await luacheck.run(code.customCode, doc.game))
+      }
       code.processVersion = ENUM.PROCESS_VERSION[doc.type]
     break
   }

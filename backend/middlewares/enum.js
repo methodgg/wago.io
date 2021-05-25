@@ -1,9 +1,9 @@
 module.exports = {
   PROCESS_VERSION: {
-    "WEAKAURA": 2,
-    "CLASSIC-WEAKAURA": 2,
-    "TBC-WEAKAURA": 2,
-    "PLATER": 2,
+    "WEAKAURA": 4,
+    "CLASSIC-WEAKAURA": 4,
+    "TBC-WEAKAURA": 4,
+    "PLATER": 4,
     "SNIPPET": 2
   }
 }
