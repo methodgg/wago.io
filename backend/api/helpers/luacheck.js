@@ -20,21 +20,22 @@ module.exports = {
       if (typeof code[i] !== 'object' || !code[i].lua || typeof code[i].lua !== 'string' || code[i].skipLuacheck) {
         continue
       }
-      var key = `${code[i].id}: ${code[i].name}`
-      code[i].lua = code[i].lua.replace(/-- luacheck:/g, `--`) // don't ignore potential malicous hidings
+      var key = code[i].name
+      let lua = code[i].lua.replace(/-- luacheck:/g, `--`) // don't ignore potential malicous hidings
 
-      if (code[i].lua.match(/^\s*function\s*\(/m)) {
-        code[i].lua = code[i].lua.replace(/^\s*function\s*\(/m, `local fn_${key.replace(/[^a-zA-Z0-9]/g, '')} = function(`) // name anonymous function
-        code[i].lua += `\nfn_${key.replace(/[^a-zA-Z0-9]/g, '')}()` // and then "call" the function so luacheck recognizes that it's used
+      if (lua.match(/^\s*function\s*\(/m)) {
+        lua = lua.replace(/^\s*function\s*\(/m, `local fn_${key.replace(/[^a-zA-Z0-9]/g, '')} = function(`) // name anonymous function
+        lua += `\nfn_${key.replace(/[^a-zA-Z0-9]/g, '')}()` // and then "call" the function so luacheck recognizes that it's used
       }
-      else if (code[i].lua.match(/^{[\s\S]*}$/)) {
-        code[i].lua = 'local t = ' + code[i].lua + ';Wago(t)'
+      else if (lua.match(/^{[\s\S]*}$/)) {
+        lua = 'local t = ' + lua + ';Wago(t)'
       }
 
       let file = new Date().getTime() + Math.random().toString(36).substring(7) + '.lua'
       fileMap[file] = key
-      await fs.writeFile(checkDir + '/' + file, code[i].lua)
+      await fs.writeFile(checkDir + '/' + file, lua)
     }
+
     let check = await exec(`luacheck ${checkDir} --config ${luacheckrc}`)
     if (check && check.stdout) {
       let m
