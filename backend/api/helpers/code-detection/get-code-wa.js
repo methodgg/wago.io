@@ -86,24 +86,23 @@ module.exports = function(data, keypath) {
       }
     })
   }
-
   if (isStringMatch(data.grow, /^custom$/i) && isValidCodeString(data.customGrow)) {
     codes.push({
-      name: `${id} - Custom Grow`,
+      name: `${data.id} - Custom Grow`,
       keypath: `${keypath}.customGrow`,
       lua: data.customGrow.trim()
     })
   }
   if (isStringMatch(data.sort, /^custom$/i) && isValidCodeString(data.customSort)) {
     codes.push({
-      name: `${id} - Custom Sort`,
+      name: `${data.id} - Custom Sort`,
       keypath: `${keypath}.customSort`,
       lua: data.customSort.trim()
     })
   }
   if (isStringMatch(data.anchorPerUnit, /^custom$/i) && isValidCodeString(data.customAnchorPerUnit)) {
     codes.push({
-      name: `${id} - Custom Anchor`,
+      name: `${data.id} - Custom Anchor`,
       keypath: `${keypath}.customAnchorPerUnit`,
       lua: data.customAnchorPerUnit.trim()
     })
@@ -163,8 +162,9 @@ function checkTrigger(codes, keypath, id, trigger, untrigger, index) {
     codes.push({
       name: `${id} - Overlay {$n}`,
       keypath: `${keypath}.trigger.customOverlay${n}`,
-      lua: untrigger.custom.trim()
+      lua: trigger['customOverlay' + n].trim()
     })
+    n++
   }
 
   return codes
