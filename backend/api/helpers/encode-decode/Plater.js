@@ -1,3 +1,5 @@
+const getCode = require('../code-detection/get-code')
+
 module.exports = {
   typeMatch: /^PLATER$/,
 
@@ -18,8 +20,7 @@ module.exports = {
       if not(success) then
         return ''
       end
-      return JSON:encode(deserialized)
-    `
+      return JSON:encode(deserialized)`
     try {
       let json = await exec(lua)
       return JSON.parse(json)
@@ -110,7 +111,7 @@ module.exports = {
       meta.name = obj['1']
       meta.description = obj['3']
     }
-    
+
     if (!meta.description && obj.info && obj.info.desc) {
       meta.description = obj.info.desc
     }
@@ -123,7 +124,7 @@ module.exports = {
       return
     }
     let json = JSON.parse(code.json)
-    
+
     if (Array.isArray(json)) {
       var tbl = {}
       json.forEach((v, k) => {
@@ -148,13 +149,14 @@ module.exports = {
     else if (json.type === 'hook') {
       sysCat = 'plater3'
     }
-    
+
     json.url = wago.url + '/' + code.version
     json.version = code.version
     json.semver = code.versionString
-      
+
     json = sortJSON(json) // sort by key so that we can diff the full table
     code.json = JSON.stringify(json)
+    code.customCode = getCode(json, wago.type)
 
     // category setup
     if (wago.categories.indexOf('plater0') < 0) {

@@ -717,17 +717,11 @@ async function SyncMeili(table) {
   }
 }
 
-const processVersions = {
-  PLATER: 2,
-  SNIPPET: 2,
-  WEAKAURA: 2
-}
-const encodeDecodeAddons = require('fs').readdirSync('./api/helpers/encode-decode')
 async function ProcessCode(data) {
   if (!data.id) return
   var doc = await WagoItem.lookup(data.id)
   var code = await WagoCode.lookup(data.id, data.version)
-  if (!doc || !code) {
+  if (!doc || !code || doc.encrypted) {
     return
   }
   code.processing = true
@@ -762,15 +756,16 @@ async function ProcessCode(data) {
   switch (doc.type) {
     case 'SNIPPET':
       code.luacheck = JSON.stringify(await luacheck.run([{id: 'Lua', name: 'Snippet', lua: code.lua}]))
-      code.processVersion = processVersions.SNIPPET
+      code.processVersion = ENUM.PROCESS_VERSION[doc.type]
     break
 
     case 'WEAKAURA':
     case 'CLASSIC-WEAKAURA':
+    case 'TBC-WEAKAURA':
       var json = JSON.parse(code.json)
-      var customCode = detectCode.WeakAura(json)      
-      code.luacheck = JSON.stringify(await luacheck.run(customCode, doc.game))
-      code.processVersion = processVersions.WEAKAURA
+      code.customCode = getCode(json, doc.type)
+      code.luacheck = JSON.stringify(await luacheck.run(code.customCode, doc.game))
+      code.processVersion = ENUM.PROCESS_VERSION[doc.type]
     break
 
     case 'PLATER':
@@ -794,9 +789,9 @@ async function ProcessCode(data) {
         code.encoded = encoded
       }
       
-      var customCode = detectCode.Plater(json)   
-      code.luacheck = JSON.stringify(await luacheck.run(customCode))
-      code.processVersion = processVersions.PLATER
+      code.customCode = getCode(json, doc.type)
+      code.luacheck = JSON.stringify(await luacheck.run(code.customCode, doc.game))
+      code.processVersion = ENUM.PROCESS_VERSION[doc.type]
     break
   }
   if (code.luacheck && code.luacheck.match(commonRegex.WeakAuraBlacklist)) {
@@ -805,6 +800,10 @@ async function ProcessCode(data) {
   else if (code.blocked) {
     doc.blocked = false
   }
+
+  await WagoCode.updateMany({auraID: doc._id, _id: {$ne: code._id}}, {$set: {isLatestVersion: false}})
+  code.isLatestVersion = true
+
     await doc.save()
   await code.save()
 }

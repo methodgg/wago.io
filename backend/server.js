@@ -44,6 +44,7 @@ fastify.register(require('fastify-websocket'), {
 })
 
 // --- DECORATORS
+fastify.decorate('enum', require('./middlewares/enum'))
 fastify.decorateRequest('track', require('./middlewares/matomo'))
 fastify.decorateRequest('trackError', require('./middlewares/matomoErrors'))
 fastify.decorateReply('cache', require('./middlewares/cache'))

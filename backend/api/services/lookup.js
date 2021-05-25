@@ -362,7 +362,7 @@ module.exports = function (fastify, opts, next) {
         return
       }
       // if we need to add regionType or textures to the doc, do so now
-      if ((doc.type === 'WEAKAURA' || doc.type === 'CLASSIC-WEAKAURA') && !doc.encrypted && (!doc.regionType || !doc.mediaReview)) {
+      if (doc.type.match(/WEAKAURA/) && !doc.encrypted && (!doc.regionType || !doc.mediaReview)) {
         const json = JSON.parse(versions[0].json)
         if (!doc.regionType) {
           doc.regionType = json.d.regionType
@@ -626,8 +626,9 @@ module.exports = function (fastify, opts, next) {
       }
     }
 
-    if (!code.processVersion || code.processVersion < 2) {
+    if (fastify.enum.PROCESS_VERSION[doc.type] && (!code.processVersion || code.processVersion < fastify.enum.PROCESS_VERSION[doc.type])) {
       code.luacheck = null
+      code.customCode = null
       if (doc.type.match(/SNIPPET|WEAKAURA|PLATER/i) && req.query.qupdate) {
         var checkQ = await taskQueue.getWaiting(0, 500)
         for (let i = 0; i < checkQ.length; i++) {
@@ -717,6 +718,8 @@ module.exports = function (fastify, opts, next) {
     wagoCode.version = code.version
     wagoCode.versionString = versionString
     wagoCode.changelog = code.changelog
+    wagoCode.customCode = code.customCode
+    wagoCode.customCodeEncrypted = code.customCodeEncrypted
 
     if (wagoCode.Q) {
       return res.send(wagoCode)

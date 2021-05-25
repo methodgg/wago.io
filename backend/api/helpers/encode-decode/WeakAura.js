@@ -1,3 +1,5 @@
+const getCode = require('../code-detection/get-code')
+
 module.exports = {
   typeMatch: /^(CLASSIC-|TBC-)?WEAKAURA$/i,
 
@@ -9,7 +11,7 @@ module.exports = {
     const lua = `
       local str = "${encodedString}"
       local _, _, encodeVersion, encoded = str:find("^(!WA:%d+!)(.+)$")
-      if encodeVersion then 
+      if encodeVersion then
         encodeVersion = tonumber(encodeVersion:match("%d+"))
       else
         encoded, encodeVersion = str:gsub("^%!", "")
@@ -30,7 +32,7 @@ module.exports = {
       end
 
       if not(decompressed) then
-        return ''        
+        return ''
       end
 
       local success, deserialized
@@ -256,8 +258,30 @@ module.exports = {
           delete json.c[i].skipWagoUpdate
         }
       }
+
+      if (json.d.tocversion) {
+        if ((json.d.tocversion+'').match(/^113/)) {
+          wago.type = 'CLASSIC-WEAKAURA'
+          wago.game = 'classic'
+        }
+        else if ((json.d.tocversion+'').match(/^20/)) {
+          wago.type = 'TBC-WEAKAURA'
+          wago.game = 'tbc'
+        }
+        else if ((json.d.tocversion+'').match(/^80/)) {
+          wago.type = 'WEAKAURA'
+          wago.game = 'bfa'
+        }
+        else if ((json.d.tocversion+'').match(/^90/)) {
+          wago.type = 'WEAKAURA'
+          wago.game = 'sl'
+        }
+      }
+
       json = sortJSON(json)
       code.json = JSON.stringify(json)
+      code.customCode = getCode(json, wago.type)
+
       return {code, wago}
     }
     catch (e) {

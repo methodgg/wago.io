@@ -5,7 +5,6 @@ const webhooks = require('../helpers/webhooks')
 const battlenet = require('../helpers/battlenet')
 const semver = require('semver')
 const crypto = require("crypto-js")
-const encodeDecodeAddons = require('fs').readdirSync('./api/helpers/encode-decode')
 
 module.exports = function (fastify, opts, next) {
 /**
@@ -28,11 +27,17 @@ module.exports = function (fastify, opts, next) {
       if (scan.decoded) {
         continue
       }
-      else if (!decodedObj && (!req.body.type || req.body.type.match(addon.typeMatch))) {
+      else if (!decodedObj && (!req.body.type || req.body.type.match(addon.typeMatch) || (req.body.wagolib && addonFile === 'WagoLib'))) {
         decodedObj = await addon.decode(req.body.importString.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim(), lua.runLua)
       }
-      if (!decodedObj || (req.body.type && !req.body.type.match(addon.typeMatch))) {
-        // if it was decoded but that decoding process is shared with a different addon (but import is NOT this addon) the move along
+      if (!decodedObj) {
+        continue
+      }
+      else if (req.body.wagolib && addonFile === 'WagoLib') {
+        // wagolib's string format won't be replicated so allow regardless of type
+      }
+      else if (req.body.type && !req.body.type.match(addon.typeMatch)) {
+        // if string was decoded but for a different addon (keep the decoded obj but search for the correct addon)
         continue
       }
       let meta = addon.processMeta(decodedObj)
@@ -46,6 +51,9 @@ module.exports = function (fastify, opts, next) {
         scan.addon = addonFile
         await scan.save()
         scan.scan = scan._id
+        if (meta.wagolibAddon) {
+          scan.type = meta.wagolibAddon // after save; only for display
+        }
       }
     }
 
@@ -111,7 +119,7 @@ module.exports = function (fastify, opts, next) {
     }
 
     var decoded = null
-    if (test.DEFLATE) {
+    if (!decoded && test.DEFLATE) {
       // several addons use Deflate - some prepend ! to identify deflate vs older format
       decoded = await lua.DecodeDeflate(req.body.importString.replace(/^!/, ''))
     }
@@ -129,7 +137,6 @@ module.exports = function (fastify, opts, next) {
       decoded = await lua.DecodeOPie(req.body.importString)
     }
 
-    var scan = new ImportScan()
     if (decoded && decoded.obj.wagoID) {
       scan.fork = decoded.obj.wagoID
     }
@@ -751,6 +758,9 @@ module.exports = function (fastify, opts, next) {
       if (wago.type.match(addon.typeMatch)) {
         if (addon.addWagoData) {
           let data = addon.addWagoData(code, wago)
+          if (data.invalid) {
+            return res.code(403).send({error: data.invalid})
+          }
           if (data && data.code) {
             code = data.code
       }
@@ -767,11 +777,14 @@ module.exports = function (fastify, opts, next) {
       code.json = crypto.AES.encrypt(code.json, req.body.cipherKey)
       code.text = crypto.AES.encrypt(code.text, req.body.cipherKey)
       code.lua = crypto.AES.encrypt(code.lua, req.body.cipherKey)
+      code.customCodeEncrypted = crypto.AES.encrypt(JSON.stringify(code.customCode), req.body.cipherKey)
+      delete code.customCode
     }
 
     code.version = wago.latestVersion.iteration
     code.versionString = wago.latestVersion.versionString
     wago.modified = Date.now()
+
     await code.save()
     await wago.save()
 
@@ -785,14 +798,7 @@ module.exports = function (fastify, opts, next) {
     if (req.user && !wago.hidden && !wago.private && !wago.restricted && req.user.discord && req.user.discord.webhooks && req.user.discord.webhooks.onCreate) {
       webhooks.discord.onUpdate(req.user, wago)
     }
-    redis.del(wago._id)
-    redis.del(wago.slug)
-    redis.del('API:' + wago._id)
-    redis.del('API:' + wago.slug)
-    await cloudflare.zones.purgeCache(config.cloudflare.zoneID, {files: [
-      `https://data.wago.io/api/raw/encoded?id=${wago._id}`,
-      `https://data.wago.io/api/raw/encoded?id=${wago.slug}`
-    ]})  
+    redis.clear(wago)
     res.send({success: true, wagoID: wago._id})
   })
 
@@ -855,6 +861,9 @@ module.exports = function (fastify, opts, next) {
       if (wago.type.match(addon.typeMatch)) {
         if (addon.addWagoData) {
           let data = addon.addWagoData(code, wago)
+          if (data.invalid) {
+            return res.code(403).send({error: data.invalid})
+          }
           if (data && data.code) {
             code = data.code
           }
@@ -1040,12 +1049,13 @@ module.exports = function (fastify, opts, next) {
       var jsonString = JSON.stringify(json)
     }
     catch (e) {
+      console.log(e)
       return res.code(400).send({error: "Invalid data"})
     }
     var encoded
     for (const addonFile in Addons) {
       const addon = Addons[addonFile]
-      if (req.body.type && req.body.type.match(addon.typeMatch)) {
+      if ((req.body.type && req.body.type.match(addon.typeMatch)) || (req.body.wagolib && addonFile === 'WagoLib')) {
         encoded = await addon.encode(jsonString.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim(), lua.runLua)
         let meta = addon.processMeta(json)
         if (encoded && meta) {

@@ -1,5 +1,8 @@
 var moment = require('moment')
 var patches = [
+  {date: moment('2021-04-20T03:00:00Z'), game: 'tbc', patch: "WoW TBC Classic 2.5.1 Beta"},
+
+  {date: moment('2021-04-20T03:00:00Z'), game: 'classic', patch: "WoW Classic 1.13.7"},
   {date: moment('2020-12-01T03:00:00Z'), game: 'classic', patch: "WoW Classic 1.13.6"},
   {date: moment('2020-07-07T03:00:00Z'), game: 'classic', patch: "WoW Classic 1.13.5"},
   {date: moment('2020-03-10T03:00:00Z'), game: 'classic', patch: "WoW Classic 1.13.4"},

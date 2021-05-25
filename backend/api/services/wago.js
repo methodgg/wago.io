@@ -272,6 +272,10 @@ module.exports = function (fastify, opts, next) {
             if (code[i].lua) {
               code[i].lua = crypto.AES.decrypt(code[i].lua, req.body.decrypt).toString(crypto.enc.Utf8)
             }
+            if (code[i].customCodeEncrypted) {
+              code[i].customCode = JSON.parse(crypto.AES.decrypt(code[i].customCodeEncrypted, req.body.decrypt).toString(crypto.enc.Utf8))
+              delete code[i].customCodeEncrypted
+            }
           }
           catch (e) {
             console.log(e)
@@ -280,10 +284,13 @@ module.exports = function (fastify, opts, next) {
         }
 
         if (req.body.cipherKey && !req.body.visibility) {
+          wago.customCodeEncrypted = crypto.AES.encrypt(JSON.stringify(wago.customCode), req.body.cipherKey)
           code[i].encoded = crypto.AES.encrypt(code[i].encoded, req.body.cipherKey)
           code[i].json = crypto.AES.encrypt(code[i].json, req.body.cipherKey)
           code[i].text = crypto.AES.encrypt(code[i].text, req.body.cipherKey)
           code[i].lua = crypto.AES.encrypt(code[i].lua, req.body.cipherKey)
+          code[i].customCodeEncrypted = crypto.AES.encrypt(JSON.stringify(code[i].customCode), req.body.cipherKey)
+          delete code[i].customCode
         }
         await code[i].save()
       }
@@ -296,6 +303,9 @@ module.exports = function (fastify, opts, next) {
         else if (req.body.visibility === 'Private') {
           wago.private = true
         }        
+        else if (req.body.visibility === 'Restricted') {
+          wago.restricted = true
+        }
       }
       else {
         wago.encrypted = true
