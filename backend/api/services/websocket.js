@@ -7,27 +7,6 @@ const connections = {}
 function makeCID() {
   return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
 }
-setInterval(async () => {
-  // console.log(Object.keys(connections))
-  // console.log(await redis2.zrange('totalSiteVisitors', 0, 99))
-  for (const [oid, connection] of Object.entries(connections)) {
-    if (!connection.alive) {
-      clearTimeout(connection.staleTimer)
-      await redis2.zrem(`totalSiteVisitors`, connection.cid)
-      await redis2.zrem('totalPremiumVisitors', connection.cid)
-      if (connection.embedStream) {
-        await redis2.zrem(`embedVisitors:${connection.embedStream}`, connection.cid)
-      }
-      delete connections[oid]
-    }
-    else if (connection.lastMsg < new Date().getTime() - 30000) {
-      connection.ping()
-    }
-    else {
-      // stable connection
-    }
-  }
-}, 29000)
 
 function Connection(conn, cid) {
   this.socket = conn.socket
@@ -80,11 +59,6 @@ function Connection(conn, cid) {
           reply.setCID = this.cid
         }
         else if (value && typeof value === 'string') {
-          await redis2.zrem(`totalSiteVisitors`, this.cid)
-          await redis2.zrem('totalPremiumVisitors', this.cid)
-          if (this.embedStream) {
-            await redis2.zrem(`embedVisitors:${this.embedStream}`, this.cid)
-          }
           this.cid = value
           if (this.staleTimer) {
             this.startStaleTimer()
@@ -128,15 +102,56 @@ module.exports = async function (connection, req) {
   catch (e) {console.log(e)}
 }
 
-// on server restart clear the current counts for this host
-async function restart() {
-  await redis2.zremrangebyscore('totalSiteVisitors', ZSCORE, ZSCORE)
-  await redis2.zremrangebyscore('totalPremiumVisitors', ZSCORE, ZSCORE)
-  const streams = await Streamers.find({})
-  streams.forEach(async (stream) => {
-    await redis2.zremrangebyscore(`embedVisitors:${stream.name}`, ZSCORE, ZSCORE)
+
+// handle ping and cleanup dead connections
+setInterval(async () => {
+  for (const [oid, connection] of Object.entries(connections)) {
+    if (!connection.alive) {
+      clearTimeout(connection.staleTimer)
+      await redis2.zrem(`totalSiteVisitors`, connection.cid)
+      await redis2.zrem('totalPremiumVisitors', connection.cid)
+      if (this.embedStream) {
+        await redis2.zrem(`embedVisitors:${this.embedStream}`, connection.cid)
+      }
+      else {
+        const streams = await Streamers.find({online: {$gt: 0}})
+        for (let i=0; i<streams.length; i++) {
+          let c = await redis2.zrem(`embedVisitors:${streams[i].name}`, connection.cid)
+          if (c) {
+            break
+          }
+        }
+        await redis2.zrem(`embedVisitors:__streamspread`, connection.cid)
+        await redis2.zrem(`embedVisitors:__stale`, connection.cid)
+      }
+      delete connections[oid]
+    }
+    else if (connection.lastMsg < new Date().getTime() - 30000) {
+      connection.ping()
+    }
+    else {
+      // stable connection
+    }
+  }
+}, 29000)
+
+// shortly after server restart, clear out old redis data for clients that did not reconnect
+setTimeout(async function() {
+  const cids = await redis2.zrangebyscore('totalSiteVisitors', ZSCORE, ZSCORE)
+  const conns = Object.values(connections).map(a => a.cid)
+  await cids.forEach(async (cid) => {
+    if (conns.indexOf(cid) === -1) {
+      await redis2.zrem(`totalSiteVisitors`, cid)
+      await redis2.zrem('totalPremiumVisitors', cid)
+      const streams = await Streamers.find({online: {$gt: 0}})
+      for (let i=0; i<streams.length; i++) {
+        let c = await redis2.zrem(`embedVisitors:${streams[i].name}`, cid)
+        if (c) {
+          break
+        }
+      }
+      await redis2.zrem(`embedVisitors:__streamspread`, cid)
+      await redis2.zrem(`embedVisitors:__stale`, cid)
+    }
   })
-  await redis2.zremrangebyscore(`embedVisitors:__streamspread`, ZSCORE, ZSCORE)
-  await redis2.zremrangebyscore(`embedVisitors:__stale`, ZSCORE, ZSCORE)
-}
-restart()
+}, 40000)
