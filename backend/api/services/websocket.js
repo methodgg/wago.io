@@ -26,7 +26,7 @@ function Connection(conn, cid) {
         await redis2.zadd(`allEmbeds:${that.embedStream}`, ZSCORE, that.cid)
         await redis2.set(`currentstream:${cid}`, that.embedStream)
       }
-    }, 20*1000) // go stale after 20 min
+    }, 20*60*1000) // go stale after 20 min
   }
   this.socket.on('close', () => {
     this.ping() // check if user has other tabs open before deleting connection info
