@@ -260,12 +260,6 @@ const store = new Vuex.Store({
     },
 
     SOCKET_OPEN (state, socket)  {
-      try {
-      socket.send({hello: state.socket.cid || 1})
-      if (!state.streamEmbed) {
-        socket.send({do: 'reqStream'})
-      }
-    } catch(e) {console.log(e)}
 
     },
     SOCKET_DATA (state, data)  {
@@ -387,6 +381,7 @@ Vue.use({install: function (v) {
 var dataServers
 var authServer
 var socketServer
+const socketCID = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
 if (process.env.NODE_ENV === 'development') {
   dataServers = ['http://io:3030']
   authServer = 'http://io:3030'
@@ -683,7 +678,7 @@ const socket = {
           return
         }
         this.listeners = {}
-        let connection = new WebSocket(socketServer)
+        let connection = new WebSocket(`${socketServer}?cid=${socketCID}`)
         connection.onmessage = (event) => {
           const data = JSON.parse(event.data)
           if (data.ping) {
