@@ -54,7 +54,7 @@ module.exports = (fastify, opts, next) => {
     }
     const ZSCORE = parseInt(config.host.split(/-/)[1])
     var data = {}
-    data.connections = await redis2.zcount('totalSiteVisitors', ZSCORE, ZSCORE)
+    data.connections = await redis2.zcount('allSiteVisitors', ZSCORE, ZSCORE)
     res.send(data)
   })
 
@@ -113,11 +113,11 @@ module.exports = (fastify, opts, next) => {
     }
     var data = await SiteData.findById('EmbeddedStream').lean().exec()
     data = data.value || {}
-    data.activeUsers = await redis2.zcard('totalSiteVisitors')
+    data.activeUsers = await redis2.zcard('allSiteVisitors')
     if (!data.streams) data.streams = []
     for (let i = 0; i < data.streams.length; i++) {
       data.streams[i].online = await redis.get(`twitch:${data.streams[i].channel}:live`)
-      data.streams[i].viewing = await redis2.zcard(`embedVisitors:${data.streams[i].channel}`)
+      data.streams[i].viewing = await redis2.zcard(`allEmbeds:${data.streams[i].channel}`)
     }
     res.send(data)
   })
@@ -145,27 +145,28 @@ module.exports = (fastify, opts, next) => {
     await updateDataCaches.queue('EmbeddedStream')
     await streams.forEach(async (stream, i) => {
       streams[i].online = channelStatuses[stream.channel]
-      streams[i].viewing = await redis2.zcard(`embedVisitors:${streams[i].channel}`)
+      streams[i].viewing = await redis2.zcard(`allEmbeds:${streams[i].channel}`)
     })
-    res.send({success: true, streams: streams, enabled: data.enabled, activeUsers: await redis2.zcard('totalSiteVisitors')})
+    res.send({success: true, streams: streams, enabled: data.enabled, activeUsers: await redis2.zcard('allSiteVisitors')})
   })
 
   fastify.get('/getstreamers', async (req, res) => {
     if (!req.user || !req.user.isAdmin.access || !(req.user.isAdmin.super || req.user.isAdmin.config.embed)) {
       return res.code(403).send({error: "forbidden"})
     }
+
     const streams = await Streamers.find({}).sort({online: -1, offline: -1})
     let streamViewers = 0
     for (let i = 0; i < streams.length; i++) {
-      streams[i].wagoViewers = await redis2.zcard(`embedVisitors:${streams[i].name}`)
+      streams[i].wagoViewers = await redis2.zcard(`allEmbeds:${streams[i].name}`)
       streams[i].viewers = Math.max(streams[i].viewers - streams[i].wagoViewers, 0)
       streamViewers = streamViewers + streams[i].wagoViewers
     }
     const users = {
-      total: await redis2.zcard('totalSiteVisitors'),
-      subs: await redis2.zcard('totalPremiumVisitors'),
-      streamspread: await redis2.zcard('embedVisitors:__streamspread'),
-      stale: await redis2.zcard('embedVisitors:__stale'),
+      total: await redis2.zcard('allSiteVisitors'),
+      subs: await redis2.zcard('allPremiumVisitors'),
+      streamspread: await redis2.zcard('allEmbeds:__streamspread'),
+      stale: await redis2.zcard('allEmbeds:__stale'),
       closed: await redis2.zcard(`stream:__closed`),
       viewing: streamViewers
     }
