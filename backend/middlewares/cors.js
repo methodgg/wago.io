@@ -1,14 +1,25 @@
 module.exports = function (req, res, next) {
   const method = req.raw.method && req.raw.method.toUpperCase && req.raw.method.toUpperCase()
-  const allowedOrigins = ['https://wago.io', 'http://io:8080']
+  const allowedOrigins = [/^https:\/\/([^.]+\.)?wago.io/, /^http:\/\/io:8080/]
 
+  let allow = true
   if (!req.headers.origin) {
     res.header('Access-Control-Allow-Origin', '*')
   }
-  else if (allowedOrigins.indexOf(req.headers.origin) >= 0 || req.raw.url.match(/^\/api\//)) {
+  else if (req.raw.url.match(/^\/api\//)) {
     res.header('Access-Control-Allow-Origin', req.headers.origin)
   }
   else {
+    allow = false
+    for (let i = 0; i < allowedOrigins.length; i++) {
+      if (req.headers.origin.match(allowedOrigins[i])) {
+        res.header('Access-Control-Allow-Origin', req.headers.origin)
+        allow = true
+        break
+      }
+    }
+  }
+  if (!allow) {
     res.header('Access-Control-Allow-Origin', false)
   }
   res.header('Vary', 'Origin')
