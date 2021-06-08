@@ -91,7 +91,7 @@ module.exports = function (fastify, opts, next) {
     var wagos = []
     var docs = []
     if (lookup.length) {
-      docs = await WagoItem.find({'$and': [{'$or' : [{_id: lookup}, {custom_slug: lookup}]}, findType], deleted: false, blocked: false}).populate({path: '_userId', select: {restrictedGuilds: 1, restrictedTwitchUsers: 1, restrictedUsers: 1, account: 1}})
+      docs = await WagoItem.find({'$and': [{'$or' : [{_id: lookup}, {custom_slug: lookup}]}, findType], deleted: false, blocked: false, moderated: false}).populate({path: '_userId', select: {restrictedGuilds: 1, restrictedTwitchUsers: 1, restrictedUsers: 1, account: 1}})
     }
     await Promise.all(docs.concat(cached).map(async (doc) => {
       if ((doc.private && (!req.user || !req.user._id.equals(doc._userId._id))) || (!req.query.encrypted && doc.encrypted)) {
@@ -201,7 +201,7 @@ module.exports = function (fastify, opts, next) {
     }
 
     var wago = await WagoItem.lookup(req.query.id)
-    if (!wago || wago.deleted || wago.blocked) {
+    if (!wago || wago.deleted || wago.blocked || wago.moderated) {
       return res.code(404).send({error: "page_not_found"})
     }
     else if (wago.private && (!req.user || !req.user._id.equals(wago._userId))) {
