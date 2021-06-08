@@ -74,25 +74,35 @@ module.exports = {
     onReport: async (author, wago, moderation) => {
       // build message
       const avatar = await author.avatarURL
-      let color = '#a26900'
+      let color = 10643712 // orange
       if (moderation.action === 'Review') {
-        color = '#0075a2'
+        color = 30114 // blue
       }
-
-      const embed = new Discord.MessageEmbed()
-        .setColor(color)
-        .setTitle(`Moderation: ${moderation.action} - ${moderation.details}`)
-        .setDescription(moderation.comment)
-        .setURL(wago.url)
-        .setImage(await wago.getThumbnailURL())
-        .setAuthor(author.account.username, avatar.png, `https://wago.io${author.profile.url}`)
-        .setTimestamp()
-        .setFooter('Wago.io', 'https://media.wago.io/favicon/favicon-16x16.png')
 
       try {
         const wh = config.webhooks.moderationReport.match(/\/api\/webhooks\/(\w+)\/([-\w]+)$/)
-        const webhookClient = new Discord.WebhookClient(wh[1], wh[2])
-        await webhookClient.send(embed)
+        sendDiscordWebhook({
+          embeds: [{
+            title: `Moderation: ${moderation.action} - ${moderation.details}`,
+            type: 'rich',
+            description: moderation.comment || '',
+            url: wago.url,
+            timestamp: new Date(),
+            color: color,
+            image: {
+              url: await wago.getThumbnailURL(),
+            },
+            author: {
+              name: author.account.username,
+              url: `https://wago.io${author.profile.url}`,
+              icon_url: avatar.png
+            },
+            footer: {
+              text: 'Wago.io',
+              icon_url: 'https://media.wago.io/favicon/favicon-16x16.png'
+            }
+          }]
+        }, wh[1], wh[2])
       }
       catch (e) {
         console.log('discord create webhook error', e)
@@ -100,3 +110,8 @@ module.exports = {
     }
   }
 }
+
+async function sendDiscordWebhook(data, id, token) {
+  await axios.post(`https://discord.com/api/webhooks/${id}/${token}?wait=true`, data)
+}
+
