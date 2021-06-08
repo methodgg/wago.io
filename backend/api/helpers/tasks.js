@@ -12,7 +12,7 @@ const getCode = require('./code-detection/get-code')
 const luacheck = require('./luacheck')
 
 const { MeiliSearch } = require('meilisearch')
-const meili = new MeiliSearch(config.meiliSearch)
+const meiliWagoApp = new MeiliSearch(config.meiliWagoApp)
 
 const ENUM = require('../../middlewares/enum')
 const logger = require('../../middlewares/matomo')
@@ -586,24 +586,35 @@ async function SyncElastic(table) {
 
 async function SyncMeili(table) {
   console.log("SYNC MEILI", table)
-  const meiliWAIndex = meili.index('weakauras')
+  const meiliWagoAppIndex = meiliWagoApp.index('weakauras')
+  // const meiliImportIndex = meili.index('imports')
+  // const meiliCodeIndex = meili.index('code')
+  const meiliBatchSize = config.env === 'development' && 2500 || 5000
   switch (table){
-    case 'WA:ToDo':
-      const todoDocs = await redis.getJSON('meili:todo:weakauras') || []
-      if (todoDocs.length) {
-        redis.setJSON('meili:todo:weakauras', [])
-        await meiliWAIndex.addDocuments(todoDocs)
+    case 'Imports:ToDo':
+      // const todoDocs = await redis.getJSON('meili:todo:imports') || []
+      // if (todoDocs.length) {
+      //   redis.setJSON('meili:todo:imports', [])
+      //   await meiliImportIndex.addDocuments(todoDocs)
+      // }
+
+      const todoDocsWA = await redis.getJSON('meili:todo:wagoapp') || []
+      if (todoDocsWA.length) {
+        redis.setJSON('meili:todo:wagoapp', [])
+        await meiliWagoAppIndex.addDocuments(todoDocsWA)
       }
       break
-    case 'WA:Metrics':
-      const lastIndexDate = await redis.get('meili:WA:Metrics:Date')
-      var metricsDocs = []
+
+    case 'Imports:Metrics':
+      const lastIndexDate = await redis.get('meili:Metrics:Date')
+      var metricsDocsWagoApp = []
+      var metricsDocsImports = []
       if (!lastIndexDate) {
-        redis.set('meili:WA:Metrics:Date', new Date().toISOString())
-        return
+        redis.set('meili:Metrics:Date', new Date().toISOString())
       }
+      else {
       var cursor = WagoItem.aggregate([
-        {$match: {_meiliWA: true}},
+          {$match: {_meili: true}},
         {$lookup: {
           from: 'wagofavorites',
           as: 'fave',
@@ -635,28 +646,96 @@ async function SyncMeili(table) {
       ]).cursor()
 
       for await (const doc of cursor) {
-        metricsDocs.push({
+          let metrics = {
           id: doc._id,
           installs: doc.popularity.installed_count,
           stars: doc.popularity.favorite_count,
           views: doc.popularity.views,
           viewsThisWeek: doc.popularity.viewsThisWeek
-        })
-        if (metricsDocs.length >= 5000) {
-          await meiliWAIndex.updateDocuments(metricsDocs)
-          metricsDocs = []
+          }
+          // metricsDocsImports.push(Object.assign(metrics, {
+          //   comments: doc.popularity.comments_count
+          // }))
+          // if (metricsDocsImports.length >= meiliBatchSize) {
+          //   await meiliImportIndex.updateDocuments(metricsDocsImports)
+          //   metricsDocsImports = []
+          // }
+
+          // wago app
+          if (doc._meiliWA) {
+            metricsDocsWagoApp.push(metrics)
+          }
+          if (metricsDocsWagoApp.length >= meiliBatchSize) {
+            await meiliWagoAppIndex.updateDocuments(metricsDocsWagoApp)
+            metricsDocsWagoApp = []
         }
       }
       
-      if (metricsDocs.length) {
-        await meiliWAIndex.updateDocuments(metricsDocs)
-        metricsDocs = []
+        // if (metricsDocsImports.length) {
+        //   await meiliImportIndex.updateDocuments(metricsDocsImports)
+        //   metricsDocsImports = []
+        // }
+        if (metricsDocsWagoApp.length) {
+          await meiliWagoAppIndex.updateDocuments(metricsDocsWagoApp)
+          metricsDocsWagoApp = []
       }
 
-      redis.set('meili:WA:Metrics:Date', new Date().toISOString())
+        redis.set('meili:Metrics:Date', new Date().toISOString())
+      }
       break
 
-    case 'WagoItem': // complete DB sync
+    // case 'Imports': // complete DB sync
+    //     var count = 0
+    //     var syncDocs = []
+    //     var cursor = WagoItem.find({
+    //       _userId: {$exists: true},
+    //       expires_at: null,
+    //       $or: [{
+    //         deleted: false,
+    //       },
+    //       {
+    //         _meili: true,
+    //         $or: [
+    //           {deleted: true}
+    //         ]
+    //       }]
+    //     }).cursor()
+
+    //     for (let doc = await cursor.next(); doc != null; doc = await cursor.next()) {
+    //       count++
+    //       if (doc.deleted) {
+    //         await meiliImportIndex.deleteDocument(doc._id)
+    //         doc._meili = false
+    //         await doc.save()
+    //       }
+    //       else {
+    //         syncDocs.push(await doc.meiliImportData)
+    //         if (syncDocs.length >= meiliBatchSize) {
+    //           let res = await meiliImportIndex.addDocuments(syncDocs)
+    //           console.log(res)
+    //           syncDocs = []
+    //         }
+    //         if (!doc._meili) {
+    //           doc._meili = true
+    //           try {
+    //             await doc.save()
+    //           }
+    //           catch(e) {
+    //             console.log(e)
+    //             console.log(doc)
+    //           }
+    //         }
+    //       }
+    //       if (count%1000 == 0) {
+    //         console.log('sync meili', count)
+    //       }
+    //     }
+    //     if (syncDocs.length) {
+    //       await meiliImportIndex.addDocuments(syncDocs)
+    //     }
+    //     break
+
+    case 'WagoApp': // complete DB sync
       var count = 0
       var syncDocs = []
       var cursor = WagoItem.find({
@@ -687,14 +766,14 @@ async function SyncMeili(table) {
       for (let doc = await cursor.next(); doc != null; doc = await cursor.next()) {
         count++
         if (doc.hidden || doc.private || doc.encrypted || doc.restricted || doc.deleted || doc.blocked) {
-          await meiliWAIndex.deleteDocument(doc._id)
+          await meiliWagoAppIndex.deleteDocument(doc._id)
           doc._meiliWA = false
           await doc.save()
         }
         else {
           syncDocs.push(await doc.meiliWAData)
-          if (syncDocs.length >= 5000) {
-            await meiliWAIndex.addDocuments(syncDocs)
+          if (syncDocs.length >= meiliBatchSize) {
+            await meiliWagoAppIndex.addDocuments(syncDocs)
             syncDocs = []
           }
           if (!doc._meiliWA) {
@@ -707,10 +786,55 @@ async function SyncMeili(table) {
         }
       }
       if (syncDocs.length) {        
-        await meiliWAIndex.addDocuments(syncDocs)
+        await meiliWagoAppIndex.addDocuments(syncDocs)
       }
-      redis.set('meili:WA:Metrics:Date', new Date().toISOString())
       break
+
+    // case 'Code': // complete DB sync
+    //   return
+    //   var count = 0
+    //   var syncDocs = []
+    //   var cursor = WagoItem.find({
+    //     type: {$regex: /WEAKAURA$|PLATER/},
+    //     _userId: {$exists: true},
+    //     expires_at: null,
+    //     $or: [{
+    //       deleted: false,
+    //     },
+    //     {
+    //       _meili: true,
+    //       $or: [
+    //         {deleted: true}
+    //       ]
+    //     }]
+    //   }).cursor()
+
+    //   for (let doc = await cursor.next(); doc != null; doc = await cursor.next()) {
+    //     count++
+    //     if (doc.hidden || doc.private || doc.encrypted || doc.restricted || doc.deleted || doc.blocked) {
+    //       await meiliWagoAppIndex.deleteDocument(doc._id)
+    //       doc._meiliWA = false
+    //       await doc.save()
+    //     }
+    //     else {
+    //       syncDocs.push(await doc.meiliWAData)
+    //       if (syncDocs.length >= meiliBatchSize / 10) {
+    //         await meiliWagoAppIndex.addDocuments(syncDocs)
+    //         syncDocs = []
+    //       }
+    //       if (!doc._meiliWA) {
+    //         doc._meiliWA = true
+    //         await doc.save()
+    //       }
+    //     }
+    //     if (count%1000 == 0) {
+    //       console.log('sync meili', count)
+    //     }
+    //   }
+    //   if (syncDocs.length) {
+    //     await meiliWagoAppIndex.addDocuments(syncDocs)
+    //   }
+    //   break
 
     default:
       return
