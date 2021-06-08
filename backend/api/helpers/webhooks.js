@@ -95,7 +95,7 @@ module.exports = {
         await webhookClient.send(embed)
       }
       catch (e) {
-        console.log('discord create webhook error', e.message)
+        console.log('discord create webhook error', e)
       }
     }
   }
