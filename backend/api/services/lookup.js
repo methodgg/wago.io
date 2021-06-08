@@ -115,11 +115,14 @@ module.exports = function (fastify, opts, next) {
     }
 
     var doc = await WagoItem.lookup(req.query.id)
-    if (!doc || doc.deleted) {
+    if (!doc || (doc.deleted && !(req.user.isAdmin.super || req.user.isAdmin.moderator))) {
       return res.code(404).send({error: "page_not_found"})
     }
 
-    if (doc.private && (!req.user || !req.user._id.equals(doc._userId))) {
+    if ((doc.deleted) && (!req.user || !(req.user.isAdmin.super || req.user.isAdmin.moderator))) {
+      return res.code(401).send({error: "page_not_accessible"})
+    }
+    else if ((doc.private || doc.moderated) && (!req.user || (!req.user._id.equals(doc._userId) && !(req.user.isAdmin.super || req.user.isAdmin.moderator)))) {
       return res.code(401).send({error: "page_not_accessible"})
     }
 
@@ -127,7 +130,7 @@ module.exports = function (fastify, opts, next) {
       if (!req.user) {
         return res.code(401).send({error: "page_not_accessible"})
       }
-      if (!req.user._id.equals(doc._userId) && doc.restrictedUsers.indexOf(req.user._id.toString()) === -1 && !arrayMatch(doc.restrictedGuilds, req.user.battlenet.guilds) && doc.restrictedTwitchUsers.indexOf(req.user.twitch.id) === -1) {
+      if (!req.user._id.equals(doc._userId) && doc.restrictedUsers.indexOf(req.user._id.toString()) === -1 && !arrayMatch(doc.restrictedGuilds, req.user.battlenet.guilds) && doc.restrictedTwitchUsers.indexOf(req.user.twitch.id) === -1 && !(req.user.isAdmin.super || req.user.isAdmin.moderator)) {
         return res.code(401).send({error: "page_not_accessible"})
       }
     }
@@ -186,8 +189,18 @@ module.exports = function (fastify, opts, next) {
     wago.name = doc.name
     wago.slug = doc.slug
     wago.url = doc.url
-    wago.visibility = { private: doc.private, hidden: doc.hidden, encrypted: doc.encrypted, restricted: doc.restricted, deleted: doc.deleted, 
-      public: (!doc.private && !doc.hidden && !doc.encrypted && !doc.restricted && !doc.deleted)  }
+    wago.visibility = {
+      private: doc.private,
+      hidden: doc.hidden,
+      encrypted: doc.encrypted,
+      restricted: doc.restricted,
+      moderated: doc.moderated,
+      deleted: doc.deleted,
+      public: (!doc.private && !doc.hidden && !doc.encrypted && !doc.restricted && !doc.moderated && !doc.deleted)
+    }
+    if(doc.moderated) {
+      wago.moderatedComment = doc.moderatedComment
+    }
     wago.restrictions = []
     wago.restrictedUsers = doc.restrictedUsers || []
     wago.restrictedGuilds = doc.restrictedGuilds || []
@@ -473,7 +486,7 @@ module.exports = function (fastify, opts, next) {
     if (saveDoc) {
       doc.save()
     }
-    if (!req.query.version) {
+    if (!req.query.version && !doc.moderated && !doc.deleted) {
       redis.setJSON(wago._id, wago, 'EX', 3600)
     }
     if (!req.user || !req.user._id.equals(wago.UID)) {

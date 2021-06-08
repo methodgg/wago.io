@@ -23,7 +23,7 @@ module.exports = {
         .setAuthor(author.account.username, avatar.png, `https://wago.io${author.profile.url}`)
         .setTimestamp()
         .setFooter('Wago.io', 'https://media.wago.io/favicon/favicon-16x16.png')
-    
+
       try {
         const wh = author.discord.webhooks.onCreate.match(/\/api\/webhooks\/(\w+)\/([-\w]+)$/)
         const webhookClient = new Discord.WebhookClient(wh[1], wh[2])
@@ -56,15 +56,43 @@ module.exports = {
         .setAuthor(author.account.username, avatar.png, `https://wago.io${author.profile.url}`)
         .setTimestamp()
         .setFooter('Wago.io', 'https://media.wago.io/favicon/favicon-16x16.png')
-    
+
       if (wago.latestVersion.changelog.text) {
         embed.addFields({name: 'Changelog', value: wago.latestVersion.changelog.text.replace(/\[(\w+)[^\]]*](.*?)\[\/\1]/g, '')})
       }
-    
+
       try {
         const wh = author.discord.webhooks.onCreate.match(/\/api\/webhooks\/(\w+)\/([-\w]+)$/)
         const webhookClient = new Discord.WebhookClient(wh[1], wh[2])
         webhookClient.send(embed)
+      }
+      catch (e) {
+        console.log('discord create webhook error', e.message)
+      }
+    },
+
+    onReport: async (author, wago, moderation) => {
+      // build message
+      const avatar = await author.avatarURL
+      let color = '#a26900'
+      if (moderation.action === 'Review') {
+        color = '#0075a2'
+      }
+
+      const embed = new Discord.MessageEmbed()
+        .setColor(color)
+        .setTitle(`Moderation: ${moderation.action} - ${moderation.details}`)
+        .setDescription(moderation.comment)
+        .setURL(wago.url)
+        .setImage(await wago.getThumbnailURL())
+        .setAuthor(author.account.username, avatar.png, `https://wago.io${author.profile.url}`)
+        .setTimestamp()
+        .setFooter('Wago.io', 'https://media.wago.io/favicon/favicon-16x16.png')
+
+      try {
+        const wh = config.webhooks.moderationReport.match(/\/api\/webhooks\/(\w+)\/([-\w]+)$/)
+        const webhookClient = new Discord.WebhookClient(wh[1], wh[2])
+        await webhookClient.send(embed)
       }
       catch (e) {
         console.log('discord create webhook error', e.message)

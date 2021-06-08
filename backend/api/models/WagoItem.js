@@ -5,7 +5,8 @@ const mongoose = require('mongoose'),
       config = require('../../config');
 const image = require('../helpers/image')
 
-const meili = new MeiliSearch(config.meiliSearch)
+const meiliWagoApp = new MeiliSearch(config.meiliWagoApp)
+// const meiliLocal = new MeiliSearch(config.meiliLocal)
 
 const Schema = new mongoose.Schema({
   _id : { type: String, default: shortid.generate, es_indexed: true },
@@ -43,6 +44,8 @@ const Schema = new mongoose.Schema({
   restrictedTwitchUsers: [{ type: String, index: true, es_indexed: true }], // user.twitch.id
   deleted : { type: Boolean, default: false, index: true, es_indexed: true },
   blocked: { type: Boolean, default: false, index: true, es_indexed: true },
+  moderated: { type: Boolean, default: false, index: true, es_indexed: true },
+  moderatedComment: { type: String },
 
   clone_of : String,
   fork_of: String,
@@ -245,7 +248,7 @@ Schema.statics.randomOfTheMoment = async function(count, n) {
   if (!n) {
     n = 0
   }
-  var search = {hidden: false, restricted: false, private: false, encrypted: false, deleted: false, blocked: false, $or:[{type: 'WEAKAURA', modified: {"$gte": new Date(2020, 10, 13)}}, {type: ['CLASSIC-WEAKAURA', 'ELVUI', 'VUHDO', 'PLATER', 'TOTALRP3']}]}
+  var search = {hidden: false, restricted: false, private: false, moderated: false, encrypted: false, deleted: false, blocked: false, $or:[{type: 'WEAKAURA', modified: {"$gte": new Date(2020, 10, 13)}}, {type: ['CLASSIC-WEAKAURA', 'ELVUI', 'VUHDO', 'PLATER', 'TOTALRP3']}]}
   if (!count) {
     count = await this.countDocuments(search).exec()
   }
@@ -291,33 +294,114 @@ Schema.virtual('meiliWAData').get(async function () {
   }
 })
 
-const meiliWAIndex = meili.index('weakauras')
-function isValidMeili(doc) {
+// Schema.virtual('meiliImportData').get(async function () {
+//   const data = await this.meiliWAData
+//   data.hidden = this.hidden || this.private || this.moderated || this.encrypted || this.restricted || this.deleted || this.blocked
+//   data.type = this.type
+//   data.comments = this.popularity.comments_count
+//   if (this._userId) {
+//     await this.populate('_userId').execPopulate()
+//     if (this._userId && this._userId.account) {
+//       data.userName = this._userId.account.username
+//       let avatar = await this._userId.avatarURL
+//       data.userAvatar = avatar.webp || avatar.gif || avatar.png || avatar.jpg
+//       data.userClass = this._userId.roleclass
+//       data.userLinked = !this._userId.account.hidden
+//     }
+//   }
+//   return data
+// })
+
+// Schema.virtual('meiliCodeData').get(async function () {
+//   const code = await WagoCode.lookup(this._id)
+//   if (!code.customCode || !code.customCode.length) {
+//     return null
+//   }
+//   const data = {
+//     id: this._id,
+//     name: this.name,
+//     hidden: this.hidden || this.private || this.moderated || this.encrypted || this.restricted || this.deleted || this.blocked,
+//     type: this.type
+//   }
+
+//   if (this._userId) {
+//     await this.populate('_userId').execPopulate()
+//     if (this._userId && this._userId.account) {
+//       data.userName = this._userId.account.username
+//       let avatar = await this._userId.avatarURL
+//       data.userAvatar = avatar.webp || avatar.gif || avatar.png || avatar.jpg
+//       data.userClass = this._userId.roleclass
+//       data.userLinked = !this._userId.account.hidden
+//     }
+//   }
+
+//   let lua = ''
+//   code.forEach(c => {
+//     lua = `${lua}-- ${c.name}\n${c.lua}\n\n`
+//   })
+//   data.lua = lua
+// })
+
+// const meiliImportIndex = meiliLocal.index('imports')
+const meiliWAIndex = meiliWagoApp.index('weakauras')
+function isValidMeiliWA(doc) {
   return !!doc._userId && !doc.expires_at && doc.type.match(/WEAKAURA$/)
 }
+function isValidMeiliImport(doc) {
+  return !!doc._userId && !doc.expires_at
+}
 async function setMeiliIndex() {
-  if (!isValidMeili(this)) {
-    return
-  }
+  // if (isValidMeiliImport(this)) {
+  //   try {
+  //     let meiliToDoImport = await redis.getJSON('meili:todo:import') || []
+  //     if (this._meili && this.deleted) {
+  //       // delete index
+  //       meiliToDoImport = meiliToDoImport.filter(doc => {
+  //         return doc.id !== this._id
+  //       })
+  //       redis.setJSON('meili:todo:import', meiliToDoImport)
+  //       await meiliImportIndex.deleteDocument(this._id)
+  //       this._meili = false
+  //       await this.save()
+  //     }
+  //     else if ((this._doMeiliIndex || this._toggleVisibility) && !this.deleted) {
+  //       // add/update index
+  //       meiliToDoImport = meiliToDoImport.filter(doc => {
+  //         return doc.id !== this._id
+  //       })
+  //       meiliToDoImport.push(await this.meiliImportData)
+  //       redis.setJSON('meili:todo:import', meiliToDoImport)
+  //       if (!this._meili) {
+  //         this._meili = true
+  //         await this.save()
+  //       }
+  //     }
+  //   }
+  //   catch (e) {
+  //     console.log('Meili error', e)
+  //   }
+  // }
+
+  if (isValidMeiliWA(this)) {
   try {
-    meiliToDoWA = await redis.getJSON('meili:todo:weakauras') || []
-    if (this._meiliWA && (this._doNotIndex || this.hidden || this.private || this.encrypted || this.restricted || this.deleted || this.blocked)) {
+      let meiliToDoWA = await redis.getJSON('meili:todo:wagoapp') || []
+      if (this._meiliWA && (this._doNotIndexWA || this.hidden || this.private || this.moderated || this.encrypted || this.restricted || this.deleted || this.blocked)) {
       // delete index
       meiliToDoWA = meiliToDoWA.filter(doc => {
         return doc.id !== this._id
       })
-      redis.setJSON('meili:todo:weakauras', meiliToDoWA)
+        redis.setJSON('meili:todo:wagoapp', meiliToDoWA)
       await meiliWAIndex.deleteDocument(this._id)
       this._meiliWA = false
       await this.save()
     }
-    else if ((this._doMeiliIndex || this._toggleVisibility) && !(this.hidden || this.private || this.encrypted || this.restricted || this.deleted || this.blocked)) {
+      else if ((this._doMeiliIndex || this._toggleVisibility) && !(this.hidden || this.private || this.moderated || this.encrypted || this.restricted || this.deleted || this.blocked)) {
       // add/update index
       meiliToDoWA = meiliToDoWA.filter(doc => {
         return doc.id !== this._id
       })
       meiliToDoWA.push(await this.meiliWAData)
-      redis.setJSON('meili:todo:weakauras', meiliToDoWA)
+        redis.setJSON('meili:todo:wagoapp', meiliToDoWA)
       if (!this._meiliWA) {
         this._meiliWA = true
         await this.save()
@@ -327,15 +411,16 @@ async function setMeiliIndex() {
   catch (e) {
     console.log('Meili error', e)
   }
-
+  }
 }
 
 const watchText = ['name', 'description']
-const watchVisibility = ['hidden', 'private', 'encrypted', 'restricted', 'deleted', 'blocked']
+const watchVisibility = ['hidden', 'private', 'moderated', 'encrypted', 'restricted', 'deleted', 'blocked']
 watchText.forEach(field => {
   Schema.path(field).set(function(v) {
     if (this[field] !== undefined) {
       this._doMeiliIndex = (this[field] !== v || this.isNew)
+      this._doMeiliCodeIndex = (this[field] !== v || this.isNew)
     }
     return v
   })
@@ -344,7 +429,7 @@ watchVisibility.forEach(field => {
   Schema.path(field).set(function(v) {
     this._toggleVisibility = (this._toggleVisibility || this[field] !== undefined)
     if (v) {
-      this._doNotIndex = true
+      this._doNotIndexWA = true
     }
     return v
   })

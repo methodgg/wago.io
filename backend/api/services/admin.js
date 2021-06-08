@@ -2,6 +2,7 @@ const Profiler = require("../models/Profiler")
 const SiteData = require("../models/SiteData")
 const updateDataCaches = require('../../middlewares/updateLocalCache')
 const runTask = require('../helpers/tasks')
+const webhooks = require('../helpers/webhooks')
 const Streamers = require("../models/Streamer")
 
 module.exports = (fastify, opts, next) => {
@@ -358,6 +359,60 @@ module.exports = (fastify, opts, next) => {
     }
     res.send({info: await redisServ.info()})
   })
+
+  fastify.get('/moderation', async (req, res) => {
+    if (!req.user || !req.user.isAdmin.access || !(req.user.isAdmin.super || req.user.isAdmin.moderator)) {
+      return res.code(403).send({error: "forbidden"})
+    }
+    const mods = await Moderation.find({wagoID: req.query.id}).populate('authorID')
+    res.send(mods)
+  })
+
+  fastify.post('/moderate', async (req, res) => {
+    if (!req.user || !req.user.isAdmin.access || !(req.user.isAdmin.super || req.user.isAdmin.moderator)) {
+      return res.code(403).send({error: "forbidden"})
+    }
+    if (!req.body.action || !req.body.action.match(/Resolve|Lock|Delete/)) {
+      return res.code(403).send({error: "forbidden"})
+    }
+    const wago = await WagoItem.findById(req.body.wagoID).exec()
+    if (!wago) {
+      return res.code(404).send({error: "not found"})
+    }
+
+    const report = new Moderation({
+      wagoID: wago._id,
+      authorID: req.user._id,
+      action: 'Review',
+      details: req.body.action,
+      comment: req.body.comments || '',
+    })
+
+    if (req.body.action === 'Resolved') {
+      wago.moderated = false
+      wago.deleted = false
+      wago.moderatedComment = ''
+      wago.expires_at = null
+    }
+    else if (req.body.action === 'Lock') {
+      wago.moderated = true
+      wago.moderatedComment = report.comment
+    }
+    else if (req.body.action === 'Delete') {
+      wago.moderated = true
+      wago.deleted = true
+      wago.moderatedComment = report.comment
+    }
+    await wago.save()
+    redis.clear(wago)
+
+    await report.save()
+    await report.populate('authorID').execPopulate()
+    webhooks.discord.onReport(req.user, wago, report)
+    res.send({success: true, report, deleted: wago.deleted, moderated: wago.moderated, moderatedComment: report.comment})
+  })
+
+
 
 
 

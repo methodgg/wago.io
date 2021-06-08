@@ -1,6 +1,6 @@
 const cloudflare = require('cloudflare')({token: config.cloudflare.dnsToken})
 const semver = require('semver')
-const mkdirp = require('mkdirp-promise')
+const webhooks = require('../helpers/webhooks')
 const s3 = require('../helpers/s3Client')
 const FileType = require('file-type')
 const videoParser = require('js-video-url-parser')
@@ -802,6 +802,29 @@ module.exports = function (fastify, opts, next) {
     await collection.save()
     redis.clear(wago)
     res.send({success: true, name: collection.name, collectionID: collection._id})
+  })
+
+  // submit moderation report
+  fastify.post('/report', async (req, res) => {
+    if (!req.user || !req.body.wagoID || !req.body.reason || !req.body.reason.match(/Inappropriate|Malicious|Other|Request Review|False Positive/)) {
+      return res.code(403).send({error: "forbidden"})
+    }
+
+    const wago = await WagoItem.findById(req.body.wagoID).exec()
+    if (!wago) {
+      return res.code(404).send({error: "not found"})
+    }
+
+    const report = new Moderation({
+      wagoID: wago._id,
+      authorID: req.user._id,
+      action: 'Report',
+      details: req.body.reason,
+      comment: req.body.comments || '',
+    })
+    await report.save()
+    webhooks.discord.onReport(req.user, wago, report)
+    res.send({success: true})
   })
 
   next()

@@ -28,6 +28,9 @@
             </div>
             <!-- ACTIONS -->
             <md-card-actions id="wago-actions" ref="action-buttons">
+              <md-button v-if="User.UID && (!wago.UID || wago.UID !== User.UID)" @click="$refs.reportmodal.open()">
+                <md-icon>flag</md-icon> {{ $t("Report") }}
+              </md-button>
               <md-button v-if="User.UID" @click="toggleFavorite">
                 <md-icon v-if="wago.myfave">star</md-icon>
                 <md-icon v-else>star_border</md-icon> {{ $t("Favorite") }}
@@ -311,10 +314,20 @@
               </template>
 
               <ui-warning v-if="wago.expires" mode="info">
-                {{ $t("This import will expire in [-time-]", {time: this.$moment(wago.expires).fromNow() }) }}<br>
+                {{ $t("This import will expire in [-time-]", {time: $moment(wago.expires).fromNow() }) }}<br>
               </ui-warning>
 
               <ui-warning v-if="wago.fork && wago.fork._id" mode="info" :html="$t('This is a fork of [-id-][-name-]', {id: wago.fork._id, name: wago.fork.name})"></ui-warning>
+
+              <ui-warning mode="alert" v-if="wago.visibility && wago.visibility.deleted">
+                {{ $t("This import has been deleted and can not be accessed") }}
+                <div style="width:100%">{{ wago.moderatedComment }}</div>
+              </ui-warning>
+              <ui-warning mode="alert" v-else-if="wago.visibility && wago.visibility.moderated">
+                {{ $t("This import has been moderated and is not publically accessible") }}
+                <div style="width:100%">{{ wago.moderatedComment }}</div>
+                <button v-if="wago.user && User && wago.UID && wago.UID === User.UID" class="md-button" @click="$refs.requestReviewModal.open()">{{ $t('Request Review') }}</button>
+              </ui-warning>
 
               <ui-warning v-if="wago.visibility && wago.visibility.private">
                 {{ $t("This import is private only you may view it") }}
@@ -594,6 +607,44 @@
                       </span>
                     </div>
                   </template>
+                </div>
+              </div>
+
+              <!-- MODERATION FRAME -->
+              <div id="wago-moderation-container" class="wago-container" v-if="showPanel=='moderation' && enableModeration">
+                <md-button-toggle class="md-accent mod-action-buttons" md-single>
+                  <div style="margin-right:16px">Take moderation action:</div>
+                  <md-button @click="modAction='Resolved'">Resolve Issue</md-button>
+                  <md-button @click="modAction='Lock'">Lock Import</md-button>
+                  <md-button @click="modAction='Delete'">Delete Import</md-button>
+                </md-button-toggle>
+
+                <div v-if="modAction=='Resolved'" style="padding: 8px; border:1px solid green; display: inline-block">This will clear any reported issues, locks or mod-deletions.</div>
+                <div v-else-if="modAction=='Lock'" style="padding: 8px; border:1px solid #a9a900; display: inline-block">This will lock the import so that it can only be accessed by the author and moderators.<br>The user will be able to see your comments so they may make the correct changes.</div>
+                <div v-else-if="modAction=='Delete'" style="padding: 8px; border:1px solid #c0272d; display: inline-block">This will soft-delete the import and only moderators can continue to access it.</div>
+
+                <div v-if="modAction" style="margin-bottom: 16px; display: flex;">
+                  <md-input-container>
+                    <label>{{ $t('Comments') }}</label>
+                    <md-textarea v-model="modComments"></md-textarea>
+                  </md-input-container>
+                  <md-button class="md-primary" @click="submitModReport()" :disabled="reportInProgress">{{ $t('Submit') }}</md-button>
+                </div>
+
+                <div id="wago-moderation" v-if="moderation.length">
+                  <template v-for="(mod, i) in moderation">
+                    <div :class="'moderation-item mod-'+mod.action">
+                      <strong>Action: {{ mod.action }} <template v-if="mod.details">- {{ mod.details }}</template></strong><br>
+                      <md-avatar>
+                        <ui-image :img="mod.authorID.profile.avatar"></ui-image>
+                      </md-avatar>
+                      By {{ mod.authorID.account.username }}, {{ $moment(mod.date).fromNow() }}<br>
+                      {{ mod.comment }}
+                    </div>
+                  </template>
+                </div>
+                <div v-else>
+                  <p>No moderations or reports found for this import.</p>
                 </div>
               </div>
 
@@ -938,6 +989,62 @@
     <md-dialog ref="videoplayer" id="video-modal" @close="hideVideo">
       <div class="video-wrapper" v-html="videoEmbedHTML"></div>
     </md-dialog>
+
+    <md-dialog ref="reportmodal" id="report-modal">
+      <md-dialog-title>{{ $t('Thanks for helping to keep the Wago community civil!')}}</md-dialog-title>
+      <md-dialog-content>
+        <span>{{ $t('Please select the reason for reporting') }}</span>
+        <md-list class="report-options">
+          <md-list-item @click="reportReason='Inappropriate'" :class="{selected:reportReason=='Inappropriate'}">
+            <strong>{{ $t('This import is inappropriate') }}</strong>
+            <span>{{ $t('Contains offensive, abusive or otherwise toxic content') }}</span>
+          </md-list-item>
+          <md-list-item @click="reportReason='Malicious'" :class="{selected:reportReason=='Malicious'}">
+            <strong>{{ $t('This import is malicious') }}</strong>
+            <span>{{ $t('Contains code designed for malintent') }}</span>
+          </md-list-item>
+          <md-list-item @click="reportReason='Other'" :class="{selected:reportReason=='Other'}">
+            <strong>{{ $t('This import has another issue to bring to attention') }}</strong>
+            <span>{{ $t('Please provide comments below') }}</span>
+          </md-list-item>
+        </md-list>
+        <md-input-container>
+          <label>{{ $t('Comments (Optional)') }}</label>
+          <md-textarea v-model="reportComments"></md-textarea>
+        </md-input-container>
+      </md-dialog-content>
+
+      <md-dialog-actions>
+        <md-button class="md-primary" @click="$refs.reportmodal.close()">{{ $t('Cancel') }}</md-button>
+        <md-button class="md-primary" @click="submitReport()" :disabled="!reportReason || reportInProgress">{{ $t('Submit Report') }}</md-button>
+      </md-dialog-actions>
+    </md-dialog>
+
+    <md-dialog ref="requestReviewModal" id="request-review-modal">
+      <md-dialog-title>{{ $t('Thanks for keeping the Wago community civil!')}}</md-dialog-title>
+      <md-dialog-content>
+        <span>{{ $t('Please select the reason for submission') }}</span>
+        <md-list class="report-options">
+          <md-list-item @click="reportReason='Request Review'" :class="{selected:reportReason=='Request Review'}">
+            <strong>{{ $t('Review my modifications') }}</strong>
+            <span>{{ $t('After my changes I believe this now meets the Wago community standards') }}</span>
+          </md-list-item>
+          <md-list-item @click="reportReason='False Positive'" :class="{selected:reportReason=='False Positive'}">
+            <strong>{{ $t('A second opinion') }}</strong>
+            <span>{{ $t('Nothing here is negative and should not be moderated') }}</span>
+          </md-list-item>
+        </md-list>
+        <md-input-container>
+          <label>{{ $t('Comments (Optional)') }}</label>
+          <md-textarea v-model="reportComments"></md-textarea>
+        </md-input-container>
+      </md-dialog-content>
+
+      <md-dialog-actions>
+        <md-button class="md-primary" @click="$refs.requestReviewModal.close()">{{ $t('Cancel') }}</md-button>
+        <md-button class="md-primary" @click="submitReport()" :disabled="!reportReason || reportInProgress">{{ $t('Submit Report') }}</md-button>
+      </md-dialog-actions>
+    </md-dialog>
   </div>
 </template>
 
@@ -1174,7 +1281,16 @@ export default {
         alerts: 0
       },
       codeQueue: null,
-      codeQueueTimeout: null
+      codeQueueTimeout: null,
+      selectedApp: '',
+      rememberAppChoice: false,
+      reportReason: '',
+      reportComments: '',
+      reportInProgress: false,
+      enableModeration: false,
+      moderation: [],
+      modAction: '',
+      modComments: ''
     }
   },
   watch: {
@@ -1548,6 +1664,13 @@ export default {
           }
         }
 
+        if (this.$store.state.user && this.$store.state.user.access && this.$store.state.user.access.admin && (this.$store.state.user.access.admin.moderator || this.$store.state.user.access.admin.super)) {
+          this.enableModeration = true
+          vue.http.get('/admin/moderation', {id: wagoID}).then((res) => {
+            this.moderation = res
+          })
+        }
+
         vue.$store.commit('setPageInfo', {
           title: res.name,
           description: res.description.text,
@@ -1692,7 +1815,6 @@ export default {
             let result
             let ok
             let trigger = item.name.match(/(\(\d+\))/)
-            console.log(trigger, item.id, detectedThrottles)
             if (lua.match(/(time|GetTime)\(\)/)) {
               result = this.$t('Timing or throttling code is detected.')
               ok = 1
@@ -2672,6 +2794,41 @@ export default {
 
     escapeText: function(str) {
       return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;")
+    },
+
+    submitReport: async function () {
+      this.reportInProgress = true
+      const res = await this.http.post('/wago/report', {
+        wagoID: this.wago._id,
+        reason: this.reportReason,
+        comments: this.reportComments
+      })
+      this.reportInProgress = false
+      if (res.success) {
+        this.reportReason = ''
+        this.reportComments = ''
+        window.eventHub.$emit('showSnackBar', this.$t('Thank you for your report, we will take appropriate action as soon as possible'))
+        this.$refs.reportmodal.close()
+        this.$refs.requestReviewModal.close()
+      }
+    },
+    submitModReport: async function () {
+      this.reportInProgress = true
+      const res = await this.http.post('/admin/moderate', {
+        wagoID: this.wago._id,
+        action: this.modAction,
+        comments: this.modComments
+      })
+      this.reportInProgress = false
+      if (res.success) {
+        this.modAction = ''
+        this.modComments = ''
+        window.eventHub.$emit('showSnackBar', this.$t('Mod action is saved'))
+        this.$set(this.wago.visibility, 'moderated', res.moderated)
+        this.$set(this.wago, 'moderatedComment', res.moderatedComment)
+        this.$set(this.wago.visibility, 'deleted', res.deleted)
+        this.moderation.push(res.report)
+      }
     }
   },
   mounted: function () {
@@ -2793,6 +2950,33 @@ a.showvid:hover:before  .md-icon { opacity:1 }
 
 .md-table .md-table-head.md-end, .md-table .md-table-cell.md-end .md-table-cell-container { text-align: right; justify-content: flex-end }
 
+#report-modal .md-title, #request-review-modal .md-title {
+  color: #c0272d;
+  border-bottom: 1px solid #777;
+}
+#report-modal .md-list:after, #request-review-modal .md-list:after {
+  content: none!important;
+}
+#report-modal .md-list-item, #request-review-modal .md-list-item {
+  font-size: 14px;
+  padding: 8px;
+  border: 4px solid #212121;
+}
+#report-modal .md-list-item:hover, #request-review-modal .md-list-item:hover {
+  border: 4px solid #3a3a3a;
+}
+#report-modal .md-list-item.selected, #request-review-modal .md-list-item.selected {
+  border: 4px solid #96282B;
+}
+#report-modal .md-list-item .md-list-item-container, #request-review-modal .md-list-item .md-list-item-container {
+  flex-direction: column!important;
+  align-items: flex-start!important;
+  line-height: 18px!important;
+  min-height:40px!important;
+}
+#report-modal .md-list-item strong, #report-modal .md-list-item span, #request-review-modal .md-list-item strong, #request-review-modal .md-list-item span {
+  display: block;
+}
 
 #wago-collections .md-avatar { margin: 0 16px 0 0; width: 28px; min-width: 28px; height: 28px; min-height: 28px; }
 #wago-collections .userlink .md-table-cell-container { display: inline }
@@ -2912,4 +3096,13 @@ ul:not(.md-list) > li.multiselect__element + li { margin-top: 0 }
 #wago-translate-container .md-button-toggle .md-button {text-transform: none}
 
 #wago-codereview-container h2 {padding-left: 0}
+
+.moderation-item {margin-bottom:16px;padding: 8px;background: #333;}
+.moderation-item.mod-Report {border: 1px solid #a26900;}
+.moderation-item.mod-Report strong {color: #e2a027;}
+.moderation-item.mod-Review {border: 1px solid #0075a2;}
+.moderation-item.mod-Review strong {color: #00aff3;}
+.moderation-item .md-avatar {margin: 8px 8px 8px 0;}
+.mod-action-buttons {align-items: center; padding:0; padding-bottom:16px;}
+
 </style>
