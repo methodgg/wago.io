@@ -66,7 +66,7 @@ module.exports = async function (connection, req) {
   try {
     let cid = req.query.cid
     if (!cid) {
-      connection.close()
+      connection.destroy()
     }
     connections[cid] = new Connection(connection, cid)
 
