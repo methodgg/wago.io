@@ -156,7 +156,7 @@ async function UpdateTwitchStatus (channel) {
       streamers[i].wagoViewers = 0
       await streamers[i].save()
       await redis.del(`twitch:${streamers[i].name}:live`)
-      await redis2.zremrangebyscore(`embedVisitors:${streamers[i].name}`, '-inf', '+inf')
+      await redis2.zremrangebyscore(`allEmbeds:${streamers[i].name}`, '-inf', '+inf')
     }
   }
 
@@ -441,16 +441,16 @@ async function UpdateGuildMembership () {
   await updateGuild('eu@twisting-nether@Method')
 }
 
-async function ComputeViewsThisWeek ()  {
+async function ComputeStatistics ()  {
+  // calc views this week
   const viewedDocs = await ViewsThisWeek.aggregate([{$group: { _id: '$wagoID', views: { $sum: 1 }}}]).exec()
-  await updateViewsThisWeek(viewedDocs)
-}
-
-async function updateViewsThisWeek(docs) {
-  if (docs.length > 0) {
+  let totalImports = 0
+  let totalSum = 0
+  let totalSquared = 0
+  while (viewedDocs.length > 0) {
     // process in batches of 500
-    var items = docs.splice(0, 500)
-    var ops = []
+    let items = viewedDocs.splice(0, 500)
+    let ops = []
     items.forEach((wago) => {
       ops.push({
         updateOne: {
@@ -458,10 +458,70 @@ async function updateViewsThisWeek(docs) {
           update: {'popularity.viewsThisWeek': wago.views}
         }
       })
+      if (wago.views > 5) {
+        totalImports++
+        totalSum += wago.views
+        totalSquared += wago.views * wago.views
+      }
     })
     await WagoItem.bulkWrite(ops)
-    return await updateViewsThisWeek(docs)
   }
+
+  let mean = totalSum / totalImports
+  let standardDeviation = Math.sqrt((totalSquared - ((totalSum * totalSum) / totalImports)) / (totalSum - 1))
+  await redis.set('stats:standardDeviation:views', standardDeviation)
+  await redis.set('stats:mean:views', mean)
+
+  const lastMonth = new Date()
+  lastMonth.setMonth(lastMonth.getMonth() - 1)
+
+  // calc installs this month
+  totalImports = 0
+  totalSum = 0
+  totalSquared = 0
+  const installDocs = await WagoFavorites.aggregate([
+    {$match: {type: 'Install', timestamp: {$gt: lastMonth}}},
+    {$group: { _id: '$wagoID', installs: { $sum: 1 }}}
+  ]).exec()
+
+  while (installDocs.length > 0) {
+    // process in batches of 500
+    var items = installDocs.splice(0, 500)
+    items.forEach((wago) => {
+      totalImports++
+      totalSum += wago.installs
+      totalSquared += wago.installs * wago.installs
+    })
+  }
+
+  mean = totalSum / totalImports
+  standardDeviation = Math.sqrt((totalSquared - ((totalSum * totalSum) / totalImports)) / (totalSum - 1))
+  await redis.set('stats:standardDeviation:installs', standardDeviation)
+  await redis.set('stats:mean:installs', mean)
+
+  // calc stars this month
+  totalImports = 0
+  totalSum = 0
+  totalSquared = 0
+  const starDocs = await WagoFavorites.aggregate([
+    {$match: {type: 'Star', timestamp: {$gt: lastMonth}}},
+    {$group: { _id: '$wagoID', stars: { $sum: 1 }}}
+  ]).exec()
+
+  while (starDocs.length > 0) {
+    // process in batches of 500
+    var items = starDocs.splice(0, 500)
+    items.forEach((wago) => {
+      totalImports++
+      totalSum += wago.stars
+      totalSquared += wago.stars * wago.stars
+    })
+  }
+
+  mean = totalSum / totalImports
+  standardDeviation = Math.sqrt((totalSquared - ((totalSum * totalSum) / totalImports)) / (totalSum - 1))
+  await redis.set('stats:standardDeviation:stars', standardDeviation)
+  await redis.set('stats:mean:stars', mean)
 }
 
 async function UpdateLatestAddonReleases () {
@@ -587,16 +647,19 @@ async function SyncElastic(table) {
 async function SyncMeili(table) {
   console.log("SYNC MEILI", table)
   const meiliWagoAppIndex = meiliWagoApp.index('weakauras')
-  // const meiliImportIndex = meili.index('imports')
-  // const meiliCodeIndex = meili.index('code')
-  const meiliBatchSize = config.env === 'development' && 2500 || 5000
+  const meiliImportIndex = meiliSearch.index('imports')
+  // second index is needed until sortStrategies or similar is added https://github.com/meilisearch/MeiliSearch/issues/730
+  const meiliImportIndex2 = meiliSearch.index('importsCats')
+  const meiliCodeIndex = meiliSearch.index('code')
+  const meiliBatchSize = 5000 //config.env === 'development' && 2500 || 5000
   switch (table){
     case 'Imports:ToDo':
-      // const todoDocs = await redis.getJSON('meili:todo:imports') || []
-      // if (todoDocs.length) {
-      //   redis.setJSON('meili:todo:imports', [])
-      //   await meiliImportIndex.addDocuments(todoDocs)
-      // }
+      const todoDocs = await redis.getJSON('meili:todo:imports') || []
+      if (todoDocs.length) {
+        redis.setJSON('meili:todo:imports', [])
+        await meiliImportIndex.addDocuments(todoDocs)
+        await meiliImportIndex2.addDocuments(todoDocs)
+      }
 
       const todoDocsWA = await redis.getJSON('meili:todo:wagoapp') || []
       if (todoDocsWA.length) {
@@ -653,13 +716,14 @@ async function SyncMeili(table) {
           views: doc.popularity.views,
           viewsThisWeek: doc.popularity.viewsThisWeek
           }
-          // metricsDocsImports.push(Object.assign(metrics, {
-          //   comments: doc.popularity.comments_count
-          // }))
-          // if (metricsDocsImports.length >= meiliBatchSize) {
-          //   await meiliImportIndex.updateDocuments(metricsDocsImports)
-          //   metricsDocsImports = []
-          // }
+          metricsDocsImports.push(Object.assign(metrics, {
+            comments: doc.popularity.comments_count
+          }))
+          if (metricsDocsImports.length >= meiliBatchSize) {
+            await meiliImportIndex.updateDocuments(metricsDocsImports)
+            await meiliImportIndex2.updateDocuments(metricsDocsImports)
+            metricsDocsImports = []
+          }
 
           // wago app
           if (doc._meiliWA) {
@@ -671,10 +735,11 @@ async function SyncMeili(table) {
         }
       }
       
-        // if (metricsDocsImports.length) {
-        //   await meiliImportIndex.updateDocuments(metricsDocsImports)
-        //   metricsDocsImports = []
-        // }
+        if (metricsDocsImports.length) {
+          await meiliImportIndex.updateDocuments(metricsDocsImports)
+          await meiliImportIndex2.updateDocuments(metricsDocsImports)
+          metricsDocsImports = []
+        }
         if (metricsDocsWagoApp.length) {
           await meiliWagoAppIndex.updateDocuments(metricsDocsWagoApp)
           metricsDocsWagoApp = []
@@ -684,56 +749,57 @@ async function SyncMeili(table) {
       }
       break
 
-    // case 'Imports': // complete DB sync
-    //     var count = 0
-    //     var syncDocs = []
-    //     var cursor = WagoItem.find({
-    //       _userId: {$exists: true},
-    //       expires_at: null,
-    //       $or: [{
-    //         deleted: false,
-    //       },
-    //       {
-    //         _meili: true,
-    //         $or: [
-    //           {deleted: true}
-    //         ]
-    //       }]
-    //     }).cursor()
+    case 'Imports': // complete DB sync
+        var count = 0
+        var syncDocs = []
+        var cursor = WagoItem.find({
+          _userId: {$exists: true},
+          expires_at: null,
+          $or: [{
+            deleted: false,
+          },
+          {
+            _meili: true,
+            $or: [
+              {deleted: true}
+            ]
+          }]
+        }).cursor()
 
-    //     for (let doc = await cursor.next(); doc != null; doc = await cursor.next()) {
-    //       count++
-    //       if (doc.deleted) {
-    //         await meiliImportIndex.deleteDocument(doc._id)
-    //         doc._meili = false
-    //         await doc.save()
-    //       }
-    //       else {
-    //         syncDocs.push(await doc.meiliImportData)
-    //         if (syncDocs.length >= meiliBatchSize) {
-    //           let res = await meiliImportIndex.addDocuments(syncDocs)
-    //           console.log(res)
-    //           syncDocs = []
-    //         }
-    //         if (!doc._meili) {
-    //           doc._meili = true
-    //           try {
-    //             await doc.save()
-    //           }
-    //           catch(e) {
-    //             console.log(e)
-    //             console.log(doc)
-    //           }
-    //         }
-    //       }
-    //       if (count%1000 == 0) {
-    //         console.log('sync meili', count)
-    //       }
-    //     }
-    //     if (syncDocs.length) {
-    //       await meiliImportIndex.addDocuments(syncDocs)
-    //     }
-    //     break
+        for (let doc = await cursor.next(); doc != null; doc = await cursor.next()) {
+          count++
+          if (doc.deleted) {
+            await meiliImportIndex.deleteDocument(doc._id)
+            await meiliImportIndex2.deleteDocument(doc._id)
+            doc._meili = false
+            await doc.save()
+          }
+          else {
+            syncDocs.push(await doc.meiliImportData)
+            if (syncDocs.length >= meiliBatchSize) {
+              let res = await meiliImportIndex.addDocuments(syncDocs)
+              let res2 = await meiliImportIndex2.addDocuments(syncDocs)
+              syncDocs = []
+            }
+            if (!doc._meili) {
+              doc._meili = true
+              try {
+                await doc.save()
+              }
+              catch(e) {
+                console.log(e, doc)
+              }
+            }
+          }
+          if (count%1000 == 0) {
+            console.log('sync meili', count)
+          }
+        }
+        if (syncDocs.length) {
+          await meiliImportIndex.addDocuments(syncDocs)
+          await meiliImportIndex2.addDocuments(syncDocs)
+        }
+        break
 
     case 'WagoApp': // complete DB sync
       var count = 0

@@ -10,7 +10,131 @@ function findAll(regex, str) {
   return matches
 }
 
+const importIndex = meiliSearch.index('imports')
+const categoryIndex = meiliSearch.index('importsCats')
+
+function expansionIndex(exp) {
+  exp = exp.toLowerCase()
+  if (exp === 'classic') return 0
+  else if (exp === 'tbc') return 1
+  else if (exp === 'legion') return 6
+  else if (exp === 'bfa') return 7
+  else if (exp === 'sl') return 8
+  return 8
+}
+
 module.exports = function (fastify, opts, next) {
+  fastify.get('/ms', async (req, res) => {
+    let query = req.query.q || req.body.q || ""
+    if (typeof query !== 'string') {
+      query = ''
+    }
+    let m
+    let filters = ''
+    let facets = []
+
+    let filterExpansion = []
+    m = query.match(/expansion:(\w+)/i)
+    while (m) {
+      filterExpansion.push(`expansion=${expansionIndex(m[1])}`)
+      query = query.replace(m[0], '')
+      m = query.match(/expansion:(\w+)/i)
+    }
+    if (filterExpansion.length) {
+      filters += ` AND (${filterExpansion.join(' OR ')} OR expansion=-1)`
+    }
+
+    let filterTypes = []
+    m = query.match(/type:(\w+)/i)
+    while (m) {
+      filterTypes.push(`type=${m[1].toUpperCase()}`)
+      query = query.replace(m[0], '')
+      m = query.match(/type:(\w+)/i)
+    }
+    if (filterTypes.length) {
+      filters += ` AND (${filterTypes.join(' OR ')})`
+    }
+
+    let categories = []
+    let useCategoryIndex = false
+    m = query.match(/(?:category|tag):([\w-]+)/i)
+    while (m) {
+      if (Categories.categories[m[1]]) {
+        categories.push(`categories:${m[1]}`)
+        if (!Categories.categories[m[1]].system) {
+          useCategoryIndex = true
+        }
+      }
+      query = query.replace(m[0], '')
+      m = query.match(/(?:category|tag):([\w-]+)/i)
+    }
+    if (categories.length) {
+      facets.push(categories)
+    }
+
+    m = query.match(/(?:date):(\d\d\d\d-\d\d-\d\d)/i)
+    while (m) {
+      try {
+        let date = Math.round(Date.parse(m[1]) / 1000)
+        let date2 = date + 86400
+        filters += ` AND (timestamp >= ${date} AND timestamp <= ${date2})`
+      }
+      catch {}
+      query = query.replace(m[0], '')
+      m = query.match(/(?:date):(\d\d\d\d-\d\d-\d\d)/i)
+    }
+
+    m = query.match(/(?:before):(\d\d\d\d-\d\d-\d\d)/i)
+    while (m) {
+      try {
+        let date = Math.round(Date.parse(m[1]) / 1000)
+        filters += ` AND (timestamp < ${date})`
+      }
+      catch {}
+      query = query.replace(m[0], '')
+      m = query.match(/(?:date):(\d\d\d\d-\d\d-\d\d)/i)
+    }
+
+    m = query.match(/(?:after):(\d\d\d\d-\d\d-\d\d)/i)
+    while (m) {
+      try {
+        let date = Math.round(Date.parse(m[1]) / 1000)
+        filters += ` AND (timestamp > ${date})`
+      }
+      catch {}
+      query = query.replace(m[0], '')
+      m = query.match(/(?:date):(\d\d\d\d-\d\d-\d\d)/i)
+    }
+
+    if (req.user) {
+      filters += ` AND (userId=${req.user._id} OR hidden=false)`
+    }
+    else {
+      filters += ` AND (hidden=false)`
+    }
+
+    filters = filters.replace(/^ AND /, '')
+    let options = {
+      filters: filters,
+      limit: 25,
+      offset: parseInt(req.query.page || 0) * 25
+    }
+
+    if (facets.length) {
+      options.facetFilters = facets
+    }
+
+    if (useCategoryIndex) {
+      console.log('categoryIndex', query, options)
+      res.send(await categoryIndex.search(query.trim(), options))
+    }
+    else {
+      console.log('importIndex', query, options)
+      res.send(await importIndex.search(query.trim(), options))
+    }
+  })
+
+
   fastify.get('/', async (req, res, skipSearch) => {
     // get input
     var query = req.query.q || req.body.q || ""

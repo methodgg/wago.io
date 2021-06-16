@@ -33,6 +33,10 @@ global.redis2 = new Redis(config.redis2)
 global.fs = require('fs').promises
 global.mongoose = require('mongoose')
 
+const { MeiliSearch } = require('meilisearch')
+global.meiliWagoApp = new MeiliSearch(config.meiliWagoApp)
+global.meiliSearch = new MeiliSearch(config.meiliSearch)
+
 // --- FASTIFY PLUGINS
 fastify.register(require('fastify-cookie'))
 fastify.register(require('fastify-compress'))
@@ -95,7 +99,7 @@ const startServer = async () => {
       model = model.split('.')[0]
       global[model] = require('./api/models/' + model)
     })
-    global.Categories = require('../frontend/src/components/libs/categories')
+    global.Categories = require('../frontend/src/components/libs/categories2')
 
     const encodeDecodeAddons = await fs.readdir('./api/helpers/encode-decode')
     global.Addons = {}
@@ -153,6 +157,9 @@ const startServer = async () => {
       }
     })
     
+    // await runTask('ComputeStatistics')
+    // await runTask('SyncMeili', {table: 'Imports'})
+
     // setup simulated crontasks
     if (config.env === 'development' || config.host === 'SF2-01') {
       const cleanup = await taskQueue.getRepeatableJobs()
@@ -165,15 +172,17 @@ const startServer = async () => {
       await taskQueue.add('UpdatePatreonAccounts', null, {repeat: {cron: '0 */4 * * *'}, priority: 3})
       await taskQueue.add('UpdateWeeklyMDT', null, {repeat: {cron: '0 */4 * * *'}, priority: 3})
       await taskQueue.add('UpdateTopLists', null, {repeat: {cron: '*/5 * * * *'}, priority: 3})
-      await taskQueue.add('UpdateValidCharacters', null, {repeat: {cron: '15 * * * *'}, priority: 3})
+      await taskQueue.add('UpdateValidCharacters', null, {repeat: {cron: '10 * * * *'}, priority: 3})
       await taskQueue.add('UpdateGuildMembership', null, {repeat: {cron: '15 * * * *'}, priority: 3})
-      await taskQueue.add('ComputeViewsThisWeek', null, {repeat: {cron: '0 * * * *'}, priority: 4})
+      await taskQueue.add('ComputeStatistics', null, {repeat: {cron: '0 * * * *'}, priority: 4})
       await taskQueue.add('UpdateLatestAddonReleases', null, {repeat: {cron: '*/20 * * * *'}, priority: 4})
-      await taskQueue.add('SyncElastic', {table: 'User'}, {repeat: {cron: '0 10 5 * *'}, priority: 10})
-      await taskQueue.add('SyncElastic', {table: 'WagoItem'}, {repeat: {cron: '0 10 15 * *'}, priority: 10})
-      await taskQueue.add('SyncMeili', {table: 'WagoItem'}, {repeat: {cron: '0 10 25 * *'}, priority: 10})
-      await taskQueue.add('SyncMeili', {table: 'WA:Metrics'}, {repeat: {cron: '30 * * * *'}, priority: 10})
-      await taskQueue.add('SyncMeili', {table: 'WA:ToDo'}, {repeat: {cron: '*/3 * * * *'}, priority: 10})
+      // await taskQueue.add('SyncElastic', {table: 'User'}, {repeat: {cron: '0 10 5 * *'}, priority: 10})
+      // await taskQueue.add('SyncElastic', {table: 'WagoItem'}, {repeat: {cron: '0 10 15 * *'}, priority: 10})
+      await taskQueue.add('SyncMeili', {table: 'WagoApp'}, {repeat: {cron: '0 10 5 * *'}, priority: 10})
+      await taskQueue.add('SyncMeili', {table: 'Imports'}, {repeat: {cron: '0 10 10 * *'}, priority: 10})
+      await taskQueue.add('SyncMeili', {table: 'Code'}, {repeat: {cron: '0 10 15 * *'}, priority: 10})
+      await taskQueue.add('SyncMeili', {table: 'Imports:Metrics'}, {repeat: {cron: '30 * * * *'}, priority: 10})
+      await taskQueue.add('SyncMeili', {table: 'Imports:ToDo'}, {repeat: {cron: '*/3 * * * *'}, priority: 10})
 
       global.discordBot = require('./discordBot')
       discordBot.start()

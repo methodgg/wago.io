@@ -52,11 +52,10 @@ module.exports = function (fastify, opts, next) {
   // returns categories for queried language
   fastify.get('/categories', (req, res) => {
     const t = i18next.getFixedT(req.query.lang || 'en-US')
-    const cats = Categories.categories(t)
     const categories = {}
-    cats.forEach(c => {
-      categories[c.id] = {name: c.text, slug: c.slug}
-    })
+    for (const [id, cat] of Object.entries(Categories.translate(t))) {
+      categories[id] = {name: cat.text, slug: cat.slug}
+    }
     res.send(categories)
   })
 

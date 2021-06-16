@@ -38,19 +38,37 @@ Schema.statics.findForWago = function(id, one) {
   }
 }
 
+// update meili indexes
 async function setMeiliIndex() {
+  let changedWago = false
   const wago = await WagoItem.lookup(this.auraID)
   if (wago && !(wago.hidden || wago.private || wago.encrypted || wago.restricted || wago.deleted || wago.blocked)) {
-    var meiliToDoWA = await redis.getJSON('meili:todo:weakauras') || []
+    var meiliToDoWA = await redis.getJSON('meili:todo:wagoapp') || []
     meiliToDoWA = meiliToDoWA.filter(doc => {
       return doc.id !== this._id
     })
     meiliToDoWA.push(await wago.meiliWAData)
-    redis.setJSON('meili:todo:weakauras', meiliToDoWA)
+    redis.setJSON('meili:todo:wagoapp', meiliToDoWA)
     if (!wago._meiliWA) {
       wago._meiliWA = true
-      await wago.save()
+      changedWago = true
     }
+  }
+  if (wago && !wago.deleted) {
+    var meiliToDo = await redis.getJSON('meili:todo:imports') || []
+    meiliToDo = meiliToDo.filter(doc => {
+      return doc.id !== this._id
+    })
+    meiliToDo.push(await wago.meiliImportData)
+    redis.setJSON('meili:todo:wagoapp', meiliToDo)
+    if (!wago._meiliWA) {
+      wago._meiliWA = true
+      changedWago = true
+    }
+  }
+
+  if (changedWago) {
+    await wago.save()
   }
 }
 
