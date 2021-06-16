@@ -13,6 +13,8 @@ function findAll(regex, str) {
 const importIndex = meiliSearch.index('imports')
 const categoryIndex = meiliSearch.index('importsCats')
 
+const oldCategories = require('../../../frontend/src/components/libs/categories')
+
 function expansionIndex(exp) {
   exp = exp.toLowerCase()
   if (exp === 'classic') return 0
