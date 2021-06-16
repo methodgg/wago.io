@@ -395,11 +395,11 @@ module.exports = function (fastify, opts, next) {
         query = query.replace(m[0], '').replace(/\s{2,}/, ' ').trim()
         var tags = (m[1] || m[2]).split(/,\s?/g)
         tags.forEach((thisTag) => {
-          var clones = global.Categories.getClones(thisTag, matchType)
+          var clones = oldCategories.getClones(thisTag, matchType)
           // if this category does not exist in classic/vice versa then try without filter
           // if found without filter then remove the filter - the user likely came into the search page from an external link
           if (!clones.length) {
-            clones = global.Categories.getClones(thisTag)
+            clones = oldCategories.getClones(thisTag)
           }
           if (!clones.length) {
             return
