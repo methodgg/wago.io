@@ -28,8 +28,8 @@ module.exports = async (task, data) => {
       case 'UpdateWeeklyMDT':
         return await UpdateWeeklyMDT()
 
-      case 'ComputeViewsThisWeek':
-        return await ComputeViewsThisWeek()
+      case 'ComputeStatistics':
+        return await ComputeStatistics()
 
       case 'DiscordMessage':
         return await DiscordMessage(data)
