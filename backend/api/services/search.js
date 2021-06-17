@@ -1,3 +1,4 @@
+
 function findAll(regex, str) {
   var matches = []
   var m
@@ -36,22 +37,22 @@ module.exports = function (fastify, opts, next) {
     let facets = []
 
     let filterExpansion = []
-    m = query.match(/expansion:(\w+)/i)
+    m = query.match(/expansion:\s?(\w+)/i)
     while (m) {
       filterExpansion.push(`expansion=${expansionIndex(m[1])}`)
       query = query.replace(m[0], '')
-      m = query.match(/expansion:(\w+)/i)
+      m = query.match(/expansion:\s?(\w+)/i)
     }
     if (filterExpansion.length) {
       filters += ` AND (${filterExpansion.join(' OR ')} OR expansion=-1)`
     }
 
     let filterTypes = []
-    m = query.match(/type:(\w+)/i)
+    m = query.match(/type:\s?(\w+)/i)
     while (m) {
       filterTypes.push(`type=${m[1].toUpperCase()}`)
       query = query.replace(m[0], '')
-      m = query.match(/type:(\w+)/i)
+      m = query.match(/type:\s?(\w+)/i)
     }
     if (filterTypes.length) {
       filters += ` AND (${filterTypes.join(' OR ')})`
@@ -59,7 +60,7 @@ module.exports = function (fastify, opts, next) {
 
     let categories = []
     let useCategoryIndex = false
-    m = query.match(/(?:category|tag):([\w-]+)/i)
+    m = query.match(/(?:category|tag):\s?([\w-]+)/i)
     while (m) {
       if (Categories.categories[m[1]]) {
         categories.push(`categories:${m[1]}`)
@@ -68,13 +69,13 @@ module.exports = function (fastify, opts, next) {
         }
       }
       query = query.replace(m[0], '')
-      m = query.match(/(?:category|tag):([\w-]+)/i)
+      m = query.match(/(?:category|tag):\s?([\w-]+)/i)
     }
     if (categories.length) {
       facets.push(categories)
     }
 
-    m = query.match(/(?:date):(\d\d\d\d-\d\d-\d\d)/i)
+    m = query.match(/(?:date):\s?(\d\d\d\d-\d\d-\d\d)/i)
     while (m) {
       try {
         let date = Math.round(Date.parse(m[1]) / 1000)
@@ -83,10 +84,10 @@ module.exports = function (fastify, opts, next) {
       }
       catch {}
       query = query.replace(m[0], '')
-      m = query.match(/(?:date):(\d\d\d\d-\d\d-\d\d)/i)
+      m = query.match(/(?:date):\s?(\d\d\d\d-\d\d-\d\d)/i)
     }
 
-    m = query.match(/(?:before):(\d\d\d\d-\d\d-\d\d)/i)
+    m = query.match(/(?:before):\s?(\d\d\d\d-\d\d-\d\d)/i)
     while (m) {
       try {
         let date = Math.round(Date.parse(m[1]) / 1000)
@@ -94,10 +95,10 @@ module.exports = function (fastify, opts, next) {
       }
       catch {}
       query = query.replace(m[0], '')
-      m = query.match(/(?:date):(\d\d\d\d-\d\d-\d\d)/i)
+      m = query.match(/(?:date):\s?(\d\d\d\d-\d\d-\d\d)/i)
     }
 
-    m = query.match(/(?:after):(\d\d\d\d-\d\d-\d\d)/i)
+    m = query.match(/(?:after):\s?(\d\d\d\d-\d\d-\d\d)/i)
     while (m) {
       try {
         let date = Math.round(Date.parse(m[1]) / 1000)
@@ -105,7 +106,43 @@ module.exports = function (fastify, opts, next) {
       }
       catch {}
       query = query.replace(m[0], '')
-      m = query.match(/(?:date):(\d\d\d\d-\d\d-\d\d)/i)
+      m = query.match(/(?:date):\s?(\d\d\d\d-\d\d-\d\d)/i)
+    }
+
+    m = query.match(/(?:collection):\s?([\w-]{7,14})/i)
+    let filterIDs = []
+    while (m) {
+      try {
+        let collection = await WagoItem.lookup(m[1])
+        if (collection && collection.type === 'COLLECTION' && collection.collect.length) {
+          collection.collect.forEach(id => {
+            filterIDs.push(`id=${id}`)
+          })
+        }
+      }
+      catch {}
+      query = query.replace(m[0], '')
+      m = query.match(/(?:collection):\s?([\w-]{7,14})/i)
+    }
+    if (filterIDs.length) {
+      filters += ` AND (${filterIDs.join(' OR ')})`
+    }
+
+    m = query.match(/(?:user:\s?"(.*)")/i)
+    let filterUsers = []
+    while (m) {
+      try {
+        let user = await User.findOne({"search.username": m[1].toLowerCase(), "account.hidden": false})
+        if (user) {
+          filterUsers.push(`userId=${user._id}`)
+        }
+      }
+      catch {}
+      query = query.replace(m[0], '')
+      m = query.match(/(?:user:\s?"(.*)")/i)
+    }
+    if (filterUsers.length) {
+      filters += ` AND (${filterUsers.join(' OR ')})`
     }
 
     if (req.user) {
@@ -273,39 +310,40 @@ module.exports = function (fastify, opts, next) {
 
     // check for import type
     var matchType
-    match = /\btype:\s*"?(weakauras?2?|elvui|vuhdo|totalrp3?|collection|snippet|plater|opie|encounternotes|image|audio|error)"?/i.exec(query)
+    match = /\btype:\s*"?(\w+)"?/i.exec(query)
+    let typeID
     if (match) {
       query = query.replace(match[0], '').replace(/\s{2,}/, ' ').trim()
-      match[1] = match[1].toUpperCase()
+      let type = match[1]
+      typeID = match[1].toUpperCase()
 
-      if (match[1].match(/WEAKAURA/)) {
-        match[1] = 'WEAKAURA'
+      if (typeID.match(/WEAKAURA/)) {
+        typeID = 'WEAKAURA'
       }
-      else if (match[1] === 'TOTALRP') {
-        match[1] = 'TOTALRP3'
+      else if (typeID === 'TOTALRP') {
+        typeID = 'TOTALRP3'
       }
 
-      if (expansion === 'classic' && match[1] === 'WEAKAURA') {
-        match[1] = 'CLASSIC-WEAKAURA'
+      if (expansion === 'classic' && typeID === 'WEAKAURA') {
+        typeID = 'CLASSIC-WEAKAURA'
       }
-      else if (expansion === 'tbc' && match[1] === 'WEAKAURA') {
-        match[1] = 'TBC-WEAKAURA'
+      else if (expansion === 'tbc' && typeID === 'WEAKAURA') {
+        typeID = 'TBC-WEAKAURA'
       }
-      matchType = match[1]
-      // lookup.type = match[1]
+
       Search.query.context.push({
         query: match[0],
         type: 'type',
-        wagoType: match[1].match(/WEAKAURA/) && 'WEAKAURA' || match[1],
-        image: '/media/wagotypes/' + match[1] + '.png'
+        wagoType: typeID.match(/WEAKAURA/) && 'WEAKAURA' || typeID,
+        image: '/media/wagotypes/' + typeID + '.png'
       })
-      esFilter.push({ term: { 'type.keyword': match[1] } })
+      esFilter.push(({bool: { should: [{term: {'type.keyword': typeID}}, {term: {'wagolib.addon.keyword': type}}, {term: {'wagolib.anythingTable.keyword': type}}]}}))
     }
     else {
       esFilter.push({ bool: { must_not: { term: { 'type.keyword': 'ERROR'}}}})
     }
 
-    if (expansion !== 'all' && matchType && matchType.match(/WEAKAURA|MDT/)) {
+    if (expansion !== 'all' && typeID && typeID.match(/WEAKAURA|MDT/)) {
         esFilter.push({ term: { game: expansion } })
         expansionFilterIndex = esFilter.length - 1
     }
@@ -745,10 +783,19 @@ module.exports = function (fastify, opts, next) {
       item.url = wago.url
       item.type = wago.type
       item.description = {text: wago.description, type: wago.description_format}
-      item.visibility = {private: wago.private, hidden: wago.hidden, restricted: wago.restricted, encrypted: wago.encrypted}
+      item.hidden = wago.private || wago.hidden || wago.restricted || wago.encrypted || wago.moderated
       item.date = {created: wago.created, modified: wago.modified}
+      item.timestamp = wago.modified.getTime()
       item.categories = wago.categories.slice(0, 5)
 
+      item.views = wago.popularity.views
+      item.comments = wago.popularity.comments_count
+      item.downloads = wago.popularity.downloads
+      item.embeds = wago.popularity.embeds
+      item.stars = wago.popularity.favorite_count
+      item.wagolib = wago.wagolib
+
+      // legacy
       item.viewCount = wago.popularity.views
       item.commentCount = wago.popularity.comments_count
       item.downloadCount = wago.popularity.downloads
