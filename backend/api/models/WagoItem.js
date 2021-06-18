@@ -359,7 +359,6 @@ Schema.virtual('meiliImportData').get(async function () {
   else {
     data.type = this.type
   }
-  data.type = this.type
   let catRanks = this.categoryRanks
     data.categoryRoot = catRanks.root
     data.categoryTotal = catRanks.total
