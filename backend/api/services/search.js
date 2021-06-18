@@ -98,7 +98,7 @@ module.exports = function (fastify, opts, next) {
       if (Categories.categories[m[1]]) {
         categories.push(`categories:${m[1]}`)
         if (!Categories.categories[m[1]].system) {
-          searchIndex = 'importCats'
+          searchIndex = 'category'
         }
       }
       query = query.replace(m[0], '')
