@@ -11,8 +11,12 @@ function findAll(regex, str) {
   return matches
 }
 
-const importIndex = meiliSearch.index('imports')
-const categoryIndex = meiliSearch.index('importsCats')
+const searchIndexes = {
+  imports: meiliSearch.index('imports'),
+  category: meiliSearch.index('importsCats'),
+  comments: meiliSearch.index('comments'),
+  code: meiliSearch.index('code')
+}
 
 const oldCategories = require('../../../frontend/src/components/libs/categories')
 
@@ -35,6 +39,36 @@ module.exports = function (fastify, opts, next) {
     let m
     let filters = ''
     let facets = []
+    let allowHidden = false
+    let searchIndex = 'imports'
+
+    m = query.match(/^!(code|mentions|starred)!/)
+    if (m) {
+      query = query.replace(m[0], '')
+      if (m[1] === 'mentions' && req.user) {
+        // searchIndex = 'comments'
+        const mentions = await Comments.findMentions(req.user._id)
+        let ids = []
+        mentions.forEach(id => {
+          ids.push(`id=${id}`)
+        })
+        if (ids.length) {
+          allowHidden = true
+          filters += ` AND (${ids.join(' OR ')})`
+        }
+      }
+      else if (m[1] === 'starred' && req.user) {
+        const faves = await WagoFavorites.find({userID: req.user._id, type: 'Star'}).select('wagoID')
+        let ids = []
+        faves.forEach(fave => {
+          ids.push(`id=${fave.wagoID}`)
+        })
+        if (ids.length) {
+          allowHidden = true
+          filters += ` AND (${ids.join(' OR ')})`
+        }
+      }
+    }
 
     let filterExpansion = []
     m = query.match(/expansion:\s?(\w+)/i)
@@ -59,13 +93,12 @@ module.exports = function (fastify, opts, next) {
     }
 
     let categories = []
-    let useCategoryIndex = false
     m = query.match(/(?:category|tag):\s?([\w-]+)/i)
     while (m) {
       if (Categories.categories[m[1]]) {
         categories.push(`categories:${m[1]}`)
         if (!Categories.categories[m[1]].system) {
-          useCategoryIndex = true
+          searchIndex = 'importCats'
         }
       }
       query = query.replace(m[0], '')
@@ -111,10 +144,13 @@ module.exports = function (fastify, opts, next) {
 
     m = query.match(/(?:collection):\s?([\w-]{7,14})/i)
     let filterIDs = []
-    while (m) {
+    if (m) {
       try {
         let collection = await WagoItem.lookup(m[1])
         if (collection && collection.type === 'COLLECTION' && collection.collect.length) {
+          if (collection.visibility !== 'Public') {
+            allowHidden = true
+          }
           collection.collect.forEach(id => {
             filterIDs.push(`id=${id}`)
           })
@@ -122,7 +158,6 @@ module.exports = function (fastify, opts, next) {
       }
       catch {}
       query = query.replace(m[0], '')
-      m = query.match(/(?:collection):\s?([\w-]{7,14})/i)
     }
     if (filterIDs.length) {
       filters += ` AND (${filterIDs.join(' OR ')})`
@@ -145,10 +180,24 @@ module.exports = function (fastify, opts, next) {
       filters += ` AND (${filterUsers.join(' OR ')})`
     }
 
-    if (req.user) {
+    m = query.match(/(.*)(metric:\s?(installs|stars|views)(<|>|=)(\d+))(.*)/i)
+    let filterMetrics = []
+    while (m) {
+      filterMetrics.push(`${m[3]}${m[4]}${m[5]}`)
+      query = query.replace(m[0], '')
+      m = query.match(/(.*)(metric:\s?(installs|stars|views)(<|>|=)(\d+))(.*)/i)
+    }
+    if (filterMetrics.length) {
+      filters += ` AND (${filterMetrics.join(' OR ')})`
+    }
+
+
+
+
+    if (!allowHidden && req.user) {
       filters += ` AND (userId=${req.user._id} OR hidden=false)`
     }
-    else {
+    else if (!allowHidden) {
       filters += ` AND (hidden=false)`
     }
 
@@ -163,14 +212,9 @@ module.exports = function (fastify, opts, next) {
       options.facetFilters = facets
     }
 
-    if (useCategoryIndex) {
-      console.log('categoryIndex', query, options)
-      res.send(await categoryIndex.search(query.trim(), options))
-    }
-    else {
-      console.log('importIndex', query, options)
-      res.send(await importIndex.search(query.trim(), options))
-    }
+    let results = await searchIndexes[searchIndex].search(query.trim(), options)
+    results.index = searchIndex
+    res.send(results)
   })
 
 
@@ -532,10 +576,9 @@ module.exports = function (fastify, opts, next) {
     }
 
     // check for favorites
-    match = /\bstarred:\s*(1|true)\b/i.exec(query)
+    match = /!starred!/i.exec(query)
     if (match && req.user) {
       query = query.replace(match[0], '').replace(/\s{2,}/, ' ').trim()
-      if (match[1]=='1' || match[1].toLowerCase()=='true') {
         const faves = await WagoFavorites.find({userID: req.user._id, type: 'Star'}).select('wagoID').exec()
         var stars = []
         faves.forEach((fave) => {
@@ -552,10 +595,9 @@ module.exports = function (fastify, opts, next) {
         })
         esFilter.push({ids: { values: stars } })
       }
-    }
 
     // check for comments
-    match = /\b(?:alerts?|mentioned):\s*(1|true)\b/i.exec(query)
+    match = /!mentions!/i.exec(query)
     if (match && req.user) {
       query = query.replace(match[0], '').replace(/\s{2,}/, ' ').trim()
       Search.query.context.push({

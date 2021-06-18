@@ -151,6 +151,7 @@ Schema.virtual('visibility').get(function() {
   if (this.private) return "Private"
   else if (this.hidden) return "Hidden"
   else if (this.restricted) return "Restricted"
+  else if (this.moderated) return "Moderated"
   else return "Public"
 })
 
@@ -194,8 +195,8 @@ Schema.virtual('searchScores').get(async function() {
   const hoursOld = Math.min(1800, (Date.now() - this.modified.getTime()) / 3600000)
   hotness.ageScore = (100 * Math.E ** (-(hoursOld ** 2) / 810000)).toFixed(1)
 
-  const lastMonth = new Date()
-  lastMonth.setMonth(lastMonth.getMonth() - 1)
+  const recentDate = new Date()
+  recentDate.setMonth(recentDate.getDate() - 18)
 
   // viewsScore: Z-Score of views in the past week
   const stdViews = parseFloat(await redis.get('stats:standardDeviation:views'))
@@ -206,13 +207,13 @@ Schema.virtual('searchScores').get(async function() {
   // installScore: Z-Score of installs in the past month
   const stdInstalls = parseFloat(await redis.get('stats:standardDeviation:installs'))
   const meanInstalls = parseFloat(await redis.get('stats:mean:installs'))
-  const installs = await WagoFavorites.count({wagoID: this._id, type: 'Install', timestamp: {$gt: lastMonth}})
+  const installs = await WagoFavorites.count({wagoID: this._id, type: 'Install', timestamp: {$gt: recentDate}})
   hotness.installScore = ((installs - meanInstalls) / stdInstalls).toFixed(1)
 
   /// starScore: Z-Score of installs in the past month
   const stdStars = parseFloat(await redis.get('stats:standardDeviation:stars'))
   const meanStars = parseFloat(await redis.get('stats:mean:stars'))
-  const stars = await WagoFavorites.count({wagoID: this._id, type: 'Star', timestamp: {$gt: lastMonth}})
+  const stars = await WagoFavorites.count({wagoID: this._id, type: 'Star', timestamp: {$gt: recentDate}})
   hotness.starScore = ((stars - meanStars) / stdStars).toFixed(1)
 
   return hotness

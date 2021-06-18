@@ -7,12 +7,8 @@ const md5 = require('md5')
 const mkdirp = require('mkdirp')
 const path = require('path')
 const updateDataCaches = require('../../middlewares/updateLocalCache')
-const Categories = require(__dirname + '/../../../frontend/src/components/libs/categories')
 const getCode = require('./code-detection/get-code')
 const luacheck = require('./luacheck')
-
-const { MeiliSearch } = require('meilisearch')
-const meiliWagoApp = new MeiliSearch(config.meiliWagoApp)
 
 const ENUM = require('../../middlewares/enum')
 const logger = require('../../middlewares/matomo')
@@ -472,15 +468,15 @@ async function ComputeStatistics ()  {
   await redis.set('stats:standardDeviation:views', standardDeviation)
   await redis.set('stats:mean:views', mean)
 
-  const lastMonth = new Date()
-  lastMonth.setMonth(lastMonth.getMonth() - 1)
+  const recentDate = new Date()
+  recentDate.setMonth(recentDate.getDate() - 18)
 
   // calc installs this month
   totalImports = 0
   totalSum = 0
   totalSquared = 0
   const installDocs = await WagoFavorites.aggregate([
-    {$match: {type: 'Install', timestamp: {$gt: lastMonth}}},
+    {$match: {type: 'Install', timestamp: {$gt: recentDate}}},
     {$group: { _id: '$wagoID', installs: { $sum: 1 }}}
   ]).exec()
 
@@ -504,7 +500,7 @@ async function ComputeStatistics ()  {
   totalSum = 0
   totalSquared = 0
   const starDocs = await WagoFavorites.aggregate([
-    {$match: {type: 'Star', timestamp: {$gt: lastMonth}}},
+    {$match: {type: 'Star', timestamp: {$gt: recentDate}}},
     {$group: { _id: '$wagoID', stars: { $sum: 1 }}}
   ]).exec()
 
