@@ -193,28 +193,28 @@ Schema.virtual('searchScores').get(async function() {
   let hotness = {}
   // ageScore: gaussian curve 1-100; new-75+ days
   const hoursOld = Math.min(1800, (Date.now() - this.modified.getTime()) / 3600000)
-  hotness.ageScore = (100 * Math.E ** (-(hoursOld ** 2) / 810000)).toFixed(1)
+  hotness.ageScore = parseFloat((100 * Math.E ** (-(hoursOld ** 2) / 810000)).toFixed(1) || 0)
 
   const recentDate = new Date()
   recentDate.setMonth(recentDate.getDate() - 18)
 
   // viewsScore: Z-Score of views in the past week
-  const stdViews = parseFloat(await redis.get('stats:standardDeviation:views'))
-  const meanViews = parseFloat(await redis.get('stats:mean:views'))
+  const stdViews = parseFloat(await redis.get('stats:standardDeviation:views')) || 1
+  const meanViews = parseFloat(await redis.get('stats:mean:views')) || 0
   const views = await ViewsThisWeek.count({wagoID: this._id})
-  hotness.viewsScore = ((views - meanViews) / stdViews).toFixed(1)
+  hotness.viewsScore = parseFloat(((views - meanViews) / stdViews).toFixed(1) || 0)
 
   // installScore: Z-Score of installs in the past month
-  const stdInstalls = parseFloat(await redis.get('stats:standardDeviation:installs'))
-  const meanInstalls = parseFloat(await redis.get('stats:mean:installs'))
+  const stdInstalls = parseFloat(await redis.get('stats:standardDeviation:installs')) || 1
+  const meanInstalls = parseFloat(await redis.get('stats:mean:installs')) || 0
   const installs = await WagoFavorites.count({wagoID: this._id, type: 'Install', timestamp: {$gt: recentDate}})
-  hotness.installScore = ((installs - meanInstalls) / stdInstalls).toFixed(1)
+  hotness.installScore = parseFloat(((installs - meanInstalls) / stdInstalls).toFixed(1) || 0)
 
   /// starScore: Z-Score of installs in the past month
-  const stdStars = parseFloat(await redis.get('stats:standardDeviation:stars'))
-  const meanStars = parseFloat(await redis.get('stats:mean:stars'))
+  const stdStars = parseFloat(await redis.get('stats:standardDeviation:stars')) || 1
+  const meanStars = parseFloat(await redis.get('stats:mean:stars')) || 0
   const stars = await WagoFavorites.count({wagoID: this._id, type: 'Star', timestamp: {$gt: recentDate}})
-  hotness.starScore = ((stars - meanStars) / stdStars).toFixed(1)
+  hotness.starScore = parseFloat(((stars - meanStars) / stdStars).toFixed(1) || 0)
 
   return hotness
 })
@@ -336,15 +336,15 @@ Schema.virtual('meiliWAData').get(async function () {
   return Object.assign({
     id: this._id,
     name: this.name,
-    slug: this.custom_slug,
-    description: this.description,
+    slug: this.custom_slug || '',
+    description: this.description || '',
     categories: this.categories,
     expansion: this.expansionIndex,
     installs: this.popularity.installed_count,
     stars: this.popularity.favorite_count,
     views: this.popularity.views,
     viewsThisWeek: this.popularity.viewsThisWeek,
-    versionString: this.latestVersion.versionString,
+    versionString: this.latestVersion.versionString || '1.0.0',
     thumbnail: await this.getRawThumbnail(),
     timestamp: Math.round(this.modified.getTime() / 1000)
   }, await this.searchScores)
@@ -367,6 +367,7 @@ Schema.virtual('meiliImportData').get(async function () {
     data.userId = this._userId
     await this.populate('_userId').execPopulate()
     if (this._userId && this._userId.account) {
+      data.userId = this._userId._id.toString()
       data.userName = this._userId.account.username
       let avatar = await this._userId.avatarURL
       data.userAvatar = avatar.webp || avatar.gif || avatar.png || avatar.jpg
@@ -421,13 +422,13 @@ function isValidMeiliImport(doc) {
 async function setMeiliIndex() {
   if (isValidMeiliImport(this)) {
     try {
-      let meiliToDoImport = await redis.getJSON('meili:todo:import') || []
+      let meiliToDoImport = await redis.getJSON('meili:todo:imports') || []
       if (this._meili && this.deleted) {
         // delete index
         meiliToDoImport = meiliToDoImport.filter(doc => {
           return doc.id !== this._id
         })
-        redis.setJSON('meili:todo:import', meiliToDoImport)
+        redis.setJSON('meili:todo:imports', meiliToDoImport)
         await meiliImportIndex.deleteDocument(this._id)
         await meiliImportIndex2.deleteDocument(this._id)
         this._meili = false
@@ -439,7 +440,7 @@ async function setMeiliIndex() {
           return doc.id !== this._id
         })
         meiliToDoImport.push(await this.meiliImportData)
-        redis.setJSON('meili:todo:import', meiliToDoImport)
+        redis.setJSON('meili:todo:imports', meiliToDoImport)
         if (!this._meili) {
           this._meili = true
           await this.save()
