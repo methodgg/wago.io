@@ -11,10 +11,13 @@ function findAll(regex, str) {
   return matches
 }
 
-const searchIndexes = {
-  imports: meiliSearch.index('imports'),
-  category: meiliSearch.index('importsCats'),
-  comments: meiliSearch.index('comments'),
+const meiliIndex = {
+  main: meiliSearch.index('imports'),
+  mainCats: meiliSearch.index('importsCats'),
+  stars: meiliSearch.index('stars'),
+  starsCats: meiliSearch.index('starsCats'),
+  date: meiliSearch.index('date'),
+  dateCats: meiliSearch.index('dateCats'),
   code: meiliSearch.index('code')
 }
 
@@ -40,7 +43,12 @@ module.exports = function (fastify, opts, next) {
     let filters = ''
     let facets = []
     let allowHidden = false
-    let searchIndex = 'imports'
+    let searchIndex = 'main'
+    let searchMode = 'imports'
+
+    if (req.query.sort && req.query.sort.match(/^(stars|date)$/)) {
+      searchIndex = req.query.sort
+    }
 
     m = query.match(/^!(code|mentions|starred)!/)
     if (m) {
@@ -97,8 +105,8 @@ module.exports = function (fastify, opts, next) {
     while (m) {
       if (Categories.categories[m[1]]) {
         categories.push(`categories:${m[1]}`)
-        if (!Categories.categories[m[1]].system) {
-          searchIndex = 'category'
+        if (!Categories.categories[m[1]].system && searchMode === 'imports') {
+          searchIndex += 'Cats'
         }
       }
       query = query.replace(m[0], '')
@@ -167,8 +175,11 @@ module.exports = function (fastify, opts, next) {
     let filterUsers = []
     while (m) {
       try {
-        let user = await User.findOne({"search.username": m[1].toLowerCase(), "account.hidden": false})
+        let user = await User.findOne({"search.username": m[1].toLowerCase()})
         if (user) {
+          if (user.account.hidden && (!req.user || !user._id.equals(req.user._id))) {
+            return res.send({profile: "private", hits: []})
+          }
           filterUsers.push(`userId="${user._id}"`)
         }
       }
@@ -190,7 +201,6 @@ module.exports = function (fastify, opts, next) {
     if (filterMetrics.length) {
       filters += ` AND (${filterMetrics.join(' OR ')})`
     }
-
 
     if (!allowHidden && req.user) {
       let restrictions = [`userId="${req.user._id}"`, `hidden=false`]
@@ -217,7 +227,7 @@ module.exports = function (fastify, opts, next) {
       options.facetFilters = facets
     }
 
-    let results = await searchIndexes[searchIndex].search(query.trim(), options)
+    let results = await meiliIndex[searchIndex].search(query.trim(), options)
     results.index = searchIndex
     res.send(results)
   })

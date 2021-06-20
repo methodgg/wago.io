@@ -418,14 +418,20 @@ Schema.virtual('meiliImportData').get(async function () {
 //   data.lua = lua
 // })
 
-const meiliImportIndex = meiliSearch.index('imports')
-const meiliImportIndex2 = meiliSearch.index('importsCats')
-const meiliWAIndex = meiliWagoApp.index('weakauras')
+const meiliIndex = {
+  main: meiliSearch.index('imports'),
+  mainCats: meiliSearch.index('importsCats'),
+  stars: meiliSearch.index('stars'),
+  starsCats: meiliSearch.index('starsCats'),
+  date: meiliSearch.index('date'),
+  dateCats: meiliSearch.index('dateCats'),
+  wagoApp: meiliWagoApp.index('weakauras')
+}
 function isValidMeiliWA(doc) {
   return !!doc._userId && !doc.expires_at && doc.type.match(/WEAKAURA$/)
 }
 function isValidMeiliImport(doc) {
-  return !!doc._userId && !doc.expires_at
+  return !!doc._userId && !doc.expires_at && !doc.type.match(/IMAGE|WAFFLE/i)
 }
 async function setMeiliIndex() {
   if (isValidMeiliImport(this)) {
@@ -437,8 +443,12 @@ async function setMeiliIndex() {
           return doc.id !== this._id
         })
         redis.setJSON('meili:todo:imports', meiliToDoImport)
-        await meiliImportIndex.deleteDocument(this._id)
-        await meiliImportIndex2.deleteDocument(this._id)
+        await meiliIndex.main.deleteDocument(this._id)
+        await meiliIndex.mainCats.deleteDocument(this._id)
+        await meiliIndex.stars.deleteDocument(this._id)
+        await meiliIndex.starsCats.deleteDocument(this._id)
+        await meiliIndex.date.deleteDocument(this._id)
+        await meiliIndex.dateCats.deleteDocument(this._id)
         this._meili = false
         await this.save()
       }
@@ -460,8 +470,12 @@ async function setMeiliIndex() {
     }
   }
   else if (this._meili) {
-    await meiliImportIndex.deleteDocument(this._id)
-    await meiliImportIndex2.deleteDocument(this._id)
+    await meiliIndex.main.deleteDocument(this._id)
+    await meiliIndex.mainCats.deleteDocument(this._id)
+    await meiliIndex.stars.deleteDocument(this._id)
+    await meiliIndex.starsCats.deleteDocument(this._id)
+    await meiliIndex.date.deleteDocument(this._id)
+    await meiliIndex.dateCats.deleteDocument(this._id)
     this._meili = false
     await this.save()
   }
@@ -475,7 +489,7 @@ async function setMeiliIndex() {
           return doc.id !== this._id
         })
         redis.setJSON('meili:todo:wagoapp', meiliToDoWA)
-        await meiliWAIndex.deleteDocument(this._id)
+        await meiliIndex.wagoApp.deleteDocument(this._id)
         this._meiliWA = false
         await this.save()
       }
@@ -497,7 +511,7 @@ async function setMeiliIndex() {
     }
   }
   else if (this._meiliWA) {
-    await meiliWAIndex.deleteDocument(this._id)
+    await meiliIndex.wagoApp.deleteDocument(this._id)
     this._meiliWA = false
     await this.save()
   }

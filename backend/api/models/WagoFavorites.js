@@ -6,7 +6,7 @@ const Schema = new mongoose.Schema({
   userID : { type: mongoose.Schema.Types.ObjectId, index: true },
   appID : {type: String, index: true},
   ipAddress : {type: String, index: true},
-  timestamp : { type: Date, default: Date.now }
+  timestamp : { type: Date, default: Date.now}
 })
 
 Schema.statics.addStar = async function (wago, userID) {
