@@ -359,6 +359,14 @@ Schema.virtual('meiliImportData').get(async function () {
   else {
     data.type = this.type
   }
+  if (this.restricted) {
+    data.restriction = this.restrictedUsers.concat(this.restrictedGuilds)
+    data.restriction.push(this._userId.toString())
+    data.restriction = [...new Set(data.restriction)]
+  }
+  else if (this.private || this.moderated) {
+    data.restriction = this._userId.toString()
+  }
   let catRanks = this.categoryRanks
     data.categoryRoot = catRanks.root
     data.categoryTotal = catRanks.total
@@ -451,6 +459,12 @@ async function setMeiliIndex() {
       console.log('Meili error', e)
     }
   }
+  else if (this._meili) {
+    await meiliImportIndex.deleteDocument(this._id)
+    await meiliImportIndex2.deleteDocument(this._id)
+    this._meili = false
+    await this.save()
+  }
 
   if (isValidMeiliWA(this)) {
     try {
@@ -481,6 +495,11 @@ async function setMeiliIndex() {
     catch (e) {
       console.log('Meili error', e)
     }
+  }
+  else if (this._meiliWA) {
+    await meiliWAIndex.deleteDocument(this._id)
+    this._meiliWA = false
+    await this.save()
   }
 }
 

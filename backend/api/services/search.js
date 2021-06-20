@@ -152,7 +152,7 @@ module.exports = function (fastify, opts, next) {
             allowHidden = true
           }
           collection.collect.forEach(id => {
-            filterIDs.push(`id=${id}`)
+            filterIDs.push(`id="${id}"`)
           })
         }
       }
@@ -169,7 +169,7 @@ module.exports = function (fastify, opts, next) {
       try {
         let user = await User.findOne({"search.username": m[1].toLowerCase(), "account.hidden": false})
         if (user) {
-          filterUsers.push(`userId=${user._id}`)
+          filterUsers.push(`userId="${user._id}"`)
         }
       }
       catch {}
@@ -192,10 +192,15 @@ module.exports = function (fastify, opts, next) {
     }
 
 
-
-
     if (!allowHidden && req.user) {
-      filters += ` AND (userId=${req.user._id} OR hidden=false)`
+      let restrictions = [`userId="${req.user._id}"`, `hidden=false`]
+      if (req.user.battlenet && req.user.battlenet.guilds) {
+        req.user.battlenet.guilds.forEach(guild => {
+          restrictions.push(`restriction="${guild}"`)
+        })
+      }
+
+      filters += ` AND (${restrictions.join(' OR ')})`
     }
     else if (!allowHidden) {
       filters += ` AND (hidden=false)`
