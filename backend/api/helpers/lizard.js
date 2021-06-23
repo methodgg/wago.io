@@ -22,7 +22,7 @@ module.exports = {
       await fs.writeFile(lizardDir + '/' + file, lua)
     }
 
-    let lizard = await exec(`lizard ${lizardDir} -i 999`)
+    let lizard = await exec(`/usr/local/bin/lizard ${lizardDir} -i 999`)
     if (lizard && lizard.stdout) {
       let m
       const section = lizard.stdout.split(/=+/g)[1]
