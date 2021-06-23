@@ -64,6 +64,9 @@ module.exports = async (task, data) => {
       case 'ProcessCode':
         return await ProcessCode(data)
 
+      case 'ProcessAllCode':
+        return await ProcessAllCode()
+
       case 'CleanTaskQueue':
         return taskQueue.clean(10000)
 
@@ -997,7 +1000,7 @@ async function SyncMeili(table) {
           expires_at: null,
         },
         {
-          _meili: true
+          _meiliCode: true
         }]
       }).cursor()
 
