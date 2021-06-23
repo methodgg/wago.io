@@ -639,7 +639,7 @@ module.exports = function (fastify, opts, next) {
       }
     }
 
-    if (fastify.enum.PROCESS_VERSION[doc.type] && (!code.processVersion || code.processVersion < fastify.enum.PROCESS_VERSION[doc.type])) {
+    if (fastify.enum.PROCESS_VERSION[doc.type] && (!doc.codeProcessVersion || doc.codeProcessVersion < fastify.enum.PROCESS_VERSION[doc.type])) {
       code.luacheck = null
       code.customCode = null
       if (doc.type.match(/SNIPPET|WEAKAURA|PLATER/i) && req.query.qupdate) {

@@ -8,9 +8,9 @@ module.exports = function(data, keypath) {
       i++
     }
 
-    if (data.triggers.length > 1 && data.triggers.disjunctive === 'custom' && isValidCodeString(data.triggers.customTriggerLogic)) {
+    if (data.triggers['1'] && data.triggers['2'] && data.triggers.disjunctive === 'custom' && isValidCodeString(data.triggers.customTriggerLogic)) {
       codes.push({
-        name: `${data.id} - Display Stacks`,
+        name: `${data.id} - Trigger Logic`,
         keypath: `${keypath}.triggers.customTriggerLogic`,
         lua: data.triggers.customTriggerLogic.trim()
       })

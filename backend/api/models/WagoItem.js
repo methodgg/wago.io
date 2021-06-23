@@ -71,6 +71,8 @@ const Schema = new mongoose.Schema({
       text: { type: String, default: '' }
     }
   },
+  hasCustomCode: Boolean,
+  codeProcessVersion: Number,
 
   // relevancy scores for searches
   relevancy: {
@@ -338,6 +340,7 @@ Schema.virtual('meiliWAData').get(async function () {
     name: this.name,
     slug: this.custom_slug || '',
     description: this.description || '',
+    hasDesc: (this.description || '').trim().length && 1 || 0,
     categories: this.categories,
     expansion: this.expansionIndex,
     installs: this.popularity.installed_count,
@@ -353,12 +356,7 @@ Schema.virtual('meiliWAData').get(async function () {
 Schema.virtual('meiliImportData').get(async function () {
   const data = await this.meiliWAData
   data.hidden = this.hidden || this.private || this.moderated || this.encrypted || this.restricted || this.deleted || this.blocked
-  if (this.type.match(/WEAKAURA/)) {
-    data.type = 'WEAKAURA'
-  }
-  else {
-    data.type = this.type
-  }
+  data.type = this.type.replace(/.*-WEAKAURA/, 'WEAKAURA')
   if (this.restricted) {
     data.restriction = this.restrictedUsers.concat(this.restrictedGuilds)
     data.restriction.push(this._userId.toString())
@@ -386,47 +384,70 @@ Schema.virtual('meiliImportData').get(async function () {
   return data
 })
 
-// Schema.virtual('meiliCodeData').get(async function () {
-//   const code = await WagoCode.lookup(this._id)
-//   if (!code.customCode || !code.customCode.length) {
-//     return null
-//   }
-//   const data = {
-//     id: this._id,
-//     name: this.name,
-//     hidden: this.hidden || this.private || this.moderated || this.encrypted || this.restricted || this.deleted || this.blocked,
-//     type: this.type,
-//     expansion: this.expansionIndex,
-//     code: code.customCode
-//   }
+Schema.virtual('meiliCodeData').get(async function () {
+  const code = await WagoCode.lookup(this._id)
+  let luaCode = ''
+  if (code.customCode && code.customCode.length) {
+    code.customCode.forEach(c => {
+      luaCode += `-- ${c.name}\n${c.lua}\n\n`
+    })
+    luaCode = luaCode.trim()
+  }
+  if (luaCode) {
+    const data = Object.assign({
+      id: this._id,
+      name: this.name,
+      hidden: this.hidden || this.private || this.moderated || this.encrypted || this.restricted || this.deleted || this.blocked,
+      type: this.type.replace(/.*-WEAKAURA/, 'WEAKAURA'),
+      expansion: this.expansionIndex,
+      installs: this.popularity.installed_count,
+      stars: this.popularity.favorite_count,
+      views: this.popularity.views,
+      versionString: code.versionString || '1.0.0',
+      timestamp: Math.round(code.updated.getTime() / 1000),
+      code: luaCode
+    }, await this.searchScores)
 
-//   if (this._userId) {
-//     await this.populate('_userId').execPopulate()
-//     if (this._userId && this._userId.account) {
-//       data.userName = this._userId.account.username
-//       let avatar = await this._userId.avatarURL
-//       data.userAvatar = avatar.webp || avatar.gif || avatar.png || avatar.jpg
-//       data.userClass = this._userId.roleclass
-//       data.userLinked = !this._userId.account.hidden
-//     }
-//   }
+    if (this.restricted) {
+      data.restriction = this.restrictedUsers.concat(this.restrictedGuilds)
+      data.restriction.push(this._userId.toString())
+      data.restriction = [...new Set(data.restriction)]
+    }
+    else if (this.private || this.moderated) {
+      data.restriction = this._userId.toString()
+    }
 
-//   let lua = ''
-//   code.forEach(c => {
-//     lua = `${lua}-- ${c.name}\n${c.lua}\n\n`
-//   })
-//   data.lua = lua
-// })
+    if (this._userId) {
+      data.userId = this._userId
+      await this.populate('_userId').execPopulate()
+      if (this._userId && this._userId.account) {
+        data.userId = this._userId._id.toString()
+        data.userName = this._userId.account.username
+        let avatar = await this._userId.avatarURL
+        data.userAvatar = avatar.webp || avatar.gif || avatar.png || avatar.jpg
+        data.userClass = this._userId.roleclass
+        data.userLinked = !this._userId.account.hidden
+      }
+    }
+    return data
+  }
+  return null
+})
 
-const meiliIndex = {
-  main: meiliSearch.index('imports'),
-  mainCats: meiliSearch.index('importsCats'),
-  stars: meiliSearch.index('stars'),
-  starsCats: meiliSearch.index('starsCats'),
-  date: meiliSearch.index('date'),
-  dateCats: meiliSearch.index('dateCats'),
-  wagoApp: meiliWagoApp.index('weakauras')
+async function getIndexes() {
+  return {
+    main: await meiliSearch.getOrCreateIndex('imports'),
+    mainCats: await meiliSearch.getOrCreateIndex('importsCats'),
+    stars: await meiliSearch.getOrCreateIndex('stars'),
+    starsCats: await meiliSearch.getOrCreateIndex('starsCats'),
+    date: await meiliSearch.getOrCreateIndex('date'),
+    dateCats: await meiliSearch.getOrCreateIndex('dateCats'),
+    code: await meiliSearch.getOrCreateIndex('code'),
+    user: await meiliSearch.getOrCreateIndex('user'),
+    wagoApp: await meiliWagoApp.getOrCreateIndex('weakauras')
+  }
 }
+const meiliIndex = getIndexes()
 function isValidMeiliWA(doc) {
   return !!doc._userId && !doc.expires_at && doc.type.match(/WEAKAURA$/)
 }
@@ -440,7 +461,7 @@ async function setMeiliIndex() {
       if (this._meili && this.deleted) {
         // delete index
         meiliToDoImport = meiliToDoImport.filter(doc => {
-          return doc.id !== this._id
+          return doc && doc.id !== this._id
         })
         redis.setJSON('meili:todo:imports', meiliToDoImport)
         await meiliIndex.main.deleteDocument(this._id)
@@ -468,6 +489,38 @@ async function setMeiliIndex() {
     catch (e) {
       console.log('Meili error', e)
     }
+
+    try {
+      let meiliToDoCode = (await redis.getJSON('meili:todo:code')) || []
+      if (this._meiliCode && this.deleted) {
+        // delete index
+        meiliToDoCode = meiliToDoCode.filter(doc => {
+          return doc && doc.id !== this._id
+        })
+        redis.setJSON('meili:todo:code', meiliToDoCode)
+        await meiliIndex.code.deleteDocument(this._id)
+        this._meiliCode = false
+        await this.save()
+      }
+      else if ((this._doMeiliCodeIndex || this._toggleVisibility) && !this.deleted) {
+        // add/update index
+        meiliToDoCode = meiliToDoCode.filter(doc => {
+          return doc && doc.id !== this._id
+        })
+        let codeData = await this.meiliCodeData
+        if (codeData) {
+          meiliToDoCode.push(codeData)
+          redis.setJSON('meili:todo:code', meiliToDoCode)
+          if (!this._meiliCode) {
+            this._meiliCode = true
+            await this.save()
+          }
+        }
+      }
+    }
+    catch (e) {
+      console.log('MeiliCode error', e)
+    }
   }
   else if (this._meili) {
     await meiliIndex.main.deleteDocument(this._id)
@@ -476,7 +529,9 @@ async function setMeiliIndex() {
     await meiliIndex.starsCats.deleteDocument(this._id)
     await meiliIndex.date.deleteDocument(this._id)
     await meiliIndex.dateCats.deleteDocument(this._id)
+    await meiliIndex.code.deleteDocument(this._id)
     this._meili = false
+    this._meiliCode = false
     await this.save()
   }
 
@@ -523,7 +578,9 @@ watchText.forEach(field => {
   Schema.path(field).set(function(v) {
     if (this[field] !== undefined) {
       this._doMeiliIndex = (this[field] !== v || this.isNew)
-      this._doMeiliCodeIndex = (this[field] !== v || this.isNew)
+      if (field === 'name') {
+        this._doMeiliCodeIndex = this._meiliCode && (this[field] !== v || this.isNew)
+      }
     }
     return v
   })

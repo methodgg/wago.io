@@ -10,10 +10,9 @@ const Schema = new mongoose.Schema({
   lua : { type: String },
   version: Number, // incremental counter
   versionString: { type: String, index: true }, // semantic version number
-  isLatestVersion: { type: Boolean, default: true },
+  isLatestVersion: { type: Boolean, default: true, index: true },
   branch: String, // ex "8.0-beta", default is not set for live
   luacheck: String,
-  luacheckVersion: Number, // processVersion alias
   changelog: {
     text: String,
     format: String
@@ -28,7 +27,13 @@ const Schema = new mongoose.Schema({
     name: String,
     keypath: String,
     lua: String,
-    everyFrameTest: Boolean
+    everyFrameTest: Boolean,
+    luacheck: String,
+    lizard: {
+      loc: Number,
+      ccn: Number,
+      token: Number
+    }
   }],
   customCodeEncrypted: String,
 });
@@ -84,13 +89,6 @@ Schema.statics.lookup = async function(id, version) {
     return {}
   }
 }
-// alias processVersion -> luacheckVersion
-// TODO: rename in database
-Schema.virtual('processVersion').
-  get(function() { return this.luacheckVersion }).
-  set(function(v) { this.set({ luacheckVersion: v })
-})
-
 
 // create the model for users and expose it to our app
 const WagoCode = mongoose.model('AuraCode', Schema)

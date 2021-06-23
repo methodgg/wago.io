@@ -18,7 +18,8 @@ const meiliIndex = {
   starsCats: meiliSearch.index('starsCats'),
   date: meiliSearch.index('date'),
   dateCats: meiliSearch.index('dateCats'),
-  code: meiliSearch.index('code')
+  code: meiliSearch.index('code'),
+  user: meiliSearch.index('user')
 }
 
 const oldCategories = require('../../../frontend/src/components/libs/categories')
@@ -33,8 +34,7 @@ function expansionIndex(exp) {
   return 8
 }
 
-module.exports = function (fastify, opts, next) {
-  fastify.get('/ms', async (req, res) => {
+async function searchMeili (req, res) {
     let query = req.query.q || req.body.q || ""
     if (typeof query !== 'string') {
       query = ''
@@ -76,6 +76,10 @@ module.exports = function (fastify, opts, next) {
           filters += ` AND (${ids.join(' OR ')})`
         }
       }
+    else if (m[1] === 'code') {
+      searchMode = 'code'
+      searchIndex = 'code'
+    }
     }
 
     let filterExpansion = []
@@ -100,12 +104,13 @@ module.exports = function (fastify, opts, next) {
       filters += ` AND (${filterTypes.join(' OR ')})`
     }
 
+  if (searchMode === 'imports') {
     let categories = []
     m = query.match(/(?:category|tag):\s?([\w-]+)/i)
     while (m) {
       if (Categories.categories[m[1]]) {
         categories.push(`categories:${m[1]}`)
-        if (!Categories.categories[m[1]].system && searchMode === 'imports') {
+        if (!Categories.categories[m[1]].system) {
           searchIndex += 'Cats'
         }
       }
@@ -115,6 +120,7 @@ module.exports = function (fastify, opts, next) {
     if (categories.length) {
       facets.push(categories)
     }
+  }
 
     m = query.match(/(?:date):\s?(\d\d\d\d-\d\d-\d\d)/i)
     while (m) {
@@ -230,10 +236,14 @@ module.exports = function (fastify, opts, next) {
     let results = await meiliIndex[searchIndex].search(query.trim(), options)
     results.index = searchIndex
     res.send(results)
-  })
+}
 
+module.exports = function (fastify, opts, next) {
+  fastify.get('/ms', searchMeili)
+  fastify.get('/', searchMeili)
 
-  fastify.get('/', async (req, res, skipSearch) => {
+  fastify.get('/oldsearch', async (req, res) => {
+    return res.send([])
     // get input
     var query = req.query.q || req.body.q || ""
     if (typeof query !== 'string') {

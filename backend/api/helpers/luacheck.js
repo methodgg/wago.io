@@ -1,12 +1,11 @@
 const exec = require('shelljs.exec')
-const detectCode = require(__dirname + '/../../../frontend/src/components/libs/detectCustomCode')
 
 module.exports = {
   Version: 2,
 
   run: async (code, game) => {
     if (!code.length) {
-      return {}
+      return []
     }
     if (!game || !game.match(/classic|tbc|bfa|sl/)) {
       game = 'sl'
@@ -20,7 +19,7 @@ module.exports = {
       if (typeof code[i] !== 'object' || !code[i].lua || typeof code[i].lua !== 'string' || code[i].skipLuacheck) {
         continue
       }
-      var key = `${code[i].id}: ${code[i].name}`
+      var key = code[i].name
       let lua = code[i].lua.replace(/-- luacheck:/g, `--`) // don't ignore potential malicous hidings
 
       if (lua.match(/^\s*function\s*\(/m)) {
@@ -32,7 +31,7 @@ module.exports = {
       }
 
       let file = new Date().getTime() + Math.random().toString(36).substring(7) + '.lua'
-      fileMap[file] = key
+      fileMap[file] = i
       await fs.writeFile(checkDir + '/' + file, lua)
     }
 
@@ -46,15 +45,16 @@ module.exports = {
         }
         let key = fileMap[m[1]]
         let results = (`${m[2]}${m[3].replace(/.*\.lua:/g, '')}`).trim()+'\n'
-        result[key] = results
+        code[key].luacheck = results
       }
     }
+
     // cleanup
     const files = Object.keys(fileMap)
     for (let file of files) {
       await fs.unlink(checkDir + '/' + file)
     }
     await fs.rmdir(checkDir)
-    return result
+    return code
   }
 }

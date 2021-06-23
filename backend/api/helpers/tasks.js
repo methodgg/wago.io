@@ -9,6 +9,7 @@ const path = require('path')
 const updateDataCaches = require('../../middlewares/updateLocalCache')
 const getCode = require('./code-detection/get-code')
 const luacheck = require('./luacheck')
+const lizard = require('./lizard')
 
 const ENUM = require('../../middlewares/enum')
 const logger = require('../../middlewares/matomo')
@@ -654,13 +655,100 @@ async function SyncMeili(table) {
     starsCats: await meiliSearch.getOrCreateIndex('starsCats'),
     date: await meiliSearch.getOrCreateIndex('date'),
     dateCats: await meiliSearch.getOrCreateIndex('dateCats'),
+    code: await meiliSearch.getOrCreateIndex('code'),
+    user: await meiliSearch.getOrCreateIndex('user'),
     wagoApp: await meiliWagoApp.getOrCreateIndex('weakauras')
   }
   const meiliBatchSize = 5000
   switch (table){
+    case 'Ensure:Index':
+      // ensure meili index config
+      const indexCfg = {
+        searchableAttributes: [
+          "name",
+          "slug",
+          "description"
+        ],
+        attributesForFaceting: [
+          "categories",
+          "type"
+        ]
+      }
+      await meiliIndex.main.updateSettings(Object.assign(indexCfg, {
+        rankingRules: [
+          "typo", "words", "proximity", "exactness",
+          "desc(hasDesc)",
+          "desc(installScore)",
+          "desc(starScore)",
+          "desc(viewsScore)",
+          "desc(ageScore)",
+          "wordsPosition",
+          "desc(installs)",
+          "desc(stars)",
+          "desc(viewsThisWeek)",
+          "desc(views)"
+        ]
+      }))
+      await meiliIndex.mainCats.updateSettings(Object.assign(indexCfg, {
+        rankingRules: [
+          "typo", "words", "proximity", "exactness",
+          "desc(hasDesc)",
+          "asc(categoryRoot)",
+          "desc(installScore)",
+          "desc(starScore)",
+          "desc(viewsScore)",
+          "desc(ageScore)",
+          "asc(categoryTotal)",
+          "wordsPosition",
+          "desc(installs)",
+          "desc(stars)",
+          "desc(viewsThisWeek)",
+          "desc(views)"
+        ]
+      }))
+      await meiliIndex.stars.updateSettings(Object.assign(indexCfg, {
+        rankingRules: [
+          "typo", "words", "proximity", "exactness",
+          "desc(stars)",
+          "desc(starScore)",
+        ]
+      }))
+      await meiliIndex.starsCats.updateSettings(Object.assign(indexCfg, {
+        rankingRules: [
+          "typo", "words", "proximity", "exactness",
+          "asc(categoryRoot)",
+          "desc(stars)",
+          "desc(starScore)",
+        ]
+      }))
+      await meiliIndex.date.updateSettings(Object.assign(indexCfg, {
+        rankingRules: [
+          "typo", "words", "proximity", "exactness",
+          "desc(timestamp)",
+        ]
+      }))
+      await meiliIndex.dateCats.updateSettings(Object.assign(indexCfg, {
+        rankingRules: [
+          "typo", "words", "proximity", "exactness",
+          "asc(categoryRoot)",
+          "desc(timestamp)"
+        ]
+      }))
+      await meiliIndex.code.updateSettings(Object.assign(indexCfg, {
+        searchableAttributes: [
+          "code"
+        ],
+        rankingRules: [
+          "typo", "words", "proximity", "exactness",
+          "desc(installScore)",
+          "desc(ageScore)",
+          "desc(timestamp)"
+        ]
+      }))
+      break
+
     case 'Imports:ToDo':
       const todoDocs = await redis.getJSON('meili:todo:imports') || []
-      console.log('todo', todoDocs.length)
       if (todoDocs.length) {
         redis.setJSON('meili:todo:imports', [])
         await meiliIndex.main.addDocuments(todoDocs)
@@ -768,76 +856,6 @@ async function SyncMeili(table) {
       break
 
     case 'Imports': // complete DB sync
-      // ensure meili index config
-      const indexCfg = {
-        searchableAttributes: [
-          "name",
-          "slug",
-          "description"
-        ],
-        attributesForFaceting: [
-          "categories",
-          "type"
-        ]
-      }
-      await meiliIndex.main.updateSettings(Object.assign(indexCfg, {
-        rankingRules: [
-          "typo", "words", "proximity", "exactness",
-          "desc(installScore)",
-          "desc(starScore)",
-          "desc(viewsScore)",
-          "desc(ageScore)",
-          "wordsPosition",
-          "desc(installs)",
-          "desc(stars)",
-          "desc(viewsThisWeek)",
-          "desc(views)"
-        ]
-      }))
-      await meiliIndex.mainCats.updateSettings(Object.assign(indexCfg, {
-        rankingRules: [
-          "typo", "words", "proximity", "exactness",
-          "asc(categoryRoot)",
-          "desc(installScore)",
-          "desc(starScore)",
-          "desc(viewsScore)",
-          "desc(ageScore)",
-          "asc(categoryTotal)",
-          "wordsPosition",
-          "desc(installs)",
-          "desc(stars)",
-          "desc(viewsThisWeek)",
-          "desc(views)"
-        ]
-      }))
-      await meiliIndex.stars.updateSettings(Object.assign(indexCfg, {
-        rankingRules: [
-          "typo", "words", "proximity", "exactness",
-          "desc(stars)",
-          "desc(starScore)",
-        ]
-      }))
-      await meiliIndex.starsCats.updateSettings(Object.assign(indexCfg, {
-        rankingRules: [
-          "typo", "words", "proximity", "exactness",
-          "asc(categoryRoot)",
-          "desc(stars)",
-          "desc(starScore)",
-        ]
-      }))
-      await meiliIndex.date.updateSettings(Object.assign(indexCfg, {
-        rankingRules: [
-          "typo", "words", "proximity", "exactness",
-          "desc(timestamp)",
-        ]
-      }))
-      await meiliIndex.dateCats.updateSettings(Object.assign(indexCfg, {
-        rankingRules: [
-          "typo", "words", "proximity", "exactness",
-          "asc(categoryRoot)",
-          "desc(timestamp)"
-        ]
-      }))
         var count = 0
         var syncDocs = []
       var syncDocsDel = []
@@ -966,65 +984,66 @@ async function SyncMeili(table) {
       }
       break
 
-    // case 'Code': // complete DB sync
-    //   return
-    //   var count = 0
-    //   var syncDocs = []
-    //   var cursor = WagoItem.find({
-    //     type: {$regex: /WEAKAURA$|PLATER/},
-    //     _userId: {$exists: true},
-    //     expires_at: null,
-    //     $or: [{
-    //       deleted: false,
-    //     },
-    //     {
-    //       _meili: true,
-    //       $or: [
-    //         {deleted: true}
-    //       ]
-    //     }]
-    //   }).cursor()
+    case 'Code': // complete DB sync
+      var count = 0
+      var syncDocs = []
+      var cursor = WagoItem.find({
+        type: {$regex: /WEAKAURA$|PLATER/},
+        _userId: {$exists: true},
+        hasCustomCode: true,
+        expires_at: null,
+        $or: [{
+          deleted: false,
+          expires_at: null,
+        },
+        {
+          _meili: true
+        }]
+      }).cursor()
 
-    //   for (let doc = await cursor.next(); doc != null; doc = await cursor.next()) {
-    //     count++
-    //     if (doc.hidden || doc.private || doc.encrypted || doc.restricted || doc.deleted || doc.blocked) {
-    //       await meiliWagoAppIndex.deleteDocument(doc._id)
-    //       doc._meiliWA = false
-    //       await doc.save()
-    //     }
-    //     else {
-    //       syncDocs.push(await doc.meiliWAData)
-    //       if (syncDocs.length >= meiliBatchSize / 10) {
-    //         await meiliWagoAppIndex.addDocuments(syncDocs)
-    //         syncDocs = []
-    //       }
-    //       if (!doc._meiliWA) {
-    //         doc._meiliWA = true
-    //         await doc.save()
-    //       }
-    //     }
-    //     if (count%1000 == 0) {
-    //       console.log('sync meili', count)
-    //     }
-    //   }
-    //   if (syncDocs.length) {
-    //     await meiliWagoAppIndex.addDocuments(syncDocs)
-    //   }
-    //   break
+      for (let doc = await cursor.next(); doc != null; doc = await cursor.next()) {
+        count++
+        if (doc.deleted) {
+          await meiliIndex.code.deleteDocument(doc._id)
+          doc._meiliCode = false
+          await doc.save()
+        }
+        else {
+          let obj = await doc.meiliCode
+          if (obj) {
+            syncDocs.push(obj)
+            if (syncDocs.length >= meiliBatchSize) {
+              await meiliIndex.code.addDocuments(syncDocs)
+              syncDocs = []
+            }
+            if (!doc._meiliCode) {
+              doc._meiliCode = true
+              await doc.save()
+            }
+          }
+        }
+        if (count%1000 == 0) {
+          console.log('sync meili code', count)
+        }
+      }
+      if (syncDocs.length) {
+        await meiliIndex.code.addDocuments(syncDocs)
+      }
+      break
 
     default:
       return
   }
 }
 
+const codeProcessVersion = ENUM.PROCESS_VERSION.WAGO
 async function ProcessCode(data) {
   if (!data.id) return
   var doc = await WagoItem.lookup(data.id)
   var code = await WagoCode.lookup(data.id, data.version)
-  if (!doc || !code || doc.encrypted) {
+  if (!doc || !code || !code._id || doc.encrypted) {
     return
   }
-  code.processing = true
   if (data.addon && Addons[data.addon]) {
     const addon = Addons[data.addon]
     if (addon && addon.addWagoData) {
@@ -1054,61 +1073,120 @@ async function ProcessCode(data) {
 
   switch (doc.type) {
     case 'SNIPPET':
-      code.luacheck = JSON.stringify(await luacheck.run([{id: 'Lua', name: 'Snippet', lua: code.lua}]))
-      code.processVersion = ENUM.PROCESS_VERSION[doc.type]
+      code.customCode = [{id: 'Lua', name: 'Snippet', lua: code.lua}]
+      code.customCode = await luacheck.run(code.customCode, doc.game)
+      code.customCode = await lizard.run(code.customCode)
     break
 
     case 'WEAKAURA':
     case 'CLASSIC-WEAKAURA':
     case 'TBC-WEAKAURA':
-      var json = JSON.parse(code.json)
-      code.customCode = getCode(json, doc.type)
-      if (!code.luacheck) {
-      code.luacheck = JSON.stringify(await luacheck.run(code.customCode, doc.game))
-      }
-      code.processVersion = ENUM.PROCESS_VERSION[doc.type]
-    break
-
     case 'PLATER':
       var json = JSON.parse(code.json)
-      // check for any missing data
-      if (Array.isArray(json)) {
-        var tbl = {}
-        json.forEach((v, k) => {
-          tbl[''+(k+1)] = v
-        })
-        json = tbl
-      }
-      json.url = doc.url + '/' + code.version
-      json.version = code.version
-      json.semver = code.versionString
-        
-      json = sortJSON(json) // sort by key so that we can diff the full table
-      code.json = JSON.stringify(json)
-      var encoded = await lua.JSON2Plater(json)
-      if (encoded) {
-        code.encoded = encoded
-      }
-      
       code.customCode = getCode(json, doc.type)
-      if (!code.luacheck) {
-      code.luacheck = JSON.stringify(await luacheck.run(code.customCode, doc.game))
-      }
-      code.processVersion = ENUM.PROCESS_VERSION[doc.type]
+      code.customCode = await luacheck.run(code.customCode, doc.game)
+      code.customCode = await lizard.run(code.customCode)
     break
   }
-  if (code.luacheck && code.luacheck.match(commonRegex.WeakAuraBlacklist)) {
-    doc.blocked = true
+  doc.blocked = false
+  if (code.version > 1) {
+    await WagoCode.updateMany({auraID: doc._id, _id: {$ne: code._id}}, {$set: {isLatestVersion: false}})
   }
-  else if (code.blocked) {
-    doc.blocked = false
-  }
-
-  await WagoCode.updateMany({auraID: doc._id, _id: {$ne: code._id}}, {$set: {isLatestVersion: false}})
   code.isLatestVersion = true
 
-    await doc.save()
+  if (code.customCode && code.customCode.length) {
+    doc.hasCustomCode = true
+    code.customCode.forEach(c => {
+      if (c.luacheck && c.luacheck.match(commonRegex.WeakAuraBlacklist)) {
+        doc.blocked = true
+      }
+        })
+      }
+
+  doc.codeProcessVersion = codeProcessVersion
+
+  await doc.save()
   await code.save()
+
+  if (code.customCode.length) {
+    return doc
+  }
+  return null
+}
+        
+async function ProcessAllCode() {
+  const meiliIndex = {
+    code: await meiliSearch.getOrCreateIndex('code')
+      }
+  const meiliBatchSize = 100
+  var cursor = WagoItem.find({
+    _userId: {$exists: true},
+    $or: [{
+      deleted: false,
+      expires_at: null,
+    },
+    {
+      _meiliCode: true
+    }]
+  }).cursor({batchSize:10})
+      
+  let syncObjs = []
+  let count = 0
+  console.log('-------------- CODE SYNC START ----------------')
+  for await (const doc of cursor) {
+    count++
+    if (doc.deleted) {
+      await meiliIndex.code.deleteDocument(doc._id)
+      doc._meiliCode = false
+      await doc.save()
+    }
+    else {
+      if (!doc.codeProcessVersion || doc.codeProcessVersion < codeProcessVersion || (doc.hasCustomCode && !doc._meiliCode)) {
+        let syncDoc = await ProcessCode({id: doc._id, type: doc.type})
+        if (syncDoc) {
+          let syncObj = await syncDoc.meiliCodeData
+          if (syncObj) {
+            syncObjs.push(syncObj)
+            if (syncObjs.length >= meiliBatchSize) {
+              await meiliIndex.code.addDocuments(syncObjs)
+              syncObjs = []
+            }
+            if (!syncDoc._meiliCode) {
+              syncDoc._meiliCode = true
+              await syncDoc.save()
+            }
+          }
+        }
+      }
+      else if (doc.hasCustomCode) {
+        let syncObj = await doc.meiliCodeData
+        if (syncObj) {
+          syncObjs.push(syncObj)
+          if (syncObjs.length >= meiliBatchSize) {
+            await meiliIndex.code.addDocuments(syncObjs)
+            syncObjs = []
+      }
+          if (!doc._meiliCode) {
+            doc._meiliCode = true
+            await doc.save()
+  }
+  }
+  }
+      else if (doc._meiliCode) {
+        await meiliIndex.code.deleteDocument(doc._id)
+        doc._meiliCode = false
+    await doc.save()
+      }
+      if (count%1000 == 0) {
+        console.log('sync code', count)
+      }
+    }
+  }
+  if (syncObjs.length) {
+    await meiliIndex.code.addDocuments(syncObjs)
+    syncObjs = []
+  }
+  console.log('-------------- CODE SYNC FINISHED ----------------')
 }
 
 function sortJSON(obj) {

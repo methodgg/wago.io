@@ -1,5 +1,5 @@
 const exec = require('shelljs.exec')
-const detectCode = require(__dirname + '/../../../frontend/src/components/libs/detectCustomCode')
+const getCode = require('./code-detection/get-code')
 
 module.exports = {
   Lua: async (codeA, codeB) => {
@@ -13,13 +13,13 @@ module.exports = {
     if (typeof jsonB === 'string') {
       jsonB = JSON.parse(jsonB)
     }
-    const codeA = detectCode.Plater(jsonA)
+    const codeA = getCode(jsonA, 'PLATER')
     var tableA = sortJSON(jsonA)
     tableA.semver = ''
     tableA.url = ''
     tableA.version = ''
 
-    const codeB = detectCode.Plater(jsonB)
+    const codeB = getCode(jsonB, 'PLATER')
     var tableB = sortJSON(jsonB)
     tableB.semver = ''
     tableB.url = ''
@@ -57,7 +57,7 @@ module.exports = {
     if (typeof jsonB === 'string') {
       jsonB = JSON.parse(jsonB)
     }
-    const codeA = detectCode.WeakAura(jsonA)
+    const codeA = getCode(jsonA, 'WEAKAURA')
     var tableA = sortJSON(jsonA)
     tableA.d.semver = ''
     tableA.d.url = ''
@@ -70,7 +70,7 @@ module.exports = {
       }
     }
 
-    const codeB = detectCode.WeakAura(jsonB)
+    const codeB = getCode(jsonB, 'WEAKAURA')
     var tableB = sortJSON(jsonB)
     tableB.d.semver = ''
     tableB.d.url = ''
@@ -83,40 +83,26 @@ module.exports = {
       }
     }
     for (const code of codeA) {
-      if (typeof code === 'object' && code.path && code.ix && code.ix.table === 'c') {
+      if (typeof code === 'object' && code.keypath) {
         try {
-          eval(`tableA.c[${code.ix.index}].${code.path} = ''`)
-          eval(`tableB.c[${code.ix.index}].${code.path} = ''`)
-        }
-        catch (e) {}
-      }
-      if (typeof code === 'object' && code.path) {
-        try {
-          eval(`tableA.d.${code.path} = ''`)
-          eval(`tableB.d.${code.path} = ''`)
+          eval(`tableA.${code.keypath} = ''`)
+          eval(`tableB.${code.keypath} = ''`)
         }
         catch (e) {}
       }
     }
     for (const code of codeB) {
-      if (typeof code === 'object' && code.path && code.ix && code.ix.table === 'c') {
+      if (typeof code === 'object' && code.keypath) {
         try {
-          eval(`tableA.c[${code.ix.index}].${code.path} = ''`)
-          eval(`tableB.c[${code.ix.index}].${code.path} = ''`)
-        }
-        catch (e) {}
-      }
-      if (typeof code === 'object' && code.path) {
-        try {
-          eval(`tableA.d.${code.path} = ''`)
-          eval(`tableB.d.${code.path} = ''`)
+          eval(`tableA.${code.keypath} = ''`)
+          eval(`tableB.${code.keypath} = ''`)
         }
         catch (e) {}
       }
     }
-    
-    codeA.push({id: jsonA.d.id, name: 'Table data', path: '', lua: JSON.stringify(tableA, null, 2)})
-    codeB.push({id: jsonA.d.id, name: 'Table data', path: '', lua: JSON.stringify(tableB, null, 2)})
+
+    codeA.push({name: `${jsonA.d.id} Table data`, lua: JSON.stringify(tableA, null, 2)})
+    codeB.push({name: `${jsonA.d.id} Table data`, lua: JSON.stringify(tableB, null, 2)})
 
     return await makeDiffs(codeA, codeB)
   }
@@ -129,13 +115,13 @@ async function makeDiffs (codeA, codeB) {
     if (typeof codeA[i] !== 'object' || !codeA[i].lua) {
       continue
     }
-    compareA[`${codeA[i].id}: ${codeA[i].name}`] = codeA[i].lua
+    compareA[codeA[i].name] = codeA[i].lua
   }
   for (let i = 0; i < codeB.length; i++) {
     if (typeof codeB[i] !== 'object' || !codeB[i].lua) {
       continue
     }
-    compareB[`${codeB[i].id}: ${codeB[i].name}`] = codeB[i].lua
+    compareB[codeB[i].name] = codeB[i].lua
   }
 
   var diffs = []
