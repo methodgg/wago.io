@@ -447,14 +447,18 @@ async function getIndexes() {
     wagoApp: await meiliWagoApp.getOrCreateIndex('weakauras')
   }
 }
-const meiliIndex = getIndexes()
 function isValidMeiliWA(doc) {
   return !!doc._userId && !doc.expires_at && doc.type.match(/WEAKAURA$/)
 }
 function isValidMeiliImport(doc) {
   return !!doc._userId && !doc.expires_at && !doc.type.match(/IMAGE|WAFFLE/i)
 }
+let meiliIndex
 async function setMeiliIndex() {
+  if (!meiliIndex) {
+    meiliIndex = await getIndexes()
+  }
+
   if (isValidMeiliImport(this)) {
     try {
       let meiliToDoImport = await redis.getJSON('meili:todo:imports') || []
