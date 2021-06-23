@@ -464,8 +464,8 @@ async function setMeiliIndex() {
       let meiliToDoImport = await redis.getJSON('meili:todo:imports') || []
       if (this._meili && this.deleted) {
         // delete index
-        meiliToDoImport = meiliToDoImport.filter(doc => {
-          return doc && doc.id !== this._id
+        meiliToDoImport = meiliToDoImport.filter(id => {
+          return id !== this._id
         })
         redis.setJSON('meili:todo:imports', meiliToDoImport)
         await meiliIndex.main.deleteDocument(this._id)
@@ -479,10 +479,10 @@ async function setMeiliIndex() {
       }
       else if ((this._doMeiliIndex || this._toggleVisibility) && !this.deleted) {
         // add/update index
-        meiliToDoImport = meiliToDoImport.filter(doc => {
-          return doc.id !== this._id
+        meiliToDoImport = meiliToDoImport.filter(id => {
+          return id !== this._id
         })
-        meiliToDoImport.push(await this.meiliImportData)
+        meiliToDoImport.push(await this._id)
         redis.setJSON('meili:todo:imports', meiliToDoImport)
         if (!this._meili) {
           this._meili = true
@@ -498,8 +498,8 @@ async function setMeiliIndex() {
       let meiliToDoCode = (await redis.getJSON('meili:todo:code')) || []
       if (this._meiliCode && this.deleted) {
         // delete index
-        meiliToDoCode = meiliToDoCode.filter(doc => {
-          return doc && doc.id !== this._id
+        meiliToDoCode = meiliToDoCode.filter(id => {
+          return id !== this._id
         })
         redis.setJSON('meili:todo:code', meiliToDoCode)
         await meiliIndex.code.deleteDocument(this._id)
@@ -508,17 +508,14 @@ async function setMeiliIndex() {
       }
       else if ((this._doMeiliCodeIndex || this._toggleVisibility) && !this.deleted) {
         // add/update index
-        meiliToDoCode = meiliToDoCode.filter(doc => {
-          return doc && doc.id !== this._id
+        meiliToDoCode = meiliToDoCode.filter(id => {
+          return id !== this._id
         })
-        let codeData = await this.meiliCodeData
-        if (codeData) {
-          meiliToDoCode.push(codeData)
-          redis.setJSON('meili:todo:code', meiliToDoCode)
-          if (!this._meiliCode) {
-            this._meiliCode = true
-            await this.save()
-          }
+        meiliToDoCode.push(this._id)
+        redis.setJSON('meili:todo:code', meiliToDoCode)
+        if (!this._meiliCode) {
+          this._meiliCode = true
+          await this.save()
         }
       }
     }
@@ -544,8 +541,8 @@ async function setMeiliIndex() {
       let meiliToDoWA = await redis.getJSON('meili:todo:wagoapp') || []
       if (this._meiliWA && (this._doNotIndexWA || this.hidden || this.private || this.moderated || this.encrypted || this.restricted || this.deleted || this.blocked)) {
         // delete index
-        meiliToDoWA = meiliToDoWA.filter(doc => {
-          return doc.id !== this._id
+        meiliToDoWA = meiliToDoWA.filter(id => {
+          return id !== this._id
         })
         redis.setJSON('meili:todo:wagoapp', meiliToDoWA)
         await meiliIndex.wagoApp.deleteDocument(this._id)
@@ -554,10 +551,10 @@ async function setMeiliIndex() {
       }
       else if ((this._doMeiliIndex || this._toggleVisibility) && !(this.hidden || this.private || this.moderated || this.encrypted || this.restricted || this.deleted || this.blocked)) {
         // add/update index
-        meiliToDoWA = meiliToDoWA.filter(doc => {
-          return doc.id !== this._id
+        meiliToDoWA = meiliToDoWA.filter(id => {
+          return id !== this._id
         })
-        meiliToDoWA.push(await this.meiliWAData)
+        meiliToDoWA.push(await this._id)
         redis.setJSON('meili:todo:wagoapp', meiliToDoWA)
         if (!this._meiliWA) {
           this._meiliWA = true

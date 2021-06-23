@@ -753,19 +753,43 @@ async function SyncMeili(table) {
     case 'Imports:ToDo':
       const todoDocs = await redis.getJSON('meili:todo:imports') || []
       if (todoDocs.length) {
+        let wagos = await WagoItem.find({_id: {$in: todoDocs}})
+        let indexedDocs = []
+        wagos.forEach(async (doc) => {
+          indexedDocs.push(await doc.meiliImportData)
+        })
         redis.setJSON('meili:todo:imports', [])
-        await meiliIndex.main.addDocuments(todoDocs)
-        await meiliIndex.mainCats.addDocuments(todoDocs)
-        await meiliIndex.stars.addDocuments(todoDocs)
-        await meiliIndex.starsCats.addDocuments(todoDocs)
-        await meiliIndex.date.addDocuments(todoDocs)
-        await meiliIndex.dateCats.addDocuments(todoDocs)
+        await meiliIndex.main.addDocuments(indexedDocs)
+        await meiliIndex.mainCats.addDocuments(indexedDocs)
+        await meiliIndex.stars.addDocuments(indexedDocs)
+        await meiliIndex.starsCats.addDocuments(indexedDocs)
+        await meiliIndex.date.addDocuments(indexedDocs)
+        await meiliIndex.dateCats.addDocuments(indexedDocs)
+      }
+
+      const todoDocsCode = await redis.getJSON('meili:todo:code') || []
+      if (todoDocsCode.length) {
+        let wagos = await WagoItem.find({_id: {$in: todoDocsCode}})
+        let indexedDocs = []
+        wagos.forEach(async (doc) => {
+          let codeData = await doc.meiliCodeData
+          if (codeData) {
+            indexedDocs.push(codeData)
+          }
+        })
+        redis.setJSON('meili:todo:code', [])
+        await meiliIndex.code.addDocuments(indexedDocs)
       }
 
       const todoDocsWA = await redis.getJSON('meili:todo:wagoapp') || []
       if (todoDocsWA.length) {
+        let wagos = await WagoItem.find({_id: {$in: todoDocsWA}})
+        let indexedDocs = []
+        wagos.forEach(async (doc) => {
+          indexedDocs.push(await doc.meiliWAData)
+        })
         redis.setJSON('meili:todo:wagoapp', [])
-        await meiliIndex.wagoApp.addDocuments(todoDocsWA)
+        await meiliIndex.wagoApp.addDocuments(indexedDocs)
       }
       break
 
@@ -1107,6 +1131,10 @@ async function ProcessCode(data) {
       }
 
   doc.codeProcessVersion = codeProcessVersion
+
+  let meiliToDoCode = (await redis.getJSON('meili:todo:code')) || []
+  meiliToDoCode.push(doc._id)
+  await redis.setJSON('meili:todo:code', meiliToDoCode)
 
   await doc.save()
   await code.save()
