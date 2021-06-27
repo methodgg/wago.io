@@ -651,136 +651,10 @@ async function SyncElastic(table) {
 async function SyncMeili(table) {
   console.log("SYNC MEILI", table)
   // multi index is needed until sortStrategies or similar is added https://github.com/meilisearch/MeiliSearch/issues/730
-  const meiliIndex = {
-    main: await meiliSearch.getOrCreateIndex('imports'),
-    mainCats: await meiliSearch.getOrCreateIndex('importsCats'),
-    stars: await meiliSearch.getOrCreateIndex('stars'),
-    starsCats: await meiliSearch.getOrCreateIndex('starsCats'),
-    date: await meiliSearch.getOrCreateIndex('date'),
-    dateCats: await meiliSearch.getOrCreateIndex('dateCats'),
-    code: await meiliSearch.getOrCreateIndex('code'),
-    user: await meiliSearch.getOrCreateIndex('user'),
-    wagoApp: await meiliWagoApp.getOrCreateIndex('weakauras')
-  }
+  const wagoAppIndex = await meiliWagoApp.getOrCreateIndex('weakauras')
   const meiliBatchSize = 5000
   switch (table){
-    case 'Ensure:Index':
-      // ensure meili index config
-      const indexCfg = {
-        searchableAttributes: [
-          "name",
-          "slug",
-          "description"
-        ],
-        attributesForFaceting: [
-          "categories",
-          "type"
-        ]
-      }
-      await meiliIndex.main.updateSettings(Object.assign(indexCfg, {
-        rankingRules: [
-          "typo", "words", "proximity", "exactness",
-          "desc(hasDesc)",
-          "desc(installScore)",
-          "desc(starScore)",
-          "desc(viewsScore)",
-          "desc(ageScore)",
-          "wordsPosition",
-          "desc(installs)",
-          "desc(stars)",
-          "desc(viewsThisWeek)",
-          "desc(views)"
-        ]
-      }))
-      await meiliIndex.mainCats.updateSettings(Object.assign(indexCfg, {
-        rankingRules: [
-          "typo", "words", "proximity", "exactness",
-          "desc(hasDesc)",
-          "asc(categoryRoot)",
-          "desc(installScore)",
-          "desc(starScore)",
-          "desc(viewsScore)",
-          "desc(ageScore)",
-          "asc(categoryTotal)",
-          "wordsPosition",
-          "desc(installs)",
-          "desc(stars)",
-          "desc(viewsThisWeek)",
-          "desc(views)"
-        ]
-      }))
-      await meiliIndex.stars.updateSettings(Object.assign(indexCfg, {
-        rankingRules: [
-          "typo", "words", "proximity", "exactness",
-          "desc(stars)",
-          "desc(starScore)",
-        ]
-      }))
-      await meiliIndex.starsCats.updateSettings(Object.assign(indexCfg, {
-        rankingRules: [
-          "typo", "words", "proximity", "exactness",
-          "asc(categoryRoot)",
-          "desc(stars)",
-          "desc(starScore)",
-        ]
-      }))
-      await meiliIndex.date.updateSettings(Object.assign(indexCfg, {
-        rankingRules: [
-          "typo", "words", "proximity", "exactness",
-          "desc(timestamp)",
-        ]
-      }))
-      await meiliIndex.dateCats.updateSettings(Object.assign(indexCfg, {
-        rankingRules: [
-          "typo", "words", "proximity", "exactness",
-          "asc(categoryRoot)",
-          "desc(timestamp)"
-        ]
-      }))
-      await meiliIndex.code.updateSettings(Object.assign(indexCfg, {
-        searchableAttributes: [
-          "code"
-        ],
-        rankingRules: [
-          "typo", "words", "proximity", "exactness",
-          "desc(installScore)",
-          "desc(ageScore)",
-          "desc(timestamp)"
-        ]
-      }))
-      break
-
     case 'Imports:ToDo':
-      const todoDocs = await redis.getJSON('meili:todo:imports') || []
-      if (todoDocs.length) {
-        let wagos = await WagoItem.find({_id: {$in: todoDocs}})
-        let indexedDocs = []
-        for (doc of wagos) {
-          indexedDocs.push(await doc.meiliImportData)
-        }
-        redis.setJSON('meili:todo:imports', [])
-        await meiliIndex.main.addDocuments(indexedDocs)
-        await meiliIndex.mainCats.addDocuments(indexedDocs)
-        await meiliIndex.stars.addDocuments(indexedDocs)
-        await meiliIndex.starsCats.addDocuments(indexedDocs)
-        await meiliIndex.date.addDocuments(indexedDocs)
-        await meiliIndex.dateCats.addDocuments(indexedDocs)
-      }
-
-      const todoDocsCode = await redis.getJSON('meili:todo:code') || []
-      if (todoDocsCode.length) {
-        let wagos = await WagoItem.find({_id: {$in: todoDocsCode}})
-        let indexedDocs = []
-        wagos.forEach(async (doc) => {
-          let codeData = await doc.meiliCodeData
-          if (codeData) {
-            indexedDocs.push(codeData)
-          }
-        })
-        redis.setJSON('meili:todo:code', [])
-        await meiliIndex.code.addDocuments(indexedDocs)
-      }
-
       const todoDocsWA = await redis.getJSON('meili:todo:wagoapp') || []
       if (todoDocsWA.length) {
         let wagos = await WagoItem.find({_id: {$in: todoDocsWA}})
@@ -789,14 +663,13 @@ async function SyncMeili(table) {
           indexedDocs.push(await doc.meiliWAData)
         })
         redis.setJSON('meili:todo:wagoapp', [])
-        await meiliIndex.wagoApp.addDocuments(indexedDocs)
+        await wagoAppIndex.addDocuments(indexedDocs)
       }
       break
 
     case 'Imports:Metrics':
       const lastIndexDate = await redis.get('meili:Metrics:Date')
       var metricsDocsWagoApp = []
-      var metricsDocsImports = []
       if (!lastIndexDate) {
         redis.set('meili:Metrics:Date', new Date().toISOString())
       }
@@ -841,120 +714,23 @@ async function SyncMeili(table) {
           views: doc.popularity.views,
           viewsThisWeek: doc.popularity.viewsThisWeek
           }
-          metricsDocsImports.push(Object.assign(metrics, {
-            comments: doc.popularity.comments_count
-          }))
-          if (metricsDocsImports.length >= meiliBatchSize) {
-            await meiliIndex.main.updateDocuments(metricsDocsImports)
-            await meiliIndex.mainCats.updateDocuments(metricsDocsImports)
-            await meiliIndex.stars.updateDocuments(metricsDocsImports)
-            await meiliIndex.starsCats.updateDocuments(metricsDocsImports)
-            await meiliIndex.date.updateDocuments(metricsDocsImports)
-            await meiliIndex.dateCats.updateDocuments(metricsDocsImports)
-            metricsDocsImports = []
-          }
-
           // wago app
           if (doc._meiliWA) {
             metricsDocsWagoApp.push(metrics)
           }
           if (metricsDocsWagoApp.length >= meiliBatchSize) {
-            await meiliIndex.wagoApp.updateDocuments(metricsDocsWagoApp)
+            await wagoAppIndex.updateDocuments(metricsDocsWagoApp)
             metricsDocsWagoApp = []
         }
       }
-      
-        if (metricsDocsImports.length) {
-          await meiliIndex.main.updateDocuments(metricsDocsImports)
-          await meiliIndex.mainCats.updateDocuments(metricsDocsImports)
-          await meiliIndex.stars.updateDocuments(metricsDocsImports)
-          await meiliIndex.starsCats.updateDocuments(metricsDocsImports)
-          await meiliIndex.date.updateDocuments(metricsDocsImports)
-          await meiliIndex.dateCats.updateDocuments(metricsDocsImports)
-          metricsDocsImports = []
-        }
         if (metricsDocsWagoApp.length) {
-          await meiliIndex.wagoApp.updateDocuments(metricsDocsWagoApp)
+          await wagoAppIndex.updateDocuments(metricsDocsWagoApp)
           metricsDocsWagoApp = []
       }
 
         redis.set('meili:Metrics:Date', new Date().toISOString())
       }
       break
-
-    case 'Imports': // complete DB sync
-        var count = 0
-        var syncDocs = []
-      var syncDocsDel = []
-        var cursor = WagoItem.find({
-          _userId: {$exists: true},
-          $or: [{
-            deleted: false,
-          expires_at: null,
-          },
-          {
-          _meili: true
-          }]
-        }).cursor()
-
-        for (let doc = await cursor.next(); doc != null; doc = await cursor.next()) {
-          count++
-        if (!doc.deleted && !doc.expires_at && !doc.type.match(/IMAGE|WAFFLE/i) && doc._userId) {
-            syncDocs.push(await doc.meiliImportData)
-            if (syncDocs.length >= meiliBatchSize) {
-            await meiliIndex.main.addDocuments(syncDocs)
-            await meiliIndex.mainCats.addDocuments(syncDocs)
-            await meiliIndex.stars.addDocuments(syncDocs)
-            await meiliIndex.starsCats.addDocuments(syncDocs)
-            await meiliIndex.date.addDocuments(syncDocs)
-            await meiliIndex.dateCats.addDocuments(syncDocs)
-              syncDocs = []
-            }
-            if (!doc._meili) {
-              doc._meili = true
-              try {
-                await doc.save()
-              }
-              catch(e) {
-                console.log(e, doc)
-              }
-            }
-          }
-        else if (doc._meili) {
-          syncDocsDel.push(doc._id)
-          doc._meili = false
-          await doc.save()
-          if (syncDocsDel.length >= meiliBatchSize) {
-            await meiliIndex.main.deleteDocuments(syncDocsDel)
-            await meiliIndex.mainCats.deleteDocuments(syncDocsDel)
-            await meiliIndex.stars.deleteDocuments(syncDocsDel)
-            await meiliIndex.starsCats.deleteDocuments(syncDocsDel)
-            await meiliIndex.date.deleteDocuments(syncDocsDel)
-            await meiliIndex.dateCats.deleteDocuments(syncDocsDel)
-            syncDocsDel = []
-          }
-        }
-          if (count%1000 == 0) {
-            console.log('sync meili', count)
-          }
-        }
-        if (syncDocs.length) {
-        await meiliIndex.main.addDocuments(syncDocs)
-        await meiliIndex.mainCats.addDocuments(syncDocs)
-        await meiliIndex.stars.addDocuments(syncDocs)
-        await meiliIndex.starsCats.addDocuments(syncDocs)
-        await meiliIndex.date.addDocuments(syncDocs)
-        await meiliIndex.dateCats.addDocuments(syncDocs)
-      }
-      if (syncDocsDel.length) {
-        await meiliIndex.main.deleteDocuments(syncDocsDel)
-        await meiliIndex.mainCats.deleteDocuments(syncDocsDel)
-        await meiliIndex.stars.deleteDocuments(syncDocsDel)
-        await meiliIndex.starsCats.deleteDocuments(syncDocsDel)
-        await meiliIndex.date.deleteDocuments(syncDocsDel)
-        await meiliIndex.dateCats.deleteDocuments(syncDocsDel)
-        }
-        break
 
     case 'WagoApp': // complete DB sync
       var count = 0
@@ -987,14 +763,14 @@ async function SyncMeili(table) {
       for (let doc = await cursor.next(); doc != null; doc = await cursor.next()) {
         count++
         if (doc.hidden || doc.private || doc.encrypted || doc.restricted || doc.deleted || doc.blocked) {
-          await meiliIndex.wagoApp.deleteDocument(doc._id)
+          await wagoAppIndex.deleteDocument(doc._id)
           doc._meiliWA = false
           await doc.save()
         }
         else {
           syncDocs.push(await doc.meiliWAData)
           if (syncDocs.length >= meiliBatchSize) {
-            await meiliIndex.wagoApp.addDocuments(syncDocs)
+            await wagoAppIndex.addDocuments(syncDocs)
             syncDocs = []
           }
           if (!doc._meiliWA) {
@@ -1007,54 +783,7 @@ async function SyncMeili(table) {
         }
       }
       if (syncDocs.length) {        
-        await meiliIndex.wagoApp.addDocuments(syncDocs)
-      }
-      break
-
-    case 'Code': // complete DB sync
-      var count = 0
-      var syncDocs = []
-      var cursor = WagoItem.find({
-        type: {$regex: /WEAKAURA$|PLATER/},
-        _userId: {$exists: true},
-        hasCustomCode: true,
-        expires_at: null,
-        $or: [{
-          deleted: false,
-          expires_at: null,
-        },
-        {
-          _meiliCode: true
-        }]
-      }).cursor()
-
-      for (let doc = await cursor.next(); doc != null; doc = await cursor.next()) {
-        count++
-        if (doc.deleted) {
-          await meiliIndex.code.deleteDocument(doc._id)
-          doc._meiliCode = false
-          await doc.save()
-        }
-        else {
-          let obj = await doc.meiliCode
-          if (obj) {
-            syncDocs.push(obj)
-            if (syncDocs.length >= meiliBatchSize) {
-              await meiliIndex.code.addDocuments(syncDocs)
-              syncDocs = []
-            }
-            if (!doc._meiliCode) {
-              doc._meiliCode = true
-              await doc.save()
-            }
-          }
-        }
-        if (count%1000 == 0) {
-          console.log('sync meili code', count)
-        }
-      }
-      if (syncDocs.length) {
-        await meiliIndex.code.addDocuments(syncDocs)
+        await wagoAppIndex.addDocuments(syncDocs)
       }
       break
 
@@ -1146,6 +875,7 @@ async function ProcessCode(data) {
 }
         
 async function ProcessAllCode() {
+  return
   const meiliIndex = {
     code: await meiliSearch.getOrCreateIndex('code')
       }

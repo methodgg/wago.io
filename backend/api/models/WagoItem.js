@@ -434,108 +434,18 @@ Schema.virtual('meiliCodeData').get(async function () {
   return null
 })
 
-async function getIndexes() {
-  return {
-    main: await meiliSearch.getOrCreateIndex('imports'),
-    mainCats: await meiliSearch.getOrCreateIndex('importsCats'),
-    stars: await meiliSearch.getOrCreateIndex('stars'),
-    starsCats: await meiliSearch.getOrCreateIndex('starsCats'),
-    date: await meiliSearch.getOrCreateIndex('date'),
-    dateCats: await meiliSearch.getOrCreateIndex('dateCats'),
-    code: await meiliSearch.getOrCreateIndex('code'),
-    user: await meiliSearch.getOrCreateIndex('user'),
-    wagoApp: await meiliWagoApp.getOrCreateIndex('weakauras')
-  }
+async function getIndex() {
+  return await meiliWagoApp.getOrCreateIndex('weakauras')
 }
 function isValidMeiliWA(doc) {
   return !!doc._userId && !doc.expires_at && doc.type.match(/WEAKAURA$/)
 }
-function isValidMeiliImport(doc) {
-  return !!doc._userId && !doc.expires_at && !doc.type.match(/IMAGE|WAFFLE/i)
-}
-let meiliIndex
+
+let meiliIndexWA
 async function setMeiliIndex() {
-  if (!meiliIndex) {
-    meiliIndex = await getIndexes()
+  if (!meiliIndexWA) {
+    meiliIndexWA = await getIndex()
   }
-
-  if (isValidMeiliImport(this)) {
-    try {
-      let meiliToDoImport = await redis.getJSON('meili:todo:imports') || []
-      if (this._meili && this.deleted) {
-        // delete index
-        meiliToDoImport = meiliToDoImport.filter(id => {
-          return id !== this._id
-        })
-        redis.setJSON('meili:todo:imports', meiliToDoImport)
-        await meiliIndex.main.deleteDocument(this._id)
-        await meiliIndex.mainCats.deleteDocument(this._id)
-        await meiliIndex.stars.deleteDocument(this._id)
-        await meiliIndex.starsCats.deleteDocument(this._id)
-        await meiliIndex.date.deleteDocument(this._id)
-        await meiliIndex.dateCats.deleteDocument(this._id)
-        this._meili = false
-        await this.save()
-      }
-      else if ((this._doMeiliIndex || this._toggleVisibility) && !this.deleted) {
-        // add/update index
-        meiliToDoImport = meiliToDoImport.filter(id => {
-          return id !== this._id
-        })
-        meiliToDoImport.push(await this._id)
-        redis.setJSON('meili:todo:imports', meiliToDoImport)
-        if (!this._meili) {
-          this._meili = true
-          await this.save()
-        }
-      }
-    }
-    catch (e) {
-      console.log('Meili error', e)
-    }
-
-    try {
-      let meiliToDoCode = (await redis.getJSON('meili:todo:code')) || []
-      if (this._meiliCode && this.deleted) {
-        // delete index
-        meiliToDoCode = meiliToDoCode.filter(id => {
-          return id !== this._id
-        })
-        redis.setJSON('meili:todo:code', meiliToDoCode)
-        await meiliIndex.code.deleteDocument(this._id)
-        this._meiliCode = false
-        await this.save()
-      }
-      else if ((this._doMeiliCodeIndex || this._toggleVisibility) && !this.deleted) {
-        // add/update index
-        meiliToDoCode = meiliToDoCode.filter(id => {
-          return id !== this._id
-        })
-        meiliToDoCode.push(this._id)
-        redis.setJSON('meili:todo:code', meiliToDoCode)
-        if (!this._meiliCode) {
-          this._meiliCode = true
-          await this.save()
-        }
-      }
-    }
-    catch (e) {
-      console.log('MeiliCode error', e)
-    }
-  }
-  else if (this._meili) {
-    await meiliIndex.main.deleteDocument(this._id)
-    await meiliIndex.mainCats.deleteDocument(this._id)
-    await meiliIndex.stars.deleteDocument(this._id)
-    await meiliIndex.starsCats.deleteDocument(this._id)
-    await meiliIndex.date.deleteDocument(this._id)
-    await meiliIndex.dateCats.deleteDocument(this._id)
-    await meiliIndex.code.deleteDocument(this._id)
-    this._meili = false
-    this._meiliCode = false
-    await this.save()
-  }
-
   if (isValidMeiliWA(this)) {
     try {
       let meiliToDoWA = await redis.getJSON('meili:todo:wagoapp') || []

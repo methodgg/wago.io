@@ -54,19 +54,6 @@ async function setMeiliIndex() {
       changedWago = true
     }
   }
-  if (wago && !wago.deleted) {
-    var meiliToDo = await redis.getJSON('meili:todo:imports') || []
-    meiliToDo = meiliToDo.filter(doc => {
-      return doc.id !== this._id
-    })
-    meiliToDo.push(await wago.meiliImportData)
-    redis.setJSON('meili:todo:wagoapp', meiliToDo)
-    if (!wago._meiliWA) {
-      wago._meiliWA = true
-      changedWago = true
-    }
-  }
-
   if (changedWago) {
     await wago.save()
   }

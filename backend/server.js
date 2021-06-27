@@ -35,7 +35,6 @@ global.mongoose = require('mongoose')
 
 const { MeiliSearch } = require('meilisearch')
 global.meiliWagoApp = new MeiliSearch(config.meiliWagoApp)
-global.meiliSearch = new MeiliSearch(config.meiliSearch)
 
 // --- FASTIFY PLUGINS
 fastify.register(require('fastify-cookie'))
@@ -174,13 +173,12 @@ const startServer = async () => {
       await taskQueue.add('UpdateTopLists', null, {repeat: {cron: '*/5 * * * *'}, priority: 3})
       await taskQueue.add('UpdateValidCharacters', null, {repeat: {cron: '10 * * * *'}, priority: 3})
       await taskQueue.add('UpdateGuildMembership', null, {repeat: {cron: '15 * * * *'}, priority: 3})
+      await taskQueue.add('UpdateSupportedAddons', null, {repeat: {cron: '45 * * * *'}, priority: 3})
       await taskQueue.add('ComputeStatistics', null, {repeat: {cron: '0 * * * *'}, priority: 4})
       await taskQueue.add('UpdateLatestAddonReleases', null, {repeat: {cron: '*/20 * * * *'}, priority: 4})
-      // await taskQueue.add('SyncElastic', {table: 'User'}, {repeat: {cron: '0 10 5 * *'}, priority: 10})
-      // await taskQueue.add('SyncElastic', {table: 'WagoItem'}, {repeat: {cron: '0 10 15 * *'}, priority: 10})
-      await taskQueue.add('SyncMeili', {table: 'WagoApp'}, {repeat: {cron: '0 10 5 * *'}, priority: 10})
-      await taskQueue.add('SyncMeili', {table: 'Imports'}, {repeat: {cron: '0 10 10 * *'}, priority: 10})
-      await taskQueue.add('SyncMeili', {table: 'Code'}, {repeat: {cron: '0 10 15 * *'}, priority: 10})
+      await taskQueue.add('SyncElastic', {table: 'User'}, {repeat: {cron: '0 10 5 * *'}, priority: 10})
+      await taskQueue.add('SyncElastic', {table: 'WagoItem'}, {repeat: {cron: '0 10 15 * *'}, priority: 10})
+      await taskQueue.add('SyncMeili', {table: 'WagoApp'}, {repeat: {cron: '0 10 8 * *'}, priority: 10})
       await taskQueue.add('SyncMeili', {table: 'Imports:Metrics'}, {repeat: {cron: '30 * * * *'}, priority: 10})
       await taskQueue.add('SyncMeili', {table: 'Imports:ToDo'}, {repeat: {cron: '*/3 * * * *'}, priority: 10})
 
