@@ -755,9 +755,9 @@ async function SyncMeili(table) {
       if (todoDocs.length) {
         let wagos = await WagoItem.find({_id: {$in: todoDocs}})
         let indexedDocs = []
-        wagos.forEach(async (doc) => {
+        for (doc of wagos) {
           indexedDocs.push(await doc.meiliImportData)
-        })
+        }
         redis.setJSON('meili:todo:imports', [])
         await meiliIndex.main.addDocuments(indexedDocs)
         await meiliIndex.mainCats.addDocuments(indexedDocs)

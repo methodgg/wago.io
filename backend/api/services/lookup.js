@@ -586,8 +586,10 @@ module.exports = function (fastify, opts, next) {
       // save latest version data to wagoitem (for older imports)
       doc.latestVersion = {
         versionString: latestCode.versionString,
-        iteration: latestCode.version,
-        changelog: {
+        iteration: latestCode.version
+      }
+      if (latestCode.changelog) {
+        doc.latestVersion.changelog = {
           text: latestCode.changelog.text || '',
           format: latestCode.changelog.format || 'bbcode',
         }
