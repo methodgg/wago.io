@@ -60,7 +60,7 @@ module.exports = {
     local t = JSON:decode("${json}")
     if not t or not t.d then return "" end
 
-    local n -- fix trigger tables (the lua-json process can break these)
+    local n -- fix trigger and config tables (the lua-json process can break these)
     if t.d.triggers and t.d.triggers["1"] then
       n = 1
       while t.d.triggers[""..n] do
@@ -76,6 +76,18 @@ module.exports = {
         tinsert(t.d.triggers, t.d.triggers[""..n])
         t.d.triggers[""..n] = nil
         n = n+1
+      end
+    end
+
+    if t.d.authorOptions and t.d.config then
+      for k, v in pairs(t.d.authorOptions) do
+        if v.groupType == "array" and t.d.config[v.key] then
+          local nTable = {}
+          for i, data in pairs(t.d.config[v.key]) do
+            table.insert(nTable, data)
+          end
+          t.d.config[v.key] = nTable
+        end
       end
     end
 
@@ -96,6 +108,18 @@ module.exports = {
             tinsert(t.c[i].triggers, t.c[i].triggers[""..n])
             t.c[i].triggers[""..n] = nil
             n = n+1
+          end
+        end
+
+        if t.c[i].authorOptions and t.c[i].config then
+          for k, v in pairs(t.c[i].authorOptions) do
+            if v.groupType == "array" and t.c[i].config[v.key] then
+              local nTable = {}
+              for i, data in pairs(t.c[i].config[v.key]) do
+                table.insert(nTable, data)
+              end
+              t.c[i].config[v.key] = nTable
+            end
           end
         end
       end
@@ -233,7 +257,7 @@ module.exports = {
   },
 
   addWagoData: (code, wago) => {
-    if (!code.json) {
+    if (!code.json || !wago) {
       return
     }
     let json = JSON.parse(code.json)
