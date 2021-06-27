@@ -238,24 +238,15 @@ async function searchMeili (req, res) {
     res.send(results)
 }
 
-module.exports = function (fastify, opts, next) {
-  fastify.get('/ms', searchMeili)
-  fastify.get('/', searchMeili)
-
-  fastify.get('/oldsearch', async (req, res) => {
-    return res.send([])
-    // get input
+async function searchElastic (req, res) {
     var query = req.query.q || req.body.q || ""
     if (typeof query !== 'string') {
       query = ''
     }
 
-    var sort = req.query.sort || req.body.sort || false
+  var sort = req.query.sort || req.body.sort || ''
     // default sort order
-    if (!sort && req.user && req.user.config.searchOptions.sort) {
-      sort = req.user.config.searchOptions.sort
-    }
-    if (!sort || sort === 'bestmatch') {
+  if (!sort.match(/^(stars|date)$/)) {
       sort = 'bestmatchv2'
     }
     // default expansion filter
@@ -921,6 +912,15 @@ module.exports = function (fastify, opts, next) {
       return item
     }))
     res.send(Search)
+}
+
+module.exports = function (fastify, opts, next) {
+  fastify.get('/ms', searchElastic)
+  fastify.get('/', searchElastic)
+
+  fastify.get('/oldsearch', async (req, res) => {
+    return []
+    // get input
   })
 
   fastify.get('/menu', async (req, res) => {
