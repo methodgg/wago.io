@@ -11,17 +11,6 @@ function findAll(regex, str) {
   return matches
 }
 
-const meiliIndex = {
-  main: meiliSearch.index('imports'),
-  mainCats: meiliSearch.index('importsCats'),
-  stars: meiliSearch.index('stars'),
-  starsCats: meiliSearch.index('starsCats'),
-  date: meiliSearch.index('date'),
-  dateCats: meiliSearch.index('dateCats'),
-  code: meiliSearch.index('code'),
-  user: meiliSearch.index('user')
-}
-
 const oldCategories = require('../../../frontend/src/components/libs/categories')
 
 function expansionIndex(exp) {
