@@ -86,6 +86,7 @@ module.exports = {
           local nTable = {}
           while t.d.config[v.key][""..n] do
             table.insert(nTable, t.d.config[v.key][""..n])
+            n = n+1
           end
           t.d.config[v.key] = nTable
         end
@@ -119,6 +120,7 @@ module.exports = {
               local nTable = {}
               while t.c[i].config[v.key][""..n] do
                 table.insert(nTable, t.c[i].config[v.key][""..n])
+                n = n+1
               end
               t.c[i].config[v.key] = nTable
             end
