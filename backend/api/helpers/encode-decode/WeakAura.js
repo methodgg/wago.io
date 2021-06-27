@@ -82,9 +82,9 @@ module.exports = {
     if t.d.authorOptions and t.d.config then
       for k, v in pairs(t.d.authorOptions) do
         if v.groupType == "array" and t.d.config[v.key] then
-          n = 1
+          n = 0
           local nTable = {}
-          while t.d.config[v.key][""..n] do
+          while t.d.config[v.key][""..n] or n <= 1 do
             table.insert(nTable, t.d.config[v.key][""..n])
             n = n+1
           end
@@ -116,9 +116,9 @@ module.exports = {
         if t.c[i].authorOptions and t.c[i].config then
           for k, v in pairs(t.c[i].authorOptions) do
             if v.groupType == "array" and t.c[i].config[v.key] then
-              n = 1
+              n = 0
               local nTable = {}
-              while t.c[i].config[v.key][""..n] do
+              while t.c[i].config[v.key][""..n] or n <= 1 do
                 table.insert(nTable, t.c[i].config[v.key][""..n])
                 n = n+1
               end
