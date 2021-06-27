@@ -119,11 +119,11 @@ local OBJDEF = {
 --            :
 --
 --          for i, photo in ipairs(photosToProcess) do
---               :             
---               :             
+--               :
+--               :
 --               local data = JSON:decode(someJsonText, { photo = photo })
---               :             
---               :             
+--               :
+--               :
 --          end
 --
 --
@@ -234,9 +234,9 @@ local OBJDEF = {
 --   An example of setting align_keys to true:
 --
 --     JSON:encode_pretty(data, nil, { pretty = true, indent = "  ", align_keys = true })
---  
+--
 --   produces:
---   
+--
 --      {
 --           "city": "Kyoto",
 --        "climate": {
@@ -260,7 +260,7 @@ local OBJDEF = {
 --   when non-positive numeric keys exist), numeric keys are converted to
 --   strings.
 --
---   For example, 
+--   For example,
 --     JSON:encode({ "one", "two", "three", SOMESTRING = "some string" }))
 --   produces the JSON object
 --     {"1":"one","2":"two","3":"three","SOMESTRING":"some string"}
@@ -732,19 +732,16 @@ local function object_or_array(self, T, etc)
    local maximum_number_key
 
    for key in pairs(T) do
-      if type(key) == 'string' then
-         table.insert(string_keys, key)
-      elseif type(key) == 'number' then
-        if key > 1000 then
-            table.insert(string_keys, key)
-        else
-            table.insert(number_keys, key)
-            if key <= 0 or key >= math.huge then
-                number_keys_must_be_strings = true
-            elseif not maximum_number_key or key > maximum_number_key then
-                maximum_number_key = key
-            end
-        end
+      local nKey = tonumber(key)
+      if type(key) == "string" and (not nKey or nKey > 1000) then
+          table.insert(string_keys, key)
+      elseif nKey ~= nil then
+          table.insert(number_keys, nKey)
+          if nKey <= 0 or nKey >= math.huge then
+              number_keys_must_be_strings = true
+          elseif not maximum_number_key or key > maximum_number_key then
+              maximum_number_key = key
+          end
       else
          self:onEncodeError("can't encode table with a key of type " .. type(key), etc)
       end
@@ -1041,7 +1038,7 @@ return OBJDEF:new()
 --
 --                 To maintain the prior throw-an-error semantics, set
 --                      JSON.noKeyConversion = true
---                 
+--
 --   20131004.7    Release under a Creative Commons CC-BY license, which I should have done from day one, sorry.
 --
 --   20130120.6    Comment update: added a link to the specific page on my blog where this code can
