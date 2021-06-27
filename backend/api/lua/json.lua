@@ -729,6 +729,7 @@ local function object_or_array(self, T, etc)
    local string_keys = { }
    local number_keys = { }
    local number_keys_must_be_strings = false
+   local number_keys_use_zero_index = 0
    local maximum_number_key
 
    for key in pairs(T) do
@@ -737,7 +738,10 @@ local function object_or_array(self, T, etc)
           table.insert(string_keys, key)
       elseif nKey ~= nil then
           table.insert(number_keys, nKey)
-          if nKey <= 0 or nKey >= math.huge then
+          if nKey == 0 then
+              number_keys_use_zero_index = 1
+          end
+          if nKey < 0 or nKey >= math.huge then
               number_keys_must_be_strings = true
           elseif not maximum_number_key or key > maximum_number_key then
               maximum_number_key = key
@@ -790,6 +794,7 @@ local function object_or_array(self, T, etc)
       -- Throw numeric keys in there as strings
       --
       for _, number_key in ipairs(number_keys) do
+          number_key = number_key + number_keys_use_zero_index
          local string_key = tostring(number_key)
          if map[string_key] == nil then
             table.insert(string_keys , string_key)
