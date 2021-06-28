@@ -307,13 +307,13 @@ async function searchElastic (req, res) {
   }
 
   let filterUsers = []
-  m = query.match(/(?:user:\s?"(.*)")/i)
+  m = query.match(/(?:user:\s?"(\w+)")/i)
   var searchingOwnProfile = false
   while (m) {
     try {
       let user = await User.findOne({"search.username": m[1].toLowerCase()})
       if (user) {
-        if (user._id.equals(req.user._id)) {
+        if (req.user && user._id.equals(req.user._id)) {
           searchingOwnProfile = true
         }
         else if (user.account.hidden) {
@@ -324,7 +324,7 @@ async function searchElastic (req, res) {
     }
     catch {}
     query = query.replace(m[0], '')
-    m = query.match(/(?:user:\s?"(.*)")/i)
+    m = query.match(/(?:user:\s?"(\w+)")/i)
   }
   if (filterUsers.length) {
     esFilter.push(({bool: {should: filterUsers}}))
@@ -384,7 +384,6 @@ async function searchElastic (req, res) {
       let date = Math.round(Date.parse(m[1]))
       let date2 = date + 86400000
       esFilter.push({bool: {should: {range: {modified: {gte: date, lte: date2}}}}})
-      console.log({gte: date, lte: date2})
     }
     catch {}
     query = query.replace(m[0], '')
@@ -414,7 +413,6 @@ async function searchElastic (req, res) {
   }
 
   m = query.match(/(?:collection):\s?([\w-]{7,14})/i)
-  let collectedIDs = []
   if (m) {
     try {
       let collection = await WagoItem.lookup(m[1])
@@ -422,16 +420,11 @@ async function searchElastic (req, res) {
         if (collection.visibility !== 'Public') {
           allowHidden = true
         }
-        collection.collect.forEach(id => {
-          filterIDs.push(`id="${id}"`)
-        })
+        esFilter.push({simple_query_string: {query: '"'+collection.collect.join('" "')+'"', fields: ["_id"] }})
       }
     }
     catch {}
     query = query.replace(m[0], '')
-  }
-  if (collectedIDs.length) {
-    esFilter.push({ids: {values: collectedIDs}})
   }
 
 
@@ -558,6 +551,7 @@ async function searchElastic (req, res) {
   var results
   // setup function_score
   if (sortMode === 'bestmatchv2') {
+    // console.log(JSON.stringify({must: esQuery, filter: esFilter}, null, 2))
     results = await WagoItem.esSearch({
       query: {
         function_score: {
