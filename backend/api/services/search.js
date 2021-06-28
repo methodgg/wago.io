@@ -307,7 +307,7 @@ async function searchElastic (req, res) {
   }
 
   let filterUsers = []
-  m = query.match(/(?:user:\s?"(\w+)")/i)
+  m = query.match(/(?:user:\s?"(.*)")/i)
   var searchingOwnProfile = false
   while (m) {
     try {
