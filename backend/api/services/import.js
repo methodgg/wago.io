@@ -691,7 +691,7 @@ module.exports = function (fastify, opts, next) {
     }
 
     await code.save()
-    await taskQueue.add('ProcessCode', {id: doc._id, version: code.versionString, addon: scan.addon}, {priority: req.user && req.user.access.queueSkip && 2 || 5, jobId: `${doc._id}:${code.version}:${code.versionString}`})
+    await taskQueue.add('ProcessCode', {id: doc._id, version: code.versionString, addon: scan.addon, encode: true}, {priority: req.user && req.user.access.queueSkip && 2 || 5, jobId: `${doc._id}:${code.version}:${code.versionString}`})
     if (req.body.importAs === 'User' && req.user && !wago.hidden && !wago.private && !wago.encrypted && !wago.restricted && req.user.discord && req.user.discord.webhooks && req.user.discord.webhooks.onCreate) {
       webhooks.discord.onCreate(req.user, wago)
     }
