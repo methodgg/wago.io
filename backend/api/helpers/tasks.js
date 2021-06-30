@@ -622,9 +622,30 @@ async function UpdateLatestAddonReleases () {
 }
 
 async function SyncElastic(table) {
+  console.log("SYNC ELASTIC", table)
   var syncStream
-  return await new Promise((done, reject) => {
+  return await new Promise(async (done, reject) => {
     switch (table){
+      case 'imports':
+        let indexDocs = []
+        let count = 0
+        const cursor = WagoItem.find({_userId: {$exists: true}, deleted: false}).cursor()
+        let doc = await cursor.next()
+        while (doc && count < 300000) {
+          count++
+          indexDocs.push(await doc.indexedImportData)
+          if (indexDocs.length > 5000) {
+            await elastic.updateIndexDocs('imports', indexDocs)
+            indexDocs = []
+            console.log(count)
+          }
+          doc = await cursor.next()
+        }
+        if (indexDocs.length) {
+          await elastic.updateIndexDocs('imports', indexDocs)
+        }
+        break
+
       case 'WagoItem':
         syncStream = WagoItem.synchronize()
         break
@@ -636,15 +657,6 @@ async function SyncElastic(table) {
       default:
         return done()
     }
-  
-    syncStream.on('error', function(err){
-      logError(err, 'Elastic Sync Error ' + table)
-      reject(err)
-    })
-    syncStream.on('close', function() {
-      logger({e_a: 'Elastic Sync Complete', e_c: table, e_n: table})
-      done()
-    })
   })
 }
 
@@ -860,10 +872,6 @@ async function ProcessCode(data) {
       }
 
   doc.codeProcessVersion = codeProcessVersion
-
-  let meiliToDoCode = (await redis.getJSON('meili:todo:code')) || []
-  meiliToDoCode.push(doc._id)
-  await redis.setJSON('meili:todo:code', meiliToDoCode)
 
   await doc.save()
   await code.save()
