@@ -27,6 +27,7 @@ global.async = require('async')
 global.axios = require('axios')
 global.bluebird = require('bluebird')
 global.commonRegex = require('./commonRegex')
+global.elastic = require('./api/helpers/elasticsearch')
 global.redis = new Redis(config.redis)
 redis = require('./middlewares/decorateRedis')(redis)
 global.redis2 = new Redis(config.redis2)
@@ -181,6 +182,9 @@ const startServer = async () => {
       await taskQueue.add('SyncMeili', {table: 'WagoApp'}, {repeat: {cron: '0 10 8 * *'}, priority: 10})
       await taskQueue.add('SyncMeili', {table: 'Imports:Metrics'}, {repeat: {cron: '30 * * * *'}, priority: 10})
       await taskQueue.add('SyncMeili', {table: 'Imports:ToDo'}, {repeat: {cron: '*/3 * * * *'}, priority: 10})
+
+      // run once at startup (1 host only)
+      elastic.ensureIndexes()
 
       global.discordBot = require('./discordBot')
       discordBot.start()

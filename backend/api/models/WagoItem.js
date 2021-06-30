@@ -353,7 +353,7 @@ Schema.virtual('meiliWAData').get(async function () {
   }, await this.searchScores)
 })
 
-Schema.virtual('meiliImportData').get(async function () {
+Schema.virtual('indexedImportData').get(async function () {
   const data = await this.meiliWAData
   data.hidden = this.hidden || this.private || this.moderated || this.encrypted || this.restricted || this.deleted || this.blocked
   data.type = this.type.replace(/.*-WEAKAURA/, 'WEAKAURA')
@@ -366,8 +366,8 @@ Schema.virtual('meiliImportData').get(async function () {
     data.restriction = this._userId.toString()
   }
   let catRanks = this.categoryRanks
-    data.categoryRoot = catRanks.root
-    data.categoryTotal = catRanks.total
+    data.categoriesRoot = catRanks.root
+    data.categoriesTotal = catRanks.total
   data.comments = this.popularity.comments_count
   if (this._userId) {
     data.userId = this._userId
@@ -455,7 +455,7 @@ async function setMeiliIndex() {
           return id !== this._id
         })
         redis.setJSON('meili:todo:wagoapp', meiliToDoWA)
-        await meiliIndex.wagoApp.deleteDocument(this._id)
+        await meiliIndexWA.deleteDocument(this._id)
         this._meiliWA = false
         await this.save()
       }
@@ -477,7 +477,7 @@ async function setMeiliIndex() {
     }
   }
   else if (this._meiliWA) {
-    await meiliIndex.wagoApp.deleteDocument(this._id)
+    await meiliIndexWA.deleteDocument(this._id)
     this._meiliWA = false
     await this.save()
   }
