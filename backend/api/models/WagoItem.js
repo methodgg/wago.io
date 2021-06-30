@@ -204,19 +204,19 @@ Schema.virtual('searchScores').get(async function() {
   const stdViews = parseFloat(await redis.get('stats:standardDeviation:views')) || 1
   const meanViews = parseFloat(await redis.get('stats:mean:views')) || 0
   const views = await ViewsThisWeek.count({wagoID: this._id})
-  hotness.viewsScore = parseFloat(((views - meanViews) / stdViews).toFixed(1) || 0)
+  hotness.viewsScore = Math.max(0, parseFloat(((views - meanViews) / stdViews).toFixed(1) || 0))
 
   // installScore: Z-Score of installs in the past month
   const stdInstalls = parseFloat(await redis.get('stats:standardDeviation:installs')) || 1
   const meanInstalls = parseFloat(await redis.get('stats:mean:installs')) || 0
   const installs = await WagoFavorites.count({wagoID: this._id, type: 'Install', timestamp: {$gt: recentDate}})
-  hotness.installScore = parseFloat(((installs - meanInstalls) / stdInstalls).toFixed(1) || 0)
+  hotness.installScore = Math.max(0, parseFloat(((installs - meanInstalls) / stdInstalls).toFixed(1) || 0))
 
   /// starScore: Z-Score of installs in the past month
   const stdStars = parseFloat(await redis.get('stats:standardDeviation:stars')) || 1
   const meanStars = parseFloat(await redis.get('stats:mean:stars')) || 0
   const stars = await WagoFavorites.count({wagoID: this._id, type: 'Star', timestamp: {$gt: recentDate}})
-  hotness.starScore = parseFloat(((stars - meanStars) / stdStars).toFixed(1) || 0)
+  hotness.starScore = Math.max(0, parseFloat(((stars - meanStars) / stdStars).toFixed(1) || 0))
 
   return hotness
 })
