@@ -71,11 +71,11 @@ module.exports = {
               functions: [
                 {field_value_factor: {field: "installScore", factor: 8}},
                 {field_value_factor: {field: "starScore", factor: 6}},
-                {field_value_factor: {field: "viewsScore", modifier: "ln1p", factor: 1}},
-                {field_value_factor: {field: "ageScore", modifier: "ln1p", factor: 1}},
-                {field_value_factor: {field: "installs", modifier: "ln1p", factor: .05}},
-                {field_value_factor: {field: "stars", modifier: "ln1p", factor: .05}},
-                {field_value_factor: {field: "viewsThisWeek", modifier: "ln1p", factor: .01}},
+                {field_value_factor: {field: "viewsScore", missing: 0, modifier: "ln1p", factor: 1}},
+                {field_value_factor: {field: "ageScore", missing: 0, modifier: "ln1p", factor: 1}},
+                {field_value_factor: {field: "installs", missing: 0, modifier: "ln1p", factor: .05}},
+                {field_value_factor: {field: "stars", missing: 0, modifier: "ln1p", factor: .05}},
+                {field_value_factor: {field: "viewsThisWeek", missing: 0, modifier: "ln1p", factor: .01}},
               ],
               score_mode: "sum",
               boost_mode: "sum"
