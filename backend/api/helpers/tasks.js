@@ -664,7 +664,7 @@ async function SyncMeili(table) {
   console.log("SYNC MEILI", table)
   // multi index is needed until sortStrategies or similar is added https://github.com/meilisearch/MeiliSearch/issues/730
   const wagoAppIndex = await meiliWagoApp.getOrCreateIndex('weakauras')
-  const meiliBatchSize = 5000
+  const meiliBatchSize = 2000
   switch (table){
     case 'Imports:ToDo':
       const todoDocsWA = await redis.getJSON('meili:todo:wagoapp') || []

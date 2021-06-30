@@ -243,6 +243,308 @@ async function searchElastic (req, res) {
 
   var sort = req.query.sort || req.body.sort || ''
   if (sort === 'date') {
+    esSort.unshift({timestamp: 'desc'})
+  }
+  else if (sort === 'stars') {
+    esSort.unshift({stars: 'desc'})
+  }
+  else {
+    sortMode = 'bestmatchv2'
+  }
+
+  // search mode
+  m = query.match(/^!(code|mentions|starred)!/)
+  if (m) {
+    query = query.replace(m[0], '')
+    if (m[1] === 'mentions' && req.user) {
+      const mentions = await Comments.findMentions(req.user._id)
+      if (mentions.length) {
+        console.log(mentions)
+        esFilter.push({simple_query_string: {query: '"'+mentions.join('" "')+'"', fields: ["_id"] }})
+        allowHidden = true
+      }
+    }
+    else if (m[1] === 'starred' && req.user) {
+      const faves = await WagoFavorites.find({userID: req.user._id, type: 'Star'}).select('wagoID')
+      let ids = []
+      faves.forEach(fave => {
+        ids.push(fave.wagoID)
+      })
+      if (ids.length) {
+        esFilter.push({ids: { values: ids } })
+        allowHidden = true
+      }
+    }
+    else if (m[1] === 'code') {
+      searchMode = 'code'
+    }
+  }
+
+  let filterExpansion = [{term: {game: ''}}]
+  m = query.match(/expansion:\s?(sl|bfa|legion|wod|tbc|classic)/)
+  while (m) {
+    query = query.replace(m[0], '')
+    filterExpansion.push({term: {expansion: expansionIndex(m[1])}})
+    m = query.match(/expansion:\s?(\w+)/i)
+  }
+  if (filterExpansion.length > 1) {
+    esFilter.push(({bool: {should: filterExpansion}}))
+  }
+
+  let filterTypes = []
+  m = query.match(/type:\s?(\w+)/i)
+  while (m) {
+    filterTypes.push({term: {'type': m[1].toUpperCase()}})
+    query = query.replace(m[0], '')
+    m = query.match(/type:\s?(\w+)/i)
+  }
+  if (filterTypes.length) {
+    esFilter.push(({bool: {should: filterTypes}}))
+  }
+
+  let filterUsers = []
+  m = query.match(/(?:user:\s?"(.*)")/i)
+  var searchingOwnProfile = false
+  while (m) {
+    try {
+      let user = await User.findOne({"search.username": m[1].toLowerCase()})
+      if (user) {
+        if (req.user && user._id.equals(req.user._id)) {
+          searchingOwnProfile = true
+        }
+        else if (user.account.hidden) {
+          return res.send({profile: "private", hits: []})
+        }
+        filterUsers.push({term: { userId: user._id } })
+      }
+    }
+    catch {}
+    query = query.replace(m[0], '')
+    m = query.match(/(?:user:\s?"(\w+)")/i)
+  }
+  if (filterUsers.length) {
+    esFilter.push(({bool: {should: filterUsers}}))
+  }
+
+  m = query.match(/(metric:\s?(installs|stars|views)(<|>)(\d+))/i)
+  while (m) {
+    m[2] = m[2].toLowerCase()
+    if (m[2] === 'installs' && m[3] === '<') {
+      esFilter.push({bool: {should: {range: {'installs': {lt: parseInt(m[4])}}}}})
+    }
+    else if (m[2] === 'stars' && m[3] === '<') {
+      esFilter.push({bool: {should: {range: {'stars': {lt: parseInt(m[4])}}}}})
+    }
+    else if (m[2] === 'views' && m[3] === '<') {
+      esFilter.push({bool: {should: {range: {'views': {lt: parseInt(m[4])}}}}})
+    }
+    else if (m[2] === 'installs' && m[3] === '>') {
+      esFilter.push({bool: {should: {range: {'installs': {gt: parseInt(m[4])}}}}})
+    }
+    else if (m[2] === 'stars' && m[3] === '>') {
+      esFilter.push({bool: {should: {range: {'stars': {gt: parseInt(m[4])}}}}})
+    }
+    else if (m[2] === 'views' && m[3] === '>') {
+      esFilter.push({bool: {should: {range: {'views': {gt: parseInt(m[4])}}}}})
+    }
+
+    query = query.replace(m[0], '')
+    m = query.match(/(metric:\s?(installs|stars|views)(<|>)(\d+))/i)
+  }
+
+  if (searchMode === 'imports') {
+    let filterCats = []
+    let catSearch = false
+    m = query.match(/(?:category|tag):\s?([\w-]+)/i)
+    while (m) {
+      if (Categories.categories[m[1]]) {
+        filterCats.push({ term: {"categories": m[1]}})
+        if (!Categories.categories[m[1]].system) {
+          catSearch = true
+        }
+      }
+      query = query.replace(m[0], '')
+      m = query.match(/(?:category|tag):\s?([\w-]+)/i)
+    }
+    if (filterCats.length) {
+      esFilter.push(({bool: {should: filterCats}}))
+      if (catSearch) {
+        esSort.unshift('categoriesRoot')
+      }
+    }
+  }
+
+  m = query.match(/(?:date):\s?(\d\d\d\d-\d\d-\d\d)/i)
+  while (m) {
+    try {
+      let date = Math.round(Date.parse(m[1]) / 1000)
+      let date2 = date + 86400
+      esFilter.push({bool: {should: {range: {timestamp: {gte: date, lte: date2}}}}})
+    }
+    catch {}
+    query = query.replace(m[0], '')
+    m = query.match(/(?:date):\s?(\d\d\d\d-\d\d-\d\d)/i)
+  }
+
+  m = query.match(/(?:before):\s?(\d\d\d\d-\d\d-\d\d)/i)
+  while (m) {
+    try {
+      let date = Math.round(Date.parse(m[1]) / 1000)
+      console.log('date', date)
+      esFilter.push({bool: {should: {range: {timestamp: {lte: date}}}}})
+    }
+    catch {}
+    query = query.replace(m[0], '')
+    m = query.match(/(?:before):\s?(\d\d\d\d-\d\d-\d\d)/i)
+  }
+
+  m = query.match(/(?:after):\s?(\d\d\d\d-\d\d-\d\d)/i)
+  while (m) {
+    try {
+      let date = Math.round(Date.parse(m[1]) / 1000)
+      esFilter.push({bool: {should: {range: {timestamp: {gte: date}}}}})
+    }
+    catch {}
+    query = query.replace(m[0], '')
+    m = query.match(/(?:after):\s?(\d\d\d\d-\d\d-\d\d)/i)
+  }
+
+  m = query.match(/(?:collection):\s?([\w-]{7,14})/i)
+  if (m) {
+    try {
+      let collection = await WagoItem.lookup(m[1])
+      if (collection && collection.type === 'COLLECTION' && collection.collect.length) {
+        if (collection.visibility !== 'Public') {
+          allowHidden = true
+        }
+        esFilter.push({simple_query_string: {query: '"'+collection.collect.join('" "')+'"', fields: ["_id"] }})
+      }
+    }
+    catch {}
+    query = query.replace(m[0], '')
+  }
+
+
+
+
+
+
+  var searchSettings = {showAnon: 'hide', showHidden: false}
+
+  // set constants
+  var resultsPerPage = 20 // TODO: make this a global config
+
+  // setup return object
+  var Search = {}
+  Search.query = {}
+  Search.query.q = query
+  Search.query.page = page
+  Search.query.context = []
+  Search.meta = {}
+
+  // check for actual search terms and protect against regex attacks
+  query = query.replace(/\s{2,}/g, ' ').trim()
+  if (query) {
+    Search.query.textSearch = query
+    query = query.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&")
+    esQuery = query
+  }
+
+  // esFilter.push({term: {deleted: false}})
+  // esFilter.push({exists: {field: "userId"}}) // hide anonymous imports
+
+  // configure search per visibility settings
+  var esShould = []
+  if (searchingOwnProfile) {
+    // no additional filters needed
+  }
+  else if (req.user && !allowHidden) {
+    esFilter.push({term: {hidden: false}})
+    esShould.push({term: {_userId: {value: req.user._id, boost: 0 } } })
+    esShould.push({term: {restrictedUsers: {value: req.user._id.toString(), boost: 5}}})
+    if (req.user.battlenet && req.user.battlenet.guilds && req.user.battlenet.guilds.length) {
+      esShould.push({simple_query_string: {
+        query: `"${req.user.battlenet.guilds.join('" "')}"`,
+        fields: ["restrictedGuilds"],
+        minimum_should_match: 1
+      }})
+    }
+    if (req.user.twitch && req.user.twitch.id) {
+      esShould.push({term: {restrictedTwitchUsers: {value: req.user.twitch.id, boost: 5}}})
+    }
+    esShould.push({bool: {filter: [{term: {hidden: {value: false, boost: 0}}}]}})
+  }
+  else if (!allowHidden) {
+    esFilter.push({term: {hidden: false}})
+  }
+
+  if (esShould.length > 0) {
+    esFilter.push({bool: {should: esShould}})
+  }
+  if (esQuery) {
+    esQuery = [
+      {
+        simple_query_string: {
+          query: esQuery,
+          fields: ["description", "name^2", "custom_slug^2"], // add custom slug
+          minimum_should_match: "-25%"
+        },
+      }
+    ]
+  }
+  else if (esFilter) {
+    esQuery = esFilter
+    esFilter = []
+  }
+  else {
+    esQuery = {match_all: {}}
+  }
+
+  // if we have top and secondary searches (unread comments and read comments)
+  if (searchSettings.topSearch && searchSettings.topSearch.length && page === 0) {
+    esFilter.push({simple_query_string: {query: searchSettings.topSearch.join(' '), fields: ["_id"] }})
+    if (searchSettings.topSearch.length / resultsPerPage > page + 1) {
+      searchSettings.secondarySearch = []
+    }
+    else {
+      page = Math.max(0, page - Math.ceil(searchSettings.topSearch.length / resultsPerPage))
+    }
+    if (searchSettings.secondarySearch) {
+      Search.meta.forceNextPage = true
+    }
+  }
+  else if (searchSettings.secondarySearch && searchSettings.secondarySearch.length) {
+    if (searchSettings.topSearch && searchSettings.topSearch.length) {
+      page--
+    }
+    esFilter.push({simple_query_string: {query: searchSettings.secondarySearch.slice(page * resultsPerPage, resultsPerPage).join(' '), fields: ["_id"] }})
+  }
+  // console.log(JSON.stringify(esFilter, null, 2))
+  return res.send(await elastic.search({
+    index: 'imports',
+    algorithm: (sortMode === 'bestmatchv2') ? 'popular' : 'rawsort',
+    query: {must: esQuery, filter: esFilter},
+    sort: esSort,
+    page: page
+  }))
+}
+
+async function oldSearch (req, res) {
+  var query = req.query.q || req.body.q || ''
+  if (typeof query !== 'string') {
+    query = ''
+  }
+
+  var page = parseInt(req.query.page || req.body.page || 0)
+  var esFilter = []
+  var esSort = ['_score']
+  var sortMode = 'standard'
+  var esQuery = false
+  var searchMode = 'imports'
+  var allowHidden = false
+
+  var sort = req.query.sort || req.body.sort || ''
+  if (sort === 'date') {
     esSort.unshift({modified: 'desc'})
   }
   else if (sort === 'stars') {
@@ -730,7 +1032,8 @@ async function searchElastic (req, res) {
 
 module.exports = function (fastify, opts, next) {
   fastify.get('/ms', searchElastic)
-  fastify.get('/', searchElastic)
+  fastify.get('/es', searchElastic)
+  fastify.get('/', oldSearch)
 
   fastify.get('/oldsearch', async (req, res) => {
     return []
