@@ -633,16 +633,11 @@ async function SyncElastic(table) {
         let doc = await cursor.next()
         while (doc && count < 300000) {
           count++
-          indexDocs.push(await doc.indexedImportData)
-          if (indexDocs.length > 5000) {
-            await elastic.updateIndexDocs('imports', indexDocs)
-            indexDocs = []
-            console.log(count)
-          }
+          elastic.addDoc('imports', await doc.indexedImportData)
           doc = await cursor.next()
+          if(count%500 === 0) {
+            console.log(table, count)
         }
-        if (indexDocs.length) {
-          await elastic.updateIndexDocs('imports', indexDocs)
         }
         break
 

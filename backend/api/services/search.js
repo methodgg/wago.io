@@ -280,7 +280,7 @@ async function searchElastic (req, res) {
     }
   }
 
-  let filterExpansion = [{term: {game: ''}}]
+  let filterExpansion = []
   m = query.match(/expansion:\s?(sl|bfa|legion|wod|tbc|classic)/)
   while (m) {
     query = query.replace(m[0], '')
@@ -288,6 +288,7 @@ async function searchElastic (req, res) {
     m = query.match(/expansion:\s?(\w+)/i)
   }
   if (filterExpansion.length > 1) {
+    filterExpansion.push({term: {expansion: -1}}) // so that we dont exclude imports that are not expansion specific
     esFilter.push(({bool: {should: filterExpansion}}))
   }
 
@@ -487,7 +488,6 @@ async function searchElastic (req, res) {
         simple_query_string: {
           query: esQuery,
           fields: ["description", "name^2", "custom_slug^2"], // add custom slug
-          minimum_should_match: "-25%"
         },
       }
     ]

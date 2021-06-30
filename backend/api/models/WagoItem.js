@@ -370,7 +370,7 @@ Schema.virtual('indexedImportData').get(async function () {
     data.categoriesTotal = catRanks.total
   data.comments = this.popularity.comments_count
   if (this._userId) {
-    data.userId = this._userId
+    data.userId = this._userId.toString()
     await this.populate('_userId').execPopulate()
     if (this._userId && this._userId.account) {
       data.userId = this._userId._id.toString()
@@ -442,7 +442,9 @@ function isValidMeiliWA(doc) {
 }
 
 let meiliIndexWA
-async function setMeiliIndex() {
+async function updateIndexes() {
+  await elastic.addDoc('imports', await this.indexedImportData)
+
   if (!meiliIndexWA) {
     meiliIndexWA = await getIndex()
   }
@@ -483,37 +485,9 @@ async function setMeiliIndex() {
   }
 }
 
-const watchText = ['name', 'description', 'custom_slug']
-const watchVisibility = ['hidden', 'private', 'moderated', 'encrypted', 'restricted', 'deleted', 'blocked']
-watchText.forEach(field => {
-  Schema.path(field).set(function(v) {
-    if (this[field] !== undefined) {
-      this._doMeiliIndex = (this[field] !== v || this.isNew)
-      if (field === 'name') {
-        this._doMeiliCodeIndex = this._meiliCode && (this[field] !== v || this.isNew)
-      }
-    }
-    return v
-  })
-})
-watchVisibility.forEach(field => {
-  Schema.path(field).set(function(v) {
-    this._toggleVisibility = (this._toggleVisibility || this[field] !== undefined)
-    if (v) {
-      this._doNotIndexWA = true
-    }
-    return v
-  })
-})
-Schema.path('categories').set(function(v) {
-  if (!this._doMeiliIndex && this.categories !== undefined) {
-    this._doMeiliIndex = (JSON.stringify(this.categories) !== JSON.stringify(v))
-  }
-  return v
-})
-Schema.post('save', setMeiliIndex)
-Schema.post('update', setMeiliIndex)
-Schema.post('remove', setMeiliIndex)
+Schema.post('save', updateIndexes)
+Schema.post('update', updateIndexes)
+Schema.post('remove', updateIndexes)
 
 const WagoItem = mongoose.model('WagoItem', Schema)
 WagoItem.esSearch = bluebird.promisify(WagoItem.esSearch, {context: WagoItem})
