@@ -111,6 +111,9 @@ module.exports = {
       meta.name = obj['1']
       meta.description = obj['3']
     }
+    else {
+      return false
+    }
 
     if (!meta.description && obj.info && obj.info.desc) {
       meta.description = obj.info.desc
