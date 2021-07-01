@@ -283,11 +283,12 @@ async function searchElastic (req, res) {
   let filterExpansion = []
   m = query.match(/expansion:\s?(sl|bfa|legion|wod|tbc|classic)/)
   while (m) {
+    console.log({expansion: expansionIndex(m[1])})
     query = query.replace(m[0], '')
-    filterExpansion.push({term: {expansion: expansionIndex(m[1])}})
-    m = query.match(/expansion:\s?(\w+)/i)
+    filterExpansion.push({term: {expansion: {value: expansionIndex(m[1])}}})
+    m = query.match(/expansion:\s?(sl|bfa|legion|wod|tbc|classic)/i)
   }
-  if (filterExpansion.length > 1) {
+  if (filterExpansion.length) {
     filterExpansion.push({term: {expansion: -1}}) // so that we dont exclude imports that are not expansion specific
     esFilter.push(({bool: {should: filterExpansion}}))
   }
