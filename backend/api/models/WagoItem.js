@@ -129,8 +129,8 @@ const Schema = new mongoose.Schema({
     anythingTable: {type: String, index: true, es_indexed: true}
   },
 
-  _meili: Boolean,
-  _meiliCode: Boolean,
+  _indexImport: Boolean,
+  _indexCode: Boolean,
   _meiliWA: Boolean
 })
 
@@ -443,7 +443,17 @@ function isValidMeiliWA(doc) {
 
 let meiliIndexWA
 async function updateIndexes() {
-  await elastic.addDoc('imports', await this.indexedImportData)
+  if (!this.isModified('name description custom_slug categories game popularity versionString modified hidden private encrypted restricted deleted blocked moderated restrictedUsers restrictedGuilds imageGenerated')) {
+    return
+  }
+  if (this._userId && !this.deleted && !this.expires_at) {
+    await elastic.addDoc('imports', await this.indexedImportData)
+    this._indexImport = true
+  }
+  else if (this._indexImport) {
+    this._indexImport = false
+    await elastic.removeDoc('imports', this._id)
+  }
 
   if (!meiliIndexWA) {
     meiliIndexWA = await getIndex()
@@ -459,7 +469,6 @@ async function updateIndexes() {
         redis.setJSON('meili:todo:wagoapp', meiliToDoWA)
         await meiliIndexWA.deleteDocument(this._id)
         this._meiliWA = false
-        await this.save()
       }
       else if ((this._doMeiliIndex || this._toggleVisibility) && !(this.hidden || this.private || this.moderated || this.encrypted || this.restricted || this.deleted || this.blocked)) {
         // add/update index
@@ -470,7 +479,6 @@ async function updateIndexes() {
         redis.setJSON('meili:todo:wagoapp', meiliToDoWA)
         if (!this._meiliWA) {
           this._meiliWA = true
-          await this.save()
         }
       }
     }
@@ -481,13 +489,12 @@ async function updateIndexes() {
   else if (this._meiliWA) {
     await meiliIndexWA.deleteDocument(this._id)
     this._meiliWA = false
-    await this.save()
   }
 }
 
-Schema.post('save', updateIndexes)
-Schema.post('update', updateIndexes)
-Schema.post('remove', updateIndexes)
+Schema.pre('save', updateIndexes)
+Schema.pre('update', updateIndexes)
+Schema.pre('remove', updateIndexes)
 
 const WagoItem = mongoose.model('WagoItem', Schema)
 WagoItem.esSearch = bluebird.promisify(WagoItem.esSearch, {context: WagoItem})

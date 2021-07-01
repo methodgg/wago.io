@@ -61,9 +61,17 @@ module.exports = {
     }})
   },
 
-  addDoc: async function (index, doc) {
+  addDoc: async function (index, doc, syncing) {
     if (!bulkUpdates[index]) {
       bulkUpdates[index] = {docs: [], timeout: null}
+    }
+    if (!syncing) {
+      for (let i = 0; i < bulkUpdates[index].docs.length; i++) {
+        if (bulkUpdates[index].docs[i].id === doc.id) {
+          bulkUpdates[index].docs.splice(i, 2)
+          break
+        }
+      }
     }
     bulkUpdates[index].docs.push({index: {_index: index, _id: doc.id}})
     bulkUpdates[index].docs.push(doc)
@@ -88,7 +96,7 @@ module.exports = {
       bulkUpdates[index].timeout = setTimeout(() => {
         this.bulkProcessing(index)
         bulkUpdates[index].timeout = null
-      }, 90000)
+      }, 30000)
     }
   },
 
