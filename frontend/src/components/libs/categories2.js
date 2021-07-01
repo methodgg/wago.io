@@ -21,7 +21,7 @@ class Categories {
       'cl11': {slug: 'classes/druid', image: 'druid', color: '#FF7D0A', i18n: 'warcraft:classes.11'},
       'cl11-1': {slug: 'classes/druid/balance', i18n: 'warcraft:classes.11-1', parent: 'cl11'},
       'cl11-2': {slug: 'classes/druid/feral', i18n: 'warcraft:classes.11-2', parent: 'cl11'},
-      'cl11-3': {slug: 'classes/druid/guardian', i18n: 'warcraft:classes.11-3', parent: 'cl11'},
+      'cl11-3': {slug: 'classes/druid/guardian', i18n: 'warcraft:classes.11-3', parent: 'cl11', games: ['legion', 'bfa', 'sl']},
       'cl11-4': {slug: 'classes/druid/restoration', i18n: 'warcraft:classes.11-4', parent: 'cl11'},
 
       'cl3': {slug: 'classes/hunter', image: 'hunter', color: '#ABD473', i18n: 'warcraft:classes.3'},
@@ -78,12 +78,12 @@ class Categories {
       'gen10': {slug: 'general/reputation', i18n: 'Reputation', parent: 'gen0', types: ['WEAKAURA', 'COLLECTION'], },
       'gen11': {slug: 'general/collectibles', i18n: 'Collectibles', parent: 'gen0', types: ['WEAKAURA', 'COLLECTION'], games: ['legion', 'bfa', 'sl']},
       'gen12': {slug: 'general/world-events', i18n: 'World Events', parent: 'gen0', types: ['WEAKAURA', 'COLLECTION'], games: ['legion', 'bfa', 'sl']},
-      'gen13': {slug: 'general/world-events/darkmoon-faire', i18n: 'Darkmoon Faire', types: ['WEAKAURA', 'COLLECTION'], games: ['legion', 'bfa', 'sl']},
-      'gen14': {slug: 'general/world-events/brawlers-guild', i18n: 'Brawler\'s Guild', types: ['WEAKAURA', 'COLLECTION'], games: ['legion', 'bfa', 'sl']},
-      'gen15': {slug: 'general/pet-battles', i18n: 'Pet Battles', types: ['WEAKAURA', 'COLLECTION'], games: ['legion', 'bfa', 'sl']},
-      'gen16': {slug: 'general/warfronts', i18n: 'Warfronts', types: ['WEAKAURA', 'COLLECTION'], games: ['bfa']},
-      'gen17': {slug: 'general/island-expeditions', i18n: 'Island Expeditions', types: ['WEAKAURA', 'COLLECTION'], games: ['bfa']},
-      'gen18': {slug: 'general/covenants', i18n: 'Covenants', types: ['WEAKAURA', 'COLLECTION'], games: ['sl']},
+      'gen13': {slug: 'general/world-events/darkmoon-faire', i18n: 'Darkmoon Faire', parent: 'gen0', types: ['WEAKAURA', 'COLLECTION'], games: ['legion', 'bfa', 'sl']},
+      'gen14': {slug: 'general/world-events/brawlers-guild', i18n: 'Brawler\'s Guild', parent: 'gen0', types: ['WEAKAURA', 'COLLECTION'], games: ['legion', 'bfa', 'sl']},
+      'gen15': {slug: 'general/pet-battles', i18n: 'Pet Battles', parent: 'gen0', types: ['WEAKAURA', 'COLLECTION'], games: ['legion', 'bfa', 'sl']},
+      'gen16': {slug: 'general/warfronts', i18n: 'Warfronts', parent: 'gen0', types: ['WEAKAURA', 'COLLECTION'], games: ['bfa']},
+      'gen17': {slug: 'general/island-expeditions', i18n: 'Island Expeditions', parent: 'gen0', types: ['WEAKAURA', 'COLLECTION'], games: ['bfa']},
+      'gen18': {slug: 'general/covenants', i18n: 'Covenants', parent: 'gen0', types: ['WEAKAURA', 'COLLECTION'], games: ['sl']},
 
       'equip': {slug: 'equipment', image: 'equipment', color: '#7ED321', i18n: 'Equipment', types: ['WEAKAURA', 'COLLECTION']},
       'legen': {slug: 'equipment/legendaries', i18n: 'Legendaries', parent: 'equip', types: ['WEAKAURA', 'COLLECTION'], games: ['legion', 'bfa', 'sl']},
@@ -471,9 +471,9 @@ class Categories {
 
       'pvp': {slug: 'pvp', image: 'pvp', color: '#ed1b24', i18n: 'PvP', types: ['WEAKAURA']},
       'arena': {slug: 'pvp/arena', i18n: 'Arena', parent: 'pvp', types: ['WEAKAURA'], games: ['tbc', 'legion', 'bfa', 'sl']},
-      'bg': {slug: 'pvp/battlegrounds', i18n: 'Battlegrounds'},
-      'wpvp': {slug: 'pvp/world-pvp', i18n: 'World PvP'},
-      'wpvp1': {slug: 'pvp/duels', i18n: 'Duels'},
+      'bg': {slug: 'pvp/battlegrounds', i18n: 'Battlegrounds', parent: 'pvp'},
+      'wpvp': {slug: 'pvp/world-pvp', i18n: 'World PvP', parent: 'pvp'},
+      'wpvp1': {slug: 'pvp/duels', i18n: 'Duels', parent: 'pvp'},
 
       'prof1': {slug: 'professions/gathering', image: 'gathering', color: '#5E63B8', i18n: 'Gathering Professions', types: ['WEAKAURA', 'OPIE']},
       'prof2': {slug: 'professions/gathering/herbalism', i18n: 'warcraft:professions.herbalism', parent: 'prof1', types: ['WEAKAURA', 'OPIE']},
@@ -727,9 +727,10 @@ class Categories {
         continue
       }
       styles += `
-      .md-chip.${id}, .${id} .menu-image {color:${color}; background-image:url('/static/image/menu/${image}.png')}
+      .md-chip.${id}, .${id} .menu-image, .search-input .ql-editor .search-tag.category.${id} {color:${color}; background-image:url('/static/image/menu/${image}.png')}
       .${id}, .${id} a {color:${color}!important}
-      .search-tag.${id} {border-color:${color}}`
+      .search-tag.${id} {border-color:${color}}
+      .multiselect .md-chip.${id} {background: ${color}; color: black!important}`
     }
 
     const css = document.createElement('style')
@@ -764,6 +765,7 @@ class Categories {
   }
 
   matchChildren (parent, addon, game) {
+    console.log('match children', parent, addon, game)
     if (!parent) return []
     let children = []
     for (const cat of Object.values(this.categories)) {
@@ -771,6 +773,7 @@ class Categories {
         children.push(cat)
       }
     }
+    console.log(children)
     return children
   }
 

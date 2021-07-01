@@ -1,11 +1,11 @@
 <template>
   <multiselect v-model="multiSelectValue" :options="categoryOptions" label="text" :multiple="true" trackBy="id" :max="maxSelections" :close-on-select="false" :clear-on-select="false" :hide-selected="true" :placeholder="selectText || ''" :searchable="false" select-label="" open-direction="bottom">
     <template slot="tag" slot-scope="{ option, remove }">
-      <span :class="'custom__tag ' + option.cls"><span>{{ option.text }}</span><span class="multiselect_remove" @click="remove(option)" v-if="(option.root && multiSelectValue.length === 1) || !option.root">❌</span><span v-else style='padding-right:4px'>:</span>
+      <span :class="'custom__tag ' + option.id"><span>{{ option.text }}</span><span class="multiselect_remove" @click="remove(option)" v-if="(!option.parent && multiSelectValue.length === 1) || !option.root">❌</span><span v-else style='padding-right:4px'>:</span>
       </span>
     </template>
     <template slot="option" slot-scope="props">
-      <div :class="'md-chip ' + props.option.cls"><div class="option__title">{{ props.option.text }}</div></div>
+      <div :class="'md-chip ' + props.option.id"><div class="option__title">{{ props.option.text }}</div></div>
     </template>
     <template slot="maxElements" slot-scope="props">
       {{ $t('No additional categories can be added') }}
@@ -14,12 +14,10 @@
 </template>
 
 <script>
-import Categories from '../libs/categories'
 import Multiselect from 'vue-multiselect'
 
 export default {
   components: {
-    Categories,
     Multiselect
   },
   props: ['selectedCategories', 'type', 'game'],
@@ -54,18 +52,22 @@ export default {
         // values = [values]
       }
       let game = this.game
+      let type = this.type
       if (this.type === 'COLLECTION') {
         game = game.replace(/legion|bfa/, 'sl')
       }
       else if (!this.type.match(/WEAKAURA/)) {
         game = null
       }
+      else {
+        type = 'WEAKAURA'
+      }
 
       this.selectText = this.$t('Select')
       if (values && values.length > 0) {
         this.selectText = ''
         if (values[0].root) {
-          var children = Categories.getChildren(values[0], this.type, this.$t, game)
+          var children = window.Categories.matchChildren(values[0].id, type, game)
           this.categoryOptions = []
           // remove already selected categories
           for (var i = 0; i < children.length; i++) {
@@ -82,11 +84,11 @@ export default {
           }
         }
         else if (!values[0].systemtag && !values[0].noselect) {
-          this.categoryOptions = Categories.getChildren(values[values.length - 1], this.type, this.$t, game)
+          this.categoryOptions = window.Categories.matchChildren(values[values.length - 1].id, type, game)
         }
       }
       else {
-        this.categoryOptions = Categories.rootCategories(this.$t, this.type, game)
+        this.categoryOptions = window.Categories.rootCategories(type, game)
       }
 
       // change max selections so the multiselect knows when to put up the no categories error
