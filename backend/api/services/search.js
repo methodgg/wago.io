@@ -259,7 +259,6 @@ async function searchElastic (req, res) {
     if (m[1] === 'mentions' && req.user) {
       const mentions = await Comments.findMentions(req.user._id)
       if (mentions.length) {
-        console.log(mentions)
         esFilter.push({simple_query_string: {query: '"'+mentions.join('" "')+'"', fields: ["_id"] }})
         allowHidden = true
       }
@@ -283,7 +282,6 @@ async function searchElastic (req, res) {
   let filterExpansion = []
   m = query.match(/expansion:\s?(sl|bfa|legion|wod|tbc|classic)/)
   while (m) {
-    console.log({expansion: expansionIndex(m[1])})
     query = query.replace(m[0], '')
     filterExpansion.push({term: {expansion: {value: expansionIndex(m[1])}}})
     m = query.match(/expansion:\s?(sl|bfa|legion|wod|tbc|classic)/i)
@@ -392,7 +390,6 @@ async function searchElastic (req, res) {
   while (m) {
     try {
       let date = Math.round(Date.parse(m[1]) / 1000)
-      console.log('date', date)
       esFilter.push({bool: {should: {range: {timestamp: {lte: date}}}}})
     }
     catch {}
@@ -520,7 +517,7 @@ async function searchElastic (req, res) {
     }
     esFilter.push({simple_query_string: {query: searchSettings.secondarySearch.slice(page * resultsPerPage, resultsPerPage).join(' '), fields: ["_id"] }})
   }
-  // console.log(JSON.stringify(esFilter, null, 2))
+
   return res.send(await elastic.search({
     index: 'imports',
     algorithm: (sortMode === 'bestmatchv2') ? 'popular' : 'rawsort',
