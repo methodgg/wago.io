@@ -120,7 +120,7 @@ module.exports = {
                 bool: o.query,
               },
               functions: [
-                {field_value_factor: {field: "installScore", missing: 0, factor: 8}},
+                // {field_value_factor: {field: "installScore", missing: 0, factor: 8}},
                 {field_value_factor: {field: "starScore", missing: 0, factor: 6}},
                 {field_value_factor: {field: "viewsScore", missing: 0, modifier: "ln1p", factor: 1}},
                 {field_value_factor: {field: "ageScore", missing: 0, modifier: "ln1p", factor: .01}},
