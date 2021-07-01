@@ -734,7 +734,7 @@ local function object_or_array(self, T, etc)
 
    for key in pairs(T) do
       local nKey = tonumber(key)
-      if type(key) == "string" and (not nKey or nKey > 1000) then
+      if type(key) == "string" or nKey > 1000 then
           table.insert(string_keys, key)
       elseif nKey ~= nil then
           table.insert(number_keys, nKey)
