@@ -633,10 +633,6 @@ async function SyncElastic(table) {
           count++
           elastic.addDoc('imports', await doc.indexedImportData, true)
           doc = await cursor.next()
-          if (!doc._indexImport) {
-            doc._indexImport = true
-            await doc.save()
-          }
           if(count%500 === 0) {
             console.log(table, count)
         }
