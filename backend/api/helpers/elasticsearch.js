@@ -6,6 +6,7 @@ let bulkUpdates = {}
 module.exports = {
   ensureIndexes: async function (updateSettings) {
     // await client.indices.delete({index: 'imports'})
+    // imports index
     let exists = await client.indices.exists({index: 'imports'})
     if (!exists || !exists.body) {
       await client.indices.create({index: 'imports'})
@@ -59,6 +60,33 @@ module.exports = {
         userLinked: {type: 'boolean', index: false}
       }
     }})
+
+    // code index
+    exists = await client.indices.exists({index: 'code'})
+    if (!exists || !exists.body) {
+      await client.indices.create({index: 'code'})
+    }
+
+    await client.indices.putMapping({index: 'code', body: {
+      properties: {
+        id: {type: 'text', index: false},
+        name: {type: 'text', index: false},
+        versionString: {type: 'text', index: false},
+        code: {type: 'text'},
+        expansion: {type: 'byte'},
+        timestamp: {type: 'integer'},
+        hidden: {type: 'boolean'},
+        type: {type: 'keyword'},
+        restrictions: {type: 'keyword'},
+        userId: {type: 'keyword'},
+        userName: {type: 'text', index: false},
+        userAvatar: {type: 'text', index: false},
+        userClass: {type: 'text', index: false},
+        userLinked: {type: 'boolean', index: false}
+      }
+    }})
+
+    // console.log(JSON.stringify((await client.indices.stats({index: 'code'})).body, null, 2))
   },
 
   addDoc: async function (index, doc, syncing) {
@@ -110,7 +138,7 @@ module.exports = {
   search: async function (o) {
     const resultsPerPage = 25
     let results = []
-    if (o.index === 'imports' && o.algorithm === 'popular') {
+    if (o.algorithm === 'popular') {
       results = await client.search({
         index: o.index,
         body: {
@@ -120,6 +148,14 @@ module.exports = {
                 bool: o.query,
               },
               functions: [
+                {gauss: {
+                  timestamp: {
+                    origin: Date.now() / 1000,
+                    scale: 86400 * 120,
+                    offset: 86400 * 75,
+                    decay : 0.25
+                  }
+                }},
                 // {field_value_factor: {field: "installScore", missing: 0, factor: 8}},
                 {field_value_factor: {field: "starScore", missing: 0, factor: 6}},
                 {field_value_factor: {field: "viewsScore", missing: 0, modifier: "ln1p", factor: 1}},
@@ -137,7 +173,7 @@ module.exports = {
         }
       })
     }
-    else if (o.algorithm === 'rawsort') {
+    else {
       results = await client.search({
         index: o.index,
         body: {
@@ -151,7 +187,7 @@ module.exports = {
       })
     }
     try {
-      return {hits: results.body.hits.hits.map(d => Object.assign(d._source, {_score: d._score})), total: results.body.hits.total.value, query: o.query}
+      return {hits: results.body.hits.hits.map(d => Object.assign(d._source, {_score: d._score})), total: results.body.hits.total.value, query: o.textQuery, index: o.index}
     }
     catch (e) {
       console.log(e)

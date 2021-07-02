@@ -55,7 +55,7 @@ Schema.statics.lookup = async function(id, version) {
       doc = await this.findOne({auraID: id}).sort({updated: -1}).exec()
     }
     if (!doc) {
-      return {err: 'No code found'}
+      return {err: 'No code found', changelog: {}, fix: {}, customCode: []}
     }
 
     if (!doc.versionString || !doc.version || (version && doc.version > version) || doc.versionString.match(/undefined/) || (!doc.version && !version)) {

@@ -23,210 +23,6 @@ function expansionIndex(exp) {
   return 8
 }
 
-async function searchMeili (req, res) {
-  let query = req.query.q || req.body.q || ""
-  if (typeof query !== 'string') {
-    query = ''
-  }
-  let m
-  let filters = ''
-  let facets = []
-  let allowHidden = false
-  let searchIndex = 'main'
-  let searchMode = 'imports'
-
-  if (req.query.sort && req.query.sort.match(/^(stars|date)$/)) {
-    searchIndex = req.query.sort
-  }
-
-  m = query.match(/^!(code|mentions|starred)!/)
-  if (m) {
-    query = query.replace(m[0], '')
-    if (m[1] === 'mentions' && req.user) {
-      // searchIndex = 'comments'
-      const mentions = await Comments.findMentions(req.user._id)
-      let ids = []
-      mentions.forEach(id => {
-        ids.push(`id=${id}`)
-      })
-      if (ids.length) {
-        allowHidden = true
-        filters += ` AND (${ids.join(' OR ')})`
-      }
-    }
-    else if (m[1] === 'starred' && req.user) {
-      const faves = await WagoFavorites.find({userID: req.user._id, type: 'Star'}).select('wagoID')
-      let ids = []
-      faves.forEach(fave => {
-        ids.push(`id=${fave.wagoID}`)
-      })
-      if (ids.length) {
-        allowHidden = true
-        filters += ` AND (${ids.join(' OR ')})`
-      }
-    }
-    else if (m[1] === 'code') {
-      searchMode = 'code'
-      searchIndex = 'code'
-    }
-  }
-
-  let filterExpansion = []
-  m = query.match(/expansion:\s?(\w+)/i)
-  while (m) {
-    filterExpansion.push(`expansion=${expansionIndex(m[1])}`)
-    query = query.replace(m[0], '')
-    m = query.match(/expansion:\s?(\w+)/i)
-  }
-  if (filterExpansion.length) {
-    filters += ` AND (${filterExpansion.join(' OR ')} OR expansion=-1)`
-  }
-
-  let filterTypes = []
-  m = query.match(/type:\s?(\w+)/i)
-  while (m) {
-    filterTypes.push(`type=${m[1].toUpperCase()}`)
-    query = query.replace(m[0], '')
-    m = query.match(/type:\s?(\w+)/i)
-  }
-  if (filterTypes.length) {
-    filters += ` AND (${filterTypes.join(' OR ')})`
-  }
-
-  if (searchMode === 'imports') {
-    let categories = []
-    m = query.match(/(?:category|tag):\s?([\w-]+)/i)
-    while (m) {
-      if (Categories.categories[m[1]]) {
-        categories.push(`categories:${m[1]}`)
-        if (!Categories.categories[m[1]].system) {
-          searchIndex += 'Cats'
-        }
-      }
-      query = query.replace(m[0], '')
-      m = query.match(/(?:category|tag):\s?([\w-]+)/i)
-    }
-    if (categories.length) {
-      facets.push(categories)
-    }
-  }
-
-  m = query.match(/(?:date):\s?(\d\d\d\d-\d\d-\d\d)/i)
-  while (m) {
-    try {
-      let date = Math.round(Date.parse(m[1]) / 1000)
-      let date2 = date + 86400
-      filters += ` AND (timestamp >= ${date} AND timestamp <= ${date2})`
-    }
-    catch {}
-    query = query.replace(m[0], '')
-    m = query.match(/(?:date):\s?(\d\d\d\d-\d\d-\d\d)/i)
-  }
-
-  m = query.match(/(?:before):\s?(\d\d\d\d-\d\d-\d\d)/i)
-  while (m) {
-    try {
-      let date = Math.round(Date.parse(m[1]) / 1000)
-      filters += ` AND (timestamp < ${date})`
-    }
-    catch {}
-    query = query.replace(m[0], '')
-    m = query.match(/(?:date):\s?(\d\d\d\d-\d\d-\d\d)/i)
-  }
-
-  m = query.match(/(?:after):\s?(\d\d\d\d-\d\d-\d\d)/i)
-  while (m) {
-    try {
-      let date = Math.round(Date.parse(m[1]) / 1000)
-      filters += ` AND (timestamp > ${date})`
-    }
-    catch {}
-    query = query.replace(m[0], '')
-    m = query.match(/(?:date):\s?(\d\d\d\d-\d\d-\d\d)/i)
-  }
-
-  m = query.match(/(?:collection):\s?([\w-]{7,14})/i)
-  let filterIDs = []
-  if (m) {
-    try {
-      let collection = await WagoItem.lookup(m[1])
-      if (collection && collection.type === 'COLLECTION' && collection.collect.length) {
-        if (collection.visibility !== 'Public') {
-          allowHidden = true
-        }
-        collection.collect.forEach(id => {
-          filterIDs.push(`id="${id}"`)
-        })
-      }
-    }
-    catch {}
-    query = query.replace(m[0], '')
-  }
-  if (filterIDs.length) {
-    filters += ` AND (${filterIDs.join(' OR ')})`
-  }
-
-  m = query.match(/(?:user:\s?"(.*)")/i)
-  let filterUsers = []
-  while (m) {
-    try {
-      let user = await User.findOne({"search.username": m[1].toLowerCase()})
-      if (user) {
-        if (user.account.hidden && (!req.user || !user._id.equals(req.user._id))) {
-          return res.send({profile: "private", hits: []})
-        }
-        filterUsers.push(`userId="${user._id}"`)
-      }
-    }
-    catch {}
-    query = query.replace(m[0], '')
-    m = query.match(/(?:user:\s?"(.*)")/i)
-  }
-  if (filterUsers.length) {
-    filters += ` AND (${filterUsers.join(' OR ')})`
-  }
-
-  m = query.match(/(.*)(metric:\s?(installs|stars|views)(<|>|=)(\d+))(.*)/i)
-  let filterMetrics = []
-  while (m) {
-    filterMetrics.push(`${m[3]}${m[4]}${m[5]}`)
-    query = query.replace(m[0], '')
-    m = query.match(/(.*)(metric:\s?(installs|stars|views)(<|>|=)(\d+))(.*)/i)
-  }
-  if (filterMetrics.length) {
-    filters += ` AND (${filterMetrics.join(' OR ')})`
-  }
-
-  if (!allowHidden && req.user) {
-    let restrictions = [`userId="${req.user._id}"`, `hidden=false`]
-    if (req.user.battlenet && req.user.battlenet.guilds) {
-      req.user.battlenet.guilds.forEach(guild => {
-        restrictions.push(`restriction="${guild}"`)
-      })
-    }
-
-    filters += ` AND (${restrictions.join(' OR ')})`
-  }
-  else if (!allowHidden) {
-    filters += ` AND (hidden=false)`
-  }
-
-  filters = filters.replace(/^ AND /, '')
-  let options = {
-    filters: filters,
-    limit: 25,
-    offset: parseInt(req.query.page || 0) * 25
-  }
-
-  if (facets.length) {
-    options.facetFilters = facets
-  }
-
-  let results = await meiliIndex[searchIndex].search(query.trim(), options)
-  results.index = searchIndex
-  res.send(results)
-}
-
 async function searchElastic (req, res) {
   var query = req.query.q || req.body.q || ''
   if (typeof query !== 'string') {
@@ -238,7 +34,7 @@ async function searchElastic (req, res) {
   var esSort = ['_score']
   var sortMode = 'standard'
   var esQuery = false
-  var searchMode = 'imports'
+  var searchIndex = 'imports'
   var allowHidden = false
 
   var sort = req.query.sort || req.body.sort || ''
@@ -275,7 +71,7 @@ async function searchElastic (req, res) {
       }
     }
     else if (m[1] === 'code') {
-      searchMode = 'code'
+      searchIndex = 'code'
     }
   }
 
@@ -352,25 +148,23 @@ async function searchElastic (req, res) {
     m = query.match(/(metric:\s?(installs|stars|views)(<|>)(\d+))/i)
   }
 
-  if (searchMode === 'imports') {
-    let filterCats = []
-    let catSearch = false
-    m = query.match(/(?:category|tag):\s?([\w-]+)/i)
-    while (m) {
-      if (Categories.categories[m[1]]) {
-        filterCats.push({ term: {"categories": m[1]}})
-        if (!Categories.categories[m[1]].system) {
-          catSearch = true
-        }
+  let filterCats = []
+  let catSearch = false
+  m = query.match(/(?:category|tag):\s?([\w-]+)/i)
+  while (m) {
+    if (Categories.categories[m[1]]) {
+      filterCats.push({ term: {"categories": m[1]}})
+      if (!Categories.categories[m[1]].system) {
+        catSearch = true
       }
-      query = query.replace(m[0], '')
-      m = query.match(/(?:category|tag):\s?([\w-]+)/i)
     }
-    if (filterCats.length) {
-      esFilter.push(({bool: {should: filterCats}}))
-      if (catSearch) {
-        esSort.unshift('categoriesRoot')
-      }
+    query = query.replace(m[0], '')
+    m = query.match(/(?:category|tag):\s?([\w-]+)/i)
+  }
+  if (filterCats.length) {
+    esFilter.push(({bool: {should: filterCats}}))
+    if (catSearch) {
+      esSort.unshift('categoriesRoot')
     }
   }
 
@@ -480,12 +274,18 @@ async function searchElastic (req, res) {
   if (esShould.length > 0) {
     esFilter.push({bool: {should: esShould}})
   }
+  let textQuery = ''
   if (esQuery) {
+    let searchFields = ["description", "name^2", "custom_slug^2"]
+    if (searchIndex === 'code') {
+      searchFields = ["code"]
+    }
+    textQuery = esQuery
     esQuery = [
       {
         simple_query_string: {
           query: esQuery,
-          fields: ["description", "name^2", "custom_slug^2"], // add custom slug
+          fields: searchFields, // add custom slug
         },
       }
     ]
@@ -519,9 +319,10 @@ async function searchElastic (req, res) {
   }
 
   return res.send(await elastic.search({
-    index: 'imports',
+    index: searchIndex,
     algorithm: (sortMode === 'bestmatchv2') ? 'popular' : 'rawsort',
     query: {must: esQuery, filter: esFilter},
+    textQuery,
     sort: esSort,
     page: page
   }))

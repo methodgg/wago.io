@@ -358,12 +358,12 @@ Schema.virtual('indexedImportData').get(async function () {
   data.hidden = this.hidden || this.private || this.moderated || this.encrypted || this.restricted || this.deleted || this.blocked
   data.type = this.type.replace(/.*-WEAKAURA/, 'WEAKAURA')
   if (this.restricted) {
-    data.restriction = this.restrictedUsers.concat(this.restrictedGuilds)
-    data.restriction.push(this._userId.toString())
-    data.restriction = [...new Set(data.restriction)]
+    data.restrictions = this.restrictedUsers.concat(this.restrictedGuilds)
+    data.restrictions.push(this._userId.toString())
+    data.restrictions = [...new Set(data.restrictions)]
   }
   else if (this.private || this.moderated) {
-    data.restriction = this._userId.toString()
+    data.restrictions = this._userId.toString()
   }
   let catRanks = this.categoryRanks
     data.categoriesRoot = catRanks.root
@@ -384,7 +384,7 @@ Schema.virtual('indexedImportData').get(async function () {
   return data
 })
 
-Schema.virtual('meiliCodeData').get(async function () {
+Schema.virtual('indexedCodeData').get(async function () {
   const code = await WagoCode.lookup(this._id)
   let luaCode = ''
   if (code.customCode && code.customCode.length) {
@@ -399,22 +399,22 @@ Schema.virtual('meiliCodeData').get(async function () {
       name: this.name,
       hidden: this.hidden || this.private || this.moderated || this.encrypted || this.restricted || this.deleted || this.blocked,
       type: this.type.replace(/.*-WEAKAURA/, 'WEAKAURA'),
-      expansion: this.expansionIndex,
       installs: this.popularity.installed_count,
       stars: this.popularity.favorite_count,
       views: this.popularity.views,
+      viewsThisWeek: this.popularity.viewsThisWeek,
       versionString: code.versionString || '1.0.0',
       timestamp: Math.round(code.updated.getTime() / 1000),
       code: luaCode
     }, await this.searchScores)
 
     if (this.restricted) {
-      data.restriction = this.restrictedUsers.concat(this.restrictedGuilds)
-      data.restriction.push(this._userId.toString())
-      data.restriction = [...new Set(data.restriction)]
+      data.restrictions = this.restrictedUsers.concat(this.restrictedGuilds)
+      data.restrictions.push(this._userId.toString())
+      data.restrictions = [...new Set(data.restrictions)]
     }
     else if (this.private || this.moderated) {
-      data.restriction = this._userId.toString()
+      data.restrictions = this._userId.toString()
     }
 
     if (this._userId) {
@@ -443,52 +443,69 @@ function isValidMeiliWA(doc) {
 
 let meiliIndexWA
 async function updateIndexes() {
-  if (!this.isModified('name description custom_slug categories game popularity versionString modified hidden private encrypted restricted deleted blocked moderated restrictedUsers restrictedGuilds imageGenerated')) {
-    return
-  }
-  if (this._userId && !this.deleted && !this.expires_at) {
-    await elastic.addDoc('imports', await this.indexedImportData)
-    this._indexImport = true
-  }
-  else if (this._indexImport) {
-    this._indexImport = false
-    await elastic.removeDoc('imports', this._id)
-  }
+  if (this.isModified('name description custom_slug categories game popularity versionString modified hidden private encrypted restricted deleted blocked moderated restrictedUsers restrictedGuilds imageGenerated expires_at')) {
+    if (this._userId && !this.deleted && !this.expires_at) {
+      await elastic.addDoc('imports', await this.indexedImportData)
+      this._indexImport = true
+    }
+    else if (this._indexImport) {
+      this._indexImport = false
+      await elastic.removeDoc('imports', this._id)
+    }
 
-  if (!meiliIndexWA) {
-    meiliIndexWA = await getIndex()
-  }
-  if (isValidMeiliWA(this)) {
-    try {
-      let meiliToDoWA = await redis.getJSON('meili:todo:wagoapp') || []
-      if (this._meiliWA && (this._doNotIndexWA || this.hidden || this.private || this.moderated || this.encrypted || this.restricted || this.deleted || this.blocked)) {
-        // delete index
-        meiliToDoWA = meiliToDoWA.filter(id => {
-          return id !== this._id
-        })
-        redis.setJSON('meili:todo:wagoapp', meiliToDoWA)
-        await meiliIndexWA.deleteDocument(this._id)
-        this._meiliWA = false
-      }
-      else if ((this._doMeiliIndex || this._toggleVisibility) && !(this.hidden || this.private || this.moderated || this.encrypted || this.restricted || this.deleted || this.blocked)) {
-        // add/update index
-        meiliToDoWA = meiliToDoWA.filter(id => {
-          return id !== this._id
-        })
-        meiliToDoWA.push(await this._id)
-        redis.setJSON('meili:todo:wagoapp', meiliToDoWA)
-        if (!this._meiliWA) {
-          this._meiliWA = true
+    if (!meiliIndexWA) {
+      meiliIndexWA = await getIndex()
+    }
+    if (isValidMeiliWA(this)) {
+      try {
+        let meiliToDoWA = await redis.getJSON('meili:todo:wagoapp') || []
+        if (this._meiliWA && (this._doNotIndexWA || this.hidden || this.private || this.moderated || this.encrypted || this.restricted || this.deleted || this.blocked)) {
+          // delete index
+          meiliToDoWA = meiliToDoWA.filter(id => {
+            return id !== this._id
+          })
+          redis.setJSON('meili:todo:wagoapp', meiliToDoWA)
+          await meiliIndexWA.deleteDocument(this._id)
+          this._meiliWA = false
+        }
+        else if ((this._doMeiliIndex || this._toggleVisibility) && !(this.hidden || this.private || this.moderated || this.encrypted || this.restricted || this.deleted || this.blocked)) {
+          // add/update index
+          meiliToDoWA = meiliToDoWA.filter(id => {
+            return id !== this._id
+          })
+          meiliToDoWA.push(await this._id)
+          redis.setJSON('meili:todo:wagoapp', meiliToDoWA)
+          if (!this._meiliWA) {
+            this._meiliWA = true
+          }
         }
       }
+      catch (e) {
+        console.log('Meili error', e)
+      }
     }
-    catch (e) {
-      console.log('Meili error', e)
+    else if (this._meiliWA) {
+      await meiliIndexWA.deleteDocument(this._id)
+      this._meiliWA = false
     }
   }
-  else if (this._meiliWA) {
-    await meiliIndexWA.deleteDocument(this._id)
-    this._meiliWA = false
+
+  if (this.isModified('name versionString game popularity modified hidden private encrypted restricted deleted blocked moderated restrictedUsers restrictedGuilds expires_at hasCustomCode')) {
+    if (this._userId && !this.deleted && !this.expires_at && this.hasCustomCode) {
+      let code = await this.indexedCodeData
+      if (code) {
+        await elastic.addDoc('code', await this.indexedCodeData)
+        this._indexImport = true
+      }
+      else if (this._indexImport) {
+        this._indexImport = false
+        await elastic.removeDoc('code', this._id)
+      }
+    }
+    else if (this._indexImport) {
+      this._indexImport = false
+      await elastic.removeDoc('code', this._id)
+    }
   }
 }
 

@@ -624,15 +624,32 @@ async function UpdateLatestAddonReleases () {
 async function SyncElastic(table) {
   console.log("SYNC ELASTIC", table)
   return await new Promise(async (done, reject) => {
+    let count = 0
+    let doc
     switch (table){
       case 'imports':
-        let count = 0
-        const cursor = WagoItem.find({_userId: {$exists: true}, deleted: false, expires_at: null}).cursor()
-        let doc = await cursor.next()
+        const cursorImports = WagoItem.find({_userId: {$exists: true}, deleted: false, expires_at: null}).cursor()
+        doc = await cursorImports.next()
         while (doc && count < 300000) {
           count++
           elastic.addDoc('imports', await doc.indexedImportData, true)
-          doc = await cursor.next()
+          doc = await cursorImports.next()
+          if(count%500 === 0) {
+            console.log(table, count)
+          }
+        }
+        break
+
+      case 'code':
+        const cursorCode = WagoItem.find({_userId: {$exists: true}, deleted: false, expires_at: null, hasCustomCode: true}).cursor()
+        doc = await cursorCode.next()
+        while (doc && count < 300000) {
+          count++
+          let code = await doc.indexedCodeData
+          if (code) {
+            elastic.addDoc('code', code, true)
+          }
+          doc = await cursorCode.next()
           if(count%500 === 0) {
             console.log(table, count)
         }
