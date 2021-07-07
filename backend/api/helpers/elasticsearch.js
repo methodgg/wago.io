@@ -21,8 +21,7 @@ module.exports = {
               tokenizer: 'standard',
               filter: [
                 'lowercase',
-                'word_delimiter',
-                'kstem'
+                'word_delimiter'
               ]
             }
           }
@@ -33,8 +32,8 @@ module.exports = {
     await client.indices.putMapping({index: 'imports', body: {
       properties: {
         id: {type: 'text', index: false},
-        name: {type: 'text', boost: 2},
-        slug: {type: 'text', boost: 1.5},
+        name: {type: 'text'},
+        slug: {type: 'text'},
         description: {type: 'text'},
         categories: {type: 'keyword'},
         categoriesRoot: {type: 'short'},

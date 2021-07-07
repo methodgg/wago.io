@@ -235,11 +235,9 @@ async function searchElastic (req, res) {
   Search.query.context = []
   Search.meta = {}
 
-  // check for actual search terms and protect against regex attacks
   query = query.replace(/\s{2,}/g, ' ').trim()
   if (query) {
     Search.query.textSearch = query
-    query = query.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&")
     esQuery = query
   }
 
@@ -276,16 +274,27 @@ async function searchElastic (req, res) {
   }
   let textQuery = ''
   if (esQuery) {
-    let searchFields = ["description", "name^2", "custom_slug^2"]
+    let searchFields = ["description^2", "name^3", "custom_slug^3"]
     if (searchIndex === 'code') {
       searchFields = ["code"]
     }
     textQuery = esQuery
+    let fuzzySearch = []
+    textQuery.match(/([^\s~]+)\s*/g).forEach(word => {
+      word = word.trim()
+      if (word.length > 5 && word.match(/^\w+$/)) {
+        fuzzySearch.push(`${word}~${Math.floor(word.length / 5)}`)
+      }
+      else {
+        fuzzySearch.push(`${word}`)
+      }
+    })
     esQuery = [
       {
         simple_query_string: {
-          query: esQuery,
+          query: fuzzySearch.join(' '),
           fields: searchFields, // add custom slug
+          minimum_should_match: '-25%'
         },
       }
     ]

@@ -178,13 +178,13 @@ const startServer = async () => {
       await taskQueue.add('ComputeStatistics', null, {repeat: {cron: '0 * * * *'}, priority: 4})
       await taskQueue.add('UpdateLatestAddonReleases', null, {repeat: {cron: '*/20 * * * *'}, priority: 4})
       await taskQueue.add('SyncElastic', {table: 'User'}, {repeat: {cron: '0 10 5 * *'}, priority: 10})
-      await taskQueue.add('SyncElastic', {table: 'WagoItem'}, {repeat: {cron: '0 10 15 * *'}, priority: 10})
+      await taskQueue.add('SyncElastic', {table: 'imports'}, {repeat: {cron: '0 10 15 * *'}, priority: 10})
       await taskQueue.add('SyncMeili', {table: 'WagoApp'}, {repeat: {cron: '0 10 8 * *'}, priority: 10})
       await taskQueue.add('SyncMeili', {table: 'Imports:Metrics'}, {repeat: {cron: '30 * * * *'}, priority: 10})
       await taskQueue.add('SyncMeili', {table: 'Imports:ToDo'}, {repeat: {cron: '*/3 * * * *'}, priority: 10})
 
       // run once at startup (1 host only)
-      elastic.ensureIndexes()
+      await elastic.ensureIndexes()
 
       global.discordBot = require('./discordBot')
       discordBot.start()
