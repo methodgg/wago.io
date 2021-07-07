@@ -274,30 +274,43 @@ async function searchElastic (req, res) {
   }
   let textQuery = ''
   if (esQuery) {
-    let searchFields = ["description^2", "name^3", "custom_slug^3"]
+    let searchFields = ["description", "name^2", "custom_slug^2"]
     if (searchIndex === 'code') {
       searchFields = ["code"]
     }
     textQuery = esQuery
-    let fuzzySearch = []
-    textQuery.match(/([^\s~]+)\s*/g).forEach(word => {
-      word = word.trim()
-      if (word.length > 5 && word.match(/^\w+$/)) {
-        fuzzySearch.push(`${word}~${Math.floor(word.length / 5)}`)
-      }
-      else {
-        fuzzySearch.push(`${word}`)
-      }
-    })
-    esQuery = [
-      {
+    let simpleSearch
+    if (!textQuery.match(/[+|\-*~"()\\]/)) {
+      let fuzzySearch = []
+      textQuery.match(/([^\s]+)\s*/g).forEach(word => {
+        word = word.trim()
+        if (word.length > 5 && word.match(/^\w+$/)) {
+          fuzzySearch.push(`${word}~${Math.floor(word.length / 5)}`)
+        }
+        else {
+          fuzzySearch.push(`${word}`)
+        }
+      })
+      simpleSearch = {
         simple_query_string: {
           query: fuzzySearch.join(' '),
-          fields: searchFields, // add custom slug
+          fields: searchFields,
+          default_operator: "AND",
           minimum_should_match: '-25%'
         },
       }
-    ]
+    }
+    if (!simpleSearch) {
+      simpleSearch = {
+        simple_query_string: {
+          query: textQuery,
+          fields: searchFields,
+          default_operator: "AND",
+          minimum_should_match: '-25%'
+        },
+      }
+    }
+    esQuery = [simpleSearch]
   }
   else if (esFilter) {
     esQuery = esFilter
@@ -326,7 +339,7 @@ async function searchElastic (req, res) {
     }
     esFilter.push({simple_query_string: {query: searchSettings.secondarySearch.slice(page * resultsPerPage, resultsPerPage).join(' '), fields: ["_id"] }})
   }
-
+  console.log(JSON.stringify({must: esQuery, filter: esFilter}, null, 2))
   return res.send(await elastic.search({
     index: searchIndex,
     algorithm: (sortMode === 'bestmatchv2') ? 'popular' : 'rawsort',
