@@ -115,7 +115,7 @@ module.exports = function (fastify, opts, next) {
     }
 
     var doc = await WagoItem.lookup(req.query.id)
-    if (!doc || (doc.deleted && !(req.user.isAdmin.super || req.user.isAdmin.moderator))) {
+    if (!doc || (doc.deleted && !(req.user && (req.user.isAdmin.super || req.user.isAdmin.moderator)))) {
       return res.code(404).send({error: "page_not_found"})
     }
 
