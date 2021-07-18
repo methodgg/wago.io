@@ -15,11 +15,18 @@ module.exports = async function (req, res) {
     max = 500
     expire = 60
   }
+
   let current = await redis2.llen(key)
   if (current > max) {
-    return res.code(429).send({error: "Rate limit exceeded"})
+    let ttl = await redis2.ttl(key)
+    req.trackError({name: 'Rate Limit Exceeded', message: 'Rate Limit Exceeded', stack: `${key}; TTL=${ttl}; Hits=${current}`})
+    if (ttl > 0) {
+      return res.code(429).send({error: "Rate limit exceeded"})
+    }
+    await redis2.expire(key, 1) // in case expire wasn't set?
   }
-  else if (current) {
+
+  if (current) {
     await redis2.rpushx(key, 1)
   }
   else {
