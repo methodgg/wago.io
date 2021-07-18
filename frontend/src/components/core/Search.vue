@@ -40,7 +40,7 @@
                 </div>        
               </div>      
             </div>
-            <advert :ad="'wago728x90-' + Math.ceil(index / 9)" :belowTheFold="index > 10" v-if="!isCollection && (index %9 === 2 || (results.total < 3 && index === results.total - 1))" />
+            <advert ad="wago-in-article-ad-container" :belowTheFold="index > 10" v-if="!isCollection && (index %9 === 2 || (results.total < 3 && index === results.total - 1))" />
           </template>
         </div>
         <div class="searchResult" v-else-if="!isSearching && results.total === 0">{{ $t("No results found") }}</div>

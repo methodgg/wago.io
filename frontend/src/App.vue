@@ -209,7 +209,7 @@
         <md-layout md-row id="content">
           <router-view></router-view>
           <advert ad="wago300x250" :format="$screenWidth > 1025 ? 'video' : ''" fixed="sticky" v-if="this.$store.state.user.UID || this.$store.state.user.guest" />
-          <advert ad="wago300x250" :format="$screenWidth > 1025 ? 'video' : ''" :spacerOnly="true" v-if="this.$store.state.user.UID || this.$store.state.user.guest"  />
+          <advert ad="wago320x50" :forMobile="true" v-if="this.$store.state.user.UID || this.$store.state.user.guest" />
         </md-layout>
       </div>
     </div>
