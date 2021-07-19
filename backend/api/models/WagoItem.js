@@ -3,6 +3,7 @@ const mongoose = require('mongoose'),
       shortid = require('shortid'),
       config = require('../../config');
 const image = require('../helpers/image')
+const parseText = require('../helpers/parseText')
 
 const Schema = new mongoose.Schema({
   _id : { type: String, default: shortid.generate, es_indexed: true },
@@ -340,6 +341,7 @@ Schema.virtual('meiliWAData').get(async function () {
     name: this.name,
     slug: this.custom_slug || '',
     description: this.description || '',
+    descriptionHTML: parseText({text: this.description, format: this.description_format}),
     hasDesc: (this.description || '').trim().length && 1 || 0,
     categories: this.categories,
     expansion: this.expansionIndex,
