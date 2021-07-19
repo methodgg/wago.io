@@ -7,6 +7,7 @@ const WCL = require('../helpers/WCL')
 const battlenet = require('../helpers/battlenet')
 const diff = require('../helpers/diff')
 const luacheck = require('../helpers/luacheck')
+const parseText = require('../helpers/parseText')
 const wowPatches = require('../helpers/wowPatches')
 
 const arrayMatch = function (arr1, arr2) {
@@ -482,12 +483,13 @@ module.exports = function (fastify, opts, next) {
     }
     // run tasks in parallel
     await Promise.all([getUser(), isMyStar(), getScreenshots(), getVideos(), getMedia(), getCollections(), getVersionHistory(), getComments(), codeReview(), getFork(), getTranslations()])
+    wago.description.html = parseText(wago.description, wago.user.enableLinks)
 
     if (saveDoc) {
       doc.save()
     }
     if (!req.query.version && !doc.moderated && !doc.deleted) {
-      redis.setJSON(wago._id, wago, 'EX', 3600)
+      await redis.setJSON(wago._id, wago, 'EX', 3600)
     }
     if (!req.user || !req.user._id.equals(wago.UID)) {
       delete wago.restrictions
