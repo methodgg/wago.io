@@ -47,7 +47,7 @@ async function setMeiliIndex() {
     meiliToDoWA = meiliToDoWA.filter(doc => {
       return doc.id !== this._id
     })
-    meiliToDoWA.push(await wago.meiliWAData)
+    meiliToDoWA.push(wago._id)
     redis.setJSON('meili:todo:wagoapp', meiliToDoWA)
     if (!wago._meiliWA) {
       wago._meiliWA = true

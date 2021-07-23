@@ -470,7 +470,7 @@ async function updateIndexes() {
           await meiliIndexWA.deleteDocument(this._id)
           this._meiliWA = false
         }
-        else if ((this._doMeiliIndex || this._toggleVisibility) && !(this.hidden || this.private || this.moderated || this.encrypted || this.restricted || this.deleted || this.blocked)) {
+        else if (!(this.hidden || this.private || this.moderated || this.encrypted || this.restricted || this.deleted || this.blocked)) {
           // add/update index
           meiliToDoWA = meiliToDoWA.filter(id => {
             return id !== this._id
