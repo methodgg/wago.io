@@ -306,7 +306,7 @@ Schema.statics.randomOfTheMoment = async function(count, n) {
   if (!n) {
     n = 0
   }
-  var search = {hidden: false, restricted: false, private: false, moderated: false, encrypted: false, deleted: false, blocked: false, $or:[{type: 'WEAKAURA', modified: {"$gte": new Date(2020, 10, 13)}}, {type: ['CLASSIC-WEAKAURA', 'ELVUI', 'VUHDO', 'PLATER', 'TOTALRP3']}]}
+  var search = {hidden: false, restricted: false, private: false, moderated: false, encrypted: false, deleted: false, blocked: false, modified: {"$gte": new Date(2020, 10, 13)}}
   if (!count) {
     count = await this.countDocuments(search).exec()
   }
