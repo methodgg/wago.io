@@ -969,12 +969,14 @@ module.exports = function (fastify, opts, next) {
       code.text = crypto.AES.encrypt(code.text, req.body.cipherKey)
       code.lua = crypto.AES.encrypt(code.lua, req.body.cipherKey)
     }
-    else {
-      await taskQueue.add('ProcessCode', {id: wago._id, version: code.versionString, type: wago.addon}, {priority: req.user && req.user.access.queueSkip && 2 || 5, jobId: `${wago._id}:${code.version}:${code.versionString}`})
-    }
 
     await wago.save()
     await code.save()
+
+    if (!wago.encrypted) {
+      await taskQueue.add('ProcessCode', {id: wago._id, version: code.versionString, type: wago.addon}, {priority: req.user && req.user.access.queueSkip && 2 || 5, jobId: `${wago._id}:${code.version}:${code.versionString}`})
+    }
+
     redis.clear(wago)
     res.send({success: true, wagoID: wago._id})
   })

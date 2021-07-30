@@ -50,7 +50,7 @@ module.exports = function (fastify, opts, next) {
       }
     }))
     var doc = await new Comments(comment).save()
-    var c = [{ 
+    var c = [{
       cid: doc._id,
       date: Date.now(),
       text: doc.commentText,
@@ -103,10 +103,10 @@ module.exports = function (fastify, opts, next) {
   })
 
   fastify.post('/codereview', async (req, res) => {
-    if (!req.user || !req.body.block || !req.body.text || !req.body.wagoID) {
+    if (!req.user || !req.body.reviewType || !req.body.wagoID) {
       return res.code(403).send({error: "forbidden"})
     }
-    
+
     const wago = await WagoItem.findById(req.body.wagoID).exec()
     if (!req.user._id.equals(wago._userId)) {
       return res.code(403).send({error: "forbidden"})
@@ -115,13 +115,14 @@ module.exports = function (fastify, opts, next) {
     const comment = {
       wagoID: wago._id,
       authorID: req.user._id,
-      commentText: req.body.text,
-      codeReview: req.body.block,
+      codeReview: req.body.reviewType,
       codeReviewFalsePositive: !!(req.body.falsePositive),
-      postDate: Date.now()      
+      postDate: Date.now()
     }
 
-    await Comments.findOneAndUpdate({wagoID: wago._id, authorID: req.user._id, codeReview: req.body.block}, comment, {upsert: true}).exec()
+    console.log(comment)
+
+    await Comments.findOneAndUpdate({wagoID: wago._id, authorID: req.user._id, codeReview: req.body.reviewType}, comment, {upsert: true}).exec()
     res.send({success: 'ok'})
   })
 

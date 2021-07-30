@@ -13,7 +13,6 @@ module.exports = {
     const luacheckrc = __dirname + '/../lua/luacheck-' + game + '.lua'
     const checkDir = __dirname + '/../../run-tmp/' + new Date().getTime() + Math.random().toString(36).substring(7)
     await fs.mkdir(checkDir)
-    var result = {}
     var fileMap = {}
     for (let i = 0; i < code.length; i++) {
       if (typeof code[i] !== 'object' || !code[i].lua || typeof code[i].lua !== 'string' || code[i].skipLuacheck) {
@@ -22,7 +21,7 @@ module.exports = {
       var key = code[i].name
       let lua = code[i].lua.replace(/-- luacheck:/g, `--`) // don't ignore potential malicous hidings
 
-      if (lua.match(/^\s*function\s*\(/m)) {
+      if (lua.match(/^\s*function\s*\(/m) && !code[i].keypath.match(/\.actions\.(init|start|finish)\.(message_)?custom$/)) {
         lua = lua.replace(/^\s*function\s*\(/m, `local fn_${key.replace(/[^a-zA-Z0-9]/g, '')} = function(`) // name anonymous function
         lua += `\nfn_${key.replace(/[^a-zA-Z0-9]/g, '')}()` // and then "call" the function so luacheck recognizes that it's used
       }

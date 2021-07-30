@@ -447,7 +447,7 @@ module.exports = function (fastify, opts, next) {
       return
     }
     const codeReview = async () => {     
-      const comments = await Comments.find({wagoID: wago._id, codeReview: {$ne: null}}).populate('authorID').exec()
+      const comments = await Comments.find({wagoID: wago._id, codeReview: {$ne: null}}).populate('authorID').sort({date: 1}).exec()
       wago.codeReviewComments = {}
       for (let c of comments) {
         wago.codeReviewComments[c.codeReview] = {
@@ -568,7 +568,7 @@ module.exports = function (fastify, opts, next) {
     }
 
     var code = await WagoCode.lookup(doc._id, req.query.version)
-    if (!code) {
+    if (!code || code.err) {
       return res.code(403).send({error: "code not available"})
     }
 

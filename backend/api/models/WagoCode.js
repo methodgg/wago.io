@@ -27,12 +27,22 @@ const Schema = new mongoose.Schema({
     name: String,
     keypath: String,
     lua: String,
-    everyFrameTest: Boolean,
+    displayEveryFrame: Boolean,
+    triggerEveryFrame: Boolean,
     luacheck: String,
-    lizard: {
-      loc: Number,
+    metrics: {
+      dependencies: [String],
+      globals: [String],
+      luaStrings: Number,
+      tokens: Number,
+      nloc: Number,
       ccn: Number,
-      token: Number
+      halstead: {
+        N: Number,
+        n: Number,
+        volume: Number
+      },
+      maintainability: Number
     }
   }],
   customCodeEncrypted: String,

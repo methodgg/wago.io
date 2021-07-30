@@ -9,7 +9,7 @@ const path = require('path')
 const updateDataCaches = require('../../middlewares/updateLocalCache')
 const getCode = require('./code-detection/get-code')
 const luacheck = require('./luacheck')
-const lizard = require('./lizard')
+const codeMetrics = require('./codeMetrics')
 
 const ENUM = require('../../middlewares/enum')
 const logger = require('../../middlewares/matomo')
@@ -815,6 +815,28 @@ async function SyncMeili(table) {
 }
 
 const codeProcessVersion = ENUM.PROCESS_VERSION.WAGO
+async function CodeReview(customCode, doc) {
+  try {
+    let lc = await luacheck.run(customCode, doc.game)
+    if (lc) {
+      customCode = lc
+    }
+  }
+  catch (e) {
+    console.log('luacheck error', doc._id, e)
+  }
+
+  try {
+    let metrics =  await codeMetrics.run(customCode)
+    if (metrics) {
+      customCode = metrics
+    }
+  }
+  catch (e) {
+    console.log('codeMetrics error', doc._id, e)
+  }
+  return customCode
+}
 async function ProcessCode(data) {
   if (!data.id) return
   var doc = await WagoItem.lookup(data.id)
@@ -848,12 +870,11 @@ async function ProcessCode(data) {
       }
     }    
   }
-
+  let err
+  try {
   switch (doc.type) {
     case 'SNIPPET':
-      code.customCode = [{id: 'Lua', name: 'Snippet', lua: code.lua}]
-      code.customCode = await luacheck.run(code.customCode, doc.game)
-      code.customCode = await lizard.run(code.customCode)
+        code.customCode = await CodeReview([{id: 'Lua', name: 'Snippet', lua: code.lua}], doc)
     break
 
     case 'WEAKAURA':
@@ -861,11 +882,16 @@ async function ProcessCode(data) {
     case 'TBC-WEAKAURA':
     case 'PLATER':
       var json = JSON.parse(code.json)
-      code.customCode = getCode(json, doc.type)
-      code.customCode = await luacheck.run(code.customCode, doc.game)
-      code.customCode = await lizard.run(code.customCode)
+        code.customCode = await CodeReview(getCode(json, doc.type), doc)
     break
   }
+  }
+  catch (e) {
+    console.log(data, e)
+    err = true
+  }
+  if (err) throw 'Code Processing Error'
+
   doc.blocked = false
   if (code.version > 1) {
     await WagoCode.updateMany({auraID: doc._id, _id: {$ne: code._id}}, {$set: {isLatestVersion: false}})
@@ -886,6 +912,10 @@ async function ProcessCode(data) {
   await doc.save()
   await code.save()
 
+  if (doc._userId && !doc.deleted && !doc.expires_at) {
+    elastic.addDoc('imports', await doc.indexedImportData)
+  }
+
   if (code.customCode.length) {
     return doc
   }
@@ -893,77 +923,31 @@ async function ProcessCode(data) {
 }
         
 async function ProcessAllCode() {
-  return
-  const meiliIndex = {
-    code: await meiliSearch.getOrCreateIndex('code')
-      }
-  const meiliBatchSize = 100
+  // return
   var cursor = WagoItem.find({
+    deleted: false,
     _userId: {$exists: true},
-    $or: [{
-      deleted: false,
-      expires_at: null,
-    },
-    {
-      _meiliCode: true
-    }]
-  }).cursor({batchSize:10})
+    codeProcessVersion: {$lt: 6},
+    type: {$in: ['WEAKAURA', 'CLASSIC-WEAKAURA', 'TBC-WEAKAURA', 'PLATER']},
+    modified : {
+      $gte: new Date(new Date().setDate(new Date().getDate()-180))
+    }
+  }).cursor({batchSize:50})
       
-  let syncObjs = []
   let count = 0
   console.log('-------------- CODE SYNC START ----------------')
   for await (const doc of cursor) {
     count++
     if (doc.deleted) {
-      await meiliIndex.code.deleteDocument(doc._id)
-      doc._meiliCode = false
-      await doc.save()
+      await elastic.removeDoc('imports', doc._id)
     }
     else {
-      if (!doc.codeProcessVersion || doc.codeProcessVersion < codeProcessVersion || (doc.hasCustomCode && !doc._meiliCode)) {
-        let syncDoc = await ProcessCode({id: doc._id, type: doc.type})
-        if (syncDoc) {
-          let syncObj = await syncDoc.meiliCodeData
-          if (syncObj) {
-            syncObjs.push(syncObj)
-            if (syncObjs.length >= meiliBatchSize) {
-              await meiliIndex.code.addDocuments(syncObjs)
-              syncObjs = []
-            }
-            if (!syncDoc._meiliCode) {
-              syncDoc._meiliCode = true
-              await syncDoc.save()
-            }
-          }
-        }
-      }
-      else if (doc.hasCustomCode) {
-        let syncObj = await doc.meiliCodeData
-        if (syncObj) {
-          syncObjs.push(syncObj)
-          if (syncObjs.length >= meiliBatchSize) {
-            await meiliIndex.code.addDocuments(syncObjs)
-            syncObjs = []
-      }
-          if (!doc._meiliCode) {
-            doc._meiliCode = true
-            await doc.save()
-  }
-  }
-  }
-      else if (doc._meiliCode) {
-        await meiliIndex.code.deleteDocument(doc._id)
-        doc._meiliCode = false
-    await doc.save()
-      }
+      await ProcessCode({id: doc._id, type: doc.type})
+
       if (count%1000 == 0) {
-        console.log('sync code', count)
+        console.log('process code', count)
       }
     }
-  }
-  if (syncObjs.length) {
-    await meiliIndex.code.addDocuments(syncObjs)
-    syncObjs = []
   }
   console.log('-------------- CODE SYNC FINISHED ----------------')
 }

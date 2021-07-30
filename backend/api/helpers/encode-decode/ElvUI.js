@@ -23,7 +23,6 @@ module.exports = {
 
         local serializedData, success
         serializedData, profileInfo = SplitString(decompressedData, "^^::") -- "^^" indicates the end of the AceSerializer string
-
         if not profileInfo then
           -- print("Error importing profile. String is invalid or corrupted!")
           return ''

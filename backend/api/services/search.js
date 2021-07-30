@@ -339,7 +339,7 @@ async function searchElastic (req, res) {
     }
     esFilter.push({simple_query_string: {query: searchSettings.secondarySearch.slice(page * resultsPerPage, resultsPerPage).join(' '), fields: ["_id"] }})
   }
-  console.log(JSON.stringify({must: esQuery, filter: esFilter}, null, 2))
+  // console.log(JSON.stringify({must: esQuery, filter: esFilter}, null, 2))
   return res.send(await elastic.search({
     index: searchIndex,
     algorithm: (sortMode === 'bestmatchv2') ? 'popular' : 'rawsort',

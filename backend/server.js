@@ -179,6 +179,7 @@ const startServer = async () => {
       await taskQueue.add('UpdateLatestAddonReleases', null, {repeat: {cron: '*/20 * * * *'}, priority: 4})
       await taskQueue.add('SyncElastic', {table: 'User'}, {repeat: {cron: '0 10 5 * *'}, priority: 10})
       await taskQueue.add('SyncElastic', {table: 'imports'}, {repeat: {cron: '0 10 15 * *'}, priority: 10})
+      await taskQueue.add('SyncElastic', {table: 'code'}, {repeat: {cron: '0 10 20 * *'}, priority: 10})
       await taskQueue.add('SyncMeili', {table: 'WagoApp'}, {repeat: {cron: '0 10 8 * *'}, priority: 10})
       await taskQueue.add('SyncMeili', {table: 'Imports:Metrics'}, {repeat: {cron: '30 * * * *'}, priority: 10})
       await taskQueue.add('SyncMeili', {table: 'Imports:ToDo'}, {repeat: {cron: '*/3 * * * *'}, priority: 10})

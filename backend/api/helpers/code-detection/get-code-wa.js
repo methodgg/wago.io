@@ -8,7 +8,7 @@ module.exports = function(data, keypath) {
       i++
     }
 
-    if (data.triggers['1'] && data.triggers['2'] && data.triggers.disjunctive === 'custom' && isValidCodeString(data.triggers.customTriggerLogic)) {
+    if (data.triggers['1'] && data.triggers.disjunctive === 'custom' && isValidCodeString(data.triggers.customTriggerLogic)) {
       codes.push({
         name: `${data.id} - Trigger Logic`,
         keypath: `${keypath}.triggers.customTriggerLogic`,
@@ -42,13 +42,12 @@ module.exports = function(data, keypath) {
   }
 
   if (isValidCodeString(data.customText)) {
-    let everyFrameTest = data.customTextUpdate === 'update'
     if (isStringMatch(data.displayText, /%c/)) {
       codes.push({
         name: `${data.id} - Display Text`,
         keypath: `${keypath}.customText`,
         lua: data.customText.trim(),
-        everyFrameTest
+        displayEveryFrame: data.customTextUpdate === 'update'
       })
     }
     else if (isStringMatch(data.text1, /%c/) || isStringMatch(data.text2, /%c/) || isStringMatch(data.displayTextLeft, /%c/) || isStringMatch(data.displayTextRight, /%c/) || isStringMatch(data.displayStacks, /%c/)) {
@@ -56,7 +55,7 @@ module.exports = function(data, keypath) {
         name: `${data.id} - Display Stacks`,
         keypath: `${keypath}.customText`,
         lua: data.customText.trim(),
-        everyFrameTest
+        displayEveryFrame: data.customTextUpdate === 'update'
       })
     }
     else if (data.subRegions && data.subRegions.length && data.subRegions.find(t => isStringMatch(t.text_text, /%c/))) {
@@ -64,7 +63,7 @@ module.exports = function(data, keypath) {
         name: `${data.id} - Custom Text`,
         keypath: `${keypath}.customText`,
         lua: data.customText.trim(),
-        everyFrameTest
+        displayEveryFrame: data.customTextUpdate === 'update'
       })
     }
   }
@@ -123,14 +122,12 @@ function checkTrigger(codes, keypath, id, trigger, untrigger, index) {
     return codes
   }
 
-  const everyFrameTest = trigger.check === 'update'
-
   if (isValidCodeString(trigger.custom)) {
     codes.push({
       name: `${id} - Trigger ${index}`,
       keypath: `${keypath}.trigger.custom`,
       lua: trigger.custom.trim(),
-      everyFrameTest
+      triggerEveryFrame: trigger.check === 'update'
     })
   }
 
@@ -142,29 +139,31 @@ function checkTrigger(codes, keypath, id, trigger, untrigger, index) {
     })
   }
 
-  let funcs = ['customName', 'customIcon', 'customTexture', 'customStacks', 'customVariables']
-  if (trigger.custom_hide === 'custom') {
-    funcs.unshift('customDuration')
-  }
-  funcs.forEach(fn => {
-    if (isValidCodeString(trigger[fn])) {
-      codes.push({
-        name: `${id} - ${fn.replace(/^custom/, '')} ${index}`,
-        keypath: `${keypath}.trigger.${fn}`,
-        lua: trigger[fn].trim(),
-        everyFrameTest
-      })
+  if (trigger.custom_type !== 'stateupdate') {
+    let funcs = ['customName', 'customIcon', 'customTexture', 'customStacks', 'customVariables']
+    if (trigger.custom_hide === 'custom') {
+      funcs.unshift('customDuration')
     }
-  })
-
-  let n = 1
-  while (isValidCodeString(trigger['customOverlay' + n])) {
-    codes.push({
-      name: `${id} - Overlay {$n}`,
-      keypath: `${keypath}.trigger.customOverlay${n}`,
-      lua: trigger['customOverlay' + n].trim()
+    funcs.forEach(fn => {
+      if (isValidCodeString(trigger[fn])) {
+        codes.push({
+          name: `${id} - ${fn.replace(/^custom/, '')} ${index}`,
+          keypath: `${keypath}.trigger.${fn}`,
+          lua: trigger[fn].trim(),
+          triggerEveryFrame: trigger.check === 'update'
+        })
+      }
     })
-    n++
+
+    let n = 1
+    while (isValidCodeString(trigger['customOverlay' + n])) {
+      codes.push({
+        name: `${id} - Overlay {$n}`,
+        keypath: `${keypath}.trigger.customOverlay${n}`,
+        lua: trigger['customOverlay' + n].trim()
+      })
+      n++
+    }
   }
 
   return codes
