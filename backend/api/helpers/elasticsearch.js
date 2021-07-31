@@ -87,34 +87,32 @@ module.exports = {
 
     // console.log(JSON.stringify((await client.indices.getMapping({index: 'import'})).body, null, 2))
     // console.log(JSON.stringify((await client.indices.getSettings({index: 'import'})).body, null, 2))
+    console.log(JSON.stringify((await client.indices.stats({index: 'import'})).body, null, 2))
   },
 
   addDoc: async function (index, doc, syncing) {
-    if (!bulkUpdates[index]) {
-      bulkUpdates[index] = {docs: [], timeout: null}
-    }
-    if (!syncing) {
-      for (let i = 0; i < bulkUpdates[index].docs.length; i++) {
-        if (bulkUpdates[index].docs[i].id === doc.id) {
-          bulkUpdates[index].docs[i] = doc
-          return this.checkBulk(index)
-        }
-      }
-    }
-    if (doc.id && !doc._id) {
-      doc.id = doc._id
-    }
-    bulkUpdates[index].docs.push({index: { _index: index }})
-    bulkUpdates[index].docs.push(doc)
-    this.checkBulk(index)
+    // if (!bulkUpdates[index]) {
+    //   bulkUpdates[index] = {docs: [], timeout: null}
+    // }
+    // if (!syncing) {
+    //   for (let i = 0; i < bulkUpdates[index].docs.length; i++) {
+    //     if (bulkUpdates[index].docs[i].id === doc.id) {
+    //       bulkUpdates[index].docs[i] = doc
+    //       return this.checkBulk(index)
+    //     }
+    //   }
+    // }
+    // bulkUpdates[index].docs.push({index: { _index: index }})
+    // bulkUpdates[index].docs.push(doc)
+    // this.checkBulk(index)
   },
 
   removeDoc: async function (index, id) {
-    if (!bulkUpdates[index]) {
-      bulkUpdates[index] = {docs: [], timeout: null}
-    }
-    bulkUpdates[index].docs.push({delete: {_index: index, _id: id}})
-    this.checkBulk(index)
+    // if (!bulkUpdates[index]) {
+    //   bulkUpdates[index] = {docs: [], timeout: null}
+    // }
+    // bulkUpdates[index].docs.push({delete: {_index: index, _id: id}})
+    // this.checkBulk(index)
   },
 
   checkBulk: async function (index) {
@@ -132,8 +130,9 @@ module.exports = {
   },
 
   bulkProcessing: async function (index) {
+    // console.log(JSON.stringify(bulkUpdates[index].docs, null, 2))
     try {
-      let p = client.bulk({refresh: true, body: bulkUpdates[index].docs})
+      let p = client.bulk({refresh: true, index: index, body: bulkUpdates[index].docs})
       bulkUpdates[index].docs = []
       await p
     }
@@ -144,6 +143,8 @@ module.exports = {
   },
 
   search: async function (o) {
+    return {hits: [], total: 0, query: o.query}
+    console.log(o)
     const resultsPerPage = 25
     let results = []
     if (o.algorithm === 'popular') {
