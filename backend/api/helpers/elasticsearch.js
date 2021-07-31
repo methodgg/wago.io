@@ -101,11 +101,8 @@ module.exports = {
         }
       }
     }
-    console.log('about to add..', bulkUpdates[index].docs)
     bulkUpdates[index].docs.push({index: { _index: index }})
-    console.log('added index', bulkUpdates[index].docs)
     bulkUpdates[index].docs.push(doc)
-    console.log('added doc', bulkUpdates[index].docs)
     this.checkBulk(index)
   },
 
@@ -133,7 +130,6 @@ module.exports = {
 
   bulkProcessing: async function (index) {
     try {
-      console.log(bulkUpdates[index].docs)
       let p = client.bulk({refresh: true, body: bulkUpdates[index].docs})
       bulkUpdates[index].docs = []
       await p
