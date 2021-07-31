@@ -101,6 +101,9 @@ module.exports = {
         }
       }
     }
+    if (doc.id && !doc._id) {
+      doc.id = doc._id
+    }
     bulkUpdates[index].docs.push({index: { _index: index }})
     bulkUpdates[index].docs.push(doc)
     this.checkBulk(index)
