@@ -629,12 +629,12 @@ async function SyncElastic(table) {
     let count = 0
     let doc
     switch (table){
-      case 'imports':
+      case 'import':
         const cursorImports = WagoItem.find({_userId: {$exists: true}, deleted: false, expires_at: null}).cursor()
         doc = await cursorImports.next()
         while (doc && count < 300000) {
           count++
-          elastic.addDoc('imports', await doc.indexedImportData, true)
+          elastic.addDoc('import', await doc.indexedImportData, true)
           doc = await cursorImports.next()
           if(count%500 === 0) {
             console.log(table, count)
@@ -915,7 +915,7 @@ async function ProcessCode(data) {
   await code.save()
 
   if (doc._userId && !doc.deleted && !doc.expires_at) {
-    elastic.addDoc('imports', await doc.indexedImportData)
+    elastic.addDoc('import', await doc.indexedImportData)
   }
 
   if (code.customCode.length) {
@@ -929,7 +929,7 @@ async function ProcessAllCode() {
   var cursor = WagoItem.find({
     deleted: false,
     _userId: {$exists: true},
-    codeProcessVersion: {$lt: 6},
+    codeProcessVersion: {$lt: codeProcessVersion},
     type: {$in: ['WEAKAURA', 'CLASSIC-WEAKAURA', 'TBC-WEAKAURA', 'PLATER']},
     modified : {
       $gte: new Date(new Date().setDate(new Date().getDate()-180))
@@ -941,7 +941,7 @@ async function ProcessAllCode() {
   for await (const doc of cursor) {
     count++
     if (doc.deleted) {
-      await elastic.removeDoc('imports', doc._id)
+      await elastic.removeDoc('import', doc._id)
     }
     else {
       await ProcessCode({id: doc._id, type: doc.type})

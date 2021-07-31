@@ -239,19 +239,13 @@ class Metrics {
     }
     else if (ast.type === 'MemberExpression') {
       let findGlobal = this.walkMemberExpression(ast)
-      if (findGlobal.match(/undefined/)) {
-        console.log(JSON.stringify(ast, null, 2))
-      }
       if (findGlobal) {
         this.globals.add(findGlobal)
       }
     }
-    else if (JSON.stringify(ast).match(/Test3/)) {
-      // console.log('333333333333333333333333333333333333333333', ast)
-    }
 
     // add up tokens and complexity
-    if (this.type !== 'Chunk') {
+    if (ast.type && ast.type !== 'Chunk') {
       this.tokens++
     }
     if (ast.type === 'FunctionDeclaration') {
@@ -298,8 +292,11 @@ class Metrics {
     }
 
     // walk next nodes
-    Object.values(ast).forEach(o => {
-      if (Array.isArray(o)) {
+    for (const [key, o] of Object.entries(ast)) {
+      if (key === 'globals' || key === 'loc') {
+        continue
+      }
+      else if (Array.isArray(o)) {
         o.forEach(item => {
           this.walkAST(item, complexity)
         })
@@ -307,7 +304,7 @@ class Metrics {
       else if (typeof o === 'object') {
         this.walkAST(o, complexity)
       }
-    })
+    }
     if (ast.type === 'FunctionDeclaration') {
       this.complexityIndex = prevComplexityIndex
     }

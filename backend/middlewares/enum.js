@@ -1,10 +1,10 @@
 module.exports = {
   PROCESS_VERSION: {
-    "WAGO": 6,
-    "WEAKAURA": 6,
-    "CLASSIC-WEAKAURA": 6,
-    "TBC-WEAKAURA": 6,
-    "PLATER": 6,
-    "SNIPPET": 6
+    "WAGO": 7,
+    "WEAKAURA": 7,
+    "CLASSIC-WEAKAURA": 7,
+    "TBC-WEAKAURA": 7,
+    "PLATER": 7,
+    "SNIPPET": 7
   }
 }

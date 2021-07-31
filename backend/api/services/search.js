@@ -34,7 +34,7 @@ async function searchElastic (req, res) {
   var esSort = ['_score']
   var sortMode = 'standard'
   var esQuery = false
-  var searchIndex = 'imports'
+  var searchIndex = 'import'
   var allowHidden = false
 
   var sort = req.query.sort || req.body.sort || ''
@@ -361,7 +361,7 @@ async function oldSearch (req, res) {
   var esSort = ['_score']
   var sortMode = 'standard'
   var esQuery = false
-  var searchMode = 'imports'
+  var searchMode = 'import'
   var allowHidden = false
 
   var sort = req.query.sort || req.body.sort || ''
@@ -479,7 +479,7 @@ async function oldSearch (req, res) {
     m = query.match(/(metric:\s?(installs|stars|views)(<|>)(\d+))/i)
   }
 
-  if (searchMode === 'imports') {
+  if (searchMode === 'import') {
     let filterCats = []
     let catSearch = false
     m = query.match(/(?:category|tag):\s?([\w-]+)/i)

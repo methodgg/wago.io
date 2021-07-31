@@ -7,14 +7,14 @@ module.exports = {
   ensureIndexes: async function (updateSettings) {
     // await client.indices.delete({index: 'imports'})
     // imports index
-    let exists = await client.indices.exists({index: 'imports'})
+    let exists = await client.indices.exists({index: 'import'})
     if (!exists || !exists.body) {
-      await client.indices.create({index: 'imports'})
+      await client.indices.create({index: 'import'})
     }
 
     if (updateSettings) {
-      await client.indices.close({index: 'imports'})
-      await client.indices.putSettings({index: 'imports', body: {
+      await client.indices.close({index: 'import'})
+      await client.indices.putSettings({index: 'import', body: {
         analysis: {
           analyzer: {
             default_search: {
@@ -26,10 +26,10 @@ module.exports = {
             }
           }
       }}})
-      await client.indices.open({index: 'imports'})
+      await client.indices.open({index: 'import'})
     }
 
-    await client.indices.putMapping({index: 'imports', body: {
+    await client.indices.putMapping({index: 'import', body: {
       properties: {
         id: {type: 'text', index: false},
         name: {type: 'text'},
@@ -85,7 +85,8 @@ module.exports = {
       }
     }})
 
-    // console.log(JSON.stringify((await client.indices.stats({index: 'code'})).body, null, 2))
+    // console.log(JSON.stringify((await client.indices.getMapping({index: 'import'})).body, null, 2))
+    // console.log(JSON.stringify((await client.indices.getSettings({index: 'import'})).body, null, 2))
   },
 
   addDoc: async function (index, doc, syncing) {
@@ -95,13 +96,16 @@ module.exports = {
     if (!syncing) {
       for (let i = 0; i < bulkUpdates[index].docs.length; i++) {
         if (bulkUpdates[index].docs[i].id === doc.id) {
-          bulkUpdates[index].docs.splice(i, 2)
-          break
+          bulkUpdates[index].docs[i] = doc
+          return this.checkBulk(index)
         }
       }
     }
-    bulkUpdates[index].docs.push({index: {_index: index, _id: doc.id}})
+    console.log('about to add..', bulkUpdates[index].docs)
+    bulkUpdates[index].docs.push({index: { _index: index }})
+    console.log('added index', bulkUpdates[index].docs)
     bulkUpdates[index].docs.push(doc)
+    console.log('added doc', bulkUpdates[index].docs)
     this.checkBulk(index)
   },
 
@@ -128,9 +132,15 @@ module.exports = {
   },
 
   bulkProcessing: async function (index) {
-    let p = client.bulk({index: index, refresh: true, body: bulkUpdates[index].docs})
-    bulkUpdates[index].docs = []
-    await p
+    try {
+      console.log(bulkUpdates[index].docs)
+      let p = client.bulk({refresh: true, body: bulkUpdates[index].docs})
+      bulkUpdates[index].docs = []
+      await p
+    }
+    catch (e) {
+      console.log(e)
+    }
     this.checkBulk(index)
   },
 

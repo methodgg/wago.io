@@ -447,12 +447,12 @@ let meiliIndexWA
 async function updateIndexes() {
   if (this.isModified('name description custom_slug categories game popularity versionString modified hidden private encrypted restricted deleted blocked moderated restrictedUsers restrictedGuilds imageGenerated expires_at')) {
     if (this._userId && !this.deleted && !this.expires_at) {
-      await elastic.addDoc('imports', await this.indexedImportData)
+      await elastic.addDoc('import', await this.indexedImportData)
       this._indexImport = true
     }
     else if (this._indexImport) {
       this._indexImport = false
-      await elastic.removeDoc('imports', this._id)
+      await elastic.removeDoc('import', this._id)
     }
 
     if (!meiliIndexWA) {
