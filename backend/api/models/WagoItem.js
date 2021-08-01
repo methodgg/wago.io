@@ -357,6 +357,7 @@ Schema.virtual('meiliWAData').get(async function () {
 
 Schema.virtual('indexedImportData').get(async function () {
   const data = await this.meiliWAData
+  data.id = this._id
   data.hidden = this.hidden || this.private || this.moderated || this.encrypted || this.restricted || this.deleted || this.blocked
   data.type = this.type.replace(/.*-WEAKAURA/, 'WEAKAURA')
   if (this.restricted) {
