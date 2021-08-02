@@ -735,7 +735,7 @@ module.exports = function (fastify, opts, next) {
     wagoCode.versionString = versionString
     wagoCode.changelog = code.changelog
     wagoCode.customCode = code.customCode
-    wagoCode.customCodeEncrypted = code.customCodeEncrypted
+    wagoCode.tableMetrics = code.tableMetrics
 
     if (wagoCode.Q) {
       return res.send(wagoCode)
