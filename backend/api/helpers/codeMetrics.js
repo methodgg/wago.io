@@ -54,7 +54,6 @@ class Metrics {
   constructor () {
     this.dependencies = new Set()
     this.highlights = new Set()
-    this.luaStrings = 0
     this.tokens = 0
     this.complexities = [0]
     this.complexityIndex = 0
@@ -282,12 +281,15 @@ class Metrics {
     else if (ast.type === 'StringLiteral') {
       let s = this.astStringValue(ast)
       if (s) {
-        try {
-          luaLexer.parse(s, {comments: false})
-          // if not lua parsable this will error out and jump down to the catch
-          this.luaStrings++
+        s = s.replace(/\\{1,2}/g, '/')
+        let m
+        let regexFilePath = /^Interface\/AddOns\/([^\/]+)\//gi
+        while ((m = regexFilePath.exec(s)) !== null) {
+          if (m.index === regexFilePath.lastIndex) {
+            regexFilePath.lastIndex++
+          }
+          this.dependencies.add(m[1])
         }
-        catch{}
       }
     }
 

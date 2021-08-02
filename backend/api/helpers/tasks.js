@@ -839,6 +839,27 @@ async function CodeReview(customCode, doc) {
   }
   return customCode
 }
+
+function TableReview (obj, data) {
+  if (!data) {
+    data = {
+      dependencies: new Set()
+    }
+  }
+  for (const [k, v] of Object.entries(obj)) {
+    if (v && typeof v === 'object') {
+      data = TableReview(v, data)
+    }
+    else if (typeof v === 'string' && (k === 'texture' || (k === 'sound' && (obj.do_sound || obj.sound_type === 'Play')))) {
+      let s = v.replace(/\\{1,2}/g, '/')
+      let m = s.match(/^Interface\/AddOns\/([^\/]+)\//i)
+      if (m) {
+        data.dependencies.add(m[1])
+      }
+    }
+  }
+  return data
+}
 async function ProcessCode(data) {
   if (!data.id) return
   var doc = await WagoItem.lookup(data.id)
@@ -885,6 +906,9 @@ async function ProcessCode(data) {
     case 'PLATER':
       var json = JSON.parse(code.json)
         code.customCode = await CodeReview(getCode(json, doc.type), doc)
+        const tableMetrics = TableReview(json)
+        tableMetrics.dependencies = [...tableMetrics.dependencies]
+        code.tableMetrics = tableMetrics
     break
   }
   }

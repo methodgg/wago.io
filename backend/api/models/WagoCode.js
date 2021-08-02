@@ -45,6 +45,9 @@ const Schema = new mongoose.Schema({
       maintainability: Number
     }
   }],
+  tableMetrics: {
+    dependencies: [String]
+  },
   customCodeEncrypted: String,
 });
 
