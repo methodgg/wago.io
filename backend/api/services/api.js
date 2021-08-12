@@ -238,5 +238,16 @@ module.exports = function (fastify, opts, next) {
     return res.cache(86400).send(code.encoded)
   })
 
+  fastify.get('/user/me', async (req, res) => {
+    if (!req.user) {
+      return res.code(401).send({error: "no_user"})
+    }
+    let user = {}
+    user.username = req.user.account.username
+    user.avatar = req.user.profile.avatar
+    user.hideAds = req.user.access.hideAds
+    res.send(user)
+  })
+
   next()
 }
