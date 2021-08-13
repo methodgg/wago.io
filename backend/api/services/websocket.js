@@ -16,17 +16,17 @@ function Connection(conn, cid) {
     this.alive = false
     this.send({ping: 1})
   }
-  this.startStaleTimer = () => {
-    clearTimeout(this.staleTimer)
+  this.setupStream = async () => {
+    clearTimeout(this.streamTimer)
     const that = this
-    this.staleTimer = setTimeout(async () => {
-      if (that.alive && that.embedStream && that.embedStream !== '__streamspread') {
-        await redis2.zrem(`allEmbeds:${that.embedStream}`, that.cid)
-        that.embedStream = '__stale'
-        await redis2.zadd(`allEmbeds:${that.embedStream}`, ZSCORE, that.cid)
-        await redis2.set(`currentstream:${cid}`, that.embedStream)
-      }
-    }, 20*60*1000) // go stale after 20 min
+    if (this.alive && this.embedStream !== '__streamspread') {
+      await redis2.zrem(`allEmbeds:${this.embedStream}`, this.cid)
+      this.embedStream = (await advert.determineStream(this.cid, this.embedStream)) || '__stale'
+      await redis2.zadd(`allEmbeds:${this.embedStream}`, ZSCORE, this.cid)
+      await redis2.set(`currentstream:${this.cid}`, this.embedStream)
+      this.send({setStream: this.embedStream})
+      this.streamTimer = setTimeout(this.setupStream, 20*60*1000) // go stale after 20 min
+    }
   }
   this.socket.on('close', () => {
     this.ping() // check if user has other tabs open before deleting connection info
@@ -75,11 +75,7 @@ module.exports = async function (connection, req) {
       await redis2.zadd('allPremiumVisitors', ZSCORE, cid)
     }
     connections[cid].send({hello: cid})
-
-    connections[cid].embedStream = await advert.determineStream(cid)
-    await redis2.zadd(`allEmbeds:${connections[cid].embedStream}`, ZSCORE, cid)
-    connections[cid].send({setStream: connections[cid].embedStream})
-    connections[cid].startStaleTimer()
+    connections[cid].setupStream()
   }
   catch (e) {console.log(e)}
 }
@@ -89,7 +85,7 @@ module.exports = async function (connection, req) {
 setInterval(async () => {
   for (const [oid, connection] of Object.entries(connections)) {
     if (!connection.alive) {
-      clearTimeout(connection.staleTimer)
+      clearTimeout(connection.streamTimer)
       await redis2.del(`currentstream:${connection.cid}`)
       await redis2.zrem(`allSiteVisitors`, connection.cid)
       await redis2.zrem('allPremiumVisitors', connection.cid)
