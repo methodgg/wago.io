@@ -18,10 +18,15 @@ function Connection(conn, cid) {
   }
   this.setupStream = async () => {
     clearTimeout(this.streamTimer)
-    const that = this
-    if (this.alive && this.embedStream !== '__streamspread') {
+    if (this.alive && this.embedStream) {
       await redis2.zrem(`allEmbeds:${this.embedStream}`, this.cid)
-      this.embedStream = (await advert.determineStream(this.cid, this.embedStream)) || '__stale'
+      this.embedStream = '__stale'
+      await redis2.zadd(`allEmbeds:${this.embedStream}`, ZSCORE, this.cid)
+      await redis2.set(`currentstream:${this.cid}`, this.embedStream)
+    }
+    else if (this.alive && this.embedStream !== '__streamspread') {
+      await redis2.zrem(`allEmbeds:${this.embedStream}`, this.cid)
+      this.embedStream = await advert.determineStream(this.cid, this.embedStream)
       await redis2.zadd(`allEmbeds:${this.embedStream}`, ZSCORE, this.cid)
       await redis2.set(`currentstream:${this.cid}`, this.embedStream)
       this.send({setStream: this.embedStream})
