@@ -66,6 +66,7 @@
     <img src="./../../assets/menu-encounternotes.png" v-else-if="group === 'encounternotes'"/>
     <img src="./../../assets/menu-trpcamp.png" v-else-if="group === 'rpcampaign'"/>
     <img src="./../../assets/menu-lang.png" v-else-if="group === 'rplang'"/>
+    <img src="./../../assets/menu-collection.png" v-else-if="group === 't-collection'"/>
 
     <img src="./../../assets/new-addon.png" v-else-if="group === 'new-addon'"/>
     <img src="./../../assets/weakauras.png" v-else-if="group === 't-weakaura'"/>

@@ -7,11 +7,14 @@
         <md-button class="md-icon-button md-hide-small-and-up" @click="toggleMobileNav()">
           <md-icon>menu</md-icon>
         </md-button>
-        <h2 class="md-title" id="logo"><router-link to="/"><img src="./assets/wagoio-logo.png"/></router-link></h2>
+        <h2 class="md-title" @click="$store.commit('setSearchText', '')" id="logo"><router-link to="/"><img src="./assets/wagoio-logo.png"/></router-link></h2>
         <h2 class="md-title" id="xmaslogo" v-if="today.getMonth() === 11"><router-link to="/"><img src="./assets/xmas-hat.png"/></router-link></h2>
 
         <div id="h-nav" class="md-hide-xsmall">
-          <form novalidate @submit.stop.prevent="goSearch(gSearch)" id="gSearch">
+          <div v-if="testSearch" id="top-search-bar">
+            <search-bar ref="searchField"></search-bar>
+          </div>
+          <form v-else novalidate @submit.stop.prevent="goSearch(gSearch)" id="gSearch">
             <input type="text" v-model="gSearch" placeholder="Search Wago..." />
             <md-menu md-direction="bottom left" :md-offset-y="50" ref="advancedSearch">
               <md-button class="md-icon-button md-primary" md-menu-trigger @click="buildSearch(true)">
@@ -79,9 +82,9 @@
               </md-menu-content>
             </md-menu>
           </form>
-          <div id="wago-addons-btn"><a href="https://addons.wago.io">Wago Addons</a></div>
         </div>
         <div id="hr-nav" class="md-hide-xsmall">
+          <div id="wago-addons-btn"><a href="https://addons.wago.io">Wago Addons</a></div>
           <h2 class="md-title md-hide-small-and-up" id="logo"><router-link to="/"><img src="./assets/wagoio-logo.png"/></router-link></h2>
           <img src="./assets/random.png" id="randombtn" @click="$router.push('/random')" />
           <select-locale display="code"></select-locale>
@@ -153,7 +156,7 @@
             <md-divider></md-divider>
           </md-list-item>
           <md-list-item><router-link to='/collections'>{{ $t("Collections") }}</router-link></md-list-item>
-          <md-list-item><router-link to='/snippets'>{{ $t("Snippets") }}</router-link><md-divider></md-divider></md-list-item>
+          <md-list-item><router-link to='/snippets'><span class="menu-action" @click="$store.commit('setSearchText', `type:SNIPPET`)">{{ $t("Snippets") }}</span></router-link></md-divider></md-list-item>
           <template v-if="LoggedIn">
             <md-list-item><router-link :to="'/p/'+User.name">{{ $t("My Profile") }}</router-link></md-list-item>
             <md-list-item><router-link to="/my/mentions">{{ $t("My Mentions") }} <span class="unreadCount" v-if="User.unreadMentions.length">{{ User.unreadMentions.length }}</span></router-link></md-list-item>
@@ -233,6 +236,7 @@ function interceptClickEvent (e, vue) {
 
 import Advert from './components/UI/Advert.vue'
 import SelectLocale from './components/UI/SelectLocale.vue'
+import SearchBar from './components/UI/SearchBar.vue'
 import LoginButton from './components/UI/LoginButton.vue'
 import NotificationBanner from './components/UI/NotificationBanner.vue'
 import ViewEmbed from './components/core/ViewEmbed.vue'
@@ -241,6 +245,7 @@ export default {
   name: 'app',
   components: {
     'select-locale': SelectLocale,
+    'search-bar': SearchBar,
     'login-button': LoginButton,
     'view-embed': ViewEmbed,
     'notification-banner': NotificationBanner,
@@ -250,6 +255,7 @@ export default {
     return {
       PopMsg: 'test',
       gSearch: '',
+      searchString: '',
       advSearchType: '',
       advSearchUser: '',
       advSearchUserName: '',
@@ -258,7 +264,8 @@ export default {
       advSearchMentioned: false,
       advSearchDate: '',
       today: new Date(),
-      showAddonsButton: window.localStorage.getItem('notification-1')
+      showAddonsButton: window.localStorage.getItem('notification-1'),
+      videoEmbedHTML: ''
     }
   },
   created: function () {
@@ -456,6 +463,9 @@ export default {
     embedID () {
       const params = new URLSearchParams(window.location.search)
       return params.get('id')
+    },
+    testSearch () {
+      return true
     }
   },
   watch: {
@@ -548,7 +558,11 @@ export default {
 <style lang="scss" src="./assets/themes.scss"></style>
 <style>
 @import './assets/global.css';
-
+body, html {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+}
 #app {
   top: 0;
   bottom: 0;
@@ -558,8 +572,9 @@ export default {
 }
 @media (min-width: 601px) {
   #app { pointer-events: none; }
-  #app > * { width: 100%; max-width:100% }
+  #app > * { width: 100%; max-width:100%; height: 100%; overflow: hidden;}
   .md-backdrop { pointer-events: none }
+  #topbar {z-index: 9}
 
   #full-sidebar .md-sidenav-content {
     top:64px;
@@ -609,7 +624,8 @@ export default {
 .mainnav .md-subheader { padding-left: 0;}
 .mainnav .md-list-item img { max-height: 32px }
 .mainnav .md-list-item a { justify-content: start }
-.mainnav .md-list-item a span { margin-left: 8px; line-height: 18px }
+.mainnav .md-list-item a span.game-select, .mainnav .md-list-item a span.unreadCount { margin-left: 8px; line-height: 18px }
+.mainnav .md-list-item a span.menu-action { width: 100% }
 .mainnav .md-list-item { height: 36px }
 .mainnav .md-list-item.multi-line { height: 40px }
 .mainnav .md-list-item .md-list-item-container { min-height: auto; }
@@ -619,7 +635,7 @@ export default {
 .mainnav.bottom .md-list-item-container img { max-width: 74px; }
 .mainnav.bottom .md-list-item a div { display: inline-block; width: 90px;  }
 
-#wago-addons-btn {border: 1px solid #a12126; margin: 0 16px; line-height: 30px; color: white; background: #2a090a url('./assets/robot.png'); background-size: 27%; background-repeat: no-repeat; background-position: top right;}
+#wago-addons-btn {border: 1px solid #a12126; margin: 4px 16px; line-height: 30px; color: white; background: #2a090a url('./assets/robot.png'); background-size: 27%; background-repeat: no-repeat; background-position: top right;}
 #wago-addons-btn a {color: inherit; display: block; padding: 4px 52px 4px 12px; }
 #wago-addons-btn:hover {background-color: #1d0607}
 #wago-addons-btn a:hover {text-decoration: none;}

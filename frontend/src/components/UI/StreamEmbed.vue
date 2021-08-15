@@ -1,19 +1,8 @@
 <template>
-  <div :class="{'embed-player': 1, preview: preview}" v-if="stream !== '__streamspread' && visible && showAds">
-    <div class="embed-player-holder">
-      <div class="embed-player-stream">
-        <iframe :src="`https://player.twitch.tv?channel=${stream}&amp;parent=wago.io&amp;height=300&amp;width=420&amp;muted=true`" allowfullscreen="true" scrolling="no" frameborder="0" allow="autoplay; fullscreen" title="Twitch" sandbox="allow-modals allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox" width="420" height="300"></iframe>
-      </div>
-      <div class="embed-player-header">
-        <div class="embed-player-hl-close" @click="closeStream()">
-          <img class="embed-player-hl-close-icon" src="./../../assets/stream-close.png">
-        </div>
-      </div>
-      <!--<div class="embed-player-hl-promo" style="margin-top: 0px;height: 56px">
-        <img class="embed-player-hl-channel-image" v-if="stream === 'sco'"src="https://media.wago.io/avatars/5e18cc1f484ae90a6d494120/b-1602585093194.png" style="margin-top:8px;margin-bottom: 8px">
-        <img class="embed-player-hl-channel-image" v-else src="./../../assets/method.png" style="margin-top:8px;margin-bottom: 8px">
-        <a class="embed-player-hl-link" :href="'https://twitch.tv/' + stream" target="_blank">twitch.tv/{{ stream }}</a>
-      </div>-->
+  <div class="embed-container" v-if="stream !== '__streamspread' && visible && showAds">
+    <div ref="player" class="embed-player"></div>
+    <div class="embed-player-close" @click="closeStream()" v-if="twitchOn">
+      <img class="embed-player-close-icon" src="./../../assets/stream-close.png">
     </div>
   </div>
 </template>
@@ -24,57 +13,134 @@ export default {
   props: { stream: String, preview: Boolean },
   data: () => {
     return {
-      visible: true
+      screenWidth: window.innerWidth,
+      visible: true,
+      source: '',
+      loadJS: null,
+      twitchOn: false,
+      twitchPlayer: null,
+      loaded: false,
+      refresh: null,
+      muted: true
     }
   },
 
   created () {
-    console.log(this.stream, this.visible)
-    if (this.stream === '__streamspread') {
-      let body = document.querySelector('body')
-      let streamspread = document.createElement('script')
-      streamspread.setAttribute('src', 'https://adc.streamspread.com/js/fd23dd90-b346-4a09-ae30-817beb89a23a.js')
-      body.appendChild(streamspread)
-    }
-    else if (this.stream === '__closed') {
-      this.visible = false
-    }
+    window.addEventListener('resize', this.handleResize)
+    const _this = this
+    setTimeout(function () {
+      _this.loadEmbed()
+    }, 3000)
+
+    this.refresh = setInterval(function () {
+      if (_this.visible && _this.twitchPlayer.getMuted()) {
+        _this.visible = false
+        _this.muted = _this.twitchPlayer.getMuted()
+        setTimeout(function () {
+          _this.visible = true
+          _this.loadEmbed()
+        }, 1000)
+      }
+    }, 1000*60*20)
   },
   destroyed () {
+    window.removeEventListener('resize', this.handleResize)
   },
   methods: {
     closeStream () {
       this.visible = false
       // this.http.post('/account/close-embed')
+    },
+
+    handleResize () {
+      this.screenWidth = window.innerWidth
+    },
+
+    async loadEmbed () {
+      if (!this.showAds) {
+        return false
+      }
+      if (this.stream === '__streamspread' && this.showAds) {
+        this.loadJS = new Promise((resolve) => {
+          let body = document.querySelector('body')
+          let streamspread = document.createElement('script')
+          streamspread.src = 'https://adc.streamspread.com/js/fd23dd90-b346-4a09-ae30-817beb89a23a.js'
+          streamspread.async = true
+          streamspread.onload = resolve
+          body.appendChild(streamspread)
+        })
+        this.source = 'streamspread'
+      }
+      else if (this.stream === '__closed') {
+        this.visible = false
+      }
+      else if (!this.twitchPlayer) {
+        this.loadJS = new Promise((resolve) => {
+          let body = document.querySelector('body')
+          let streamspread = document.createElement('script')
+          streamspread.src = 'https://player.twitch.tv/js/embed/v1.js'
+          streamspread.async = true
+          streamspread.onload = resolve
+          body.appendChild(streamspread)
+        })
+        this.source = 'twitch'
+      }
+
+      if (this.source === 'twitch') {
+        await this.loadJS
+        this.twitchPlayer = new window.Twitch.Player(this.$refs.player, {
+          width: 426,
+          height: 240,
+          channel: this.stream,
+          muted: this.muted
+        });
+        this.twitchPlayer.play()
+        this.twitchOn = true
+      }
+    }
+  },
+  watch: {
+    $route (to, from) {
+      if (this.adNetwork === 'nitropay') {
+        let t = Date.now()
+        if (this.debounce + 1000 < t) {
+          this.debounce = t
+          this.uid++
+          this.$nextTick(function () {
+            this.insertAds()
+          })
+        }
+      }
     }
   },
   beforeDestroy: function () {
   },
   computed: {
     showAds () {
+      if (this.$isMobile) {
+        return false
+      }
       var isEmbed = document.getElementById('embed-body')
       var user = this.$store.state.user
-      if (isEmbed || (!user || user.hideAds) || this.screenWidth < this.adWidth + 32) {
+      if (isEmbed || (!Object.keys(user).length || user.hideAds) || this.screenWidth < 452) {
         return false
       }
 
+      this.$nextTick(() => {
+        this.loadEmbed()
+      })
       return true
     },
   }
 }
 </script>
 
-<style scoped>
-.embed-player iframe {height: 240px; border-radius: 2px;}
-.embed-player {position: fixed; z-index: 999999; right: 8px; bottom: 8px; margin: auto!important; overflow: hidden; text-align: center!important; border-radius: 2px;}
+<style>
+.embed-container {width: 426px; height: 240px; position: fixed; z-index: 999999; right: 2px; bottom: 2px; margin: auto!important; overflow: hidden; text-align: center!important; border-radius: 2px;}
+.embed-player {width: 426px; height: 240px;}
+.embed-player iframe, .embed-player iframe:not(.md-image) {height: inherit}
 .embed-player.preview {position: relative}
-.embed-player-holder {position: relative; width: 420px; height: 240px;}
-.embed-player-stream {background-color: #000000;}
-.embed-player-header {display: flex; justify-content: flex-end; position: absolute; top: 0px; left: 0; width: 100%; height: auto; z-index: 1000; cursor: hand; background-color: rgba(0, 0, 0, 0); color: #ffffff;}
-.embed-player-hl-close {width: 26px; cursor: pointer; height: 26px; background-color: #2A2530; margin-top: 10px; border-radius: 50%; margin-right: 20px; text-align: center; display: inline-block; opacity: 0.7; position: relative;}
-.embed-player-hl-close:hover {opacity: 1}
-.embed-player-hl-close-icon {width: 10px; height: auto; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);}
-.embed-player-hl-promo {width: 420px; height: 70px; background: #2e2e38; margin-left: auto; margin-right: auto; border-bottom-right-radius: 5px; border-bottom-left-radius: 5px; margin-bottom: 20px; position: relative; display: flex; justify-content: space-between; align-items: center}
-.embed-player-hl-channel-image {display: inline-block; float: left; width: auto; height: 40px; border-radius: 50%; margin: 8px 0 8px 15px;}
-.embed-player-hl-link {color: white!important; background: #9147ff; padding: 4px 8px; margin: 0 16px; border-radius: 4px; font-weight: bold; font-size: 90%;}
+.embed-player-close {width: 26px; height: 26px;cursor: pointer; background-color: #2A2530; border-radius: 50%; text-align: center; display: inline-block; opacity: 0.7; position: absolute; top: 8px; right: 8px}
+.embed-player-close:hover {opacity: 1}
+.embed-player-close-icon {width: 10px; height: auto; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);}
 </style>

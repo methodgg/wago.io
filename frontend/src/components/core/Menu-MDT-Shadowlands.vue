@@ -1,14 +1,18 @@
 <template>
-  <div id="search-mdt">
+  <div id="search-mdt" style="position:relative">
     <h2 id="addon-name">Mythic Dungeon Tools -
       <span>{{ $t('Shadowlands') }}</span>
     </h2>
+    <ui-warning mode="alert">
+      MDT is currently disabled on Wago.
+    </ui-warning>
+    <div style="position:absolute;top:108px;left:0;right:0;bottom:0;background:#212121AA;z-index:10"></div>
     <md-layout>
       <addon-info addon="mdt"></addon-info>
       <form novalidate @submit.stop.prevent="runSearch(searchString)" id="searchForm">
         <md-input-container>
           <label>{{ $t("Search") }}</label>
-          <md-input v-model="searchString" ref="searchInput"></md-input>
+          <md-input v-model="searchString" ref="searchInput" :disabled="true"></md-input>
           <md-button @click="runSearch(searchString)" :disabled="searchString.length<3">{{ $t("Search") }}</md-button>
         </md-input-container>
       </form>
@@ -54,7 +58,7 @@
             </md-avatar>
           </div>
         </md-whiteframe>-->
-        
+
         <md-subheader>{{ $t("Shadowlands Season 1 Affix Weeks") }}</md-subheader>
         <md-list class="md-double-line md-dense">
           <md-list-item class="md-inset affixWeek">
@@ -162,7 +166,7 @@ export default {
         dungeon: this.wclDungeonIndex
       }).then((pulls) => {
         this.wclLoading = false
-        const dungeon = categories.search(this.wclDungeons[this.wclDungeonIndex].name, false, 'mdt').slug.split(/\//).pop()
+        const dungeon = categories.search(this.wclDungeons[this.wclDungeonIndex].name, 'mdt').slug.split(/\//).pop()
         const week = 1 // categories.match(this.newAffix).slug.split(/\//).pop()
         this.$router.push({name: 'create-mdt', params: {dungeon, week, pulls}})
       })
@@ -220,19 +224,19 @@ export default {
   },
   computed: {
     dungeons: function () {
-      return categories.raidCategories(['mdt-sldun'], this.$t)
+      return categories.raidCategories(['mdt-sldun'])
     },
     affixesS1: function () {
-      return categories.getCategories([/^mdtaffix-sl-s1-/], this.$t, true)// also in Create-MDT and data.newAffix
+      return categories.getCategories([/^mdtaffix-sl-s1-/], true)// also in Create-MDT and data.newAffix
     },
     affixes: function () {
-      return categories.getCategories([/^mdtaffix\d/], this.$t)
+      return categories.getCategories([/^mdtaffix\d/])
     },
     speed: function () {
-      return categories.getCategories([/^mdtspeed[\d]+/], this.$t)
+      return categories.getCategories([/^mdtspeed[\d]+/])
     },
     classes: function () {
-      return categories.classCategories(this.$t)
+      return categories.classCategories()
     },
     currentWeek: function () {
       return this.$store.state.MDTWeek

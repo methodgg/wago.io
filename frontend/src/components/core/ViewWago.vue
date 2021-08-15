@@ -24,7 +24,7 @@
           <md-layout style="flex:0">
             <div>
               <h3>{{ wago.name }} <span class="version-number" v-if="currentVersionString && !currentVersionString.match(/undefined/)">v{{ currentVersionString }}</span></h3>
-              <md-subheader>{{ wago.type }} <span :href="wago.url" @click.prevent="copyURL" style="margin-left: 16px; opacity: .54">{{ wago.url }}</span></md-subheader>
+              <md-subheader>{{ displayExpansion(wago) }}{{ wago.type }} <span :href="wago.url" @click.prevent="copyURL" style="margin-left: 16px; opacity: .54">{{ wago.url }}</span></md-subheader>
             </div>
             <!-- ACTIONS -->
             <md-card-actions id="wago-actions" ref="action-buttons">
@@ -36,14 +36,12 @@
                 <md-icon v-else>star_border</md-icon> {{ $t("Favorite") }}
               </md-button>
               <md-button v-if="wago.user && User && wago.UID && wago.UID === User.UID && wago.code && wago.code.encoded" @click="generateNextVersionData(); $refs['newImportDialog'].open()" id="newImportButton"><md-icon>input</md-icon> {{ $t("Import new string") }}</md-button>
-              <md-button v-if="hasUnsavedChanges && wago.code && wago.code.encoded" @click="copyEncoded" class="copy-import-button">
+              <md-button v-if="wago.code && wago.code.encoded" @click="copyEncoded" class="copy-import-button">
                 <md-icon>assignment</md-icon> {{ $t("Copy [-type-] import string", {type: wago.type}) }}
                 <md-button @click="openHelpDialog" id="helpImportingButton" class="md-icon-button md-raised"><md-icon>help</md-icon></md-button>
-                <md-tooltip md-direction="bottom" class="CopyWarningTooltip"><strong>{{ $t("You have unsaved changes") }}</strong><br>{{ $t("Be sure to save or fork to generate a new string with your modifications") }}</md-tooltip>
-              </md-button>
-              <md-button v-else-if="wago.code && wago.code.encoded" @click="copyEncoded" class="copy-import-button">
-                <md-icon>assignment</md-icon> {{ $t("Copy [-type-] import string", {type: wago.type}) }}
-                <md-button @click="openHelpDialog" id="helpImportingButton" class="md-icon-button md-raised"><md-icon>help</md-icon></md-button>
+                <md-tooltip v-if="hasUnsavedChanges" md-direction="bottom" class="CopyWarningTooltip"><strong>{{ $t("You have unsaved changes") }}</strong><br>{{ $t("Be sure to save or fork to generate a new string with your modifications") }}</md-tooltip>
+                <md-tooltip v-else-if="corruptedData" md-direction="bottom" class="CopyWarningTooltip"><strong>{{ $t("This import is corrupted and will likely not work as expected") }}</strong></md-tooltip>
+                <md-tooltip v-else-if="codeReview && codeReview.alerts" md-direction="bottom" class="CopyWarningTooltip"><strong>{{ $t("This import has alerts, you are strongly suggested to review the code before installing") }}</strong></md-tooltip>
               </md-button>
               <md-button v-if="wago.image && wago.image.files.tga" :href="wago.image.files.tga" class="copy-import-button"><md-icon>file_download</md-icon> {{ $t("Download tga file") }}</md-button>
             </md-card-actions>
@@ -179,16 +177,17 @@
             <div class="item" v-if="wago.type.match(/WEAKAURA/)">
               <div class="md-title">{{ $t("[-count-] install", { count: wago.installCount }) }}</div>
             </div>
-            <div class="item" style="float:right" v-if="enableCompanionBeta && wago.type.match(/WEAKAURA/) && wago.code && wago.code.encoded && !wago.encrypted">
-              <div id="sendToCompanionAppBtn" class="md-button copy-import-button" @click="sendToCompanionApp(true)">
-                <md-icon>airplay</md-icon> {{ $t("Send to WeakAura Companion App") }}
+            <div class="item" style="float:right" v-if="!$isMobile && wago.type.match(/WEAKAURA/) && wago.code && wago.code.encoded">
+              <div id="sendToDesktopAppBtn" class="md-button copy-import-button" @click="sendToApp()">
+                <md-icon>airplay</md-icon> {{ $t("Send to Desktop App") }}
+                <md-button @click.stop="sendToApp('ask')" id="helpAppButton" class="md-icon-button md-raised"><md-icon>help</md-icon></md-button>
               </div>
             </div>
             <div id="tags">
               <template>
-                <a v-for="(cat, n) in wago.categories" :key="n" :href="'/' + typeSlug + cat.slug">
-                  <md-chip :class="cat.cls" disabled v-if="cat.text && (n<5 || showMoreCategories)">{{ cat.text }}</md-chip>
-                </a>
+                <router-link v-for="(cat, n) in wago.categories" :key="n" :to="'/' + typeSlug + cat.slug">
+                  <md-chip :class="cat.id" disabled v-if="cat.text && (n<5 || showMoreCategories)">{{ cat.text }}</md-chip>
+                </router-link>
               </template>
               <span @click="viewAllCategories()"><md-chip v-if="wago.categories.length > 5 && !showMoreCategories" class="show_more">{{ $t("[-count-] more", {count: wago.categories.length - 5}) }}</md-chip></span>
             </div>
@@ -202,22 +201,39 @@
         </md-card>
       </md-layout>
 
-      <md-dialog md-open-from="#sendToCompanionAppBtn" md-close-to="#sendToCompanionAppBtn" ref="sendToCompanionAppDialog">
-        <md-dialog-title>WeakAuras Companion</md-dialog-title>
+      <md-dialog md-open-from="#sendToDesktopAppBtn" md-close-to="#sendToDesktopAppBtn" ref="sendToAppDialog">
+        <md-dialog-title>Send to App</md-dialog-title>
 
-        <md-dialog-content id="companion-info">
-          <p>{{ $t('The WeakAuras Companion desktop app acts as a bridge between Wago and your in-game addon, and allows you to keep your imports up to date as authors update their auras') }}</p>
-          <p>{{ $t('You must have the app installed for this function to work') }}</p>
-          <p v-html="$t('The app can be downloaded from [-url-]', {url: '<a href=\'https://weakauras.wtf/\' target=\'_blank\'>https://weakauras.wtf/</a>', interpolation: {'escapeValue': false}})"></p>
+        <md-dialog-content id="app-info">
+          <p>{{ $t('The WagoApp and WeakAuras Companion both act as a bridge between Wago and your in-game addons, and allow you to quickly install imports from Wago.') }}</p>
+          <p>{{ $t('Select which app you have installed and wish to use.') }}</p>
+          <div id="app-choice">
+            <div class="select-app" :class="{selected:selectedApp=='WagoApp' || !selectedApp}" @click="selectedApp='WagoApp'">
+              <div class="app-logo"><img src="./../../assets/wagoio-logo.png"></div>
+              <div class="app-name">WagoApp</div>
+              <div class="app-link"><a href="#">Download WagoApp</a></div>
+            </div>
+            <div class="select-app" :class="{selected:selectedApp=='WeakAurasCompanion'}" @click="selectedApp='WeakAurasCompanion'">
+              <div class="app-logo"><img src="./../../assets/weakauralogo.png"></div>
+              <div class="app-name">WeakAuras Companion</div>
+              <div class="app-link"><a href="https://weakauras.wtf" target="blank">Download WeakAuras Companion</a></div>
+            </div>
+          </div>
+          <p v-if="selectedApp=='WagoApp' || !selectedApp" class="app-info">
+            <img src="./../../assets/wagoio-logo.png"> {{$t('WagoApp is your all-in-one tool for managing your World of Warcraft addons and supported imports. Stay up to date and stay in style!') }}
+          </pageInfo>
+          <p v-else-if="selectedApp=='WeakAurasCompanion'" class="app-info">
+            <img src="./../../assets/weakauralogo.png"> {{$t('The WeakAuras Companion automatically fetches updates to the auras you have installed directly from Wago, without having to manually copy-paste import strings all the time. It also makes sure you don\'t miss any updates, always keeping you up to date with the latest versions.') }}
+          </p>
         </md-dialog-content>
 
         <md-dialog-actions>
-          <md-checkbox v-model="disableCompanionWarning">{{ $t("Do not show this warning again") }}</md-checkbox>
+          <md-checkbox v-model="rememberAppChoice">{{ $t("Remember my choice") }}</md-checkbox>
         </md-dialog-actions>
 
         <md-dialog-actions>
-          <md-button class="md-primary" @click="$refs.sendToCompanionAppDialog.close()">{{ $t("Cancel") }}</md-button>
-          <md-button class="md-primary" @click="$refs.sendToCompanionAppDialog.close(); sendToCompanionApp(false)">{{ $t("Send To Companion") }}</md-button>
+          <md-button class="md-primary" @click="$refs.sendToAppDialog.close()">{{ $t("Cancel") }}</md-button>
+          <md-button class="md-primary" @click="$refs.sendToAppDialog.close(); sendToApp('open')">{{ $t("Install [-type-]", {type: wago.type}) }}</md-button>
         </md-dialog-actions>
       </md-dialog>
 
@@ -230,14 +246,12 @@
           <div>
             <md-button @click="toTop"><md-icon>arrow_upward</md-icon> {{ $t("To top") }}</md-button>
           </div>
-          <md-button v-if="hasUnsavedChanges && wago.code && wago.code.encoded" @click="copyEncoded" class="copy-import-button">
+          <md-button v-if="wago.code && wago.code.encoded" @click="copyEncoded" class="copy-import-button">
             <md-icon>assignment</md-icon> {{ $t("Copy [-type-] import string", {type: wago.type}) }}
             <md-button @click="openHelpDialog()" id="helpImportingButton" class="md-icon-button md-raised"><md-icon>help</md-icon></md-button>
-            <md-tooltip md-direction="bottom" class="CopyWarningTooltip"><strong>{{ $t("You have unsaved changes") }}</strong><br>{{ $t("Be sure to save or fork to generate a new string with your modifications") }}</md-tooltip>
-          </md-button>
-          <md-button v-else-if="wago.code && wago.code.encoded" @click="copyEncoded" class="copy-import-button">
-            <md-icon>assignment</md-icon> {{ $t("Copy [-type-] import string", {type: wago.type}) }}
-            <md-button @click="openHelpDialog()" id="helpImportingButton" class="md-icon-button md-raised"><md-icon>help</md-icon></md-button>
+            <md-tooltip v-if="hasUnsavedChanges" md-direction="bottom" class="CopyWarningTooltip"><strong>{{ $t("You have unsaved changes") }}</strong><br>{{ $t("Be sure to save or fork to generate a new string with your modifications") }}</md-tooltip>
+            <md-tooltip v-else-if="corruptedData" md-direction="bottom" class="CopyWarningTooltip"><strong>{{ $t("This import is corrupted and will likely not work as expected") }}</strong></md-tooltip>
+            <md-tooltip v-else-if="codeReview && codeReview.alerts" md-direction="bottom" class="CopyWarningTooltip"><strong>{{ $t("This import has alerts, you are strongly suggested to review the code before installing") }}</strong></md-tooltip>
           </md-button>
         </div>
       </md-card>
@@ -252,6 +266,7 @@
               <!-- FRAME TOGGLES -->
               <md-button-toggle class="md-accent" md-single>
                 <template v-if="!requireCipherKey">
+                  <md-button v-if="enableModeration" v-bind:class="{'md-toggle': showPanel === 'moderation'}" @click="toggleFrame('moderation')">{{ $t("Moderation") }} <span v-if="moderation.length && moderation[moderation.length-1].action === 'Report'" class="commentAttn">ATTN!</span></md-button>
                   <md-button v-if="wago.user && User && wago.UID && wago.UID === User.UID" v-bind:class="{'md-toggle': showPanel === 'config'}" @click="toggleFrame('config')">{{ $t("Config") }}</md-button>
                   <md-button v-if="wago.type == 'ERROR'" v-bind:class="{'md-toggle': showPanel === 'description'}" @click="toggleFrame('description')">{{ $t("Report") }}</md-button>
                   <md-button v-if="wago.type !== 'ERROR'" v-bind:class="{'md-toggle': showPanel === 'description'}" @click="toggleFrame('description')">{{ $t("Description") }}</md-button>
@@ -263,7 +278,7 @@
                   <md-button v-if="wago.type !== 'COLLECTION'" v-bind:class="{'md-toggle': showPanel === 'collections'}" @click="toggleFrame('collections')">{{ $t("[-count-] collection", {count:  wago.collectionCount}) }}</md-button>
                   <md-button v-if="wago.versions && wago.versions.total > 1" v-bind:class="{'md-toggle': showPanel === 'versions'}" @click="toggleFrame('versions')" ref="versionsButton">{{ $t("[-count-] version", { count: wago.versions.total }) }}</md-button>
                   <md-button v-if="wago.code && !wago.code.Q && hasCodeDiffs" v-bind:class="{'md-toggle': showPanel === 'diffs'}" @click="toggleFrame('diffs')" ref="diffsButton">{{ $t("Code Diffs") }}</md-button>
-                  <md-button v-if="wago.code && (wago.code.luacheck || wago.code.review) && wago.type !== 'SNIPPET'" v-bind:class="{'md-toggle': showPanel === 'codereview'}" @click="toggleFrame('codereview')">{{ $t("Code Review") }}</md-button>
+                  <md-button v-if="wago.code && wago.code.customCode && wago.code.customCode[0] && wago.code.customCode[0].luacheck && wago.type !== 'SNIPPET'" v-bind:class="{'md-toggle': showPanel === 'codereview'}" @click="toggleFrame('codereview')">{{ $t("Code Review") }}</md-button>
                   <md-button v-if="wago.type !== 'ERROR' && wago.visibility && wago.visibility.public" v-bind:class="{'md-toggle': showPanel === 'embed'}" @click="toggleFrame('embed')">{{ $t("Embed") }}</md-button>
                   <md-button v-if="wago.type === 'MDT'" v-bind:class="{'md-toggle': showPanel === 'builder'}" @click="toggleFrame('builder')">{{ $t("Builder") }}</md-button>
                   <md-button v-if="wago.type !== 'ERROR'" v-bind:class="{'md-toggle': showPanel === 'editor'}" @click="toggleFrame('editor')">{{ $t("Editor") }}</md-button>
@@ -295,10 +310,10 @@
                   </form>
                 </md-card>
               </div>
-              
+
               <ui-warning v-if="codeQueue && wago.code && wago.code.Q" mode="warn" :spinner="true" :html="$t('The code in this import is being processed and will automatically update this page once complete Position [-position-]', {position: codeQueue})"></ui-warning>
 
-              <template v-else-if="codeReview.alerts > 0 && (!wago.code || !wago.code.Q)">
+              <template v-else-if="codeReview && codeReview.alerts > 0 && (!wago.code || !wago.code.Q)">
                 <ui-warning mode="alert" id="code-review-alert" v-if="codeReview.securityAlert">
                   <div><md-icon>error_outline</md-icon> {{ $t('Wago has detected some possible malicious code - please review before installing') }}</div>
                 </ui-warning>
@@ -317,18 +332,6 @@
                 {{ $t("This import will expire in [-time-]", {time: $moment(wago.expires).fromNow() }) }}<br>
               </ui-warning>
 
-              <ui-warning v-if="wago.fork && wago.fork._id" mode="info" :html="$t('This is a fork of [-id-][-name-]', {id: wago.fork._id, name: wago.fork.name})"></ui-warning>
-
-              <ui-warning mode="alert" v-if="wago.visibility && wago.visibility.deleted">
-                {{ $t("This import has been deleted and can not be accessed") }}
-                <div style="width:100%">{{ wago.moderatedComment }}</div>
-              </ui-warning>
-              <ui-warning mode="alert" v-else-if="wago.visibility && wago.visibility.moderated">
-                {{ $t("This import has been moderated and is not publically accessible") }}
-                <div style="width:100%">{{ wago.moderatedComment }}</div>
-                <button v-if="wago.user && User && wago.UID && wago.UID === User.UID" class="md-button" @click="$refs.requestReviewModal.open()">{{ $t('Request Review') }}</button>
-              </ui-warning>
-
               <ui-warning v-if="wago.visibility && wago.visibility.private">
                 {{ $t("This import is private only you may view it") }}
               </ui-warning>
@@ -339,9 +342,25 @@
                 {{ $t("This import is hidden only those with the URL may view it") }}
               </ui-warning>
 
+              <ui-warning v-if="wago.fork && wago.fork._id" mode="info" :html="$t('This is a fork of [-id-][-name-]', {id: wago.fork._id, name: wago.fork.name})"></ui-warning>
+
+              <ui-warning mode="alert" v-if="wago.visibility && wago.visibility.deleted">
+                {{ $t("This import has been deleted and can not be accessed") }}
+                <div style="width:100%">{{ wago.moderatedComment }}</div>
+              </ui-warning>
+              <ui-warning mode="alert" v-else-if="wago.visibility && wago.visibility.moderated">
+                {{ $t("This import has been moderated and is not publicly accessible") }}
+                <div style="width:100%">{{ wago.moderatedComment }}</div>
+                <button v-if="wago.user && User && wago.UID && wago.UID === User.UID" class="md-button" @click="$refs.requestReviewModal.open()">{{ $t('Request Review') }}</button>
+              </ui-warning>
+
               <ui-warning v-else-if="wago.code && wago.code.alert && wago.code.alerts.newInternalVersion" mode="alert">
                 {{ $t("This WeakAura is made with build \"[-version-]\", which may include breaking changes with the current main addon release", {version: wago.code.alerts.newInternalVersion.build}) }}<br>
                 <div v-for="func in wago.code.alerts.malicious">{{ func }}</div>
+              </ui-warning>
+
+              <ui-warning v-if="corruptedData" mode="alert">
+                {{ $t("This import is corrupted, missing data and can not be repaired, apologies but the author will need to re-import") }}
               </ui-warning>
 
               <ui-warning v-if="!isLatestVersion()" mode="info" :html="$t('A more recent version of this import is available view the latest version [-url-]', {url: '/' + $store.state.wago.slug})"></ui-warning>
@@ -416,7 +435,7 @@
                         <md-layout class="resticted-options">
                           <md-input-container v-if="rest.type === 'user'">
                             <label for="advSearchUserName">{{ $t("Enter Username") }}</label>
-                            <md-autocomplete v-model="rest.value" @md-changed="autoCompleteUserName" :debounce="600" @change="onUpdateRestrictionsDebounce(index)"></md-autocomplete>
+                            <md-autocomplete v-model="rest.value" :fetch="autoCompleteUserName" :debounce="600" @change="onUpdateRestrictionsDebounce(index)"></md-autocomplete>
                           </md-input-container>
                           <md-input-container v-if="rest.type === 'guild'">
                             <label>{{ $t("Select Guild") }}</label>
@@ -444,7 +463,7 @@
                         </md-layout>
                       </md-layout>
                     </template>
-                    <md-layout v-if="wago.restrictions.length < 20">
+                    <md-layout v-if="wago.restrictions.length <= 40">
                       <md-layout>
                         <md-input-container>
                           <label>{{ $t("Also Grant Access To") }}</label>
@@ -458,7 +477,7 @@
                       <md-layout class="resticted-options">
                         <md-input-container v-if="newRestrictionType === 'user'">
                           <label for="advSearchUserName">{{ $t("Enter Username") }}</label>
-                          <md-autocomplete v-model="newRestrictionValue" @md-changed="autoCompleteUserName" @blur="checkNewRestrictions"></md-autocomplete>
+                          <md-autocomplete v-model="newRestrictionValue" :fetch="autoCompleteUserName" @selected="checkNewRestrictions"></md-autocomplete>
                         </md-input-container>
                         <md-input-container v-if="newRestrictionType === 'guild'">
                           <label>{{ $t("Select Guild") }}</label>
@@ -542,6 +561,42 @@
               <!-- DESCRIPTIONS FRAME -->
               <div id="wago-description-container" class="wago-container" v-if="showPanel=='description'">
                 <div id="wago-description" style="padding-top:6px">
+                  <div v-if="codeReview.info" id="import-info">
+                    <template v-if="codeReview.info.dependencies.length">
+                      <em>{{ $t('Import Dependencies') }}</em><br>
+                      <template v-for="dep of codeReview.info.dependencies">
+                        <span><md-icon :class="{warning: dep.warn}">extension</md-icon> {{ dep }}</span><br>
+                      </template>
+                    </template>
+                    <template v-if="codeReview.info.highlights.size">
+                      <em>{{ $t('Highlighted Functionality') }}</em><br>
+                      <template v-if="codeReview.info.highlights.has('keybind')"><span><md-icon>keyboard</md-icon> {{ $t('Sets keybinds') }}</span></span><br></template>
+                      <template v-if="codeReview.info.highlights.has('tts')"><span><md-icon>volume_up</md-icon> {{ $t('Uses text-to-speech') }}</span></span><br></template>
+                      <template v-if="codeReview.info.highlights.has('audio')"><span><md-icon>volume_up</md-icon> {{ $t('Plays audio') }}</span></span><br></template>
+                      <template v-if="codeReview.info.highlights.has('chat')"><span><md-icon>chat</md-icon> {{ $t('Sends chat messages') }}</span></span><br></template>
+                    </template>
+                    <em>{{ $t('Code Metrics') }}</em><br>
+                    <template v-if="codeReview.info.nloc || codeReview.errors || codeReview.warnings">
+                      <template v-if="codeReview.alerts"><span>{{ $t('Code Alerts') }}<span>{{ codeReview.alerts }}</span></span><br></template>
+                      <template v-if="codeReview.errors"><span>{{ $t('Luacheck Errors') }}<span>{{ codeReview.errors }}</span></span><br></template>
+                      <template v-if="codeReview.warnings"><span>{{ $t('Luacheck Warnings') }}<span>{{ codeReview.warnings }}</span></span><br></template>
+                      <span title="Without comments or empty lines">{{ $t('Lines of code') }}<span>{{ codeReview.info.nloc }}</span></span><br>
+                      <span>{{ $t('Tokens') }}<span>{{ codeReview.info.tokens }}</span></span><br>
+                      <span>{{ $t('Globals') }}<span>{{ codeReview.info.globals.size }}</span></span><br>
+                      <span>{{ $t('Cyclomatic complexity') }}<span :class="{
+                        metricsOK: typeof codeReview.info.ccn === 'number' && codeReview.info.ccn <= 10,
+                        metricsWarn: typeof codeReview.info.ccn === 'number' && codeReview.info.ccn <= 20 && codeReview.info.ccn > 10,
+                        metricsAlert: typeof codeReview.info.ccn === 'number' && codeReview.info.ccn > 20}
+                      ">{{ codeReview.info.ccn }}</span></span><br>
+                      <span>{{ $t('Maintainability Index') }}<span :class="{
+                        metricsOK: typeof codeReview.info.maintainability === 'number' && codeReview.info.maintainability >= 20,
+                        metricsWarn: typeof codeReview.info.maintainability === 'number' && codeReview.info.maintainability < 20 && codeReview.info.maintainability >= 10,
+                        metricsAlert: typeof codeReview.info.maintainability === 'number' && codeReview.info.maintainability < 10 && codeReview.info.maintainability >= 0}
+                      ">{{ codeReview.info.maintainability }}</span></span><br>
+                      <template v-if="!codeReview.warnings && !codeReview.errors && !codeReview.alerts"><span>{{ $t('Luacheck') }}<span>{{$t('OK')}}</span></span><br></template>
+                    </template>
+                    <template v-else>{{ $t('No custom code') }}</template>
+                  </div>
                   <div v-if="wago.code && wago.code.changelog && wago.code.changelog.text" class="changelog-text">
                     <div>v{{ wago.code.versionString }}</div>
                     <formatted-text :text="wago.code.changelog" :enableLinks="wago.user.enableLinks"></formatted-text>
@@ -834,7 +889,7 @@
                             {{ coll.modified | moment("dddd, MMMM Do YYYY, h:mm a") }}
                           </md-table-cell>
                           <md-table-cell class="userlink">
-                            
+
                             <md-avatar><ui-image :img="coll.user.avatar" alt="Avatar"></ui-image></md-avatar>
                             <router-link v-if="coll.user.profile" :to="coll.user.profile" :class="coll.user.class">{{ coll.user.name }}</router-link>
                             <span v-else :class="coll.user.class">{{ coll.user.name }}</span>
@@ -940,9 +995,9 @@
 
               <!-- EDITOR FRAME -->
               <div id="wago-editor-container" class="wago-container" v-if="showPanel=='editor'">
-                <div id="wago-editor">
-                  <edit-weakaura v-if="wago.type.match(/WEAKAURA/) && wago.code" @set-has-unsaved-changes="setHasUnsavedChanges" :unsavedTable="hasUnsavedChanges" @update-encoded="updateEncoded" @update-version="updateVersion" :cipherKey="decryptKey" :loadFn="quickLoadEditorFn"></edit-weakaura>
-                  <edit-plater v-else-if="wago.type=='PLATER' && wago.code" @set-has-unsaved-changes="setHasUnsavedChanges" :unsavedTable="hasUnsavedChanges" @update-encoded="updateEncoded" @update-version="updateVersion" :cipherKey="decryptKey" :loadFn="quickLoadEditorFn"></edit-plater>
+                <div id="wago-editor" v-if="wago.code">
+                  <edit-weakaura v-if="wago.type.match(/WEAKAURA/) && wago.code" @set-has-unsaved-changes="setHasUnsavedChanges" :unsavedTable="hasUnsavedChanges" @update-encoded="updateEncoded" @update-version="updateVersion" :cipherKey="decryptKey" :loadFn="quickLoadEditorFn" :customFn="wago.code.customCode"></edit-weakaura>
+                  <edit-plater v-else-if="wago.type=='PLATER' && wago.code" @set-has-unsaved-changes="setHasUnsavedChanges" :unsavedTable="hasUnsavedChanges" @update-encoded="updateEncoded" @update-version="updateVersion" :cipherKey="decryptKey" :loadFn="quickLoadEditorFn" :customFn="wago.code.customCode"></edit-plater>
                   <edit-snippet v-else-if="wago.type=='SNIPPET' && wago.code" @update-version="updateVersion" :cipherKey="decryptKey" :loadFn="quickLoadEditorFn"></edit-snippet>
                   <edit-common v-else-if="wago.code" @set-has-unsaved-changes="setHasUnsavedChanges" @update-encoded="updateEncoded" @update-version="updateVersion" :cipherKey="decryptKey"></edit-common>
                 </div>
@@ -952,17 +1007,17 @@
               <div id="wago-codereview-container" class="wago-container" v-if="showPanel=='codereview'">
                 <template v-if="codeReview">
                   <h2>{{ $t('Code Review') }}</h2>
-                  <p>{{ $t('Wago checks for common but problematic code.') }}</p>
-                  <template v-if="codeReview.stabilityChecks && codeReview.stabilityChecks.length">
-                    <codereview v-for="(test, k) in codeReview.stabilityChecks" :key="k" :review="test" :link="true" @loadFn="loadEditorFn(test.func)" @setComment="setCodeReviewComment" :author="wago.user && User && wago.UID && wago.UID === User.UID"></codereview>
+                  <!--<p>{{ $t('Wago checks for common but problematic code.') }}</p>-->
+                  <template v-if="codeReview.alerts">
+                    <codereview v-if="codeReview.alertContent" :alerts="codeReview.alertContent" :name="$t('Alert!!')" @loadFn="loadEditorFn" @setComment="setCodeReviewComment" :author="wago.user && User && wago.UID && wago.UID === User.UID"></codereview>
                   </template>
                   <codereview v-else name="Review">{{ $t('No problems found.') }}</codereview>
                 </template>
-                <br>
-                <template v-if="wago.code.luacheck">
-                  <h2>Luacheck</h2>
-                  <p>{{ $t('Luacheck detects various issues in lua code and reports warnings and syntax errors.') }}<br>{{ $t('Wago flags some of those warnings as alerts when run within the scope of your custom code and the WoW environment.') }}</p>
-                  <codereview v-for="key in luacheckKeys" :key="key" :name="key" :link="true" @loadFn="loadEditorFn(key)" :luacheck="true">{{wago.code.luacheck[key]}}</codereview>
+                <!--<p v-if="wago.code && wago.code.customCode && wago.code.customCode[0] && wago.code.customCode[0].luacheck">{{ $t('Luacheck detects various issues in lua code and reports warnings and syntax errors.') }}<br>{{ $t('Wago flags some of those warnings as alerts when run within the scope of your custom code and the WoW environment.') }}</p>-->
+                <template v-for="code of wago.code.customCode">
+                  <br>
+                  <codereview v-if="code.luacheck" :name="'Luacheck - ' + code.name" :link="true" @loadFn="loadEditorFn(code.keypath)" :luacheck="true">{{code.luacheck}}</codereview>
+                  <codereview v-if="code.metrics" :name="'Code Analysis - ' + code.name" :link="true" @loadFn="loadEditorFn(code.keypath)" :codeInfo="true" :json="code.metrics"></codereview>
                 </template>
               </div>
 
@@ -991,9 +1046,9 @@
     </md-dialog>
 
     <md-dialog ref="reportmodal" id="report-modal">
-      <md-dialog-title>{{ $t('Thanks for helping to keep the Wago community civil!')}}</md-dialog-title>
+      <md-dialog-title>{{ $t('Thanks for helping to keep the Wago community positive!')}}</md-dialog-title>
       <md-dialog-content>
-        <span>{{ $t('Please select the reason for reporting') }}</span>
+        <span>{{ $t('Please select the reason for reporting to the Wago moderation team') }}</span>
         <md-list class="report-options">
           <md-list-item @click="reportReason='Inappropriate'" :class="{selected:reportReason=='Inappropriate'}">
             <strong>{{ $t('This import is inappropriate') }}</strong>
@@ -1001,7 +1056,7 @@
           </md-list-item>
           <md-list-item @click="reportReason='Malicious'" :class="{selected:reportReason=='Malicious'}">
             <strong>{{ $t('This import is malicious') }}</strong>
-            <span>{{ $t('Contains code designed for malintent') }}</span>
+            <span>{{ $t('Contains code designed for mal-intent') }}</span>
           </md-list-item>
           <md-list-item @click="reportReason='Other'" :class="{selected:reportReason=='Other'}">
             <strong>{{ $t('This import has another issue to bring to attention') }}</strong>
@@ -1009,9 +1064,13 @@
           </md-list-item>
         </md-list>
         <md-input-container>
-          <label>{{ $t('Comments (Optional)') }}</label>
+          <label>{{ $t('Additional Information (Optional)') }}</label>
           <md-textarea v-model="reportComments"></md-textarea>
         </md-input-container>
+        <small>
+          <md-button class="md-icon-button md-raised md-dense" @click="$refs.reportmodal.close();toggleFrame('comments')"><md-icon>comment</md-icon></md-button>
+          {{ $t('If you wish to contact the author about this import, please use the comments section') }}
+        </small>
       </md-dialog-content>
 
       <md-dialog-actions>
@@ -1021,7 +1080,7 @@
     </md-dialog>
 
     <md-dialog ref="requestReviewModal" id="request-review-modal">
-      <md-dialog-title>{{ $t('Thanks for keeping the Wago community civil!')}}</md-dialog-title>
+      <md-dialog-title>{{ $t('Thanks for keeping the Wago community positive!')}}</md-dialog-title>
       <md-dialog-content>
         <span>{{ $t('Please select the reason for submission') }}</span>
         <md-list class="report-options">
@@ -1096,10 +1155,10 @@ function setupConfigEvents (vue) {
       const list = selectedItem.parentNode
       const x = event.clientX
       const y = event.clientY
-  
+
       selectedItem.classList.add('drag-sort-active')
       let swapItem = document.elementFromPoint(x, y) === null ? selectedItem : document.elementFromPoint(x, y)
-  
+
       if (list === swapItem.parentNode) {
         swapItem = swapItem !== selectedItem.nextSibling ? swapItem : swapItem.nextSibling
         list.insertBefore(selectedItem, swapItem)
@@ -1109,7 +1168,7 @@ function setupConfigEvents (vue) {
       item.target.classList.remove('drag-sort-active')
       vue.saveSortedScreenshots()
     }
-  })  
+  })
   document.querySelectorAll('#sorted-videos > div').forEach(img => {
     img.setAttribute('draggable', true)
     img.ondrag = (item) => {
@@ -1117,10 +1176,10 @@ function setupConfigEvents (vue) {
       const list = selectedItem.parentNode
       const x = event.clientX
       const y = event.clientY
-  
+
       selectedItem.classList.add('drag-sort-active')
       let swapItem = document.elementFromPoint(x, y) === null ? selectedItem : document.elementFromPoint(x, y)
-  
+
       if (list === swapItem.parentNode) {
         swapItem = swapItem !== selectedItem.nextSibling ? swapItem : swapItem.nextSibling
         list.insertBefore(selectedItem, swapItem)
@@ -1133,7 +1192,6 @@ function setupConfigEvents (vue) {
   })
 }
 
-import Categories from '../libs/categories'
 import Lightbox from 'vue-image-lightbox'
 require('vue-image-lightbox/dist/vue-image-lightbox.min.css')
 import Multiselect from 'vue-multiselect'
@@ -1259,6 +1317,7 @@ export default {
       numCategorySets: 1,
       gameMode: '',
       hasUnsavedChanges: false,
+      delayHasUnsavedChanges: false,
       showCompanionHelp: false,
       showCompanionHelpTimer: null,
       enableCompanionBeta: false,
@@ -1280,6 +1339,7 @@ export default {
         errors: 0,
         alerts: 0
       },
+      corruptedData: false,
       codeQueue: null,
       codeQueueTimeout: null,
       selectedApp: '',
@@ -1334,7 +1394,7 @@ export default {
 
       // send content to import scan
       vue.newImportStringStatus = 'Verifying'
-      vue.http.post('/import/scan', { importString: val, type: vue.wago.type }).then((res) => {
+      vue.http.post('/import/scan', { importString: val, type: vue.wago.type, wagolib: vue.wago.wagolib }).then((res) => {
         vue.isScanning = false
         if (res.error) {
           vue.newImportStringStatus = vue.$t('Invalid [-type-]', {type: vue.wago.type.toLowerCase()})
@@ -1379,7 +1439,7 @@ export default {
       return false
     },
     categories () {
-      var arr = Categories.categories(this.$t)
+      var arr = window.Categories.categories()
       var cats = []
       arr.forEach((cat) => {
         if (cat[this.wago.type] && !cat.noselect) {
@@ -1527,6 +1587,7 @@ export default {
       this.numCategorySets = 1
       this.showMoreCategories = false
       this._iframeQueryString = this.iframeQueryString
+      this.corruptedData = false
 
       var params = {}
       params.id = wagoID
@@ -1535,14 +1596,20 @@ export default {
         params.version = this.version
       }
 
+
+      // this.$socket.send({do: 'reqWago', _id: wagoID}, (data) => {
+      //   console.log('wago recvd', data)
+      // })
+
       vue.http.get('/lookup/wago', params).then((res) => {
         if (res.error) {
           this.$store.commit('setWago', res)
           return
         }
         res.categories = res.categories.map((cat) => {
-          return Categories.match(cat, vue.$t)
+          return window.Categories.match(cat)
         })
+        res.categories = res.categories.filter(c => c)
 
         if (res.versions && res.versions.total > 0 && res.versions.versions[0].versionString) {
           this.latestVersion.semver = semver.valid(semver.coerce(res.versions.versions[0].versionString || '1.0.0'))
@@ -1585,6 +1652,7 @@ export default {
         this.editSlug = res.slug
         this.editDesc = res.description.text
         this.updateDescFormat = res.description.format || this.$store.state.user.defaultEditorSyntax
+        this.wago.typePrefix = ''
 
         switch (this.wago.type) {
           case 'COLLECTION':
@@ -1618,12 +1686,20 @@ export default {
             this.typeSlug = 'totalrp/'
             break
           case 'WEAKAURA':
-            this.showPanel = this.wago.description.text ? 'description' : 'editor'
-            this.typeSlug = 'weakauras/'
-            break
           case 'CLASSIC-WEAKAURA':
+          case 'TBC-WEAKAURA':
             this.showPanel = this.wago.description.text ? 'description' : 'editor'
-            this.typeSlug = 'classic-weakauras/'
+            if (this.wago.game === 'tbc') {
+              this.wago.typePrefix = 'TBC'
+              this.typeSlug = 'tbc-weakauras/'
+            }
+            else if (this.wago.game === 'classic') {
+              this.wago.typePrefix = 'CLASSIC'
+              this.typeSlug = 'classic-weakauras/'
+            }
+            else {
+              this.typeSlug = 'weakauras/'
+            }
             break
           default:
             this.showPanel = 'description'
@@ -1654,7 +1730,7 @@ export default {
           this.editVisibility = 'Public'
         }
         this.editGame = res.game
-        this.editCategories = Categories.groupSets(res.categories)
+        this.editCategories = window.Categories.groupSets(res.categories)
         this.numCategorySets = this.editCategories.length
 
         for (var i = 0; i < res.categories.length; i++) {
@@ -1719,37 +1795,84 @@ export default {
       this.codeReview.errors = 0
       this.codeReview.warnings = 0
       this.codeReview.alerts = 0
-      this.codeReview.stabilityChecks = []
-      const blockedRegex = /getfenv|setfenv|loadstring|pcall|SendMail|SetTradeMoney|AddTradeMoney|PickupTradeMoney|PickupPlayerMoney|TradeFrame|MailFrame|EnumerateFrames|RunScript|AcceptTrade|SetSendMailMoney|EditMacro|SlashCmdList|DevTools_DumpCommand|hash_SlashCmdList|CreateMacro|SetBindingMacro|GuildDisband|GuildUninvite|UninviteUnit|SendMailMailButton|SendMailMoneyGold|MailFrameTab2/g
-      if (code && code.luacheck && code.luacheck !== '{}') {
-        code.luacheck = JSON.parse(code.luacheck)
-        this.luacheckKeys = Object.keys(code.luacheck)
-        this.luacheckKeys.sort()
-        for (let lc of this.luacheckKeys) {
-          let c = code.luacheck[lc].match(/^(\d+) error/)
-          if (c && c[1]) {
-            this.codeReview.errors += parseInt(c[1])
+      this.codeReview.alertContent = {}
+      this.codeReview.info = {
+        nloc: 0,
+        ccn: 0,
+        tokens: 0,
+        maintainability: 100,
+        globals: new Set(),
+        dependencies: [],
+        highlights: new Set()
+      }
+      if (code.tableMetrics && code.tableMetrics.dependencies) {
+        this.codeReview.info.dependencies = code.tableMetrics.dependencies.filter(this.isDependancyRequired)
+      }
+      const blockedRegex = /^(_G\.)?(getfenv|setfenv|loadstring|pcall|SendMail|SetTradeMoney|AddTradeMoney|PickupTradeMoney|PickupPlayerMoney|TradeFrame|MailFrame|EnumerateFrames|RunScript|AcceptTrade|SetSendMailMoney|EditMacro|SlashCmdList|DevTools_DumpCommand|hash_SlashCmdList|CreateMacro|SetBindingMacro|GuildDisband|GuildUninvite|UninviteUnit|SendMailMailButton|SendMailMoneyGold|MailFrameTab2)$/g
+
+      if (code && Array.isArray(code.customCode)) {
+        code.customCode.forEach((c, i) => {
+          if (c.metrics && c.metrics.nloc) {
+            this.codeReview.info.nloc += c.metrics.nloc || 0
+            this.codeReview.info.ccn = Math.max(c.metrics.ccn, this.codeReview.info.ccn)
+            this.codeReview.info.tokens += c.metrics.tokens || 0
+            this.codeReview.info.globals = new Set([...this.codeReview.info.globals, ...c.metrics.globals])
+            this.codeReview.info.dependencies = [...new Set([...this.codeReview.info.dependencies, ...c.metrics.dependencies])].filter(this.isDependancyRequired)
+            this.codeReview.info.maintainability = Math.round(Math.min(c.metrics.maintainability, this.codeReview.info.maintainability))
+
+            code.customCode[i].metrics.highlights = new Set()
+            c.metrics.globals.forEach(g => {
+              if (g.match(/^SetBinding(Spell|Item|Macro|Click)?$/)) {
+                this.codeReview.info.highlights.add('keybind')
+              }
+              else if (g.match(/^C_VoiceChat[\.:]+SpeakText/)) {
+                this.codeReview.info.highlights.add('tts')
+              }
+              else if (g.match(/^SendChatMessage$/)) {
+                this.codeReview.info.highlights.add('chat')
+              }
+              else if (g.match(/^PlaySound(File)?$/)) {
+                this.codeReview.info.highlights.add('audio')
+              }
+              else if (g.match(/^_G\[/)) {
+                this.codeReview.alerts++
+                this.codeReview.alertContent[c.keypath + '_G_Table'] = {name: c.name, display: this.$t('\'[-name-]\' references the _G table with a string or variable key which which could potentially be used to hide malicious intent.', {name: c.name}), keypath: c.keypath}
+              }
+              else if (g.match(/^getglobal\(/)) {
+                this.codeReview.alerts++
+                this.codeReview.alertContent[c.keypath + 'getglobal'] = {name: c.name, display: this.$t('\'[-name-]\' calls getglobal() with a string or variable key which which could potentially be used to hide malicious intent.', {name: c.name}), keypath: c.keypath}
+              }
+            })
           }
-          c = code.luacheck[lc].match(/^(\d+) warning/)
-          if (c && c[1]) {
-            this.codeReview.warnings += parseInt(c[1])
+
+          if (c.luacheck) {
+            let m = c.luacheck.match(/^(\d+) error/)
+            if (m && m[1]) {
+              this.codeReview.errors += parseInt(m[1])
+            }
+            m = c.luacheck.match(/^(\d+) warning/)
+            if (m && m[1]) {
+              this.codeReview.warnings += parseInt(m[1])
+            }
+            m = c.luacheck.match(/\((E\d+|W111|W121)\)/)
+            if (m && m.length) {
+              this.codeReview.alerts += 1
+              this.codeReview.alertContent['luacheck' + i] = {name: c.name, display: this.$t('\'[-name-]\' has triggered Luacheck alerts that should be reviewed.', {name: c.name}), keypath: c.keypath}
+            }
+            let blocked = c.luacheck.match(blockedRegex)
+            if (blocked) {
+              this.codeReview.securityAlert = true
+              blocked = [...new Set(blocked)]
+              this.codeReview.alerts += 1
+              this.codeReview.alertContent['blocked' + i] = {name: lc, display: this.$t('\'[-name-]\' includes blocked functions. Blocked functions are normally blocked within the addon with normal use, and there is probably no reason you want to include this potential vulnerability.', {name: lc}) + '\n\n0:' + blocked.join('\n0:'), keypath: c.keypath}
+            }
           }
-          c = code.luacheck[lc].match(/\((E\d+|W111|W121)\)/g)
-          if (c && c.length) {
-            this.codeReview.alerts += c.length
-          }
-          let blocked = code.luacheck[lc].match(blockedRegex)
-          if (blocked) {
-            this.codeReview.securityAlert = true
-            blocked = [...new Set(blocked)]
-            this.codeReview.alerts += blocked.length
-            this.codeReview.stabilityChecks.push({id: 'blockedFn', name: lc, display: this.$t('\'[-name-]\' includes blocked functions. Blocked functions are normally blocked within the addon with normal use, and there is probably no reason you want to include this potential vulnerability.', {name: lc}) + '\n\n0:' + blocked.join('\n0:'), func: lc})
-          }
-        }
+        })
       }
       else {
         code.luacheck = null
       }
+
       this.$set(this.wago, 'code', code)
       this.$store.commit('setWago', this.wago)
 
@@ -1766,7 +1889,6 @@ export default {
       }
       // code review
       else if (this.wago.type.match(/WEAKAURA/)) {
-        var customCode = detectCustomCode.WeakAura(code.obj)
         var auras = []
         if (code.obj.d) {
           auras = [code.obj.d]
@@ -1774,70 +1896,124 @@ export default {
         if (code.obj.c && Array.isArray(code.obj.c)) {
           auras = auras.concat(code.obj.c)
         }
+        let i = 0
         for (let item of auras) {
-          if (item.id.length > 127) {
+          i++
+          let itemID = item.id
+          if (itemID.length > 127) {
             this.codeReview.alerts++
-            this.codeReview.stabilityChecks.push({id: 'longID', name: item.id, display: this.$t('\'[-name-]\' id length is needlessly long.', {name: item.id}) + '(0):' + this.$t('This is the name used in the WeakAura interface and may cause an overflow error and crash the game.'), func: 'tabledata'})
+            this.codeReview.alertContent['longID' + itemID] = {name: itemID, display: this.$t('\'[-name-]\' id length is needlessly long.', {name: itemID}) + '(0):' + this.$t('This is the name used in the WeakAura interface and may cause an overflow error and crash the game.')}
+          }
+
+          if (!item.internalVersion || item.internalVersion < 2) {
+            this.codeReview.alerts++
+            this.codeReview.alertContent['oldInternalVersion' + itemID] = {name: itemID, display: this.$t('\'[-name-]\' internalVersion is very old and WeakAuras may have trouble importing.', {name: itemID})}
+          }
+
+          if (item.actions.start && item.actions.start.do_message && item.actions.start.message && item.actions.start.message_type) {
+            this.codeReview.info.highlights.add('chat')
+          }
+          if (item.actions.finish && item.actions.finish.do_message && item.actions.finish.message && item.actions.finish.message_type) {
+            this.codeReview.info.highlights.add('chat')
+          }
+          if (item.conditions && item.conditions.length) {
+            for (let cond of item.conditions) {
+              if (cond && cond.property === 'chat' && cond.value && cond.value.message && cond.value.message_type) {
+                this.codeReview.info.highlights.add('chat')
+              }
+            }
+          }
+
+          if (item.actions.start && item.actions.start.do_sound && item.actions.start.sound) {
+            this.codeReview.info.highlights.add('audio')
+          }
+          if (item.actions.finish && item.actions.finish.do_sound && item.actions.finish.sound) {
+            this.codeReview.info.highlights.add('audio')
+          }
+          if (item.conditions && item.conditions.length) {
+            for (let cond of item.conditions) {
+              if (cond && cond.property === 'sound' && cond.value && cond.value.sound && cond.value.sound_type === 'Play') {
+                this.codeReview.info.highlights.add('audio')
+              }
+            }
           }
         }
         var detectedThrottles = {}
-        for (let item of customCode) {
-          if (typeof item !== 'object') {
-            continue
-          }
-          if (item.displayEveryFrame) {
-            let lua = item.lua
-            // remove comments and function params
-            lua = lua.replace(/--.*?$/g, '').replace(/^[^]*?\)/m, '').trim()
-            let result
-            let ok
-            if (lua.match(/(time|GetTime)\(\)/)) {
-              result = this.$t('Timing or throttling code is detected.')
-              ok = 1
+        if (this.wago.code.customCode) {
+          for (let item of this.wago.code.customCode) {
+            if (typeof item !== 'object') {
+              continue
             }
-            else if (lua.indexOf('return') === 0) {
-              result = this.$t('Immediate value return detected.')
-              ok = 1
-            }
-            else {
-              result = this.$t('Displays that update every frame can potentially cause slowdown are almost always go against best practices. Every frame updates should be for a) time related displays or b) throttled so that the processing occurs on an interval. Neither are detected here.')
-              ok = 0
-            }
-            if (!ok && (!this.wago.codeReviewComments || !this.wago.codeReviewComments[`textEveryFrameDisplay:${item.id}`] || !this.wago.codeReviewComments[`textEveryFrameDisplay:${item.id}`].falsePositive)) {
-              this.codeReview.alerts++
-            }
-            this.codeReview.stabilityChecks.push({id: 'textEveryFrameDisplay', name: item.id, display: this.$t('\'[-name-]\' updates its display text every frame.', {name: `${item.id} ${item.name}`}) + `(${ok}):${result}`, func: `${item.id}: ${item.name}`})
-          }
-          else if (item.triggerEveryFrame) {
-            let lua = item.lua
-            // remove comments and function params
-            lua = lua.replace(/--.*?$/g, '').replace(/^[^]*?\)/m, '').trim()
-            let result
-            let ok
-            let trigger = item.name.match(/(\(\d+\))/)
-            if (lua.match(/(time|GetTime)\(\)/)) {
-              result = this.$t('Timing or throttling code is detected.')
-              ok = 1
-              trigger = item.name.match(/^Trigger (\(\d+\))/)
-              if (trigger && trigger[1]) {
-                detectedThrottles[item.id + trigger[1]] = true
+            let itemID = item.name.replace(/ - .*?$/, '')
+            if (item.displayEveryFrame) {
+              let lua = item.lua
+              // remove comments and function params
+              lua = lua.replace(/--.*?$/g, '').replace(/^[^]*?\)/m, '').trim()
+              let result
+              let ok
+              if (lua.match(/(time|GetTime)\(\)/)) {
+                result = this.$t('Timing or throttling code is detected.')
+                ok = 1
               }
+              else if (lua.indexOf('return') === 0) {
+                result = this.$t('Immediate value return detected.')
+                ok = 1
+              }
+              else {
+                result = this.$t('Displays that update every frame can potentially cause slowdown are almost always go against best practices. Every frame updates should be for a) time related displays or b) throttled so that the processing occurs on an interval. Neither are detected here.')
+                ok = 0
+              }
+              if (!ok && this.wago.codeReviewComments && this.wago.codeReviewComments.EveryFrame && this.wago.codeReviewComments.EveryFrame.falsePositive) {
+                ok = 1
+                result = this.$t('Author [-author-] has indicated that an undetected throttle is implemented or every-frame processing is necessary for this import.', {author: this.wago.codeReviewComments.EveryFrame.author.name})
+              }
+              else if (!ok) {
+                this.codeReview.alerts++
+              }
+              this.codeReview.alertContent['textEveryFrameDisplay' + itemID] = {name: itemID, display: this.$t('\'[-name-]\' updates its display text every frame.', {name: item.name}) + `(${ok}):${result}`, keypath: item.keypath}
             }
-            else if (trigger && trigger[1] && detectedThrottles[item.id + trigger[1]]) {
-              result = this.$t('Timing or throttling code is detected in trigger.')
-              ok = 1
+            else if (item.triggerEveryFrame) {
+              let lua = item.lua
+              // remove comments and function params
+              lua = lua.replace(/--.*?$/g, '').replace(/^[^]*?\)/m, '').trim()
+              let result
+              let ok
+              let trigger = item.name.match(/(\(\d+\))/)
+              if (lua.match(/(time|GetTime)\(\)/)) {
+                result = this.$t('Timing or throttling code is detected.')
+                ok = 1
+                trigger = item.name.match(/^Trigger (\(\d+\))/)
+                if (trigger && trigger[1]) {
+                  detectedThrottles[item.name + trigger[1]] = true
+                }
+              }
+              else if (trigger && trigger[1] && detectedThrottles[item.name + trigger[1]]) {
+                result = this.$t('Timing or throttling code is detected in trigger.')
+                ok = 1
+              }
+              else {
+                result = this.$t('Triggers that check on every frame should be throttled so that the processing occurs on an interval. No throttle could be detected here.')
+                ok = 0
+              }
+              if (!ok && this.wago.codeReviewComments && this.wago.codeReviewComments.EveryFrame && this.wago.codeReviewComments.EveryFrame.falsePositive) {
+                ok = 1
+                result = this.$t('Author [-author-] has indicated that an undetected throttle is implemented or every-frame processing is necessary for this import.', {author: this.wago.codeReviewComments.EveryFrame.author.name})
+              }
+              else if (!ok) {
+                this.codeReview.alerts++
+              }
+              this.codeReview.alertContent['textEveryFrameTrigger' + itemID] = {name: item.name, display: this.$t('\'[-name-]\' is processed every frame.', {name: item.name}) + `(${ok}):${result}`, keypath: item.keypath}
             }
-            else {
-              result = this.$t('Triggers that check on every frame should be throttled so that the processing occurs on an interval. No throttle could be detected here.')
-              ok = 0
-            }
-            if (!ok && (!this.wago.codeReviewComments || !this.wago.codeReviewComments[`textEveryFrameTrigger:${item.id}`] || !this.wago.codeReviewComments[`textEveryFrameTrigger:${item.id}`].falsePositive)) {
-              this.codeReview.alerts++
-            }
-            this.codeReview.stabilityChecks.push({id: 'textEveryFrameTrigger', name: item.id, display: this.$t('\'[-name-]\' is processed every frame.', {name: `${item.id} ${item.name}`}) + `(${ok}):${result}`, func: `${item.id}: ${item.name}`})
           }
         }
       }
+      else if (this.wago.type.match(/PLATER/)) {
+        if ((code.obj.type === 'script' && !code.obj['2']) || (code.obj.type === 'hook' && !code.obj['1'])) {
+          this.corruptedData = true
+        }
+      }
+
+
 
       this.$set(this.wago, 'codeReview', this.codeReview)
 
@@ -1874,6 +2050,28 @@ export default {
         this.hasUnsavedChanges = false
       })
     },
+
+    isDependancyRequired (dep) {
+      if (this.wago.type.match(/WEAKAURA/)) {
+        return !dep.match(/^WeakAura|((Ace(Console|Event|GUI|Serializer|Timer)-3\.0)AceGUI-3\.0-SharedMediaWidgets|Archivist|CallbackHandler-1.0|Lib(Compress|CustomGlow-1\.0|DataBroker-1\.1|DBIcon-1\.0|Deflate|GetFrame-1\.0|RangeCheck-2\.0|Serialize|SharedMedia-3\.0|SpellRange-1\.0))$/i)
+      }
+      else if (this.wago.type.match(/PLATER/)) {
+        return !dep.match(/^Plater|((Ace(Addon|Comm|Config|Console|DB|DBOptions|Event|GUI|Locale|Serializer|Timer)-3\.0)|CallbackHandler-1.0|DF|Lib(Compress|CustomGlow-1\.0|DataBroker-1\.1|DBIcon-1\.0|Deflate|RangeCheck-2\.0|SharedMedia-3\.0|Translit-1\.0))$/i)
+      }
+      return true
+    },
+
+    displayExpansion: function (item) {
+      if (item.type !== 'WEAKAURA') {
+        return ''
+      }
+      else {
+        return item.game.toUpperCase() + '-'
+      }
+
+      return ''
+    },
+
     decryptImport () {
       try {
         this.decryptLoading = true
@@ -1886,6 +2084,7 @@ export default {
         this.decryptKey = this.cipherKey
       }
       catch (e) {
+        console.log(e)
         window.eventHub.$emit('showSnackBar', this.$t('Incorrect password - Could not decrypt'))
       }
       this.decryptLoading = false
@@ -1927,7 +2126,10 @@ export default {
     },
     setHasUnsavedChanges (bool) {
       if (typeof bool === 'boolean') {
-        this.hasUnsavedChanges = bool
+        this.delayHasUnsavedChanges = bool
+        setTimeout(() => { // hack to fix bug with md lib
+          this.hasUnsavedChanges = this.delayHasUnsavedChanges
+        })
       }
     },
     updateEncoded (str) {
@@ -1953,36 +2155,71 @@ export default {
       }
       return list
     },
-    sendToCompanionApp (checkWarning) {
-      if (this.disableCompanionWarning) {
-        if (this.$store.state.user.UID) {
-          this.$set(this.$store.state.user, 'companionHideAlert', true)
-          this.http.post('/account/disableCompanionAlert')
-        }
-        else {
-          window.setCookie('disableCompanionAlert', 1, 30)
-        }
+    sendToApp (mode) {
+      let app = this.selectedApp || window.localStorage.getItem('Selected-Desktop-App')
+      if (!app && mode === 'open') {
+        app = 'WagoApp'
       }
-      if (checkWarning && !this.disableCompanionWarning && !this.$store.state.user.companionHideAlert && !window.readCookie('disableCompanionAlert')) {
-        this.$refs.sendToCompanionAppDialog.open()
+      else if (!app || mode === 'ask') {
+        if (!this.selectedApp) {
+          this.selectedApp = 'WagoApp'
+        }
+        this.$refs.sendToAppDialog.open()
         return
       }
-      openCustomProtocol(`weakauras-companion://wago/push/${this.wago.slug}`,
-        () => {
-          // fail
-          this.$router.push('/wa-companion')
-          window.eventHub.$emit('showSnackBar', this.$t('Unable to detect WeakAura Companion app, please make sure you have it installed and running'))
-        },
-        () => {
-          // success
-          window.eventHub.$emit('showSnackBar', this.$t('WeakAura sent to Companion'))
-        },
-        () => {
-          // unsupported
-          this.$router.push('/wa-companion')
-          window.eventHub.$emit('showSnackBar', this.$t('Unable to detect WeakAura Companion app, please make sure you have it installed and running'))
-        }
-      )
+
+      if (this.rememberAppChoice) {
+        window.localStorage.setItem('Selected-Desktop-App', app)
+        this.rememberAppChoice = false
+      }
+      else {
+        this.selectedApp = ''
+      }
+
+      if (app == 'WagoApp') {
+        openCustomProtocol(`wago-app://weakauras/${this.wago._id}`,
+          () => {
+            // fail
+            this.selectedApp = ''
+            window.localStorage.removeItem('Selected-Desktop-App')
+            this.$refs.sendToAppDialog.open()
+            window.eventHub.$emit('showSnackBar', this.$t('Unable to detect WagoApp, please make sure you have it installed and running'))
+          },
+          () => {
+            // success
+            window.eventHub.$emit('showSnackBar', this.$t('WeakAura sent to WagoApp'))
+          },
+          () => {
+            // unsupported
+            this.selectedApp = ''
+            window.localStorage.removeItem('Selected-Desktop-App')
+            this.$refs.sendToAppDialog.open()
+            window.eventHub.$emit('showSnackBar', this.$t('Unable to detect WagoApp, please make sure you have it installed and running'))
+          }
+        )
+      }
+      else if (app == 'WeakAurasCompanion') {
+        openCustomProtocol(`weakauras-companion://wago/push/${this.wago.slug}`,
+          () => {
+            // fail
+            this.selectedApp = ''
+            window.localStorage.removeItem('Selected-Desktop-App')
+            this.$refs.sendToAppDialog.open()
+            window.eventHub.$emit('showSnackBar', this.$t('Unable to detect WeakAura Companion app, please make sure you have it installed and running'))
+          },
+          () => {
+            // success
+            window.eventHub.$emit('showSnackBar', this.$t('WeakAura sent to Companion'))
+          },
+          () => {
+            // unsupported
+            this.selectedApp = ''
+            window.localStorage.removeItem('Selected-Desktop-App')
+            this.$refs.sendToAppDialog.open()
+            window.eventHub.$emit('showSnackBar', this.$t('Unable to detect WeakAura Companion app, please make sure you have it installed and running'))
+          }
+        )
+      }
     },
     setCompanionHelpShow (enable, time) {
       clearTimeout(this.showCompanionHelpTimer)
@@ -2125,15 +2362,15 @@ export default {
         this.quickLoadEditorFn = false
       }, 1000)
     },
-    setCodeReviewComment (id, text, flag) {
+    setCodeReviewComment (id, flag) {
       let comment = {
         author: this.wago.user,
         date: Date.now(),
         falsePositive: flag,
-        format: 'bbcode',
-        text: text
+        format: 'bbcode'
       }
       this.$set(this.wago.codeReviewComments, id, comment)
+      this.parseCodeObject(this.wago.code)
     },
     toggleViewNotes (v) {
       if (this.viewNotes === v) {
@@ -2476,7 +2713,7 @@ export default {
         })
       })
       this.$set(this.wago, 'screens', screens)
-      
+
       this.http.post('/wago/update/sort/screenshots', {
         wagoID: this.wago._id,
         screens: sort.join(',')
@@ -2513,7 +2750,7 @@ export default {
         })
       })
       this.$set(this.wago, 'videos', videos)
-      
+
       this.http.post('/wago/update/sort/videos', {
         wagoID: this.wago._id,
         videos: sort.join(',')
@@ -2793,7 +3030,7 @@ export default {
     },
 
     escapeText: function(str) {
-      return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;")
+      return (str || '').replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;")
     },
 
     submitReport: async function () {
@@ -2882,9 +3119,9 @@ export default {
 #wago-collections-container button { margin-left: -2px }
 #wago-floating-header .copy-import-button { margin: -2px 0 0 auto }
 
-#helpImportingButton {position: absolute; right: 0; top: -3px; margin: 0;}
-#helpImportingButton:hover {background: rgba(193,39,45,.2)}
-#helpImportingButton i.md-icon {color:inherit}
+#helpImportingButton, #helpAppButton {position: absolute; right: 0; top: -3px; margin: 0;}
+#helpImportingButton:hover, #helpAppButton:hover {background: rgba(193,39,45,.2)}
+#helpImportingButton i.md-icon, #helpAppButton i.md-icon {color:inherit}
 .copy-import-button {position: relative; padding-right: 50px}
 #helpDialog .md-dialog {max-width: 750px}
 #helpDialog img {margin: 6px; max-width: 80%; display: block}
@@ -2938,8 +3175,22 @@ a.showvid:hover:before  .md-icon { opacity:1 }
 #wago-versions .version-num + .usertext { display: inline-block; padding-left: 12px }
 
 .changelog-notes { margin-top: 0 }
-.changelog-text { border-bottom: 1px solid #555; margin-bottom: 8px; }
-.md-table tbody .md-table-row.changelog-row { border-top-color: #555;}
+.changelog-text { border-bottom: 1px solid #333; margin-bottom: 8px; }
+.md-table tbody .md-table-row.changelog-row { border-top-color: #333;}
+
+#import-info { float: right; padding: 8px; background: #333; margin: 0 0 16px 16px; outline: 2px solid #009690; }
+#import-info em { font-weight: bold; font-style: normal; padding-bottom: 4px; display: inline-block; color: #009690}
+#import-info br + em { padding-top: 4px; }
+#import-info > span span:before { content: ': '; color: #ddd}
+#import-info .metricsOK {font-weight: bold; color: #56f442}
+#import-info .metricsWarn {font-weight: bold; color: #cc9700}
+#import-info .metricsAlert {font-weight: bold; color: #e6000a}
+@media (max-width: 600px) {
+  #import-info {
+    float: none
+  }
+}
+
 
 #embed-content { display: flex }
 #embed-inputs { flex: 2 1 auto }
@@ -2977,6 +3228,14 @@ a.showvid:hover:before  .md-icon { opacity:1 }
 #report-modal .md-list-item strong, #report-modal .md-list-item span, #request-review-modal .md-list-item strong, #request-review-modal .md-list-item span {
   display: block;
 }
+#report-modal small {
+  display: flex;
+  align-items: center;
+}
+#report-modal small button {
+  box-shadow: 0 1px 1px #000;
+}
+
 
 #wago-collections .md-avatar { margin: 0 16px 0 0; width: 28px; min-width: 28px; height: 28px; min-height: 28px; }
 #wago-collections .userlink .md-table-cell-container { display: inline }
@@ -3066,6 +3325,7 @@ ul:not(.md-list) > li.multiselect__element + li { margin-top: 0 }
 #newVersionFlexArea { flex: 1 }
 
 .CopyWarningTooltip { padding: 8px; border:5px solid #c1272d; font-size: 14px; height: auto; max-width: 450px; white-space:normal; background: black; right: -84px  }
+.SmallTooltip { padding: 4px; border:1px solid black; height: auto; max-width: 450px; white-space:normal; background: #222; right: -52px; }
 
 .usertext.markdown hr { opacity: .5 }
 
@@ -3096,6 +3356,22 @@ ul:not(.md-list) > li.multiselect__element + li { margin-top: 0 }
 #wago-translate-container .md-button-toggle .md-button {text-transform: none}
 
 #wago-codereview-container h2 {padding-left: 0}
+
+#app-info {width: 800px;}
+#app-info p {margin-bottom: 16px; line-height: 24px;}
+#app-info #app-choice {display: flex; flex-direction: row; justify-content: space-evenly;}
+#app-info #app-choice .select-app {width: 240px; max-width: 33%; text-align: center; border: 1px solid #555; display: flex; flex-direction: column;}
+#app-info #app-choice .select-app.selected {outline: 6px solid #C0272DBB}
+#app-info #app-choice .select-app:hover { cursor: pointer; background: #333}
+#app-info #app-choice .app-logo {height: 90px; margin: 16px; justify-content:center; display: flex; align-items: flex-end}
+#app-info #app-choice .app-logo img {max-height: 100%; max-width: 100%;}
+#app-info #app-choice .app-name {font-size: 120%; font-weight: bold; margin-bottom: 16px}
+#app-info #app-choice .app-link {background: #444; border-top: 1px solid #555; padding: 8px 16px; flex:1; display: flex; align-items: center; justify-content: center}
+#app-info #app-choice .app-link:hover {background: #555}
+#app-info #app-choice .app-link a {font-weight: bold; font-size: 90%; display: block; color: white}
+#app-info #app-choice .app-link a:hover {text-decoration: none;}
+#app-info .app-info {margin-top: 32px; min-height: 96px; line-height: 32px}
+#app-info .app-info img {width: 48px; margin-right: 8px}
 
 .moderation-item {margin-bottom:16px;padding: 8px;background: #333;}
 .moderation-item.mod-Report {border: 1px solid #a26900;}

@@ -42,9 +42,9 @@ export default {
     if (!this.showAds || document.querySelector('body').id === 'embed-body') {
       return
     }
-    if (this.$store.state.isTest) {
-      this.adNetwork = 'playwire'
-    }
+    // if (this.$store.state.isTest) {
+    //   this.adNetwork = 'playwire'
+    // }
     if (!this.$store.state.firstAd) {
       this.$store.commit('showAd')
       this.adReady = true

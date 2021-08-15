@@ -66,7 +66,7 @@ export default {
       this.selectText = this.$t('Select')
       if (values && values.length > 0) {
         this.selectText = ''
-        if (values[0].root) {
+        if (!values[0].parent) {
           var children = window.Categories.matchChildren(values[0].id, type, game)
           this.categoryOptions = []
           // remove already selected categories

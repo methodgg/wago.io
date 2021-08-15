@@ -1,55 +1,74 @@
 <template>
   <div>
-    <form novalidate @submit.stop.prevent="runSearch()" id="searchForm">
-      <md-input-container>
-        <label>{{ $t("Search") }}</label>
-        <md-input v-model="searchString" ref="searchInput"></md-input>
-        <md-button @click="runSearch()" :disabled="searchString.length<3">{{ $t("Search") }}</md-button>
-      </md-input-container>
-    </form>
-    <md-layout id="searchLayout" :class="{floatSideBar: floatSideBar}">
+    <md-layout id="searchLayout">
       <md-layout id="searchResults">
         <ui-loading v-if="isSearching"></ui-loading>
         <div v-else-if="!isSearching && results.results && results.results.length">
+          <md-layout id="searchData">
+            <!--<strong v-html="$t('Found [-count-] results', {count: new Intl.NumberFormat().format(results.total)})"></strong>-->
+            <template v-if="results">
+              <strong>{{ $t('Sort Options') }}</strong>
+              <md-button-toggle md-single class="md-accent md-warn">
+                <md-button :class="{ 'md-toggle': searchSort === '' }" @click="searchSort=''">{{ $t('Best Match') }}</md-button>
+                <md-button :class="{ 'md-toggle': searchSort === 'stars' }"@click="searchSort='stars'">{{ $t('Stars') }}</md-button>
+                <md-button :class="{ 'md-toggle': searchSort === 'date' }"@click="searchSort='date'">{{ $t('Date') }}</md-button>
+              </md-button-toggle>
+            </template>
+          </md-layout>
           <template v-for="(result, index) in results.results">
-            <div class="searchResult" v-if="result" v-bind:key="index">
+            <div class="searchResult codeResult" v-if="result && results.index === 'code'" v-bind:key="index">
+              <div class="searchText">
+                <router-link :to="'/' + (result.id || result.slug)">{{ result.name || result.type }}</router-link>
+                <span class="hidden-status" v-if="result.hidden"><md-icon>visibility_off</md-icon></span>
+                <md-subheader>
+                  <span>{{ displayExpansion(result) }}{{ result.wagolib && result.wagolib.addon || result.type }}</span>
+                  <span>{{ result.timestamp | moment('LLL') }}</span>
+                  <router-link v-if="result.userLinked" :class="result.userClass" :to="'/p/' + result.userName">{{ result.userName }}</router-link>
+                  <span v-else-if="result.userName" :class="result.userClass">{{ result.userName }}</span>
+                  <router-link v-else-if="result.user && result.user.searchable" :class="result.user.roleClass" :to="'/p/' + result.user.name">{{ result.user.name }}</router-link>
+                  <span v-else-if="result.user" :class="result.user.roleClass">{{ result.user.name }}</span>
+                  <span>{{ $t("[-count-] view", { count: result.views }) }}</span>
+                  <span>{{ $t("[-count-] star", { count: result.stars }) }}</span>
+                </md-subheader>
+                <editor v-model="result.code" @init="codeViewInit" lang="lua" :theme="$store.state.user.config.editor || 'terminal'" width="100%" height="50"></editor>
+              </div>
+            </div>
+            <div class="searchResult" v-else-if="result" v-bind:key="index">
               <div class="searchImg">
-                <router-link :to="'/' + result.slug">
+                <router-link :to="'/' + (result.id || result.slug)">
                   <md-image :md-src="result.thumbnail" v-if="result.thumbnail"></md-image>
                   <placeholder-img :text="result.type" v-else></placeholder-img>
                 </router-link>
               </div>
               <div class="searchText">
-                <router-link :to="'/' + result.slug">{{ result.name || result.type }}</router-link>
-                <span class="hidden-status" v-if="result.visibility.private">- Private -</span>
-                <span class="hidden-status" v-if="result.visibility.hidden">- Hidden -</span>
-                <span class="hidden-status" v-if="result.visibility.encrypted">- Encrypted -</span>
-                <span class="hidden-status" v-if="result.visibility.restricted">- Restricted -</span>
+                <router-link :to="'/' + (result.id || result.slug)">{{ result.name || result.type }}</router-link>
+                <span class="hidden-status" v-if="result.hidden"><md-icon>visibility_off</md-icon></span>
                 <md-subheader>
-                  <span>{{ result.type }}</span>
-                  <span>{{ result.date.modified || result.date.created | moment('LLL') }}</span>
-                  <router-link v-if="result.user.searchable" :class="result.user.roleClass" :to="'/p/' + result.user.name">{{ result.user.name }}</router-link>
-                  <span v-else :class="result.user.roleClass">{{ result.user.name }}</span>
-                  <span>{{ $t("[-count-] view", { count: result.viewCount }) }}</span>
-                  <span>{{ $t("[-count-] star", { count: result.favoriteCount }) }}</span>
-                  <span>{{ $t("[-count-] comment", { count: result.commentCount }) }}</span>
+                  <span>{{ displayExpansion(result) }}{{ result.wagolib && result.wagolib.addon || result.type }}</span>
+                  <span>{{ result.timestamp | moment('LLL') }}</span>
+                  <router-link v-if="result.userLinked" :class="result.userClass" :to="'/p/' + result.userName">{{ result.userName }}</router-link>
+                  <span v-else-if="result.userName" :class="result.userClass">{{ result.userName }}</span>
+                  <router-link v-else-if="result.user && result.user.searchable" :class="result.user.roleClass" :to="'/p/' + result.user.name">{{ result.user.name }}</router-link>
+                  <span v-else-if="result.user" :class="result.user.roleClass">{{ result.user.name }}</span>
+                  <span>{{ $t("[-count-] view", { count: result.views }) }}</span>
+                  <span>{{ $t("[-count-] star", { count: result.stars }) }}</span>
+                  <span>{{ $t("[-count-] comment", { count: result.comments }) }}</span>
                 </md-subheader>
-                <formatted-text :text="result.description" truncate="180" :plaintext="true"></Formatted-text>
+                <formatted-text v-if="typeof result.description === 'string'" :text="{text: result.description, format: 'plaintext'}" truncate="180" :plaintext="true"></formatted-text>
+                <formatted-text v-else :text="result.description" truncate="180" :plaintext="true"></formatted-text>
                 <div class="searchTags">
-                  <md-chip v-for="cat in result.categories" v-bind:key="cat.id" :class="cat.cls" disabled v-if="cat.text">{{ cat.text }}</md-chip>
-                </div>        
-              </div>      
+                  <md-chip v-for="(cat, n) in result.categories" v-bind:key="cat.id" :class="cat.id" disabled v-if="cat && cat.text && n<5">{{ cat.text }}</md-chip>
+                </div>
+              </div>
             </div>
             <advert ad="wago-in-article-ad-container" :belowTheFold="index > 10" v-if="!isCollection && (index %9 === 2 || (results.total < 3 && index === results.total - 1))" />
           </template>
         </div>
-        <div class="searchResult" v-else-if="!isSearching && results.total === 0">{{ $t("No results found") }}</div>
-      </md-layout>
-
-      <md-layout id="searchSide" v-if="results && results.query">
-        <md-layout id="searchMeta" v-if="results && results.query">
-          <search-meta :meta="results.query.context" :tagMap="tagMap" :textSearch="results.query.textSearch" :sort="sortVal" @setSort="setSort" @setImportType="setImportType" :catRelevance="catRelevance" @setCategoryRelevance="setCategoryRelevance" :filterExpansion="filterExpansion" @setExpansion="setExpansion" :includeReadMentions="includeReadMentions" @setReadMentions="setReadMentions"></search-meta>
-        </md-layout>
+        <div class="searchResult" v-else-if="!isSearching && results.total === 0">
+          <p id="searchData">
+            <strong v-html="$t('No results found')"></strong>
+          </p>
+        </div>
       </md-layout>
     </md-layout>
     <p v-if="isSearchingMore">{{ $t("Loading more") }}</p>
@@ -57,17 +76,19 @@
 </template>
 
 <script>
-import Categories from '../libs/categories'
 import SearchMeta from '../UI/SearchMeta.vue'
 import FormattedText from '../UI/FormattedText.vue'
 import PlaceHolderImage from '../UI/PlaceHolderImage.vue'
+
 export default {
   data: function () {
     return {
       results: {
         total: 0
       },
+      searchSort: window.localStorage.getItem('searchSort') || '',
       searchString: '',
+      searchParams: {q: ''},
       searchOptions: 'sort: Date',
       floatSideBar: false,
       tagContext: [],
@@ -90,182 +111,143 @@ export default {
   components: {
     'search-meta': SearchMeta,
     'formatted-text': FormattedText,
-    'placeholder-img': PlaceHolderImage
+    'placeholder-img': PlaceHolderImage,
+    editor: require('vue2-ace-editor'),
   },
   watch: {
     '$route' (to, from) {
       this.searchString = ''
-      this.runSearch(false)
+      if (this.contextGame) {
+          this.searchString += `expansion:${this.contextGame} `
+        }
+      if (this.contextSearch) {
+        this.searchString += this.contextSearch
+      }
+      this.searchString = this.contextSearch.replace(/\s+/g, ' ').trim()
+
+      if (this.searchString) {
+        this.$store.commit('setSearchText', this.searchString, true)
+      }
+    },
+    execSearch (to, from) {
+      // setup watcher to exec on demand
+    },
+    searchSort (val) {
+      window.localStorage.setItem('searchSort', val)
+      this.runSearch(this.$store.state.execSearch, true)
+    }
+  },
+  computed: {
+    execSearch () {
+      this.runSearch(this.$store.state.execSearch)
+      return this.$store.state.execSearch
     }
   },
   methods: {
-    runSearch: function (query) {
-      if (!query && this.searchString) {
-        var _this = this
-        // super hacky but vue.nextTick isn't updating the input value if form is submitted too quickly after typing, so just wait
-        return setTimeout(function () {
-          if (!_this.searchString) {
-            return
-          }
-          _this.runSearch(_this.searchString)
-        }, 100)
-      }
-      // throttle searches
-      if (this.searchTime < +new Date() - 500) {
-        this.searchTime = +new Date()
-      }
-      else {
-        return
-      }
-      var opt = ''
-      // if loaded via category menu
-      if (this.contextSearchData && !query) {
-        this.contextSearchData = this.contextSearchData.replace(this.searchOptions, '')
-        this.searchString = this.contextSearchData
-        query = this.contextSearchData
-      }
-      // if loaded direct
-      else if (!query && this.$route.params.query) {
-        query = this.$route.params.query.replace(/\+/g, ' ').replace(this.searchOptions, '')
-        this.searchString = query
-      }
-      // if loaded as component from other file
-      else if (typeof query === 'string' && query) {
-        query = query.replace(this.searchOptions.trim(), '')
-        // this.$router.push('/search/' + query.replace(/\s+/g, '+'))
-        this.searchString = query
-      }
-      // if navigating forward/back
-      else if (this.$route.params.query) {
-        query = this.$route.params.query.replace('+', ' ').replace(this.searchOptions, '')
-      }
-      // something broke, no query found (empty string?)
-      else {
-        return
-      }
-
-      this.isSearching = true
-
-      // check if sort value needs to be added to query
-      if (this.uiSearchValue || this.contextSort) {
-        opt = opt + ' Sort: ' + this.sortVal
-      }
-
-      if (this.uiExpansionValue && this.filterExpansion && this.filterExpansion.match(/all|classic|tbc|legion|bfa|sl/)) {
-        opt = opt + ' Expansion: ' + this.filterExpansion
-      }
-
-      // check if we're searching for any localized tags
-      const regex = /\btag:\s*"([^"]+)"|\btag:\s*([^\s]+)/ig
-      var tagSearch = query.match(regex)
-      if (tagSearch && tagSearch.length > 0) {
-        // check for relevance if tags are found
-        if (this.uiRelevanceValue) {
-          opt = opt + ' Relevance: ' + this.catRelevance
-        }
-
-        this.tagContext = []
-        this.tagMap = {}
-        tagSearch.forEach((tagQuery) => {
-          var tagMatch
-          if ((tagMatch = regex.exec(tagSearch)) !== null) {
-            // valid tag syntax found
-            query = query.replace(tagMatch[0], '').trim()
-            var tags = []
-            if (tagMatch[1]) {
-              tags.push(tagMatch[1])
-            }
-            else {
-              // if i8n code found instead of translated text, then translate it
-              if (tagMatch[2].match(/\./)) {
-                var s = Categories.search(tagMatch[2])
-                if (s && s.text) {
-                  tagMatch[2] = s.text
-                  if (tagMatch[2].match(/\s/)) {
-                    this.searchString = this.searchString.replace(tagMatch[0], `tag: "${tagMatch[2]}"`)
-                  }
-                  else {
-                    this.searchString = this.searchString.replace(tagMatch[0], `tag: ${tagMatch[2]}`)
-                  }
-                }
-              }
-              tags.push(tagMatch[2])
-            }
-
-            tags.forEach((thisTag) => {
-              var category = Categories.search(thisTag, this.$t)
-              if (category) {
-                this.tagContext.push(category)
-                this.tagMap[category.id] = tagMatch[0]
-                query = query + ' tag: ' + category.id
-              }
-            })
-          }
+    codeViewInit: function (editor) {
+      window.braceRequires()
+      editor.setOptions({
+        scrollPastEnd: false,
+        printMargin: false,
+        maxLines: 6,
+        readOnly: true,
+        useWorker: false,
+        showLineNumbers: false,
+        showGutter: false,
+        wrap: true
+      })
+      editor.container.style.pointerEvents="none"
+      this.$nextTick(() => {
+        editor.$search.setOptions({
+          needle: new RegExp(this.results.query.replace(/[^\w]/g, ' ').replace(/\s+/g, '|'), 'ig'),
+          regExp: false,
         })
+        let ranges = editor.$search.findAll(editor.session)
+        ranges.forEach(range => {
+          editor.session.addMarker(range, "found-text", "text", true)
+        })
+        if (ranges && ranges[0]) {
+          editor.scrollToRow(Math.max(0, ranges[0].start.row - 1))
+        }
+      })
+    },
+    displayExpansion: function (item) {
+      if (item.type !== 'WEAKAURA') {
+        return ''
+      }
+      else if (item.expansion === 0) {
+        return 'CLASSIC-'
+      }
+      else if (item.expansion === 1) {
+        return 'TBC-'
+      }
+      else if (item.expansion === 2) {
+        return 'WOTLK-'
+      }
+      else if (item.expansion === 3) {
+        return 'CATA-'
+      }
+      else if (item.expansion === 4) {
+        return 'MOP-'
+      }
+      else if (item.expansion === 5) {
+        return 'WOD-'
+      }
+      else if (item.expansion === 6) {
+        return 'LEGION-'
+      }
+      else if (item.expansion === 7) {
+        return 'BFA-'
+      }
+      else if (item.expansion === 8) {
+        return 'SL-'
       }
 
-      this.searchOptions = opt.trim() + ' '
-      this.$refs.searchInput.$el.focus()
+      return ''
+    },
+    runSearch: function (sid, force) {
+      this.$nextTick(() => {
+        let query = this.$store.state.siteSearch.trim().replace(/\s{2,}/g, ' ')
+        if (!query || (!force && (sid !== this.$store.state.execSearch || this.searchParams.q.toLowerCase() === query.toLowerCase()))) {
+          return
+        }
 
-      var vue = this
-      var params = { q: query + ' ' + opt }
-      this.searchString = this.searchString.trim().replace(/\s{2,}/, ' ')
+        this.isSearching = true
+        this.searchParams = {q: query, page: 0, sort: this.searchSort}
 
-      if (!this.$store.state.user || !this.$store.state.user.name) {
-        params.cc = 1 // use cached results if we dont need to worry about auth
-      }
-
-      if (query.match(/\b(?:alerts?|mentioned):\s*(1|true)\b/i)) {
-        params.includeRead = this.includeReadMentions
-      }
-
-      vue.http.get('/search', params).then((res) => {
-        for (var i = 0; i < res.results.length; i++) {
-          if (res.results[i] && typeof res.results[i] === 'object') {
-            res.results[i].categories = res.results[i].categories.map((cat) => {
-              return Categories.match(cat, vue.$t)
-            })
+        if (query.match(/\b(?:alerts?|mentioned):\s*(1|true)\b/i)) {
+          this.searchParams.includeRead = this.includeReadMentions
+        }
+        let searchURL = '/search/es'
+        this.http.get(searchURL, this.searchParams).then((res) => {
+          let hits = res.hits || res.results
+          for (var i = 0; i < hits.length; i++) {
+            if (hits[i] && typeof hits[i] === 'object' && hits[i].categories) {
+              hits[i].categories = hits[i].categories.map((cat) => {
+                return window.Categories.categories[cat]
+              })
+            }
+            // if (hits[i] && typeof hits[i] === 'object' && hits[i].code) {
+            //   hits[i].code = hits[i].categories.map((cat) => {
+            //     return window.Categories.categories[cat]
+            //   })
+            // }
           }
-        }
 
-        if (res.query.sort) {
-          vue.sortVal = res.query.sort
-        }
-        if (res.query.expansion) {
-          vue.filterExpansion = res.query.expansion
-        }
-        if (res.query.relevance) {
-          vue.catRelevance = res.query.relevance
-        }
+          if (query.match(/collection:/i)) {
+            this.isCollection = true
+          }
+          else {
+            this.isCollection = false
+          }
 
-        if (res.query.q.match(/collection:/i)) {
-          vue.isCollection = true
-        }
-        else {
-          vue.isCollection = false
-        }
+          this.$set(this.results, 'total', res.nbHits || res.total)
+          this.$set(this.results, 'query', res.query)
+          this.$set(this.results, 'index', res.index)
+          this.$set(this.results, 'results', hits)
 
-        if (res.total) {
-          vue.$set(vue.results, 'total', res.total)
-        }
-        else if (res.results && res.results.length) {
-          vue.$set(vue.results, 'total', res.total + 1)
-        }
-        vue.$set(vue.results, 'query', res.query)
-        vue.$set(vue.results, 'results', res.results)
-        vue.$set(vue.results, 'context', res.query.context)
-        vue.$set(vue.results, 'meta', res.meta)
-        this.floatSideBar = false
-        // put text search at the end of the query
-        if (res.query && res.query.textSearch) {
-          this.searchString = (this.searchString.replace(res.query.textSearch, '').replace(/\s+/g, ' ') + ' ' + res.query.textSearch).trim()
-        }
-
-        this.isSearching = false
-
-        if (vue.results.total < 20 && vue.results.meta.forceNextPage) {
-          this.searchMore()
-        }
+          this.isSearching = false
+        })
       })
     },
     watchScroll () {
@@ -284,92 +266,30 @@ export default {
       }
 
       // infinite search
-      if (!document.getElementById('searchLayout')) {
-        return
-      }
-      if (this.results && this.results.total && ((this.results.results && this.results.total > this.results.results.length) || (this.results.meta && this.results.meta.forceNextPage)) && !this.isSearching && !this.isSearchingMore) {
+      if (this.results && this.results.total && (this.results.results && this.results.total > this.results.results.length) && !this.isSearching && !this.isSearchingMore) {
         if (document.body.scrollHeight - 600 <= document.body.scrollTop + window.innerHeight || document.body.scrollHeight - 600 <= document.documentElement.scrollTop + window.innerHeight) {
           this.searchMore()
         }
       }
     },
-    setSort: function (val) {
-      if (val !== this.sortVal) {
-        this.sortVal = val
-        this.uiSearchValue = true
-        this.runSearch()
-
-        this.$store.commit('userSearchOption', {field: 'sort', value: val})
-      }
-    },
-    setImportType: function (val) {
-      const re = new RegExp('type:\\s' + val, 'i')
-      if (val && this.searchString.match(re)) {
-        return
-      }
-      var s = this.searchString.replace(/type:\s[\w-]+/i, '')
-      if (val) {
-        s = 'Type: ' + val + ' ' + s
-      }
-      this.searchString = s
-      this.runSearch()
-    },
-    setCategoryRelevance: function (val) {
-      if (val !== this.catRelevance) {
-        this.catRelevance = val
-        this.uiRelevanceValue = true
-        this.runSearch()
-
-        this.$store.commit('userSearchOption', {field: 'relevance', value: val})
-      }
-    },
-    setExpansion: function (val, noSearch) {
-      if (val !== this.filterExpansion) {
-        this.filterExpansion = val
-        this.uiExpansionValue = true
-        this.$store.commit('userSearchOption', {field: 'expansion', value: val})
-
-        if (!noSearch) {
-          this.runSearch()
-        }
-      }
-    },
-    setReadMentions: function (val, noSearch) {
-      this.includeReadMentions = val
-
-      if (!noSearch) {
-        this.runSearch()
-      }
-    },
     searchMore: function () {
-      var vue = this
-      vue.isSearchingMore = true
-
-      // setup query
-      var params = { q: vue.results.query.q, sort: vue.results.query.sort, page: vue.results.query.page + 1 }
-      if (vue.results.query.q.match(/\b(?:alerts?|mentioned):\s*(1|true)\b/i)) {
-        params.includeRead = this.includeReadMentions
-      }
-      // run search
-      vue.http.get('/search', params).then((res) => {
-        for (var i = 0; i < res.results.length; i++) {
-          if (res.results[i] && typeof res.results[i] === 'object') {
-            res.results[i].categories = res.results[i].categories.map((cat) => {
-              return Categories.match(cat, vue.$t)
+      this.isSearchingMore = true
+      let searchURL = '/search/es'
+      this.$set(this.searchParams, 'page', this.searchParams.page + 1)
+      this.http.get(searchURL, this.searchParams).then((res) => {
+        let hits = res.hits || res.results
+        for (var i = 0; i < hits.length; i++) {
+          if (hits[i] && typeof hits[i] === 'object') {
+            hits[i].categories = hits[i].categories.map((cat) => {
+              return window.Categories.categories[cat]
             })
           }
         }
-        // merge data
-        var merged = vue.results.results.concat(res.results)
-        vue.$set(vue.results, 'query', res.query)
-        vue.$set(vue.results, 'results', merged)
-        vue.$set(vue.results, 'meta', res.meta)
 
-        if (!res.results.length) {
-          vue.$set(vue.results, 'total', vue.results.results.length)
-        }
+        let merged = this.results.results.concat(hits)
+        this.$set(this.results, 'results', merged)
 
-        vue.isSearchingMore = false
+        this.isSearchingMore = false
       })
     }
   },
@@ -380,31 +300,40 @@ export default {
     window.removeEventListener('scroll', this.watchScroll)
   },
   mounted: function () {
+    let initialSearch = ''
     if (this.contextGame) {
-      this.uiExpansionValue = true
-      this.filterExpansion = this.contextGame
+      initialSearch += `expansion:${this.contextGame} `
+      // this.uiExpansionValue = true
+      // this.filterExpansion = this.contextGame
     }
     else if (this.$store.state.user && this.$store.state.user.config && this.$store.state.user.config.searchOptions.expansion) {
-      this.uiExpansionValue = true
-      this.filterExpansion = this.$store.state.user.config.searchOptions.expansion
+      // this.uiExpansionValue = true
+      // this.filterExpansion = this.$store.state.user.config.searchOptions.expansion
+    }
+    if (this.contextSearch) {
+      initialSearch += this.contextSearch
+    }
+
+    if (initialSearch) {
+      this.$store.commit('setSearchText', initialSearch.trim(), true)
     }
 
     // wait for i18n then run search
-    this.$i18n.i18next.init(() => {
-      this.runSearch()
-    })
-    if (!this.$router.currentRoute.params.profile) {
-      if (this.$router.currentRoute.params.query) {
-        this.$store.commit('setPageInfo', {
-          title: 'Search | ' + this.$router.currentRoute.params.query.replace(/\+/g, ' ')
-        })
-      }
-      else {
-        this.$store.commit('setPageInfo', {
-          title: 'Search'
-        })
-      }
-    }
+    // this.$i18n.i18next.init(() => {
+    //   this.runSearch()
+    // })
+    // if (!this.$router.currentRoute.params.profile) {
+    //   if (this.$router.currentRoute.params.query) {
+    //     this.$store.commit('setPageInfo', {
+    //       title: 'Search | ' + this.$router.currentRoute.params.query.replace(/\+/g, ' ')
+    //     })
+    //   }
+    //   else {
+    //     this.$store.commit('setPageInfo', {
+    //       title: 'Search'
+    //     })
+    //   }
+    // }
     // document.addEventListener('scroll', function (event) {
     //   if (!document.getElementById('searchLayout')) {
     //     return
@@ -423,6 +352,10 @@ export default {
 
 #searchForm { padding: 16px; width: 100% }
 #searchForm button { margin-top: -3px }
+#searchData { margin: 16px; padding: 16px; align-items: center}
+#searchData * { margin-right: 16px}
+#searchData .md-button-toggle { flex-wrap: wrap}
+#queried {margin-bottom: 8px; display: inline-block;}
 
 .searchResult { display: flex; padding: 0 16px; margin-bottom: 8px; max-width: 850px; width: 100%;}
 .searchResult .searchImg { min-width: 120px; max-width: 120px; text-align: center }
@@ -442,31 +375,39 @@ export default {
 #searchMeta {max-width: 300px; }
 #searchMeta .md-whiteframe { padding: 8px;}
 
-#search-ad-container {flex: auto!important; height: 0%; }
-#search-ad-container > div { margin-top: 0}
+.codeResult .searchText {width: 100%}
+.codeResult .searchText .ace_editor {border: 1px solid #77777733;}
+.codeResult .searchText .ace_scrollbar {display: none}
+.codeResult .searchText .ace_content .found-text {position: absolute; background: #FFFF0044}
 
-
-@media (min-width: 601px) {
-  #searchLayout { flex-wrap: nowrap; align-items: flex-start; }
-  #searchMeta { margin-right: 16px }
-  #searchResults { max-width: 850px; width:100%; flex: initial }
-  .floatSideBar #searchSide {position: fixed; left: 1110px; top: 4px; width: calc(100% - 1110px);}
-}
-
-
-@media (max-width: 1700px) {
-  #search-ad-container {display: none}
-  
-}
 @media (max-width: 600px) {
-  #searchLayout { flex-direction: column-reverse }
   #searchForm { padding: 16px 16px 0; max-width: 100% }
-  #searchSide { order: 2; width: 100%; }
+  #searchSide { order: 2; max-width: 100%; }
   #searchMeta .md-whiteframe { margin: 0 16px 16px }
   #searchMeta > div { width: 100%; }
   #searchResults { order: 1;}
   .searchResult { flex-direction: column; max-width:100%; min-width: initial }
-  .searchResult .searchImg { max-width: 100%; min-width: auto; text-align: left; padding-left: 16px }
+  .searchResult .searchImg { max-width: 100%; min-width: auto; text-align: left; padding-left: 16px; max-width: calc(100vw - 32px); }
+  .searchResult .searchText {max-width: calc(100vw - 32px);}
 }
+@media (max-width: 1650px) {
+  #searchResults { order: 2 }
+  #searchSide { order: 1; display: block }
+  #searchMeta { max-width: 100%; margin: 0 16px 16px 16px; display: block; }
+  #searchMeta .meta-items {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+  #searchMeta .meta-items .md-input-container {
+    width: auto;
+    min-width: 32%;
+    margin-right: 1%;
+  }
+}
+@media (min-width: 1651px) {
+  .floatSideBar #searchSide {position: fixed; left: 1110px; top: 4px; width: calc(100% - 1110px);}
+}
+
 
 </style>

@@ -1,8 +1,8 @@
 <template>
   <div id="cta-wago-addons">
-    <h2>Coming Soon: The Wago App</h2>
-    <p>Launching Spring 2021, the Wago App will bring Addons to Wago! Developers can sign up now to manage, market, and monetise their addons with enhanced development tools that simplify your addon experience.</p>
-    <md-button md-raised md-accent href="https://addons.wago.io">Find out more</md-button>
+    <h2>The Wago App Open Beta is here!</h2>
+    <p>Join the Wago App open Beta to manage your addons and download WeakAuras all in one App.</p>
+    <md-button md-raised md-accent href="https://addons.wago.io/app">Find out more</md-button>
   </div>
 </template>
 

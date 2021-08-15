@@ -1,26 +1,24 @@
 <template>
-  <div id="search-weakaura">    
-    <h2 id="addon-name">WeakAuras - <span>Legion</span></h2>
+  <div id="search-weakaura">
+    <md-layout md-row class="addon-name">
+      <md-avatar class='square'><category-image :group="'t-weakaura'"></category-image></md-avatar>
+      <h2 id="addon-name">WeakAuras -
+        <span>{{ $t('Legion') }}</span>
+      </h2>
+    </md-layout>
     <md-layout>
-      <addon-info addon="weakaura"></addon-info>
-      <form novalidate @submit.stop.prevent="runSearch(searchString)" id="searchForm">
-        <md-input-container>
-          <label>{{ $t("Search") }}</label>
-          <md-input v-model="searchString" ref="searchInput"></md-input>
-          <md-button @click="runSearch(searchString)" :disabled="searchString.length<3">{{ $t("Search") }}</md-button>
-        </md-input-container>
-      </form>
+      <addon-info addon="weakaura" expansion="legion"></addon-info>
     </md-layout>
     <md-layout>
       <md-layout>
         <md-subheader>{{ $t("Classes") }}</md-subheader>
         <md-list class="md-double-line md-dense">
-          <md-list-item v-for="cls in classes" v-bind:key="cls.id" :class="cls.cls + ' md-inset'">
-            <category-image :group="cls.cls"></category-image>
+          <md-list-item v-for="cls in classes" v-bind:key="cls.id" :class="cls.id + ' md-inset'">
+            <div class="menu-image"></div>
             <div class="md-list-text-container">
-              <a href="#" @click.prevent="searchRoute(cls.slug)">{{ cls.text }}</a>
+              <a :href="'/legion-weakauras/' + cls.slug" @click.prevent="searchRoute(cls)">{{ cls.text }}</a>
               <span>
-                <a v-for="spec in cls.specs" v-bind:key="spec.id" href="#" @click.prevent="searchRoute(spec.slug)">{{ spec.text.replace(cls.text, '').trim() }}</a>
+                <a v-for="spec in cls.specs" v-bind:key="spec.id" :href="'/legion-weakauras/' + spec.slug" @click.prevent="searchRoute(spec)">{{ spec.text.replace(cls.text, '').trim() }}</a>
               </span>
             </div>
           </md-list-item>
@@ -29,12 +27,12 @@
       <md-layout>
         <md-subheader>{{ $t("Legion PvE") }}</md-subheader>
         <md-list class="md-double-line md-dense">
-          <md-list-item v-for="raid in raids" v-bind:key="raid.id" :class="raid.cls + ' md-inset'">
-            <category-image :group="raid.cls"></category-image>
+          <md-list-item v-for="raid in raids" v-bind:key="raid.id" :class="raid.id + ' md-inset'">
+            <div class="menu-image"></div>
             <div class="md-list-text-container">
-              <a href="#" @click.prevent="searchRoute(raid.slug)">{{ raid.text }}</a>
+              <a :href="'/legion-weakauras/' + raid.slug" @click.prevent="searchRoute(raid)">{{ raid.text }}</a>
               <span>
-                <a v-for="boss in raid.bosses" v-bind:key="boss.id" href="#" @click.prevent="searchRoute(boss.slug)">{{ boss.text }}</a>
+                <a v-for="boss in raid.bosses" v-bind:key="boss.id" :href="'/legion-weakauras/' + boss.slug" @click.prevent="searchRoute(boss)">{{ boss.text }}</a>
               </span>
             </div>
           </md-list-item>
@@ -43,22 +41,22 @@
       <md-layout>
         <md-subheader>{{ $t("Miscellaneous") }}</md-subheader>
         <md-list class="md-double-line md-dense">
-          <md-list-item class="md-inset misc">
-            <category-image group="misc"></category-image>
+          <md-list-item class="md-inset gen0">
+            <div class="menu-image"></div>
             <div class="md-list-text-container">
-              <a href="#" @click.prevent="searchRoute('general')">{{ $t("General") }}</a>
+              <a href="/legion-weakauras/general" @click.prevent="searchRoute('gen0')">{{ $t("General") }}</a>
               <span>
-                <a v-for="item in misc" v-bind:key="item.id" href="#" @click.prevent="searchRoute(item.slug)">{{ item.text }}</a>
+                <a v-for="item in misc" v-bind:key="item.id" :href="'/legion-weakauras/' + item.slug" @click.prevent="searchRoute(item)">{{ item.text }}</a>
               </span>
             </div>
           </md-list-item>
-          
-          <md-list-item class="md-inset roles">
-            <category-image group="role"></category-image>
+
+          <md-list-item class="md-inset role0">
+            <div class="menu-image"></div>
             <div class="md-list-text-container">
-              <a href="#" @click.prevent="searchRoute('class-roles')">{{ $t("Class Roles") }}</a>
+              <a href="/legion-weakauras/roles" @click.prevent="searchRoute('role0')">{{ $t("Class Roles") }}</a>
               <span>
-                <a v-for="item in roles" v-bind:key="item.id" href="#" @click.prevent="searchRoute(item.slug)">{{ item.text }}</a>
+                <a v-for="item in roles" v-bind:key="item.id" :href="'/legion-weakauras/' + item.slug" @click.prevent="searchRoute(item)">{{ item.text }}</a>
               </span>
             </div>
           </md-list-item>
@@ -66,12 +64,12 @@
 
         <md-subheader>{{ $t("PvP") }}</md-subheader>
         <md-list class="md-double-line md-dense">
-          <md-list-item v-for="item in pvp" v-bind:key="item.id" :class="item.cls + ' md-inset'">
-            <category-image :group="item.cls"></category-image>
+          <md-list-item class="md-inset pvp">
+            <div class="menu-image"></div>
             <div class="md-list-text-container">
-              <a href="#" @click.prevent="searchRoute(item.slug)">{{ item.text }}</a>
+              <a href="/legion-weakauras/pvp" @click.prevent="searchRoute('pvp')">{{ $t("PvP") }}</a>
               <span>
-                <a v-for="zone in item.bosses" v-bind:key="zone.id" href="#" @click.prevent="searchRoute(zone.slug)">{{ zone.text }}</a>
+                <a v-for="item in pvp" v-bind:key="item.id" :href="'/legion-weakauras/' + item.slug" @click.prevent="searchRoute(item)">{{ item.text }}</a>
               </span>
             </div>
           </md-list-item>
@@ -79,25 +77,25 @@
 
         <md-subheader>{{ $t("Professions") }}</md-subheader>
         <md-list class="md-double-line md-dense">
-          <md-list-item v-for="prof in professions" v-bind:key="prof.id" :class="prof.cls + ' md-inset'">
-            <category-image :group="prof.cls"></category-image>
+          <md-list-item v-for="prof in professions" v-bind:key="prof.id" :class="prof.id + ' md-inset'">
+            <div class="menu-image"></div>
             <div class="md-list-text-container">
-              <a href="#" @click.prevent="searchRoute(prof.slug)">{{ prof.text }}</a>
+              <a :href="'/legion-weakauras/' + prof.slug" @click.prevent="searchRoute(prof)">{{ prof.text }}</a>
               <span>
-                <a  v-for="spec in prof.specs" v-bind:key="spec.id" href="#" @click.prevent="searchRoute(spec.slug)">{{ spec.text }}</a>
+                <a  v-for="spec in prof.specs" v-bind:key="spec.id" :href="'/legion-weakauras/' + spec.slug" @click.prevent="searchRoute(spec)">{{ spec.text }}</a>
               </span>
             </div>
           </md-list-item>
-        </md-list>      
+        </md-list>
 
         <md-subheader>{{ $t("Custom Code") }}</md-subheader>
         <md-list class="md-double-line md-dense">
           <md-list-item class="md-inset development">
-            <category-image group="development"></category-image>
+            <div class="menu-image"></div>
             <div class="md-list-text-container">
-              <a href="#" @click.prevent="searchRoute('development')">{{ $t("Development") }}</a>
+              <a href="/legion-weakauras/development" @click.prevent="searchRoute('gen5')">{{ $t("Development") }}</a>
               <span>
-                <a v-for="item in development" v-bind:key="item.id" href="#" @click.prevent="searchRoute(item.slug)">{{ item.text }}</a>
+                <a v-for="item in development" v-bind:key="item.id" :href="'/legion-weakauras/' + item.slug" @click.prevent="searchRoute(item)">{{ item.text }}</a>
               </span>
             </div>
           </md-list-item>
@@ -105,19 +103,19 @@
 
         <md-subheader>{{ $t("Other Expansions") }}</md-subheader>
         <md-list class="md-double-line md-dense">
-          <!--<md-list-item class="torghast md-inset'">
+          <md-list-item class="torghast md-inset'">
             <category-image group="torghast"></category-image>
             <div class="md-list-text-container">
               <router-link to="/shadowlands-weakauras/">{{ $t('Shadowlands') }}</router-link>
             </div>
-          </md-list-item>-->
-          <md-list-item class="nyalotha md-inset'">
-            <category-image group="nyalotha"></category-image>
+          </md-list-item>
+          <md-list-item class="raidnyalotha md-inset'">
+            <div class="menu-image"></div>
             <div class="md-list-text-container">
               <router-link to="/bfa-weakauras/">{{ $t('Battle for Azeroth') }}</router-link>
             </div>
           </md-list-item>
-        </md-list>  
+        </md-list>
 
       </md-layout>
     </md-layout>
@@ -126,7 +124,6 @@
 </template>
 
 <script>
-import categories from '../libs/categories'
 import CategoryImage from '../UI/CategoryImage.vue'
 import AddonInfoBox from '../UI/AddonInfoBox.vue'
 export default {
@@ -139,9 +136,13 @@ export default {
       this.$store.commit('userSearchOption', {field: 'expansion', value: 'legion'})
       this.$router.push('/search/' + this.searchString.trim().replace(/\s+/g, '+'))
     },
-    searchRoute: function (slug) {
+    searchRoute: function (item) {
       this.$store.commit('userSearchOption', {field: 'expansion', value: 'legion'})
-      this.$router.push('/legion-weakauras/' + slug)
+      if (typeof item === 'string') {
+        item = window.Categories.match(item)
+      }
+      this.$store.commit('setSearchText', `expansion:legion type:WEAKAURA category:${item.id}`)
+      this.$router.push('/legion-weakauras/' + item.slug)
     }
   },
   data: function () {
@@ -150,39 +151,35 @@ export default {
     }
   },
   computed: {
-    categories: function () {
-      return categories.categories(this.$t)
-    },
     classes: function () {
-      return categories.classCategories(this.$t, 'WEAKAURA', 'legion')
+      return window.Categories.classCategories('WEAKAURA', 'legion')
     },
     raids: function () {
-      return categories.raidCategories(['raidantorus', 'raidtomb', 'raidnh', 'raidtov', 'raiden', 'dungeon'], this.$t)
+      return window.Categories.raidCategories(['raidantorus', 'raidtomb', 'raidnh', 'raidtov', 'raiden', 'dungeon'])
     },
     misc: function () {
-      return categories.getCategories(['gen1', 'legen', 'gen7', 'gen2', 'gen6'], this.$t)
+      return window.Categories.getCategories(['gen1', 'legen', 'gen7', 'gen2', 'gen6'], null, 'WEAKAURA', 'legion')
     },
     roles: function () {
-      return categories.getCategories(['role4', 'role1', 'role2', 'role3'], this.$t)
+      return window.Categories.getCategories(['role4', 'role1', 'role2', 'role3'], null, 'WEAKAURA', 'legion')
     },
     pvp: function () {
-      return categories.raidCategories(['arena', 'bg'], this.$t)
+      return window.Categories.getCategories([/^(arena|bg|wpvp1?)$/], null, 'WEAKAURA', 'legion')
     },
     professions: function () {
-      return categories.professionCategories(this.$t, 'WEAKAURA', 'legion')
+      return window.Categories.professionCategories('WEAKAURA', 'legion')
     },
     development: function () {
-      return categories.getCategories(['gen5', 'gen3', 'gen4'], this.$t)
+      return window.Categories.getCategories(['gen5', 'gen3', 'gen4'])
     },
     snippets: function () {
-      return categories.getCategories(['snip1', 'snip2'], this.$t)
+      return window.Categories.getCategories(['snip1', 'snip2'])
     },
     legacy: function () {
-      return categories.getCategories(['raidhfc'], this.$t)
+      return window.Categories.getCategories(['raidhfc'])
     }
   },
   mounted: function () {
-    this.$refs.searchInput.$el.focus()
     this.$store.commit('setPageInfo', {
       title: 'WeakAuras',
       description: this.$t('Browse WeakAura imports')
@@ -192,23 +189,29 @@ export default {
 }
 </script>
 
-<style>
-h2#addon-name {margin: 16px 0 0 16px;}
-h2#addon-name span {font-size: 80%}
+<style lang="scss">
+.addon-name {
+  .md-avatar {margin: 16px; border-radius: 4px;}
+  h2 {margin: 16px 0 0 0; line-height: 40px}
+}
+h2 .faded {opacity: .3}
+h2 span {font-size:80%; cursor: pointer}
 #searchForm { padding: 16px; flex: 1 }
 #searchForm button { margin-top: -3px }
 
-#search-weakaura { margin-bottom: 90px}
+#addon-name .md-theme-default.md-switch {margin: 0 8px; zoom:0.8}
+#addon-name .md-theme-default.md-switch.md-checked .md-switch-container {background-color: rgba(0, 0, 0, 0.38);}
+#addon-name .md-theme-default.md-switch.md-checked .md-switch-thumb {background-color: #fafafa;}
+
 #search-weakaura .md-list-item img { height: 48px; padding-right: 16px; vertical-align:top}
 #search-weakaura a { margin-right: 12px }
 #search-weakaura .md-list-item.md-inset .md-list-item-container { padding-left: 24px; flex-wrap: wrap; padding-bottom: 16px }
 #search-weakaura .md-list-text-container a { white-space: nowrap; display: inline-block }
-#search-weakaura .md-list-text-container > a { font-size: 18px; font-weight: bold; line-height: 19px; }
+#search-weakaura .md-list-text-container > a, #search-weakaura .md-list-text-container > .parent-category { font-size: 18px; font-weight: bold; line-height: 19px; }
 #search-weakaura .md-list-text-container span{ white-space: normal; line-height: 22px}
 #search-weakaura .md-layout { align-items: flex-start}
-#search-weakaura .md-layout > .md-layout {max-width:450px}
 
 #search-weakaura .md-subheader { width: 100% }
 #search-weakaura .md-subheader + .md-list { width: 100% }
-#search-weakaura .md-subheader + .md-list:after { background-color: transparent }
+.md-list:after { background-color: transparent!important }
 </style>

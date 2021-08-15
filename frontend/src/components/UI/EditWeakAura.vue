@@ -1,23 +1,23 @@
 <template>
   <div id="edit-weakaura">
-    <codereview v-if="codeReview && codeReviewFile >= 0 && codeReview.stabilityChecks && codeReview.stabilityChecks.length" name="Code Review" :review="codeReview.stabilityChecks[codeReviewFile]" @setComment="setCodeReviewComment" :author="wago.user && User && wago.UID && wago.UID === User.UID"></codereview>
-    <codereview v-if="luacheck && editorSelected !== 'tabledata'" name="Luacheck" :luacheck="true">{{luacheck[luacheckFile]}}</codereview>
-    <div class="flex-container">
+    <codereview v-if="codeReview && codeReview.alerts && codeReview.alertContent" :alerts="codeReview.alertContent" :highlights="codeReview.info" @loadFn="loadByKeypath" :name="$t('Alert!!')" @setComment="setCodeReviewComment" :author="wago.user && User && wago.UID && wago.UID === User.UID"></codereview>
+    <codereview v-else-if="codeReview && (codeReview.info.dependencies.length || codeReview.info.highlights.size)" :highlights="codeReview.info" :author="wago.user && User && wago.UID && wago.UID === User.UID"></codereview>
+
+    <div class="flex-container" id="editor-main">
       <div class="flex-col flex-left">
         <md-input-container>
           <label for="customfn" v-html="$t('Edit [-file-]', {file: editorFile})"></label>
-          <md-select name="customfn" id="customfn" v-model="editorSelected" md-menu-class="customFn">
-            <md-option value="tabledata" >{{ $t("Table data") }}</md-option>
-            <template v-for="fn in customFn">
-              <md-subheader v-if="typeof(fn) === 'string'">{{ fn }}</md-subheader>
-              <md-option v-else :value="`${fn.id}: ${fn.name}`">{{ fn.name }}</md-option>
+          <md-select name="customfn" id="customfn" v-model="customCodeIndex" md-menu-class="customFn">
+            <md-option :value="-1" >{{ $t("Table data") }}</md-option>
+            <template v-for="(fn, i) in customCode">
+              <md-option :value="i" class="code-select"><small>{{ fn.name.replace(/ - .*?$/, '') }}<span>:</span></small> {{ fn.name.replace(/^.* - /, '') }}</md-option>
             </template>
-            <md-subheader v-if="!customFn.length">{{ $t("No custom functions found") }}</md-subheader>
+            <md-subheader v-if="!customCode || !customCode.length">{{ $t("No custom functions found") }}</md-subheader>
           </md-select>
-        </md-input-container>        
+        </md-input-container>
       </div>
       <div class="flex-col flex-right">
-        <md-button v-if="editorSelected !== 'tabledata'" @click="formatCode"><md-icon>code</md-icon> {{ $t("Format Lua") }}</md-button>
+        <md-button v-if="customCodeIndex >= 0" @click="formatCode"><md-icon>code</md-icon> {{ $t("Format Lua") }}</md-button>
         <md-menu v-if="groupedWA" md-size="6" md-align-trigger>
           <md-button md-menu-trigger id="extractFromGroupButton"><md-icon>call_missed_outgoing</md-icon> {{ $t("Extract from group") }}</md-button>
           <md-menu-content>
@@ -50,6 +50,13 @@
         </md-dialog-actions>
       </md-dialog>
     </div>
+
+    <div :key="customCodeIndex" v-if="customCode && customCode[customCodeIndex]">
+      <codereview v-if="customCode[customCodeIndex].stabilityChecks && customCode[customCodeIndex].stabilityChecks.length" name="Code Review" :review="codeReview.stabilityChecks[customCodeIndex]" @setComment="setCodeReviewComment" :author="wago.user && User && wago.UID && wago.UID === User.UID"></codereview>
+      <codereview v-if="customCode[customCodeIndex].luacheck" name="Luacheck" :luacheck="true" :canMin="true" >{{customCode[customCodeIndex].luacheck}}</codereview>
+      <codereview v-if="customCode[customCodeIndex].metrics" :name="'Code Analysis - ' + customCode[customCodeIndex].name" :codeInfo="true" :json="customCode[customCodeIndex].metrics" :canMin="true"></codereview>
+    </div>
+    <codereview v-else-if="customCodeIndex === -1 && codeReview && codeReview.info && codeReview.info.nloc" name="Code Analysis" :codeInfo="true" :json="codeReview.info"></codereview>
 
     <editor v-model="editorContent" @init="editorInit" :lang="aceLanguage" :theme="editorTheme" width="100%" height="500" @input="setHasUnsavedChanges(true)"></editor>
 
@@ -84,7 +91,6 @@ export default {
   props: ['unsavedTable', 'cipherKey', 'loadFn'],
   data: function () {
     return {
-      editorSelected: 'tabledata',
       editorPrevious: 'tabledata',
       editorPreviousObj: {},
       tableData: JSON.parse(this.$store.state.wago.code.json),
@@ -97,132 +103,50 @@ export default {
       latestVersion: {semver: semver.valid(semver.coerce(this.$store.state.wago.versions.versions[0].versionString))},
       newImportVersion: {},
       newChangelog: {},
-      luacheck: this.$store.state.wago.code.luacheck,
+      customCode: this.$store.state.wago.code.customCode,
+      customCodeIndex: -1,
       luacheckFile: null,
       codeReview: this.$store.state.wago.codeReview,
-      codeReviewFile: -1,
       customFn: []
     }
   },
   watch: {
-    editorSelected: function (newFn) {
-      var tmpUnsaved = this.unsavedTable
-      try {
-        var fn
-        this.customFn = detectCustomCode.WeakAura(this.tableData)
-        if (newFn !== 'tabledata') {
-          this.luacheckFile = newFn
-          for (let i = 0; i < this.customFn.length; i++) {
-            if (typeof this.customFn[i] === 'object' && newFn === `${this.customFn[i].id}: ${this.customFn[i].name}`) {
-              fn = this.customFn[i]
-              break
-            }
-          }
-          if (this.codeReview.stabilityChecks) {
-            for (let i = 0; i < this.codeReview.stabilityChecks.length; i++) {
-              if (this.codeReview.stabilityChecks[i] && this.codeReview.stabilityChecks[i].func === this.luacheckFile) {
-                this.codeReviewFile = i
-                break
-              }
-            }
-          }
+    customCodeIndex: async function (newIndex, oldIndex) {
+      console.log(this.codeReview)
+      const unsavedTableState = this.unsavedTable
+      console.log('unsavedTableState', unsavedTableState)
+      if (oldIndex === -1) {
+        let table = this.aceEditor.getValue()
+        this.$store.commit('setWagoJSON', table)
+        this.tableData = JSON.parse(table)
+      }
+      else if (this.customCode[oldIndex]) {
+        let updatedLua = this.aceEditor.getValue()
+        let safeLua = updatedLua.replace(/\\/g, '\\\\').replace(/\r\n|\n|\r/g, '\\n').replace(/"/g, '\\"')
+        this.$set(this.customCode[oldIndex], 'lua', updatedLua)
+        if (this.customCode[oldIndex].keypath.match(/^\w/)) {
+          eval(`this.tableData.${this.customCode[oldIndex].keypath} = "${safeLua}"`)
         }
         else {
-          this.luacheckFile = null
-          this.codeReviewFile = -1
-          for (let i = 0; i < this.customFn.length; i++) {
-            if (this.codeReview.stabilityChecks[i] && this.codeReview.stabilityChecks[i].func === 'tabledata') {
-              this.codeReviewFile = i
-              break
-            }
-          }
-        }
-
-        // save current data to json object
-        /* eslint-disable no-unused-vars */
-        /* eslint-disable no-eval */
-        var root
-        // if switching FROM table data TO a custom Fn
-        if (fn && this.editorPrevious === 'tabledata') {
-          this.$store.commit('setWagoJSON', this.aceEditor.getValue())
-          this.tableData = JSON.parse(this.aceEditor.getValue())
-
-          this.$nextTick(() => {
-            // switch to lua
-            this.aceEditor.getSession().setMode('ace/mode/lua')
-
-            if (fn.ix.table === 'd') {
-              root = JSON.parse(this.editorContent).d
-              this.aceEditor.setValue(eval('root.' + fn.path), -1)
-            }
-            else if (fn.ix.table === 'c') {
-              root = JSON.parse(this.editorContent).c[fn.ix.index]
-              this.aceEditor.setValue(eval('root.' + fn.path), -1)
-            }
-            var editor = this.aceEditor
-            setTimeout(function () {
-              editor.getSession().getUndoManager().reset()
-            }, 500)
-            this.setHasUnsavedChanges(tmpUnsaved)
-            this.editorFile = root.id
-          })
-        }
-        // if switching FROM a custom function
-        else {
-          var updated = this.aceEditor.getValue().replace(/\\/g, '\\\\').replace(/\r\n|\n|\r/g, '\\n').replace(/"/g, '\\"')
-
-          // update table data
-          if (this.editorPreviousObj.ix.table === 'd') {
-            eval('this.tableData.d.' + this.editorPreviousObj.path + ' = "' + updated + '"')
-          }
-          else if (this.editorPreviousObj.ix.table === 'c') {
-            eval('this.tableData.c[' + this.editorPreviousObj.ix.index + '].' + this.editorPreviousObj.path + ' = "' + updated + '"')
-          }
-
-          var json = JSON.stringify(this.tableData, null, 2)
-          this.$store.commit('setWagoJSON', json)
-
-          this.$nextTick(() => {
-            // if switching TO table data
-            if (fn === 'tabledata' || !fn) {
-              this.aceEditor.setValue(json, -1)
-              this.aceEditor.getSession().setMode('ace/mode/json')
-              this.editorFile = this.tableData.d.id
-            }
-            // if we are switching TO a custom function
-            else if (typeof fn === 'object') {
-              this.aceEditor.getSession().setMode('ace/mode/lua')
-              if (fn.ix.table === 'd') {
-                root = this.tableData.d
-                this.aceEditor.setValue(eval('root.' + fn.path), -1)
-              }
-              else if (fn.ix.table === 'c') {
-                root = this.tableData.c[fn.ix.index]
-                this.aceEditor.setValue(eval('root.' + fn.path), -1)
-              }
-              this.editorFile = root.id
-            }
-            var editor = this.aceEditor
-            setTimeout(function () {
-              editor.getSession().getUndoManager().reset()
-            }, 500)
-            this.setHasUnsavedChanges(tmpUnsaved)
-          })
+          eval(`this.tableData${this.customCode[oldIndex].keypath} = "${safeLua}"`)
         }
       }
-      catch (e) {
-        console.log(e)
-        window.eventHub.$emit('showSnackBar', this.$t('error:An error occurred reading the table data'))
+
+      await this.$nextTick()
+      if (newIndex === -1) {
+        this.aceEditor.setValue('')
+        this.aceEditor.getSession().setMode('ace/mode/json')
+        this.aceEditor.setValue(JSON.stringify(this.tableData, null, 2), -1)
+      }
+      else if (this.customCode[newIndex]) {
+        this.aceEditor.setValue('')
+        this.aceEditor.getSession().setMode('ace/mode/lua')
+        this.aceEditor.setValue(this.customCode[newIndex].lua, -1)
       }
 
-      // set previous to what is set NOW, for next time
-      if (fn === 'tabledata') {
-        this.editorPrevious = fn
-      }
-      else {
-        this.editorPrevious = 'fn'
-        this.editorPreviousObj = fn
-      }
+      await this.$nextTick()
+      this.aceEditor.getSession().getUndoManager().reset()
+      this.setHasUnsavedChanges(unsavedTableState)
     }
   },
   components: {
@@ -237,23 +161,11 @@ export default {
     this.latestVersion.minor = semver.minor(this.latestVersion.semver)
     this.latestVersion.patch = semver.patch(this.latestVersion.semver)
 
-    this.customFn = detectCustomCode.WeakAura(this.tableData)
-    if (this.loadFn && this.loadFn !== 'tabledata') {
-      for (let i = 0; i < this.customFn.length; i++) {
-        if (typeof this.customFn[i] === 'object' && this.loadFn === `${this.customFn[i].id}: ${this.customFn[i].name}`) {
-          this.editorSelected = this.loadFn
-          break
-        }
-      }
+    if (this.loadFn) {
+      this.loadByKeypath(this.loadFn)
     }
-    else {
-      for (let i = 0; i < this.customFn.length; i++) {
-        if (this.codeReview.stabilityChecks[i] && this.codeReview.stabilityChecks[i].func === 'tabledata') {
-          this.codeReviewFile = i
-          break
-        }
-      }
-    }
+
+    console.log(this.customCode)
   },
   methods: {
     editorInit: function (editor) {
@@ -277,6 +189,18 @@ export default {
         readOnly: true
       })
     },
+
+    loadByKeypath: async function (keypath) {
+      for (let i = 0; i < this.customCode.length; i++) {
+        if (this.customCode[i].keypath === keypath) {
+          this.customCodeIndex = i
+          await this.$nextTick()
+          let t = document.getElementById('editor-main').getBoundingClientRect().top
+          window.scrollTo({top: t - 84 + window.pageYOffset, behavior: 'smooth'})
+        }
+      }
+    },
+
     setCodeReviewComment (id, text, flag) {
       let comment = {
         author: this.wago.user,
@@ -288,63 +212,51 @@ export default {
       this.$set(this.wago.codeReviewComments, id, comment)
     },
 
-    runLuacheck: function () {
-      this.luacheck = 'loading'
-      this.http.get('/lookup/wago/luacheck', {id: this.wago._id, version: this.$store.state.wago.code.versionString}).then((res) => {
-        this.luacheck = res
-      })
-    },
-
     formatCode: function () {
       var lua = this.aceEditor.getValue()
+      console.log(lua)
       lua = luamin.Beautify(lua, {})
       this.aceEditor.setValue(lua, -1)
     },
 
-    saveChanges: function () {
+    saveChanges: async function () {
       this.$refs['saveChangesDialog'].close()
-      if (this.editorSelected === 'tabledata') {
-        var post = {}
-        post.wagoID = this.wago._id
-        post.type = this.wago.type
-        post.json = this.aceEditor.getValue()
-        post.newVersion = this.newImportVersion.semver
-        post.changelog = this.newChangelog.text
-        post.changelogFormat = this.newChangelog.format
-        post.cipherKey = this.cipherKey
-        var vue = this
-        this.http.post('/import/json/save', post).then((res) => {
-          if (res.success) {
-            window.eventHub.$emit('showSnackBar', this.$t('Wago saved successfully'))
-            vue.$router.push('/' + vue.wago.slug)
-            this.setHasUnsavedChanges(false)
-            if (res.encoded) {
-              this.$emit('update-encoded', res.encoded)
-            }
-            if (res.latestVersion) {
-              this.$set(this.latestVersion, 'semver', semver.valid(semver.coerce(res.latestVersion)))
-              this.$set(this.latestVersion, 'major', semver.major(this.latestVersion.semver))
-              this.$set(this.latestVersion, 'minor', semver.minor(this.latestVersion.semver))
-              this.$set(this.latestVersion, 'patch', semver.patch(this.latestVersion.semver))
-              this.$emit('update-version', res.latestVersion)
-              this.$set(this.wago.code, 'changelog', {text: post.changelog, format: post.changelogFormat})
-            }
+      this.customCodeIndex = -1
+      await this.$nextTick()
+      await this.$nextTick() // wait 2 ticks
+      let post = {}
+      post.wagoID = this.wago._id
+      post.type = this.wago.type
+      post.json = this.aceEditor.getValue()
+      post.newVersion = this.newImportVersion.semver
+      post.changelog = this.newChangelog.text
+      post.changelogFormat = this.newChangelog.format
+      post.cipherKey = this.cipherKey
+      let vue = this
+      this.http.post('/import/json/save', post).then((res) => {
+        if (res.success) {
+          window.eventHub.$emit('showSnackBar', this.$t('Wago saved successfully'))
+          vue.$router.push('/' + vue.wago.slug)
+          this.setHasUnsavedChanges(false)
+          if (res.encoded) {
+            this.$emit('update-encoded', res.encoded)
           }
-          else if (res && res.error) {
-            window.eventHub.$emit('showSnackBar', res.error)
+          if (res.latestVersion) {
+            this.$set(this.latestVersion, 'semver', semver.valid(semver.coerce(res.latestVersion)))
+            this.$set(this.latestVersion, 'major', semver.major(this.latestVersion.semver))
+            this.$set(this.latestVersion, 'minor', semver.minor(this.latestVersion.semver))
+            this.$set(this.latestVersion, 'patch', semver.patch(this.latestVersion.semver))
+            this.$emit('update-version', res.latestVersion)
+            this.$set(this.wago.code, 'changelog', {text: post.changelog, format: post.changelogFormat})
           }
-          else {
-            window.eventHub.$emit('showSnackBar', this.$t('Unknown error could not save'))
-          }
-        })
-      }
-      else {
-        this.editorSelected = 'tabledata'
-        var t = this
-        setTimeout(function () {
-          t.saveChanges()
-        }, 50)
-      }
+        }
+        else if (res && res.error) {
+          window.eventHub.$emit('showSnackBar', res.error)
+        }
+        else {
+          window.eventHub.$emit('showSnackBar', this.$t('Unknown error could not save'))
+        }
+      })
     },
     setHasUnsavedChanges: function (bool) {
       this.$emit('set-has-unsaved-changes', bool)
@@ -486,4 +398,8 @@ export default {
 #edit-weakaura .ace_editor { box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2), 0 2px 2px rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.12); }
 .customFn .md-subheader { color: #c0272e }
 #saveChangesDialog .md-dialog { min-width: 40% }
+.code-select .md-button {line-height: 20px}
+.code-select .md-button span {display: block; line-height: 20px}
+.code-select .md-button span small {display: block; font-weight: bold;}
+.code-select .md-button span small span {display: none}
 </style>

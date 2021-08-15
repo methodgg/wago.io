@@ -27,14 +27,14 @@ export default {
       needsScan: true
     }
   },
-  props: ['json', 'type', 'showExport', 'wagoID', 'cipherKey'],
+  props: ['json', 'type', 'showExport', 'wagoID', 'wagolib', 'cipherKey'],
   methods: {
     onOpen: function () {
       if (!this.needsScan) {
         return false
       }
       var vue = this
-      this.http.post('/import/json/scan', { json: this.json, type: this.type, forkOf: this.wagoID }).then((res) => {
+      this.http.post('/import/json/scan', { json: this.json, type: this.type, forkOf: this.wagoID, wagolib: this.wagolib }).then((res) => {
         vue.forkString = res.encoded
         vue.scanID = res.scan
         vue.needsScan = false

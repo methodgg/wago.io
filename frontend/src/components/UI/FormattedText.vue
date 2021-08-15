@@ -40,7 +40,6 @@ export default {
       if (!this.text.text) {
         return ''
       }
-      console.log(this.text)
 
       // format plaintext
       if (this.plaintext) {
@@ -206,15 +205,15 @@ export default {
 
 .markdown {
   p > code {
-    padding: 4px; 
+    padding: 4px;
     margin: 0 2px;
     background: #111111!important;
     color: #DDD!important;
   }
   pre {
-    padding: 8px; 
-    border: 2px solid #111; 
-    background: #1C1C1C; 
+    padding: 8px;
+    border: 2px solid #111;
+    background: #1C1C1C;
     border-radius: 4px;
     white-space: break-spaces;
     code {
@@ -261,7 +260,7 @@ export default {
     border-radius: 4px;
     color: white!important;
     font-weight: bold;
-    text-transform: uppercase; 
+    text-transform: uppercase;
   }
   .button:hover {
     text-decoration: none!important

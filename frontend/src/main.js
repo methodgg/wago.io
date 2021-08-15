@@ -50,6 +50,7 @@ import Vuex from 'vuex'
 Vue.use(Vuex)
 const store = new Vuex.Store({
   state: {
+    isTest: process.env.NODE_ENV === 'development' || document.getElementById('test-content'),
     locale: window.readCookie('locale') || 'en-US',
     user: {},
     loggedIn: false,
@@ -67,6 +68,8 @@ const store = new Vuex.Store({
       description: 'Database of sharable World of Warcraft addon elements',
       image: 'https://wago.io/media/favicon/apple-touch-icon-180x180.png'
     },
+    siteSearch: '',
+    execSearch: 0,
     firstAd: false,
     linkApp: false,
 
@@ -172,6 +175,14 @@ const store = new Vuex.Store({
         return
       }
       state.user.config.searchOptions[data.field] = data.value
+    },
+
+    setSearchText (state, text) {
+      Vue.set(state, 'siteSearch', '')
+      Vue.nextTick(() => {
+        Vue.set(state, 'siteSearch', text.replace(/\s{2,}/g, ' ').trim())
+        state.execSearch++
+      })
     },
 
     setPageInfo (state, page) {
@@ -901,6 +912,7 @@ window.braceRequires = function () {
 import VueKonva from 'vue-konva'
 Vue.use(VueKonva)
 
+window.Categories = window.Categories = require('./components/libs/categories2')
 window.i18next = window.i18next = require('i18next')
 import VueI18Next from '@panter/vue-i18next'
 
@@ -924,6 +936,7 @@ i18next.use(XHR)
     }
   }, () => {
     const i18n = new VueI18Next(i18next)
+    window.Categories.init()
     /* eslint-disable no-unused-vars */
     window.eventHub = new Vue()
     new Vue({
@@ -935,6 +948,6 @@ i18next.use(XHR)
       template: '<App/>',
       render: h => h(App),
     })
-  })
 
+  })
 

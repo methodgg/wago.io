@@ -32,7 +32,7 @@
     </div>
     
     <editor v-model="editorContent" @init="editorInit" :lang="aceLanguage" :theme="editorTheme" width="100%" height="500" @input="setHasUnsavedChanges(true)"></editor>
-    <export-modal :json="tableString" :type="wago.type" :showExport="showExport" :wagoID="wago._id" @hideExport="hideExport"></export-modal>
+    <export-modal :json="tableString" :type="wago.type" :showExport="showExport" :wagoID="wago._id" :wagolib="wago.wagolib" @hideExport="hideExport"></export-modal>
   </div>
 </template>
 

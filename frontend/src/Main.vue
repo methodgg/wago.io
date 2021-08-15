@@ -1,7 +1,6 @@
 <template>
   <div>
     <wago-app />
-    <advert ad="wago320x50" :forMobile="true" fixed="bottom" />
     <stream-embed v-if="stream" :stream="stream" />
   </div>
 </template>

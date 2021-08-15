@@ -2,7 +2,7 @@
   <div>
     <md-whiteframe id="queryInfo">
       <strong>{{ $t("Options") }}</strong>
-      <div class="field-group">
+      <div class="meta-items">
         <md-input-container>
           <label for="sort">{{ $t("Sort") }}</label>
           <md-select name="sort" id="sort" v-model="sortVal">
@@ -61,7 +61,7 @@
       </div>
 
       <strong>{{ $t("Query information") }}</strong>
-      <md-list>
+      <md-list class="meta-items">
         <template v-for="(context, index) in meta">
           <md-list-item v-if="context.type === 'type'" v-bind:key="index">
             <md-avatar class='square'><category-image :group="'t-' + context.wagoType.toLowerCase()"></category-image></md-avatar>
@@ -144,9 +144,10 @@
 
 <script>
 import Categories from '../libs/categories'
+import CategoryImage from '../UI/CategoryImage.vue'
 export default {
   components: {
-    'category-image': require('../UI/CategoryImage.vue')
+    'category-image': CategoryImage
   },
   props: ['meta', 'textSearch', 'tagMap', 'sort', 'catRelevance', 'filterExpansion', 'includeReadMentions'],
   computed: {
@@ -254,7 +255,7 @@ export default {
   },
   methods: {
     getCategory: function (catID) {
-      return Categories.match(catID, this.$t)
+      return Categories.match(catID)
     },
     getLabel: function (v) {
       switch (v) {

@@ -20,6 +20,7 @@ const MenuMDTShadowlands = resolve => require(['@/components/core/Menu-MDT-Shado
 const CreateMDT = resolve => require(['@/components/core/Create-MDT.vue'], resolve)
 const CreateEncounterNotes = resolve => require(['@/components/core/Create-Notes.vue'], resolve)
 const MenuCollections = resolve => require(['@/components/core/Menu-Collections.vue'], resolve)
+const MenuAddons = resolve => require(['@/components/core/Menu-Addons.vue'], resolve)
 
 const TermsOfService = resolve => require(['@/components/core/TermsOfService.vue'], resolve)
 const PrivacyPolicy = resolve => require(['@/components/core/PrivacyPolicy.vue'], resolve)
@@ -31,14 +32,14 @@ const News = resolve => require(['@/components/core/News.vue'], resolve)
 const Search = resolve => require(['@/components/core/Search.vue'], resolve)
 const WACompanion = resolve => require(['@/components/core/WA-Companion.vue'], resolve)
 // const Stats = resolve => require(['@/components/core/Stats.vue'], resolve)
+const WagoLib = resolve => require(['@/components/core/WagoLib.vue'], resolve)
 
 const OAuth = resolve => require(['@/components/UI/WagoOauth.vue'], resolve)
 
 const Random = resolve => require(['@/components/UI/Random.vue'], resolve)
 
-import Categories from './components/libs/categories'
-
-function GetContextTag (params) {
+function GetContextSearch (params, type, expansion) {
+  console.log('getcontextsearch', params, type, expansion)
   var tag
   var slug
   // if first param is a game then ignore it here; used in GetContextGame
@@ -74,20 +75,22 @@ function GetContextTag (params) {
     while (!window.i18next.t) {
       // wait for i8next
     }
-    var cat = Categories.search(slug, window.i18next.t)
-    if (cat && cat.text) {
-      tag = cat.text
+    var cat = window.Categories.search(slug, type, expansion)
+    if (cat) {
+      console.log('router search', cat)
+      tag = cat.id
     }
   }
 
   var search = ''
-
+  if (expansion) {
+    search = `expansion:${expansion.toLowerCase()}`
+  }
+  if (type) {
+    search += ` type:${type.toLowerCase()}`
+  }
   if (tag) {
-    // tag = tag.replace(/-/g, ' ')
-    if (tag.match(/\s/)) {
-      tag = '"' + tag + '"'
-    }
-    search = ' Tag: ' + tag
+    search += ` tag:${tag.toLowerCase()}`
   }
 
   return search
@@ -108,107 +111,118 @@ export default {
 
     // menus/categories
     { path: '/weakauras', component: MenuWeakAurasShadowlands },
-    { path: '/weakauras/:c1', component: Search, props: (route) => ({ contextGame: 'sl', contextSearch: 'Type: WeakAura' + GetContextTag(route.params) }) },
-    { path: '/weakauras/:c1/:c2', component: Search, props: (route) => ({ contextGame: 'sl', contextSearch: 'Type: WeakAura' + GetContextTag(route.params) }) },
-    { path: '/weakauras/:c1/:c2/:c3', component: Search, props: (route) => ({ contextGame: 'sl', contextSearch: 'Type: WeakAura' + GetContextTag(route.params) }) },
-    { path: '/weakauras/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ contextGame: 'sl', contextSearch: 'Type: WeakAura' + GetContextTag(route.params) }) },
+    { path: '/weakauras/:c1', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'weakaura', 'sl') }) },
+    { path: '/weakauras/:c1/:c2', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'weakaura', 'sl') }) },
+    { path: '/weakauras/:c1/:c2/:c3', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'weakaura', 'sl') }) },
+    { path: '/weakauras/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'weakaura', 'sl') }) },
     { path: '/shadowlands-weakauras', component: MenuWeakAurasShadowlands },
-    { path: '/shadowlands-weakauras/:c1', component: Search, props: (route) => ({ contextGame: 'sl', contextSearch: 'Type: WeakAura' + GetContextTag(route.params) }) },
-    { path: '/shadowlands-weakauras/:c1/:c2', component: Search, props: (route) => ({ contextGame: 'sl', contextSearch: 'Type: WeakAura' + GetContextTag(route.params) }) },
-    { path: '/shadowlands-weakauras/:c1/:c2/:c3', component: Search, props: (route) => ({ contextGame: 'sl', contextSearch: 'Type: WeakAura' + GetContextTag(route.params) }) },
-    { path: '/shadowlands-weakauras/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ contextGame: 'sl', contextSearch: 'Type: WeakAura' + GetContextTag(route.params) }) },
+    { path: '/shadowlands-weakauras/:c1', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'weakaura', 'sl') }) },
+    { path: '/shadowlands-weakauras/:c1/:c2', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'weakaura', 'sl') }) },
+    { path: '/shadowlands-weakauras/:c1/:c2/:c3', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'weakaura', 'sl') }) },
+    { path: '/shadowlands-weakauras/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'weakaura', 'sl') }) },
     { path: '/bfa-weakauras', component: MenuWeakAurasBFA },
-    { path: '/bfa-weakauras/:c1', component: Search, props: (route) => ({ contextGame: 'bfa', contextSearch: 'Type: WeakAura' + GetContextTag(route.params) }) },
-    { path: '/bfa-weakauras/:c1/:c2', component: Search, props: (route) => ({ contextGame: 'bfa', contextSearch: 'Type: WeakAura' + GetContextTag(route.params) }) },
-    { path: '/bfa-weakauras/:c1/:c2/:c3', component: Search, props: (route) => ({ contextGame: 'bfa', contextSearch: 'Type: WeakAura' + GetContextTag(route.params) }) },
-    { path: '/bfa-weakauras/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ contextGame: 'bfa', contextSearch: 'Type: WeakAura' + GetContextTag(route.params) }) },
+    { path: '/bfa-weakauras/:c1', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'weakaura', 'bfa') }) },
+    { path: '/bfa-weakauras/:c1/:c2', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'weakaura', 'bfa') }) },
+    { path: '/bfa-weakauras/:c1/:c2/:c3', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'weakaura', 'bfa') }) },
+    { path: '/bfa-weakauras/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'weakaura', 'bfa') }) },
     { path: '/legion-weakauras', component: MenuWeakAurasLegion },
-    { path: '/legion-weakauras/:c1', component: Search, props: (route) => ({ contextGame: 'legion', contextSearch: 'Type: WeakAura' + GetContextTag(route.params) }) },
-    { path: '/legion-weakauras/:c1/:c2', component: Search, props: (route) => ({ contextGame: 'legion', contextSearch: 'Type: WeakAura' + GetContextTag(route.params) }) },
-    { path: '/legion-weakauras/:c1/:c2/:c3', component: Search, props: (route) => ({ contextGame: 'legion', contextSearch: 'Type: WeakAura' + GetContextTag(route.params) }) },
-    { path: '/legion-weakauras/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ contextGame: 'legion', contextSearch: 'Type: WeakAura' + GetContextTag(route.params) }) },
+    { path: '/legion-weakauras/:c1', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'weakaura', 'legion') }) },
+    { path: '/legion-weakauras/:c1/:c2', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'weakaura', 'legion') }) },
+    { path: '/legion-weakauras/:c1/:c2/:c3', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'weakaura', 'legion') }) },
+    { path: '/legion-weakauras/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'weakaura', 'legion') }) },
     { path: '/tbc-weakauras', component: MenuWeakAurasTBC },
-    { path: '/tbc-weakauras/:c1', component: Search, props: (route) => ({ contextGame: 'tbc', contextSearch: 'Type: WeakAura' + GetContextTag(route.params) }) },
-    { path: '/tbc-weakauras/:c1/:c2', component: Search, props: (route) => ({ contextGame: 'tbc', contextSearch: 'Type: WeakAura' + GetContextTag(route.params) }) },
-    { path: '/tbc-weakauras/:c1/:c2/:c3', component: Search, props: (route) => ({ contextGame: 'tbc', contextSearch: 'Type: WeakAura' + GetContextTag(route.params) }) },
-    { path: '/tbc-weakauras/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ contextGame: 'tbc', contextSearch: 'Type: WeakAura' + GetContextTag(route.params) }) },
+    { path: '/tbc-weakauras/:c1', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'weakaura', 'tbc') }) },
+    { path: '/tbc-weakauras/:c1/:c2', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'weakaura', 'tbc') }) },
+    { path: '/tbc-weakauras/:c1/:c2/:c3', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'weakaura', 'tbc') }) },
+    { path: '/tbc-weakauras/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'weakaura', 'tbc') }) },
     { path: '/classic-weakauras', component: MenuWeakAurasClassic },
-    { path: '/classic-weakauras/:c1', component: Search, props: (route) => ({ contextGame: 'classic', contextSearch: 'Type: WeakAura' + GetContextTag(route.params) }) },
-    { path: '/classic-weakauras/:c1/:c2', component: Search, props: (route) => ({ contextGame: 'classic', contextSearch: 'Type: WeakAura' + GetContextTag(route.params) }) },
-    { path: '/classic-weakauras/:c1/:c2/:c3', component: Search, props: (route) => ({ contextGame: 'classic', contextSearch: 'Type: WeakAura' + GetContextTag(route.params) }) },
-    { path: '/classic-weakauras/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ contextGame: 'classic', contextSearch: 'Type: WeakAura' + GetContextTag(route.params) }) },
+    { path: '/classic-weakauras/:c1', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'weakaura', 'classic') }) },
+    { path: '/classic-weakauras/:c1/:c2', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'weakaura', 'classic') }) },
+    { path: '/classic-weakauras/:c1/:c2/:c3', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'weakaura', 'classic') }) },
+    { path: '/classic-weakauras/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'weakaura', 'classic') }) },
     { path: '/elvui', component: MenuElvUI },
-    { path: '/elvui/:c1', component: Search, props: (route) => ({ contextSearch: 'Type: ElvUI' + GetContextTag(route.params) }) },
-    { path: '/elvui/:c1/:c2', component: Search, props: (route) => ({ contextSearch: 'Type: ElvUI' + GetContextTag(route.params) }) },
-    { path: '/elvui/:c1/:c2/:c3', component: Search, props: (route) => ({ contextSearch: 'Type: ElvUI' + GetContextTag(route.params) }) },
-    { path: '/elvui/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ contextSearch: 'Type: ElvUI' + GetContextTag(route.params) }) },
+    { path: '/elvui/:c1', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'elvui') }) },
+    { path: '/elvui/:c1/:c2', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'elvui') }) },
+    { path: '/elvui/:c1/:c2/:c3', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'elvui') }) },
+    { path: '/elvui/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'elvui') }) },
     { path: '/vuhdo', component: MenuVuhdo },
-    { path: '/vuhdo/:c1', component: Search, props: (route) => ({ contextSearch: 'Type: Vuhdo' + GetContextTag(route.params) }) },
-    { path: '/vuhdo/:c1/:c2', component: Search, props: (route) => ({ contextSearch: 'Type: Vuhdo' + GetContextTag(route.params) }) },
-    { path: '/vuhdo/:c1/:c2/:c3', component: Search, props: (route) => ({ contextSearch: 'Type: Vuhdo' + GetContextTag(route.params) }) },
-    { path: '/vuhdo/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ contextSearch: 'Type: Vuhdo' + GetContextTag(route.params) }) },
+    { path: '/vuhdo/:c1', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'vuhdo') }) },
+    { path: '/vuhdo/:c1/:c2', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'vuhdo') }) },
+    { path: '/vuhdo/:c1/:c2/:c3', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'vuhdo') }) },
+    { path: '/vuhdo/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'vuhdo') }) },
     { path: '/opie', component: MenuOPie },
-    { path: '/opie/:c1', component: Search, props: (route) => ({ contextSearch: 'Type: OPie' + GetContextTag(route.params) }) },
-    { path: '/opie/:c1/:c2', component: Search, props: (route) => ({ contextSearch: 'Type: OPie' + GetContextTag(route.params) }) },
-    { path: '/opie/:c1/:c2/:c3', component: Search, props: (route) => ({ contextSearch: 'Type: OPie' + GetContextTag(route.params) }) },
-    { path: '/opie/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ contextSearch: 'Type: OPie' + GetContextTag(route.params) }) },
+    { path: '/opie/:c1', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'OPie') }) },
+    { path: '/opie/:c1/:c2', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'OPie') }) },
+    { path: '/opie/:c1/:c2/:c3', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'OPie') }) },
+    { path: '/opie/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'OPie') }) },
     { path: '/plater', component: MenuPlater },
-    { path: '/plater/:c1', component: Search, props: (route) => ({ contextSearch: 'Type: Plater' + GetContextTag(route.params) }) },
-    { path: '/plater/:c1/:c2', component: Search, props: (route) => ({ contextSearch: 'Type: Plater' + GetContextTag(route.params) }) },
-    { path: '/plater/:c1/:c2/:c3', component: Search, props: (route) => ({ contextSearch: 'Type: Plater' + GetContextTag(route.params) }) },
-    { path: '/plater/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ contextSearch: 'Type: Plater' + GetContextTag(route.params) }) },
+    { path: '/plater/:c1', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'Plater') }) },
+    { path: '/plater/:c1/:c2', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'Plater') }) },
+    { path: '/plater/:c1/:c2/:c3', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'Plater') }) },
+    { path: '/plater/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'Plater') }) },
     { path: '/totalrp', component: MenuTotalRP },
-    { path: '/totalrp/:c1', component: Search, props: (route) => ({ contextSearch: 'Type: TotalRP' + GetContextTag(route.params) }) },
-    { path: '/totalrp/:c1/:c2', component: Search, props: (route) => ({ contextSearch: 'Type: TotalRP' + GetContextTag(route.params) }) },
-    { path: '/totalrp/:c1/:c2/:c3', component: Search, props: (route) => ({ contextSearch: 'Type: TotalRP' + GetContextTag(route.params) }) },
-    { path: '/totalrp/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ contextSearch: 'Type: TotalRP' + GetContextTag(route.params) }) },
+    { path: '/totalrp/:c1', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'totalrp3') }) },
+    { path: '/totalrp/:c1/:c2', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'totalrp3') }) },
+    { path: '/totalrp/:c1/:c2/:c3', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'totalrp3') }) },
+    { path: '/totalrp/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'totalrp3') }) },
+    { path: '/addons', component: MenuAddons },
+    { path: '/addons/elvui', redirect: '/elvui' },
+    { path: '/addons/opie', redirect: '/opie' },
+    { path: '/addons/plater', redirect: '/plater' },
+    { path: '/addons/totalrp', redirect: '/totalrp' },
+    { path: '/addons/vuhdo', redirect: '/vuhdo' },
+    { path: '/addons/weakauras', redirect: '/weakauras' },
+    { path: '/addons/classic-weakauras', redirect: '/classic-weakauras' },
+    { path: '/addons/tbc-weakauras', redirect: '/tbc-weakauras' },
     { path: '/mdt', component: MenuMDTShadowlands },
-    { path: '/mdt/:c1', component: Search, props: (route) => ({ contextGame: 'bfa', contextSearch: 'Type: MDT' + GetContextTag(route.params) }) },
-    { path: '/mdt/:c1/:c2', component: Search, props: (route) => ({ contextGame: 'bfa', contextSearch: 'Type: MDT' + GetContextTag(route.params) }) },
-    { path: '/mdt/:c1/:c2/:c3', component: Search, props: (route) => ({ contextGame: 'bfa', contextSearch: 'Type: MDT' + GetContextTag(route.params) }) },
-    { path: '/mdt/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ contextGame: 'bfa', contextSearch: 'Type: MDT' + GetContextTag(route.params) }) },
+    { path: '/mdt/:c1', component: Search, props: (route) => ({ contextGame: 'bfa', contextSearch: GetContextSearch(route.params, 'MDT') }) },
+    { path: '/mdt/:c1/:c2', component: Search, props: (route) => ({ contextGame: 'bfa', contextSearch: GetContextSearch(route.params, 'MDT') }) },
+    { path: '/mdt/:c1/:c2/:c3', component: Search, props: (route) => ({ contextGame: 'bfa', contextSearch: GetContextSearch(route.params, 'MDT') }) },
+    { path: '/mdt/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ contextGame: 'bfa', contextSearch: GetContextSearch(route.params, 'MDT') }) },
     { path: '/shadowlands-mdt', component: MenuMDTShadowlands },
-    { path: '/shadowlands-mdt/:c1', component: Search, props: (route) => ({ contextGame: 'sl', contextSearch: 'Type: MDT' + GetContextTag(route.params) }) },
-    { path: '/shadowlands-mdt/:c1/:c2', component: Search, props: (route) => ({ contextGame: 'sl', contextSearch: 'Type: MDT' + GetContextTag(route.params) }) },
-    { path: '/shadowlands-mdt/:c1/:c2/:c3', component: Search, props: (route) => ({ contextGame: 'sl', contextSearch: 'Type: MDT' + GetContextTag(route.params) }) },
-    { path: '/shadowlands-mdt/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ contextGame: 'sl', contextSearch: 'Type: MDT' + GetContextTag(route.params) }) },
+    { path: '/shadowlands-mdt/:c1', component: Search, props: (route) => ({ contextGame: 'sl', contextSearch: GetContextSearch(route.params, 'MDT') }) },
+    { path: '/shadowlands-mdt/:c1/:c2', component: Search, props: (route) => ({ contextGame: 'sl', contextSearch: GetContextSearch(route.params, 'MDT') }) },
+    { path: '/shadowlands-mdt/:c1/:c2/:c3', component: Search, props: (route) => ({ contextGame: 'sl', contextSearch: GetContextSearch(route.params, 'MDT') }) },
+    { path: '/shadowlands-mdt/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ contextGame: 'sl', contextSearch: GetContextSearch(route.params, 'MDT') }) },
     { path: '/bfa-mdt', component: MenuMDTBFA },
-    { path: '/bfa-mdt/:c1', component: Search, props: (route) => ({ contextGame: 'bfa', contextSearch: 'Type: MDT' + GetContextTag(route.params) }) },
-    { path: '/bfa-mdt/:c1/:c2', component: Search, props: (route) => ({ contextGame: 'bfa', contextSearch: 'Type: MDT' + GetContextTag(route.params) }) },
-    { path: '/bfa-mdt/:c1/:c2/:c3', component: Search, props: (route) => ({ contextGame: 'bfa', contextSearch: 'Type: MDT' + GetContextTag(route.params) }) },
-    { path: '/bfa-mdt/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ contextGame: 'bfa', contextSearch: 'Type: MDT' + GetContextTag(route.params) }) },
+    { path: '/bfa-mdt/:c1', component: Search, props: (route) => ({ contextGame: 'bfa', contextSearch: GetContextSearch(route.params, 'MDT') }) },
+    { path: '/bfa-mdt/:c1/:c2', component: Search, props: (route) => ({ contextGame: 'bfa', contextSearch: GetContextSearch(route.params, 'MDT') }) },
+    { path: '/bfa-mdt/:c1/:c2/:c3', component: Search, props: (route) => ({ contextGame: 'bfa', contextSearch: GetContextSearch(route.params, 'MDT') }) },
+    { path: '/bfa-mdt/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ contextGame: 'bfa', contextSearch: GetContextSearch(route.params, 'MDT') }) },
     { path: '/build-new-mdt/:dungeon/:week', name: 'create-mdt', component: CreateMDT, props: true },
     { path: '/build-new-mdt/shadowlands-s1/:dungeon/:week', name: 'create-mdt', component: CreateMDT, props: (route) => ({ game: 'sl', season: 1 }) },
     { path: '/collections', component: MenuCollections },
-    { path: '/collections/:c1', component: Search, props: (route) => ({ contextSearch: 'Type: Collection' + GetContextTag(route.params) }) },
-    { path: '/collections/:c1/:c2', component: Search, props: (route) => ({ contextSearch: 'Type: Collection' + GetContextTag(route.params) }) },
-    { path: '/collections/:c1/:c2/:c3', component: Search, props: (route) => ({ contextSearch: 'Type: Collection' + GetContextTag(route.params) }) },
-    { path: '/collections/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ contextSearch: 'Type: Collection' + GetContextTag(route.params) }) },
+    { path: '/collections/:c1', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'Collection') }) },
+    { path: '/collections/:c1/:c2', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'Collection') }) },
+    { path: '/collections/:c1/:c2/:c3', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'Collection') }) },
+    { path: '/collections/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'Collection') }) },
 
     { path: '/create-new-note', name: 'create-notes', component: CreateEncounterNotes, props: true },
-    { path: '/snippets', component: Search, props: (route) => ({ contextSearch: 'Type: Snippet' }) },
-    { path: '/snippets/:c1', component: Search, props: (route) => ({ contextSearch: 'Type: Snippet' + GetContextTag(route.params) }) },
-    { path: '/snippets/:c1/:c2', component: Search, props: (route) => ({ contextSearch: 'Type: Snippet' + GetContextTag(route.params) }) },
-    { path: '/snippets/:c1/:c2/:c3', component: Search, props: (route) => ({ contextSearch: 'Type: Snippet' + GetContextTag(route.params) }) },
-    { path: '/snippets/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ contextSearch: 'Type: Snippet' + GetContextTag(route.params) }) },
+    { path: '/snippets', component: Search, props: (route) => ({ contextSearch: 'Type:Snippet' }) },
+    { path: '/snippets/:c1', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'Snippet') }) },
+    { path: '/snippets/:c1/:c2', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'Snippet') }) },
+    { path: '/snippets/:c1/:c2/:c3', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'Snippet') }) },
+    { path: '/snippets/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'Snippet') }) },
 
     { path: '/p/classic/:profile', component: ViewProfile, props: (route) => ({ contextSearch: 'User: ' + route.params.profile }) },
     { path: '/p/:profile', component: ViewProfile, props: (route) => ({ contextSearch: 'User: ' + route.params.profile }) },
-    { path: '/my/stars', component: Search, props: (route) => ({ contextSearch: 'Starred: True' }) },
-    { path: '/my/mentions', component: Search, props: (route) => ({ contextSearch: 'Mentioned: True' }) },
-    { path: '/my/restricted', component: Search, props: (route) => ({ contextSearch: 'Restricted: True' }) },
+    { path: '/my/stars', component: Search, props: (route) => ({ contextSearch: '!starred!' }) },
+    { path: '/my/mentions', component: Search, props: (route) => ({ contextSearch: '!mentions!' }) },
 
     // pages
     { path: '/wa-companion', component: WACompanion },
     // { path: '/stats', component: Stats },
     { path: '/random', component: Random },
+    { path: '/WagoLib', component: WagoLib },
+    { path: '/wagolib', component: WagoLib },
 
     // legal mumbo jumbo
     { path: '/terms-of-service', component: TermsOfService },
     { path: '/privacy-policy', component: PrivacyPolicy },
 
     // search
-    { path: '/search/:query', component: Search },
+    { path: '/search/:query', component: Search, props: (route) => ({ contextSearch: route.params.query }) },
+    { path: '/search/', component: Search },
 
     // news
     { path: '/news', component: News },

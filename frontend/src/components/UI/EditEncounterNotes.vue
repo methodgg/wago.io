@@ -4,11 +4,8 @@
       <div class="flex-col flex-left">
       </div>
       <div class="flex-col flex-right">
-        <md-button @click="copyAngry" id="copy-import-button">
-          <md-icon>assignment</md-icon> {{ $t("Copy for Angry Assignments") }}
-        </md-button>
-        <md-button @click="copyAngry" :disabled="true" id="copy-import-button">
-          <md-icon>assignment</md-icon> {{ $t("ERT Copy coming soon") }}
+        <md-button @click="copyMRT" id="copy-import-button">
+          <md-icon>assignment</md-icon> {{ $t("Copy MRT Note") }}
         </md-button>
         <!--<md-button @click="exportChanges" v-if="showExport"><md-icon>open_in_new</md-icon> {{ $t("Export/Fork changes") }}</md-button>
         <md-button v-if="canEdit" @click="generateNextVersionData(); $refs['saveChangesDialog'].open()" ref="saveChangesButton" :disabled="wago.type === 'ELVUI' || wago.type === 'VUHDO'"><md-icon>save</md-icon> {{ $t("Save changes") }}</md-button>
@@ -37,78 +34,121 @@
         </md-dialog-actions>
       </md-dialog>
     </div>
-    
+
     <md-whiteframe id="wago-note-editor">
-      <quill ref="quillContent" v-model="noteContent" @change="parseNotes" :options="quillConfig"></quill>
-      <md-table v-once>
-        <md-table-header>
-          <md-table-row>
-            <md-table-head>Current Advanced Parsing Options</md-table-head>
-            <md-table-head>Code</md-table-head>
-            <md-table-head>Example</md-table-head>
-            <md-table-head>Result AA</md-table-head>
-            <md-table-head>Result ERT</md-table-head>
-          </md-table-row>
-        </md-table-header>
-        <md-table-body>
-          <md-table-row>
-            <md-table-cell>Color Start</md-table-cell>
-            <md-table-cell>|cALPHA_HEXCODE</md-table-cell>
-            <md-table-cell><strong>|cFFBE67FF</strong>Add some color</md-table-cell>
-            <md-table-cell><span style="color:#BE67FF">Add some color</span></md-table-cell>
-            <md-table-cell><span style="color:#BE67FF">Add some color</span></md-table-cell>
-          </md-table-row>
-          <md-table-row>
-            <md-table-cell>Color Stop</md-table-cell>
-            <md-table-cell>|r</md-table-cell>
-            <md-table-cell><strong>|cFFBE67FF</strong>No more<strong>|r</strong> color</md-table-cell>
-            <md-table-cell><span style="color:#BE67FF">No more</span> color</md-table-cell>
-            <md-table-cell><span style="color:#BE67FF">No more</span> color</md-table-cell>
-          </md-table-row>
-          <md-table-row>
-            <md-table-cell>Color Classes</md-table-cell>
-            <md-table-cell>|cClass</md-table-cell>
-            <md-table-cell><strong>|cMonk</strong>I am a monk!</md-table-cell>
-            <md-table-cell><span style="color:#00FF96">I am a monk!</span></md-table-cell>
-            <md-table-cell><span style="color:#00FF96">I am a monk!</span></md-table-cell>
-          </md-table-row>
-          <md-table-row>
-            <md-table-cell>Icons by spell ID</md-table-cell>
-            <md-table-cell>{icon spellID} or {icon:spellID}</md-table-cell>
-            <md-table-cell>{icon 121253}</md-table-cell>
-            <md-table-cell><img style="height:16px" src="https://media.wago.io/wow-ui-textures/ICONS/Achievement_brewery_2.PNG" /></md-table-cell>
-            <md-table-cell><img style="height:16px" src="https://media.wago.io/wow-ui-textures/ICONS/Achievement_brewery_2.PNG" /></md-table-cell>
-          </md-table-row>
-          <md-table-row>
-            <md-table-cell>Icons by icon name</md-table-cell>
-            <md-table-cell>{icon name} or {icon:name}</md-table-cell>
-            <md-table-cell>{icon:spell_holy_summonlightwell}</md-table-cell>
-            <md-table-cell><img style="height:16px" src="https://media.wago.io/wow-ui-textures/ICONS/Spell_Holy_SummonLightwell.PNG" /></md-table-cell>
-            <md-table-cell><img style="height:16px" src="https://media.wago.io/wow-ui-textures/ICONS/Spell_Holy_SummonLightwell.PNG" /></md-table-cell>
-          </md-table-row>
-          <md-table-row>
-            <md-table-cell>Shortcut icons</md-table-cell>
-            <md-table-cell>{class name} or {raid target}</md-table-cell>
-            <md-table-cell>{star} {mage}</md-table-cell>
-            <md-table-cell><img style="height:16px" src="https://media.wago.io/iconsUI/raidmarker-rt1.png" /> <img style="height:16px" src="https://media.wago.io/wow-ui-textures/ICONS/ClassIcon_Mage.PNG" /></md-table-cell>
-            <md-table-cell><img style="height:16px" src="https://media.wago.io/iconsUI/raidmarker-rt1.png" /> <img style="height:16px" src="https://media.wago.io/wow-ui-textures/ICONS/ClassIcon_Mage.PNG" /></md-table-cell>
-          </md-table-row>
-          <md-table-row>
-            <md-table-cell>Spell link by ID</md-table-cell>
-            <md-table-cell>{spell spellID}</md-table-cell>
-            <md-table-cell>{spell 282098}</md-table-cell>
-            <md-table-cell><img style="height:16px" src="https://media.wago.io/wow-ui-textures/ICONS/Ability_Racial_PterrordaxSwoop.PNG"> <a style="color:#9adbfe" data-wowhead="spell=282098">Gift of Wind</a></md-table-cell>
-            <md-table-cell><img style="height:16px" src="https://media.wago.io/wow-ui-textures/ICONS/Ability_Racial_PterrordaxSwoop.PNG"> <span style="color:#9adbfe">Gift of Wind</span><br><small>Not linked</small></md-table-cell>
-          </md-table-row>
-          <md-table-row>
-            <md-table-cell>Spell link by Wowhead URL</md-table-cell>
-            <md-table-cell>Just paste the URL</md-table-cell>
-            <md-table-cell>https://www.wowhead.com/spell=284360/sea-storm</md-table-cell>
-            <md-table-cell><img style="height:16px" src="https://media.wago.io/wow-ui-textures/ICONS/Spell_Frost_IceStorm.PNG"> <a style="color:#9adbfe" data-wowhead="spell=284360">Sea Storm</a></md-table-cell>
-            <md-table-cell><img style="height:16px" src="https://media.wago.io/wow-ui-textures/ICONS/Spell_Frost_IceStorm.PNG"> <span style="color:#9adbfe">Sea Storm</span><br><small>Not linked</small></md-table-cell>
-          </md-table-row>
-        </md-table-body>
-      </md-table>
+      <div id="limited-content-menu" v-if="limitedContentMenu" :class="`limit-${limitedContentMenu.type.replace(/!/, '0')}`" :style="`top: ${limitedContentMenu.lineY}px`">
+        {{ $t('Limited display') }}
+        <select v-model="limitedContentMenu.type" @change="updateLimited">
+          <option value="P" class="name-option">{{ $t('By character name(s)') }}</option>
+          <option value="!P" class="name-option">{{ $t('By NOT character name(s)') }}</option>
+          <option value="D" class="role-option">{{ $t('By role') }}: {{charToName('D') }}</option>
+          <option value="H" class="role-option">{{ $t('By role') }}: {{charToName('H') }}</option>
+          <option value="T" class="role-option">{{ $t('By role') }}: {{charToName('T') }}</option>
+          <option value="C" class="class-option">{{ $t('By character class(es)') }}</option>
+          <option value="!C" class="class-option">{{ $t('By NOT character class(es)') }}</option>
+          <option value="G" class="group-option">{{ $t('By raid group(s)') }}</option>
+          <option value="!G" class="group-option">{{ $t('By NOT raid group(s)') }}</option>
+        </select>
+        <template v-if="limitedContentMenu.type === 'P' || limitedContentMenu.type === '!P'">
+          <input v-model="limitedContentMenu.value" placeholder="Name1,Name2,Name3..." :style="`width: ${limitedContentMenu.value.length}ch`" @input="updateLimited">
+        </template>
+        <template v-if="limitedContentMenu.type === 'C' || limitedContentMenu.type === '!C'">
+          <img @click="toggleLimitedValue('DeathKnight')" class="select-limited-class" :class="{selected: limitedContentMenu.value.match(/Death\s?Knight/i)}" src="https://media.wago.io/wow-interface-export/icons/classicon_deathknight.png"/>
+          <img @click="toggleLimitedValue('DemonHunter')" class="select-limited-class" :class="{selected: limitedContentMenu.value.match(/Demon\s?Hunter/i)}" src="https://media.wago.io/wow-interface-export/icons/classicon_demonhunter.png"/>
+          <img @click="toggleLimitedValue('Druid')" class="select-limited-class" :class="{selected: limitedContentMenu.value.match(/Druid/i)}" src="https://media.wago.io/wow-interface-export/icons/classicon_druid.png"/>
+          <img @click="toggleLimitedValue('Hunter')" class="select-limited-class" :class="{selected: limitedContentMenu.value.match(/\bHunter/i)}" src="https://media.wago.io/wow-interface-export/icons/classicon_hunter.png"/>
+          <img @click="toggleLimitedValue('Mage')" class="select-limited-class" :class="{selected: limitedContentMenu.value.match(/Mage/i)}" src="https://media.wago.io/wow-interface-export/icons/classicon_mage.png"/>
+          <img @click="toggleLimitedValue('Monk')" class="select-limited-class" :class="{selected: limitedContentMenu.value.match(/Monk/i)}" src="https://media.wago.io/wow-interface-export/icons/classicon_monk.png"/>
+          <img @click="toggleLimitedValue('Paladin')" class="select-limited-class" :class="{selected: limitedContentMenu.value.match(/Paladin/i)}" src="https://media.wago.io/wow-interface-export/icons/classicon_paladin.png"/>
+          <img @click="toggleLimitedValue('Priest')" class="select-limited-class" :class="{selected: limitedContentMenu.value.match(/Priest/i)}" src="https://media.wago.io/wow-interface-export/icons/classicon_priest.png"/>
+          <img @click="toggleLimitedValue('Rogue')" class="select-limited-class" :class="{selected: limitedContentMenu.value.match(/Rogue/i)}" src="https://media.wago.io/wow-interface-export/icons/classicon_rogue.png"/>
+          <img @click="toggleLimitedValue('Shaman')" class="select-limited-class" :class="{selected: limitedContentMenu.value.match(/Shaman/i)}" src="https://media.wago.io/wow-interface-export/icons/classicon_shaman.png"/>
+          <img @click="toggleLimitedValue('Warlock')" class="select-limited-class" :class="{selected: limitedContentMenu.value.match(/Warlock/i)}" src="https://media.wago.io/wow-interface-export/icons/classicon_warlock.png"/>
+          <img @click="toggleLimitedValue('Warrior')" class="select-limited-class" :class="{selected: limitedContentMenu.value.match(/Warrior/i)}" src="https://media.wago.io/wow-interface-export/icons/classicon_warrior.png"/>
+        </template>
+        <template v-if="limitedContentMenu.type === 'G' || limitedContentMenu.type === '!G'">
+          <span @click="toggleLimitedValue('1')" class="select-limited-group" :class="{selected: limitedContentMenu.value.match(/1/)}">1</span>
+          <span @click="toggleLimitedValue('2')" class="select-limited-group" :class="{selected: limitedContentMenu.value.match(/2/)}">2</span>
+          <span @click="toggleLimitedValue('3')" class="select-limited-group" :class="{selected: limitedContentMenu.value.match(/3/)}">3</span>
+          <span @click="toggleLimitedValue('4')" class="select-limited-group" :class="{selected: limitedContentMenu.value.match(/4/)}">4</span>
+          <span @click="toggleLimitedValue('5')" class="select-limited-group" :class="{selected: limitedContentMenu.value.match(/5/)}">5</span>
+          <span @click="toggleLimitedValue('6')" class="select-limited-group" :class="{selected: limitedContentMenu.value.match(/6/)}">6</span>
+          <span @click="toggleLimitedValue('7')" class="select-limited-group" :class="{selected: limitedContentMenu.value.match(/7/)}">7</span>
+          <span @click="toggleLimitedValue('8')" class="select-limited-group" :class="{selected: limitedContentMenu.value.match(/8/)}">8</span>
+        </template>
+      </div>
+      <div id="note-content" ref="noteContent" @copy="copyMRT"></div>
+      <template v-if="false">
+        <md-table v-once>
+          <md-table-header>
+            <md-table-row>
+              <md-table-head>Current Advanced Parsing Options</md-table-head>
+              <md-table-head>Code</md-table-head>
+              <md-table-head>Example</md-table-head>
+              <md-table-head>Result AA</md-table-head>
+              <md-table-head>Result ERT</md-table-head>
+            </md-table-row>
+          </md-table-header>
+          <md-table-body>
+            <md-table-row>
+              <md-table-cell>Color Start</md-table-cell>
+              <md-table-cell>|cALPHA_HEXCODE</md-table-cell>
+              <md-table-cell><strong>|cFFBE67FF</strong>Add some color</md-table-cell>
+              <md-table-cell><span style="color:#BE67FF">Add some color</span></md-table-cell>
+              <md-table-cell><span style="color:#BE67FF">Add some color</span></md-table-cell>
+            </md-table-row>
+            <md-table-row>
+              <md-table-cell>Color Stop</md-table-cell>
+              <md-table-cell>|r</md-table-cell>
+              <md-table-cell><strong>|cFFBE67FF</strong>No more<strong>|r</strong> color</md-table-cell>
+              <md-table-cell><span style="color:#BE67FF">No more</span> color</md-table-cell>
+              <md-table-cell><span style="color:#BE67FF">No more</span> color</md-table-cell>
+            </md-table-row>
+            <md-table-row>
+              <md-table-cell>Color Classes</md-table-cell>
+              <md-table-cell>|cClass</md-table-cell>
+              <md-table-cell><strong>|cMonk</strong>I am a monk!</md-table-cell>
+              <md-table-cell><span style="color:#00FF96">I am a monk!</span></md-table-cell>
+              <md-table-cell><span style="color:#00FF96">I am a monk!</span></md-table-cell>
+            </md-table-row>
+            <md-table-row>
+              <md-table-cell>Icons by spell ID</md-table-cell>
+              <md-table-cell>{icon spellID} or {icon:spellID}</md-table-cell>
+              <md-table-cell>{icon 121253}</md-table-cell>
+              <md-table-cell><img style="height:16px" src="https://media.wago.io/wow-interface-export/ICONS/Achievement_brewery_2.png" /></md-table-cell>
+              <md-table-cell><img style="height:16px" src="https://media.wago.io/wow-interface-export/ICONS/Achievement_brewery_2.png" /></md-table-cell>
+            </md-table-row>
+            <md-table-row>
+              <md-table-cell>Icons by icon name</md-table-cell>
+              <md-table-cell>{icon name} or {icon:name}</md-table-cell>
+              <md-table-cell>{icon:spell_holy_summonlightwell}</md-table-cell>
+              <md-table-cell><img style="height:16px" src="https://media.wago.io/wow-interface-export/ICONS/Spell_Holy_SummonLightwell.png" /></md-table-cell>
+              <md-table-cell><img style="height:16px" src="https://media.wago.io/wow-interface-export/ICONS/Spell_Holy_SummonLightwell.png" /></md-table-cell>
+            </md-table-row>
+            <md-table-row>
+              <md-table-cell>Shortcut icons</md-table-cell>
+              <md-table-cell>{class name} or {raid target}</md-table-cell>
+              <md-table-cell>{star} {mage}</md-table-cell>
+              <md-table-cell><img style="height:16px" src="https://media.wago.io/wow-interface-export/targetingframe/ui-raidtargetingicon_1.png" /> <img style="height:16px" src="https://media.wago.io/wow-interface-export/ICONS/ClassIcon_Mage.png" /></md-table-cell>
+              <md-table-cell><img style="height:16px" src="https://media.wago.io/wow-interface-export/targetingframe/ui-raidtargetingicon_1.png" /> <img style="height:16px" src="https://media.wago.io/wow-interface-export/ICONS/ClassIcon_Mage.png" /></md-table-cell>
+            </md-table-row>
+            <md-table-row>
+              <md-table-cell>Spell link by ID</md-table-cell>
+              <md-table-cell>{spell spellID}</md-table-cell>
+              <md-table-cell>{spell 282098}</md-table-cell>
+              <md-table-cell><img style="height:16px" src="https://media.wago.io/wow-interface-export/ICONS/Ability_Racial_PterrordaxSwoop.png"> <a style="color:#9adbfe" data-wowhead="spell=282098">Gift of Wind</a></md-table-cell>
+              <md-table-cell><img style="height:16px" src="https://media.wago.io/wow-interface-export/ICONS/Ability_Racial_PterrordaxSwoop.png"> <span style="color:#9adbfe">Gift of Wind</span><br><small>Not linked</small></md-table-cell>
+            </md-table-row>
+            <md-table-row>
+              <md-table-cell>Spell link by Wowhead URL</md-table-cell>
+              <md-table-cell>Just paste the URL</md-table-cell>
+              <md-table-cell>https://www.wowhead.com/spell=284360/sea-storm</md-table-cell>
+              <md-table-cell><img style="height:16px" src="https://media.wago.io/wow-interface-export/ICONS/Spell_Frost_IceStorm.png"> <a style="color:#9adbfe" data-wowhead="spell=284360">Sea Storm</a></md-table-cell>
+              <md-table-cell><img style="height:16px" src="https://media.wago.io/wow-interface-export/ICONS/Spell_Frost_IceStorm.png"> <span style="color:#9adbfe">Sea Storm</span><br><small>Not linked</small></md-table-cell>
+            </md-table-row>
+          </md-table-body>
+        </md-table>
+      </template>
     </md-whiteframe>
     <textarea id="wago-importstring" readonly="true"></textarea>
   </div>
@@ -117,40 +157,31 @@
 <script>
 const async = require('async')
 const semver = require('semver')
-const Quill = require('quill')
+
+import Quill from 'quill'
+const Delta = Quill.import('delta')
 const Parchment = Quill.import('parchment')
-Quill.register(new Parchment.Attributor.Attribute('wowhead', 'data-wowhead', {scope: Parchment.Scope.INLINE}))
-import { quillEditor } from 'vue-quill-editor'
-import 'quill/dist/quill.core.css'
-import 'quill/dist/quill.snow.css'
+const Clipboard = Quill.import('modules/clipboard')
+
 import InputSemver from '../UI/Input-Semver.vue'
 
 export default {
   props: ['scratch', 'cipherKey'],
   name: 'edit-notes',
-  created: function () {
-    this.$nextTick(() => {
-      this.$refs.quillContent.quill.root.setAttribute('spellcheck', false)
-      document.querySelector('#wago-note-editor .ql-container').addEventListener('click', () => {
-        if (!this.$refs.quillContent.quill.getSelection()) {
-          this.$refs.quillContent.quill.setSelection(42949672946)
-        }
-      })
-    })
-  },
   data: function () {
     return {
       showExport: false,
       latestVersion: {semver: this.$store.state.wago.versions.versions[0].versionString},
       newImportVersion: {major: 1, minor: 0, patch: 1},
       newChangelog: {},
-      noteContent: `Welcome to the early stages of the Encounter Notes section on Wago.io.<br><br>This is a WYSIWYG editor for Angry Assignments and Exorsus Notes.<br><br>There is no saving to Wago yet, but many features of both addons work here.<br><br>Both addons have their own unique features but most are compatible with each other.`,
+      initNoteContent: `Welcome to the early stages of the Encounter Notes section on Wago.io.\n\nThis is a WYSIWYG editor for Angry Assignments and Exorsus Notes.\n\nThere is no saving to Wago yet, but many features of both addons work here.\n\nBoth addons have their own unique features but most are compatible with each other.`,
       parsedNotes: '',
       noteLength: 0,
       activeTimer: null,
       caret: {},
       previousFocus: null,
-      blizzData: {spells: {}},
+      reqID: 0,
+      limitedContentMenu: null,
 
       // quill
       quillConfig: {
@@ -161,88 +192,92 @@ export default {
             container: [
               [{'color': ['#FFFFFF', '#888888', '#000000', '#c41f3b', '#a330c9', '#ff7d0a', '#abd473', '#40C7eb', '#00ff96', '#f58cba', '#fff569', '#0070de', '#8787ed', '#c79c6e']}],
               ['rt1', 'rt2', 'rt3', 'rt4', 'rt5', 'rt6', 'rt7', 'rt8'],
-              ['mage', 'priest', 'warlock', 'demonhunter', 'druid', 'monk', 'rogue', 'hunter', 'shaman', 'deathknight', 'paladin', 'warrior'],
+              ['deathknight', 'demonhunter', 'druid', 'hunter', 'mage', 'monk', 'paladin', 'priest', 'rogue', 'shaman', 'warlock', 'warrior'],
               ['tank', 'healer', 'damage'],
-              ['bloodlust', 'heroism', 'healthstone']
+              ['bloodlust', 'heroism', 'timewarp', 'healthstone'],
+              ['limitedContent']
             ],
             handlers: {
               rt1: () => {
-                this.quillInsertImage(this.imageURL('star'))
+                this.quillInsertImage(this.makeIconBlot('star'))
               },
               rt2: () => {
-                this.quillInsertImage(this.imageURL('circle'))
+                this.quillInsertImage(this.makeIconBlot('circle'))
               },
               rt3: () => {
-                this.quillInsertImage(this.imageURL('diamond'))
+                this.quillInsertImage(this.makeIconBlot('diamond'))
               },
               rt4: () => {
-                this.quillInsertImage(this.imageURL('triangle'))
+                this.quillInsertImage(this.makeIconBlot('triangle'))
               },
               rt5: () => {
-                this.quillInsertImage(this.imageURL('moon'))
+                this.quillInsertImage(this.makeIconBlot('moon'))
               },
               rt6: () => {
-                this.quillInsertImage(this.imageURL('square'))
+                this.quillInsertImage(this.makeIconBlot('square'))
               },
               rt7: () => {
-                this.quillInsertImage(this.imageURL('cross'))
+                this.quillInsertImage(this.makeIconBlot('cross'))
               },
               rt8: () => {
-                this.quillInsertImage(this.imageURL('skull'))
+                this.quillInsertImage(this.makeIconBlot('skull'))
               },
               mage: () => {
-                this.quillInsertImage(this.imageURL('mage'))
+                this.quillInsertImage(this.makeIconBlot('mage'))
               },
               priest: () => {
-                this.quillInsertImage(this.imageURL('priest'))
+                this.quillInsertImage(this.makeIconBlot('priest'))
               },
               warlock: () => {
-                this.quillInsertImage(this.imageURL('warlock'))
+                this.quillInsertImage(this.makeIconBlot('warlock'))
               },
               demonhunter: () => {
-                this.quillInsertImage(this.imageURL('demonhunter'))
+                this.quillInsertImage(this.makeIconBlot('demonhunter'))
               },
               druid: () => {
-                this.quillInsertImage(this.imageURL('druid'))
+                this.quillInsertImage(this.makeIconBlot('druid'))
               },
               monk: () => {
-                this.quillInsertImage(this.imageURL('monk'))
+                this.quillInsertImage(this.makeIconBlot('monk'))
               },
               rogue: () => {
-                this.quillInsertImage(this.imageURL('rogue'))
+                this.quillInsertImage(this.makeIconBlot('rogue'))
               },
               hunter: () => {
-                this.quillInsertImage(this.imageURL('hunter'))
+                this.quillInsertImage(this.makeIconBlot('hunter'))
               },
               shaman: () => {
-                this.quillInsertImage(this.imageURL('shaman'))
+                this.quillInsertImage(this.makeIconBlot('shaman'))
               },
               deathknight: () => {
-                this.quillInsertImage(this.imageURL('deathknight'))
+                this.quillInsertImage(this.makeIconBlot('deathknight'))
               },
               paladin: () => {
-                this.quillInsertImage(this.imageURL('paladin'))
+                this.quillInsertImage(this.makeIconBlot('paladin'))
               },
               warrior: () => {
-                this.quillInsertImage(this.imageURL('warrior'))
+                this.quillInsertImage(this.makeIconBlot('warrior'))
               },
               tank: () => {
-                this.quillInsertImage(this.imageURL('tank'))
+                this.quillInsertImage(this.makeIconBlot('tank'))
               },
               healer: () => {
-                this.quillInsertImage(this.imageURL('healer'))
+                this.quillInsertImage(this.makeIconBlot('healer'))
               },
               damage: () => {
-                this.quillInsertImage(this.imageURL('damage'))
+                this.quillInsertImage(this.makeIconBlot('damage'))
               },
               bloodlust: () => {
-                this.quillInsertImage(this.imageURL('bloodlust'))
+                this.quillInsertImage(this.makeIconBlot('bloodlust'))
               },
               heroism: () => {
-                this.quillInsertImage(this.imageURL('heroism'))
+                this.quillInsertImage(this.makeIconBlot('heroism'))
+              },
+              timewarp: () => {
+                this.quillInsertImage(this.makeIconBlot('timewarp'))
               },
               healthstone: () => {
-                this.quillInsertImage(this.imageURL('healthstone'))
+                this.quillInsertImage(this.makeIconBlot('healthstone'))
               }
             }
           }
@@ -252,52 +287,183 @@ export default {
   },
   components: {
     'input-semver': InputSemver,
-    quill: quillEditor
+    quill: null
   },
-  mounted () {
-    let wowheadTooltips = document.createElement('script')
-    wowheadTooltips.setAttribute('src', 'https://wow.zamimg.com/widgets/power.js')
-    document.head.appendChild(wowheadTooltips)
+  created: function () {
+    const _this = this
+    class PasteContent extends Clipboard {
+      onPaste (e) {
+        e.preventDefault()
+        const range = this.quill.getSelection()
+        const text = e.clipboardData.getData('text/plain')
+        const delta = new Delta()
+        .retain(range.index)
+        .delete(range.length)
+        .insert(text.replace(/\n{2,}/g, '\n\n'))
+        const index = text.length + range.index
+        const length = 0
+        this.quill.updateContents(delta, 'silent')
+        this.quill.setSelection(index, length, 'silent')
+        this.quill.scrollIntoView()
+        _this.parseNotes(text)
+      }
+    }
+    Quill.register('modules/clipboard', PasteContent, true)
+
+    const attr = [
+      {title: 'title'},
+      {class: 'class'},
+      {limited: 'data-limited'},
+      {value: 'data-value'},
+      {type: 'data-type'},
+    ]
+    for (const [name, field] of Object.entries(attr)) {
+      let attributor = new Parchment.Attributor.Attribute(name, field, {scope: Parchment.Scope.ANY})
+      Quill.register(attributor)
+    }
+
+    const Break = Quill.import('blots/break')
+    const Block = Quill.import('blots/block')
+    const Embed = Quill.import('blots/embed')
+    const Inline = Quill.import('blots/inline')
+
+    class IconBlot extends Embed {
+      static create(data) {
+        const node = super.create(data)
+        node.setAttribute('src', data.src)
+        node.setAttribute('title', data.title.replace(/[{}]/g, ''))
+        if (data.id) {
+          node.setAttribute('id', data.id)
+        }
+        return node
+      }
+      static value(domNode) {
+        return domNode
+      }
+    }
+    IconBlot.blotName = 'iconBlot'
+    IconBlot.className = 'icon-blot'
+    IconBlot.tagName = 'img'
+    Quill.register({ 'formats/iconBlot': IconBlot })
+
+    class LimitedContent extends Block {
+      static create(data) {
+        let node = super.create()
+        if (node === true) {
+          this.$nextTick(() => {
+            this.cursorSyntax(this.quill.getSelection(true))
+          })
+        }
+        node.title = data.title || ''
+        console.log('limited', data)
+        node.setAttribute('data-limited', data.limited || '')
+        node.setAttribute('data-type', data.type || 'P')
+        node.setAttribute('data-value', data.value || '')
+        node.setAttribute('class', 'limited limit-' + (data.type || '').replace(/!/, '0'))
+        return node
+      }
+      static formats(node) {
+        return {
+          title: node.title || '',
+          limited: node.getAttribute('data-limited') || '',
+          type: node.getAttribute('data-type') || '',
+          value: node.getAttribute('data-value') || '',
+        }
+      }
+    }
+    LimitedContent.blotName = 'limitedContent'
+    LimitedContent.tagName = 'blockquote'
+    Quill.register(LimitedContent)
+  },
+  mounted: function () {
+    this.quill = new Quill(`#note-content`, this.quillConfig)
+    this.quill.on('text-change', this.parseNotes)
+    this.quill.on('selection-change', this.cursorSyntax)
+
+    this.$nextTick(() => {
+      this.quill.root.setAttribute('spellcheck', false)
+
+      if (this.initNoteContent) {
+        let delta = new Delta()
+        delta.insert(this.initNoteContent)
+        this.quill.setContents(delta)
+      }
+
+      // document.querySelector('#wago-note-editor .ql-container').addEventListener('click', () => {
+      //   if (!quill.getSelection()) {
+      //     quill.setSelection(42949672946)
+      //   }
+      // })
+      this.parseNotes()
+    })
   },
   methods: {
-    copyAngry () {
-      const quill = this.$refs.quillContent.quill
-      const content = quill.getContents().ops
+    copyMRT () {
+      const content = this.quill.getContents().ops
       var copyStr = ''
       content.forEach((op) => {
-        if (typeof op.insert === 'object' && op.insert.image) {
-          var icon = op.insert.image.match(/^https:\/\/media.wago.io\/wow-ui-textures\/ICONS\/(\w+)\.PNG$/)
-          var raidmarker = op.insert.image.match(/^https:\/\/media.wago.io\/iconsUI\/raidmarker-(\w+)\.png$/)
-          var roleicon = op.insert.image.match(/^https:\/\/media.wago.io\/iconsUI\/role-icon-(\w+)\.png$/)
-          if (icon) {
-            copyStr += `{icon ${icon[1]}}`
+        console.log(op)
+        try {
+          if (typeof op.insert === 'object' && op.insert.iconBlot) {
+            copyStr += `{${op.insert.iconBlot.title}}`
           }
-          else if (raidmarker) {
-            copyStr += `{${raidmarker[1]}}`
+
+          else if (typeof op.insert === 'string' && op.attributes && op.attributes.color) {
+            let color = op.attributes.color.substr(1)
+            let alpha = 'ff'
+            if (color.match(/gba\(/)) {
+              let rgba = color.replace(/\s/g, '').match(/^gba?\((\d+),(\d+),(\d+),?([^,\s)]+)?/i)
+              alpha = (rgba && rgba[4] || "1").trim()
+              alpha = ((alpha * 255) | 1 << 8).toString(16).slice(1)
+              color = (rgba[1] | 1 << 8).toString(16).slice(1) + (rgba[2] | 1 << 8).toString(16).slice(1) + (rgba[3] | 1 << 8).toString(16).slice(1)
+            }
+            else if (color.length === 8) {
+              alpha = color.substr(-2)
+              color = color.substr(0, 6)
+            }
+            copyStr += `|c${alpha}${color}${op.insert}|r`
           }
-          else if (roleicon) {
-            copyStr += `{${roleicon[1]}}`
+
+          else if (typeof op.insert === 'string' && op.attributes && op.attributes.limitedContent) {
+            let i = copyStr.lastIndexOf('\n')
+            if (i >= 0) {
+              copyStr = `\r\n${copyStr.substr(0, i)}\r\n{${op.attributes.limitedContent.title}}${copyStr.substr(i).trim()}{/${op.attributes.limitedContent.type}}\r\n`
+            }
+            else {
+              copyStr = `\r\n{${op.attributes.limitedContent.title}}${copyStr.trim()}{/${op.attributes.limitedContent.type}}\r\n`
+            }
+          }
+
+          else if (typeof op.insert === 'string') {
+            copyStr += op.insert
           }
         }
-        else if (!op.attributes) {
-          copyStr += op.insert
-        }
-        else if (op.attributes.link && op.attributes.wowhead) {
-          copyStr += `{${op.attributes.wowhead.replace(/=/, ' ')}}`
-        }
-        else if (op.attributes.color && op.attributes.color.match(/#\w{6}/) && typeof op.insert === 'string') {
-          copyStr += `|cFF${op.attributes.color.substr(1)}${op.insert}|r`
-        }
-        else if (op.attributes.color && op.attributes.color.match(/rgba/) && typeof op.insert === 'string') {
-          var parts = op.attributes.color.substring(op.attributes.color.indexOf('(')).split(',')
-          var r = parseInt(parts[0].trim().substring(1))
-          var g = parseInt(parts[1].trim())
-          var b = parseInt(parts[2].trim())
-          var a = parseFloat(parts[3].trim().substring(0, parts[3].length - 1)).toFixed(2)
-          copyStr += `|c${(a * 255).toString(16).substring(0, 2)}${r.toString(16)}${g.toString(16)}${b.toString(16)}${op.insert}|r`
+        catch (e) {
+          console.log('Could not copy fragment', op, e)
         }
       })
-      document.getElementById('wago-importstring').value = copyStr
+
+// :gsub("(\n{!?[CcPpGg]:?[^}]+})\n","%1")
+// 				:gsub("\n({/[CcPpGg]}\n)","%1")
+// 				:gsub("{(!?)[Pp]:([^}]+)}(.-){/[Pp]}",GSUB_Player)
+// 				:gsub("{(!?)[Cc]:([^}]+)}(.-){/[Cc]}",GSUB_Class)
+// 				:gsub("{[Cc][Ll][Aa][Ss][Ss][Uu][Nn][Ii][Qq][Uu][Ee]:([^}]+)}(.-){/[Cc][Ll][Aa][Ss][Ss][Uu][Nn][Ii][Qq][Uu][Ee]}",GSUB_ClassUnique)
+// 				:gsub("{(!?)[Gg](%d+)}(.-){/[Gg]}",GSUB_Group)
+// 				:gsub("{(!?)[Rr][Aa][Cc][Ee]:([^}]+)}(.-){/[Rr][Aa][Cc][Ee]}",GSUB_Race)
+// 				:gsub("{[Ee]:([^}]+)}(.-){/[Ee]}",GSUB_Encounter)
+// 				:gsub("{(!?)[Pp]([^}:][^}]*)}(.-){/[Pp]}",GSUB_Phase)
+// 				:gsub("{icon:([^}]+)}","|T%1:16|t")
+// 				:gsub("{spell:(%d+):?(%d*)}",GSUB_Icon)
+// 				:gsub("%b{}",GSUB_RaidIcon)
+// 				:gsub("||([cr])","|%1")
+// 				:gsub("[^ \n,]+",GSUB_AutoColor)
+// 				:gsub("\n+$", "")
+
+
+
+
+
+      document.getElementById('wago-importstring').value = copyStr.trim()
       try {
         document.getElementById('wago-importstring').select()
         var copied = document.execCommand('copy')
@@ -318,122 +484,137 @@ export default {
         document.getElementById('wago-importstring').value = ''
       })
     },
-    quillInsertImage (url) {
-      const quill = this.$refs.quillContent.quill
-      const position = quill.getSelection(true).index
-      quill.insertEmbed(position, 'image', url, 'user')
-      quill.setSelection(position + 1, 0, 'silent')
+    quillInsertImage (image) {
+      const position = this.quill.getSelection(true).index
+      this.quill.insertEmbed(position, 'iconBlot', image, 'user')
+      this.quill.setSelection(position + 1, 0, 'silent')
     },
-    imageURL (image) {
+    makeIconBlot (image) {
       switch (image.toLowerCase().replace(/\s/g, '')) {
         case 'rt1': case 'sz1': case 'cr1': case 'si1': case 'цр1':
         case 'star': case 'stern': case 'étoile': case 'stella': case 'звезда':
-          return 'https://media.wago.io/iconsUI/raidmarker-rt1.png'
+          return {src: 'https://media.wago.io/wow-interface-export/targetingframe/ui-raidtargetingicon_1.png', title: 'rt1'}
         case 'rt2': case 'sz2': case 'cr2': case 'si2': case 'цр2':
         case 'circle': case 'kreis': case 'cercle': case 'cerchio': case 'круг':
-          return 'https://media.wago.io/iconsUI/raidmarker-rt2.png'
+          return {src: 'https://media.wago.io/wow-interface-export/targetingframe/ui-raidtargetingicon_2.png', title: 'rt2'}
         case 'rt3': case 'sz3': case 'cr3': case 'si3': case 'цр3':
         case 'diamond': case 'diamant': case 'losange': case 'rombo': case 'ромб':
-          return 'https://media.wago.io/iconsUI/raidmarker-rt3.png'
+          return {src: 'https://media.wago.io/wow-interface-export/targetingframe/ui-raidtargetingicon_3.png', title: 'rt3'}
         case 'rt4': case 'sz4': case 'cr4': case 'si4': case 'цр4':
         case 'triangle': case 'dreieck': case 'triangolo': case 'треугольник':
-          return 'https://media.wago.io/iconsUI/raidmarker-rt4.png'
+          return {src: 'https://media.wago.io/wow-interface-export/targetingframe/ui-raidtargetingicon_4.png', title: 'rt4'}
         case 'rt5': case 'sz5': case 'cr5': case 'si5': case 'цр5':
         case 'moon': case 'mond': case 'lune': case 'luna': case 'полумесяц':
-          return 'https://media.wago.io/iconsUI/raidmarker-rt5.png'
+          return {src: 'https://media.wago.io/wow-interface-export/targetingframe/ui-raidtargetingicon_5.png', title: 'rt5'}
         case 'rt6': case 'sz6': case 'cr6': case 'si6': case 'цр6':
         case 'square': case 'quadrat': case 'carré': case 'quadrato': case 'квадрат':
-          return 'https://media.wago.io/iconsUI/raidmarker-rt6.png'
+          return {src: 'https://media.wago.io/wow-interface-export/targetingframe/ui-raidtargetingicon_6.png', title: 'rt6'}
         case 'rt7': case 'sz7': case 'cr7': case 'si7': case 'цр7': case 'x':
         case 'cross': case 'kreuz': case 'croix': case 'croce': case 'крест':
-          return 'https://media.wago.io/iconsUI/raidmarker-rt7.png'
+          return {src: 'https://media.wago.io/wow-interface-export/targetingframe/ui-raidtargetingicon_7.png', title: 'rt7'}
         case 'rt8': case 'sz8': case 'cr8': case 'si8': case 'цр8':
         case 'skull': case 'totenschädel': case 'crâne': case 'teschio': case 'череп':
-          return 'https://media.wago.io/iconsUI/raidmarker-rt8.png'
+          return {src: 'https://media.wago.io/wow-interface-export/targetingframe/ui-raidtargetingicon_8.png', title: 'rt8'}
 
         case 'warrior': case 'krieger': case 'guerrero': case 'guerrier': case 'guerreiro':
         case '전사': case 'Воин': case '战士':
-          return 'https://media.wago.io/wow-ui-textures/ICONS/ClassIcon_Warrior.PNG'
+          return {src: 'https://media.wago.io/wow-interface-export/icons/classicon_warrior.png', title: 'icon:Interface\\ICONS\\ClassIcon_Warrior'}
         case 'paladin': case 'paladín': case 'Paladino':
         case '성기사': case 'Паладин': case '圣骑士':
-          return 'https://media.wago.io/wow-ui-textures/ICONS/ClassIcon_Paladin.PNG'
+          return {src: 'https://media.wago.io/wow-interface-export/icons/classicon_paladin.png', title: 'icon:Interface\\ICONS\\ClassIcon_Paladin'}
         case 'hunter': case 'jäger': case 'cazador': case 'chasseur': case 'cacciatore':
         case 'caçador': case '사냥꾼': case 'Охотник': case '猎人':
-          return 'https://media.wago.io/wow-ui-textures/ICONS/ClassIcon_Hunter.PNG'
+          return {src: 'https://media.wago.io/wow-interface-export/icons/classicon_hunter.png', title: 'icon:Interface\\ICONS\\ClassIcon_Hunter'}
         case 'rogue': case 'schurke': case 'pícaro': case 'voleur': case 'ladro':
         case 'ladino': case '도적': case 'разбойник': case '盗贼':
-          return 'https://media.wago.io/wow-ui-textures/ICONS/ClassIcon_Rogue.PNG'
+          return {src: 'https://media.wago.io/wow-interface-export/icons/classicon_rogue.png', title: 'icon:Interface\\ICONS\\ClassIcon_Rogue'}
         case 'priest': case 'priester': case 'sacerdote': case 'prêtre':
         case '사제': case 'жрец': case '牧师':
-          return 'https://media.wago.io/wow-ui-textures/ICONS/ClassIcon_Priest.PNG'
+          return {src: 'https://media.wago.io/wow-interface-export/icons/classicon_priest.png', title: 'icon:Interface\\ICONS\\ClassIcon_Priest'}
         case 'deathknight': case 'todesritter': case 'caballerodelamuerte': case 'cavalieredellamorte': case 'chevalierdelamorte':
         case 'cavaleirodamorte': case '죽음의기사': case 'рыцарьсмерти': case '死亡骑士':
-          return 'https://media.wago.io/wow-ui-textures/ICONS/ClassIcon_DeathKnight.PNG'
+          return {src: 'https://media.wago.io/wow-interface-export/icons/classicon_deathknight.png', title: 'icon:Interface\\ICONS\\ClassIcon_DeathKnight'}
         case 'shaman': case 'schamane': case 'chamán': case 'chaman': case 'sciamano':
         case 'xamã': case '주술사': case 'шаман': case '萨满祭司':
-          return 'https://media.wago.io/wow-ui-textures/ICONS/ClassIcon_Shaman.PNG'
+          return {src: 'https://media.wago.io/wow-interface-export/icons/classicon_shaman.png', title: 'icon:Interface\\ICONS\\ClassIcon_Shaman'}
         case 'mage': case 'magier': case 'mago':
         case '마법사': case 'маг': case '法师':
-          return 'https://media.wago.io/wow-ui-textures/ICONS/ClassIcon_Mage.PNG'
+          return {src: 'https://media.wago.io/wow-interface-export/icons/classicon_mage.png', title: 'icon:Interface\\ICONS\\ClassIcon_Mage'}
         case 'warlock': case 'hexenmeister': case 'brujo': case 'démoniste': case 'stregone':
         case 'bruxo': case '흑마법사': case 'чернокнижник': case '术士':
-          return 'https://media.wago.io/wow-ui-textures/ICONS/ClassIcon_Warlock.PNG'
+          return {src: 'https://media.wago.io/wow-interface-export/icons/classicon_warlock.png', title: 'icon:Interface\\ICONS\\ClassIcon_Warlock'}
         case 'monk': case 'mönch': case 'monje': case 'moine': case 'monaco':
         case 'monge': case '수도사': case 'монах': case '武僧':
-          return 'https://media.wago.io/wow-ui-textures/ICONS/ClassIcon_Monk.PNG'
+          return {src: 'https://media.wago.io/wow-interface-export/icons/classicon_monk.png', title: 'icon:Interface\\ICONS\\ClassIcon_Monk'}
         case 'druid': case 'druide': case 'druida': case 'druido':
         case '드루이드': case 'друид': case '德鲁伊':
-          return 'https://media.wago.io/wow-ui-textures/ICONS/ClassIcon_Druid.PNG'
+          return {src: 'https://media.wago.io/wow-interface-export/icons/classicon_druid.png', title: 'icon:Interface\\ICONS\\ClassIcon_Druid'}
         case 'demonhunter': case 'dämonenjäger': case 'cazadordedemonios': case 'chasseurdedémon': case 'cacciatoredidemoni':
         case 'caçadordedemônios': case '악마사냥꾼': case 'охотникнадемонов': case '恶魔猎手':
-          return 'https://media.wago.io/wow-ui-textures/ICONS/ClassIcon_DemonHunter.PNG'
+          return {src: 'https://media.wago.io/wow-interface-export/icons/classicon_demonhunter.png', title: 'icon:Interface\\ICONS\\ClassIcon_DemonHunter'}
 
         case 'tank':
-          return 'https://media.wago.io/iconsUI/role-icon-tank.png'
+          return {src: 'https://media.wago.io/site/role-icon-tank.png', title: 'tank'}
         case 'healer':
-          return 'https://media.wago.io/iconsUI/role-icon-healer.png'
+          return {src: 'https://media.wago.io/site/role-icon-healer.png', title: 'healer'}
         case 'damage': case 'dps':
-          return 'https://media.wago.io/iconsUI/role-icon-damage.png'
+          return {src: 'https://media.wago.io/site/role-icon-damage.png', title: 'dps'}
 
         case 'bloodlust': case 'bl':
-          return 'https://media.wago.io/wow-ui-textures/ICONS/Spell_Nature_BloodLust.PNG'
+          return {src: 'https://media.wago.io/wow-interface-export/icons/spell_nature_bloodLust.png', title: 'spell:2825'}
         case 'heroism': case 'hero':
-          return 'https://media.wago.io/wow-ui-textures/ICONS/Ability_Shaman_Heroism.PNG'
+          return {src: 'https://media.wago.io/wow-interface-export/icons/ability_shaman_heroism.png', title: 'spell:32182'}
+        case 'timewarp': case 'tw':
+          return {src: 'https://media.wago.io/wow-interface-export/icons/ability_mage_timeWarp.png', title: 'spell:80353'}
         case 'healthstone': case 'hs':
-          return 'https://media.wago.io/wow-ui-textures/ICONS/INV_Stone_04.PNG'
+          return {src: 'https://media.wago.io/wow-interface-export/icons/inv_stone_04.png', title: 'spell:6262'}
 
         case 'wow':
-          return 'https://media.wago.io/wow-ui-textures/FriendsFrame/Battlenet-WoWicon.PNG'
+          return 'https://media.wago.io/wow-interface-export/friendsframe/battlenet-wowicon.png'
         case 'd3':
-          return 'https://media.wago.io/wow-ui-textures/FriendsFrame/Battlenet-D3icon.PNG'
+          return 'https://media.wago.io/wow-interface-export/friendsframe/battlenet-d3icon.png'
         case 'sc2':
-          return 'https://media.wago.io/wow-ui-textures/FriendsFrame/Battlenet-Sc2icon.PNG'
+          return 'https://media.wago.io/wow-interface-export/friendsframe/battlenet-sc2icon.png'
         case 'bnet':
-          return 'https://media.wago.io/wow-ui-textures/FriendsFrame/Battlenet-Portrait.PNG'
+          return 'https://media.wago.io/wow-interface-export/friendsframe/battlenet-portrait.png'
         case 'alliance':
-          return 'https://media.wago.io/wow-ui-textures/FriendsFrame/PlusManz-Alliance.PNG'
+          return 'https://media.wago.io/wow-interface-export/friendsframe/plusmanz-alliance.png'
         case 'horde':
-          return 'https://media.wago.io/wow-ui-textures/FriendsFrame/PlusManz-Horde.PNG'
+          return 'https://media.wago.io/wow-interface-export/friendsframe/plusmanz-horde.png'
 
         case 'loading':
-          return 'https://media.wago.io/iconsUI/inlineSpinner.svg'
+          return 'https://media.wago.io/site/icon-waiting.gif'
         case 'question':
-          return 'https://media.wago.io/wow-ui-textures/ICONS/INV_Misc_QuestionMark.PNG'
+          return 'https://media.wago.io/wow-interface-export/icons/inv_misc_questionmark.png'
+
+        return null
       }
     },
-    parseNotes (update) {
-      const quill = this.$refs.quillContent.quill
-      this.$nextTick(() => {
-        var position = quill.getSelection(true).index
-        var delta = {ops: []}
-        var content = quill.getContents().ops
-        var changeDiff = 0
-        if (typeof update === 'object') {
-          changeDiff = update.text.length - this.noteLength
-          this.noteLength = update.text.length
+    parseNotes (pasteText, o, source) {
+      if (source === 'api') {
+        return
+      }
+      let startNewBlock = true
+      this.$nextTick(async () => {
+        const contents = this.quill.getContents().ops
+        // ensure non-blockquote content at start and end
+        if (contents.length > 1) {
+          if (typeof contents[0].insert === 'string' && !contents[0].insert.trim() && contents[1].attributes && contents[1].attributes.limitedContent) {
+            contents.splice(0, 2)
+          }
+          else if (typeof contents[0].insert === 'string' && (contents[0].insert.match(/\n/g) || []).length < 1 && contents[1].attributes && contents[1].attributes.limitedContent) {
+            contents[0].insert = '\n' + contents[0].insert.trim()
+          }
+          if (contents[contents.length - 1].attributes && contents[contents.length - 1].attributes.limitedContent) {
+            contents.push({insert: '\n'})
+          }
         }
+        let hasChanges = false
+        var position = this.quill.getSelection(true).index
+        var changeDiff = 0
+
         // parse out any {icons}
-        const regex = new RegExp('\\{(' +
+        const regexStandardIcon = new RegExp('([\\s\\S]*)(\\{(' +
           'rt[12345678]{1}|star|circle|diamond|triangle|moon|square|cross|x|skull' +                                                              // EN raid markers
           '|sz[12345678]{1}|stern|kreis|diamant|dreieck|mond|quadrat|kreuz|totenschädel' +                                                        // DE raid markers
           '|cr[12345678]{1}|étoile|cercle|losange|triangle|lune|carré|croix|crâne' +                                                              // FR raid markers
@@ -445,222 +626,342 @@ export default {
           '|Guerrier|Chasseur|Voleur|Prêtre|Cavaliere\\s?della\\s?Morte|Chaman|Démoniste|Moine|Chasseur\\s?de\\s?Démon' +                         // FR classes
           '|Guerreiro|Paladino|Cacciatore|Ladro|Chevalier\\s?de\\s?la\\s?Morte|Sciamano|Mago|Stregone|Monaco|druido|Cacciatore\\s?di\\s?Demoni' + // IT classes
           '|Ladino|Caçador|Cavaleiro\\s?da\\s?Morte|Xamã|Маг|Bruxo|Monge|Caçador\\s?de\\s?Demônios' +                                             // PT classes
-          '|전사|성기사|사냥꾼|도적|사제|죽음의\\s?기사|주술사|마법사|흑마법사|수도사|드루이드|악마사냥꾼' +                                             // KR classes
+          '|전사|성기사|사냥꾼|도적|사제|죽음의\\s?기사|주술사|마법사|흑마법사|수도사|드루이드|악마사냥꾼' +                                                   // KR classes
           '|Воин|Паладин|Охотник|Разбойник|Жрец|Рыцарь\\s?смерти|Шаман|Маг|Чернокнижник|Монах|Друид|Охотник\\s?на\\s?демонов' +                   // RU classes
-          '|战士|圣骑士|猎人|盗贼|牧师|死亡骑士|萨满祭司|法师|术士|武僧|德鲁伊|恶魔猎手' +                                                              // CN classes
-          // remaining is not localized in either addon
+          '|战士|圣骑士|猎人|盗贼|牧师|死亡骑士|萨满祭司|法师|术士|武僧|德鲁伊|恶魔猎手' +                                                                   // CN classes
+          // remaining is not localized
           '|tank|healer|damage|dps' +                                                // Raid roles
           '|bl|bloodlust|hero|heroism|hs|healthstone' +                              // Common spells
           '|wow|d3|sc2|bnet|alliance|horde' +                                        // Community icons
-          '|icon:?\\s?[\\w\\/]+|spell:?\\s?\\d+|boss:?\\s?\\d+|journal:?\\s?\\d+' +  // Custom icon and links
-          ')\\}' +
-          // check for escape codes
-          '|(\\|c([\\dabcdef]{8}|blue|green|red|yellow|orange|pink|purple|deathknight|demonhunter|druid|hunter|mage|monk|paladin|priest|rogue|shaman|warlock|warrior))' + // set color
-          '|\\|r' +                                                                                                                                                       // reset color
-          // check for wowhead URLs
-          '|https://www.wowhead.com/spell=\\d+[^\\s]*' +
-          '', 'ig')
+          ')\\})([\\s\\S]*)', 'i')
+
+          // '|icon:?\\s?[\\w\\/]+|spell:?\\s?\\d+|boss:?\\s?\\d+|journal:?\\s?\\d+' +  // Custom icon and links
+          // ')\\}' +
+          // // check for escape codes
+          // '|(\\|c([\\dabcdef]{8}|blue|green|red|yellow|orange|pink|purple|deathknight|demonhunter|druid|hunter|mage|monk|paladin|priest|rogue|shaman|warlock|warrior))' + // set color
+          // '|\\|r' +
+          // ')(.*)', 'i')
+        const regexColor = /([\s\S]*)\|c([abcdef\d]{2})([abcdef\d]{6})([\s\S]*)/
+        const regexLimitedPlayers = /([\s\S]*)\{(!)?P:([^\}]+)\}([\s\S]*)/i
+        const regexTexturePath = /([\s\S]*)(\{icon:(Interface[/\\]+([^}]+))\})([\s\S]*)/i
+        const regexTextureID = /([\s\S]*)(\{icon:(\d+)\})([\s\S]*)/i
+        const regexSpellID = /([\s\S]*)(\{spell:(\d+)\})([\s\S]*)/i
+        const regexWowhead = /([\s\S]*)(https:\/\/(\w+\.)?wowhead\.com\/(spell)=(\d+).*?)(\s[\s\S]*)/i
         var runAgain = false
         var useColor = null
-        for (let i = 0; i < content.length; i++) {
-          let split
-          // if we deleted something then skip it this iteration
-          if (!content[i] || !content[i].insert) {
-            // skip
-          }
-          // if found {code} or |escapes to replace
-          else if (content[i] && content[i].insert && typeof content[i].insert === 'string' && content[i].insert.match(regex)) {
-            let m
-            while ((m = regex.exec(content[i].insert)) !== null) {
-              if (m.index === regex.lastIndex) {
-                regex.lastIndex++
-              }
-              if (split) {
-                split = split[1].split(m[0])
-                delta.ops.pop()
+
+        /*
+time formats:
+{time:75}
+{time:1:15}
+{time:2:30,p2}	--start on phase 2, works only with bigwigs
+{time:0:30,SCC:17:2}	--start on combat log event. format "event:spellID:counter", events: SCC (SPELL_CAST_SUCCESS), SCS (SPELL_CAST_START), SAA (SPELL_AURA_APPLIED), SAR (SPELL_AURA_REMOVED)
+{time:0:30,e,customevent}	--start on MRT.F.Note_Timer(customevent) function or "/rt note starttimer customevent"
+{time:2:30,wa:nzoth_hs1}	--run weakauras custom event MRT_NOTE_TIME_EVENT with arg1 = nzoth_hs1, arg2 = time left (event runs every second when timer has 5 second
+        */
+
+        let delta = []
+        let promiseLookups = []
+        let eof = true
+        for (let i = 0; i < contents.length; i++) {
+          if (typeof contents[i].insert === 'string') {
+            let str = contents[i].insert
+            eof = !!str.match(/\n$/)
+
+            if (str.match(regexColor)) {
+              let m = str.match(regexColor)
+              contents[i].insert = m[1]
+              delta.push(contents[i])
+              let [matchText, resetText] = m[4].split(/\|r/)
+              if (resetText) {
+                delta.push({insert: matchText, attributes: {color: `#${m[3]+m[2]}`}})
+                delta.push({insert: resetText})
               }
               else {
-                split = content[i].insert.split(m[0])
+                this.$nextTick(() => {
+                  this.quill.insertText(position - 1, '\u200b', {color: `#${m[3]+m[2]}`})
+                })
+                position = position - 10
+                delta.push({insert: matchText})
               }
+              hasChanges = true
+            }
 
-              if (content[i] && content[i].attributes && content[i].attributes.color) {
-                useColor = content[i].attributes.color
-              }
-              delta.ops.push({insert: split[0], attributes: {color: useColor}})
-
-              // what are we matching?
-              let icon = m[0].match(/^{icon:?\s?(\d+)}$/)
-              let iconText = m[0].match(/^{icon:?\s?(?:interface\/icons\/)?(\w+)}$/i)
-              let spell = m[0].match(/^{spell:?\s?(\d+)}$/)
-              let colorStart = m[0].match(/^\|c([\\dabcdef]{8}|blue|green|red|yellow|orange|pink|purple|deathknight|demonhunter|druid|hunter|mage|monk|paladin|priest|rogue|shaman|warlock|warrior)$/i)
-              let colorEnd = m[0].match(/^\|r$/)
-              let wowheadSpell = m[0].match(/^https:\/\/www.wowhead.com\/spell=(\d+)[^\s]*/)
-              if (icon) {
-                let spellID = icon[1]
-                if (this.blizzData.spells[spellID]) {
-                  delta.ops.push({insert: {image: `https://media.wago.io/wow-ui-textures/ICONS/${this.blizzData.spells[spellID].iconFile}`}})
-                }
-                else {
-                  delta.ops.push({insert: {image: this.imageURL('loading')}, attributes: {alt: spellID}})
-                  this.http.get('/lookup/blizzard/spell', {id: spellID}).then((spell) => {
-                    if (spell && spell.id) {
-                      this.blizzData.spells[spellID] = spell
-                    }
-                    else {
-                      this.blizzData.spells[spellID] = {error: true}
-                    }
-                    this.parseNotes(spellID)
-                  }).catch((e) => {
-                    this.blizzData.spells[spellID] = {error: true}
-                    this.parseNotes(spellID)
-                  })
-                }
-              }
-              else if (iconText) {
-                let filename = iconText[1]
-                if (this.blizzData.spells[filename]) {
-                  delta.ops.push({insert: {image: `https://media.wago.io/wow-ui-textures/ICONS/${this.blizzData.spells[filename].iconFile}`}})
-                }
-                else {
-                  delta.ops.push({insert: {image: this.imageURL('loading')}, attributes: {alt: filename}})
-                  this.http.get('/lookup/blizzard/spell', {text: filename}).then((spell) => {
-                    if (spell && spell.id) {
-                      this.blizzData.spells[filename] = spell
-                    }
-                    else {
-                      this.blizzData.spells[filename] = {error: true}
-                    }
-                    this.parseNotes(filename)
-                  }).catch((e) => {
-                    this.blizzData.spells[filename] = {error: true}
-                    this.parseNotes(filename)
-                  })
-                }
-              }
-              else if (spell) {
-                let spellID = spell[1]
-                if (this.blizzData.spells[spellID]) {
-                  delta.ops.push({insert: {image: `https://media.wago.io/wow-ui-textures/ICONS/${this.blizzData.spells[spellID].iconFile}`}})
-                  delta.ops.push({insert: ' ' + this.blizzData.spells[spellID].name, attributes: {wowhead: `spell=${spellID}`, link: '#'}})
-                  position += this.blizzData.spells[spellID].name.length + 1
-                }
-                else {
-                  delta.ops.push({insert: {image: this.imageURL('loading')}, attributes: {alt: spellID}})
-                  delta.ops.push({insert: '...', attributes: {wowhead: `spell=${spellID}`, link: '#'}})
-                  position += 3
-                  this.http.get('/lookup/blizzard/spell', {id: spellID}).then((spell) => {
-                    if (spell && spell.id) {
-                      this.blizzData.spells[spellID] = spell
-                    }
-                    else {
-                      this.blizzData.spells[spellID] = {error: true}
-                    }
-                    this.parseNotes(spellID)
-                  }).catch((e) => {
-                    this.blizzData.spells[spellID] = {error: true}
-                    this.parseNotes(spellID)
-                  })
-                }
-              }
-              else if (wowheadSpell) {
-                delta.ops.push({insert: `{spell ${wowheadSpell[1]}}`})
-                position += ('' + wowheadSpell[1]).length + 8
-                runAgain = true
-              }
-              else if (colorStart) {
-                useColor = this.parseColor(colorStart[1])
-                if (changeDiff <= 1) {
-                  setTimeout(() => {
-                    quill.format('color', useColor)
-                  }, 50)
-                }
-                else {
-                  delta.ops.push({insert: split[1], attributes: {color: useColor}})
-                  position = position - m[0].length + 1
-                  continue
-                }
-              }
-              else if (colorEnd) {
-                useColor = '#FFFFFF'
-                if (changeDiff <= 1) {
-                  setTimeout(() => {
-                    quill.format('color', useColor)
-                  }, 50)
-                }
-                else {
-                  delta.ops.push({insert: split[1], attributes: {color: useColor}})
-                  position = position - m[0].length + 1
-                  continue
-                }
+            else if (str.match(regexLimitedPlayers)) {
+              let m = str.match(regexLimitedPlayers)
+              contents[i].insert = m[1].replace(/\n*$/, '')
+              delta.push(contents[i])
+              let structure = m[4].split(/\{\/P\}/i)
+              let nested = m[1].match(/\{!?P:([^\}]+)\}/i) || []
+              let matchText, resetText
+              let limitedText, limitedField
+              if (m[2]) {
+                limitedText = `displayed for players: ${m[3]}`
+                limitedField = `!P:${m[3]}`
               }
               else {
-                delta.ops.push({insert: {image: this.imageURL(m[1])}})
+                limitedText = `displayed for players: ${m[3]}`
+                limitedField = `P:${m[3]}`
               }
-              delta.ops.push({insert: split[1], attributes: {color: useColor}})
-              position = position - m[0].length + 1
+              if (structure.length <= 2) {
+                matchText = structure[0]
+                resetText = (structure[1] || '').trim()
+              }
+              else if (nested.length) {
+                matchText = ''
+                let part1 = structure.splice(structure.length - nested.length, nested.length)
+                for (let i = 0; i < structure.length; i++) {
+                  matchText += `${structure[i]}${nested[i]}`
+                }
+                resetText = structure.join('{/P}').trim()
+              }
+              let newline = ''
+              if (!resetText.trim()) {
+                newline = '\n'
+              }
+
+              delta.push({insert: (startNewBlock ? '\n' : '') + matchText.replace(/\n*$/, '')})
+              delta.push({insert: '\n', attributes: {limitedContent: {type: 'P', limited: limitedText, title: limitedField, value: m[3]}, class: `limited`}})
+              delta.push({insert: newline + resetText.replace(/^\n/, '')})
+
+              hasChanges = true
+              // contents[i].insert = m[1]
+              // let display = {content: m[4], title: `P:${m[3]}`, id: 'limit-' + (this.reqID++)}
+              // if (m[2]) {
+              //   display.not = true
+              //   display.limited = `Limited to players NOT: ${m[3]}`
+              // }
+              // else {
+              //   display.limited = `Limited to players: ${m[3]}`
+              //   m[2] = ''
+              // }
+              // delta.push(Object.assign(Object.create(contents[i]), {insert: m[1]}))
+              // delta.push({insert: {limitedDisplayBlot: display}})
+              // delta.push(Object.assign(Object.create(contents[i]), {insert: m[5]}))
+              // position += 1 - m[2].length - m[3].length - m[4].length - 7
+              // hasChanges = true
+              // console.log(delta)
             }
-          }
-          // if content is an image pending on an ajax update
-          else if (content[i].insert.image && content[i].insert.image === this.imageURL('loading') && (typeof update === 'number' || typeof update === 'string') && content[i].attributes && content[i].attributes.alt === update && this.blizzData.spells[update]) {
-            if (this.blizzData.spells[update].iconFile) {
-              content[i] = {insert: {image: `https://media.wago.io/wow-ui-textures/ICONS/${this.blizzData.spells[update].iconFile}`}}
-              delta.ops.push(content[i])
-              // is there an accompanying text string?
-              if (content[i + 1] && content[i + 1].insert === '...' && content[i + 1].attributes && content[i + 1].attributes.wowhead === `spell=${update}`) {
-                delta.ops.push({insert: ' ' + this.blizzData.spells[update].name, attributes: content[i + 1].attributes})
-                content[i + 1].insert = ''
-                position += this.blizzData.spells[update].name.length - 1
+
+            // {warrior}; {skull}; {healer}; etc
+            else if (str.match(regexStandardIcon)) {
+              let m = str.match(regexStandardIcon)
+              let image = this.makeIconBlot(m[3])
+              if (image) {
+                delta.push(Object.assign(Object.create(contents[i]), {insert: m[1]}))
+                delta.push({insert: {iconBlot: image}})
+                delta.push(Object.assign(Object.create(contents[i]), {insert: m[4]}))
+                position += 1 - m[2].length
+                hasChanges = true
               }
             }
+
+            // {icon:path/to/texture}
+            else if (str.match(regexTexturePath)) {
+              let m = str.match(regexTexturePath)
+              let image = {src: `https://media.wago.io/wow-interface-export/${m[4].toLowerCase().replace(/\//g, '\\').replace(/\.{2,}/g, '.')}.png`, title: m[3].replace(/\\/g, '\\\\')}
+              delta.push(Object.assign(Object.create(contents[i]), {insert: m[1]}))
+              delta.push({insert: {iconBlot: image}})
+              delta.push(Object.assign(Object.create(contents[i]), {insert: m[5]}))
+              position += 1 - m[2].length
+              hasChanges = true
+            }
+
+            // {icon:12345} (texture ID)
+            else if (str.match(regexTextureID)) {
+              let m = str.match(regexTextureID)
+              let imageID = 'texture-' + (this.reqID++)
+              this.$DBC.lookup({id: `texture:${m[3]}`, done: res => {
+                document.getElementById(imageID).src = `https://media.wago.io/wow-interface-export/${res.filePath}.png`
+              }})
+              let image = {src: 'https://media.wago.io/site/icon-waiting.svg', id: imageID, title: m[2]}
+              delta.push(Object.assign(Object.create(contents[i]), {insert: m[1]}))
+              delta.push({insert: {iconBlot: image}})
+              delta.push(Object.assign(Object.create(contents[i]), {insert: m[4]}))
+              position += 1 - m[2].length
+              hasChanges = true
+            }
+
+            // {spell:12345} (spell ID)
+            else if (str.match(regexSpellID)) {
+              let m = str.match(regexSpellID)
+              let imageID = 'texture-' + (this.reqID++)
+              this.$DBC.lookup({id: `spell:${m[3]}`, done: res => {
+                document.getElementById(imageID).src = `https://media.wago.io/wow-interface-export/${res.filePath}.png`
+              }})
+              let image = {src: 'https://media.wago.io/site/icon-waiting.svg', id: imageID, title: m[2]}
+              delta.push(Object.assign(Object.create(contents[i]), {insert: m[1]}))
+              delta.push({insert: {iconBlot: image}})
+              delta.push(Object.assign(Object.create(contents[i]), {insert: m[4]}))
+              position += 1 - m[2].length
+              hasChanges = true
+            }
+
+            // https://www.wowhead.com/spell=123456/test wowhead link
+            else if (str.match(regexWowhead)) {
+              let m = str.match(regexWowhead)
+              if (typeof pasteText === 'string' && m[2].length !== pasteText.length && m[2].indexOf(pasteText) === 0) {
+                m[6] = m[2].replace(pasteText, '') + m[6]
+                m[2] = pasteText
+              }
+              let imageID = 'texture-' + (this.reqID++)
+              let textPos = position + 1 - m[2].length
+              this.$DBC.lookup({id: `spell:${m[5]}`, done: res => {
+                document.getElementById(imageID).src = `https://media.wago.io/wow-interface-export/${res.filePath}.png`
+                this.quill.insertText(textPos, ' ' + res.enUS + ' ', {color: '#3AC7D4'})
+                this.quill.removeFormat(textPos + res.enUS.length + 1, 1)
+                this.quill.setSelection(textPos + res.enUS.length + 2, 0, 'silent')
+              }})
+              let image = {src: 'https://media.wago.io/site/icon-waiting.svg', id: imageID, title: `${m[4]}:${m[5]}`}
+              delta.push(Object.assign(Object.create(contents[i]), {insert: m[1]}))
+              delta.push({insert: {iconBlot: image}})
+              delta.push(Object.assign(Object.create(contents[i]), {insert: m[6]}))
+              position += 1 - m[2].length
+              hasChanges = true
+            }
+
             else {
-              content[i] = {insert: {image: this.imageURL('question')}}
-              delta.ops.push(content[i])
+              contents[i].insert = str
+              delta.push(contents[i])
             }
-          }
-          // if content is a valid image
-          else if (content[i].insert.image && content[i].insert.image.match(/^https:\/\/media.wago.io\/(wow-ui-textures|iconsUI)\//) && !content[i].insert.image.match(/\/..\//)) {
-            delta.ops.push(content[i])
-          }
-          // if content is an invalid image
-          else if (content[i].insert.image) {
-            console.log('invalid img', content[i].insert.image)
-            // do not add to delta
-          }
-          // check valid attributes
-          else if (content[i].attributes && (content[i].attributes.color || content[i].attributes.alt || content[i].attributes.link || content[i].attributes.wowhead)) {
-            if (useColor && !content[i].attributes.color) {
-              content[i].attributes.color = useColor
-            }
-            else if (!useColor && content[i].attributes.color) {
-              useColor = content[i].attributes.color
-            }
-            if (content[i].attributes.link) {
-              content[i].attributes = {color: content[i].attributes.color, alt: content[i].attributes.alt, link: '#', wowhead: content[i].attributes.wowhead}
-            }
-            else {
-              content[i].attributes = {color: content[i].attributes.color, alt: content[i].attributes.alt, wowhead: content[i].attributes.wowhead}
-            }
-            delta.ops.push(content[i])
-          }
-          // remove other attributes
-          else if (content[i].attributes) {
-            delete content[i].attributes
-            delta.ops.push(content[i])
           }
           else {
-            delta.ops.push(content[i])
+            eof = false
+            delta.push(contents[i])
           }
+
+          startNewBlock = !(typeof delta[delta.length - 1].insert === 'string' && delta[delta.length - 1].insert.match(/\s$/))
         }
-        async.setImmediate(() => {
-          quill.setContents(delta, 'silent')
-          quill.setSelection(position, 0, 'silent')
-        })
-        if (runAgain) {
-          setTimeout(() => {
-            this.parseNotes()
-          }, 10)
+
+
+        //   else if (typeof contents[i].insert === 'string' && contents[i].insert.match(regexWowhead)) {
+        //     let m = contents[i].insert.match(regexWowhead)
+        //     let image
+        //     let textObj = {}
+        //     if (this.blizzData[m[3]]) {
+        //       image = {src: this.blizzData[m[3]].icon, title: `spell:${m[4]}`}
+        //       textObj = {text: this.blizzData[m[3]].enUS, color: 'cyan'}
+        //     }
+        //     else {
+        //       let iconID = 'icon-' + (this.reqID++)
+        //       let textID = 'text-' + (this.reqID++)
+        //       image = {src: 'https://media.wago.io/site/icon-waiting.svg', title: `${m[3]}:${m[4]}`, id: iconID}
+        //       textObj = {text: '?', color: '#21e0f3', id: textID}
+        //       promiseLookups.push({type: 'spell', iconID, textPos: position - m[2].length + 1, req: this.http.get('/lookup/dbc', {id: `spell:${m[4]}`})})
+        //     }
+
+
+        console.log('set contents', delta)
+        await this.quill.setContents(delta)
+        await this.quill.setSelection(position, 0, 'silent')
+
+        await this.$DBC.process()
+
+        if (hasChanges) {
+          return this.parseNotes()
+        }
+        return
+
+        if (delta.ops.length) {
+          this.quill.setContents(delta)
+          this.quill.setSelection(position, 0, 'silent')
+        }
+
+        if (hasChanges) {
+          this.parseNotes()
         }
       })
+    },
+
+    cursorSyntax (range) {
+      if (!range) {
+        return
+      }
+      let cursorPos = range.index
+      let trackingPos = 0
+      let lineY = 45
+      const contents = this.quill.getContents().ops
+      for (let i = 0; i < contents.length; i++) {
+        if (typeof contents[i].insert !== 'string') {
+          trackingPos++
+        }
+        else if (contents[i].insert.match(/\n$/)) {
+          trackingPos += contents[i].insert.length
+          lineY += (contents[i].insert.match(/\n/g) || []).length * 20
+        }
+        else if (contents[i].insert.match(/\n/) && cursorPos >= trackingPos + contents[i].insert.lastIndexOf('\n') + 1 && cursorPos <= trackingPos + contents[i].insert.length) {
+          trackingPos += contents[i].insert.length
+          lineY += (contents[i].insert.match(/\n/g) || []).length * 20
+
+          if (contents[i + 1] && contents[i + 1].attributes && contents[i + 1].attributes.limitedContent) {
+            console.log(contents[i + 1].attributes.limitedContent)
+            this.limitedContentMenu = Object.assign({op: i + 1, lineY, value: contents[i + 1].attributes.limitedContent.value}, contents[i + 1].attributes.limitedContent)
+            return
+          }
+        }
+        else {
+          trackingPos += contents[i].insert.length
+          lineY += (contents[i].insert.match(/\n/g) || []).length * 20
+        }
+
+        if (contents[i] && contents[i].attributes && contents[i].attributes.limitedContent) {
+          lineY += 40
+        }
+      }
+      this.limitedContentMenu = null
+    },
+
+    charToName (char) {
+      char = char.toUpperCase()
+      if (char === 'D') {
+        return this.$t('Damage Dealers')
+      }
+      else if (char === 'H') {
+        return this.$t('Healers')
+      }
+      else if (char === 'T') {
+        return this.$t('Tanks')
+      }
+      return char
+    },
+
+    toggleLimitedValue (str) {
+      let values = (this.limitedContentMenu.value || '').replace(/undefined/g, '').replace(/\s/g).split(/,/g)
+      let x = values.indexOf(str)
+      console.log((this.limitedContentMenu.value || ''), values, x)
+      if (x >= 0) {
+        values.splice(x, 1)
+      }
+      else {
+        values.push(str)
+      }
+      this.$set(this.limitedContentMenu, 'value', values.join(',').replace(/^[\s,]*|[\s,]*^/g, ''))
+      this.updateLimited()
+    },
+
+    updateLimited () {
+      if (this.limitedContentMenu.type.match(/^!?P/i)) {
+        this.limitedContentMenu.value = this.limitedContentMenu.value.replace(/\s*/g, '')
+        this.limitedContentMenu.title = this.limitedContentMenu.type + ':' + this.limitedContentMenu.value
+        this.limitedContentMenu.limited = `displayed for players: ${this.limitedContentMenu.value}`
+      }
+      else if (this.limitedContentMenu.type.match(/^(D|H|T)$/i)) {
+        this.limitedContentMenu.title = this.limitedContentMenu.value
+        this.limitedContentMenu.limited = `displayed for role: ${this.charToName(this.limitedContentMenu.type)}`
+      }
+      else if (this.limitedContentMenu.type.match(/^!?C/i)) {
+        this.limitedContentMenu.value = this.limitedContentMenu.value.replace(/\s*/g, '').replace(/undefined/g, '') // not sure where undefined is getting added
+        this.limitedContentMenu.title = this.limitedContentMenu.type + ':' + this.limitedContentMenu.value
+        this.limitedContentMenu.limited = `displayed for classes: ${this.limitedContentMenu.value.replace(/,/g, ', ')}`
+      }
+      else if (this.limitedContentMenu.type.match(/^!?G/i)) {
+        this.limitedContentMenu.value = this.limitedContentMenu.value.replace(/\s*/g, '').replace(/undefined/g, '')
+        this.limitedContentMenu.title = this.limitedContentMenu.type + ':' + this.limitedContentMenu.value.replace(/\D*/g, '')
+        this.limitedContentMenu.limited = `displayed for raid groups: ${this.limitedContentMenu.value.replace(/\D*/g, '').replace(/(\w)/g, '$1, ').replace(/,\s*$/, '')}`
+      }
+      const content = this.quill.getContents().ops
+      content[this.limitedContentMenu.op].attributes.limitedContent = this.limitedContentMenu
+      this.quill.setContents(content)
     },
 
     parseColor (color) {
@@ -816,7 +1117,178 @@ export default {
 }
 </script>
 
-<style>
+<style lang="scss">
+#note-content {
+  .ql-editor {
+    outline: none;
+    padding: 16px;
+    min-height: 450px;
+    img { max-width: 18px; max-height: 18px }
+    p {
+      margin: 0;
+    }
+  }
+  .ql-hidden {display: none}
+  .limited {
+    display: block;
+    padding: 18px 8px 4px 8px;
+    border: 1px solid #777;
+    border-radius: 4px;
+    margin: 8px 0;
+    background: #222;
+    position: relative;
+    width: auto;
+    color: #ddd;
+    &:before {
+      position: absolute;
+      top: -8px;
+      left: 2px;
+      color: blue;
+      background: #222;
+      border: inherit;
+      border-width: 1px 0 1px 1px;
+      border-radius: 4px 0 0 4px;
+      padding: 0 4px;
+    }
+    &:after {
+      position: absolute;
+      top: -8px;
+      padding: 0 4px;
+      background: #222;
+      border: inherit;
+      border-width: 1px 1px 1px 0;
+      border-radius: 0 4px 4px 0;
+      content: attr(data-limited);
+    }
+    &.limit-P:before, &.limit-C:before, &.limit-G:before {
+      color: #ffbc00;
+      content: 'ONLY';
+    }
+    &.limit-0P:before, &.limit-0C:before, &.limit-0G:before {
+      color: #d85000;
+      content: 'NOT';
+    }
+    &.limit-P:after, &.limit-C:after, &.limit-D:after, &.limit-H:after, &.limit-T:after, &.limit-G:after {
+      left: 41px;
+    }
+    &.limit-0P:after, &.limit-0C:after, &.limit-0G:after {
+      left: 35px;
+    }
+
+    &.limit-P, &.limit-0P {
+      border-color: #834002;
+      &:after {
+        color: #A36012;
+      }
+    }
+    &.limit-D, &.limit-H, &.limit-T {
+      border-color: #007e94;
+      &:after {
+        color: #209ec4;
+      }
+    }
+    &.limit-D:before, &.limit-H:before, &.limit-T:before {
+      color: #ffbc00;
+      content: 'ONLY';
+    }
+
+    &.limit-C, &.limit-0C {
+      border-color: #740061;
+      &:after {
+        color: #A43091;
+      }
+    }
+
+    &.limit-G, &.limit-0G {
+      border-color: #679A41;
+      &:after {
+        color: #97BA71;
+      }
+    }
+  }
+}
+
+#edit-notes {
+  position: relative;
+  #limited-content-menu {
+    position: absolute;
+    border-radius: 4px;
+    left: 19px;
+    border: 1px solid #777;
+    background: #252525;
+    z-index: 99;
+    min-width: 240px;
+    padding: 4px;
+
+    &.limit-P, &.limit-0P, .name-option {
+      border-color: #A36022;
+      color: #A36022;
+      select , input{
+        color: #A36022;
+      }
+    }
+    &.limit-D, &.limit-H, &.limit-T, .role-option {
+      border-color: #209eb4;
+      color: #209eb4;
+      select, input{
+        color: #209eb4;
+      }
+    }
+    &.limit-C, &.limit-0C, .class-option {
+      border-color: #A43091;
+      color: #A43091;
+      select , input{
+        color: #A43091;
+      }
+      .select-limited-class {
+        cursor: pointer;
+        border: 1px solid #222;
+        &.selected {
+          border-color: gold;
+        }
+      }
+    }
+    &.limit-G, &.limit-0G, .group-option {
+      border-color: #679A41;
+      color: #679A41;
+      select , input{
+        color: #679A41;
+      }
+      .select-limited-group {
+        cursor: pointer;
+        border: 1px solid #222;
+        font-size: 15px;
+        line-height: 18px;
+        width: 18px;
+        display: inline-block;
+        text-align: center;
+        &.selected {
+          border-color: gold;
+        }
+      }
+    }
+
+    img {
+      width: 20px;
+      height: 20px;
+    }
+  }
+  select, input {
+    background: #222;
+    border: 1px solid #444;
+    padding: 2px;
+    border-radius: 4px;
+    z-index: 5;
+    outline: 0;
+  }
+  input {
+    padding: 3px 2px;
+    min-width: 200px;
+    max-width: 100%;
+  }
+}
+
+
 #edit-notes .md-select-content { max-height: calc(70vh); margin-bottom: 32px }
 #edit-notes .md-select { width: auto }
 #edit-notes .md-input-container { margin-bottom: 10px}
@@ -832,41 +1304,96 @@ export default {
 #saveChangesDialog .md-dialog { min-width: 40% }
 #wago-note-editor { margin: 16px }
 
-.ql-container { min-height: 450px }
-.ql-editor { outline: none; padding: 8px; }
-.ql-editor img { max-width: 18px; max-height: 18px }
-.ql-toolbar { border: 1px solid #777; padding: 4px }
-.ql-toolbar.ql-snow button, .ql-toolbar button { width: 24px; height: 24px; background: none; background-position: center; background-repeat: no-repeat; background-size: 18px 18px; border: 0; cursor: pointer; margin: 0 2px }
+.ql-toolbar {
+  border: 1px solid #777;
+  padding: 4px;
+  .ql-formats {
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 2px;
+    padding-right: 2px;
+    border-right: 1px solid #555;
+    &:last-child {
+      border-right: 0;
+    }
+  }
+  button, .ql-picker {
+    width: 24px; height: 24px;
+    border: 0;
+    cursor: pointer;
+    margin: 0 2px;
+    background: none;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 22px 22px;
+    position: relative;
+
+    .ql-picker-label {
+      padding: 4px 2px 2px 2px;
+    }
+
+    &:hover, &:hover  .ql-picker-label, &.ql-expanded .ql-picker-label {
+      background-color: #585858;
+    }
+
+    &.ql-expanded .ql-picker-options {
+      position: absolute;
+      margin-top: -1px;
+      top: 100%;
+      left: 0;
+      z-index: 1;
+      box-shadow: rgb(0 0 0 / 20%) 0 2px 8px;
+      background: #333;
+      border: 1px solid #555;
+      width: 168px;
+
+      .ql-picker-item {
+        border: 1px solid transparent;
+        float: left;
+        height: 16px;
+        margin: 2px;
+        padding: 0px;
+        width: 16px;
+      }
+    }
+
+    svg {
+      width: 20px; height: 20px;
+    }
+  }
+  button {
+    border-top: 1px solid #333;
+  }
+}
+
 .ql-toolbar button:hover { background-color: rgba(127, 127, 127, .5); }
-.ql-toolbar button.ql-rt1 { background-image: url('//media.wago.io/iconsUI/raidmarker-rt1.png') }
-.ql-toolbar button.ql-rt2 { background-image: url('//media.wago.io/iconsUI/raidmarker-rt2.png') }
-.ql-toolbar button.ql-rt3 { background-image: url('//media.wago.io/iconsUI/raidmarker-rt3.png') }
-.ql-toolbar button.ql-rt4 { background-image: url('//media.wago.io/iconsUI/raidmarker-rt4.png') }
-.ql-toolbar button.ql-rt5 { background-image: url('//media.wago.io/iconsUI/raidmarker-rt5.png') }
-.ql-toolbar button.ql-rt6 { background-image: url('//media.wago.io/iconsUI/raidmarker-rt6.png') }
-.ql-toolbar button.ql-rt7 { background-image: url('//media.wago.io/iconsUI/raidmarker-rt7.png') }
-.ql-toolbar button.ql-rt8 { background-image: url('//media.wago.io/iconsUI/raidmarker-rt8.png') }
-.ql-toolbar button.ql-tank { background-image: url('//media.wago.io/iconsUI/role-icon-tank.png') }
-.ql-toolbar button.ql-healer { background-image: url('//media.wago.io/iconsUI/role-icon-healer.png') }
-.ql-toolbar button.ql-damage { background-image: url('//media.wago.io/iconsUI/role-icon-damage.png') }
-.ql-toolbar button.ql-mage { background-image: url('//media.wago.io/wow-ui-textures/ICONS/ClassIcon_Mage.PNG') }
-.ql-toolbar button.ql-priest { background-image: url('//media.wago.io/wow-ui-textures/ICONS/ClassIcon_Priest.PNG') }
-.ql-toolbar button.ql-warlock { background-image: url('//media.wago.io/wow-ui-textures/ICONS/ClassIcon_Warlock.PNG') }
-.ql-toolbar button.ql-demonhunter { background-image: url('//media.wago.io/wow-ui-textures/ICONS/ClassIcon_DemonHunter.PNG') }
-.ql-toolbar button.ql-druid { background-image: url('//media.wago.io/wow-ui-textures/ICONS/ClassIcon_Druid.PNG') }
-.ql-toolbar button.ql-monk { background-image: url('//media.wago.io/wow-ui-textures/ICONS/ClassIcon_Monk.PNG') }
-.ql-toolbar button.ql-rogue { background-image: url('//media.wago.io/wow-ui-textures/ICONS/ClassIcon_Rogue.PNG') }
-.ql-toolbar button.ql-hunter { background-image: url('//media.wago.io/wow-ui-textures/ICONS/ClassIcon_Hunter.PNG') }
-.ql-toolbar button.ql-shaman { background-image: url('//media.wago.io/wow-ui-textures/ICONS/ClassIcon_Shaman.PNG') }
-.ql-toolbar button.ql-deathknight { background-image: url('//media.wago.io/wow-ui-textures/ICONS/ClassIcon_DeathKnight.PNG') }
-.ql-toolbar button.ql-paladin { background-image: url('//media.wago.io/wow-ui-textures/ICONS/ClassIcon_Paladin.PNG') }
-.ql-toolbar button.ql-warrior { background-image: url('//media.wago.io/wow-ui-textures/ICONS/ClassIcon_Warrior.PNG') }
-.ql-toolbar button.ql-bloodlust { background-image: url('//media.wago.io/wow-ui-textures/ICONS/Spell_Nature_BloodLust.PNG') }
-.ql-toolbar button.ql-heroism { background-image: url('//media.wago.io/wow-ui-textures/ICONS/Ability_Shaman_Heroism.PNG') }
-.ql-toolbar button.ql-healthstone { background-image: url('//media.wago.io/wow-ui-textures/ICONS/INV_Stone_04.PNG') }
-.quill-editor .ql-container { border: 0 }
+.ql-toolbar button.ql-rt1 { background-image: url('//media.wago.io/wow-interface-export/targetingframe/ui-raidtargetingicon_1.png') }
+.ql-toolbar button.ql-rt2 { background-image: url('//media.wago.io/wow-interface-export/targetingframe/ui-raidtargetingicon_2.png') }
+.ql-toolbar button.ql-rt3 { background-image: url('//media.wago.io/wow-interface-export/targetingframe/ui-raidtargetingicon_3.png') }
+.ql-toolbar button.ql-rt4 { background-image: url('//media.wago.io/wow-interface-export/targetingframe/ui-raidtargetingicon_4.png') }
+.ql-toolbar button.ql-rt5 { background-image: url('//media.wago.io/wow-interface-export/targetingframe/ui-raidtargetingicon_5.png') }
+.ql-toolbar button.ql-rt6 { background-image: url('//media.wago.io/wow-interface-export/targetingframe/ui-raidtargetingicon_6.png') }
+.ql-toolbar button.ql-rt7 { background-image: url('//media.wago.io/wow-interface-export/targetingframe/ui-raidtargetingicon_7.png') }
+.ql-toolbar button.ql-rt8 { background-image: url('//media.wago.io/wow-interface-export/targetingframe/ui-raidtargetingicon_8.png') }
+.ql-toolbar button.ql-tank { background-image: url('//media.wago.io/site/role-icon-tank.png') }
+.ql-toolbar button.ql-healer { background-image: url('//media.wago.io/site/role-icon-healer.png') }
+.ql-toolbar button.ql-damage { background-image: url('//media.wago.io/site/role-icon-damage.png') }
+.ql-toolbar button.ql-mage { background-image: url('//media.wago.io/wow-interface-export/icons/classicon_mage.png') }
+.ql-toolbar button.ql-priest { background-image: url('//media.wago.io/wow-interface-export/icons/classicon_priest.png') }
+.ql-toolbar button.ql-warlock { background-image: url('//media.wago.io/wow-interface-export/icons/classicon_warlock.png') }
+.ql-toolbar button.ql-demonhunter { background-image: url('//media.wago.io/wow-interface-export/icons/classicon_demonhunter.png') }
+.ql-toolbar button.ql-druid { background-image: url('//media.wago.io/wow-interface-export/icons/classicon_druid.png') }
+.ql-toolbar button.ql-monk { background-image: url('//media.wago.io/wow-interface-export/icons/classicon_monk.png') }
+.ql-toolbar button.ql-rogue { background-image: url('//media.wago.io/wow-interface-export/icons/classicon_rogue.png') }
+.ql-toolbar button.ql-hunter { background-image: url('//media.wago.io/wow-interface-export/icons/classicon_hunter.png') }
+.ql-toolbar button.ql-shaman { background-image: url('//media.wago.io/wow-interface-export/icons/classicon_shaman.png') }
+.ql-toolbar button.ql-deathknight { background-image: url('//media.wago.io/wow-interface-export/icons/classicon_deathknight.png') }
+.ql-toolbar button.ql-paladin { background-image: url('//media.wago.io/wow-interface-export/icons/classicon_paladin.png') }
+.ql-toolbar button.ql-warrior { background-image: url('//media.wago.io/wow-interface-export/icons/classicon_warrior.png') }
+.ql-toolbar button.ql-bloodlust { background-image: url('//media.wago.io/wow-interface-export/icons/spell_nature_bloodlust.png') }
+.ql-toolbar button.ql-heroism { background-image: url('//media.wago.io/wow-interface-export/icons/ability_shaman_heroism.png') }
+.ql-toolbar button.ql-timewarp { background-image: url('//media.wago.io/wow-interface-export/icons/ability_mage_timewarp.png') }
+.ql-toolbar button.ql-healthstone { background-image: url('//media.wago.io/wow-interface-export/icons/inv_stone_04.png') }
 .ql-toolbar polyline.ql-stroke, .ql-toolbar line.ql-stroke { stroke: #CCC!important }
-.ql-editor.ql-blank::before { color: inherit }
-#content .ql-editor a:not(.md-button) { color: #9adbfe; text-decoration: none; cursor: default }
-.ql-tooltip { display: none!important }
+
 </style>

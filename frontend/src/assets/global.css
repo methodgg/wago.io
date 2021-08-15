@@ -1,6 +1,16 @@
 #content a:not(.md-button) { color: #d7373d }
 .md-card {max-width: 100%}
 
+.menu-image {
+  width: 48px;
+  height: 48px;
+  margin-right: 12px;
+  background-size: cover;
+  align-self: flex-start;
+}
+.search-input .ql-editor .search-tag.category { padding-left: 20px; background-position: 4px 2px; background-size: 20px 20px; background-repeat: no-repeat}
+.search-input .ql-editor .search-tag.tag-user { background-image: url('menu-user.png'); padding-left: 20px; background-position: 4px 2px; background-size: 20px 20px; background-repeat: no-repeat}
+
 /**************
 * CATEGORIES
 ***************/
@@ -290,28 +300,28 @@
 
 /* XBBCode */
 .xbbcode-b {
-    font-weight:bold;
+  font-weight:bold;
 }
 
 .xbbcode-center {
-    margin-left:auto;
-    margin-right:auto;
-    display: block;
-    text-align: center;
+  margin-left:auto;
+  margin-right:auto;
+  display: block;
+  text-align: center;
 }
 
 .xbbcode-code {
-    white-space: pre-wrap;
-    font-family: monospace;
+  white-space: pre-wrap;
+  font-family: monospace;
 }
 
 .xbbcode-i {
-    font-style: italic;
+  font-style: italic;
 }
 
 .xbbcode-img {
-    max-height:30px;
-    max-width:100%;
+  max-height:30px;
+  max-width:100%;
 }
 
 .xbbcode-justify {
@@ -347,7 +357,7 @@
 .xbbcode-size-15 {font-size:15px;}
 .xbbcode-size-16 {font-size:16px;}
 .xbbcode-size-17 {font-size:17px;}
-.xbbcode-size-18{font-size:18px;}
+.xbbcode-size-18 {font-size:18px;}
 .xbbcode-size-19 {font-size:19px;}
 .xbbcode-size-20 {font-size:20px;}
 .xbbcode-size-21 {font-size:21px;}
@@ -372,17 +382,17 @@
 .xbbcode-size-40 {font-size:40px;}
 
 .xbbcode-u {
-    text-decoration: underline;
+  text-decoration: underline;
 }
 
 .xbbcode-table {
-    border-collapse:collapse;
+  border-collapse:collapse;
 }
 
 .xbbcode-table , .xbbcode-th, .xbbcode-td {
-    border: 1px solid #666;
+  border: 1px solid #666;
 }
 
 .xbbcode-taggeduser {
-    font-weight: 300;
+  font-weight: 300;
 }

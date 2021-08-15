@@ -54,7 +54,7 @@
             </md-avatar>
           </div>
         </md-whiteframe>-->
-        
+
         <md-subheader>{{ $t("BFA Season 4 Affix Weeks") }}</md-subheader>
         <md-list class="md-double-line md-dense">
           <md-list-item class="md-inset affixWeek">
@@ -162,7 +162,7 @@ export default {
         dungeon: this.wclDungeonIndex
       }).then((pulls) => {
         this.wclLoading = false
-        const dungeon = categories.search(this.wclDungeons[this.wclDungeonIndex].name, false, 'mdt').slug.split(/\//).pop()
+        const dungeon = categories.search(this.wclDungeons[this.wclDungeonIndex].name, 'mdt').slug.split(/\//).pop()
         const week = 1 // categories.match(this.newAffix).slug.split(/\//).pop()
         this.$router.push({name: 'create-mdt', params: {dungeon, week, pulls}})
       })
@@ -217,25 +217,25 @@ export default {
   },
   computed: {
     dungeons: function () {
-      return categories.raidCategories(['mdtdun'], this.$t)
+      return categories.raidCategories(['mdtdun'])
     },
     affixesS2: function () {
-      return categories.getCategories([/^mdtaffix-bfa-s2-/], this.$t, true)
+      return categories.getCategories([/^mdtaffix-bfa-s2-/], true)
     },
     affixesS3: function () {
-      return categories.getCategories([/^mdtaffix-bfa-s3-/], this.$t, true) // also in Create-MDT and data.newAffix
+      return categories.getCategories([/^mdtaffix-bfa-s3-/], true) // also in Create-MDT and data.newAffix
     },
     affixesS4: function () {
-      return categories.getCategories([/^mdtaffix-bfa-s4-/], this.$t, true) // also in Create-MDT and data.newAffix
+      return categories.getCategories([/^mdtaffix-bfa-s4-/], true) // also in Create-MDT and data.newAffix
     },
     affixes: function () {
-      return categories.getCategories([/^mdtaffix\d/], this.$t)
+      return categories.getCategories([/^mdtaffix\d/])
     },
     speed: function () {
-      return categories.getCategories([/^mdtspeed[\d]+/], this.$t)
+      return categories.getCategories([/^mdtspeed[\d]+/])
     },
     classes: function () {
-      return categories.classCategories(this.$t)
+      return categories.classCategories()
     },
     currentWeek: function () {
       return this.$store.state.MDTWeek

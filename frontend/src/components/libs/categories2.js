@@ -61,9 +61,9 @@ class Categories {
       'cl7-3': {slug: 'classes/shaman/restoration', i18n: 'warcraft:classes.7-3', parent: 'cl7'},
 
       'cl9': {slug: 'classes/warlock', image: 'warlock', color: '#9482C9', i18n: 'warcraft:classes.9'},
-      'cl9-1': {slug: 'classes/warlock/balance', i18n: 'warcraft:classes.9-1', parent: 'cl9'},
-      'cl9-2': {slug: 'classes/warlock/feral', i18n: 'warcraft:classes.9-2', parent: 'cl9'},
-      'cl9-3': {slug: 'classes/warlock/guardian', i18n: 'warcraft:classes.9-3', parent: 'cl9'},
+      'cl9-1': {slug: 'classes/warlock/affliction', i18n: 'warcraft:classes.9-1', parent: 'cl9'},
+      'cl9-2': {slug: 'classes/warlock/demonology', i18n: 'warcraft:classes.9-2', parent: 'cl9'},
+      'cl9-3': {slug: 'classes/warlock/destruction', i18n: 'warcraft:classes.9-3', parent: 'cl9'},
 
       'cl1': {slug: 'classes/warrior', image: 'warrior', color: '#C79C6E', i18n: 'warcraft:classes.1'},
       'cl1-1': {slug: 'classes/warrior/arms', i18n: 'warcraft:classes.1-1', parent: 'cl1'},
@@ -106,16 +106,16 @@ class Categories {
 
       // shadowlands
       'raidsantumdom': {slug: 'pve/sanctum-of-domination', image: 'sanctumofdom', color: '#5CE000', i18n: 'warcraft:zones.SanctumOfDomination', types: ['WEAKAURA', 'COLLECTION'], games: ['sl']},
-      'raidsantumdom1': {slug: 'pve/sanctum-of-domination/shriekwing', i18n: 'warcraft:bosses.Tarragrue', parent: 'raidsantumdom', types: ['WEAKAURA'], games: ['sl']},
-      'raidsantumdom2': {slug: 'pve/sanctum-of-domination/altimor-the-huntsman', i18n: 'warcraft:bosses.EyeoftheJailer', parent: 'raidsantumdom', types: ['WEAKAURA'], games: ['sl']},
-      'raidsantumdom3': {slug: 'pve/sanctum-of-domination/hungering-destroyer', i18n: 'warcraft:bosses.TheNine', parent: 'raidsantumdom', types: ['WEAKAURA'], games: ['sl']},
-      'raidsantumdom4': {slug: 'pve/sanctum-of-domination/artificer-xymox', i18n: 'warcraft:bosses.RemnantofNerzhul', parent: 'raidsantumdom', types: ['WEAKAURA'], games: ['sl']},
-      'raidsantumdom5': {slug: 'pve/sanctum-of-domination/kaelthas-sunstrider', i18n: 'warcraft:bosses.SoulrenderDormazain', parent: 'raidsantumdom', types: ['WEAKAURA'], games: ['sl']},
-      'raidsantumdom6': {slug: 'pve/sanctum-of-domination/lady-inerva-darkvein', i18n: 'warcraft:bosses.PainsmithRaznal', parent: 'raidsantumdom', types: ['WEAKAURA'], games: ['sl']},
-      'raidsantumdom7': {slug: 'pve/sanctum-of-domination/the-council-of-blood', i18n: 'warcraft:bosses.GuardianoftheFirstOnes', parent: 'raidsantumdom', types: ['WEAKAURA'], games: ['sl']},
-      'raidsantumdom8': {slug: 'pve/sanctum-of-domination/sludgefist', i18n: 'warcraft:bosses.FatescribeRohKalo', parent: 'raidsantumdom', types: ['WEAKAURA'], games: ['sl']},
-      'raidsantumdom9': {slug: 'pve/sanctum-of-domination/stone-legion-generals', i18n: 'warcraft:bosses.Kelthuzad', parent: 'raidsantumdom', types: ['WEAKAURA'], games: ['sl']},
-      'raidsantumdom10': {slug: 'pve/sanctum-of-domination/stone-legion-generals', i18n: 'warcraft:bosses.SylvanasWindrunner', parent: 'raidsantumdom', types: ['WEAKAURA'], games: ['sl']},
+      'raidsantumdom1': {slug: 'pve/sanctum-of-domination/tarragrue', i18n: 'warcraft:bosses.Tarragrue', parent: 'raidsantumdom', types: ['WEAKAURA'], games: ['sl']},
+      'raidsantumdom2': {slug: 'pve/sanctum-of-domination/eye-of-the-jailer', i18n: 'warcraft:bosses.EyeoftheJailer', parent: 'raidsantumdom', types: ['WEAKAURA'], games: ['sl']},
+      'raidsantumdom3': {slug: 'pve/sanctum-of-domination/the-nine', i18n: 'warcraft:bosses.TheNine', parent: 'raidsantumdom', types: ['WEAKAURA'], games: ['sl']},
+      'raidsantumdom4': {slug: 'pve/sanctum-of-domination/remnant-of-nerzhul', i18n: 'warcraft:bosses.RemnantofNerzhul', parent: 'raidsantumdom', types: ['WEAKAURA'], games: ['sl']},
+      'raidsantumdom5': {slug: 'pve/sanctum-of-domination/soulrender-dormazain', i18n: 'warcraft:bosses.SoulrenderDormazain', parent: 'raidsantumdom', types: ['WEAKAURA'], games: ['sl']},
+      'raidsantumdom6': {slug: 'pve/sanctum-of-domination/painsmith-raznal', i18n: 'warcraft:bosses.PainsmithRaznal', parent: 'raidsantumdom', types: ['WEAKAURA'], games: ['sl']},
+      'raidsantumdom7': {slug: 'pve/sanctum-of-domination/guardian-of-the-first-ones', i18n: 'warcraft:bosses.GuardianoftheFirstOnes', parent: 'raidsantumdom', types: ['WEAKAURA'], games: ['sl']},
+      'raidsantumdom8': {slug: 'pve/sanctum-of-domination/fatescribe-roh-kalo', i18n: 'warcraft:bosses.FatescribeRohKalo', parent: 'raidsantumdom', types: ['WEAKAURA'], games: ['sl']},
+      'raidsantumdom9': {slug: 'pve/sanctum-of-domination/kelthuzad', i18n: 'warcraft:bosses.Kelthuzad', parent: 'raidsantumdom', types: ['WEAKAURA'], games: ['sl']},
+      'raidsantumdom10': {slug: 'pve/sanctum-of-domination/sylvnas-windrunner', i18n: 'warcraft:bosses.SylvanasWindrunner', parent: 'raidsantumdom', types: ['WEAKAURA'], games: ['sl']},
 
       'raidnathria': {slug: 'pve/nathria', image: 'nathria', color: '#9693BD', i18n: 'warcraft:zones.CastleNathria', types: ['WEAKAURA', 'COLLECTION'], games: ['sl']},
       'raidnathria1': {slug: 'pve/nathria/shriekwing', i18n: 'warcraft:bosses.Shriekwing', parent: 'raidnathria', types: ['WEAKAURA'], games: ['sl']},
@@ -130,7 +130,7 @@ class Categories {
       'raidnathria9': {slug: 'pve/nathria/sire-denathrius', i18n: 'warcraft:bosses.SireDenathrius', parent: 'raidnathria', types: ['WEAKAURA'], games: ['sl']},
 
       'sldungeon': {slug: 'pve/shadowlands-dungeons', image: 'dungeon', color: '#F5A623', i18n: 'Shadowlands Dungeons', types: ['WEAKAURA', 'COLLECTION'], games: ['sl']},
-      'sldungeon1': {slug: 'pve/shadowlands-dungeons/the-necrotic-wake', i18n: 'warcraft:zones.TheNecroticWake', parent: 'dungesldungeonon', types: ['WEAKAURA'], games: ['sl']},
+      'sldungeon1': {slug: 'pve/shadowlands-dungeons/the-necrotic-wake', i18n: 'warcraft:zones.TheNecroticWake', parent: 'sldungeon', types: ['WEAKAURA'], games: ['sl']},
       'sldungeon2': {slug: 'pve/shadowlands-dungeons/plaguefall', i18n: 'warcraft:zones.Plaguefall', parent: 'sldungeon', types: ['WEAKAURA'], games: ['sl']},
       'sldungeon3': {slug: 'pve/shadowlands-dungeons/mists-of-tirna-scithe', i18n: 'warcraft:zones.MistsOfTirnaScithe', parent: 'sldungeon', types: ['WEAKAURA'], games: ['sl']},
       'sldungeon4': {slug: 'pve/shadowlands-dungeons/halls-of-attonement', i18n: 'warcraft:zones.HallsOfAttonement', parent: 'sldungeon', types: ['WEAKAURA'], games: ['sl']},
@@ -779,11 +779,7 @@ class Categories {
 
   search (str, addon, game) {
     let findStr = normalize(str)
-    let c = this.match(findStr)
-    if (c) {
-      return c
-    }
-
+    console.log('searching cats', str, addon, game)
     addon = (addon || '').toUpperCase()
     game = (game || '').toLowerCase()
     console.log('libsearch', findStr, addon, game)
