@@ -11,8 +11,6 @@ function findAll(regex, str) {
   return matches
 }
 
-const oldCategories = require('../../../frontend/src/components/libs/categories')
-
 function expansionIndex(exp) {
   exp = exp.toLowerCase()
   if (exp === 'classic') return 0
@@ -77,10 +75,17 @@ async function searchElastic (req, res) {
 
   let filterExpansion = []
   m = query.match(/expansion:\s?(sl|bfa|legion|wod|tbc|classic)/)
-  while (m) {
-    query = query.replace(m[0], '')
-    filterExpansion.push({term: {expansion: {value: expansionIndex(m[1])}}})
-    m = query.match(/expansion:\s?(sl|bfa|legion|wod|tbc|classic)/i)
+  if (m) {
+    while (m) {
+      query = query.replace(m[0], '')
+      filterExpansion.push({term: {expansion: {value: expansionIndex(m[1])}}})
+      m = query.match(/expansion:\s?(sl|bfa|legion|wod|tbc|classic)/i)
+    }
+  }
+  else {
+    // if no expansion is specified then default to the 2 current games
+    filterExpansion.push({term: {expansion: {value: expansionIndex('sl')}}})
+    filterExpansion.push({term: {expansion: {value: expansionIndex('tbc')}}})
   }
   if (filterExpansion.length) {
     filterExpansion.push({term: {expansion: -1}}) // so that we dont exclude imports that are not expansion specific
