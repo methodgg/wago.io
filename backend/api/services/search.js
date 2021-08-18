@@ -74,6 +74,7 @@ async function searchElastic (req, res) {
   }
 
   let filterExpansion = []
+  let defaultFilterExpansion
   m = query.match(/expansion:\s?(sl|bfa|legion|wod|tbc|classic)/)
   if (m) {
     while (m) {
@@ -84,8 +85,10 @@ async function searchElastic (req, res) {
   }
   else {
     // if no expansion is specified then default to the 2 current games
-    filterExpansion.push({term: {expansion: {value: expansionIndex('sl')}}})
-    filterExpansion.push({term: {expansion: {value: expansionIndex('tbc')}}})
+    defaultFilterExpansion = []
+    defaultFilterExpansion.push({term: {expansion: {value: expansionIndex('sl')}}})
+    defaultFilterExpansion.push({term: {expansion: {value: expansionIndex('tbc')}}})
+    defaultFilterExpansion.push({term: {expansion: {value: -1}}})
   }
   if (filterExpansion.length) {
     filterExpansion.push({term: {expansion: -1}}) // so that we dont exclude imports that are not expansion specific
@@ -124,6 +127,7 @@ async function searchElastic (req, res) {
     m = query.match(/(?:user:\s?"(\w+)")/i)
   }
   if (filterUsers.length) {
+    defaultFilterExpansion = null
     esFilter.push(({bool: {should: filterUsers}}))
   }
 
@@ -167,6 +171,7 @@ async function searchElastic (req, res) {
     m = query.match(/(?:category|tag):\s?([\w-]+)/i)
   }
   if (filterCats.length) {
+    defaultFilterExpansion = null
     esFilter.push(({bool: {should: filterCats}}))
     if (catSearch) {
       esSort.unshift('categoriesRoot')
@@ -179,6 +184,7 @@ async function searchElastic (req, res) {
       let date = Math.round(Date.parse(m[1]) / 1000)
       let date2 = date + 86400
       esFilter.push({bool: {should: {range: {timestamp: {gte: date, lte: date2}}}}})
+      defaultFilterExpansion = null
     }
     catch {}
     query = query.replace(m[0], '')
@@ -190,6 +196,7 @@ async function searchElastic (req, res) {
     try {
       let date = Math.round(Date.parse(m[1]) / 1000)
       esFilter.push({bool: {should: {range: {timestamp: {lte: date}}}}})
+      defaultFilterExpansion = null
     }
     catch {}
     query = query.replace(m[0], '')
@@ -201,6 +208,7 @@ async function searchElastic (req, res) {
     try {
       let date = Math.round(Date.parse(m[1]) / 1000)
       esFilter.push({bool: {should: {range: {timestamp: {gte: date}}}}})
+      defaultFilterExpansion = null
     }
     catch {}
     query = query.replace(m[0], '')
@@ -216,16 +224,16 @@ async function searchElastic (req, res) {
           allowHidden = true
         }
         esFilter.push({simple_query_string: {query: '"'+collection.collect.join('" "')+'"', fields: ["_id"] }})
+        defaultFilterExpansion = null
       }
     }
     catch {}
     query = query.replace(m[0], '')
   }
 
-
-
-
-
+  if (defaultFilterExpansion) {
+    esFilter.push(({bool: {should: defaultFilterExpansion}}))
+  }
 
   var searchSettings = {showAnon: 'hide', showHidden: false}
 
