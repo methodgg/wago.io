@@ -28,14 +28,12 @@ global.axios = require('axios')
 global.bluebird = require('bluebird')
 global.commonRegex = require('./commonRegex')
 global.elastic = require('./api/helpers/elasticsearch')
+global.meili = require('./api/helpers/meilisearch')
 global.redis = new Redis(config.redis)
 redis = require('./middlewares/decorateRedis')(redis)
 global.redis2 = new Redis(config.redis2)
 global.fs = require('fs').promises
 global.mongoose = require('mongoose')
-
-const { MeiliSearch } = require('meilisearch')
-global.meiliWagoApp = new MeiliSearch(config.meiliWagoApp)
 
 // --- FASTIFY PLUGINS
 fastify.register(require('fastify-cookie'))
@@ -100,6 +98,7 @@ const startServer = async () => {
       global[model] = require('./api/models/' + model)
     })
     global.Categories = require('../frontend/src/components/libs/categories2')
+    await meili.getIndexes()
 
     const encodeDecodeAddons = await fs.readdir('./api/helpers/encode-decode')
     global.Addons = {}
@@ -178,7 +177,7 @@ const startServer = async () => {
       await taskQueue.add('ComputeStatistics', null, {repeat: {cron: '0 * * * *'}, priority: 4})
       await taskQueue.add('UpdateLatestAddonReleases', null, {repeat: {cron: '*/20 * * * *'}, priority: 4})
       await taskQueue.add('SyncElastic', {table: 'User'}, {repeat: {cron: '0 10 5 * *'}, priority: 10})
-      await taskQueue.add('SyncElastic', {table: 'imports'}, {repeat: {cron: '0 10 15 * *'}, priority: 10})
+      await taskQueue.add('SyncElastic', {table: 'import'}, {repeat: {cron: '0 10 15 * *'}, priority: 10})
       await taskQueue.add('SyncElastic', {table: 'code'}, {repeat: {cron: '0 10 20 * *'}, priority: 10})
       await taskQueue.add('SyncMeili', {table: 'WagoApp'}, {repeat: {cron: '0 10 8 * *'}, priority: 10})
       await taskQueue.add('SyncMeili', {table: 'Imports:Metrics'}, {repeat: {cron: '30 * * * *'}, priority: 10})

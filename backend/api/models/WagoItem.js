@@ -437,17 +437,13 @@ Schema.virtual('indexedCodeData').get(async function () {
   return null
 })
 
-async function getIndex() {
-  return await meiliWagoApp.getOrCreateIndex('weakauras')
-}
 function isValidMeiliWA(doc) {
   return !!doc._userId && !doc.expires_at && doc.type.match(/WEAKAURA$/)
 }
 
-let meiliIndexWA
 async function updateIndexes() {
   if (this.isModified('name description custom_slug categories game popularity versionString modified hidden private encrypted restricted deleted blocked moderated restrictedUsers restrictedGuilds imageGenerated expires_at')) {
-    if (this._userId && !this.deleted && !this.expires_at) {
+    if (this._userId && !this.deleted && !this.expires_at && !this.moderated) {
       await elastic.addDoc('import', await this.indexedImportData)
       this._indexImport = true
     }
@@ -456,28 +452,15 @@ async function updateIndexes() {
       await elastic.removeDoc('import', this._id)
     }
 
-    if (!meiliIndexWA) {
-      meiliIndexWA = await getIndex()
-    }
     if (isValidMeiliWA(this)) {
       try {
-        let meiliToDoWA = await redis.getJSON('meili:todo:wagoapp') || []
         if (this._meiliWA && (this._doNotIndexWA || this.hidden || this.private || this.moderated || this.encrypted || this.restricted || this.deleted || this.blocked)) {
           // delete index
-          meiliToDoWA = meiliToDoWA.filter(id => {
-            return id !== this._id
-          })
-          redis.setJSON('meili:todo:wagoapp', meiliToDoWA)
-          await meiliIndexWA.deleteDocument(this._id)
+          meili.removeDoc('weakauras', this._id)
           this._meiliWA = false
         }
         else if (!(this.hidden || this.private || this.moderated || this.encrypted || this.restricted || this.deleted || this.blocked)) {
-          // add/update index
-          meiliToDoWA = meiliToDoWA.filter(id => {
-            return id !== this._id
-          })
-          meiliToDoWA.push(await this._id)
-          redis.setJSON('meili:todo:wagoapp', meiliToDoWA)
+          meili.addDoc('weakauras', await this.meiliWAData)
           if (!this._meiliWA) {
             this._meiliWA = true
           }
@@ -488,7 +471,7 @@ async function updateIndexes() {
       }
     }
     else if (this._meiliWA) {
-      await meiliIndexWA.deleteDocument(this._id)
+      meili.removeDoc('weakauras', this._id)
       this._meiliWA = false
     }
   }

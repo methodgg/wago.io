@@ -675,24 +675,22 @@ async function SyncElastic(table) {
 async function SyncMeili(table) {
   console.log("SYNC MEILI", table)
   // multi index is needed until sortStrategies or similar is added https://github.com/meilisearch/MeiliSearch/issues/730
-  const wagoAppIndex = await meiliWagoApp.getOrCreateIndex('weakauras')
   const meiliBatchSize = 2000
   switch (table){
     case 'Imports:ToDo':
       const todoDocsWA = await redis.getJSON('meili:todo:wagoapp') || []
       if (todoDocsWA.length) {
         let wagos = await WagoItem.find({_id: {$in: todoDocsWA}})
-        let indexedDocs = []
         for (doc of wagos) {
-          indexedDocs.push(await doc.meiliWAData)
+          await meili.addDoc('weakauras', await doc.meiliWAData)
         }
         redis.setJSON('meili:todo:wagoapp', [])
-        await wagoAppIndex.addDocuments(indexedDocs)
       }
       break
 
     case 'Imports:Metrics':
       const lastIndexDate = await redis.get('meili:Metrics:Date')
+      const wagoAppIndex = meili.index('weakauras')
       var metricsDocsWagoApp = []
       if (!lastIndexDate) {
         redis.set('meili:Metrics:Date', new Date().toISOString())
@@ -758,7 +756,6 @@ async function SyncMeili(table) {
 
     case 'WagoApp': // complete DB sync
       var count = 0
-      var syncDocs = []
       var cursor = WagoItem.find({
         type: {$regex: /WEAKAURA$/}, 
         _userId: {$exists: true}, 
@@ -787,16 +784,12 @@ async function SyncMeili(table) {
       for (let doc = await cursor.next(); doc != null; doc = await cursor.next()) {
         count++
         if (doc.hidden || doc.private || doc.encrypted || doc.restricted || doc.deleted || doc.blocked) {
-          await wagoAppIndex.deleteDocument(doc._id)
+          await meili.removeDoc('weakauras', await doc._id)
           doc._meiliWA = false
           await doc.save()
         }
         else {
-          syncDocs.push(await doc.meiliWAData)
-          if (syncDocs.length >= meiliBatchSize) {
-            await wagoAppIndex.addDocuments(syncDocs)
-            syncDocs = []
-          }
+          await meili.addDoc('weakauras', await doc.meiliWAData, true)
           if (!doc._meiliWA) {
             doc._meiliWA = true
             await doc.save()
@@ -805,9 +798,6 @@ async function SyncMeili(table) {
         if (count%1000 == 0) {
           console.log('sync meili', count)
         }
-      }
-      if (syncDocs.length) {        
-        await wagoAppIndex.addDocuments(syncDocs)
       }
       break
 
