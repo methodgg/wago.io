@@ -28,12 +28,9 @@ export default {
   created () {
     window.addEventListener('resize', this.handleResize)
     const _this = this
-    setTimeout(function () {
-      _this.loadEmbed()
-    }, 3000)
 
     this.refresh = setInterval(function () {
-      if (_this.visible && _this.twitchPlayer.getMuted()) {
+      if (_this.visible && _this.twitchPlayer && _this.twitchPlayer.getMuted()) {
         _this.visible = false
         _this.muted = _this.twitchPlayer.getMuted()
         setTimeout(function () {
