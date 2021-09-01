@@ -29,6 +29,15 @@ module.exports = {
     const lua = `
       local t = JSON:decode("${json}")
 
+      if t.profile and t.profile.PANEL_SETUP and t.profile.PANEL_SETUP["1"] then
+        n = 1
+        while t.profile.PANEL_SETUP[""..n] do
+          tinsert(t.profile.PANEL_SETUP, t.profile.PANEL_SETUP[""..n])
+          t.profile.PANEL_SETUP[""..n] = nil
+          n = n+1
+        end
+      end
+
       local compressed = VUHDO_compressAndPackTable(t)
       local encodedString = VUHDO_LibBase64.Encode(compressed)
       return encodedString
