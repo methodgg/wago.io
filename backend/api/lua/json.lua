@@ -741,8 +741,9 @@ local function object_or_array(self, T, etc)
           if nKey == 0 then
               number_keys_use_zero_index = 1
           end
-          if nKey < 0 or nKey > 1000 then
+          if nKey <= 0 or nKey > 1000 then
               number_keys_must_be_strings = true
+              number_keys_use_zero_index = 0 -- if strings are keys then keep them original values
           elseif not maximum_number_key or key > maximum_number_key then
               maximum_number_key = key
           end
