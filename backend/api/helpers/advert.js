@@ -27,28 +27,23 @@ module.exports = {
       }
     }
 
-    let streamerList = (await Streamer.find({online: {$ne: null}}))
-    if (streamerList.length) {
-      streamerList = streamerList.filter(c => c.name !== replace)
-      const total = streamerList.map(c => c.viewers).reduce((acc, cur) => acc + cur);
-      const rng = Math.random() * total
-      let acc = 0
-      for (let i = 0; i < streamerList.length; i++) {
-        // if cap gets re-enabled then it should be added via the filter above instead of this
-        // if (streamerList[i].wagoViewers >= streamerList[i].viewers) {
-        //   acc = acc + streamerList[i].viewers
-        //   continue
-        // }
-        if (rng < streamerList[i].viewers + acc && streamerList[i].name !== replace) {
-          await redis2.set(`stream:${streamerList[i].name}:${cid}`, 1, 'EX', 70)
-          await redis2.set(`currentstream:${cid}`, streamerList[i].name, 'EX', 70)
-          return streamerList[i].name
-        }
-        else {
-          acc = acc + streamerList[i].viewers
-        }
-      }
-    }
+    // let streamerList = (await Streamer.find({online: {$ne: null}}))
+    // if (streamerList.length) {
+    //   streamerList = streamerList.filter(c => c.name !== replace)
+    //   const total = streamerList.map(c => c.viewers).reduce((acc, cur) => acc + cur);
+    //   const rng = Math.random() * total
+    //   let acc = 0
+    //   for (let i = 0; i < streamerList.length; i++) {
+    //     if (rng < streamerList[i].viewers + acc && streamerList[i].name !== replace) {
+    //       await redis2.set(`stream:${streamerList[i].name}:${cid}`, 1, 'EX', 70)
+    //       await redis2.set(`currentstream:${cid}`, streamerList[i].name, 'EX', 70)
+    //       return streamerList[i].name
+    //     }
+    //     else {
+    //       acc = acc + streamerList[i].viewers
+    //     }
+    //   }
+    // }
 
     await redis2.set(`currentstream:${cid}`, '__streamspread')
     return '__streamspread'
