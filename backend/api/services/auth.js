@@ -204,7 +204,8 @@ module.exports = function (fastify, opts, next) {
 async function localAuth (req, res) {
   try {
     var valid = await hcaptchaVerify(config.hcaptcha.secret, req.body.captcha)
-    if ((valid && valid.success) || config.env === 'development') {
+    const recent = new Date(new Date().getTime() - 1000 * 60)
+    if (valid && valid.success && new Date(valid.challenge_ts) > recent) {
       // find user(s) with entered name
       const user = await User.findByUsername(req.body.username)
       if (!user || !user.account.password) {
@@ -237,14 +238,10 @@ async function createUser (req, res) {
   }
 
   try {
-    var valid
-    if (config.env === 'development') {
-      valid = {success: true}
-    }
-    else {
-      valid = await hcaptchaVerify(config.hcaptcha.secret, req.body.captcha)
-    }
-    if (valid && valid.success) {
+    var valid = await hcaptchaVerify(config.hcaptcha.secret, req.body.captcha)
+
+    const recent = new Date(new Date().getTime() - 1000 * 60)
+    if (valid && valid.success && new Date(valid.challenge_ts) > recent) {
       var user = new User()
       user.account.username = req.body.username
       user.search.username = req.body.username.toLowerCase()
@@ -261,7 +258,7 @@ async function createUser (req, res) {
   catch (e) {
     console.log(e)
   }
-  
+
   return res.code(403).send({error: 'bad captcha'})
 }
 
@@ -281,7 +278,7 @@ async function battlenetAuth(req, res, region) {
     region = 'global'
     tokenURL = 'https://us.battle.net/oauth/token'
     userURL = 'https://us.battle.net/oauth/userinfo'
-  }  
+  }
   const response = await axios.post(tokenURL, querystring.stringify({
     redirect_uri: req.headers.origin + '/auth/battlenet',
     scope: 'wow.profile account.public',
@@ -371,7 +368,7 @@ async function battlenetAuth(req, res, region) {
       var chars = []
       var guilds = []
       var mostRecent = 0
-      var avatarURL = ''      
+      var avatarURL = ''
       var methodRaider = false
 
       const regions = Object.keys(profiles)
@@ -763,7 +760,7 @@ async function oAuthLogin(req, res, provider, authUser, callback) {
       if (callback) {
         callback(user)
       }
-      else {      
+      else {
         await user.save()
       }
       return
@@ -784,7 +781,7 @@ async function oAuthLogin(req, res, provider, authUser, callback) {
       if (callback) {
         callback(user)
       }
-      else {      
+      else {
         await user.save()
       }
       return
