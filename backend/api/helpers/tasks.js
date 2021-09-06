@@ -630,11 +630,16 @@ async function SyncElastic(table) {
     let doc
     switch (table){
       case 'import':
-        const cursorImports = WagoItem.find({_userId: {$exists: true}, deleted: false, expires_at: null}).cursor()
+        const cursorImports = WagoItem.find({_userId: {$exists: true}, expires_at: null}).cursor()
         doc = await cursorImports.next()
-        while (doc && count < 300000) {
+        while (doc) {
           count++
+          if (doc.deleted) {
+            elastic.removeDoc('import', await doc._id)
+          }
+          else {
           elastic.addDoc('import', await doc.indexedImportData, true)
+          }
           doc = await cursorImports.next()
           if(count%500 === 0) {
             console.log(table, count)
@@ -643,13 +648,21 @@ async function SyncElastic(table) {
         break
 
       case 'code':
-        const cursorCode = WagoItem.find({_userId: {$exists: true}, deleted: false, expires_at: null, hasCustomCode: true}).cursor()
+        const cursorCode = WagoItem.find({_userId: {$exists: true}, expires_at: null, hasCustomCode: true}).cursor()
         doc = await cursorCode.next()
         while (doc && count < 300000) {
           count++
           let code = await doc.indexedCodeData
           if (code) {
+            if (doc.deleted) {
+              elastic.removeDoc('code', await doc._id)
+            }
+            else {
             elastic.addDoc('code', code, true)
+            }
+          }
+          else {
+            elastic.removeDoc('code', await doc._id)
           }
           doc = await cursorCode.next()
           if(count%500 === 0) {
