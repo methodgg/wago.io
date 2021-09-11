@@ -34,6 +34,7 @@ redis = require('./middlewares/decorateRedis')(redis)
 global.redis2 = new Redis(config.redis2)
 global.fs = require('fs').promises
 global.mongoose = require('mongoose')
+global.ENUM = require('./middlewares/enum')
 
 // --- FASTIFY PLUGINS
 fastify.register(require('fastify-cookie'))

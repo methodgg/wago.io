@@ -6,5 +6,9 @@ module.exports = {
     "TBC-WEAKAURA": 8,
     "PLATER": 8,
     "SNIPPET": 8
+  },
+  DOMAIN: {
+    WOW: 0,
+    FF14: 1
   }
 }
