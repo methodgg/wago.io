@@ -1,60 +1,59 @@
-const mongoose = require('mongoose'),
-      mongoosastic = require('mongoosastic'),
-      shortid = require('shortid'),
-      config = require('../../config');
+const mongoose = require('mongoose')
+const shortid = require('shortid')
 const image = require('../helpers/image')
 const parseText = require('../helpers/parseText')
 
 const Schema = new mongoose.Schema({
-  _id : { type: String, default: shortid.generate, es_indexed: true },
-  custom_slug : { type: String, index: true, es_indexed: true },
-  _userId : { type: mongoose.Schema.Types.ObjectId, ref: 'Users', es_indexed: true },
+  _id : { type: String, default: shortid.generate },
+  custom_slug : { type: String, index: true },
+  _userId : { type: mongoose.Schema.Types.ObjectId, ref: 'Users' },
 
-  name : { type: String, index: true, es_indexed: true, es_cast: function(value) {
+  name : { type: String, index: true, es_cast: function(value) {
     return `${value} ${this.custom_slug || ''}`.trim();
   }},
-  description : { type: String, default: "", es_indexed: true },
+  description : { type: String, default: "" },
   description_format : { type: String, default: 'bbcode' },
-  type : { type: String, index: true, es_indexed: true },
+  type : { type: String, index: true },
   subtype : String,
-  categories : { type: Array, index: true, es_indexed: true },
+  categories : { type: Array, index: true },
   categories_auto : { type: Boolean, default: false },
 
   created : { type: Date, default: Date.now, index: true },
   last_accessed : { type: Date, default: Date.now },
   expires_at :  { type: Date, expires: 300 },
-  modified : { type: Date, default: Date.now, index: true, es_indexed: true },
+  modified : { type: Date, default: Date.now, index: true },
   last_comment : { type: Date, index: true },
   display_date : String,
   wow_patch : String,
   supports_patch: String,
   batch_import : String,
-  game: { type: String, default: 'sl', index: true, es_indexed: true },
+  game: { type: String, default: 'sl', index: true }, // expansion code
+  domain: { type: Number, default: ENUM.DOMAIN.WOW, default: 0, index: true }, // actual game: 'WOW' or 'FF14'
 
-  hidden : { type: Boolean, default: false, index: true, es_indexed: true },
-  private : { type: Boolean, default: false, index: true, es_indexed: true },
-  encrypted : { type: Boolean, default: false, index: true, es_indexed: true },
+  hidden : { type: Boolean, default: false, index: true },
+  private : { type: Boolean, default: false, index: true },
+  encrypted : { type: Boolean, default: false, index: true },
   encryptedCount : { type: Number, default: 0 }, // used for caching
-  restricted: { type: Boolean, default: false, index: true, es_indexed: true },
-  restrictedUsers: [{ type: String, index: true, es_indexed: true }], // user._id
-  restrictedGuilds: [{ type: String, index: true, es_indexed: true }], // guildKey 'region@Realm@Guild Name"
-  restrictedTwitchUsers: [{ type: String, index: true, es_indexed: true }], // user.twitch.id
-  deleted : { type: Boolean, default: false, index: true, es_indexed: true },
-  blocked: { type: Boolean, default: false, index: true, es_indexed: true },
-  moderated: { type: Boolean, default: false, index: true, es_indexed: true },
+  restricted: { type: Boolean, default: false, index: true },
+  restrictedUsers: [{ type: String, index: true }], // user._id
+  restrictedGuilds: [{ type: String, index: true }], // guildKey 'region@Realm@Guild Name"
+  restrictedTwitchUsers: [{ type: String, index: true }], // user.twitch.id
+  deleted : { type: Boolean, default: false, index: true },
+  blocked: { type: Boolean, default: false, index: true },
+  moderated: { type: Boolean, default: false, index: true },
   moderatedComment: { type: String },
 
   clone_of : String,
   fork_of: String,
 
   popularity : {
-    views : { type: Number, default: 0, index: true, es_indexed: true },
-    viewsThisWeek : { type: Number, default: 0, index: true, es_indexed: true },
+    views : { type: Number, default: 0, index: true },
+    viewsThisWeek : { type: Number, default: 0, index: true },
     embeds : { type: Number, default: 0 },
     downloads : { type: Number, default: 0 },
-    favorite_count : { type: Number, default: 0, index: true, es_indexed: true },  // this should always match the length of favorites
-    installed_count : { type: Number, default: 0, index: true, es_indexed: true }, // count users of WA Companion that have this installed
-    comments_count : { type: Number, default: 0, index: true, es_indexed: true }
+    favorite_count : { type: Number, default: 0, index: true },  // this should always match the length of favorites
+    installed_count : { type: Number, default: 0, index: true }, // count users of WA Companion that have this installed
+    comments_count : { type: Number, default: 0, index: true }
   },
 
   imageGenerated : Number,
@@ -77,12 +76,12 @@ const Schema = new mongoose.Schema({
 
   // relevancy scores for searches
   relevancy: {
-    standard: { type: Number, index: true, es_indexed: true },
-    strict: { type: Number, index: true, es_indexed: true }
+    standard: { type: Number, index: true },
+    strict: { type: Number, index: true }
   },
 
   // type=WEAKAURAS2
-  regionType: { type: String, index: true, es_indexed: true },
+  regionType: { type: String, index: true },
 
   // type=COLLECTION
   collect : { type: Array, index: true }, // array of WagoItem _ids
@@ -125,20 +124,14 @@ const Schema = new mongoose.Schema({
 
   // type=WAGOLIB
   wagolib: {
-    addon: {type: String, index: true, es_indexed: true},
-    metaData: [{type: String, index: true, es_indexed: true}],
-    anythingTable: {type: String, index: true, es_indexed: true}
+    addon: {type: String, index: true},
+    metaData: [{type: String, index: true}],
+    anythingTable: {type: String, index: true}
   },
 
   _indexImport: Boolean,
   _indexCode: Boolean,
   _meiliWA: Boolean
-})
-
-// add Mongoosastic plugin (elastic search)
-Schema.plugin(mongoosastic, {
-  index: 'wago',
-  hosts: config.elasticServers
 })
 
 /**
@@ -336,6 +329,7 @@ Schema.pre('validate', function() {
 })
 
 Schema.virtual('meiliWAData').get(async function () {
+  // console.log('parsed text = ', parseText({text: this.description, format: this.description_format}))
   return Object.assign({
     id: this._id,
     name: this.name,
@@ -368,6 +362,7 @@ Schema.virtual('indexedImportData').get(async function () {
   else if (this.private || this.moderated) {
     data.restrictions = this._userId.toString()
   }
+  data.domain = this.domain
   let catRanks = this.categoryRanks
     data.categoriesRoot = catRanks.root
     data.categoriesTotal = catRanks.total
@@ -500,7 +495,6 @@ Schema.pre('update', updateIndexes)
 Schema.pre('remove', updateIndexes)
 
 const WagoItem = mongoose.model('WagoItem', Schema)
-WagoItem.esSearch = bluebird.promisify(WagoItem.esSearch, {context: WagoItem})
 
 
 module.exports = WagoItem

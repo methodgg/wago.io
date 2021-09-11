@@ -34,6 +34,7 @@ module.exports = {
         id: {type: 'text', index: false},
         name: {type: 'text'},
         slug: {type: 'text'},
+        domain: {type: 'short'},
         description: {type: 'text'},
         categories: {type: 'keyword'},
         categoriesRoot: {type: 'short'},
@@ -70,6 +71,7 @@ module.exports = {
       properties: {
         id: {type: 'text', index: false},
         name: {type: 'text', index: false},
+        domain: {type: 'short'},
         versionString: {type: 'text', index: false},
         code: {type: 'text'},
         expansion: {type: 'byte'},

@@ -867,7 +867,7 @@ async function oldSearch (req, res) {
 module.exports = function (fastify, opts, next) {
   fastify.get('/ms', oldSearch)
   fastify.get('/es', searchElastic)
-  fastify.get('/', oldSearch)
+  fastify.get('/', searchElastic)
 
   fastify.get('/oldsearch', async (req, res) => {
     return []
