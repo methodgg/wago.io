@@ -1,5 +1,6 @@
 module.exports = {
   typeMatch: /^VUHDO$/,
+  domain: ENUM.DOMAIN.WOW,
 
   decode: async (encodedString, exec) => {
     // test that string matches expected regex
@@ -9,6 +10,7 @@ module.exports = {
     const lua = `
       local str = "${encodedString}"
       local t = VUHDO_decompressIfCompressed(VUHDO_LibBase64.Decode(str))
+
       if t then
         return JSON:encode(t)
       else
@@ -26,6 +28,8 @@ module.exports = {
   },
 
   encode: async (json, exec) => {
+    console.log('encode vuhdo')
+    console.trace()
     const lua = `
       local t = JSON:decode("${json}")
 

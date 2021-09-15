@@ -1,5 +1,6 @@
 module.exports = {
   typeMatch: /^OPIE$/,
+  domain: ENUM.DOMAIN.WOW,
 
   decode: async (encodedString, exec) => {
     // test that string matches expected regex
@@ -27,7 +28,7 @@ module.exports = {
         ret.quarantineOnOpen, ret.onOpen = ret.onOpen, nil
         return JSON:encode(ret)
       end
-      return ''      
+      return ''
     `
     try {
       let json = await exec(lua)
@@ -64,7 +65,7 @@ module.exports = {
         end
         v.sliceToken = nil
       end
-      return Opie_serialize(ring, sSign, sRegRev)      
+      return Opie_serialize(ring, sSign, sRegRev)
     else
       return ''
     end`

@@ -2,6 +2,7 @@ const getCode = require('../code-detection/get-code')
 
 module.exports = {
   typeMatch: /^(CLASSIC-|TBC-)?WEAKAURA$/i,
+  domain: ENUM.DOMAIN.WOW,
 
   decode: async (encodedString, exec) => {
     // test that string matches expected regex
@@ -107,6 +108,7 @@ module.exports = {
     return encoded`
     try {
       let encodedString = await exec(lua)
+      console.log('encoded')
       return encodedString
     }
     catch (e) {

@@ -5,6 +5,7 @@ View the other addons in use for further examples.
 ```js
 module.exports = {
   typeMatch: /^MYADDON$/, // simple regex that should match your meta.type (see processMeta below)
+  domain: ENUM.DOMAIN.WOW, // either ENUM.DOMAIN.WOW or ENUM.DOMAIN.FF14
 
   // Decodes an import string and returns a JSON object.
   // Receives `str` which is the raw import string, and `exec` which is a function to run Lua code.
@@ -32,7 +33,7 @@ module.exports = {
   },
 
   encode: async (jsonString, execLua) => {
-    // Lua code to encode a JSON string into an import string. 
+    // Lua code to encode a JSON string into an import string.
     // The Lua code here has access to the contents of https://github.com/oratory/wago.io/blob/master/backend/api/lua/wago.lua
     const lua = `
     local tbl = JSON:decode("${jsonString}") -- jsonString is already escaped for \\ and \"
@@ -50,7 +51,7 @@ module.exports = {
   },
 
   // Returns object with related meta data: name, type, game, categories
-  // Also functions as a validation for the data structure. 
+  // Also functions as a validation for the data structure.
   // This is kept separate from the decoding process because multiple addons can share a decode algorithm so this way means it's only decoded once.
   processMeta: (obj) => {
     // Return false if the object does not match the structure or missing key data fields; the import will not be allowed for this addon.
@@ -65,7 +66,7 @@ module.exports = {
     // the remaining fields are optional.
     meta.game = 'sl' // Expansion from object (example if toc version is stored to object; defaults to the most recent retail expansion).
     // meta.game may be : 'sl', 'classic', 'tbc'
-    
+
     // the remaining fields are both optional and only used for new imports - not when updating existing imports.
     meta.name = 'Name' // Name from object, or otherwise. Defaults to match the type field (user can modify this entry).
     meta.description = 'This is a neat import' // Description from object, or otherwise. Defaults to empty string (user can modify this entry).
@@ -76,7 +77,7 @@ module.exports = {
 
   // Returns modified code object and wago object after modifications.
   // This function can be removed if no modifications are required; you probably won't need it without additional Wago integration.
-  addWagoData: async (code, wago) => {
+  addWagoData: (code, wago) => {
     if (code.json) {
       // usually the modified code will effect the json object
       var json = JSON.parse(code.json)
@@ -86,7 +87,7 @@ module.exports = {
 
     // usually, only code is modified.
     return {code: code}
-    // if both code and wago are modified, return both. 
+    // if both code and wago are modified, return both.
     return {code: code, wago: wago}
   }
 }

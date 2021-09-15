@@ -35,6 +35,9 @@ async function searchElastic (req, res) {
   var searchIndex = 'import'
   var allowHidden = false
 
+  var domain = parseInt(req.query.domain) || 0
+  esFilter.push(({term: {domain}}))
+
   var sort = req.query.sort || req.body.sort || ''
   if (sort === 'date') {
     esSort.unshift({timestamp: 'desc'})

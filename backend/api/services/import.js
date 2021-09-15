@@ -46,6 +46,7 @@ module.exports = function (fastify, opts, next) {
         scan.type = meta.type
         scan.name = meta.name || meta.type
         scan.game = meta.game || 'sl'
+        scan.domain = addon.domain
         scan.categories = meta.categories || []
         scan.fork = meta.fork || req.body.forkOf
         scan.addon = addonFile
@@ -58,7 +59,7 @@ module.exports = function (fastify, opts, next) {
     }
 
     if (scan.type) {
-      return res.send({scan: scan._id, type: scan.type, name: scan.name, categories: scan.categories, game: scan.game})
+      return res.send({scan: scan._id, type: scan.type, name: scan.name, categories: scan.categories, game: scan.game, domain: scan.domain})
     }
 
     // legacy import code follows
@@ -449,6 +450,9 @@ module.exports = function (fastify, opts, next) {
       json = JSON.parse(scan.decoded)
     }
 
+    wago.domain = scan.domain
+    wago.categories = scan.categories.filter(c => c.system)
+
     if (scan.game) {
       wago.description = scan.description
       wago.game = scan.game || 'sl'
@@ -543,9 +547,9 @@ module.exports = function (fastify, opts, next) {
     }
 
     if (req.body.categories && req.body.categories.length > 2) {
-      wago.categories = JSON.parse(req.body.categories).map((c) => {
+      wago.categories = wago.categories.concat(JSON.parse(req.body.categories).map((c) => {
         return c.id // TODO: needs validation
-      })
+      }))
     }
     else {
       wago.categories = []
@@ -755,7 +759,7 @@ module.exports = function (fastify, opts, next) {
     }
 
     for (const addon of Object.values(Addons)) {
-      if (wago.type.match(addon.typeMatch)) {
+      if (wago.type.match(addon.typeMatch) && wago.domain === addon.domain) {
         if (addon.addWagoData) {
           let data = addon.addWagoData(code, wago)
           if (data.invalid) {
@@ -768,7 +772,12 @@ module.exports = function (fastify, opts, next) {
             wago = data.wago
       }
     }
+        if (addon.encode) {
         code.encoded = await addon.encode(code.json.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim(), lua.runLua)
+      }
+        else if (addon.encodeRaw) {
+          code.encoded = await addon.encodeRaw(code.json)
+        }
       }
     }
     
@@ -874,7 +883,12 @@ module.exports = function (fastify, opts, next) {
             wago = data.wago
           }
         }
+        if (addon.encode) {
         code.encoded = await addon.encode(code.json.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim(), lua.runLua)
+        }
+        else if (addon.encodeRaw) {
+          code.encoded = await addon.encodeRaw(code.json)
+        }
       }
     }
     switch (wago.type) {
@@ -1064,7 +1078,13 @@ module.exports = function (fastify, opts, next) {
     for (const addonFile in Addons) {
       const addon = Addons[addonFile]
       if ((req.body.type && req.body.type.match(addon.typeMatch)) || (req.body.wagolib && addonFile === 'WagoLib')) {
-        encoded = await addon.encode(jsonString.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim(), lua.runLua)
+        if (addon.encode) {
+          code.encoded = await addon.encode(jsonString.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim(), lua.runLua)
+        }
+        else if (addon.encodeRaw) {
+          code.encoded = await addon.encodeRaw(jsonString)
+        }
+
         let meta = addon.processMeta(json)
         if (encoded && meta) {
           const scan = await new ImportScan({type: req.body.type.toUpperCase(), input: encoded, decoded: req.body.json, fork: req.body.forkOf})

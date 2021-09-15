@@ -875,7 +875,12 @@ async function ProcessCode(data) {
     if (addon && addon.addWagoData) {
       let meta = addon.addWagoData && addon.addWagoData(code, doc)
       if ((meta && meta.encode) || data.encode || !code.encoded) {
+        if (addon.encode) {
         code.encoded = await addon.encode(code.json.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim(), lua.runLua)
+        }
+        else if (addon.encodeRaw) {
+          code.encoded = await addon.encodeRaw(code.json)
+        }
       }
       if (meta && meta.wago) {
         doc = meta.wago
@@ -888,7 +893,12 @@ async function ProcessCode(data) {
       if (doc.type.match(addon.typeMatch)) {
         let meta = addon.addWagoData && addon.addWagoData(code, doc)
         if ((meta && meta.encode) || data.encode || !code.encoded) {
+          if (addon.encode) {
           code.encoded = await addon.encode(code.json.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim(), lua.runLua)
+          }
+          else if (addon.encodeRaw) {
+            code.encoded = await addon.encodeRaw(code.json)
+          }
         }
         if (meta && meta.wago) {
           doc = meta.wago

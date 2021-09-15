@@ -1,5 +1,6 @@
 module.exports = {
   typeMatch: /^TOTALRP3$/,
+  domain: ENUM.DOMAIN.WOW,
 
   decode: async (encodedString, exec) => {
     if (!encodedString.match(/^\^.+\^\^$|^![a-zA-Z0-9\(\)]*$/)) {
@@ -74,7 +75,7 @@ module.exports = {
     catch (e) {
       return false
     }
-    
+
     return meta
   }
 }

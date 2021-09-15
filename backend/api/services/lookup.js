@@ -234,6 +234,7 @@ module.exports = function (fastify, opts, next) {
     wago.regionType = doc.regionType
     wago.attachedMedia = doc.attachedMedia
     wago.game = doc.game
+    wago.domain = doc.domain
 
     wago.viewCount = doc.popularity.views
     wago.viewsThisWeek = doc.popularity.viewsThisWeek

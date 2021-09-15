@@ -2,6 +2,7 @@ const getCode = require('../code-detection/get-code')
 
 module.exports = {
   typeMatch: /^PLATER$/,
+  domain: ENUM.DOMAIN.WOW,
 
   decode: async (encodedString, exec) => {
     // test that string matches expected regex
