@@ -713,7 +713,6 @@ module.exports = function (fastify, opts, next) {
     wago.expires_at = expires
 
     await wago.save()
-    wago.unIndex()
     redis.clear(wago)
     res.send({success: true})
   })
