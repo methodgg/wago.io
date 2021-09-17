@@ -134,18 +134,13 @@ module.exports = {
   bulkProcessing: async function (index) {
     // console.log(JSON.stringify(bulkUpdates[index].docs, null, 2))
     try {
-      const { body: bulkResponse } = await client.bulk({ refresh: true, body: bulkUpdates[index].docs })
+      const bulkResponse = (await client.bulk({ refresh: true, body: bulkUpdates[index].docs })).body
       if (bulkResponse.errors) {
         const erroredDocuments = []
         bulkResponse.items.forEach((action, i) => {
           const operation = Object.keys(action)[0]
           if (action[operation].error) {
-            erroredDocuments.push({
-              status: action[operation].status,
-              error: action[operation].error,
-              operation: body[i * 2],
-              document: body[i * 2 + 1]
-            })
+            erroredDocuments.push(action)
           }
         })
         console.log('ELASTIC ERRORS', erroredDocuments)

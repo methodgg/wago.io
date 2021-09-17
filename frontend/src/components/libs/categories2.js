@@ -734,7 +734,9 @@ class Categories {
       'job-dnc': {slug: 'dancer', image: '/ffxiv/DNC.svg', color: '#e2b0af', i18n: 'ffxiv:Dancer', domain: 1, types: ['DELVUI']},
 
       'delvui1': {slug: 'general-settings', image: '/ffxiv/delvui.png', color: '#FDFDFD', i18n: 'General Settings', domain: 1, system: true, types: ['DELVUI']},
-      'delvui2': {slug: 'job-pack', image: '/ffxiv/delvui.png', color: '#FDFDFD', i18n: 'Job Pack', domain: 1, system: true, types: ['DELVUI']},
+      'delvui2': {slug: 'job-specific', image: '/ffxiv/delvui.png', color: '#FDFDFD', i18n: 'Job Specific', domain: 1, system: true, types: ['DELVUI']},
+      'delvui3': {slug: 'job-pack', image: '/ffxiv/delvui.png', color: '#FDFDFD', i18n: 'Job Pack', domain: 1, system: true, types: ['DELVUI']},
+      'delvui4': {slug: 'general-hud-config', image: '/ffxiv/delvui.png', color: '#FDFDFD', i18n: 'General Hud Config', domain: 1, system: true, types: ['DELVUI']},
     }
   }
 

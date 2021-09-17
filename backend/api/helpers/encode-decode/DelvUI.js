@@ -1,5 +1,5 @@
-const util = require('util');
-const zlib = require('zlib');
+const util = require('util')
+const zlib = require('zlib')
 const inflate = util.promisify(zlib.inflateRaw)
 const deflate = util.promisify(zlib.deflateRaw)
 
@@ -7,8 +7,20 @@ module.exports = {
   typeMatch: /^DELVUI$/,
   domain: ENUM.DOMAIN.FF14,
 
-  decode: async (encodedString) => {
-    if (!encodedString.match(/^(?=(.{4})*$)[A-Za-z0-9+/]*={0,2}$/)) {
+  decode: async function (encodedString) {
+    if (encodedString.match(/\|/)) {
+      let pack = []
+      for (let str of encodedString.split(/\|/g)) {
+        if (str) {
+          let obj = await this.decode(str)
+          if (obj) {
+            pack.push(obj)
+          }
+        }
+      }
+      return pack
+    }
+    else if (!encodedString.match(/^(?=(.{4})*$)[A-Za-z0-9+/]*={0,2}$/)) {
       return false
     }
     try {
@@ -28,6 +40,14 @@ module.exports = {
 
   encodeRaw: async (jsonString) => {
     try {
+      let obj = JSON.parse(jsonString)
+      if (Array.isArray(obj)) {
+        let encoded = []
+        for (let item of obj) {
+          encoded.push((await deflate('\uFEFF' + JSON.stringify(item))).toString('base64'))
+        }
+        return encoded.join('|')
+      }
       return (await deflate('\uFEFF' + jsonString)).toString('base64')
     }
     catch (e) {
@@ -42,10 +62,12 @@ module.exports = {
     if (obj && obj.$type) {
       let job = getJob(obj.$type)
       if (!job) {
-        return false
+        return meta
       }
-      meta.categories.push('delvui2')
-      meta.categories.push(`job-${job.id.toLowerCase()}`)
+      else if (job.system) {
+        meta.name = job.name
+        return meta
+      }
       meta.name = `DelvUI ${job.name} Job Pack`
     }
 
@@ -54,17 +76,29 @@ module.exports = {
 
   addWagoData: (code, wago) => {
     if (!code.json) {
-      console.log('no json')
       return false
     }
     let json = JSON.parse(code.json)
-    let job = getJob(json.$type)
-    if (job && wago.categories.indexOf(`job-${job.id.toLowerCase()}`) < 0) {
-      wago.categories.push('delvui2')
-      wago.categories.push(`job-${job.id.toLowerCase()}`)
+    if (!json) {
+      return false
     }
     else if (json.PlayerBuffListConfig && json.PlayerDebuffListConfig && json.TargetBuffListConfig && json.TargetDebuffListConfig) {
       wago.categories.push('delvui1')
+    }
+    else if (json.$type) {
+      let job = getJob(json.$type)
+      if (job && job.id) {
+        if (job.system) {
+          wago.categories.push(job.system)
+        }
+        else {
+          wago.categories.push('delvui2')
+        }
+        wago.categories.push(`job-${job.id.toLowerCase()}`)
+      }
+    }
+    else if (Array.isArray(json)) {
+      wago.categories.push('delvui3')
     }
     return {wago}
   }
@@ -74,9 +108,12 @@ function getJob(type) {
   if (typeof type !== 'string') {
     return false
   }
-  let m = type.match(/^DelvUI\.Interface\.(Astrologian|Bard|BlackMage|Dancer|DarkKnight|Dragoon|Gunbreaker|Machinist|Monk|Ninja|Paladin|RedMage|Samurai|Scholar|Summoner|Warrior|WhiteMage)HudConfig,/)
+  let m = type.match(/^DelvUI\.Interface\.(General|Astrologian|Bard|BlackMage|Dancer|DarkKnight|Dragoon|Gunbreaker|Machinist|Monk|Ninja|Paladin|RedMage|Samurai|Scholar|Summoner|Warrior|WhiteMage)HudConfig,/)
   if (!m) {
     return false
+  }
+  else if (m[1] === 'General') {
+    return {system: 'delvui4', name: 'General Hud Config'}
   }
   else if (m[1] === 'Astrologian') {
     return {id: 'AST', name: m[1]}

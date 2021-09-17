@@ -781,6 +781,8 @@ module.exports = function (fastify, opts, next) {
       }
     }
     
+    wago.categories = [new Set(wago.categories)]
+
     if (wago.encrypted && req.body.cipherKey) {
       code.encoded = crypto.AES.encrypt(code.encoded, req.body.cipherKey)
       code.json = crypto.AES.encrypt(code.json, req.body.cipherKey)
@@ -891,6 +893,7 @@ module.exports = function (fastify, opts, next) {
         }
       }
     }
+    wago.categories = [new Set(wago.categories)]
     switch (wago.type) {
       case 'ELVUI':
         code.encoded = await lua.JSON2ElvUI(json)
