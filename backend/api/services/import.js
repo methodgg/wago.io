@@ -781,7 +781,9 @@ module.exports = function (fastify, opts, next) {
       }
     }
     
-    wago.categories = [new Set(wago.categories)]
+    wago.categories = [...new Set(wago.categories)]
+    wago.modified = Date.now()
+    await wago.save()
 
     if (wago.encrypted && req.body.cipherKey) {
       code.encoded = crypto.AES.encrypt(code.encoded, req.body.cipherKey)
@@ -797,10 +799,8 @@ module.exports = function (fastify, opts, next) {
 
     code.version = wago.latestVersion.iteration
     code.versionString = wago.latestVersion.versionString
-    wago.modified = Date.now()
 
     await code.save()
-    await wago.save()
 
     // send message to starred users    
     const discordHost = await SiteData.get('discordHost')
@@ -893,7 +893,7 @@ module.exports = function (fastify, opts, next) {
         }
       }
     }
-    wago.categories = [new Set(wago.categories)]
+    wago.categories = [...new Set(wago.categories)]
     switch (wago.type) {
       case 'ELVUI':
         code.encoded = await lua.JSON2ElvUI(json)

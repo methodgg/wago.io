@@ -946,6 +946,7 @@ async function ProcessCode(data) {
         })
       }
 
+  doc.categories = [...new Set(doc.categories)]
   doc.codeProcessVersion = codeProcessVersion
 
   await doc.save()
