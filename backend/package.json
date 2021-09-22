@@ -46,7 +46,7 @@
     "mongoosastic": "^4.6.0",
     "mongoose": "^5.12.0",
     "node-object-hash": "^2.3.1",
-    "node-ssh": "^11.1.1",
+    "node-ssh": "^12.0.0",
     "prismjs": "^1.24.1",
     "puppeteer": "^5.5.0",
     "redis": "^3.1.2",
@@ -56,7 +56,7 @@
     "sharp": "^0.26.3",
     "shelljs.exec": "^1.1.8",
     "shortid": "^2.2.16",
-    "tap": "^14.11.0",
+    "tap": "^15.0.10",
     "twitter-lite": "^0.14.0",
     "uninstall": "0.0.0",
     "webp-converter": "^2.3.3"
