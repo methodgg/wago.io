@@ -1082,10 +1082,10 @@ module.exports = function (fastify, opts, next) {
       const addon = Addons[addonFile]
       if ((req.body.type && req.body.type.match(addon.typeMatch)) || (req.body.wagolib && addonFile === 'WagoLib')) {
         if (addon.encode) {
-          code.encoded = await addon.encode(jsonString.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim(), lua.runLua)
+          encoded = await addon.encode(jsonString.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim(), lua.runLua)
         }
         else if (addon.encodeRaw) {
-          code.encoded = await addon.encodeRaw(jsonString)
+          encoded = await addon.encodeRaw(jsonString)
         }
 
         let meta = addon.processMeta(json)
