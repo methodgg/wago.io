@@ -117,6 +117,8 @@ module.exports = function (fastify, opts, next) {
 
     var doc = await WagoItem.lookup(req.query.id)
     if (!doc || (doc.deleted && !(req.user && (req.user.isAdmin.super || req.user.isAdmin.moderator)))) {
+      // make sure this wasn't linked thanks to a relic stuck in elastic
+      elastic.removeDoc('import', req.query.id)
       return res.code(404).send({error: "page_not_found"})
     }
 
