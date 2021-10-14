@@ -127,7 +127,7 @@ module.exports = {
 
     // check for game import
     if (obj.d.tocversion) {
-      if ((obj.d.tocversion+'').match(/^113/)) {
+      if ((obj.d.tocversion+'').match(/^11/)) {
         meta.type = 'CLASSIC-WEAKAURA'
         meta.game = 'classic'
       }
@@ -262,7 +262,7 @@ module.exports = {
       }
 
       if (json.d.tocversion) {
-        if ((json.d.tocversion+'').match(/^113/)) {
+        if ((json.d.tocversion+'').match(/^11/)) {
           wago.type = 'CLASSIC-WEAKAURA'
           wago.game = 'classic'
         }

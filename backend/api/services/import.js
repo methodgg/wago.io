@@ -155,7 +155,7 @@ module.exports = function (fastify, opts, next) {
 
       // check for classic import
       if (decoded.obj.d.tocversion) {
-        if ((decoded.obj.d.tocversion+'').match(/^113/)) {
+        if ((decoded.obj.d.tocversion+'').match(/^11/)) {
           scan.type = 'CLASSIC-WEAKAURA'
           scan.game = 'classic'
         }
@@ -485,7 +485,7 @@ module.exports = function (fastify, opts, next) {
 
     // detect game
     if (wago.type.match(/WEAKAURA/) && json.d.tocversion) {
-      if ((json.d.tocversion+'').match(/^113/)) {
+        if ((json.d.tocversion+'').match(/^11/)) {
         wago.game = 'classic'
       }
       else if ((json.d.tocversion+'').match(/^90/)) {
@@ -496,7 +496,7 @@ module.exports = function (fastify, opts, next) {
       }
     }
     else if (wago.type.match(/PLATER/) && json.tocversion) {
-      if ((json.tocversion+'').match(/^113/)) {
+        if ((json.tocversion+'').match(/^11/)) {
         wago.game = 'classic'
       }
       else if ((json.tocversion+'').match(/^90/)) {

@@ -58,7 +58,7 @@ module.exports = {
     meta.type = 'PLATER'
 
     if (obj.tocversion) {
-      if ((obj.tocversion+'').match(/^113/)) {
+      if ((obj.tocversion+'').match(/^11/)) {
         meta.game = 'classic'
       }
       else if ((obj.tocversion+'').match(/^20/)) {
