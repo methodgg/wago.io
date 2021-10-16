@@ -14,7 +14,6 @@ module.exports = {
   },
 
   addDoc: async function (index, doc, syncing) {
-    console.log('add doc', index, doc)
     if (!bulkUpdates[index]) {
       bulkUpdates[index] = {docs: [], timeout: null}
     }
