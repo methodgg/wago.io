@@ -32,6 +32,9 @@ module.exports = function (fastify, opts, next) {
 
   // standard lookup for any import
   fastify.get('/wago', async (req, res) => {
+    if (Array.isArray(req.query.id)) {
+      req.query.id = req.query.id[0]
+    }
     if (!req.query.id) {
       return res.code(404).send({error: "page_not_found"})
     }

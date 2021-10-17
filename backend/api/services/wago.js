@@ -736,6 +736,9 @@ module.exports = function (fastify, opts, next) {
 
   // Add to collection
   fastify.post('/collection/add', async (req, res) => {
+    if (Array.isArray(req.body.wagoID)) {
+      req.body.wagoID = req.body.wagoID[0]
+    }
     if (!req.user || !req.body.wagoID || !req.body.collectionID) {
       return res.code(403).send({error: "forbidden"})
     }
