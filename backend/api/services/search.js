@@ -112,7 +112,7 @@ async function searchElastic (req, res) {
   let filterUsers = []
   m = query.match(/(?:user:\s?"(.*)")/i)
   var searchingOwnProfile = false
-  while (m) {
+  while (m && m[0]) {
     try {
       let user = await User.findOne({"search.username": m[1].toLowerCase()})
       if (user) {
@@ -219,7 +219,7 @@ async function searchElastic (req, res) {
   }
 
   m = query.match(/(?:collection):\s?([\w-]{7,14})/i)
-  if (m) {
+  if (m && m[0]) {
     try {
       let collection = await WagoItem.lookup(m[1])
       if (collection && collection.type === 'COLLECTION' && collection.collect.length) {
