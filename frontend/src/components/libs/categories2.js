@@ -710,69 +710,53 @@ class Categories {
       ///////////////////////////////////////////////////////
       // FINAL FANTASY CATEGORIES
       ///////////////////////////////////////////////////////
-      'job-pld': {slug: 'paladin', image: '/ffxiv/PLD.svg', color: '#a8d2e6', i18n: 'ffxiv:Paladin', domain: 1, types: ['DELVUI']},
-      'job-war': {slug: 'warrior', image: '/ffxiv/WAR.svg', color: '#cf2621', i18n: 'ffxiv:Warrior', domain: 1, types: ['DELVUI']},
-      'job-drk': {slug: 'dark-knight', image: '/ffxiv/DRK.svg', color: '#d126cc', i18n: 'ffxiv:Dark Knight', domain: 1, types: ['DELVUI']},
-      'job-gnb': {slug: 'gunbreaker', image: '/ffxiv/GNB.svg', color: '#998d50', i18n: 'ffxiv:Gunbreaker', domain: 1, types: ['DELVUI']},
+      'job-tank': {slug: 'tank', image: 'equipment.png', color: '#7ED321', i18n: 'ffxiv:Tank', domain: 1, types: ['DELVUI']},
+      'job-pld': {slug: 'tank/paladin', image: 'ffxiv/PLD.svg', color: '#a8d2e6', i18n: 'ffxiv:Paladin', parent: 'job-tank', domain: 1, types: ['DELVUI']},
+      'job-war': {slug: 'tank/warrior', image: 'ffxiv/WAR.svg', color: '#cf2621', i18n: 'ffxiv:Warrior', parent: 'job-tank', domain: 1, types: ['DELVUI']},
+      'job-drk': {slug: 'tank/dark-knight', image: 'ffxiv/DRK.svg', color: '#d126cc', i18n: 'ffxiv:Dark Knight', parent: 'job-tank', domain: 1, types: ['DELVUI']},
+      'job-gnb': {slug: 'tank/gunbreaker', image: 'ffxiv/GNB.svg', color: '#998d50', i18n: 'ffxiv:Gunbreaker', parent: 'job-tank', domain: 1, types: ['DELVUI']},
 
-      'job-sch': {slug: 'scholar', image: '/ffxiv/SCH.svg', color: '#8657ff', i18n: 'ffxiv:Scholar', domain: 1, types: ['DELVUI']},
-      'job-whm': {slug: 'white-mage', image: '/ffxiv/WHM.svg', color: '#fff0dc', i18n: 'ffxiv:White Mage', domain: 1, types: ['DELVUI']},
-      'job-ast': {slug: 'astrologian', image: '/ffxiv/AST.svg', color: '#ffe74a', i18n: 'ffxiv:Astrologian', domain: 1, types: ['DELVUI']},
+      'job-healer': {slug: 'healer', image: 'priest.png', color: '#FFFFFF', i18n: 'ffxiv:Healer', domain: 1, types: ['DELVUI']},
+      'job-sch': {slug: 'healer/scholar', image: 'ffxiv/SCH.svg', color: '#8657ff', i18n: 'ffxiv:Scholar', parent: 'job-healer', domain: 1, types: ['DELVUI']},
+      'job-whm': {slug: 'healer/white-mage', image: 'ffxiv/WHM.svg', color: '#fff0dc', i18n: 'ffxiv:White Mage', parent: 'job-healer', domain: 1, types: ['DELVUI']},
+      'job-ast': {slug: 'healer/astrologian', image: 'ffxiv/AST.svg', color: '#ffe74a', i18n: 'ffxiv:Astrologian', parent: 'job-healer', domain: 1, types: ['DELVUI']},
 
-      'job-mnk': {slug: 'monk', image: '/ffxiv/MNK.svg', color: '#d69c00', i18n: 'ffxiv:Monk', domain: 1, types: ['DELVUI']},
-      'job-drg': {slug: 'dragoon', image: '/ffxiv/DRG.svg', color: '#4164cd', i18n: 'ffxiv:Dragoon', domain: 1, types: ['DELVUI']},
-      'job-nin': {slug: 'ninja', image: '/ffxiv/NIN.svg', color: '#af1964', i18n: 'ffxiv:Ninja', domain: 1, types: ['DELVUI']},
-      'job-sam': {slug: 'samurai', image: '/ffxiv/SAM.svg', color: '#e46d04', i18n: 'ffxiv:Samurai', domain: 1, types: ['DELVUI']},
+      'job-melee': {slug: 'melee', image: 'warrior.png', color: '#C79C6E', i18n: 'Melee DPS', domain: 1, types: ['DELVUI']},
+      'job-mnk': {slug: 'melee/monk', image: 'ffxiv/MNK.svg', color: '#d69c00', i18n: 'ffxiv:Monk', parent: 'job-melee', domain: 1, types: ['DELVUI']},
+      'job-drg': {slug: 'melee/dragoon', image: 'ffxiv/DRG.svg', color: '#4164cd', i18n: 'ffxiv:Dragoon', parent: 'job-melee', domain: 1, types: ['DELVUI']},
+      'job-nin': {slug: 'melee/ninja', image: 'ffxiv/NIN.svg', color: '#af1964', i18n: 'ffxiv:Ninja', parent: 'job-melee', domain: 1, types: ['DELVUI']},
+      'job-sam': {slug: 'melee/samurai', image: 'ffxiv/SAM.svg', color: '#e46d04', i18n: 'ffxiv:Samurai', parent: 'job-melee', domain: 1, types: ['DELVUI']},
 
-      'job-blm': {slug: 'black-mage', image: '/ffxiv/BLM.svg', color: '#a579d6', i18n: 'ffxiv:Black Mage', domain: 1, types: ['DELVUI']},
-      'job-smn': {slug: 'summoner', image: '/ffxiv/SMN.svg', color: '#2d9b78', i18n: 'ffxiv:Summoner', domain: 1, types: ['DELVUI']},
-      'job-rdm': {slug: 'red-mage', image: '/ffxiv/RDM.svg', color: '#e87b7b', i18n: 'ffxiv:Red Mage', domain: 1, types: ['DELVUI']},
-      'job-blu': {slug: 'blue-mage', image: '/ffxiv/BLU.svg', color: '#2459ff', i18n: 'ffxiv:Blue Mage', domain: 1, types: ['DELVUI']},
+      'job-magic': {slug: 'magic', image: 'mage.png', color: '#69CCF0', i18n: 'Ranged Magical DPS', domain: 1, types: ['DELVUI']},
+      'job-blm': {slug: 'magic/black-mage', image: 'ffxiv/BLM.svg', color: '#a579d6', i18n: 'ffxiv:Black Mage', parent: 'job-magic', domain: 1, types: ['DELVUI']},
+      'job-smn': {slug: 'magic/summoner', image: 'ffxiv/SMN.svg', color: '#2d9b78', i18n: 'ffxiv:Summoner', parent: 'job-magic', domain: 1, types: ['DELVUI']},
+      'job-rdm': {slug: 'magic/red-mage', image: 'ffxiv/RDM.svg', color: '#e87b7b', i18n: 'ffxiv:Red Mage', parent: 'job-magic', domain: 1, types: ['DELVUI']},
+      'job-blu': {slug: 'magic/blue-mage', image: 'ffxiv/BLU.svg', color: '#2459ff', i18n: 'ffxiv:Blue Mage', parent: 'job-magic', domain: 1, types: ['DELVUI']},
 
-      'job-brd': {slug: 'bard', image: '/ffxiv/BRD.svg', color: '#91ba5e', i18n: 'ffxiv:Bard', domain: 1, types: ['DELVUI']},
-      'job-mch': {slug: 'machinist', image: '/ffxiv/MCH.svg', color: '#6ee1d6', i18n: 'ffxiv:Machinist', domain: 1, types: ['DELVUI']},
-      'job-dnc': {slug: 'dancer', image: '/ffxiv/DNC.svg', color: '#e2b0af', i18n: 'ffxiv:Dancer', domain: 1, types: ['DELVUI']},
+      'job-ranged': {slug: 'ranged', image: 'hunter.png', color: '#ABD473', i18n: 'Ranged Physical DPS', domain: 1, types: ['DELVUI']},
+      'job-brd': {slug: 'bard', image: 'ffxiv/BRD.svg', color: '#91ba5e', i18n: 'ffxiv:Bard', parent: 'job-ranged', domain: 1, types: ['DELVUI']},
+      'job-mch': {slug: 'machinist', image: 'ffxiv/MCH.svg', color: '#6ee1d6', i18n: 'ffxiv:Machinist', parent: 'job-ranged', domain: 1, types: ['DELVUI']},
+      'job-dnc': {slug: 'dancer', image: 'ffxiv/DNC.svg', color: '#e2b0af', i18n: 'ffxiv:Dancer', parent: 'job-ranged', domain: 1, types: ['DELVUI']},
 
-      'delvui1': {slug: 'general-settings', image: '/ffxiv/delvui.png', color: '#FDFDFD', i18n: 'General Settings', domain: 1, system: true, types: ['DELVUI']},
-      'delvui2': {slug: 'job-specific', image: '/ffxiv/delvui.png', color: '#FDFDFD', i18n: 'Job Specific', domain: 1, system: true, types: ['DELVUI']},
-      'delvui3': {slug: 'job-pack', image: '/ffxiv/delvui.png', color: '#FDFDFD', i18n: 'Job Pack', domain: 1, system: true, types: ['DELVUI']},
-      'delvui4': {slug: 'general-hud-config', image: '/ffxiv/delvui.png', color: '#FDFDFD', i18n: 'General Hud Config', domain: 1, system: true, types: ['DELVUI']},
+      'job-craft': {slug: 'crafting', image: 'crafting.png', color: '#B85E5F', i18n: 'Crafting', domain: 1, types: ['DELVUI']},
+      'job-alc': {slug: 'crafting/alchemist', image: 'ffxiv/ALC.svg', color: '#AF6F9E', i18n: 'ffxiv:Alchemist', parent: 'job-craft', domain: 1, types: ['DELVUI']},
+      'job-arm': {slug: 'crafting/armorer', image: 'ffxiv/ARM.svg', color: '#AD8A56', i18n: 'ffxiv:Armorer', parent: 'job-craft', domain: 1, types: ['DELVUI']},
+      'job-bsm': {slug: 'crafting/blacksmith', image: 'ffxiv/BSM.svg', color: '#475673', i18n: 'ffxiv:Blacksmith', parent: 'job-craft', domain: 1, types: ['DELVUI']},
+      'job-crp': {slug: 'crafting/carpenter', image: 'ffxiv/CRP.svg', color: '#E8CF8C', i18n: 'ffxiv:Carpenter', parent: 'job-craft', domain: 1, types: ['DELVUI']},
+      'job-cul': {slug: 'crafting/culinarian', image: 'ffxiv/CUL.svg', color: '#677135', i18n: 'ffxiv:Culinarian', parent: 'job-craft', domain: 1, types: ['DELVUI']},
+      'job-gsm': {slug: 'crafting/goldsmith', image: 'ffxiv/GSM.svg', color: '#D5B23D', i18n: 'ffxiv:Goldsmith', parent: 'job-craft', domain: 1, types: ['DELVUI']},
+      'job-ltw': {slug: 'crafting/leatherworker', image: 'ffxiv/LTW.svg', color: '#3165A2', i18n: 'ffxiv:Leatherworker', parent: 'job-craft', domain: 1, types: ['DELVUI']},
+      'job-wvr': {slug: 'crafting/weaver', image: 'ffxiv/WVR.svg', color: '#C7420C', i18n: 'ffxiv:Weaver', parent: 'job-craft', domain: 1, types: ['DELVUI']},
+
+      'job-gather': {slug: 'gathering', image: 'gathering.png', color: '#5E63B8', i18n: 'Gathering', domain: 1, types: ['DELVUI']},
+      'job-btn': {slug: 'gathering/botanist', image: 'ffxiv/BTN.svg', color: '#EAF7D4', i18n: 'ffxiv:Botanist', parent: 'job-gather', domain: 1, types: ['DELVUI']},
+      'job-fsh': {slug: 'gathering/fisher', image: 'ffxiv/FSH.svg', color: '#49D3E7', i18n: 'ffxiv:Fisher', parent: 'job-gather', domain: 1, types: ['DELVUI']},
+      'job-min': {slug: 'gathering/miner', image: 'ffxiv/MIN.svg', color: '#E0E0E0', i18n: 'ffxiv:Miner', parent: 'job-gather', domain: 1, types: ['DELVUI']},
+
+      'delvui1': {slug: 'delvui-profile', image: 'ffxiv/delvui.png', color: '#FDFDFD', i18n: 'DelvUI Profile', domain: 1, system: true, types: ['DELVUI']},
+      'delvui2': {slug: 'delvui-config', image: 'ffxiv/delvui.png', color: '#FDFDFD', i18n: 'Single Config', domain: 1, system: true, types: ['DELVUI']},
     }
   }
-
-/*
-
-body.ff .Archer,body.ff .Bard {
-    color: #91ba5e!important
-}
-
-
-
-body.ff .Machinist {
-    color: #6ee1d6!important
-}
-
-body.ff .Arcanist,body.ff .Arcanist:hover,body.ff .Summoner,body.ff .Summoner:hover {
-    color: #2d9b78!important
-}
-
-body.ff .BlackMage,body.ff .Thamauturge {
-    color: #a579d6!important
-}
-
-body.ff .RedMage {
-    color: #e87b7b!important
-}
-
-
-body.ff .Dancer {
-    color: #e2b0af!important
-}
-
-body.ff .BlueMage {
-    color: #2459ff!important
-}*/
-
 
   init (t) {
     if (!t) {
@@ -947,7 +931,6 @@ body.ff .BlueMage {
 
   rootCategories (addon, game, domain) {
     let roots = []
-    console.log('domain=', domain)
     for (const cat of Object.values(this.categories)) {
       if (!cat.parent && !cat.system && cat.domain === domain && (!addon || !cat.types || cat.types.indexOf(addon) >= 0) && (!game || !cat.games || cat.games.indexOf(game) >= 0)) {
         roots.push(cat)
@@ -986,7 +969,6 @@ body.ff .BlueMage {
     if (!Array.isArray(cats)) {
       cats = [cats]
     }
-    console.log(cats)
     for (const search of cats) {
       for (const [id, cat] of Object.entries(this.categories)) {
         if (((search instanceof RegExp && id.match(search)) || search === id) && (!addon || !cat.types || cat.types.indexOf(addon) >= 0) && (!game || !cat.games || cat.games.indexOf(game) >= 0)) {
@@ -994,8 +976,6 @@ body.ff .BlueMage {
         }
       }
     }
-
-    console.log(selected)
 
     if (!doNotSortAlpha) {
       selected.sort(function (a, b) {
