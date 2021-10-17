@@ -70,7 +70,7 @@ class Categories {
       'cl1-2': {slug: 'classes/warrior/fury', i18n: 'warcraft:classes.1-2', domain: 0, parent: 'cl1'},
       'cl1-3': {slug: 'classes/warrior/protection', i18n: 'warcraft:classes.1-3', domain: 0, parent: 'cl1'},
 
-      'gen0': {slug: 'general', image:'miscellaneous', color: '#D0B58B', i18n: 'General', domain: 0, types: ['WEAKAURA', 'COLLECTION']},
+      'gen0': {slug: 'general', image:'miscellaneous.png', color: '#D0B58B', i18n: 'General', domain: 0, types: ['WEAKAURA', 'COLLECTION']},
       'gen7': {slug: 'general/achievements', i18n: 'Achievements', domain: 0, parent: 'gen0', types: ['WEAKAURA', 'COLLECTION'], games: ['legion', 'bfa', 'sl']},
       'gen2': {slug: 'general/questing', i18n: 'Questing', domain: 0, parent: 'gen0', types: ['WEAKAURA', 'COLLECTION']},
       'gen6': {slug: 'general/non-combat', i18n: 'Non-Combat', domain: 0, parent: 'gen0', types: ['WEAKAURA', 'COLLECTION']},
@@ -752,6 +752,9 @@ class Categories {
       'job-btn': {slug: 'gathering/botanist', image: 'ffxiv/BTN.svg', color: '#EAF7D4', i18n: 'ffxiv:Botanist', parent: 'job-gather', domain: 1, types: ['DELVUI']},
       'job-fsh': {slug: 'gathering/fisher', image: 'ffxiv/FSH.svg', color: '#49D3E7', i18n: 'ffxiv:Fisher', parent: 'job-gather', domain: 1, types: ['DELVUI']},
       'job-min': {slug: 'gathering/miner', image: 'ffxiv/MIN.svg', color: '#E0E0E0', i18n: 'ffxiv:Miner', parent: 'job-gather', domain: 1, types: ['DELVUI']},
+
+      'xiv-misc': {slug: 'miscellaneous', image: 'miscellaneous.png', color: '#D0B58B', i18n: 'Miscellaneous', domain: 1, types: ['DELVUI']},
+      'xiv-rp': {slug: 'miscellaneous', image: 'trpcamp.png', color: '#C3793A', i18n: 'Roleplaying', parent: 'xiv-misc', domain: 1, types: ['DELVUI']},
 
       'delvui1': {slug: 'delvui-profile', image: 'ffxiv/delvui.png', color: '#FDFDFD', i18n: 'DelvUI Profile', domain: 1, system: true, types: ['DELVUI']},
       'delvui2': {slug: 'delvui-config', image: 'ffxiv/delvui.png', color: '#FDFDFD', i18n: 'Single Config', domain: 1, system: true, types: ['DELVUI']},

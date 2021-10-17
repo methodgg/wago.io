@@ -8,7 +8,7 @@ const battlenet = require('../helpers/battlenet')
 const diff = require('../helpers/diff')
 const luacheck = require('../helpers/luacheck')
 const parseText = require('../helpers/parseText')
-const wowPatches = require('../helpers/wowPatches')
+const patchDates = require('../helpers/patchDates')
 
 const arrayMatch = function (arr1, arr2) {
   if (!arr1.length || !arr2.length) {
@@ -233,7 +233,7 @@ module.exports = function (fastify, opts, next) {
     }
     wago.date = { created: doc.created, modified: doc.modified }
     wago.expires = doc.expires_at
-    wago.patch = wowPatches.patchByDate(doc.modified || doc.created, doc.type.match(/WEAKAURA|MDT/) && doc.game)
+    wago.patch = patchDates.getDate(doc.modified || doc.created, doc.type.match(/WEAKAURA|MDT/) && doc.game, doc.domain)
     wago.description = { text: doc.description, format: doc.description_format }
     wago.categories = doc.categories
     wago.regionType = doc.regionType
