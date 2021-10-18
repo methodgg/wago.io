@@ -21,7 +21,7 @@ module.exports = {
       var key = code[i].name
       let lua = code[i].lua.replace(/-- luacheck:/g, `--`) // don't ignore potential malicous hidings
 
-      if (lua.match(/^\s*function\s*\(/m) && !code[i].keypath.match(/\.actions\.(init|start|finish)\.(message_)?custom$/)) {
+      if (lua.match(/^\s*function\s*\(/m) && !code[i].keypath.match(/\.actions\.(init|start|finish)\.custom$/)) {
         lua = lua.replace(/^\s*function\s*\(/m, `local fn_${key.replace(/[^a-zA-Z0-9]/g, '')} = function(`) // name anonymous function
         lua += `\nfn_${key.replace(/[^a-zA-Z0-9]/g, '')}()` // and then "call" the function so luacheck recognizes that it's used
       }
