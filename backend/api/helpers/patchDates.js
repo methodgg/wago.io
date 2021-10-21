@@ -16,6 +16,7 @@ var patches = [
   {date: moment('2019-12-19T03:00:00Z'), game: 'classic', patch: "WoW Classic 1.13.3", domain: 0},
   {date: moment('2019-05-17T03:00:00Z'), game: 'classic', patch: "WoW Classic 1.13.2", domain: 0},
 
+  {date: moment('2021-11-02T03:00:00Z'), game: 'sl', patch: "Shadowlands 9.1.5", base: true, domain: 0},
   {date: moment('2021-06-29T03:00:00Z'), game: 'sl', patch: "Shadowlands 9.1.0", base: true, domain: 0},
   {date: moment('2021-03-10T03:00:00Z'), game: 'sl', patch: "Shadowlands 9.0.5", base: true, domain: 0},
   {date: moment('2020-10-13T03:00:00Z'), game: 'sl', patch: "Shadowlands 9.0.1", base: true, domain: 0},
