@@ -588,7 +588,7 @@ module.exports = function (fastify, opts, next) {
         fs.unlink(tmpDir + screen.localFile)
         await screen.save()
         redis.clear(wago)
-        res.send({success: true, _id: screen._id.toString(), src: screen.url})
+        res.send({success: true, _id: screen._id.toString(), src: screen.url, thumb: screen.url, type: 'screenshot'})
       }
       catch (e) {
         fs.unlink(tmpDir + screen.localFile)
