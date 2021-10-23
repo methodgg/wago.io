@@ -8,15 +8,16 @@
     <div :class="{'search-dropdown': true, hidden: dropdownMenu === ''}" ref="searchDropdown">
       <md-list v-if="dropdownMenu === 'main'">
         <md-list-item><h4>{{ $t('Search Options') }}</h4></md-list-item>
-        <md-list-item @click="addSearchText('Type:')"><strong>{{ $t('Type') }}</strong><span>{{ $t('Example') }}: {{ $t('WeakAura; Plater') }}</span></md-list-item>
-        <md-list-item @click="addSearchText('Expansion:')"><strong>{{ $t('Expansion') }}</strong><span>{{ $t('Example') }}: {{ $t('Shadowlands; TBCC') }}</span></md-list-item>
+        <md-list-item v-if="!domain" @click="addSearchText('Type:')"><strong>{{ $t('Type') }}</strong><span>{{ $t('Example') }}: {{ $t('WeakAura; Plater') }}</span></md-list-item>
+        <md-list-item v-else-if="domain === 1" @click="addSearchText('Type:')"><strong>{{ $t('Type') }}</strong><span>{{ $t('Example') }}: {{ $t('DelvUI') }}</span></md-list-item>
+        <md-list-item v-if="!domain" @click="addSearchText('Expansion:')"><strong>{{ $t('Expansion') }}</strong><span>{{ $t('Example') }}: {{ $t('Shadowlands; TBCC') }}</span></md-list-item>
         <md-list-item @click="addSearchText('Metric:')"><strong>{{ $t('Metric') }}</strong><span>{{ $t('Example') }}: {{ $t('Installs>150; Stars>90') }}</span></md-list-item>
         <md-list-item @click="addSearchText('Date:')"><strong>{{ $t('Date') }}</strong><span>{{ $t('Example') }}: {{exampleDate}}</span></md-list-item>
-        <md-list-item v-if="searchMode !== 'standard' || betaUser"><h4>{{ $t('Search Mode') }}</h4></md-list-item>
+        <md-list-item v-if="!domain && (searchMode !== 'standard' || betaUser)"><h4>{{ $t('Search Mode') }}</h4></md-list-item>
         <md-list-item v-if="searchMode !== 'standard'" @click="setSearchMode('standard')"><strong>{{ $t('Standard Search') }}</strong><span>{{ $t('Search imports by text and/or filters') }}</span></md-list-item>
-        <md-list-item v-if="searchMode !== 'code' && betaUser" @click="setSearchMode('code')"><strong>[Beta] {{ $t('Code Search') }}</strong><span>{{ $t('Search the custom code of imports') }}</span></md-list-item>
+        <md-list-item v-if="!domain && (searchMode !== 'code' && betaUser)" @click="setSearchMode('code')"><strong>[Beta] {{ $t('Code Search') }}</strong><span>{{ $t('Search the custom code of imports') }}</span></md-list-item>
       </md-list>
-      <md-list v-else-if="dropdownMenu === 'expansion'">
+      <md-list v-else-if="dropdownMenu === 'expansion' && !domain">
         <md-list-item><h4>{{ $t('Expansion Options') }}<span class="close-search" @click="clearSearch(/expansion:\s*/i)">✖</span></h4></md-list-item>
         <md-list-item @click="replaceSearchText(/expansion:\s*/i, 'expansion:sl')">{{ $t('Shadowlands') }}</md-list-item>
         <md-list-item @click="replaceSearchText(/expansion:\s*/i, 'expansion:tbc')">{{ $t('The Burning Crusade Classic') }}</md-list-item>
@@ -25,12 +26,13 @@
       </md-list>
       <md-list v-else-if="dropdownMenu === 'type'">
         <md-list-item><h4>{{ $t('Import Type Options') }}<span class="close-search" @click="clearSearch(/type:\s*/i)">✖</span></h4></md-list-item>
-        <md-list-item @click="replaceSearchText(/type:\s*/i, 'type:WEAKAURA')">WeakAura</md-list-item>
-        <md-list-item @click="replaceSearchText(/type:\s*/i, 'type:PLATER')">Plater</md-list-item>
-        <md-list-item @click="replaceSearchText(/type:\s*/i, 'type:ELVUI')">ElvUI</md-list-item>
-        <md-list-item @click="replaceSearchText(/type:\s*/i, 'type:VUHDO')">VuhDo</md-list-item>
-        <md-list-item @click="replaceSearchText(/type:\s*/i, 'type:OPIE')">OPie</md-list-item>
-        <md-list-item @click="replaceSearchText(/type:\s*/i, 'type:TOTALRP3')">Total RP</md-list-item>
+        <md-list-item v-if="!domain" @click="replaceSearchText(/type:\s*/i, 'type:WEAKAURA')">WeakAura</md-list-item>
+        <md-list-item v-if="!domain" @click="replaceSearchText(/type:\s*/i, 'type:PLATER')">Plater</md-list-item>
+        <md-list-item v-if="!domain" @click="replaceSearchText(/type:\s*/i, 'type:ELVUI')">ElvUI</md-list-item>
+        <md-list-item v-if="!domain" @click="replaceSearchText(/type:\s*/i, 'type:VUHDO')">VuhDo</md-list-item>
+        <md-list-item v-if="!domain" @click="replaceSearchText(/type:\s*/i, 'type:OPIE')">OPie</md-list-item>
+        <md-list-item v-if="!domain" @click="replaceSearchText(/type:\s*/i, 'type:TOTALRP3')">Total RP</md-list-item>
+        <md-list-item v-if="domain === 1" @click="replaceSearchText(/type:\s*/i, 'type:DELVUI')">DelvUI</md-list-item>
       </md-list>
       <md-list v-else-if="dropdownMenu === 'date'">
         <md-list-item><h4>{{ $t('Select Date') }} <span class="syntax">{{ $t('YYYY-MM-DD') }}</span><span class="close-search" @click="clearSearch(/date:\s*/i)">✖</span></h4></md-list-item>
@@ -40,15 +42,17 @@
           <md-button :class="{ 'md-toggle': dateType === 'after' }"@click="dateType='after'">{{ $t('After') }}</md-button>
         </md-button-toggle>
         <datepicker v-model="selectedDate" :inline="true" :disabled-dates="datePickerCfg.disabledDates" @selected="addDateField('date')" />
-        <md-list-item><h4>{{ $t('Or filter by recent patch') }}</h4></md-list-item>
-        <md-list-item @click="replaceSearchText(/(date|during|before|after):\s*/i, `after:2021-06-29`)"><strong>{{ $t('Shadowlands Patch 9.1.0') }}</strong><span>2021-06-29</span></md-list-item>
-        <md-list-item @click="replaceSearchText(/(date|during|before|after):\s*/i, `after:2021-06-01`)"><strong>{{ $t('The Burning Crusade Classic Patch 2.5.1') }}</strong><span>2021-06-01</span></md-list-item>
+        <template v-if="!domain">
+          <md-list-item><h4>{{ $t('Or filter by recent patch') }}</h4></md-list-item>
+          <md-list-item @click="replaceSearchText(/(date|during|before|after):\s*/i, `after:2021-06-29`)"><strong>{{ $t('Shadowlands Patch 9.1.0') }}</strong><span>2021-06-29</span></md-list-item>
+          <md-list-item @click="replaceSearchText(/(date|during|before|after):\s*/i, `after:2021-06-01`)"><strong>{{ $t('The Burning Crusade Classic Patch 2.5.1') }}</strong><span>2021-06-01</span></md-list-item>
+        </template>
       </md-list>
       <md-list v-else-if="dropdownMenu === 'metric'">
         <md-list-item><h4>{{ $t('Configure a metric filter') }}<span class="close-search" @click="clearSearch(/type:\s*/i)">✖</span></h4></md-list-item>
         <md-list-item class="metric-config">
           <select v-model="metricName">
-            <option value="Installs" >{{ $t('Installs') }}</option>
+            <option value="Installs" v-if="!domain">{{ $t('Installs') }}</option>
             <option value="Stars">{{ $t('Stars') }}</option>
             <option value="Views">{{ $t('Views') }}</option>
           </select>
@@ -118,25 +122,6 @@ SearchTag.tagName = 'SPAN'
 SearchTag.className = 'search-tag'
 Quill.register(SearchTag)
 
-const expansionFilters = [
-  {regex: /(.*)(expansion:\s?(:?sl|shadowlands))(.*)/i, name: 'Shadowlands', class:'expansion exp-sl', search: 'expansion:sl'},
-  {regex: /(.*)(expansion:\s?bfa|battle for azeroth)(.*)/i, name: 'Battle for Azeroth', class:'expansion exp-bfa', search: 'expansion:bfa'},
-  {regex: /(.*)(expansion:\s?legion)(.*)/i, name: 'Legion', class:'expansion exp-legion', search: 'expansion:legion'},
-  {regex: /(.*)(expansion:\s?classic)(.*)/i, name: 'Classic', class:'expansion exp-classic', search: 'expansion:classic'},
-  {regex: /(.*)(expansion:\s?(:?t?bcc?|tbc classic))(.*)/i, name: 'TBC Classic', class:'expansion exp-tbc', search: 'expansion:tbc'},
-]
-
-const typeFilters = [
-  {regex: /(.*)(type:\s?WeakAura)(.*)/i, name: 'WeakAura', class:'imptype type-wa', search: 'type:weakaura'},
-  {regex: /(.*)(type:\s?Plater)(.*)/i, name: 'Plater', class:'imptype type-plater', search: 'type:plater'},
-  {regex: /(.*)(type:\s?ElvUI)(.*)/i, name: 'ElvUI', class:'imptype type-elvui', search: 'type:elvui'},
-  {regex: /(.*)(type:\s?VuhDo)(.*)/i, name: 'VuhDo', class:'imptype type-vuhdo', search: 'type:vuhdo'},
-  {regex: /(.*)(type:\s?OPie)(.*)/i, name: 'OPie', class:'imptype type-opie', search: 'type:opie'},
-  {regex: /(.*)(type:\s?TotalRP3?)(.*)/i, name: 'Total RP', class:'imptype type-totalrp', search: 'type:totalrp3'},
-  {regex: /(.*)(type:\s?Collection?)(.*)/i, name: 'Collection', class:'imptype type-collection', search: 'type:collection'},
-  {regex: /(.*)(type:\s?Snippet?)(.*)/i, name: 'Snippet', class:'imptype type-snippet', search: 'type:snippet'},
-]
-
 export default {
   components: {
     Datepicker
@@ -159,7 +144,7 @@ export default {
         }
       },
       dateType: 'date',
-      metricName: 'Installs',
+      metricName: 'Stars',
       metricComp: '>',
       metricValue: 10
     }
@@ -170,6 +155,42 @@ export default {
     },
     betaUser () {
       return this.$store.state.user && this.$store.state.user.access && this.$store.state.user.access.beta
+    },
+    domain () {
+      return parseInt(this.$store.state.domain || '0')
+    },
+    typeFilters () {
+      if (this.domain === 1) { // FF14
+        return [
+          {regex: /(.*)(type:\s?DelvUI)(.*)/i, name: 'DelvUI', class:'imptype type-delvui', search: 'type:delvui'},
+        ]
+      }
+      else { // WoW
+        return [
+          {regex: /(.*)(type:\s?WeakAura)(.*)/i, name: 'WeakAura', class:'imptype type-wa', search: 'type:weakaura'},
+          {regex: /(.*)(type:\s?Plater)(.*)/i, name: 'Plater', class:'imptype type-plater', search: 'type:plater'},
+          {regex: /(.*)(type:\s?ElvUI)(.*)/i, name: 'ElvUI', class:'imptype type-elvui', search: 'type:elvui'},
+          {regex: /(.*)(type:\s?VuhDo)(.*)/i, name: 'VuhDo', class:'imptype type-vuhdo', search: 'type:vuhdo'},
+          {regex: /(.*)(type:\s?OPie)(.*)/i, name: 'OPie', class:'imptype type-opie', search: 'type:opie'},
+          {regex: /(.*)(type:\s?TotalRP3?)(.*)/i, name: 'Total RP', class:'imptype type-totalrp', search: 'type:totalrp3'},
+          {regex: /(.*)(type:\s?Collection?)(.*)/i, name: 'Collection', class:'imptype type-collection', search: 'type:collection'},
+          {regex: /(.*)(type:\s?Snippet?)(.*)/i, name: 'Snippet', class:'imptype type-snippet', search: 'type:snippet'},
+        ]
+      }
+    },
+    expansionFilters () {
+      if (this.domain === 1) {
+        return []
+      }
+      else {
+        return [
+          {regex: /(.*)(expansion:\s?(:?sl|shadowlands))(.*)/i, name: 'Shadowlands', class:'expansion exp-sl', search: 'expansion:sl'},
+          {regex: /(.*)(expansion:\s?bfa|battle for azeroth)(.*)/i, name: 'Battle for Azeroth', class:'expansion exp-bfa', search: 'expansion:bfa'},
+          {regex: /(.*)(expansion:\s?legion)(.*)/i, name: 'Legion', class:'expansion exp-legion', search: 'expansion:legion'},
+          {regex: /(.*)(expansion:\s?classic)(.*)/i, name: 'Classic', class:'expansion exp-classic', search: 'expansion:classic'},
+          {regex: /(.*)(expansion:\s?(:?t?bcc?|tbc classic))(.*)/i, name: 'TBC Classic', class:'expansion exp-tbc', search: 'expansion:tbc'},
+        ]
+      }
     }
   },
   watch: {
@@ -184,6 +205,10 @@ export default {
       this.quill.focus()
       this.dropdownMenu = ''
     },
+    domain (v, x) {
+      this.quill.setContents([{insert: '\n'}])
+      this.quill.focus()
+    }
   },
   methods: {
     watchMetricValue (e) {
@@ -216,7 +241,6 @@ export default {
       for (let i = 0; i < contents.ops.length; i++) {
         if (typeof contents.ops[i].insert === 'string') {
           if (contents.ops[i].insert.match(/!(code|mentions|starred)!/i)) {
-            console.log('code')
             let m = contents.ops[i].insert.match(/(.*)(!(code|mentions|starred)!)(.*)/i)
             if (m) {
               hasChanges = true
@@ -230,7 +254,7 @@ export default {
 
           else if (contents.ops[i].insert.match(/expansion:/i)) {
             let hasExpansion = false
-            for (let exp of expansionFilters) {
+            for (let exp of this.expansionFilters) {
               let m = contents.ops[i].insert.match(exp.regex)
               if (m) {
                 hasChanges = true
@@ -252,7 +276,7 @@ export default {
 
           else if (contents.ops[i].insert.match(/type:/i)) {
             let hasType = false
-            for (let exp of typeFilters) {
+            for (let exp of this.typeFilters) {
               let m = contents.ops[i].insert.match(exp.regex)
               if (m) {
                 hasChanges = true
@@ -319,21 +343,18 @@ export default {
             }
             let hasCategory = false
             let cats = window.Categories.getCategories(/\w/, false, type, game)
-            console.log(str, cats)
             let bestMatch = ['', '', '']
             let bestMatchCat
             for (let cat of cats) {
               let re = new RegExp(`(.*)((?:category|tag):\\s?(?:${cat.id}|${cat.text}))(.*)`, 'i')
               let m = contents.ops[i].insert.match(re)
               if (m && m[2].length > bestMatch[2].length) {
-                console.log(m)
                 bestMatch = m
                 bestMatchCat = cat
               }
             }
 
             if (bestMatch[2].length) {
-              console.log('add cat')
               hasChanges = true
               this.inputHasTag = true
               hasCategory = true
@@ -358,7 +379,6 @@ export default {
               else if (m[3].toLowerCase() === 'after') {
                 dateType = 'after'
               }
-              console.log(m, dateType)
               delta = delta
                 .retain(m[1].length)
                 .delete(m[2].length)
@@ -427,7 +447,6 @@ export default {
       this.$refs.container.style.width = Math.min(searchbox.width + 160, topbar.width - 590) + 'px'
     },
     addDateField: function () {
-      console.log(this.dateType)
       this.$nextTick(() => {
         if (this.selectedDate) {
           this.replaceSearchText(new RegExp(`(date|during|before|after):\\s*`, 'i'), `${this.dateType}:${this.selectedDate.toISOString().split(/T/)[0]}`)
@@ -562,13 +581,10 @@ export default {
 
 
 <style lang="scss">
-#top-search-bar {
-  flex: 1;
-}
 .search-container {
   position: relative;
   max-width: 100%;
-  min-width: 50%;
+  min-width: 430px;
   width: 50%;
   height:40px;
   background:#404040;

@@ -11,77 +11,15 @@
         <h2 class="md-title" id="xmaslogo" v-if="today.getMonth() === 11"><router-link to="/"><img src="./assets/xmas-hat.png"/></router-link></h2>
 
         <div id="h-nav" class="md-hide-xsmall">
-          <div v-if="testSearch" id="top-search-bar">
-            <search-bar ref="searchField"></search-bar>
+          <div id="top-search-bar">
+            <search-bar ref="searchField" :domain="domain"></search-bar>
           </div>
-          <form v-else novalidate @submit.stop.prevent="goSearch(gSearch)" id="gSearch">
-            <input type="text" v-model="gSearch" placeholder="Search Wago..." />
-            <md-menu md-direction="bottom left" :md-offset-y="50" ref="advancedSearch">
-              <md-button class="md-icon-button md-primary" md-menu-trigger @click="buildSearch(true)">
-                <md-icon>arrow_drop_down</md-icon>
-              </md-button>
-              <md-menu-content id="advancedSearch">
-                <md-input-container>
-                  <label for="advSearchType">{{ $t("Select Type") }}</label>
-                  <md-select name="advSearchType" id="advSearchType" v-model="advSearchType" md-menu-class="advSearchSelect">
-                    <md-option value=""><em>All Imports</em></md-option>
-                    <md-option value="ElvUI">ElvUI</md-option>
-                    <md-option value="TotalRP">Total RP</md-option>
-                    <md-option value="MDT">Mythic Dungeon Tools</md-option>
-                    <md-option value="Opie">OPie</md-option>
-                    <md-option value="Plater">Plater</md-option>
-                    <md-option value="VuhDo">VuhDo</md-option>
-                    <md-option value="WeakAura">WeakAura</md-option>
-                    <md-option value="Classic-WeakAura">Classic WeakAura</md-option>
-                    <md-option value="Collection">Collection</md-option>
-                    <md-option value="Snippet">Snippet</md-option>
+          <md-input-container id="top-search-domain">
+            <md-select v-model="domain">
+              <md-option value="0">World of Warcraft</md-option>
+              <md-option value="1">Final Fantasy XIV</md-option>
                   </md-select>
                 </md-input-container>
-
-                <md-input-container>
-                  <label for="advSearchUser">{{ $t("Select User") }}</label>
-                  <md-select name="advSearchUser" id="advSearchUser" v-model="advSearchUser" md-menu-class="advSearchSelect">
-                    <md-option value=""><em>{{ $t("All Users") }}</em></md-option>
-                    <md-option value="anon">{{ $t("Include Anonymous") }}</md-option>
-                    <md-option value="user">{{ $t("Specific User") }}</md-option>
-                  </md-select>
-                </md-input-container>
-
-                <md-input-container v-if="advSearchUser === 'user'" id="advSearchUserName">
-                  <label for="advSearchUserName">{{ $t("User Name") }}</label>
-                  <md-autocomplete v-model="advSearchUserName" @md-changed="autoCompleteUserName"></md-autocomplete>
-                </md-input-container>
-
-                <md-layout md-row>
-                  <md-checkbox v-model="advSearchStarred">Starred</md-checkbox>
-                  <md-checkbox v-model="advSearchMentioned">Mentioned</md-checkbox>
-                </md-layout>
-
-                <md-input-container>
-                  <label for="advSearchDate">{{ $t("Date Modified") }}</label>
-                  <md-select name="advSearchDate" id="advSearchDate" v-model="advSearchDate" md-menu-class="advSearchSelect">
-                    <md-option value=""><em>{{ $t("Any Time") }}</em></md-option>
-                    <md-option value="24 Hours">{{ $t("Last 24 Hours") }}</md-option>
-                    <md-option value="3 Days">{{ $t("Last Three Days") }}</md-option>
-                    <md-option value="7 Days">{{ $t("Last Week") }}</md-option>
-                    <md-option value="1 Month">{{ $t("Last Month") }}</md-option>
-                  </md-select>
-                </md-input-container>
-
-                <md-input-container>
-                  <label>Text Search</label>
-                  <md-input v-model="advSearchText"></md-input>
-                </md-input-container>
-
-                <md-layout md-align="end" md-gutter="16">
-                  <md-layout md-flex="50" class="advSearchButtons">
-                    <md-button class="md-raised md-primary" @click="goSearch(gSearch)">Search</md-button>
-                    <md-button @click="buildSearch('reset')">Reset</md-button>
-                  </md-layout>
-                </md-layout>
-              </md-menu-content>
-            </md-menu>
-          </form>
         </div>
         <div id="hr-nav" class="md-hide-xsmall">
           <div id="wago-addons-btn"><a href="https://addons.wago.io">Wago Addons</a></div>
@@ -92,13 +30,14 @@
         </div>
       </md-toolbar>
       <md-sidenav class="md-hide-small-and-up md-left" ref="mobileSidebar" id="mobile-sidebar">
-        <form novalidate @submit.prevent="goSearch(gSearch)" id="gSearch-m">
           <md-input-container>
-            <label>Search</label>
-            <md-input v-model="gSearch"></md-input>
-            <md-button @click="goSearch(gSearch)">{{ $t("Go") }}</md-button>
+          <label>{{ $t('Search game') }}</label>
+          <md-select v-model="domain">
+            <md-option value="0">World of Warcraft</md-option>
+            <md-option value="1">Final Fantasy XIV</md-option>
+          </md-select>
           </md-input-container>
-        </form>
+        <search-bar ref="searchField" :domain="domain"></search-bar>
         <md-list>
           <md-list-item v-if="LoggedIn">
             <span :class="User.css"><md-icon>person</md-icon> {{ User.name }}</span>
@@ -116,28 +55,84 @@
           <md-list-item><router-link to='/'>{{ $t("Import") }}</router-link></md-list-item>
           <md-list-item><router-link to='/news'>{{ $t("Site News") }}</router-link></md-list-item>
           <md-list-item><a href="https://addons.wago.io">Wago Addons</a><md-divider></md-divider></md-list-item>
+          <md-list-item class="menu-section">World of Warcraft</md-list-item>
           <md-list-item><router-link to='/elvui'>ElvUI</router-link></md-list-item>
-          <md-list-item v-if="User && User.access && User.access.beta"><router-link to='/create-new-note'>Encounter Notes [Beta]</router-link></md-list-item>
+          <!--<md-list-item v-if="User && User.access && User.access.beta"><router-link to='/create-new-note'>Encounter Notes [Beta]</router-link></md-list-item>-->
           <!-- <md-list-item><router-link to='/grid2'>Grid2</router-link></md-list-item> -->
-          <md-list-item><router-link to='/mdt'>Mythic Dungeon Tools</router-link></md-list-item>
+          <!--<md-list-item><router-link to='/mdt'>Mythic Dungeon Tools</router-link></md-list-item>-->
           <md-list-item><router-link to='/plater'>Plater Nameplates</router-link></md-list-item>
           <md-list-item><router-link to='/totalrp'>Total RP</router-link></md-list-item>
           <md-list-item><router-link to='/vuhdo'>VuhDo</router-link></md-list-item>
           <md-list-item><router-link to='/weakauras'>WeakAuras</router-link><md-divider></md-divider></md-list-item>
           <md-list-item><router-link to='/classic-weakauras'>Classic WeakAuras</router-link><md-divider></md-divider></md-list-item>
           <md-list-item><router-link to='/tbc-weakauras'>TBC WeakAuras</router-link><md-divider></md-divider></md-list-item>
+          <md-list-item class="menu-section">Final Fantasy XIV</md-list-item>
+          <md-list-item><router-link to='/delvui'>DelvUI</router-link><md-divider></md-divider></md-list-item>
+          <md-list-item class="menu-section">General</md-list-item>
           <md-list-item><router-link to='/collections'>{{ $t("Collections") }}</router-link></md-list-item>
-          <md-list-item><router-link to='/snippets'>{{ $t("Snippets") }}</router-link><md-divider></md-divider></md-list-item>
+          <md-list-item><router-link to='/snippets'><span class="menu-action" @click="$store.commit('setSearchText', `type:SNIPPET`)">{{ $t("Snippets") }}</span></router-link><md-divider></md-divider></md-list-item>
         </md-list>
       </md-sidenav>
       <md-sidenav class="md-hide-xsmall" ref="full-sidebar" id="full-sidebar">
         <md-list class="mainnav">
           <md-list-item><router-link to='/'>{{ $t("Import") }}</router-link></md-list-item>
           <md-list-item><router-link to='/news'>{{ $t("Site News") }}</router-link><md-divider></md-divider></md-list-item>
+
+<!--
+          <md-list-item>
+            <div class="md-list-text-container">
+              <span class="submenu-single-line">Popular Imports</span>
+            </div>
+          </md-list-item>
+          <md-list-item>
+            <router-link to='/weakauras'>
+              <div class="md-list-text-container">
+                <span>WeakAuras</span>
+                <span class="game-select">
+                  <router-link to='/weakauras'>Shadowlands</router-link> -
+                  <router-link to='/classic-weakauras'>Classic</router-link> -
+                  <router-link to='/tbc-weakauras'>TBC</router-link>
+                </span>
+              </div>
+            </router-link>
+          </md-list-item>
+          <md-list-item>
+            <router-link to='/elvui'>
+              <div class="md-list-text-container">
+                <span class="submenu-single-line">ElvUI</span>
+              </div>
+            </router-link>
+          </md-list-item>
+          <md-list-item>
+            <router-link to='/plater'>
+              <div class="md-list-text-container">
+                <span class="submenu-single-line">Plater Nameplates</span>
+              </div>
+            </router-link>
+          </md-list-item>
+          <md-list-item>
+            <router-link to='/vuhdo'>
+              <div class="md-list-text-container">
+                <span class="submenu-single-line">VuhDo</span>
+              </div>
+            </router-link>
+          </md-list-item>
+          <md-list-item>
+            <router-link to='/addons'>
+              <div class="md-list-text-container">
+                <span class="submenu-single-line">More...</span>
+              </div>
+            </router-link>
+            <md-divider></md-divider>
+          </md-list-item>
+-->
+
+
+          <md-list-item class="menu-section">World of Warcraft</md-list-item>
           <md-list-item><router-link to='/elvui'>ElvUI</router-link></md-list-item>
-          <md-list-item v-if="User && User.access && User.access.beta"><router-link to='/create-new-note'>Encounter Notes [Beta]</router-link></md-list-item>
+          <!--<md-list-item v-if="User && User.access && User.access.beta"><router-link to='/create-new-note'>Encounter Notes [Beta]</router-link></md-list-item>-->
           <!-- <md-list-item><router-link to='/grid2'>Grid2</router-link></md-list-item> -->
-          <md-list-item><router-link to='/mdt'>Mythic Dungeon Tools</router-link></md-list-item>
+          <!--<md-list-item><router-link to='/mdt'>Mythic Dungeon Tools</router-link></md-list-item>-->
           <md-list-item><router-link to='/opie'>OPie</router-link></md-list-item>
           <md-list-item><router-link to='/plater'>Plater Nameplates</router-link></md-list-item>
           <md-list-item><router-link to='/totalrp'>Total RP</router-link></md-list-item>
@@ -153,11 +148,14 @@
                 </span>
               </div>
             </router-link>
-            <md-divider></md-divider>
           </md-list-item>
+          <md-list-item class="menu-section">Final Fantasy XIV</md-list-item>
+          <md-list-item><router-link to='/delvui'>DelvUI</router-link></md-list-item>
+          <md-list-item class="menu-section">General</md-list-item>
           <md-list-item><router-link to='/collections'>{{ $t("Collections") }}</router-link></md-list-item>
           <md-list-item><router-link to='/snippets'><span class="menu-action" @click="$store.commit('setSearchText', `type:SNIPPET`)">{{ $t("Snippets") }}</span></router-link></md-divider></md-list-item>
           <template v-if="LoggedIn">
+            <md-list-item class="menu-section">{{ $t("My Data") }}</md-list-item>
             <md-list-item><router-link :to="'/p/'+User.name">{{ $t("My Profile") }}</router-link></md-list-item>
             <md-list-item><router-link to="/my/mentions">{{ $t("My Mentions") }} <span class="unreadCount" v-if="User.unreadMentions.length">{{ User.unreadMentions.length }}</span></router-link></md-list-item>
             <md-list-item><router-link to="/my/stars">{{ $t("My Favorites") }}</router-link><md-divider></md-divider></md-list-item>
@@ -265,7 +263,7 @@ export default {
       advSearchDate: '',
       today: new Date(),
       showAddonsButton: window.localStorage.getItem('notification-1'),
-      videoEmbedHTML: ''
+      videoEmbedHTML: '',
     }
   },
   created: function () {
@@ -464,8 +462,13 @@ export default {
       const params = new URLSearchParams(window.location.search)
       return params.get('id')
     },
-    testSearch () {
-      return true
+    domain: {
+      get: function () {
+        return this.$store.state.domain || '0'
+      },
+      set: function (v) {
+        this.$store.commit('setDomain', v)
+      }
     }
   },
   watch: {
@@ -556,7 +559,7 @@ export default {
 </script>
 
 <style lang="scss" src="./assets/themes.scss"></style>
-<style>
+<style lang="scss">
 @import './assets/global.css';
 body, html {
   height: 100%;
@@ -575,6 +578,7 @@ body, html {
   #app > * { width: 100%; max-width:100%; height: 100%; overflow: hidden;}
   .md-backdrop { pointer-events: none }
   #topbar {z-index: 9}
+  #maincontent {background:linear-gradient(90deg, #333333 0px, #333333 260px, #212121 261px)}
 
   #full-sidebar .md-sidenav-content {
     top:64px;
@@ -610,6 +614,14 @@ body, html {
 #mobile-anchor + div {
   padding-top: 76px;
 }
+#mobile-sidebar .md-input-container {
+  margin: 0 8px 4px;
+  width: auto;
+}
+#mobile-sidebar .search-container {
+  min-width: 100%;
+  margin: 0;
+}
 
 #app {
   min-height: 100%;
@@ -620,7 +632,7 @@ body, html {
 }
 
 #full-sidebar .mainnav { padding: 0; background-color: #ccc; position: relative; display: block}
-#full-sidebar .md-sidenav-content { overflow: inherit; }
+#full-sidebar .md-sidenav-content { overflow: inherit; bottom: auto }
 .mainnav .md-subheader { padding-left: 0;}
 .mainnav .md-list-item img { max-height: 32px }
 .mainnav .md-list-item a { justify-content: start }
@@ -702,5 +714,28 @@ body.theme-dark .md-input-container label a { -webkit-text-fill-color: initial }
 .game-select a {color: #999!important; font-size: 14px;}
 .game-select a:hover {text-decoration: none!important; color: #BBB!important}
 
+.md-list-item.menu-section {
+  background: #333333;
+  position: relative;
+}
+.md-list-item.menu-section .md-list-item-container {
+  font-weight: bold;
+  font-size: 90%;
+  min-height: 36px;
+  line-height: 36px;
+}
 
+
+#top-search-domain {
+  width: auto;
+  height: 40px;
+  border-radius: 4px;
+  margin-left: 4px;
+  align-self: center;
+  background: #404040;
+  padding: 4px 16px;
+  &:after {
+    background-color: transparent!important;
+  }
+}
 </style>

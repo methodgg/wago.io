@@ -20,7 +20,7 @@ export default {
   components: {
     Multiselect
   },
-  props: ['selectedCategories', 'type', 'game'],
+  props: ['selectedCategories', 'type', 'game', 'domain'],
   computed: {
     multiSelectValue: {
       get: function () {
@@ -53,6 +53,7 @@ export default {
       }
       let game = this.game
       let type = this.type
+      let domain = this.domain
       if (this.type === 'COLLECTION') {
         game = game.replace(/legion|bfa/, 'sl')
       }
@@ -88,7 +89,7 @@ export default {
         }
       }
       else {
-        this.categoryOptions = window.Categories.rootCategories(type, game)
+        this.categoryOptions = window.Categories.rootCategories(type, game, domain)
       }
 
       // change max selections so the multiselect knows when to put up the no categories error

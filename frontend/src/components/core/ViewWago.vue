@@ -65,6 +65,19 @@
                 </ol>
               </md-dialog-content>
 
+              <md-dialog-content v-else-if="wago.type.match(/DELVUI/)">
+                <ol>
+                  <li>{{ $t('Open the DelvUI configuration window by clicking DelvUI Settings in your system menu') }} <img src="https://media.wago.io/site/delvui-escmenu.png" />
+                  {{ $t('Alternatively type the "/delvui" command into your chat window') }} <img src="https://media.wago.io/site/delvui-slashcommand.png" /></li>
+                  <li>{{ $t('At the bottom of the left navigation click the Profiles button to add this import as a new profile, or Import to overwrite your existing profile') }} <img src="https://media.wago.io/site/delvui-importmenu.png" /></li>
+                  <p><strong>{{ $t('To import a new profile') }}</strong></p>
+                  <li>{{ $t('Enter a profile name, then click Import from Clipboard') }} <img src="https://media.wago.io/site/delvui-newprofile.png" /></li>
+                  <p><strong>{{ $t('OR, to import a and overwrite your profile') }}</strong></p>
+                  <li>{{ $t('Paste the string into the field with ctrl-V and click the Import button') }}</li>
+                  <li>{{ $t('Toggle the checkboxes to your preference for which config parts to import') }} <img src="https://media.wago.io/site/delvui-importselect.png" /></li>
+                </ol>
+              </md-dialog-content>
+
               <md-dialog-content v-else-if="wago.type.match(/ELVUI/)">
                 <ol>
                   <li>{{ $t('Open the ElvUI configuration window by clicking the ElvUI button in your system menu') }} <img src="https://media.wago.io/site/elvui-escmenu.png" />
@@ -265,8 +278,8 @@
             <md-layout id="wago-tabs" v-bind:class="{'md-hide-xsmall': hideTabs}">
               <!-- FRAME TOGGLES -->
               <md-button-toggle class="md-accent" md-single>
+                <md-button v-if="enableModeration" v-bind:class="{'md-toggle': showPanel === 'moderation'}" @click="toggleFrame('moderation')">{{ $t("Moderation") }} <span v-if="moderation.length && moderation[moderation.length-1].action === 'Report'" class="commentAttn">ATTN!</span></md-button>
                 <template v-if="!requireCipherKey">
-                  <md-button v-if="enableModeration" v-bind:class="{'md-toggle': showPanel === 'moderation'}" @click="toggleFrame('moderation')">{{ $t("Moderation") }} <span v-if="moderation.length && moderation[moderation.length-1].action === 'Report'" class="commentAttn">ATTN!</span></md-button>
                   <md-button v-if="wago.user && User && wago.UID && wago.UID === User.UID" v-bind:class="{'md-toggle': showPanel === 'config'}" @click="toggleFrame('config')">{{ $t("Config") }}</md-button>
                   <md-button v-if="wago.type == 'ERROR'" v-bind:class="{'md-toggle': showPanel === 'description'}" @click="toggleFrame('description')">{{ $t("Report") }}</md-button>
                   <md-button v-if="wago.type !== 'ERROR'" v-bind:class="{'md-toggle': showPanel === 'description'}" @click="toggleFrame('description')">{{ $t("Description") }}</md-button>
@@ -498,10 +511,12 @@
                       </md-button>
                       <div v-for="n in numCategorySets">
                         <div class="has-category-select">
-                          <category-select :selectedCategories="editCategories[n-1]" @update="cat => {editCategories[n-1] = cat; onUpdateCategories()}" :type="wago.type.toUpperCase()" :game="wago.game"></category-select>
+                          <category-select :selectedCategories="editCategories[n-1]" @update="cat => {editCategories[n-1] = cat; onUpdateCategories()}" :type="wago.type.toUpperCase()" :game="wago.game" :domain="wago.domain"></category-select>
                         </div>
                       </div>
                     </div>
+                  </div>
+                  <div v-if="!wago.image && !wago.audio && wago.type !== 'ERROR'">
                     <!--<div v-if="wago.type=='WEAKAURA'">
                       <label id="betaLabel">{{ $t("Game") }}</label>
                       <md-button-toggle md-single class="md-accent md-warn">
@@ -561,7 +576,7 @@
               <!-- DESCRIPTIONS FRAME -->
               <div id="wago-description-container" class="wago-container" v-if="showPanel=='description'">
                 <div id="wago-description" style="padding-top:6px">
-                  <div v-if="codeReview.info" id="import-info">
+                  <div v-if="codeReview.info && wago.type.match(/WEAKAURA|PLATER/)" id="import-info">
                     <template v-if="codeReview.info.dependencies.length">
                       <em>{{ $t('Import Dependencies') }}</em><br>
                       <template v-for="dep of codeReview.info.dependencies">
@@ -999,6 +1014,7 @@
                   <edit-weakaura v-if="wago.type.match(/WEAKAURA/) && wago.code" @set-has-unsaved-changes="setHasUnsavedChanges" :unsavedTable="hasUnsavedChanges" @update-encoded="updateEncoded" @update-version="updateVersion" :cipherKey="decryptKey" :loadFn="quickLoadEditorFn" :customFn="wago.code.customCode"></edit-weakaura>
                   <edit-plater v-else-if="wago.type=='PLATER' && wago.code" @set-has-unsaved-changes="setHasUnsavedChanges" :unsavedTable="hasUnsavedChanges" @update-encoded="updateEncoded" @update-version="updateVersion" :cipherKey="decryptKey" :loadFn="quickLoadEditorFn" :customFn="wago.code.customCode"></edit-plater>
                   <edit-snippet v-else-if="wago.type=='SNIPPET' && wago.code" @update-version="updateVersion" :cipherKey="decryptKey" :loadFn="quickLoadEditorFn"></edit-snippet>
+                  <edit-delvui v-else-if="wago.type=='DELVUI' && wago.code" @update-version="updateVersion" :cipherKey="decryptKey" :loadFn="quickLoadEditorFn"></edit-delvui>
                   <edit-common v-else-if="wago.code" @set-has-unsaved-changes="setHasUnsavedChanges" @update-encoded="updateEncoded" @update-version="updateVersion" :cipherKey="decryptKey"></edit-common>
                 </div>
               </div>
@@ -1064,7 +1080,7 @@
           </md-list-item>
         </md-list>
         <md-input-container>
-          <label>{{ $t('Additional Information (Optional)') }}</label>
+          <label>{{ $t('Additional Information') }}</label>
           <md-textarea v-model="reportComments"></md-textarea>
         </md-input-container>
         <small>
@@ -1075,7 +1091,7 @@
 
       <md-dialog-actions>
         <md-button class="md-primary" @click="$refs.reportmodal.close()">{{ $t('Cancel') }}</md-button>
-        <md-button class="md-primary" @click="submitReport()" :disabled="!reportReason || reportInProgress">{{ $t('Submit Report') }}</md-button>
+        <md-button class="md-primary" @click="submitReport()" :disabled="!reportReason || reportComments.length < 5 || reportInProgress">{{ $t('Submit Report') }}</md-button>
       </md-dialog-actions>
     </md-dialog>
 
@@ -1143,6 +1159,7 @@ function setupConfigEvents (vue) {
           image: event.target.result
         }).then((res) => {
           vue.$set(vue.wago.screens, vue.wago.screens.length, res)
+          document.querySelectorAll('#sorted-screenshots > div').forEach(img => makeSortableScreenshot(img))
         })
       }
       reader.readAsDataURL(blob)
@@ -1199,6 +1216,7 @@ import CategorySelect from '../UI/SelectCategory.vue'
 import FormattedText from '../UI/FormattedText.vue'
 import ViewComments from '../UI/ViewComments.vue'
 import EditCommon from '../UI/EditCommon.vue'
+import EditDelvUI from '../UI/EditDelvUI.vue'
 import EditSnippet from '../UI/EditSnippet.vue'
 import EditPlater from '../UI/EditPlater.vue'
 import EditWeakAura from '../UI/EditWeakAura.vue'
@@ -1228,6 +1246,7 @@ export default {
     'edit-snippet': EditSnippet,
     'edit-plater': EditPlater,
     'edit-weakaura': EditWeakAura,
+    'edit-delvui': EditDelvUI,
     'build-mdt': MDTBuilder,
     'input-semver':InputSemver,
     'view-diffs': ViewDiffs,
@@ -1742,7 +1761,7 @@ export default {
 
         if (this.$store.state.user && this.$store.state.user.access && this.$store.state.user.access.admin && (this.$store.state.user.access.admin.moderator || this.$store.state.user.access.admin.super)) {
           this.enableModeration = true
-          vue.http.get('/admin/moderation', {id: wagoID}).then((res) => {
+          vue.http.get('/admin/moderation', {id: this.wago._id}).then((res) => {
             this.moderation = res
           })
         }
@@ -2643,6 +2662,9 @@ export default {
           .then((res) => {
             vue.uploadFileProgress[uploadIndex] = 100
             vue.$set(vue.wago.screens, vue.wago.screens.length, res)
+            vue.$nextTick(function () {
+              setupConfigEvents(vue)
+            })
           })
           .catch((err) => {
             console.error('Error uploading image', err)
@@ -2683,6 +2705,9 @@ export default {
         }
         if (res.type === 'screenshot') {
           vue.$set(vue.wago.screens, vue.wago.screens.length, res)
+          vue.$nextTick(function () {
+            setupConfigEvents(vue)
+          })
         }
         else if (res.type === 'video') {
           vue.$set(vue.wago.videos, vue.wago.videos.length, res)

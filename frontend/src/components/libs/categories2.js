@@ -751,7 +751,7 @@ class Categories {
       'job-gather': {slug: 'gathering', image: 'gathering.png', color: '#5E63B8', i18n: 'Gathering', domain: 1, types: ['DELVUI']},
       'job-btn': {slug: 'gathering/botanist', image: 'ffxiv/BTN.svg', color: '#EAF7D4', i18n: 'ffxiv:Botanist', parent: 'job-gather', domain: 1, types: ['DELVUI']},
       'job-fsh': {slug: 'gathering/fisher', image: 'ffxiv/FSH.svg', color: '#49D3E7', i18n: 'ffxiv:Fisher', parent: 'job-gather', domain: 1, types: ['DELVUI']},
-      'job-min': {slug: 'gathering/miner', image: 'ffxiv/MIN.svg', color: '#E0E0E0', i18n: 'ffxiv:Miner', parent: 'job-gather', domain: 1, types: ['DELVUI']},
+      'job-min': {slug: 'gathering/miner', image: 'ffxiv/MIN.svg', color: '#AF1964', i18n: 'ffxiv:Miner', parent: 'job-gather', domain: 1, types: ['DELVUI']},
 
       'xiv-misc': {slug: 'miscellaneous', image: 'miscellaneous.png', color: '#D0B58B', i18n: 'Miscellaneous', domain: 1, types: ['DELVUI']},
       'xiv-rp': {slug: 'miscellaneous', image: 'trpcamp.png', color: '#C3793A', i18n: 'Roleplaying', parent: 'xiv-misc', domain: 1, types: ['DELVUI']},

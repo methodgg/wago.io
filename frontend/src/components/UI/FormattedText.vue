@@ -204,6 +204,9 @@ export default {
 #wago-description .language-flowchart { border: 1px solid #777; background: #DDD; display: inline-block;}
 
 .markdown {
+  details > summary {
+    cursor: pointer;
+  }
   p > code {
     padding: 4px;
     margin: 0 2px;

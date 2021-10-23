@@ -70,6 +70,7 @@ const store = new Vuex.Store({
     },
     siteSearch: '',
     execSearch: 0,
+    domain: window.localStorage.getItem('domain') || '0',
     firstAd: false,
     linkApp: false,
 
@@ -183,6 +184,11 @@ const store = new Vuex.Store({
         Vue.set(state, 'siteSearch', text.replace(/\s{2,}/g, ' ').trim())
         state.execSearch++
       })
+    },
+
+    setDomain (state, domain){
+      Vue.set(state, 'domain', domain + '')
+      window.localStorage.setItem('domain', domain + '')
     },
 
     setPageInfo (state, page) {
