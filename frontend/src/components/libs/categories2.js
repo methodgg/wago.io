@@ -140,6 +140,17 @@ class Categories {
       'sldungeon8': {slug: 'pve/shadowlands-dungeons/sanguine-depths', i18n: 'warcraft:zones.SanguineDepths', domain: 0, parent: 'sldungeon', types: ['WEAKAURA'], games: ['sl']},
       'sldungeon9': {slug: 'pve/shadowlands-dungeons/tazavesh-the-veiled-market', i18n: 'warcraft:zones.Tazavesh', domain: 0, parent: 'sldungeon', types: ['WEAKAURA'], games: ['sl']},
 
+      'sltimewalking': {slug: 'pve/timewalking', image: 'timewalking.png', color: '#CD47FF', i18n: 'Timewalking', domain: 0, types: ['WEAKAURA', 'COLLECTION'], games: ['sl']},
+      'sltimewalking6': {slug: 'pve/timewalking/legion', i18n: 'Legion Dungeons', domain: 0, parent: 'sltimewalking', types: ['WEAKAURA'], games: ['sl']},
+      'sltimewalking9': {slug: 'pve/timewalking/legion/mage-tower', i18n: 'Mage Tower', domain: 0, parent: 'sltimewalking', types: ['WEAKAURA'], games: ['sl']},
+      'sltimewalking5': {slug: 'pve/timewalking/warlords-of-draenor', i18n: 'Warlords of Draenor Dungeons', domain: 0, parent: 'sltimewalking', types: ['WEAKAURA'], games: ['sl']},
+      'sltimewalking4': {slug: 'pve/timewalking/mists-of-pandaria', i18n: 'Mists of Pandaria Dungeons', domain: 0, parent: 'sltimewalking', types: ['WEAKAURA'], games: ['sl']},
+      'sltimewalking3': {slug: 'pve/timewalking/cataclysm', i18n: 'Cataclysm Dungeons', domain: 0, parent: 'sltimewalking', types: ['WEAKAURA'], games: ['sl']},
+      'sltimewalking2': {slug: 'pve/timewalking/wrath-of-the-lich-king', i18n: 'Lich King Dungeons', domain: 0, parent: 'sltimewalking', types: ['WEAKAURA'], games: ['sl']},
+      'sltimewalking8': {slug: 'pve/timewalking/wrath-of-the-lich-king/ulduar', i18n: 'warcraft:zones.4273', domain: 0, parent: 'sltimewalking', types: ['WEAKAURA'], games: ['sl']},
+      'sltimewalking1': {slug: 'pve/timewalking/the-burning-crusade', i18n: 'Burning Crusade Dungeons', domain: 0, parent: 'sltimewalking', types: ['WEAKAURA'], games: ['sl']},
+      'sltimewalking7': {slug: 'pve/timewalking/the-burning-crusade/black-temple', i18n: 'warcraft:zones.3959', domain: 0, parent: 'sltimewalking', types: ['WEAKAURA'], games: ['sl']},
+
       // bfa
       'raidnyalotha': {slug: 'pve/nyalotha', image: 'nyalotha.png', color: '#5EE1A6', i18n: 'warcraft:zones.nyalotha', domain: 0, types: ['WEAKAURA', 'COLLECTION'], games: ['bfa']},
       'raidnyalotha1': {slug: 'pve/nyalotha/wrathion-the-black-emperor', i18n: 'warcraft:bosses.nya1', domain: 0, parent: 'raidnyalotha', types: ['WEAKAURA'], games: ['bfa']},
