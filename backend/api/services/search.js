@@ -91,6 +91,7 @@ async function searchElastic (req, res) {
     defaultFilterExpansion = []
     defaultFilterExpansion.push({term: {expansion: {value: expansionIndex('sl')}}})
     defaultFilterExpansion.push({term: {expansion: {value: expansionIndex('tbc')}}})
+    defaultFilterExpansion.push({term: {expansion: {value: expansionIndex('classic')}}})
     defaultFilterExpansion.push({term: {expansion: {value: -1}}})
   }
   if (filterExpansion.length) {
