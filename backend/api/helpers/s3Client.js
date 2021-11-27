@@ -16,17 +16,30 @@ const s3ClientParams = {
 }
 
 module.exports = {
-  uploadFile: (params) => {
+  uploadFile (s3Params) {
     const client = s3.createClient(s3ClientParams)
     return promise = new Promise((resolve, reject) => {
-      const uploader = client.uploadFile(params)
+      const uploader = client.uploadFile(s3Params)
       uploader.on('error', (e) => reject(e))
       uploader.on('end', resolve)
     })
   },
 
-  delete: (params) => {
+  delete (params) {
     const client = s3.createClient(s3ClientParams)
     client.deleteObjects({s3Params: params})
+  },
+
+  getFile (s3Params, localFile) {
+    const client = s3.createClient(s3ClientParams)
+    return promise = new Promise((resolve, reject) => {
+      const downloader = client.downloadFile({localFile, s3Params})
+      downloader.on('error', function(err) {
+        reject(err.stack)
+      })
+      downloader.on('end', function() {
+        resolve(localFile)
+      })
+    })
   }
 }
