@@ -1,6 +1,7 @@
 const config = require('../../config')
 const cloudflare = require('cloudflare')({token: config.cloudflare.dnsToken})
 const sharp = require('sharp')
+const fs = require('fs')
 const FileType = require('file-type')
 const webpc = require('webp-converter')
 const s3 = require('../helpers/s3Client')
@@ -18,9 +19,9 @@ module.exports = {
         responseType: 'arraybuffer',
         url: url,
         method: 'get'
-      })    
+      })
       const buffer = Buffer.from(arraybuffer.data, 'binary')
-      
+
       const f = await FileType.fromBuffer(buffer)
       const match = f.mime.match(/^image\/(png|jpg|gif|jpeg|webp)/)
       // if valid mime type is detected then save file
@@ -127,6 +128,47 @@ module.exports = {
     }
   },
 
+  gifToPng (gif, id) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const time = Date.now()
+        const localGif = `${tmpDir}/u-${time}.gif`
+        const localPng = `${tmpDir}/u-${time}.png`
+        const remotePng = `screenshots/${id}/${time}.png`
+
+        if (typeof gif === 'string' && gif.match(/^https:\/\/media\.wago\.io\//)) {
+          const m = gif.match(/^https:\/\/media\.wago\.io\/(\w+\/[\w-]+\/.+\.gif)$/)
+          if (!m || !m[1].match(/\.gif$/)) {
+            console.log(gif, m)
+            return reject(false)
+          }
+          await s3.getFile ({
+            Bucket: 'wago-media',
+            Key: decodeURIComponent(m[1])
+          }, localGif)
+        }
+
+        await sharp(localGif).toFormat('png').toFile(localPng)
+
+        await s3.uploadFile({
+          localFile: localPng,
+          s3Params: {
+            Bucket: 'wago-media',
+            Key: remotePng
+          }
+        })
+        fs.unlink(localGif, ()=>{})
+        fs.unlink(localPng, ()=>{})
+        return resolve(`https://media.wago.io/${remotePng}`)
+      }
+      catch (e) {
+        console.log(e)
+        console.log(gif, id)
+        reject()
+      }
+    })
+  },
+
   saveMdtPortraitMap: async (buffer, filename) => {
     if (!buffer || !filename) {
       return {error: 'bad_input', inputs: [buffer, filename]}
@@ -136,7 +178,7 @@ module.exports = {
     try {
       await sharp(buffer).toFormat('webp').toFile(saveToFile + '.webp')
       await sharp(buffer).toFormat('png').toFile(saveToFile + '.png')
-      
+
       await s3.uploadFile({
         localFile: saveToFile + '.webp',
         s3Params: {
@@ -197,7 +239,7 @@ module.exports = {
     return image
   },
 
-  
+
   createCards: async (wagoID, file, title, type, author) => {
     if (!file) {
       return false
@@ -240,7 +282,7 @@ module.exports = {
         url: author.avatar,
         method: 'get'
       })
-      const circle = Buffer.from(`<svg viewBox="0 0 ${avatarSize} ${avatarSize}"><circle cx="${avatarSize/2}" cy="${avatarSize/2}" r="${avatarSize/2}"/></svg>`)    
+      const circle = Buffer.from(`<svg viewBox="0 0 ${avatarSize} ${avatarSize}"><circle cx="${avatarSize/2}" cy="${avatarSize/2}" r="${avatarSize/2}"/></svg>`)
       avatar = await new sharp(Buffer.from(avatarFile.data, 'binary')).resize(avatarSize, avatarSize).composite([{input: circle, blend: 'dest-in'}])
       author.name = author.name.replace(/[&<>"']/g, function(m) { return entities[m] })
     }
@@ -271,7 +313,7 @@ module.exports = {
         }
       })
       fs.unlink(`${tmpDir}/t2-${time}.jpg`)
-      
+
       await sharp(thumb).resize({width: 180}).toFormat('jpg').toFile(tmpDir + '/t-' + time + '.jpg')
       await s3.uploadFile({
         localFile: tmpDir + '/t-' + time + '.jpg',
@@ -312,7 +354,7 @@ module.exports = {
         ${authorSVG}
         ${wagoWatermark}
       </svg>`
-      
+
       const metaImg = await sharp(new Buffer.from(svg))
       var titleSvg = `
       <svg height="${avatarSize+8}" width="${tWidth*20}" xmlns:xlink="http://www.w3.org/1999/xlink">
