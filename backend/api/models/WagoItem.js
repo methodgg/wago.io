@@ -58,6 +58,7 @@ const Schema = new mongoose.Schema({
 
   imageGenerated : Number,
   previewImage: String,
+  previewStatic: String,
 
   referrals : [
     {url: String, count: { type: Number, default: 0}}
@@ -329,7 +330,6 @@ Schema.pre('validate', function() {
 })
 
 Schema.virtual('meiliWAData').get(async function () {
-  // console.log('parsed text = ', parseText({text: this.description, format: this.description_format}))
   return Object.assign({
     id: this._id,
     name: this.name,
