@@ -264,7 +264,7 @@ module.exports = function (fastify, opts, next) {
           name: null,
           searchable: false,
           roleClass: 'user-anon',
-          avatar: '/media/avatars/anon.png'
+          avatar: {png: 'https://avatars.dicebear.com/api/gridy/' + wago._id + '.svg'}
         }
         return
       }
@@ -276,7 +276,7 @@ module.exports = function (fastify, opts, next) {
           name: null,
           searchable: false,
           roleClass: 'user-anon',
-          avatar: '/media/avatars/anon.png'
+          avatar: {png: 'https://avatars.dicebear.com/api/gridy/' + wago._id + '.svg'}
         }
         return
       }
@@ -286,6 +286,12 @@ module.exports = function (fastify, opts, next) {
         roleClass: user.roleclass,
         avatar: await user.avatarURL,
         enableLinks: user.account.verified_human
+      }
+      if (!wago.user.avatar || (wago.user.avatar.png && wago.user.avatar.png.match(/^https:\/\/api.hello-avatar.com/))) {
+        const img = await image.avatarFromURL('https://avatars.dicebear.com/api/gridy/' + req.user._id.toString() + Date.now() + '.svg', req.user._id.toString(), req.body.avatar)
+        user.profile.avatar = {png: img}
+        await user.save()
+        wago.user.avatar = user.profile.avatar
       }
       return
     }
@@ -310,7 +316,15 @@ module.exports = function (fastify, opts, next) {
       if (screens[0].url && screens[0].url !== doc.previewImage) {
         // solve older problem of preview img not updating correctly, this will fix it on page load
         doc.previewImage = screens[0].url
+        doc.previewStatic = null
         saveDoc = true
+      }
+      if (!doc.previewStatic && doc.previewImage && doc.previewImage.match(/\.gif$/)) {
+        const static = await image.gifToPng(doc.previewImage, doc._id)
+        if (static) {
+          doc.previewStatic = static
+          saveDoc = true
+        }
       }
       screens.forEach((screen) => {
         wago.screens.push({_id: screen._id.toString(), src: screen.url, thumb: screen.url, title: screen.caption})

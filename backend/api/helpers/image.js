@@ -22,10 +22,15 @@ module.exports = {
       })
       const buffer = Buffer.from(arraybuffer.data, 'binary')
 
-      const f = await FileType.fromBuffer(buffer)
-      const match = f.mime.match(/^image\/(png|jpg|gif|jpeg|webp)/)
-      // if valid mime type is detected then save file
-      if (!match) {
+      let f = await FileType.fromBuffer(buffer)
+      if (f) {
+        const match = f.mime.match(/^image\/(png|jpg|gif|jpeg|webp|svg)/)
+        // if valid mime type is detected then save file
+        if (!match) {
+          return {error: 'not_image'}
+        }
+      }
+      else if (!url.match(/^https:\/\/avatars\.dicebear\.com.*svg$/)) {
         return {error: 'not_image'}
       }
       const time = Date.now()
@@ -49,11 +54,12 @@ module.exports = {
       })
       await webpUpload
       await pngUpload
-      fs.unlink(`${tmpDir}/u-${time}.webp`)
-      fs.unlink(`${tmpDir}/u-${time}.png`)
+      fs.unlink(`${tmpDir}/u-${time}.webp`, ()=> {})
+      fs.unlink(`${tmpDir}/u-${time}.png`, ()=> {})
       return {webp: 'https://media.wago.io/avatars/' + userID + '/u-' + time + '.webp', png: 'https://media.wago.io/avatars/' + userID + '/u-' + time + '.png'}
     }
     catch (e) {
+      console.log(e)
       return {error: 'invalid_image'}
     }
   },
@@ -93,8 +99,8 @@ module.exports = {
         })
         await webpUpload
         await gifUpload
-        fs.unlink(`${tmpDir}/b-${time}.webp`)
-        fs.unlink(`${tmpDir}/b-${time}.gif`)
+        fs.unlink(`${tmpDir}/b-${time}.webp`, ()=> {})
+        fs.unlink(`${tmpDir}/b-${time}.gif`, ()=> {})
       }
       else {
         const webp = sharp(file).resize(64, 64).toFormat('webp').toFile(tmpDir + '/b-' + time + '.webp')
@@ -117,13 +123,14 @@ module.exports = {
         })
         await webpUpload
         await pngUpload
-        fs.unlink(`${tmpDir}/b-${time}.webp`)
-        fs.unlink(`${tmpDir}/b-${time}.png`)
+        fs.unlink(`${tmpDir}/b-${time}.webp`, ()=> {})
+        fs.unlink(`${tmpDir}/b-${time}.png`, ()=> {})
         returnData = {webp: 'https://media.wago.io/avatars/' + userID + '/b-' + time + '.webp', png: 'https://media.wago.io/avatars/' + userID + '/b-' + time + '.png'}
       }
       return returnData
     }
     catch (e) {
+      console.log(e)
       return {error: 'invalid_image'}
     }
   },
@@ -312,7 +319,7 @@ module.exports = {
           Key: `cards/${wagoID}/t2-${time}.jpg`
         }
       })
-      fs.unlink(`${tmpDir}/t2-${time}.jpg`)
+      fs.unlink(`${tmpDir}/t2-${time}.jpg`, ()=> {})
 
       await sharp(thumb).resize({width: 180}).toFormat('jpg').toFile(tmpDir + '/t-' + time + '.jpg')
       await s3.uploadFile({
@@ -322,7 +329,7 @@ module.exports = {
           Key: `cards/${wagoID}/t-${time}.jpg`
         }
       })
-      fs.unlink(`${tmpDir}/t-${time}.jpg`)
+      fs.unlink(`${tmpDir}/t-${time}.jpg`, ()=> {})
 
       var authorSVG
       if (author && author.name && avatar) {
@@ -386,7 +393,7 @@ module.exports = {
           Key: `cards/${wagoID}/c-${time}.jpg`
         }
       })
-      fs.unlink(`${tmpDir}/c-${time}.jpg`)
+      fs.unlink(`${tmpDir}/c-${time}.jpg`, ()=> {})
     }
     catch (e) {
       console.log(e)

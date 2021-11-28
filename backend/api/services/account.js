@@ -199,9 +199,9 @@ module.exports = (fastify, opts, next) => {
 
     // import by selected option
     switch (req.body.avatar) {
-      // generate new from adorable.io
+      // generate new from adorable.io - now self hosted with original api opensource and offline
       case 'adorable':
-        var img = await image.avatarFromURL('https://api.hello-avatar.com/adorables/64/' + req.user._id.toString() + Date.now() + '.png', req.user._id.toString(), req.body.avatar)
+        const img = await image.avatarFromURL('https://avatars.dicebear.com/api/gridy/' + req.user._id.toString() + Date.now() + '.svg', req.user._id.toString(), req.body.avatar)
         req.user.profile.avatar = img
         req.user.save()
         res.send({success: true, avatar: img})

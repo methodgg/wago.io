@@ -853,7 +853,7 @@ async function oldSearch (req, res) {
           item.user = { name: "a Guest" }
           item.user.searchable = false
           item.user.roleClass = 'user-default'
-          item.user.avatar = 'https://api.hello-avatar.com/adorables/60/' + wago._id + '.png'
+          item.user.avatar = 'https://avatars.dicebear.com/api/gridy/' + wago._id + '.svg'
         }
       }
     }
@@ -861,7 +861,7 @@ async function oldSearch (req, res) {
       item.user = { name: "a Guest" }
       item.user.searchable = false
       item.user.roleClass = 'user-default'
-      item.user.avatar = 'https://api.hello-avatar.com/adorables/60/' + wago._id + '.png'
+      item.user.avatar = 'https://avatars.dicebear.com/api/gridy/' + wago._id + '.svg'
     }
     return item
   }))
