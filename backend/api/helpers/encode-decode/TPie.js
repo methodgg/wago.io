@@ -4,7 +4,7 @@ const inflate = util.promisify(zlib.inflateRaw)
 const deflate = util.promisify(zlib.deflateRaw)
 
 module.exports = {
-  typeMatch: /^DELVUI$/,
+  typeMatch: /^TPIE$/,
   domain: ENUM.DOMAIN.FF14,
 
   decode: async function (encodedString) {
@@ -48,20 +48,14 @@ module.exports = {
   },
 
   processMeta: (obj) => {
-    let meta = {type: 'DELVUI', categories: []}
-    // Return false if the object does not match the structure or missing key data fields; the import will not be allowed for this addon.
-    if (obj && Array.isArray(obj) && obj.length > 1 && obj[0].$type && obj[0].$type.match(/\.(\w+), DelvUI/)) {
-      meta.name = 'DelvUI Profile'
-      meta.categories.push('delvui1')
-    }
-    else if (obj.length === 1 && obj[0].$type) {
-      let type = obj[0].$type.match(/\.(\w+), DelvUI/)
-      if (!type) {
-        return false
+    let meta = {type: 'TPIE', categories: []}
+    if (obj && Array.isArray(obj) && obj[0].$type && obj[0].$type.match(/^TPie\./)) {
+      if (obj.length === 1) {
+        meta.name = obj[0].Name
       }
-
-      meta.name = type[1].replace(/([A-Z])/g, ' $1').trim()
-      meta.categories.push('delvui2')
+      else {
+        meta.name = `TPie ${obj.length} Ring Set`
+      }
     }
     else {
       return false

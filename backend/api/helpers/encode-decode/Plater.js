@@ -79,7 +79,7 @@ module.exports = {
       }
     }
 
-    if (Array.isArray(obj)) {
+    /*if (Array.isArray(obj)) {
       // if old format script
       if (typeof obj[8] === 'number' && typeof obj[1] === 'string') {
         meta.name = obj[1]
@@ -95,7 +95,8 @@ module.exports = {
         meta.name = 'Plater Animation'
       }
     }
-    else if (obj.OptionsPanelDB && obj.OptionsPanelDB.PlaterOptionsPanelFrame) {
+    else*/
+    if (obj.OptionsPanelDB && obj.OptionsPanelDB.PlaterOptionsPanelFrame) {
       meta.name = 'Plater Profile'
     }
     else if (obj.NpcColor && obj['1'] && obj['1'][0] && typeof obj['1'][0] === 'number' && obj['1'][2] && typeof obj['1'][2] === 'string') {
