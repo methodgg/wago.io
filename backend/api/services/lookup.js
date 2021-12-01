@@ -391,7 +391,7 @@ module.exports = function (fastify, opts, next) {
       if (doc.type === 'COLLECTION' || doc.type === 'IMAGE') {
         return
       }
-      var versions = await WagoCode.find({auraID: wago._id}).sort({updated: -1}).exec()
+      var versions = await WagoCode.find({auraID: wago._id}).sort({updated: -1}).select({version: 1, versionString: 1, updated: 1, changelog: 1}).exec()
       if (!versions) {
         return
       }
@@ -416,7 +416,7 @@ module.exports = function (fastify, opts, next) {
         if (versionString !== '1.0.' + (v.version - 1) && versionString !== '0.0.' + v.version) {
           versionString = versionString + '-' + v.version
         }
-        versionHistory.push({version: v.version, versionString: versionString, size: (v.json && v.json.length || v.lua && v.lua.length || v.encoded && v.encoded.length || 0), date: v.updated, changelog: v.changelog})
+        versionHistory.push({version: v.version, versionString: versionString, date: v.updated, changelog: v.changelog})
       })
       wago.versions = {total: versions.length, versions: versionHistory}
 
