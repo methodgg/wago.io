@@ -7,6 +7,7 @@ const WCL = require('../helpers/WCL')
 const battlenet = require('../helpers/battlenet')
 const diff = require('../helpers/diff')
 const luacheck = require('../helpers/luacheck')
+const image = require('../helpers/image')
 const parseText = require('../helpers/parseText')
 const patchDates = require('../helpers/patchDates')
 
