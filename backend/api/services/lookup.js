@@ -397,20 +397,20 @@ module.exports = function (fastify, opts, next) {
         return
       }
       // if we need to add regionType or textures to the doc, do so now
-      if (doc.type.match(/WEAKAURA/) && !doc.encrypted && (!doc.regionType || !doc.mediaReview)) {
-        const json = JSON.parse(versions[0].json)
-        if (!doc.regionType) {
-          doc.regionType = json.d.regionType
-          wago.regionType = doc.regionType
-        }
-        if (!doc.mediaReview) {
-          var media = await require('../helpers/findMedia')(json)
-          doc.attachedMedia = media
-          doc.mediaReview = 1
-          wago.attachedMedia = doc.attachedMedia
-        }
-        saveDoc = true
-      }
+      // if (doc.type.match(/WEAKAURA/) && !doc.encrypted && (!doc.regionType || !doc.mediaReview)) {
+      //   const json = JSON.parse(versions[0].json)
+      //   if (!doc.regionType) {
+      //     doc.regionType = json.d.regionType
+      //     wago.regionType = doc.regionType
+      //   }
+      //   if (!doc.mediaReview) {
+      //     var media = await require('../helpers/findMedia')(json)
+      //     doc.attachedMedia = media
+      //     doc.mediaReview = 1
+      //     wago.attachedMedia = doc.attachedMedia
+      //   }
+      //   saveDoc = true
+      // }
       var versionHistory = []
       versions.forEach((v) => {
         var versionString = v.versionString
