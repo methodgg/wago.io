@@ -731,12 +731,14 @@ class Categories {
       'job-sch': {slug: 'healer/scholar', image: 'ffxiv/SCH.svg', color: '#8657ff', i18n: 'ffxiv:Scholar', parent: 'job-healer', domain: 1, types: ['DELVUI']},
       'job-whm': {slug: 'healer/white-mage', image: 'ffxiv/WHM.svg', color: '#fff0dc', i18n: 'ffxiv:White Mage', parent: 'job-healer', domain: 1, types: ['DELVUI']},
       'job-ast': {slug: 'healer/astrologian', image: 'ffxiv/AST.svg', color: '#ffe74a', i18n: 'ffxiv:Astrologian', parent: 'job-healer', domain: 1, types: ['DELVUI']},
+      'job-sge': {slug: 'healer/sage', image: 'ffxiv/SGE.png', color: '#80a0f0', i18n: 'ffxiv:Sage', parent: 'job-healer', domain: 1, types: ['DELVUI']},
 
       'job-melee': {slug: 'melee', image: 'warrior.png', color: '#C79C6E', i18n: 'Melee DPS', domain: 1, types: ['DELVUI']},
       'job-mnk': {slug: 'melee/monk', image: 'ffxiv/MNK.svg', color: '#d69c00', i18n: 'ffxiv:Monk', parent: 'job-melee', domain: 1, types: ['DELVUI']},
       'job-drg': {slug: 'melee/dragoon', image: 'ffxiv/DRG.svg', color: '#4164cd', i18n: 'ffxiv:Dragoon', parent: 'job-melee', domain: 1, types: ['DELVUI']},
       'job-nin': {slug: 'melee/ninja', image: 'ffxiv/NIN.svg', color: '#af1964', i18n: 'ffxiv:Ninja', parent: 'job-melee', domain: 1, types: ['DELVUI']},
       'job-sam': {slug: 'melee/samurai', image: 'ffxiv/SAM.svg', color: '#e46d04', i18n: 'ffxiv:Samurai', parent: 'job-melee', domain: 1, types: ['DELVUI']},
+      'job-rpr': {slug: 'melee/reaper', image: 'ffxiv/RPR.png', color: '#965a90', i18n: 'ffxiv:Reaper', parent: 'job-melee', domain: 1, types: ['DELVUI']},
 
       'job-magic': {slug: 'magic', image: 'mage.png', color: '#69CCF0', i18n: 'Ranged Magical DPS', domain: 1, types: ['DELVUI']},
       'job-blm': {slug: 'magic/black-mage', image: 'ffxiv/BLM.svg', color: '#a579d6', i18n: 'ffxiv:Black Mage', parent: 'job-magic', domain: 1, types: ['DELVUI']},

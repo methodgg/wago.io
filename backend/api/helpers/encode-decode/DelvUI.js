@@ -193,4 +193,10 @@ function getJob(type) {
   else if (m[1] === 'WhiteMage') {
     return {id: 'WHM', name: 'White Mage'}
   }
+  else if (m[1] === 'Sage') {
+    return {id: 'SGE', name: 'Sage'}
+  }
+  else if (m[1] === 'Reaper') {
+    return {id: 'RPR', name: 'Reaper'}
+  }
 }
