@@ -105,6 +105,19 @@ class Categories {
       'role3': {slug: 'class-roles/tanking', i18n: 'Tanking', domain: 0, parent: 'role0'},
 
       // shadowlands
+      'raidsepulcherfirst': {slug: 'pve/sepulcher-of-the-first-ones', image: 'sepulcherfirst.png', color: '#50FFEA', i18n: 'warcraft:zones.SepulcherOfTheFirstOnes', domain: 0, types: ['WEAKAURA', 'COLLECTION'], games: ['sl']},
+      'raidsepulcherfirst1': {slug: 'pve/sepulcher-of-the-first-ones/solitary-guardian', color: '#50FFEA', i18n: 'warcraft:bosses.SolitaryGuardian', domain: 0, parent: 'raidsepulcherfirst', types: ['WEAKAURA', 'COLLECTION'], games: ['sl']},
+      'raidsepulcherfirst2': {slug: 'pve/sepulcher-of-the-first-ones/dausegne-the-fallen-oracle', color: '#50FFEA', i18n: 'warcraft:bosses.DausegneTheFallenOracle', domain: 0, parent: 'raidsepulcherfirst', types: ['WEAKAURA', 'COLLECTION'], games: ['sl']},
+      'raidsepulcherfirst3': {slug: 'pve/sepulcher-of-the-first-ones/artificer-xymox', color: '#50FFEA', i18n: 'warcraft:bosses.ArtificerXymox', domain: 0, parent: 'raidsepulcherfirst', types: ['WEAKAURA', 'COLLECTION'], games: ['sl']},
+      'raidsepulcherfirst4': {slug: 'pve/sepulcher-of-the-first-ones/prototype-pantheon', color: '#50FFEA', i18n: 'warcraft:bosses.PrototypePantheon', domain: 0, parent: 'raidsepulcherfirst', types: ['WEAKAURA', 'COLLECTION'], games: ['sl']},
+      'raidsepulcherfirst5': {slug: 'pve/sepulcher-of-the-first-ones/skolex-the-insatiable-ravener', color: '#50FFEA', i18n: 'warcraft:bosses.SkolexTheInsatiableRavener', domain: 0, parent: 'raidsepulcherfirst', types: ['WEAKAURA', 'COLLECTION'], games: ['sl']},
+      'raidsepulcherfirst6': {slug: 'pve/sepulcher-of-the-first-ones/halondrus-the-reclaimer', color: '#50FFEA', i18n: 'warcraft:bosses.HolondrusTheReclaimer', domain: 0, parent: 'raidsepulcherfirst', types: ['WEAKAURA', 'COLLECTION'], games: ['sl']},
+      'raidsepulcherfirst7': {slug: 'pve/sepulcher-of-the-first-ones/lihuvim-principle-architect', color: '#50FFEA', i18n: 'warcraft:bosses.LihuvimPrincipleArchitect', domain: 0, parent: 'raidsepulcherfirst', types: ['WEAKAURA', 'COLLECTION'], games: ['sl']},
+      'raidsepulcherfirst8': {slug: 'pve/sepulcher-of-the-first-ones/anduin-wrynn', color: '#50FFEA', i18n: 'warcraft:bosses.AnduinWrynn', domain: 0, parent: 'raidsepulcherfirst', types: ['WEAKAURA', 'COLLECTION'], games: ['sl']},
+      'raidsepulcherfirst9': {slug: 'pve/sepulcher-of-the-first-ones/lords-of-dread', color: '#50FFEA', i18n: 'warcraft:bosses.LordsOfDread', domain: 0, parent: 'raidsepulcherfirst', types: ['WEAKAURA', 'COLLECTION'], games: ['sl']},
+      'raidsepulcherfirst10': {slug: 'pve/sepulcher-of-the-first-ones/rygelon', color: '#50FFEA', i18n: 'warcraft:bosses.Rygelon', domain: 0, parent: 'raidsepulcherfirst', types: ['WEAKAURA', 'COLLECTION'], games: ['sl']},
+      'raidsepulcherfirst11': {slug: 'pve/sepulcher-of-the-first-ones/zovaal', color: '#50FFEA', i18n: 'warcraft:bosses.Zovaal', domain: 0, parent: 'raidsepulcherfirst', types: ['WEAKAURA', 'COLLECTION'], games: ['sl']},
+
       'raidsantumdom': {slug: 'pve/sanctum-of-domination', image: 'sanctumofdom.png', color: '#5CE000', i18n: 'warcraft:zones.SanctumOfDomination', domain: 0, types: ['WEAKAURA', 'COLLECTION'], games: ['sl']},
       'raidsantumdom1': {slug: 'pve/sanctum-of-domination/tarragrue', i18n: 'warcraft:bosses.Tarragrue', domain: 0, parent: 'raidsantumdom', types: ['WEAKAURA'], games: ['sl']},
       'raidsantumdom2': {slug: 'pve/sanctum-of-domination/eye-of-the-jailer', i18n: 'warcraft:bosses.EyeoftheJailer', domain: 0, parent: 'raidsantumdom', types: ['WEAKAURA'], games: ['sl']},
