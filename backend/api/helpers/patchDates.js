@@ -8,6 +8,8 @@ var patches = [
   {date: moment('2021-06-01T03:00:00Z'), game: 'tbc', patch: "WoW TBC Classic 2.5.1", domain: 0},
   {date: moment('2021-04-20T03:00:00Z'), game: 'tbc', patch: "WoW TBC Classic 2.5.1 Beta", domain: 0},
 
+  {date: moment('2021-12-10T03:00:00Z'), game: 'classic', patch: "WoW Classic 1.14.2", domain: 0},
+  {date: moment('2021-11-09T03:00:00Z'), game: 'classic', patch: "WoW Classic 1.14.1", domain: 0},
   {date: moment('2021-09-28T03:00:00Z'), game: 'classic', patch: "WoW Classic 1.14.0", domain: 0},
   {date: moment('2021-04-20T03:00:00Z'), game: 'classic', patch: "WoW Classic 1.13.7", domain: 0},
   {date: moment('2020-12-01T03:00:00Z'), game: 'classic', patch: "WoW Classic 1.13.6", domain: 0},
