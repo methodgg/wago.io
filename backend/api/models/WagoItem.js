@@ -366,6 +366,7 @@ Schema.virtual('indexedImportData').get(async function () {
   let catRanks = this.categoryRanks
     data.categoriesRoot = catRanks.root
     data.categoriesTotal = catRanks.total
+  data.thumbnailStatic = this.previewStatic
   data.comments = this.popularity.comments_count
   if (this._userId) {
     data.userId = this._userId.toString()

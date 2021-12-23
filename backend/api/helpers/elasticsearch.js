@@ -49,6 +49,7 @@ module.exports = {
         starScore: {type: 'half_float'},
         viewsScore: {type: 'half_float'},
         thumbnail: {type: 'text', index: false},
+        thumbnailStatic: {type: 'text', index: false},
         timestamp: {type: 'integer'},
         hidden: {type: 'boolean'},
         type: {type: 'keyword'},
