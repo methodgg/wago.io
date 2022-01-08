@@ -39,11 +39,24 @@ module.exports = {
     if (!obj || !obj.DBM || !obj.DBT) {
       return false
     }
-    var meta = {}
+    let meta = {}
 
     meta.name = 'DBM Profile'
     meta.type = 'DBM'
 
     return meta
+  }
+
+  addWagoData: (code, wago) => {
+    if (!code.json) {
+      return
+    }
+    let json = JSON.parse(code.json)
+
+    json.DBM.MoviesSeen = []
+
+    code.json = JSON.stringify(json)
+
+    return {code}
   }
 }
