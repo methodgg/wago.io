@@ -45,7 +45,7 @@ module.exports = {
     meta.type = 'DBM'
 
     return meta
-  }
+  },
 
   addWagoData: (code, wago) => {
     if (!code.json) {
