@@ -45,6 +45,12 @@ async function searchElastic (req, res) {
   else if (sort === 'stars') {
     esSort.unshift({stars: 'desc'})
   }
+  else if (sort === 'views') {
+    esSort.unshift({views: 'desc'})
+  }
+  else if (sort === 'installs') {
+    esSort.unshift({installs: 'desc'})
+  }
   else {
     sortMode = 'bestmatchv2'
   }
