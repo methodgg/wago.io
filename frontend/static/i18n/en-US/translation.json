@@ -714,5 +714,371 @@
   "Alternatively type the \"/vuhdo opt\" command into your chat window": "Alternatively type the \"/vuhdo opt\" command into your chat window.",
   "Click the Import button in the upper left area to import a Bouquet": "Click the Import button in the upper left area to import a Bouquet.",
   "Vuhdo Profiles and Key Layouts can be imported from the Tools tab at the bottom": "Vuhdo Profiles and Key Layouts can be imported from the Tools tab at the bottom.",
-  "Paste the string into the window with ctrl-V (or command-V on a Mac), click Okay, then Yes to confirm": "Paste the string into the window with ctrl-V (or command-V on a Mac), click Okay, then Yes to confirm."
+  "Paste the string into the window with ctrl-V (or command-V on a Mac), click Okay, then Yes to confirm": "Paste the string into the window with ctrl-V (or command-V on a Mac), click Okay, then Yes to confirm.",
+  "Site News": "",
+  "Contact": "",
+  "Top [-category-] WeakAuras": "",
+  "View more [-category-] WeakAuras": "",
+  "Top Week [-num-] MDT Routes": "",
+  "View more Week [-num-] MDT Routes": "",
+  "View Code": "",
+  "[-author-] has marked this as a false positive": "",
+  "Edit False Positive": "",
+  "[-author-] has replied with a comment": "",
+  "Edit Comment": "",
+  "Comment or Flag as a false positive": "",
+  "Comment": "",
+  "Flag as false positive and remove alert": "",
+  "[-count-] alert": "",
+  "[-count-] alert_plural": "",
+  "Format Lua": "",
+  "Manifestation of Pride [-num-]%": "",
+  "Inspiring": "",
+  "Include Read Mentions": "",
+  "No": "",
+  "Yes": "",
+  "Clear all unread alerts": "",
+  "Privacy Regulations": "",
+  "Right of Access - Request a complete copy of your personal and supplementary information stored by Wago": {
+    "io": ""
+  },
+  "Download Information": "",
+  "This profile page is private no one else may view it or search imports by this username": "",
+  "Edit Profile": "",
+  "Add Featured Content": "",
+  "Discord Server": "",
+  "Feature Type": "",
+  "WoW Character Profile": "",
+  "Sub Type": "",
+  "My Imports": "",
+  "Curated Collection": "",
+  "Character": "",
+  "Live Stream": "",
+  "Imports": "",
+  "Auto - By Current Popularity": "",
+  "Auto - By Stars": "",
+  "Auto - By Total Views": "",
+  "Auto - Recently Updated": "",
+  "Manual Selection": "",
+  "Showcase [-num-]": "",
+  "[-user-]'s popular imports": "",
+  "[-user-]'s most viewed imports": "",
+  "[-user-]'s most starred imports": "",
+  "[-user-]'s latest imports": "",
+  "[-user-]'s featured imports": "",
+  "Search More": "",
+  "Edit Feature": "",
+  "[-count-] views this week": "",
+  "[-count-] views this week_plural": "",
+  "[-count-] views": "",
+  "[-count-] views_plural": "",
+  "[-count-] stars": "",
+  "[-count-] stars_plural": "",
+  "The code in this import is being processed and will automatically update this page once complete Position [-position-]": "",
+  "Wago has detected some possible malicious code - please review before installing": "",
+  "Wago has identified [-count-] alert during automated code review": "",
+  "Wago has identified [-count-] alert during automated code review_plural": "Wago has identified [-count-] alerts during automated code review",
+  "View Alerts": "",
+  "Want some help fixing code review alerts? Come have a chat on the [-discord-]": {
+    "": ""
+  },
+  "External sites clicked through to this page": "",
+  "Linked From": "",
+  "Count": "",
+  "Embeds will not work for imports with blocked functions": "",
+  "Wago checks for common but problematic code": {
+    "": ""
+  },
+  "No problems found": {
+    "": ""
+  },
+  "Luacheck detects various issues in lua code and reports warnings and syntax errors": {
+    "": ""
+  },
+  "Wago flags some of those warnings as alerts when run within the scope of your custom code and the WoW environment": {
+    "": ""
+  },
+  "'[-name-]' includes blocked functions": {
+    " Blocked functions are normally blocked within the addon with normal use, and there is probably no reason you want to include this potential vulnerability": {
+      "": ""
+    }
+  },
+  "'[-name-]' id length is needlessly long": {
+    "": ""
+  },
+  "This is the name used in the WeakAura interface and may cause an overflow error and crash the game": {
+    "": ""
+  },
+  "Timing or throttling code is detected": {
+    "": ""
+  },
+  "Immediate value return detected": {
+    "": ""
+  },
+  "Displays that update every frame can potentially cause slowdown are almost always go against best practices": {
+    " Every frame updates should be for a) time related displays or b) throttled so that the processing occurs on an interval": {
+      " Neither are detected here": {
+        "": ""
+      }
+    }
+  },
+  "'[-name-]' updates its display text every frame": {
+    "": ""
+  },
+  "Triggers that check on every frame should be throttled so that the processing occurs on an interval": {
+    " No throttle could be detected here": {
+      "": ""
+    }
+  },
+  "'[-name-]' is processed every frame": {
+    "": ""
+  },
+  "Timing or throttling code is detected in trigger": {
+    "": ""
+  },
+  "Delete video": "",
+  "Delete image": "",
+  "Select Server": "",
+  "Connect to Wago App": "",
+  "Connect Wago App": "",
+  "You must have the Wago App installed for this function to work": "",
+  "This app can be downloaded from [-url-]": "",
+  "Link Wago App": "",
+  "Unable to detect Wago App, please make sure you have it installed and running": "",
+  "Successfully linked to Wago App": "",
+  "TBC PvE": "",
+  "The Burning Crusade PvE": "",
+  "The Burning Crusade": "",
+  "An error has occurred": "",
+  "Send to Desktop App": "",
+  "The WagoApp and WeakAuras Companion both act as a bridge between Wago and your in-game addons, and allow you to quickly install imports from Wago": {
+    "": ""
+  },
+  "Select which app you have installed and wish to use": {
+    "": ""
+  },
+  "WagoApp is your all-in-one tool for managing your World of Warcraft addons and supported imports": {
+    " Stay up to date and stay in style!": ""
+  },
+  "The WeakAuras Companion automatically fetches updates to the auras you have installed directly from Wago, without having to manually copy-paste import strings all the time": {
+    " It also makes sure you don't miss any updates, always keeping you up to date with the latest versions": {
+      "": ""
+    }
+  },
+  "Remember my choice": "",
+  "Install [-type-]": "",
+  "Unable to detect WagoApp, please make sure you have it installed and running": "",
+  "WeakAura sent to WagoApp": "",
+  "Search Options": "",
+  "Category": "",
+  "Example": "",
+  "Warrior; Healing": "",
+  "WeakAura; Plater": "",
+  "Expansion": "",
+  "Shadowlands; TBCC": "",
+  "Installs": "",
+  "Before": "",
+  "After": "",
+  "Search History": "",
+  "Expansion Options": "",
+  "The Burning Crusade Classic": "",
+  "Expansion filter is only applied to WeakAura imports": "",
+  "Import Type Options": "",
+  "Thanks for helping to keep the Wago community civil!": "",
+  "Please select the reason for reporting": "",
+  "This import is inappropriate": "",
+  "Contains offensive, abusive or otherwise toxic content": "",
+  "This import contains malicious code": "",
+  "Contains code designed for malintent": "",
+  "This import has another issue to bring to attention": "",
+  "Please provide comments below": "",
+  "Comments (Optional)": "",
+  "Submit Report": "",
+  "Thank you for your report, we will take appropriate action as soon as possible": "",
+  "Moderation": "",
+  "This import has been deleted and can not be accessed": "",
+  "This import has been moderated and is not publically accessible": "",
+  "Comments": "",
+  "Mod action is saved": "",
+  "Request Review": "",
+  "This import is malicious": "",
+  "Thanks for keeping the Wago community civil!": "",
+  "Please select the reason for submission": "",
+  "Review my modifications": "",
+  "After my changes I believe this now meets the Wago community standards": "",
+  "A second opinion": "",
+  "Nothing here is negative and should not be moderated": "",
+  "This import has been moderated and is not publicly accessible": "",
+  "Thanks for helping to keep the Wago community positive!": "",
+  "Contains code designed for mal-intent": "",
+  "Thanks for keeping the Wago community positive!": "",
+  "Select Date": "",
+  "YYYY-MM-DD": "",
+  "Download WeakAuras": "",
+  "Join WeakAuras Discord": "",
+  "Search Mode": "",
+  "Standard Search": "",
+  "Search imports by text and/or filters": "",
+  "Code Search": "",
+  "Search within the custom code of imports": "",
+  "Found [-count-] results": "",
+  "Found [-count-] results_plural": "",
+  "Search results": "",
+  "PvE Content": "",
+  "Burning Crusade Classic": "",
+  "Search Collections": "",
+  "Search ElvUI": "",
+  "View ElvUI Website": "",
+  "Join ElvUI Discord": "",
+  "Search OPie": "",
+  "Download OPie": "",
+  "Search Plater": "",
+  "Download Plater": "",
+  "Join Plater Discord": "",
+  "Search Total RP": "",
+  "Download Total RP": "",
+  "Join Total RP Discord": "",
+  "Search VuhDo": "",
+  "Download Vuhdo": "",
+  "Join VuhDo Discord": "",
+  "Search WeakAuras": "",
+  "Metric": "",
+  "Installs>150; Stars>90": "",
+  "Configure a metric filter": "",
+  "Add Filter": "",
+  "Sort Options": "",
+  "Code Results": "",
+  "Search the custom code of imports": "",
+  "During": "",
+  "Or filter by recent patch": "",
+  "Shadowlands Patch 9": {
+    "0": {
+      "5": ""
+    },
+    "1": {
+      "0": ""
+    }
+  },
+  "The Burning Crusade Classic Patch 2": {
+    "5": {
+      "1": ""
+    }
+  },
+  "This import is corrupted and will likely not work as expected": "",
+  "This import is corrupted, missing data and can not be repaired, apologies but the author will need to re-import": "",
+  "Code Summary": "",
+  "Lines of code": "",
+  "Cyclomatic complexity": "",
+  "Tokens": "",
+  "Luacheck Errors": "",
+  "Luacheck Warnings": "",
+  "OK": "",
+  "No custom code": "",
+  "You will need to download and install this library": "",
+  "This library is included with your addon": "",
+  "This import uses text-to-speech audio": "",
+  "Dependencies": "",
+  "Import Highlights": "",
+  "Uses text-to-speech": "",
+  "'[-name-]' includes strings that parse as Lua code, be sure to review the code": "",
+  "Code Metrics": "",
+  "This import has alerts, you are strongly suggested to review the code before installing": "",
+  "Sets keybinds": "",
+  "Sends chat messages": "",
+  "Code Alerts": "",
+  "Globals": "",
+  "Maintainability Index": "",
+  "Alert!!": "",
+  "'[-name-]' references the _G table with a string or variable key which which could potentially be used to hide malicious intent": {
+    "": ""
+  },
+  "'[-name-]' calls getglobal() with a string or variable key which which could potentially be used to hide malicious intent": {
+    "": ""
+  },
+  "'[-name-]' includes strings containing valid Lua code which could potentially be used to hide malicious intent": {
+    "": ""
+  },
+  "'[-name-]' has triggered Luacheck alerts that should be reviewed": {
+    "": ""
+  },
+  "Copy MRT text": "",
+  "Please select the reason for reporting to the Wago moderation team": "",
+  "Additional Information (Optional)": "",
+  "If you wish to contact the author about this import, please use the comments section": "",
+  "Copy MRT Note": "",
+  "Import Dependencies": "",
+  "Highlighted Functionality": "",
+  "Submit Every Frame Report": "",
+  "Check if the 'Every Frame' alert(s) have an undetected throttle or if Every Frame processing is actually necessary to function properly": "",
+  "Values of 10 and lower indicate that the code is simple and easy to understand": {
+    "": ""
+  },
+  "Values between 11 and 20 indicate that the code is moderately complex will begin to have difficulty testing": {
+    "": ""
+  },
+  "Values above 20 indicate high complexity and will be very difficult to test all situations": {
+    "": ""
+  },
+  "Values of at least 20 indicate that the code is probably well written and easily maintainable": {
+    "": ""
+  },
+  "Values between 10 and 19 indicate that the code has moderate maintainability and may have room for improvement": {
+    "": ""
+  },
+  "Values below 10 indicate has poor maintainability and likely run into issues in the future": {
+    "": ""
+  },
+  "'[-name-]' internalVersion is very old and WeakAuras may have trouble importing": {
+    "": ""
+  },
+  "Author [-author-] has indicated that an undetected throttle is implemented or every-frame processing is necessary for this import": {
+    "": ""
+  },
+  "Search is temporarily disabled": "",
+  "Plays audio": "",
+  "Limited display": "",
+  "By character name(s)": "",
+  "By NOT character name(s)": "",
+  "By role": "",
+  "By character class(es)": "",
+  "By NOT character class(es)": "",
+  "By raid group(s)": "",
+  "By NOT raid group(s)": "",
+  "Damage Dealers": "",
+  "Healers": "",
+  "Tanks": "",
+  "Search game": "",
+  "My Data": "",
+  "Search DelvUI": "",
+  "View DelvUI Website": "",
+  "Join DelvUI Discord": "",
+  "DelvUI": "",
+  "Melee DPS": "",
+  "Ranged Magical DPS": "",
+  "Ranged Physical DPS": "",
+  "Open the DelvUI configuration window by clicking DelvUI Settings in your system menu": "",
+  "Alternatively type the \"/delvui\" command into your chat window": "",
+  "If importing a job pack": "",
+  "click the Switch to Job Packs Configuration button at the bottom of the window": "",
+  "Paste the string into the input field with ctrl-V (or command-V on a Mac) or click the 'Paste from clipboard' button": "",
+  "Click 'Import configuration', and your interface should immediately change": "",
+  "Additional Information": "",
+  "Crafters": "",
+  "Gatherers": "",
+  "At the bottom of the left navigation click the Profiles button to add this import as a new profile, or Import to overwrite your existing profile": "",
+  "To import a new profile": "",
+  "Enter a profile name, then click Import from Clipboard": "",
+  "OR, to import a and overwrite your profile": "",
+  "Paste the string into the field with ctrl-V and click the Import button": "",
+  "Toggle the checkboxes to your preference for which config parts to import": "",
+  "Extract Single Config": "",
+  "Copy the DelvUI import string for \"[-delvConfig-]\"": "",
+  "Browse DelvUI imports": "",
+  "Download Total RP 3": "",
+  "Download Total RP 3 Extended": "",
+  "Browse TPie imports": "",
+  "Current WeakAuras": "",
+  "Hide Ads with Patreon": "",
+  "TBC": "",
+  "Post Comment": ""
 }
