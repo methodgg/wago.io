@@ -1,12 +1,15 @@
 <template>
   <div id="search-weakaura">
-    <md-layout md-row class="addon-name">
-      <md-avatar class='square'><category-image :group="'t-weakaura'"></category-image></md-avatar>
-      <h2 id="addon-name">WeakAuras - <span>Battle for Azeroth</span>
-      </h2>
-    </md-layout>
-    <md-layout>
-      <addon-info addon="weakaura" expansion="bfa"></addon-info>
+    <md-layout md-row class="addon-name nowrap">
+      <div class="grow">
+        <md-layout md-row>
+          <md-avatar class='square'><category-image :group="'t-weakaura'"></category-image></md-avatar>
+          <h2 id="addon-name">WeakAuras -
+            <span>{{ $t('Battle for Azeroth') }}</span>
+          </h2>
+        </md-layout>
+        <addon-info addon="weakaura" expansion="bfa"></addon-info>
+      </div>
     </md-layout>
     <md-layout>
       <md-layout>
@@ -138,7 +141,6 @@
 
       </md-layout>
     </md-layout>
-    <advert ad="wago728x90" fixed="bottom" />
     <div></div>
   </div>
 </template>

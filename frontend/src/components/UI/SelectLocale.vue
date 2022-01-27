@@ -1,12 +1,12 @@
 <template>
-  <md-menu ref="langSelect" md-offset-x="-205" md-size="4">
-    <md-button md-menu-trigger>{{ buttonText }}</md-button>
-    <md-menu-content>
+  <div class="menu-section">
+    <span>{{buttonText.toUpperCase()}} <md-icon>translate</md-icon></span>
+    <div class="sub-nav">
       <template v-for="item in supportedLocales">
-        <md-menu-item v-on:click="setLocale(item.code.split('-')[0])">{{ item.lang }}</md-menu-item>
+        <div v-on:click="setLocale(item.code.split('-')[0])">{{ item.lang }}</div>
       </template>
-    </md-menu-content>
-  </md-menu>
+    </div>
+  </div>
 </template>
 
 <script>

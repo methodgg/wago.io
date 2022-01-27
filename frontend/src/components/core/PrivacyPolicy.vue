@@ -65,9 +65,6 @@ export default {
 </script>
 
 <style>
-.ads-enabled .document {
-  max-width: calc(100% - 432px)
-}
 .pp-block {
   background: #333;
   margin: 16px;

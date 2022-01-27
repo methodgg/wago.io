@@ -19,158 +19,152 @@
         <h3>{{ wago.name }}</h3>
         <md-subheader><span v-for="(cat, n) in wago.categories" :key="n" :class="cat.cls" disabled v-if="cat.text">{{ cat.text }}</span></md-subheader>
       </div>
-      <md-layout md-row>
+      <div class="md-card" id="sticky-header">
+        <h1>{{ wago.name }}
+          <div>
+            <span v-if="currentVersionString && !currentVersionString.match(/undefined/)">v{{ currentVersionString }}</span>
+            <span>{{ displayExpansion(wago) }}{{ wago.type }}</span>
+          </div>
+        </h1>
+        <div id="sendToDesktopAppBtn" class="md-hide-xsmall md-button copy-import-button" @click="sendToApp()">
+          <md-icon>airplay</md-icon> {{ $t("Send to Desktop App") }}
+          <md-button @click.stop="sendToApp('ask')" id="helpAppButton" class="md-icon-button md-raised"><md-icon>help</md-icon></md-button>
+        </div>
+        <md-button v-if="wago.code && wago.code.encoded" @click="copyEncoded" class="copy-import-button" id="copyImportBtn">
+          <md-icon>assignment</md-icon> <span>{{ $t("Copy import string") }}</span>
+          <md-button @click="openHelpDialog" id="helpImportingButton" class="md-icon-button md-raised"><md-icon>help</md-icon></md-button>
+          <md-tooltip v-if="hasUnsavedChanges" md-direction="bottom" class="CopyWarningTooltip"><strong>{{ $t("You have unsaved changes") }}</strong><br>{{ $t("Be sure to save or fork to generate a new string with your modifications") }}</md-tooltip>
+          <md-tooltip v-else-if="corruptedData" md-direction="bottom" class="CopyWarningTooltip"><strong>{{ $t("This import is corrupted and will likely not work as expected") }}</strong></md-tooltip>
+          <md-tooltip v-else-if="codeReview && codeReview.alerts" md-direction="bottom" class="CopyWarningTooltip"><strong>{{ $t("This import has alerts, you are strongly suggested to review the code before installing") }}</strong></md-tooltip>
+        </md-button>
+      </div>
+      <md-dialog md-open-from="#helpImportingButton" md-close-to="#helpImportingButton" ref="helpDialog" id="helpDialog">
+        <md-dialog-title>{{ $t("How do I import this?") }}</md-dialog-title>
+
+        <md-dialog-content v-if="wago.type.match(/WEAKAURA/)">
+          <ol>
+            <li>{{ $t('Open the WeakAuras interface by clicking the WA icon by your minimap') }}  <img src="https://media.wago.io/site/wa-minimap-icon.png" />
+            {{ $t('Alternatively type the "/wa" command into your chat window') }} <img src="https://media.wago.io/site/wa-chatcommand.png" /></li>
+            <li>{{ $t('In the upper left area of the WeakAuras interface click the Import button') }} <img src="https://media.wago.io/site/wa-importbutton.png" /></li>
+            <li>{{ $t('Paste the string into the window with ctrl-V (or command-V on a Mac)') }} <img src="https://media.wago.io/site/wa-encoded.png" /></li>
+            <li>{{ $t('A box will appear showing some basic information about the WeakAura') }}<br>
+              {{ $t('The Show Code button will let you review any custom code before importing') }}<br>
+              {{ $t('The Import button will save the WeakAura to your configuration') }} <img src="https://media.wago.io/site/wa-importinfo.png" style="width:450px" />
+            </li>
+            <li>
+              {{ $t('Once imported, you\'ll find the options panel for this WeakAura on the right of side of the interface') }}<br>
+              {{ $t('For most users, the Display tab and maybe Custom Options tab will have settings to customize what you have just imported') }} <img src="https://media.wago.io/site/wa-tabs.png" />
+            </li>
+          </ol>
+        </md-dialog-content>
+
+        <md-dialog-content v-else-if="wago.type.match(/DELVUI/)">
+          <ol>
+            <li>{{ $t('Open the DelvUI configuration window by clicking DelvUI Settings in your system menu') }} <img src="https://media.wago.io/site/delvui-escmenu.png" />
+            {{ $t('Alternatively type the "/delvui" command into your chat window') }} <img src="https://media.wago.io/site/delvui-slashcommand.png" /></li>
+            <li>{{ $t('At the bottom of the left navigation click the Profiles button to add this import as a new profile, or Import to overwrite your existing profile') }} <img src="https://media.wago.io/site/delvui-importmenu.png" /></li>
+            <p><strong>{{ $t('To import a new profile') }}</strong></p>
+            <li>{{ $t('Enter a profile name, then click Import from Clipboard') }} <img src="https://media.wago.io/site/delvui-newprofile.png" /></li>
+            <p><strong>{{ $t('OR, to import a and overwrite your profile') }}</strong></p>
+            <li>{{ $t('Paste the string into the field with ctrl-V and click the Import button') }}</li>
+            <li>{{ $t('Toggle the checkboxes to your preference for which config parts to import') }} <img src="https://media.wago.io/site/delvui-importselect.png" /></li>
+          </ol>
+        </md-dialog-content>
+
+        <md-dialog-content v-else-if="wago.type.match(/ELVUI/)">
+          <ol>
+            <li>{{ $t('Open the ElvUI configuration window by clicking the ElvUI button in your system menu') }} <img src="https://media.wago.io/site/elvui-escmenu.png" />
+            {{ $t('Alternatively type the "/elvui" command into your chat window') }} <img src="https://media.wago.io/site/elvui-chatcommand.png" /></li>
+            <li>{{ $t('At the bottom of the left navigation click the Profiles button') }} <img src="https://media.wago.io/site/elvui-profiles.png" /></li>
+            <li>{{ $t('Click the Import Profile button') }} <img src="https://media.wago.io/site/elvui-importprofile.png" /></li>
+            <li>{{ $t('Paste the string into the window with ctrl-V (or command-V on a Mac)') }} <img src="https://media.wago.io/site/elvui-encoded.png" /></li>
+            <li>{{ $t('Click import, and your interface should immediately change') }}<br>
+              {{ $t('Then click close and adjust as necessary through ElvUI\'s options') }} <img src="https://media.wago.io/site/elvui-import.png" />
+            </li>
+          </ol>
+        </md-dialog-content>
+
+        <md-dialog-content v-else-if="wago.type.match(/MDT/)">
+          <ol>
+            <li>{{ $t('Open the MDT configuration window by clicking the MDT icon by your mini map') }} <img src="https://media.wago.io/site/mdt-minimapicon.png" />
+            {{ $t('Alternatively type the "/mdt" command into your chat window') }} <img src="https://media.wago.io/site/mdt-chatcmd.png" /></li>
+            <li>{{ $t('In the control panel at the top right of the window click the Import button') }} <img src="https://media.wago.io/site/mdt-importbutton.png" /></li>
+            <li>{{ $t('Paste the string into the window with ctrl-V (or command-V on a Mac), click OK, then click Import') }} <img src="https://media.wago.io/site/mdt-encoded.png" /></li>
+            <li>{{ $t('The display will update to your newly imported MDT route') }}</li>
+          </ol>
+        </md-dialog-content>
+
+        <md-dialog-content v-else-if="wago.type.match(/OPIE/)">
+          <ol>
+            <li>{{ $t('Open the OPie configuration window by opening the Interface Options (in Escape menu), select the Addons tab and selcting OPie') }} <img src="https://media.wago.io/site/opie-menu.png" />
+            {{ $t('Alternatively type the "/opie" command into your chat window') }} <img src="https://media.wago.io/site/opie-chatcmd.png" /></li>
+            <li>{{ $t('Select the Custom Rings submenu, then click the New Ring button') }} <img src="https://media.wago.io/site/opie-newring.png" /></li>
+            <li>{{ $t('Select the Import snapshot option and paste the string into the Snapshot field with ctrl-V (or command-V on a Mac), then click Add Ring') }} <img src="https://media.wago.io/site/opie-encoded.png" /></li>
+            <li>{{ $t('Set a binding and make any adjustments as necessary') }}</li>
+          </ol>
+        </md-dialog-content>
+
+        <md-dialog-content v-else-if="wago.type.match(/PLATER/)">
+          <ol>
+            <li>{{ $t('Open the Plater configuration by typing /plater into your chat window') }} <img src="https://media.wago.io/site/plater-chatcmd.png" /></li>
+            <li>{{ $t('Select Scripting, Modding, Profiles or whatever matches what you are importing') }} <img src="https://media.wago.io/site/plater-menu.png" /></li>
+            <li>{{ $t('Click the import button') }} <img src="https://media.wago.io/site/plater-import.png" /></li>
+            <li>{{ $t('Paste the string into the window with ctrl-V (or command-V on a Mac), then click Okay') }} <img src="https://media.wago.io/site/plater-encoded.png" /></li>
+          </ol>
+        </md-dialog-content>
+
+        <md-dialog-content v-else-if="wago.type.match(/TOTALRP3/)">
+          <ol>
+            <li>{{ $t('Open the Total RP3 Extended Objects Database by clicking the button in the TRP3 menu') }} <img src="https://media.wago.io/site/trp3-database.png" /></li>
+            <li>{{ $t('Click the Quick object import button in the lower left area') }} <img src="https://media.wago.io/site/trp3-import.png" /></li>
+            <li>{{ $t('Paste the string into the window with ctrl-V (or command-V on a Mac), click Import, then Accept to confirm') }} <img src="https://media.wago.io/site/trp3-encoded.png" /></li>
+            <li>{{ $t('It will be listed in your database to view and use as you like') }}</li>
+          </ol>
+        </md-dialog-content>
+
+        <md-dialog-content v-else-if="wago.type.match(/VUHDO/)">
+          <ol>
+            <li>{{ $t('Open the Vuhdo configuration window by clicking the Vuhdo icon by your mini map') }} <img src="https://media.wago.io/site/vuhdo-minimap.png" />
+            {{ $t('Alternatively type the "/vuhdo opt" command into your chat window') }} <img src="https://media.wago.io/site/vuhdo-chatcmd.png" /></li>
+            <li>{{ $t('Click the Import button in the upper left area to import a Bouquet') }} <img src="https://media.wago.io/site/vuhdo-import.png" />
+            {{ $t('Vuhdo Profiles and Key Layouts can be imported from the Tools tab at the bottom') }} <img src="https://media.wago.io/site/vuhdo-tools.png" /></li>
+            <li>{{ $t('Paste the string into the window with ctrl-V (or command-V on a Mac), click Okay, then Yes to confirm') }} <img src="https://media.wago.io/site/vuhdo-encoded.png" /></li>
+          </ol>
+        </md-dialog-content>
+      </md-dialog>
+      <md-dialog v-if="wago.user && User && wago.UID && wago.UID === User.UID" md-open-from="#newImportButton" md-close-to="#newImportButton" ref="newImportDialog" id="newImportDialog" @open="focusFieldByRef('importStringField')">
+        <md-dialog-title>{{ $t("Import new string") }}</md-dialog-title>
+
+        <md-dialog-content>
+          <md-input-container :class="{ 'md-input-invalid': newImportString && newImportStringStatus.indexOf('Invalid') >= 0, 'md-input-status': newImportStringStatus }">
+            <label>{{ $t("Paste a new [-type-] string to update this Wago", {type: wago.type.toLowerCase() }) }}</label>
+            <md-input v-model="newImportString" ref="importStringField"></md-input>
+            <span class="md-error" v-if="newImportStringStatus.length>0">{{ newImportStringStatus }}</span>
+          </md-input-container>
+        </md-dialog-content>
+
+        <input-semver v-model="newImportVersion" :latestVersion="latestVersion"></input-semver>
+
+        <md-dialog-content>
+          <md-input-container class="changelog-notes">
+            <label>{{ $t("Changelog") }}</label>
+            <md-textarea v-model="newChangelog.text" :placeholder="$t('You may enter any patch notes or updates here')"></md-textarea>
+          </md-input-container>
+          <div>
+            <div class="md-radio md-theme-default"><label class="md-radio-label">{{ $t("Format") }}</label></div>
+            <md-radio v-model="newChangelog.format" md-value="bbcode">BBCode</md-radio>
+            <md-radio v-model="newChangelog.format" md-value="markdown">Markdown</md-radio>
+          </div>
+        </md-dialog-content>
+
+        <md-dialog-actions>
+          <md-button class="md-primary" @click="onUpdateImportString()" :disabled="!newImportString || newImportStringStatus.indexOf('Invalid') >= 0 || newImportVersionError.length > 0">{{ $t("Update") }}</md-button>
+          <md-button class="md-primary" @click="$refs['newImportDialog'].close()">{{ $t("Cancel") }}</md-button>
+        </md-dialog-actions>
+      </md-dialog>
+
+      <md-layout md-row id="import-meta">
         <md-card id="wago-header" ref="header" v-bind:class="{'md-hide-xsmall': hideMobileHeader}">
-          <md-layout style="flex:0">
-            <div>
-              <h3>{{ wago.name }} <span class="version-number" v-if="currentVersionString && !currentVersionString.match(/undefined/)">v{{ currentVersionString }}</span></h3>
-              <md-subheader>{{ displayExpansion(wago) }}{{ wago.type }} <span :href="wago.url" @click.prevent="copyURL" style="margin-left: 16px; opacity: .54">{{ wago.url }}</span></md-subheader>
-            </div>
-            <!-- ACTIONS -->
-            <md-card-actions id="wago-actions" ref="action-buttons">
-              <md-button v-if="User.UID && (!wago.UID || wago.UID !== User.UID)" @click="$refs.reportmodal.open()">
-                <md-icon>flag</md-icon> {{ $t("Report") }}
-              </md-button>
-              <md-button v-if="User.UID" @click="toggleFavorite">
-                <md-icon v-if="wago.myfave">star</md-icon>
-                <md-icon v-else>star_border</md-icon> {{ $t("Favorite") }}
-              </md-button>
-              <md-button v-if="wago.user && User && wago.UID && wago.UID === User.UID && wago.code && wago.code.encoded" @click="generateNextVersionData(); $refs['newImportDialog'].open()" id="newImportButton"><md-icon>input</md-icon> {{ $t("Import new string") }}</md-button>
-              <md-button v-if="wago.code && wago.code.encoded" @click="copyEncoded" class="copy-import-button">
-                <md-icon>assignment</md-icon> {{ $t("Copy [-type-] import string", {type: wago.type}) }}
-                <md-button @click="openHelpDialog" id="helpImportingButton" class="md-icon-button md-raised"><md-icon>help</md-icon></md-button>
-                <md-tooltip v-if="hasUnsavedChanges" md-direction="bottom" class="CopyWarningTooltip"><strong>{{ $t("You have unsaved changes") }}</strong><br>{{ $t("Be sure to save or fork to generate a new string with your modifications") }}</md-tooltip>
-                <md-tooltip v-else-if="corruptedData" md-direction="bottom" class="CopyWarningTooltip"><strong>{{ $t("This import is corrupted and will likely not work as expected") }}</strong></md-tooltip>
-                <md-tooltip v-else-if="codeReview && codeReview.alerts" md-direction="bottom" class="CopyWarningTooltip"><strong>{{ $t("This import has alerts, you are strongly suggested to review the code before installing") }}</strong></md-tooltip>
-              </md-button>
-              <md-button v-if="wago.image && wago.image.files.tga" :href="wago.image.files.tga" class="copy-import-button"><md-icon>file_download</md-icon> {{ $t("Download tga file") }}</md-button>
-            </md-card-actions>
-            <md-dialog md-open-from="#helpImportingButton" md-close-to="#helpImportingButton" ref="helpDialog" id="helpDialog">
-              <md-dialog-title>{{ $t("How do I import this?") }}</md-dialog-title>
-
-              <md-dialog-content v-if="wago.type.match(/WEAKAURA/)">
-                <ol>
-                  <li>{{ $t('Open the WeakAuras interface by clicking the WA icon by your minimap') }}  <img src="https://media.wago.io/site/wa-minimap-icon.png" />
-                  {{ $t('Alternatively type the "/wa" command into your chat window') }} <img src="https://media.wago.io/site/wa-chatcommand.png" /></li>
-                  <li>{{ $t('In the upper left area of the WeakAuras interface click the Import button') }} <img src="https://media.wago.io/site/wa-importbutton.png" /></li>
-                  <li>{{ $t('Paste the string into the window with ctrl-V (or command-V on a Mac)') }} <img src="https://media.wago.io/site/wa-encoded.png" /></li>
-                  <li>{{ $t('A box will appear showing some basic information about the WeakAura') }}<br>
-                    {{ $t('The Show Code button will let you review any custom code before importing') }}<br>
-                    {{ $t('The Import button will save the WeakAura to your configuration') }} <img src="https://media.wago.io/site/wa-importinfo.png" style="width:450px" />
-                  </li>
-                  <li>
-                    {{ $t('Once imported, you\'ll find the options panel for this WeakAura on the right of side of the interface') }}<br>
-                    {{ $t('For most users, the Display tab and maybe Custom Options tab will have settings to customize what you have just imported') }} <img src="https://media.wago.io/site/wa-tabs.png" />
-                  </li>
-                </ol>
-              </md-dialog-content>
-
-              <md-dialog-content v-else-if="wago.type.match(/DELVUI/)">
-                <ol>
-                  <li>{{ $t('Open the DelvUI configuration window by clicking DelvUI Settings in your system menu') }} <img src="https://media.wago.io/site/delvui-escmenu.png" />
-                  {{ $t('Alternatively type the "/delvui" command into your chat window') }} <img src="https://media.wago.io/site/delvui-slashcommand.png" /></li>
-                  <li>{{ $t('At the bottom of the left navigation click the Profiles button to add this import as a new profile, or Import to overwrite your existing profile') }} <img src="https://media.wago.io/site/delvui-importmenu.png" /></li>
-                  <p><strong>{{ $t('To import a new profile') }}</strong></p>
-                  <li>{{ $t('Enter a profile name, then click Import from Clipboard') }} <img src="https://media.wago.io/site/delvui-newprofile.png" /></li>
-                  <p><strong>{{ $t('OR, to import a and overwrite your profile') }}</strong></p>
-                  <li>{{ $t('Paste the string into the field with ctrl-V and click the Import button') }}</li>
-                  <li>{{ $t('Toggle the checkboxes to your preference for which config parts to import') }} <img src="https://media.wago.io/site/delvui-importselect.png" /></li>
-                </ol>
-              </md-dialog-content>
-
-              <md-dialog-content v-else-if="wago.type.match(/ELVUI/)">
-                <ol>
-                  <li>{{ $t('Open the ElvUI configuration window by clicking the ElvUI button in your system menu') }} <img src="https://media.wago.io/site/elvui-escmenu.png" />
-                  {{ $t('Alternatively type the "/elvui" command into your chat window') }} <img src="https://media.wago.io/site/elvui-chatcommand.png" /></li>
-                  <li>{{ $t('At the bottom of the left navigation click the Profiles button') }} <img src="https://media.wago.io/site/elvui-profiles.png" /></li>
-                  <li>{{ $t('Click the Import Profile button') }} <img src="https://media.wago.io/site/elvui-importprofile.png" /></li>
-                  <li>{{ $t('Paste the string into the window with ctrl-V (or command-V on a Mac)') }} <img src="https://media.wago.io/site/elvui-encoded.png" /></li>
-                  <li>{{ $t('Click import, and your interface should immediately change') }}<br>
-                    {{ $t('Then click close and adjust as necessary through ElvUI\'s options') }} <img src="https://media.wago.io/site/elvui-import.png" />
-                  </li>
-                </ol>
-              </md-dialog-content>
-
-              <md-dialog-content v-else-if="wago.type.match(/MDT/)">
-                <ol>
-                  <li>{{ $t('Open the MDT configuration window by clicking the MDT icon by your mini map') }} <img src="https://media.wago.io/site/mdt-minimapicon.png" />
-                  {{ $t('Alternatively type the "/mdt" command into your chat window') }} <img src="https://media.wago.io/site/mdt-chatcmd.png" /></li>
-                  <li>{{ $t('In the control panel at the top right of the window click the Import button') }} <img src="https://media.wago.io/site/mdt-importbutton.png" /></li>
-                  <li>{{ $t('Paste the string into the window with ctrl-V (or command-V on a Mac), click OK, then click Import') }} <img src="https://media.wago.io/site/mdt-encoded.png" /></li>
-                  <li>{{ $t('The display will update to your newly imported MDT route') }}</li>
-                </ol>
-              </md-dialog-content>
-
-              <md-dialog-content v-else-if="wago.type.match(/OPIE/)">
-                <ol>
-                  <li>{{ $t('Open the OPie configuration window by opening the Interface Options (in Escape menu), select the Addons tab and selcting OPie') }} <img src="https://media.wago.io/site/opie-menu.png" />
-                  {{ $t('Alternatively type the "/opie" command into your chat window') }} <img src="https://media.wago.io/site/opie-chatcmd.png" /></li>
-                  <li>{{ $t('Select the Custom Rings submenu, then click the New Ring button') }} <img src="https://media.wago.io/site/opie-newring.png" /></li>
-                  <li>{{ $t('Select the Import snapshot option and paste the string into the Snapshot field with ctrl-V (or command-V on a Mac), then click Add Ring') }} <img src="https://media.wago.io/site/opie-encoded.png" /></li>
-                  <li>{{ $t('Set a binding and make any adjustments as necessary') }}</li>
-                </ol>
-              </md-dialog-content>
-
-              <md-dialog-content v-else-if="wago.type.match(/PLATER/)">
-                <ol>
-                  <li>{{ $t('Open the Plater configuration by typing /plater into your chat window') }} <img src="https://media.wago.io/site/plater-chatcmd.png" /></li>
-                  <li>{{ $t('Select Scripting, Modding, Profiles or whatever matches what you are importing') }} <img src="https://media.wago.io/site/plater-menu.png" /></li>
-                  <li>{{ $t('Click the import button') }} <img src="https://media.wago.io/site/plater-import.png" /></li>
-                  <li>{{ $t('Paste the string into the window with ctrl-V (or command-V on a Mac), then click Okay') }} <img src="https://media.wago.io/site/plater-encoded.png" /></li>
-                </ol>
-              </md-dialog-content>
-
-              <md-dialog-content v-else-if="wago.type.match(/TOTALRP3/)">
-                <ol>
-                  <li>{{ $t('Open the Total RP3 Extended Objects Database by clicking the button in the TRP3 menu') }} <img src="https://media.wago.io/site/trp3-database.png" /></li>
-                  <li>{{ $t('Click the Quick object import button in the lower left area') }} <img src="https://media.wago.io/site/trp3-import.png" /></li>
-                  <li>{{ $t('Paste the string into the window with ctrl-V (or command-V on a Mac), click Import, then Accept to confirm') }} <img src="https://media.wago.io/site/trp3-encoded.png" /></li>
-                  <li>{{ $t('It will be listed in your database to view and use as you like') }}</li>
-                </ol>
-              </md-dialog-content>
-
-              <md-dialog-content v-else-if="wago.type.match(/VUHDO/)">
-                <ol>
-                  <li>{{ $t('Open the Vuhdo configuration window by clicking the Vuhdo icon by your mini map') }} <img src="https://media.wago.io/site/vuhdo-minimap.png" />
-                  {{ $t('Alternatively type the "/vuhdo opt" command into your chat window') }} <img src="https://media.wago.io/site/vuhdo-chatcmd.png" /></li>
-                  <li>{{ $t('Click the Import button in the upper left area to import a Bouquet') }} <img src="https://media.wago.io/site/vuhdo-import.png" />
-                  {{ $t('Vuhdo Profiles and Key Layouts can be imported from the Tools tab at the bottom') }} <img src="https://media.wago.io/site/vuhdo-tools.png" /></li>
-                  <li>{{ $t('Paste the string into the window with ctrl-V (or command-V on a Mac), click Okay, then Yes to confirm') }} <img src="https://media.wago.io/site/vuhdo-encoded.png" /></li>
-                </ol>
-              </md-dialog-content>
-            </md-dialog>
-
-            <md-dialog v-if="wago.user && User && wago.UID && wago.UID === User.UID" md-open-from="#newImportButton" md-close-to="#newImportButton" ref="newImportDialog" id="newImportDialog" @open="focusFieldByRef('importStringField')">
-              <md-dialog-title>{{ $t("Import new string") }}</md-dialog-title>
-
-              <md-dialog-content>
-                <md-input-container :class="{ 'md-input-invalid': newImportString && newImportStringStatus.indexOf('Invalid') >= 0, 'md-input-status': newImportStringStatus }">
-                  <label>{{ $t("Paste a new [-type-] string to update this Wago", {type: wago.type.toLowerCase() }) }}</label>
-                  <md-input v-model="newImportString" ref="importStringField"></md-input>
-                  <span class="md-error" v-if="newImportStringStatus.length>0">{{ newImportStringStatus }}</span>
-                </md-input-container>
-              </md-dialog-content>
-
-              <input-semver v-model="newImportVersion" :latestVersion="latestVersion"></input-semver>
-
-              <md-dialog-content>
-                <md-input-container class="changelog-notes">
-                  <label>{{ $t("Changelog") }}</label>
-                  <md-textarea v-model="newChangelog.text" :placeholder="$t('You may enter any patch notes or updates here')"></md-textarea>
-                </md-input-container>
-                <div>
-                  <div class="md-radio md-theme-default"><label class="md-radio-label">{{ $t("Format") }}</label></div>
-                  <md-radio v-model="newChangelog.format" md-value="bbcode">BBCode</md-radio>
-                  <md-radio v-model="newChangelog.format" md-value="markdown">Markdown</md-radio>
-                </div>
-              </md-dialog-content>
-
-              <md-dialog-actions>
-                <md-button class="md-primary" @click="onUpdateImportString()" :disabled="!newImportString || newImportStringStatus.indexOf('Invalid') >= 0 || newImportVersionError.length > 0">{{ $t("Update") }}</md-button>
-                <md-button class="md-primary" @click="$refs['newImportDialog'].close()">{{ $t("Cancel") }}</md-button>
-              </md-dialog-actions>
-            </md-dialog>
-          </md-layout>
           <md-card-header>
             <md-avatar>
               <ui-image :img="wago.user.avatar"></ui-image>
@@ -190,12 +184,6 @@
             <div class="item" v-if="wago.type.match(/WEAKAURA/)">
               <div class="md-title">{{ $t("[-count-] install", { count: wago.installCount }) }}</div>
             </div>
-            <div class="item" style="float:right" v-if="!$isMobile && wago.type.match(/WEAKAURA/) && wago.code && wago.code.encoded">
-              <div id="sendToDesktopAppBtn" class="md-button copy-import-button" @click="sendToApp()">
-                <md-icon>airplay</md-icon> {{ $t("Send to Desktop App") }}
-                <md-button @click.stop="sendToApp('ask')" id="helpAppButton" class="md-icon-button md-raised"><md-icon>help</md-icon></md-button>
-              </div>
-            </div>
             <div id="tags">
               <template>
                 <router-link v-for="(cat, n) in wago.categories" :key="n" :to="'/' + typeSlug + cat.slug">
@@ -204,13 +192,22 @@
               </template>
               <span @click="viewAllCategories()"><md-chip v-if="wago.categories.length > 5 && !showMoreCategories" class="show_more">{{ $t("[-count-] more", {count: wago.categories.length - 5}) }}</md-chip></span>
             </div>
-            <div id="thumbnails">
-              <template v-for="video in wago.videos">
-                <a class="showvid" :href="video.url" @click.prevent="showVideo(video.embed)"><md-icon>play_circle_outline</md-icon><md-image :md-src="video.thumb"></md-image></a>
-              </template>
-              <img v-for="(image, k) in wago.screens" v-lazy="image.src || image.thumb" @click="$refs.lightbox.showImage(k)">
-            </div>
           </md-card-header>
+
+          <div id="wago-actions" v-if="User && User.UID">
+            <md-button v-if="wago.user && wago.UID && wago.UID === User.UID && wago.code && wago.code.encoded" @click="generateNextVersionData(); $refs['newImportDialog'].open()" id="newImportButton"><md-icon>input</md-icon> {{ $t("Import new string") }}</md-button>
+            <md-button v-if="(!wago.UID || wago.UID !== User.UID)" @click="$refs.reportmodal.open()">
+              <md-icon>flag</md-icon> {{ $t("Report") }}
+            </md-button>
+            <span></span>
+            <md-button @click="newComment">
+              <md-icon>comment</md-icon> {{ $t("Post Comment") }}
+            </md-button>
+            <md-button @click="toggleFavorite">
+              <md-icon v-if="wago.myfave">star</md-icon>
+              <md-icon v-else>star_border</md-icon> {{ $t("Favorite") }}
+            </md-button>
+          </div>
         </md-card>
       </md-layout>
 
@@ -250,25 +247,6 @@
         </md-dialog-actions>
       </md-dialog>
 
-      <md-card id="wago-floating-header" v-if="showFloatingHeader">
-        <div class="floating-header">
-          <div>
-            <h3>{{ wago.name }} <span class="version-number" v-if="currentVersionString">v{{ currentVersionString }}</span></h3>
-            <md-subheader>{{ wago.type }}</md-subheader>
-          </div>
-          <div>
-            <md-button @click="toTop"><md-icon>arrow_upward</md-icon> {{ $t("To top") }}</md-button>
-          </div>
-          <md-button v-if="wago.code && wago.code.encoded" @click="copyEncoded" class="copy-import-button">
-            <md-icon>assignment</md-icon> {{ $t("Copy [-type-] import string", {type: wago.type}) }}
-            <md-button @click="openHelpDialog()" id="helpImportingButton" class="md-icon-button md-raised"><md-icon>help</md-icon></md-button>
-            <md-tooltip v-if="hasUnsavedChanges" md-direction="bottom" class="CopyWarningTooltip"><strong>{{ $t("You have unsaved changes") }}</strong><br>{{ $t("Be sure to save or fork to generate a new string with your modifications") }}</md-tooltip>
-            <md-tooltip v-else-if="corruptedData" md-direction="bottom" class="CopyWarningTooltip"><strong>{{ $t("This import is corrupted and will likely not work as expected") }}</strong></md-tooltip>
-            <md-tooltip v-else-if="codeReview && codeReview.alerts" md-direction="bottom" class="CopyWarningTooltip"><strong>{{ $t("This import has alerts, you are strongly suggested to review the code before installing") }}</strong></md-tooltip>
-          </md-button>
-        </div>
-      </md-card>
-
       <div id="wago-flex-container">
         <div id="wago-col-main" style="position:relative">
           <md-button id="wago-tabs-toggle" class="md-icon-button md-raised" @click="toggleTabs">
@@ -292,9 +270,9 @@
                   <md-button v-if="wago.versions && wago.versions.total > 1" v-bind:class="{'md-toggle': showPanel === 'versions'}" @click="toggleFrame('versions')" ref="versionsButton">{{ $t("[-count-] version", { count: wago.versions.total }) }}</md-button>
                   <md-button v-if="wago.code && !wago.code.Q && hasCodeDiffs" v-bind:class="{'md-toggle': showPanel === 'diffs'}" @click="toggleFrame('diffs')" ref="diffsButton">{{ $t("Code Diffs") }}</md-button>
                   <md-button v-if="wago.code && wago.code.customCode && wago.code.customCode[0] && wago.code.customCode[0].luacheck && wago.type !== 'SNIPPET'" v-bind:class="{'md-toggle': showPanel === 'codereview'}" @click="toggleFrame('codereview')">{{ $t("Code Review") }}</md-button>
-                  <md-button v-if="wago.type !== 'ERROR' && wago.visibility && wago.visibility.public" v-bind:class="{'md-toggle': showPanel === 'embed'}" @click="toggleFrame('embed')">{{ $t("Embed") }}</md-button>
+                  <md-button v-if="wago.type !== 'ERROR' && wago.type !== 'COLLECTION' && wago.visibility && wago.visibility.public" v-bind:class="{'md-toggle': showPanel === 'embed'}" @click="toggleFrame('embed')">{{ $t("Embed") }}</md-button>
                   <md-button v-if="wago.type === 'MDT'" v-bind:class="{'md-toggle': showPanel === 'builder'}" @click="toggleFrame('builder')">{{ $t("Builder") }}</md-button>
-                  <md-button v-if="wago.type !== 'ERROR'" v-bind:class="{'md-toggle': showPanel === 'editor'}" @click="toggleFrame('editor')">{{ $t("Editor") }}</md-button>
+                  <md-button v-if="wago.type !== 'ERROR' && wago.type !== 'COLLECTION'" v-bind:class="{'md-toggle': showPanel === 'editor'}" @click="toggleFrame('editor')">{{ $t("Editor") }}</md-button>
                 </template>
                 <md-button v-else class="md-toggle">{{ $t("Encrypted") }}</md-button>
               </md-button-toggle>
@@ -503,7 +481,7 @@
                       </md-layout>
                     </md-layout>
                   </div>
-                  <div v-if="!wago.image && !wago.audio && wago.type !== 'ERROR'">
+                  <div v-if="!wago.image && !wago.audio && wago.type !== 'ERROR' && wago.type !== 'DBM'">
                     <div>
                       <label id="categoryLabel">{{ $t("Categories") }}</label>
                       <md-button class="md-icon-button md-raised" @click="numCategorySets++">
@@ -575,7 +553,7 @@
 
               <!-- DESCRIPTIONS FRAME -->
               <div id="wago-description-container" class="wago-container" v-if="showPanel=='description'">
-                <div id="wago-description" style="padding-top:6px">
+                <div id="wago-description" style="padding-top:2px">
                   <div v-if="codeReview.info && wago.type.match(/WEAKAURA|PLATER/)" id="import-info">
                     <template v-if="codeReview.info.dependencies.length">
                       <em>{{ $t('Import Dependencies') }}</em><br>
@@ -612,6 +590,11 @@
                     </template>
                     <template v-else>{{ $t('No custom code') }}</template>
                   </div>
+                  <div v-if="(wago.screens && wago.screens.length) || (wago.videos && wago.videos.length)" class="screenshots">
+                    <a  v-for="video in wago.videos" class="showvid" :href="video.url" @click.prevent="showVideo(video.embed)"><md-icon>play_circle_outline</md-icon><md-image :md-src="video.thumb"></md-image></a>
+                    <img v-for="(image, k) in wago.screens" v-lazy="image.src || image.thumb" @click="$refs.lightbox.showImage(k)">
+                  </div>
+
                   <div v-if="wago.code && wago.code.changelog && wago.code.changelog.text" class="changelog-text">
                     <div>v{{ wago.code.versionString }}</div>
                     <formatted-text :text="wago.code.changelog" :enableLinks="wago.user.enableLinks"></formatted-text>
@@ -773,7 +756,7 @@
               <!-- COMMENTS FRAME -->
               <div id="wago-comments-container" class="wago-container" v-if="showPanel=='comments'">
                 <div id="wago-comments">
-                  <view-comments :comments="wago.comments" :commentTotal="wago.commentCount" :wagoID="wago._id"></view-comments>
+                  <view-comments :comments="wago.comments" :commentTotal="wago.commentCount" :wagoID="wago._id" :openForm="openCommentForm"></view-comments>
                 </div>
               </div>
 
@@ -784,33 +767,25 @@
                   <md-table>
                     <md-table-header>
                       <md-table-row>
-                        <md-table-head md-numeric>{{ $t("Version") }}</md-table-head>
-                        <md-table-head md-numeric></md-table-head>
+                        <md-table-head>{{ $t("Version") }}</md-table-head>
                         <md-table-head>{{ $t("Import Date") }}</md-table-head>
-                        <md-table-head md-numeric>{{ $t("Size") }}</md-table-head>
                       </md-table-row>
                     </md-table-header>
 
                     <md-table-body>
                       <template v-for="(ver, key) in wago.versions.versions">
                         <md-table-row>
-                          <md-table-cell md-numeric>
+                          <md-table-cell>
+                            <span class='version-num'>{{ ver.versionString }}</span>
                             <md-chip v-if="ver.versionString === currentVersionString">{{ $t("Active") }}</md-chip>
                             <md-button v-else class='chip-button' :href="selectVersion([ver])">{{ $t("View") }}</md-button>
-                            <span class='version-num'>{{ ver.versionString }}</span>
-                          </md-table-cell>
-                          <md-table-cell>
-                            <md-button class='chip-button' v-bind:class="{'md-toggle': ver.version === viewNotes}" v-if="ver.changelog.text" @click="toggleViewNotes(ver.version)">{{ $t("View notes") }}</md-button>
                             <md-button v-if="User && wago.UID && wago.UID === User.UID" class='chip-button' @click="modifyVersion(ver)">{{ $t("Modify Version") }}</md-button>
                           </md-table-cell>
                           <md-table-cell>
                             {{ ver.date | moment("dddd, MMMM Do YYYY, h:mm a") }}
                           </md-table-cell>
-                          <md-table-cell md-numeric>
-                            {{ ver.size }}
-                          </md-table-cell>
                         </md-table-row>
-                        <md-table-row v-if="viewNotes === ver.version" class='changelog-row'>
+                        <md-table-row class='changelog-row' v-if="ver.changelog && ver.changelog.text">
                           <md-table-cell colspan="4"><span class='version-num'></span><formatted-text :text="ver.changelog" :enableLinks="wago.user.enableLinks"></formatted-text></md-table-cell>
                         </md-table-row>
                       </template>
@@ -1041,10 +1016,10 @@
                 <textarea id="wago-importstring" class="wago-importstring" spellcheck="false">{{ wago.code.encoded }}</textarea>
               </div>
 
-              <search v-if="wago.type === 'COLLECTION'" :contextSearch="'Collection: ' + wago._id"></search>
-
             </md-layout>
+
           </md-layout>
+          <search v-if="wago.type === 'COLLECTION'" :contextSearch="'Collection: ' + wago._id" :collection="true"></search>
         </div>
 
         <!-- SIDE PANEL COMMENTS -->
@@ -1276,6 +1251,7 @@ export default {
       hideMobileHeader: true,
       hideTabs: true,
       showPanel: 'description',
+      openCommentForm: false,
       showEditor: (window.innerWidth > 800),
       showConfig: false,
       showVersions: this.$route.params.version,
@@ -2343,6 +2319,10 @@ export default {
         vue.$set(vue.wago, 'favoriteCount', res.count)
       })
     },
+    newComment () {
+      this.showPanel = 'comments'
+      this.$nextTick(() => this.openCommentForm = true)
+    },
     showVideo (embedHTML) {
       // hack to fix broken youtube embeds
       if (embedHTML.indexOf('&') >= 0 && embedHTML.indexOf('?') < 0) {
@@ -3102,18 +3082,44 @@ export default {
 </script>
 
 <style src="vue-multiselect/dist/vue-multiselect.min.css"></style>
-<style>
+<style lang="scss">
+#sticky-header {
+  padding: 16px;
+  display: flex;
+  flex-direction: row;
+  background: #333333;
+  margin: 0 0 16px 0;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  h1 {
+    flex-grow: 1;
+    align-self: center;
+    font-size: 18px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    margin: 0;
+    div {
+      font-size: 14px;
+      opacity: .7;
+      span {margin-right: 16px}
+    }
+  }
+  .md-button {
+    margin: 0 4px;
+  }
+}
 #copyFail textarea { max-height: 110px; min-height:110px }
 #copyFail .md-input-container { display: inline-block; position: relative}
 
 #view-wago > div { position: relative }
-#wago-header.md-card { padding-bottom:0!important; flex: 1}
-#wago-header.md-card, #wago-floating-header.md-card { padding: 16px; margin: 16px }
-#wago-header.md-card h3, #wago-floating-header.md-card h3 { margin: 0 }
-#wago-header.md-card h3 + .md-subheader, #wago-floating-header.md-card h3 + .md-subheader { padding:0; min-height:0 }
+#wago-header.md-card { padding:0 16px!important; flex: 1; margin: 0;}
+#wago-header.md-card h3 { margin: 0 }
+#wago-header.md-card h3 + .md-subheader { padding:0; min-height:0 }
 
-#wago-header .md-card-header, #wago-floating-header .md-card-header { padding-left: 0; padding-right: 4px }
-#wago-header .md-card-header .item, #wago-floating-header .md-card-header .item { padding-left: 0!important; float: left; display: inline; margin-right: 16px; vertical-align: middle }
+#wago-header .md-card-header { padding-left: 0; padding-right: 4px; min-height: 160px; }
+#wago-header .md-card-header .item { padding-left: 0!important; float: left; display: inline; margin-right: 16px; vertical-align: middle }
 @media (min-width: 601px) {
   #wago-header .md-card-header .item+.item { margin-left: 16px; margin-right: 0 }
 }
@@ -3121,30 +3127,55 @@ export default {
 #wago-header .md-card-header .item .md-subhead { font-weight: 500; line-height: 20px; font-size: 14px; opacity: .54 }
 #wago-header .md-card-header .item .md-subhead.has-link { opacity: 1 }
 
-#wago-floating-header { position: fixed; top:-16px; right:0; left: 260px; z-index: 9; opacity: .95 }
-#wago-floating-header .floating-header { display: flex; justify-content: flex-start; align-content: stretch; align-items: flex-start}
-#wago-floating-header .floating-header div:not(.md-ink-ripple) { flex: 0 1 auto; vertical-align:top; margin-right: 24px}
-#wago-floating-header button { margin-top: 0 }
-.version-number { padding-left: 8px; opacity: .54; font-size: 14px }
-@media (max-width: 600px) {
-  #wago-floating-header { display: none!important}
-}
-
-#wago-tabs { flex: 0 1 auto; flex-direction: column }
-#wago-tabs .md-button-toggle { flex-direction: column }
+#wago-tabs { flex: 0 1 auto; flex-direction: column; margin: 0; }
+#wago-tabs .md-button-toggle { flex-direction: column; padding: 0; }
 #wago-tabs .md-button-toggle button { text-align:left }
 
 #wago-content { flex: 1; flex-direction: column }
 #wago-content > div { margin: 0 8px 16px 0; width: 100%; }
 #addCollectionButton, #newCommentButton { margin-top: 0 }
 
-#wago-actions { flex: 1; padding: 0; align-items: flex-start }
-#wago-actions button { margin-top: 0 }
+#import-meta {
+  margin-bottom: 16px;
+}
+
+#wago-actions {
+  margin: 0 -16px;
+  display: flex;
+  flex: 1;
+  padding: 0;
+  align-items: flex-start;
+  background: #444;
+  border-top: 1px solid #222;
+  span {
+    flex-grow: 1;
+  }
+  button {
+    margin: 0;
+    border-left: 1px solid #222;
+    &:first-child {
+      border-right: 1px solid #222;
+      border-left: 0;
+    }
+  }
+}
+
+#wago-description {
+  .screenshots {
+    padding-bottom: 8px;
+    border-bottom: 1px solid #333;
+    img {
+      max-width: 200px;
+      max-height: 80px;
+      margin: 0 8px 8px 0;
+      cursor: pointer;
+    }
+  }
+}
 .copy-import-button { border: 2px solid #c1272d; border-radius: 25px; margin: 4px 28px; display: inline-block }
 #wago-collections-container button { margin-left: -2px }
-#wago-floating-header .copy-import-button { margin: -2px 0 0 auto }
 
-#helpImportingButton, #helpAppButton {position: absolute; right: 0; top: -3px; margin: 0;}
+#helpImportingButton, #helpAppButton {position: absolute; right: -3px; top: -3px; margin: 0;}
 #helpImportingButton:hover, #helpAppButton:hover {background: rgba(193,39,45,.2)}
 #helpImportingButton i.md-icon, #helpAppButton i.md-icon {color:inherit}
 .copy-import-button {position: relative; padding-right: 50px}
@@ -3176,7 +3207,7 @@ a.showvid:hover:before  .md-icon { opacity:1 }
 .md-button-toggle { padding: 0 16px 16px; flex-wrap: wrap; }
 .md-button .commentAttn { color: #c2272e !important; -webkit-text-fill-color: #c2272e }
 
-.wago-container { padding: 0 16px; }
+.wago-container { padding: 0 0 0 16px; }
 .wago-container > h2 { padding: 0 16px; margin: 8px 0 16px }
 .wago-container > div { margin: 0; }
 .wago-container .border { border-bottom: 1px solid rgba(128, 128, 128, 0.5) }
@@ -3203,7 +3234,7 @@ a.showvid:hover:before  .md-icon { opacity:1 }
 .changelog-text { border-bottom: 1px solid #333; margin-bottom: 8px; }
 .md-table tbody .md-table-row.changelog-row { border-top-color: #333;}
 
-#import-info { float: right; padding: 8px; background: #333; margin: 0 0 16px 16px; outline: 2px solid #009690; }
+#import-info { float: right; padding: 8px; background: #333; margin: 0 0 16px 16px; border: 2px solid #009690; border-radius:2px; box-shadow: 0 1px 5px rgb(0 0 0 / 20%), 0 2px 2px rgb(0 0 0 / 14%), 0 3px 1px -2px rgb(0 0 0 / 12%); }
 #import-info em { font-weight: bold; font-style: normal; padding-bottom: 4px; display: inline-block; color: #009690}
 #import-info br + em { padding-top: 4px; }
 #import-info > span span:before { content: ': '; color: #ddd}
@@ -3212,7 +3243,13 @@ a.showvid:hover:before  .md-icon { opacity:1 }
 #import-info .metricsAlert {font-weight: bold; color: #e6000a}
 @media (max-width: 600px) {
   #import-info {
-    float: none
+    float: none;
+    margin: 0 2px 8px;
+  }
+  #comments {
+    .md-card {
+      margin: 0 16px 16px 0;
+    }
   }
 }
 
@@ -3282,6 +3319,17 @@ a.showvid:hover:before  .md-icon { opacity:1 }
   #wago-tabs-toggle { display: block; position: absolute; top: 8px; left: 8px; z-index: 9; background-color: rgba(0, 0, 0, 0.7) }
   #wago-tabs { position: absolute; top: 48px; z-index: 999}
   #wago-content { padding-top: 40px; }
+  #wago-description {
+    max-width: calc(100vw - 32px);
+    overflow: hidden;
+  }
+  #sendToDesktopAppBtn {display: none}
+  #copyImportBtn {
+    padding: 4px;
+    min-width: 36px;
+    border: 0;
+    span, button {display: none}
+  }
 }
 
 /* embed preview */

@@ -1,5 +1,5 @@
 <template>
-  <div v-bind:class="{ noFormat: truncate && truncate > 0 }" :class="'usertext ' + (text.format || 'bbcode') ">
+  <div v-bind:class="{ noFormat: truncate && truncate > 0 }" class="usertext">
     <slot></slot>
   </div>
 </template>
@@ -26,7 +26,7 @@ var md = require('markdown-it')({
 });
 
 export default {
-  props: ['text', 'truncate', 'plaintext', 'enableLinks'],
+  props: ['text', 'truncate', 'hideLinks', 'plaintext', 'enableLinks'],
   mounted: function() {
     this.$el.innerHTML = this.formatText()
   },
@@ -45,6 +45,9 @@ export default {
       if (this.plaintext) {
         var plaintext = this.text.text.replace(/\[\/?(?:b|center|code|color|face|font|i|justify|large|left|li|noparse|ol|php|quote|right|s|size|small|sub|sup|taggeduser|table|tbody|tfoot|td|th|tr|u|url|\*)*?.*?\]/g, '').replace(/\n/g, ' ')
         plaintext = plaintext.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+        if (this.hideLinks) {
+          plaintext = plaintext.replace(/https?:[^\s]+/g, '')
+        }
         // if shortening the text
         if (this.truncate && this.truncate > 0 && plaintext.length > this.truncate) {
           // truncate to length

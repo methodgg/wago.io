@@ -10,7 +10,7 @@
           <md-select name="customfn" id="customfn" v-model="customCodeIndex" md-menu-class="customFn">
             <md-option :value="-1" >{{ $t("Table data") }}</md-option>
             <template v-for="(fn, i) in customCode">
-              <md-option :value="i" class="code-select"><small>{{ fn.name.replace(/ - .*?$/, '') }}<span>:</span></small> {{ fn.name.replace(/^.* - /, '') }}</md-option>
+              <md-option :value="i" class="code-select"><small>{{ fn.name.replace(/^(.*) - .*?$/, '$1') }}<span>:</span></small> {{ fn.name.replace(/^.* - /, '') }}</md-option>
             </template>
             <md-subheader v-if="!customCode || !customCode.length">{{ $t("No custom functions found") }}</md-subheader>
           </md-select>

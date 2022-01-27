@@ -1,34 +1,34 @@
 <template>
-  <div id="search-delvui">
+  <div id="search-tpie">
     <md-layout md-row class="addon-name nowrap">
       <div class="grow">
         <md-layout md-row>
-          <md-avatar class='square'><category-image :group="'t-delvui'"></category-image></md-avatar>
-          <h2 id="addon-name">DelvUI</h2>
+          <md-avatar class='square'><category-image :group="'t-tpie'"></category-image></md-avatar>
+          <h2 id="addon-name">TPie</h2>
         </md-layout>
-        <addon-info addon="delvui"></addon-info>
+        <addon-info addon="tpie"></addon-info>
       </div>
     </md-layout>
     <md-layout md-row>
       <md-layout>
-        <md-subheader><router-link to="/delvui/tank/">{{ $t("Tanks") }}</router-link></md-subheader>
+        <md-subheader><router-link to="/tpie/tank/">{{ $t("Tanks") }}</router-link></md-subheader>
         <md-list class="md-double-line md-dense">
           <md-list-item v-for="job in tanks" v-bind:key="job.id" :class="job.id + ' md-inset'">
             <img v-if="job.svg" class="menu-image" :src="'/static/image/menu' + job.svg">
             <div v-else class="menu-image"></div>
             <div class="md-list-text-container">
-              <router-link :to="'/delvui/' + job.slug">{{ job.text }}</router-link>
+              <router-link :to="'/tpie/' + job.slug">{{ job.text }}</router-link>
             </div>
           </md-list-item>
         </md-list>
       </md-layout>
       <md-layout>
-        <md-subheader><router-link to="/delvui/healer/">{{ $t("Healers") }}</router-link></md-subheader>
+        <md-subheader><router-link to="/tpie/healer/">{{ $t("Healers") }}</router-link></md-subheader>
         <md-list class="md-double-line md-dense">
           <md-list-item v-for="job in healers" v-bind:key="job.id" :class="job.id + ' md-inset'">
             <div class="menu-image"></div>
             <div class="md-list-text-container">
-              <router-link :to="'/delvui/' + job.slug">{{ job.text }}</router-link>
+              <router-link :to="'/tpie/' + job.slug">{{ job.text }}</router-link>
             </div>
           </md-list-item>
         </md-list>
@@ -39,7 +39,7 @@
           <md-list-item v-for="sys in delvuisys" v-bind:key="sys.id" :class="sys.id + ' md-inset'">
             <div class="menu-image"></div>
             <div class="md-list-text-container">
-              <router-link :to="'/delvui/' + sys.slug">{{ sys.text }}</router-link>
+              <router-link :to="'/tpie/' + sys.slug">{{ sys.text }}</router-link>
             </div>
           </md-list-item>
         </md-list>
@@ -47,34 +47,34 @@
     </md-layout>
     <md-layout md-row>
       <md-layout>
-        <md-subheader><router-link to="/delvui/melee/">{{ $t("Melee DPS") }}</router-link></md-subheader>
+        <md-subheader><router-link to="/tpie/melee/">{{ $t("Melee DPS") }}</router-link></md-subheader>
         <md-list class="md-double-line md-dense">
           <md-list-item v-for="job in melee" v-bind:key="job.id" :class="job.id + ' md-inset'">
             <div class="menu-image"></div>
             <div class="md-list-text-container">
-              <router-link :to="'/delvui/' + job.slug">{{ job.text }}</router-link>
+              <router-link :to="'/tpie/' + job.slug">{{ job.text }}</router-link>
             </div>
           </md-list-item>
         </md-list>
       </md-layout>
       <md-layout>
-        <md-subheader><router-link to="/delvui/magic/">{{ $t("Ranged Magical DPS") }}</router-link></md-subheader>
+        <md-subheader><router-link to="/tpie/magic/">{{ $t("Ranged Magical DPS") }}</router-link></md-subheader>
         <md-list class="md-double-line md-dense">
           <md-list-item v-for="job in casters" v-bind:key="job.id" :class="job.id + ' md-inset'">
             <div class="menu-image"></div>
             <div class="md-list-text-container">
-              <router-link :to="'/delvui/' + job.slug">{{ job.text }}</router-link>
+              <router-link :to="'/tpie/' + job.slug">{{ job.text }}</router-link>
             </div>
           </md-list-item>
         </md-list>
       </md-layout>
       <md-layout>
-        <md-subheader><router-link to="/delvui/ranged/">{{ $t("Ranged Physical DPS") }}</router-link></md-subheader>
+        <md-subheader><router-link to="/tpie/ranged/">{{ $t("Ranged Physical DPS") }}</router-link></md-subheader>
         <md-list class="md-double-line md-dense">
           <md-list-item v-for="job in ranged" v-bind:key="job.id" :class="job.id + ' md-inset'">
             <div class="menu-image"></div>
             <div class="md-list-text-container">
-              <router-link :to="'/delvui/' + job.slug">{{ job.text }}</router-link>
+              <router-link :to="'/tpie/' + job.slug">{{ job.text }}</router-link>
             </div>
           </md-list-item>
         </md-list>
@@ -82,37 +82,37 @@
     </md-layout>
     <md-layout md-row>
       <md-layout>
-        <md-subheader><router-link to="/delvui/crafting/">{{ $t("Crafting") }}</router-link></md-subheader>
+        <md-subheader><router-link to="/tpie/crafting/">{{ $t("Crafting") }}</router-link></md-subheader>
         <md-list class="md-double-line md-dense">
           <md-list-item v-for="job in crafters" v-bind:key="job.id" :class="job.id + ' md-inset'">
             <img v-if="job.svg" class="menu-image" :src="'/static/image/menu' + job.svg">
             <div v-else class="menu-image"></div>
             <div class="md-list-text-container">
-              <router-link :to="'/delvui/' + job.slug">{{ job.text }}</router-link>
+              <router-link :to="'/tpie/' + job.slug">{{ job.text }}</router-link>
             </div>
           </md-list-item>
         </md-list>
       </md-layout>
       <md-layout>
-        <md-subheader><router-link to="/delvui/gathering/">{{ $t("Gathering") }}</router-link></md-subheader>
+        <md-subheader><router-link to="/tpie/gathering/">{{ $t("Gathering") }}</router-link></md-subheader>
         <md-list class="md-double-line md-dense">
           <md-list-item v-for="job in gatherers" v-bind:key="job.id" :class="job.id + ' md-inset'">
             <img v-if="job.svg" class="menu-image" :src="'/static/image/menu' + job.svg">
             <div v-else class="menu-image"></div>
             <div class="md-list-text-container">
-              <router-link :to="'/delvui/' + job.slug">{{ job.text }}</router-link>
+              <router-link :to="'/tpie/' + job.slug">{{ job.text }}</router-link>
             </div>
           </md-list-item>
         </md-list>
       </md-layout>
       <md-layout>
-        <md-subheader><router-link to="/delvui/miscellaneous/">{{ $t("Miscellaneous") }}</router-link></md-subheader>
+        <md-subheader><router-link to="/tpie/miscellaneous/">{{ $t("Miscellaneous") }}</router-link></md-subheader>
         <md-list class="md-double-line md-dense">
           <md-list-item v-for="job in misc" v-bind:key="job.id" :class="job.id + ' md-inset'">
             <img v-if="job.svg" class="menu-image" :src="'/static/image/menu' + job.svg">
             <div v-else class="menu-image"></div>
             <div class="md-list-text-container">
-              <router-link :to="'/delvui/' + job.slug">{{ job.text }}</router-link>
+              <router-link :to="'/tpie/' + job.slug">{{ job.text }}</router-link>
             </div>
           </md-list-item>
         </md-list>
@@ -137,13 +137,13 @@ export default {
       if (typeof item === 'string') {
         item = window.Categories.match(item)
       }
-      this.$store.commit('setSearchText', `type:DELVUI category:${item.id}`)
-      this.$router.push('/' + item.slug)
+      this.$store.commit('setSearchText', `type:TPIE category:${item.id}`)
+      this.$router.push('/tpie/' + item.slug)
     }
   },
   data: function () {
     return {
-      searchString: 'Type: DelvUI '
+      searchString: 'Type: TPie '
     }
   },
   computed: {
@@ -167,20 +167,14 @@ export default {
     },
     gatherers: function () {
       return window.Categories.getCategories(['job-btn', 'job-fsh', 'job-min'])
-    },
-    misc: function () {
-      return window.Categories.getCategories(['xiv-rp'])
-    },
-    delvuisys: function () {
-      return window.Categories.getCategories(['delvui1', 'delvui2', 'delvui3', 'delvui4'])
     }
   },
   mounted: function () {
     this.$store.commit('setPageInfo', {
-      title: 'DelvUI',
-      description: this.$t('Browse DelvUI imports')
+      title: 'TPie',
+      description: this.$t('Browse TPie imports')
     })
-    this.http.get('/search/menu', {view: 'DelvUI'})
+    this.http.get('/search/menu', {view: 'TPie'})
   }
 }
 </script>
@@ -202,15 +196,15 @@ h2 span {font-size:80%; cursor: pointer}
 #addon-name .md-theme-default.md-switch.md-checked .md-switch-container {background-color: rgba(0, 0, 0, 0.38);}
 #addon-name .md-theme-default.md-switch.md-checked .md-switch-thumb {background-color: #fafafa;}
 
-#search-delvui .md-list-item img { height: 48px; padding-right: 16px; vertical-align:top}
-#search-delvui a { margin-right: 12px }
-#search-delvui .md-list-item.md-inset .md-list-item-container { padding-left: 24px; flex-wrap: wrap; padding-bottom: 16px }
-#search-delvui .md-list-text-container a { white-space: nowrap; display: inline-block }
-#search-delvui .md-list-text-container > a, #search-elvui .md-list-text-container > .parent-category { font-size: 18px; font-weight: bold; line-height: 19px; }
-#search-delvui .md-list-text-container span{ white-space: normal; line-height: 22px}
-#search-delvui .md-layout { align-items: flex-start}
+#search-tpie .md-list-item img { height: 48px; padding-right: 16px; vertical-align:top}
+#search-tpie a { margin-right: 12px }
+#search-tpie .md-list-item.md-inset .md-list-item-container { padding-left: 24px; flex-wrap: wrap; padding-bottom: 16px }
+#search-tpie .md-list-text-container a { white-space: nowrap; display: inline-block }
+#search-tpie .md-list-text-container > a, #search-tpie .md-list-text-container > .parent-category { font-size: 18px; font-weight: bold; line-height: 19px; }
+#search-tpie .md-list-text-container span{ white-space: normal; line-height: 22px}
+#search-tpie .md-layout { align-items: flex-start}
 
-#search-delvui .md-subheader { width: 100% }
-#search-delvui .md-subheader + .md-list { width: 100% }
+#search-tpie .md-subheader { width: 100% }
+#search-tpie .md-subheader + .md-list { width: 100% }
 .md-list:after { background-color: transparent!important }
 </style>

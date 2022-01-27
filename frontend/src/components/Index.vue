@@ -1,9 +1,9 @@
 <template>
   <div id="index">
     <md-layout md-gutter="32" :md-column-small="true">
-      <md-layout id="col1" md-vertical-align="start">
-        <md-whiteframe id="importform">
-          <md-input-container :class="{ 'md-input-invalid': importError }">
+      <md-whiteframe id="importform">
+        <md-layout style="flex-wrap:nowrap">
+          <md-input-container style="flex:1;" :class="{ 'md-input-invalid': importError }">
             <label>{{ $t("Paste your import string here") }}</label>
             <div id="inputStringWrapper">
               <md-textarea id="inputStringTextarea" name="importString" placeholder=" " v-model="importString"></md-textarea>
@@ -12,324 +12,293 @@
             <span class="md-error">{{ importErrorMsg }}</span>
           </md-input-container>
 
-          <div class="field-group">
-            <md-input-container>
-              <label for="visibilty">{{ $t("Visibility") }}</label>
-              <md-select name="visibilty" id="visibilty" v-model="visibility">
-                <md-option value="Public" selected>{{ $t("Public") }}</md-option>
-                <md-option value="Hidden">{{ $t("Hidden (only viewable with link)") }}</md-option>
-                <md-option value="Encrypted">{{ $t("Encrypted (only viewable with password)") }}</md-option>
-                <md-option v-if="user.name" value="Restricted">{{ $t("Restricted (viewable for select users)") }}</md-option>
-                <md-option v-if="user.name" value="Private">{{ $t("Private (only you may view)") }}</md-option>
-              </md-select>
-            </md-input-container>
+          <!--<div style="width:350px; height:197px; background: purple; margin:0 0 16px 16px" v-if="this.$store.state.user"></div>-->
+        </md-layout>
 
-            <md-input-container v-if="user.UID || user.guest">
-              <label for="importAs">{{ $t("Import As") }}</label>
-              <md-select name="importAs" id="importAs" v-model="importAs">
-                <md-option value="User" v-if="user.UID">{{ user.name }}</md-option>
-                <md-option value="Guest">{{ $t("Anonymous Guest") }}</md-option>
-                <md-subheader v-if="!user.name" id="signinanon" v-html="$t('Sign in to keep track of your imports')"></md-subheader>
-              </md-select>
-            </md-input-container>
+        <div class="field-group">
+          <md-input-container>
+            <label for="visibilty">{{ $t("Visibility") }}</label>
+            <md-select name="visibilty" id="visibilty" v-model="visibility">
+              <md-option value="Public" selected>{{ $t("Public") }}</md-option>
+              <md-option value="Hidden">{{ $t("Hidden (only viewable with link)") }}</md-option>
+              <md-option value="Encrypted">{{ $t("Encrypted (only viewable with password)") }}</md-option>
+              <md-option v-if="user.name" value="Restricted">{{ $t("Restricted (viewable for select users)") }}</md-option>
+              <md-option v-if="user.name" value="Private">{{ $t("Private (only you may view)") }}</md-option>
+            </md-select>
+          </md-input-container>
 
-            <md-input-container>
-              <label for="expire">{{ $t("Expire After") }}</label>
-              <md-select name="expire" id="expire" v-model="expire">
-                <md-option value="never">{{ $t("Never") }}</md-option>
-                <md-option value="3mo">{{ $t("3 months") }}</md-option>
-                <md-option value="1mo">{{ $t("1 month") }}</md-option>
-                <md-option value="1wk">{{ $t("1 week") }}</md-option>
-                <md-option value="3hr">{{ $t("3 hours") }}</md-option>
-                <md-option value="15m">{{ $t("15 minutes") }}</md-option>
-              </md-select>
-            </md-input-container>
-          </div>
+          <md-input-container v-if="user.UID || user.guest">
+            <label for="importAs">{{ $t("Import As") }}</label>
+            <md-select name="importAs" id="importAs" v-model="importAs">
+              <md-option value="User" v-if="user.UID">{{ user.name }}</md-option>
+              <md-option value="Guest">{{ $t("Anonymous Guest") }}</md-option>
+              <md-subheader v-if="!user.name" id="signinanon" v-html="$t('Sign in to keep track of your imports')"></md-subheader>
+            </md-select>
+          </md-input-container>
 
-          <div v-if="visibility === 'Encrypted'" style="margin: 0 0 8em 1em">
-            <md-input-container md-has-password>
-              <label>{{ $t('Password / Cipher Key') }}</label>
-              <md-input v-model="cipherKey" type="password" data-lpignore="true"></md-input>
-              <span class="md-note">
-                {{ $t('Your import will be encrypted before storing on the server') }}<br>
-                {{ $t('Do not lose your key! There is NO WAY to recover encrypted data without it!') }}<br>
-                {{ $t('Note that some features performed by the server will not be available for encrypted imports') }}
-              </span>
-            </md-input-container>
-          </div>
+          <md-input-container>
+            <label for="expire">{{ $t("Expire After") }}</label>
+            <md-select name="expire" id="expire" v-model="expire">
+              <md-option value="never">{{ $t("Never") }}</md-option>
+              <md-option value="3mo">{{ $t("3 months") }}</md-option>
+              <md-option value="1mo">{{ $t("1 month") }}</md-option>
+              <md-option value="1wk">{{ $t("1 week") }}</md-option>
+              <md-option value="3hr">{{ $t("3 hours") }}</md-option>
+              <md-option value="15m">{{ $t("15 minutes") }}</md-option>
+            </md-select>
+          </md-input-container>
+        </div>
 
-          <div v-if="visibility === 'Restricted'" style="margin-left:1em">
-            <template v-for="(rest, index) in restrictions">
-              <md-layout :key="index">
-                <md-layout>
-                  <md-input-container>
-                    <label>{{ $t("Access Granted To") }}</label>
-                    <md-select v-model="rest.type" @change="onUpdateRestrictionsDebounce(index)">
-                      <md-option value="user">{{ $t("Username") }}</md-option>
-                      <md-option value="guild" v-if="user.access.restrictGuild && user.battlenet && user.battlenet.guilds && user.battlenet.guilds.length">{{ $t("Guild") }}</md-option>
-                      <!--<md-option value="twitchsubs" v-if="user.access.restrictSubs && user.twitch && user.twitch.id">{{ $t("Twitch Subscribers") }}</md-option>-->
-                      <md-option v-if="index > 0" value="remove">{{ $t("Remove Access") }}</md-option>
-                    </md-select>
-                  </md-input-container>
-                </md-layout>
-                <md-layout class="resticted-options">
-                  <md-input-container v-if="rest.type === 'user'">
-                    <label for="advSearchUserName">{{ $t("Enter Username") }}</label>
-                    <md-autocomplete v-model="rest.value" @md-changed="autoCompleteUserName" :debounce="600" @change="onUpdateRestrictionsDebounce(index)"></md-autocomplete>
-                  </md-input-container>
-                  <md-input-container v-if="rest.type === 'guild'">
-                    <label>{{ $t("Select Guild") }}</label>
-                    <md-select v-model="rest.value" @change="onUpdateRestrictionsDebounce(index)">
-                      <template v-for="(guild, guildIndex) in user.battlenet.guilds">
-                        <md-option :key="guildIndex" :value="guild" v-if="!guild.match(/\d$/)">{{ guild.replace(/@/, '-').replace(/@/, ' <') + '>' }}</md-option>
-                      </template>
-                    </md-select>
-                  </md-input-container>
-                  <md-input-container v-if="rest.type === 'guild' && rest.value">
-                    <label>{{ $t("Select Rank(s)") }} [ <a :href="getGuildLink(rest.value)" target="_blank" rel="noopener">{{ $t("View Members") }}</a> ]</label>
-                    <md-select v-model="rest.rank" @change="onUpdateRestrictionsDebounce(index)">
-                      <md-option value="9">{{ $t("Everyone (Ranks 1-10)") }}</md-option>
-                      <md-option value="8">{{ $t("Ranks 1-9") }}</md-option>
-                      <md-option value="7">{{ $t("Ranks 1-8") }}</md-option>
-                      <md-option value="6">{{ $t("Ranks 1-7") }}</md-option>
-                      <md-option value="5">{{ $t("Ranks 1-6") }}</md-option>
-                      <md-option value="4">{{ $t("Ranks 1-5") }}</md-option>
-                      <md-option value="3">{{ $t("Ranks 1-4") }}</md-option>
-                      <md-option value="2">{{ $t("Ranks 1-3") }}</md-option>
-                      <md-option value="1">{{ $t("Ranks 1-2") }}</md-option>
-                      <md-option value="0">{{ $t("Guild Leader (Rank 1)") }}</md-option>
-                    </md-select>
-                  </md-input-container>
-                </md-layout>
-              </md-layout>
-            </template>
-            <md-layout v-if="restrictions.length < 20 && restrictions[0].value">
+        <div v-if="visibility === 'Encrypted'" style="margin: 0 0 8em 1em">
+          <md-input-container md-has-password>
+            <label>{{ $t('Password / Cipher Key') }}</label>
+            <md-input v-model="cipherKey" type="password" data-lpignore="true"></md-input>
+            <span class="md-note">
+              {{ $t('Your import will be encrypted before storing on the server') }}<br>
+              {{ $t('Do not lose your key! There is NO WAY to recover encrypted data without it!') }}<br>
+              {{ $t('Note that some features performed by the server will not be available for encrypted imports') }}
+            </span>
+          </md-input-container>
+        </div>
+
+        <div v-if="visibility === 'Restricted'" style="margin-left:1em">
+          <template v-for="(rest, index) in restrictions">
+            <md-layout :key="index">
               <md-layout>
                 <md-input-container>
-                  <label>{{ $t("Access Granted New") }}</label>
-                  <md-select v-model="newRestrictionType" @change="checkNewRestrictions">
+                  <label>{{ $t("Access Granted To") }}</label>
+                  <md-select v-model="rest.type" @change="onUpdateRestrictionsDebounce(index)">
                     <md-option value="user">{{ $t("Username") }}</md-option>
                     <md-option value="guild" v-if="user.access.restrictGuild && user.battlenet && user.battlenet.guilds && user.battlenet.guilds.length">{{ $t("Guild") }}</md-option>
                     <!--<md-option value="twitchsubs" v-if="user.access.restrictSubs && user.twitch && user.twitch.id">{{ $t("Twitch Subscribers") }}</md-option>-->
+                    <md-option v-if="index > 0" value="remove">{{ $t("Remove Access") }}</md-option>
                   </md-select>
                 </md-input-container>
               </md-layout>
               <md-layout class="resticted-options">
-                <md-input-container v-if="newRestrictionType === 'user'">
+                <md-input-container v-if="rest.type === 'user'">
                   <label for="advSearchUserName">{{ $t("Enter Username") }}</label>
-                  <md-autocomplete v-model="newRestrictionValue" @md-changed="autoCompleteUserName" @blur="checkNewRestrictions"></md-autocomplete>
+                  <md-autocomplete v-model="rest.value" @md-changed="autoCompleteUserName" :debounce="600" @change="onUpdateRestrictionsDebounce(index)"></md-autocomplete>
                 </md-input-container>
-                <md-input-container v-if="newRestrictionType === 'guild'">
+                <md-input-container v-if="rest.type === 'guild'">
                   <label>{{ $t("Select Guild") }}</label>
-                  <md-select v-model="newRestrictionValue" @change="checkNewRestrictions">
+                  <md-select v-model="rest.value" @change="onUpdateRestrictionsDebounce(index)">
                     <template v-for="(guild, guildIndex) in user.battlenet.guilds">
                       <md-option :key="guildIndex" :value="guild" v-if="!guild.match(/\d$/)">{{ guild.replace(/@/, '-').replace(/@/, ' <') + '>' }}</md-option>
                     </template>
                   </md-select>
                 </md-input-container>
+                <md-input-container v-if="rest.type === 'guild' && rest.value">
+                  <label>{{ $t("Select Rank(s)") }} [ <a :href="getGuildLink(rest.value)" target="_blank" rel="noopener">{{ $t("View Members") }}</a> ]</label>
+                  <md-select v-model="rest.rank" @change="onUpdateRestrictionsDebounce(index)">
+                    <md-option value="9">{{ $t("Everyone (Ranks 1-10)") }}</md-option>
+                    <md-option value="8">{{ $t("Ranks 1-9") }}</md-option>
+                    <md-option value="7">{{ $t("Ranks 1-8") }}</md-option>
+                    <md-option value="6">{{ $t("Ranks 1-7") }}</md-option>
+                    <md-option value="5">{{ $t("Ranks 1-6") }}</md-option>
+                    <md-option value="4">{{ $t("Ranks 1-5") }}</md-option>
+                    <md-option value="3">{{ $t("Ranks 1-4") }}</md-option>
+                    <md-option value="2">{{ $t("Ranks 1-3") }}</md-option>
+                    <md-option value="1">{{ $t("Ranks 1-2") }}</md-option>
+                    <md-option value="0">{{ $t("Guild Leader (Rank 1)") }}</md-option>
+                  </md-select>
+                </md-input-container>
               </md-layout>
             </md-layout>
-          </div>
-
-          <div v-if="isScanning"><md-spinner md-indeterminate></md-spinner></div>
-          <strong>{{ importType === 'WEAKAURAS2' ? 'WEAKAURA' : importType }}</strong><br>
-
-          <md-layout v-if="scanID">
+          </template>
+          <md-layout v-if="restrictions.length < 20 && restrictions[0].value">
             <md-layout>
               <md-input-container>
-                <label for="name">{{ $t("Name") }}</label>
-                <md-input name="name" id="name" v-model="name"></md-input>
+                <label>{{ $t("Access Granted New") }}</label>
+                <md-select v-model="newRestrictionType" @change="checkNewRestrictions">
+                  <md-option value="user">{{ $t("Username") }}</md-option>
+                  <md-option value="guild" v-if="user.access.restrictGuild && user.battlenet && user.battlenet.guilds && user.battlenet.guilds.length">{{ $t("Guild") }}</md-option>
+                  <!--<md-option value="twitchsubs" v-if="user.access.restrictSubs && user.twitch && user.twitch.id">{{ $t("Twitch Subscribers") }}</md-option>-->
+                </md-select>
+              </md-input-container>
+            </md-layout>
+            <md-layout class="resticted-options">
+              <md-input-container v-if="newRestrictionType === 'user'">
+                <label for="advSearchUserName">{{ $t("Enter Username") }}</label>
+                <md-autocomplete v-model="newRestrictionValue" @md-changed="autoCompleteUserName" @blur="checkNewRestrictions"></md-autocomplete>
+              </md-input-container>
+              <md-input-container v-if="newRestrictionType === 'guild'">
+                <label>{{ $t("Select Guild") }}</label>
+                <md-select v-model="newRestrictionValue" @change="checkNewRestrictions">
+                  <template v-for="(guild, guildIndex) in user.battlenet.guilds">
+                    <md-option :key="guildIndex" :value="guild" v-if="!guild.match(/\d$/)">{{ guild.replace(/@/, '-').replace(/@/, ' <') + '>' }}</md-option>
+                  </template>
+                </md-select>
               </md-input-container>
             </md-layout>
           </md-layout>
+        </div>
 
-          <div v-if="scanID && importType !== 'Lua Error'">
-            <label id="categoryLabel">{{ $t("Categories") }}</label>
-            <md-button class="md-icon-button md-raised" @click="numCategorySets++">
-              <md-icon>add</md-icon>
-            </md-button>
-            <div v-for="n in numCategorySets">
-              <div v-if="scanID" class="has-category-select">
-                <category-select :selectedCategories="setCategories[n-1]" @update="cat => {setCategories[n-1] = cat; onUpdateCategories()}" :type="(importType === 'WEAKAURAS2' ? 'WEAKAURA' : importType).toUpperCase()" :game="importGame"></category-select>
-              </div>
+        <div v-if="isScanning"><md-spinner md-indeterminate></md-spinner></div>
+        <strong>{{ importType === 'WEAKAURAS2' ? 'WEAKAURA' : importType }}</strong><br>
+
+        <md-layout v-if="scanID">
+          <md-layout>
+            <md-input-container>
+              <label for="name">{{ $t("Name") }}</label>
+              <md-input name="name" id="name" v-model="name"></md-input>
+            </md-input-container>
+          </md-layout>
+        </md-layout>
+
+        <div v-if="scanID && importType !== 'Lua Error' && importType !== 'DBM'">
+          <label id="categoryLabel">{{ $t("Categories") }}</label>
+          <md-button class="md-icon-button md-raised" @click="numCategorySets++">
+            <md-icon>add</md-icon>
+          </md-button>
+          <div v-for="n in numCategorySets">
+            <div v-if="scanID" class="has-category-select">
+              <category-select :selectedCategories="setCategories[n-1]" @update="cat => {setCategories[n-1] = cat; onUpdateCategories()}" :type="(importType === 'WEAKAURAS2' ? 'WEAKAURA' : importType).toUpperCase()" :game="importGame"></category-select>
             </div>
           </div>
-
-          <md-button class="md-raised" :disabled="disableSubmit || (visibility === 'Encrypted' && !cipherKey.length)" @click="submitImport()" style="margin-top:2em">Submit</md-button>
-        </md-whiteframe>
-
-        <md-whiteframe id="currentcontent">
-          <h3>{{ $t('Current Content') }}</h3>
-          <md-layout md-row>
-            <router-link to="/weakauras/pve/nyalotha">
-              <md-layout md-column>
-                <md-ink-ripple />
-                <div>
-                  <md-layout md-row>
-                    <category-image group="nyalotha"></category-image>
-                    <div>
-                      <strong>WeakAuras</strong><br>
-                      <span class="nyalotha">{{ $t("warcraft:zones.nyalotha") }}</span>
-                    </div>
-                  </md-layout>
-                </div>
-              </md-layout>
-            </router-link>
-            
-            <router-link :to="'/mdt/affixes/week' + mdtWeek.num">
-              <md-layout md-column>
-                <md-ink-ripple />
-                <div>
-                  <md-layout md-row>
-                    <category-image group="t-mdt"></category-image>
-                    <div>
-                      <strong>{{ $t('Season [-season-] MDT, Week [-week-]', {season: 4, week: mdtWeek.num}) }}</strong><br>
-                      <span class="affixWeek">{{ mdtWeek.affixes }}</span>
-                    </div>
-                  </md-layout>
-                </div>
-              </md-layout>
-            </router-link>
-            
-            <router-link to="/classic-weakauras/pve/blackwing-lair">
-              <md-layout md-column>
-                <md-ink-ripple />
-                <div>
-                  <md-layout md-row>
-                    <category-image group="blackwinglair"></category-image>
-                    <div>
-                      <strong>Classic WeakAuras</strong><br>
-                      <span class="blackwinglair">{{ $t("warcraft:zones.2677") }}</span>
-                    </div>
-        <cta-wago-addons />
-
-        <div v-if="latestBlogs && latestBlogs.length > 0" id="sitenews">
-          <wago-news :posts="latestBlogs"></wago-news>
         </div>
-      </md-layout>
 
-      <md-layout id="col2" :md-column-medium="true" md-vertical-align="start">        
-        <md-whiteframe id="topwagos" v-if="topLists && topLists[topID]">
-          <md-layout>
-            <md-layout>
-              <md-list class="md-dense">
-                <md-list-item class="top-list-header">
-                  <md-menu md-align-trigger md-size="6">
-                    <md-button class="md-dense" md-menu-trigger>{{ $t(topLists[topID].title) }}</md-button>
-                    <div class="top-list-note" v-if="topLists[topID].title.match(/Installed/)">{{ $t('Per WeakAuras Companion App') }}</div>
-                    <md-menu-content class="top-list-menu">
-                      <template v-for="(list, index) in topLists">
-                        <md-menu-item :key="index" @click="topID = index">{{ $t(list.title) }}</md-menu-item>
-                        <md-divider v-if="list.lastOfSection"></md-divider>
-                      </template>
-                    </md-menu-content>
-                  </md-menu>                  
-                </md-list-item>
-                <md-list-item v-for="(item, index) in topLists[topID].imports" :key="index">
-                  <router-link :to="'/' + item.slug">
-                    <div class="md-list-text-container">
-                      <span>{{ item.name }}</span>
-                      <span v-if="item.date">{{ item.display | moment('MMM Do YYYY LT') }}</span>
-                      <span v-else>{{ $t(item.display, item) }}</span>
-                    </div>
-                  </router-link>
-                  </router-link>
-                </md-list-item>
-              </md-list>
-            </md-layout>
-            <md-layout v-if="!($screenWidth >= 1780 && !$isMobile && (!user || !user.hideAds))">
-              <md-list class="md-dense">
-                <md-list-item class="top-list-header">
-                  <md-menu md-align-trigger md-size="6">
-                    <md-button class="md-dense" md-menu-trigger>{{ $t(topLists[topID2].title) }} <span class="down-arrow"></span></md-button>
-                    <div class="top-list-note" v-if="topLists[topID2].title.match(/Installed/)">{{ $t('Per WeakAuras Companion App') }}</div>
-                    <md-menu-content class="top-list-menu">
-                      <template v-for="(list, index) in topLists">
-                        <md-menu-item :key="index" @click="topID2 = index">{{ $t(list.title) }}</md-menu-item>
-                        <md-divider v-if="list.lastOfSection"></md-divider>
-                      </template>
-                    </md-menu-content>
-                  </md-menu>
-                </md-list-item>
-                <md-list-item v-for="(item, index) in topLists[topID2].imports" :key="index">
-                  <router-link :to="'/' + item.slug">
-                    <div class="md-list-text-container">
-                      <span>{{ item.name }}</span>
-                      <span v-if="item.date">{{ item.display | moment('MMM Do YYYY LT') }}</span>
-                      <span v-else>{{ $t(item.display, item) }}</span>
-                    </div>
-                  </router-link>
-                </md-list-item>
-              </md-list>
-            </md-layout>
-          </md-layout>
-          <md-layout>
-            <md-layout>
-              <md-list class="md-dense">
-                <md-list-item>
-                  <strong>{{ $t(topLists[topLists.length - 2].title) }}</strong>
-                </md-list-item>
-                <md-list-item v-for="(item, index) in topLists[topLists.length - 2].imports" :key="index" v-if="index < 3">
-                  <router-link :to="'/' + item.slug">
-                    <div class="md-list-text-container">
-                      <span>{{ item.name }}</span>
-                      <span>{{ item.display | moment('MMM Do YYYY LT') }}</span>
-                    </div>
-                  </router-link>
-                </md-list-item>
-              </md-list>
-            </md-layout>
-            <md-layout v-if="!($screenWidth >= 1780 && !$isMobile && (!user || !user.hideAds))">
-              <md-list class="md-dense" id="newest-imports">
-                <md-list-item>
-                  <strong>{{ $t(topLists[topLists.length - 1].title) }}</strong>
-                </md-list-item>
-                <md-list-item v-for="(item, index) in topLists[topLists.length - 1].imports" :key="index" v-if="index < 3">
-                  <router-link :to="'/' + item.slug">
-                    <div class="md-list-text-container">
-                      <span>{{ item.name }}</span>
-                      <span>{{ item.display | moment('MMM Do YYYY LT') }}</span>
-                    </div>
-                  </router-link>
-                </md-list-item>
-              </md-list>
-            </md-layout>
-          </md-layout>
+        <md-button class="md-raised" :disabled="disableSubmit || (visibility === 'Encrypted' && !cipherKey.length)" @click="submitImport()" style="margin-top:2em">{{ $t('Submit') }}</md-button>
+      </md-whiteframe>
+    </md-layout>
+
+    <div id="currentcontent">
+      <strong>{{ $t('Current WeakAuras') }}</strong>
+      <div id="current-wa">
+        <router-link :to="'/shadowlands-weakauras/' + currentWA.shadowlands[0].slug" :style="`border-color: ${currentWA.shadowlands[0].color}99; color:${currentWA.shadowlands[0].color}; background-color:${currentWA.shadowlands[0].color}11; background-image:url('/static/image/menu/${currentWA.shadowlands[0].image}')`"><span>{{ currentWA.shadowlands[0].text }}</span></router-link>
+        <router-link :to="'/tbc-weakauras/' + currentWA.tbc[0].slug" :style="`border-color: ${currentWA.tbc[0].color}99; color:${currentWA.tbc[0].color}; background-color:${currentWA.tbc[0].color}11; background-image:url('/static/image/menu/${currentWA.tbc[0].image}')`"><span>{{ currentWA.tbc[0].text }}</span></router-link>
+        <router-link :to="'/classic-weakauras/' + currentWA.classic[0].slug" :style="`border-color: ${currentWA.classic[0].color}99; color:${currentWA.classic[0].color}; background-color:${currentWA.classic[0].color}11; background-image:url('/static/image/menu/${currentWA.classic[0].image}')`"><span>{{ currentWA.classic[0].text }}</span></router-link>
+        <router-link :to="'/shadowlands-weakauras/' + currentWA.shadowlands[1].slug" :style="`border-color: ${currentWA.shadowlands[1].color}99; color:${currentWA.shadowlands[1].color}; background-color:${currentWA.shadowlands[1].color}11; background-image:url('/static/image/menu/${currentWA.shadowlands[1].image}')`"><span>{{ currentWA.shadowlands[1].text }}</span></router-link>
+        <router-link :to="'/tbc-weakauras/' + currentWA.tbc[1].slug" :style="`border-color: ${currentWA.tbc[1].color}99; color:${currentWA.tbc[1].color}; background-color:${currentWA.tbc[1].color}11; background-image:url('/static/image/menu/${currentWA.tbc[1].image}')`"><span>{{ currentWA.tbc[1].text }}</span></router-link>
+        <router-link :to="'/classic-weakauras/' + currentWA.classic[1].slug" :style="`border-color: ${currentWA.classic[1].color}99; color:${currentWA.classic[1].color}; background-color:${currentWA.classic[1].color}11; background-image:url('/static/image/menu/${currentWA.classic[1].image}')`"><span>{{ currentWA.classic[1].text }}</span></router-link>
+      </div>
+    </div>
+
+    <md-layout id="col2" :md-column-medium="true" md-vertical-align="start" v-if="!isTest">
+      <div id="topwagos" v-if="topLists && topLists[topID]">
+        <md-whiteframe>
+          <md-list class="md-dense">
+            <md-list-item class="top-list-header">
+              <md-menu md-align-trigger md-size="6">
+                <md-button class="md-dense" md-menu-trigger>{{ $t(topLists[topID].title) }}</md-button>
+                <div class="top-list-note" v-if="topLists[topID].title.match(/Installed/)">{{ $t('Per WeakAuras Companion App') }}</div>
+                <md-menu-content class="top-list-menu">
+                  <template v-for="(list, index) in topLists">
+                    <md-menu-item :key="index" @click="topID = index">{{ $t(list.title) }}</md-menu-item>
+                    <md-divider v-if="list.lastOfSection"></md-divider>
+                  </template>
+                </md-menu-content>
+              </md-menu>
+            </md-list-item>
+            <md-list-item v-for="(item, index) in topLists[topID].imports" :key="index">
+              <router-link :to="'/' + item.slug">
+                <div class="md-list-text-container">
+                  <span>{{ item.name }}</span>
+                  <span v-if="item.date">{{ item.display | moment('MMM Do YYYY LT') }}</span>
+                  <span v-else>{{ $t(item.display, item) }}</span>
+                </div>
+              </router-link>
+              </router-link>
+            </md-list-item>
+          </md-list>
         </md-whiteframe>
+        <md-whiteframe v-if="$screenWidth >= 1780">
+          <md-list class="md-dense">
+            <md-list-item class="top-list-header">
+              <md-menu md-align-trigger md-size="6">
+                <md-button class="md-dense" md-menu-trigger>{{ $t(topLists[topID2].title) }} <span class="down-arrow"></span></md-button>
+                <div class="top-list-note" v-if="topLists[topID2].title.match(/Installed/)">{{ $t('Per WeakAuras Companion App') }}</div>
+                <md-menu-content class="top-list-menu">
+                  <template v-for="(list, index) in topLists">
+                    <md-menu-item :key="index" @click="topID2 = index">{{ $t(list.title) }}</md-menu-item>
+                    <md-divider v-if="list.lastOfSection"></md-divider>
+                  </template>
+                </md-menu-content>
+              </md-menu>
+            </md-list-item>
+            <md-list-item v-for="(item, index) in topLists[topID2].imports" :key="index">
+              <router-link :to="'/' + item.slug">
+                <div class="md-list-text-container">
+                  <span>{{ item.name }}</span>
+                  <span v-if="item.date">{{ item.display | moment('MMM Do YYYY LT') }}</span>
+                  <span v-else>{{ $t(item.display, item) }}</span>
+                </div>
+              </router-link>
+            </md-list-item>
+          </md-list>
+        </md-whiteframe>
+        <md-whiteframe>
+          <md-list class="md-dense">
+            <md-list-item>
+              <strong>{{ $t(topLists[topLists.length - 2].title) }}</strong>
+            </md-list-item>
+            <md-list-item v-for="(item, index) in topLists[topLists.length - 2].imports" :key="index" v-if="index < 3">
+              <router-link :to="'/' + item.slug">
+                <div class="md-list-text-container">
+                  <span>{{ item.name }}</span>
+                  <span>{{ item.display | moment('MMM Do YYYY LT') }}</span>
+                </div>
+              </router-link>
+            </md-list-item>
+          </md-list>
+        </md-whiteframe>
+        <md-whiteframe v-if="$screenWidth >= 1780">
+          <md-list class="md-dense" id="newest-imports">
+            <md-list-item>
+              <strong>{{ $t(topLists[topLists.length - 1].title) }}</strong>
+            </md-list-item>
+            <md-list-item v-for="(item, index) in topLists[topLists.length - 1].imports" :key="index" v-if="index < 3">
+              <router-link :to="'/' + item.slug">
+                <div class="md-list-text-container">
+                  <span>{{ item.name }}</span>
+                  <span>{{ item.display | moment('MMM Do YYYY LT') }}</span>
+                </div>
+              </router-link>
+            </md-list-item>
+          </md-list>
+        </md-whiteframe>
+      </div>
 
-        <md-table v-if="addonReleases.length > 0" id="addonReleases">
-          <md-table-header>
-            <md-table-row>
-              <md-table-head>{{ $t("Latest addons") }}</md-table-head>
-              <md-table-head>{{ $t("Version") }}</md-table-head>
-            </md-table-row>
-          </md-table-header>
-          <md-table-body>
-            <md-table-row v-for="(addon, addonIndex) in addonReleases" :key="addonIndex" v-if="addon.addon !== 'Grid2'">
-              <md-table-cell>{{ addon.addon }}</md-table-cell>
-              <md-table-cell><a :href="addon.url" target="_blank" rel="noopener">{{ addon.version }}</a><br><span>{{ addon.date | moment('MMM Do YYYY') }}</span></md-table-cell>
-            </md-table-row>
-          </md-table-body>
-        </md-table>
-      </md-layout>
+      <!--<md-table v-if="addonReleases.length > 0" id="addonReleases">
+        <md-table-header>
+          <md-table-row>
+            <md-table-head>{{ $t("Latest addons") }}</md-table-head>
+            <md-table-head>{{ $t("Version") }}</md-table-head>
+          </md-table-row>
+        </md-table-header>
+        <md-table-body>
+          <md-table-row v-for="(addon, addonIndex) in addonReleases" :key="addonIndex" v-if="addon.addon !== 'Grid2'">
+            <md-table-cell>{{ addon.addon }}</md-table-cell>
+            <md-table-cell><a :href="addon.url" target="_blank" rel="noopener">{{ addon.version }}</a><br><span>{{ addon.date | moment('MMM Do YYYY') }}</span></md-table-cell>
+          </md-table-row>
+        </md-table-body>
+      </md-table>-->
     </md-layout>
   </div>
 </template>
 
 <style src="vue-multiselect/dist/vue-multiselect.min.css"></style>
-<style>
+<style lang="scss">
+#index {margin: 16px 0;}
+#index .wago-video-ad-container {margin-left: 16px;}
+
 #importform, #addonReleases { z-index:5; padding: 16px; width:100% }
 #importform textarea { max-height: 110px; min-height:110px }
 #importform .field-group .md-input-container { display: inline-block; max-width: 32%; position: relative}
 .field-group2 .md-input-container, .field-group2 strong { display: inline-block; max-width: 49%;}
 #signinanon { padding-left: 32px;  margin-top: -8px; }
 
+
 @media (min-width: 1281px) {
-  #col1, #col2 { padding: 16px }
+  #col1, #col2 { padding-top: 16px }
   #col1 { width: 100%; }
   #col2 { padding-left: 0; width: 100% }
-  .ads-enabled #col2 { padding-left: 0; max-width: 780px; flex: 0}
-  #topwagos > .md-layout > .md-layout { width: 50% }
+  #topwagos {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  #topwagos .md-whiteframe { width: calc(50% - 8px) }
   #topwagos > .md-layout > .md-layout > ul { min-width: 100% }
   #topwagos .md-layout .md-layout .md-list {padding: 0 16px}
 }
@@ -360,19 +329,52 @@
 #sitenews .md-card {margin: 16px 0 0; width:100%}
 #sitenews .md-card .md-subhead { opacity: 1 }
 
-#currentcontent {margin: 16px 0 0; width:100%; padding: 16px;}
-#currentcontent h3 {margin-top: 0}
-#currentcontent div a:not(.md-button) {color: inherit}
-#currentcontent div a:hover {text-decoration: none;}
-#currentcontent > .md-row {justify-content: space-between;}
-#currentcontent > .md-row .md-column {flex: 0 1 auto;; padding: 8px; position: relative;}
-#currentcontent > .md-row .md-column:hover {background-color: hsla(0,0%,60%,.2);}
-#currentcontent .category-image {align-self: center;}
-#currentcontent img {width: 32px; height: 32px; margin-right: 8px}
+#currentcontent {
+  margin: 16px 0 0; width:100%;
+  & > .md-layout > div {
+    flex: 1;
+  }
+  #current-wa {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    column-gap: 16px;
+    row-gap: 8px;
+    a {
+      min-width: 33%;
+      min-height: 64px;
+      display: flex;
+      align-items: center;
+      padding: 12px 8px 12px 64px;
+      font-size: 18px;
+      vertical-align: middle;
+      border-radius: 4px;
+      border-width: 2px;
+      border-style: solid;
+      margin-bottom: 8px;
+      background-repeat: no-repeat;
+      background-size: 48px;
+      background-position: 8px 50%;
+      transition: transform .3s;
+      z-index: 5;
+      &:hover {
+        text-decoration: none;
+        transform: scale(1.075);
+      }
+    }
+  }
+}
+
 
 #categoryLabel { margin-top: 10px; display: inline-block}
 
-#inputStringTextarea { overflow-x: hidden!important; overflow-y: hidden!important }
+#importform #inputStringTextarea {
+  overflow-x: hidden!important;
+  overflow-y: hidden!important;
+}
+.ads-enabled #importform #inputStringTextarea {
+  min-height: 108px;
+  max-height: 108px;
+}
 
 .resticted-options { flex: 3; flex-wrap: nowrap}
 
@@ -393,10 +395,52 @@
 #addonReleases span { color: #999999}
 
 span.md-note {height: 20px; position: absolute; bottom: -22px; font-size: 12px;}
+
+h3.spotlight-tab {margin:16px 0 8px 0; font-size: 16px; padding-left: 28px; display: inline-block; width: auto; border: 1px solid #333; border-radius: 4px 4px 0 0; cursor: pointer}
+h3.spotlight-tab:hover, h3.spotlight-tab.selected {background-color: #333;}
+.spotlights > h3 {margin: 16px 0 0}
+.spotlights > .md-row {justify-content: space-between;}
+.spotlights > .md-row > div {display: flex; width: 100%}
+.spotlights .md-card .md-card-content a:not(.md-button) {display: block; color: inherit!important}
+.spotlights .md-card .md-card-content a:not(.md-button):hover {text-decoration: none}
+.spotlights .md-card {padding: 2px; margin: 0 0 8px; max-width: 33%;}
+.spotlights .md-card .md-card-content {padding: 8px}
+
+.spotlights2 > h3 {margin: 16px 0 0; min-width: 100%;}
+.spotlights2 {min-width: 100%; display: flex; flex-direction: row}
+.spotlights2 a.hotspot {display: flex; flex-direction:row; border: 1px solid #333; background: #333; margin: 0 2px 2px 0; width: calc(33% - 4px)}
+.spotlights2 a.hotspot:hover {border: 1px solid #444; background: #444}
+.spotlights2 a.hotspot img {height: 84px}
+.spotlights2 a.hotspot div {width: 100%; height: 84px; position: relative;}
+.spotlights2 a.hotspot div .title {position: absolute; top:4px; left: 4px; font-weight: bold; color: white}
+
+.spotlights3 {min-width: 100%; display: flex; flex-direction: column}
+.spotlights3 .md-chip {padding-left: 28px; font-size: 14px}
+.spotlights3 a.hotspot {display: flex; flex-direction:row; border: 1px solid #333; background: #333; margin: 0 2px 2px 0;}
+.spotlights3 a.hotspot:hover {border: 1px solid #444; background: #444}
+.spotlights3 a.hotspot > img {height: 84px; width: 161px}
+.spotlights3 a.hotspot > div {width: 100%; height: 84px; position: relative;}
+.spotlights3 a.hotspot div .title {position: absolute; top:4px; left: 4px; font-weight: bold; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 97%}
+.spotlights3 a.hotspot div .author {display: flex; align-items: center; position: absolute; bottom:4px; left: 4px; font-weight: bold; font-size:90%; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 97%}
+.spotlights3 a.hotspot div .author .md-avatar {width: 24px; min-width: 24px; height: 24px; min-height: 24px}
+.spotlights3 a.hotspot div .author span {display: block; margin-left: 8px}
+.spotlights3 .spotlight-more { padding: 12px; border: 1px solid #333; background: #333; margin: 0 2px 2px 0;}
+.spotlights3 .spotlight-more:hover { text-decoration: none!important; background: #444}
+
+@media (max-width: 560px) {
+  .spotlights .md-card {max-width: 100%}
+}
+
+@media (max-width: 600px) {
+  #currentcontent #current-wa a {
+    padding-left: 12px;
+    background-image: none!important;
+  }
+}
 </style>
 
 <script>
-import Categories from './libs/categories'
+import Categories from './libs/categories2'
 import CategorySelect from './UI/SelectCategory.vue'
 import CategoryImage from './UI/CategoryImage.vue'
 import CTA_WagoAddons from './UI/CTAWagoAddons.vue'
@@ -425,11 +469,13 @@ export default {
       categories: [],
       importType: '',
       importGame: '',
+      importDomain: 0,
       isScanning: false,
       scanID: '',
       disableSubmit: true,
       top10Lists: {},
       topLists: [],
+      spotlight: {},
       topID: 0,
       topID2: 0,
       latestBlogs: [],
@@ -446,16 +492,36 @@ export default {
     CategorySelect,
     'vue-markdown': VueMarkdown,
     'wago-news': WagoNews,
-    'category-image': CategoryImage
+    'category-image': CategoryImage,
+    'cta-wago-addons': CTA_WagoAddons
   },
   computed: {
+    currentWA () {
+      return {
+        shadowlands: [
+          Categories.getCategories('raidsantumdom')[0],
+          Categories.getCategories('sltimewalking')[0],
+        ],
+        tbc: [
+          Categories.getCategories('raidbt')[0],
+          Categories.getCategories('raidmthyjal')[0],
+        ],
+        classic: [
+          Categories.getCategories('raidmoltencore')[0],
+          Categories.getCategories('raidworld')[0],
+        ]
+      }
+    },
     user () {
       return this.$store.state.user
     },
     mdtWeek () {
-      var weeks = Categories.getCategories([/^mdtaffix-bfa-s4-/], this.$t, true)
+      var weeks = categories.getCategories([/^mdtaffix-bfa-s4-/], true)
       if (!this.$store.state.MDTWeek || !weeks[this.$store.state.MDTWeek - 1]) return {}
       return {num: this.$store.state.MDTWeek, affixes: weeks[this.$store.state.MDTWeek - 1].text}
+    },
+    isTest () {
+      return false // this.$env === 'development' || document.getElementById('test-content')
     }
   },
   mounted: function () {
@@ -483,6 +549,7 @@ export default {
         }
         vue.topLists = JSON.parse(JSON.stringify(res.topLists))
       }
+      vue.spotlight = res.spotlight
       if (res.news) {
         vue.latestBlogs = JSON.parse(JSON.stringify(res.news))
       }
@@ -605,6 +672,7 @@ export default {
       vue.scanID = ''
       vue.importType = ''
       vue.importGame = ''
+      vue.importDomain = 0
       vue.disableSubmit = true
 
       // ignore short strings (probably unintentional keypress)
@@ -638,6 +706,7 @@ export default {
           vue.name = res.name
           vue.importType = res.type
           vue.importGame = res.game
+          vue.importDomain = res.domain
           if (res.type.match(/WEAKAURA/)) {
             this.weakauramode = res.type
           }
@@ -645,6 +714,7 @@ export default {
           // build category select
           if (res.categories) {
             vue.categories = Categories.getCategories(res.categories, vue.$t)
+            vue.numCategorySets = vue.categories.length
             vue.setCategories = vue.categories
           }
           else {

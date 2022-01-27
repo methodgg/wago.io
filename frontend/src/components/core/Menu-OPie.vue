@@ -1,12 +1,13 @@
 <template>
   <div id="search-opie">
-    <md-layout md-row class="addon-name">
-      <md-avatar class='square'><category-image :group="'t-opie'"></category-image></md-avatar>
-      <h2 id="addon-name">OPie
-      </h2>
-    </md-layout>
-    <md-layout>
-      <addon-info addon="opie"></addon-info>
+    <md-layout md-row class="addon-name nowrap">
+      <div class="grow">
+        <md-layout md-row>
+          <md-avatar class='square'><category-image :group="'t-opie'"></category-image></md-avatar>
+          <h2 id="addon-name">OPie</h2>
+        </md-layout>
+        <addon-info addon="opie"></addon-info>
+      </div>
     </md-layout>
     <md-layout>
       <md-layout>
@@ -51,8 +52,6 @@
         </md-list>
       </md-layout>
     </md-layout>
-    <advert ad="wago728x90" fixed="bottom" />
-    <div></div>
   </div>
 </template>
 

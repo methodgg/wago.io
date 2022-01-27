@@ -7,7 +7,7 @@
     </div>
     <div :class="{'search-dropdown': true, hidden: dropdownMenu === ''}" ref="searchDropdown">
       <md-list v-if="dropdownMenu === 'main'">
-        <md-list-item><h4>{{ $t('Search Options') }}</h4></md-list-item>
+        <md-list-item><h4>{{ $t('Search Options') }}<span class="close-search" @click="clearSearch()">✖</span></h4></md-list-item>
         <md-list-item v-if="!domain" @click="addSearchText('Type:')"><strong>{{ $t('Type') }}</strong><span>{{ $t('Example') }}: {{ $t('WeakAura; Plater') }}</span></md-list-item>
         <md-list-item v-else-if="domain === 1" @click="addSearchText('Type:')"><strong>{{ $t('Type') }}</strong><span>{{ $t('Example') }}: {{ $t('DelvUI') }}</span></md-list-item>
         <md-list-item v-if="!domain" @click="addSearchText('Expansion:')"><strong>{{ $t('Expansion') }}</strong><span>{{ $t('Example') }}: {{ $t('Shadowlands; TBCC') }}</span></md-list-item>
@@ -32,6 +32,7 @@
         <md-list-item v-if="!domain" @click="replaceSearchText(/type:\s*/i, 'type:VUHDO')">VuhDo</md-list-item>
         <md-list-item v-if="!domain" @click="replaceSearchText(/type:\s*/i, 'type:OPIE')">OPie</md-list-item>
         <md-list-item v-if="!domain" @click="replaceSearchText(/type:\s*/i, 'type:TOTALRP3')">Total RP</md-list-item>
+        <md-list-item v-if="!domain" @click="replaceSearchText(/type:\s*/i, 'type:DBM')">DBM</md-list-item>
         <md-list-item v-if="domain === 1" @click="replaceSearchText(/type:\s*/i, 'type:DELVUI')">DelvUI</md-list-item>
       </md-list>
       <md-list v-else-if="dropdownMenu === 'date'">
@@ -49,7 +50,7 @@
         </template>
       </md-list>
       <md-list v-else-if="dropdownMenu === 'metric'">
-        <md-list-item><h4>{{ $t('Configure a metric filter') }}<span class="close-search" @click="clearSearch(/type:\s*/i)">✖</span></h4></md-list-item>
+        <md-list-item><h4>{{ $t('Configure a metric filter') }}<span class="close-search" @click="clearSearch(/metric:\s*/i)">✖</span></h4></md-list-item>
         <md-list-item class="metric-config">
           <select v-model="metricName">
             <option value="Installs" v-if="!domain">{{ $t('Installs') }}</option>
@@ -173,6 +174,7 @@ export default {
           {regex: /(.*)(type:\s?VuhDo)(.*)/i, name: 'VuhDo', class:'imptype type-vuhdo', search: 'type:vuhdo'},
           {regex: /(.*)(type:\s?OPie)(.*)/i, name: 'OPie', class:'imptype type-opie', search: 'type:opie'},
           {regex: /(.*)(type:\s?TotalRP3?)(.*)/i, name: 'Total RP', class:'imptype type-totalrp', search: 'type:totalrp3'},
+          {regex: /(.*)(type:\s?DBM)(.*)/i, name: 'DBM', class:'imptype type-dbm', search: 'type:dbm'},
           {regex: /(.*)(type:\s?Collection?)(.*)/i, name: 'Collection', class:'imptype type-collection', search: 'type:collection'},
           {regex: /(.*)(type:\s?Snippet?)(.*)/i, name: 'Snippet', class:'imptype type-snippet', search: 'type:snippet'},
         ]
@@ -538,8 +540,14 @@ export default {
       this.quill.focus()
     },
     clearSearch: function (clear) {
-      this.replaceSearchText(clear, '')
-      this.dropdownMenu = 'main'
+      if (clear) {
+        this.replaceSearchText(clear, '')
+        this.dropdownMenu = 'main'
+      }
+      else {
+        this.dropdownMenu = ''
+      }
+
     },
     openDropdownMenu: function (reset) {
       if (!this.dropdownMenu || reset) {

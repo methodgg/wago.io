@@ -1,12 +1,13 @@
 <template>
   <div id="search-elvui">
-    <md-layout md-row class="addon-name">
-      <md-avatar class='square'><category-image :group="'t-elvui'"></category-image></md-avatar>
-      <h2 id="addon-name">ElvUI
-      </h2>
-    </md-layout>
-    <md-layout>
-      <addon-info addon="elvui"></addon-info>
+    <md-layout md-row class="addon-name nowrap">
+      <div class="grow">
+        <md-layout md-row>
+          <md-avatar class='square'><category-image :group="'t-elvui'"></category-image></md-avatar>
+          <h2 id="addon-name">ElvUI</h2>
+        </md-layout>
+        <addon-info addon="elvui"></addon-info>
+      </div>
     </md-layout>
     <md-subheader>{{ $t("Classes") }}</md-subheader>
     <md-layout>
@@ -39,8 +40,6 @@
         </md-list>
       </md-layout>
     </md-layout>
-    <advert ad="wago728x90" fixed="bottom" />
-    <div></div>
   </div>
 </template>
 

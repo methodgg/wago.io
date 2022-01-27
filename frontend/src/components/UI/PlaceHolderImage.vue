@@ -1,20 +1,53 @@
 <template>
-  <div class="placeholder-svg">
-    <svg width="120" height="71" xmlns="http://www.w3.org/2000/svg">
-      <text x="25%" y="25%" textLength="50%" fill="#777777" font-size="10px" v-if="text.match(/CLASSIC-/)">CLASSIC</text>
-      <text x="30%" y="60%" textLength="40%" fill="#777777" v-if="text.length < 5">{{ text.replace(/CLASSIC-/, '') }}</text>
-      <text x="10%" y="60%" textLength="80%" textHeight="70%" fill="#777777" v-else>{{ text.replace(/CLASSIC-/, '') }}</text>
-    </svg>
+  <div class="placeholder-img">
+    <strong>{{ text.split('').join(' ') }}<span></span></strong>
+    <category-image :group="'t-' + text.toLowerCase()" :class="'c-' + text.toLowerCase()"></category-image>
   </div>
 </template>
 
 <script>
+import CategoryImage from '../UI/CategoryImage.vue'
 export default {
-  props: ['text']
+  props: ['text', 'width', 'height'],
+  components: {
+    CategoryImage
+  }
 }
 </script>
 
-<style>
-.placeholder-svg svg {border: 1px solid #777}
+<style lang="scss">
+.placeholder-img {
+  border-radius: 4px;
+  strong {
+    display: block;
+    text-align: justify;
+    width: 70%;
+    margin: 0 auto;
+    padding-top: 16px;
+    color: #AAA;
+    span {
+      width: 100%;
+      display: inline-block;
+    }
+  }
+  .category-image {
+    height: calc(100% - 40px);
+    text-align: center;
+    margin-top: -16px;
+    img {
+      margin: 16px 0;
+      max-width: 100%;
+      max-height: 70%;
+    }
+
+    &.c-weakaura {
+      img {
+        mix-blend-mode: screen;
+        margin-top: 0;
+        max-height: 90%;
+      }
+    }
+  }
+}
 </style>
 

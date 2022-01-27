@@ -58,25 +58,26 @@ export default {
 
         case 'plater':
           links.push({url: searchURL, name: this.$t('Search Plater'), domain: 0})
-          links.push({url: 'https://www.curseforge.com/wow/addons/plater-nameplates', name: this.$t('Download Plater')})
+          links.push({url: 'https://addons.wago.io/addons/plater-nameplates', name: this.$t('Download Plater')})
           links.push({url: 'https://discord.gg/AGSzAZX', name: this.$t('Join Plater Discord')})
           break
 
         case 'totalrp3':
           links.push({url: searchURL, name: this.$t('Search Total RP'), domain: 0})
-          links.push({url: 'https://www.curseforge.com/wow/addons/total-rp-3-extended', name: this.$t('Download Total RP')})
+          links.push({url: 'https://addons.wago.io/addons/total-rp-3', name: this.$t('Download Total RP 3')})
+          links.push({url: 'https://addons.wago.io/addons/total-rp-3-extended', name: this.$t('Download Total RP 3 Extended')})
           links.push({url: 'http://discord.totalrp3.info/', name: this.$t('Join Total RP Discord')})
           break
 
         case 'vuhdo':
           links.push({url: searchURL, name: this.$t('Search VuhDo'), domain: 0})
-          links.push({url: 'https://www.curseforge.com/wow/addons/vuhdo', name: this.$t('Download Vuhdo')})
+          links.push({url: 'https://addons.wago.io/addons/vuhdo', name: this.$t('Download Vuhdo')})
           links.push({url: 'https://discord.gg/57en44E', name: this.$t('Join VuhDo Discord')})
           break
 
         case 'weakaura':
           links.push({url: searchURL, name: this.$t('Search WeakAuras'), domain: 0})
-          links.push({url: 'https://github.com/WeakAuras/WeakAuras2/releases', name: this.$t('Download WeakAuras')})
+          links.push({url: 'https://addons.wago.io/addons/weakauras', name: this.$t('Download WeakAuras')})
           links.push({url: 'https://weakauras.wtf', name: this.$t('Download Companion App')})
           links.push({url: 'https://discord.gg/weakauras', name: this.$t('Join WeakAuras Discord')})
       }
@@ -106,9 +107,9 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 #addon-meta {border-bottom: 1px solid #333; padding-bottom: 16px}
-#addon-meta .md-button { background: #00000033; margin:0 0 0 16px;}
+#addon-meta .md-button { background: #00000033; margin:8px 0 8px 16px;}
 #addon-meta .md-button:hover { background: #77777733}
 </style>
 

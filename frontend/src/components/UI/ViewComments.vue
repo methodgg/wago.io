@@ -71,7 +71,8 @@ export default {
     'comments',
     'commentTotal',
     'wagoID',
-    'isMod'
+    'isMod',
+    'openForm'
   ],
   data: function () {
     return {
@@ -166,6 +167,11 @@ export default {
       }
       return false
     }
+  },
+  watch: {
+    openForm () {
+      this.openReply(-1)
+    },
   },
   computed: {
     User () {

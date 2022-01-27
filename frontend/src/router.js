@@ -14,6 +14,7 @@ const MenuElvUI = resolve => require(['@/components/core/Menu-ElvUI.vue'], resol
 const MenuVuhdo = resolve => require(['@/components/core/Menu-Vuhdo.vue'], resolve)
 const MenuTotalRP = resolve => require(['@/components/core/Menu-TotalRP.vue'], resolve)
 const MenuOPie = resolve => require(['@/components/core/Menu-OPie.vue'], resolve)
+const MenuTPie = resolve => require(['@/components/core/Menu-TPie.vue'], resolve)
 const MenuPlater = resolve => require(['@/components/core/Menu-Plater.vue'], resolve)
 const MenuMDTBFA = resolve => require(['@/components/core/Menu-MDT-BFA.vue'], resolve)
 const MenuMDTShadowlands = resolve => require(['@/components/core/Menu-MDT-Shadowlands.vue'], resolve)
@@ -43,7 +44,7 @@ function GetContextSearch (params, type, expansion) {
   var tag
   var slug
   // if first param is a game then ignore it here; used in GetContextGame
-  if (params.c1.match(/^(bfa|classic)$/)) {
+  if (params.c1 && params.c1.match(/^(bfa|classic)$/)) {
     params.c1 = params.c2
     params.c2 = params.c3
     params.c3 = params.c4
@@ -164,11 +165,17 @@ export default {
     { path: '/totalrp/:c1/:c2', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'totalrp3'), contextDomain: 0 }) },
     { path: '/totalrp/:c1/:c2/:c3', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'totalrp3'), contextDomain: 0 }) },
     { path: '/totalrp/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'totalrp3'), contextDomain: 0 }) },
+    { path: '/dbm', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'dbm'), contextDomain: 0 }) },
     { path: '/delvui', component: MenuDelvUI },
     { path: '/delvui/:c1', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'delvui'), contextDomain: 1 }) },
     { path: '/delvui/:c1/:c2', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'delvui'), contextDomain: 1 }) },
     { path: '/delvui/:c1/:c2/:c3', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'delvui'), contextDomain: 1 }) },
     { path: '/delvui/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'delvui'), contextDomain: 1 }) },
+    { path: '/tpie', component: MenuTPie },
+    { path: '/tpie/:c1', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'TPie'), contextDomain: 1 }) },
+    { path: '/tpie/:c1/:c2', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'TPie'), contextDomain: 1 }) },
+    { path: '/tpie/:c1/:c2/:c3', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'TPie'), contextDomain: 1 }) },
+    { path: '/tpie/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'TPie'), contextDomain: 1 }) },
     { path: '/addons', component: MenuAddons },
     { path: '/addons/elvui', redirect: '/elvui' },
     { path: '/addons/opie', redirect: '/opie' },

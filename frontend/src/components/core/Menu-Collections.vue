@@ -1,11 +1,13 @@
 <template>
   <div id="search-collections">
-    <md-layout md-row class="addon-name">
-      <md-avatar class='square'><category-image :group="'t-collection'"></category-image></md-avatar>
-      <h2 id="addon-name">{{ $t('Collections') }}</h2>
-    </md-layout>
-    <md-layout>
-      <addon-info addon="collection"></addon-info>
+    <md-layout md-row class="addon-name nowrap">
+      <div class="grow">
+        <md-layout md-row>
+          <md-avatar class='square'><category-image :group="'t-collection'"></category-image></md-avatar>
+          <h2 id="addon-name">Collections</h2>
+        </md-layout>
+        <addon-info addon="collection"></addon-info>
+      </div>
     </md-layout>
     <md-layout>
       <md-layout>
@@ -174,7 +176,6 @@
         </md-list>
       </md-layout>
     </md-layout>
-    <advert ad="wago728x90" fixed="bottom" />
     <div></div>
   </div>
 </template>
@@ -209,7 +210,7 @@ export default {
       return window.Categories.classCategories()
     },
     shadowlandsRaids: function () {
-      return window.Categories.raidCategories(['raidsantumdom', 'raidnathria', 'sldungeon'])
+      return window.Categories.raidCategories(['raidsepulcherfirst', 'raidsantumdom', 'raidnathria', 'sldungeon'])
     },
     bfaRaids: function () {
       return window.Categories.raidCategories(['raideternalpalace', 'raidcrucible', 'raidzuldazar', 'raiduldir', 'bfadungeon'])
@@ -218,7 +219,7 @@ export default {
       return window.Categories.raidCategories(['raidantorus', 'raidtomb', 'raidnh', 'dungeon'])
     },
     tbcRaids: function () {
-      return window.Categories.raidCategories(['raidsw', 'raidbt', 'raidmthyjal', 'raidssc', 'raidtk', 'raidgruul', 'raidkarazhan', 'tbcdungeon'])
+      return window.Categories.raidCategories(['raidbt', 'raidsw', 'raidmthyjal', 'raidssc', 'raidtk', 'raidgruul', 'raidkarazhan', 'tbcdungeon'])
     },
     classicRaids: function () {
       return window.Categories.raidCategories(['raidnaxxramas', 'raidtempleaq', 'raidruinsaq', 'raidzulgurub', 'raidblackwinglair', 'raidmoltencore', 'classicdungeon'])

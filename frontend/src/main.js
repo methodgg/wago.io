@@ -52,6 +52,7 @@ const store = new Vuex.Store({
   state: {
     isTest: process.env.NODE_ENV === 'development' || document.getElementById('test-content'),
     locale: window.readCookie('locale') || 'en-US',
+    advertSetup: false,
     user: {},
     loggedIn: false,
     wotm: {},
@@ -133,6 +134,9 @@ const store = new Vuex.Store({
 
     // store.commit('setUser', {JSON user object from API...})
     setUser (state, user) {
+      if (!user.hideAds) {
+        store.commit('loadAds')
+      }
       if (user && user.UID) {
         state.loggedIn = true
       }
@@ -151,6 +155,35 @@ const store = new Vuex.Store({
       }
       if (state.user.config && state.user.config.editor) {
         window.setCookie('editor', state.user.config.editor, 365)
+      }
+    },
+
+    loadAds (state) {
+      const body = document.querySelector('body')
+      if (process.env.NODE_ENV === 'development') {
+        state.advertSetup = true
+        body.classList.add('ads-enabled')
+      }
+      else if (!state.advertSetup) {
+        body.classList.add('ads-enabled')
+        window.tyche = {
+          mode: 'tyche',
+          config: '//config.playwire.com/1024383/v2/websites/72951/banner.json',
+          passiveMode: true,
+          onReady: () => {
+            state.advertSetup = true
+            // window.tyche.addUnits([{type: 'left_rail'}, {type: 'right_rail'}])
+            window.tyche.displayUnits()
+          }
+        }
+        const playwire = document.createElement('script')
+        playwire.setAttribute('src', 'https://cdn.intergient.com/pageos/pageos.js')
+        body.appendChild(playwire)
+
+        const recovery = document.createElement('script')
+        recovery.setAttribute('src', 'https://btloader.com/tag?o=5150306120761344&upapi=true')
+        recovery.setAttribute('async', 'true')
+        body.appendChild(recovery)
       }
     },
 
