@@ -21,9 +21,17 @@ module.exports = {
       var key = code[i].name
       let lua = code[i].lua.replace(/-- luacheck:/g, `--`) // don't ignore potential malicous hidings
 
-      if (lua.match(/^\s*function\s*\(/m) && !code[i].keypath.match(/\.actions\.(init|start|finish)\.custom$/)) {
-        lua = lua.replace(/^\s*function\s*\(/m, `local fn_${key.replace(/[^a-zA-Z0-9]/g, '')} = function(`) // name anonymous function
-        lua += `\nfn_${key.replace(/[^a-zA-Z0-9]/g, '')}()` // and then "call" the function so luacheck recognizes that it's used
+      if (!code[i].keypath.match(/\.actions\.(init|start|finish)\.custom$/)) {
+        let tmpFn = `fn${Math.floor(Math.random()*10000)}`
+        let luax
+        while (luax !== lua) {
+          luax = lua
+          lua = lua.replace(/^\s*--\[(=*)\[[\s\S]*?\]\1\]/gm, '').replace(/^\s*--.*$/m, '')
+        }
+        if (lua.match(/^\s*function\s*\(/)) { // if anonymous function found...
+          lua = lua.replace(/^\s*function\s*\(/, `local function ${tmpFn}(`) // name it so it has context...
+          lua += `\n${tmpFn}()` // and call it so luacheck recognizes that it's used
+        }
       }
       else if (lua.match(/^{[\s\S]*}$/)) {
         lua = 'local t = ' + lua + ';Wago(t)'

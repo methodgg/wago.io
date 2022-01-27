@@ -960,6 +960,30 @@ async function ProcessCode(data) {
     elastic.addDoc('import', await doc.indexedImportData)
   }
 
+  // this is dumb
+  cloudflare.zones.purgeCache(config.cloudflare.zoneID, {files: [
+    `https://data1.wago.io/lookup/wago/code?id=${code._id}&version=${code.versionString}`,
+    `https://data2.wago.io/lookup/wago/code?id=${code._id}&version=${code.versionString}`,
+    `https://data3.wago.io/lookup/wago/code?id=${code._id}&version=${code.versionString}`,
+    `https://data4.wago.io/lookup/wago/code?id=${code._id}&version=${code.versionString}`,
+    `https://data5.wago.io/lookup/wago/code?id=${code._id}&version=${code.versionString}`,
+    `https://data6.wago.io/lookup/wago/code?id=${code._id}&version=${code.versionString}`,
+    `https://data7.wago.io/lookup/wago/code?id=${code._id}&version=${code.versionString}`,
+    `https://data8.wago.io/lookup/wago/code?id=${code._id}&version=${code.versionString}`,
+    `https://data9.wago.io/lookup/wago/code?id=${code._id}&version=${code.versionString}`,
+    `https://data10.wago.io/lookup/wago/code?id=${code._id}&version=${code.versionString}`,
+    `https://data11.wago.io/lookup/wago/code?id=${code._id}&version=${code.versionString}`,
+    `https://data12.wago.io/lookup/wago/code?id=${code._id}&version=${code.versionString}`,
+    `https://data13.wago.io/lookup/wago/code?id=${code._id}&version=${code.versionString}`,
+    `https://data14.wago.io/lookup/wago/code?id=${code._id}&version=${code.versionString}`,
+    `https://data15.wago.io/lookup/wago/code?id=${code._id}&version=${code.versionString}`,
+    `https://data16.wago.io/lookup/wago/code?id=${code._id}&version=${code.versionString}`,
+    `https://data17.wago.io/lookup/wago/code?id=${code._id}&version=${code.versionString}`,
+    `https://data18.wago.io/lookup/wago/code?id=${code._id}&version=${code.versionString}`,
+    `https://data19.wago.io/lookup/wago/code?id=${code._id}&version=${code.versionString}`,
+    `https://data20.wago.io/lookup/wago/code?id=${code._id}&version=${code.versionString}`
+  ]})
+
   if (code.customCode.length) {
     return doc
   }
