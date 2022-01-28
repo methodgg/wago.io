@@ -243,9 +243,16 @@ function checkCustomCondition(codes, keypath, id, item) {
     return codes
   }
 
-  if (item.property === 'chat' || item.property == 'customcode') {
+  if (item.property === 'chat') {
     codes.push({
-      name: `${id}: Custom Chat`,
+      name: `${id}: [Condition] Custom Chat`,
+      keypath: `${keypath}.value.custom`,
+      lua: item.value.custom.trim()
+    })
+  }
+  else if (item.property == 'customcode') {
+    codes.push({
+      name: `${id}: [Condition] Run Custom Code`,
       keypath: `${keypath}.value.custom`,
       lua: item.value.custom.trim()
     })
