@@ -127,7 +127,7 @@ function checkTrigger(codes, keypath, id, trigger, untrigger, index) {
       name: `${id} - Trigger ${index}`,
       keypath: `${keypath}.trigger.custom`,
       lua: trigger.custom.trim(),
-      triggerEveryFrame: trigger.check === 'update'
+      triggerEveryFrame: trigger.check === 'update' && trigger.custom_type === 'status'
     })
   }
 
@@ -150,7 +150,7 @@ function checkTrigger(codes, keypath, id, trigger, untrigger, index) {
           name: `${id} - ${fn.replace(/^custom/, '')} ${index}`,
           keypath: `${keypath}.trigger.${fn}`,
           lua: trigger[fn].trim(),
-          triggerEveryFrame: trigger.check === 'update'
+          triggerEveryFrame: trigger.check === 'update' && trigger.custom_type === 'status'
         })
       }
     })
