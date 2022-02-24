@@ -45,8 +45,9 @@ module.exports = {
     //   }
     // }
 
-    await redis2.set(`currentstream:${cid}`, '__streamspread')
-    return '__streamspread'
+    const defaultStream = await SiteData.get('DefaultStream')
+    await redis2.set(`currentstream:${cid}`, defaultStream)
+    return defaultStream
   },
 
   removeStream: async function (cid) {
