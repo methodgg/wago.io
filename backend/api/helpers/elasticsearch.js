@@ -88,6 +88,29 @@ module.exports = {
       }
     }})
 
+    // await client.indices.delete({index: 'comment'})
+    exists = await client.indices.exists({index: 'comment'})
+    if (!exists || !exists.body) {
+      await client.indices.create({index: 'comment'})
+    }
+
+    await client.indices.putMapping({index: 'comment', body: {
+      properties: {
+        id: {type: 'keyword'},
+        text: {type: 'text'},
+        timestamp: {type: 'integer'},
+        hidden: {type: 'boolean'},
+        taggedIDs: {type: 'keyword'},
+        importName: {type: 'text', index: false},
+        importID: {type: 'keyword'},
+        userId: {type: 'keyword'},
+        userName: {type: 'text', index: false},
+        userAvatar: {type: 'text', index: false},
+        userClass: {type: 'text', index: false},
+        userLinked: {type: 'boolean', index: false}
+      }
+    }})
+
     // console.log(JSON.stringify((await client.indices.getMapping({index: 'import'})).body, null, 2))
     // console.log(JSON.stringify((await client.indices.getSettings({index: 'import'})).body, null, 2))
     // console.log(JSON.stringify((await client.indices.stats({index: 'import'})).body, null, 2))
@@ -133,7 +156,6 @@ module.exports = {
   },
 
   bulkProcessing: async function (index) {
-    // console.log(JSON.stringify(bulkUpdates[index].docs, null, 2))
     try {
       const bulkResponse = (await client.bulk({ refresh: true, body: bulkUpdates[index].docs })).body
       if (bulkResponse.errors) {
@@ -144,7 +166,7 @@ module.exports = {
             erroredDocuments.push(action)
           }
         })
-        console.log('ELASTIC ERRORS', erroredDocuments)
+        console.log('ELASTIC ERRORS', JSON.stringify(erroredDocuments, null, 2))
       }
       else {
         bulkUpdates[index].docs = []

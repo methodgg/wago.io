@@ -651,6 +651,27 @@ async function SyncElastic(table) {
         }
         break
 
+      case 'comment':
+        const cursorComments = Comments.find({codeReview: null}).cursor()
+        doc = await cursorComments.next()
+        while (doc) {
+          count++
+          if (doc.deleted) {
+            elastic.removeDoc('comment', await doc._id)
+          }
+          else {
+            const data = await doc.indexedCommentData
+            if (data && !data.deleted) {
+              elastic.addDoc('comment', data, true)
+            }
+          }
+          doc = await cursorComments.next()
+          if(count%500 === 0) {
+            console.log(table, count)
+          }
+        }
+        break
+
       case 'code':
         const cursorCode = WagoItem.find({_userId: {$exists: true}, expires_at: null, hasCustomCode: true}).cursor()
         doc = await cursorCode.next()

@@ -232,8 +232,9 @@ async function createUser (req, res) {
   if (!req.body.password || req.body.password.length < 6) {
     return res.code(403).send({error: 'bad password'})
   }
-  var user = await User.findByUsername(req.body.username)
-  if (user) {
+  let username = req.body.username.replace(/^ +/, '_').replace(/ +$/, '_')
+  let test = await User.findByUsername(username)
+  if (test) {
     return res.code(403).send({error: "Error: Username already exists"})
   }
 
@@ -243,8 +244,8 @@ async function createUser (req, res) {
     const recent = new Date(new Date().getTime() - 1000 * 60)
     if (valid && valid.success && new Date(valid.challenge_ts) > recent) {
       var user = new User()
-      user.account.username = req.body.username
-      user.search.username = req.body.username.toLowerCase()
+      user.account.username = username
+      user.search.username = username.toLowerCase()
       // check if password is a match
       var pass = await bcrypt.hash(req.body.password, 10)
       user.account.password = pass
