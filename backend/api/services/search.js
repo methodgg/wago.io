@@ -22,23 +22,21 @@ function expansionIndex(exp) {
 }
 
 async function searchElastic (req, res) {
-  var query = req.query.q || req.body.q || ''
+  let query = req.query.q || req.body.q || ''
   if (typeof query !== 'string') {
     query = ''
   }
 
-  var page = parseInt(req.query.page || req.body.page || 0)
-  var esFilter = []
-  var esSort = ['_score']
-  var sortMode = 'standard'
-  var esQuery = false
-  var searchIndex = 'import'
-  var allowHidden = false
+  let page = parseInt(req.query.page || req.body.page || 0)
+  let esFilter = []
+  let esSort = ['_score']
+  let sortMode = 'standard'
+  let searchMode = req.query.mode || 'wow'
+  let esQuery = false
+  let searchIndex = 'import'
+  let allowHidden = false
 
-  var domain = parseInt(req.query.domain) || 0
-  esFilter.push(({term: {domain}}))
-
-  var sort = req.query.sort || req.body.sort || ''
+  let sort = req.query.sort || req.body.sort || ''
   if (sort === 'date') {
     esSort.unshift({timestamp: 'desc'})
   }
@@ -56,30 +54,41 @@ async function searchElastic (req, res) {
   }
 
   // search mode
-  m = query.match(/^!(code|mentions|starred)!/)
-  if (m) {
-    query = query.replace(m[0], '')
-    if (m[1] === 'mentions' && req.user) {
-      const mentions = await Comments.findMentions(req.user._id)
-      if (mentions.length) {
-        esFilter.push({simple_query_string: {query: '"'+mentions.join('" "')+'"', fields: ["_id"] }})
-        allowHidden = true
-      }
+  if (searchMode === 'comments' && req.user) {
+    searchIndex = 'comment'
+    searchMode = 'comments'
+  }
+  else if (searchMode === 'starred' && req.user) {
+    searchMode = 'stars'
+    const faves = await WagoFavorites.find({userID: req.user._id, type: 'Star'}).select('wagoID')
+    let ids = []
+    faves.forEach(fave => {
+      ids.push(fave.wagoID)
+    })
+    if (ids.length) {
+      esFilter.push({ids: { values: ids } })
+      allowHidden = true
     }
-    else if (m[1] === 'starred' && req.user) {
-      const faves = await WagoFavorites.find({userID: req.user._id, type: 'Star'}).select('wagoID')
-      let ids = []
-      faves.forEach(fave => {
-        ids.push(fave.wagoID)
+    else {
+      return res.send({
+        hits: [],
+        total: 0
       })
-      if (ids.length) {
-        esFilter.push({ids: { values: ids } })
-        allowHidden = true
-      }
     }
-    else if (m[1] === 'code') {
-      searchIndex = 'code'
-    }
+  }
+  else if (searchMode === 'code') {
+    searchIndex = 'code'
+    searchMode = 'code'
+  }
+  else if (searchMode === 'wow') {
+    searchIndex = 'import'
+    searchMode = 'import'
+    esFilter.push(({term: {domain: 0}}))
+  }
+  else if (searchMode === 'xiv') {
+    searchIndex = 'import'
+    searchMode = 'import'
+    esFilter.push(({term: {domain: 1}}))
   }
 
   let filterExpansion = []
@@ -92,8 +101,8 @@ async function searchElastic (req, res) {
       m = query.match(/expansion:\s?(sl|bfa|legion|wod|tbc|classic)/i)
     }
   }
-  else {
-    // if no expansion is specified then default to the 2 current games
+  else if (searchIndex.match(/import|code/) && searchMode !== 'stars') {
+    // if no expansion is specified then default to the current games
     defaultFilterExpansion = []
     defaultFilterExpansion.push({term: {expansion: {value: expansionIndex('sl')}}})
     defaultFilterExpansion.push({term: {expansion: {value: expansionIndex('tbc')}}})
@@ -139,6 +148,34 @@ async function searchElastic (req, res) {
   if (filterUsers.length) {
     defaultFilterExpansion = null
     esFilter.push(({bool: {should: filterUsers}}))
+  }
+
+  m = query.match(/mentions:(unread|read|all)/i)
+  if (m && req.user) {
+    let unreadComments = (await Comments.findUnread(req.user._id)).map(x => {return {term: { id: x._id }}})
+    m[1] = m[1].toLowerCase()
+    if (m[1] === 'unread') {
+      if (unreadComments && unreadComments.length) {
+        esFilter.push(({bool: {should: unreadComments}}))
+      }
+      else {
+        return res.send({
+          hits: [],
+          total: 0
+        })
+      }
+    }
+    else if (m[1] === 'read') {
+      esFilter.push(({bool: {should: {term: { taggedIDs: req.user._id }}}}))
+
+      if (unreadComments && unreadComments.length) {
+        esFilter.push(({bool: {must_not: unreadComments}}))
+      }
+    }
+    else if (m[1] === 'all') {
+      esFilter.push(({bool: {should: {term: { taggedIDs: req.user._id }}}}))
+    }
+    query = query.replace(m[0], '')
   }
 
   m = query.match(/(metric:\s?(installs|stars|views)(<|>)(\d+))/i)
@@ -272,6 +309,11 @@ async function searchElastic (req, res) {
   if (searchingOwnProfile) {
     // no additional filters needed
   }
+  else if (req.user && !allowHidden && searchIndex === 'comment') {
+    esShould.push({term: {hidden: false}})
+    esShould.push({term: {userID: {value: req.user._id, boost: 0 } } })
+    esShould.push({term: {taggedIDs: {value: req.user._id.toString(), boost: 3}}})
+  }
   else if (req.user && !allowHidden) {
     esFilter.push({term: {hidden: false}})
     esShould.push({term: {_userId: {value: req.user._id, boost: 0 } } })
@@ -300,6 +342,9 @@ async function searchElastic (req, res) {
     let searchFields = ["description", "name^2", "custom_slug^2"]
     if (searchIndex === 'code') {
       searchFields = ["code"]
+    }
+    else if (searchIndex === 'comment') {
+      searchFields = ['text']
     }
     textQuery = esQuery
     let simpleSearch
@@ -362,7 +407,6 @@ async function searchElastic (req, res) {
     }
     esFilter.push({simple_query_string: {query: searchSettings.secondarySearch.slice(page * resultsPerPage, resultsPerPage).join(' '), fields: ["_id"] }})
   }
-  // console.log(JSON.stringify({must: esQuery, filter: esFilter}, null, 2))
   return res.send(await elastic.search({
     index: searchIndex,
     algorithm: (sortMode === 'bestmatchv2') ? 'popular' : 'rawsort',
