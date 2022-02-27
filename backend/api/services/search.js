@@ -151,7 +151,7 @@ async function searchElastic (req, res) {
   }
 
   m = query.match(/mentions:(unread|read|all)/i)
-  if (m && req.user) {
+  if (m && req.user && searchMode === 'comments') {
     let unreadComments = (await Comments.findUnread(req.user._id)).map(x => {return {term: { id: x._id }}})
     m[1] = m[1].toLowerCase()
     if (m[1] === 'unread') {
