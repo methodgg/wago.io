@@ -53,7 +53,7 @@ module.exports = (fastify, opts, next) => {
     if (!req.user || !req.user.isAdmin.access || !req.user.isAdmin.super) {
       return res.code(403).send({error: "forbidden", u: req.user})
     }
-    const ZSCORE = parseInt(config.host.split(/-/)[1])
+    const ZSCORE = parseInt(config.host.split(/-/)[1]) || 1
     var data = {}
     data.connections = await redis2.zcount('allSiteVisitors', ZSCORE, ZSCORE)
     res.send(data)
@@ -112,9 +112,11 @@ module.exports = (fastify, opts, next) => {
     if (!req.user || !req.user.isAdmin.access || !(req.user.isAdmin.super || req.user.isAdmin.config.embed)) {
       return res.code(403).send({error: "forbidden"})
     }
-    var data = await SiteData.findById('EmbeddedStream').lean().exec()
+    let data = await SiteData.findById('EmbeddedStream').lean().exec()
+    let defaultStream = await SiteData.findById('DefaultStream').lean().exec()
     data = data.value || {}
     data.activeUsers = await redis2.zcard('allSiteVisitors')
+    data.streamspread = defaultStream.value === '__streamspread'
     if (!data.streams) data.streams = []
     for (let i = 0; i < data.streams.length; i++) {
       data.streams[i].online = await redis.get(`twitch:${data.streams[i].channel}:live`)
@@ -142,13 +144,15 @@ module.exports = (fastify, opts, next) => {
       streams: streams
     }
     await SiteData.set('EmbeddedStream', data)
+    await SiteData.set('DefaultStream', req.body.streamspread && '__streamspread' || '__none')
     const channelStatuses = await runTask('UpdateTwitchStatus', req.body.channel)
     await updateDataCaches.queue('EmbeddedStream')
+    await updateDataCaches.queue('DefaultStream')
     await streams.forEach(async (stream, i) => {
       streams[i].online = channelStatuses[stream.channel]
       streams[i].viewing = await redis2.zcard(`allEmbeds:${streams[i].channel}`)
     })
-    res.send({success: true, streams: streams, enabled: data.enabled, activeUsers: await redis2.zcard('allSiteVisitors')})
+    res.send({success: true, streams: streams, enabled: data.enabled, streamspread: !!req.body.streamspread, activeUsers: await redis2.zcard('allSiteVisitors')})
   })
 
   fastify.get('/getstreamers', async (req, res) => {
@@ -240,7 +244,6 @@ module.exports = (fastify, opts, next) => {
 
     var user = await User.findById(req.body.user)
     user.roles[req.body.role] = req.body.value
-    console.log(user)
     await user.save()
     res.send({success: true})
   })
