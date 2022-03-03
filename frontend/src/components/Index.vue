@@ -286,7 +286,7 @@
 #importform textarea { max-height: 110px; min-height:110px }
 #importform .field-group .md-input-container { display: inline-block; max-width: 32%; position: relative}
 .field-group2 .md-input-container, .field-group2 strong { display: inline-block; max-width: 49%;}
-#signinanon { padding-left: 32px;  margin-top: -8px; }
+#signinanon { padding-left: 32px; }
 
 
 @media (min-width: 1281px) {
@@ -499,7 +499,7 @@ export default {
     currentWA () {
       return {
         shadowlands: [
-          Categories.getCategories('raidsantumdom')[0],
+          Categories.getCategories('raidsepulcherfirst')[0],
           Categories.getCategories('sltimewalking')[0],
         ],
         tbc: [
@@ -507,7 +507,7 @@ export default {
           Categories.getCategories('raidmthyjal')[0],
         ],
         classic: [
-          Categories.getCategories('raidmoltencore')[0],
+          Categories.getCategories('raidzulgurub')[0],
           Categories.getCategories('raidworld')[0],
         ]
       }
@@ -649,7 +649,7 @@ export default {
     },
 
     autoCompleteUserName: function (q) {
-      return this.http.get('/search/username', {name: q.q})
+      return (this.http.get('/search/username', {name: q.q})).map(x => {x.name = x.name.replace(/\s/g, '_')})
     }
   },
   watch: {

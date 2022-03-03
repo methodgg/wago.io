@@ -171,6 +171,7 @@
     "2787": "Costura abominable",
     "2791": "Fabricación de ascensión",
     "2811": "Fabricación de estigia",
+    "2819": "Síntesis de protoformas",
     "alchemy": "Alquimia",
     "archeology": "Arqueología",
     "blacksmith": "Herrería",
@@ -1111,7 +1112,19 @@
     "2452": "Oasis de Myza",
     "2454": "El Gran Animalario",
     "2455": "So'leah",
-    "2456": "Mor'geth, Torturador de los Condenados"
+    "2456": "Mor'geth, Torturador de los Condenados",
+    "2457": "Señores del Terror",
+    "2458": "Guardián vigilante",
+    "2459": "Dausegne, el Oráculo Caído",
+    "2460": "Panteón de prototipos",
+    "2461": "Lihuvim, Arquitecto de Principios",
+    "2463": "Halondrus el Reivindicador",
+    "2464": "El Carcelero",
+    "2465": "Skolex, el Saqueador Insaciable",
+    "2467": "Rygelon",
+    "2468": "Antros",
+    "2469": "Anduin Wrynn",
+    "2470": "Artificiero Xy'Mox"
   },
   "expansions": {
     "68": "World of Warcraft",
@@ -1288,7 +1301,8 @@
     "1190": "Castillo de Nathria",
     "1192": "Tierras Sombrías",
     "1193": "Sagrario de Dominación",
-    "1194": "Tazavesh, el Mercado Velado"
+    "1194": "Tazavesh, el Mercado Velado",
+    "1195": "Sepulcro de los Primeros"
   },
   "specs": {
     "62": "Arcano",

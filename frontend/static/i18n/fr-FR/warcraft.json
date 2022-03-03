@@ -171,6 +171,7 @@
     "2787": "Suture abominable",
     "2791": "Artisanat de l’Ascension",
     "2811": "Travail des stygies",
+    "2819": "Synthèse de protoforme",
     "alchemy": "Alchimie",
     "archeology": "Archéologie",
     "blacksmith": "Forge",
@@ -1111,7 +1112,19 @@
     "2452": "Oasis d’Au’myza",
     "2454": "Grandiose Ménagerie",
     "2455": "So’leah",
-    "2456": "Mor’geth, Tourmenteur des damnés"
+    "2456": "Mor’geth, Tourmenteur des damnés",
+    "2457": "Seigneurs de l’effroi",
+    "2458": "Gardien vigilant",
+    "2459": "Dausegne, l’Oracle déchu",
+    "2460": "Panthéon des prototypes",
+    "2461": "Lihuvim, architecte principal",
+    "2463": "Halondrus le Récupérateur",
+    "2464": "Le Geôlier",
+    "2465": "Skolex, l’Insatiable vorace",
+    "2467": "Rygelon",
+    "2468": "Antros",
+    "2469": "Anduin Wrynn",
+    "2470": "Artificier Xy’mox"
   },
   "expansions": {
     "68": "Donjons classiques",
@@ -1288,7 +1301,8 @@
     "1190": "Château Nathria",
     "1192": "Ombreterre",
     "1193": "Sanctum de Domination",
-    "1194": "Tazavesh, le marché dissimulé"
+    "1194": "Tazavesh, le marché dissimulé",
+    "1195": "Sépulcre des Fondateurs"
   },
   "specs": {
     "62": "Arcanes",

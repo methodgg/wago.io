@@ -171,6 +171,7 @@
     "2787": "Monstrositätenflickerei",
     "2791": "Aufstiegshandwerk",
     "2811": "Stygiahandwerk",
+    "2819": "Protoformsynthese",
     "alchemy": "Alchemie",
     "archeology": "Archäologie",
     "blacksmith": "Schmiedekunst",
@@ -1111,7 +1112,19 @@
     "2452": "Myzas Oase",
     "2454": "Die Große Menagerie",
     "2455": "So'leah",
-    "2456": "Mor'geth, Peiniger der Verdammten"
+    "2456": "Mor'geth, Peiniger der Verdammten",
+    "2457": "Lords des Schreckens",
+    "2458": "Aufmerksamer Wächter",
+    "2459": "Dausegne, das gefallene Orakel",
+    "2460": "Prototypenpantheon",
+    "2461": "Lihuvim, der oberste Architekt",
+    "2463": "Halondrus der Rückgewinner",
+    "2464": "Der Kerkermeister",
+    "2465": "Skolex, der unersättliche Räuber",
+    "2467": "Rygelon",
+    "2468": "Antros",
+    "2469": "Anduin Wrynn",
+    "2470": "Konstrukteur Xy'mox"
   },
   "expansions": {
     "68": "Classic",
@@ -1288,7 +1301,8 @@
     "1190": "Schloss Nathria",
     "1192": "Schattenlande",
     "1193": "Sanktum der Herrschaft",
-    "1194": "Tazavesh, der Verhüllte Markt"
+    "1194": "Tazavesh, der Verhüllte Markt",
+    "1195": "Mausoleum der Ersten"
   },
   "specs": {
     "62": "Arkan",

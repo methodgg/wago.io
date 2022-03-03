@@ -424,6 +424,7 @@
     "2787": "Abominable Stitching",
     "2791": "Ascension Crafting",
     "2811": "Stygia Crafting",
+    "2819": "Protoform Synthesis",
     "firstaid": "First Aid"
   },
   "encounters": {
@@ -1352,15 +1353,16 @@
     "2454": "The Grand Menagerie",
     "2455": "So'leah",
     "2456": "Mor'geth, Tormentor of the Damned",
-    "2457": "Lords Of Dread",
-    "2458": "Solitary Guardian",
+    "2457": "Lords of Dread",
+    "2458": "Vigilant Guardian",
     "2459": "Dausegne, the Fallen Oracle",
     "2460": "Prototype Pantheon",
-    "2461": "Lihuvim, Principle Architect",
-    "2463": "Holondrus The Reclaimer",
-    "2464": "Zovaal",
-    "2465": "Skolex, The Insatiable Ravener",
+    "2461": "Lihuvim, Principal Architect",
+    "2463": "Halondrus the Reclaimer",
+    "2464": "The Jailer",
+    "2465": "Skolex, the Insatiable Ravener",
     "2467": "Rygelon",
+    "2468": "Antros",
     "2469": "Anduin Wrynn",
     "2470": "Artificer Xy'mox"
   },
@@ -1540,7 +1542,7 @@
     "1192": "Shadowlands",
     "1193": "Sanctum of Domination",
     "1194": "Tazavesh, the Veiled Market",
-    "1195": "Sepulcher Of The First Ones"
+    "1195": "Sepulcher of the First Ones"
   },
   "specs": {
     "62": "Arcane",
