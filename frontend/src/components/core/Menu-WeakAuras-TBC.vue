@@ -179,7 +179,7 @@ export default {
       return window.Categories.raidCategories(['raidkarazhan', 'raidgruul', 'raidssc', 'raidtk'])
     },
     tbcRaids2: function () {
-      return window.Categories.raidCategories(['raidmthyjal', 'raidbt', 'raidsw', 'tbcdungeon'])
+      return window.Categories.raidCategories(['raidzulaman', 'raidmthyjal', 'raidbt', 'raidsw', 'tbcdungeon'])
     },
     misc: function () {
       return window.Categories.getCategories(['gen1', 'gen7', 'gen2', 'gen6', 'gen9', 'gen10', 'gen11', 'gen12', 'gen14', 'gen13', 'gen8', 'gen15', 'gen16', 'gen17'], null, 'WEAKAURA', 'tbc')
