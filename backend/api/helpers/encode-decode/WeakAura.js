@@ -135,11 +135,18 @@ module.exports = {
         meta.type = 'TBC-WEAKAURA'
         meta.game = 'tbc'
       }
+      else if ((obj.d.tocversion+'').match(/^30/)) {
+        meta.type = 'WOTLK-WEAKAURA'
+        meta.game = 'wotlk'
+      }
       else if ((obj.d.tocversion+'').match(/^80/)) {
         meta.game = 'bfa'
       }
       else if ((obj.d.tocversion+'').match(/^90/)) {
         meta.game = 'sl'
+      }
+      else if ((obj.d.tocversion+'').match(/^100/)) {
+        meta.game = 'df'
       }
     }
 

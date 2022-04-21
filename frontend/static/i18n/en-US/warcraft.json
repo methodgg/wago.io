@@ -1,4 +1,9 @@
 {
+  "temp": {
+    "Evoker": "Evoker",
+    "Preservation": "Preservation",
+    "Devastation": "Devastation"
+  },
   "classes": {
     "1": "Warrior",
     "2": "Paladin",

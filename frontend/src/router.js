@@ -5,11 +5,13 @@ const Logout = resolve => require(['@/components/core/Logout.vue'], resolve)
 const Account = resolve => require(['@/components/core/Account.vue'], resolve)
 const Admin = resolve => require(['@/components/core/Admin.vue'], resolve)
 
+const MenuWeakAurasDragonflight = resolve => require(['@/components/core/Menu-WeakAuras-Dragonflight.vue'], resolve)
 const MenuWeakAurasShadowlands = resolve => require(['@/components/core/Menu-WeakAuras-Shadowlands.vue'], resolve)
 const MenuWeakAurasBFA = resolve => require(['@/components/core/Menu-WeakAuras-BFA.vue'], resolve)
 const MenuWeakAurasLegion = resolve => require(['@/components/core/Menu-WeakAuras-Legion.vue'], resolve)
 const MenuWeakAurasClassic = resolve => require(['@/components/core/Menu-WeakAuras-Classic.vue'], resolve)
 const MenuWeakAurasTBC = resolve => require(['@/components/core/Menu-WeakAuras-TBC.vue'], resolve)
+const MenuWeakAurasWotLK = resolve => require(['@/components/core/Menu-WeakAuras-WotLK.vue'], resolve)
 const MenuElvUI = resolve => require(['@/components/core/Menu-ElvUI.vue'], resolve)
 const MenuVuhdo = resolve => require(['@/components/core/Menu-Vuhdo.vue'], resolve)
 const MenuTotalRP = resolve => require(['@/components/core/Menu-TotalRP.vue'], resolve)
@@ -115,6 +117,11 @@ export default {
     { path: '/weakauras/:c1/:c2', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'weakaura', 'sl'), contextDomain: 0 }) },
     { path: '/weakauras/:c1/:c2/:c3', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'weakaura', 'sl'), contextDomain: 0 }) },
     { path: '/weakauras/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'weakaura', 'sl'), contextDomain: 0 }) },
+    { path: '/dragonflight-weakauras', component: MenuWeakAurasDragonflight },
+    { path: '/dragonflight-weakauras/:c1', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'weakaura', 'df'), contextDomain: 0 }) },
+    { path: '/dragonflight-weakauras/:c1/:c2', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'weakaura', 'df'), contextDomain: 0 }) },
+    { path: '/dragonflight-weakauras/:c1/:c2/:c3', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'weakaura', 'df'), contextDomain: 0 }) },
+    { path: '/dragonflight-weakauras/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'weakaura', 'df'), contextDomain: 0 }) },
     { path: '/shadowlands-weakauras', component: MenuWeakAurasShadowlands },
     { path: '/shadowlands-weakauras/:c1', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'weakaura', 'sl'), contextDomain: 0 }) },
     { path: '/shadowlands-weakauras/:c1/:c2', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'weakaura', 'sl'), contextDomain: 0 }) },
@@ -130,6 +137,11 @@ export default {
     { path: '/legion-weakauras/:c1/:c2', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'weakaura', 'legion'), contextDomain: 0 }) },
     { path: '/legion-weakauras/:c1/:c2/:c3', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'weakaura', 'legion'), contextDomain: 0 }) },
     { path: '/legion-weakauras/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'weakaura', 'legion'), contextDomain: 0 }) },
+    { path: '/wotlk-weakauras', component: MenuWeakAurasWotLK },
+    { path: '/wotlk-weakauras/:c1', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'weakaura', 'wotlk'), contextDomain: 0 }) },
+    { path: '/wotlk-weakauras/:c1/:c2', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'weakaura', 'wotlk'), contextDomain: 0 }) },
+    { path: '/wotlk-weakauras/:c1/:c2/:c3', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'weakaura', 'wotlk'), contextDomain: 0 }) },
+    { path: '/wotlk-weakauras/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'weakaura', 'wotlk'), contextDomain: 0 }) },
     { path: '/tbc-weakauras', component: MenuWeakAurasTBC },
     { path: '/tbc-weakauras/:c1', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'weakaura', 'tbc'), contextDomain: 0 }) },
     { path: '/tbc-weakauras/:c1/:c2', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'weakaura', 'tbc'), contextDomain: 0 }) },
@@ -232,7 +244,8 @@ export default {
     { path: '/privacy-policy', component: PrivacyPolicy },
 
     // search
-    { path: '/search/:query', component: Search, props: (route) => ({ contextSearch: route.params.query }) },
+    // { name: 'search', path: '/search/:query', component: Search, props: (route) => {console.log(route); return {} } },
+    { name: 'search', path: '/search/:query', component: Search, props: (route) => ({ contextSearch: route.params.query, ...route.params }) },
     { path: '/search/', component: Search },
 
     // news
