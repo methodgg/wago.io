@@ -12,14 +12,8 @@
 
         <div id="h-nav" class="md-hide-xsmall">
           <div id="top-search-bar">
-            <search-bar ref="searchField" :domain="domain"></search-bar>
+              <search-bar ref="searchField"></search-bar>
           </div>
-          <md-input-container id="top-search-domain">
-            <md-select v-model="domain">
-              <md-option value="0">World of Warcraft</md-option>
-              <md-option value="1">Final Fantasy XIV</md-option>
-                  </md-select>
-                </md-input-container>
         </div>
         <div id="hr-nav" class="md-hide-xsmall">
           <h2 class="md-title md-hide-small-and-up" id="logo"><router-link to="/"><img src="./assets/wagoio-logo.png"/></router-link></h2>
@@ -31,14 +25,7 @@
       </md-toolbar>
       </div>
       <md-sidenav class="md-hide-small-and-up md-left" ref="mobileSidebar" id="mobile-sidebar">
-          <md-input-container>
-          <label>{{ $t('Search game') }}</label>
-          <md-select v-model="domain">
-            <md-option value="0">World of Warcraft</md-option>
-            <md-option value="1">Final Fantasy XIV</md-option>
-          </md-select>
-          </md-input-container>
-        <search-bar ref="searchField" :domain="domain"></search-bar>
+        <search-bar ref="searchField"></search-bar>
         <md-list>
           <md-list-item v-if="LoggedIn">
             <span :class="User.css"><md-icon>person</md-icon> {{ User.name }}</span>
@@ -144,9 +131,10 @@
         <advert ad="leaderboard_btf" :patreonLink="true" :frame="false" />
         <div id="content" :class="{'with-sidebar': includeSidebar}">
           <router-view></router-view>
-          <div v-if="this.$store.state.user.UID || this.$store.state.user.guest" class="side-ads">
+          <div v-if="(this.$store.state.user.UID || this.$store.state.user.guest) && !this.$store.state.user.hideAds" :class="{'side-bar': true, 'with-stream': $store.state.streamEmbed !== '__none'}">
             <advert ad="trendi_video" :patreonLink="true" />
             <advert ad="med_rect_atf" />
+            <stream-embed v-if="$store.state.streamEmbed" :stream="$store.state.streamEmbed" />
           </div>
           <advert ad="wago320x50" :forMobile="true" v-if="this.$store.state.user.UID || this.$store.state.user.guest" />
         </div>
@@ -207,6 +195,7 @@ import SearchBar from './components/UI/SearchBar.vue'
 import LoginButton from './components/UI/LoginButton.vue'
 import NotificationBanner from './components/UI/NotificationBanner.vue'
 import ViewEmbed from './components/core/ViewEmbed.vue'
+import StreamEmbed from './components/UI/StreamEmbed.vue'
 
 export default {
   name: 'app',
@@ -216,7 +205,8 @@ export default {
     'login-button': LoginButton,
     'view-embed': ViewEmbed,
     'notification-banner': NotificationBanner,
-    'advert': Advert
+    'advert': Advert,
+    'stream-embed': StreamEmbed
   },
   data: () => {
     return {
@@ -431,13 +421,8 @@ export default {
       const params = new URLSearchParams(window.location.search)
       return params.get('id')
     },
-    domain: {
-      get: function () {
-        return this.$store.state.domain || '0'
-      },
-      set: function (v) {
-        this.$store.commit('setDomain', v)
-      }
+    includeSidebar () {
+      return true
     }
   },
   watch: {
@@ -535,19 +520,94 @@ body, html {
   width: 100%;
   margin: 0;
 }
-#app {
-  top: 0;
-  bottom: 0;
+#topbar {
+  background: #000000;
+  width: 100%;
+  .md-toolbar {
+    max-width: 1250px;
+    margin: 0 auto;
+    min-height: 60px;
+    padding: 0;
+    z-index: 50;
+  }
+}
+#full-navbar {
+  background: #333333;
+  width: 100%;
+  .nav {
+    display: flex;
+    max-width: 1250px;
+    margin: 0 auto;
+    & > a {
+      padding: 8px 16px;
+      color: white;
+      line-height: 24px;
+      font-weight: bold;
+      &:hover {
+        text-decoration: none;
+        background: #3A3A3A;
+      }
+      &.home-import-btn {
+        background: #C1272D;
+        min-width: 120px;
+        text-align: center;
+      }
+    }
+    & > .menu-section {
+      display: flex;
+      padding: 8px 16px;
+      color: white;
+      font-weight: bold;
+      position: relative;
+      cursor: default;
+      .sub-nav {
+        display: none;
+        flex-direction: column;
+        box-shadow: 5px 5px 30px #00000066;
+        border-radius: 0 0 2px 2px;
+        min-width: 170px;
+        z-index: 99;
+        & > * {
+          padding: 8px 16px;
+          color: white;
+          background: #3A3A3A;
+          cursor: pointer;
+          &:hover {
+            background: #444444;
+            text-decoration: none;
+          }
+        }
+        :last-child {
+          border-radius: 0 0 2px 2px;
+        }
+      }
+      &:hover {
+        background: #3A3A3A;
+        .sub-nav {
+          display: flex;
+          position: absolute;
+          top: 40px;
   left: 0;
-  right: 0;
-  overflow: auto;
+        }
+      }
+    }
+  }
+}
+.grow {
+  flex-grow:1
+}
+#adsidebar {
+  overflow: inherit
+}
+#adsidebar > div {
+  position: sticky;
+  position: -webkit-sticky;
+  top: 0px;
 }
 @media (min-width: 601px) {
   #app { pointer-events: none; }
-  #app > * { width: 100%; max-width:100%; height: 100%; overflow: hidden;}
   .md-backdrop { pointer-events: none }
   #topbar {z-index: 9}
-  #maincontent {background:linear-gradient(90deg, #333333 0px, #333333 260px, #212121 261px)}
 
   #full-sidebar .md-sidenav-content {
     top:64px;
@@ -561,9 +621,24 @@ body, html {
     background: #ECECEC;
     z-index: 1
   }
-  #content { padding-left: 260px; padding-bottom: 100px; pointer-events: auto; position: relative; flex-wrap: nowrap;}
-  #content > div { flex: 1; width: 100%; }
-  #content > div + div { flex: 1; width: inherit; }
+  #content-frame {min-height: calc(100vh - 136px)}
+  #content { display: flex; pointer-events: auto; position: relative; flex-wrap: nowrap;}
+  #content > div, #content-profile #searchResults { flex: 1; width: 100%; margin: 16px 0; background: #212121; box-shadow: none;}
+  #content-profile #searchResults {
+    padding: 0;
+  }
+  #content .side-bar {
+    flex: 1;
+    width: 300px;
+    max-width: 300px;
+    position: sticky;
+    top: 8px;
+    align-self: flex-start;
+    &.with-stream {
+      width: 340px;
+      max-width: 340px;
+    }
+  }
   #logo { text-align: left; padding: 8px 16px; }
   #logo img { max-height: 40px; }
   #xmaslogo img { width: 45px; position: absolute; left: 41px; top: -3px;}
@@ -649,6 +724,42 @@ body, html {
 #ncmp-consent-link > button { font-size: inherit; padding: 10px 0 2px; display: block; border: 0; background: none; color: #d7373d; cursor: pointer }
 #ncmp-consent-link > button:hover { color: #ad1457; text-decoration: underline }
 
+#footer {
+  background: #333333;
+  padding: 8px 0;
+  & > .md-layout {
+    max-width: 1236px;
+    margin: 0 auto;
+    > div {
+      margin-right: 32px;
+      display:flex;
+      a {
+        color: white;
+        margin-right: 8px;
+        display: block;
+        svg {
+          width: 16px;
+        }
+        .footer-discord:hover {
+          color: #5662F6;
+        }
+        .footer-github:hover {
+          color: #F0F6FC;
+        }
+        .footer-patreon:hover {
+          color: #FF424E;
+        }
+        .footer-twitter:hover {
+          color: #1A8CD8;
+        }
+        .footer-envelope:hover {
+          color: #0D56DA;
+        }
+      }
+    }
+  }
+}
+
 @media (max-width: 800px) {
   #gSearch button { display: none }
 }
@@ -670,13 +781,18 @@ body, html {
 .unreadCount { background: #c1272d; color: white; padding: 4px; border-radius: 2px;  }
 .md-snackbar-container { border: 1px solid black }
 
-#randombtn { height: 36px; opacity: 0.7; transition: all 1s ease-in; cursor: pointer; margin: 6px 8px }
+#randombtn {
+  padding: 2px!important;
+  img {
+    height: 36px; transition: all 1s ease-in; cursor: pointer;
+  }
+}
 
 body.theme-dark .md-input-container label a { -webkit-text-fill-color: initial }
 
-.ads-enabled #app {padding-bottom: 60px}
-@media only screen and (min-width: 1025px) {
-  .ads-enabled #content > :first-child {max-width: calc(100% - 425px);}
+#content {
+  margin: 0 auto;
+  max-width: 1250px;
 }
 
 .submenu-single-line {line-height: 36px!important;  min-height: 36px; display: block;}
@@ -694,17 +810,11 @@ body.theme-dark .md-input-container label a { -webkit-text-fill-color: initial }
   line-height: 36px;
 }
 
-
-#top-search-domain {
-  width: auto;
-  height: 40px;
-  border-radius: 4px;
-  margin-left: 4px;
+#header-unread {
   align-self: center;
-  background: #404040;
-  padding: 4px 16px;
-  &:after {
-    background-color: transparent!important;
+  a:hover {
+    color: #d7373d!important;
+    text-decoration: none;
   }
 }
 </style>

@@ -1,14 +1,15 @@
 <template>
   <div class="placeholder-img">
     <strong>{{ text.split('').join(' ') }}<span></span></strong>
-    <category-image :group="'t-' + text.toLowerCase()" :class="'c-' + text.toLowerCase()"></category-image>
+    <div v-if="icon" class="rounded category-image"><img :src="icon"></div>
+    <category-image v-else :group="'t-' + text.toLowerCase()" :class="'c-' + text.toLowerCase()"></category-image>
   </div>
 </template>
 
 <script>
 import CategoryImage from '../UI/CategoryImage.vue'
 export default {
-  props: ['text', 'width', 'height'],
+  props: ['text', 'width', 'height', 'icon'],
   components: {
     CategoryImage
   }
@@ -38,6 +39,9 @@ export default {
       margin: 16px 0;
       max-width: 100%;
       max-height: 70%;
+    }
+    &.rounded img {
+      border-radius: 32px;
     }
 
     &.c-weakaura {

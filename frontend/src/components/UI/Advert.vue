@@ -178,5 +178,8 @@ export default {
     }
   }
 }
+.side-bar.with-stream .wago-ad-container.trendi_video {
+  width: 340px;
+}
 </style>
 

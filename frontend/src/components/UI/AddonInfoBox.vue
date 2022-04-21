@@ -24,7 +24,7 @@ export default {
       if (typeof link.domain !== 'undefined') {
         this.$store.commit('setDomain', link.domain)
       }
-      this.$router.push(link.url)
+      this.$router.push({name: 'search', query: {}, props: true, params: {query: `type:${this.addon}`, contextDomain: link.domain}})
     }
   },
   computed: {

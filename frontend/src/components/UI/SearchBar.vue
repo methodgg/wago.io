@@ -8,14 +8,15 @@
     <div :class="{'search-dropdown': true, hidden: dropdownMenu === ''}" ref="searchDropdown">
       <md-list v-if="dropdownMenu === 'main'">
         <md-list-item><h4>{{ $t('Search Options') }}<span class="close-search" @click="clearSearch()">✖</span></h4></md-list-item>
-        <md-list-item v-if="!domain" @click="addSearchText('Type:')"><strong>{{ $t('Type') }}</strong><span>{{ $t('Example') }}: {{ $t('WeakAura; Plater') }}</span></md-list-item>
-        <md-list-item v-else-if="domain === 1" @click="addSearchText('Type:')"><strong>{{ $t('Type') }}</strong><span>{{ $t('Example') }}: {{ $t('DelvUI') }}</span></md-list-item>
-        <md-list-item v-if="!domain" @click="addSearchText('Expansion:')"><strong>{{ $t('Expansion') }}</strong><span>{{ $t('Example') }}: {{ $t('Shadowlands; TBCC') }}</span></md-list-item>
-        <md-list-item @click="addSearchText('Metric:')"><strong>{{ $t('Metric') }}</strong><span>{{ $t('Example') }}: {{ $t('Installs>150; Stars>90') }}</span></md-list-item>
+        <md-list-item v-if="searchMode.match(/^(wow|xiv|code)$/)" @click="addSearchText('Type:')"><strong>{{ $t('Type') }}</strong><span>{{ $t('Example') }}: {{ $t('WeakAura; Plater') }}</span></md-list-item>
+        <md-list-item v-if="searchMode.match(/^(wow|code)$/)" @click="addSearchText('Expansion:')"><strong>{{ $t('Expansion') }}</strong><span>{{ $t('Example') }}: {{ $t('Shadowlands; TBCC') }}</span></md-list-item>
+        <md-list-item v-if="searchMode.match(/^(wow|xiv|code)$/)" @click="addSearchText('Metric:')"><strong>{{ $t('Metric') }}</strong><span>{{ $t('Example') }}: {{ $t('Installs>150; Stars>90') }}</span></md-list-item>
+        <md-list-item v-if="searchMode.match(/comments/) && $store.state.user" @click="addSearchText('Mentions:')"><strong>{{ $t('Mentions') }}</strong><span>{{ $t('Example') }}: {{ $t('Unread') }}</span></md-list-item>
         <md-list-item @click="addSearchText('Date:')"><strong>{{ $t('Date') }}</strong><span>{{ $t('Example') }}: {{exampleDate}}</span></md-list-item>
-        <md-list-item v-if="!domain && (searchMode !== 'standard' || betaUser)"><h4>{{ $t('Search Mode') }}</h4></md-list-item>
-        <md-list-item v-if="searchMode !== 'standard'" @click="setSearchMode('standard')"><strong>{{ $t('Standard Search') }}</strong><span>{{ $t('Search imports by text and/or filters') }}</span></md-list-item>
-        <md-list-item v-if="!domain && (searchMode !== 'code' && betaUser)" @click="setSearchMode('code')"><strong>[Beta] {{ $t('Code Search') }}</strong><span>{{ $t('Search the custom code of imports') }}</span></md-list-item>
+        <md-list-item><h4>{{ $t('Search Mode') }}</h4></md-list-item>
+        <md-list-item v-if="!searchMode.match(/^(wow|xiv)$/)" @click="setSearchMode('standard')"><strong>{{ $t('Standard Search') }}</strong><span>{{ $t('Search and filter imports') }}</span></md-list-item>
+        <md-list-item v-if="!searchMode.match(/comments/)" @click="setSearchMode('comments')"><strong>{{ $t('Comment Search') }}</strong><span>{{ $t('Search and filter comments') }}</span></md-list-item>
+        <!--<md-list-item v-if="!domain && (searchMode !== 'code' && betaUser)" @click="setSearchMode('code')"><strong>[Beta] {{ $t('Code Search') }}</strong><span>{{ $t('Search the custom code of imports') }}</span></md-list-item>-->
       </md-list>
       <md-list v-else-if="dropdownMenu === 'expansion' && !domain">
         <md-list-item><h4>{{ $t('Expansion Options') }}<span class="close-search" @click="clearSearch(/expansion:\s*/i)">✖</span></h4></md-list-item>
@@ -34,6 +35,12 @@
         <md-list-item v-if="!domain" @click="replaceSearchText(/type:\s*/i, 'type:TOTALRP3')">Total RP</md-list-item>
         <md-list-item v-if="!domain" @click="replaceSearchText(/type:\s*/i, 'type:DBM')">DBM</md-list-item>
         <md-list-item v-if="domain === 1" @click="replaceSearchText(/type:\s*/i, 'type:DELVUI')">DelvUI</md-list-item>
+      </md-list>
+      <md-list v-else-if="dropdownMenu === 'mentions' && $store.state.user">
+        <md-list-item><h4>{{ $t('Comments tagged with [-tag-]', {tag: '@' + $store.state.user.name}) }}<span class="close-search" @click="clearSearch(/mentions:\s*/i)">✖</span></h4></md-list-item>
+        <md-list-item v-if="!domain" @click="replaceSearchText(/mentions:\s*/i, 'mentions:Unread')">{{ $t('Unread') }}</md-list-item>
+        <md-list-item v-if="!domain" @click="replaceSearchText(/mentions:\s*/i, 'mentions:Read')">{{ $t('Read') }}</md-list-item>
+        <md-list-item v-if="!domain" @click="replaceSearchText(/mentions:\s*/i, 'mentions:All')">{{ $t('All') }}</md-list-item>
       </md-list>
       <md-list v-else-if="dropdownMenu === 'date'">
         <md-list-item><h4>{{ $t('Select Date') }} <span class="syntax">{{ $t('YYYY-MM-DD') }}</span><span class="close-search" @click="clearSearch(/date:\s*/i)">✖</span></h4></md-list-item>
@@ -130,7 +137,6 @@ export default {
   data: function () {
     return {
       quill: null,
-      searchMode: 'standard',
       showPlaceholder: true,
       inputHasTag: false,
       searchID: 'search' + Math.random().toString(36).substring(7),
@@ -159,6 +165,9 @@ export default {
     },
     domain () {
       return parseInt(this.$store.state.domain || '0')
+    },
+    searchMode () {
+      return this.$store.state.searchMode || 'wow'
     },
     typeFilters () {
       if (this.domain === 1) { // FF14
@@ -198,7 +207,7 @@ export default {
   watch: {
     watchSiteSearch (value) {
       if (!value) {
-        this.searchMode = 'standard'
+        this.$store.commit('setSearchMode', 'wow')
       }
       this.quill.setContents([{ insert: `${value} \n` }])
       for (let i = 0; i < (value.match(/!|:/g) || []).length; i++) {
@@ -206,10 +215,6 @@ export default {
       }
       this.quill.focus()
       this.dropdownMenu = ''
-    },
-    domain (v, x) {
-      this.quill.setContents([{insert: '\n'}])
-      this.quill.focus()
     }
   },
   methods: {
@@ -242,8 +247,8 @@ export default {
       this.showPlaceholder = (contents.ops.length === 0 || (contents.ops.length === 1 && contents.ops[0] && contents.ops[0].insert === '\n'))
       for (let i = 0; i < contents.ops.length; i++) {
         if (typeof contents.ops[i].insert === 'string') {
-          if (contents.ops[i].insert.match(/!(code|mentions|starred)!/i)) {
-            let m = contents.ops[i].insert.match(/(.*)(!(code|mentions|starred)!)(.*)/i)
+          if (contents.ops[i].insert.match(/!(code|comments|starred)!/i)) {
+            let m = contents.ops[i].insert.match(/(.*)(!(code|comments|starred)!)(.*)/i)
             if (m) {
               hasChanges = true
               delta = delta
@@ -332,7 +337,7 @@ export default {
             }
           }
 
-          else if (this.searchMode === 'standard' && contents.ops[i].insert.match(/(category|tag):/i)) {
+          else if (this.searchMode.match(/^(wow|xvi)$/) && contents.ops[i].insert.match(/(category|tag):/i)) {
             let str = this.getRawSearch()
             let type, game
             let m = str.match(/type:(\w+)/i)
@@ -401,22 +406,24 @@ export default {
             }
           }
 
-          else if (contents.ops[i].insert.match(/metric:/i)) {
-            let m = contents.ops[i].insert.match(/(.*)(metric:\s?(installs|stars|views)(<|>)(\d+))(.*)/i)
+          else if (contents.ops[i].insert.match(/mentions:/i)) {
+            let m = contents.ops[i].insert.match(/(.*)(mentions:\s?(unread|read|all))(.*)/i)
+            let hasType = false
             if (m) {
               hasChanges = true
               this.inputHasTag = true
               openMenu = true
-              let metric = m[3].charAt(0).toUpperCase() + m[3].slice(1).toLowerCase()
+              hasType = true
               delta = delta
                 .retain(m[1].length)
                 .delete(m[2].length)
-                .insert({tag: {text: `${metric} ${m[4]} ${m[5]}`, class: 'filter-metric', search: `metric:${m[3].toLowerCase()}${m[4]}${m[5]}`}})
-                .retain(m[6].length)
+                .insert({tag: {text: `🚨 ${m[3]}`, class: 'tag-mentions', search: `mentions:${m[3]}`}})
+                .retain(m[4].length)
               break
             }
             else {
-              this.dropdownMenu = 'metric'
+              console.log('gdfgdfdf')
+              this.dropdownMenu = 'mentions'
             }
           }
 
@@ -468,8 +475,15 @@ export default {
       }
     },
     setSearchMode: function (mode) {
-      this.searchMode = mode
-      this.quill.setContents([{ insert: '\n' }])
+      if (mode === 'standard' && this.domain === 0) {
+        this.$store.commit('setSearchMode', 'wow')
+      }
+      else if (mode === 'standard' && this.domain === 1) {
+        this.$store.commit('setSearchMode', 'xiv')
+      }
+      else {
+        this.$store.commit('setSearchMode', mode)
+      }
       this.quill.focus()
     },
     addSearchText: function (text) {
@@ -518,7 +532,7 @@ export default {
 
       let str = ''
       let betaUser = false
-      if (this.searchMode !== 'standard') {
+      if (!this.searchMode.match(/^(wow|xvi)$/)) {
         str = `!${this.searchMode}!`
       }
       search.childNodes.forEach(node => {
@@ -535,7 +549,7 @@ export default {
       const str = this.getRawSearch().trim()
       if (str) {
         this.$store.commit('setSearchText', str, true)
-        this.$router.push(`/search/${str.replace(/\s+/g, '%20')}`)
+        this.$router.push(`/search/${str.replace(/^!(\w+)!/, '').replace(/\s+/g, '%20')}`)
       }
       this.quill.focus()
     },
@@ -634,7 +648,7 @@ export default {
       position: absolute;
     }
 
-    &.standard-search {
+    &.wow-search, &.xiv-search {
       width: calc(100% - 40px);
       &:before {
         content: 'Search';
@@ -653,13 +667,13 @@ export default {
       }
     }
 
-    &.mentions-search {
+    &.comments-search {
       width: calc(100% - 58px);
       &:before {
-        content: 'Mentions';
+        content: 'Comments';
       }
       .ql-editor {
-        padding-left: 84px;
+        padding-left: 92px;
       }
     }
 
@@ -712,6 +726,10 @@ export default {
       &.tag-collection {
         color: #CAA27E;
         border-color: #CAA27E;
+      }
+      &.tag-mentions {
+        color: #ED7032;
+        border-color: #ED7032;
       }
       &.tag-user {
         color: #FFC83D;

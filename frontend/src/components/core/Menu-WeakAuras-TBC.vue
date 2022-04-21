@@ -5,7 +5,7 @@
         <md-layout md-row>
           <md-avatar class='square'><category-image :group="'t-weakaura'"></category-image></md-avatar>
           <h2 id="addon-name">WeakAuras -
-            <span>{{ $t('TBC') }}</span>
+            <span>{{ $t('The Burning Crusade Classic') }}</span>
           </h2>
         </md-layout>
         <addon-info addon="weakaura" expansion="tbc"></addon-info>

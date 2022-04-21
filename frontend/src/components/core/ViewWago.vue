@@ -26,7 +26,7 @@
             <span>{{ displayExpansion(wago) }}{{ wago.type }}</span>
           </div>
         </h1>
-        <div id="sendToDesktopAppBtn" class="md-hide-xsmall md-button copy-import-button" @click="sendToApp()">
+        <div v-if="wago.type.match(/WEAKAURA|PLATER/) && !wago.visibility.restricted" id="sendToDesktopAppBtn" class="md-hide-xsmall md-button copy-import-button" @click="sendToApp()">
           <md-icon>airplay</md-icon> {{ $t("Send to Desktop App") }}
           <md-button @click.stop="sendToApp('ask')" id="helpAppButton" class="md-icon-button md-raised"><md-icon>help</md-icon></md-button>
         </div>
@@ -164,7 +164,7 @@
       </md-dialog>
 
       <md-layout md-row id="import-meta">
-        <md-card id="wago-header" ref="header" v-bind:class="{'md-hide-xsmall': hideMobileHeader}">
+        <md-card id="wago-header" ref="header">
           <md-card-header>
             <md-avatar>
               <ui-image :img="wago.user.avatar"></ui-image>
@@ -656,7 +656,7 @@
                       <span class="attached-media">
                         {{ item.wowPath }}<br>
                         <img v-if="item.mediaPath" :src="'https://media.wago.io' + item.mediaPath">
-                        <span v-else>This is a custom texture or otherwise unknown to Wago. In a future update custom textures can be attached to your imports.</span>
+                        <span v-else>This is a custom texture or otherwise unknown to Wago.</span>
                       </span>
                     </div>
                   </template>
@@ -2172,49 +2172,56 @@ export default {
       }
 
       if (app == 'WagoApp') {
-        openCustomProtocol(`wago-app://weakauras/${this.wago._id}`,
-          () => {
-            // fail
-            this.selectedApp = ''
-            window.localStorage.removeItem('Selected-Desktop-App')
-            this.$refs.sendToAppDialog.open()
-            window.eventHub.$emit('showSnackBar', this.$t('Unable to detect WagoApp, please make sure you have it installed and running'))
-          },
-          () => {
-            // success
-            window.eventHub.$emit('showSnackBar', this.$t('WeakAura sent to WagoApp'))
-          },
-          () => {
-            // unsupported
-            this.selectedApp = ''
-            window.localStorage.removeItem('Selected-Desktop-App')
-            this.$refs.sendToAppDialog.open()
-            window.eventHub.$emit('showSnackBar', this.$t('Unable to detect WagoApp, please make sure you have it installed and running'))
-          }
-        )
+        window.location = `wago-app://weakauras/${this.wago._id}`
       }
       else if (app == 'WeakAurasCompanion') {
-        openCustomProtocol(`weakauras-companion://wago/push/${this.wago.slug}`,
-          () => {
-            // fail
-            this.selectedApp = ''
-            window.localStorage.removeItem('Selected-Desktop-App')
-            this.$refs.sendToAppDialog.open()
-            window.eventHub.$emit('showSnackBar', this.$t('Unable to detect WeakAura Companion app, please make sure you have it installed and running'))
-          },
-          () => {
-            // success
-            window.eventHub.$emit('showSnackBar', this.$t('WeakAura sent to Companion'))
-          },
-          () => {
-            // unsupported
-            this.selectedApp = ''
-            window.localStorage.removeItem('Selected-Desktop-App')
-            this.$refs.sendToAppDialog.open()
-            window.eventHub.$emit('showSnackBar', this.$t('Unable to detect WeakAura Companion app, please make sure you have it installed and running'))
-          }
-        )
+        window.location = `weakauras-companion://wago/push/${this.wago.slug}`
       }
+
+      // if (app == 'WagoApp') {
+      //   openCustomProtocol(`wago-app://weakauras/${this.wago._id}`,
+      //     () => {
+      //       // fail
+      //       this.selectedApp = ''
+      //       window.localStorage.removeItem('Selected-Desktop-App')
+      //       this.$refs.sendToAppDialog.open()
+      //       window.eventHub.$emit('showSnackBar', this.$t('Unable to detect WagoApp, please make sure you have it installed and running'))
+      //     },
+      //     () => {
+      //       // success
+      //       window.eventHub.$emit('showSnackBar', this.$t('WeakAura sent to WagoApp'))
+      //     },
+      //     () => {
+      //       // unsupported
+      //       this.selectedApp = ''
+      //       window.localStorage.removeItem('Selected-Desktop-App')
+      //       this.$refs.sendToAppDialog.open()
+      //       window.eventHub.$emit('showSnackBar', this.$t('Unable to detect WagoApp, please make sure you have it installed and running'))
+      //     }
+      //   )
+      // }
+      // else if (app == 'WeakAurasCompanion') {
+      //   openCustomProtocol(`weakauras-companion://wago/push/${this.wago.slug}`,
+      //     () => {
+      //       // fail
+      //       this.selectedApp = ''
+      //       window.localStorage.removeItem('Selected-Desktop-App')
+      //       this.$refs.sendToAppDialog.open()
+      //       window.eventHub.$emit('showSnackBar', this.$t('Unable to detect WeakAura Companion app, please make sure you have it installed and running'))
+      //     },
+      //     () => {
+      //       // success
+      //       window.eventHub.$emit('showSnackBar', this.$t('WeakAura sent to Companion'))
+      //     },
+      //     () => {
+      //       // unsupported
+      //       this.selectedApp = ''
+      //       window.localStorage.removeItem('Selected-Desktop-App')
+      //       this.$refs.sendToAppDialog.open()
+      //       window.eventHub.$emit('showSnackBar', this.$t('Unable to detect WeakAura Companion app, please make sure you have it installed and running'))
+      //     }
+      //   )
+      // }
     },
     setCompanionHelpShow (enable, time) {
       clearTimeout(this.showCompanionHelpTimer)
@@ -3030,8 +3037,8 @@ export default {
       return '#'
     },
 
-    autoCompleteUserName: function (q) {
-      return this.http.get('/search/username', {name: q.q})
+    autoCompleteUserName: async function (q) {
+      return (await this.http.get('/search/username', {name: q.q})).map(x => {x.name = x.name.replace(/\s/g, '_'); x.html = x.html.replace(/\s/g, '_'); return x})
     },
 
     escapeText: function(str) {

@@ -52,10 +52,10 @@
         </md-input-container>
 
         <md-input-container v-if="hasMentions">
-          <label for="expansion">{{ $t("Include Read Mentions") }}</label>
+          <label for="expansion">{{ $t("Filter By Mentions") }}</label>
           <md-select v-model="includeReadMentionsVal">
-            <md-option value="">{{ $t("No") }}</md-option>
-            <md-option value="1">{{ $t("Yes") }}</md-option>
+            <md-option value="">{{ $t("Unread") }}</md-option>
+            <md-option value="1">{{ $t("All") }}</md-option>
           </md-select>
         </md-input-container>
       </div>

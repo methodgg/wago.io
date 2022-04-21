@@ -4,27 +4,51 @@
       <md-layout>
         <div id="searchData">
           <slot></slot>
-          <p><strong v-html="$t('Found [-count-] results', {count: new Intl.NumberFormat().format(results.total)})"></strong></p>
-          <template v-if="results">
-            <div>
+          <md-layout md-row>
+            <p><strong v-html="$t('Found [-count-] results', {count: new Intl.NumberFormat().format(results.total)})"></strong></p>
+            <span class="spacer"></span>
+            <template v-if="results">
               <div>
-                <label>{{ $t('Sort') }}</label>
-                <small>{{
-                  searchSort === 'date' && $t('Date') ||
-                  searchSort === 'stars' && $t('Stars') ||
-                  searchSort === 'views' && $t('Views') ||
-                  searchSort === 'installs' && $t('Installs') ||
-                  $t('Best Match')}}</small>
+                <div>
+                  <label>{{ $t('Mode') }}</label>
+                  <small>{{
+                    searchMode === 'wow' && $t('WoW') ||
+                    searchMode === 'xiv' && $t('FF XIV') ||
+                    searchMode === 'starred' && $t('My favorites') ||
+                    searchMode === 'comments' && $t('Comments') ||
+                    searchMode === 'code' && $t('Lua Code')
+                    }}</small>
+                </div>
+                <md-button-toggle md-single class="md-accent md-warn select-search-mode">
+                  <md-button :class="{ 'md-toggle': searchMode === 'wow' }" class="md-icon-button" @click="searchMode='wow'"><img src="../../assets/game-wow.svg"></md-button>
+                  <md-button :class="{ 'md-toggle': searchMode === 'xiv' }" class="md-icon-button" @click="searchMode='xiv'"><img src="../../assets/game-ffxiv.svg"></md-button>
+                  <md-button v-if="$store.state.user && $store.state.user.UID" :class="{ 'md-toggle': searchMode === 'starred' }" class="md-icon-button" @click="searchMode='starred'"><md-icon>star</md-icon></md-button>
+                  <md-button :class="{ 'md-toggle': searchMode === 'comments' }" class="md-icon-button" @click="searchMode='comments'"><md-icon>comment</md-icon></md-button>
+                </md-button-toggle>
               </div>
-              <md-button-toggle md-single class="md-accent md-warn">
-                <md-button :class="{ 'md-toggle': searchSort === '' }" class="md-icon-button" @click="searchSort=''"><md-icon>check_circle</md-icon></md-button>
-                <md-button :class="{ 'md-toggle': searchSort === 'stars' }" class="md-icon-button" @click="searchSort='stars'"><md-icon>star</md-icon></md-button>
-                <md-button :class="{ 'md-toggle': searchSort === 'views' }" class="md-icon-button" @click="searchSort='views'"><md-icon>visibility</md-icon></md-button>
-                <md-button :class="{ 'md-toggle': searchSort === 'installs' }" class="md-icon-button" @click="searchSort='installs'" :disabled="disableInstalls"><md-icon>file_download</md-icon></md-button>
-                <md-button :class="{ 'md-toggle': searchSort === 'date' }" class="md-icon-button" @click="searchSort='date'"><md-icon>calendar_today</md-icon></md-button>
-              </md-button-toggle>
-            </div>
-          </template>
+            </template>
+            <template v-if="results">
+              <div>
+                <div>
+                  <label>{{ $t('Sort') }}</label>
+                  <small>{{
+                    searchSort === 'date' && $t('Date') ||
+                    searchSort === 'stars' && $t('Stars') ||
+                    searchSort === 'views' && $t('Views') ||
+                    searchSort === 'installs' && $t('Installs') ||
+                    $t('Best Match')}}</small>
+                </div>
+                <md-button-toggle md-single class="md-accent md-warn">
+                  <md-button :class="{ 'md-toggle': searchSort === '' }" class="md-icon-button" @click="searchSort=''"><md-icon>check_circle</md-icon></md-button>
+                  <md-button :class="{ 'md-toggle': searchSort === 'stars' }" class="md-icon-button" @click="searchSort='stars'" :disabled="disableMetrics"><md-icon>star</md-icon></md-button>
+                  <md-button :class="{ 'md-toggle': searchSort === 'views' }" class="md-icon-button" @click="searchSort='views'" :disabled="disableMetrics"><md-icon>visibility</md-icon></md-button>
+                  <md-button :class="{ 'md-toggle': searchSort === 'installs' }" class="md-icon-button" @click="searchSort='installs'" :disabled="disableInstalls"><md-icon>file_download</md-icon></md-button>
+                  <md-button :class="{ 'md-toggle': searchSort === 'date' }" class="md-icon-button" @click="searchSort='date'"><md-icon>calendar_today</md-icon></md-button>
+                </md-button-toggle>
+              </div>
+            </template>
+          </md-layout>
+          <p v-if="!results.total">{{ $t('No results found, try changing the search mode or query') }}</p>
         </div>
       </md-layout>
 
@@ -55,6 +79,29 @@
                 <editor v-model="result.code" @init="codeViewInit" lang="lua" :theme="$store.state.user.config.editor || 'terminal'" width="100%" height="50"></editor>
               </div>
             </div>
+            <div v-else-if="result && results.index === 'comment'" v-bind:key="index">
+              <router-link :to="'/' + result.importID" class="searchResult commentResult">
+                <div class="searchImgContainer">
+                  <placeholder-img class="searchImg" :text="$t('Comment').toUpperCase()" :icon="result.userAvatar"></placeholder-img>
+                </div>
+                <div class="searchText">
+                  <strong>{{ result.importName }}
+                    <span class="hidden-status" v-if="result.hidden"><md-icon>visibility_off</md-icon></span>
+                  </strong>
+                  <div>
+                    <div class="col-3">
+                      <span class="result-user"><md-icon>person</md-icon><span :class="result.userClass">{{ result.userName }}</span></span>
+                      <span>{{ result.timestamp | moment('LLL') }}</span>
+                      <span><template v-if="unreadMentions.includes(result.id)">
+                        <span class="red">{{ $t('Alert!!') }}</span>
+                        <span class="clear-button" @click="clearAlert($event, result.id)">{{ $t('Clear alert') }}</span>
+                      </template></span>
+                    </div>
+                  </div>
+                  <formatted-text :text="{text: result.text, format: 'bbcode'}" :plaintext="true" :hideLinks="true" :truncate="1000"></formatted-text>
+                </div>
+              </router-link>
+            </div>
             <div v-else-if="result" v-bind:key="index">
               <router-link :to="'/' + (result.id || result.slug)" class="searchResult">
                 <div class="searchImgContainer">
@@ -69,8 +116,7 @@
                   <span class="hidden-status" v-if="result.hidden"><md-icon>visibility_off</md-icon></span>
                   <div>
                     <div class="row">
-                      <span v-if="result.userName" :class="result.userClass">{{ result.userName }}</span>
-                      <span v-else-if="result.user" :class="result.user.roleClass">{{ result.user.name }}</span>
+                      <span class="result-user" :class="result.userClass"><md-icon>person</md-icon><span>{{ result.userName }}</span></span>
                       <span>{{ result.timestamp | moment('LLL') }}</span>
                     </div>
                     <div class="row">
@@ -110,6 +156,7 @@ export default {
         total: 0
       },
       searchSort: window.localStorage.getItem('searchSort') || '',
+      searchMode: '',
       searchString: '',
       searchParams: {q: ''},
       searchOptions: 'sort: Date',
@@ -128,7 +175,8 @@ export default {
       contextSearchData: this.contextSearch,
       isCollection: false,
       includeReadMentions: '',
-      disableInstalls: false
+      disableInstalls: false,
+      disableMetrics: false
     }
   },
   props: ['contextSearch', 'contextGame', 'contextSort', 'contextDomain', 'collection'],
@@ -159,12 +207,38 @@ export default {
     searchSort (val) {
       window.localStorage.setItem('searchSort', val)
       this.runSearch(this.$store.state.execSearch, true)
+    },
+    searchMode (val) {
+      let q = this.$store.state.siteSearch
+      if (val == 'wow') {
+        q = q.replace(/mentions:\w+/ig, '')
+      }
+      else if (val == 'xiv') {
+        q = q.replace(/(mentions|expansion):\w+/ig, '')
+      }
+      else if (val == 'starred') {
+        q = q.replace(/(mentions|expansion):\w+/ig, '')
+      }
+      else if (val == 'comments') {
+        q = q.replace(/(type|expansion|metric|tag):[\w-]+/ig, '')
+      }
+      this.$store.commit('setSearchOpts', {mode: val, query: q})
+    },
+    contextSearch (val) {
+      const mode = (val.match(/^!(\w+)!/) || [])[1]
+      if (mode) {
+        this.searchMode = mode
+      }
     }
   },
   computed: {
     execSearch () {
       this.runSearch(this.$store.state.execSearch)
       return this.$store.state.execSearch
+    },
+
+    unreadMentions() {
+      return this.$store.state.user && this.$store.state.user.unreadMentions && this.$store.state.user.unreadMentions.map(x => x._id)
     }
   },
   methods: {
@@ -232,14 +306,22 @@ export default {
     runSearch: function (sid, force) {
       this.$nextTick(() => {
         let query = this.$store.state.siteSearch.trim().replace(/\s{2,}/g, ' ')
-        if (!query || (!force && (sid !== this.$store.state.execSearch || this.searchParams.q.toLowerCase() === query.toLowerCase()))) {
+        if (!force && (!query || (!force && (sid !== this.$store.state.execSearch || (this.searchParams.q.toLowerCase() === query.toLowerCase() && this.searchParams.mode === this.$store.state.searchMode))))) {
           return
         }
 
         this.disableInstalls = query.match(/type:(weakaura|plater)/) === null
+        this.disableMetrics = this.$store.state.searchMode.match(/starred|comments/) !== null
+
+        if (this.disableInstalls && this.searchSort.match(/installs/)) {
+          this.searchSort = ''
+        }
+        else if (this.disableMetrics && this.searchSort.match(/stars|views|installs/)) {
+          this.searchSort = ''
+        }
 
         this.isSearching = true
-        this.searchParams = {q: query, page: 0, sort: this.searchSort, domain: this.$store.state.domain}
+        this.searchParams = {q: query, mode: this.$store.state.searchMode, page: 0, sort: this.searchSort}
 
         if (query.match(/\b(?:alerts?|mentioned):\s*(1|true)\b/i)) {
           this.searchParams.includeRead = this.includeReadMentions
@@ -271,11 +353,6 @@ export default {
           this.$set(this.results, 'query', res.query)
           this.$set(this.results, 'index', res.index)
           this.$set(this.results, 'results', hits)
-
-          if (this.searchSort === 'installs' && !this.results.results[0].installs) {
-            this.searchSort = ''
-          }
-
           this.isSearching = false
         })
       })
@@ -325,6 +402,13 @@ export default {
           window.tyche.displayUnits()
         }
       })
+    },
+
+    clearAlert(e, id) {
+      e.preventDefault()
+      this.http.post('/comments/clear', {comment: id}).then(res => {
+        this.$store.commit('userClearMention', id)
+      })
     }
   },
   created: function () {
@@ -334,53 +418,37 @@ export default {
     window.removeEventListener('scroll', this.watchScroll)
   },
   mounted: function () {
+    let mode
     if (typeof this.contextDomain !== 'undefined') {
       this.$store.commit('setDomain', this.contextDomain)
+      if (this.contextDomain === 0) {
+        mode = 'wow'
+      }
+      else if (this.contextDomain === 1) {
+        mode = 'xiv'
+      }
     }
     let initialSearch = ''
     if (this.contextGame) {
       initialSearch += `expansion:${this.contextGame} `
-      // this.uiExpansionValue = true
-      // this.filterExpansion = this.contextGame
-    }
-    else if (this.$store.state.user && this.$store.state.user.config && this.$store.state.user.config.searchOptions.expansion) {
-      // this.uiExpansionValue = true
-      // this.filterExpansion = this.$store.state.user.config.searchOptions.expansion
     }
     if (this.contextSearch) {
       initialSearch += this.contextSearch
+      console.log('init search', initialSearch)
+      if (this.contextSearch.match(/!comments!/) && !mode) {
+        mode = 'comments'
+      }
     }
+
+    if (!mode) {
+      mode = window.localStorage.getItem('searchMode') || 'wow'
+    }
+
+    this.searchMode = mode
 
     if (initialSearch) {
       this.$store.commit('setSearchText', initialSearch.trim(), true)
     }
-
-    // wait for i18n then run search
-    // this.$i18n.i18next.init(() => {
-    //   this.runSearch()
-    // })
-    // if (!this.$router.currentRoute.params.profile) {
-    //   if (this.$router.currentRoute.params.query) {
-    //     this.$store.commit('setPageInfo', {
-    //       title: 'Search | ' + this.$router.currentRoute.params.query.replace(/\+/g, ' ')
-    //     })
-    //   }
-    //   else {
-    //     this.$store.commit('setPageInfo', {
-    //       title: 'Search'
-    //     })
-    //   }
-    // }
-    // document.addEventListener('scroll', function (event) {
-    //   if (!document.getElementById('searchLayout')) {
-    //     return
-    //   }
-    //   if (vue.results && vue.results.total && ((vue.results.results && vue.results.total > vue.results.results.length) || (vue.results.meta && vue.results.meta.forceNextPage)) && !vue.isSearching && !vue.isSearchingMore) {
-    //     if (document.body.scrollHeight - 600 <= document.body.scrollTop + window.innerHeight || document.body.scrollHeight - 600 <= document.documentElement.scrollTop + window.innerHeight) {
-    //       vue.searchMore()
-    //     }
-    //   }
-    // })
   }
 }
 </script>
@@ -397,6 +465,19 @@ export default {
 #searchData {
   align-items: center;
   flex-grow: 1;
+  .md-layout {
+    align-items: center;
+    justify-items: flex-end;
+    > * {
+      margin-right: 32px;
+    }
+    > *:last-child {
+      margin-right: 0;
+    }
+    .spacer {
+      flex-grow: 1;
+    }
+  }
   label {
     opacity: .9;
     margin: 0 16px 0 0;
@@ -422,6 +503,10 @@ export default {
         font-size: 16px;
         top: 8px;
       }
+    }
+    &.select-search-mode img {
+      max-width: 24px;
+      max-height: 24px;
     }
   }
 }
@@ -477,7 +562,7 @@ export default {
     .searchImgContainer {
       width: 300px; min-width: 300px; max-width: 300px;
       background-color: #222222;
-background-image: url("data:image/svg+xml,%3Csvg width='12' height='16' viewBox='0 0 12 16' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M4 .99C4 .445 4.444 0 5 0c.552 0 1 .45 1 .99v4.02C6 5.555 5.556 6 5 6c-.552 0-1-.45-1-.99V.99zm6 8c0-.546.444-.99 1-.99.552 0 1 .45 1 .99v4.02c0 .546-.444.99-1 .99-.552 0-1-.45-1-.99V8.99z' fill='%23221111' fill-opacity='0.4' fill-rule='evenodd'/%3E%3C/svg%3E");
+      background-image: url("data:image/svg+xml,%3Csvg width='12' height='16' viewBox='0 0 12 16' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M4 .99C4 .445 4.444 0 5 0c.552 0 1 .45 1 .99v4.02C6 5.555 5.556 6 5 6c-.552 0-1-.45-1-.99V.99zm6 8c0-.546.444-.99 1-.99.552 0 1 .45 1 .99v4.02c0 .546-.444.99-1 .99-.552 0-1-.45-1-.99V8.99z' fill='%23221111' fill-opacity='0.4' fill-rule='evenodd'/%3E%3C/svg%3E");
       background-position: center;
       .searchImg {
         background-position: center;
@@ -518,6 +603,16 @@ background-image: url("data:image/svg+xml,%3Csvg width='12' height='16' viewBox=
         width: 100%;
         margin-top: 4px;
       }
+      .col-3 {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        *:last-child {
+          text-align: right;
+        }
+      }
+      .result-user i {
+        font-size: 20px;
+      }
       .usertext {
         margin-top: 2px;
         margin-bottom: 27px;
@@ -548,6 +643,20 @@ background-image: url("data:image/svg+xml,%3Csvg width='12' height='16' viewBox=
           background-position: 2px 2px;
         }
       }
+      .red {
+        color: #B80000;
+        font-weight: bold;
+      }
+      .clear-button {
+        padding: 2px 4px;
+        background: #444;
+        border-radius: 2px;
+        pointer-events: all;
+        color: #EED;
+        &:hover {
+          background: #555;
+        }
+      }
     }
   }
   .trendi_video {
@@ -564,7 +673,9 @@ background-image: url("data:image/svg+xml,%3Csvg width='12' height='16' viewBox=
     }
   }
 }
-.searchResult .searchText {  }
+#content #searchPage .searchResult.commentResult .searchText .usertext {
+  margin-bottom: -4px;
+}
 .searchResult .hidden-status { font-weight: bold; margin-left: 8px; opacity: .7 }
 
 #searchSide {display: flex; justify-content: space-between; flex-wrap: nowrap;}
@@ -605,6 +716,9 @@ background-image: url("data:image/svg+xml,%3Csvg width='12' height='16' viewBox=
         height: auto;
         strong {
           overflow: visible;
+        }
+        .col-3 {
+          grid-template-columns: 1fr;
         }
         .usertext {
           margin-bottom: 10px;

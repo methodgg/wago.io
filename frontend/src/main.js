@@ -172,7 +172,7 @@ const store = new Vuex.Store({
           passiveMode: true,
           onReady: () => {
             state.advertSetup = true
-            // window.tyche.addUnits([{type: 'left_rail'}, {type: 'right_rail'}])
+            window.tyche.addUnits([{type: 'left_rail'}, {type: 'right_rail'}])
             window.tyche.displayUnits()
           }
         }
@@ -214,7 +214,14 @@ const store = new Vuex.Store({
     setSearchText (state, text) {
       Vue.set(state, 'siteSearch', '')
       Vue.nextTick(() => {
-        Vue.set(state, 'siteSearch', text.replace(/\s{2,}/g, ' ').trim())
+        let q = text.replace(/\s{2,}/g, ' ').trim()
+        const m = q.match(/^!(\w+)!/)
+        if (m && m[1]) {
+          q = q.replace(m[0], '')
+          Vue.set(state, 'searchMode', m[1])
+          window.localStorage.setItem('searchMode', m[1])
+        }
+        Vue.set(state, 'siteSearch', q.trim())
         state.execSearch++
       })
     },
@@ -222,6 +229,18 @@ const store = new Vuex.Store({
     setDomain (state, domain){
       Vue.set(state, 'domain', domain + '')
       window.localStorage.setItem('domain', domain + '')
+    },
+
+    setSearchMode (state, mode){
+      Vue.set(state, 'searchMode', mode + '')
+      window.localStorage.setItem('searchMode', mode + '')
+    },
+
+    setSearchOpts (state, opts) {
+      Vue.set(state, 'searchMode', opts.mode || '')
+      window.localStorage.setItem('searchMode', opts.mode || '')
+      Vue.set(state, 'siteSearch', (opts.query || '').trim())
+      state.execSearch++
     },
 
     setPageInfo (state, page) {
@@ -305,7 +324,6 @@ const store = new Vuex.Store({
     },
 
     linkApp (state) {
-      console.log('linking app')
       state.linkApp = true
     },
 
@@ -965,7 +983,7 @@ i18next.use(XHR)
     load: 'currentOnly',
     returnEmptyString: false,
     backend: {
-      loadPath: '/static/i18n/[-lng-]/[-ns-].json',
+      loadPath: '/static/i18n/[-lng-]/[-ns-].json?v='+window.langCache,
       allowMultiLoading: false,
       crossDomain: false
     },
@@ -987,6 +1005,5 @@ i18next.use(XHR)
       template: '<App/>',
       render: h => h(App),
     })
-
   })
 

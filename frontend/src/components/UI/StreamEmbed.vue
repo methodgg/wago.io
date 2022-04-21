@@ -1,6 +1,6 @@
 <template>
-  <div class="embed-container" v-if="stream !== '__streamspread' && visible && showAds">
-    <div ref="player" class="embed-player"></div>
+  <div class="embed-container" :class="{'twitch-embed-container': stream !== '__streamspread', 'ss-embed-container': stream === '__streamspread'}" v-if="/*stream !== '__streamspread' && */visible && showAds">
+    <div ref="player" class="embed-player" id="ss-player"></div>
     <div class="embed-player-close" @click="closeStream()" v-if="twitchOn">
       <img class="embed-player-close-icon" src="./../../assets/stream-close.png">
     </div>
@@ -54,10 +54,11 @@ export default {
     },
 
     async loadEmbed () {
-      if (!this.showAds) {
+      if (!this.showAds || this.stream === '__closed' || this.stream === '__none') {
+        this.visible = false
         return false
       }
-      /*else if (this.stream === '__streamspread' && this.showAds) {
+      else if (this.stream === '__streamspread' && this.showAds) {
         this.loadJS = new Promise((resolve) => {
           let body = document.querySelector('body')
           let streamspread = document.createElement('script')
@@ -67,9 +68,6 @@ export default {
           body.appendChild(streamspread)
         })
         this.source = 'streamspread'
-      }*/
-      else if (this.stream === '__closed') {
-        this.visible = false
       }
       else if (!this.twitchPlayer) {
         this.loadJS = new Promise((resolve) => {
@@ -119,7 +117,10 @@ export default {
 </script>
 
 <style>
-.embed-container {max-height: 230px; aspect-ratio: 16 / 9; position: fixed; z-index: 999999; right: 2px; bottom: 2px; margin: auto!important; overflow: hidden; text-align: center!important; border-radius: 2px;}
+.embed-container {width: 100%; margin: 16px 0 0 16px; overflow: hidden; text-align: center!important; border-radius: 2px; position: relative;
+/*max-height: 230px; position: fixed; z-index: 999999; right: 2px; bottom: 2px; margin: auto!important;*/ }
+.ss-embed-container {height: 250px}
+.twitch-embed-container {aspect-ratio: 16 / 9;}
 .embed-player {width: 100%; height: 100%; border-radius: 2px;}
 .embed-player iframe, .embed-player iframe:not(.md-image) {height: inherit}
 .embed-player.preview {position: relative}
