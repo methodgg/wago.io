@@ -76,6 +76,13 @@ module.exports = function(data, keypath) {
 
   if (data.conditions) {
     data.conditions.forEach((condition, i) => {
+      if (condition && condition.check && condition.check.variable === 'customcheck' && condition.check.value) {
+        codes.push({
+          name: `${data.id} - Condition Custom Check ${i + 1}`,
+          keypath: `${keypath}.conditions[${i}].check.value`,
+          lua: condition.check.value.trim(),
+        })
+      }
       if (condition && condition.changes && condition.changes.length) {
         condition.changes.forEach((change, k) => {
           if (typeof(change.value) === 'object') {
