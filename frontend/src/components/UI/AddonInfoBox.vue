@@ -1,6 +1,6 @@
 <template>
   <md-layout md-row id="addon-meta">
-    <template v-for="(link, id) in links">
+    <template v-for="link in links">
       <md-button v-if="link.url.match(/^\/search/)" @click="doSearch(link)">{{ link.name }}</md-button>
       <md-button v-else :href="link.url" target="_blank" rel="noopener">{{ link.name }}</md-button>
     </template>
@@ -24,7 +24,12 @@ export default {
       if (typeof link.domain !== 'undefined') {
         this.$store.commit('setDomain', link.domain)
       }
-      this.$router.push({name: 'search', query: {}, props: true, params: {query: `type:${this.addon}`, contextDomain: link.domain}})
+      if (this.expansion) {
+        this.$router.push({name: 'search', query: {}, props: true, params: {query: `expansion: ${this.expansion} type:${this.addon}`, contextDomain: link.domain}})
+      }
+      else {
+        this.$router.push({name: 'search', query: {}, props: true, params: {query: `type:${this.addon}`, contextDomain: link.domain}})
+      }
     }
   },
   computed: {

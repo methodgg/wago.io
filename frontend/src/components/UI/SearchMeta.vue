@@ -143,7 +143,7 @@
 </style>
 
 <script>
-import Categories from '../libs/categories'
+import Categories from '../libs/categories2'
 import CategoryImage from '../UI/CategoryImage.vue'
 export default {
   components: {

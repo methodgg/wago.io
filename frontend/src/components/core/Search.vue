@@ -20,10 +20,22 @@
                     }}</small>
                 </div>
                 <md-button-toggle md-single class="md-accent md-warn select-search-mode">
-                  <md-button :class="{ 'md-toggle': searchMode === 'wow' }" class="md-icon-button" @click="searchMode='wow'"><img src="../../assets/game-wow.svg"></md-button>
-                  <md-button :class="{ 'md-toggle': searchMode === 'xiv' }" class="md-icon-button" @click="searchMode='xiv'"><img src="../../assets/game-ffxiv.svg"></md-button>
-                  <md-button v-if="$store.state.user && $store.state.user.UID" :class="{ 'md-toggle': searchMode === 'starred' }" class="md-icon-button" @click="searchMode='starred'"><md-icon>star</md-icon></md-button>
-                  <md-button :class="{ 'md-toggle': searchMode === 'comments' }" class="md-icon-button" @click="searchMode='comments'"><md-icon>comment</md-icon></md-button>
+                  <md-button :class="{ 'md-toggle': searchMode === 'wow' }" class="md-icon-button" @click="searchMode='wow'">
+                    <img src="../../assets/game-wow.svg">
+                    <md-tooltip md-direction="bottom" class="">{{ $t("World of Warcraft imports") }}</md-tooltip>
+                  </md-button>
+                  <md-button :class="{ 'md-toggle': searchMode === 'xiv' }" class="md-icon-button" @click="searchMode='xiv'">
+                    <img src="../../assets/game-ffxiv.svg">
+                    <md-tooltip md-direction="bottom" class="">{{ $t("Final Fantasy XIV imports") }}</md-tooltip>
+                  </md-button>
+                  <md-button v-if="$store.state.user && $store.state.user.UID" :class="{ 'md-toggle': searchMode === 'starred' }" class="md-icon-button" @click="searchMode='starred'">
+                    <md-icon>star</md-icon>
+                    <md-tooltip md-direction="bottom" class="">{{ $t("My starred imports") }}</md-tooltip>
+                  </md-button>
+                  <md-button :class="{ 'md-toggle': searchMode === 'comments' }" class="md-icon-button" @click="searchMode='comments'">
+                    <md-icon>comment</md-icon>
+                    <md-tooltip md-direction="bottom" class="">{{ $t("Comments") }}</md-tooltip>
+                  </md-button>
                 </md-button-toggle>
               </div>
             </template>
@@ -39,11 +51,26 @@
                     $t('Best Match')}}</small>
                 </div>
                 <md-button-toggle md-single class="md-accent md-warn">
-                  <md-button :class="{ 'md-toggle': searchSort === '' }" class="md-icon-button" @click="searchSort=''"><md-icon>check_circle</md-icon></md-button>
-                  <md-button :class="{ 'md-toggle': searchSort === 'stars' }" class="md-icon-button" @click="searchSort='stars'" :disabled="disableMetrics"><md-icon>star</md-icon></md-button>
-                  <md-button :class="{ 'md-toggle': searchSort === 'views' }" class="md-icon-button" @click="searchSort='views'" :disabled="disableMetrics"><md-icon>visibility</md-icon></md-button>
-                  <md-button :class="{ 'md-toggle': searchSort === 'installs' }" class="md-icon-button" @click="searchSort='installs'" :disabled="disableInstalls"><md-icon>file_download</md-icon></md-button>
-                  <md-button :class="{ 'md-toggle': searchSort === 'date' }" class="md-icon-button" @click="searchSort='date'"><md-icon>calendar_today</md-icon></md-button>
+                  <md-button :class="{ 'md-toggle': searchSort === '' }" class="md-icon-button" @click="searchSort=''">
+                    <md-icon>check_circle</md-icon>
+                    <md-tooltip md-direction="bottom" class="">{{ $t("Best Match") }}</md-tooltip>
+                  </md-button>
+                  <md-button :class="{ 'md-toggle': searchSort === 'stars' }" class="md-icon-button" @click="searchSort='stars'" :disabled="disableMetrics">
+                    <md-icon>star</md-icon>
+                    <md-tooltip md-direction="bottom" class="">{{ $t("Stars") }}</md-tooltip>
+                  </md-button>
+                  <md-button :class="{ 'md-toggle': searchSort === 'views' }" class="md-icon-button" @click="searchSort='views'" :disabled="disableMetrics">
+                    <md-icon>visibility</md-icon>
+                    <md-tooltip md-direction="bottom" class="">{{ $t("Views") }}</md-tooltip>
+                  </md-button>
+                  <md-button :class="{ 'md-toggle': searchSort === 'installs' }" class="md-icon-button" @click="searchSort='installs'" :disabled="disableInstalls">
+                    <md-icon>file_download</md-icon>
+                    <md-tooltip md-direction="bottom" class="">{{ $t("Installs") }}</md-tooltip>
+                  </md-button>
+                  <md-button :class="{ 'md-toggle': searchSort === 'date' }" class="md-icon-button" @click="searchSort='date'">
+                    <md-icon>calendar_today</md-icon>
+                    <md-tooltip md-direction="bottom" class="">{{ $t("Date") }}</md-tooltip>
+                  </md-button>
                 </md-button-toggle>
               </div>
             </template>

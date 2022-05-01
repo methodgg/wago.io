@@ -195,11 +195,13 @@ export default {
       }
       else {
         return [
+          {regex: /(.*)(expansion:\s?(:?df|dragonflight))(.*)/i, name: 'Dragonflight', class:'expansion exp-df', search: 'expansion:sl'},
           {regex: /(.*)(expansion:\s?(:?sl|shadowlands))(.*)/i, name: 'Shadowlands', class:'expansion exp-sl', search: 'expansion:sl'},
           {regex: /(.*)(expansion:\s?bfa|battle for azeroth)(.*)/i, name: 'Battle for Azeroth', class:'expansion exp-bfa', search: 'expansion:bfa'},
           {regex: /(.*)(expansion:\s?legion)(.*)/i, name: 'Legion', class:'expansion exp-legion', search: 'expansion:legion'},
           {regex: /(.*)(expansion:\s?classic)(.*)/i, name: 'Classic', class:'expansion exp-classic', search: 'expansion:classic'},
           {regex: /(.*)(expansion:\s?(:?t?bcc?|tbc classic))(.*)/i, name: 'TBC Classic', class:'expansion exp-tbc', search: 'expansion:tbc'},
+          {regex: /(.*)(expansion:\s?(:?wotlk|wrath))(.*)/i, name: 'WotLK Classic', class:'expansion exp-wotlk', search: 'expansion:wotlk'},
         ]
       }
     }
@@ -735,6 +737,10 @@ export default {
         color: #FFC83D;
         border-color: #FFC83D;
       }
+      &.exp-df {
+        border-color: #27eab0;
+        color: #27eab0;
+      }
       &.exp-sl {
         border-color: #eaae27;
         color: #eaae27;
@@ -742,6 +748,10 @@ export default {
       &.exp-tbc {
         border-color: #BED82E;
         color: #BED82E;
+      }
+      &.exp-wotlk {
+        border-color: #5764da;
+        color: #5764da;
       }
       &.filter-date {
         border-color: #e2fffa;
