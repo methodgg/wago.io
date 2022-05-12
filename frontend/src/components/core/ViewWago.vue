@@ -26,7 +26,7 @@
             <span>{{ displayExpansion(wago) }}{{ wago.type }}</span>
           </div>
         </h1>
-        <div v-if="wago.type.match(/WEAKAURA|PLATER/) && !wago.visibility.restricted" id="sendToDesktopAppBtn" class="md-hide-xsmall md-button copy-import-button" @click="sendToApp()">
+        <div v-if="wago.type.match(/WEAKAURA|PLATER/) && !wago.visibility.encrypted" id="sendToDesktopAppBtn" class="md-hide-xsmall md-button copy-import-button" @click="sendToApp()">
           <md-icon>airplay</md-icon> {{ $t("Send to Desktop App") }}
           <md-button @click.stop="sendToApp('ask')" id="helpAppButton" class="md-icon-button md-raised"><md-icon>help</md-icon></md-button>
         </div>
