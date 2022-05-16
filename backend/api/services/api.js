@@ -64,20 +64,20 @@ module.exports = function (fastify, opts, next) {
     if (!req.query.ids) {
       return res.code(404).send({error: "page_not_found"})
     }
-    var findType
+    let findType = {}
     if (req.params.importType === 'weakauras') {
       findType = {'$or': [{type:'CLASSIC-WEAKAURA'}, {type:'TBC-WEAKAURA'}, {type:'WEAKAURA'}]}
     }
     else if (req.params.importType === 'plater') {
       findType = {type: 'PLATER'}
     }
-    else {
+    else if (req.params.importType) {
       return res.code(404).send({error: "page_not_found"})
     }
 
-    var ids = req.query.ids.split(',').slice(0, 200)
-    var cached = []
-    var lookup = []
+    let ids = req.query.ids.split(',').slice(0, 200)
+    let cached = []
+    let lookup = []
     for (let i = 0; i < ids.length; i++) {
       var doc = await redis.getJSON(`API:${ids[i]}`)
       if (doc && typeof doc === 'object') {
@@ -87,8 +87,8 @@ module.exports = function (fastify, opts, next) {
         lookup.push(ids[i])
       }
     }
-    var wagos = []
-    var docs = []
+    let wagos = []
+    let docs = []
     if (lookup.length) {
       docs = await WagoItem.find({'$and': [{'$or' : [{_id: lookup}, {custom_slug: lookup}]}, findType], deleted: false, blocked: false, moderated: false}).populate({path: '_userId', select: {restrictedGuilds: 1, restrictedTwitchUsers: 1, restrictedUsers: 1, account: 1}})
     }
@@ -103,7 +103,7 @@ module.exports = function (fastify, opts, next) {
         }
       }
 
-      var wago = {}
+      const wago = {}
       wago._id = doc._id
       wago.name = doc.name
       wago.slug = doc.slug || doc.custom_slug || doc._id
@@ -159,7 +159,7 @@ module.exports = function (fastify, opts, next) {
         return
       }
 
-      var code = await WagoCode.lookup(wago._id)
+      const code = await WagoCode.lookup(wago._id)
       if (!doc.encrypted && !doc.regionType && req.params.importType === 'weakauras') {
         const json = JSON.parse(code.json)
         doc.regionType = json.d.regionType
@@ -171,7 +171,7 @@ module.exports = function (fastify, opts, next) {
       }
 
       wago.version = code.version
-      var versionString = code.versionString
+      let versionString = code.versionString
       if (versionString !== '1.0.' + (code.version + 1) && versionString !== '0.0.' + code.version) {
         versionString = versionString + '-' + code.version
       }
