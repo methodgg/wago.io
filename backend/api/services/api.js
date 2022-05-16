@@ -111,6 +111,7 @@ module.exports = function (fastify, opts, next) {
       wago.created = doc.created || doc.date && doc.date.created
       wago.modified = doc.modified || doc.date && doc.date.modified
       wago.forkOf = doc.fork_of
+      wago.type = doc.type.match(/WEAKAURA/) && 'WEAKAURA' || doc.type
       wago.game = doc.game
       if (doc.username) {
         wago.username = doc.username
