@@ -1849,7 +1849,7 @@ export default {
             if (m && m[1]) {
               this.codeReview.warnings += parseInt(m[1])
             }
-            m = c.luacheck.match(/\((E\d+|W111|W121)\)/)
+            m = c.luacheck.match(/\((E\d+|W111|W121|W122)\)/)
             if (m && m.length) {
               this.codeReview.alerts += 1
               this.codeReview.alertContent['luacheck' + i] = {name: c.name, display: this.$t('\'[-name-]\' has triggered Luacheck alerts that should be reviewed.', {name: c.name}), keypath: c.keypath}

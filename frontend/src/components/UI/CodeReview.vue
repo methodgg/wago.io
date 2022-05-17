@@ -56,7 +56,7 @@ export default {
       parsedAlerts: '',
       parsedInfo: '',
       height: '',
-      regexAlerts: /^(.*?(\((E\d+|W111|W121)\)).*?)$/gm,
+      regexAlerts: /^(.*?(\((E\d+|W111|W121|W122)\)).*?)$/gm,
       hasAlert: false,
       showForm: false,
       commentText: '',
