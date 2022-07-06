@@ -900,7 +900,8 @@ Vue.use(VueAuth, {
     patreon: {
       url: 'https://www.patreon.com/oauth2/authorize?f=1',
       params: {
-        client_id: '-lUfSkaxFXmH-l0EBKFchZ3LmYGnjwKSL-93pVhZm2qiQXhZmaaNMyx8LuS1OiZ-',
+        client_id: 'nH4Fu9yH7Jcw5Xw9856vPKz3gJDK2IpSEXZ9nsI8GgVVpOR2YZ3-3IEE-6JzIAIj',
+        // client_id: '-lUfSkaxFXmH-l0EBKFchZ3LmYGnjwKSL-93pVhZm2qiQXhZmaaNMyx8LuS1OiZ-',
         redirect_uri: 'auth/patreon',
         response_type: 'code',
         scope:'users pledges-to-me'

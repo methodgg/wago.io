@@ -37,6 +37,9 @@ module.exports = async (task, data) => {
       case 'UpdateGuildMembership':
         return await UpdateGuildMembership()
 
+      case 'UpdateSupportedAddons':
+        return await UpdateSupportedAddons()
+
       case 'UpdateLatestAddonReleases':
         return await UpdateLatestAddonReleases()
 
@@ -184,19 +187,60 @@ async function UpdateLatestNews () {
 }
 
 async function UpdatePatreonAccounts () {
-  nextURL = 'https://www.patreon.com/api/oauth2/v2/campaigns/562591/members?include=currently_entitled_tiers,user&fields%5Btier%5D=title'
+  let nextURL = 'https://www.patreon.com/api/oauth2/v2/campaigns/8814646/members?include=currently_entitled_tiers,user&fields%5Btier%5D=title'
+  const addonSubs = []
   while (nextURL) {
-    var response = await axios.get(nextURL, {headers: {Authorization: 'Bearer '+  config.auth.patreon.creatorToken}})
-    var patrons = response.data.data
+    const response = await axios.get(nextURL, {headers: {Authorization: 'Bearer '+  config.auth.patreon.creatorToken}})
+    const patrons = response.data.data
+    console.log('addons patreon----', JSON.stringify(patrons, null, 2))
     for (let i = 0; i < patrons.length; i++) {
       if (!patrons[i] || !patrons[i].relationships || !patrons[i].relationships.user || !patrons[i].relationships.user.data || !patrons[i].relationships.user.data.id) {
         continue
       }
-      var user = await User.findOne({"patreon.id": patrons[i].relationships.user.data.id})
+      const user = await User.findOne({"patreon.id": patrons[i].relationships.user.data.id})
       if (!user) {
         continue
       }
-      var tier
+      let tier
+      try {
+        tier = patrons[i].relationships.currently_entitled_tiers.data[0].id
+      }
+      catch (e) {
+        tier = 0
+      }
+      // supporter 8747937
+      // addon supporter 8747907
+      // gold supporter 8747906
+      // ultimate supporter 8751772
+      user.roles.subscriber = (tier == 8747937 || tier == 8747907 || tier == 8747906 || tier == 8751772)
+      user.roles.gold_subscriber = (tier == 8747906 || tier == 8751772)
+      addonSubs.push(user._id.toString())
+      await user.save()
+    }
+    if (response.data.links && response.data.links.next) {
+      nextURL = response.data.links.next
+    }
+    else {
+      nextURL = null
+    }
+  }
+  return await UpdatePatreonAccounts_grandfathered(addonSubs)
+}
+
+async function UpdatePatreonAccounts_grandfathered (skipExisting) {
+  let nextURL = 'https://www.patreon.com/api/oauth2/v2/campaigns/562591/members?include=currently_entitled_tiers,user&fields%5Btier%5D=title'
+  while (nextURL) {
+    const response = await axios.get(nextURL, {headers: {Authorization: 'Bearer '+  config.auth.patreon_old.creatorToken}})
+    const patrons = response.data.data
+    for (let i = 0; i < patrons.length; i++) {
+      if (!patrons[i] || !patrons[i].relationships || !patrons[i].relationships.user || !patrons[i].relationships.user.data || !patrons[i].relationships.user.data.id) {
+        continue
+      }
+      const user = await User.findOne({"patreon.id": patrons[i].relationships.user.data.id})
+      if (!user || skipExisting.includes(user._id.toString())) {
+        continue
+      }
+      let tier
       try {
         tier = patrons[i].relationships.currently_entitled_tiers.data[0].id
       }
