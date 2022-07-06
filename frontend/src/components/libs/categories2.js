@@ -24,9 +24,9 @@ class Categories {
       'cl11-3': {slug: 'classes/druid/guardian', i18n: 'warcraft:specs.104', domain: 0, parent: 'cl11', games: ['legion', 'bfa', 'sl', 'df']},
       'cl11-4': {slug: 'classes/druid/restoration', i18n: 'warcraft:specs.105', domain: 0, parent: 'cl11'},
 
-      'cl13': {slug: 'classes/evoker', image: 'evoker.png', color: '#33937F', i18n: 'warcraft:temp.Evoker', domain: 0, games: ['legion', 'bfa', 'sl', 'df']},
-      'cl13-1': {slug: 'classes/evoker/devastation', cls:'cl-demonhunter', i18n: 'warcraft:temp.Devastation', domain: 0, parent: 'cl13', games: ['legion', 'bfa', 'sl', 'df']},
-      'cl13-2': {slug: 'classes/evoker/preservation', i18n: 'warcraft:temp.Preservation', domain: 0, parent: 'cl13', games: ['legion', 'bfa', 'sl', 'df']},
+      'cl13': {slug: 'classes/evoker', image: 'evoker.png', color: '#33937F', i18n: 'warcraft:temp.Evoker', domain: 0, games: ['df']},
+      'cl13-1': {slug: 'classes/evoker/devastation', cls:'cl-demonhunter', i18n: 'warcraft:temp.Devastation', domain: 0, parent: 'cl13', games: ['df']},
+      'cl13-2': {slug: 'classes/evoker/preservation', i18n: 'warcraft:temp.Preservation', domain: 0, parent: 'cl13', games: ['df']},
 
       'cl3': {slug: 'classes/hunter', image: 'hunter.png', color: '#ABD473', i18n: 'warcraft:classes.3', domain: 0},
       'cl3-1': {slug: 'classes/hunter/beast-mastery', i18n: 'warcraft:specs.253', domain: 0, parent: 'cl3'},
