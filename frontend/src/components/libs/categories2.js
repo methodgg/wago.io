@@ -151,6 +151,14 @@ class Categories {
       'raidnathria9': {slug: 'pve/nathria/sire-denathrius', i18n: 'warcraft:encounters.2424', domain: 0, parent: 'raidnathria', types: ['WEAKAURA'], games: ['sl']},
 
       'sldungeon': {slug: 'pve/shadowlands-dungeons', image: 'dungeon.png', color: '#F5A623', i18n: 'Shadowlands Dungeons', domain: 0, types: ['WEAKAURA', 'COLLECTION'], games: ['sl']},
+      'sldungeon-s4a': {subheader: true, i18n: 'Season 4 Dungeons', domain: 0, parent: 'sldungeon', system: true, types: ['WEAKAURA'], games: ['sl']},
+      'sldungeon9': {slug: 'pve/shadowlands-dungeons/tazavesh-the-veiled-market', i18n: 'warcraft:instances.1194', domain: 0, parent: 'sldungeon', types: ['WEAKAURA'], games: ['sl']},
+      'sldungeon10': {slug: 'pve/shadowlands-dungeons/operation-mechagon', i18n: 'warcraft:instances.1178', domain: 0, parent: 'sldungeon', types: ['WEAKAURA'], games: ['sl']},
+      'sldungeon11': {slug: 'pve/shadowlands-dungeons/return-to-karazhan', i18n: 'warcraft:instances.860', domain: 0, parent: 'sldungeon', types: ['WEAKAURA'], games: ['sl']},
+      'sldungeon12': {slug: 'pve/shadowlands-dungeons/grimrail-depot', i18n: 'warcraft:instances.536', domain: 0, parent: 'sldungeon', types: ['WEAKAURA'], games: ['sl']},
+      'sldungeon13': {slug: 'pve/shadowlands-dungeons/iron-docks', i18n: 'warcraft:instances.558', domain: 0, parent: 'sldungeon', types: ['WEAKAURA'], games: ['sl']},
+
+      'sldungeon0s4b': {subheader: true, i18n: 'Other Dungeons', domain: 0, parent: 'sldungeon', system: true, types: ['WEAKAURA'], games: ['sl']},
       'sldungeon1': {slug: 'pve/shadowlands-dungeons/the-necrotic-wake', i18n: 'warcraft:instances.1182', domain: 0, parent: 'sldungeon', types: ['WEAKAURA'], games: ['sl']},
       'sldungeon2': {slug: 'pve/shadowlands-dungeons/plaguefall', i18n: 'warcraft:instances.1183', domain: 0, parent: 'sldungeon', types: ['WEAKAURA'], games: ['sl']},
       'sldungeon3': {slug: 'pve/shadowlands-dungeons/mists-of-tirna-scithe', i18n: 'warcraft:instances.1184', domain: 0, parent: 'sldungeon', types: ['WEAKAURA'], games: ['sl']},
@@ -159,7 +167,6 @@ class Categories {
       'sldungeon6': {slug: 'pve/shadowlands-dungeons/de-other-side', i18n: 'warcraft:instances.1188', domain: 0, parent: 'sldungeon', types: ['WEAKAURA'], games: ['sl']},
       'sldungeon7': {slug: 'pve/shadowlands-dungeons/spires-of-ascension', i18n: 'warcraft:instances.1186', domain: 0, parent: 'sldungeon', types: ['WEAKAURA'], games: ['sl']},
       'sldungeon8': {slug: 'pve/shadowlands-dungeons/sanguine-depths', i18n: 'warcraft:instances.1189', domain: 0, parent: 'sldungeon', types: ['WEAKAURA'], games: ['sl']},
-      'sldungeon9': {slug: 'pve/shadowlands-dungeons/tazavesh-the-veiled-market', i18n: 'warcraft:instances.1194', domain: 0, parent: 'sldungeon', types: ['WEAKAURA'], games: ['sl']},
 
       'sltimewalking': {slug: 'pve/timewalking', image: 'timewalking.png', color: '#CD47FF', i18n: 'Timewalking', domain: 0, types: ['WEAKAURA', 'COLLECTION'], games: ['sl']},
       'sltimewalking6': {slug: 'pve/timewalking/legion', i18n: 'Legion Dungeons', domain: 0, parent: 'sltimewalking', types: ['WEAKAURA'], games: ['sl']},
@@ -951,6 +958,7 @@ class Categories {
     let children = []
     for (const cat of Object.values(this.categories)) {
       if (cat.parent === parent && (!addon || !cat.types || cat.types.indexOf(addon) >= 0) && (!game || !cat.games || cat.games.indexOf(game) >= 0)) {
+        console.log(cat)
         children.push(cat)
       }
     }

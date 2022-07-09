@@ -34,7 +34,10 @@
             <div class="md-list-text-container">
               <a :href="'/shadowlands-weakauras/' + raid.slug" @click.prevent="searchRoute(raid)">{{ raid.text }}</a>
               <span>
-                <a v-for="boss in raid.bosses" v-bind:key="boss.id" :href="'/shadowlands-weakauras/' + boss.slug" @click.prevent="searchRoute(boss)">{{ boss.text }}</a>
+                <template v-for="boss in raid.bosses">
+                  <a v-if="boss.slug" v-bind:key="boss.id" :href="'/shadowlands-weakauras/' + boss.slug" @click.prevent="searchRoute(boss)">{{ boss.text }}</a>
+                  <span v-else-if="boss.subheader" v-bind:key="boss.id" class="subsection">{{ boss.text }}</span>
+                </template>
               </span>
             </div>
           </md-list-item>
@@ -190,6 +193,7 @@ export default {
       return window.Categories.classCategories('WEAKAURA', 'sl')
     },
     raids: function () {
+      console.log(window.Categories.raidCategories(['sldungeon']))
       return window.Categories.raidCategories(['raidsepulcherfirst', 'raidsantumdom', 'raidnathria', 'torghast', 'sldungeon', 'sltimewalking'])
     },
     misc: function () {
@@ -258,6 +262,7 @@ h2 span {font-size:80%; cursor: pointer}
 #search-weakaura .md-list-text-container > a, #search-weakaura .md-list-text-container > .parent-category { font-size: 18px; font-weight: bold; line-height: 19px; }
 #search-weakaura .md-list-text-container span{ white-space: normal; line-height: 22px}
 #search-weakaura .md-layout { align-items: flex-start}
+#search-weakaura .md-layout span {display: block}
 
 #search-weakaura .md-subheader { width: 100% }
 #search-weakaura .md-subheader + .md-list { width: 100% }
