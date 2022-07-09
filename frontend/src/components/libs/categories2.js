@@ -1,4 +1,5 @@
 function normalize (str) {
+  if (!str) return false
   return str.toLowerCase().trim().replace(/[.,\/#!$%\^&\*;:{}=\-_`"'~()\s]/g, '-').trim()
 }
 
