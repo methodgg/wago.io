@@ -69,6 +69,7 @@ module.exports = function (fastify, opts, next) {
         case 'WEAKAURA':
         case 'CLASSIC-WEAKAURA':
         case 'TBC-WEAKAURA':
+        case 'WOTLK-WEAKAURA':
           test.WEAKAURA = true
           break
         case 'PLATER':
@@ -150,7 +151,7 @@ module.exports = function (fastify, opts, next) {
     }
 
     // if decoded data looks like a valid WEAKAURA
-    if ((test.WEAKAURA || test['CLASSIC-WEAKAURA'] || test['TBC-WEAKAURA']) && decoded && decoded.obj.d && decoded.obj.d.id) {
+    if ((test.WEAKAURA || test['CLASSIC-WEAKAURA'] || test['TBC-WEAKAURA'] || test['WOTLK-WEAKAURA']) && decoded && decoded.obj.d && decoded.obj.d.id) {
       scan.type = 'WEAKAURA'
 
       // check for classic import
@@ -162,6 +163,10 @@ module.exports = function (fastify, opts, next) {
         else if ((decoded.obj.d.tocversion+'').match(/^20/)) {
           scan.type = 'TBC-WEAKAURA'
           scan.game = 'tbc'
+        }
+        else if ((decoded.obj.d.tocversion+'').match(/^30/)) {
+          scan.type = 'WOTLK-WEAKAURA'
+          scan.game = 'wotlk'
         }
         else if ((decoded.obj.d.tocversion+'').match(/^80/)) {
           scan.game = 'bfa'

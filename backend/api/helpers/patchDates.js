@@ -3,6 +3,8 @@ var patches = [
   {date: moment('2021-11-23T03:00:00Z'), game: 'ffxiv', patch: "FFXIV Endwalker", domain: 1},
   {date: moment('2001-01-01T03:00:00Z'), game: 'ffxiv', patch: "FFXIV Shadowbringers", domain: 1},
 
+  {date: moment('2022-07-15T03:00:00Z'), game: 'wotlk', patch: "WoW WotLK Classic 3.4.0 Beta", domain: 0},
+
 
   {date: moment('2021-08-31T03:00:00Z'), game: 'tbc', patch: "WoW TBC Classic 2.5.2", domain: 0},
   {date: moment('2021-06-01T03:00:00Z'), game: 'tbc', patch: "WoW TBC Classic 2.5.1", domain: 0},

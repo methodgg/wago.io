@@ -703,7 +703,7 @@ module.exports = function (fastify, opts, next) {
         wagoCode.luacheck = code.luacheck
       }
     }
-    else if (doc.type === 'WEAKAURA' || doc.type === 'CLASSIC-WEAKAURA' || doc.type === 'TBC-WEAKAURA') {
+    else if (doc.type === 'WEAKAURA' || doc.type === 'CLASSIC-WEAKAURA' || doc.type === 'TBC-WEAKAURA' || doc.type === 'WOTLK-WEAKAURA') {
       var json = JSON.parse(code.json)
       // check for any missing data
       if (code.version && (!code.encoded || !code.customCode || ((json.d.version !== code.version || json.d.url !== doc.url + '/' + code.version) || (json.c && json.c[0] && json.c[0].version !== code.version) || (json.d.semver !== code.versionString)))) {

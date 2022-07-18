@@ -486,6 +486,7 @@ async function oldSearch (req, res) {
     filterTypes.push({term: {'type.keyword': m[1].toUpperCase()}})
     if (m[1].toUpperCase() === 'WEAKAURA') {
       // temp until index is optimized
+      filterTypes.push({term: {'type.keyword': 'WOTLK-WEAKAURA'}})
       filterTypes.push({term: {'type.keyword': 'TBC-WEAKAURA'}})
       filterTypes.push({term: {'type.keyword': 'CLASSIC-WEAKAURA'}})
     }

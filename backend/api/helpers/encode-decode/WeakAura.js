@@ -1,7 +1,7 @@
 const getCode = require('../code-detection/get-code')
 
 module.exports = {
-  typeMatch: /^(CLASSIC-|TBC-)?WEAKAURA$/i,
+  typeMatch: /^(CLASSIC-|TBC-|WOTLK-)?WEAKAURA$/i,
   domain: ENUM.DOMAIN.WOW,
 
   decode: async (encodedString, exec) => {
@@ -108,7 +108,6 @@ module.exports = {
     return encoded`
     try {
       let encodedString = await exec(lua)
-      console.log('encoded')
       return encodedString
     }
     catch (e) {
@@ -276,6 +275,10 @@ module.exports = {
         else if ((json.d.tocversion+'').match(/^20/)) {
           wago.type = 'TBC-WEAKAURA'
           wago.game = 'tbc'
+        }
+        else if ((json.d.tocversion+'').match(/^30/)) {
+          wago.type = 'WOTLK-WEAKAURA'
+          wago.game = 'wotlk'
         }
         else if ((json.d.tocversion+'').match(/^80/)) {
           wago.type = 'WEAKAURA'

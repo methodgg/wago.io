@@ -185,7 +185,7 @@ export default {
       return window.Categories.getCategories(['role4', 'role1', 'role2', 'role3'])
     },
     pvp: function () {
-      return window.Categories.getCategories([/^(arena|bg|wpvp1?)$/], null, 'WEAKAURA', 'wotlk')
+      return window.Categories.getCategories([/^(arena|bg|wpvp1?|wintergrasp)$/], null, 'WEAKAURA', 'wotlk')
     },
     mechanics: function () {
       return window.Categories.getCategories([/^mech[\d]+/], null, 'WEAKAURA', 'wotlk')

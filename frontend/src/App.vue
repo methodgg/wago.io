@@ -55,6 +55,7 @@
           <md-list-item><router-link to='/weakauras'>WeakAuras</router-link><md-divider></md-divider></md-list-item>
           <md-list-item><router-link to='/classic-weakauras'>Classic WeakAuras</router-link><md-divider></md-divider></md-list-item>
           <md-list-item><router-link to='/tbc-weakauras'>TBC WeakAuras</router-link><md-divider></md-divider></md-list-item>
+          <md-list-item><router-link to='/wotlk-weakauras'>WotLK WeakAuras</router-link><md-divider></md-divider></md-list-item>
           <md-list-item class="menu-section">Final Fantasy XIV</md-list-item>
           <md-list-item><router-link to='/delvui'>DelvUI</router-link></md-list-item>
           <!--<md-list-item><router-link to='/tpie'>TPie</router-link><md-divider></md-divider></md-list-item>-->
@@ -75,7 +76,8 @@
                 <span class="game-select">
                   <router-link to='/weakauras'>Shadowlands</router-link> -
                   <router-link to='/classic-weakauras'>Classic</router-link> -
-                  <router-link to='/tbc-weakauras'>TBC</router-link>
+                    <router-link to='/tbc-weakauras'>TBC</router-link> -
+                    <router-link to='/wotlk-weakauras'>WotLK</router-link>
                 </span>
               </div>
             </router-link>

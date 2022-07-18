@@ -985,6 +985,7 @@ async function ProcessCode(data) {
     case 'WEAKAURA':
     case 'CLASSIC-WEAKAURA':
     case 'TBC-WEAKAURA':
+      case 'WOTLK-WEAKAURA':
     case 'PLATER':
       var json = JSON.parse(code.json)
         code.customCode = await CodeReview(getCode(json, doc.type), doc)
