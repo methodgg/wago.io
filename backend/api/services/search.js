@@ -15,6 +15,7 @@ function expansionIndex(exp) {
   exp = exp.toLowerCase()
   if (exp === 'classic') return 0
   else if (exp === 'tbc') return 1
+  else if (exp === 'wotlk') return 2
   else if (exp === 'legion') return 6
   else if (exp === 'bfa') return 7
   else if (exp === 'sl') return 8
@@ -93,18 +94,19 @@ async function searchElastic (req, res) {
 
   let filterExpansion = []
   let defaultFilterExpansion
-  m = query.match(/expansion:\s?(sl|bfa|legion|wod|tbc|classic)/)
+  m = query.match(/expansion:\s?(sl|bfa|legion|wod|wotlk|tbc|classic)/)
   if (m) {
     while (m) {
       query = query.replace(m[0], '')
       filterExpansion.push({term: {expansion: {value: expansionIndex(m[1])}}})
-      m = query.match(/expansion:\s?(sl|bfa|legion|wod|tbc|classic)/i)
+      m = query.match(/expansion:\s?(sl|bfa|legion|wod|wotlk|tbc|classic)/i)
     }
   }
   else if (searchIndex.match(/import|code/) && searchMode !== 'stars') {
     // if no expansion is specified then default to the current games
     defaultFilterExpansion = []
     defaultFilterExpansion.push({term: {expansion: {value: expansionIndex('sl')}}})
+    defaultFilterExpansion.push({term: {expansion: {value: expansionIndex('wotlk')}}})
     defaultFilterExpansion.push({term: {expansion: {value: expansionIndex('tbc')}}})
     defaultFilterExpansion.push({term: {expansion: {value: expansionIndex('classic')}}})
     defaultFilterExpansion.push({term: {expansion: {value: -1}}})
@@ -470,7 +472,7 @@ async function oldSearch (req, res) {
   }
 
   let filterExpansion = [{term: {game: ''}}]
-  m = query.match(/expansion:\s?(sl|bfa|legion|wod|tbc|classic)/)
+  m = query.match(/expansion:\s?(sl|bfa|legion|wod|wotlk|tbc|classic)/)
   while (m) {
     query = query.replace(m[0], '')
     filterExpansion.push({term: {game: m[1]}})
