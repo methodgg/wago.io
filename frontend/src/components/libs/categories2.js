@@ -170,6 +170,7 @@ class Categories {
       'sldungeon8': {slug: 'pve/shadowlands-dungeons/sanguine-depths', i18n: 'warcraft:instances.1189', domain: 0, parent: 'sldungeon', types: ['WEAKAURA'], games: ['sl']},
 
       'sltimewalking': {slug: 'pve/timewalking', image: 'timewalking.png', color: '#CD47FF', i18n: 'Timewalking', domain: 0, types: ['WEAKAURA', 'COLLECTION'], games: ['sl']},
+      'sltimewalking10': {slug: 'pve/timewalking/bfa', i18n: 'BFA Dungeons', domain: 0, parent: 'bfatimewalking', types: ['WEAKAURA'], games: ['sl']},
       'sltimewalking6': {slug: 'pve/timewalking/legion', i18n: 'Legion Dungeons', domain: 0, parent: 'sltimewalking', types: ['WEAKAURA'], games: ['sl']},
       'sltimewalking9': {slug: 'pve/timewalking/legion/mage-tower', i18n: 'Mage Tower', domain: 0, parent: 'sltimewalking', types: ['WEAKAURA'], games: ['sl']},
       'sltimewalking5': {slug: 'pve/timewalking/warlords-of-draenor', i18n: 'Warlords of Draenor Dungeons', domain: 0, parent: 'sltimewalking', types: ['WEAKAURA'], games: ['sl']},
