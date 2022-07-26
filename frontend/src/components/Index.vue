@@ -232,7 +232,7 @@
             <md-list-item>
               <strong>{{ $t(topLists[topLists.length - 2].title) }}</strong>
             </md-list-item>
-            <md-list-item v-for="(item, index) in topLists[topLists.length - 2].imports" :key="index" v-if="index < 3">
+            <md-list-item v-for="(item, index) in topLists[topLists.length - 2].imports" :key="index">
               <router-link :to="'/' + item.slug">
                 <div class="md-list-text-container">
                   <span>{{ item.name }}</span>
