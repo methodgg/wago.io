@@ -2,7 +2,7 @@
   <div id="app">
     <div id="maincontent" v-if="!isEmbed">
       <div id="copyContainer"></div>
-      <!--<notification-banner id="1"><a href="https://addons.wago.io">Announcing Wago Addons, the nextgen WoW Addon Platform built by the Wago team. Developer signups now open - click here to get started.</a></notification-banner>-->
+      <notification-banner id="maintenance" v-if="isMaintenance" :preventClose="true">Wago is in maintenance mode, and is read-only for about two hours, expecting to end at 07:00 GMT. </notification-banner>      
       <div id="topbar">
         <md-toolbar>
         <md-button class="md-icon-button md-hide-small-and-up" @click="toggleMobileNav()">
@@ -14,13 +14,17 @@
           <div id="top-search-bar">
               <search-bar ref="searchField"></search-bar>
           </div>
+            <md-button v-if="(this.$store.state.user.UID || this.$store.state.user.guest) && !this.$store.state.user.hideAds" href="https://www.patreon.com/wagoio" target="_blank">
+              <svg aria-hidden="true" focusable="false" class="header-patreon" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M512 194.8c0 101.3-82.4 183.8-183.8 183.8-101.7 0-184.4-82.4-184.4-183.8 0-101.6 82.7-184.3 184.4-184.3C429.6 10.5 512 93.2 512 194.8zM0 501.5h90v-491H0v491z"></path></svg>
+              {{ $t('Support Wago.io') }}
+            </md-button>
         </div>
         <div id="hr-nav" class="md-hide-xsmall">
           <h2 class="md-title md-hide-small-and-up" id="logo"><router-link to="/"><img src="./assets/wagoio-logo.png"/></router-link></h2>
             <div v-if="User && User.unreadMentions && User.unreadMentions.length" id="header-unread">
               <router-link to="/my/mentions"><md-icon>comment</md-icon> <span class="unreadCount">{{ User.unreadMentions.length }}</span></router-link>
             </div>
-          <login-button></login-button>
+            <login-button v-if="!isMaintenance"></login-button>
         </div>
       </md-toolbar>
       </div>
@@ -251,6 +255,10 @@ export default {
 
     // get user account and locale settings
     if (!this.isEmbed) {
+      if (this.isMaintenance) {
+        this.$store.commit('setUser', { guest: true, config: { searchOptions: { sort: 'bestmatch', relevance: 'standard', expansion: '' } } })
+      }
+      else {
       this.http.get('/account/whoami', params).then((res) => {
         if (res.locale && vue.$store.state.locale !== res.locale) {
           vue.$store.commit('setLocale', res.locale)
@@ -415,6 +423,9 @@ export default {
     },
     Page () {
       return this.$store.state.pageInfo
+    },
+    isMaintenance () {
+      return this.$store.state.isMaintenance
     },
     isEmbed () {
       return document.getElementById('embed-body')

@@ -1,6 +1,6 @@
 <template>
   <div id="index">
-    <md-layout md-gutter="32" :md-column-small="true">
+    <md-layout md-gutter="32" :md-column-small="true" v-if="!$store.state.isMaintenance">
       <md-whiteframe id="importform">
         <md-layout style="flex-wrap:nowrap">
           <md-input-container style="flex:1;" :class="{ 'md-input-invalid': importError }">
@@ -18,7 +18,7 @@
         <div class="field-group">
           <md-input-container>
             <label for="visibilty">{{ $t("Visibility") }}</label>
-            <md-select name="visibilty" id="visibilty" v-model="visibility">
+            <md-select name="visibilty" id="visibilty" v-model="visibility" class="dropdown-select">
               <md-option value="Public" selected>{{ $t("Public") }}</md-option>
               <md-option value="Hidden">{{ $t("Hidden (only viewable with link)") }}</md-option>
               <md-option value="Encrypted">{{ $t("Encrypted (only viewable with password)") }}</md-option>
@@ -596,19 +596,16 @@ export default {
 
     checkNewRestrictions: function () {
       this.$nextTick(() => {
-        console.log('check', this.newRestrictionType, this.newRestrictionValue)
         if ((this.newRestrictionType && this.newRestrictionValue) || this.newRestrictionType === 'twitchsubs') {
           this.restrictions.push({type: this.newRestrictionType, value: this.newRestrictionValue})
           this.newRestrictionType = 'user'
           this.newRestrictionValue = ''
-          console.log(this.restrictions)
           // onUpdateRestrictions is called here via reactivity
         }
       })
     },
 
     onUpdateRestrictions: function (index) {
-      console.log('onupdate')
       if (typeof index === 'undefined' || ((this.restrictions[index] && this.restrictions[index].value) || this.restrictions[index].type === 'twitchsubs' || this.restrictions[index].type === 'remove')) {
         if (typeof index !== 'undefined' && this.restrictions[index].type === 'remove') {
           this.restrictions.splice(index, 1)

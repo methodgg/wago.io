@@ -144,13 +144,24 @@ export default {
     },
     onVerifyCaptcha: function (v) {
       this.captchaValid = v
-      console.log('valid?', this.captchaValid)
     },
     onExpiredCaptcha: function () {
       this.captchaValid = false
     }
   },
   mounted: function () {
+    if (this.$store.state.isMaintenance) {
+      this.$router.replace('/')
+      return
+    }
+    try {
+      if (window !== window.parent) {
+        top.location = self.location
+      }
+    }
+    catch {
+      this.$router.replace('/')
+    }
     // login page requires user to not be logged in
     if (this.$store.state.user.UID) {
       this.$router.replace('/account')
