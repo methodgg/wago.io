@@ -157,11 +157,8 @@ const startServer = async () => {
       }
     })
     
-    // await runTask('ComputeStatistics')
-    // await runTask('SyncMeili', {table: 'Imports'})
-
     // setup simulated crontasks
-    if (config.env === 'development' || config.host === 'SF2-01') {
+    if (config.env === 'development' || config.host === 'NYC3-01') {
       const cleanup = await taskQueue.getRepeatableJobs()
       for (let i = 0; i < cleanup.length; i++) {
         await taskQueue.removeRepeatableByKey(cleanup[i].key)
