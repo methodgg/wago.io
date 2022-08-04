@@ -13,8 +13,10 @@
         <span>{{item.xOffset}}</span>
         <span>{{$t('Y Offset')}}</span>
         <span>{{item.yOffset}}</span>
-        <span>{{$t('Options')}}</span>
-        <span>{{item.options}}</span>
+        <template v-for="(v, k) in item.options">
+          <span>{{k}}</span>
+          <span>{{v}}</span>
+        </template>
       </div>
       <div class="grid" v-else>
         <span>{{$t('Data')}}</span>
@@ -43,7 +45,8 @@ export default {
           yOffset,
           anchor: this.anchorPoint(anchor),
           parentAnchor: this.anchorPoint(parentAnchor),
-          options
+          options: this.parseOptions(options, type),
+          raw: options
         }
 
         if (row.length === 2) {
@@ -82,10 +85,6 @@ export default {
           item.unknown = true
         }
 
-        if (parent === 'UIParent') {
-          item.parent = `UIParent (${this.$t('Screen Center')})`
-        }
-
         content.push(item)
       })
       return content
@@ -104,9 +103,110 @@ export default {
         case 7: return this.$t('Bottom Center')
         case 8: return this.$t('Bottom Right')
       }
+    },
+    parseOptions (options, type) {
+      if (!options) {
+        return {}
+      }
+      const results = {}
+      let fields = {}
+      switch (type) {
+        case 0: // action bar
+          fields = {
+            '0': this.$t('Orientation'),
+            '1': this.$t('Number of Rows'),
+            '2': this.$t('Number of Icons'),
+            '3': this.$t('Icon Size'),
+            '4': this.$t('Icon Padding'),
+            '5': this.$t('Visible'),
+            '6': this.$t('Hide Bar Art'),
+            '7': this.$t('Snap To Side'),
+            '8': this.$t('Hide Bar Scrolling'),
+            '9': this.$t('Always Show Buttons'),
+          }
+          break
+        case 1: // cast bar
+          fields = {
+            '0': this.$t('Bar Size'),
+          }
+          break
+        case 2: // mini map
+          fields = {
+            '0': this.$t('Header Underneath'),
+          }
+          break
+        case 3: // unit frame
+          fields = {
+            '0': this.$t('Hide Portrait'),
+            '1': this.$t('Cast Bar Underneath'),
+            '2': this.$t('Buffs On Top'),
+            '3': this.$t('Use Larger Frame'),
+          }
+          break
+      }
+
+      options.match(/(..)/g).forEach((item) => {
+        item = item.split('').map(x => x = x.charCodeAt(0) - 35)
+        if (fields[item[0]]) {
+          results[fields[item[0]]] = this.optionsValue(type, item[0], item[1])
+        }
+      })
+      return results
+    },
+
+    optionsValue (type, field, value) {
+      if (type === 0 && field === 0 && value === 0) {
+        return this.$t('Horizontal')
+      }
+      else if (type === 0 && field === 0 && value === 1) {
+        return this.$t('Vertical')
+      }
+      else if (type === 0 && field === 3) {
+        return `${value * 10 + 50}%`
+      }
+      else if (type === 0 && field === 5 && value === 0) {
+        return this.$t('Always Visible')
+      }
+      else if (type === 0 && field === 5 && value === 1) {
+        return this.$t('Only In Combat')
+      }
+      else if (type === 0 && field === 5 && value === 2) {
+        return this.$t('Only Out Of Combat')
+      }
+      else if (type === 0 && (field === 8 || field === 9) && value === 0) {
+        return this.$t('False')
+      }
+      else if (type === 0 && (field === 8 || field === 9) && value === 1) {
+        return this.$t('True')
+      }
+      else if (type === 3 && value === 0) {
+        return this.$t('False')
+      }
+      else if (type === 3 && value === 1) {
+        return this.$t('True')
+      }
+
+      return value
     }
   }
 }
+
+// 2 => 200%
+// 1 => 190%
+// 0 => 180%
+// / => 170%
+// . => 160%
+// - => 150%
+// , => 140%
+// + => 130%
+// * => 120%
+// ) => 110%
+// ( => 100%
+// ' => 90%
+// & => 80%
+// % => 70%
+// $ => 60%
+// # => 50%
 </script>
 
 <style scoped lang="scss">
