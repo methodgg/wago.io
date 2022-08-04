@@ -321,7 +321,7 @@
               </template>
 
               <ui-warning v-if="wago.type === 'BLIZZHUD'" mode="alert">
-                Blizzard Hud is still early in development and not fully supported in-game nor on Wago. As there may be breaking changes in future Dragonflight alpha builds, import expiration is currently enforced on Wago.
+                Blizzard Hud is still early in development and not fully supported in-game nor on Wago.<br></br>If there are breaking changes in a future Alpha build, existing Blizz Hud imports may be deleted.
               </ui-warning>
 
               <ui-warning v-if="wago.expires" mode="info">

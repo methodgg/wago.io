@@ -173,10 +173,10 @@ export default {
       else if (type === 0 && field === 5 && value === 2) {
         return this.$t('Only Out Of Combat')
       }
-      else if (type === 0 && (field === 8 || field === 9) && value === 0) {
+      else if (type === 0 && (field >=6 && field <= 10) && value === 0) {
         return this.$t('False')
       }
-      else if (type === 0 && (field === 8 || field === 9) && value === 1) {
+      else if (type === 0 && (field >=6 && field <= 10) && value === 1) {
         return this.$t('True')
       }
       else if (type === 3 && value === 0) {
