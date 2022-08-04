@@ -4,7 +4,7 @@ var patches = [
   {date: moment('2001-01-01T03:00:00Z'), game: 'ffxiv', patch: "FFXIV Shadowbringers", domain: 1},
 
   {date: moment('2022-07-15T03:00:00Z'), game: 'wotlk', patch: "WoW WotLK Classic 3.4.0 Beta", domain: 0},
-
+  {date: moment('2022-09-26T03:00:00Z'), game: 'wotlk', patch: "WoW WotLK Classic 3.4.0", domain: 0},
 
   {date: moment('2021-08-31T03:00:00Z'), game: 'tbc', patch: "WoW TBC Classic 2.5.2", domain: 0},
   {date: moment('2021-06-01T03:00:00Z'), game: 'tbc', patch: "WoW TBC Classic 2.5.1", domain: 0},
@@ -19,6 +19,8 @@ var patches = [
   {date: moment('2020-03-10T03:00:00Z'), game: 'classic', patch: "WoW Classic 1.13.4", domain: 0},
   {date: moment('2019-12-19T03:00:00Z'), game: 'classic', patch: "WoW Classic 1.13.3", domain: 0},
   {date: moment('2019-05-17T03:00:00Z'), game: 'classic', patch: "WoW Classic 1.13.2", domain: 0},
+
+  {date: moment('2022-08-01T03:00:00Z'), game: 'df', patch: "Dragonflight Alpha 10.0", base: true, domain: 0},
 
   {date: moment('2022-02-22T03:00:00Z'), game: 'sl', patch: "Shadowlands 9.2.0", base: true, domain: 0},
   {date: moment('2021-11-02T03:00:00Z'), game: 'sl', patch: "Shadowlands 9.1.5", base: true, domain: 0},
