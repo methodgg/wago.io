@@ -51,7 +51,6 @@ module.exports = {
 
         await code.save()
         await taskQueue.add('ProcessCode', {id: wago._id, version: code.versionString, addon: wago.addon, encode: true}, {priority: 2, jobId: `${wago._id}:${code.version}:${code.versionString}`})
-        console.log(wago)
         client.api.channels[message.channel.id].messages.post({
           data: {
             content: `Imported to <${wago.url}>`,
