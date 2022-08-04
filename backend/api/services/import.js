@@ -543,6 +543,10 @@ module.exports = function (fastify, opts, next) {
         }
     }
 
+    if (wago.type.match(/BLIZZHUD/) && (!wago.expires_at || wago.expires_at > new Date().setTime(new Date().getTime()+30*24*60*60*1000))) {
+      wago.expires_at = new Date().setTime(new Date().getTime()+30*24*60*60*1000)
+    }
+
     if (req.body.name) {
       wago.name = req.body.name
     }

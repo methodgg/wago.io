@@ -272,6 +272,7 @@
                   <md-button v-if="wago.code && wago.code.customCode && wago.code.customCode[0] && wago.code.customCode[0].luacheck && wago.type !== 'SNIPPET'" v-bind:class="{'md-toggle': showPanel === 'codereview'}" @click="toggleFrame('codereview')">{{ $t("Code Review") }}</md-button>
                   <md-button v-if="wago.type !== 'ERROR' && wago.type !== 'COLLECTION' && wago.visibility && wago.visibility.public" v-bind:class="{'md-toggle': showPanel === 'embed'}" @click="toggleFrame('embed')">{{ $t("Embed") }}</md-button>
                   <md-button v-if="wago.type === 'MDT'" v-bind:class="{'md-toggle': showPanel === 'builder'}" @click="toggleFrame('builder')">{{ $t("Builder") }}</md-button>
+                  <md-button v-if="wago.type === 'BLIZZHUD'" v-bind:class="{'md-toggle': showPanel === 'hudsettings'}" @click="toggleFrame('hudsettings')">{{ $t("Hud Settings") }}</md-button>
                   <md-button v-if="wago.type !== 'ERROR' && wago.type !== 'COLLECTION'" v-bind:class="{'md-toggle': showPanel === 'editor'}" @click="toggleFrame('editor')">{{ $t("Editor") }}</md-button>
                 </template>
                 <md-button v-else class="md-toggle">{{ $t("Encrypted") }}</md-button>
@@ -318,6 +319,10 @@
                   <span v-else-if="wago.type.match(/PLATER/)" v-html="$t('Want some help fixing code review alerts? Come have a chat on the [-discord-].', {discord: `<a href='https://discord.com/invite/AGSzAZX'>Plater Discord</a>`, interpolation: {escapeValue: false}})"></span>
                 </div>
               </template>
+
+              <ui-warning v-if="wago.type === 'BLIZZHUD'" mode="alert">
+                Blizzard Hud is still early in development and not fully supported in-game nor on Wago. As there may be breaking changes in future Dragonflight alpha builds, import expiration is currently enforced on Wago.
+              </ui-warning>
 
               <ui-warning v-if="wago.expires" mode="info">
                 {{ $t("This import will expire in [-time-]", {time: $moment(wago.expires).fromNow() }) }}<br>
@@ -983,6 +988,13 @@
                 </div>
               </div>
 
+              <!-- HUD SETTINGS FRAME -->
+              <div id="wago-hudsettings-container" class="wago-container" v-if="showPanel=='hudsettings'">
+                <div id="wago-hudsettings">
+                  <blizzhud-settings v-if="wago.type=='BLIZZHUD' && wago.code"></blizzhud-settings>
+                </div>
+              </div>
+
               <!-- EDITOR FRAME -->
               <div id="wago-editor-container" class="wago-container" v-if="showPanel=='editor'">
                 <div id="wago-editor" v-if="wago.code">
@@ -1196,6 +1208,7 @@ import EditSnippet from '../UI/EditSnippet.vue'
 import EditPlater from '../UI/EditPlater.vue'
 import EditWeakAura from '../UI/EditWeakAura.vue'
 import MDTBuilder from '../UI/MDTBuilder.vue'
+import BlizzHudSettings from '../UI/BlizzHudSettings.vue'
 import InputSemver from '../UI/Input-Semver.vue'
 import ViewDiffs from '../UI/ViewDiffs.vue'
 import AddonInfoBox from '../UI/AddonInfoBox.vue'
@@ -1223,6 +1236,7 @@ export default {
     'edit-weakaura': EditWeakAura,
     'edit-delvui': EditDelvUI,
     'build-mdt': MDTBuilder,
+    'blizzhud-settings': BlizzHudSettings,
     'input-semver':InputSemver,
     'view-diffs': ViewDiffs,
     'color-picker': require('vue-color').Chrome,
