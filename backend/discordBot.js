@@ -1,4 +1,8 @@
 const Discord = require("discord.js")
+global.config = require('./config')
+global.ENUM = require('./middlewares/enum')
+const lua = require('./api/helpers/lua')
+const WA = require('./api/helpers/encode-decode/WeakAura')
 
 const client = new Discord.Client()
 
@@ -11,6 +15,56 @@ module.exports = {
       SiteData.set('discordHost', config.host)
       console.log("Discord Bot launched!")
     })
+    
+    // if user is leaves a server, then remove any roles
+    client.on('message', async (message) => {
+      if (config.env === 'development' || !message.content.match(/^!?(WA:2!)?[a-zA-Z0-9\(\)]*$/)) {
+        return
+      }
+      
+      const decoded = await WA.decode(message.content.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim(), lua.runLua)
+      const meta = WA.processMeta(decoded)
+      if (decoded && meta) {
+        const wago = new WagoItem({
+          type: meta.type,
+          addon: 'WeakAura',
+          domain: WA.domain,
+          game: meta.game,
+          name: meta.name || 'Import from Discord',
+          categories: [],
+          description: `Imported from **${message.guild.name}** Discord, *#${message.channel.name}* by **${message.author.username}**`,
+          description_format: 'markdown',
+          hidden: true,
+          expires_at: new Date().setTime(new Date().getTime()+24*60*60*1000),
+          _userId: '62ebf029da9ef14623e27f4c' // WagoDiscordBot
+        })
+        
+        await wago.save()
+   
+        const code = new WagoCode({
+          auraID: wago._id,
+          encoded: message.content,
+          json: JSON.stringify(decoded),
+          version: 1,
+          versionString: '1.0.0'
+        })
+
+        await code.save()
+        await taskQueue.add('ProcessCode', {id: wago._id, version: code.versionString, addon: wago.addon, encode: true}, {priority: 2, jobId: `${wago._id}:${code.version}:${code.versionString}`})
+        console.log(wago)
+        client.api.channels[message.channel.id].messages.post({
+          data: {
+            content: `Imported to <${wago.url}>`,
+            message_reference: {
+              message_id: message.id,
+              channel_id: message.channel.id,
+              guild_id: message.guild.id
+            }
+          }
+        })
+      }
+    })
+
 
     // if user is leaves a server, then remove any roles
     client.on('guildMemberRemove', async (guild, user) => {
