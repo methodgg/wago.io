@@ -7,7 +7,7 @@ module.exports = {
     if (!code.length) {
       return []
     }
-    if (!game || !game.match(/classic|tbc|bfa|sl/)) {
+    if (!game || !game.match(/classic|tbc|wotlk|bfa|sl|df/)) {
       game = 'sl'
     }
     const luacheckrc = __dirname + '/../lua/luacheck-' + game + '.lua'

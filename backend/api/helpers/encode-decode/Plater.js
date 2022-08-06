@@ -64,11 +64,17 @@ module.exports = {
       else if ((obj.tocversion+'').match(/^20/)) {
         meta.game = 'tbc'
       }
+      else if ((obj.tocversion+'').match(/^30/)) {
+        meta.game = 'wotlk'
+      }
       else if ((obj.tocversion+'').match(/^80/)) {
         meta.game = 'bfa'
       }
       else if ((obj.tocversion+'').match(/^90/)) {
         meta.game = 'sl'
+      }
+      else if ((obj.tocversion+'').match(/^100/)) {
+        meta.game = 'df'
       }
     }
 
