@@ -18,7 +18,14 @@ module.exports = {
     
     // if user is leaves a server, then remove any roles
     client.on('message', async (message) => {
-      if (config.env === 'development' || !message.content.match(/^!?(WA:2!)?[a-zA-Z0-9\(\)]*$/)) {
+      if (config.env === 'development') {
+        return
+      }
+      
+      if (message.content.match(/^```!?(WA:2!)?[a-zA-Z0-9\(\)]*```$/)) {
+        message.content = message.content.substring(3, message.content.length-3)
+      }
+      else if (!message.content.match(/^!?(WA:2!)?[a-zA-Z0-9\(\)]*$/)) {
         return
       }
       
