@@ -27,6 +27,7 @@
 </template>
 
 <script>
+
 export default {
   computed: {
     content: function () {
@@ -35,7 +36,7 @@ export default {
       data.forEach(row => {
         // config https://github.com/tomrus88/BlizzardInterfaceCode/blob/91855106547ebda74623322cac64d46fc5474a57/Interface/AddOns/Blizzard_APIDocumentationGenerated/EditModeManagerSharedDocumentation.lua
         // and probably more useful https://github.com/tomrus88/BlizzardInterfaceCode/blob/91855106547ebda74623322cac64d46fc5474a57/Interface/FrameXML/EditModePresetLayouts.lua
-        const [type, id, anchor, parentAnchor, parent, xOffset, yOffset, options] = row
+        const [type, id, anchor, parentAnchor, parent, xOffset, yOffset, strata, options] = row
         const item = {
           unknown: false,
           data: row,
@@ -43,6 +44,7 @@ export default {
           parent: parent,
           xOffset,
           yOffset,
+          strata, // not sure if this is accurate, currently value is always 1 and can't overwrite it
           anchor: this.anchorPoint(anchor),
           parentAnchor: this.anchorPoint(parentAnchor),
           options: this.parseOptions(options, type),
@@ -53,42 +55,86 @@ export default {
           item.title = 'Unknown - Suspected hud version and # of elements included'
           item.unknown = true
         }
-        else if (type === 0 && id < 5) {
-          item.title = this.$t('Action Bar [-num-]', {num: id+1})
+        else if (this.hudSettings[type] && typeof this.hudSettings[type].title === 'function') {
+          item.title = this.hudSettings[type].title(id)
         }
-        else if (type === 0 && id === 10) {
-          item.title = this.$t('Stance Bar')
+        else if (this.hudSettings[type] && typeof this.hudSettings[type].title === 'string') {
+          item.title = this.hudSettings[type].title
         }
-        else if (type === 0 && id === 11) {
-          item.title = this.$t('Pet Action Bar')
-        }
-        else if (type === 0 && id === 12) {
-          item.title = this.$t('Possess Action Bar')
-        }
-        else if (type === 1) {
-          item.title = 'Cast Bar - Not yet implemented as of build 44895'
-        }
-        else if (type === 2) {
-          item.title = 'Mini Map - Not yet implemented as of build 44895'
-        }
-        else if (type === 3 && id === 0) {
-          item.title = this.$t('[-unit-] Unit Frame', {unit: this.$t('Player')})
-        }
-        else if (type === 3 && id === 1) {
-          item.title = this.$t('[-unit-] Unit Frame', {unit: this.$t('Target')})
-        }
-        else if (type === 3 && id === 2) {
-          item.title = this.$t('[-unit-] Unit Frame', {unit: this.$t('Focus')})
-        }
-
-        if (item.title === this.$t('Unknown Element')) {
+        else {
+          console.log('unknown', this.hudSettings, type)
+          item.title = this.$t('Unknown Element')
           item.unknown = true
         }
 
         content.push(item)
       })
       return content
-    }
+    },
+    hudSettings: function () { return [
+      { // 0 - action bar
+        title: (id) => {
+          if (id < 10) {
+            return this.$t('Action Bar [-num-]', {num: id+1})
+          }
+          else if (id === 10) {
+            return this.$t('Stance Bar')
+          }
+          else if (id === 11) {
+            return this.$t('Pet Action Bar')
+          }
+          else if (id === 12) {
+            return this.$t('Possess Action Bar')
+          }
+        },
+        fields: [
+          {label: this.$t('Orientation'), value: (v) => [this.$t('Horizontal'), this.$t('Vertical')][v]},
+          {label: this.$t('Number of Rows'), value: (v) => v},
+          {label: this.$t('Number of Icons'), value: (v) => v},
+          {label: this.$t('Icon Size'), value: (v) => `${v * 10 + 50}%`},
+          {label: this.$t('Icon Padding'), value: (v) => v},
+          {label: this.$t('Visible'), value: (v) => this.trueOrFalse(v)},
+          {label: this.$t('Hide Bar Art'), value: (v) => this.trueOrFalse(v)},
+          {label: this.$t('Snap To Side'), value: (v) => this.trueOrFalse(v)},
+          {label: this.$t('Hide Bar Scrolling'), value: (v) => this.trueOrFalse(v)},
+          {label: this.$t('Always Show Buttons'), value: (v) => this.trueOrFalse(v)}
+        ]
+      },
+      { // 1 - cast bar
+        title: this.$t('Cast Bar'),
+        fields: [
+          {label: this.$t('Bar Size'), value: (v) => `${v * 10 + 100}%`},
+          {label: this.$t('Lock to Player Frame'), value: (v) => this.trueOrFalse(v)},
+        ]
+      },
+      { // 2 - mini map
+        title: this.$t('Mini Map'),
+        fields: [
+          {label: this.$t('Header Underneath'), value: (v) => this.trueOrFalse(v)},
+        ]
+      },
+      { // 3 - unit frame
+        title: (v) => {
+          return [
+            this.$t('Player Unit Frame'),
+            this.$t('Target Unit Frame'),
+            this.$t('Focus Unit Frame'),
+          ][v]
+        },
+        fields: [
+          {label: this.$t('Hide Portrait'), value: (v) => this.trueOrFalse(v)},
+          {label: this.$t('Cast Bar Underneath'), value: (v) => this.trueOrFalse(v)},
+          {label: this.$t('Buffs On Top'), value: (v) => this.trueOrFalse(v)},
+          {label: this.$t('Use Larger Frame'), value: (v) => this.trueOrFalse(v)},
+        ]
+      },
+      { // 4 - encounter bar
+        title: this.$t('Encounter Bar'),
+        fields: {
+          // {label: this.$t('xyz'), value: (v) => this.trueOrFalse(v),
+        }
+      },
+    ]}
   },
   methods: {
     anchorPoint (id) {
@@ -104,90 +150,23 @@ export default {
         case 8: return this.$t('Bottom Right')
       }
     },
+    trueOrFalse (v) {
+      return v && this.$t('True') || this.$t('False')
+    },
     parseOptions (options, type) {
       if (!options) {
         return {}
       }
       const results = {}
-      let fields = {}
-      switch (type) {
-        case 0: // action bar
-          fields = {
-            '0': this.$t('Orientation'),
-            '1': this.$t('Number of Rows'),
-            '2': this.$t('Number of Icons'),
-            '3': this.$t('Icon Size'),
-            '4': this.$t('Icon Padding'),
-            '5': this.$t('Visible'),
-            '6': this.$t('Hide Bar Art'),
-            '7': this.$t('Snap To Side'),
-            '8': this.$t('Hide Bar Scrolling'),
-            '9': this.$t('Always Show Buttons'),
-          }
-          break
-        case 1: // cast bar
-          fields = {
-            '0': this.$t('Bar Size'),
-          }
-          break
-        case 2: // mini map
-          fields = {
-            '0': this.$t('Header Underneath'),
-          }
-          break
-        case 3: // unit frame
-          fields = {
-            '0': this.$t('Hide Portrait'),
-            '1': this.$t('Cast Bar Underneath'),
-            '2': this.$t('Buffs On Top'),
-            '3': this.$t('Use Larger Frame'),
-          }
-          break
-      }
-
       options.match(/(..)/g).forEach((item) => {
         item = item.split('').map(x => x = x.charCodeAt(0) - 35)
-        if (fields[item[0]]) {
-          results[fields[item[0]]] = this.optionsValue(type, item[0], item[1])
+        if (this.hudSettings[type].fields[item[0]]) {
+          results[this.hudSettings[type].fields[item[0]].label] = this.hudSettings[type].fields[item[0]].value(item[1])
         }
       })
       return results
     },
 
-    optionsValue (type, field, value) {
-      if (type === 0 && field === 0 && value === 0) {
-        return this.$t('Horizontal')
-      }
-      else if (type === 0 && field === 0 && value === 1) {
-        return this.$t('Vertical')
-      }
-      else if (type === 0 && field === 3) {
-        return `${value * 10 + 50}%`
-      }
-      else if (type === 0 && field === 5 && value === 0) {
-        return this.$t('Always Visible')
-      }
-      else if (type === 0 && field === 5 && value === 1) {
-        return this.$t('Only In Combat')
-      }
-      else if (type === 0 && field === 5 && value === 2) {
-        return this.$t('Only Out Of Combat')
-      }
-      else if (type === 0 && (field >=6 && field <= 10) && value === 0) {
-        return this.$t('False')
-      }
-      else if (type === 0 && (field >=6 && field <= 10) && value === 1) {
-        return this.$t('True')
-      }
-      else if (type === 3 && value === 0) {
-        return this.$t('False')
-      }
-      else if (type === 3 && value === 1) {
-        return this.$t('True')
-      }
-
-      return value
-    }
   }
 }
 
