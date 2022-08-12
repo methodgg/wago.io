@@ -2,7 +2,7 @@
   <div>
     <md-whiteframe v-for="(item, index) in content" v-bind:key="index">
       <h4>{{ item.title }}</h4>
-      <div class="grid" v-if="!item.unknown">
+      <div class="grid" v-if="item.options">
         <span>{{$t('Anchor Point')}}</span>
         <span>{{item.anchor}}</span>
         <span>{{$t('Parent Frame')}}</span>
@@ -18,18 +18,27 @@
           <span>{{v}}</span>
         </template>
       </div>
-      <div class="grid" v-else>
+      <div class="grid" v-else-if="item.unknown">
         <span>{{$t('Data')}}</span>
         <span>{{item.data}}</span>
+      </div>
+      <div v-else-if="item.hudVersion < latestHudVersion">
+        {{$t('This version is from early alpha and no longer supported. Importing will not work in-game.')}}
+      </div>
+      <div v-else-if="item.hudVersion === latestHudVersion">
+        {{$t('This version is the current that Wago.io expects.')}}
+      </div>
+      <div v-else-if="item.hudVersion > latestHudVersion">
+        {{$t('This is newer than what Wago.io expects; some data may be missing or incorrect.')}}
       </div>
     </md-whiteframe>
   </div>
 </template>
 
 <script>
-
 export default {
   computed: {
+    latestHudVersion: () => 5,
     content: function () {
       const content = []
       const data = JSON.parse(this.$store.state.wago.code.json).map(x => x.split(/\s/).map(y => !isNaN(parseFloat(y)) ? parseFloat(y) : y))
@@ -52,8 +61,8 @@ export default {
         }
 
         if (row.length === 2) {
-          item.title = 'Unknown - Suspected hud version and # of elements included'
-          item.unknown = true
+          item.title = this.$t('Blizz HUD Version [-num-]', {num: item.data[0]})
+          item.hudVersion = item.data[0]
         }
         else if (this.hudSettings[type] && typeof this.hudSettings[type].title === 'function') {
           item.title = this.hudSettings[type].title(id)
@@ -155,7 +164,7 @@ export default {
     },
     parseOptions (options, type) {
       if (!options) {
-        return {}
+        return null
       }
       const results = {}
       options.match(/(..)/g).forEach((item) => {

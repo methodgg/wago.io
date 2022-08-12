@@ -18,7 +18,7 @@ module.exports = {
     },
   
     processMeta: (obj) => {
-      var meta = {type: 'BLIZZHUD', game: 'df', name: 'Blizz Hud Config', categories: []}
+      var meta = {type: 'BLIZZHUD', game: 'df', name: 'Blizz HUD Config', categories: []}
   
       return meta
     }
