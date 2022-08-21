@@ -27,8 +27,8 @@ const arrayMatch = function (arr1, arr2) {
 
 module.exports = function (fastify, opts, next) {
   // returns data used on wago.io homepage
-  fastify.get('/index', (req, res) => {
-    res.cache(60).send({topLists: global.TopLists, news: global.LatestNews, addons: global.LatestAddons})
+  fastify.get('/index', async (req, res) => {
+    res.cache(60).send({topLists: JSON.parse(await redis.get('static:TopLists'))})
   })
 
   // standard lookup for any import

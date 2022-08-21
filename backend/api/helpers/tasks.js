@@ -183,15 +183,12 @@ async function UpdateLatestNews () {
   await redis.set('static:LatestNews', JSON.stringify(news))
 }
 
-}
-
 async function UpdatePatreonAccounts () {
   let nextURL = 'https://www.patreon.com/api/oauth2/v2/campaigns/8814646/members?include=currently_entitled_tiers,user&fields%5Btier%5D=title'
   const addonSubs = []
   while (nextURL) {
     const response = await axios.get(nextURL, {headers: {Authorization: 'Bearer '+  config.auth.patreon.creatorToken}})
     const patrons = response.data.data
-    console.log('addons patreon----', JSON.stringify(patrons, null, 2))
     for (let i = 0; i < patrons.length; i++) {
       if (!patrons[i] || !patrons[i].relationships || !patrons[i].relationships.user || !patrons[i].relationships.user.data || !patrons[i].relationships.user.data.id) {
         continue
