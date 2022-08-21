@@ -112,8 +112,8 @@ module.exports = (fastify, opts, next) => {
     if (!req.user || !req.user.isAdmin.access || !(req.user.isAdmin.super || req.user.isAdmin.config.embed)) {
       return res.code(403).send({error: "forbidden"})
     }
-    let data = await SiteData.findById('EmbeddedStream').lean().exec()
-    let defaultStream = await SiteData.findById('DefaultStream').lean().exec()
+    let data = await redis.get('static:EmbeddedStream')
+    let defaultStream = await redis.get('static:DefaultStream')
     data = data.value || {}
     data.activeUsers = await redis2.zcard('allSiteVisitors')
     data.streamspread = defaultStream.value === '__streamspread'
@@ -143,11 +143,9 @@ module.exports = (fastify, opts, next) => {
       enabled: req.body.enabled,
       streams: streams
     }
-    await SiteData.set('EmbeddedStream', data)
-    await SiteData.set('DefaultStream', req.body.streamspread && '__streamspread' || '__none')
+    await redis.set('static:EmbeddedStream', JSON.stringify(data))
+    await redis.set('static:DefaultStream', req.body.streamspread && '__streamspread' || '__none')
     const channelStatuses = await runTask('UpdateTwitchStatus', req.body.channel)
-    await updateDataCaches.queue('EmbeddedStream')
-    await updateDataCaches.queue('DefaultStream')
     await streams.forEach(async (stream, i) => {
       streams[i].online = channelStatuses[stream.channel]
       streams[i].viewing = await redis2.zcard(`allEmbeds:${streams[i].channel}`)

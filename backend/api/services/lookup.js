@@ -634,17 +634,18 @@ module.exports = function (fastify, opts, next) {
 
     // check for alerts
     if (doc.type !== 'ERROR' && code.json) {
+      const weakAuraInternalVersion = parseFloat(await redis.get('static:weakAuraInternalVersion'))
       const json = JSON.parse(code.json)
       if (json.c) {
         for (let i = 0; i < json.c.length; i++) {
-          if (json.c[i].internalVersion && json.c[i].internalVersion > global.weakAuraInternalVersion) {
-            wagoCode.alerts.newInternalVersion = {build: json.s, internalVersion: json.c[i].internalVersion, waInternalVersion: global.weakAuraInternalVersion}
+          if (json.c[i].internalVersion && json.c[i].internalVersion > weakAuraInternalVersion) {
+            wagoCode.alerts.newInternalVersion = {build: json.s, internalVersion: json.c[i].internalVersion, waInternalVersion: weakAuraInternalVersion}
             break
           }
         }
       }
-      if (!wagoCode.alerts.newInternalVersion && json.d && json.d.internalVersion && json.d.internalVersion > global.weakAuraInternalVersion) {
-        wagoCode.alerts.newInternalVersion = {build: json.s, internalVersion: json.d.internalVersion, waInternalVersion: global.weakAuraInternalVersion}
+      if (!wagoCode.alerts.newInternalVersion && json.d && json.d.internalVersion && json.d.internalVersion > weakAuraInternalVersion) {
+        wagoCode.alerts.newInternalVersion = {build: json.s, internalVersion: json.d.internalVersion, waInternalVersion: weakAuraInternalVersion}
       }
 
       // functions blocked by WeakAuras

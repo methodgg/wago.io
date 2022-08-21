@@ -12,7 +12,7 @@ module.exports = {
     client.login(config.discordBotKey)
 
     client.on("ready", async () => {
-      SiteData.set('discordHost', config.host)
+      redis.set('static:discordHost', config.host)
       console.log("Discord Bot launched!")
     })
     

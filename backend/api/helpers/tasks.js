@@ -6,7 +6,6 @@ const lua = require('./lua')
 const md5 = require('md5')
 const mkdirp = require('mkdirp')
 const path = require('path')
-const updateDataCaches = require('../../middlewares/updateLocalCache')
 const getCode = require('./code-detection/get-code')
 const luacheck = require('./luacheck')
 const codeMetrics = require('./codeMetrics')
@@ -85,8 +84,7 @@ module.exports = async (task, data) => {
 
 async function UpdateWagoOfTheMoment () {
   const data = await WagoItem.randomOfTheMoment()
-  await SiteData.findOneAndUpdate({_id: 'WagoOfTheMoment'}, {value: data}, {upsert: true}).exec()
-  await updateDataCaches.queue('WagoOfTheMoment')
+  await redis.set('static:WagoOfTheMoment', JSON.stringify(data))
 }
 
 async function UpdateTwitchStatus (channel) {
@@ -101,8 +99,8 @@ async function UpdateTwitchStatus (channel) {
   var streams = []
   var status = {}
   if (!channel || typeof channel !== 'string') {
-    const cfg = await SiteData.get('EmbeddedStream')
-    streams = cfg.streams
+    const cfg = JSON.parse(await redis.get('static:EmbeddedStream'))
+    streams = cfg?.streams || []
   }
   for (let i = 0; i < streams.length; i++) {
     let channel = streams[i].channel
@@ -182,8 +180,9 @@ async function UpdateLatestNews () {
       }
     })
   })
-  await SiteData.findOneAndUpdate({_id: 'LatestNews'}, {value: news}, {upsert: true}).exec()
-  await updateDataCaches.queue('LatestNews')
+  await redis.set('static:LatestNews', JSON.stringify(news))
+}
+
 }
 
 async function UpdatePatreonAccounts () {
@@ -327,8 +326,7 @@ async function UpdateTopLists () {
   data.push({title: 'Newest Imports', imports: imports.map(x => { return {date: true, display: x.created, name: x.name, slug: x.slug, img: x.previewImage, static: x.previewStatic} }) })
 
   // save data
-  await SiteData.findOneAndUpdate({_id: 'TopLists'}, {value: data}, {upsert: true}).exec()
-  await updateDataCaches.queue('TopLists')
+  await redis.set('static:TopLists', JSON.stringify(data))
 }
 
 async function DiscordMessage (data) {
@@ -666,8 +664,7 @@ async function UpdateLatestAddonReleases () {
   }
   if (madeUpdate) {
     const Latest = await AddonRelease.find({active: true})
-    await SiteData.set('LatestAddons', Latest)  
-    await updateDataCaches.queue('LatestAddons')
+    await redis.set('static:LatestAddons', JSON.stringify(Latest))
   }
 }
 
@@ -1149,7 +1146,7 @@ async function updateWAData (release, assets) {
   if (versionMatch && versionMatch[1]) {
     const internalVersion = parseInt(versionMatch[1])
     if (internalVersion) {
-      SiteData.set('weakAuraInternalVersion', internalVersion)
+      redis.set('static:weakAuraInternalVersion', internalVersion)
       return
     }
   }

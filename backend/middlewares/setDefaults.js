@@ -10,8 +10,9 @@ module.exports = async function(req, res) {
   if (!req.body) {
     req.body = {}
   }
-  if (global['WagoOfTheMoment']) {
-    res.header('wotm', encodeURIComponent(JSON.stringify(global['WagoOfTheMoment'] || {})))
+  const wotm = await redis.get('static:WagoOfTheMoment') 
+  if (wotm) {
+    res.header('wotm', encodeURIComponent(wotm || {}))
   }
 
   req.tracking = {}

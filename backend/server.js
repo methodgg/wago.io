@@ -115,18 +115,6 @@ const startServer = async () => {
       Queues[host] = new Queue(`taskQueue:${host}`, {connection: RedisConnect})
     }
     const runTask = require('./api/helpers/tasks')
-    const updateLocalCache = require('./middlewares/updateLocalCache')
-    new QueueScheduler(`taskQueue:${config.host}`, {connection: RedisConnect})
-    const localWorker = new Worker(`taskQueue:${config.host}`, async (job) => {
-      if (job.name === 'UpdateCache') {
-        updateLocalCache.run(job.data)
-      }
-      else {
-        await runTask(job.name, job.data)
-      }
-    }, {connection: RedisConnect})
-    updateLocalCache.run()
-
     var profilerTasks = {}
     new QueueScheduler('taskQueueA', {connection: RedisConnect})
     const worker = new Worker('taskQueueA', async (job) => {
@@ -158,7 +146,7 @@ const startServer = async () => {
     })
     
     // setup simulated crontasks
-    if (config.env === 'development' || config.host === 'NYC3-01') {
+    if (config.env === 'development' || require('os').hostname().match(/data.*-01$/)) {
       const cleanup = await taskQueue.getRepeatableJobs()
       for (let i = 0; i < cleanup.length; i++) {
         await taskQueue.removeRepeatableByKey(cleanup[i].key)

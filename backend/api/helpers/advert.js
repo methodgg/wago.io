@@ -45,7 +45,7 @@ module.exports = {
     //   }
     // }
 
-    const defaultStream = await SiteData.get('DefaultStream')
+    const defaultStream = await redis.get('static:DefaultStream')
     await redis2.set(`currentstream:${cid}`, defaultStream)
     return defaultStream
   },

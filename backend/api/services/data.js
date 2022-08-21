@@ -3,7 +3,7 @@ const md5 = require('md5')
 module.exports = function (fastify, opts, next) {
   // get static data
   fastify.get('/:key', async (req, res) => {
-    const data = await SiteData.findById(req.params.key).exec()
+    const data = await redis.get('static:' + req.params.key)
     if (data && !data.private) {
       var etag = 'W\\"' + md5(JSON.stringify(data)) + '"'
       if (req.headers['if-none-match'] === etag) {

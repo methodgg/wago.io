@@ -108,7 +108,7 @@ async function updateMDTWeek(region, token) {
   const result = await getAPI(region, '/data/wow/mythic-keystone/period/index', token)
   var week = (result.data.current_period.id - mdtWeekReset) % 12
   if (!week) week = 12
-  SiteData.findByIdAndUpdate('mdtWeek' + region, {value: week}, {upsert: true}).exec()
+  redis.set('static:mdtWeek' + region, week)
 }
 
 module.exports = {
