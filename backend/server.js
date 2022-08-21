@@ -111,14 +111,10 @@ const startServer = async () => {
     })
 
     // setup queues and workers
-    global.Queues = {}
-    for (const host of config.dataHosts) {
-      Queues[host] = new Queue(`taskQueue:${host}`, {connection: RedisConnect})
-    }
     const runTask = require('./api/helpers/tasks')
     var profilerTasks = {}
-    new QueueScheduler('taskQueueA', {connection: RedisConnect})
-    const worker = new Worker('taskQueueA', async (job) => {
+    new QueueScheduler('taskQueue', {connection: RedisConnect})
+    const worker = new Worker('taskQueue', async (job) => {
       await runTask(job.name, job.data, profilerTasks[job.id])
     }, {
       concurrency: 3,
