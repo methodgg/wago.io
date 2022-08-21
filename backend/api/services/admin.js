@@ -1,6 +1,4 @@
 const Profiler = require("../models/Profiler")
-const SiteData = require("../models/SiteData")
-const updateDataCaches = require('../../middlewares/updateLocalCache')
 const runTask = require('../helpers/tasks')
 const webhooks = require('../helpers/webhooks')
 const Streamers = require("../models/Streamer")
@@ -53,7 +51,7 @@ module.exports = (fastify, opts, next) => {
     if (!req.user || !req.user.isAdmin.access || !req.user.isAdmin.super) {
       return res.code(403).send({error: "forbidden", u: req.user})
     }
-    const ZSCORE = parseInt(config.host.split(/-/)[1]) || 1
+    const ZSCORE = parseInt(require('os').hostname().replace(/[^\d]/g, '')) || 1
     var data = {}
     data.connections = await redis2.zcount('allSiteVisitors', ZSCORE, ZSCORE)
     res.send(data)

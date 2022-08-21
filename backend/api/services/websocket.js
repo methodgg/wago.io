@@ -1,7 +1,7 @@
 
 const advert = require('../helpers/advert')
 const Streamers = require("../models/Streamer")
-const ZSCORE = parseInt(config.host.split(/-/)[1])
+const ZSCORE = parseInt(require('os').hostname().replace(/[^\d]/g, '')) || 1
 const connections = {}
 
 function Connection(conn, cid) {
