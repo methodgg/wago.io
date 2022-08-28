@@ -45,7 +45,7 @@ module.exports = {
     //   }
     // }
 
-    const defaultStream = await redis.get('static:DefaultStream')
+    const defaultStream = (await redis.get('static:DefaultStream')) || '__none'
     await redis2.set(`currentstream:${cid}`, defaultStream)
     return defaultStream
   },
