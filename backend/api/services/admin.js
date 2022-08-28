@@ -1,6 +1,4 @@
 const Profiler = require("../models/Profiler")
-const SiteData = require("../models/SiteData")
-const updateDataCaches = require('../../middlewares/updateLocalCache')
 const runTask = require('../helpers/tasks')
 const webhooks = require('../helpers/webhooks')
 const Streamers = require("../models/Streamer")
@@ -53,7 +51,7 @@ module.exports = (fastify, opts, next) => {
     if (!req.user || !req.user.isAdmin.access || !req.user.isAdmin.super) {
       return res.code(403).send({error: "forbidden", u: req.user})
     }
-    const ZSCORE = parseInt(config.host.split(/-/)[1]) || 1
+    const ZSCORE = parseInt(require('os').hostname().replace(/[^\d]/g, '')) || 1
     var data = {}
     data.connections = await redis2.zcount('allSiteVisitors', ZSCORE, ZSCORE)
     res.send(data)
@@ -112,11 +110,10 @@ module.exports = (fastify, opts, next) => {
     if (!req.user || !req.user.isAdmin.access || !(req.user.isAdmin.super || req.user.isAdmin.config.embed)) {
       return res.code(403).send({error: "forbidden"})
     }
-    let data = await SiteData.findById('EmbeddedStream').lean().exec()
-    let defaultStream = await SiteData.findById('DefaultStream').lean().exec()
-    data = data.value || {}
+    let data = JSON.parse(await redis.get('static:EmbeddedStream')) || {}
+    let defaultStream = await redis.get('static:DefaultStream')
     data.activeUsers = await redis2.zcard('allSiteVisitors')
-    data.streamspread = defaultStream.value === '__streamspread'
+    data.streamspread = defaultStream === '__streamspread'
     if (!data.streams) data.streams = []
     for (let i = 0; i < data.streams.length; i++) {
       data.streams[i].online = await redis.get(`twitch:${data.streams[i].channel}:live`)
@@ -129,30 +126,27 @@ module.exports = (fastify, opts, next) => {
     if (!req.user || !req.user.isAdmin.access || !(req.user.isAdmin.super || req.user.isAdmin.config.embed)) {
       return res.code(403).send({error: "forbidden"})
     }
-    var streams = []
+    const data = {
+      enabled: req.body.enabled,
+      streams: []
+    }
     if (req.body.streams) {
       req.body.streams.forEach(s => {
-        streams.push({
+        data.streams.push({
           channel: s.channel,
           exposure: s.exposure,
           max: s.max
         })
       })
     }
-    var data = {
-      enabled: req.body.enabled,
-      streams: streams
-    }
-    await SiteData.set('EmbeddedStream', data)
-    await SiteData.set('DefaultStream', req.body.streamspread && '__streamspread' || '__none')
+    await redis.set('static:EmbeddedStream', JSON.stringify(data))
+    await redis.set('static:DefaultStream', req.body.streamspread && '__streamspread' || '__none')
     const channelStatuses = await runTask('UpdateTwitchStatus', req.body.channel)
-    await updateDataCaches.queue('EmbeddedStream')
-    await updateDataCaches.queue('DefaultStream')
-    await streams.forEach(async (stream, i) => {
-      streams[i].online = channelStatuses[stream.channel]
-      streams[i].viewing = await redis2.zcard(`allEmbeds:${streams[i].channel}`)
+    await data.streams.forEach(async (stream, i) => {
+      data.streams[i].online = channelStatuses[stream.channel]
+      data.streams[i].viewing = await redis2.zcard(`allEmbeds:${stream.channel}`)
     })
-    res.send({success: true, streams: streams, enabled: data.enabled, streamspread: !!req.body.streamspread, activeUsers: await redis2.zcard('allSiteVisitors')})
+    res.send({success: true, streams: data.streams, enabled: data.enabled, streamspread: !!req.body.streamspread, activeUsers: await redis2.zcard('allSiteVisitors')})
   })
 
   fastify.get('/getstreamers', async (req, res) => {

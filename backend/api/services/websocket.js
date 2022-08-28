@@ -1,7 +1,7 @@
 
 const advert = require('../helpers/advert')
 const Streamers = require("../models/Streamer")
-const ZSCORE = parseInt(config.host.split(/-/)[1])
+const ZSCORE = parseInt(require('os').hostname().replace(/[^\d]/g, '')) || 1
 const connections = {}
 
 function Connection(conn, cid) {
@@ -94,8 +94,8 @@ setInterval(async () => {
       await redis2.del(`currentstream:${connection.cid}`)
       await redis2.zrem(`allSiteVisitors`, connection.cid)
       await redis2.zrem('allPremiumVisitors', connection.cid)
-      if (this.embedStream) {
-        await redis2.zrem(`allEmbeds:${this.embedStream}`, connection.cid)
+      if (connection.embedStream) {
+        await redis2.zrem(`allEmbeds:${connection.embedStream}`, connection.cid)
       }
       else {
         const streams = await Streamers.find({online: {$gt: 0}})
@@ -107,6 +107,7 @@ setInterval(async () => {
         }
         await redis2.zrem(`allEmbeds:__streamspread`, connection.cid)
         await redis2.zrem(`allEmbeds:__stale`, connection.cid)
+        await redis2.zrem(`allEmbeds:__none`, connection.cid)
       }
       delete connections[oid]
     }
@@ -126,7 +127,8 @@ async function cleanCIDs() {
     await redis2.zrangebyscore('allSiteVisitors', ZSCORE, ZSCORE),
     await redis2.zrangebyscore('allPremiumVisitors', ZSCORE, ZSCORE),
     await redis2.zrangebyscore('allEmbeds:__streamspread', ZSCORE, ZSCORE),
-    await redis2.zrangebyscore('allEmbeds:__stale', ZSCORE, ZSCORE)
+    await redis2.zrangebyscore('allEmbeds:__stale', ZSCORE, ZSCORE),
+    await redis2.zrangebyscore('allEmbeds:__none', ZSCORE, ZSCORE)
   )
   const streams = await Streamers.find({online: {$gt: 0}})
   for (let i=0; i<streams.length; i++) {
@@ -147,6 +149,7 @@ async function cleanCIDs() {
       }
       await redis2.zrem(`allEmbeds:__streamspread`, cid)
       await redis2.zrem(`allEmbeds:__stale`, cid)
+      await redis2.zrem(`allEmbeds:__none`, cid)
     }
   })
   setTimeout(cleanCIDs, 600000)

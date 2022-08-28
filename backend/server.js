@@ -22,7 +22,8 @@ global.RedisConnect = new Redis(config.redis)
 const {Queue, Worker, QueueScheduler, QueueEvents} = require('bullmq')
 const Profiler = require('./api/models/Profiler')
 const discordBot = require('./discordBot')
-global.taskQueue = new Queue('taskQueueA', {connection: RedisConnect})
+global.taskQueue = new Queue('taskQueue', {connection: RedisConnect})
+global.taskQueueB = new Queue('taskQueueB', {connection: RedisConnect})
 global.async = require('async')
 global.axios = require('axios')
 global.bluebird = require('bluebird')
@@ -110,26 +111,10 @@ const startServer = async () => {
     })
 
     // setup queues and workers
-    global.Queues = {}
-    for (const host of config.dataHosts) {
-      Queues[host] = new Queue(`taskQueue:${host}`, {connection: RedisConnect})
-    }
     const runTask = require('./api/helpers/tasks')
-    const updateLocalCache = require('./middlewares/updateLocalCache')
-    new QueueScheduler(`taskQueue:${config.host}`, {connection: RedisConnect})
-    const localWorker = new Worker(`taskQueue:${config.host}`, async (job) => {
-      if (job.name === 'UpdateCache') {
-        updateLocalCache.run(job.data)
-      }
-      else {
-        await runTask(job.name, job.data)
-      }
-    }, {connection: RedisConnect})
-    updateLocalCache.run()
-
     var profilerTasks = {}
-    new QueueScheduler('taskQueueA', {connection: RedisConnect})
-    const worker = new Worker('taskQueueA', async (job) => {
+    new QueueScheduler('taskQueue', {connection: RedisConnect})
+    const worker = new Worker('taskQueue', async (job) => {
       await runTask(job.name, job.data, profilerTasks[job.id])
     }, {
       concurrency: 3,
@@ -158,7 +143,7 @@ const startServer = async () => {
     })
     
     // setup simulated crontasks
-    if (config.env === 'development' || config.host === 'NYC3-01') {
+    if (config.env === 'development' || require('os').hostname().match(/data.*-01$/)) {
       const cleanup = await taskQueue.getRepeatableJobs()
       for (let i = 0; i < cleanup.length; i++) {
         await taskQueue.removeRepeatableByKey(cleanup[i].key)
@@ -166,7 +151,7 @@ const startServer = async () => {
       await taskQueue.add('CleanTaskQueue', null, {repeat: {cron: '*/10 * * * *'}, priority: 10})
       await taskQueue.add('UpdateWagoOfTheMoment', null, {repeat: {cron: '* * * * *'}, priority: 3})
       await taskQueue.add('UpdateTwitchStatus', null, {repeat: {cron: '* * * * *'}, priority: 3})
-      await taskQueue.add('UpdatePatreonAccounts', null, {repeat: {cron: '0 */4 * * *'}, priority: 3})
+      await taskQueue.add('UpdatePatreonAccounts', null, {repeat: {cron: '0 * * * *'}, priority: 3})
       await taskQueue.add('UpdateWeeklyMDT', null, {repeat: {cron: '0 */4 * * *'}, priority: 3})
       await taskQueue.add('UpdateTopLists', null, {repeat: {cron: '*/5 * * * *'}, priority: 3})
       await taskQueue.add('UpdateValidCharacters', null, {repeat: {cron: '10 * * * *'}, priority: 3})
@@ -186,6 +171,14 @@ const startServer = async () => {
 
       global.discordBot = require('./discordBot')
       discordBot.start()
+
+      new QueueScheduler('taskQueueB', {connection: RedisConnect})
+      const worker = new Worker('taskQueueB', async (job) => {
+        await runTask(job.name, job.data, profilerTasks[job.id])
+      }, {
+        concurrency: 3,
+        connection: RedisConnect
+      })
     }
 
     if (config.env === 'development') {

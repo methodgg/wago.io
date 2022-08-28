@@ -635,7 +635,7 @@ module.exports = function (fastify, opts, next) {
         wago.categories.push('mdtdun' + json.value.currentDungeonIdx)
       }
 
-      const affixWeeks = await SiteData.findById('mdtAffixWeeks').exec()
+      const affixWeeks = await redis.get('static:mdtAffixWeeks')
       if (json.week && affixWeeks && affixWeeks.value[json.week - 1]) {
         affixWeeks.value[json.week - 1].forEach((affixID) => {
           wago.categories.push('mdtaffix' + affixID)
@@ -808,10 +808,7 @@ module.exports = function (fastify, opts, next) {
     await code.save()
 
     // send message to starred users    
-    const discordHost = await SiteData.get('discordHost')
-    if (Queues[discordHost]) {
-      Queues[discordHost].add('DiscordMessage', {type: 'update', author: req.user._id, wago: wago._id, message: req.body.text})
-    }
+    taskQueueB.add('DiscordMessage', {type: 'update', author: req.user._id, wago: wago._id, message: req.body.text})
 
     // send update to webhook
     if (req.user && !wago.hidden && !wago.private && !wago.restricted && req.user.discord && req.user.discord.webhooks && req.user.discord.webhooks.onCreate) {
@@ -1042,7 +1039,7 @@ module.exports = function (fastify, opts, next) {
         })
       }
       else {
-      const affixWeeks = await SiteData.findById('mdtAffixWeeks').exec()
+      const affixWeeks = await redis.get('static:mdtAffixWeeks')
       if (json.week && affixWeeks && affixWeeks.value[json.week - 1]) {
         affixWeeks.value[json.week - 1].forEach((affixID) => {
           wago.categories.push('mdtaffix' + affixID)

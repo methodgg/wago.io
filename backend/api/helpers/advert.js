@@ -10,7 +10,7 @@ module.exports = {
     }
 
     // determine method stream or advert
-    const streamOverride = global.EmbeddedStream || {streams:[]}
+    const streamOverride = JSON.parse(await redis.get('static:EmbeddedStream')) || {}
     // If enabled
     if (streamOverride.enabled && streamOverride.streams.length) {
       for (let i = 0; i < streamOverride.streams.length; i++) {
@@ -45,7 +45,7 @@ module.exports = {
     //   }
     // }
 
-    const defaultStream = await SiteData.get('DefaultStream')
+    const defaultStream = (await redis.get('static:DefaultStream')) || '__none'
     await redis2.set(`currentstream:${cid}`, defaultStream)
     return defaultStream
   },

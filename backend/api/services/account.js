@@ -50,7 +50,7 @@ module.exports = (fastify, opts, next) => {
       data.mdtWeek = global['mdtWeek' + req.wowRegion]
     }
 
-    data.wotm = global.WagoOfTheMoment
+    data.wotm = JSON.parse(await redis.get('static:WagoOfTheMoment'))
 
     // if user is logged in
     if (req.user) {
