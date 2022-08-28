@@ -104,6 +104,7 @@ async function UpdateTwitchStatus (channel) {
   }
   for (let i = 0; i < streams.length; i++) {
     let channel = streams[i].channel
+    if (channel) {
   const req = await axios.get(`https://api.twitch.tv/helix/streams?user_login=${channel}`, {
     headers: {
       'client-id': config.auth.twitch.clientID,
@@ -112,6 +113,7 @@ async function UpdateTwitchStatus (channel) {
   })
     await redis.set(`twitch:${channel}:live`, (req.data.data.length > 0))
     status[channel] = (req.data.data.length > 0)
+  }
   }
 
   const streamers = await Streamer.find({})
