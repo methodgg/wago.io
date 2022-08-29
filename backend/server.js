@@ -7,13 +7,13 @@ var fastifyOpt = {
   jsonBodyLimit: 1048576 * 15,
   trustProxy: true
 }
-if (config.env === 'production') {
-  fastifyOpt.https = {
-    http2: true,
-    key: require('fs').readFileSync('./fastify-wago.key'),
-    cert: require('fs').readFileSync('./fastify-wago.crt')
-  }
-}
+// if (config.env === 'production') { SSL handled through CF
+//   fastifyOpt.https = {
+//     http2: true,
+//     key: require('fs').readFileSync('./fastify-wago.key'),
+//     cert: require('fs').readFileSync('./fastify-wago.crt')
+//   }
+// }
 const fastify = require('fastify')(fastifyOpt)
 
 // --- GLOBAL MODULES
