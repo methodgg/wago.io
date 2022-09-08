@@ -2,6 +2,9 @@ const Profiler = require("../models/Profiler")
 const runTask = require('../helpers/tasks')
 const webhooks = require('../helpers/webhooks')
 const Streamers = require("../models/Streamer")
+const digitalocean = require('digitalocean')
+const doClient = digitalocean.client(config.digitalOcean.statusToken)
+
 
 module.exports = (fastify, opts, next) => {
   // get all blog posts
@@ -355,6 +358,19 @@ module.exports = (fastify, opts, next) => {
       return res.send({error: 'no server'})
     }
     res.send({info: await redisServ.info()})
+  })
+
+  fastify.get('/data-servers', async (req, res) => {
+    if (!req.user || !req.user.isAdmin.access || !req.user.isAdmin.super) {
+      return res.code(403).send({error: "forbidden"})
+    }
+    const servers = await doClient.droplets.list({tag_name: 'wago-api'})
+    const data = []
+    servers.forEach(x => {
+      data.push({name: x.name, ip: x.networks.v4.filter(n => n.type === 'public')[0].ip_address})
+    })
+    data.sort((a,b) => (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0))
+    res.send(data)
   })
 
   fastify.get('/moderation', async (req, res) => {
