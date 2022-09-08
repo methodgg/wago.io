@@ -36,8 +36,8 @@ module.exports = async (task, data) => {
       case 'UpdateGuildMembership':
         return await UpdateGuildMembership()
 
-      case 'UpdateSupportedAddons':
-        return await UpdateSupportedAddons()
+      // case 'UpdateSupportedAddons':
+      //   return await UpdateSupportedAddons()
 
       case 'UpdateLatestAddonReleases':
         return await UpdateLatestAddonReleases()
@@ -1024,26 +1024,7 @@ async function ProcessCode(data) {
 
   // this is dumb
   cloudflare.zones.purgeCache(config.cloudflare.zoneID, {files: [
-    `https://data1.wago.io/lookup/wago/code?id=${doc._id}&version=${code.versionString}`,
-    `https://data2.wago.io/lookup/wago/code?id=${doc._id}&version=${code.versionString}`,
-    `https://data3.wago.io/lookup/wago/code?id=${doc._id}&version=${code.versionString}`,
-    `https://data4.wago.io/lookup/wago/code?id=${doc._id}&version=${code.versionString}`,
-    `https://data5.wago.io/lookup/wago/code?id=${doc._id}&version=${code.versionString}`,
-    `https://data6.wago.io/lookup/wago/code?id=${doc._id}&version=${code.versionString}`,
-    `https://data7.wago.io/lookup/wago/code?id=${doc._id}&version=${code.versionString}`,
-    `https://data8.wago.io/lookup/wago/code?id=${doc._id}&version=${code.versionString}`,
-    `https://data9.wago.io/lookup/wago/code?id=${doc._id}&version=${code.versionString}`,
-    `https://data10.wago.io/lookup/wago/code?id=${doc._id}&version=${code.versionString}`,
-    `https://data11.wago.io/lookup/wago/code?id=${doc._id}&version=${code.versionString}`,
-    `https://data12.wago.io/lookup/wago/code?id=${doc._id}&version=${code.versionString}`,
-    `https://data13.wago.io/lookup/wago/code?id=${doc._id}&version=${code.versionString}`,
-    `https://data14.wago.io/lookup/wago/code?id=${doc._id}&version=${code.versionString}`,
-    `https://data15.wago.io/lookup/wago/code?id=${doc._id}&version=${code.versionString}`,
-    `https://data16.wago.io/lookup/wago/code?id=${doc._id}&version=${code.versionString}`,
-    `https://data17.wago.io/lookup/wago/code?id=${doc._id}&version=${code.versionString}`,
-    `https://data18.wago.io/lookup/wago/code?id=${doc._id}&version=${code.versionString}`,
-    `https://data19.wago.io/lookup/wago/code?id=${doc._id}&version=${code.versionString}`,
-    `https://data20.wago.io/lookup/wago/code?id=${doc._id}&version=${code.versionString}`
+    `https://data.wago.io/lookup/wago/code?id=${doc._id}&version=${code.versionString}`,
   ]})
 
   if (code.customCode.length) {
