@@ -15,7 +15,7 @@ const Schema = new mongoose.Schema({
 
 Schema.statics.startRequest = async function (req) {
   if (req.raw.method.match(/GET|POST/) && !req.raw.originalUrl.match(/^\/ws$/)) {
-    req.profiler = new this({route: req.raw.originalUrl.replace(/(&|\?)_ref=.*(&|$)/, ''), method: req.raw.method, host: req.hostname, events: [{label: 'Request', elapsed: 0}]})
+    req.profiler = new this({route: req.raw.originalUrl.replace(/(&|\?)_ref=.*(&|$)/, ''), method: req.raw.method, host: config.host, events: [{label: 'Request', elapsed: 0}]})
     await req.profiler.save()
   }
 }
