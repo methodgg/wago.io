@@ -165,22 +165,22 @@
                   </md-list-item>
                   <md-list-item>
                     <div class="md-list-text-container">
-                      <span><md-checkbox v-model="selectedUser.roles.ambassador" @change="setUserRole('ambassador', selectedUser._id)" class="md-primary" >Ambassador</md-checkbox></span>
+                      <span><md-checkbox v-model="selectedUser.roles.ambassador" @change="setUserRole('ambassador', selectedUser._id)" class="md-primary" :disabled="!User.access.admin.super">Ambassador</md-checkbox></span>
                     </div>
                   </md-list-item>
                   <md-list-item>
                     <div class="md-list-text-container">
-                      <span><md-checkbox v-model="selectedUser.roles.methodStreamer" @change="setUserRole('methodStreamer', selectedUser._id)" class="md-primary" >Method Streamer</md-checkbox></span>
+                      <span><md-checkbox v-model="selectedUser.roles.methodStreamer" @change="setUserRole('methodStreamer', selectedUser._id)" class="md-primary" :disabled="!User.access.admin.super">Method Streamer</md-checkbox></span>
                     </div>
                   </md-list-item>
                   <md-list-item>
                     <div class="md-list-text-container">
-                      <span><md-checkbox v-model="selectedUser.roles.community_leader" @change="setUserRole('community_leader', selectedUser._id)" class="md-primary" >Community Leader</md-checkbox></span>
+                      <span><md-checkbox v-model="selectedUser.roles.community_leader" @change="setUserRole('community_leader', selectedUser._id)" class="md-primary" :disabled="!User.access.admin.super">Community Leader</md-checkbox></span>
                     </div>
                   </md-list-item>
                   <md-list-item>
                     <div class="md-list-text-container">
-                      <span><md-checkbox v-model="selectedUser.roles.developer" @change="setUserRole('developer', selectedUser._id)" class="md-primary" >Addon Developer</md-checkbox></span>
+                      <span><md-checkbox v-model="selectedUser.roles.developer" @change="setUserRole('developer', selectedUser._id)" class="md-primary" :disabled="!User.access.admin.super">Addon Developer</md-checkbox></span>
                     </div>
                   </md-list-item>
                   <md-list-item>
@@ -333,14 +333,14 @@
         <md-layout class="md-left" md-flex="15">
           <md-list class="md-double-line">
             <md-list-item @click="LoadAdvertConfig('streams')" v-bind:class="{selected: (siteConfigPanel === 'streams')}">
-              <div class="md-list-text-container"><span>Embed Streams</span></div>
+              <div class="md-list-text-container"><span>Embedded Stream</span></div>
             </md-list-item>
-            <md-list-item @click="LoadAdvertConfig('streamoverride')" v-bind:class="{selected: (siteConfigPanel === 'streamoverride')}">
-              <div class="md-list-text-container"><span>Stream Override</span></div>
+            <md-list-item @click="LoadAdvertConfig('streamstats')" v-bind:class="{selected: (siteConfigPanel === 'streamstats')}">
+              <div class="md-list-text-container"><span>Stream Stats</span></div>
             </md-list-item>
           </md-list>
         </md-layout>
-        <template v-if="siteConfigPanel === 'streams'">
+        <template v-if="siteConfigPanel === 'streamstats'">
           <div style="padding-left:16px">
             <p><span style="border-bottom: 1px solid #555">Total Users on Site: <strong>{{ activeUserCount.total || 0 }}</strong></span><br>
               Premium Users on Site: <strong>{{ activeUserCount.subs || 0 }}</strong><br>
@@ -354,7 +354,7 @@
                 <md-table-row>
                   <md-table-head>Name</md-table-head>
                   <md-table-head>Online</md-table-head>
-                  <md-table-head md-numeric md-tooltip="Excluding embbed streams from Wago">Current Viewers</md-table-head>
+                  <md-table-head md-numeric md-tooltip="Excluding embbed streams from Wago">Twitch Viewers</md-table-head>
                   <md-table-head md-numeric>Wago Viewers</md-table-head>
                   <md-table-head>Weighting</md-table-head>
                 </md-table-row>
@@ -365,7 +365,7 @@
                   <md-table-cell v-if="row.online"><span style="color:#00e600">Online</span><br>{{ calcOnlineDuration(row.online) }}</md-table-cell>
                   <md-table-cell v-else><span style="color:grey">Offline<br>{{ calcOnlineDuration(row.offline) }}</span></md-table-cell>
                   <md-table-cell>{{ row.viewers || 0 }}</md-table-cell>
-                  <md-table-cell>{{ row.wagoViewers || 0 }} / {{ row.viewers || 0 }}</md-table-cell>
+                  <md-table-cell>{{ row.wagoViewers || 0 }}</md-table-cell>
                   <md-table-cell>{{ calcWagoWeighting(row) }}%</md-table-cell>
                   <md-table-cell><md-button class="md-icon-button md-raised" @click="deleteStreamer(index)"><md-icon>delete</md-icon></md-button></md-table-cell>
                 </md-table-row>
@@ -385,12 +385,12 @@
             </form>
           </div>
         </template>
-        <template v-if="siteConfigPanel === 'streamoverride'">
+        <template v-if="siteConfigPanel === 'streams'">
           <md-layout>
             <md-card>
               <md-card-content>
-                Active Users on Site: <strong v-if="streamConfig.activeUsers">{{ activeUserCount.total || 0 }}</strong><br>
-                <md-checkbox v-model="streamConfig.enabled"><strong style="color:white">Stream Override Enabled</strong></md-checkbox>
+                <md-checkbox v-model="streamConfig.streamspread"><strong style="color:white">Enable StreamSpread as default</strong></md-checkbox><br>
+                <md-checkbox v-model="streamConfig.enabled"><strong style="color:white">Enable Twitch Override</strong></md-checkbox>
               </md-card-content>
               <div v-if="streamConfig.enabled" v-for="(stream, index) of streamConfig.streams" style="border: 1px solid #666; margin-bottom: 16px; position: relative">
                 <md-button class="md-icon-button md-raised" style="position: absolute; top: calc(50% - 16px); right: 8px;" @click="deleteStream(index)"><md-icon>delete</md-icon></md-button>
@@ -421,7 +421,7 @@
               </div>
               <md-card-actions style="justify-content: space-between">
                 <md-button class="md-raised" @click="addStream()">Add new stream</md-button>
-                <md-button class="md-raised" style="justify-self: flex-start" @click="saveStreamConfig()">Save Stream Override</md-button>
+                <md-button class="md-raised" style="justify-self: flex-start" @click="saveStreamConfig()">Save Stream Config</md-button>
               </md-card-actions>
             </md-card>
           </md-layout>
@@ -548,23 +548,24 @@
               <md-table-header>
                 <md-table-row>
                   <md-table-head>Server</md-table-head>
-                  <md-table-head md-numeric>Ping Time</md-table-head>
-                  <md-table-head md-numeric>Socket Connections</md-table-head>
+                  <md-table-head md-numeric>Response time last 5 min</md-table-head>
+                  <md-table-head md-numeric>Last 15 min</md-table-head>
+                  <md-table-head md-numeric>Last hour</md-table-head>
                 </md-table-row>
               </md-table-header>
 
               <md-table-body>
-                <md-table-row v-for="(data, server) in hostStatus" :key="server">
-                  <md-table-cell>{{ server.replace('https://', '') }}</md-table-cell>
-                  <md-table-cell md-numeric>{{ data.ping }}</md-table-cell>
-                  <md-table-cell md-numeric>{{ data.connections }}</md-table-cell>
+                <md-table-row v-for="(times, host) in hostStatus" :key="k">
+                  <md-table-cell>{{ host }}</md-table-cell>
+                  <md-table-cell md-numeric>{{ Math.round(times[0]) }}ms</md-table-cell>
+                  <md-table-cell md-numeric>{{ Math.round(times[1]) }}ms</md-table-cell>
+                  <md-table-cell md-numeric>{{ Math.round(times[2]) }}ms</md-table-cell>
                 </md-table-row>
               </md-table-body>
             </md-table>
           </md-table-card>
         </md-layout>
       </md-layout>
-
 
       <md-dialog ref="blogPreviewFrame" id="adminPreviewFrame">
         <md-dialog-title>Preview Content</md-dialog-title>
@@ -716,7 +717,6 @@ export default {
       return this.http.get('/admin/search-username', {name: q.q})
     },
     viewUser: async function (user) {
-      console.log('viewu', user)
       if (!user) {
         return
       }
@@ -727,6 +727,9 @@ export default {
     },
     setAsHuman: async function (user_id) {
       await this.http.post('/admin/verify-human-user', {user: user_id})
+    },
+    ping: async function (ip) {
+      return 0
     },
     setUserRole: async function (role, user_id) {
       this.$nextTick(async function() {
@@ -754,14 +757,7 @@ export default {
     LoadStatus: async function (frame) {
       this.statusSelected = frame
       if (frame === 'dataservers') {
-        const servers = [...window.dataServers]
-        servers.sort()
-        servers.forEach(async (server) => {
-          this.$set(this.hostStatus, server, 'Waiting')
-          let t = Date.now()
-          const res = await this.http.get(server + '/admin/status')
-          this.$set(this.hostStatus, server, {ping: (Date.now() - t) + 'ms', connections: res.connections})
-        })
+        this.hostStatus = await this.http.get('/admin/data-servers')
       }
       else if (frame === 'ratelimit') {
         this.status.ratelimit = await this.http.get('/admin/ratelimit')
@@ -892,12 +888,11 @@ export default {
       return rtf.format(Math.round(seconds / 3600 * 10) / 10, 'hour').replace(/ ago/, '')
     },
     calcWagoWeighting (st) {
-      const total = this.streamerList.map(c => c.viewers).reduce((acc, cur) => acc + cur);
+      const total = this.streamerList.map(c => c.viewers || 0).reduce((acc, cur) => acc + cur)
       return (Math.round(st.viewers / total * 1000) / 10) || 0
     },
     saveStreamConfig () {
       this.streamConfig.streams.forEach((st, i) => {
-        console.log(st)
         if (st.channel.toLowerCase() === 'sco') {
           this.$set(this.streamConfig.streams[i], 'channel', 'Sco')
         }
@@ -905,7 +900,7 @@ export default {
           this.$set(this.streamConfig.streams[i], 'channel', 'Method')
         }
       })
-      this.http.post('/admin/stream', {enabled: this.streamConfig.enabled, streams: this.streamConfig.streams}).then((res) => {
+      this.http.post('/admin/stream', {enabled: this.streamConfig.enabled, streams: this.streamConfig.streams, streamspread: this.streamConfig.streamspread}).then((res) => {
 
         if (res.success) {
           window.eventHub.$emit('showSnackBar', 'Stream settings saved.')
@@ -929,7 +924,6 @@ export default {
       if (res && res.value) {
         try {
           let json = JSON.stringify(res, null, 2)
-          console.log(json)
           this.redisValue = json
         }
         catch (e) {
