@@ -6,6 +6,7 @@
           <md-avatar class='square'><category-image :group="'t-blizzhud'"></category-image></md-avatar>
           <h2 id="addon-name">BlizzHUD</h2>
         </md-layout>
+        <div style="margin:16px">BlizzHUD is the new built-in HUD editor in Dragonflight, currently available in beta. Be warned that it's changing rapidly and there may be breaking changes with old imports.</div>
         <addon-info addon="blizzhud"></addon-info>
       </div>
     </md-layout>

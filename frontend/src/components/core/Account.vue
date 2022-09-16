@@ -220,6 +220,7 @@
 
 import WagoOauth from '../UI/WagoOauth.vue'
 import FieldAPIKey from '../UI/WagoApiKey.vue'
+const openCustomProtocol = require('../libs/customProtocolDetection')
 
 export default {
   components: {
@@ -236,6 +237,7 @@ export default {
       uploadAvatar: '',
       uploadAvatarProgress: '',
       uploadAvatarError: false,
+      disableWagoAppWarning: false,
       selectAvatar: '',
       selectProfileVisibility: this.$store.state.user.profileVisibility || 'Public',
       importDefaultVisibility: this.$store.state.user.defaultImportVisibility || 'Public',
@@ -409,6 +411,7 @@ end`,
     },
 
     setTheme (theme) {
+      return
       this.selectTheme = theme
       this.$store.commit('setTheme', theme)
       // set default editor theme
@@ -461,7 +464,6 @@ end`,
       }
 
       if (this.newPassword.length >= 6 && this.confirmPassword.length >= 6 && this.newPassword === this.confirmPassword) {
-        console.log('changing')
         var vue = this
         this.http.post('/auth/changepass', {
           newPass: this.newPassword,
@@ -505,6 +507,46 @@ end`,
           window.eventHub.$emit('showSnackBar', vue.$t('Error could not save'))
         })
       })
+    },
+
+    async sendToWagoApp (checkWarning) {
+      if (!this.$store.state.user.apiKey) {
+        var result = await this.http.post('/account/api-key')
+        this.loading = false
+        if (result && result.key) {
+          var user = this.$store.state.user
+          user.apiKey = result.key
+          this.$store.commit('setUser', user)
+        }
+        else {
+          window.eventHub.$emit('showSnackBar', this.$t('An error occurred'))
+          return
+        }
+      }
+      if (this.disableWagoAppWarning) {
+        window.localStorage.setItem('Wago-App-Warning-Disabled', '1')
+      }
+      if (checkWarning && !window.localStorage.getItem('Wago-App-Warning-Disabled')) {
+        this.$refs.linkWagoAppDialog.open()
+        return
+      }
+      openCustomProtocol(`wago-app://weakauras/link?key=${this.$store.state.user.apiKey}`,
+        () => {
+          // fail
+          // this.$router.push('/wa-companion')
+          window.eventHub.$emit('showSnackBar', this.$t('Unable to detect Wago App, please make sure you have it installed and running'))
+        },
+        () => {
+          // success
+          window.eventHub.$emit('showSnackBar', this.$t('Successfully linked to Wago App'))
+        },
+        () => {
+          // unsupported
+          // this.$router.push('/wa-companion')
+          window.eventHub.$emit('showSnackBar', this.$t('Unable to detect Wago App, please make sure you have it installed and running'))
+        }
+      )
+    },
     }
   }
 }

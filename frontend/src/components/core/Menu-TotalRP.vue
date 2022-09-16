@@ -66,7 +66,6 @@ export default {
       this.$router.push('/search/' + this.searchString.trim().replace(/\s+/g, '+'))
     },
     searchRoute: function (item) {
-      console.log(item)
       if (typeof item === 'string') {
         item = window.Categories.match(item)
       }

@@ -95,7 +95,6 @@ export default {
   watch: {
     customCodeIndex: async function (newIndex, oldIndex) {
       const unsavedTableState = this.unsavedTable
-      console.log('unsavedTableState', unsavedTableState)
       if (oldIndex === -1) {
         let table = this.aceEditor.getValue()
         this.$store.commit('setWagoJSON', table)

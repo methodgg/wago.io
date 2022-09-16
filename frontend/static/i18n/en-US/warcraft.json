@@ -1,9 +1,4 @@
 {
-  "temp": {
-    "Evoker": "Evoker",
-    "Preservation": "Preservation",
-    "Devastation": "Devastation"
-  },
   "classes": {
     "1": "Warrior",
     "2": "Paladin",
@@ -17,6 +12,7 @@
     "10": "Monk",
     "11": "Druid",
     "12": "Demon Hunter",
+    "13": "Evoker",
     "1-1": "Arms",
     "1-2": "Fury",
     "1-3": "Protection",
@@ -1369,7 +1365,15 @@
     "2467": "Rygelon",
     "2468": "Antros",
     "2469": "Anduin Wrynn",
-    "2470": "Artificer Xy'mox"
+    "2470": "Artificer Xy'mox",
+    "2480": "Eranog",
+    "2482": "Sennarth, The Cold Breath",
+    "2486": "The Primalist Council",
+    "2491": "Kurog Grimtotem",
+    "2493": "Broodkeeper Diurna",
+    "2499": "Raszageth the Storm-Eater",
+    "2500": "Terros",
+    "2502": "Dathea, Ascended"
   },
   "expansions": {
     "68": "Classic",
@@ -1547,8 +1551,17 @@
     "1192": "Shadowlands",
     "1193": "Sanctum of Domination",
     "1194": "Tazavesh, the Veiled Market",
-    "1195": "Sepulcher of the First Ones"
-  },
+    "1195": "Sepulcher of the First Ones",
+    "1196": "Brackenhide Hollow",
+    "1197": "Uldaman: Legacy of Tyr",
+    "1198": "The Nokhud Offensive",
+    "1199": "Neltharus",
+    "1200": "Vault of the Incarnates",
+    "1201": "Taz'algeth Academy",
+    "1202": "Ruby Life Pools",
+    "1203": "The Azure Vault",
+    "1204": "Halls of Infusion"
+  },    
   "specs": {
     "62": "Arcane",
     "63": "Fire",
@@ -1585,6 +1598,8 @@
     "269": "Windwalker",
     "270": "Mistweaver",
     "577": "Havoc",
-    "581": "Vengeance"
+    "581": "Vengeance",
+    "1467": "Devastation",
+    "1468": "Preservation"
   }
 }

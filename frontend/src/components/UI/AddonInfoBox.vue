@@ -44,6 +44,10 @@ export default {
           links.push({url: searchURL, name: this.$t('Search Collections')})
           break
 
+        case 'blizzhud':
+          links.push({url: searchURL, name: this.$t('Search BlizzHUD'), domain: 0})
+          break
+
         case 'delvui':
           links.push({url: searchURL, name: this.$t('Search DelvUI'), domain: 1})
           links.push({url: 'https://github.com/DelvUI/DelvUI', name: this.$t('View DelvUI Website')})

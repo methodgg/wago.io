@@ -205,7 +205,7 @@ export default {
     else if (this.code) {
       this.$auth.oauth2(this.provider, {
         code: true,
-        url: 'https://data1.wago.io/auth/' + this.provider,
+        url: 'https://data.wago.io/auth/' + this.provider,
         data: {
           code: this.code
         },

@@ -112,9 +112,7 @@ export default {
   },
   watch: {
     customCodeIndex: async function (newIndex, oldIndex) {
-      console.log(this.codeReview)
       const unsavedTableState = this.unsavedTable
-      console.log('unsavedTableState', unsavedTableState)
       if (oldIndex === -1) {
         let table = this.aceEditor.getValue()
         this.$store.commit('setWagoJSON', table)
@@ -164,8 +162,6 @@ export default {
     if (this.loadFn) {
       this.loadByKeypath(this.loadFn)
     }
-
-    console.log(this.customCode)
   },
   methods: {
     editorInit: function (editor) {
@@ -214,7 +210,6 @@ export default {
 
     formatCode: function () {
       var lua = this.aceEditor.getValue()
-      console.log(lua)
       lua = luamin.Beautify(lua, {})
       this.aceEditor.setValue(lua, -1)
     },

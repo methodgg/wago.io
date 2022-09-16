@@ -82,12 +82,13 @@
       <div id="searchResults">
         <ui-loading v-if="isSearching"></ui-loading>
         <md-layout md-column v-else-if="!isSearching && results.results && results.results.length">
-          <advert ad="desktop_in_article" v-if="results.results.length > 9" :container="false" />
           <template v-for="(result, index) in results.results">
-            <div v-if="index && index % 9 === 0 && $store.state.advertSetup" class="wago-in-article-ad-container ad-in-search">
-              <span class="wago-advert-text">{{ $t('Advertisement') }} - <a href="https://www.patreon.com/wago" target="_blank" rel="noopener" class="wago-advert-patreon">{{ $t('Hide Ads with Patreon') }}</a></span>
-              <div class="ad-box">
-              </div>
+            <div v-if="index && index % 9 === 0 && $store.state.advertSetup" v-bind:key="index" class="wago-in-article-ad-container ad-in-search">
+              <span class="wago-advert-text" v-if="!$store.state.advertBlocked">{{ $t('Advertisement') }} - <a href="https://www.patreon.com/wago" target="_blank" rel="noopener" class="wago-advert-patreon">{{ $t('Hide Ads with Patreon') }}</a></span>
+              <advert :ad="'leaderboard-search-' + Math.round(index / 9)" v-if="results.results.length > 9" :container="$store.state.advertBlocked" />
+              <div :id="'leaderboard-search-' + Math.round(index / 9)"></div>
+              <advert :ad="'mobile-search-' + Math.round(index / 9)" v-if="results.results.length > 9" :container="$store.state.advertBlocked" />
+              <div :id="'mobile-search-' + Math.round(index / 9)"></div>
             </div>
             <div class="searchResult codeResult" v-if="result && results.index === 'code'" v-bind:key="index">
               <div class="searchText">
@@ -232,8 +233,10 @@ export default {
       // setup watcher to exec on demand
     },
     searchSort (val) {
-      window.localStorage.setItem('searchSort', val)
-      this.runSearch(this.$store.state.execSearch, true)
+      this.$nextTick(() => {
+        window.localStorage.setItem('searchSort', val)
+        this.runSearch(this.$store.state.execSearch, true)
+      })
     },
     searchMode (val) {
       let q = this.$store.state.siteSearch
@@ -327,13 +330,20 @@ export default {
       else if (item.expansion === 8) {
         return 'SL-'
       }
+      else if (item.expansion === 9) {
+        return 'DF-'
+      }
 
       return ''
     },
     runSearch: function (sid, force) {
       this.$nextTick(() => {
         let query = this.$store.state.siteSearch.trim().replace(/\s{2,}/g, ' ')
-        if (!force && (!query || (!force && (sid !== this.$store.state.execSearch || (this.searchParams.q.toLowerCase() === query.toLowerCase() && this.searchParams.mode === this.$store.state.searchMode))))) {
+        let allowEmpty = false
+        if (this.$store.state.searchMode.match(/starred/)) {
+          allowEmpty = true
+        }
+        if (!force && ((!query && !allowEmpty) || (!force && (sid !== this.$store.state.execSearch || (this.searchParams.q.toLowerCase() === query.toLowerCase() && this.searchParams.mode === this.$store.state.searchMode))))) {
           return
         }
 
@@ -558,6 +568,7 @@ export default {
     padding: 16px 0 32px 0;
     .wago-advert-text {
       font-size: 80%;
+      z-index: 99999;
     }
     & > div {
       padding: 0 0 0 0;

@@ -82,8 +82,9 @@ export default {
   },
   computed: {
     aClasses: function () {
-      var cats = window.Categories.classCategories()
-      return [[cats[0], cats[1], cats[2], cats[3]], [cats[4], cats[5], cats[6], cats[7]], [cats[8], cats[9], cats[10], cats[11]]]
+      const cats = window.Categories.classCategories()
+      const n = cats.length / 3
+      return [[...cats.splice(0, Math.ceil(n))], [...cats.splice(0, Math.round(n))], [...cats]]
     },
     professions: function () {
       var cats = window.Categories.professionCategories()

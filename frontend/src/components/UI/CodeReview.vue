@@ -129,7 +129,6 @@ export default {
             if (id.match(/EveryFrame/)) {
               this.enableEveryFrameForm = true
             }
-            console.log(id, item)
             let line
             if (item.keypath) {
               line = item.display.replace(/'(.*?)'/g, `<span class="colnum linkedFn" id="fnLink${this.incrID}">\'$1\'</span>`)
@@ -280,7 +279,6 @@ export default {
       }
     },
     submitComment: function (type) {
-      console.log('submit comment', this.falsePositive)
       this.http.post('/comments/codereview', {
         wagoID: this.$store.state.wago._id,
         text: this.commentText,

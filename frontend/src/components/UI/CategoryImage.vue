@@ -76,6 +76,7 @@
     <img src="./../../assets/menu-opie.png" v-else-if="group === 't-opie'"/>
     <img src="./../../assets/menu-vuhdo.png" v-else-if="group === 't-vuhdo'"/>
     <img src="./../../assets/menu-trpcamp.png" v-else-if="group === 't-totalrp' || group === 't-totalrp3'"/>
+    <img src="./../../assets/menu-blizzhud.png" v-else-if="group === 't-blizzhud'"/>
     <img src="./../../assets/menu-plater.png" v-else-if="group === 't-plater'"/>
     <img src="./../../assets/menu-encounternotes.png" v-else-if="group === 't-encounternotes'"/>
     <img src="./../../assets/delvui.png" v-else-if="group === 't-delvui'"/>

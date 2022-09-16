@@ -12,7 +12,7 @@
 .search-input .ql-editor .search-tag.tag-user { background-image: url('menu-user.png'); padding-left: 20px; background-position: 4px 2px; background-size: 20px 20px; background-repeat: no-repeat}
 
 body iframe:not(.md-image) {
-  height: inherit;
+  height: revert-layer;
 }
 
 /**************

@@ -1,7 +1,7 @@
 <template>
   <div id="notification-banner" v-if="enabled">
     <div id="notification-msg"><slot /></div>
-    <md-button class="md-icon-button md-flat" @click="closeNotification">
+    <md-button v-if="!preventClose" class="md-icon-button md-flat" @click="closeNotification">
       <md-icon>close</md-icon>
     </md-button> 
   </div>
@@ -9,7 +9,7 @@
 
 <script>
 export default {
-  props: ['id'],
+  props: ['id', 'preventClose'],
   data: function () {
     return {
       enabled: false
@@ -17,13 +17,16 @@ export default {
   },
   methods: {
     closeNotification () {
+      if (this.preventClose) {
+        return
+      }
       this.enabled = false
       window.localStorage.setItem('notification-'+this.id, 'closed')
     }
   },
   created: function () {
     var closed = window.localStorage.getItem('notification-'+this.id)
-    if (!closed) {
+    if (!closed || this.preventClose) {
       this.enabled = true
       this.$nextTick(() => {
         const height = document.getElementById('notification-banner').clientHeight
