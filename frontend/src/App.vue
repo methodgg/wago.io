@@ -48,6 +48,7 @@
           <md-list-item><router-link to='/news'>{{ $t("Site News") }}</router-link></md-list-item>
           <md-list-item><a href="https://addons.wago.io">Wago Addons</a><md-divider></md-divider></md-list-item>
           <md-list-item class="menu-section">World of Warcraft</md-list-item>
+          <md-list-item><router-link to='/blizzhud'>BlizzHUD</router-link></md-list-item>
           <md-list-item><router-link to='/dbm'>DBM</router-link></md-list-item>
           <md-list-item><router-link to='/elvui'>ElvUI</router-link></md-list-item>
           <!--<md-list-item v-if="User && User.access && User.access.beta"><router-link to='/create-new-note'>Encounter Notes [Beta]</router-link></md-list-item>-->
@@ -56,7 +57,8 @@
           <md-list-item><router-link to='/plater'>Plater Nameplates</router-link></md-list-item>
           <md-list-item><router-link to='/totalrp'>Total RP</router-link></md-list-item>
           <md-list-item><router-link to='/vuhdo'>VuhDo</router-link></md-list-item>
-          <md-list-item><router-link to='/weakauras'>WeakAuras</router-link><md-divider></md-divider></md-list-item>
+          <md-list-item><router-link to='/shadowlands-weakauras'>Shadowlands WeakAuras</router-link><md-divider></md-divider></md-list-item>
+          <md-list-item><router-link to='/dragonflight-weakauras'>Dragonflight WeakAuras</router-link><md-divider></md-divider></md-list-item>
           <md-list-item><router-link to='/classic-weakauras'>Classic WeakAuras</router-link><md-divider></md-divider></md-list-item>
           <md-list-item><router-link to='/tbc-weakauras'>TBC WeakAuras</router-link><md-divider></md-divider></md-list-item>
           <md-list-item><router-link to='/wotlk-weakauras'>WotLK WeakAuras</router-link><md-divider></md-divider></md-list-item>
@@ -78,13 +80,16 @@
               <div class="md-list-text-container">
                   WeakAuras
                 <span class="game-select">
-                  <router-link to='/weakauras'>Shadowlands</router-link> -
+                    <router-link to='/shadowlands-weakauras'>Shadowlands</router-link> -
+                    <router-link to='/dragonflight-weakauras'>Dragonflight</router-link>
+                  </span>
+                  <span class="game-select">
                   <router-link to='/classic-weakauras'>Classic</router-link> -
-                    <router-link to='/tbc-weakauras'>TBC</router-link> -
                     <router-link to='/wotlk-weakauras'>WotLK</router-link>
                 </span>
               </div>
             </router-link>
+              <router-link to='/blizzhud'>BlizzHUD</router-link>
               <router-link to='/elvui'>ElvUI</router-link>
               <router-link to='/opie'>OPie</router-link>
               <router-link to='/plater'>Plater Nameplates</router-link>

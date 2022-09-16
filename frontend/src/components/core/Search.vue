@@ -461,7 +461,6 @@ export default {
     }
     if (this.contextSearch) {
       initialSearch += this.contextSearch
-      console.log('init search', initialSearch)
       if (this.contextSearch.match(/!comments!/) && !mode) {
         mode = 'comments'
       }

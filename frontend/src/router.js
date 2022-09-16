@@ -12,6 +12,7 @@ const MenuWeakAurasLegion = resolve => require(['@/components/core/Menu-WeakAura
 const MenuWeakAurasClassic = resolve => require(['@/components/core/Menu-WeakAuras-Classic.vue'], resolve)
 const MenuWeakAurasTBC = resolve => require(['@/components/core/Menu-WeakAuras-TBC.vue'], resolve)
 const MenuWeakAurasWotLK = resolve => require(['@/components/core/Menu-WeakAuras-WotLK.vue'], resolve)
+const MenuBlizzHUD = resolve => require(['@/components/core/Menu-BlizzHud.vue'], resolve)
 const MenuElvUI = resolve => require(['@/components/core/Menu-ElvUI.vue'], resolve)
 const MenuVuhdo = resolve => require(['@/components/core/Menu-Vuhdo.vue'], resolve)
 const MenuTotalRP = resolve => require(['@/components/core/Menu-TotalRP.vue'], resolve)
@@ -157,6 +158,11 @@ export default {
     { path: '/elvui/:c1/:c2', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'elvui'), contextDomain: 0 }) },
     { path: '/elvui/:c1/:c2/:c3', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'elvui'), contextDomain: 0 }) },
     { path: '/elvui/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'elvui'), contextDomain: 0 }) },
+    { path: '/blizzhud', component: MenuBlizzHUD },
+    { path: '/blizzhud/:c1', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'blizzhud'), contextDomain: 0 }) },
+    { path: '/blizzhud/:c1/:c2', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'blizzhud'), contextDomain: 0 }) },
+    { path: '/blizzhud/:c1/:c2/:c3', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'blizzhud'), contextDomain: 0 }) },
+    { path: '/blizzhud/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'blizzhud'), contextDomain: 0 }) },
     { path: '/vuhdo', component: MenuVuhdo },
     { path: '/vuhdo/:c1', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'vuhdo'), contextDomain: 0 }) },
     { path: '/vuhdo/:c1/:c2', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'vuhdo'), contextDomain: 0 }) },
@@ -227,10 +233,10 @@ export default {
     { path: '/snippets/:c1/:c2/:c3', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'Snippet') }) },
     { path: '/snippets/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'Snippet') }) },
 
-    { path: '/p/classic/:profile', component: ViewProfile, props: (route) => ({ contextSearch: 'User: ' + route.params.profile }) },
-    { path: '/p/:profile', component: ViewProfile, props: (route) => ({ contextSearch: 'User: ' + route.params.profile }) },
+    { path: '/p/classic/:profile', component: ViewProfile, props: (route) => ({ contextSearch: 'User:' + route.params.profile }) },
+    { path: '/p/:profile', component: ViewProfile, props: (route) => ({ contextSearch: 'User:' + route.params.profile }) },
     { path: '/my/stars', component: Search, props: (route) => ({ contextSearch: '!starred!' }) },
-    { path: '/my/mentions', component: Search, props: (route) => ({ contextSearch: '!mentions!' }) },
+    { path: '/my/mentions', component: Search, props: (route) => ({ contextSearch: '!comments! mentions:Unread' }) },
 
     // pages
     { path: '/wa-companion', component: WACompanion },

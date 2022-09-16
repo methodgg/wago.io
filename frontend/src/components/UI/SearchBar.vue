@@ -184,6 +184,7 @@ export default {
           {regex: /(.*)(type:\s?OPie)(.*)/i, name: 'OPie', class:'imptype type-opie', search: 'type:opie'},
           {regex: /(.*)(type:\s?TotalRP3?)(.*)/i, name: 'Total RP', class:'imptype type-totalrp', search: 'type:totalrp3'},
           {regex: /(.*)(type:\s?DBM)(.*)/i, name: 'DBM', class:'imptype type-dbm', search: 'type:dbm'},
+          {regex: /(.*)(type:\s?BlizzHUD)(.*)/i, name: 'BlizzHUD', class:'imptype type-blizzhud', search: 'type:blizzhud'},
           {regex: /(.*)(type:\s?Collection?)(.*)/i, name: 'Collection', class:'imptype type-collection', search: 'type:collection'},
           {regex: /(.*)(type:\s?Snippet?)(.*)/i, name: 'Snippet', class:'imptype type-snippet', search: 'type:snippet'},
         ]
@@ -195,7 +196,7 @@ export default {
       }
       else {
         return [
-          {regex: /(.*)(expansion:\s?(:?df|dragonflight))(.*)/i, name: 'Dragonflight', class:'expansion exp-df', search: 'expansion:sl'},
+          {regex: /(.*)(expansion:\s?(:?df|dragonflight))(.*)/i, name: 'Dragonflight', class:'expansion exp-df', search: 'expansion:df'},
           {regex: /(.*)(expansion:\s?(:?sl|shadowlands))(.*)/i, name: 'Shadowlands', class:'expansion exp-sl', search: 'expansion:sl'},
           {regex: /(.*)(expansion:\s?bfa|battle for azeroth)(.*)/i, name: 'Battle for Azeroth', class:'expansion exp-bfa', search: 'expansion:bfa'},
           {regex: /(.*)(expansion:\s?legion)(.*)/i, name: 'Legion', class:'expansion exp-legion', search: 'expansion:legion'},
@@ -424,7 +425,6 @@ export default {
               break
             }
             else {
-              console.log('gdfgdfdf')
               this.dropdownMenu = 'mentions'
             }
           }

@@ -502,13 +502,15 @@ export default {
           Categories.getCategories('raidsepulcherfirst')[0],
           Categories.getCategories('sltimewalking')[0],
         ],
-        tbc: [
-          Categories.getCategories('raidbt')[0],
-          Categories.getCategories('raidmthyjal')[0],
+        wotlk: [
+          Categories.getCategories('raidnaxxramas')[0],
+          Categories.getCategories('raidsarth')[0],
         ],
         classic: [
-          Categories.getCategories('raidzulgurub')[0],
-          Categories.getCategories('raidworld')[0],
+          Categories.getCategories('raidnaxxramas')[0],
+          Categories.getCategories('raidtempleaq')[0],
+          // Categories.getCategories('raidruinsaq')[0],
+          // Categories.getCategories('raidworld')[0],
         ]
       }
     },

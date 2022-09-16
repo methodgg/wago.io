@@ -26,7 +26,7 @@
             <span>{{ displayExpansion(wago) }}{{ wago.type }}</span>
           </div>
         </h1>
-        <div v-if="wago.type.match(/WEAKAURA|PLATER/) && !wago.visibility.encrypted" id="sendToDesktopAppBtn" class="md-hide-xsmall md-button copy-import-button" @click="sendToApp()">
+        <div v-if="wago.type.match(/WEAKAURA|PLATER/) && wago.visibility && !wago.visibility.encrypted" id="sendToDesktopAppBtn" class="md-hide-xsmall md-button copy-import-button" @click="sendToApp()">
           <md-icon>airplay</md-icon> {{ $t("Send to Desktop App") }}
           <md-button @click.stop="sendToApp('ask')" id="helpAppButton" class="md-icon-button md-raised"><md-icon>help</md-icon></md-button>
         </div>
@@ -1697,8 +1697,13 @@ export default {
           case 'WEAKAURA':
           case 'CLASSIC-WEAKAURA':
           case 'TBC-WEAKAURA':
+          case 'WOTLK-WEAKAURA':
             this.showPanel = this.wago.description.text ? 'description' : 'editor'
-            if (this.wago.game === 'tbc') {
+            if (this.wago.game === 'wotlk') {
+              this.wago.typePrefix = 'WOTLK'
+              this.typeSlug = 'wotlk-weakauras/'
+            }
+            else if (this.wago.game === 'tbc') {
               this.wago.typePrefix = 'TBC'
               this.typeSlug = 'tbc-weakauras/'
             }
@@ -1706,9 +1711,20 @@ export default {
               this.wago.typePrefix = 'CLASSIC'
               this.typeSlug = 'classic-weakauras/'
             }
+            else if (this.wago.game === 'legion') {
+              this.wago.typePrefix = 'LEGION'
+              this.typeSlug = 'legion-weakauras/'
+            }
+            else if (this.wago.game === 'bfa') {
+              this.wago.typePrefix = 'BFA'
+              this.typeSlug = 'bfa-weakauras/'
+            }
             else {
               this.typeSlug = 'weakauras/'
             }
+            break
+          case 'BLIZZHUD':
+            this.showPanel = this.wago.description.text ? 'description' : 'hudsettings'
             break
           default:
             this.showPanel = 'description'

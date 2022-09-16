@@ -25,9 +25,9 @@ class Categories {
       'cl11-3': {slug: 'classes/druid/guardian', i18n: 'warcraft:specs.104', domain: 0, parent: 'cl11', games: ['legion', 'bfa', 'sl', 'df']},
       'cl11-4': {slug: 'classes/druid/restoration', i18n: 'warcraft:specs.105', domain: 0, parent: 'cl11'},
 
-      'cl13': {slug: 'classes/evoker', image: 'evoker.png', color: '#33937F', i18n: 'warcraft:temp.Evoker', domain: 0, games: ['df']},
-      'cl13-1': {slug: 'classes/evoker/devastation', cls:'cl-demonhunter', i18n: 'warcraft:temp.Devastation', domain: 0, parent: 'cl13', games: ['df']},
-      'cl13-2': {slug: 'classes/evoker/preservation', i18n: 'warcraft:temp.Preservation', domain: 0, parent: 'cl13', games: ['df']},
+      'cl13': {slug: 'classes/evoker', image: 'evoker.png', color: '#33937F', i18n: 'warcraft:classes.13', domain: 0, games: ['df']},
+      'cl13-1': {slug: 'classes/evoker/devastation', cls:'cl-demonhunter', i18n: 'warcraft:specs.1467', domain: 0, parent: 'cl13', games: ['df']},
+      'cl13-2': {slug: 'classes/evoker/preservation', i18n: 'warcraft:specs.1468', domain: 0, parent: 'cl13', games: ['df']},
 
       'cl3': {slug: 'classes/hunter', image: 'hunter.png', color: '#ABD473', i18n: 'warcraft:classes.3', domain: 0},
       'cl3-1': {slug: 'classes/hunter/beast-mastery', i18n: 'warcraft:specs.253', domain: 0, parent: 'cl3'},
@@ -111,7 +111,25 @@ class Categories {
       'role3': {slug: 'class-roles/tanking', i18n: 'Tanking', domain: 0, parent: 'role0'},
 
       // dragonflight      
+      'raidvaultincarnates': {slug: 'pve/vault-of-the-incarnates', image: 'vaultincarnates.png', color: '#3192F4', i18n: 'warcraft:instances.1200', domain: 0, types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
+      'raidvaultincarnates1': {slug: 'pve/vault-of-the-incarnates/eranog', i18n: 'warcraft:encounters.2480', domain: 0, parent: 'raidvaultincarnates', types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
+      'raidvaultincarnates2': {slug: 'pve/vault-of-the-incarnates/sennarth-the-cold-breath', i18n: 'warcraft:encounters.2482', domain: 0, parent: 'raidvaultincarnates', types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
+      'raidvaultincarnates3': {slug: 'pve/vault-of-the-incarnates/the-primalist-council', i18n: 'warcraft:encounters.2486', domain: 0, parent: 'raidvaultincarnates', types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
+      'raidvaultincarnates4': {slug: 'pve/vault-of-the-incarnates/kurog-grimtotem', i18n: 'warcraft:encounters.2491', domain: 0, parent: 'raidvaultincarnates', types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
+      'raidvaultincarnates5': {slug: 'pve/vault-of-the-incarnates/broodkeeper-diurna', i18n: 'warcraft:encounters.2493', domain: 0, parent: 'raidvaultincarnates', types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
+      'raidvaultincarnates6': {slug: 'pve/vault-of-the-incarnates/raszageth-the-storm-eater', i18n: 'warcraft:encounters.2499', domain: 0, parent: 'raidvaultincarnates', types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
+      'raidvaultincarnates7': {slug: 'pve/vault-of-the-incarnates/terros', i18n: 'warcraft:encounters.2500', domain: 0, parent: 'raidvaultincarnates', types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
+      'raidvaultincarnates8': {slug: 'pve/vault-of-the-incarnates/dathea-ascended', i18n: 'warcraft:encounters.2502', domain: 0, parent: 'raidvaultincarnates', types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
+
       'dfdungeon': {slug: 'pve/dragonflight-dungeons', image: 'dungeon.png', color: '#F5A623', i18n: 'Dragonflight Dungeons', domain: 0, types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
+      'dfdungeon1': {slug: 'pve/dragonflight-dungeons/brackenhide-hollow', i18n: 'warcraft:instances.1196', domain: 0, parent: 'dfdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
+      'dfdungeon2': {slug: 'pve/dragonflight-dungeons/uldaman-legacy-of-tyr', i18n: 'warcraft:instances.1197', domain: 0, parent: 'dfdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
+      'dfdungeon3': {slug: 'pve/dragonflight-dungeons/the-nokhud-offensive', i18n: 'warcraft:instances.1198', domain: 0, parent: 'dfdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
+      'dfdungeon4': {slug: 'pve/dragonflight-dungeons/neltharus', i18n: 'warcraft:instances.1199', domain: 0, parent: 'dfdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
+      'dfdungeon5': {slug: 'pve/dragonflight-dungeons/tazalgeth-acadamy', i18n: 'warcraft:instances.1201', domain: 0, parent: 'dfdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
+      'dfdungeon6': {slug: 'pve/dragonflight-dungeons/ruby-life-pools', i18n: 'warcraft:instances.1202', domain: 0, parent: 'dfdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
+      'dfdungeon7': {slug: 'pve/dragonflight-dungeons/the-azure-vault', i18n: 'warcraft:instances.1203', domain: 0, parent: 'dfdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
+      'dfdungeon8': {slug: 'pve/dragonflight-dungeons/halls-of-infusion', i18n: 'warcraft:instances.1204', domain: 0, parent: 'dfdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
 
       // shadowlands
       'raidsepulcherfirst': {slug: 'pve/sepulcher-of-the-first-ones', image: 'sepulcherfirst.png', color: '#50FFEA', i18n: 'warcraft:instances.1195', domain: 0, types: ['WEAKAURA', 'COLLECTION'], games: ['sl']},
@@ -961,7 +979,6 @@ class Categories {
     let children = []
     for (const cat of Object.values(this.categories)) {
       if (cat.parent === parent && (!addon || !cat.types || cat.types.indexOf(addon) >= 0) && (!game || !cat.games || cat.games.indexOf(game) >= 0)) {
-        console.log(cat)
         children.push(cat)
       }
     }

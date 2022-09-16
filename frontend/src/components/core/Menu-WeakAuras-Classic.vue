@@ -171,7 +171,6 @@ export default {
   },
   computed: {
     classes: function () {
-      console.log(window.Categories.classCategories('WEAKAURA', 'classic'))
       return window.Categories.classCategories('WEAKAURA', 'classic')
     },
     raids: function () {
