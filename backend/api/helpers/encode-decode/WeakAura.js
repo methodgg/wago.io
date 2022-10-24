@@ -288,6 +288,10 @@ module.exports = {
           wago.type = 'WEAKAURA'
           wago.game = 'sl'
         }
+        else if ((json.d.tocversion+'').match(/^100/)) {
+          wago.type = 'WEAKAURA'
+          wago.game = 'df'
+        }
       }
 
       json = sortJSON(json)
