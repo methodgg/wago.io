@@ -20,7 +20,9 @@
       </md-list>
       <md-list v-else-if="dropdownMenu === 'expansion' && !domain">
         <md-list-item><h4>{{ $t('Expansion Options') }}<span class="close-search" @click="clearSearch(/expansion:\s*/i)">✖</span></h4></md-list-item>
+        <md-list-item @click="replaceSearchText(/expansion:\s*/i, 'expansion:df')">{{ $t('Dragonflight') }}</md-list-item>
         <md-list-item @click="replaceSearchText(/expansion:\s*/i, 'expansion:sl')">{{ $t('Shadowlands') }}</md-list-item>
+        <md-list-item @click="replaceSearchText(/expansion:\s*/i, 'expansion:wotlk')">{{ $t('Wrath of the Lich King Classic') }}</md-list-item>
         <md-list-item @click="replaceSearchText(/expansion:\s*/i, 'expansion:tbc')">{{ $t('The Burning Crusade Classic') }}</md-list-item>
         <md-list-item @click="replaceSearchText(/expansion:\s*/i, 'expansion:classic')">{{ $t('Classic') }}</md-list-item>
         <md-list-item><em>{{ $t('Expansion filter is only applied to WeakAura imports') }}</em></md-list-item>

@@ -174,6 +174,9 @@ module.exports = function (fastify, opts, next) {
         else if ((decoded.obj.d.tocversion+'').match(/^90/)) {
           scan.game = 'sl'
         }
+        else if ((decoded.obj.d.tocversion+'').match(/^100/)) {
+          scan.game = 'df'
+        }
       }
       const scanDoc = await scan.save()
 

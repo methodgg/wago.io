@@ -106,10 +106,8 @@ async function searchElastic (req, res) {
   else if (searchIndex.match(/import|code/) && searchMode !== 'stars') {
     // if no expansion is specified then default to the current games
     defaultFilterExpansion = []
-    defaultFilterExpansion.push({term: {expansion: {value: expansionIndex('sl')}}})
+    defaultFilterExpansion.push({term: {expansion: {value: expansionIndex('df')}}})
     defaultFilterExpansion.push({term: {expansion: {value: expansionIndex('wotlk')}}})
-    defaultFilterExpansion.push({term: {expansion: {value: expansionIndex('tbc')}}})
-    defaultFilterExpansion.push({term: {expansion: {value: expansionIndex('classic')}}})
     defaultFilterExpansion.push({term: {expansion: {value: -1}}})
   }
   if (filterExpansion.length) {
