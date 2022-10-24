@@ -20,6 +20,9 @@ var patches = [
   {date: moment('2019-12-19T03:00:00Z'), game: 'classic', patch: "WoW Classic 1.13.3", domain: 0},
   {date: moment('2019-05-17T03:00:00Z'), game: 'classic', patch: "WoW Classic 1.13.2", domain: 0},
 
+  {date: moment('2022-11-28T03:00:00Z'), game: 'df', patch: "Dragonflight 10.0.0", base: true, domain: 0},
+  {date: moment('2022-10-25T03:00:00Z'), game: 'df', patch: "Dragonflight Pre-patch 10.0.0", base: true, domain: 0},
+  {date: moment('2022-09-01T03:00:00Z'), game: 'df', patch: "Dragonflight Beta 10.0.0", base: true, domain: 0},
   {date: moment('2022-08-01T03:00:00Z'), game: 'df', patch: "Dragonflight Alpha 10.0.0", base: true, domain: 0},
 
   {date: moment('2022-02-22T03:00:00Z'), game: 'sl', patch: "Shadowlands 9.2.0", base: true, domain: 0},
