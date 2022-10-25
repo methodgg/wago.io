@@ -1,4 +1,5 @@
 const getCode = require('../code-detection/get-code')
+const patchDates = require('../patchDates')
 
 module.exports = {
   typeMatch: /^PLATER$/,
@@ -57,26 +58,7 @@ module.exports = {
 
     meta.type = 'PLATER'
 
-    if (obj.tocversion) {
-      if ((obj.tocversion+'').match(/^11/)) {
-        meta.game = 'classic'
-      }
-      else if ((obj.tocversion+'').match(/^20/)) {
-        meta.game = 'tbc'
-      }
-      else if ((obj.tocversion+'').match(/^30/)) {
-        meta.game = 'wotlk'
-      }
-      else if ((obj.tocversion+'').match(/^80/)) {
-        meta.game = 'bfa'
-      }
-      else if ((obj.tocversion+'').match(/^90/)) {
-        meta.game = 'sl'
-      }
-      else if ((obj.tocversion+'').match(/^100/)) {
-        meta.game = 'df'
-      }
-    }
+    meta.game = patchDates.gameVersion(obj.tocversion)
 
     if (obj.url) {
       let m = obj.url.match(/https:\/\/wago.io\/([^\/]+)\//)

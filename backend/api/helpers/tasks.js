@@ -984,6 +984,12 @@ async function ProcessCode(data) {
       case 'WOTLK-WEAKAURA':
     case 'PLATER':
       var json = JSON.parse(code.json)
+        try {
+          doc.game = patchDates.gameVersion(json.tocVersion || json.d.tocVersion) 
+        }
+        catch {
+          doc.game = patchDates.gameVersion() 
+        }
         code.customCode = await CodeReview(getCode(json, doc.type), doc)
         const tableMetrics = TableReview(json)
         tableMetrics.dependencies = [...tableMetrics.dependencies]

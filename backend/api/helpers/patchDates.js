@@ -71,5 +71,33 @@ module.exports = {
     }
     // there shouldn't ever be any imports that can possibly reach here
     return patches[patches.length-1].patch
+  },
+
+  gameVersion: function (tocversion) {
+    tocversion = parseInt(tocversion)
+    if (tocversion >= 100000) {
+      return 'df'
+    }
+    else if (tocversion >= 90000) {
+      return 'sl'
+    }
+    else if (tocversion >= 80000) {
+      return 'bfa'
+    }
+    else if (tocversion >= 70000) {
+      return 'legion'
+    }
+    else if (tocversion >= 30000) {
+      return 'wotlk'
+    }
+    else if (tocversion >= 20000) {
+      return 'tbc'
+    }
+    else if (tocversion >= 10000) {
+      return 'classic'
+    }
+    else {
+      return this.gameVersion(100000000) // default to the latest
+    }
   }
 }

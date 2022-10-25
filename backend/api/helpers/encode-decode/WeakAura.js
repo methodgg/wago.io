@@ -1,4 +1,5 @@
 const getCode = require('../code-detection/get-code')
+const patchDates = require('../patchDates')
 
 module.exports = {
   typeMatch: /^(CLASSIC-|TBC-|WOTLK-)?WEAKAURA$/i,
@@ -125,29 +126,10 @@ module.exports = {
     meta.type = 'WEAKAURA'
 
     // check for game import
-    if (obj.d.tocversion) {
-      if ((obj.d.tocversion+'').match(/^11/)) {
-        meta.type = 'CLASSIC-WEAKAURA'
-        meta.game = 'classic'
-      }
-      else if ((obj.d.tocversion+'').match(/^20/)) {
-        meta.type = 'TBC-WEAKAURA'
-        meta.game = 'tbc'
-      }
-      else if ((obj.d.tocversion+'').match(/^30/)) {
-        meta.type = 'WOTLK-WEAKAURA'
-        meta.game = 'wotlk'
-      }
-      else if ((obj.d.tocversion+'').match(/^80/)) {
-        meta.game = 'bfa'
-      }
-      else if ((obj.d.tocversion+'').match(/^90/)) {
-        meta.game = 'sl'
-      }
-      else if ((obj.d.tocversion+'').match(/^100/)) {
-        meta.game = 'df'
-      }
-    }
+    meta.game = patchDates.gameVersion(obj.d.tocversion)
+    if (meta.game === 'classic') meta.type = 'CLASSIC-WEAKAURA'
+    else if (meta.game === 'tbc') meta.type = 'TBC-WEAKAURA'
+    else if (meta.game === 'wotlk') meta.type = 'WOTLK-WEAKAURA'
 
     if (obj.wagoID) {
       meta.fork = obj.wagoID
@@ -267,32 +249,12 @@ module.exports = {
         }
       }
 
-      if (json.d.tocversion) {
-        if ((json.d.tocversion+'').match(/^11/)) {
-          wago.type = 'CLASSIC-WEAKAURA'
-          wago.game = 'classic'
-        }
-        else if ((json.d.tocversion+'').match(/^20/)) {
-          wago.type = 'TBC-WEAKAURA'
-          wago.game = 'tbc'
-        }
-        else if ((json.d.tocversion+'').match(/^30/)) {
-          wago.type = 'WOTLK-WEAKAURA'
-          wago.game = 'wotlk'
-        }
-        else if ((json.d.tocversion+'').match(/^80/)) {
-          wago.type = 'WEAKAURA'
-          wago.game = 'bfa'
-        }
-        else if ((json.d.tocversion+'').match(/^90/)) {
-          wago.type = 'WEAKAURA'
-          wago.game = 'sl'
-        }
-        else if ((json.d.tocversion+'').match(/^100/)) {
-          wago.type = 'WEAKAURA'
-          wago.game = 'df'
-        }
-      }
+      
+      wago.game = patchDates.gameVersion(obj.d.tocversion)
+      if (wago.game === 'classic') wago.type = 'CLASSIC-WEAKAURA'
+      else if (wago.game === 'tbc') wago.type = 'TBC-WEAKAURA'
+      else if (wago.game === 'wotlk') wago.type = 'WOTLK-WEAKAURA'
+      else wago.type = 'WEAKAURA'
 
       json = sortJSON(json)
       code.json = JSON.stringify(json)

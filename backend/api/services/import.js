@@ -5,6 +5,7 @@ const webhooks = require('../helpers/webhooks')
 const battlenet = require('../helpers/battlenet')
 const semver = require('semver')
 const crypto = require("crypto-js")
+const patchDates = require('../helpers/patchDates')
 
 module.exports = function (fastify, opts, next) {
 /**
@@ -45,7 +46,7 @@ module.exports = function (fastify, opts, next) {
         scan.decoded = JSON.stringify(decodedObj)
         scan.type = meta.type
         scan.name = meta.name || meta.type
-        scan.game = meta.game || 'sl'
+        scan.game = meta.game || 'df'
         scan.domain = addon.domain
         scan.categories = meta.categories || []
         scan.fork = meta.fork || req.body.forkOf
@@ -156,27 +157,10 @@ module.exports = function (fastify, opts, next) {
 
       // check for classic import
       if (decoded.obj.d.tocversion) {
-        if ((decoded.obj.d.tocversion+'').match(/^11/)) {
-          scan.type = 'CLASSIC-WEAKAURA'
-          scan.game = 'classic'
-        }
-        else if ((decoded.obj.d.tocversion+'').match(/^20/)) {
-          scan.type = 'TBC-WEAKAURA'
-          scan.game = 'tbc'
-        }
-        else if ((decoded.obj.d.tocversion+'').match(/^30/)) {
-          scan.type = 'WOTLK-WEAKAURA'
-          scan.game = 'wotlk'
-        }
-        else if ((decoded.obj.d.tocversion+'').match(/^80/)) {
-          scan.game = 'bfa'
-        }
-        else if ((decoded.obj.d.tocversion+'').match(/^90/)) {
-          scan.game = 'sl'
-        }
-        else if ((decoded.obj.d.tocversion+'').match(/^100/)) {
-          scan.game = 'df'
-        }
+        scan.game = patchDates.gameVersion(decoded.obj.d.tocversion)
+        if (scan.game === 'classic') scan.type = 'CLASSIC-WEAKAURA'
+        else if (scan.game === 'tbc') scan.type = 'TBC-WEAKAURA'
+        else if (scan.game === 'wotlk') scan.type = 'WOTLK-WEAKAURA'
       }
       const scanDoc = await scan.save()
 
@@ -493,27 +477,10 @@ module.exports = function (fastify, opts, next) {
 
     // detect game
     if (wago.type.match(/WEAKAURA/) && json.d.tocversion) {
-        if ((json.d.tocversion+'').match(/^11/)) {
-        wago.game = 'classic'
-      }
-      else if ((json.d.tocversion+'').match(/^90/)) {
-        wago.game = 'sl' // shadowlands
-      }
-      else {
-        wago.game = 'bfa' // battle for azeroth
-      }
+      wago.game = patchDates.gameVersion(json.d.tocversion)
     }
     else if (wago.type.match(/PLATER/) && json.tocversion) {
-        if ((json.tocversion+'').match(/^11/)) {
-        wago.game = 'classic'
-      }
-      else if ((json.tocversion+'').match(/^90/)) {
-        wago.game = 'sl' // shadowlands
-      }
-      else {
-        wago.game = 'bfa' // battle for azeroth
-      }
-    }
+      wago.game = patchDates.gameVersion(json.tocversion)
     }
 
     // set expiry option
