@@ -214,9 +214,9 @@ async function searchElastic (req, res) {
       if (!Categories.categories[m[1]].system) {
         catSearch = true
       }
+      query = query.replace(m[0], '')
+      m = query.match(/(?:category|tag):\s?([\w-]+)/i)
     }
-    query = query.replace(m[0], '')
-    m = query.match(/(?:category|tag):\s?([\w-]+)/i)
   }
   if (filterCats.length) {
     defaultFilterExpansion = null
@@ -233,10 +233,10 @@ async function searchElastic (req, res) {
       let date2 = date + 86400
       esFilter.push({bool: {should: {range: {timestamp: {gte: date, lte: date2}}}}})
       defaultFilterExpansion = null
+      query = query.replace(m[0], '')
+      m = query.match(/(?:date):\s?(\d\d\d\d-\d\d-\d\d)/i)
     }
     catch {}
-    query = query.replace(m[0], '')
-    m = query.match(/(?:date):\s?(\d\d\d\d-\d\d-\d\d)/i)
   }
 
   m = query.match(/(?:before):\s?(\d\d\d\d-\d\d-\d\d)/i)
@@ -245,10 +245,10 @@ async function searchElastic (req, res) {
       let date = Math.round(Date.parse(m[1]) / 1000)
       esFilter.push({bool: {should: {range: {timestamp: {lte: date}}}}})
       defaultFilterExpansion = null
+      query = query.replace(m[0], '')
+      m = query.match(/(?:before):\s?(\d\d\d\d-\d\d-\d\d)/i)
     }
     catch {}
-    query = query.replace(m[0], '')
-    m = query.match(/(?:before):\s?(\d\d\d\d-\d\d-\d\d)/i)
   }
 
   m = query.match(/(?:after):\s?(\d\d\d\d-\d\d-\d\d)/i)
@@ -257,10 +257,10 @@ async function searchElastic (req, res) {
       let date = Math.round(Date.parse(m[1]) / 1000)
       esFilter.push({bool: {should: {range: {timestamp: {gte: date}}}}})
       defaultFilterExpansion = null
+      query = query.replace(m[0], '')
+      m = query.match(/(?:after):\s?(\d\d\d\d-\d\d-\d\d)/i)
     }
     catch {}
-    query = query.replace(m[0], '')
-    m = query.match(/(?:after):\s?(\d\d\d\d-\d\d-\d\d)/i)
   }
 
   m = query.match(/(?:collection):\s?([\w-]{7,14})/i)
@@ -274,9 +274,9 @@ async function searchElastic (req, res) {
         esFilter.push({simple_query_string: {query: '"'+collection.collect.join('" "')+'"', fields: ["_id"] }})
         defaultFilterExpansion = null
       }
+      query = query.replace(m[0], '')
     }
     catch {}
-    query = query.replace(m[0], '')
   }
 
   if (defaultFilterExpansion) {
@@ -513,10 +513,10 @@ async function oldSearch (req, res) {
         }
         filterUsers.push({term: { _userId: user._id } })
       }
+      query = query.replace(m[0], '')
+      m = query.match(/(?:user:\s?"(\w+)")/i)
     }
     catch {}
-    query = query.replace(m[0], '')
-    m = query.match(/(?:user:\s?"(\w+)")/i)
   }
   if (filterUsers.length) {
     esFilter.push(({bool: {should: filterUsers}}))
@@ -576,10 +576,10 @@ async function oldSearch (req, res) {
       let date = Math.round(Date.parse(m[1]))
       let date2 = date + 86400000
       esFilter.push({bool: {should: {range: {modified: {gte: date, lte: date2}}}}})
+      query = query.replace(m[0], '')
+      m = query.match(/(?:date):\s?(\d\d\d\d-\d\d-\d\d)/i)
     }
     catch {}
-    query = query.replace(m[0], '')
-    m = query.match(/(?:date):\s?(\d\d\d\d-\d\d-\d\d)/i)
   }
 
   m = query.match(/(?:before):\s?(\d\d\d\d-\d\d-\d\d)/i)
@@ -587,10 +587,10 @@ async function oldSearch (req, res) {
     try {
       let date = Math.round(Date.parse(m[1]))
       esFilter.push({bool: {should: {range: {modified: {lte: date}}}}})
+      catch {}
+      query = query.replace(m[0], '')
+      m = query.match(/(?:before):\s?(\d\d\d\d-\d\d-\d\d)/i)
     }
-    catch {}
-    query = query.replace(m[0], '')
-    m = query.match(/(?:before):\s?(\d\d\d\d-\d\d-\d\d)/i)
   }
 
   m = query.match(/(?:after):\s?(\d\d\d\d-\d\d-\d\d)/i)
@@ -598,10 +598,10 @@ async function oldSearch (req, res) {
     try {
       let date = Math.round(Date.parse(m[1]))
       esFilter.push({bool: {should: {range: {modified: {gte: date}}}}})
+      query = query.replace(m[0], '')
+      m = query.match(/(?:after):\s?(\d\d\d\d-\d\d-\d\d)/i)
     }
     catch {}
-    query = query.replace(m[0], '')
-    m = query.match(/(?:after):\s?(\d\d\d\d-\d\d-\d\d)/i)
   }
 
   m = query.match(/(?:collection):\s?([\w-]{7,14})/i)
@@ -614,9 +614,9 @@ async function oldSearch (req, res) {
         }
         esFilter.push({simple_query_string: {query: '"'+collection.collect.join('" "')+'"', fields: ["_id"] }})
       }
+      query = query.replace(m[0], '')
     }
     catch {}
-    query = query.replace(m[0], '')
   }
 
 
