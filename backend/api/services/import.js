@@ -46,7 +46,7 @@ module.exports = function (fastify, opts, next) {
         scan.decoded = JSON.stringify(decodedObj)
         scan.type = meta.type
         scan.name = meta.name || meta.type
-        scan.game = meta.game || 'df'
+        scan.game = meta.game || patchDates.gameVersion()
         scan.domain = addon.domain
         scan.categories = meta.categories || []
         scan.fork = meta.fork || req.body.forkOf
@@ -451,70 +451,71 @@ module.exports = function (fastify, opts, next) {
     }
     else {
       // legacy scan
-    // detect description
-    if (wago.type === 'WEAKAURA' && json.d.desc) {
-      wago.description = json.d.desc
-      wago.regionType = json.d.regionType
-    }
-    else if (wago.type === 'TOTALRP3' && json[2] && json[2].NT) {
-      wago.description = json[2].NT
-    }
-    else if (wago.type === 'PLATER' && json.type === 'script') {
-      wago.description = json['6']
-    }
-    else if (wago.type === 'PLATER' && Array.isArray(json) && typeof json[8] === 'number') {
-      wago.description = json[5]
-    }
-    else if (wago.type === 'PLATER' && json.type === 'hook') {
-      wago.description = json['3']
-    }
-    else if (wago.type === 'PLATER' && Array.isArray(json) && typeof json[8] === 'object') {
-      wago.description = json[2]
-    }
-    else if (wago.type === 'PLATER' && !Array.isArray(json) && json.info && json.info.desc) {
-      wago.description = json.info.desc
-    }
+      // detect description
+      if (wago.type === 'WEAKAURA' && json.d.desc) {
+        wago.description = json.d.desc
+        wago.regionType = json.d.regionType
+      }
+      else if (wago.type === 'TOTALRP3' && json[2] && json[2].NT) {
+        wago.description = json[2].NT
+      }
+      else if (wago.type === 'PLATER' && json.type === 'script') {
+        wago.description = json['6']
+      }
+      else if (wago.type === 'PLATER' && Array.isArray(json) && typeof json[8] === 'number') {
+        wago.description = json[5]
+      }
+      else if (wago.type === 'PLATER' && json.type === 'hook') {
+        wago.description = json['3']
+      }
+      else if (wago.type === 'PLATER' && Array.isArray(json) && typeof json[8] === 'object') {
+        wago.description = json[2]
+      }
+      else if (wago.type === 'PLATER' && !Array.isArray(json) && json.info && json.info.desc) {
+        wago.description = json.info.desc
+      }
 
-    // detect game
-    if (wago.type.match(/WEAKAURA/) && json.d.tocversion) {
-      wago.game = patchDates.gameVersion(json.d.tocversion)
-    }
-    else if (wago.type.match(/PLATER/) && json.tocversion) {
-      wago.game = patchDates.gameVersion(json.tocversion)
-    }
+      // detect game
+      if (wago.type.match(/WEAKAURA/) && json.d.tocversion) {
+        wago.game = patchDates.gameVersion(json.d.tocversion)
+      }
+      else if (wago.type.match(/PLATER/) && json.tocversion) {
+        wago.game = patchDates.gameVersion(json.tocversion)
+      }
 
-    // set expiry option
-    switch (req.body.expireAfter) {
-      case '15m':
-        wago.expires_at = new Date().setTime(new Date().getTime()+15*60*1000)
-        break
-      case '3hr':
-        wago.expires_at = new Date().setTime(new Date().getTime()+3*60*60*1000)
-        break
-      case '1wk':
-        wago.expires_at = new Date().setTime(new Date().getTime()+7*24*60*60*1000)
-        break
-      case '1mo':
-        wago.expires_at = new Date().setTime(new Date().getTime()+30*24*60*60*1000)
-        break
-      case '3mo':
-        wago.expires_at = new Date().setTime(new Date().getTime()+3*30*24*60*60*1000)
-        break
-      case 'never':
-        wago.expires_at = null
-        break
-      default:
-        // "export as fork" doesn't have this input so default to never or 3 months
-        if (req.user) {
-          wago.expires_at = null
-        }
-        else {
+      // set expiry option
+      switch (req.body.expireAfter) {
+        case '15m':
+          wago.expires_at = new Date().setTime(new Date().getTime()+15*60*1000)
+          break
+        case '3hr':
+          wago.expires_at = new Date().setTime(new Date().getTime()+3*60*60*1000)
+          break
+        case '1wk':
+          wago.expires_at = new Date().setTime(new Date().getTime()+7*24*60*60*1000)
+          break
+        case '1mo':
+          wago.expires_at = new Date().setTime(new Date().getTime()+30*24*60*60*1000)
+          break
+        case '3mo':
           wago.expires_at = new Date().setTime(new Date().getTime()+3*30*24*60*60*1000)
-        }
-    }
+          break
+        case 'never':
+          wago.expires_at = null
+          break
+        default:
+          // "export as fork" doesn't have this input so default to never or 3 months
+          if (req.user) {
+            wago.expires_at = null
+          }
+          else {
+            wago.expires_at = new Date().setTime(new Date().getTime()+3*30*24*60*60*1000)
+          }
+      }
 
-    if (req.body.name) {
-      wago.name = req.body.name
+      if (req.body.name) {
+        wago.name = req.body.name
+      }
     }
 
     if (req.body.importAs !== 'Guest' && req.user) {
