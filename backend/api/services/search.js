@@ -276,7 +276,7 @@ async function searchElastic (req, res) {
       }
       query = query.replace(m[0], '')
     }
-    catch {break}
+    catch {}
   }
 
   if (defaultFilterExpansion) {
