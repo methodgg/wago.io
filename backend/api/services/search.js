@@ -144,7 +144,7 @@ async function searchElastic (req, res) {
       query = query.replace(m[0], '')
       m = query.match(/(?:user:\s?"(\w+)")/i)
     }
-    catch {}
+    catch {break}
   }
   if (filterUsers.length) {
     defaultFilterExpansion = null
@@ -236,7 +236,7 @@ async function searchElastic (req, res) {
       query = query.replace(m[0], '')
       m = query.match(/(?:date):\s?(\d\d\d\d-\d\d-\d\d)/i)
     }
-    catch {}
+    catch {break}
   }
 
   m = query.match(/(?:before):\s?(\d\d\d\d-\d\d-\d\d)/i)
@@ -248,7 +248,7 @@ async function searchElastic (req, res) {
       query = query.replace(m[0], '')
       m = query.match(/(?:before):\s?(\d\d\d\d-\d\d-\d\d)/i)
     }
-    catch {}
+    catch {break}
   }
 
   m = query.match(/(?:after):\s?(\d\d\d\d-\d\d-\d\d)/i)
@@ -260,7 +260,7 @@ async function searchElastic (req, res) {
       query = query.replace(m[0], '')
       m = query.match(/(?:after):\s?(\d\d\d\d-\d\d-\d\d)/i)
     }
-    catch {}
+    catch {break}
   }
 
   m = query.match(/(?:collection):\s?([\w-]{7,14})/i)
@@ -276,7 +276,7 @@ async function searchElastic (req, res) {
       }
       query = query.replace(m[0], '')
     }
-    catch {}
+    catch {break}
   }
 
   if (defaultFilterExpansion) {
@@ -516,7 +516,7 @@ async function oldSearch (req, res) {
       query = query.replace(m[0], '')
       m = query.match(/(?:user:\s?"(\w+)")/i)
     }
-    catch {}
+    catch {break}
   }
   if (filterUsers.length) {
     esFilter.push(({bool: {should: filterUsers}}))
@@ -579,7 +579,7 @@ async function oldSearch (req, res) {
       query = query.replace(m[0], '')
       m = query.match(/(?:date):\s?(\d\d\d\d-\d\d-\d\d)/i)
     }
-    catch {}
+    catch {break}
   }
 
   m = query.match(/(?:before):\s?(\d\d\d\d-\d\d-\d\d)/i)
@@ -590,7 +590,7 @@ async function oldSearch (req, res) {
       query = query.replace(m[0], '')
       m = query.match(/(?:before):\s?(\d\d\d\d-\d\d-\d\d)/i)
     }
-    catch {}
+    catch {break}
   }
 
   m = query.match(/(?:after):\s?(\d\d\d\d-\d\d-\d\d)/i)
@@ -601,7 +601,7 @@ async function oldSearch (req, res) {
       query = query.replace(m[0], '')
       m = query.match(/(?:after):\s?(\d\d\d\d-\d\d-\d\d)/i)
     }
-    catch {}
+    catch {break}
   }
 
   m = query.match(/(?:collection):\s?([\w-]{7,14})/i)
