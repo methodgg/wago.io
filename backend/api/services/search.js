@@ -587,10 +587,10 @@ async function oldSearch (req, res) {
     try {
       let date = Math.round(Date.parse(m[1]))
       esFilter.push({bool: {should: {range: {modified: {lte: date}}}}})
-      catch {}
       query = query.replace(m[0], '')
       m = query.match(/(?:before):\s?(\d\d\d\d-\d\d-\d\d)/i)
     }
+    catch {}
   }
 
   m = query.match(/(?:after):\s?(\d\d\d\d-\d\d-\d\d)/i)
