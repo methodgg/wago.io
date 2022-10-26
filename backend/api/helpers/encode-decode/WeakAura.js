@@ -250,7 +250,7 @@ module.exports = {
       }
 
       
-      wago.game = patchDates.gameVersion(obj.d.tocversion)
+      wago.game = patchDates.gameVersion(json.d.tocversion)
       if (wago.game === 'classic') wago.type = 'CLASSIC-WEAKAURA'
       else if (wago.game === 'tbc') wago.type = 'TBC-WEAKAURA'
       else if (wago.game === 'wotlk') wago.type = 'WOTLK-WEAKAURA'
