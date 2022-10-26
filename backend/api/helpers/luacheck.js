@@ -21,7 +21,7 @@ module.exports = {
       var key = code[i].name
       let lua = code[i].lua.replace(/-- luacheck:/g, `--`) // don't ignore potential malicous hidings
 
-      if (!code[i].keypath.match(/\.actions\.(init|start|finish)\.custom$/)) {
+      if (code[i].keypath && !code[i].keypath.match(/\.actions\.(init|start|finish)\.custom$/)) {
         let tmpFn = `fn${Math.floor(Math.random()*10000)}`
         let luax
         while (luax !== lua) {

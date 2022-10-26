@@ -8,6 +8,7 @@ const mkdirp = require('mkdirp')
 const path = require('path')
 const getCode = require('./code-detection/get-code')
 const luacheck = require('./luacheck')
+const patchDates = require('./patchDates')
 const codeMetrics = require('./codeMetrics')
 
 const ENUM = require('../../middlewares/enum')

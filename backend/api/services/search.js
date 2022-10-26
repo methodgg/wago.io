@@ -141,10 +141,10 @@ async function searchElastic (req, res) {
         }
         filterUsers.push({term: { userId: user._id } })
       }
+      query = query.replace(m[0], '')
+      m = query.match(/(?:user:\s?"(\w+)")/i)
     }
     catch {}
-    query = query.replace(m[0], '')
-    m = query.match(/(?:user:\s?"(\w+)")/i)
   }
   if (filterUsers.length) {
     defaultFilterExpansion = null
