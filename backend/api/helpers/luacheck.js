@@ -8,7 +8,7 @@ module.exports = {
       return []
     }
     if (!game || !game.match(/classic|tbc|wotlk|bfa|sl|df/)) {
-      game = 'sl'
+      game = 'df'
     }
     const luacheckrc = __dirname + '/../lua/luacheck-' + game + '.lua'
     const checkDir = __dirname + '/../../run-tmp/' + new Date().getTime() + Math.random().toString(36).substring(7)

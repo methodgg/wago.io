@@ -8,7 +8,7 @@ module.exports = {
       return []
     }
     for (let i = 0; i < code.length; i++) {
-      if (typeof code[i] !== 'object' || !code[i].lua || typeof code[i].lua !== 'string' || (code[i].keypath && code[i].keypath.match(/customVariables$/))) {
+      if (typeof code[i] !== 'object' || !code[i].lua || typeof code[i].lua !== 'string' || (!code[i].keypath || code[i].keypath.match(/customVariables$/))) {
         continue
       }
       if (code[i].luacheck && code[i].luacheck.match(/^\d+ error/)) {
