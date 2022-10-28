@@ -81,6 +81,16 @@ module.exports = {
       end
     end
 
+    if t.d.load and t.d.load.talent and t.d.load.talent.multi then
+      for k in pairs(t.d.load.talent.multi) do
+        if type(k) == "string" then
+          local v = t.d.load.talent.multi[k]
+          t.d.load.talent.multi[k] = null
+          t.d.load.talent.multi[tonumber(k)] = v
+        end
+      end
+    end
+
     if t.c then
       for i=1, #t.c do
         if t.c[i].triggers and t.c[i].triggers["1"] then
@@ -98,6 +108,16 @@ module.exports = {
             tinsert(t.c[i].triggers, t.c[i].triggers[""..n])
             t.c[i].triggers[""..n] = nil
             n = n+1
+          end
+        end
+
+        if t.c[i].load and t.c[i].load.talent and t.c[i].load.talent.multi then
+          for k in pairs(t.c[i].load.talent.multi) do
+            if type(k) == "string" then
+              local v = t.c[i].load.talent.multi[k]
+              t.c[i].load.talent.multi[k] = null
+              t.c[i].load.talent.multi[tonumber(k)] = v
+            end
           end
         end
       end
