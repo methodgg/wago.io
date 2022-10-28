@@ -426,6 +426,8 @@
     "2791": "Ascension Crafting",
     "2811": "Stygia Crafting",
     "2819": "Protoform Synthesis",
+    "2821": "Arcana Manipulation",
+    "2847": "Tuskarr Fishing Gear",
     "firstaid": "First Aid"
   },
   "encounters": {
@@ -1366,14 +1368,50 @@
     "2468": "Antros",
     "2469": "Anduin Wrynn",
     "2470": "Artificer Xy'mox",
+    "2471": "Hackclaw's War-Band",
+    "2472": "Gutshot",
+    "2473": "Treemouth",
+    "2474": "Decatriarch Wratheye",
+    "2475": "The Lost Dwarves",
+    "2476": "Emberon",
+    "2477": "Balakar Khan",
+    "2478": "Teera and Maruuk",
+    "2479": "Chrono-Lord Deios",
     "2480": "Eranog",
-    "2482": "Sennarth, The Cold Breath",
-    "2486": "The Primalist Council",
+    "2482": "Sennarth, the Cold Breath",
+    "2483": "Telash Greywing",
+    "2484": "Sentinel Talondras",
+    "2485": "Kokia Blazehoof",
+    "2486": "The Primal Council",
+    "2487": "Bromach",
+    "2488": "Melidrussa Chillworn",
+    "2489": "Forgemaster Gorek",
+    "2490": "Chargath, Bane of Scales",
     "2491": "Kurog Grimtotem",
+    "2492": "Leymor",
     "2493": "Broodkeeper Diurna",
+    "2494": "Magmatusk",
+    "2495": "Crawth",
+    "2497": "The Raging Tempest",
+    "2498": "Granyth",
     "2499": "Raszageth the Storm-Eater",
     "2500": "Terros",
-    "2502": "Dathea, Ascended"
+    "2501": "Warlord Sargha",
+    "2502": "Dathea, Ascended",
+    "2503": "Kyrakka and Erkhart Stormvein",
+    "2504": "Watcher Irideus",
+    "2505": "Azureblade",
+    "2506": "Basrikron, The Shale Wing",
+    "2507": "Gulping Goliath",
+    "2508": "Umbrelskul",
+    "2509": "Vexamus",
+    "2510": "Khajin the Unyielding",
+    "2511": "Primal Tsunami",
+    "2512": "Overgrown Ancient",
+    "2514": "Echo of Doragosa",
+    "2515": "Strunraan, The Sky's Misery",
+    "2517": "Bazual, The Dreaded Flame",
+    "2518": "Liskanoth, The Futurebane"
   },
   "expansions": {
     "68": "Classic",
@@ -1384,7 +1422,8 @@
     "124": "Warlords of Draenor",
     "395": "Legion",
     "396": "Battle for Azeroth",
-    "499": "Shadowlands"
+    "499": "Shadowlands",
+    "503": "Dragonflight"
   },
   "instances": {
     "63": "Deadmines",
@@ -1557,11 +1596,12 @@
     "1198": "The Nokhud Offensive",
     "1199": "Neltharus",
     "1200": "Vault of the Incarnates",
-    "1201": "Taz'algeth Academy",
+    "1201": "Algeth'ar Academy",
     "1202": "Ruby Life Pools",
     "1203": "The Azure Vault",
-    "1204": "Halls of Infusion"
-  },    
+    "1204": "Halls of Infusion",
+    "1205": "Dragon Isles"
+  },
   "specs": {
     "62": "Arcane",
     "63": "Fire",
@@ -1601,5 +1641,6 @@
     "581": "Vengeance",
     "1467": "Devastation",
     "1468": "Preservation"
-  }
+  },
+  "keystoneDungeons": {}
 }

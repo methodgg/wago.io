@@ -448,6 +448,7 @@ module.exports = function (fastify, opts, next) {
     if (scan.game) {
       wago.description = scan.description
       wago.game = scan.game || 'sl'
+      wago.name = req.body.name
     }
     else {
       // legacy scan
