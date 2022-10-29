@@ -986,7 +986,7 @@ async function ProcessCode(data) {
     case 'PLATER':
       var json = JSON.parse(code.json)
         try {
-          doc.game = patchDates.gameVersion(json.tocVersion || json.d.tocVersion) 
+          doc.game = patchDates.gameVersion(json.tocVersion || json.d.tocversion) 
         }
         catch {
           doc.game = patchDates.gameVersion() 

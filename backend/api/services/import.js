@@ -447,7 +447,7 @@ module.exports = function (fastify, opts, next) {
 
     if (scan.game) {
       wago.description = scan.description
-      wago.game = scan.game || 'sl'
+      wago.game = scan.game || patchDates.gameVersion()
       wago.name = req.body.name
     }
     else {
@@ -1068,7 +1068,7 @@ module.exports = function (fastify, opts, next) {
           scan.decoded = jsonString
           scan.type = meta.type
           scan.name = meta.name || meta.type
-          scan.game = meta.game || 'sl'
+          scan.game = meta.game || patchDates.gameVersion()
           scan.categories = meta.categories || []
           scan.addon = addonFile
           await scan.save()
