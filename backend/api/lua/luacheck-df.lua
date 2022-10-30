@@ -10,6 +10,7 @@ ignore = {
 std = {
   globals = {
     "aura_env",
+    "StaticPopupDialogs",
   },
   not_globals = {
     -- blocked - do not include to ensure luacheck sees them as warnings
@@ -42752,7 +42753,6 @@ std = {
     "StaticPopup4MoneyInputFrameSilverRight",
     "StaticPopup4Right",
     "StaticPopup4Text",
-    "StaticPopupDialogs",
     "StaticPopupItemFrameMixin",
     "StaticPopupSpecialMixin",
     "StaticPopupSpecial_Hide",
