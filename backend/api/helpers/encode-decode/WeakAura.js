@@ -75,19 +75,36 @@ module.exports = {
           end
         end
 
+        if t.d.triggers[""..n].trigger and t.d.triggers[""..n].trigger.talent and t.d.triggers[""..n].trigger.talent.multi then
+          local talentTbl = {}
+          for k, v in pairs(t.d.triggers[""..n].trigger.talent.multi) do
+            if tonumber(k) > 0 then
+              talentTbl[tonumber(k)] = v
+            else
+              talentTbl[k] = v
+            end
+          end
+          t.d.triggers[""..n].trigger.talent.multi = talentTbl
+        end
+
         tinsert(t.d.triggers, t.d.triggers[""..n])
         t.d.triggers[""..n] = nil
         n = n+1
       end
     end
 
-    if t.d.load and t.d.load.talent and t.d.load.talent.multi then
-      for k in pairs(t.d.load.talent.multi) do
-        if type(k) == "string" then
-          local v = t.d.load.talent.multi[k]
-          t.d.load.talent.multi[k] = null
-          t.d.load.talent.multi[tonumber(k)] = v
+    for c=1,3 do
+      if c == 1 then c = "" end
+      if t.d.load and t.d.load["talent"..c] and t.d.load["talent"..c].multi then
+        local talentTbl = {}
+        for k, v in pairs(t.d.load["talent"..c].multi) do
+          if tonumber(k) > 0 then
+            talentTbl[tonumber(k)] = v
+          else
+            talentTbl[k] = v
+          end
         end
+        t.d.load["talent"..c].multi = talentTbl
       end
     end
 
@@ -105,19 +122,36 @@ module.exports = {
               end
             end
 
+            if t.c[i].triggers[""..n].trigger and t.c[i].triggers[""..n].trigger.talent and t.c[i].triggers[""..n].trigger.talent.multi then
+              local talentTbl = {}
+              for k, v in pairs(t.c[i].triggers[""..n].trigger.talent.multi) do
+                if tonumber(k) > 0 then
+                  talentTbl[tonumber(k)] = v
+                else
+                  talentTbl[k] = v
+                end
+              end
+              t.c[i].triggers[""..n].trigger.talent.multi = talentTbl
+            end
+
             tinsert(t.c[i].triggers, t.c[i].triggers[""..n])
             t.c[i].triggers[""..n] = nil
             n = n+1
           end
         end
 
-        if t.c[i].load and t.c[i].load.talent and t.c[i].load.talent.multi then
-          for k in pairs(t.c[i].load.talent.multi) do
-            if type(k) == "string" then
-              local v = t.c[i].load.talent.multi[k]
-              t.c[i].load.talent.multi[k] = null
-              t.c[i].load.talent.multi[tonumber(k)] = v
+        for c=1,3 do
+          if c == 1 then c = "" end
+          if t.c[i].load and t.c[i].loadload["talent"..c] and t.c[i].loadload["talent"..c].multi then
+            local talentTbl = {}
+            for k, v in pairs(t.c[i].loadload["talent"..c].multi) do
+              if tonumber(k) > 0 then
+                talentTbl[tonumber(k)] = v
+              else
+                talentTbl[k] = v
+              end
             end
+            t.c[i].loadload["talent"..c].multi = talentTbl
           end
         end
       end
