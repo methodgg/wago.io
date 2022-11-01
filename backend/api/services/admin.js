@@ -385,7 +385,7 @@ module.exports = (fastify, opts, next) => {
     if (!req.user || !req.user.isAdmin.access || !(req.user.isAdmin.super || req.user.isAdmin.moderator)) {
       return res.code(403).send({error: "forbidden"})
     }
-    if (!req.body.action || !req.body.action.match(/Resolve|Lock|Delete/)) {
+    if (!req.body.action || !req.body.action.match(/Resolve|Lock|Delete|Reprocess/)) {
       return res.code(403).send({error: "forbidden"})
     }
     const wago = await WagoItem.findById(req.body.wagoID).exec()
@@ -401,7 +401,11 @@ module.exports = (fastify, opts, next) => {
       comment: req.body.comments || '',
     })
 
-    if (req.body.action === 'Resolved') {
+    if (req.body.action === 'Reprocess') {
+      await taskQueue.add('ProcessCode', {id: wago._id}, {priority: 1})
+      return res.send({success: true})
+    }
+    else if (req.body.action === 'Resolved') {
       wago.moderated = false
       wago.deleted = false
       wago.moderatedComment = ''

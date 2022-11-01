@@ -675,14 +675,16 @@
                   <md-button @click="modAction='Resolved'">Resolve Issue</md-button>
                   <md-button @click="modAction='Lock'">Lock Import</md-button>
                   <md-button @click="modAction='Delete'">Delete Import</md-button>
+                  <md-button @click="modAction='Reprocess'">Reprocess Import</md-button>
                 </md-button-toggle>
 
                 <div v-if="modAction=='Resolved'" style="padding: 8px; border:1px solid green; display: inline-block">This will clear any reported issues, locks or mod-deletions.</div>
                 <div v-else-if="modAction=='Lock'" style="padding: 8px; border:1px solid #a9a900; display: inline-block">This will lock the import so that it can only be accessed by the author and moderators.<br>The user will be able to see your comments so they may make the correct changes.</div>
                 <div v-else-if="modAction=='Delete'" style="padding: 8px; border:1px solid #c0272d; display: inline-block">This will soft-delete the import and only moderators can continue to access it.</div>
+                <div v-else-if="modAction=='Reprocess'" style="padding: 8px; border:1px solid green; display: inline-block">This will re-process the code review and regenerate the import string.</div>
 
                 <div v-if="modAction" style="margin-bottom: 16px; display: flex;">
-                  <md-input-container>
+                  <md-input-container v-if="modAction!='Reprocess'">
                     <label>{{ $t('Comments') }}</label>
                     <md-textarea v-model="modComments"></md-textarea>
                   </md-input-container>
