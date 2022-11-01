@@ -142,16 +142,16 @@ module.exports = {
 
         for c=1,3 do
           if c == 1 then c = "" end
-          if t.c[i].load and t.c[i].loadload["talent"..c] and t.c[i].loadload["talent"..c].multi then
+          if t.c[i].load and t.c[i].load["talent"..c] and t.c[i].load["talent"..c].multi then
             local talentTbl = {}
-            for k, v in pairs(t.c[i].loadload["talent"..c].multi) do
+            for k, v in pairs(t.c[i].load["talent"..c].multi) do
               if tonumber(k) > 0 then
                 talentTbl[tonumber(k)] = v
               else
                 talentTbl[k] = v
               end
             end
-            t.c[i].loadload["talent"..c].multi = talentTbl
+            t.c[i].load["talent"..c].multi = talentTbl
           end
         end
       end
