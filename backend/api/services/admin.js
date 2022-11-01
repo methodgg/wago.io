@@ -402,7 +402,7 @@ module.exports = (fastify, opts, next) => {
     })
 
     if (req.body.action === 'Reprocess') {
-      await taskQueue.add('ProcessCode', {id: wago._id}, {priority: 1})
+      await taskQueue.add('ProcessCode', {id: wago._id, encode: true}, {priority: 1})
       return res.send({success: true})
     }
     else if (req.body.action === 'Resolved') {
