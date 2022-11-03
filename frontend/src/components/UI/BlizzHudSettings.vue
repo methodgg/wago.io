@@ -22,7 +22,7 @@
         <span>{{$t('Data')}}</span>
         <span>{{item.data}}</span>
       </div>
-      <div v-else-if="item.hudVersion < 5.22">
+      <div v-else-if="item.hudVersion < 30">
         {{$t('This version is from early Dragonflight alpha and no longer supported. Importing may not work in-game.')}}
       </div>
       <div v-else-if="item.hudVersion < latestHudVersion">
@@ -42,7 +42,7 @@
 export default {
   data: function () {
     return {
-      latestHudVersion: 5.22,
+      latestHudVersion: 30.0,
       holdData: []
     }
   },
@@ -54,7 +54,8 @@ export default {
         // https://github.com/tomrus88/BlizzardInterfaceCode/blob/master/Interface/FrameXML/EditModePresetLayouts.lua
         // https://github.com/tomrus88/BlizzardInterfaceCode/blob/master/Interface/AddOns/Blizzard_APIDocumentationGenerated/EditModeManagerDocumentation.lua
         // https://github.com/tomrus88/BlizzardInterfaceCode/blob/master/Interface/AddOns/Blizzard_APIDocumentationGenerated/EditModeManagerSharedDocumentation.lua
-        const [type, id, anchor, parentAnchor, parent, xOffset, yOffset, strata, options] = row
+        console.log(row)
+        const [type, id, whatsthis, anchor, parentAnchor, parent, xOffset, yOffset, strata, options] = row
         const item = {
           unknown: false,
           data: row,
@@ -70,7 +71,7 @@ export default {
         }
 
         if (row.length === 2) {
-          item.hudVersion = parseFloat(item.data[0] + '.' + item.data[1])
+          item.hudVersion = parseFloat(item.data[1] + '.' + item.data[0])
           item.title = this.$t('Blizz HUD Version [-num-]', {num: item.hudVersion})
         }
         else if (this.hudSettings[type] && typeof this.hudSettings[type].title === 'function') {
@@ -143,6 +144,7 @@ export default {
             this.$t('Party Unit Frames'),
             this.$t('Raid Unit Frames'),
             this.$t('Boss Unit Frames'),
+            this.$t('Arena Unit Frames'),
           ][v] || 'Unknown Unit Frame ' + v
         },
         fields: [
@@ -238,12 +240,12 @@ export default {
       return v && this.$t('True') || this.$t('False')
     },
     parseOptions (options, type) {
-      if (!options) {
+      if (!options || (options+'').length < 2) {
         return null
       }
       let enumModValue = 0
       const results = {}
-      options.match(/(..)/g).forEach((item) => {
+      ;(options+'').match(/(..)/g).forEach((item) => {
         item = item.split('').map(x => x = x.charCodeAt(0) - 35)
         if (!this.hudSettings[type]) {
           results[`Unknown Frame Type ${type}`] = item
