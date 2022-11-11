@@ -79,7 +79,7 @@ module.exports = {
       if t.triggers then
         t.triggers = fixNumericIndexes(t.triggers)
         for n in ipairs(t.triggers) do
-          if t.triggers[n].trigger and t.triggers[n].trigger.form and t.triggers[n].trigger.form.multi then
+          if t.triggers[n].trigger and type(t.triggers[n].trigger.form) == "table" and t.triggers[n].trigger.form.multi then
             t.triggers[n].trigger.form.multi = fixNumericIndexes(t.triggers[n].trigger.form.multi)
           end
 
