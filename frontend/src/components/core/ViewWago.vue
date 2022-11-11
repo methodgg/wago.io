@@ -33,7 +33,8 @@
         <md-button v-if="wago.code && wago.code.encoded" @click="copyEncoded" class="copy-import-button" id="copyImportBtn">
           <md-icon>assignment</md-icon> <span>{{ $t("Copy import string") }}</span>
           <md-button @click="openHelpDialog" id="helpImportingButton" class="md-icon-button md-raised"><md-icon>help</md-icon></md-button>
-          <md-tooltip v-if="hasUnsavedChanges" md-direction="bottom" class="CopyWarningTooltip"><strong>{{ $t("You have unsaved changes") }}</strong><br>{{ $t("Be sure to save or fork to generate a new string with your modifications") }}</md-tooltip>
+          <md-tooltip v-if="wago.type.match(/ELVUI/)" md-direction="bottom" class="CopyWarningTooltip"><strong>{{ $t("ElvUI no longer supports old format strings") }}</strong><br>{{ $t("Wago is exporting in the new format - please make sure you have the latest version of ElvUI installed") }}</strong></md-tooltip>
+          <md-tooltip v-else-if="hasUnsavedChanges" md-direction="bottom" class="CopyWarningTooltip"><strong>{{ $t("You have unsaved changes") }}</strong><br>{{ $t("Be sure to save or fork to generate a new string with your modifications") }}</md-tooltip>
           <md-tooltip v-else-if="corruptedData" md-direction="bottom" class="CopyWarningTooltip"><strong>{{ $t("This import is corrupted and will likely not work as expected") }}</strong></md-tooltip>
           <md-tooltip v-else-if="codeReview && codeReview.alerts" md-direction="bottom" class="CopyWarningTooltip"><strong>{{ $t("This import has alerts, you are strongly suggested to review the code before installing") }}</strong></md-tooltip>
         </md-button>

@@ -4,16 +4,60 @@ module.exports = {
 
   decode: async (encodedString, exec) => {
     // test that string matches expected regex
-    if (!encodedString.match(/^[a-zA-Z0-9=\+\/]*$/)) {
+    let stringVersion
+    if (encodedString.match(/^!E(\d+)![a-zA-Z0-9\(\)]+$/)) {
+      stringVersion = 2
+    }
+    else if (encodedString.match(/^[a-zA-Z0-9=\+\/]+$/)) {
+      stringVersion = 1
+    }
+    else {
       return false
     }
+    
     const lua = `
       ${elvuiLua}
       local dataString = "${encodedString}"
-      local profileInfo, profileType, profileKey, profileData, message
-      local stringType = GetImportStringType(dataString)
+      local profileInfo, profileType, profileKey, profileData
 
-      if stringType == "Base64" then
+      if ${stringVersion} == 2 then
+        local _, _, encodeVersion, encoded = dataString:find("^(!E%d+!)(.+)$")
+        if encodeVersion then
+          encodeVersion = tonumber(encodeVersion:match("%d+"))
+        else
+        -- print('Error getting encode version.')
+          return ''
+        end
+
+        local decodedData, decompressed
+        if encodeVersion == 1 then
+          decodedData = LibDeflate:DecodeForPrint(encoded)
+          decompressed = LibDeflate:DecompressDeflate(decodedData)
+        end
+
+        if not decompressed then
+          -- print('Error decompressing data.')
+          return ''
+        end
+
+        local serializedData, success
+        serializedData, profileInfo = SplitString(decompressed, '^^::') -- '^^' indicates the end of the AceSerializer string
+
+        if not profileInfo then
+          -- print('Error importing profile. String is invalid or corrupted!')
+          return
+        end
+
+        serializedData = string.format('%s%s', serializedData, '^^') --Add back the AceSerializer terminator
+        profileType, profileKey = SplitString(profileInfo, '::')
+        success, profileData = Serializer:Deserialize(serializedData)
+
+        if not success then
+          -- print('Error deserializing:', profileData)
+          return ''
+        end
+      
+      elseif ${stringVersion} == 1 then -- old data string
         local decodedData = LibBase64Elv:Decode(dataString)
         local decompressedData, message = LibCompress:Decompress(decodedData)
 
@@ -37,33 +81,6 @@ module.exports = {
           -- print("Error deserializing:", profileData)
           return ''
         end
-      elseif stringType == "Table" then
-        local profileDataAsString
-        profileDataAsString, profileInfo = SplitString(dataString, "}::") -- "}::" indicates the end of the table
-
-        if not profileInfo then
-          -- print("Error extracting profile info. Invalid import string!")
-          return ''
-        end
-
-        if not profileDataAsString then
-          -- print("Error extracting profile data. Invalid import string!")
-          return ''
-        end
-
-        profileDataAsString = string.format("%s%s", profileDataAsString, "}") --Add back the missing "}"
-        profileDataAsString = string.gsub(profileDataAsString, "\\124\\124", "\\124") --Remove escape pipe characters
-        profileType, profileKey = SplitString(profileInfo, "::")
-
-        local profileToTable = loadstring(string.format("%s %s", "return", profileDataAsString))
-        if profileToTable then
-          message, profileData = pcall(profileToTable)
-        end
-
-        if not profileData or type(profileData) ~= "table" then
-          -- print("Error converting lua string to table:", message)
-          return ''
-        end
       end
 
       return JSON:encode(profileData)
@@ -84,9 +101,9 @@ module.exports = {
       local serialData = Serializer:Serialize(t)
       if (serialData) then
         local exportString = string.format("%s::%s::%s", serialData, "profile", "my profile")
-        local compressedData = LibCompress:Compress(exportString)
-        local encodedData = LibBase64Elv:Encode(compressedData)
-        return encodedData
+        local compressedData = LibDeflate:CompressDeflate(exportString, {level = 9}) -- 5 in elv code?
+		    local encodedData = LibDeflate:EncodeForPrint(compressedData)
+        return "!E1!" .. encodedData
       end
       return ''
     `
@@ -110,18 +127,6 @@ module.exports = {
 }
 
 const elvuiLua = `
-function GetImportStringType(dataString)
-	local stringType = ""
-
-	if LibBase64Elv:IsBase64(dataString) then
-		stringType = "Base64"
-	elseif string.find(dataString, "{") then --Basic check to weed out obviously wrong strings
-		stringType = "Table"
-	end
-
-	return stringType
-end
-
 function SplitString(s, delim)
 	assert(type (delim) == "string" and string.len(delim) > 0, "bad delimiter")
 

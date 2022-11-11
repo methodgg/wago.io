@@ -730,6 +730,12 @@
          wagoCode.luacheck = code.luacheck
        }
      }
+     else if (doc.type === 'ELVUI' && (!code.encoded || !code.encoded.match(/^!E\d+!/))) {
+       code.fix.encodeFix = true
+       var q = await taskQueue.add('ProcessCode', {id: doc._id, version: code.versionString, encode: true}, {priority: req.user && req.user.access.queueSkip && 2 || 5, jobId: `${doc._id}:${code.version}:${code.versionString}`})
+       wagoCode.Q = q.id
+       await code.save()
+     }
      else if (doc.type === 'ELVUI' && !code.encoded || (!code.fix.encodeFix && code.updated > new Date('03/29/2021 00:00') && code.updated < new Date('04/23/2021 00:00'))) {
        code.fix.encodeFix = true
        var q = await taskQueue.add('ProcessCode', {id: doc._id, version: code.versionString, encode: true}, {priority: req.user && req.user.access.queueSkip && 2 || 5, jobId: `${doc._id}:${code.version}:${code.versionString}`})
