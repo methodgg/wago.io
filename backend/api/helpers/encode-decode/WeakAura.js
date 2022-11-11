@@ -62,97 +62,59 @@ module.exports = {
     local t = JSON:decode("${json}")
     if not t or not t.d then return "" end
 
-    local n -- fix trigger tables (the lua-json process can break these)
-    if t.d.triggers and t.d.triggers["1"] then
-      n = 1
-      while t.d.triggers[""..n] do
-        if t.d.triggers[""..n].trigger and t.d.triggers[""..n].trigger.form and t.d.triggers[""..n].trigger.form.multi then
-          for form=0,20 do
-            if t.d.triggers[""..n].trigger.form.multi[""..form] then
-              t.d.triggers[""..n].trigger.form.multi[form] = t.d.triggers[""..n].trigger.form.multi[""..form]
-              t.d.triggers[""..n].trigger.form.multi[""..form] = nil
-            end
-          end
+    function fixNumericIndexes(tbl)
+      local fixed = {}
+      for k, v in pairs(tbl) do
+        if tonumber(k) and tonumber(k) > 0 then
+          fixed[tonumber(k)] = v
+        else
+          fixed[k] = v
         end
-
-        if t.d.triggers[""..n].trigger and t.d.triggers[""..n].trigger.talent and t.d.triggers[""..n].trigger.talent.multi then
-          local talentTbl = {}
-          for k, v in pairs(t.d.triggers[""..n].trigger.talent.multi) do
-            if tonumber(k) > 0 then
-              talentTbl[tonumber(k)] = v
-            else
-              talentTbl[k] = v
-            end
-          end
-          t.d.triggers[""..n].trigger.talent.multi = talentTbl
-        end
-
-        tinsert(t.d.triggers, t.d.triggers[""..n])
-        t.d.triggers[""..n] = nil
-        n = n+1
       end
+      return fixed
     end
 
-    for c=1,3 do
-      if c == 1 then c = "" end
-      if t.d.load and t.d.load["talent"..c] and t.d.load["talent"..c].multi then
-        local talentTbl = {}
-        for k, v in pairs(t.d.load["talent"..c].multi) do
-          if tonumber(k) > 0 then
-            talentTbl[tonumber(k)] = v
-          else
-            talentTbl[k] = v
+    -- fixes tables; the lua-json process can break these
+    function fixWATables(t)
+      if t.triggers then
+        t.triggers = fixNumericIndexes(t.triggers)
+        for n in ipairs(t.triggers) do
+          if t.triggers[n].trigger and t.triggers[n].trigger.form and t.triggers[n].trigger.form.multi then
+            t.triggers[n].trigger.form.multi = fixNumericIndexes(t.triggers[n].trigger.form.multi)
+          end
+
+          if t.triggers[n].trigger and t.triggers[n].trigger.talent and t.triggers[n].trigger.talent.multi then
+            t.triggers[n].trigger.talent.multi = fixNumericIndexes(t.triggers[n].trigger.talent.multi)
+          end
+
+          if t.triggers[n].trigger and t.triggers[n].trigger.actualSpec then
+          t.triggers[n].trigger.actualSpec = fixNumericIndexes(t.triggers[n].trigger.actualSpec)
           end
         end
-        t.d.load["talent"..c].multi = talentTbl
       end
+
+      if t.load and t.load.talent and t.load.talent.multi then
+        t.load.talent.multi = fixNumericIndexes(t.load.talent.multi)
+      end
+      if t.load and t.load.talent2 and t.load.talent2.multi then
+        t.load.talent2.multi = fixNumericIndexes(t.load.talent2.multi)
+      end
+      if t.load and t.load.talent3 and t.load.talent3.multi then
+        t.load.talent3.multi = fixNumericIndexes(t.load.talent3.multi)
+      end
+
+      if t.load and t.load.class_and_spec and t.load.class_and_spec.multi then
+        t.load.class_and_spec.multi = fixNumericIndexes(t.load.class_and_spec.multi)
+      end
+
+      return t
     end
 
+    t.d = fixWATables(t.d)
     if t.c then
       for i=1, #t.c do
-        if t.c[i].triggers and t.c[i].triggers["1"] then
-          n = 1
-          while t.c[i].triggers[""..n] do
-            if t.c[i].triggers[""..n].trigger and type(t.c[i].triggers[""..n].trigger.form) == "table" and t.c[i].triggers[""..n].trigger.form.multi then
-              for form=0,20 do
-                if t.c[i].triggers[""..n].trigger.form.multi[""..form] then
-                  t.c[i].triggers[""..n].trigger.form.multi[form] = t.c[i].triggers[""..n].trigger.form.multi[""..form]
-                  t.c[i].triggers[""..n].trigger.form.multi[""..form] = nil
-                end
-              end
-            end
-
-            if t.c[i].triggers[""..n].trigger and t.c[i].triggers[""..n].trigger.talent and t.c[i].triggers[""..n].trigger.talent.multi then
-              local talentTbl = {}
-              for k, v in pairs(t.c[i].triggers[""..n].trigger.talent.multi) do
-                if tonumber(k) > 0 then
-                  talentTbl[tonumber(k)] = v
-                else
-                  talentTbl[k] = v
-                end
-              end
-              t.c[i].triggers[""..n].trigger.talent.multi = talentTbl
-            end
-
-            tinsert(t.c[i].triggers, t.c[i].triggers[""..n])
-            t.c[i].triggers[""..n] = nil
-            n = n+1
-          end
-        end
-
-        for c=1,3 do
-          if c == 1 then c = "" end
-          if t.c[i].load and t.c[i].load["talent"..c] and t.c[i].load["talent"..c].multi then
-            local talentTbl = {}
-            for k, v in pairs(t.c[i].load["talent"..c].multi) do
-              if tonumber(k) > 0 then
-                talentTbl[tonumber(k)] = v
-              else
-                talentTbl[k] = v
-              end
-            end
-            t.c[i].load["talent"..c].multi = talentTbl
-          end
+        if t.c[i] then
+          t.c[i] = fixWATables(t.c[i])
         end
       end
     end
