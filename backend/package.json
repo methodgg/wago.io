@@ -19,7 +19,7 @@
     "discord.js": "^12.5.3",
     "execa": "^5.0.0",
     "fast-stringify": "^2.0.0",
-    "fastify": "^3.14.0",
+    "fastify": "^3.29.4",
     "fastify-compress": "^3.4.2",
     "fastify-cookie": "^5.1.0",
     "fastify-file-upload": "^3.0.0",
