@@ -8,41 +8,49 @@ module.exports = {
       return []
     }
     for (let i = 0; i < code.length; i++) {
-      if (typeof code[i] !== 'object' || !code[i].lua || typeof code[i].lua !== 'string' || (!code[i].keypath || code[i].keypath.match(/customVariables$/))) {
+      if (typeof code[i] !== 'object' || !code[i].lua || typeof code[i].lua !== 'string' || !code[i].keypath) {
         continue
       }
       if (code[i].luacheck && code[i].luacheck.match(/^\d+ error/)) {
         continue
       }
 
-      let metrics = new Metrics()
       let lua = code[i].lua
+      if (lua === '[{}]') {
+        continue
+      }
+      let metrics = new Metrics()
       metrics.countLoC(lua)
 
-      lua = lua.replace(/break\s*;/g, 'break') // weird bugfixhack
-
-      let tmpFn = `fn${Math.floor(Math.random()*1000)}`
-      if (!code[i].keypath.match(/\.actions\.(init|start|finish)\.custom/)) {
-        let luax
-        while (luax !== lua) {
-          luax = lua
-          lua = lua.replace(/^\s*--\[(=*)\[[\s\S]*?\]\1\]/gm, '').replace(/^\s*--.*$/m, '')
-        }
-        lua = lua.replace(/^\s*function\s*\(/, `function ${tmpFn}(`)
-        metrics.tokens = -1
-      }
-
-      //
       try {
-        let ast = luaLexer.parse(lua, {comments: false, locations: true, scope: true})
-        metrics.walkAST(ast)
-        metrics.globals.delete(tmpFn)
-        metrics.finalize()
+        lua = lua.replace(/break\s*;/g, 'break') // weird bugfixhack
+
+        let tmpID = Math.floor(Math.random()*1000)
+        if (!code[i].keypath.match(/\.actions\.(init|start|finish)\.custom/)) {
+          let luax
+          while (luax !== lua) {
+            luax = lua
+            lua = lua.replace(/^\s*--\[(=*)\[[\s\S]*?\]\1\]/gm, '').replace(/^\s*--.*$/m, '')
+          }
+          lua = lua.replace(/^\s*function\s*\(/, `local function fwago${tmpID}(`)
+          metrics.tokens = -1
+        }
+
+        //
+        try {
+          if (lua.match(/^\s*\{/)) {
+            lua = `local twago${tmpID}=` + lua
+          }
+          let ast = luaLexer.parse(lua, {comments: false, locations: true, scope: true})
+          metrics.walkAST(ast)
+          metrics.finalize()
+        }
+        catch (e) {
+          console.log(e, code[i].name, code[i].keypath, '\n'+lua+'\n\n\n\n\n')
+          throw 'diedie'
+        }
       }
-      catch (e) {
-        console.log(e, code[i].name, code[i].keypath, '\n'+lua+'\n\n\n\n\n')
-        throw 'diedie'
-      }
+      catch {}
 
       code[i].metrics = metrics
     }
