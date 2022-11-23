@@ -18,18 +18,32 @@ module.exports = {
     
     // if user is leaves a server, then remove any roles
     client.on('message', async (message) => {
-      if (config.env === 'development') {
+      if ((config.env === 'development' && message.channel.id !== '207153760399654912') || (config.env !== 'development' && message.channel.id === '207153760399654912')) {
+        return
+      }
+
+      const matchWA = /(!WA:2![a-zA-Z0-9\(\)]+)/
+      let result = message.content.match(matchWA)
+      let importWA = result && result[1]
+      
+      if (!importWA && message.attachments) {
+        // check attached file
+        const attachments = message.attachments.filter(x => x.size < 180000)
+        for (const att of attachments) {
+          if (importWA) continue
+          const content = await axios.get(att[1].url)
+          if (content && content.data) {
+            result = content.data.match(matchWA)
+            importWA = result && result[1]
+          }
+        }
+      }
+
+      if (!importWA) {
         return
       }
       
-      if (message.content.match(/^```!?(WA:2!)?[a-zA-Z0-9\(\)]*```$/)) {
-        message.content = message.content.substring(3, message.content.length-3)
-      }
-      else if (!message.content.match(/^!?(WA:2!)?[a-zA-Z0-9\(\)]*$/)) {
-        return
-      }
-      
-      const decoded = await WA.decode(message.content.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim(), lua.runLua)
+      const decoded = await WA.decode(importWA.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim(), lua.runLua)
       const meta = WA.processMeta(decoded)
       if (decoded && meta) {
         const wago = new WagoItem({
@@ -39,10 +53,10 @@ module.exports = {
           game: meta.game,
           name: meta.name || 'Import from Discord',
           categories: [],
-          description: `Imported from **${message.guild.name}** Discord, *#${message.channel.name}* by **${message.author.username}**`,
+          description: `Imported from **${message.guild.name}** Discord, *#${message.channel.name}* by **${message.author.username}**.`,
           description_format: 'markdown',
           hidden: true,
-          expires_at: new Date().setTime(new Date().getTime()+24*60*60*1000),
+          expires_at: new Date().setTime(new Date().getTime()+3*24*60*60*1000),
           _userId: '62ebf029da9ef14623e27f4c' // WagoDiscordBot
         })
         
