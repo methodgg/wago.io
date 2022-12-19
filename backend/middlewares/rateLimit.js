@@ -12,7 +12,7 @@ module.exports = async function (req, res) {
   }
   else {
     key = 'limit:wago:' + req.raw.ip
-    max = 500
+    max = 2000
     expire = 60
   }
 
