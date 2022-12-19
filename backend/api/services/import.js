@@ -952,7 +952,9 @@ module.exports = function (fastify, opts, next) {
       // break
     }
 
-    webhooks.discord.onUpdate(req.user, wago)
+    if (req.user && !wago.hidden && !wago.private && !wago.restricted && req.user.discord && req.user.discord.webhooks && req.user.discord.webhooks.onCreate) {
+      webhooks.discord.onUpdate(req.user, wago)
+    }
     
     if (wago.encrypted && req.body.cipherKey) {
       code.encoded = crypto.AES.encrypt(code.encoded, req.body.cipherKey)
