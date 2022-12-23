@@ -193,7 +193,6 @@ export default {
       return window.Categories.classCategories('WEAKAURA', 'sl')
     },
     raids: function () {
-      console.log(window.Categories.raidCategories(['sldungeon']))
       return window.Categories.raidCategories(['raidsepulcherfirst', 'raidsantumdom', 'raidnathria', 'torghast', 'sldungeon', 'sltimewalking'])
     },
     misc: function () {

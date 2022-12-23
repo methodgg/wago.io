@@ -32,9 +32,12 @@
           <md-list-item v-for="raid in raids" v-bind:key="raid.id" :class="raid.id + ' md-inset'">
             <div class="menu-image"></div>
             <div class="md-list-text-container">
-              <a :href="'/dragonflight-weakauras/' + raid.slug" @click.prevent="searchRoute(raid)">{{ raid.text }}</a>
+              <a :href="'/shadowlands-weakauras/' + raid.slug" @click.prevent="searchRoute(raid)">{{ raid.text }}</a>
               <span>
-                <a v-for="boss in raid.bosses" v-bind:key="boss.id" :href="'/dragonflight-weakauras/' + boss.slug" @click.prevent="searchRoute(boss)">{{ boss.text }}</a>
+                <template v-for="boss in raid.bosses">
+                  <a v-if="boss.slug" v-bind:key="boss.id" :href="'/shadowlands-weakauras/' + boss.slug" @click.prevent="searchRoute(boss)">{{ boss.text }}</a>
+                  <span v-else-if="boss.subheader" v-bind:key="boss.id" class="subsection">{{ boss.text }}</span>
+                </template>
               </span>
             </div>
           </md-list-item>
@@ -129,7 +132,7 @@
           <md-list-item class="torghast md-inset'">
             <div class="menu-image" style="align-self:center"></div>
             <div class="md-list-text-container">
-              <router-link to="/bfa-weakauras/">{{ $t('Shadowlands') }}</router-link>
+              <router-link to="/shadowlands-weakauras/">{{ $t('Shadowlands') }}</router-link>
             </div>
           </md-list-item>
           <md-list-item class="raidnyalotha md-inset'">
@@ -267,5 +270,6 @@ h2 span {font-size:80%; cursor: pointer}
 
 #search-weakaura .md-subheader { width: 100% }
 #search-weakaura .md-subheader + .md-list { width: 100% }
+span.subsection {display: block}
 .md-list:after { background-color: transparent!important }
 </style>

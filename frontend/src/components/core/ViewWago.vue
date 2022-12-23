@@ -1722,6 +1722,14 @@ export default {
               this.wago.typePrefix = 'BFA'
               this.typeSlug = 'bfa-weakauras/'
             }
+            else if (this.wago.game === 'sl') {
+              this.wago.typePrefix = 'SL'
+              this.typeSlug = 'shadowlands-weakauras/'
+            }
+            else if (this.wago.game === 'df') {
+              this.wago.typePrefix = 'DF'
+              this.typeSlug = 'dragonflight-weakauras/'
+            }
             else {
               this.typeSlug = 'weakauras/'
             }

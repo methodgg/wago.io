@@ -165,12 +165,10 @@
     <div id="currentcontent">
       <strong>{{ $t('Current WeakAuras') }}</strong>
       <div id="current-wa">
-        <router-link :to="'/shadowlands-weakauras/' + currentWA.shadowlands[0].slug" :style="`border-color: ${currentWA.shadowlands[0].color}99; color:${currentWA.shadowlands[0].color}; background-color:${currentWA.shadowlands[0].color}11; background-image:url('/static/image/menu/${currentWA.shadowlands[0].image}')`"><span>{{ currentWA.shadowlands[0].text }}</span></router-link>
+        <router-link :to="'/dragonflight-weakauras/' + currentWA.dragonflight[0].slug" :style="`border-color: ${currentWA.dragonflight[0].color}99; color:${currentWA.dragonflight[0].color}; background-color:${currentWA.dragonflight[0].color}11; background-image:url('/static/image/menu/${currentWA.dragonflight[0].image}')`"><span>{{ currentWA.dragonflight[0].text }}</span></router-link>
         <router-link :to="'/wotlk-weakauras/' + currentWA.wotlk[0].slug" :style="`border-color: ${currentWA.wotlk[0].color}99; color:${currentWA.wotlk[0].color}; background-color:${currentWA.wotlk[0].color}11; background-image:url('/static/image/menu/${currentWA.wotlk[0].image}')`"><span>{{ currentWA.wotlk[0].text }} [WotLK]</span></router-link>
-        <router-link :to="'/classic-weakauras/' + currentWA.classic[0].slug" :style="`border-color: ${currentWA.classic[0].color}99; color:${currentWA.classic[0].color}; background-color:${currentWA.classic[0].color}11; background-image:url('/static/image/menu/${currentWA.classic[0].image}')`"><span>{{ currentWA.classic[0].text }}</span></router-link>
-        <router-link :to="'/shadowlands-weakauras/' + currentWA.shadowlands[1].slug" :style="`border-color: ${currentWA.shadowlands[1].color}99; color:${currentWA.shadowlands[1].color}; background-color:${currentWA.shadowlands[1].color}11; background-image:url('/static/image/menu/${currentWA.shadowlands[1].image}')`"><span>{{ currentWA.shadowlands[1].text }}</span></router-link>
+        <router-link :to="'/dragonflight-weakauras/' + currentWA.dragonflight[1].slug" :style="`border-color: ${currentWA.dragonflight[1].color}99; color:${currentWA.dragonflight[1].color}; background-color:${currentWA.dragonflight[1].color}11; background-image:url('/static/image/menu/${currentWA.dragonflight[1].image}')`"><span>{{ currentWA.dragonflight[1].text }}</span></router-link>
         <router-link :to="'/wotlk-weakauras/' + currentWA.wotlk[1].slug" :style="`border-color: ${currentWA.wotlk[1].color}99; color:${currentWA.wotlk[1].color}; background-color:${currentWA.wotlk[1].color}11; background-image:url('/static/image/menu/${currentWA.wotlk[1].image}')`"><span>{{ currentWA.wotlk[1].text }}</span></router-link>
-        <router-link :to="'/classic-weakauras/' + currentWA.classic[1].slug" :style="`border-color: ${currentWA.classic[1].color}99; color:${currentWA.classic[1].color}; background-color:${currentWA.classic[1].color}11; background-image:url('/static/image/menu/${currentWA.classic[1].image}')`"><span>{{ currentWA.classic[1].text }}</span></router-link>
       </div>
     </div>
 
@@ -336,7 +334,7 @@
   }
   #current-wa {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     column-gap: 16px;
     row-gap: 8px;
     a {
@@ -498,20 +496,18 @@ export default {
   computed: {
     currentWA () {
       return {
-        shadowlands: [
-          Categories.getCategories('raidsepulcherfirst')[0],
-          Categories.getCategories('sltimewalking')[0],
+        dragonflight: [
+          Categories.getCategories('raidvaultincarnates')[0],
+          Categories.getCategories('dfdungeon')[0],
         ],
         wotlk: [
           Categories.getCategories('raidnaxxramas')[0],
           Categories.getCategories('raidsarth')[0],
         ],
-        classic: [
-          Categories.getCategories('raidnaxxramas')[0],
-          Categories.getCategories('raidtempleaq')[0],
-          // Categories.getCategories('raidruinsaq')[0],
-          // Categories.getCategories('raidworld')[0],
-        ]
+        // classic: [
+        //   Categories.getCategories('raidnaxxramas')[0],
+        //   Categories.getCategories('raidtempleaq')[0],
+        // ]
       }
     },
     user () {
