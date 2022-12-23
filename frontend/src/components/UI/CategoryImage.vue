@@ -25,6 +25,7 @@
     <img src="./../../assets/menu-nighthold.png" v-else-if="group === 'nighthold'"/>
     <img src="./../../assets/menu-dungeon.png" v-else-if="group === 'dungeon'"/>
     <img src="./../../assets/menu-misc.png" v-else-if="group === 'misc'"/>
+    <img src="./../../assets/menu-accessibility.png" v-else-if="group === 'accessibility'"/>
     <img src="./../../assets/menu-equip.png" v-else-if="group === 'equip' || group === 'rpitem'"/>
     <img src="./../../assets/menu-mechanics.png" v-else-if="group === 'mechanics'"/>
     <img src="./../../assets/menu-wpvp.png" v-else-if="group === 'pvp-world'"/>

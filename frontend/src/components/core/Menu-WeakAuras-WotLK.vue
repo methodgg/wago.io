@@ -85,6 +85,16 @@
             </div>
           </md-list-item>
 
+          <md-list-item class="md-inset accessibility">
+            <div class="menu-image"></div>
+            <div class="md-list-text-container">
+              <a href="/dragonflight-weakauras/accessibility" @click.prevent="searchRoute('accessibility')">{{ $t("Accessibility") }}</a>
+              <span>
+                <a v-for="item in accessibility" v-bind:key="item.id" :href="'/dragonflight-weakauras/' + item.slug" @click.prevent="searchRoute(item)">{{ item.text }}</a>
+              </span>
+            </div>
+          </md-list-item>
+
           <md-list-item class="md-inset gen0">
             <div class="menu-image"></div>
             <div class="md-list-text-container">
@@ -195,6 +205,9 @@ export default {
     },
     professions: function () {
       return window.Categories.professionCategories('WEAKAURA', 'wotlk')
+    },
+    accessibility: function () {
+      return window.Categories.getCategories([/^accessibility[\d]+/], null)
     },
     development: function () {
       return window.Categories.getCategories(['gen5', 'gen3', 'gen4'])

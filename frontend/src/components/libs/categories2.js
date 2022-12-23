@@ -109,6 +109,11 @@ class Categories {
       'role1': {slug: 'class-roles/damage-dealing', i18n: 'Damage Dealing', domain: 0, parent: 'role0'},
       'role2': {slug: 'class-roles/healing', i18n: 'Healing', domain: 0, parent: 'role0'},
       'role3': {slug: 'class-roles/tanking', i18n: 'Tanking', domain: 0, parent: 'role0'},
+      
+      'accessibility': {slug: 'accessibility', image: 'accessibility.png', color: '#BD10E0', i18n: 'Accessibility', domain: 0, types: ['WEAKAURA']},
+      'accessibility1': {slug: 'accessibility/audible', i18n: 'Audible', color: '#BD10E0', domain: 0, parent: 'accessibility0', types: ['WEAKAURA']},
+      'accessibility2': {slug: 'accessibility/visual', i18n: 'Visual', color: '#BD10E0', domain: 0, parent: 'accessibility0', types: ['WEAKAURA']},
+      'accessibility3': {slug: 'accessibility/controls', i18n: 'Controls', color: '#BD10E0', domain: 0, parent: 'accessibility0', types: ['WEAKAURA']},
 
       // dragonflight      
       'raidvaultincarnates': {slug: 'pve/vault-of-the-incarnates', image: 'vaultincarnates.png', color: '#3192F4', i18n: 'warcraft:instances.1200', domain: 0, types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
