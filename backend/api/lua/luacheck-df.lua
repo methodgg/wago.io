@@ -56,6 +56,7 @@ std = {
     "WeakAuras",
 
     -- WeakAuras
+    "DebugPrint",
     "WeakAuras_DropDownMenu",
     "WeakAuras_DropIndicator",
     "WeakAuras",
