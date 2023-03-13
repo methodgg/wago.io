@@ -707,10 +707,11 @@
      else if (doc.type.match(/WEAKAURA/)) {
        var json = JSON.parse(code.json)
        // check for any missing data
-       if (
+       if (doc.latestVersion && (
         (code.version && (!code.encoded || !code.customCode || ((json.d.version !== code.version || json.d.url !== doc.url + '/' + code.version) || (json.c && json.c[0] && json.c[0].version !== code.version) || (json.d.semver !== code.versionString))))
        || (code.customCode.filter(x => x.lua && !x.metrics.nloc).length)
        || (doc.game !== patchDates.gameVersion(json.d.tocversion))
+        )
        ) {
          var q = await taskQueue.add('ProcessCode', {id: doc._id, version: code.versionString}, {priority: req.user && req.user.access.queueSkip && 2 || 5, jobId: `${doc._id}:${code.version}:${code.versionString}`})
          wagoCode.Q = q.id
