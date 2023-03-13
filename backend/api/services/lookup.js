@@ -707,7 +707,7 @@
      else if (doc.type.match(/WEAKAURA/)) {
        var json = JSON.parse(code.json)
        // check for any missing data
-       if (doc.latestVersion && (
+       if (doc.latestVersion.iteration === code.version && (
         (code.version && (!code.encoded || !code.customCode || ((json.d.version !== code.version || json.d.url !== doc.url + '/' + code.version) || (json.c && json.c[0] && json.c[0].version !== code.version) || (json.d.semver !== code.versionString))))
        || (code.customCode.filter(x => x.lua && !x.metrics.nloc).length)
        || (doc.game !== patchDates.gameVersion(json.d.tocversion))
