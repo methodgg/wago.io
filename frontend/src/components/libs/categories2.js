@@ -116,6 +116,17 @@ class Categories {
       'accessibility3': {slug: 'accessibility/controls', i18n: 'Controls', color: '#BD10E0', domain: 0, parent: 'accessibility', types: ['WEAKAURA']},
 
       // dragonflight      
+      'raidaberrus': {slug: 'pve/aberrus-the-shadowed-crucible', image: 'halion.png', color: '#FA5D60', i18n: 'warcraft:instances.1200', domain: 0, types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
+      'raidaberrus1': {slug: 'pve/aberrus-the-shadowed-crucible/kazzara', i18n: 'warcraft:encounters.2522', domain: 0, parent: 'raidaberrus', types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
+      'raidaberrus2': {slug: 'pve/aberrus-the-shadowed-crucible/molgoth', i18n: 'warcraft:encounters.2529', domain: 0, parent: 'raidaberrus', types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
+      'raidaberrus3': {slug: 'pve/aberrus-the-shadowed-crucible/experimentation-of-deacthyr', i18n: 'warcraft:encounters.2530', domain: 0, parent: 'raidaberrus', types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
+      'raidaberrus4': {slug: 'pve/aberrus-the-shadowed-crucible/the-zaqali-elders', i18n: 'warcraft:encounters.2531', domain: 0, parent: 'raidaberrus', types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
+      'raidaberrus5': {slug: 'pve/aberrus-the-shadowed-crucible/rashok', i18n: 'warcraft:encounters.2525', domain: 0, parent: 'raidaberrus', types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
+      'raidaberrus6': {slug: 'pve/aberrus-the-shadowed-crucible/zskarn', i18n: 'warcraft:encounters.2532', domain: 0, parent: 'raidaberrus', types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
+      'raidaberrus7': {slug: 'pve/aberrus-the-shadowed-crucible/magmorax', i18n: 'warcraft:encounters.2527', domain: 0, parent: 'raidaberrus', types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
+      'raidaberrus8': {slug: 'pve/aberrus-the-shadowed-crucible/neltharion', i18n: 'warcraft:encounters.2523', domain: 0, parent: 'raidaberrus', types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
+      'raidaberrus9': {slug: 'pve/aberrus-the-shadowed-crucible/scalecommander-sarkareth', i18n: 'warcraft:encounters.2520', domain: 0, parent: 'raidaberrus', types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
+
       'raidvaultincarnates': {slug: 'pve/vault-of-the-incarnates', image: 'vaultincarnates.png', color: '#3192F4', i18n: 'warcraft:instances.1200', domain: 0, types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
       'raidvaultincarnates1': {slug: 'pve/vault-of-the-incarnates/eranog', i18n: 'warcraft:encounters.2480', domain: 0, parent: 'raidvaultincarnates', types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
       'raidvaultincarnates2': {slug: 'pve/vault-of-the-incarnates/sennarth-the-cold-breath', i18n: 'warcraft:encounters.2482', domain: 0, parent: 'raidvaultincarnates', types: ['WEAKAURA', 'COLLECTION'], games: ['df']},

@@ -32,10 +32,10 @@
           <md-list-item v-for="raid in raids" v-bind:key="raid.id" :class="raid.id + ' md-inset'">
             <div class="menu-image"></div>
             <div class="md-list-text-container">
-              <a :href="'/shadowlands-weakauras/' + raid.slug" @click.prevent="searchRoute(raid)">{{ raid.text }}</a>
+              <a :href="'/dragonflight-weakauras/' + raid.slug" @click.prevent="searchRoute(raid)">{{ raid.text }}</a>
               <span>
                 <template v-for="boss in raid.bosses">
-                  <a v-if="boss.slug" v-bind:key="boss.id" :href="'/shadowlands-weakauras/' + boss.slug" @click.prevent="searchRoute(boss)">{{ boss.text }}</a>
+                  <a v-if="boss.slug" v-bind:key="boss.id" :href="'/dragonflight-weakauras/' + boss.slug" @click.prevent="searchRoute(boss)">{{ boss.text }}</a>
                   <span v-else-if="boss.subheader" v-bind:key="boss.id" class="subsection">{{ boss.text }}</span>
                 </template>
               </span>
@@ -209,7 +209,7 @@ export default {
       return window.Categories.classCategories('WEAKAURA', 'df')
     },
     raids: function () {
-      return window.Categories.raidCategories(['raidvaultincarnates', 'dfdungeon', 'dftimewalking'])
+      return window.Categories.raidCategories(['raidaberrus', 'raidvaultincarnates', 'dfdungeon', 'dftimewalking'])
     },
     misc: function () {
       return window.Categories.getCategories(['gen1', 'gen7', 'gen2', 'gen6', 'gen9', 'gen10', 'gen11', 'gen12', 'gen13', 'gen8', 'gen15', 'gen19'], null)

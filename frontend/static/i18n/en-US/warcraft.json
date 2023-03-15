@@ -1411,7 +1411,16 @@
     "2514": "Echo of Doragosa",
     "2515": "Strunraan, The Sky's Misery",
     "2517": "Bazual, The Dreaded Flame",
-    "2518": "Liskanoth, The Futurebane"
+    "2518": "Liskanoth, The Futurebane",
+    "2520": "Scalecommander Sarkareth",
+    "2522": "Kazzara",
+    "2523": "Neltharion",
+    "2525": "Rashok",
+    "2527": "Magmorax",
+    "2529": "Molgoth",
+    "2530": "Experimentation of Dracthyr",
+    "2531": "The Zaqali Elders",
+    "2532": "Zskarn"
   },
   "expansions": {
     "68": "Classic",
@@ -1600,7 +1609,8 @@
     "1202": "Ruby Life Pools",
     "1203": "The Azure Vault",
     "1204": "Halls of Infusion",
-    "1205": "Dragon Isles"
+    "1205": "Dragon Isles",
+    "1208": "Aberrus, the Shadowed Crucible"
   },
   "specs": {
     "62": "Arcane",
