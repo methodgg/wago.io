@@ -116,7 +116,7 @@ class Categories {
       'accessibility3': {slug: 'accessibility/controls', i18n: 'Controls', color: '#BD10E0', domain: 0, parent: 'accessibility', types: ['WEAKAURA']},
 
       // dragonflight      
-      'raidaberrus': {slug: 'pve/aberrus-the-shadowed-crucible', image: 'halion.png', color: '#FA5D60', i18n: 'warcraft:instances.1200', domain: 0, types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
+      'raidaberrus': {slug: 'pve/aberrus-the-shadowed-crucible', image: 'halion.png', color: '#FA5D60', i18n: 'warcraft:instances.1208', domain: 0, types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
       'raidaberrus1': {slug: 'pve/aberrus-the-shadowed-crucible/kazzara', i18n: 'warcraft:encounters.2522', domain: 0, parent: 'raidaberrus', types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
       'raidaberrus2': {slug: 'pve/aberrus-the-shadowed-crucible/molgoth', i18n: 'warcraft:encounters.2529', domain: 0, parent: 'raidaberrus', types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
       'raidaberrus3': {slug: 'pve/aberrus-the-shadowed-crucible/experimentation-of-deacthyr', i18n: 'warcraft:encounters.2530', domain: 0, parent: 'raidaberrus', types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
