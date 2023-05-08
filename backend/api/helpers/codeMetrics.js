@@ -41,7 +41,13 @@ module.exports = {
           if (lua.match(/^\s*\{/)) {
             lua = `local twago${tmpID}=` + lua
           }
-          let ast = luaLexer.parse(lua, {comments: false, locations: true, scope: true})
+          let ast = luaLexer.parse(lua, {
+            comments: false,
+            scope: true,
+            locations: true,
+            luaVersion: "5.1",
+            encodingMode: "pseudo-latin1",
+          })
           metrics.walkAST(ast)
           metrics.finalize()
         }
@@ -89,6 +95,7 @@ class Metrics {
     if (strObj.value) {
       return strObj.value
     }
+    // strObj.value should always have a value now with luaParse's encodingMode option set
     if (strObj.raw) {
       let str = strObj.raw.replace(/^("|')|("|')$/g, '')
       if (str !== strObj.raw) {
