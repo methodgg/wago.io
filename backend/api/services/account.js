@@ -324,5 +324,19 @@ module.exports = (fastify, opts, next) => {
     }
   })
 
+  fastify.post('/support-key', async (req, res) => {
+    if (!req.user) {
+      return res.code(403).send({error: "forbidden"})
+    }
+
+    if (!req.user.account.support_key || req.body.new) {
+      var key = await req.user.createAPIKey('support_key')
+      res.send({key: key})
+    }
+    else {
+      res.send({key: req.user.account.support_key})
+    }
+  })
+
   next()
 }

@@ -13,6 +13,7 @@ const Schema = new mongoose.Schema({
     active : { type: Date, default: Date.now },
     verified_human : { type: Boolean, default: false },
     api_key : { type: String, index: true },
+    support_key : String,
     companionHideAlert: Boolean,
     reset : String
   },
@@ -187,14 +188,14 @@ Schema.statics.findByAPIKey = function(key) {
     })
   })
 }
-Schema.methods.createAPIKey = async function() {
+Schema.methods.createAPIKey = async function(keyProp='api_key') {
   var chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
   var key = ''
   for (let i = 0; i < 64; i++) {
     key += chars.charAt(Math.floor(Math.random() * chars.length))
   }
 
-  this.account.api_key = key
+  this.account[keyProp] = key
   await this.save()
   return key
 }

@@ -196,6 +196,12 @@
             <wago-api-key />
             <p>Documentation and more endpoints soon™</p>
           </md-card-content>
+
+          <h2>Support Key</h2>
+          <md-card-content>
+            <p>{{ $t("You may use an Support key to prove account ownership should you need support from the Wago team, as we don't have your email - this is not used anywhere else") }}</p>
+            <support-api-key key="support_key"/>
+          </md-card-content>
         </div>
         <div v-if="User.discord && User.discord.id">
           <h2>Discord</h2>
@@ -219,14 +225,16 @@
 <script>
 
 import WagoOauth from '../UI/WagoOauth.vue'
-import FieldAPIKey from '../UI/WagoApiKey.vue'
+import WagoAPIKey from '../UI/WagoApiKey.vue'
+import WagoSupportKey from '../UI/WagoSupportKey.vue'
 const openCustomProtocol = require('../libs/customProtocolDetection')
 
 export default {
   components: {
     'wago-oauth': WagoOauth,
     editor: require('vue2-ace-editor'),
-    'wago-api-key': FieldAPIKey
+    'wago-api-key': WagoAPIKey,
+    'support-api-key': WagoSupportKey
   },
   data: function () {
     return {
