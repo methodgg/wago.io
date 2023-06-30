@@ -770,7 +770,7 @@
      wagoCode.customCode = code.customCode
      wagoCode.tableMetrics = code.tableMetrics
  
-     if (wagoCode.Q) {
+     if (wagoCode.Q || doc.restricted || doc.private) {
        return res.send(wagoCode)
      }
      res.cache(604800).send(wagoCode)
