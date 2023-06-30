@@ -27,7 +27,7 @@ module.exports = function (fastify, opts, next) {
     if (wago._userId && wago._userId._id && !wago._userId._id.equals(req.user._id)) {
       comment.usersTagged.push({userID: wago._userId._id.toString()})
       comment.commentText = comment.commentText.replace('@' + wago._userId.profile.name, '[taggeduser]@' + wago._userId.profile.name + '[/taggeduser]')
-      taskQueueB.add('DiscordMessage', {type: 'comment', author: req.user._id, to: wago._userId._id, wago: wago._id, message: req.body.text.replace(/\[(\w+)[^\]]*](.*?)\[\/\1]/g, '')})
+      taskQueueDiscordBot.add('DiscordMessage', {type: 'comment', author: req.user._id, to: wago._userId._id, wago: wago._id, message: req.body.text.replace(/\[(\w+)[^\]]*](.*?)\[\/\1]/g, '')})
     }
 
     var re = /@([^.,\/@!$%\^&\*;:{}=`~()\s\[\]]+)/g
@@ -44,7 +44,7 @@ module.exports = function (fastify, opts, next) {
       else {
         comment.commentText = comment.commentText.replace('@' + user.profile.name, '[taggeduser]@' + user.profile.name + '[/taggeduser]')
         comment.usersTagged.push({userID: user._id.toString()})
-        taskQueueB.add('DiscordMessage', {type: 'comment', author: req.user._id, to: user._id, wago: wago._id, message: req.body.text.replace(/\[(\w+)[^\]]*](.*?)\[\/\1]/g, '')})
+        taskQueueDiscordBot.add('DiscordMessage', {type: 'comment', author: req.user._id, to: user._id, wago: wago._id, message: req.body.text.replace(/\[(\w+)[^\]]*](.*?)\[\/\1]/g, '')})
         return
       }
     }))

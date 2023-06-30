@@ -780,7 +780,7 @@ module.exports = function (fastify, opts, next) {
     await code.save()
 
     // send message to starred users    
-    taskQueueB.add('DiscordMessage', {type: 'update', author: req.user._id, wago: wago._id, message: req.body.text})
+    taskQueueDiscordBot.add('DiscordMessage', {type: 'update', author: req.user._id, wago: wago._id, message: req.body.text})
 
     // send update to webhook
     if (req.user && !wago.hidden && !wago.private && !wago.restricted && req.user.discord && req.user.discord.webhooks && req.user.discord.webhooks.onCreate) {

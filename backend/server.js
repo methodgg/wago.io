@@ -23,7 +23,7 @@ const {Queue, Worker, QueueScheduler, QueueEvents} = require('bullmq')
 const Profiler = require('./api/models/Profiler')
 const discordBot = require('./discordBot')
 global.taskQueue = new Queue('taskQueue', {connection: RedisConnect})
-global.taskQueueB = new Queue('taskQueueB', {connection: RedisConnect})
+global.taskQueueDiscordBot = new Queue('taskQueueDiscordBot', {connection: RedisConnect})
 global.async = require('async')
 global.axios = require('axios')
 global.bluebird = require('bluebird')
@@ -109,50 +109,50 @@ const startServer = async () => {
       addon = addon.split('.')[0]
       global.Addons[addon] = require('./api/helpers/encode-decode/' + addon)
     })
-
-    // setup queues and workers
-    const runTask = require('./api/helpers/tasks')
-    var profilerTasks = {}
-    new QueueScheduler('taskQueue', {connection: RedisConnect})
-    const worker = new Worker('taskQueue', async (job) => {
-      await runTask(job.name, job.data, profilerTasks[job.id])
-    }, {
-      concurrency: 3,
-      connection: RedisConnect
-    })
-    worker.on('active', async (job) => {
-      profilerTasks[job.id] = await Profiler.startTask(job)
-    })
-    worker.on('completed', async (job) => {
-      if (profilerTasks[job.id]) {
-        await Profiler.logEvent(profilerTasks[job.id], 'Complete', 200)
-        delete profilerTasks[job.id]
-      }
-    })
-    worker.on('failed', async (job) => {
-      if (profilerTasks[job.id]) {
-        await Profiler.logEvent(profilerTasks[job.id], 'Failed', 500)
-        delete profilerTasks[job.id]
-      }
-    })
-    worker.on('error', async (job) => {
-      if (profilerTasks[job.id]) {
-        await Profiler.logEvent(profilerTasks[job.id], 'Failed', 500)
-        delete profilerTasks[job.id]
-      }
-    })
     
-    // setup simulated crontasks
-    if (config.env === 'development' || require('os').hostname().match(/data.*-01$/)) {
+    const profilerTasks = {}
+
+    if (config.env === 'development' || require('os').hostname().match(/wago-process/)) {
+      // setup queues and workers
+      const runTask = require('./api/helpers/tasks')
+      new QueueScheduler('taskQueue', {connection: RedisConnect})
+      const worker = new Worker('taskQueue', async (job) => {
+        await runTask(job.name, job.data, profilerTasks[job.id])
+      }, {
+        concurrency: 2,
+        connection: RedisConnect
+      })
+      worker.on('active', async (job) => {
+        profilerTasks[job.id] = await Profiler.startTask(job)
+      })
+      worker.on('completed', async (job) => {
+        if (profilerTasks[job.id]) {
+          await Profiler.logEvent(profilerTasks[job.id], 'Complete', 200)
+          delete profilerTasks[job.id]
+        }
+      })
+      worker.on('failed', async (job) => {
+        if (profilerTasks[job.id]) {
+          await Profiler.logEvent(profilerTasks[job.id], 'Failed', 500)
+          delete profilerTasks[job.id]
+        }
+      })
+      worker.on('error', async (job) => {
+        if (profilerTasks[job.id]) {
+          await Profiler.logEvent(profilerTasks[job.id], 'Failed', 500)
+          delete profilerTasks[job.id]
+        }
+      })
+    }
+    if (config.env === 'development' || require('os').hostname().match(/wago-process-01$/)) {
       const cleanup = await taskQueue.getRepeatableJobs()
       for (let i = 0; i < cleanup.length; i++) {
         await taskQueue.removeRepeatableByKey(cleanup[i].key)
       }
       await taskQueue.add('CleanTaskQueue', null, {repeat: {cron: '*/10 * * * *'}, priority: 10})
-      await taskQueue.add('UpdateWagoOfTheMoment', null, {repeat: {cron: '* * * * *'}, priority: 3})
-      await taskQueue.add('UpdateTwitchStatus', null, {repeat: {cron: '* * * * *'}, priority: 3})
+      // await taskQueue.add('UpdateWagoOfTheMoment', null, {repeat: {cron: '* * * * *'}, priority: 3})
+      // await taskQueue.add('UpdateTwitchStatus', null, {repeat: {cron: '* * * * *'}, priority: 3})
       await taskQueue.add('UpdatePatreonAccounts', null, {repeat: {cron: '0 * * * *'}, priority: 3})
-      await taskQueue.add('UpdateWeeklyMDT', null, {repeat: {cron: '0 */4 * * *'}, priority: 3})
       await taskQueue.add('UpdateTopLists', null, {repeat: {cron: '*/5 * * * *'}, priority: 3})
       await taskQueue.add('UpdateValidCharacters', null, {repeat: {cron: '10 * * * *'}, priority: 3})
       await taskQueue.add('UpdateGuildMembership', null, {repeat: {cron: '15 * * * *'}, priority: 3})
@@ -167,13 +167,13 @@ const startServer = async () => {
       await taskQueue.add('SyncMeili', {table: 'Imports:ToDo'}, {repeat: {cron: '*/3 * * * *'}, priority: 10})
 
       // run once at startup (1 host only)
-      await elastic.ensureIndexes()
+      // await elastic.ensureIndexes()
 
       global.discordBot = require('./discordBot')
       discordBot.start()
 
-      new QueueScheduler('taskQueueB', {connection: RedisConnect})
-      const worker = new Worker('taskQueueB', async (job) => {
+      new QueueScheduler('taskQueueDiscordBot', {connection: RedisConnect})
+      const worker = new Worker('taskQueueDiscordBot', async (job) => {
         await runTask(job.name, job.data, profilerTasks[job.id])
       }, {
         concurrency: 3,
