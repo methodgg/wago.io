@@ -573,9 +573,9 @@ async function ComputeStatistics ()  {
 async function UpdateLatestAddonReleases () {
   const addons = [
     {name: 'WeakAuras-2', host: 'github', url: 'https://api.github.com/repos/weakAuras/WeakAuras2/releases'},
-    {name: 'VuhDo', host: 'gitlab', url: 'https://gitlab.vuhdo.io/api/v4/projects/13/releases'},
-    {name: 'ElvUI', host: 'tukui', url: 'https://www.tukui.org/api.php?ui=elvui'},
-    {name: 'MDT', host: 'github', url: 'https://api.github.com/repos/Nnoggie/MythicDungeonTools/releases'},
+    // {name: 'VuhDo', host: 'gitlab', url: 'https://gitlab.vuhdo.io/api/v4/projects/13/releases'},
+    // {name: 'ElvUI', host: 'tukui', url: 'https://www.tukui.org/api.php?ui=elvui'},
+    // {name: 'MDT', host: 'github', url: 'https://api.github.com/repos/Nnoggie/MythicDungeonTools/releases'},
   ]
   var madeUpdate = false
   for (let addon of addons) {
