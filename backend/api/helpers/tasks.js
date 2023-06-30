@@ -765,10 +765,11 @@ async function SyncMeili(table) {
       const lastIndexDate = await redis.get('meili:Metrics:Date')
       const wagoAppIndex = meili.index('weakauras')
       var metricsDocsWagoApp = []
-      if (!lastIndexDate) {
         redis.set('meili:Metrics:Date', new Date().toISOString())
+      if (!lastIndexDate) {
+        return
       }
-      else {
+      
       var cursor = WagoItem.aggregate([
           {$match: {_meili: true}},
         {$lookup: {
@@ -821,9 +822,6 @@ async function SyncMeili(table) {
         if (metricsDocsWagoApp.length) {
           await wagoAppIndex.updateDocuments(metricsDocsWagoApp)
           metricsDocsWagoApp = []
-      }
-
-        redis.set('meili:Metrics:Date', new Date().toISOString())
       }
       break
 
