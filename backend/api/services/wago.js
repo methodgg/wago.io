@@ -379,8 +379,8 @@ module.exports = function (fastify, opts, next) {
     }
     wago.relevancy = Categories.relevanceScores(wago.categories)
 
-    // re-add system tags
-    wago.categories = wago.categories.concat(systemTags)
+    // re-add system tags and ensure uniqueness
+    wago.categories = [...new Set(wago.categories.concat(systemTags))]
 
     // check if this import should have any system tags applied
     await wago.save()
