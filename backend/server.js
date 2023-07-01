@@ -112,9 +112,9 @@ const startServer = async () => {
     
     const profilerTasks = {}
 
+    const runTask = require('./api/helpers/tasks')
     if (config.env === 'processing' || require('os').hostname().match(/wago-processing/)) {
       // setup queues and workers
-      const runTask = require('./api/helpers/tasks')
       new QueueScheduler('taskQueue', {connection: RedisConnect})
       const worker = new Worker('taskQueue', async (job) => {
         await runTask(job.name, job.data, profilerTasks[job.id])
