@@ -112,7 +112,7 @@ const startServer = async () => {
     
     const profilerTasks = {}
 
-    if (config.env === 'development' || require('os').hostname().match(/wago-process/)) {
+    if (config.env === 'processing' || require('os').hostname().match(/wago-processing/)) {
       // setup queues and workers
       const runTask = require('./api/helpers/tasks')
       new QueueScheduler('taskQueue', {connection: RedisConnect})
@@ -144,7 +144,7 @@ const startServer = async () => {
         }
       })
     }
-    if (config.env === 'development' || require('os').hostname().match(/wago-process-01$/)) {
+    if (config.env === 'processing' || require('os').hostname().match(/wago-processing-01$/)) {
       const cleanup = await taskQueue.getRepeatableJobs()
       for (let i = 0; i < cleanup.length; i++) {
         await taskQueue.removeRepeatableByKey(cleanup[i].key)
