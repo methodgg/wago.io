@@ -28,6 +28,7 @@ class Categories {
       'cl13': {slug: 'classes/evoker', image: 'evoker.png', color: '#33937F', i18n: 'warcraft:classes.13', domain: 0, games: ['df']},
       'cl13-1': {slug: 'classes/evoker/devastation', cls:'cl-demonhunter', i18n: 'warcraft:specs.1467', domain: 0, parent: 'cl13', games: ['df']},
       'cl13-2': {slug: 'classes/evoker/preservation', i18n: 'warcraft:specs.1468', domain: 0, parent: 'cl13', games: ['df']},
+      'cl13-3': {slug: 'classes/evoker/augmentation', i18n: 'warcraft:specs.1473', domain: 0, parent: 'cl13', games: ['df']},
 
       'cl3': {slug: 'classes/hunter', image: 'hunter.png', color: '#ABD473', i18n: 'warcraft:classes.3', domain: 0},
       'cl3-1': {slug: 'classes/hunter/beast-mastery', i18n: 'warcraft:specs.253', domain: 0, parent: 'cl3'},
