@@ -1021,9 +1021,13 @@ async function ProcessCode(data) {
     elastic.addDoc('import', await doc.indexedImportData)
   }
 
-  // this is dumb
   cloudflare.zones.purgeCache(config.cloudflare.zoneID, {files: [
-    `https://data.wago.io/lookup/wago/code?id=${doc._id}&version=${code.versionString}`,
+    {url: `https://data.wago.io/api/raw/encoded?id=${wago._id}`},
+    {url: `https://data.wago.io/api/raw/encoded?id=${wago.slug}`},
+    {url: `https://data.wago.io/api/raw/encoded?id=${wago._id}&version=${code.versionString}`},
+    {url: `https://data.wago.io/api/raw/encoded?id=${wago.slug}&version=${code.versionString}`},
+    {url: `https://data.wago.io/lookup/wago/code?id=${doc._id}&version=${code.versionString}`, origin: 'https://wago.io'},
+    {url: `https://data.wago.io/lookup/wago/code?id=${doc.slug}&version=${code.versionString}`, origin: 'https://wago.io'},
   ]})
 
   if (code.customCode.length) {

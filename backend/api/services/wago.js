@@ -234,12 +234,14 @@ module.exports = function (fastify, opts, next) {
       wago.private = true
     }
     redis.clear(wago)
-    await cloudflare.zones.purgeCache(config.cloudflare.zoneID, {files: [
-      `https://data.wago.io/api/raw/encoded?id=${wago._id}`,
-      `https://data.wago.io/api/raw/encoded?id=${wago.slug}`,
-      `https://data.wago.io/api/raw/encoded?id=${wago._id}&version=${wago.latestVersion.versionString}`,
-      `https://data.wago.io/api/raw/encoded?id=${wago.slug}&version=${wago.latestVersion.versionString}`
-    ]})      
+    cloudflare.zones.purgeCache(config.cloudflare.zoneID, {files: [
+      {url: `https://data.wago.io/api/raw/encoded?id=${wago._id}`},
+      {url: `https://data.wago.io/api/raw/encoded?id=${wago.slug}`},
+      {url: `https://data.wago.io/api/raw/encoded?id=${wago._id}&version=${wago.latestVersion.versionString}`},
+      {url: `https://data.wago.io/api/raw/encoded?id=${wago.slug}&version=${wago.latestVersion.versionString}`},
+      {url: `https://data.wago.io/lookup/wago/code?id=${doc._id}&version=${wago.latestVersion.versionString}`, origin: 'https://wago.io'},
+      {url: `https://data.wago.io/lookup/wago/code?id=${doc.slug}&version=${wago.latestVersion.versionString}`, origin: 'https://wago.io'},
+    ]})  
 
     await wago.save()
     res.send({success: true, hidden: wago.hidden, private: wago.private, restricted: wago.restricted})
@@ -318,12 +320,14 @@ module.exports = function (fastify, opts, next) {
     await wago.save()
 
     redis.clear(wago)
-    await cloudflare.zones.purgeCache(config.cloudflare.zoneID, {files: [
-      `https://data.wago.io/api/raw/encoded?id=${wago._id}`,
-      `https://data.wago.io/api/raw/encoded?id=${wago.slug}`,
-      `https://data.wago.io/api/raw/encoded?id=${wago._id}&version=${wago.latestVersion.versionString}`,
-      `https://data.wago.io/api/raw/encoded?id=${wago.slug}&version=${wago.latestVersion.versionString}`
-    ]})      
+    cloudflare.zones.purgeCache(config.cloudflare.zoneID, {files: [
+      {url: `https://data.wago.io/api/raw/encoded?id=${wago._id}`},
+      {url: `https://data.wago.io/api/raw/encoded?id=${wago.slug}`},
+      {url: `https://data.wago.io/api/raw/encoded?id=${wago._id}&version=${wago.latestVersion.versionString}`},
+      {url: `https://data.wago.io/api/raw/encoded?id=${wago.slug}&version=${wago.latestVersion.versionString}`},
+      {url: `https://data.wago.io/lookup/wago/code?id=${doc._id}&version=${wago.latestVersion.versionString}`, origin: 'https://wago.io'},
+      {url: `https://data.wago.io/lookup/wago/code?id=${doc.slug}&version=${wago.latestVersion.versionString}`, origin: 'https://wago.io'},
+    ]})       
     res.send({success: true})
   })
 
