@@ -1026,8 +1026,10 @@ async function ProcessCode(data) {
     {url: `https://data.wago.io/api/raw/encoded?id=${doc.slug}`},
     {url: `https://data.wago.io/api/raw/encoded?id=${doc._id}&version=${code.versionString}`},
     {url: `https://data.wago.io/api/raw/encoded?id=${doc.slug}&version=${code.versionString}`},
-    {url: `https://data.wago.io/lookup/wago/code?id=${doc._id}&version=${code.versionString}`, origin: 'https://wago.io'},
-    {url: `https://data.wago.io/lookup/wago/code?id=${doc.slug}&version=${code.versionString}`, origin: 'https://wago.io'},
+    {url: `https://data.wago.io/lookup/wago/code?id=${doc._id}&version=${code.versionString}`, headers: {Origin: 'https://wago.io'}},
+    {url: `https://data.wago.io/lookup/wago/code?id=${doc.slug}&version=${code.versionString}`, headers: {Origin: 'https://wago.io'}},
+    {url: `https://data.wago.io/lookup/wago/code?id=${doc._id}&version=${code.versionString}-${doc.latestVersion.iteration}`, headers: {Origin: 'https://wago.io'}},
+    {url: `https://data.wago.io/lookup/wago/code?id=${doc.slug}&version=${code.versionString}-${doc.latestVersion.iteration}`, headers: {Origin: 'https://wago.io'}},
   ]})
 
   if (code.customCode.length) {

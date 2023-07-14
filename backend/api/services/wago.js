@@ -239,8 +239,10 @@ module.exports = function (fastify, opts, next) {
       {url: `https://data.wago.io/api/raw/encoded?id=${wago.slug}`},
       {url: `https://data.wago.io/api/raw/encoded?id=${wago._id}&version=${wago.latestVersion.versionString}`},
       {url: `https://data.wago.io/api/raw/encoded?id=${wago.slug}&version=${wago.latestVersion.versionString}`},
-      {url: `https://data.wago.io/lookup/wago/code?id=${doc._id}&version=${wago.latestVersion.versionString}`, origin: 'https://wago.io'},
-      {url: `https://data.wago.io/lookup/wago/code?id=${doc.slug}&version=${wago.latestVersion.versionString}`, origin: 'https://wago.io'},
+      {url: `https://data.wago.io/lookup/wago/code?id=${wago._id}&version=${wago.latestVersion.versionString}`, origin: 'https://wago.io'},
+      {url: `https://data.wago.io/lookup/wago/code?id=${wago.slug}&version=${wago.latestVersion.versionString}`, origin: 'https://wago.io'},
+      {url: `https://data.wago.io/lookup/wago/code?id=${wago._id}&version=${wago.latestVersion.versionString}-${wago.latestVersion.iteration}`, headers: {Origin: 'https://wago.io'}},
+      {url: `https://data.wago.io/lookup/wago/code?id=${wago.slug}&version=${wago.latestVersion.versionString}-${wago.latestVersion.iteration}`, headers: {Origin: 'https://wago.io'}},
     ]})  
 
     await wago.save()
@@ -325,8 +327,10 @@ module.exports = function (fastify, opts, next) {
       {url: `https://data.wago.io/api/raw/encoded?id=${wago.slug}`},
       {url: `https://data.wago.io/api/raw/encoded?id=${wago._id}&version=${wago.latestVersion.versionString}`},
       {url: `https://data.wago.io/api/raw/encoded?id=${wago.slug}&version=${wago.latestVersion.versionString}`},
-      {url: `https://data.wago.io/lookup/wago/code?id=${doc._id}&version=${wago.latestVersion.versionString}`, origin: 'https://wago.io'},
-      {url: `https://data.wago.io/lookup/wago/code?id=${doc.slug}&version=${wago.latestVersion.versionString}`, origin: 'https://wago.io'},
+      {url: `https://data.wago.io/lookup/wago/code?id=${wago._id}&version=${wago.latestVersion.versionString}`, origin: 'https://wago.io'},
+      {url: `https://data.wago.io/lookup/wago/code?id=${wago.slug}&version=${wago.latestVersion.versionString}`, origin: 'https://wago.io'},
+      {url: `https://data.wago.io/lookup/wago/code?id=${wago._id}&version=${wago.latestVersion.versionString}-${wago.latestVersion.iteration}`, headers: {Origin: 'https://wago.io'}},
+      {url: `https://data.wago.io/lookup/wago/code?id=${wago.slug}&version=${wago.latestVersion.versionString}-${wago.latestVersion.iteration}`, headers: {Origin: 'https://wago.io'}},
     ]})       
     res.send({success: true})
   })
