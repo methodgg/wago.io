@@ -1,12 +1,17 @@
 <template>
   <md-card v-if="enableAd && container" ref="adcontainer" :class="[
     advertBlocked ? 'wago-recovery-container' : 'wago-ad-container', ad,
-    frame === false ? 'no-frame' : ''
-    ]">
+    frame === false ? 'no-frame' : '',
+    ad.match(/streambuff/) && !$store.state.streambuffVideo ? 'streambuff-no' : '',
+  ]">
+    <template v-if="ad=='embed-asteri'">
+      <div asterilivestream_profile="91_72" asterilivestream_width="300" asterilivestream_height="250"></div>
+    </template>
+    <template v-else>
       <span class="wago-advert-text" v-if="patreonLink && !advertBlocked">{{ $t('Advertisement') }} - <a href="https://www.patreon.com/wagoio" target="_blank" rel="noopener" class="wago-advert-patreon">{{ $t('Hide Ads with Patreon') }}</a></span>
       <div>
         <div :id="ad" :class="adClass + ' i-' + ad">
-          <div class="recovery" v-if="advertBlocked">
+          <div class="recovery" v-if="advertBlocked && !ad.match(/streambuff/)">
             <template v-if="ad.match(/leaderboard/)">
               <h3>{{ $t('Ad blocker detected') }} - {{ $t('This site is supported by advertising') }}</h3>
             </template>
@@ -17,6 +22,7 @@
           </div>
         </div>
       </div>
+    </template>
   </md-card>
 </template>
 
@@ -52,6 +58,14 @@ export default {
     window.addEventListener('resize', this.handleResize)
     window.addEventListener('scroll', this.watchScroll)
     this.insertAd()
+    if (this.ad.match(/asteri/)) {
+      setTimeout(() => {
+        const asteriScript = document.createElement('script')
+        asteriScript.setAttribute('src', 'https://asteriresearch.com/livestream-latest.min.js')      
+        document.querySelector('body').appendChild(asteriScript)
+      }, 1000)
+      return
+    }
   },
   destroyed () {
     window.removeEventListener('resize', this.handleResize)
@@ -65,11 +79,14 @@ export default {
       if (!this.enableAd || this.timeout) {
         return
       }
+      if (this.ad.match(/streambuff|asteri/)) {
+        return // handled elsewhere
+      }
       this.timeout = setTimeout(async () => {
         if (!window.nitroAds) {
           return
         }
-        if (this.adNetwork === 'nitropay' && this.ad.match(/video/)) {
+        else if (this.adNetwork === 'nitropay' && this.ad.match(/video/)) {
           this.nitroAd = await window.nitroAds.createAd(this.ad, {
             format: 'video-nc',
             mediaQuery: '(min-width: 1025px)',
@@ -134,7 +151,7 @@ export default {
             }
           })
         }
-        else if (this.adNetwork === 'nitropay') {
+        else if (this.adNetwork === 'nitropay' && !this.ad.match(/asteri/)) {
           this.nitroAd = await window.nitroAds.createAd(this.ad, {
             demo: process.env.NODE_ENV === 'development' || window.location.hostname.match(/test/),
             refreshLimit: 10,
@@ -215,12 +232,12 @@ export default {
       if ((!this.$store.state.advertSetup && !this.advertBlocked) || !this.$route) {
         return false
       }
-      else if (this.advertBlocked && this.ad.match(/video|anchor/)) {
+      else if (this.advertBlocked && this.ad.match(/video-sidebar|anchor/)) {
         return false
       }
       else if ((this.ad.match(/mobile/) && !this.$isMobile) || (!this.ad.match(/mobile/) && this.$isMobile) || this.$route.path === '/admin') {
         return false
-      }
+      }      
       var isEmbed = document.getElementById('embed-body')
       var user = this.$store.state.user
       if (isEmbed || (!Object.keys(user).length || user.hideAds) || this.screenWidth < this.adWidth + 32) {
@@ -296,13 +313,18 @@ export default {
     margin-top: 0!important;
     margin-bottom: 0!important;
   }
-  &.video-sidebar {
+  &.video-sidebar, &.embed-streambuff, &.embed-asteri {
     margin: 0 0 16px 10px;
     padding: 0;
-    width: 300px;
+    width: 340px;
     .wago-advert-text {
       padding-left: 4px;
     }
+  }
+  &.streambuff-no {
+    background: none;
+    border: 0;
+    box-shadow: none
   }
   &.rectangle-sidebar {
     width: 340px;

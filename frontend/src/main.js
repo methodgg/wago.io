@@ -36,10 +36,13 @@ window.clearCookie = function (name) {
 
 window.locales = require('../../i18nLocaleConfig').locales
 
-document.body.classList.add('theme-' + (window.readCookie('theme') || 'dark'))
-if (window.readCookie('theme') === 'waluigi') {
-  document.body.classList.add('theme-dark')
-}
+// if (window.readCookie('theme')==='classic') {
+//   document.body.classList.add('theme-classic')
+//   document.body.classList.remove('theme-dark')
+// }
+// else if (window.readCookie('theme') === 'waluigi') {
+//   document.body.classList.add('theme-dark')
+// }
 
 // The Vue build version to load with the `import` command
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
@@ -50,9 +53,12 @@ import Vuex from 'vuex'
 Vue.use(Vuex)
 const store = new Vuex.Store({
   state: {
+    isMaintenance: false,
     isTest: process.env.NODE_ENV === 'development' || document.getElementById('test-content'),
     locale: window.readCookie('locale') || 'en-US',
     advertSetup: false,
+    advertBlocked: false,
+    streambuffVideo: true,
     user: {},
     loggedIn: false,
     wotm: {},
@@ -60,7 +66,7 @@ const store = new Vuex.Store({
     addons: {},
     snackBarText: 'alert',
     loginRedirect: '/',
-    theme: window.readCookie('theme') || 'dark',
+    theme: 'dark',
     editorTheme: window.readCookie('editorTheme') || 'tomorrow',
     MDTTable: false,
     MDTWeek: 0,
@@ -144,46 +150,130 @@ const store = new Vuex.Store({
         state.loggedIn = false
       }
       state.user = JSON.parse(JSON.stringify(user))
-      if (state.user.config && state.user.config.theme) {
-        window.setCookie('theme', state.user.config.theme, 365)
-        document.body.classList.forEach(t => {
-          if (t.match(/^theme-/)) {
-            document.body.classList.remove(t)
-          }
-        })
-        document.body.classList.add('theme-' + state.user.config.theme)
-      }
       if (state.user.config && state.user.config.editor) {
         window.setCookie('editor', state.user.config.editor, 365)
       }
     },
 
     loadAds (state) {
+      if (state.isMaintenance) {
+        return
+      }
       const body = document.querySelector('body')
       if (process.env.NODE_ENV === 'development') {
         state.advertSetup = true
+        state.advertBlocked = false
         body.classList.add('ads-enabled')
+
+        window.streambuff = {
+          test: true,
+          debug: false,
+          hostElement: '#embed-streambuff',
+          showCloseButton: true,
+          width: 300,
+          height: 171,
+          onEmbedServed: () => {
+            console.log('streambuff TRUE')
+            state.streambuffVideo = true
+          },
+          onEmbedMissing: () => {
+            console.log('streambuff FALSE')
+            state.streambuffVideo = false
+          },
+        };
+        const streambuffScript = document.createElement('script')
+        streambuffScript.setAttribute('src', 'https://streambuff.gg/js/init.js')      
+        // body.appendChild(streambuffScript)
       }
       else if (!state.advertSetup) {
         body.classList.add('ads-enabled')
-        window.tyche = {
-          mode: 'tyche',
-          config: '//config.playwire.com/1024383/v2/websites/72951/banner.json',
-          passiveMode: true,
-          onReady: () => {
+
+        //**** Nitropay
+        window.nitroAds = window.nitroAds || {
+          createAd: function() {
+            return new Promise(e=>{window.nitroAds.queue.push(["createAd",arguments,e])})
+          },
+          addUserToken: function(){window.nitroAds.queue.push(["addUserToken",arguments])},
+          queue:[]
+        }
+        const nitropay = document.createElement('script')
+        nitropay.setAttribute('src', 'https://s.nitropay.com/ads-437.js')        
+        const sideRail = {
+          demo: process.env.NODE_ENV === 'development' || window.location.hostname.match(/test/),
+          refreshLimit: 10,
+          refreshTime: 30,
+          format: 'rail',
+          railOffsetTop: 150,
+          railOffsetBottom: 40,
+          railSpacing: 6,
+          railCollisionWhitelist: ['.md-select-content', '.leaderboard-top', '#visibilty', '#importAs', '#expire', '.op-sr'],
+          sizes: [
+            ['160', '600'],
+            ['300', '600'],
+            ['300', '250'],
+          ],
+          mediaQuery: '(min-width: 1908px)'
+        }
+        const thinRail = {
+          sizes: [
+            ['160', '600']
+          ],
+          mediaQuery: '(min-width: 1628px) and (max-width: 1907px)'
+        }
+        nitropay.onload = () => {
             state.advertSetup = true
-            window.tyche.addUnits([{type: 'left_rail'}, {type: 'right_rail'}])
-            window.tyche.displayUnits()
+          state.advertBlocked = false
+          window.advertRails.make()
+          }
+        nitropay.onerror = () => {
+          state.advertSetup = true
+          state.advertBlocked = true
+        }
+        body.appendChild(nitropay)
+
+        window.advertRails = {
+          make: () => {
+            if (this.left && this.left.onNavigate) {
+              this.left.onNavigate()
+      }
+            if (this.left2 && this.left2.onNavigate) {
+              this.left2.onNavigate()
+            }
+            if (this.right && this.right.onNavigate) {
+              this.right.onNavigate()
+            }
+            if (this.right2 && this.right2.onNavigate) {
+              this.right2.onNavigate()
+            }
+            if (this.left || this.left2 || this.right || this.right2) {
+              return
+            }
+            this.left = window.nitroAds.createAd('rail-left', Object.assign({rail: 'left'}, sideRail))
+            this.right = window.nitroAds.createAd('rail-right', Object.assign({rail: 'right'}, sideRail))
+            // this.left2 = window.nitroAds.createAd('rail-left-small', Object.assign({rail: 'left'}, sideRail, thinRail))
+            // this.right2 = window.nitroAds.createAd('rail-right-small', Object.assign({rail: 'right'}, sideRail, thinRail))
           }
         }
-        const playwire = document.createElement('script')
-        playwire.setAttribute('src', 'https://cdn.intergient.com/pageos/pageos.js')
-        body.appendChild(playwire)
 
-        const recovery = document.createElement('script')
-        recovery.setAttribute('src', 'https://btloader.com/tag?o=5150306120761344&upapi=true')
-        recovery.setAttribute('async', 'true')
-        body.appendChild(recovery)
+        window.streambuff = {
+          test: process.env.NODE_ENV === 'development' || window.location.hostname.match(/test/),
+          debug: false,
+          hostElement: '#embed-streambuff',
+          showCloseButton: false,
+          width: 300,
+          height: 171,
+          onEmbedServed: () => {
+            state.streambuffVideo = true
+    },
+          onEmbedMissing: () => {
+            state.streambuffVideo = false
+          },
+        }
+        const streambuffScript = document.createElement('script')
+        streambuffScript.setAttribute('src', 'https://streambuff.gg/js/init.js')      
+        body.appendChild(streambuffScript)
+
+        
       }
     },
 
@@ -299,22 +389,6 @@ const store = new Vuex.Store({
       state.editorTheme = theme
       Vue.set(state.user.config, 'editor', theme)
     },
-    setTheme (state, theme) {
-      window.setCookie('theme', theme)
-      document.body.classList.forEach(t => {
-        if (t.match(/^theme-/)) {
-          document.body.classList.remove(t)
-        }
-      })
-      document.body.classList.add('theme-' + theme)
-      if (theme === 'waluigi') {
-        document.body.classList.add('theme-dark')
-      }
-
-      App.set(state.user.config, 'theme', theme, 365)
-      state.theme = theme
-    },
-
     saveMDT (state, table) {
       state.mdtDungeonTable = table
     },
@@ -402,6 +476,17 @@ router.afterEach((to, from) => {
       // load new ad
     }
   }
+
+  if (!from.matched.length || (to.matched[0].path !== from.matched[0].path || to.matched[0].path !== '/:wagoID')) {
+    if (window.advertRails) {
+      window.advertRails.make()
+    }
+
+    gtag('config', 'G-WYTP0LZWS6', {
+      'page_title' : document.title,
+      'page_path': to.fullPath
+    });
+  }
 })
 
 // setup vue-meta for header
@@ -451,15 +536,20 @@ var authServer
 var socketServer
 const socketCID = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
 if (process.env.NODE_ENV === 'development') {
-  dataServers = ['http://io:3030']
-  authServer = 'http://io:3030'
-  socketServer = 'ws://io:3030/ws'
+  dataServers = ['http://dev.local:3030']
+  authServer = 'http://dev.local:3030'
+  socketServer = 'ws://dev.local:3030/ws'
+}
+else if (window.location.hostname.match(/test/)) {
+  dataServers = ['https://data1.wago.io']
+  authServer = 'https://data1.wago.io'
+  socketServer = 'wss://data1.wago.io/ws'
 }
 else {
   // using round robin client-based load balancing
   // dataServers = getServersByCountry(window.cfCountry) // attempt to detect country by cloudflare and assign regional data servers when available
-  dataServers = window.dataServers // populated by nginx
-  authServer = 'https://data1.wago.io' // uses round-robin dns so ensures auth requests go to the same server (required for twitter in-memory auth)
+  dataServers = ['https://data.wago.io']
+  authServer = 'https://data.wago.io' 
   socketServer = 'wss://data.wago.io/ws'
 }
 
@@ -485,7 +575,7 @@ Vue.use(VueAxios, axios)
 Vue.axios.defaults.baseURL = dataServers[0]
 Vue.axios.defaults.timeout = 10000
 Vue.axios.defaults.withCredentials = true // to use cookies with CORS
-if (window.readCookie('token')) {
+if (window.readCookie('token') &&  window === window.parent) {
   Vue.axios.defaults.headers = { 'x-auth-token': window.readCookie('token') }
 }
 
@@ -510,7 +600,7 @@ const http = {
         var headers = {}
 
         // add jwt token
-        if (window.readCookie('token')) {
+        if (window.readCookie('token') && window === window.parent && url.match(new RegExp('^' + dataServers[0]))) {
           headers['x-auth-token'] = window.readCookie('token')
         }
 
@@ -529,17 +619,8 @@ const http = {
           refSent = true
         }
 
-        // prepend API server
-        var host
-
-        if (url.match(/auth/)) {
-          host = authServer
-          url = host + url
-        }
-        else if (!url.match(/^http/)) {
-          host = dataServers.shift()
-          url = host + url
-          dataServers.push(host)
+        if (!url.match(/^http/)) {
+          url = dataServers[0] + url
         }
         // append querystring to url
         if (params) {
@@ -565,36 +646,21 @@ const http = {
           return json
         }
         catch (err) {
-          // if we couldn't reach the server
-          if (host && dataServers.length > 1) {
-            // remove server from server list and try again
-            dataServers.splice(dataServers.indexOf(host), 1)
-            url = url.replace(host, dataServers[0])
-            return this.get(url, params)
-          }
-          else {
-            console.log('No servers available', err)
+          console.error(err)
             window.eventHub.$emit('showSnackBar', i18next.t('Error could not reach data server'))
           }
-        }
       },
       post: async function (url, params) {
         // prepend API server
-        if (url.match(/auth/)) {
-          host = authServer
-          url = host + url
-        }
-        else if (!url.match(/^http/)) {
-          var host = dataServers.shift()
-          url = host + url
-          dataServers.push(host)
+        if (!url.match(/^http/)) {
+          url = dataServers[0] + url
         }
 
         if (!params) {
           params = {}
         }
 
-        var config = this.config()
+        var config = this.config(url)
         config.method = 'post'
         config.headers['Accept'] = 'application/json'
         config.body = JSON.stringify(params)
@@ -618,25 +684,12 @@ const http = {
           return json
         }
         catch (err) {
-          // if we couldn't reach the server
-          if (host && dataServers.length > 1) {
-            // remove server from server list and try again
-            dataServers.splice(dataServers.indexOf(host), 1)
-            url = url.replace(host, dataServers[0])
-            return this.get(url, params)
-          }
-          else {
-            console.log('No servers available', err)
-            window.eventHub.$emit('showSnackBar', i18next.t('Error could not reach data server'))
-          }
         }
       },
       upload: function (url, file, params) {
         // prepend API server
         if (!url.match(/^http/)) {
-          var host = dataServers.shift()
-          url = host + url
-          dataServers.push(host)
+          url = dataServers[0] + url
         }
 
         if (!params) {
@@ -767,16 +820,15 @@ const socket = {
           this.connected = true
           this.socket = event.target
           store.commit('SOCKET_OPEN', this)
+          this.reconnect = setTimeout(function() {
+            connection.close()
+          }, 1000*60*20)
         }
 
         connection.onclose  = (event) => {
           connection.close()
           this.connected = false
           clearTimeout(this.reconnect)
-          const that = this
-          this.reconnect = setTimeout(function() {
-            that.connect()
-          }, 5000)
         }
 
         connection.onerror  = (error, event) => {
@@ -806,7 +858,6 @@ Vue.use(isMobile)
 const testAds = {
   install: (Vue) => {
     var params = new URLSearchParams(window.location.search)
-    Vue.prototype.$enableAds = false
     if (params.get('enable-ads') === 'true') {
       Vue.prototype.$enableAds = true
     }

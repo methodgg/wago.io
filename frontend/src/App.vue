@@ -2,7 +2,7 @@
   <div id="app">
     <div id="maincontent" v-if="!isEmbed">
       <div id="copyContainer"></div>
-      <notification-banner id="maintenance" v-if="isMaintenance" :preventClose="true">Wago is in maintenance mode, and is read-only for about two hours, expecting to end at 07:00 GMT. </notification-banner>      
+      <notification-banner id="maintenance" v-if="isMaintenance" :preventClose="true">Wago is in maintenance mode, and is read-only. </notification-banner>      
       <div id="topbar">
         <md-toolbar>
         <md-button class="md-icon-button md-hide-small-and-up" @click="toggleMobileNav()">
@@ -18,6 +18,12 @@
               <svg aria-hidden="true" focusable="false" class="header-patreon" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M512 194.8c0 101.3-82.4 183.8-183.8 183.8-101.7 0-184.4-82.4-184.4-183.8 0-101.6 82.7-184.3 184.4-184.3C429.6 10.5 512 93.2 512 194.8zM0 501.5h90v-491H0v491z"></path></svg>
               {{ $t('Support Wago.io') }}
             </md-button>
+            <div class="coach-wrap">
+              <md-button v-if="(this.$store.state.user.UID || this.$store.state.user.guest) && !this.$store.state.user.hideAds" href="https://bit.ly/MetafyWoW" target="_blank" class="btn-coaching">
+                <img src="./assets/metafy-icon.png" class="coaching-logo" />
+                <span class="coaching-text">Metafy Coaching</span>
+              </md-button>
+            </div>
         </div>
         <div id="hr-nav" class="md-hide-xsmall">
           <h2 class="md-title md-hide-small-and-up" id="logo"><router-link to="/"><img src="./assets/wagoio-logo.png"/></router-link></h2>
@@ -57,10 +63,9 @@
           <md-list-item><router-link to='/plater'>Plater Nameplates</router-link></md-list-item>
           <md-list-item><router-link to='/totalrp'>Total RP</router-link></md-list-item>
           <md-list-item><router-link to='/vuhdo'>VuhDo</router-link></md-list-item>
-          <md-list-item><router-link to='/shadowlands-weakauras'>Shadowlands WeakAuras</router-link><md-divider></md-divider></md-list-item>
           <md-list-item><router-link to='/dragonflight-weakauras'>Dragonflight WeakAuras</router-link><md-divider></md-divider></md-list-item>
           <md-list-item><router-link to='/classic-weakauras'>Classic WeakAuras</router-link><md-divider></md-divider></md-list-item>
-          <md-list-item><router-link to='/tbc-weakauras'>TBC WeakAuras</router-link><md-divider></md-divider></md-list-item>
+          <!--<md-list-item><router-link to='/tbc-weakauras'>TBC WeakAuras</router-link><md-divider></md-divider></md-list-item>-->
           <md-list-item><router-link to='/wotlk-weakauras'>WotLK WeakAuras</router-link><md-divider></md-divider></md-list-item>
           <md-list-item class="menu-section">Final Fantasy XIV</md-list-item>
           <md-list-item><router-link to='/delvui'>DelvUI</router-link></md-list-item>
@@ -76,16 +81,13 @@
           <div class="menu-section">
             <span>World of Warcraft <md-icon>expand_more</md-icon></span>
             <div class="sub-nav">
-            <router-link to='/weakauras'>
+              <router-link to='/dragonflight-weakauras'>
               <div class="md-list-text-container">
                   WeakAuras
                 <span class="game-select">
-                    <router-link to='/shadowlands-weakauras'>Shadowlands</router-link> -
-                    <router-link to='/dragonflight-weakauras'>Dragonflight</router-link>
-                  </span>
-                  <span class="game-select">
-                  <router-link to='/classic-weakauras'>Classic</router-link> -
-                    <router-link to='/wotlk-weakauras'>WotLK</router-link>
+                    <router-link to='/dragonflight-weakauras'>Dragonflight</router-link> -
+                    <router-link to='/wotlk-weakauras'>WotLK</router-link> -
+                    <router-link to='/classic-weakauras'>Classic</router-link>
                 </span>
               </div>
             </router-link>
@@ -139,16 +141,19 @@
       </md-snackbar>
 
       <div id="content-frame">
-        <advert ad="leaderboard_btf" :patreonLink="true" :frame="false" />
+        <advert ad="leaderboard-top" :patreonLink="true" :frame="false" />
         <div id="content" :class="{'with-sidebar': includeSidebar}">
           <router-view></router-view>
-          <div v-if="(this.$store.state.user.UID || this.$store.state.user.guest) && !this.$store.state.user.hideAds" :class="{'side-bar': true, 'with-stream': $store.state.streamEmbed !== '__none'}">
-            <advert ad="trendi_video" :patreonLink="true" />
-            <advert ad="med_rect_atf" />
-            <stream-embed v-if="$store.state.streamEmbed" :stream="$store.state.streamEmbed" />
+          <div v-if="includeSidebar" :class="{'side-bar': true, 'with-stream': $store.state.streamEmbed !== '__none'}">
+            <advert ad="video-sidebar" :patreonLink="true" />
+            <advert v-if="asteriTest()" ad="embed-asteri" />
+            <advert v-else ad="rectangle-sidebar" />
+            <stream-embed v-if="$store.state.streamEmbed && $store.state.streamEmbed !== '__none'" :stream="$store.state.streamEmbed" />
+            <advert v-else-if="!asteriTest()" ad="embed-streambuff" />
           </div>
-          <advert ad="wago320x50" :forMobile="true" v-if="this.$store.state.user.UID || this.$store.state.user.guest" />
+          <advert ad="mobile-anchor" :forMobile="true" v-if="this.$store.state.user.UID || this.$store.state.user.guest" />
         </div>
+        <advert ad="leaderboard-bottom" :patreonLink="true" :frame="false" />
       </div>
 
       <div class="footer md-hide-xsmall" id="footer">
@@ -297,6 +302,7 @@ export default {
         // vue.$router.replace('/login')
       })
     }
+    }
 
     window.eventHub.$on('showSnackBar', this.showSnackBar)
 
@@ -305,6 +311,20 @@ export default {
     }
   },
   methods: {
+    // end
+
+    asteriTest () {
+      const currentDate = new Date(); // Get the current date and time
+      const targetDate = new Date("July 20, " + currentDate.getFullYear() + " 15:00:00 GMT-0700");
+      const nextDate = new Date(targetDate.getTime() + 4 * 3600 * 1000); // end time
+
+      // Check if the current date is between the target date and next date
+      if (currentDate >= targetDate && currentDate < nextDate) {
+        return true;
+      } else {
+        return false;
+      }
+    },
     showSnackBar: function (text) {
       this.PopMsg = text
       this.$refs.snackbar.open()
@@ -440,7 +460,7 @@ export default {
       return params.get('id')
     },
     includeSidebar () {
-      return true
+      return !(this.$store.state.user.hideAds || this.$store.state.isMaintenance)
     }
   },
   watch: {
@@ -641,6 +661,7 @@ body, html {
   }
   #content-frame {min-height: calc(100vh - 136px)}
   #content { display: flex; pointer-events: auto; position: relative; flex-wrap: nowrap;}
+  #content > div:first-of-type {min-width: 0}
   #content > div, #content-profile #searchResults { flex: 1; width: 100%; margin: 16px 0; background: #212121; box-shadow: none;}
   #content-profile #searchResults {
     padding: 0;
@@ -652,6 +673,7 @@ body, html {
     position: sticky;
     top: 8px;
     align-self: flex-start;
+
     &.with-stream {
       width: 340px;
       max-width: 340px;
@@ -660,22 +682,22 @@ body, html {
   #logo { text-align: left; padding: 8px 16px; }
   #logo img { max-height: 40px; }
   #xmaslogo img { width: 45px; position: absolute; left: 41px; top: -3px;}
-  #h-nav { flex: 1 }
+  #h-nav { 
+    flex: 1;
+    a.md-button {
+      border: 1px solid #333;
+      background: none;
+      margin: 0 0 0 16px;
+      text-transform: none;
+      svg {
+        width: 16px;
+        margin-right: 8px;
+}
+}
+}
   #h-nav, #hr-nav { display: flex }
 }
 
-#mobile-anchor {
-  position: fixed;
-  bottom: 0;
-  width: 340px;
-  padding: 0;
-  height: 64px;
-  left: 50%;
-  margin: 0 0 0 -170px;
-}
-#mobile-anchor + div {
-  padding-top: 76px;
-}
 #mobile-sidebar .md-input-container {
   margin: 0 8px 4px;
   width: auto;
@@ -698,7 +720,8 @@ body, html {
 .mainnav .md-subheader { padding-left: 0;}
 .mainnav .md-list-item img { max-height: 32px }
 .mainnav .md-list-item a { justify-content: start }
-.mainnav .md-list-item a span.game-select, .mainnav .md-list-item a span.unreadCount { margin-left: 8px; line-height: 18px }
+.mainnav .md-list-item a span.unreadCount { margin-left: 8px; line-height: 18px }
+a span.game-select {padding-top: 3px}
 .mainnav .md-list-item a span.menu-action { width: 100% }
 .mainnav .md-list-item { height: 36px }
 .mainnav .md-list-item.multi-line { height: 40px }
@@ -739,8 +762,8 @@ body, html {
 .wotm-controls button { background: none; border: none; cursor: pointer}
 .legal { padding: 16px; }
 .legal > span { font-size: 90%; padding: 0 0 8px; display: block; }
-#ncmp-consent-link > button { font-size: inherit; padding: 10px 0 2px; display: block; border: 0; background: none; color: #d7373d; cursor: pointer }
-#ncmp-consent-link > button:hover { color: #ad1457; text-decoration: underline }
+#ncmp-consent-link > button { font-size: 14px; margin-right: 8px; padding: 0; border: 0; background: none; color: #fff; cursor: pointer; font-size: 14px; letter-spacing: .01em; font-weight: 400; line-height: 20px;}
+#ncmp-consent-link > button:hover { text-decoration: underline }
 
 #footer {
   background: #333333;
@@ -834,5 +857,47 @@ body.theme-dark .md-input-container label a { -webkit-text-fill-color: initial }
     color: #d7373d!important;
     text-decoration: none;
   }
+}
+
+
+.coach-wrap {
+    margin-right: 15px;
+    display: flex;
+}
+.btn-coaching {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    line-height: 1;
+    height: auto;
+    padding: 7px 10px;
+    color: #fcd23e !important;
+    border: 1px solid #fcd23e !important;
+    border-bottom: 1px solid #fcd23e !important;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.05);
+    margin: auto 0;
+    font-size: 15px;
+    flex-wrap: wrap;
+    text-decoration: none !important;
+}
+.btn-coaching .coaching-logo {
+    width: 22px;
+    height: 20px;
+    display: inline-block;
+}
+.btn-coaching .coaching-text {
+    font-weight: bold;
+    color: #fcd23e;
+}
+.btn-coaching:hover,
+.btn-coaching:focus {
+    border-color: #fde48b !important;
+    background: rgba(255, 255, 255, 0.075) !important;
+    transform: scale(1.075);
+}
+.btn-coaching:hover .coaching-text,
+.btn-coaching:focus .coaching-text {
+    color: #fde48b;
 }
 </style>
