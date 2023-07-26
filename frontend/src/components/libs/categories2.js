@@ -151,6 +151,7 @@ class Categories {
       'dfdungeons2-4': {slug: 'pve/dragonflight-dungeons/the-vortex-pinnacle', i18n: 'warcraft:instances.68', domain: 0, parent: 'dfdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
 
       'dfdungeon-other': {subheader: true, i18n: 'Other DF Dungeons', domain: 0, parent: 'dfdungeon', system: true, types: ['WEAKAURA'], games: ['df']},
+      'dfdungeon9': {slug: 'pve/dragonflight-dungeons/dawn-of-the-infinite', i18n: 'warcraft:instances.1209', domain: 0, parent: 'dfdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
       'dfdungeon5': {slug: 'pve/dragonflight-dungeons/algethar-acadamy', i18n: 'warcraft:instances.1201', domain: 0, parent: 'dfdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
       'dfdungeon6': {slug: 'pve/dragonflight-dungeons/ruby-life-pools', i18n: 'warcraft:instances.1202', domain: 0, parent: 'dfdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
       'dfdungeon7': {slug: 'pve/dragonflight-dungeons/the-azure-vault', i18n: 'warcraft:instances.1203', domain: 0, parent: 'dfdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
