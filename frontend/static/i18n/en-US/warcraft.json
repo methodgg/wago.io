@@ -1413,14 +1413,24 @@
     "2517": "Bazual, The Dreaded Flame",
     "2518": "Liskanoth, The Futurebane",
     "2520": "Scalecommander Sarkareth",
-    "2522": "Kazzara",
-    "2523": "Neltharion",
-    "2525": "Rashok",
+    "2521": "Chronikar",
+    "2522": "Kazzara, the Hellforged",
+    "2523": "Echo of Neltharion",
+    "2524": "Assault of the Zaqali",
+    "2525": "Rashok, the Elder",
+    "2526": "Tyr, the Infinite Keeper",
     "2527": "Magmorax",
-    "2529": "Molgoth",
-    "2530": "Experimentation of Dracthyr",
+    "2528": "Manifested Timeways",
+    "2529": "The Amalgamation Chamber",
+    "2530": "The Forgotten Experiments",
     "2531": "The Zaqali Elders",
-    "2532": "Zskarn"
+    "2532": "The Vigilant Steward, Zskarn",
+    "2533": "Time-Lost Battlefield",
+    "2534": "Time-Lost Battlefield",
+    "2535": "Blight of Galakrond",
+    "2536": "Morchie",
+    "2537": "Iridikron the Stonescaled",
+    "2538": "Chrono-Lord Deios"
   },
   "expansions": {
     "68": "Classic",
@@ -1432,7 +1442,8 @@
     "395": "Legion",
     "396": "Battle for Azeroth",
     "499": "Shadowlands",
-    "503": "Dragonflight"
+    "503": "Dragonflight",
+    "505": "Current Season"
   },
   "instances": {
     "63": "Deadmines",
@@ -1610,7 +1621,8 @@
     "1203": "The Azure Vault",
     "1204": "Halls of Infusion",
     "1205": "Dragon Isles",
-    "1208": "Aberrus, the Shadowed Crucible"
+    "1208": "Aberrus, the Shadowed Crucible",
+    "1209": "Dawn of the Infinite"
   },
   "specs": {
     "62": "Arcane",

@@ -1165,12 +1165,32 @@
     "2507": "Schlingender Goliath",
     "2508": "Umbrelskul",
     "2509": "Vexamus",
+    "2510": "Khajin die Unbeugsame",
     "2511": "Urtümlicher Tsunami",
     "2512": "Überwuchertes Urtum",
     "2514": "Echo von Doragosa",
     "2515": "Strunraan, Elend des Himmels",
     "2517": "Bazual, die gefürchtete Flamme",
-    "2518": "Liskanoth, Schrecken der Zukunft"
+    "2518": "Liskanoth, Schrecken der Zukunft",
+    "2520": "Schuppenkommandant Sarkareth",
+    "2521": "Chronikar",
+    "2522": "Kazzara, die Höllengeschmiedete",
+    "2523": "Echo von Neltharion",
+    "2524": "Angriff der Zaqali",
+    "2525": "Ältester Rashok",
+    "2526": "Tyr, der ewige Hüter",
+    "2527": "Magmorax",
+    "2528": "Manifestierte Zeitwege",
+    "2529": "Die Verschmelzungskammer",
+    "2530": "Die vergessenen Experimente",
+    "2531": "Die Ältesten der Zaqali",
+    "2532": "Der aufmerksame Verwalter, Zskarn",
+    "2533": "Zeitverlorenes Schlachtfeld",
+    "2534": "Zeitverlorenes Schlachtfeld",
+    "2535": "Verseuchung von Galakrond",
+    "2536": "Morchie",
+    "2537": "Iridikron der Steingeschuppte",
+    "2538": "Chronolord Deios"
   },
   "expansions": {
     "68": "Classic",
@@ -1182,7 +1202,8 @@
     "395": "Legion",
     "396": "Battle for Azeroth",
     "499": "Schattenlande",
-    "503": "Dragonflight"
+    "503": "Dragonflight",
+    "505": "Aktuelle Saison"
   },
   "instances": {
     "63": "Todesminen",
@@ -1359,7 +1380,9 @@
     "1202": "Rubinlebensbecken",
     "1203": "Das Azurblaue Gewölbe",
     "1204": "Hallen der Infusion",
-    "1205": "Dracheninseln"
+    "1205": "Dracheninseln",
+    "1208": "Aberrus, Schmelztiegel der Schatten",
+    "1209": "Dämmerung des Ewigen"
   },
   "specs": {
     "62": "Arkan",
@@ -1399,7 +1422,8 @@
     "577": "Verwüstung",
     "581": "Rachsucht",
     "1467": "Verheerung",
-    "1468": "Bewahrung"
+    "1468": "Bewahrung",
+    "1473": "Verstärkung"
   },
   "keystoneDungeons": {}
 }

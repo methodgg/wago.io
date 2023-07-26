@@ -1131,7 +1131,7 @@
     "2471": "Banda guerrera de Cortagarra",
     "2472": "Rompetripas",
     "2473": "Bocaárbol",
-    "2474": "Decatriarca Ojoiracundo",
+    "2474": "Descompotriarca Ojoiracundo",
     "2475": "Los enanos desaparecidos",
     "2476": "Ascuas",
     "2477": "Balakar Khan",
@@ -1142,7 +1142,7 @@
     "2483": "Telash Alagrís",
     "2484": "Centinela Talondras",
     "2485": "Kokia Pezuña de Fuego",
-    "2486": "El Consejo Primalista",
+    "2486": "El Consejo Primigenio",
     "2487": "Bromach",
     "2488": "Melidrussa Ajafrío",
     "2489": "Maestro de forja Gorek",
@@ -1165,12 +1165,32 @@
     "2507": "Goliat tragaldabas",
     "2508": "Umbracráneo",
     "2509": "Vexamus",
+    "2510": "Khajin la Implacable",
     "2511": "Tsunami primigenio",
     "2512": "Anciano desmesurado",
     "2514": "Eco de Doragosa",
     "2515": "Strunraan, la Miseria del Cielo",
     "2517": "Bazual, la Llama Temida",
-    "2518": "Liskanoth, la Perdición del Futuro"
+    "2518": "Liskanoth, la Perdición del Futuro",
+    "2520": "Escamandante Sarkareth",
+    "2521": "Cronikar",
+    "2522": "Kazzara la Infernoforjada",
+    "2523": "Eco de Neltharion",
+    "2524": "Invasión de los zaqali",
+    "2525": "Rashok el Anciano",
+    "2526": "Tyr, el Guardián Infinito",
+    "2527": "Magmorax",
+    "2528": "Líneas temporales manifestadas",
+    "2529": "La Cámara de Amalgama",
+    "2530": "Los experimentos olvidados",
+    "2531": "Los ancianos zaqali",
+    "2532": "Administrador vigilante Zskarn",
+    "2533": "Campo de batalla perdido en el tiempo",
+    "2534": "Campo de batalla perdido en el tiempo",
+    "2535": "Añublo de Galakrond",
+    "2536": "Mocri",
+    "2537": "Iridikron el Escamapiedra",
+    "2538": "Cronolord Deios"
   },
   "expansions": {
     "68": "World of Warcraft",
@@ -1182,7 +1202,8 @@
     "395": "Legion",
     "396": "Battle for Azeroth",
     "499": "Shadowlands",
-    "503": "Dragonflight"
+    "503": "Dragonflight",
+    "505": "Temporada actual"
   },
   "instances": {
     "63": "Minas de la Muerte",
@@ -1359,7 +1380,9 @@
     "1202": "Estanques de Vida Rubí",
     "1203": "Cámara Azur",
     "1204": "Salas de Infusión",
-    "1205": "Islas Dragón"
+    "1205": "Islas Dragón",
+    "1208": "Aberrus, el Crisol Ensombrecido",
+    "1209": "Amanecer del Infinito"
   },
   "specs": {
     "62": "Arcano",
@@ -1399,7 +1422,8 @@
     "577": "Devastación",
     "581": "Venganza",
     "1467": "Devastación",
-    "1468": "Preservación"
+    "1468": "Preservación",
+    "1473": "Aumento"
   },
   "keystoneDungeons": {}
 }
