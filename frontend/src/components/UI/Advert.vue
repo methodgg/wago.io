@@ -328,7 +328,7 @@ export default {
   }
   &.rectangle-sidebar {
     width: 340px;
-    margin: 0 0 0 10px;
+    margin: 0 0 16px 10px;
     padding: 22px 0 12px 0;
   }
   &.leaderboard-top, &.leaderboard-bottom {

@@ -170,8 +170,8 @@ const store = new Vuex.Store({
           debug: false,
           hostElement: '#embed-streambuff',
           showCloseButton: true,
-          width: 300,
-          height: 171,
+          width: 350,
+          height: 191.25,
           onEmbedServed: () => {
             console.log('streambuff TRUE')
             state.streambuffVideo = true
@@ -260,8 +260,8 @@ const store = new Vuex.Store({
           debug: false,
           hostElement: '#embed-streambuff',
           showCloseButton: false,
-          width: 300,
-          height: 171,
+          width: 350,
+          height: 191.25,
           onEmbedServed: () => {
             state.streambuffVideo = true
     },
@@ -423,7 +423,7 @@ const store = new Vuex.Store({
   }
 })
 
-import App from './Main'
+import App from './Main.vue'
 
 // load router
 import VueRouter from 'vue-router'

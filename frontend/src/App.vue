@@ -668,15 +668,15 @@ body, html {
   }
   #content .side-bar {
     flex: 1;
-    width: 300px;
-    max-width: 300px;
+    width: 350px;
+    max-width: 350px;
     position: sticky;
     top: 8px;
     align-self: flex-start;
 
     &.with-stream {
-      width: 340px;
-      max-width: 340px;
+      width: 350px;
+      max-width: 350px;
     }
   }
   #logo { text-align: left; padding: 8px 16px; }
