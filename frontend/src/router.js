@@ -113,7 +113,7 @@ export default {
     { path: '/admin', component: Admin },
 
     // menus/categories
-    { path: '/weakauras', component: MenuWeakAurasShadowlands },
+    { path: '/weakauras', component: MenuWeakAurasDragonflight },
     { path: '/weakauras/:c1', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'weakaura', 'sl'), contextDomain: 0 }) },
     { path: '/weakauras/:c1/:c2', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'weakaura', 'sl'), contextDomain: 0 }) },
     { path: '/weakauras/:c1/:c2/:c3', component: Search, props: (route) => ({ contextSearch: GetContextSearch(route.params, 'weakaura', 'sl'), contextDomain: 0 }) },
