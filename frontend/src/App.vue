@@ -5,15 +5,15 @@
       <notification-banner id="maintenance" v-if="isMaintenance" :preventClose="true">Wago is in maintenance mode, and is read-only. </notification-banner>      
       <div id="topbar">
         <md-toolbar>
-        <md-button class="md-icon-button md-hide-small-and-up" @click="toggleMobileNav()">
-          <md-icon>menu</md-icon>
-        </md-button>
-        <h2 class="md-title" @click="$store.commit('setSearchText', '')" id="logo"><router-link to="/"><img src="./assets/wagoio-logo.png"/></router-link></h2>
+          <md-button class="md-icon-button md-hide-small-and-up" @click="toggleMobileNav()">
+            <md-icon>menu</md-icon>
+          </md-button>
+          <h2 class="md-title" @click="$store.commit('setSearchText', '')" id="logo"><router-link to="/"><img src="./assets/wagoio-logo.png"/></router-link></h2>
 
-        <div id="h-nav" class="md-hide-xsmall">
-          <div id="top-search-bar">
+          <div id="h-nav" class="md-hide-xsmall">
+            <div id="top-search-bar">
               <search-bar ref="searchField"></search-bar>
-          </div>
+            </div>
             <md-button v-if="(this.$store.state.user.UID || this.$store.state.user.guest) && !this.$store.state.user.hideAds" href="https://www.patreon.com/wagoio" target="_blank">
               <svg aria-hidden="true" focusable="false" class="header-patreon" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M512 194.8c0 101.3-82.4 183.8-183.8 183.8-101.7 0-184.4-82.4-184.4-183.8 0-101.6 82.7-184.3 184.4-184.3C429.6 10.5 512 93.2 512 194.8zM0 501.5h90v-491H0v491z"></path></svg>
               {{ $t('Support Wago.io') }}
@@ -24,15 +24,15 @@
                 <span class="coaching-text">Metafy Coaching</span>
               </md-button>
             </div>
-        </div>
-        <div id="hr-nav" class="md-hide-xsmall">
-          <h2 class="md-title md-hide-small-and-up" id="logo"><router-link to="/"><img src="./assets/wagoio-logo.png"/></router-link></h2>
+          </div>
+          <div id="hr-nav" class="md-hide-xsmall">
+            <h2 class="md-title md-hide-small-and-up" id="logo"><router-link to="/"><img src="./assets/wagoio-logo.png"/></router-link></h2>
             <div v-if="User && User.unreadMentions && User.unreadMentions.length" id="header-unread">
               <router-link to="/my/mentions"><md-icon>comment</md-icon> <span class="unreadCount">{{ User.unreadMentions.length }}</span></router-link>
             </div>
             <login-button v-if="!isMaintenance"></login-button>
-        </div>
-      </md-toolbar>
+          </div>
+        </md-toolbar>
       </div>
       <md-sidenav class="md-hide-small-and-up md-left" ref="mobileSidebar" id="mobile-sidebar">
         <search-bar ref="searchField"></search-bar>
@@ -82,15 +82,15 @@
             <span>World of Warcraft <md-icon>expand_more</md-icon></span>
             <div class="sub-nav">
               <router-link to='/dragonflight-weakauras'>
-              <div class="md-list-text-container">
+                <div class="md-list-text-container">
                   WeakAuras
-                <span class="game-select">
+                  <span class="game-select">
                     <router-link to='/dragonflight-weakauras'>Dragonflight</router-link> -
                     <router-link to='/wotlk-weakauras'>WotLK</router-link> -
                     <router-link to='/classic-weakauras'>Classic</router-link>
-                </span>
-              </div>
-            </router-link>
+                  </span>
+                </div>
+              </router-link>
               <router-link to='/blizzhud'>BlizzHUD</router-link>
               <router-link to='/elvui'>ElvUI</router-link>
               <router-link to='/opie'>OPie</router-link>
@@ -98,21 +98,21 @@
               <router-link to='/totalrp'>Total RP</router-link>
               <router-link to='/vuhdo'>VuhDo</router-link>
               <router-link to='/dbm'>DBM</router-link>
-              </div>
-              </div>
+            </div>
+          </div>
           <div class="menu-section">
             <span>Final Fantasy XIV <md-icon>expand_more</md-icon></span>
             <div class="sub-nav">
               <router-link to='/delvui'>DelvUI</router-link>
               <!--<router-link to='/tpie'>TPie</router-link>-->
-              </div>
-              </div>
+            </div>
+          </div>
           <div class="menu-section">
             <span>Addons <md-icon>expand_more</md-icon></span>
             <div class="sub-nav">
               <a href="https://addons.wago.io">Download Addons</a>
               <a href="https://addons.wago.io/app">Wago App</a>
-              </div>
+            </div>
           </div>
           <router-link to='/collections'>{{ $t("Collections") }}</router-link>
           <router-link to='/snippets'>{{ $t("Snippets") }}</router-link>
@@ -269,39 +269,39 @@ export default {
         this.$store.commit('setUser', { guest: true, config: { searchOptions: { sort: 'bestmatch', relevance: 'standard', expansion: '' } } })
       }
       else {
-      this.http.get('/account/whoami', params).then((res) => {
-        if (res.locale && vue.$store.state.locale !== res.locale) {
-          vue.$store.commit('setLocale', res.locale)
-        }
-
-        if (res.token) {
-          window.setCookie('token', res.token, 365)
-          vue.axios.defaults.headers = { 'x-auth-token': res.token }
-        }
-
-        // if beta server and user does not have beta access
-        // if (process.env.WEB_SERVER.match(/t1000/) && (res.guest || !res.user || !res.user.access || !res.user.access.beta)) {
-        //   window.requireBetaAccess = true
-        //   if (!vue.$route.path.match(/\/auth\//)) {
-        //     window.initPage = vue.$route.path
-        //     vue.$router.replace('/login')
-        //   }
-        // }
-        if (res.user) {
-          this.$store.commit('setUser', res.user)
-          if (vue.$route.path === '/login') {
-            vue.$router.replace('/account')
+        this.http.get('/account/whoami', params).then((res) => {
+          if (res.locale && vue.$store.state.locale !== res.locale) {
+            vue.$store.commit('setLocale', res.locale)
           }
-        }
-        else if (res.guest) {
-          this.$store.commit('setUser', { guest: true, config: { searchOptions: { sort: 'bestmatch', relevance: 'standard', expansion: '' } } })
-        }
-      }).catch((err) => {
-        console.error(err)
-        window.initPage = vue.$route.path
-        // vue.$router.replace('/login')
-      })
-    }
+
+          if (res.token) {
+            window.setCookie('token', res.token, 365)
+            vue.axios.defaults.headers = { 'x-auth-token': res.token }
+          }
+
+          // if beta server and user does not have beta access
+          // if (process.env.WEB_SERVER.match(/t1000/) && (res.guest || !res.user || !res.user.access || !res.user.access.beta)) {
+          //   window.requireBetaAccess = true
+          //   if (!vue.$route.path.match(/\/auth\//)) {
+          //     window.initPage = vue.$route.path
+          //     vue.$router.replace('/login')
+          //   }
+          // }
+          if (res.user) {
+            this.$store.commit('setUser', res.user)
+            if (vue.$route.path === '/login') {
+              vue.$router.replace('/account')
+            }
+          }
+          else if (res.guest) {
+            this.$store.commit('setUser', { guest: true, config: { searchOptions: { sort: 'bestmatch', relevance: 'standard', expansion: '' } } })
+          }
+        }).catch((err) => {
+          console.error(err)
+          window.initPage = vue.$route.path
+          // vue.$router.replace('/login')
+        })
+      }
     }
 
     window.eventHub.$on('showSnackBar', this.showSnackBar)
@@ -562,7 +562,7 @@ body, html {
   background: #000000;
   width: 100%;
   .md-toolbar {
-    max-width: 1250px;
+    max-width: 1290px;
     margin: 0 auto;
     min-height: 60px;
     padding: 0;
@@ -625,7 +625,7 @@ body, html {
           display: flex;
           position: absolute;
           top: 40px;
-  left: 0;
+          left: 0;
         }
       }
     }
@@ -692,9 +692,9 @@ body, html {
       svg {
         width: 16px;
         margin-right: 8px;
-}
-}
-}
+      }
+    }
+  }
   #h-nav, #hr-nav { display: flex }
 }
 
@@ -800,6 +800,15 @@ a span.game-select {padding-top: 3px}
     }
   }
 }
+body.ads-enabled {
+  #footer {
+    padding: 8px 0 125px;
+  }
+  #bottomAnchor-close {
+    opacity: 1!important;
+  }
+}
+
 
 @media (max-width: 800px) {
   #gSearch button { display: none }
