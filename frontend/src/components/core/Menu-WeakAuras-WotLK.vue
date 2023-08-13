@@ -46,7 +46,7 @@
           <md-list-item v-for="raid in wotlkRaids" v-bind:key="raid.id" :class="raid.id + ' md-inset'">
             <div class="menu-image"></div>
             <div class="md-list-text-container">
-              <a href="#" @click.prevent="searchRoute(raid)">{{ raid.text }}</a>
+              <a :href="'/wotlk-weakauras/' + raid.slug" @click.prevent="searchRoute(raid)">{{ raid.text }}</a>
               <span>
                 <a v-for="boss in raid.bosses" v-bind:key="boss.id" :href="'/wotlk-weakauras/' + boss.slug" @click.prevent="searchRoute(boss)">{{ boss.text }}</a>
               </span>
