@@ -60,7 +60,7 @@ module.exports = function (fastify, opts, next) {
   })
 
   // returns basic data of requested weakauras; WA Companion uses to check for updates
-  fastify.get('/check/:importType', async (req, res) => {
+  async function checkImports(req, res) {
     let ids = []
     if (typeof req.body.ids === 'string') {
       ids = req.body.ids.split(',').slice(0, 200)
@@ -201,7 +201,9 @@ module.exports = function (fastify, opts, next) {
       return
     }))
     res.send(wagos)
-  })
+  }
+  fastify.get('/check/:importType', checkImports)
+  fastify.post('/check/:importType', checkImports)
 
   // returns raw encoded string for requested import
   fastify.get('/raw/encoded', async (req, res) => {
