@@ -61,7 +61,17 @@ module.exports = function (fastify, opts, next) {
 
   // returns basic data of requested weakauras; WA Companion uses to check for updates
   fastify.get('/check/:importType', async (req, res) => {
-    if (!req.query.ids) {
+    let ids = []
+    if (typeof req.body.ids === 'string') {
+      ids = req.body.ids.split(',').slice(0, 200)
+    }
+    else if (Array.isArray(req.body.ids)) {
+      ids = req.body.ids.slice(0, 200)
+    }
+    else if (req.query.ids) {
+      ids = req.query.ids.split(',').slice(0, 200)
+    }
+    if (!ids) {
       return res.code(404).send({error: "page_not_found"})
     }
     let findType = {}
@@ -75,7 +85,6 @@ module.exports = function (fastify, opts, next) {
       return res.code(404).send({error: "page_not_found"})
     }
 
-    let ids = req.query.ids.split(',').slice(0, 200)
     let cached = []
     let lookup = []
     for (let i = 0; i < ids.length; i++) {
