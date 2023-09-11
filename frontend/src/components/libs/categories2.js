@@ -117,6 +117,17 @@ class Categories {
       'accessibility3': {slug: 'accessibility/controls', i18n: 'Controls', color: '#BD10E0', domain: 0, parent: 'accessibility', types: ['WEAKAURA']},
 
       // dragonflight      
+      'raidamirdrassil': {slug: 'pve/amirdrassil-the-dreams-hope', image: 'amirdrassil.png', color: '#3EC16A', i18n: 'warcraft:instances.1207', domain: 0, types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
+      'raidamirdrassil1': {slug: 'pve/amirdrassil-the-dreams-hope/gnarlroot', i18n: 'warcraft:encounters.2564', domain: 0, parent: 'raidamirdrassil', types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
+      'raidamirdrassil2': {slug: 'pve/amirdrassil-the-dreams-hope/igira-the-cruel', i18n: 'warcraft:encounters.2554', domain: 0, parent: 'raidamirdrassil', types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
+      'raidamirdrassil3': {slug: 'pve/amirdrassil-the-dreams-hope/volcoross', i18n: 'warcraft:encounters.2557', domain: 0, parent: 'raidamirdrassil', types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
+      'raidamirdrassil4': {slug: 'pve/amirdrassil-the-dreams-hope/larodar-keeper-of-the-flame', i18n: 'warcraft:encounters.2553', domain: 0, parent: 'raidamirdrassil', types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
+      'raidamirdrassil5': {slug: 'pve/amirdrassil-the-dreams-hope/council-of-dreams', i18n: 'warcraft:encounters.2555', domain: 0, parent: 'raidamirdrassil', types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
+      'raidamirdrassil6': {slug: 'pve/amirdrassil-the-dreams-hope/nymue-weaver-of-the-cycle', i18n: 'warcraft:encounters.2556', domain: 0, parent: 'raidamirdrassil', types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
+      'raidamirdrassil7': {slug: 'pve/amirdrassil-the-dreams-hope/smolderon', i18n: 'warcraft:encounters.2563', domain: 0, parent: 'raidamirdrassil', types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
+      'raidamirdrassil8': {slug: 'pve/amirdrassil-the-dreams-hope/tindral-sageswift-seer-of-flame', i18n: 'warcraft:encounters.2565', domain: 0, parent: 'raidamirdrassil', types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
+      'raidamirdrassil9': {slug: 'pve/amirdrassil-the-dreams-hope/fyrakk-the-blazing', i18n: 'warcraft:encounters.2519', domain: 0, parent: 'raidamirdrassil', types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
+
       'raidaberrus': {slug: 'pve/aberrus-the-shadowed-crucible', image: 'halion.png', color: '#FA5D60', i18n: 'warcraft:instances.1208', domain: 0, types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
       'raidaberrus1': {slug: 'pve/aberrus-the-shadowed-crucible/kazzara', i18n: 'warcraft:encounters.2522', domain: 0, parent: 'raidaberrus', types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
       'raidaberrus2': {slug: 'pve/aberrus-the-shadowed-crucible/molgoth', i18n: 'warcraft:encounters.2529', domain: 0, parent: 'raidaberrus', types: ['WEAKAURA', 'COLLECTION'], games: ['df']},

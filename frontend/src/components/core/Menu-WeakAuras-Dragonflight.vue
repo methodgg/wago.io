@@ -209,7 +209,7 @@ export default {
       return window.Categories.classCategories('WEAKAURA', 'df')
     },
     raids: function () {
-      return window.Categories.raidCategories(['raidaberrus', 'raidvaultincarnates', 'dfdungeon', 'dftimewalking'])
+      return window.Categories.raidCategories(['raidamirdrassil', 'raidaberrus', 'raidvaultincarnates', 'dfdungeon', 'dftimewalking'])
     },
     misc: function () {
       return window.Categories.getCategories(['gen1', 'gen7', 'gen2', 'gen6', 'gen9', 'gen10', 'gen11', 'gen12', 'gen13', 'gen8', 'gen15', 'gen19'], null)
