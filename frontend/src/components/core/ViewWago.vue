@@ -33,10 +33,26 @@
         <md-button v-if="wago.code && wago.code.encoded" @click="copyEncoded" class="copy-import-button" id="copyImportBtn">
           <md-icon>assignment</md-icon> <span>{{ $t("Copy import string") }}</span>
           <md-button @click="openHelpDialog" id="helpImportingButton" class="md-icon-button md-raised"><md-icon>help</md-icon></md-button>
-          <md-tooltip v-if="wago.type.match(/ELVUI/)" md-direction="bottom" class="CopyWarningTooltip"><strong>{{ $t("ElvUI no longer supports old format strings") }}</strong><br>{{ $t("Wago is exporting in the new format - please make sure you have the latest version of ElvUI installed") }}</strong></md-tooltip>
-          <md-tooltip v-else-if="hasUnsavedChanges" md-direction="bottom" class="CopyWarningTooltip"><strong>{{ $t("You have unsaved changes") }}</strong><br>{{ $t("Be sure to save or fork to generate a new string with your modifications") }}</md-tooltip>
-          <md-tooltip v-else-if="corruptedData" md-direction="bottom" class="CopyWarningTooltip"><strong>{{ $t("This import is corrupted and will likely not work as expected") }}</strong></md-tooltip>
-          <md-tooltip v-else-if="codeReview && codeReview.alerts" md-direction="bottom" class="CopyWarningTooltip"><strong>{{ $t("This import has alerts, you are strongly suggested to review the code before installing") }}</strong></md-tooltip>
+
+          <md-tooltip v-if="!isLatestVersion() || hasUnsavedChanges || corruptedData || (codeReview && codeReview.alerts)" md-direction="bottom" class="CopyWarningTooltip">
+
+            <template v-if="!isLatestVersion()">
+              <p><strong>{{ $t("There is a newer version of this import") }}</strong><br>{{ $t("Are you sure you want to copy this version?") }}</p>
+            </template>
+            
+            <template v-if="hasUnsavedChanges">
+              <p><strong>{{ $t("You have unsaved changes") }}</strong><br>{{ $t("Be sure to save or fork to generate a new string with your modifications") }}</p>
+            </template>
+            
+            <template v-if="corruptedData">
+              <p><strong>{{ $t("This import is corrupted and will likely not work as expected") }}</strong></p>
+            </template>
+            
+            <template v-if="codeReview && codeReview.alerts">
+              <p><strong>{{ $t("This import has alerts, you are strongly suggested to review the code before installing") }}</strong></p>
+            </template>
+            
+          </md-tooltip>
         </md-button>
       </div>
       <md-dialog md-open-from="#helpImportingButton" md-close-to="#helpImportingButton" ref="helpDialog" id="helpDialog">
@@ -569,6 +585,7 @@
                     </template>
                     <template v-if="codeReview.info.highlights.size">
                       <em>{{ $t('Highlighted Functionality') }}</em><br>
+                      <template v-if="codeReview.info.highlights.has('leavegroup')"><span><md-icon>groups</md-icon> {{ $t('Leaves Group') }}</span></span><br></template>
                       <template v-if="codeReview.info.highlights.has('keybind')"><span><md-icon>keyboard</md-icon> {{ $t('Sets keybinds') }}</span></span><br></template>
                       <template v-if="codeReview.info.highlights.has('tts')"><span><md-icon>volume_up</md-icon> {{ $t('Uses text-to-speech') }}</span></span><br></template>
                       <template v-if="codeReview.info.highlights.has('audio')"><span><md-icon>volume_up</md-icon> {{ $t('Plays audio') }}</span></span><br></template>
@@ -1869,6 +1886,16 @@ export default {
               }
               else if (g.match(/^PlaySound(File)?$/)) {
                 this.codeReview.info.highlights.add('audio')
+              }
+              else if (g.match(/^(C_PartyInfo[\.:]+)?LeaveParty$/)) {
+                this.codeReview.info.highlights.add('leavegroup')
+                this.codeReview.alerts++
+                this.codeReview.alertContent[c.keypath + '_LeaveGroup'] = {name: c.name, display: this.$t('\'[-name-]\' calls LeaveParty() which could potentially be used for malicious intent.', {name: c.name}), keypath: c.keypath}
+              }
+              else if (g.match(/^LeaveBattlefield$/)) {
+                this.codeReview.info.highlights.add('leavegroup')
+                this.codeReview.alerts++
+                this.codeReview.alertContent[c.keypath + '_LeaveGroup'] = {name: c.name, display: this.$t('\'[-name-]\' calls LeaveBattlefield() which could potentially be used for malicious intent.', {name: c.name}), keypath: c.keypath}
               }
               else if (g.match(/^_G\[/)) {
                 this.codeReview.alerts++
@@ -3446,6 +3473,8 @@ ul:not(.md-list) > li.multiselect__element + li { margin-top: 0 }
 #newVersionFlexArea { flex: 1 }
 
 .CopyWarningTooltip { padding: 8px; border:5px solid #c1272d; font-size: 14px; height: auto; max-width: 450px; white-space:normal; background: black; right: -84px  }
+.CopyWarningTooltip p {margin: 0; }
+.CopyWarningTooltip p + p { border-top: 1px solid #444; margin-top: 3px; padding-top: 3px; }
 .SmallTooltip { padding: 4px; border:1px solid black; height: auto; max-width: 450px; white-space:normal; background: #222; right: -52px; }
 
 .usertext.markdown hr { opacity: .5 }
