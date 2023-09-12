@@ -9,7 +9,10 @@ config.js
 */selenium-debug.log
 */lua-scans/*.lua
 */logs/*.log
+.env
 
+# auto generated
+i18n/**/warcraft.json
 
 # Editor directories and files
 */.idea
@@ -17,3 +20,5 @@ config.js
 *.ntvs*
 *.njsproj
 *.sln
+
+backendx18

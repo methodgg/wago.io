@@ -1035,7 +1035,7 @@ i18next.use(XHR)
     load: 'currentOnly',
     returnEmptyString: false,
     backend: {
-      loadPath: '/static/i18n/[-lng-]/[-ns-].json?v='+window.langCache,
+      loadPath: '/static/i18n/[-lng-]/[-ns-].json',
       allowMultiLoading: false,
       crossDomain: false
     },
