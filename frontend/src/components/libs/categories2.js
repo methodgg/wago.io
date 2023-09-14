@@ -150,6 +150,16 @@ class Categories {
       'raidvaultincarnates8': {slug: 'pve/vault-of-the-incarnates/dathea-ascended', i18n: 'warcraft:encounters.2502', domain: 0, parent: 'raidvaultincarnates', types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
 
       'dfdungeon': {slug: 'pve/dragonflight-dungeons', image: 'dungeon.png', color: '#F5A623', i18n: 'Dragonflight Dungeons', domain: 0, types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
+      // --- Season 3
+      'dfdungeon-s3': {subheader: true, i18n: 'Season 3 Dungeons', domain: 0, parent: 'dfdungeon', system: true, types: ['WEAKAURA'], games: ['df']},
+      'dfdungeon9': {slug: 'pve/dragonflight-dungeons/dawn-of-the-infinite', i18n: 'warcraft:instances.1209', domain: 0, parent: 'dfdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
+      'dfdungeons3-1': {slug: 'pve/dragonflight-dungeons/waycrest-manor', i18n: 'warcraft:instances.1021', domain: 0, parent: 'dfdungeon', types: ['WEAKAURA'], games: ['df']},
+      'dfdungeons3-2': {slug: 'pve/dragonflight-dungeons/darkheart-thicket', i18n: 'warcraft:instances.762', domain: 0, parent: 'dfdungeon', types: ['WEAKAURA'], games: ['df']},
+      'dfdungeons3-3': {slug: 'pve/dragonflight-dungeons/atal-dazar', i18n: 'warcraft:instances.968', domain: 0, parent: 'dfdungeon', types: ['WEAKAURA'], games: ['df']},
+      'dfdungeons3-4': {slug: 'pve/dragonflight-dungeons/black-rook-hold', i18n: 'warcraft:instances.740', domain: 0, parent: 'dfdungeon', types: ['WEAKAURA'], games: ['df']},
+      'dfdungeons3-5': {slug: 'pve/dragonflight-dungeons/the-everbloom', i18n: 'warcraft:instances.556', domain: 0, parent: 'dfdungeon', types: ['WEAKAURA'], games: ['df']},
+      'dfdungeons3-6': {slug: 'pve/dragonflight-dungeons/throne-of-the-tides', i18n: 'warcraft:instances.65', domain: 0, parent: 'dfdungeon', types: ['WEAKAURA'], games: ['df']},
+
       // --- Season 2
       'dfdungeon-s2': {subheader: true, i18n: 'Season 2 Dungeons', domain: 0, parent: 'dfdungeon', system: true, types: ['WEAKAURA'], games: ['df']},
       'dfdungeon1': {slug: 'pve/dragonflight-dungeons/brackenhide-hollow', i18n: 'warcraft:instances.1196', domain: 0, parent: 'dfdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
