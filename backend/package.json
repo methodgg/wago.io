@@ -59,14 +59,18 @@
     "tap": "^14.11.0",
     "twitter-lite": "^0.14.0",
     "uninstall": "0.0.0",
-    "webp-converter": "^2.3.3"
+    "webp-converter": "^2.3.3",
+    "@snyk/protect": "latest"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepare": "npm run snyk-protect",
+    "snyk-protect": "snyk-protect"
   },
   "author": "Mark Bosley",
   "license": "MIT",
   "devDependencies": {
     "snowpack": "^3.3.7"
-  }
+  },
+  "snyk": true
 }
