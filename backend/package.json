@@ -13,7 +13,7 @@
     "bullmq": "^1.14.8",
     "cheerio": "^1.0.0-rc.10",
     "cloudflare": "^2.8.0",
-    "crypto-js": "^4.0.0",
+    "crypto-js": "^4.2.0",
     "csv-parse": "^4.16.0",
     "digitalocean": "^1.2.1",
     "discord.js": "^12.5.3",
