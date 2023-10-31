@@ -93,6 +93,9 @@ module.exports = {
     else if (typeof obj['1'] === 'object' && typeof obj['2'] === 'object' && obj['1'].animation_type && obj['1'].duration && obj['2'].animation_type && obj['2'].duration) {
       meta.name = 'Plater Animation'
     }
+    else if (obj.CastSounds) {
+      meta.name = 'Plater Cast Sounds'
+    }
     else if (obj.type === 'script') {
       meta.name = obj['2']
       meta.description = obj['6']
@@ -135,6 +138,9 @@ module.exports = {
     }
     else if (typeof json['1'] === 'object' && typeof json['2'] === 'object' && json['1'].animation_type && json['1'].duration && json['2'].animation_type && json['2'].duration) {
       sysCat = 'plater4'
+    }
+    else if (obj.CastSounds) {
+      sysCat = 'plater6'
     }
     else if (json.type === 'script') {
       sysCat = 'plater2'
