@@ -51,7 +51,7 @@ module.exports = {
   },
 
   processMeta: (obj) => {
-    var meta = {categories: []}
+    var meta = { categories: [] }
     if (!obj) {
       return false
     }
@@ -124,7 +124,7 @@ module.exports = {
     if (Array.isArray(json)) {
       var tbl = {}
       json.forEach((v, k) => {
-        tbl[''+(k+1)] = v
+        tbl['' + (k + 1)] = v
       })
       json = tbl
     }
@@ -139,7 +139,7 @@ module.exports = {
     else if (typeof json['1'] === 'object' && typeof json['2'] === 'object' && json['1'].animation_type && json['1'].duration && json['2'].animation_type && json['2'].duration) {
       sysCat = 'plater4'
     }
-    else if (obj.CastSounds) {
+    else if (json.CastSounds) {
       sysCat = 'plater6'
     }
     else if (json.type === 'script') {
@@ -163,9 +163,9 @@ module.exports = {
       if (sysCat) {
         wago.categories.push(sysCat)
       }
-      return {code, wago}
+      return { code, wago }
     }
-    return {code}
+    return { code }
   }
 }
 
@@ -184,9 +184,9 @@ function sortJSON(obj) {
   var sorted = {}
   var keys
   keys = Object.keys(obj)
-  keys.sort(function(key1, key2) {
-    if(key1 < key2) return -1
-    if(key1 > key2) return 1
+  keys.sort(function (key1, key2) {
+    if (key1 < key2) return -1
+    if (key1 > key2) return 1
     return 0
   })
 
