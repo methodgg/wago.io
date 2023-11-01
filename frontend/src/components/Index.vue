@@ -497,11 +497,11 @@ export default {
     currentWA () {
       return {
         dragonflight: [
-          Categories.getCategories('raidaberrus')[0],
+          Categories.getCategories('raidamirdrassil')[0],
           Categories.getCategories('dfdungeon')[0],
         ],
         wotlk: [
-          Categories.getCategories('raidulduar')[0],
+          Categories.getCategories('raidicc')[0],
           Categories.getCategories('wotlkdungeon')[0],
         ],
         // classic: [
