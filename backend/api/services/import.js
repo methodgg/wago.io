@@ -334,6 +334,16 @@ module.exports = function (fastify, opts, next) {
         const scanDoc = await scan.save()
         return res.send({scan: scanDoc._id.toString(), type: 'PLATER', name: 'Plater NPC Colors', categories: []})
       }
+      else if (decoded.obj.CastSounds) {
+        scan.type = 'PLATER'
+        const scanDoc = await scan.save()
+        return res.send({scan: scanDoc._id.toString(), type: 'PLATER', name: 'Plater Cast Sounds', categories: []})
+      }
+      else if (decoded.obj.CastColor) {
+        scan.type = 'PLATER'
+        const scanDoc = await scan.save()
+        return res.send({scan: scanDoc._id.toString(), type: 'PLATER', name: 'Plater Cast Colors', categories: []})
+      }
       // animation
       else if ((decoded.obj[1] && decoded.obj[1].animation_type) || (decoded.obj['2'] && decoded.obj['2'].animation_type)) {
         scan.type = 'PLATER'
