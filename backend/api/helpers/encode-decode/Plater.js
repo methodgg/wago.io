@@ -96,6 +96,9 @@ module.exports = {
     else if (obj.CastSounds) {
       meta.name = 'Plater Cast Sounds'
     }
+    else if (obj.CastColor) {
+      meta.name = 'Plater Cast Colors'
+    }
     else if (obj.type === 'script') {
       meta.name = obj['2']
       meta.description = obj['6']
@@ -141,6 +144,9 @@ module.exports = {
     }
     else if (json.CastSounds) {
       sysCat = 'plater6'
+    }
+    else if (json.CastColor) {
+      sysCat = 'plater7'
     }
     else if (json.type === 'script') {
       sysCat = 'plater2'
