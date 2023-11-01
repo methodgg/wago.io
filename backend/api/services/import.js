@@ -1,5 +1,5 @@
 // load our libs and functions on app startup
-const cloudflare = require('cloudflare')({token: config.cloudflare.dnsToken})
+const cloudflare = require('cloudflare')({ token: config.cloudflare.dnsToken })
 const lua = require('../helpers/lua')
 const webhooks = require('../helpers/webhooks')
 const battlenet = require('../helpers/battlenet')
@@ -8,19 +8,19 @@ const crypto = require("crypto-js")
 const patchDates = require('../helpers/patchDates')
 
 module.exports = function (fastify, opts, next) {
-/**
- * Scans an import string and validates the input.
- * Returns a scan ID which is used for faster processing when ready to save to WagoItems.
- */
+  /**
+   * Scans an import string and validates the input.
+   * Returns a scan ID which is used for faster processing when ready to save to WagoItems.
+   */
   fastify.post('/scan', ScanImport)
-  async function ScanImport (req, res) {
+  async function ScanImport(req, res) {
     // validate the input
     if (!req.body || !req.body.importString || req.body.importString.length < 10) {
-      return res.code(400).send({error: 'invalid_import'})
+      return res.code(400).send({ error: 'invalid_import' })
     }
 
     var test = {}
-    var scan = new ImportScan({input: req.body.importString})
+    var scan = new ImportScan({ input: req.body.importString })
 
     var decodedObj
     for (const addonFile in Addons) {
@@ -28,7 +28,7 @@ module.exports = function (fastify, opts, next) {
       if (scan.decoded) {
         continue
       }
-      else if (!decodedObj && (!req.body.type || req.body.type.match(addon.typeMatch) || (req.body.wagolib && addonFile === 'WagoLib'))) {
+      else if (typeof decodedObj !== 'object' && (!req.body.type || req.body.type.match(addon.typeMatch) || (req.body.wagolib && addonFile === 'WagoLib'))) {
         decodedObj = await addon.decode(req.body.importString.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim(), lua.runLua)
       }
       if (!decodedObj) {
@@ -60,7 +60,7 @@ module.exports = function (fastify, opts, next) {
     }
 
     if (scan.type) {
-      return res.send({scan: scan._id, type: scan.type, name: scan.name, categories: scan.categories, game: scan.game, domain: scan.domain})
+      return res.send({ scan: scan._id, type: scan.type, name: scan.name, categories: scan.categories, game: scan.game, domain: scan.domain })
     }
 
     // legacy import code follows
@@ -82,7 +82,7 @@ module.exports = function (fastify, opts, next) {
     else {
       if (req.body.importString.match(commonRegex.RegexPasteBinLink)) {
         let pasteBinMatch = commonRegex.RegexPasteBinLink.exec(req.body.importString)
-        let raw = await axios.get('http://pastebin.com/raw/'+pasteBinMatch[1])
+        let raw = await axios.get('http://pastebin.com/raw/' + pasteBinMatch[1])
         req.body.importString = raw.data
         return ScanImport(req, res)
       }
@@ -183,11 +183,11 @@ module.exports = function (fastify, opts, next) {
           if (class_id) {
             categories.push(class_id)
             if (decoded.obj.d.load.use_spec && decoded.obj.d.load['spec'] && decoded.obj.d.load['spec'].single)
-              categories.push(class_id+'-'+decoded.obj.d.load['spec'].single)
-            else if (decoded.obj.d.load.use_spec && load['spec'] && decoded.obj.d.load['spec'].multi.length>0) {
-              for (let i=0; i<decoded.obj.d.load['spec'].multi.length; i++) {
+              categories.push(class_id + '-' + decoded.obj.d.load['spec'].single)
+            else if (decoded.obj.d.load.use_spec && load['spec'] && decoded.obj.d.load['spec'].multi.length > 0) {
+              for (let i = 0; i < decoded.obj.d.load['spec'].multi.length; i++) {
                 if (decoded.obj.d.load['spec'].multi[i]) {
-                  categories.push(class_id+'-'+i)
+                  categories.push(class_id + '-' + i)
                 }
               }
             }
@@ -203,21 +203,21 @@ module.exports = function (fastify, opts, next) {
             }
 
             if (decoded.obj.d.load['class'].multi[classKey]) {
-                class_id = guessCategory(classKey)
-                if (class_id) {
-                    categories.push(class_id)
-                    list.push(class_id)
-                }
+              class_id = guessCategory(classKey)
+              if (class_id) {
+                categories.push(class_id)
+                list.push(class_id)
+              }
             }
           }
           // if only one class is selected we can still check for specs
-          if (list.length==1) {
+          if (list.length == 1) {
             if (decoded.obj.d.load.use_spec && decoded.obj.d.load['spec'] && decoded.obj.d.load['spec'].single)
-              categories.push(class_id+'-'+decoded.obj.d.load['spec'].single)
-            else if (decoded.obj.d.load.use_spec && decoded.obj.d.load['spec'] && decoded.obj.d.load['spec'].multi.length>0) {
-              for (let i=0; i<decoded.obj.d.load['spec'].multi.length; i++) {
+              categories.push(class_id + '-' + decoded.obj.d.load['spec'].single)
+            else if (decoded.obj.d.load.use_spec && decoded.obj.d.load['spec'] && decoded.obj.d.load['spec'].multi.length > 0) {
+              for (let i = 0; i < decoded.obj.d.load['spec'].multi.length; i++) {
                 if (decoded.obj.d.load['spec'].multi[i]) {
-                  categories.push(class_id+'-'+i)
+                  categories.push(class_id + '-' + i)
                 }
               }
             }
@@ -225,23 +225,23 @@ module.exports = function (fastify, opts, next) {
         }
 
         // load requirements for encounter id
-        if (decoded.obj.d.load.use_encounterid && decoded.obj.d.load.encounterid>0) {
+        if (decoded.obj.d.load.use_encounterid && decoded.obj.d.load.encounterid > 0) {
           let raid = guessCategory(parseInt(decoded.obj.d.load.encounterid))
-          if (raid && raid.indexOf('raiden')==0)
+          if (raid && raid.indexOf('raiden') == 0)
             categories.push('raiden')
-          else if (raid && raid.indexOf('raidnh')==0)
+          else if (raid && raid.indexOf('raidnh') == 0)
             categories.push('raidnh')
-          else if (raid && raid.indexOf('raidtov')==0)
+          else if (raid && raid.indexOf('raidtov') == 0)
             categories.push('raidtov')
-          else if (raid && raid.indexOf('raidtomb')==0)
+          else if (raid && raid.indexOf('raidtomb') == 0)
             categories.push('raidtomb')
-          else if (raid && raid.indexOf('raidantorus')==0)
-          categories.push('raidantorus')
-          else if (raid && raid.indexOf('raiduldir')==0)
+          else if (raid && raid.indexOf('raidantorus') == 0)
+            categories.push('raidantorus')
+          else if (raid && raid.indexOf('raiduldir') == 0)
             categories.push('raiduldir')
-          else if (raid && raid.indexOf('raidzuldazar')==0)
+          else if (raid && raid.indexOf('raidzuldazar') == 0)
             categories.push('raidzuldazar')
-          else if (raid && raid.indexOf('raidcrucible')==0)
+          else if (raid && raid.indexOf('raidcrucible') == 0)
             categories.push('raidcrucible')
 
           if (raid) {
@@ -249,7 +249,7 @@ module.exports = function (fastify, opts, next) {
           }
         }
       }
-      return res.send({scan: scanDoc._id.toString(), type: scan.type, name: decoded.obj.d.id, categories: categories, game: scan.game})
+      return res.send({ scan: scanDoc._id.toString(), type: scan.type, name: decoded.obj.d.id, categories: categories, game: scan.game })
     }
 
     // if decoded data looks like a valid MDT
@@ -275,7 +275,7 @@ module.exports = function (fastify, opts, next) {
           decoded.obj.text = global.translations['en-US'].zones[dungeon[0].text.replace(/^.*\./, '')]
         }
       }
-      return res.send({scan: scanDoc._id.toString(), type: 'MDT', name: decoded.obj.text, categories: categories})
+      return res.send({ scan: scanDoc._id.toString(), type: 'MDT', name: decoded.obj.text, categories: categories })
     }
 
     if (test.TOTALRP3 && (decoded || !test.DEFLATE)) {
@@ -316,7 +316,7 @@ module.exports = function (fastify, opts, next) {
         if (name === '') {
           name = 'Total RP3 Import'
         }
-        return res.send({scan: scanDoc._id.toString(), type: 'TOTALRP3', name: name, categories: categories})
+        return res.send({ scan: scanDoc._id.toString(), type: 'TOTALRP3', name: name, categories: categories })
       }
     }
 
@@ -326,13 +326,13 @@ module.exports = function (fastify, opts, next) {
       if (decoded.obj.OptionsPanelDB && decoded.obj.OptionsPanelDB.PlaterOptionsPanelFrame) {
         scan.type = 'PLATER'
         const scanDoc = await scan.save()
-        return res.send({scan: scanDoc._id.toString(), type: 'PLATER', name: 'Plater Profile', categories: []})
+        return res.send({ scan: scanDoc._id.toString(), type: 'PLATER', name: 'Plater Profile', categories: [] })
       }
       // npc color
       else if (decoded.obj.NpcColor) {
         scan.type = 'PLATER'
         const scanDoc = await scan.save()
-        return res.send({scan: scanDoc._id.toString(), type: 'PLATER', name: 'Plater NPC Colors', categories: []})
+        return res.send({ scan: scanDoc._id.toString(), type: 'PLATER', name: 'Plater NPC Colors', categories: [] })
       }
       // animation
       else if ((decoded.obj[1] && decoded.obj[1].animation_type) || (decoded.obj['2'] && decoded.obj['2'].animation_type)) {
@@ -346,31 +346,31 @@ module.exports = function (fastify, opts, next) {
             name = name + ': ' + spell.name
           }
         }
-        return res.send({scan: scanDoc._id.toString(), type: 'PLATER', name: 'Plater Animation', categories: []})
+        return res.send({ scan: scanDoc._id.toString(), type: 'PLATER', name: 'Plater Animation', categories: [] })
       }
       // if Plater Hook is found - new data type
       else if (decoded.obj.type === 'hook') {
         scan.type = 'PLATER'
         const scanDoc = await scan.save()
-        return res.send({scan: scanDoc._id.toString(), type: 'PLATER', name: decoded.obj['1'], categories: []})
-      }	 
+        return res.send({ scan: scanDoc._id.toString(), type: 'PLATER', name: decoded.obj['1'], categories: [] })
+      }
       // if Plater Hook is found - old data type
       else if ((typeof decoded.obj[8] === 'object' || typeof decoded.obj['9'] === 'object') && (typeof decoded.obj[0] === 'string' || typeof decoded.obj['1'] === 'string')) {
         scan.type = 'PLATER'
         const scanDoc = await scan.save()
-        return res.send({scan: scanDoc._id.toString(), type: 'PLATER', name: decoded.obj[0] || decoded.obj['1'], categories: []})
+        return res.send({ scan: scanDoc._id.toString(), type: 'PLATER', name: decoded.obj[0] || decoded.obj['1'], categories: [] })
       }
       // if Plater Script is found - new data type
       else if (decoded.obj.type === 'script') {
         scan.type = 'PLATER'
         const scanDoc = await scan.save()
-        return res.send({scan: scanDoc._id.toString(), type: 'PLATER', name: decoded.obj['2'], categories: []})
+        return res.send({ scan: scanDoc._id.toString(), type: 'PLATER', name: decoded.obj['2'], categories: [] })
       }
       // if Plater Script is found - old data type
       else if ((typeof decoded.obj[8] === 'number' || typeof decoded.obj['9'] === 'number') && (typeof decoded.obj[1] === 'string' || typeof decoded.obj['2'] === 'string')) {
         scan.type = 'PLATER'
         const scanDoc = await scan.save()
-        return res.send({scan: scanDoc._id.toString(), type: 'PLATER', name: decoded.obj[1] || decoded.obj['2'], categories: []})
+        return res.send({ scan: scanDoc._id.toString(), type: 'PLATER', name: decoded.obj[1] || decoded.obj['2'], categories: [] })
       }
     }
 
@@ -380,7 +380,7 @@ module.exports = function (fastify, opts, next) {
       }
       scan.type = 'ELVUI'
       const scanDoc = await scan.save()
-      return res.send({scan: scanDoc._id.toString(), type: 'ElvUI', name: 'ElvUI Profile'})
+      return res.send({ scan: scanDoc._id.toString(), type: 'ElvUI', name: 'ElvUI Profile' })
     }
 
     if (test.VUHDO && decoded.obj && (decoded.obj.bouquetName || decoded.obj.keyLayout || decoded.obj.profile)) {
@@ -390,14 +390,14 @@ module.exports = function (fastify, opts, next) {
       scan.type = 'VUHDO'
       var name = decoded.obj.bouquetName && 'Vuhdo Bouquet' || decoded.obj.keyLayout && 'Vuhdo Key Layout' || 'Vuhdo Profile'
       const scanDoc = await scan.save()
-      return res.send({scan: scanDoc._id.toString(), type: 'Vuhdo', name: name})
+      return res.send({ scan: scanDoc._id.toString(), type: 'Vuhdo', name: name })
     }
 
     if (test.OPIE && decoded.obj && decoded.obj.name) {
       scan.type = 'OPIE'
       var name = decoded.obj.name
       const scanDoc = await scan.save()
-      return res.send({scan: scanDoc._id.toString(), type: 'Opie', name: name})
+      return res.send({ scan: scanDoc._id.toString(), type: 'Opie', name: name })
     }
 
     if (test.BUGSACK && decoded.obj && Array.isArray(decoded.obj)) {
@@ -407,36 +407,36 @@ module.exports = function (fastify, opts, next) {
         scan.decoded = JSON.stringify(decoded.obj.splice(-25))
       }
       const scanDoc = await scan.save()
-      return res.send({scan: scanDoc._id.toString(), type: 'Lua Error', name: 'Error Reports'})
+      return res.send({ scan: scanDoc._id.toString(), type: 'Lua Error', name: 'Error Reports' })
     }
 
     if (req.body.importString.match(commonRegex.LuaError)) {
       scan.type = 'ERROR'
       const scanDoc = await scan.save()
-      return res.send({scan: scanDoc._id.toString(), type: 'Lua Error', name: 'Error Report'})
+      return res.send({ scan: scanDoc._id.toString(), type: 'Lua Error', name: 'Error Report' })
     }
 
     if (req.body.importString.match(commonRegex.LuaKeyWord)) {
       scan.type = 'SNIPPET'
       const scanDoc = await scan.save()
-      return res.send({scan: scanDoc._id.toString(), type: 'Lua Snippet', name: 'Code Snippet'})
+      return res.send({ scan: scanDoc._id.toString(), type: 'Lua Snippet', name: 'Code Snippet' })
     }
 
     // this is just a bad string that doesn't match anything!
-    return res.code(400).send({error: 'invalid_import'})
+    return res.code(400).send({ error: 'invalid_import' })
   }
 
   // submit a scan ID to save import to DB
-  fastify.post('/submit', async function(req, res) {
+  fastify.post('/submit', async function (req, res) {
     if (!req.body || !req.body.scanID) {
-      return res.code(400).send({error: 'invalid_import'})
+      return res.code(400).send({ error: 'invalid_import' })
     }
     const scan = await ImportScan.findById(req.body.scanID).exec()
     if (!scan) {
-      return res.code(400).send({error: 'scan_expired'})
+      return res.code(400).send({ error: 'scan_expired' })
     }
 
-    var wago = new WagoItem({type: scan.type})
+    var wago = new WagoItem({ type: scan.type })
     var json = {}
     if (scan.decoded) {
       json = JSON.parse(scan.decoded)
@@ -487,19 +487,19 @@ module.exports = function (fastify, opts, next) {
       // set expiry option
       switch (req.body.expireAfter) {
         case '15m':
-          wago.expires_at = new Date().setTime(new Date().getTime()+15*60*1000)
+          wago.expires_at = new Date().setTime(new Date().getTime() + 15 * 60 * 1000)
           break
         case '3hr':
-          wago.expires_at = new Date().setTime(new Date().getTime()+3*60*60*1000)
+          wago.expires_at = new Date().setTime(new Date().getTime() + 3 * 60 * 60 * 1000)
           break
         case '1wk':
-          wago.expires_at = new Date().setTime(new Date().getTime()+7*24*60*60*1000)
+          wago.expires_at = new Date().setTime(new Date().getTime() + 7 * 24 * 60 * 60 * 1000)
           break
         case '1mo':
-          wago.expires_at = new Date().setTime(new Date().getTime()+30*24*60*60*1000)
+          wago.expires_at = new Date().setTime(new Date().getTime() + 30 * 24 * 60 * 60 * 1000)
           break
         case '3mo':
-          wago.expires_at = new Date().setTime(new Date().getTime()+3*30*24*60*60*1000)
+          wago.expires_at = new Date().setTime(new Date().getTime() + 3 * 30 * 24 * 60 * 60 * 1000)
           break
         case 'never':
           wago.expires_at = null
@@ -510,7 +510,7 @@ module.exports = function (fastify, opts, next) {
             wago.expires_at = null
           }
           else {
-            wago.expires_at = new Date().setTime(new Date().getTime()+3*30*24*60*60*1000)
+            wago.expires_at = new Date().setTime(new Date().getTime() + 3 * 30 * 24 * 60 * 60 * 1000)
           }
       }
 
@@ -552,7 +552,7 @@ module.exports = function (fastify, opts, next) {
       const restrictions = JSON.parse(req.body.restrictions)
       for (let i = 0; i < restrictions.length; i++) {
         if (restrictions[i].type === 'user' && restrictions[i].value) {
-          var lookup = await User.findOne({'search.username': restrictions[i].value.toLowerCase()})
+          var lookup = await User.findOne({ 'search.username': restrictions[i].value.toLowerCase() })
           if (lookup) {
             wago.restrictedUsers.push(lookup._id.toString())
           }
@@ -645,7 +645,7 @@ module.exports = function (fastify, opts, next) {
 
     // time to save!
     var doc = await wago.save()
-    var code = new WagoCode({auraID: doc._id})
+    var code = new WagoCode({ auraID: doc._id })
     if (wago.type === 'SNIPPET') {
       code.lua = scan.input
     }
@@ -672,27 +672,27 @@ module.exports = function (fastify, opts, next) {
     }
 
     await code.save()
-    await taskQueue.add('ProcessCode', {id: doc._id, version: code.versionString, addon: scan.addon, encode: true}, {priority: req.user && req.user.access.queueSkip && 2 || 5, jobId: `${doc._id}:${code.version}:${code.versionString}`})
+    await taskQueue.add('ProcessCode', { id: doc._id, version: code.versionString, addon: scan.addon, encode: true }, { priority: req.user && req.user.access.queueSkip && 2 || 5, jobId: `${doc._id}:${code.version}:${code.versionString}` })
     if (req.body.importAs === 'User' && req.user && !wago.hidden && !wago.private && !wago.encrypted && !wago.restricted && req.user.discord && req.user.discord.webhooks && req.user.discord.webhooks.onCreate) {
       webhooks.discord.onCreate(req.user, wago)
     }
-    res.send({success: true, wagoID: doc._id})
+    res.send({ success: true, wagoID: doc._id })
   })
 
   // submit a scan ID for an existing import to update
   fastify.post('/update', async function (req, res) {
     if (!req.user || !req.body.scanID || !req.body.wagoID) {
-      return res.code(400).send({error: 'invalid_import'})
+      return res.code(400).send({ error: 'invalid_import' })
     }
     const scan = await ImportScan.findById(req.body.scanID).exec()
     if (!scan || !scan.decoded) {
-      return res.code(400).send({error: 'invalid_import'})
+      return res.code(400).send({ error: 'invalid_import' })
     }
 
     req.body.json = scan.decoded
-    var wago = await WagoItem.findOne({_id: req.body.wagoID, _userId: req.user._id}).exec()
+    var wago = await WagoItem.findOne({ _id: req.body.wagoID, _userId: req.user._id }).exec()
     if (!wago) {
-      return res.code(403).send({error: 'Invalid Wago ID'})
+      return res.code(403).send({ error: 'Invalid Wago ID' })
     }
     // verify version number
     var newVersion = semver.valid(req.body.newVersion)
@@ -740,24 +740,24 @@ module.exports = function (fastify, opts, next) {
         if (addon.addWagoData) {
           let data = addon.addWagoData(code, wago)
           if (data.invalid) {
-            return res.code(403).send({error: data.invalid})
+            return res.code(403).send({ error: data.invalid })
           }
           if (data && data.code) {
             code = data.code
-      }
+          }
           if (data && data.wago) {
             wago = data.wago
-      }
-    }
+          }
+        }
         if (addon.encode) {
-        code.encoded = await addon.encode(code.json.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim(), lua.runLua)
-      }
+          code.encoded = await addon.encode(code.json.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim(), lua.runLua)
+        }
         else if (addon.encodeRaw) {
           code.encoded = await addon.encodeRaw(code.json)
         }
       }
     }
-    
+
     wago.categories = [...new Set(wago.categories)]
     wago.modified = Date.now()
     await wago.save()
@@ -771,7 +771,7 @@ module.exports = function (fastify, opts, next) {
       delete code.customCode
     }
     else {
-      await taskQueue.add('ProcessCode', {id: wago._id, version: code.versionString, addon: scan.addon}, {priority: req.user && req.user.access.queueSkip && 2 || 5, jobId: `${wago._id}:${code.version}:${code.versionString}`})
+      await taskQueue.add('ProcessCode', { id: wago._id, version: code.versionString, addon: scan.addon }, { priority: req.user && req.user.access.queueSkip && 2 || 5, jobId: `${wago._id}:${code.version}:${code.versionString}` })
     }
 
     code.version = wago.latestVersion.iteration
@@ -780,24 +780,24 @@ module.exports = function (fastify, opts, next) {
     await code.save()
 
     // send message to starred users    
-    taskQueueDiscordBot.add('DiscordMessage', {type: 'update', author: req.user._id, wago: wago._id, message: req.body.text})
+    taskQueueDiscordBot.add('DiscordMessage', { type: 'update', author: req.user._id, wago: wago._id, message: req.body.text })
 
     // send update to webhook
     if (req.user && !wago.hidden && !wago.private && !wago.restricted && req.user.discord && req.user.discord.webhooks && req.user.discord.webhooks.onCreate) {
       webhooks.discord.onUpdate(req.user, wago)
     }
     redis.clear(wago)
-    res.send({success: true, wagoID: wago._id})
+    res.send({ success: true, wagoID: wago._id })
   })
 
   // if saving JSON table data
   fastify.post('/json/save', async function (req, res) {
     if (!req.user || !req.body.wagoID) {
-      return res.code(400).send({error: 'invalid_import'})
+      return res.code(400).send({ error: 'invalid_import' })
     }
-    var wago = await WagoItem.findOne({_id: req.body.wagoID, _userId: req.user._id}).exec()
+    var wago = await WagoItem.findOne({ _id: req.body.wagoID, _userId: req.user._id }).exec()
     if (!wago) {
-      return res.code(403).send({error: 'invalid_import'})
+      return res.code(403).send({ error: 'invalid_import' })
     }
     var jsonString = ''
     try {
@@ -806,7 +806,7 @@ module.exports = function (fastify, opts, next) {
       jsonString = JSON.stringify(json)
     }
     catch (e) {
-      return res.code(403).send({error: 'invalid_import'})
+      return res.code(403).send({ error: 'invalid_import' })
     }
     // verify version number
     var newVersion = semver.valid(req.body.newVersion)
@@ -850,7 +850,7 @@ module.exports = function (fastify, opts, next) {
         if (addon.addWagoData) {
           let data = addon.addWagoData(code, wago)
           if (data.invalid) {
-            return res.code(403).send({error: data.invalid})
+            return res.code(403).send({ error: data.invalid })
           }
           if (data && data.code) {
             code = data.code
@@ -860,7 +860,7 @@ module.exports = function (fastify, opts, next) {
           }
         }
         if (addon.encode) {
-        code.encoded = await addon.encode(code.json.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim(), lua.runLua)
+          code.encoded = await addon.encode(code.json.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim(), lua.runLua)
         }
         else if (addon.encodeRaw) {
           code.encoded = await addon.encodeRaw(code.json)
@@ -871,11 +871,11 @@ module.exports = function (fastify, opts, next) {
     switch (wago.type) {
       case 'ELVUI':
         code.encoded = await lua.JSON2ElvUI(json)
-      break
+        break
 
       case 'MDT':
         code.encoded = await lua.JSON2MDT(json)
-      break
+        break
 
       // case 'PLATER':
       //   if (Array.isArray(json)) {
@@ -894,7 +894,7 @@ module.exports = function (fastify, opts, next) {
 
       case 'TOTALRP3':
         code.encoded = await lua.JSON2TotalRP3(json)
-      break
+        break
 
       // case 'VUHDO':
       //   code.encoded = await lua.JSON2VuhDo(json)
@@ -948,14 +948,14 @@ module.exports = function (fastify, opts, next) {
       //   }
       //   await WagoTranslation.updateMany({wagoID: wago._id, key: {$nin: keyTerms}}, {active: false})
 
-        // code.encoded = await lua.JSON2WeakAura(json)
+      // code.encoded = await lua.JSON2WeakAura(json)
       // break
     }
 
     if (req.user && !wago.hidden && !wago.private && !wago.restricted && req.user.discord && req.user.discord.webhooks && req.user.discord.webhooks.onCreate) {
       webhooks.discord.onUpdate(req.user, wago)
     }
-    
+
     if (wago.encrypted && req.body.cipherKey) {
       code.encoded = crypto.AES.encrypt(code.encoded, req.body.cipherKey)
       code.json = crypto.AES.encrypt(code.json, req.body.cipherKey)
@@ -967,11 +967,11 @@ module.exports = function (fastify, opts, next) {
     await code.save()
 
     if (!wago.encrypted) {
-      await taskQueue.add('ProcessCode', {id: wago._id, version: code.versionString, type: wago.addon}, {priority: req.user && req.user.access.queueSkip && 2 || 5, jobId: `${wago._id}:${code.version}:${code.versionString}`})
+      await taskQueue.add('ProcessCode', { id: wago._id, version: code.versionString, type: wago.addon }, { priority: req.user && req.user.access.queueSkip && 2 || 5, jobId: `${wago._id}:${code.version}:${code.versionString}` })
     }
 
     redis.clear(wago)
-    res.send({success: true, wagoID: wago._id})
+    res.send({ success: true, wagoID: wago._id })
   })
 
 
@@ -982,11 +982,11 @@ module.exports = function (fastify, opts, next) {
         var json = JSON.parse(req.body.json)
       }
       catch (e) {
-        return res.code(400).send({error: "Invalid data"})
+        return res.code(400).send({ error: "Invalid data" })
       }
       const encoded = await lua.JSON2MDT(json)
       if (!encoded) {
-        return res.code(400).send({error: "Invalid data"})
+        return res.code(400).send({ error: "Invalid data" })
       }
       var wago = new WagoItem()
       if (req.user) {
@@ -996,7 +996,7 @@ module.exports = function (fastify, opts, next) {
         wago.private = (req.user.account.default_aura_visibility === 'Private')
       }
       else {
-        wago.expires_at = new Date().setTime(new Date().getTime()+3*30*24*60*60*1000)
+        wago.expires_at = new Date().setTime(new Date().getTime() + 3 * 30 * 24 * 60 * 60 * 1000)
         wago.hidden = false
         wago.private = false
       }
@@ -1013,12 +1013,12 @@ module.exports = function (fastify, opts, next) {
         })
       }
       else {
-      const affixWeeks = await redis.get('static:mdtAffixWeeks')
-      if (json.week && affixWeeks && affixWeeks.value[json.week - 1]) {
-        affixWeeks.value[json.week - 1].forEach((affixID) => {
-          wago.categories.push('mdtaffix' + affixID)
-        })
-      }
+        const affixWeeks = await redis.get('static:mdtAffixWeeks')
+        if (json.week && affixWeeks && affixWeeks.value[json.week - 1]) {
+          affixWeeks.value[json.week - 1].forEach((affixID) => {
+            wago.categories.push('mdtaffix' + affixID)
+          })
+        }
       }
       wago.categories = Categories.validateCategories(wago.categories)
       var doc = await wago.save()
@@ -1033,17 +1033,17 @@ module.exports = function (fastify, opts, next) {
       if (req.body.importAs === 'User' && req.user && !wago.hidden && !wago.private && req.user.discord && req.user.discord.webhooks.onCreate) {
         webhooks.discord.onCreate(req.user, wago)
       }
-      res.send({success: true, wagoID: doc._id})
+      res.send({ success: true, wagoID: doc._id })
     }
     else {
-      return res.code(400).send({error: "Invalid data"})
+      return res.code(400).send({ error: "Invalid data" })
     }
   })
 
   // imports json and creates a scan id
   fastify.post('/json/scan', async function (req, res) {
     if (!req.body.json) {
-      return res.code(400).send({error: "Invalid data"})
+      return res.code(400).send({ error: "Invalid data" })
     }
     try {
       var json = JSON.parse(req.body.json)
@@ -1051,7 +1051,7 @@ module.exports = function (fastify, opts, next) {
     }
     catch (e) {
       console.log(e)
-      return res.code(400).send({error: "Invalid data"})
+      return res.code(400).send({ error: "Invalid data" })
     }
     var encoded
     for (const addonFile in Addons) {
@@ -1066,7 +1066,7 @@ module.exports = function (fastify, opts, next) {
 
         let meta = addon.processMeta(json)
         if (encoded && meta) {
-          const scan = await new ImportScan({type: req.body.type.toUpperCase(), input: encoded, decoded: req.body.json, fork: req.body.forkOf})
+          const scan = await new ImportScan({ type: req.body.type.toUpperCase(), input: encoded, decoded: req.body.json, fork: req.body.forkOf })
           scan.decoded = jsonString
           scan.type = meta.type
           scan.name = meta.name || meta.type
@@ -1074,7 +1074,7 @@ module.exports = function (fastify, opts, next) {
           scan.categories = meta.categories || []
           scan.addon = addonFile
           await scan.save()
-          return res.send({scan: scan._id, type: scan.type, name: scan.name, categories: scan.categories, game: scan.game, encoded: encoded})
+          return res.send({ scan: scan._id, type: scan.type, name: scan.name, categories: scan.categories, game: scan.game, encoded: encoded })
         }
       }
     }
@@ -1085,7 +1085,7 @@ module.exports = function (fastify, opts, next) {
 
       case 'MDT':
         encoded = await lua.JSON2MDT(json)
-      break
+        break
 
       // case 'PLATER':
       //   encoded = await lua.JSON2Plater(json)
@@ -1105,20 +1105,20 @@ module.exports = function (fastify, opts, next) {
       // break
     }
     if (!encoded) {
-      return res.code(400).send({error: "Invalid data"})
+      return res.code(400).send({ error: "Invalid data" })
     }
 
-    const scan = await new ImportScan({type: req.body.type.toUpperCase(), input: encoded, decoded: req.body.json, fork: req.body.forkOf}).save()
-    res.send({encoded: encoded, scan: scan._id.toString(), type: scan.type})
+    const scan = await new ImportScan({ type: req.body.type.toUpperCase(), input: encoded, decoded: req.body.json, fork: req.body.forkOf }).save()
+    res.send({ encoded: encoded, scan: scan._id.toString(), type: scan.type })
   })
 
   fastify.post('/lua/save', async function (req, res) {
     if (!req.user || !req.body.wagoID) {
-      return res.code(400).send({error: 'invalid_import'})
+      return res.code(400).send({ error: 'invalid_import' })
     }
-    var wago = await WagoItem.findOne({_id: req.body.wagoID, _userId: req.user._id}).exec()
+    var wago = await WagoItem.findOne({ _id: req.body.wagoID, _userId: req.user._id }).exec()
     if (!wago) {
-      return res.code(403).send({error: 'invalid_import'})
+      return res.code(403).send({ error: 'invalid_import' })
     }
     // verify version number
     var newVersion = semver.valid(req.body.newVersion)
@@ -1153,7 +1153,7 @@ module.exports = function (fastify, opts, next) {
       lua: req.body.lua
     })
     webhooks.discord.onUpdate(req.user, wago)
-    
+
     if (wago.encrypted && req.body.cipherKey) {
       code.encoded = crypto.AES.encrypt(code.encoded, req.body.cipherKey)
       code.json = crypto.AES.encrypt(code.json, req.body.cipherKey)
@@ -1162,17 +1162,17 @@ module.exports = function (fastify, opts, next) {
     }
     await code.save()
     redis.clear(wago)
-    res.send({success: true, wagoID: wago._id})
+    res.send({ success: true, wagoID: wago._id })
   })
 
 
   fastify.post('/lua/fork', async function (req, res) {
     if (!req.body.lua || !req.body.forkOf) {
-      return res.code(400).send({error: 'invalid_import'})
+      return res.code(400).send({ error: 'invalid_import' })
     }
     const fork = await WagoItem.findById(req.body.forkOf)
     if (!fork) {
-      return res.code(400).send({error: 'invalid_import'})
+      return res.code(400).send({ error: 'invalid_import' })
     }
 
     var wago = new WagoItem()
@@ -1188,18 +1188,18 @@ module.exports = function (fastify, opts, next) {
       wago.private = (req.user.account.default_aura_visibility === 'Private')
     }
     else {
-      wago.expires_at = new Date().setTime(new Date().getTime()+3*30*24*60*60*1000)
+      wago.expires_at = new Date().setTime(new Date().getTime() + 3 * 30 * 24 * 60 * 60 * 1000)
       wago.hidden = false
       wago.private = false
     }
 
     var doc = await wago.save()
-    var code = new WagoCode({auraID: doc._id})
+    var code = new WagoCode({ auraID: doc._id })
     code.lua = req.body.lua
     code.version = 1
     code.versionString = '1.0.0'
     await code.save()
-    res.send({success: true, wagoID: doc._id})
+    res.send({ success: true, wagoID: doc._id })
   })
 
   next()
