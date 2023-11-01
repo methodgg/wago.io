@@ -895,6 +895,7 @@ class Categories {
       'plater3': {slug: 'plater-mods', image: 'plater.png', color: '#FFC972', i18n: 'Plater Mods', domain: 0, system: true, types: ['PLATER']},
       'plater4': {slug: 'plater-animations', image: 'plater.png', color: '#FFC972', i18n: 'Plater Animations', domain: 0, system: true, types: ['PLATER']},
       'plater5': {slug: 'plater-npc-colors', image: 'plater.png', color: '#FFC972', i18n: 'Plater NPC Colors', domain: 0, system: true, types: ['PLATER']},
+      'plater6': {slug: 'plater-cast-sounds', image: 'plater.png', color: '#FFC972', i18n: 'Plater Cast Sounds', domain: 0, system: true, types: ['PLATER']},
 
       'platerutilities': {slug: 'utilities', image: 'snippets.png', color: '#d18cf3', i18n: 'Utilities', domain: 0, types: ['PLATER']},
       'platerdungeons': {slug: 'dungeons', image: 'snippets.png', color: '#d18cf3', i18n: 'Dungeons', domain: 0, types: ['PLATER']},
