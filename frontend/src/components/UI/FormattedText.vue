@@ -1,5 +1,5 @@
 <template>
-  <div v-bind:class="{ noFormat: truncate && truncate > 0 }" class="usertext">
+  <div v-bind:class="{ noFormat: truncate && truncate > 0 }" :class="'usertext ' + text.format">
     <slot></slot>
   </div>
 </template>
@@ -11,6 +11,8 @@ import flowchart from 'flowchart.js'
 import prism from 'markdown-it-prism'
 import 'prismjs/components/prism-lua'
 import 'prismjs/components/prism-sass'
+import { Sanitizer } from "@esri/arcgis-html-sanitizer"
+const sanitizer = new Sanitizer()
 
 // Actual default values
 var md = require('markdown-it')({
@@ -28,7 +30,7 @@ var md = require('markdown-it')({
 export default {
   props: ['text', 'truncate', 'hideLinks', 'plaintext', 'enableLinks'],
   mounted: function() {
-    this.$el.innerHTML = this.formatText()
+    this.$el.innerHTML = sanitizer.sanitize(this.formatText())
   },
   methods: {
     formatText: function () {
