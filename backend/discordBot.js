@@ -3,6 +3,7 @@ global.config = require('./config')
 global.ENUM = require('./middlewares/enum')
 const lua = require('./api/helpers/lua')
 const WA = require('./api/helpers/encode-decode/WeakAura')
+const Plater = require('./api/helpers/encode-decode/Plater')
 
 const client = new Discord.Client()
 
@@ -15,7 +16,7 @@ module.exports = {
       redis.set('static:discordHost', config.host)
       console.log("Discord Bot launched!")
     })
-    
+
     // if user is leaves a server, then remove any roles
     client.on('message', async (message) => {
       if ((config.env === 'development' && message.channel.id !== '207153760399654912') || (config.env !== 'development' && message.channel.id === '207153760399654912')) {
@@ -23,32 +24,57 @@ module.exports = {
       }
 
       const matchWA = /(!WA:2![a-zA-Z0-9\(\)]+)/
+      const matchPlater = /^([a-zA-Z0-9\(\)]{30,})$/
+      let stringType
+
       let result = message.content.match(matchWA)
-      let importWA = result && result[1]
-      
-      if (!importWA && message.attachments) {
+      let importString = result && result[1]
+      stringType = importString && 'WeakAura'
+
+      if (!importString) {
+        result = message.content.match(matchPlater)
+        importString = result && result[1]
+        stringType = importString && 'Plater'
+      }
+
+      if (!importString && message.attachments) {
         // check attached file
         const attachments = message.attachments.filter(x => x.size < 180000)
         for (const att of attachments) {
-          if (importWA) continue
+          if (importString) continue
           const content = await axios.get(att[1].url)
           if (content && content.data) {
             result = content.data.match(matchWA)
-            importWA = result && result[1]
+            importString = result && result[1]
+            stringType = importString && 'WeakAura'
+          }
+          if (!importString && content && content.data) {
+            result = content.data.match(matchPlater)
+            importString = result && result[1]
+            stringType = importString && 'Plater'
           }
         }
       }
 
-      if (!importWA) {
+      if (!importString) {
         return
       }
-      
-      const decoded = await WA.decode(importWA.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim(), lua.runLua)
-      const meta = WA.processMeta(decoded)
+
+      let decoded
+      let meta
+      if (stringType === 'WeakAura') {
+        decoded = await WA.decode(importString.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim(), lua.runLua)
+        meta = WA.processMeta(decoded)
+      }
+      else if (stringType === 'Plater') {
+        decoded = await Plater.decode(importString.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim(), lua.runLua)
+        meta = Plater.processMeta(decoded)
+      }
+
       if (decoded && meta) {
         const wago = new WagoItem({
           type: meta.type,
-          addon: 'WeakAura',
+          addon: stringType,
           domain: WA.domain,
           game: meta.game,
           name: meta.name || 'Import from Discord',
@@ -56,12 +82,12 @@ module.exports = {
           description: `Imported from **${message.guild.name}** Discord, *#${message.channel.name}* by **${message.author.username}**.`,
           description_format: 'markdown',
           hidden: true,
-          expires_at: new Date().setTime(new Date().getTime()+3*24*60*60*1000),
+          expires_at: new Date().setTime(new Date().getTime() + 3 * 24 * 60 * 60 * 1000),
           _userId: '62ebf029da9ef14623e27f4c' // WagoDiscordBot
         })
-        
+
         await wago.save()
-   
+
         const code = new WagoCode({
           auraID: wago._id,
           encoded: message.content,
@@ -71,7 +97,8 @@ module.exports = {
         })
 
         await code.save()
-        await taskQueue.add('ProcessCode', {id: wago._id, version: code.versionString, addon: wago.addon, encode: true}, {priority: 2, jobId: `${wago._id}:${code.version}:${code.versionString}`})
+        console.log('process')
+        await taskQueue.add('ProcessCode', { id: wago._id, version: code.versionString, addon: wago.addon, encode: true }, { priority: 2, jobId: `${wago._id}:${code.version}:${code.versionString}` })
         client.api.channels[message.channel.id].messages.post({
           data: {
             content: `Imported to <${wago.url}>`,
@@ -128,7 +155,7 @@ module.exports = {
       discordBot.destroy()
       setTimeout(() => {
         _this.start()
-      }, 10000)      
+      }, 10000)
     })
   },
 
@@ -148,7 +175,7 @@ module.exports = {
       .setURL(wago.url)
       .setImage(await wago.getThumbnailURL())
       .setAuthor(author.account.username, avatar.png, `https://wago.io${author.profile.url}`)
-      .addFields({name: 'Message', value: message})
+      .addFields({ name: 'Message', value: message })
       .setTimestamp()
       .setFooter('Wago.io', 'https://media.wago.io/favicon/favicon-16x16.png')
 
@@ -174,9 +201,9 @@ module.exports = {
       .setAuthor(author.account.username, avatar.png, `https://wago.io${author.profile.url}`)
       .setTimestamp()
       .setFooter('Wago.io', 'https://media.wago.io/favicon/favicon-16x16.png')
-    
+
     if (wago.latestVersion.changelog.text) {
-      embed.addFields({name: 'Changelog', value: wago.latestVersion.changelog.text.replace(/\[(\w+)[^\]]*](.*?)\[\/\1]/g, '')})
+      embed.addFields({ name: 'Changelog', value: wago.latestVersion.changelog.text.replace(/\[(\w+)[^\]]*](.*?)\[\/\1]/g, '') })
     }
 
     try {
