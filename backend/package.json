@@ -25,7 +25,7 @@
     "fastify-file-upload": "^3.0.0",
     "fastify-rate-limit": "^4.1.0",
     "fastify-websocket": "^3.2.0",
-    "file-type": "^16.3.0",
+    "file-type": "^16.5.4",
     "hash-file": "^3.0.0",
     "hcaptcha": "0.0.2",
     "i18next": "^19.9.2",
