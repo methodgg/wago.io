@@ -202,6 +202,8 @@ module.exports = function (fastify, opts, next) {
     }))
     res.send(wagos)
   }
+  fastify.get('/check', checkImports)
+  fastify.post('/check', checkImports)
   fastify.get('/check/:importType', checkImports)
   fastify.post('/check/:importType', checkImports)
 
