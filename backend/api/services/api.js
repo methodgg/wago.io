@@ -72,7 +72,7 @@ module.exports = function (fastify, opts, next) {
       ids = req.query.ids.split(',').slice(0, 200)
     }
     if (!ids) {
-      return res.code(404).send({error: "page_not_found"})
+      return res.code(400).send({ error: "bad_request", data: "Missing 'ids' field" })
     }
     let findType = {}
     if (req.params.importType === 'weakauras') {
@@ -82,7 +82,7 @@ module.exports = function (fastify, opts, next) {
       findType = {type: 'PLATER'}
     }
     else if (req.params.importType) {
-      return res.code(404).send({error: "page_not_found"})
+      return res.code(400).send({ error: "bad_request", data: 'Invalid import type' })
     }
 
     let cached = []
