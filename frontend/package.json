@@ -14,7 +14,7 @@
     "@panter/vue-i18next": "^0.11.0",
     "@websanova/vue-auth": "^3.3.8",
     "async": "^3.2.0",
-    "axios": "^0.21.1",
+    "axios": "^1.6.3",
     "brace": "^0.11.1",
     "diff2html": "^3.1.17",
     "es6-promise": "^4.2.8",
