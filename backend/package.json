@@ -7,7 +7,7 @@
     "@atomic-reactor/decompress": "^4.2.4",
     "@elastic/elasticsearch": "^7.13.0",
     "async": "^3.2.0",
-    "axios": "^0.21.1",
+    "axios": "^1.6.3",
     "bcrypt": "^5.0.1",
     "bluebird": "^3.7.2",
     "bullmq": "^1.14.8",
