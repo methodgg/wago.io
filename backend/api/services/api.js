@@ -61,7 +61,7 @@ module.exports = function (fastify, opts, next) {
 
   // returns basic data of requested weakauras; WA Companion uses to check for updates
   async function checkImports(req, res) {
-    let ids = []
+    let ids
     if (typeof req.body.ids === 'string') {
       ids = req.body.ids.split(',').slice(0, 200)
     }
@@ -134,6 +134,7 @@ module.exports = function (fastify, opts, next) {
       if (doc.encrypted) {
         wago.encrypted = true
       }
+      wago.thumbnail = doc.previewStatic || doc.previewImage
       // if requested by WA Companion App, update installed count
       if (req.headers['identifier'] && req.headers['user-agent'].match(/Electron/)) {
         const ipAddress = req.raw.ip

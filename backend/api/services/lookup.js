@@ -327,6 +327,7 @@
            saveDoc = true
          }
        }
+      wago.thumbnail = doc.previewStatic || doc.previewImage
        screens.forEach((screen) => {
          wago.screens.push({_id: screen._id.toString(), src: screen.url, thumb: screen.url, title: screen.caption})
        })
