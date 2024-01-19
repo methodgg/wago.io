@@ -54,7 +54,7 @@ module.exports = function (fastify, opts, next) {
     const t = i18next.getFixedT(req.query.lang || 'en-US')
     const categories = {}
     for (const [id, cat] of Object.entries(Categories.translate(t))) {
-      categories[id] = {name: cat.text, slug: cat.slug}
+      categories[id] = { name: cat.text, slug: cat.slug }
     }
     res.send(categories)
   })
@@ -76,10 +76,10 @@ module.exports = function (fastify, opts, next) {
     }
     let findType = {}
     if (req.params.importType === 'weakauras') {
-      findType = {'$or': [{type:'CLASSIC-WEAKAURA'}, {type:'TBC-WEAKAURA'}, {type:'WOTLK-WEAKAURA'}, {type:'WEAKAURA'}]}
+      findType = { '$or': [{ type: 'CLASSIC-WEAKAURA' }, { type: 'TBC-WEAKAURA' }, { type: 'WOTLK-WEAKAURA' }, { type: 'WEAKAURA' }] }
     }
     else if (req.params.importType === 'plater') {
-      findType = {type: 'PLATER'}
+      findType = { type: 'PLATER' }
     }
     else if (req.params.importType) {
       return res.code(400).send({ error: "bad_request", data: 'Invalid import type' })
@@ -99,7 +99,7 @@ module.exports = function (fastify, opts, next) {
     let wagos = []
     let docs = []
     if (lookup.length) {
-      docs = await WagoItem.find({'$and': [{'$or' : [{_id: lookup}, {custom_slug: lookup}]}, findType], deleted: false, blocked: false, moderated: false}).populate({path: '_userId', select: {restrictedGuilds: 1, restrictedTwitchUsers: 1, restrictedUsers: 1, account: 1}})
+      docs = await WagoItem.find({ '$and': [{ '$or': [{ _id: lookup }, { custom_slug: lookup }] }, findType], deleted: false, blocked: false, moderated: false }).populate({ path: '_userId', select: { restrictedGuilds: 1, restrictedTwitchUsers: 1, restrictedUsers: 1, account: 1 } })
     }
     await Promise.all(docs.concat(cached).map(async (doc) => {
       if ((doc.private && (!req.user || !req.user._id.equals(doc._userId._id))) || (!req.query.encrypted && doc.encrypted)) {
@@ -119,13 +119,14 @@ module.exports = function (fastify, opts, next) {
       wago.url = doc.url
       wago.created = doc.created || doc.date && doc.date.created
       wago.modified = doc.modified || doc.date && doc.date.modified
-      wago.forkOf = doc.fork_of
+      wago.forkOf = doc.forkOf || doc.fork_of
       wago.type = (doc.type || '').match(/WEAKAURA/) && 'WEAKAURA' || doc.type
       wago.game = doc.game
+      wago.thumbnail = doc.thumbnail || doc.previewStatic || doc.previewImage
       if (doc.username) {
         wago.username = doc.username
       }
-      else  if (doc.user && doc.user.name) {
+      else if (doc.user && doc.user.name) {
         wago.username = doc.user.name
       }
       else if (doc._userId) {
@@ -134,7 +135,6 @@ module.exports = function (fastify, opts, next) {
       if (doc.encrypted) {
         wago.encrypted = true
       }
-      wago.thumbnail = doc.previewStatic || doc.previewImage
       // if requested by WA Companion App, update installed count
       if (req.headers['identifier'] && req.headers['user-agent'].match(/Electron/)) {
         const ipAddress = req.raw.ip
@@ -151,7 +151,7 @@ module.exports = function (fastify, opts, next) {
         wago.regionType = doc.regionType
         wagos.push(wago)
         if (!doc.restricted && !doc.private) {
-          redis.setJSON(`API:${wago.slug}`, wago, 'EX', 3600*48)
+          redis.setJSON(`API:${wago.slug}`, wago, 'EX', 3600 * 48)
         }
         return
       }
@@ -165,7 +165,7 @@ module.exports = function (fastify, opts, next) {
         wago.regionType = doc.regionType
         wagos.push(wago)
         if (!doc.restricted && !doc.private) {
-          redis.setJSON(`API:${wago.slug}`, wago, 'EX', 3600*48)
+          redis.setJSON(`API:${wago.slug}`, wago, 'EX', 3600 * 48)
         }
         return
       }
@@ -177,7 +177,7 @@ module.exports = function (fastify, opts, next) {
         wago.regionType = doc.regionType
 
         if (!doc.restricted && !doc.private) {
-          redis.setJSON(`API:${wago.slug}`, wago, 'EX', 3600*48)
+          redis.setJSON(`API:${wago.slug}`, wago, 'EX', 3600 * 48)
         }
       }
 
@@ -211,28 +211,28 @@ module.exports = function (fastify, opts, next) {
   // returns raw encoded string for requested import
   fastify.get('/raw/encoded', async (req, res) => {
     if (!req.query.id) {
-      return res.code(404).send({error: "page_not_found"})
+      return res.code(404).send({ error: "page_not_found" })
     }
 
     var wago = await WagoItem.lookup(req.query.id)
     if (!wago || wago.deleted || wago.blocked || wago.moderated) {
-      return res.code(404).send({error: "page_not_found"})
+      return res.code(404).send({ error: "page_not_found" })
     }
     else if (wago.private && (!req.user || !req.user._id.equals(wago._userId))) {
-      return res.code(401).send({error: "import_is_private"})
+      return res.code(401).send({ error: "import_is_private" })
     }
     else if (wago.restricted) {
       if (!req.user) {
-        return res.code(401).send({error: "import_is_private"})
+        return res.code(401).send({ error: "import_is_private" })
       }
       if (!req.user._id.equals(wago._userId) && (wago.restrictedUsers.indexOf(req.user._id.toString()) === -1 && !arrayMatch(wago.restrictedGuilds, req.user.battlenet.guilds) && wago.restrictedTwitchUsers.indexOf(req.user.twitch.id) === -1)) {
-        return res.code(401).send({error: "import_is_private"})
+        return res.code(401).send({ error: "import_is_private" })
       }
     }
 
     var code = await WagoCode.lookup(wago._id, req.query.version)
     if (!code || !code.encoded) {
-      return res.code(404).send({error: "page_not_found"})
+      return res.code(404).send({ error: "page_not_found" })
     }
     if ((!req.query.p || code.versionString !== req.query.version) && (wago.restricted || wago.private)) {
       return res.code(302).redirect(`/api/raw/encoded?id=${encodeURIComponent(req.query.id)}&version=${code.versionString}&key=${req.query.key || ''}&p=1`)
@@ -255,7 +255,7 @@ module.exports = function (fastify, opts, next) {
 
   fastify.get('/user/me', async (req, res) => {
     if (!req.user) {
-      return res.code(401).send({error: "no_user"})
+      return res.code(401).send({ error: "no_user" })
     }
     let user = {}
     user.username = req.user.account.username
