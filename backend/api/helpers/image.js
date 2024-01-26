@@ -1,7 +1,7 @@
 const config = require('../../config')
 const cloudflare = require('cloudflare')({token: config.cloudflare.dnsToken})
 const sharp = require('sharp')
-const fs = require('fs')
+const fs = require('fs').promises
 const FileType = require('file-type')
 const webpc = require('webp-converter')
 const s3 = require('../helpers/s3Client')
