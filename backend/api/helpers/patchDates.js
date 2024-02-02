@@ -109,7 +109,7 @@ module.exports = {
   },
 
   dateToToc(date) {
-    const version = getPatch(date).match(/(\d+)\.(\d+)\.(\d+)/)
+    const version = this.getPatch(date).match(/(\d+)\.(\d+)\.(\d+)/)
     return GameVersion.patchToToc(version[0])
   }
 }
