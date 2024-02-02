@@ -383,7 +383,7 @@ Schema.virtual('indexedImportData').get(async function () {
   }
 
   if ((data.type === 'WEAKAURA' || data.type === 'PLATER') && !this.encrypted) {
-    data.expansion = (GameVersion.tocToPatch(this.wagoID.tocversion).major || 0) - 1 // vanilla = 0
+    data.expansion = (GameVersion.tocToPatch(this.tocversion).major || 0) - 1 // vanilla = 0
     const code = await WagoCode.lookup(this._id)
     try {
       if (this.auraNames) {
