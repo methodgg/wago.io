@@ -183,32 +183,36 @@
       <md-layout md-row id="import-meta">
         <md-card id="wago-header" ref="header">
           <md-card-header>
-            <md-avatar>
-              <ui-image :img="wago.user.avatar"></ui-image>
-            </md-avatar>
-            <div class="item">
-              <div class="md-title" v-if="wago.type === 'COLLECTION' && wago.UID && wago.user.searchable" v-html="$t('Collected by [-name-]', {name: `<a href='/p/${encodeURIComponent(wago.user.name)}' class='${wago.user.roleClass}'>${escapeText(wago.user.name)}</a>`, 'interpolation': {'escapeValue': false}})"></div>
-              <div class="md-title" v-else-if="wago.type === 'COLLECTION' && wago.UID" v-html="$t('Imported by [-name-]', {name: `<span class='${wago.user.roleClass}'>${escapeText(wago.user.name)}</span>`, 'interpolation': {'escapeValue': false}})"></div>
-              <div class="md-title" v-else-if="wago.UID && wago.user.searchable" v-html="$t('Imported by [-name-]', {name: `<a href='/p/${encodeURIComponent(wago.user.name)}' class='${wago.user.roleClass}'>${escapeText(wago.user.name)}</a>`, 'interpolation': {'escapeValue': false}})"></div>
-              <div class="md-title" v-else-if="wago.UID" v-html="$t('Imported by [-name-]', {name: `<span class='${wago.user.roleClass}'>${escapeText(wago.user.name)}</span>`, 'interpolation': {'escapeValue': false}})"></div>
-              <div class="md-title" v-else>{{ $t("Imported by guest") }}</div>
-              <div class="md-subhead" v-if="wago.type !== 'COLLECTION'">{{ wago.date.modified | moment('MMM Do YYYY') }} [{{ wago.patch }}]</div>
+            <div>
+              <md-avatar>
+                <ui-image :img="wago.user.avatar"></ui-image>
+              </md-avatar>
+              <div class="item">
+                <div class="md-title" v-if="wago.type === 'COLLECTION' && wago.UID && wago.user.searchable" v-html="$t('Collected by [-name-]', {name: `<a href='/p/${encodeURIComponent(wago.user.name)}' class='${wago.user.roleClass}'>${escapeText(wago.user.name)}</a>`, 'interpolation': {'escapeValue': false}})"></div>
+                <div class="md-title" v-else-if="wago.type === 'COLLECTION' && wago.UID" v-html="$t('Imported by [-name-]', {name: `<span class='${wago.user.roleClass}'>${escapeText(wago.user.name)}</span>`, 'interpolation': {'escapeValue': false}})"></div>
+                <div class="md-title" v-else-if="wago.UID && wago.user.searchable" v-html="$t('Imported by [-name-]', {name: `<a href='/p/${encodeURIComponent(wago.user.name)}' class='${wago.user.roleClass}'>${escapeText(wago.user.name)}</a>`, 'interpolation': {'escapeValue': false}})"></div>
+                <div class="md-title" v-else-if="wago.UID" v-html="$t('Imported by [-name-]', {name: `<span class='${wago.user.roleClass}'>${escapeText(wago.user.name)}</span>`, 'interpolation': {'escapeValue': false}})"></div>
+                <div class="md-title" v-else>{{ $t("Imported by guest") }}</div>
+                <div class="md-subhead" v-if="wago.type !== 'COLLECTION'">{{ wago.date.modified | moment('MMM Do YYYY') }} <template v-if="wago.patch">[{{ wago.patch }}]</template></div>
+              </div>
+              <div class="item">
+                <div class="md-title">{{ $t("[-count-] star", { count: wago.favoriteCount }) }}</div>
+                <div class="md-subhead">{{ $t("[-count-] view", { count: wago.viewCount }) }}</div>
+              </div>
+              <div class="item" v-if="wago.type.match(/WEAKAURA/)">
+                <div class="md-title">{{ $t("[-count-] install", { count: wago.installCount }) }}</div>
+              </div>
+              <div id="tags">
+                <template>
+                  <router-link v-for="(cat, n) in wago.categories" :key="n" :to="'/' + typeSlug + cat.slug">
+                    <md-chip :class="cat.id" disabled v-if="cat.text && (n<5 || showMoreCategories)">{{ cat.text }}</md-chip>
+                  </router-link>
+                </template>
+                <span @click="viewAllCategories()"><md-chip v-if="wago.categories.length > 5 && !showMoreCategories" class="show_more">{{ $t("[-count-] more", {count: wago.categories.length - 5}) }}</md-chip></span>
+              </div>
             </div>
-            <div class="item">
-              <div class="md-title">{{ $t("[-count-] star", { count: wago.favoriteCount }) }}</div>
-              <div class="md-subhead">{{ $t("[-count-] view", { count: wago.viewCount }) }}</div>
-            </div>
-            <div class="item" v-if="wago.type.match(/WEAKAURA/)">
-              <div class="md-title">{{ $t("[-count-] install", { count: wago.installCount }) }}</div>
-            </div>
-            <div id="tags">
-              <template>
-                <router-link v-for="(cat, n) in wago.categories" :key="n" :to="'/' + typeSlug + cat.slug">
-                  <md-chip :class="cat.id" disabled v-if="cat.text && (n<5 || showMoreCategories)">{{ cat.text }}</md-chip>
-                </router-link>
-              </template>
-              <span @click="viewAllCategories()"><md-chip v-if="wago.categories.length > 5 && !showMoreCategories" class="show_more">{{ $t("[-count-] more", {count: wago.categories.length - 5}) }}</md-chip></span>
-            </div>
+            
+            <div><advert ad="video-sidebar" /></div>
           </md-card-header>
 
           <div id="wago-actions" v-if="User && User.UID">
@@ -613,6 +617,7 @@
                     </template>
                     <template v-else>{{ $t('No custom code') }}</template>
                   </div>
+
                   <div v-if="(wago.screens && wago.screens.length) || (wago.videos && wago.videos.length)" class="screenshots">
                     <a  v-for="video in wago.videos" class="showvid" :href="video.url" @click.prevent="showVideo(video.embed)"><md-icon>play_circle_outline</md-icon><md-image :md-src="video.thumb"></md-image></a>
                     <img v-for="(image, k) in wago.screens" v-lazy="image.src || image.thumb" @click="$refs.lightbox.showImage(k)">
@@ -3166,7 +3171,7 @@ export default {
   margin: 0 0 16px 0;
   position: sticky;
   top: 0;
-  z-index: 20;
+  z-index: 20!important;
   h1 {
     flex-grow: 1;
     align-self: center;
@@ -3193,7 +3198,7 @@ export default {
 #wago-header.md-card h3 { margin: 0 }
 #wago-header.md-card h3 + .md-subheader { padding:0; min-height:0 }
 
-#wago-header .md-card-header { padding-left: 0; padding-right: 4px; min-height: 160px; }
+#wago-header .md-card-header { padding-left: 0; padding-right: 4px; min-height: 160px; display: flex; justify-content: space-between; }
 #wago-header .md-card-header .item { padding-left: 0!important; float: left; display: inline; margin-right: 16px; vertical-align: middle }
 @media (min-width: 601px) {
   #wago-header .md-card-header .item+.item { margin-left: 16px; margin-right: 0 }
@@ -3201,6 +3206,8 @@ export default {
 #wago-header .md-card-header .item .md-title { font-weight: 500; line-height: 20px; font-size: 14px }
 #wago-header .md-card-header .item .md-subhead { font-weight: 500; line-height: 20px; font-size: 14px; opacity: .54 }
 #wago-header .md-card-header .item .md-subhead.has-link { opacity: 1 }
+#wago-header .wago-ad-container { margin:0; padding:0; background: none; border: none; min-height: 144px; min-width: 256px; max-width: 256px; flex-grow: 0   }
+#wago-header #video-sidebar { min-height: auto; margin: 0 }
 
 #wago-tabs { flex: 0 1 auto; flex-direction: column; margin: 0; }
 #wago-tabs .md-button-toggle { flex-direction: column; padding: 0; }
@@ -3245,6 +3252,9 @@ export default {
       margin: 0 8px 8px 0;
       cursor: pointer;
     }
+  }
+  .wago-ad-container, #import-info {
+    float: right;
   }
 }
 .copy-import-button { border: 2px solid #c1272d; border-radius: 25px; margin: 4px 28px; display: inline-block }
@@ -3309,7 +3319,7 @@ a.showvid:hover:before  .md-icon { opacity:1 }
 .changelog-text { border-bottom: 1px solid #333; margin-bottom: 8px; }
 .md-table tbody .md-table-row.changelog-row { border-top-color: #333;}
 
-#import-info { float: right; padding: 8px; background: #333; margin: 0 0 16px 16px; border: 2px solid #009690; border-radius:2px; box-shadow: 0 1px 5px rgb(0 0 0 / 20%), 0 2px 2px rgb(0 0 0 / 14%), 0 3px 1px -2px rgb(0 0 0 / 12%); }
+#import-info {padding: 8px; background: #333; margin: 0 0 16px 16px; border: 2px solid #009690; border-radius:2px; box-shadow: 0 1px 5px rgb(0 0 0 / 20%), 0 2px 2px rgb(0 0 0 / 14%), 0 3px 1px -2px rgb(0 0 0 / 12%);  white-space: nowrap; }
 #import-info em { font-weight: bold; font-style: normal; padding-bottom: 4px; display: inline-block; color: #009690}
 #import-info br + em { padding-top: 4px; }
 #import-info > span span:before { content: ': '; color: #ddd}

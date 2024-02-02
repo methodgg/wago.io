@@ -1,5 +1,6 @@
 <template>
   <div id="search-mdt" style="position:relative">
+    <advert ad="video-sidebar" class="forced-float" float="always" />
     <h2 id="addon-name">Mythic Dungeon Tools -
       <span>{{ $t('Shadowlands') }}</span>
     </h2>
@@ -133,7 +134,7 @@
 </template>
 
 <script>
-import categories from '../libs/categories'
+import categories from '../libs/categories2'
 import CategoryImage from '../UI/CategoryImage.vue'
 import AddonInfoBox from '../UI/AddonInfoBox.vue'
 export default {

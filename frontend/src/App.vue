@@ -145,9 +145,8 @@
         <div id="content" :class="{'with-sidebar': includeSidebar}">
           <router-view></router-view>
           <div v-if="includeSidebar" :class="{'side-bar': true, 'with-stream': $store.state.streamEmbed !== '__none'}">
-            <advert ad="video-sidebar" :patreonLink="true" />
             <advert v-if="asteriTest()" ad="embed-asteri" />
-            <advert v-else ad="rectangle-sidebar" />
+            <advert v-else ad="rectangle-sidebar" :patreonLink="true" />
             <stream-embed v-if="$store.state.streamEmbed && $store.state.streamEmbed !== '__none'" :stream="$store.state.streamEmbed" />
             <advert v-else-if="!asteriTest()" ad="embed-streambuff" />
           </div>
@@ -311,6 +310,18 @@ export default {
     }
   },
   methods: {
+    // april fools
+    aprilFools () {
+      const today = new Date()
+      return (1 === today.getUTCDate() && 3 === today.getUTCMonth() && today.getUTCHours() >= 6) || (2 === today.getUTCDate() && 3 === today.getUTCMonth() && today.getUTCHours() < 6)
+    },
+    rickroll () {
+      this.videoEmbedHTML = '<iframe src="https://www.youtube.com/embed/7sisF70Ppp8?autoplay=1&start=7" frameborder="0" scrolling="no" allow="autoplay"></iframe>'
+      this.$refs.videoplayer.open()
+    },
+    hideVideo () {
+      this.videoEmbedHTML = ''
+    },
     // end
 
     asteriTest () {
@@ -567,6 +578,7 @@ body, html {
     min-height: 60px;
     padding: 0;
     z-index: 50;
+    flex-wrap:nowrap
   }
 }
 #full-navbar {
@@ -604,7 +616,7 @@ body, html {
         box-shadow: 5px 5px 30px #00000066;
         border-radius: 0 0 2px 2px;
         min-width: 170px;
-        z-index: 99;
+        z-index: 99!important;
         & > * {
           padding: 8px 16px;
           color: white;
@@ -679,7 +691,7 @@ body, html {
       max-width: 350px;
     }
   }
-  #logo { text-align: left; padding: 8px 16px; }
+  #logo { text-align: left; padding: 8px 16px; flex-shrink: 0}
   #logo img { max-height: 40px; }
   #xmaslogo img { width: 45px; position: absolute; left: 41px; top: -3px;}
   #h-nav { 
@@ -887,7 +899,8 @@ body.theme-dark .md-input-container label a { -webkit-text-fill-color: initial }
     background: rgba(255, 255, 255, 0.05);
     margin: auto 0;
     font-size: 15px;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
+    min-width: 170px;
     text-decoration: none !important;
 }
 .btn-coaching .coaching-logo {

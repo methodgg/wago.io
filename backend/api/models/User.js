@@ -1,21 +1,21 @@
 const mongoose = require('mongoose'),
-      mongoosastic = require('mongoosastic'),
-      ObjectId = mongoose.Schema.Types.ObjectId,
-      config = require('../../config')
+  mongoosastic = require('mongoosastic'),
+  ObjectId = mongoose.Schema.Types.ObjectId,
+  config = require('../../config')
 
 const Schema = new mongoose.Schema({
-  account : {
-    username : { type: String, index: true, es_index: true },
-    password : String,
-    hidden : { type: Boolean, default: false, es_index: true },
-    default_aura_visibility : { type: String, default: "Public" },
-    created : { type: Date, default: Date.now },
-    active : { type: Date, default: Date.now },
-    verified_human : { type: Boolean, default: false },
-    api_key : { type: String, index: true },
-    support_key : String,
+  account: {
+    username: { type: String, index: true, es_index: true },
+    password: String,
+    hidden: { type: Boolean, default: false, es_index: true },
+    default_aura_visibility: { type: String, default: "Public" },
+    created: { type: Date, default: Date.now },
+    active: { type: Date, default: Date.now },
+    verified_human: { type: Boolean, default: false },
+    api_key: { type: String, index: true },
+    support_key: String,
     companionHideAlert: Boolean,
-    reset : String
+    reset: String
   },
   profile: {
     avatar: {
@@ -32,55 +32,55 @@ const Schema = new mongoose.Schema({
       guildID: ObjectId
     }]
   },
-  roles : {
-    isAdmin : {
+  roles: {
+    isAdmin: {
       access: { type: Boolean, default: false },
       super: { type: Boolean, default: false },
       blog: { type: Boolean, default: false },
-      moderator : { type: Boolean, default: false },
+      moderator: { type: Boolean, default: false },
       config: {
         embed: { type: Boolean, default: false }
       }
     },
-    subscriber : { type: Boolean, default: false },
-    gold_subscriber : { type: Boolean, default: false },
-    pro_subscriber : { type: Boolean, default: false },
-    ambassador : { type: Boolean, default: false },
-    methodRaider : { type: Boolean, default: false },
-    methodStreamer : { type: Boolean, default: false },
-    community_leader : { type: Boolean, default: false },
-    developer : { type: Boolean, default: false },
+    subscriber: { type: Boolean, default: false },
+    gold_subscriber: { type: Boolean, default: false },
+    pro_subscriber: { type: Boolean, default: false },
+    ambassador: { type: Boolean, default: false },
+    methodRaider: { type: Boolean, default: false },
+    methodStreamer: { type: Boolean, default: false },
+    community_leader: { type: Boolean, default: false },
+    developer: { type: Boolean, default: false },
     artContestWinnerAug2018: { type: Boolean, default: false }
   },
-  facebook : {
-    id : String,
-    email : String,
-    name : String,
-    avatar : {
+  facebook: {
+    id: String,
+    email: String,
+    name: String,
+    avatar: {
       png: String,
       webp: String
     }
   },
-  twitter : {
-    id : String,
-    name : String,
-    avatar : {
+  twitter: {
+    id: String,
+    name: String,
+    avatar: {
       png: String,
       webp: String
     }
   },
-  google : {
-    id  : String,
-    name : String,
-    avatar : {
+  google: {
+    id: String,
+    name: String,
+    avatar: {
       png: String,
       webp: String
     }
   },
-  battlenet : {
-    id : String,
-    name : String,
-    avatar : {
+  battlenet: {
+    id: String,
+    name: String,
+    avatar: {
       png: String,
       webp: String
     },
@@ -88,29 +88,29 @@ const Schema = new mongoose.Schema({
     updateDate: Date,
     characters: [{
       _id: false,
-      region: {type: String, index: true},
-      realm: {type: String, index: true},
-      name: {type: String, index: true},
-      guild: {type: String, index: true},
-      guildRealm: {type: String, index: true},
-      bnetID: {type: Number, index: true}
+      region: { type: String, index: true },
+      realm: { type: String, index: true },
+      name: { type: String, index: true },
+      guild: { type: String, index: true },
+      guildRealm: { type: String, index: true },
+      bnetID: { type: Number, index: true }
     }],
-    guilds: [{type: String, index: true}]
+    guilds: [{ type: String, index: true }]
   },
-  battlenetCN : {
-    id : String,
-    name : String,
-    avatar : {
+  battlenetCN: {
+    id: String,
+    name: String,
+    avatar: {
       png: String,
       webp: String
     },
     updateStatus: String,
     updateDate: Date,
   },
-  patreon : {
+  patreon: {
     id: String,
-    name : String,
-    avatar : {
+    name: String,
+    avatar: {
       png: String,
       webp: String
     },
@@ -119,26 +119,26 @@ const Schema = new mongoose.Schema({
     declined_since: Date,
     profile: mongoose.Schema.Types.Mixed
   },
-  discord : {
-    id : String,
-    name : String,
-    discriminator : String,
-    avatar : {
+  discord: {
+    id: String,
+    name: String,
+    discriminator: String,
+    avatar: {
       png: String,
       webp: String
     },
-    options : {
-      messageOnFaveUpdate : Boolean,
-      messageOnComment : Boolean
+    options: {
+      messageOnFaveUpdate: Boolean,
+      messageOnComment: Boolean
     },
-    webhooks : {
-      onCreate : String
+    webhooks: {
+      onCreate: String
     }
   },
   twitch: {
     id: String,
     name: String,
-    avatar : {
+    avatar: {
       png: String,
       webp: String
     },
@@ -146,9 +146,9 @@ const Schema = new mongoose.Schema({
     subscribedTo: [String]
   },
   config: {
-    theme : String,
-    editor : String,
-    textSyntax : { type: String, default: "bbcode" }, // bbcode or markdown
+    theme: String,
+    editor: String,
+    textSyntax: { type: String, default: "bbcode" }, // bbcode or markdown
     searchOptions: {
       sort: { type: String, default: "bestmatch" },
       relevance: { type: String, default: "standard" },
@@ -156,7 +156,7 @@ const Schema = new mongoose.Schema({
     }
   },
   search: {
-    username: {type: String, index: true, maxlength: 128}
+    username: { type: String, index: true, maxlength: 128 }
   }
 }, { minimize: true });
 
@@ -169,16 +169,16 @@ const Schema = new mongoose.Schema({
 /**
  * Statics
  */
-Schema.statics.findByUsername = function(name) {
-  if (!name || typeof(name) !== 'string') {
+Schema.statics.findByUsername = function (name) {
+  if (!name || typeof (name) !== 'string') {
     return null
   }
-  return this.findOne({"search.username": name.toLowerCase()}).exec()
+  return this.findOne({ "search.username": name.toLowerCase() }).exec()
 }
 
-Schema.statics.findByAPIKey = function(key) {
+Schema.statics.findByAPIKey = function (key) {
   return new Promise((resolve, reject) => {
-    this.findOne({"account.api_key": key}).then((user) => {
+    this.findOne({ "account.api_key": key }).then((user) => {
       if (user && user.access.api) {
         resolve(user)
       }
@@ -188,7 +188,7 @@ Schema.statics.findByAPIKey = function(key) {
     })
   })
 }
-Schema.methods.createAPIKey = async function(keyProp='api_key') {
+Schema.methods.createAPIKey = async function (keyProp = 'api_key') {
   var chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
   var key = ''
   for (let i = 0; i < 64; i++) {
@@ -204,24 +204,24 @@ Schema.methods.createAPIKey = async function(keyProp='api_key') {
 /**
  * Virtuals
  */
-Schema.virtual('profile.visibility').get(function() {
+Schema.virtual('profile.visibility').get(function () {
   if (this.account.hidden) return "Private"
   else return "Public"
 })
-Schema.virtual('profile.visibility').set(function(val) {
-  if (val=='Public') this.account.hidden=false
-  else this.account.hidden=true
+Schema.virtual('profile.visibility').set(function (val) {
+  if (val == 'Public') this.account.hidden = false
+  else this.account.hidden = true
 })
-Schema.virtual('profile.url').get(function() {
+Schema.virtual('profile.url').get(function () {
   if (this.account.hidden || !this.account.username) return false
   return '/p/' + this.account.username
 })
-Schema.virtual('profile.name').get(function() {
+Schema.virtual('profile.name').get(function () {
   return this.account.username || 'User-' + this._id
 })
 
-Schema.virtual('account.total_accounts').get(function() {
-  num=0
+Schema.virtual('account.total_accounts').get(function () {
+  num = 0
   if (this.account.password) num++
   if (this.facebook.id) num++
   if (this.twitter.id) num++
@@ -230,95 +230,95 @@ Schema.virtual('account.total_accounts').get(function() {
   return num
 })
 
-// avatar url or default to avatar.dicebear api
-Schema.virtual('avatarURL').get(async function() {
+// avatar url or default to api.dicebear api
+Schema.virtual('avatarURL').get(async function () {
   if (this.profile.avatar && (this.profile.avatar.webp || this.profile.avatar.png)) {
     return this.profile.avatar
   }
   else {
     const image = require('../helpers/image')
-    await image.avatarFromURL('https://avatars.dicebear.com/api/gridy/' + this._id.toString() + Date.now() + '.svg', this._id.toString(), 'adorable').then(async (img) => {
+    await image.avatarFromURL('https://api.dicebear.com/7.x/big-ears-neutral/svg?seed=' + this._id.toString() + Date.now(), this._id.toString()).then(async (img) => {
       this.profile.avatar = img
       await this.save()
     })
     // next time, this image will be saved locally but return remote image now instead of waiting
-    return {png: 'https://avatars.dicebear.com/api/gridy/' + this._id.toString() + Date.now() + '.svg'}
+    return { png: 'https://api.dicebear.com/7.x/big-ears-neutral/svg?seed=' + this._id.toString() + Date.now() }
   }
 })
 
 
-Schema.virtual('access.custom_slug').get(function() {
+Schema.virtual('access.custom_slug').get(function () {
   if (this.roles.isAdmin.access) return true
   if (this.roles.gold_subscriber || this.roles.pro_subscriber || this.roles.ambassador || this.roles.community_leader || this.roles.developer || this.roles.artContestWinnerAug2018) return true
 
   return false
 })
-Schema.virtual('access.animatedAvatar').get(function() {
+Schema.virtual('access.animatedAvatar').get(function () {
   if (this.roles.isAdmin.access) return true
   if (this.roles.subscriber || this.roles.gold_subscriber || this.roles.pro_subscriber || this.roles.community_leader || this.roles.ambassador || this.roles.developer || this.roles.artContestWinnerAug2018) return true
 
   return false
 })
-Schema.virtual('access.queueSkip').get(function() {
+Schema.virtual('access.queueSkip').get(function () {
   if (this.roles.isAdmin.access) return true
   if (this.roles.subscriber || this.roles.gold_subscriber || this.roles.pro_subscriber || this.roles.community_leader || this.roles.ambassador || this.roles.developer || this.roles.artContestWinnerAug2018) return true
 
   return false
 })
-Schema.virtual('access.referrals').get(function() {
+Schema.virtual('access.referrals').get(function () {
   if (this.roles.isAdmin.access) return true
   if (this.roles.subscriber || this.roles.gold_subscriber || this.roles.pro_subscriber || this.roles.community_leader || this.roles.ambassador || this.roles.developer || this.roles.artContestWinnerAug2018) return true
 
   return false
 })
-Schema.virtual('access.beta').get(function() {
+Schema.virtual('access.beta').get(function () {
   if (this.roles.isAdmin.access) return true
-  if (this.roles.subscriber || this.roles.gold_subscriber || this.roles.pro_subscriber || this.roles.community_leader || this.roles.ambassador || this.roles.developer  || this.roles.artContestWinnerAug2018) return true
+  if (this.roles.subscriber || this.roles.gold_subscriber || this.roles.pro_subscriber || this.roles.community_leader || this.roles.ambassador || this.roles.developer || this.roles.artContestWinnerAug2018) return true
 
   return false
 })
-Schema.virtual('access.api').get(function() {
+Schema.virtual('access.api').get(function () {
   return true
 })
-Schema.virtual('access.hideAds').get(function() {
-  if (this.roles.subscriber || this.roles.gold_subscriber || this.roles.pro_subscriber || this.roles.community_leader || this.roles.ambassador || this.roles.developer  || this.roles.artContestWinnerAug2018) return true
+Schema.virtual('access.hideAds').get(function () {
+  if (this.roles.subscriber || this.roles.gold_subscriber || this.roles.pro_subscriber || this.roles.community_leader || this.roles.ambassador || this.roles.developer || this.roles.artContestWinnerAug2018) return true
   return false
 })
-Schema.virtual('access.restrictGuild').get(function() {
+Schema.virtual('access.restrictGuild').get(function () {
   if (this.roles.isAdmin.access) return true
   if (this.roles.gold_subscriber || this.roles.pro_subscriber || this.roles.ambassador || this.roles.community_leader || this.roles.developer || this.roles.artContestWinnerAug2018) return true
 
   return false
 })
-Schema.virtual('access.restrictSubs').get(function() {
+Schema.virtual('access.restrictSubs').get(function () {
   if (this.roles.isAdmin.access) return true
   if (this.roles.pro_subscriber || this.roles.ambassador || this.roles.developer || this.roles.community_leader) return true
 
   return false
 })
 
-Schema.virtual('roleclass').get(function() {
+Schema.virtual('roleclass').get(function () {
   if (this.roles.isAdmin.access)
-      return 'user-admin'
+    return 'user-admin'
   else if (this.roles.isAdmin.moderator)
-      return 'user-moderator'
+    return 'user-moderator'
   else if (this.roles.gold_subscriber || this.roles.artContestWinnerAug2018 || this.roles.pro_subscriber)
-      return 'user-goldsub'
+    return 'user-goldsub'
   else if (this.roles.subscriber)
-      return 'user-sub'
+    return 'user-sub'
   else if (this.roles.ambassador || this.roles.developer || this.roles.community_leader)
-      return 'user-goldsub'
+    return 'user-goldsub'
 
   else
-      return 'user-default'
+    return 'user-default'
 })
 
 // zzzzzz
-Schema.virtual('roleClass').get(function() {
+Schema.virtual('roleClass').get(function () {
   return this.roleclass
 })
 
-Schema.pre('validate', function() {
+Schema.pre('validate', function () {
   if (this.account.username && this.account.username.length > 128) {
     this.account.username = this.account.username.substr(0, 128)
   }
@@ -330,6 +330,6 @@ Schema.plugin(mongoosastic, {
 })
 
 const User = mongoose.model('Users', Schema)
-User.esSearch = bluebird.promisify(User.esSearch, {context: User})
+User.esSearch = bluebird.promisify(User.esSearch, { context: User })
 
 module.exports = User

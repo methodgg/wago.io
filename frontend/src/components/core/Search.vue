@@ -5,41 +5,140 @@
         <div id="searchData">
           <slot></slot>
           <md-layout md-row>
-            <p><strong v-html="$t('Found [-count-] results', {count: new Intl.NumberFormat().format(results.total)})"></strong></p>
-            <span class="spacer"></span>
-            <template v-if="results">
+            <p id="searchQuery"><small v-if="queryOptions" v-html="queryOptions"></small><em v-if="queryHTML" v-html="queryHTML"></em><strong v-html="$t('Found [-count-] results', {count: new Intl.NumberFormat().format(results.total)})"></strong></p>
+            <md-layout v-if="results" id="searchOptions">
+              <div>
+                <div>
+                  <label>{{ $t('Game') }}</label>
+                  <small id="selected-game">{{
+                    searchGame === 'xiv' && $t('FF XIV') ||
+                    $t('WoW')
+                    }}</small>
+                </div>
+                <md-button-toggle md-single class="md-accent md-warn select-search-mode">
+                  <md-button :class="{ 'md-toggle': searchGame === 'wow' }" class="md-icon-button" @click="setGame('wow')">
+                    <img src="../../assets/game-wow.svg">
+                    <md-tooltip md-direction="bottom" class="">{{ $t("World of Warcraft imports") }}</md-tooltip>
+                  </md-button>
+                  <md-button :class="{ 'md-toggle': searchGame === 'xiv' }" class="md-icon-button" @click="setGame('xiv')">
+                    <img src="../../assets/game-ffxiv.svg">
+                    <md-tooltip md-direction="bottom" class="">{{ $t("Final Fantasy XIV imports") }}</md-tooltip>
+                  </md-button>
+                </md-button-toggle>
+              </div>
+              <div v-if="(!searchType || searchType === 'weakaura') && (searchGame === 'wow')">
+                <div>
+                  <label>{{ $t('Expansion') }}</label>
+                  <small id="selected-expansion">{{
+                    searchExpansion === 'classic' && $t('Classic') ||
+                    searchExpansion === 'wotlk' && $t('WotLK') ||
+                    searchExpansion === 'df' && $t('Dragonflight') ||
+                    searchExpansion === '' && $t('All') ||
+                    $t('Legacy')
+                    }}</small>
+                </div>
+                <md-button-toggle md-single class="md-accent md-warn select-search-mode">
+                  <md-button :class="{ 'md-toggle': !searchExpansion }" class="md-icon-button" @click="setExpansion('')">
+                    <img src="../../assets/game-wow.svg">
+                    <md-tooltip md-direction="bottom" class="">{{ $t("All") }}</md-tooltip>
+                  </md-button>
+                  <md-button :class="{ 'md-toggle': searchExpansion === 'df' }" class="md-icon-button" @click="setExpansion('df')">
+                    <img src="../../assets/df-toggle.svg">
+                    <md-tooltip md-direction="bottom" class="">{{ $t("Dragonflight") }}</md-tooltip>
+                  </md-button>
+                  <md-button :class="{ 'md-toggle': searchExpansion === 'wotlk' }" class="md-icon-button" @click="setExpansion('wotlk')">
+                    <img src="../../assets/wotlk-toggle.svg">
+                    <md-tooltip md-direction="bottom" class="">{{ $t("Wrath of the Lich King") }}</md-tooltip>
+                  </md-button>
+                  <md-button :class="{ 'md-toggle': searchExpansion === 'classic' }" class="md-icon-button" @click="setExpansion('classic')">
+                    <img src="../../assets/classic-toggle.svg">
+                    <md-tooltip md-direction="bottom" class="">{{ $t("Classic") }}</md-tooltip>
+                  </md-button>
+                  <md-button :class="{ 'md-toggle': searchExpansion && !searchExpansion.match(/df|wotlk|classic/) }" class="md-icon-button" @click="setExpansion('legacy')">
+                    <img src="../../assets/legacy-toggle.svg">
+                    <md-tooltip md-direction="bottom" class="">{{ $t("Legacy") }}</md-tooltip>
+                  </md-button>
+                  <div class="md-button md-icon-button md-theme-default">
+                    <md-icon>help</md-icon>
+                    <md-tooltip md-direction="bottom" class="">{{ $t("Note that the expansion filter is only applied to WeakAura imports") }}</md-tooltip>
+                  </div>
+                </md-button-toggle>
+              </div>
+              <div v-if="searchGame === 'wow'">
+                <div>
+                  <label>{{ $t('Addon') }}</label>
+                  <small id="selected-addon">{{
+                    searchType === 'weakaura' &&'WeakAuras' ||
+                    searchType === 'elvui' && 'ElvUI' ||
+                    searchType === 'plater' && 'Plater Nameplates' ||
+                    searchType === 'blizzhud' && 'BlizzHud' ||
+                    searchType === 'opie' && 'OPie' ||
+                    searchType === 'totalrp3' && 'TotalRP' ||
+                    searchType === 'vuhdo' && 'VuhDo' ||
+                    searchType === 'dbm' && 'DBM' ||
+                    $t('All')
+                    }}</small>
+                </div>
+                <md-button-toggle md-single class="md-accent md-warn select-search-mode">
+                  <md-button :class="{ 'md-toggle': !searchType }" class="md-icon-button" @click="setType('')">
+                    <img src="../../assets/wagoio-logo.png">
+                    <md-tooltip md-direction="bottom" class="">{{ $t("All") }}</md-tooltip>
+                  </md-button>
+                  <md-button :class="{ 'md-toggle': searchType === 'weakaura' }" class="md-icon-button" @click="setType('weakaura')">
+                    <img src="../../assets/weakauralogo.png">
+                    <md-tooltip md-direction="bottom" class="">{{ $t("WeakAuras") }}</md-tooltip>
+                  </md-button>
+                  <md-button :class="{ 'md-toggle': searchType === 'elvui' }" class="md-icon-button" @click="setType('elvui')">
+                    <category-image :group="'t-elvui'"></category-image>
+                    <md-tooltip md-direction="bottom" class="">{{ $t("ElvUI") }}</md-tooltip>
+                  </md-button>
+                  <md-button :class="{ 'md-toggle': searchType === 'plater' }" class="md-icon-button" @click="setType('plater')">
+                    <category-image :group="'t-plater'"></category-image>
+                    <md-tooltip md-direction="bottom" class="">{{ $t("Plater") }}</md-tooltip>
+                  </md-button>
+                  <div id="addon-button" :class="{ 'md-toggle': searchType && !searchType.match(/^(weakaura|elvui|plater)$/) }" class="md-button md-icon-button md-theme-default">
+                    <img src="../../assets/misc-addons.svg">
+                  </div>
+                  <div id="addon-dropdown">
+                    <div @click="setType('blizzhud')">BlizzHud</div>
+                    <div @click="setType('opie')">OPie</div>
+                    <div @click="setType('totalrp3')">Total RP</div>
+                    <div @click="setType('vuhdo')">VuhDo</div>
+                    <div @click="setType('dbm')">DBM</div>
+                  </div>
+                </md-button-toggle>
+              </div>
+              
+              <div v-if="searchGame === 'wow'" id="toggle-spacer"></div>
               <div>
                 <div>
                   <label>{{ $t('Mode') }}</label>
-                  <small>{{
-                    searchMode === 'wow' && $t('WoW') ||
-                    searchMode === 'xiv' && $t('FF XIV') ||
-                    searchMode === 'starred' && $t('My favorites') ||
+                  <small id="selected-mode">{{
+                    searchMode === 'imports' && $t('Imports') ||
+                    searchMode === 'starred' && $t('Favorites') ||
                     searchMode === 'comments' && $t('Comments') ||
                     searchMode === 'code' && $t('Lua Code')
                     }}</small>
                 </div>
                 <md-button-toggle md-single class="md-accent md-warn select-search-mode">
-                  <md-button :class="{ 'md-toggle': searchMode === 'wow' }" class="md-icon-button" @click="searchMode='wow'">
-                    <img src="../../assets/game-wow.svg">
-                    <md-tooltip md-direction="bottom" class="">{{ $t("World of Warcraft imports") }}</md-tooltip>
+                  <md-button :class="{ 'md-toggle': searchMode === 'imports' }" class="md-icon-button" @click="setMode('imports')">
+                    <md-icon>description</md-icon>
+                    <md-tooltip md-direction="bottom" class="">{{ $t("All imports") }}</md-tooltip>
                   </md-button>
-                  <md-button :class="{ 'md-toggle': searchMode === 'xiv' }" class="md-icon-button" @click="searchMode='xiv'">
-                    <img src="../../assets/game-ffxiv.svg">
-                    <md-tooltip md-direction="bottom" class="">{{ $t("Final Fantasy XIV imports") }}</md-tooltip>
-                  </md-button>
-                  <md-button v-if="$store.state.user && $store.state.user.UID" :class="{ 'md-toggle': searchMode === 'starred' }" class="md-icon-button" @click="searchMode='starred'">
+                  <md-button v-if="$store.state.user && $store.state.user.UID" :class="{ 'md-toggle': searchMode === 'starred' }" class="md-icon-button" @click="setMode('starred')">
                     <md-icon>star</md-icon>
                     <md-tooltip md-direction="bottom" class="">{{ $t("My starred imports") }}</md-tooltip>
                   </md-button>
-                  <md-button :class="{ 'md-toggle': searchMode === 'comments' }" class="md-icon-button" @click="searchMode='comments'">
+                  <md-button :class="{ 'md-toggle': searchMode === 'comments' }" class="md-icon-button" @click="setMode('comments')">
                     <md-icon>comment</md-icon>
                     <md-tooltip md-direction="bottom" class="">{{ $t("Comments") }}</md-tooltip>
                   </md-button>
+                  <md-button :class="{ 'md-toggle': searchMode === 'code' }" class="md-icon-button" @click="setMode('code')" :disabled="disableCode">
+                    <md-icon>code</md-icon>
+                    <md-tooltip md-direction="bottom" class="">{{ $t("Lua Code") }}</md-tooltip>
+                  </md-button>
                 </md-button-toggle>
               </div>
-            </template>
-            <template v-if="results">
               <div>
                 <div>
                   <label>{{ $t('Sort') }}</label>
@@ -48,10 +147,15 @@
                     searchSort === 'stars' && $t('Stars') ||
                     searchSort === 'views' && $t('Views') ||
                     searchSort === 'installs' && $t('Installs') ||
+                    searchSort === 'bestmatchv3' && '[Beta] New Best Match' ||
                     $t('Best Match')}}</small>
                 </div>
                 <md-button-toggle md-single class="md-accent md-warn">
-                  <md-button :class="{ 'md-toggle': searchSort === '' }" class="md-icon-button" @click="searchSort=''">
+                  <md-button v-if="$env === 'development' || $store.state.user.hideAds" :class="{ 'md-toggle': searchSort === 'bestmatchv3' }" class="md-icon-button" @click="searchSort='bestmatchv3'">
+                    <md-icon>mood</md-icon>
+                    <md-tooltip md-direction="bottom" class="">[BETA] New Best Match</md-tooltip>
+                  </md-button>
+                  <md-button :class="{ 'md-toggle': searchSort === 'bestmatchv2' }" class="md-icon-button" @click="searchSort='bestmatchv2'">
                     <md-icon>check_circle</md-icon>
                     <md-tooltip md-direction="bottom" class="">{{ $t("Best Match") }}</md-tooltip>
                   </md-button>
@@ -73,7 +177,7 @@
                   </md-button>
                 </md-button-toggle>
               </div>
-            </template>
+            </md-layout>
           </md-layout>
           <p v-if="!results.total">{{ $t('No results found, try changing the search mode or query') }}</p>
         </div>
@@ -82,32 +186,41 @@
       <div id="searchResults">
         <ui-loading v-if="isSearching"></ui-loading>
         <md-layout md-column v-else-if="!isSearching && results.results && results.results.length">
+          <ui-warning v-if="searchSort === 'bestmatchv3'" mode="info">We are iterating on a new search algorithm and hope it will return more relevant results. This beta phase of the search function is currently only available to Wago Patrons; and the results will likely change as we fine-tune the numbers.</ui-warning>
+          
           <template v-for="(result, index) in results.results">
-            <div v-if="index && index % 9 === 0 && $store.state.advertSetup" v-bind:key="index" class="wago-in-article-ad-container ad-in-search">
+            <advert ad="video-sidebar"  v-if="index==1" />
+            <div v-if="index && index % 9 === 0 && $store.state.advertSetup" v-bind:key="`ad${index}`" class="wago-in-article-ad-container ad-in-search">
               <span class="wago-advert-text" v-if="!$store.state.advertBlocked">{{ $t('Advertisement') }} - <a href="https://www.patreon.com/wago" target="_blank" rel="noopener" class="wago-advert-patreon">{{ $t('Hide Ads with Patreon') }}</a></span>
               <advert :ad="'leaderboard-search-' + Math.round(index / 9)" v-if="results.results.length > 9" :container="$store.state.advertBlocked" />
               <div :id="'leaderboard-search-' + Math.round(index / 9)"></div>
               <advert :ad="'mobile-search-' + Math.round(index / 9)" v-if="results.results.length > 9" :container="$store.state.advertBlocked" />
               <div :id="'mobile-search-' + Math.round(index / 9)"></div>
             </div>
-            <div class="searchResult codeResult" v-if="result && results.index === 'code'" v-bind:key="index">
-              <div class="searchText">
-                <router-link :to="'/' + (result.id || result.slug)">{{ result.name || result.type }}</router-link>
-                <span class="hidden-status" v-if="result.hidden"><md-icon>visibility_off</md-icon></span>
-                <md-subheader>
-                  <span>{{ displayExpansion(result) }}{{ result.wagolib && result.wagolib.addon || result.type }}</span>
-                  <span>{{ result.timestamp | moment('LLL') }}</span>
-                  <router-link v-if="result.userLinked" :class="result.userClass" :to="'/p/' + result.userName">{{ result.userName }}</router-link>
-                  <span v-else-if="result.userName" :class="result.userClass">{{ result.userName }}</span>
-                  <router-link v-else-if="result.user && result.user.searchable" :class="result.user.roleClass" :to="'/p/' + result.user.name">{{ result.user.name }}</router-link>
-                  <span v-else-if="result.user" :class="result.user.roleClass">{{ result.user.name }}</span>
-                  <span>{{ $t("[-count-] view", { count: result.views }) }}</span>
-                  <span>{{ $t("[-count-] star", { count: result.stars }) }}</span>
-                </md-subheader>
-                <editor v-model="result.code" @init="codeViewInit" lang="lua" :theme="$store.state.user.config.editor || 'terminal'" width="100%" height="50"></editor>
-              </div>
+            <div v-if="result && searchMode === 'code'" v-bind:key="index">              
+              <router-link :to="'/' + (result.id || result.slug)"  class="searchResult codeResult">
+                <div class="searchText">
+                  <md-layout>
+                    <div>
+                      <strong>{{ result.name || result.type }}</strong>
+                      <span class="hidden-status" v-if="result.hidden"><md-icon>visibility_off</md-icon></span>
+                    </div>
+                    <md-layout>
+                      <span>{{ displayExpansion(result) }}{{ result.wagolib && result.wagolib.addon || result.type }}</span>
+                      <span>{{ result.timestamp | moment('LLL') }}</span>
+                      <span class="result-user" :class="result.userClass"><md-icon>person</md-icon><span>{{ result.userName }}</span></span>
+                      <span>{{ $t("[-count-] view", { count: result.views }) }}</span>
+                      <span>{{ $t("[-count-] star", { count: result.stars }) }}</span>
+                    </md-layout>
+                  </md-layout>
+                  <template v-for="(code, cid) in parseCodeResult(result.customCode)">
+                    <span class="code-name">{{code.name}}</span>
+                    <editor v-model="code.lua" @init="codeViewInit" lang="lua" :theme="$store.state.user.config.editor || 'terminal'" width="100%" height="50"></editor>
+                  </template>
+                </div>
+              </router-link>
             </div>
-            <div v-else-if="result && results.index === 'comment'" v-bind:key="index">
+            <div v-else-if="result && results.index === 'comments'" v-bind:key="index">
               <router-link :to="'/' + result.importID" class="searchResult commentResult">
                 <div class="searchImgContainer">
                   <placeholder-img class="searchImg" :text="$t('Comment').toUpperCase()" :icon="result.userAvatar"></placeholder-img>
@@ -176,6 +289,7 @@
 import SearchMeta from '../UI/SearchMeta.vue'
 import FormattedText from '../UI/FormattedText.vue'
 import PlaceHolderImage from '../UI/PlaceHolderImage.vue'
+import CategoryImage from '../UI/CategoryImage.vue'
 
 export default {
   data: function () {
@@ -183,8 +297,11 @@ export default {
       results: {
         total: 0
       },
-      searchSort: window.localStorage.getItem('searchSort') || '',
+      searchSort: window.localStorage.getItem('searchSort') || 'bestmatchv2',
       searchMode: '',
+      searchGame: '',
+      searchExpansion: '',
+      searchType: '',
       searchString: '',
       searchParams: {q: ''},
       searchOptions: 'sort: Date',
@@ -198,80 +315,168 @@ export default {
       uiSearchValue: false,
       catRelevance: this.$store.state.user && this.$store.state.user.config && this.$store.state.user.config.searchOptions.relevance || 'standard',
       uiRelevanceValue: false,
-      filterExpansion: this.$store.state.user && this.$store.state.user.config && this.$store.state.user.config.searchOptions.expansion || 'all',
+      filterExpansion: this.$store.state.user && this.$store.state.user.config && this.$store.state.user.config.searchOptions.expansion || '',
       uiExpansionValue: false,
       contextSearchData: this.contextSearch,
       isCollection: false,
       includeReadMentions: '',
       disableInstalls: false,
-      disableMetrics: false
+      disableMetrics: false,
+      disableCode: false,
+      searchOnce: null,
+      queryHTML: '',
+      queryOptions: ''
     }
   },
-  props: ['contextSearch', 'contextGame', 'contextSort', 'contextDomain', 'collection'],
+  props: ['context', 'collection'],
   components: {
     'search-meta': SearchMeta,
     'formatted-text': FormattedText,
     'placeholder-img': PlaceHolderImage,
+    'category-image': CategoryImage,
     editor: require('vue2-ace-editor'),
   },
   watch: {
     '$route' (to, from) {
-      this.searchString = ''
-      if (this.contextGame) {
-          this.searchString += `expansion:${this.contextGame} `
-        }
-      if (this.contextSearch) {
-        this.searchString += this.contextSearch
-      }
-      this.searchString = this.contextSearch.replace(/\s+/g, ' ').trim()
+      this.searchMode = to.params.mode || window.localStorage.getItem(`search.mode`) || 'imports'
+      this.searchGame = to.params.game || window.localStorage.getItem(`search.game`) || 'wow'
 
-      if (this.searchString) {
-        this.$store.commit('setSearchText', this.searchString, true)
+
+      console.log('NEW ROUTE', to, this.context, this.searchMode, this.searchGame)
+
+      let expType = to.params.expansionType || ''
+      if (expType.match(/-/)) {
+        const s = expType.split('-')
+        this.searchExpansion = s[0]
+        this.searchType = s[1]
+      }
+      else if (expType.match(/^(classic|tbc|wotlk|cata|mop|wod|legion|bfa|sl|df|ww)$/)) {
+        this.searchExpansion = expType
+        this.searchType = ''
+      }
+      else if (expType) {
+        this.searchExpansion = ''
+        this.searchType = expType
+      }
+      else {
+        this.searchExpansion = window.localStorage.getItem(`search.expansion.${this.searchGame}`) || ''
+        this.searchType = window.localStorage.getItem(`search.type.${this.searchGame}`) || ''
+      }
+
+      const params = new Proxy(new URLSearchParams(window.location.search), {
+        get: (searchParams, prop) => searchParams.get(prop),
+      })
+      this.searchString = (params.q || '').trim()
+      console.log('searching', this.searchMode, this.searchGame, this.searchString)
+
+      this.$store.commit('setSearchText', this.searchString, true)
+      this.execSearch()
+
+      if (to.path === '/search') {
+        this.updateRoute()
       }
     },
     execSearch (to, from) {
       // setup watcher to exec on demand
     },
     searchSort (val) {
-      this.$nextTick(() => {
-        window.localStorage.setItem('searchSort', val)
-        this.runSearch(this.$store.state.execSearch, true)
-      })
+      this.execSearch()
     },
     searchMode (val) {
-      let q = this.$store.state.siteSearch
-      if (val == 'wow') {
-        q = q.replace(/mentions:\w+/ig, '')
-      }
-      else if (val == 'xiv') {
-        q = q.replace(/(mentions|expansion):\w+/ig, '')
-      }
-      else if (val == 'starred') {
-        q = q.replace(/(mentions|expansion):\w+/ig, '')
-      }
-      else if (val == 'comments') {
-        q = q.replace(/(type|expansion|metric|tag):[\w-]+/ig, '')
-      }
-      this.$store.commit('setSearchOpts', {mode: val, query: q})
+      this.execSearch()
     },
-    contextSearch (val) {
-      const mode = (val.match(/^!(\w+)!/) || [])[1]
-      if (mode) {
-        this.searchMode = mode
-      }
-    }
+    searchGame (val) {
+      this.execSearch()
+    },
+    searchExpansion (val) {
+      console.log('UPDATE EXPANSION', val)
+      this.execSearch()
+    },
+    searchType (val) {
+      this.execSearch()
+    },
   },
   computed: {
-    execSearch () {
-      this.runSearch(this.$store.state.execSearch)
-      return this.$store.state.execSearch
-    },
-
     unreadMentions() {
       return this.$store.state.user && this.$store.state.user.unreadMentions && this.$store.state.user.unreadMentions.map(x => x._id)
     }
   },
   methods: {
+    execSearch: function () {
+      clearTimeout(this.searchOnce)
+      this.searchOnce = setTimeout(() => {
+        this.runSearch()
+      }, 10)
+    },
+
+    updateRoute: function (replace=false) {
+      if (this.searchExpansion === 'undefined') this.searchExpansion = ''
+      let expansionType = this.searchExpansion || this.searchType
+      if (this.searchExpansion && this.searchExpansion !== 'undefined' && this.searchType) {
+        expansionType = `${this.searchExpansion}-${this.searchType}`
+      }
+      if (!this.searchString || this.searchString === 'undefined') {
+        this.searchString = ''
+      }
+      this.searchString = this.searchString.trim()
+      let path = `/search/${this.searchMode}?q=${encodeURI(this.searchString)}`
+      if (expansionType && this.searchGame === 'wow') {
+        path = `/search/${this.searchMode}/${this.searchGame}/${expansionType}?q=${encodeURI(this.searchString)}`
+      }
+      else if (this.searchGame) {
+        path = `/search/${this.searchMode}/${this.searchGame}?q=${encodeURI(this.searchString)}`
+      }
+
+      if (!replace) {
+        this.$router.push({ path })
+      }
+      else {
+        this.$router.replace({ path })
+        window.localStorage.setItem(`search.game`, this.searchGame)
+        window.localStorage.setItem(`search.expansion.${this.searchGame}`, this.searchExpansion)
+        window.localStorage.setItem(`search.type.${this.searchGame}`, this.searchType)
+      }
+    },
+
+    setGame: function (game) {
+      this.searchGame = game
+      this.$store.commit('setSearchGame', {game})
+      this.searchExpansion = window.localStorage.getItem(`search.expansion.${this.searchGame}`) || ''
+      this.searchType = window.localStorage.getItem(`search.type.${this.searchGame}`) || ''
+
+      this.disableCode = game !== 'wow'
+      if (this.disableCode && this.searchMode === 'code') {
+        this.setMode('imports')
+        this.disableCode = true
+      }
+      this.updateRoute()
+    },
+
+    setExpansion: function (exp) {
+      this.searchExpansion = exp
+      window.localStorage.setItem(`search.expansion.${this.searchGame}`, exp)
+      this.updateRoute()
+    },
+
+    setType: function (type) {
+      this.searchType = type
+      window.localStorage.setItem(`search.type.${this.searchGame}`, type)
+
+      this.disableCode = this.searchType && this.searchType.match(/(weakaura|plater)/) === null
+      if (this.disableCode && this.searchMode === 'code') {
+        this.setMode('imports')
+        this.disableCode = true
+      }
+      this.updateRoute()
+    },
+
+    setMode: function (mode) {
+      this.searchMode = mode
+      this.$store.commit('setSearchMode', {mode})
+      window.localStorage.setItem(`search.mode`, mode)
+      this.updateRoute()
+    },
+    
     codeViewInit: function (editor) {
       window.braceRequires()
       editor.setOptions({
@@ -280,9 +485,10 @@ export default {
         maxLines: 6,
         readOnly: true,
         useWorker: false,
-        showLineNumbers: false,
-        showGutter: false,
-        wrap: true
+        showLineNumbers: true,
+        showGutter: true,
+        wrap: true,
+        highlightActiveLine: false
       })
       editor.container.style.pointerEvents="none"
       this.$nextTick(() => {
@@ -295,10 +501,28 @@ export default {
           editor.session.addMarker(range, "found-text", "text", true)
         })
         if (ranges && ranges[0]) {
-          editor.scrollToRow(Math.max(0, ranges[0].start.row - 1))
+          editor.scrollToRow(Math.max(0, ranges[0].start.row - 2))
         }
       })
     },
+
+    parseCodeResult: function (code) {
+      const parsed = []
+      const re = new RegExp(this.results.query.replace(/[^\w]/g, ' ').replace(/\s+/g, '|'), 'ig')
+      for (const fn of code) {
+        const [key, ...main] = fn.split('\n')
+        const name = key.replace(/^-- wagokey: /, '')
+        const lua = main.join('\n') + '\n'
+        if (lua.match(re) || name.match(re)) {
+          parsed.push({name, lua})
+        }
+        if (parsed.length === 2) {
+          return parsed
+        }
+      }
+      return parsed
+    },
+
     displayExpansion: function (item) {
       if (item.type !== 'WEAKAURA') {
         return ''
@@ -337,61 +561,64 @@ export default {
       return ''
     },
     runSearch: function (sid, force) {
-      this.$nextTick(() => {
-        let query = this.$store.state.siteSearch.trim().replace(/\s{2,}/g, ' ')
-        let allowEmpty = false
-        if (this.$store.state.searchMode.match(/starred/)) {
-          allowEmpty = true
-        }
-        if (!force && ((!query && !allowEmpty) || (!force && (sid !== this.$store.state.execSearch || (this.searchParams.q.toLowerCase() === query.toLowerCase() && this.searchParams.mode === this.$store.state.searchMode))))) {
-          return
-        }
+      let query = this.$store.state.siteSearch.trim().replace(/\s{2,}/g, ' ')
+      this.disableInstalls = this.searchType.match(/(weakaura|plater)/) === null
+      this.disableCode = (this.searchType && this.searchType.match(/(weakaura|plater)/) === null) || this.searchGame !== 'wow'
+      this.disableMetrics = this.$store.state.searchMode.match(/starred|comments/) !== null
 
-        this.disableInstalls = query.match(/type:(weakaura|plater)/) === null
-        this.disableMetrics = this.$store.state.searchMode.match(/starred|comments/) !== null
+      if (this.disableInstalls && this.searchSort.match(/installs/)) {
+        this.searchSort = ''
+      }
+      else if (this.disableMetrics && this.searchSort.match(/stars|views|installs/)) {
+        this.searchSort = ''
+      }
 
-        if (this.disableInstalls && this.searchSort.match(/installs/)) {
-          this.searchSort = ''
-        }
-        else if (this.disableMetrics && this.searchSort.match(/stars|views|installs/)) {
-          this.searchSort = ''
-        }
+      this.isSearching = true
+      this.searchParams = {q: query, mode: this.searchMode, game: this.searchGame, expansion: this.searchExpansion, type: this.searchType, page: 0, sort: this.searchSort}
 
-        this.isSearching = true
-        this.searchParams = {q: query, mode: this.$store.state.searchMode, page: 0, sort: this.searchSort}
+      if (query.match(/\b(?:alerts?|mentioned):\s*(1|true)\b/i)) {
+        this.searchParams.includeRead = this.includeReadMentions
+      }
+      let searchURL = '/search/es'
+      if (!this.context) {
+        this.updateRoute(true)
+      }
+      this.http.get(searchURL, this.searchParams).then((res) => {
+        let hits = res.hits || res.results
+        // if (document.getElementById('selected-expansion')) {
+        //   this.queryOptions = `${document.getElementById('selected-expansion').innerText} ${document.getElementById('selected-mode').innerText}`
+        // }
+        // else {
+        //   this.queryOptions = `${document.getElementById('selected-game').innerText} ${document.getElementById('selected-mode').innerText}`
+        // }
+        this.queryHTML = document.querySelector('.ql-editor p').innerHTML
+        this.queryHTML = this.queryHTML.replace(/<button.*?<\/button>/g, '').replace(/<br\/?\s*>/, '')
 
-        if (query.match(/\b(?:alerts?|mentioned):\s*(1|true)\b/i)) {
-          this.searchParams.includeRead = this.includeReadMentions
-        }
-        let searchURL = '/search/es'
-        this.http.get(searchURL, this.searchParams).then((res) => {
-          let hits = res.hits || res.results
-          for (var i = 0; i < hits.length; i++) {
-            if (hits[i] && typeof hits[i] === 'object' && hits[i].categories) {
-              hits[i].categories = hits[i].categories.map((cat) => {
-                return window.Categories.categories[cat]
-              })
-            }
-            // if (hits[i] && typeof hits[i] === 'object' && hits[i].code) {
-            //   hits[i].code = hits[i].categories.map((cat) => {
-            //     return window.Categories.categories[cat]
-            //   })
-            // }
+        for (var i = 0; i < hits.length; i++) {
+          if (hits[i] && typeof hits[i] === 'object' && hits[i].categories) {
+            hits[i].categories = hits[i].categories.map((cat) => {
+              return window.Categories.categories[cat]
+            })
           }
+          // if (hits[i] && typeof hits[i] === 'object' && hits[i].code) {
+          //   hits[i].code = hits[i].categories.map((cat) => {
+          //     return window.Categories.categories[cat]
+          //   })
+          // }
+        }
 
-          if (query.match(/collection:/i)) {
-            this.isCollection = true
-          }
-          else {
-            this.isCollection = false
-          }
+        if (query.match(/collection:/i)) {
+          this.isCollection = true
+        }
+        else {
+          this.isCollection = false
+        }
 
-          this.$set(this.results, 'total', res.nbHits || res.total)
-          this.$set(this.results, 'query', res.query)
-          this.$set(this.results, 'index', res.index)
-          this.$set(this.results, 'results', hits)
-          this.isSearching = false
-        })
+        this.$set(this.results, 'total', res.nbHits || res.total)
+        this.$set(this.results, 'query', res.query)
+        this.$set(this.results, 'index', res.index)
+        this.$set(this.results, 'results', hits)
+        this.isSearching = false
       })
     },
     watchScroll () {
@@ -449,47 +676,74 @@ export default {
     }
   },
   created: function () {
+    this.initTime = new Date
     window.addEventListener('scroll', this.watchScroll)
+      
+    const params = new Proxy(new URLSearchParams(window.location.search), {
+      get: (searchParams, prop) => searchParams.get(prop),
+    })
+    this.searchString = (params.q || '').trim()
+    console.log('CREATED', this.context, this.searchString)
+
+    if (this.context && this.context.game) {
+      this.searchMode = this.context.mode
+      this.searchGame = this.context.game
+      if (this.context.expansion) {
+        this.searchExpansion = this.context.expansion
+        this.searchType = this.context.type
+      }
+      else if (!this.context.expansionType) {
+        this.searchExpansion = window.localStorage.getItem(`search.expansion.${this.searchGame}`) || ''
+        this.searchType = window.localStorage.getItem(`search.type.${this.searchGame}`) || ''
+      }
+      else if (this.context.expansionType.match(/-/)) {
+        let s = this.context.expansionType.split('-')
+        this.searchExpansion = s[0]
+        this.searchType = s[1]
+      }
+      else if (this.context.expansionType.match(/^(classic|tbc|wotlk|cata|mop|wod|legion|bfa|sl|df|ww)$/)) {
+        this.searchExpansion = this.context.expansionType
+        this.searchType = ''
+      }
+      else {
+        this.searchExpansion = ''
+        this.searchType = this.context.expansionType
+      }
+       
+      console.log('set mode A', this.searchMode)
+      window.localStorage.setItem(`search.mode`, this.searchMode)
+      window.localStorage.setItem(`search.game`, this.searchGame)
+      window.localStorage.setItem(`search.expansion.${this.searchGame}`, this.searchExpansion)
+      window.localStorage.setItem(`search.type.${this.searchGame}`, this.searchType)
+
+      if (this.context.query) {
+        this.searchString = this.context.query.trim()
+      }
+    }    
+    else {
+      console.log('CREATED FROM STORE', this.$store.state.searchMode, typeof this.$store.state.searchMode)
+      this.searchMode = this.$store.state.searchMode || window.localStorage.getItem(`search.mode`) || 'imports'
+      this.searchGame = this.$store.state.searchGame || window.localStorage.getItem(`search.game`) || 'wow'
+      this.searchExpansion = this.$store.state.searchExpansion || window.localStorage.getItem(`search.expansion.${this.searchGame}`) || ''
+      this.searchType = this.$store.state.searchType || window.localStorage.getItem(`search.type.${this.searchGame}`) || ''
+    }
+    this.$store.commit('setSearchText', this.searchString, true)
+
+      console.log('search created', this.searchString)
+
   },
   destroyed: function () {
     window.removeEventListener('scroll', this.watchScroll)
   },
   mounted: function () {
-    let mode
-    if (typeof this.contextDomain !== 'undefined') {
-      this.$store.commit('setDomain', this.contextDomain)
-      if (this.contextDomain === 0) {
-        mode = 'wow'
-      }
-      else if (this.contextDomain === 1) {
-        mode = 'xiv'
-      }
-    }
-    let initialSearch = ''
-    if (this.contextGame) {
-      initialSearch += `expansion:${this.contextGame} `
-    }
-    if (this.contextSearch) {
-      initialSearch += this.contextSearch
-      if (this.contextSearch.match(/!comments!/) && !mode) {
-        mode = 'comments'
-      }
-    }
-
-    if (!mode) {
-      mode = window.localStorage.getItem('searchMode') || 'wow'
-    }
-
-    this.searchMode = mode
-
-    if (initialSearch) {
-      this.$store.commit('setSearchText', initialSearch.trim(), true)
+    if (this.$route.name === 'searchredirect') {
+      this.updateRoute()
     }
   }
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .md-card.collection {
   background: none!important;
   box-shadow: none!important;
@@ -498,21 +752,12 @@ export default {
 }
 #searchForm { padding: 16px; width: 100% }
 #searchForm button { margin-top: -3px }
-#searchData {
+#searchOptions {
   align-items: center;
   flex-grow: 1;
   .md-layout {
     align-items: center;
     justify-items: flex-end;
-    > * {
-      margin-right: 32px;
-    }
-    > *:last-child {
-      margin-right: 0;
-    }
-    .spacer {
-      flex-grow: 1;
-    }
   }
   label {
     opacity: .9;
@@ -528,6 +773,7 @@ export default {
     padding: 0;
     width: auto;
     display: inline-flex;
+    overflow: hidden;
     .md-button {
       height: 24px;
       width: 24px;
@@ -539,16 +785,51 @@ export default {
         font-size: 16px;
         top: 8px;
       }
+      .category-image {
+        max-height:85%;
+        max-width: 85%;
+        margin: -2px auto 0;
+      }
     }
     &.select-search-mode img {
-      max-width: 24px;
+      max-width: 32px;
       max-height: 24px;
     }
+
+    & > #addon-dropdown {
+      display: none;
+      flex-direction: column;
+      box-shadow: 5px 5px 30px #00000066;
+      min-width: 170px;
+      z-index: 99!important;
+      & > * {
+        padding: 8px 16px;
+        color: white;
+        background: #3A3A3A;
+        cursor: pointer;
+        &:hover {
+          background: #444444;
+          text-decoration: none;
+        }
+      }
+      :last-child {
+        border-radius: 0 0 2px 2px;
+      }
+    }
+  }
+  #addon-button:hover ~ #addon-dropdown, #addon-dropdown:hover {
+    display: flex;
+    position: absolute;
+    top: 58px;
+    right: 0;
   }
 }
 #searchData .md-button-toggle { flex-wrap: wrap}
 #queried {margin-bottom: 8px; display: inline-block;}
 
+#searchPage {
+  overflow: initial
+}
 #content #searchPage {
   padding: 0;
   background: none;
@@ -560,8 +841,8 @@ export default {
   > div > div {
     max-width: 100%;
   }
-  .md-button-toggle {
-    margin-bottom: 16px;
+  #toggle-spacer {
+    flex-basis: 100%;
   }
   .ad-in-search {
     text-align: center;
@@ -710,6 +991,64 @@ export default {
     }
   }
 }
+
+#searchQuery {
+  line-height:180%;
+  > * {
+    display: block;
+  }
+  .search-tag {    
+      &.imptype {
+        border-color: #fff0fd;
+        color: #fff0fd;
+      }
+      &.expansion {
+        border-color: #d8652e;
+        color: #d8652e;
+      }
+      &.tag-collection {
+        color: #CAA27E;
+        border-color: #CAA27E;
+      }
+      &.tag-mentions {
+        color: #ED7032;
+        border-color: #ED7032;
+      }
+      &.tag-user {
+        color: #FFC83D;
+        border-color: #FFC83D;
+      }
+      &.exp-df {
+        border-color: #27eab0;
+        color: #27eab0;
+      }
+      &.exp-sl {
+        border-color: #eaae27;
+        color: #eaae27;
+      }
+      &.exp-tbc {
+        border-color: #BED82E;
+        color: #BED82E;
+      }
+      &.exp-wotlk {
+        border-color: #5764da;
+        color: #5764da;
+      }
+      &.filter-date {
+        border-color: #e2fffa;
+        color: #e2fffa;
+      }
+      &.filter-metric {
+        border-color: #9fecd0;
+        color: #9fecd0;
+      }
+  }
+}
+#searchOptions {
+  flex: 1;
+  justify-content: flex-end;
+  gap: 16px;
+}
 #content #searchPage .searchResult.commentResult .searchText .usertext {
   margin-bottom: -4px;
 }
@@ -721,15 +1060,23 @@ export default {
 #searchMeta {max-width: 300px; }
 #searchMeta .md-whiteframe { padding: 8px;}
 
-.codeResult .searchText {width: 100%}
+.codeResult .searchText {width: 100%; height: auto!important}
+.codeResult .searchText .code-name {width: 100%; font-size: small; margin-top: 4px; padding: 0 4px; background: #555; border: 1px solid #666; border-bottom: 0;}
+.codeResult .searchText > .md-layout { width: 100%; justify-content: space-between}
+.codeResult .searchText > .md-layout > .md-layout { gap: 16px; flex-wrap: wrap; flex: initial}
 .codeResult .searchText .ace_editor {border: 1px solid #77777733;}
 .codeResult .searchText .ace_scrollbar {display: none}
 .codeResult .searchText .ace_content .found-text {position: absolute; background: #FFFF0044}
 
 #searchResults {
   width: 100%;
+  margin-top: 16px;
   & > .md-layout > div {
     max-width: 100%;
+  }
+  .wago-ad-container {
+    margin: 0 auto 16px auto;
+    padding: 16px 8px 8px 8px;
   }
 }
 

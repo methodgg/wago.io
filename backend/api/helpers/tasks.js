@@ -1,5 +1,5 @@
 const battlenet = require('./battlenet')
-const cloudflare = require('cloudflare')({token: config.cloudflare.dnsToken})
+const cloudflare = require('cloudflare')({ token: config.cloudflare.dnsToken })
 const decompress = require('@atomic-reactor/decompress')
 const image = require('./image')
 const lua = require('./lua')
@@ -8,6 +8,7 @@ const mkdirp = require('mkdirp')
 const path = require('path')
 const getCode = require('./code-detection/get-code')
 const luacheck = require('./luacheck')
+const elastic = require('./elasticsearch')
 const patchDates = require('./patchDates')
 const codeMetrics = require('./codeMetrics')
 
@@ -61,9 +62,6 @@ module.exports = async (task, data) => {
       case 'SyncElastic':
         return await SyncElastic(data.table)
 
-      case 'SyncMeili':
-        return await SyncMeili(data.table)
-
       case 'ProcessCode':
         return await ProcessCode(data)
 
@@ -73,22 +71,25 @@ module.exports = async (task, data) => {
       case 'CleanTaskQueue':
         return taskQueue.clean(10000)
 
+      case 'UpdateGameVersions':
+        return await GameVersion.updatePatches()
+
       default:
-        throw {name: 'Unknown task', message: 'Unknown task ' + task}
+        throw { name: 'Unknown task', message: 'Unknown task ' + task }
     }
   }
   catch (e) {
-    console.log(e)
+    console.error(e)
     logError(e, 'Task ', task)
   }
 }
 
-async function UpdateWagoOfTheMoment () {
+async function UpdateWagoOfTheMoment() {
   const data = await WagoItem.randomOfTheMoment()
   await redis.set('static:WagoOfTheMoment', JSON.stringify(data))
 }
 
-async function UpdateTwitchStatus (channel) {
+async function UpdateTwitchStatus(channel) {
   var twitchToken = await redis.get('twitch:appToken')
   if (!twitchToken) {
     const getToken = await axios.post(`https://id.twitch.tv/oauth2/token?client_id=${config.auth.twitch.clientID}&client_secret=${config.auth.twitch.clientSecret}&grant_type=client_credentials`)
@@ -106,15 +107,15 @@ async function UpdateTwitchStatus (channel) {
   for (let i = 0; i < streams.length; i++) {
     let channel = streams[i].channel
     if (channel) {
-  const req = await axios.get(`https://api.twitch.tv/helix/streams?user_login=${channel}`, {
-    headers: {
-      'client-id': config.auth.twitch.clientID,
-      'Authorization': 'Bearer '+ twitchToken
+      const req = await axios.get(`https://api.twitch.tv/helix/streams?user_login=${channel}`, {
+        headers: {
+          'client-id': config.auth.twitch.clientID,
+          'Authorization': 'Bearer ' + twitchToken
+        }
+      })
+      await redis.set(`twitch:${channel}:live`, (req.data.data.length > 0))
+      status[channel] = (req.data.data.length > 0)
     }
-  })
-    await redis.set(`twitch:${channel}:live`, (req.data.data.length > 0))
-    status[channel] = (req.data.data.length > 0)
-  }
   }
 
   const streamers = await Streamer.find({})
@@ -127,11 +128,11 @@ async function UpdateTwitchStatus (channel) {
   while (getStreams.length) {
     let twitchUserQuery = getStreams.splice(0, 20)
     let twitchReq = await axios.get(`https://api.twitch.tv/helix/streams?${twitchUserQuery.join('')}`, {
-    headers: {
-      'client-id': config.auth.twitch.clientID,
-      'Authorization': 'Bearer '+ twitchToken
-    }
-  })
+      headers: {
+        'client-id': config.auth.twitch.clientID,
+        'Authorization': 'Bearer ' + twitchToken
+      }
+    })
     if (twitchReq && twitchReq.data && twitchReq.data.data) {
       twitchStreamers = twitchStreamers.concat(twitchReq.data.data)
     }
@@ -167,8 +168,8 @@ async function UpdateTwitchStatus (channel) {
   return status
 }
 
-async function UpdateLatestNews () {
-  const docs = await Blog.find({publishStatus: 'publish'}).sort('-date').limit(1).populate('_userId')
+async function UpdateLatestNews() {
+  const docs = await Blog.find({ publishStatus: 'publish' }).sort('-date').limit(1).populate('_userId')
   var news = []
   docs.forEach((item) => {
     news.push({
@@ -186,17 +187,17 @@ async function UpdateLatestNews () {
   await redis.set('static:LatestNews', JSON.stringify(news))
 }
 
-async function UpdatePatreonAccounts () {
+async function UpdatePatreonAccounts() {
   let nextURL = 'https://www.patreon.com/api/oauth2/v2/campaigns/8814646/members?include=currently_entitled_tiers,user&fields%5Btier%5D=title'
   const addonSubs = []
   while (nextURL) {
-    const response = await axios.get(nextURL, {headers: {Authorization: 'Bearer '+  config.auth.patreon.creatorToken}})
+    const response = await axios.get(nextURL, { headers: { Authorization: 'Bearer ' + config.auth.patreon.creatorToken } })
     const patrons = response.data.data
     for (let i = 0; i < patrons.length; i++) {
       if (!patrons[i] || !patrons[i].relationships || !patrons[i].relationships.user || !patrons[i].relationships.user.data || !patrons[i].relationships.user.data.id) {
         continue
       }
-      const user = await User.findOne({"patreon.id": patrons[i].relationships.user.data.id})
+      const user = await User.findOne({ "patreon.id": patrons[i].relationships.user.data.id })
       if (!user) {
         continue
       }
@@ -226,16 +227,16 @@ async function UpdatePatreonAccounts () {
   return await UpdatePatreonAccounts_grandfathered(addonSubs)
 }
 
-async function UpdatePatreonAccounts_grandfathered (skipExisting) {
+async function UpdatePatreonAccounts_grandfathered(skipExisting) {
   let nextURL = 'https://www.patreon.com/api/oauth2/v2/campaigns/562591/members?include=currently_entitled_tiers,user&fields%5Btier%5D=title'
   while (nextURL) {
-    const response = await axios.get(nextURL, {headers: {Authorization: 'Bearer '+  config.auth.patreon_old.creatorToken}})
+    const response = await axios.get(nextURL, { headers: { Authorization: 'Bearer ' + config.auth.patreon_old.creatorToken } })
     const patrons = response.data.data
     for (let i = 0; i < patrons.length; i++) {
       if (!patrons[i] || !patrons[i].relationships || !patrons[i].relationships.user || !patrons[i].relationships.user.data || !patrons[i].relationships.user.data.id) {
         continue
       }
-      const user = await User.findOne({"patreon.id": patrons[i].relationships.user.data.id})
+      const user = await User.findOne({ "patreon.id": patrons[i].relationships.user.data.id })
       if (!user || skipExisting.includes(user._id.toString())) {
         continue
       }
@@ -263,80 +264,87 @@ async function UpdatePatreonAccounts_grandfathered (skipExisting) {
   return
 }
 
-async function UpdateWeeklyMDT () {
+async function UpdateWeeklyMDT() {
   await battlenet.updateMDTWeeks()
 }
 
-async function UpdateTopLists () {
-  var data = []
+async function UpdateTopLists() {
+  const data = []
+  let imports
+
+  // trending 
+  // imports = await WagoItem.find({ deleted: false, hidden: false, private: false, restricted: false, encrypted: false }).sort("-popularity.favorite_count").select('_id name popularity.favorite_count previewImage previewStatic').limit(10).exec()
+  // data.push({ title: 'Trending Imports', imports: imports.map(x => { return { count: x.popularity.favorite_count, display: '[-count-] star', name: x.name, slug: x.slug, img: x.previewImage, static: x.previewStatic } }) })
+
+
   // favorites
-  var imports = await WagoItem.find({deleted: false, hidden: false, private: false, restricted: false, encrypted: false}).sort("-popularity.favorite_count").select('_id name popularity.favorite_count previewImage previewStatic').limit(10).exec()
-  data.push({title: 'Favorites All Time', imports: imports.map(x => { return {count: x.popularity.favorite_count, display: '[-count-] star', name: x.name, slug: x.slug, img: x.previewImage, static: x.previewStatic} }) })
-  imports = await WagoItem.find({type: 'WEAKAURA', deleted: false, hidden: false, private: false, restricted: false, encrypted: false}).sort("-popularity.favorite_count").select('_id name popularity.favorite_count previewImage previewStatic').limit(10).exec()
-  data.push({title: 'Favorite WeakAuras All Time', imports: imports.map(x => { return {count: x.popularity.favorite_count, display: '[-count-] star', name: x.name, slug: x.slug, img: x.previewImage, static: x.previewStatic} }) })
-  imports = await WagoItem.find({type: 'WOTLK-WEAKAURA', deleted: false, hidden: false, private: false, restricted: false, encrypted: false}).sort("-popularity.favorite_count").select('_id name popularity.favorite_count previewImage previewStatic').limit(10).exec()
-  data.push({title: 'Favorite WotLK WeakAuras All Time', imports: imports.map(x => { return {count: x.popularity.favorite_count, display: '[-count-] star', name: x.name, slug: x.slug, img: x.previewImage, static: x.previewStatic} }) })
-  imports = await WagoItem.find({type: 'PLATER', deleted: false, hidden: false, private: false, restricted: false, encrypted: false}).sort("-popularity.favorite_count").select('_id name popularity.favorite_count previewImage previewStatic').limit(10).exec()
-  data.push({title: 'Favorite Plater All Time', imports: imports.map(x => { return {count: x.popularity.favorite_count, display: '[-count-] star', name: x.name, slug: x.slug, img: x.previewImage, static: x.previewStatic} }) })
-  imports = await WagoItem.find({type: 'TOTALRP3', deleted: false, hidden: false, private: false, restricted: false, encrypted: false}).sort("-popularity.favorite_count").select('_id name popularity.favorite_count previewImage previewStatic').limit(10).exec()
-  data.push({title: 'Favorite Total RP All Time', imports: imports.map(x => { return {count: x.popularity.favorite_count, display: '[-count-] star', name: x.name, slug: x.slug, img: x.previewImage, static: x.previewStatic} }) })
-  imports = await WagoItem.find({type: 'VUHDO', deleted: false, hidden: false, private: false, restricted: false, encrypted: false}).sort("-popularity.favorite_count").select('_id name popularity.favorite_count previewImage previewStatic').limit(10).exec()
-  data.push({title: 'Favorite VuhDo All Time', imports: imports.map(x => { return {count: x.popularity.favorite_count, display: '[-count-] star', name: x.name, slug: x.slug, img: x.previewImage, static: x.previewStatic} }) })
-  imports = await WagoItem.find({type: 'ELVUI', deleted: false, hidden: false, private: false, restricted: false, encrypted: false}).sort("-popularity.favorite_count").select('_id name popularity.favorite_count previewImage previewStatic').limit(10).exec()
-  data.push({title: 'Favorite ElvUI All Time', imports: imports.map(x => { return {count: x.popularity.favorite_count, display: '[-count-] star', name: x.name, slug: x.slug, img: x.previewImage, static: x.previewStatic} }), lastOfSection: true })
-  imports = await WagoItem.find({type: 'DELVUI', deleted: false, hidden: false, private: false, restricted: false, encrypted: false}).sort("-popularity.favorite_count").select('_id name popularity.favorite_count previewImage previewStatic').limit(10).exec()
-  data.push({title: 'Favorite DelvUI All Time', imports: imports.map(x => { return {count: x.popularity.favorite_count, display: '[-count-] star', name: x.name, slug: x.slug, img: x.previewImage, static: x.previewStatic} }), lastOfSection: true })
-  
+  imports = await WagoItem.find({ deleted: false, hidden: false, private: false, restricted: false, encrypted: false }).sort("-popularity.favorite_count").select('_id name popularity.favorite_count previewImage previewStatic').limit(10).exec()
+  data.push({ title: 'Favorites All Time', imports: imports.map(x => { return { count: x.popularity.favorite_count, display: '[-count-] star', name: x.name, slug: x.slug, img: x.previewImage, static: x.previewStatic } }) })
+  imports = await WagoItem.find({ type: 'WEAKAURA', deleted: false, hidden: false, private: false, restricted: false, encrypted: false }).sort("-popularity.favorite_count").select('_id name popularity.favorite_count previewImage previewStatic').limit(10).exec()
+  data.push({ title: 'Favorite WeakAuras All Time', imports: imports.map(x => { return { count: x.popularity.favorite_count, display: '[-count-] star', name: x.name, slug: x.slug, img: x.previewImage, static: x.previewStatic } }) })
+  imports = await WagoItem.find({ type: 'WOTLK-WEAKAURA', deleted: false, hidden: false, private: false, restricted: false, encrypted: false }).sort("-popularity.favorite_count").select('_id name popularity.favorite_count previewImage previewStatic').limit(10).exec()
+  data.push({ title: 'Favorite WotLK WeakAuras All Time', imports: imports.map(x => { return { count: x.popularity.favorite_count, display: '[-count-] star', name: x.name, slug: x.slug, img: x.previewImage, static: x.previewStatic } }) })
+  imports = await WagoItem.find({ type: 'PLATER', deleted: false, hidden: false, private: false, restricted: false, encrypted: false }).sort("-popularity.favorite_count").select('_id name popularity.favorite_count previewImage previewStatic').limit(10).exec()
+  data.push({ title: 'Favorite Plater All Time', imports: imports.map(x => { return { count: x.popularity.favorite_count, display: '[-count-] star', name: x.name, slug: x.slug, img: x.previewImage, static: x.previewStatic } }) })
+  imports = await WagoItem.find({ type: 'TOTALRP3', deleted: false, hidden: false, private: false, restricted: false, encrypted: false }).sort("-popularity.favorite_count").select('_id name popularity.favorite_count previewImage previewStatic').limit(10).exec()
+  data.push({ title: 'Favorite Total RP All Time', imports: imports.map(x => { return { count: x.popularity.favorite_count, display: '[-count-] star', name: x.name, slug: x.slug, img: x.previewImage, static: x.previewStatic } }) })
+  imports = await WagoItem.find({ type: 'VUHDO', deleted: false, hidden: false, private: false, restricted: false, encrypted: false }).sort("-popularity.favorite_count").select('_id name popularity.favorite_count previewImage previewStatic').limit(10).exec()
+  data.push({ title: 'Favorite VuhDo All Time', imports: imports.map(x => { return { count: x.popularity.favorite_count, display: '[-count-] star', name: x.name, slug: x.slug, img: x.previewImage, static: x.previewStatic } }) })
+  imports = await WagoItem.find({ type: 'ELVUI', deleted: false, hidden: false, private: false, restricted: false, encrypted: false }).sort("-popularity.favorite_count").select('_id name popularity.favorite_count previewImage previewStatic').limit(10).exec()
+  data.push({ title: 'Favorite ElvUI All Time', imports: imports.map(x => { return { count: x.popularity.favorite_count, display: '[-count-] star', name: x.name, slug: x.slug, img: x.previewImage, static: x.previewStatic } }), lastOfSection: true })
+  imports = await WagoItem.find({ type: 'DELVUI', deleted: false, hidden: false, private: false, restricted: false, encrypted: false }).sort("-popularity.favorite_count").select('_id name popularity.favorite_count previewImage previewStatic').limit(10).exec()
+  data.push({ title: 'Favorite DelvUI All Time', imports: imports.map(x => { return { count: x.popularity.favorite_count, display: '[-count-] star', name: x.name, slug: x.slug, img: x.previewImage, static: x.previewStatic } }), lastOfSection: true })
+
   // popular
-  imports = await WagoItem.find({deleted: false, hidden: false, private: false, restricted: false, encrypted: false}).sort("-popularity.viewsThisWeek").select('_id name popularity.viewsThisWeek previewImage previewStatic').limit(10).exec()
-  data.push({title: 'Popular This Week', imports: imports.map(x => { return {count: x.popularity.viewsThisWeek, display: '[-count-] view', name: x.name, slug: x.slug, img: x.previewImage, static: x.previewStatic} }) })
-  imports = await WagoItem.find({type: 'WEAKAURA', deleted: false, hidden: false, private: false, restricted: false, encrypted: false}).sort("-popularity.viewsThisWeek").select('_id name popularity.viewsThisWeek previewImage previewStatic').limit(10).exec()
-  data.push({title: 'Popular WeakAuras This Week', imports: imports.map(x => { return {count: x.popularity.viewsThisWeek, display: '[-count-] view', name: x.name, slug: x.slug, img: x.previewImage, static: x.previewStatic} }) })
-  imports = await WagoItem.find({type: 'WOTLK-WEAKAURA', deleted: false, hidden: false, private: false, restricted: false, encrypted: false}).sort("-popularity.viewsThisWeek").select('_id name popularity.viewsThisWeek previewImage previewStatic').limit(10).exec()
-  data.push({title: 'Popular WotLK WeakAuras This Week', imports: imports.map(x => { return {count: x.popularity.viewsThisWeek, display: '[-count-] view', name: x.name, slug: x.slug, img: x.previewImage, static: x.previewStatic} }) })
-  imports = await WagoItem.find({type: 'PLATER', deleted: false, hidden: false, private: false, restricted: false, encrypted: false}).sort("-popularity.viewsThisWeek").select('_id name popularity.viewsThisWeek previewImage previewStatic').limit(10).exec()
-  data.push({title: 'Popular Plater This Week', imports: imports.map(x => { return {count: x.popularity.viewsThisWeek, display: '[-count-] view', name: x.name, slug: x.slug, img: x.previewImage, static: x.previewStatic} }) })
-  imports = await WagoItem.find({type: 'TOTALRP3', deleted: false, hidden: false, private: false, restricted: false, encrypted: false}).sort("-popularity.viewsThisWeek").select('_id name popularity.viewsThisWeek previewImage previewStatic').limit(10).exec()
-  data.push({title: 'Popular Total RP This Week', imports: imports.map(x => { return {count: x.popularity.viewsThisWeek, display: '[-count-] view', name: x.name, slug: x.slug, img: x.previewImage, static: x.previewStatic} }) })
-  imports = await WagoItem.find({type: 'VUHDO', deleted: false, hidden: false, private: false, restricted: false, encrypted: false}).sort("-popularity.viewsThisWeek").select('_id name popularity.viewsThisWeek previewImage previewStatic').limit(10).exec()
-  data.push({title: 'Popular VuhDo This Week', imports: imports.map(x => { return {count: x.popularity.viewsThisWeek, display: '[-count-] view', name: x.name, slug: x.slug, img: x.previewImage, static: x.previewStatic} }) })
-  imports = await WagoItem.find({type: 'ELVUI', deleted: false, hidden: false, private: false, restricted: false, encrypted: false}).sort("-popularity.viewsThisWeek").select('_id name popularity.viewsThisWeek previewImage previewStatic').limit(10).exec()
-  data.push({title: 'Popular ElvUI This Week', imports: imports.map(x => { return {count: x.popularity.viewsThisWeek, display: '[-count-] view', name: x.name, slug: x.slug, img: x.previewImage, static: x.previewStatic} }), lastOfSection: true })
-  imports = await WagoItem.find({type: 'DELVUI', deleted: false, hidden: false, private: false, restricted: false, encrypted: false}).sort("-popularity.viewsThisWeek").select('_id name popularity.viewsThisWeek previewImage previewStatic').limit(10).exec()
-  data.push({title: 'Popular DelvUI This Week', imports: imports.map(x => { return {count: x.popularity.viewsThisWeek, display: '[-count-] view', name: x.name, slug: x.slug, img: x.previewImage, static: x.previewStatic} }), lastOfSection: true })
+  imports = await WagoItem.find({ deleted: false, hidden: false, private: false, restricted: false, encrypted: false }).sort("-popularity.viewsThisWeek").select('_id name popularity.viewsThisWeek previewImage previewStatic').limit(10).exec()
+  data.push({ title: 'Popular This Week', imports: imports.map(x => { return { count: x.popularity.viewsThisWeek, display: '[-count-] view', name: x.name, slug: x.slug, img: x.previewImage, static: x.previewStatic } }) })
+  imports = await WagoItem.find({ type: 'WEAKAURA', deleted: false, hidden: false, private: false, restricted: false, encrypted: false }).sort("-popularity.viewsThisWeek").select('_id name popularity.viewsThisWeek previewImage previewStatic').limit(10).exec()
+  data.push({ title: 'Popular WeakAuras This Week', imports: imports.map(x => { return { count: x.popularity.viewsThisWeek, display: '[-count-] view', name: x.name, slug: x.slug, img: x.previewImage, static: x.previewStatic } }) })
+  imports = await WagoItem.find({ type: 'WOTLK-WEAKAURA', deleted: false, hidden: false, private: false, restricted: false, encrypted: false }).sort("-popularity.viewsThisWeek").select('_id name popularity.viewsThisWeek previewImage previewStatic').limit(10).exec()
+  data.push({ title: 'Popular WotLK WeakAuras This Week', imports: imports.map(x => { return { count: x.popularity.viewsThisWeek, display: '[-count-] view', name: x.name, slug: x.slug, img: x.previewImage, static: x.previewStatic } }) })
+  imports = await WagoItem.find({ type: 'PLATER', deleted: false, hidden: false, private: false, restricted: false, encrypted: false }).sort("-popularity.viewsThisWeek").select('_id name popularity.viewsThisWeek previewImage previewStatic').limit(10).exec()
+  data.push({ title: 'Popular Plater This Week', imports: imports.map(x => { return { count: x.popularity.viewsThisWeek, display: '[-count-] view', name: x.name, slug: x.slug, img: x.previewImage, static: x.previewStatic } }) })
+  imports = await WagoItem.find({ type: 'TOTALRP3', deleted: false, hidden: false, private: false, restricted: false, encrypted: false }).sort("-popularity.viewsThisWeek").select('_id name popularity.viewsThisWeek previewImage previewStatic').limit(10).exec()
+  data.push({ title: 'Popular Total RP This Week', imports: imports.map(x => { return { count: x.popularity.viewsThisWeek, display: '[-count-] view', name: x.name, slug: x.slug, img: x.previewImage, static: x.previewStatic } }) })
+  imports = await WagoItem.find({ type: 'VUHDO', deleted: false, hidden: false, private: false, restricted: false, encrypted: false }).sort("-popularity.viewsThisWeek").select('_id name popularity.viewsThisWeek previewImage previewStatic').limit(10).exec()
+  data.push({ title: 'Popular VuhDo This Week', imports: imports.map(x => { return { count: x.popularity.viewsThisWeek, display: '[-count-] view', name: x.name, slug: x.slug, img: x.previewImage, static: x.previewStatic } }) })
+  imports = await WagoItem.find({ type: 'ELVUI', deleted: false, hidden: false, private: false, restricted: false, encrypted: false }).sort("-popularity.viewsThisWeek").select('_id name popularity.viewsThisWeek previewImage previewStatic').limit(10).exec()
+  data.push({ title: 'Popular ElvUI This Week', imports: imports.map(x => { return { count: x.popularity.viewsThisWeek, display: '[-count-] view', name: x.name, slug: x.slug, img: x.previewImage, static: x.previewStatic } }), lastOfSection: true })
+  imports = await WagoItem.find({ type: 'DELVUI', deleted: false, hidden: false, private: false, restricted: false, encrypted: false }).sort("-popularity.viewsThisWeek").select('_id name popularity.viewsThisWeek previewImage previewStatic').limit(10).exec()
+  data.push({ title: 'Popular DelvUI This Week', imports: imports.map(x => { return { count: x.popularity.viewsThisWeek, display: '[-count-] view', name: x.name, slug: x.slug, img: x.previewImage, static: x.previewStatic } }), lastOfSection: true })
 
   // installed
-  imports = await WagoItem.find({deleted: false, hidden: false, private: false, restricted: false, encrypted: false}).sort("-popularity.installed_count").select('_id name popularity.installed_count previewImage previewStatic').limit(10).exec()
-  data.push({title: 'Installed', imports: imports.map(x => { return {count: x.popularity.installed_count, display: '[-count-] install', name: x.name, slug: x.slug, img: x.previewImage, static: x.previewStatic} }) })
-  imports = await WagoItem.find({type: 'WEAKAURA', deleted: false, hidden: false, private: false, restricted: false, encrypted: false}).sort("-popularity.installed_count").select('_id name popularity.installed_count previewImage previewStatic').limit(10).exec()
-  data.push({title: 'Installed WeakAuras', imports: imports.map(x => { return {count: x.popularity.installed_count, display: '[-count-] install', name: x.name, slug: x.slug, img: x.previewImage, static: x.previewStatic} }) })
-  imports = await WagoItem.find({type: 'WOTLK-WEAKAURA', deleted: false, hidden: false, private: false, restricted: false, encrypted: false}).sort("-popularity.installed_count").select('_id name popularity.installed_count previewImage previewStatic').limit(10).exec()
-  data.push({title: 'Installed WotLK WeakAuras', imports: imports.map(x => { return {count: x.popularity.installed_count, display: '[-count-] install', name: x.name, slug: x.slug, img: x.previewImage, static: x.previewStatic} }), lastOfSection: true })
+  imports = await WagoItem.find({ deleted: false, hidden: false, private: false, restricted: false, encrypted: false }).sort("-popularity.installed_count").select('_id name popularity.installed_count previewImage previewStatic').limit(10).exec()
+  data.push({ title: 'Installed', imports: imports.map(x => { return { count: x.popularity.installed_count, display: '[-count-] install', name: x.name, slug: x.slug, img: x.previewImage, static: x.previewStatic } }) })
+  imports = await WagoItem.find({ type: 'WEAKAURA', deleted: false, hidden: false, private: false, restricted: false, encrypted: false }).sort("-popularity.installed_count").select('_id name popularity.installed_count previewImage previewStatic').limit(10).exec()
+  data.push({ title: 'Installed WeakAuras', imports: imports.map(x => { return { count: x.popularity.installed_count, display: '[-count-] install', name: x.name, slug: x.slug, img: x.previewImage, static: x.previewStatic } }) })
+  imports = await WagoItem.find({ type: 'WOTLK-WEAKAURA', deleted: false, hidden: false, private: false, restricted: false, encrypted: false }).sort("-popularity.installed_count").select('_id name popularity.installed_count previewImage previewStatic').limit(10).exec()
+  data.push({ title: 'Installed WotLK WeakAuras', imports: imports.map(x => { return { count: x.popularity.installed_count, display: '[-count-] install', name: x.name, slug: x.slug, img: x.previewImage, static: x.previewStatic } }), lastOfSection: true })
 
   // new and updated imports
-  imports = await WagoItem.find({deleted: false, hidden: false, private: false, restricted: false, encrypted: false, "latestVersion.iteration": {$gt: 1}}).sort({"modified": -1}).select('_id name modified previewImage previewStatic').limit(10).exec()
-  data.push({title: 'Recently Updated', imports: imports.map(x => { return {date: true, display: x.modified, name: x.name, slug: x.slug, img: x.previewImage, static: x.previewStatic} }) })
-  imports = await WagoItem.find({deleted: false, hidden: false, private: false, restricted: false, encrypted: false, "latestVersion.iteration": 1}).sort({"created": -1}).select('_id name created previewImage previewStatic').limit(10).exec()
-  data.push({title: 'Newest Imports', imports: imports.map(x => { return {date: true, display: x.created, name: x.name, slug: x.slug, img: x.previewImage, static: x.previewStatic} }) })
+  imports = await WagoItem.find({ deleted: false, hidden: false, private: false, restricted: false, encrypted: false, "latestVersion.iteration": { $gt: 1 } }).sort({ "modified": -1 }).select('_id name modified previewImage previewStatic').limit(10).exec()
+  data.push({ title: 'Recently Updated', imports: imports.map(x => { return { date: true, display: x.modified, name: x.name, slug: x.slug, img: x.previewImage, static: x.previewStatic } }) })
+  imports = await WagoItem.find({ deleted: false, hidden: false, private: false, restricted: false, encrypted: false, "latestVersion.iteration": 1 }).sort({ "created": -1 }).select('_id name created previewImage previewStatic').limit(10).exec()
+  data.push({ title: 'Newest Imports', imports: imports.map(x => { return { date: true, display: x.created, name: x.name, slug: x.slug, img: x.previewImage, static: x.previewStatic } }) })
 
   // save data
   await redis.set('static:TopLists', JSON.stringify(data))
 }
 
-async function DiscordMessage (data) {
+async function DiscordMessage(data) {
   if (global.discordBot) {
     const author = await User.findById(data.author)
     const wago = await WagoItem.lookup(data.wago)
     if (data.type === 'comment') {
-      const sendTo = await User.findOne({_id: data.to, "discord.options.messageOnComment": true}).select('discord').exec()
+      const sendTo = await User.findOne({ _id: data.to, "discord.options.messageOnComment": true }).select('discord').exec()
       if (sendTo && !author._id.equals(sendTo._id)) {
         discordBot.postComment(author, sendTo, wago, data.message)
       }
     }
     else if (data.type === 'update') {
-      const stars = await WagoFavorites.find({type: 'Star', wagoID: wago._id})
+      const stars = await WagoFavorites.find({ type: 'Star', wagoID: wago._id })
       for (let i = 0; i < stars.length; i++) {
-        const sendTo = await User.findOne({_id: stars[i].userID, "discord.options.messageOnFaveUpdate": true}).select('discord').exec()
+        const sendTo = await User.findOne({ _id: stars[i].userID, "discord.options.messageOnFaveUpdate": true }).select('discord').exec()
         if (sendTo && !author._id.equals(sendTo._id)) {
           discordBot.postUpdate(author, sendTo, wago)
         }
@@ -345,10 +353,10 @@ async function DiscordMessage (data) {
   }
 }
 
-async function UpdateValidCharacters () {
+async function UpdateValidCharacters() {
   const fourWeeksAgo = new Date()
   fourWeeksAgo.setDate(fourWeeksAgo.getDate() - 28)
-  const users = await User.find({"battlenet.characters.1": {$exists: true}, $or: [{"battlenet.updateDate": {$exists: false}}, {"battlenet.updateDate": {$lt: fourWeeksAgo}}]}).limit(50).exec()
+  const users = await User.find({ "battlenet.characters.1": { $exists: true }, $or: [{ "battlenet.updateDate": { $exists: false } }, { "battlenet.updateDate": { $lt: fourWeeksAgo } }] }).limit(50).exec()
   for (let i = 0; i < users.length; i++) {
     var validChars = []
     for (let k = 0; k < users[i].battlenet.characters.length; k++) {
@@ -367,7 +375,7 @@ async function UpdateValidCharacters () {
   }
 }
 
-async function UpdateGuildMembership () {
+async function UpdateGuildMembership() {
   function guildRankSort(a, b) {
     if (a.rank > b.rank) return -1
     else if (a.rank < b.rank) return 1
@@ -377,7 +385,7 @@ async function UpdateGuildMembership () {
     return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
   }
   var guildsChecked = []
-  const users = await User.find({"battlenet.guilds.1": {$exists: true}, $or: [{"roles.gold_subscriber": true}, {"roles.pro_subscriber": true}, {"roles.ambassador": true}, {"roles.developer": true}, {"roles.community_leader": true}, {"roles.artContestWinnerAug2018": true}]}).exec()
+  const users = await User.find({ "battlenet.guilds.1": { $exists: true }, $or: [{ "roles.gold_subscriber": true }, { "roles.pro_subscriber": true }, { "roles.ambassador": true }, { "roles.developer": true }, { "roles.community_leader": true }, { "roles.artContestWinnerAug2018": true }] }).exec()
   const updateGuild = async function (guildKey) {
     const accountIdsInGuild = []
     const accountsInGuild = []
@@ -394,7 +402,7 @@ async function UpdateGuildMembership () {
     }
     else if (guild.error === 'NOGUILD') {
       // if this guild no longer exists, remove all members from it
-      let exGuild = await User.find({"battlenet.guilds": guildKey}).exec()
+      let exGuild = await User.find({ "battlenet.guilds": guildKey }).exec()
       let deletePromise = new Promise(async (deleteDone) => {
         exGuild.forEach(async (exMember) => {
           let re = new RegExp('^' + guildKey + '(@\\d)?$')
@@ -414,7 +422,7 @@ async function UpdateGuildMembership () {
       // guild found! Match all wago users with guild
       guild.members.sort(guildRankSort)
       for (let j = 0; j < guild.members.length; j++) {
-        let memberUser = await User.findOne({"battlenet.characters.region": region, "battlenet.characters.name": guild.members[j].character.name})
+        let memberUser = await User.findOne({ "battlenet.characters.region": region, "battlenet.characters.name": guild.members[j].character.name })
         if (!memberUser) {
           continue
         }
@@ -458,18 +466,18 @@ async function UpdateGuildMembership () {
       }
 
       // remove old members
-      let exGuild = await User.find({"battlenet.guilds": guildKey, _id: {$nin: accountIdsInGuild}}).exec()
+      let exGuild = await User.find({ "battlenet.guilds": guildKey, _id: { $nin: accountIdsInGuild } }).exec()
       for (let d = 0; d < exGuild.length; d++) {
-            let re = new RegExp('^' + guildKey + '(@\\d)?$')
+        let re = new RegExp('^' + guildKey + '(@\\d)?$')
         for (let g = exGuild[d].battlenet.guilds.length - 1; g >= 0; g--) {
           if (exGuild[d].battlenet.guilds[g].match(re)) {
             exGuild[d].battlenet.guilds.splice(g, 1)
-              }
-            }
+          }
+        }
         if (guildKey === 'eu@twisting-nether@Method') {
           exGuild[d].roles.methodRaider = false
         }
-        
+
         await exGuild[d].save()
       }
     }
@@ -483,9 +491,9 @@ async function UpdateGuildMembership () {
   await updateGuild('eu@twisting-nether@Method')
 }
 
-async function ComputeStatistics ()  {
+async function ComputeStatistics() {
   // calc views this week
-  const viewedDocs = await ViewsThisWeek.aggregate([{$group: { _id: '$wagoID', views: { $sum: 1 }}}]).exec()
+  const viewedDocs = await ViewsThisWeek.aggregate([{ $group: { _id: '$wagoID', views: { $sum: 1 } } }]).exec()
   let totalImports = 0
   let totalSum = 0
   let totalSquared = 0
@@ -496,8 +504,8 @@ async function ComputeStatistics ()  {
     items.forEach((wago) => {
       ops.push({
         updateOne: {
-          filter: {_id: wago._id},
-          update: {'popularity.viewsThisWeek': wago.views}
+          filter: { _id: wago._id },
+          update: { 'popularity.viewsThisWeek': wago.views }
         }
       })
       if (wago.views > 5) {
@@ -522,8 +530,8 @@ async function ComputeStatistics ()  {
   totalSum = 0
   totalSquared = 0
   const installDocs = await WagoFavorites.aggregate([
-    {$match: {type: 'Install', timestamp: {$gt: recentDate}}},
-    {$group: { _id: '$wagoID', installs: { $sum: 1 }}}
+    { $match: { type: 'Install', timestamp: { $gt: recentDate } } },
+    { $group: { _id: '$wagoID', installs: { $sum: 1 } } }
   ]).exec()
 
   while (installDocs.length > 0) {
@@ -531,9 +539,9 @@ async function ComputeStatistics ()  {
     var items = installDocs.splice(0, 500)
     items.forEach((wago) => {
       if (wago.installs > 5) {
-      totalImports++
-      totalSum += wago.installs
-      totalSquared += wago.installs * wago.installs
+        totalImports++
+        totalSum += wago.installs
+        totalSquared += wago.installs * wago.installs
       }
     })
   }
@@ -548,8 +556,8 @@ async function ComputeStatistics ()  {
   totalSum = 0
   totalSquared = 0
   const starDocs = await WagoFavorites.aggregate([
-    {$match: {type: 'Star', timestamp: {$gt: recentDate}}},
-    {$group: { _id: '$wagoID', stars: { $sum: 1 }}}
+    { $match: { type: 'Star', timestamp: { $gt: recentDate } } },
+    { $group: { _id: '$wagoID', stars: { $sum: 1 } } }
   ]).exec()
 
   while (starDocs.length > 0) {
@@ -557,9 +565,9 @@ async function ComputeStatistics ()  {
     var items = starDocs.splice(0, 500)
     items.forEach((wago) => {
       if (wago.stars > 5) {
-      totalImports++
-      totalSum += wago.stars
-      totalSquared += wago.stars * wago.stars
+        totalImports++
+        totalSum += wago.stars
+        totalSquared += wago.stars * wago.stars
       }
     })
   }
@@ -570,9 +578,9 @@ async function ComputeStatistics ()  {
   await redis.set('stats:mean:stars', mean || 0)
 }
 
-async function UpdateLatestAddonReleases () {
+async function UpdateLatestAddonReleases() {
   const addons = [
-    {name: 'WeakAuras-2', host: 'github', url: 'https://api.github.com/repos/weakAuras/WeakAuras2/releases'},
+    { name: 'WeakAuras-2', host: 'github', url: 'https://api.github.com/repos/weakAuras/WeakAuras2/releases' },
     // {name: 'VuhDo', host: 'gitlab', url: 'https://gitlab.vuhdo.io/api/v4/projects/13/releases'},
     // {name: 'ElvUI', host: 'tukui', url: 'https://www.tukui.org/api.php?ui=elvui'},
     // {name: 'MDT', host: 'github', url: 'https://api.github.com/repos/Nnoggie/MythicDungeonTools/releases'},
@@ -596,10 +604,10 @@ async function UpdateLatestAddonReleases () {
           release.url = item.url
           release.version = item.name
           release.date = item.published_at
-          const preExisting = await AddonRelease.findOneAndUpdate({addon: release.addon, phase: release.phase, version: release.version}, release, {upsert: true, new: false}).exec()
+          const preExisting = await AddonRelease.findOneAndUpdate({ addon: release.addon, phase: release.phase, version: release.version }, release, { upsert: true, new: false }).exec()
           if (!preExisting) {
             madeUpdate = true
-            await AddonRelease.updateMany({addon: release.addon, version: {$ne: release.version}}, {$set: {active: false}}).exec()
+            await AddonRelease.updateMany({ addon: release.addon, version: { $ne: release.version } }, { $set: { active: false } }).exec()
 
             if (release.addon === 'WeakAuras-2' && release.phase === 'Release') {
               await updateWAData(release, item.assets)
@@ -625,10 +633,10 @@ async function UpdateLatestAddonReleases () {
         if (!release.url) {
           return
         }
-        const preExisting = await AddonRelease.findOneAndUpdate({addon: release.addon, phase: release.phase, version: release.version}, release, {upsert: true, new: false}).exec()
+        const preExisting = await AddonRelease.findOneAndUpdate({ addon: release.addon, phase: release.phase, version: release.version }, release, { upsert: true, new: false }).exec()
         if (!preExisting) {
           madeUpdate = true
-          await AddonRelease.updateMany({addon: release.addon, version: {$ne: release.version}}, {$set: {active: false}}).exec()
+          await AddonRelease.updateMany({ addon: release.addon, version: { $ne: release.version } }, { $set: { active: false } }).exec()
         }
       }
       else if (addon.host === 'tukui') {
@@ -643,21 +651,21 @@ async function UpdateLatestAddonReleases () {
           var classicResponse = await axios.get('https://www.tukui.org/api.php?classic-addon=2')
           release.classicVersion = classicResponse.data.version
         }
-        const preExisting = await AddonRelease.findOneAndUpdate({addon: release.addon, phase: release.phase, version: release.version, classicVersion: release.classicVersion}, release, {upsert: true, new: false}).exec()
+        const preExisting = await AddonRelease.findOneAndUpdate({ addon: release.addon, phase: release.phase, version: release.version, classicVersion: release.classicVersion }, release, { upsert: true, new: false }).exec()
         if (!preExisting) {
           // if a new release then de-activate the previous version(s)
           madeUpdate = true
-          await AddonRelease.updateMany({addon: release.addon, phase: release.phase, version: {$ne: release.version}}, {$set: {active: false}}).exec()
+          await AddonRelease.updateMany({ addon: release.addon, phase: release.phase, version: { $ne: release.version } }, { $set: { active: false } }).exec()
         }
       }
     }
     catch (e) {
-      console.log(e)
+      console.error(e)
       throw 'Error fetching addon ' + addon.name
     }
   }
   if (madeUpdate) {
-    const Latest = await AddonRelease.find({active: true})
+    const Latest = await AddonRelease.find({ active: true })
     await redis.set('static:LatestAddons', JSON.stringify(Latest))
   }
 }
@@ -667,74 +675,60 @@ async function SyncElastic(table) {
   return await new Promise(async (done, reject) => {
     let count = 0
     let doc
-    switch (table){
-      case 'import':
-        const cursorImports = WagoItem.find({_userId: {$exists: true}, expires_at: null}).cursor()
+    switch (table) {
+      case 'imports':
+        const cursorImports = WagoItem.find({ _userId: { $exists: true }, expires_at: null }).cursor()
         doc = await cursorImports.next()
         while (doc) {
           count++
           if (doc.deleted) {
-            elastic.removeDoc('import', await doc._id)
+            elastic.removeDoc('imports', await doc._id)
           }
           else {
-          elastic.addDoc('import', await doc.indexedImportData, true)
+            const d = await doc.indexedImportData
+            if (d) {
+              elastic.addDoc('imports', d, true)
+            }
+            else {
+              elastic.removeDoc('imports', await doc._id)
+            }
           }
           doc = await cursorImports.next()
-          if(count%500 === 0) {
+          if (count % 500 === 0) {
             console.log(table, count)
+          }
+          if (count % 5000 === 0) {
+            // hack to ease up on spamming ES
+            // await new Promise(r => setTimeout(r, 5000))
           }
         }
         break
 
-      case 'comment':
-        const cursorComments = Comments.find({codeReview: null}).cursor()
+      case 'comments':
+        const cursorComments = Comments.find({ codeReview: null }).cursor()
         doc = await cursorComments.next()
         while (doc) {
           count++
           if (doc.deleted) {
-            elastic.removeDoc('comment', await doc._id)
+            elastic.removeDoc('comments', await doc._id)
           }
           else {
             const data = await doc.indexedCommentData
             if (data && !data.deleted) {
-              elastic.addDoc('comment', data, true)
+              elastic.addDoc('comments', data, true)
             }
           }
           doc = await cursorComments.next()
-          if(count%500 === 0) {
+          if (count % 500 === 0) {
             console.log(table, count)
           }
-        }
-        break
-
-      case 'code':
-        const cursorCode = WagoItem.find({_userId: {$exists: true}, expires_at: null, hasCustomCode: true}).cursor()
-        doc = await cursorCode.next()
-        while (doc && count < 300000) {
-          count++
-          let code = await doc.indexedCodeData
-          if (code) {
-            if (doc.deleted) {
-              elastic.removeDoc('code', await doc._id)
-            }
-            else {
-            elastic.addDoc('code', code, true)
-            }
-          }
-          else {
-            elastic.removeDoc('code', await doc._id)
-          }
-          doc = await cursorCode.next()
-          if(count%500 === 0) {
-            console.log(table, count)
-        }
         }
         break
 
       case 'WagoItem':
         syncStream = WagoItem.synchronize()
         break
-  
+
       case 'User':
         syncStream = User.synchronize()
         break
@@ -743,138 +737,6 @@ async function SyncElastic(table) {
         return done()
     }
   })
-}
-
-async function SyncMeili(table) {
-  console.log("SYNC MEILI", table)
-  // multi index is needed until sortStrategies or similar is added https://github.com/meilisearch/MeiliSearch/issues/730
-  const meiliBatchSize = 2000
-  switch (table){
-    case 'Imports:ToDo':
-      const todoDocsWA = await redis.getJSON('meili:todo:wagoapp') || []
-      if (todoDocsWA.length) {
-        let wagos = await WagoItem.find({_id: {$in: todoDocsWA}})
-        for (doc of wagos) {
-          await meili.addDoc('weakauras', await doc.meiliWAData)
-        }
-        redis.setJSON('meili:todo:wagoapp', [])
-      }
-      break
-
-    case 'Imports:Metrics':
-      const lastIndexDate = await redis.get('meili:Metrics:Date')
-      const wagoAppIndex = meili.index('weakauras')
-      var metricsDocsWagoApp = []
-        redis.set('meili:Metrics:Date', new Date().toISOString())
-      if (!lastIndexDate) {
-        return
-      }
-      
-      var cursor = WagoItem.aggregate([
-          {$match: {_meili: true}},
-        {$lookup: {
-          from: 'wagofavorites',
-          as: 'fave',
-          let: {wagoID: '$_id'},
-          pipeline: [{
-            $match: {
-              $expr: {$eq: ["$wagoID", "$$wagoID"]},
-              timestamp: {$gt: new Date(lastIndexDate)}
-            },
-          }]
-        }},
-        {$lookup: {
-          from: 'viewsthisweeks',
-          as: 'view',
-          let: {wagoID: '$_id'},
-          pipeline: [{
-            $match: {
-              $expr: {$eq: ["$wagoID", "$$wagoID"]},
-              viewed: {$gt: new Date(lastIndexDate)}
-            },
-          }]
-        }},
-        {$match: {
-          $or: [
-            {"fave.0": {$exists: true}},
-            {"view.0": {$exists: true}}
-          ]
-        }}
-      ]).cursor()
-
-      for await (const doc of cursor) {
-          let metrics = {
-          id: doc._id,
-          installs: doc.popularity.installed_count,
-          stars: doc.popularity.favorite_count,
-          views: doc.popularity.views,
-          viewsThisWeek: doc.popularity.viewsThisWeek
-          }
-          // wago app
-          if (doc._meiliWA) {
-            metricsDocsWagoApp.push(metrics)
-          }
-          if (metricsDocsWagoApp.length >= meiliBatchSize) {
-            await wagoAppIndex.updateDocuments(metricsDocsWagoApp)
-            metricsDocsWagoApp = []
-        }
-      }
-        if (metricsDocsWagoApp.length) {
-          await wagoAppIndex.updateDocuments(metricsDocsWagoApp)
-          metricsDocsWagoApp = []
-      }
-      break
-
-    case 'WagoApp': // complete DB sync
-      var count = 0
-      var cursor = WagoItem.find({
-        type: {$regex: /WEAKAURA$/}, 
-        _userId: {$exists: true}, 
-        expires_at: null,
-        $or: [{
-          hidden: false, 
-          restricted: false,
-          private: false, 
-          encrypted: false, 
-          deleted: false,
-          blocked: false
-        },
-        {
-          _meiliWA: true,
-          $or: [
-            {hidden: true},
-            {restricted: true},
-            {private: true},
-            {encrypted: true},
-            {deleted: true},
-            {blocked: true}
-          ]
-        }]
-      }).cursor()
-
-      for (let doc = await cursor.next(); doc != null; doc = await cursor.next()) {
-        count++
-        if (doc.hidden || doc.private || doc.encrypted || doc.restricted || doc.deleted || doc.blocked) {
-          await meili.removeDoc('weakauras', await doc._id)
-          doc._meiliWA = false
-          await doc.save()
-        }
-        else {
-          await meili.addDoc('weakauras', await doc.meiliWAData, true)
-          if (!doc._meiliWA) {
-            doc._meiliWA = true
-            await doc.save()
-          }
-        }
-        if (count%1000 == 0) {
-          console.log('sync meili', count)
-        }
-      }
-      break
-
-    default:
-      return
-  }
 }
 
 const codeProcessVersion = ENUM.PROCESS_VERSION.WAGO
@@ -886,22 +748,22 @@ async function CodeReview(customCode, doc) {
     }
   }
   catch (e) {
-    console.log('luacheck error', doc._id, e)
+    console.error('luacheck error', doc._id, e)
   }
 
   try {
-    let metrics =  await codeMetrics.run(customCode)
+    let metrics = await codeMetrics.run(customCode)
     if (metrics) {
       customCode = metrics
     }
   }
   catch (e) {
-    console.log('codeMetrics error', doc._id, e)
+    console.error('codeMetrics error', doc._id, e)
   }
   return customCode
 }
 
-function TableReview (obj, data) {
+function TableReview(obj, data) {
   if (!data) {
     data = {
       dependencies: new Set()
@@ -931,74 +793,73 @@ async function ProcessCode(data) {
   if (data.addon && Addons[data.addon]) {
     const addon = Addons[data.addon]
     if (addon && addon.addWagoData) {
-      let meta = addon.addWagoData && addon.addWagoData(code, doc)
-      if ((meta && meta.encode) || data.encode || !code.encoded) {
+      let meta = await addon.addWagoData(code, doc)
+      if (meta) {
+        if (meta.code) { code = meta.code }
+        if (meta.wago) { doc = meta.wago }
+      }
+      if (data.encode || !code.encoded) {
         if (addon.encode) {
-        code.encoded = await addon.encode(code.json.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim(), lua.runLua)
+          code.encoded = await addon.encode(code.json.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim(), lua.runLua)
         }
         else if (addon.encodeRaw) {
           code.encoded = await addon.encodeRaw(code.json)
         }
-      }
-      if (meta && meta.wago) {
-        doc = meta.wago
       }
     }
   }
   else if (doc.type) {
     // match addon by type
     for (const addon of Object.values(Addons)) {
-      if (doc.type.match(addon.typeMatch)) {
-        let meta = addon.addWagoData && addon.addWagoData(code, doc)
-        if ((meta && meta.encode) || data.encode || !code.encoded) {
+      if (addon.addWagoData && doc.type.match(addon.typeMatch)) {
+        let meta = await addon.addWagoData(code, doc)
+        if (meta) {
+          if (meta.code) { code = meta.code }
+          if (meta.wago) { doc = meta.wago }
+        }
+        if (data.encode || !code.encoded) {
           if (addon.encode) {
-          code.encoded = await addon.encode(code.json.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim(), lua.runLua)
+            code.encoded = await addon.encode(code.json.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim(), lua.runLua)
           }
           else if (addon.encodeRaw) {
             code.encoded = await addon.encodeRaw(code.json)
           }
         }
-        if (meta && meta.wago) {
-          doc = meta.wago
-        }
       }
-    }    
+    }
   }
   let err
   try {
-  switch (doc.type) {
-    case 'SNIPPET':
-        code.customCode = await CodeReview([{id: 'Lua', name: 'Snippet', lua: code.lua}], doc)
-    break
+    switch (doc.type) {
+      case 'SNIPPET':
+        code.customCode = await CodeReview([{ id: 'Lua', name: 'Snippet', lua: code.lua }], doc)
+        break
 
-    case 'WEAKAURA':
-    case 'CLASSIC-WEAKAURA':
-    case 'TBC-WEAKAURA':
+      case 'WEAKAURA':
+      case 'CLASSIC-WEAKAURA':
+      case 'TBC-WEAKAURA':
       case 'WOTLK-WEAKAURA':
-    case 'PLATER':
-      var json = JSON.parse(code.json)
-        try {
-          doc.game = patchDates.gameVersion(json.tocVersion || json.d.tocversion) 
-        }
-        catch {
-          doc.game = patchDates.gameVersion() 
-        }
+      case 'PLATER':
+        const json = JSON.parse(code.json)
+
+        doc.domain = 0
+
         code.customCode = await CodeReview(getCode(json, doc.type), doc)
-        const tableMetrics = TableReview(json)
+        let tableMetrics = TableReview(json)
         tableMetrics.dependencies = [...tableMetrics.dependencies]
         code.tableMetrics = tableMetrics
-    break
-  }
+        break
+    }
   }
   catch (e) {
-    console.log(data, e)
+    console.error(data, e)
     err = true
   }
   if (err) throw 'Code Processing Error'
 
   doc.blocked = false
   if (code.version > 1) {
-    await WagoCode.updateMany({auraID: doc._id, _id: {$ne: code._id}}, {$set: {isLatestVersion: false}})
+    await WagoCode.updateMany({ auraID: doc._id, _id: { $ne: code._id } }, { $set: { isLatestVersion: false } })
   }
   code.isLatestVersion = true
 
@@ -1008,8 +869,8 @@ async function ProcessCode(data) {
       if (c.luacheck && c.luacheck.match(commonRegex.WeakAuraBlacklist)) {
         doc.blocked = true
       }
-        })
-      }
+    })
+  }
 
   doc.categories = [...new Set(doc.categories)]
   doc.codeProcessVersion = codeProcessVersion
@@ -1018,54 +879,55 @@ async function ProcessCode(data) {
   await code.save()
 
   if (doc._userId && !doc.deleted && !doc.expires_at) {
-    elastic.addDoc('import', await doc.indexedImportData)
+    const d = await doc.indexedImportData
+    if (d) {
+      elastic.addDoc('imports', d)
+    }
   }
 
-  cloudflare.zones.purgeCache(config.cloudflare.zoneID, {files: [
-    {url: `https://data.wago.io/api/raw/encoded?id=${doc._id}`},
-    {url: `https://data.wago.io/api/raw/encoded?id=${doc.slug}`},
-    {url: `https://data.wago.io/api/raw/encoded?id=${doc._id}&version=${code.versionString}`},
-    {url: `https://data.wago.io/api/raw/encoded?id=${doc.slug}&version=${code.versionString}`},
-    {url: `https://data.wago.io/lookup/wago/code?id=${doc._id}&version=${code.versionString}`, headers: {Origin: 'https://wago.io'}},
-    {url: `https://data.wago.io/lookup/wago/code?id=${doc.slug}&version=${code.versionString}`, headers: {Origin: 'https://wago.io'}},
-    {url: `https://data.wago.io/lookup/wago/code?id=${doc._id}&version=${code.versionString}-${doc.latestVersion.iteration}`, headers: {Origin: 'https://wago.io'}},
-    {url: `https://data.wago.io/lookup/wago/code?id=${doc.slug}&version=${code.versionString}-${doc.latestVersion.iteration}`, headers: {Origin: 'https://wago.io'}},
-  ]})
+  cloudflare.zones.purgeCache(config.cloudflare.zoneID, {
+    files: [
+      { url: `https://data.wago.io/api/raw/encoded?id=${doc._id}` },
+      { url: `https://data.wago.io/api/raw/encoded?id=${doc.slug}` },
+      { url: `https://data.wago.io/api/raw/encoded?id=${doc._id}&version=${code.versionString}` },
+      { url: `https://data.wago.io/api/raw/encoded?id=${doc.slug}&version=${code.versionString}` },
+      { url: `https://data.wago.io/lookup/wago/code?id=${doc._id}&version=${code.versionString}`, headers: { Origin: 'https://wago.io' } },
+      { url: `https://data.wago.io/lookup/wago/code?id=${doc.slug}&version=${code.versionString}`, headers: { Origin: 'https://wago.io' } },
+      { url: `https://data.wago.io/lookup/wago/code?id=${doc._id}&version=${code.versionString}-${doc.latestVersion.iteration}`, headers: { Origin: 'https://wago.io' } },
+      { url: `https://data.wago.io/lookup/wago/code?id=${doc.slug}&version=${code.versionString}-${doc.latestVersion.iteration}`, headers: { Origin: 'https://wago.io' } },
+    ]
+  })
+  await redis.clear(doc)
 
   if (code.customCode.length) {
     return doc
   }
   return null
 }
-        
+
 async function ProcessAllCode() {
   // return
   var cursor = WagoItem.find({
     deleted: false,
-    _userId: {$exists: true},
-    codeProcessVersion: {$lt: codeProcessVersion},
-    type: {$in: ['WEAKAURA', 'CLASSIC-WEAKAURA', 'TBC-WEAKAURA', 'PLATER']},
-    modified : {
-      $gte: new Date(new Date().setDate(new Date().getDate()-180))
-    }
-  }).cursor({batchSize:50})
-      
+    _userId: { $exists: true },
+    codeProcessVersion: { $lt: codeProcessVersion },
+    type: { $in: ['WEAKAURA', 'CLASSIC-WEAKAURA', 'TBC-WEAKAURA', 'WOTLK-WEAKAURA', 'PLATER'] },
+  }).cursor({ batchSize: 50 })
+
   let count = 0
-  console.log('-------------- CODE SYNC START ----------------')
   for await (const doc of cursor) {
     count++
     if (doc.deleted) {
-      await elastic.removeDoc('import', doc._id)
+      await elastic.removeDoc('imports', doc._id)
     }
     else {
-      await ProcessCode({id: doc._id, type: doc.type})
+      await taskQueue.add('ProcessCode', { id: doc._id })
 
-      if (count%1000 == 0) {
+      if (count % 1000 == 0) {
         console.log('process code', count)
       }
     }
   }
-  console.log('-------------- CODE SYNC FINISHED ----------------')
 }
 
 function sortJSON(obj) {
@@ -1083,9 +945,9 @@ function sortJSON(obj) {
   var sorted = {}
   var keys
   keys = Object.keys(obj)
-  keys.sort(function(key1, key2) {
-    if(key1 < key2) return -1
-    if(key1 > key2) return 1
+  keys.sort(function (key1, key2) {
+    if (key1 < key2) return -1
+    if (key1 > key2) return 1
     return 0
   })
 
@@ -1101,13 +963,13 @@ function sortJSON(obj) {
   return sorted
 }
 
-async function updateWAData (release, assets) {
-  const addonDir = path.resolve(__dirname, '../lua', 'addons' ,'WeakAuras', release.version)
+async function updateWAData(release, assets) {
+  const addonDir = path.resolve(__dirname, '../lua', 'addons', 'WeakAuras', release.version)
   await mkdirp(addonDir)
   const zipFile = path.resolve(addonDir, 'WeakAuras.zip')
   const writer = require('fs').createWriteStream(zipFile)
 
-  var axiosDownload = {method: 'GET', responseType: 'stream'}
+  var axiosDownload = { method: 'GET', responseType: 'stream' }
   for (let i = 0; i < assets.length; i++) {
     if (assets[i].name.match(/WeakAuras-[\d.]+\.zip/)) {
       axiosDownload.url = assets[i].browser_download_url
@@ -1139,16 +1001,21 @@ async function updateWAData (release, assets) {
   logError(e, 'Unable to find WeakAura internalVersion')
 }
 
-async function updateMDTData (release, assets) {
+async function UpdateGameVersions() {
+  const { data } = await axios.get(`https://wago.tools/api/builds`)
+  GameVersions
+}
+
+async function updateMDTData(release, assets) {
   if (!assets.zipball_url) {
     logError('Unable to find MDT download', assets)
     return false
   }
-  const addonDir = path.resolve(__dirname, '../lua', 'addons' ,'MDT', release.version)
+  const addonDir = path.resolve(__dirname, '../lua', 'addons', 'MDT', release.version)
   await mkdirp(addonDir)
   const zipFile = path.resolve(addonDir, 'MDT.zip')
   const writer = require('fs').createWriteStream(zipFile)
-  var axiosDownload = {method: 'GET', responseType: 'stream', url: assets.zipball_url}
+  var axiosDownload = { method: 'GET', responseType: 'stream', url: assets.zipball_url }
 
   const response = await axios(axiosDownload)
   response.data.pipe(writer)
@@ -1166,7 +1033,7 @@ async function updateMDTData (release, assets) {
   mdtData.dungeonDimensions = []
   mdtData.dungeonEnemies.forEach((enemies, mapID) => {
     // console.log(mapID)
-    mdtData.dungeonDimensions.push({maxX: -9999999, minX: 9999999, maxY: -9999999, minY: 9999999})
+    mdtData.dungeonDimensions.push({ maxX: -9999999, minX: 9999999, maxY: -9999999, minY: 9999999 })
     if (!enemies) return
     enemies.forEach((creature) => {
       if (!creature || !creature.clones) return
@@ -1183,9 +1050,9 @@ async function updateMDTData (release, assets) {
   })
 
   // save core data plus for each dungeon
-  await SiteData.findByIdAndUpdate('mdtDungeonTable', {value: mdtData}, {upsert: true}).exec()
-  await SiteData.findByIdAndUpdate('mdtAffixWeeks', {value: mdtData.affixWeeks}, {upsert: true}).exec()
-  await cloudflare.zones.purgeCache(config.cloudflare.zoneID, {files: ['https://data.wago.io/data/mdtDungeonTable', 'https://data.wago.io/data/mdtAffixWeeks']})
+  await SiteData.findByIdAndUpdate('mdtDungeonTable', { value: mdtData }, { upsert: true }).exec()
+  await SiteData.findByIdAndUpdate('mdtAffixWeeks', { value: mdtData.affixWeeks }, { upsert: true }).exec()
+  await cloudflare.zones.purgeCache(config.cloudflare.zoneID, { files: ['https://data.wago.io/data/mdtDungeonTable', 'https://data.wago.io/data/mdtAffixWeeks'] })
   for (let mapID = 0; mapID < mdtData.dungeonEnemies.length; mapID++) {
     let Obj = {
       affixWeeks: mdtData.affixWeeks,
@@ -1203,8 +1070,8 @@ async function updateMDTData (release, assets) {
       Obj.freeholdCrews = mdtData.freeholdCrews
     }
     const currentHash = await SiteData.findById('mdtDungeonTable-' + mapID).exec()
-    await SiteData.findByIdAndUpdate('mdtDungeonTable-' + mapID, {value: Obj}, {upsert: true}).exec()
-    await cloudflare.zones.purgeCache(config.cloudflare.zoneID, {files: ['https://data.wago.io/data/mdtDungeonTable-' + mapID]})
+    await SiteData.findByIdAndUpdate('mdtDungeonTable-' + mapID, { value: Obj }, { upsert: true }).exec()
+    await cloudflare.zones.purgeCache(config.cloudflare.zoneID, { files: ['https://data.wago.io/data/mdtDungeonTable-' + mapID] })
 
     // currentHash.value.enemyHash = null // force regenerate
     // if new portrait maps are required
@@ -1224,7 +1091,7 @@ async function updateMDTData (release, assets) {
           }
           break
         }
-        logger({e_c: 'Generate MDT portrait maps', e_a: Obj.dungeonMaps['0'], e_n: Obj.dungeonMaps['0']})
+        logger({ e_c: 'Generate MDT portrait maps', e_a: Obj.dungeonMaps['0'], e_n: Obj.dungeonMaps['0'] })
       }
       catch (e) {
         logError(e, 'Generating MDT portrait maps ' + Obj.dungeonMaps['0'])
@@ -1238,7 +1105,7 @@ async function updateMDTData (release, assets) {
 async function buildStaticMDTPortraits(json, mapID, subMapID, teeming, faction) {
   // this is very finicky so only run it locally to generate the images
   if (config.env !== 'development') {
-  return
+    return
   }
   const puppeteer = require('puppeteer-firefox')
   const mdtScale = 539 / 450
@@ -1283,13 +1150,13 @@ async function buildStaticMDTPortraits(json, mapID, subMapID, teeming, faction) 
       enemyPortraits.src = 'https://wago.io/mdt/portraits-${mapID}.png?'
       enemyPortraits.crossOrigin = 'Anonymous'
       enemyPortraits.onload = () => { console.log(enemyPortraits.src, 'loaded') `
-      
-      json.dungeonEnemies.forEach((creature, i) => {
-        if (!creature || !creature.clones) return
 
-        creature.clones.forEach((clone, j) => {
-          if (clone && (!clone.sublevel || clone.sublevel === subMapID) && (!clone.teeming || (clone.teeming && teeming)) && (!clone.faction || (clone.faction === faction))) {
-            html = html + `
+  json.dungeonEnemies.forEach((creature, i) => {
+    if (!creature || !creature.clones) return
+
+    creature.clones.forEach((clone, j) => {
+      if (clone && (!clone.sublevel || clone.sublevel === subMapID) && (!clone.teeming || (clone.teeming && teeming)) && (!clone.faction || (clone.faction === faction))) {
+        html = html + `
             var circle${i}_${j} = new Konva.Circle({
               x: ${clone.x * mdtScale} * multiplier,
               y: ${clone.y * -mdtScale} * multiplier,
@@ -1307,12 +1174,12 @@ async function buildStaticMDTPortraits(json, mapID, subMapID, teeming, faction) 
 
             // add the shape to the layer
             layer.add(circle${i}_${j});`
-          }
-        })
-        return
-      })
+      }
+    })
+    return
+  })
 
-      html = html + `
+  html = html + `
       stage.add(layer);
 
       setTimeout(() => {
@@ -1329,18 +1196,20 @@ async function buildStaticMDTPortraits(json, mapID, subMapID, teeming, faction) 
 
   // await fs.writeFile('../test.html', html, 'utf8')
   console.log('launch puppeteer')
-  const browser = await puppeteer.launch({args: [
-    '--disable-web-security', // ignore cors errors
-  ]})
+  const browser = await puppeteer.launch({
+    args: [
+      '--disable-web-security', // ignore cors errors
+    ]
+  })
   const page = await browser.newPage()
   await page.setCacheEnabled(false)
   await page.setContent(html)
-  
+
   page.on('console', msg => {
     for (let i = 0; i < msg.args().length; ++i)
       console.log(`${i}: ${msg.args()[i]}`);
   });
-  await page.waitForSelector('img', {timeout: 120000})
+  await page.waitForSelector('img', { timeout: 120000 })
   const base64 = await page.evaluate(() => {
     return document.getElementById('img').src
   })
@@ -1350,13 +1219,13 @@ async function buildStaticMDTPortraits(json, mapID, subMapID, teeming, faction) 
   return
 }
 
-function getEnemyPortraitOffset (numCreatures, creatureIndex, size) {
+function getEnemyPortraitOffset(numCreatures, creatureIndex, size) {
   var row = 0
   size = size || 36
   if (creatureIndex >= Math.ceil(numCreatures / 2)) {
     row++
   }
-  var o = {x: ((creatureIndex) - (Math.ceil(numCreatures / 2) * row)) * size, y: row * size}
+  var o = { x: ((creatureIndex) - (Math.ceil(numCreatures / 2) * row)) * size, y: row * size }
   return `{x: ${o.x}, y: ${o.y}}`
 }
 

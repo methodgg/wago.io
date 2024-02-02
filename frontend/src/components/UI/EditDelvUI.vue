@@ -217,7 +217,6 @@ export default {
     },
     delvConfigs: function () {
       let arr = JSON.parse(this.tableString)
-      console.log('compopn', arr)
       if (Array.isArray(arr)) {
         return arr
       }

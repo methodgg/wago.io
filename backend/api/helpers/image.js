@@ -1,5 +1,5 @@
 const config = require('../../config')
-const cloudflare = require('cloudflare')({token: config.cloudflare.dnsToken})
+const cloudflare = require('cloudflare')({ token: config.cloudflare.dnsToken })
 const sharp = require('sharp')
 const fs = require('fs').promises
 const FileType = require('file-type')
@@ -11,7 +11,7 @@ const tmpDir = __dirname + '/../../run-tmp'
 module.exports = {
   avatarFromURL: async (url, userID) => {
     if (!url || !userID) {
-      return {error: 'bad_input'}
+      return { error: 'bad_input' }
     }
 
     try {
@@ -27,11 +27,11 @@ module.exports = {
         const match = f.mime.match(/^image\/(png|jpg|gif|jpeg|webp|svg)/)
         // if valid mime type is detected then save file
         if (!match) {
-          return {error: 'not_image'}
+          return { error: 'not_image' }
         }
       }
-      else if (!url.match(/^https:\/\/avatars\.dicebear\.com.*svg$/)) {
-        return {error: 'not_image'}
+      else if (!url.match(/^https:\/\/api\.dicebear\.com.*svg$/)) {
+        return { error: 'not_image' }
       }
       const time = Date.now()
       const webp = sharp(buffer).resize(64, 64).toFormat('webp').toFile(tmpDir + '/u-' + time + '.webp')
@@ -54,33 +54,35 @@ module.exports = {
       })
       await webpUpload
       await pngUpload
-      fs.unlink(`${tmpDir}/u-${time}.webp`, ()=> {})
-      fs.unlink(`${tmpDir}/u-${time}.png`, ()=> {})
-      return {webp: 'https://media.wago.io/avatars/' + userID + '/u-' + time + '.webp', png: 'https://media.wago.io/avatars/' + userID + '/u-' + time + '.png'}
+      fs.unlink(`${tmpDir}/u-${time}.webp`, () => { })
+      fs.unlink(`${tmpDir}/u-${time}.png`, () => { })
+      return { webp: 'https://media.wago.io/avatars/' + userID + '/u-' + time + '.webp', png: 'https://media.wago.io/avatars/' + userID + '/u-' + time + '.png' }
     }
     catch (e) {
       console.log(e)
-      return {error: 'invalid_image'}
+      return { error: 'invalid_image' }
     }
   },
 
   avatarFromBuffer: async (file, userID, avatarFormat) => {
     if (!file || !userID || !avatarFormat) {
-      return {error: 'bad_input', inputs: [file, userID, avatarFormat]}
+      return { error: 'bad_input', inputs: [file, userID, avatarFormat] }
     }
-
+    console.log(file, userID, avatarFormat)
     const time = Date.now()
     var returnData = {}
     try {
       // if animated avatar format - must be gif format AND user must have access to animated avatars
       if (avatarFormat === 'animated') {
+        console.log('hi')
         await fs.writeFile(tmpDir + '/b-' + time + '.gif', file)
         const webp = await webpc.gwebp(tmpDir + '/b-' + time + '.gif', tmpDir + '/b-' + time + '.webp', '-q 90')
+        console.log(webp)
         if (webp.indexOf('100') >= 0) {
-          returnData = {gif: 'https://media.wago.io/avatars/' + userID + '/b-' + time + '.gif', webp: 'https://media.wago.io/avatars/' + userID + '/b-' + time + '.webp'}
+          returnData = { gif: 'https://media.wago.io/avatars/' + userID + '/b-' + time + '.gif', webp: 'https://media.wago.io/avatars/' + userID + '/b-' + time + '.webp' }
         }
         else {
-          returnData = {gif: 'https://media.wago.io/avatars/' + userID + '/b-' + time + '.gif'}
+          returnData = { gif: 'https://media.wago.io/avatars/' + userID + '/b-' + time + '.gif' }
         }
 
         const webpUpload = s3.uploadFile({
@@ -99,8 +101,8 @@ module.exports = {
         })
         await webpUpload
         await gifUpload
-        fs.unlink(`${tmpDir}/b-${time}.webp`, ()=> {})
-        fs.unlink(`${tmpDir}/b-${time}.gif`, ()=> {})
+        fs.unlink(`${tmpDir}/b-${time}.webp`, () => { })
+        fs.unlink(`${tmpDir}/b-${time}.gif`, () => { })
       }
       else {
         const webp = sharp(file).resize(64, 64).toFormat('webp').toFile(tmpDir + '/b-' + time + '.webp')
@@ -123,19 +125,19 @@ module.exports = {
         })
         await webpUpload
         await pngUpload
-        fs.unlink(`${tmpDir}/b-${time}.webp`, ()=> {})
-        fs.unlink(`${tmpDir}/b-${time}.png`, ()=> {})
-        returnData = {webp: 'https://media.wago.io/avatars/' + userID + '/b-' + time + '.webp', png: 'https://media.wago.io/avatars/' + userID + '/b-' + time + '.png'}
+        fs.unlink(`${tmpDir}/b-${time}.webp`, () => { })
+        fs.unlink(`${tmpDir}/b-${time}.png`, () => { })
+        returnData = { webp: 'https://media.wago.io/avatars/' + userID + '/b-' + time + '.webp', png: 'https://media.wago.io/avatars/' + userID + '/b-' + time + '.png' }
       }
       return returnData
     }
     catch (e) {
       console.log(e)
-      return {error: 'invalid_image'}
+      return { error: 'invalid_image' }
     }
   },
 
-  gifToPng (gif, id) {
+  gifToPng(gif, id) {
     return new Promise(async (resolve, reject) => {
       try {
         const time = Date.now()
@@ -149,7 +151,7 @@ module.exports = {
             console.log(gif, m)
             return reject(false)
           }
-          await s3.getFile ({
+          await s3.getFile({
             Bucket: 'wago-media',
             Key: decodeURIComponent(m[1])
           }, localGif)
@@ -164,8 +166,8 @@ module.exports = {
             Key: remotePng
           }
         })
-        fs.unlink(localGif, ()=>{})
-        fs.unlink(localPng, ()=>{})
+        fs.unlink(localGif, () => { })
+        fs.unlink(localPng, () => { })
         return resolve(`https://media.wago.io/${remotePng}`)
       }
       catch (e) {
@@ -178,7 +180,7 @@ module.exports = {
 
   saveMdtPortraitMap: async (buffer, filename) => {
     if (!buffer || !filename) {
-      return {error: 'bad_input', inputs: [buffer, filename]}
+      return { error: 'bad_input', inputs: [buffer, filename] }
     }
 
     const saveToFile = tmpDir + '/' + filename
@@ -200,12 +202,12 @@ module.exports = {
           Key: `mdt/${filename}.png`
         }
       })
-      const img = {webp: 'https://media.wago.io/mdt/' + filename + '.webp', png: 'https://media.wago.io/mdt/' + filename + '.png'}
-      cloudflare.zones.purgeCache(config.cloudflare.zoneID, {files: [img.png, img.webp]})
+      const img = { webp: 'https://media.wago.io/mdt/' + filename + '.webp', png: 'https://media.wago.io/mdt/' + filename + '.png' }
+      cloudflare.zones.purgeCache(config.cloudflare.zoneID, { files: [img.png, img.webp] })
       return img
     }
     catch (e) {
-      return {error: 'invalid_image'}
+      return { error: 'invalid_image' }
     }
   },
 
@@ -239,10 +241,10 @@ module.exports = {
     })
     const screenshotBuffer = Buffer.from(screenshotFile.data, 'binary')
     var metaImg = await sharp(new Buffer.from(svg)).png()
-    var image = await sharp(backgroundBuffer).composite([{input: await metaImg.toBuffer(), top: 0, left: 0}]).toBuffer()
-    const screenshot = await sharp(screenshotBuffer).resize({width: 363, height: 226, fit: 'inside', position: 'right', background:{r:0, g: 0, b: 0, alpha: 0}}).extend(4)
-    const {width, height} = await screenshot.metadata()
-    image = await sharp(image).composite([{input: await screenshot.toBuffer(), left: 199 + Math.max(0, Math.round((562 - width) / 2)), top: 48 + Math.max(0, Math.round((274 - height) / 2))}]).jpeg().toBuffer()
+    var image = await sharp(backgroundBuffer).composite([{ input: await metaImg.toBuffer(), top: 0, left: 0 }]).toBuffer()
+    const screenshot = await sharp(screenshotBuffer).resize({ width: 363, height: 226, fit: 'inside', position: 'right', background: { r: 0, g: 0, b: 0, alpha: 0 } }).extend(4)
+    const { width, height } = await screenshot.metadata()
+    image = await sharp(image).composite([{ input: await screenshot.toBuffer(), left: 199 + Math.max(0, Math.round((562 - width) / 2)), top: 48 + Math.max(0, Math.round((274 - height) / 2)) }]).jpeg().toBuffer()
     return image
   },
 
@@ -266,7 +268,7 @@ module.exports = {
     }
     const time = Date.now()
 
-    title = title.replace(/[&<>"']/g, function(m) { return entities[m] })
+    title = title.replace(/[&<>"']/g, function (m) { return entities[m] })
     const scrn = await screenshot.metadata()
     var tWidth = 1200
     var tHeight = 628
@@ -289,9 +291,9 @@ module.exports = {
         url: author.avatar,
         method: 'get'
       })
-      const circle = Buffer.from(`<svg viewBox="0 0 ${avatarSize} ${avatarSize}"><circle cx="${avatarSize/2}" cy="${avatarSize/2}" r="${avatarSize/2}"/></svg>`)
-      avatar = await new sharp(Buffer.from(avatarFile.data, 'binary')).resize(avatarSize, avatarSize).composite([{input: circle, blend: 'dest-in'}])
-      author.name = author.name.replace(/[&<>"']/g, function(m) { return entities[m] })
+      const circle = Buffer.from(`<svg viewBox="0 0 ${avatarSize} ${avatarSize}"><circle cx="${avatarSize / 2}" cy="${avatarSize / 2}" r="${avatarSize / 2}"/></svg>`)
+      avatar = await new sharp(Buffer.from(avatarFile.data, 'binary')).resize(avatarSize, avatarSize).composite([{ input: circle, blend: 'dest-in' }])
+      author.name = author.name.replace(/[&<>"']/g, function (m) { return entities[m] })
     }
     var wagoWatermark = ''
     if (!file.match(/wago-card-standard/)) {
@@ -306,12 +308,12 @@ module.exports = {
       </g>`
     }
     try {
-      const backgroundFile = screenshot.clone().resize({width: tWidth, height: tHeight}).modulate({brightness: .25}).blur(25)
+      const backgroundFile = screenshot.clone().resize({ width: tWidth, height: tHeight }).modulate({ brightness: .25 }).blur(25)
       const backgroundBuffer = await backgroundFile.toBuffer()// Buffer.from(backgroundFile.data, 'binary')
-      const resizedScreenshot = await screenshot.resize({width: tWidth, height: tHeight, fit: 'inside', background:{r:0, g: 0, b: 0, alpha: 0}})
-      var composite = [{input: await resizedScreenshot.toBuffer()}]
-      var thumb = await sharp(backgroundBuffer).resize({width: tWidth, height: tHeight}).composite(composite).toBuffer()
-      await sharp(thumb).resize({width: 600}).toFormat('jpg').toFile(tmpDir + '/t2-' + time + '.jpg')
+      const resizedScreenshot = await screenshot.resize({ width: tWidth, height: tHeight, fit: 'inside', background: { r: 0, g: 0, b: 0, alpha: 0 } })
+      var composite = [{ input: await resizedScreenshot.toBuffer() }]
+      var thumb = await sharp(backgroundBuffer).resize({ width: tWidth, height: tHeight }).composite(composite).toBuffer()
+      await sharp(thumb).resize({ width: 600 }).toFormat('jpg').toFile(tmpDir + '/t2-' + time + '.jpg')
       await s3.uploadFile({
         localFile: tmpDir + '/t2-' + time + '.jpg',
         s3Params: {
@@ -319,9 +321,9 @@ module.exports = {
           Key: `cards/${wagoID}/t2-${time}.jpg`
         }
       })
-      fs.unlink(`${tmpDir}/t2-${time}.jpg`, ()=> {})
+      fs.unlink(`${tmpDir}/t2-${time}.jpg`, () => { })
 
-      await sharp(thumb).resize({width: 180}).toFormat('jpg').toFile(tmpDir + '/t-' + time + '.jpg')
+      await sharp(thumb).resize({ width: 180 }).toFormat('jpg').toFile(tmpDir + '/t-' + time + '.jpg')
       await s3.uploadFile({
         localFile: tmpDir + '/t-' + time + '.jpg',
         s3Params: {
@@ -329,15 +331,15 @@ module.exports = {
           Key: `cards/${wagoID}/t-${time}.jpg`
         }
       })
-      fs.unlink(`${tmpDir}/t-${time}.jpg`, ()=> {})
+      fs.unlink(`${tmpDir}/t-${time}.jpg`, () => { })
 
       var authorSVG
       if (author && author.name && avatar) {
-        authorSVG = `<text x="${avatarSize+8}" y="${tHeight-avatarSize+textSize/3+authorTextAdjust}" style="font-family: Roboto; font-size: ${textSize/1.8}; font-weight: bold; fill: #F2F2F2; stroke: #111111; stroke-width: 1px">${type}</text>
-        <text x="${avatarSize+8}" y="${tHeight-avatarSize+textSize+authorTextAdjust}" style="font-family: Roboto; font-size: ${textSize/1.8}; font-weight: bold; fill: #F2F2F2; stroke: #111111; stroke-width: 1px">${author && author.name}</text>`
+        authorSVG = `<text x="${avatarSize + 8}" y="${tHeight - avatarSize + textSize / 3 + authorTextAdjust}" style="font-family: Roboto; font-size: ${textSize / 1.8}; font-weight: bold; fill: #F2F2F2; stroke: #111111; stroke-width: 1px">${type}</text>
+        <text x="${avatarSize + 8}" y="${tHeight - avatarSize + textSize + authorTextAdjust}" style="font-family: Roboto; font-size: ${textSize / 1.8}; font-weight: bold; fill: #F2F2F2; stroke: #111111; stroke-width: 1px">${author && author.name}</text>`
       }
       else {
-        authorSVG = `<text x="4" y="${tHeight-4}" style="font-family: Roboto; font-size: ${textSize/1.8}; font-weight: bold; fill: #F2F2F2; stroke: #111111; stroke-width: 1px">${type}</text>`
+        authorSVG = `<text x="4" y="${tHeight - 4}" style="font-family: Roboto; font-size: ${textSize / 1.8}; font-weight: bold; fill: #F2F2F2; stroke: #111111; stroke-width: 1px">${type}</text>`
       }
       var svg = `
       <svg height="${tHeight}" width="${tWidth}" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -356,15 +358,15 @@ module.exports = {
             <stop offset="100%" style="stop-color:rgb(0,0,0);stop-opacity:.9" />
           </linearGradient>
         </defs>
-        <rect width="${tWidth}" height="${textSize+48}" fill="url(#frame1)" />
-        <rect width="${tWidth}" height="${avatarSize+32}" y="${tHeight-avatarSize-32}" fill="url(#frame2)"  />
+        <rect width="${tWidth}" height="${textSize + 48}" fill="url(#frame1)" />
+        <rect width="${tWidth}" height="${avatarSize + 32}" y="${tHeight - avatarSize - 32}" fill="url(#frame2)"  />
         ${authorSVG}
         ${wagoWatermark}
       </svg>`
 
       const metaImg = await sharp(new Buffer.from(svg))
       var titleSvg = `
-      <svg height="${avatarSize+8}" width="${tWidth*20}" xmlns:xlink="http://www.w3.org/1999/xlink">
+      <svg height="${avatarSize + 8}" width="${tWidth * 20}" xmlns:xlink="http://www.w3.org/1999/xlink">
         <defs>
           <style>
             @font-face {font-family: Roboto; src: url(https://media.wago.io/fonts/Roboto-Regular.ttf)}
@@ -372,20 +374,20 @@ module.exports = {
         </defs>
         <text y="${textSize}" style="font-family: Roboto; font-size: ${textSize}; font-weight: bold; fill: #F2F2F2; stroke: #111111; stroke-width: 2px">${title}</text>
       </svg>`
-      const titleImg = await sharp(new Buffer.from(titleSvg)).trim().resize(tWidth - 8, textSize, {fit: 'inside', background: {r:0,g:0,b:0,alpha:0}}).trim()
+      const titleImg = await sharp(new Buffer.from(titleSvg)).trim().resize(tWidth - 8, textSize, { fit: 'inside', background: { r: 0, g: 0, b: 0, alpha: 0 } }).trim()
       const titleMeta = (await titleImg.toBuffer({ resolveWithObject: true })).info
-        // await axios.request({
-        //   responseType: 'arraybuffer',
-        //   url: 'https://media.wago.io/site/wago-card-bg.jpg',
-        //   method: 'get'
-        // })
-      composite.push({input: await metaImg.toBuffer()})
+      // await axios.request({
+      //   responseType: 'arraybuffer',
+      //   url: 'https://media.wago.io/site/wago-card-bg.jpg',
+      //   method: 'get'
+      // })
+      composite.push({ input: await metaImg.toBuffer() })
       if (author) {
-        composite.push({input: await avatar.toBuffer(), top: tHeight-44, left: 4})
+        composite.push({ input: await avatar.toBuffer(), top: tHeight - 44, left: 4 })
       }
-      composite.push({input: await titleImg.toBuffer(), top: Math.floor(196 / titleMeta.height), left: Math.floor((tWidth - titleMeta.width) / 2), gravity: 'centre' })
+      composite.push({ input: await titleImg.toBuffer(), top: Math.floor(196 / titleMeta.height), left: Math.floor((tWidth - titleMeta.width) / 2), gravity: 'centre' })
 
-      await sharp(backgroundBuffer).resize({width: tWidth, height: tHeight}).composite(composite).toFormat('jpg').toFile(tmpDir + '/c-' + time + '.jpg')
+      await sharp(backgroundBuffer).resize({ width: tWidth, height: tHeight }).composite(composite).toFormat('jpg').toFile(tmpDir + '/c-' + time + '.jpg')
       await s3.uploadFile({
         localFile: tmpDir + '/c-' + time + '.jpg',
         s3Params: {
@@ -393,7 +395,7 @@ module.exports = {
           Key: `cards/${wagoID}/c-${time}.jpg`
         }
       })
-      fs.unlink(`${tmpDir}/c-${time}.jpg`, ()=> {})
+      fs.unlink(`${tmpDir}/c-${time}.jpg`, () => { })
     }
     catch (e) {
       console.log(e)

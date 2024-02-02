@@ -133,7 +133,7 @@ module.exports = {
   },
 
   processMeta: (obj) => {
-    var meta = {categories: []}
+    var meta = { categories: [] }
     if (!obj || !obj.d || !obj.d.id) {
       return false
     }
@@ -169,11 +169,11 @@ module.exports = {
         if (class_id) {
           meta.categories.push(class_id)
           if (obj.d.load.use_spec && obj.d.load['spec'] && obj.d.load['spec'].single)
-          meta.categories.push(class_id+'-'+obj.d.load['spec'].single)
-          else if (obj.d.load.use_spec && load['spec'] && obj.d.load['spec'].multi.length>0) {
-            for (let i=0; i<obj.d.load['spec'].multi.length; i++) {
+            meta.categories.push(class_id + '-' + obj.d.load['spec'].single)
+          else if (obj.d.load.use_spec && load['spec'] && obj.d.load['spec'].multi.length > 0) {
+            for (let i = 0; i < obj.d.load['spec'].multi.length; i++) {
               if (obj.d.load['spec'].multi[i]) {
-                meta.categories.push(class_id+'-'+i)
+                meta.categories.push(class_id + '-' + i)
               }
             }
           }
@@ -189,21 +189,21 @@ module.exports = {
           }
 
           if (obj.d.load['class'].multi[classKey]) {
-              class_id = guessCategory(classKey)
-              if (class_id) {
-                meta.categories.push(class_id)
-                list.push(class_id)
-              }
+            class_id = guessCategory(classKey)
+            if (class_id) {
+              meta.categories.push(class_id)
+              list.push(class_id)
+            }
           }
         }
         // if only one class is selected we can still check for specs
-        if (list.length==1) {
+        if (list.length == 1) {
           if (obj.d.load.use_spec && obj.d.load['spec'] && obj.d.load['spec'].single)
-          meta.categories.push(class_id+'-'+obj.d.load['spec'].single)
-          else if (obj.d.load.use_spec && obj.d.load['spec'] && obj.d.load['spec'].multi.length>0) {
-            for (let i=0; i<obj.d.load['spec'].multi.length; i++) {
+            meta.categories.push(class_id + '-' + obj.d.load['spec'].single)
+          else if (obj.d.load.use_spec && obj.d.load['spec'] && obj.d.load['spec'].multi.length > 0) {
+            for (let i = 0; i < obj.d.load['spec'].multi.length; i++) {
               if (obj.d.load['spec'].multi[i]) {
-                meta.categories.push(class_id+'-'+i)
+                meta.categories.push(class_id + '-' + i)
               }
             }
           }
@@ -211,23 +211,23 @@ module.exports = {
       }
 
       // load requirements for encounter id
-      if (obj.d.load.use_encounterid && obj.d.load.encounterid>0) {
+      if (obj.d.load.use_encounterid && obj.d.load.encounterid > 0) {
         let raid = guessCategory(parseInt(obj.d.load.encounterid))
-        if (raid && raid.indexOf('raiden')==0)
+        if (raid && raid.indexOf('raiden') == 0)
           meta.categories.push('raiden')
-        else if (raid && raid.indexOf('raidnh')==0)
+        else if (raid && raid.indexOf('raidnh') == 0)
           meta.categories.push('raidnh')
-        else if (raid && raid.indexOf('raidtov')==0)
+        else if (raid && raid.indexOf('raidtov') == 0)
           meta.categories.push('raidtov')
-        else if (raid && raid.indexOf('raidtomb')==0)
+        else if (raid && raid.indexOf('raidtomb') == 0)
           meta.categories.push('raidtomb')
-        else if (raid && raid.indexOf('raidantorus')==0)
+        else if (raid && raid.indexOf('raidantorus') == 0)
           meta.categories.push('raidantorus')
-        else if (raid && raid.indexOf('raiduldir')==0)
+        else if (raid && raid.indexOf('raiduldir') == 0)
           meta.categories.push('raiduldir')
-        else if (raid && raid.indexOf('raidzuldazar')==0)
+        else if (raid && raid.indexOf('raidzuldazar') == 0)
           meta.categories.push('raidzuldazar')
-        else if (raid && raid.indexOf('raidcrucible')==0)
+        else if (raid && raid.indexOf('raidcrucible') == 0)
           meta.categories.push('raidcrucible')
 
         if (raid) {
@@ -238,11 +238,14 @@ module.exports = {
     return meta
   },
 
-  addWagoData: (code, wago) => {
+  addWagoData: async (code, wago) => {
     if (!code.json || !wago) {
       return
     }
     let json = JSON.parse(code.json)
+    if (!json.d) {
+      return
+    }
     try {
       wago.regionType = json.d.regionType
 
@@ -265,7 +268,23 @@ module.exports = {
         }
       }
 
-      
+      if (!json.d.tocversion) {
+        // this should only be for imports older than July 7 2019
+        json.d.tocversion = patchDates.dateToToc(wago.modified)
+      }
+      wago.tocversion = json.d.tocversion
+      const version = await GameVersion.findVersion(wago.tocversion, wago.modified, 0)
+      wago.patch_name = version.name
+      wago.game = version.game_short
+      wago.auraNames = [json.d.id]
+      if (typeof json.c === 'array') {
+        for (const c of json.c) {
+          if (c.id && c.regionType) {
+            wago.auraNames.push(c.id)
+          }
+        }
+      }
+
       wago.game = patchDates.gameVersion(json.d.tocversion)
       if (wago.game === 'classic') wago.type = 'CLASSIC-WEAKAURA'
       else if (wago.game === 'tbc') wago.type = 'TBC-WEAKAURA'
@@ -276,7 +295,7 @@ module.exports = {
       code.json = JSON.stringify(json)
       code.customCode = getCode(json, wago.type)
 
-      return {code, wago}
+      return { code, wago }
     }
     catch (e) {
       console.log(e)
@@ -300,9 +319,9 @@ function sortJSON(obj) {
   var sorted = {}
   var keys
   keys = Object.keys(obj)
-  keys.sort(function(key1, key2) {
-    if(key1 < key2) return -1
-    if(key1 > key2) return 1
+  keys.sort(function (key1, key2) {
+    if (key1 < key2) return -1
+    if (key1 > key2) return 1
     return 0
   })
 

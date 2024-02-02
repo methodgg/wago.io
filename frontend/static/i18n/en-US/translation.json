@@ -1080,5 +1080,201 @@
   "Current WeakAuras": "",
   "Hide Ads with Patreon": "",
   "TBC": "",
-  "Post Comment": ""
+  "Post Comment": "",
+  "Unread": "",
+  "Search and filter imports": "",
+  "Comment Search": "",
+  "Search and filter comments": "",
+  "Comments tagged with [-tag-]": "",
+  "Read": "",
+  "All": "",
+  "Filter By Mentions": "",
+  "Mode": "",
+  "WoW": "",
+  "FF XIV": "",
+  "Lua Code": "",
+  "No results found, try changing the search mode or query": "",
+  "Dragonflight": "",
+  "Dragonflight PvE": "",
+  "Wrath of the Lich King Classic": "",
+  "Wrath of the Lich King PvE": "",
+  "World of Warcraft imports": "",
+  "Final Fantasy XIV imports": "",
+  "My starred imports": "",
+  "Ad blocker detected": "",
+  "This site is supported by advertising": "",
+  "Please consider adding Wago": {
+    "io to your blocker allow-list or joining Patreon": ""
+  },
+  "Support Wago": {
+    "io": ""
+  },
+  "Browse Blizz HUD imports": "",
+  "Hud Settings": "",
+  "Search BlizzHUD": "",
+  "Anchor Point": "",
+  "Parent Frame": "",
+  "To Parent's Anchor": "",
+  "X Offset": "",
+  "Y Offset": "",
+  "Data": "",
+  "Unknown Element": "",
+  "Action Bar [-num-]": "",
+  "Stance Bar": "",
+  "Pet Action Bar": "",
+  "Possess Action Bar": "",
+  "[-unit-] Unit Frame": "",
+  "Player": "",
+  "Target": "",
+  "Focus": "",
+  "Screen Center": "",
+  "Top Left": "",
+  "Top Center": "",
+  "Top Right": "",
+  "Center Left": "",
+  "Center": "",
+  "Center Right": "",
+  "Bottom Left": "",
+  "Bottom Center": "",
+  "Bottom Right": "",
+  "Orientation": "",
+  "Number of Rows": "",
+  "Number of Icons": "",
+  "Icon Size": "",
+  "Icon Padding": "",
+  "Visible": "",
+  "Hide Bar Art": "",
+  "Snap To Side": "",
+  "Hide Bar Scrolling": "",
+  "Always Show Buttons": "",
+  "Bar Size": "",
+  "Header Underneath": "",
+  "Hide Portrait": "",
+  "Cast Bar Underneath": "",
+  "Buffs On Top": "",
+  "Use Larger Frame": "",
+  "Horizontal": "",
+  "Vertical": "",
+  "False": "",
+  "True": "",
+  "Always Visible": "",
+  "Only In Combat": "",
+  "Only Out Of Combat": "",
+  "Small": "",
+  "Medium": "",
+  "Large": "",
+  "Cast Bar": "",
+  "Lock to Player Frame": "",
+  "Mini Map": "",
+  "[-character-] Unit Frame": "",
+  "Encounter Bar": "",
+  "xyz": "",
+  "Player Unit Frame": "",
+  "Target Unit Frame": "",
+  "Focus Unit Frame": "",
+  "Blizz HUD Version [-num-]": "",
+  "This version is from early Dragonflight alpha and no longer supported": {
+    " Importing may not work in-game": {
+      "": ""
+    }
+  },
+  "This is the current version that Wago": {
+    "io expects": {
+      "": ""
+    }
+  },
+  "This is newer than what Wago": {
+    "io expects": {
+      " Some settings may not be shown or be incorrect": {
+        "": ""
+      }
+    },
+    "io expects and will need an update": {
+      " Some config settings may be incorrect or missing": {
+        "": ""
+      }
+    },
+    "io expects and Wago will need an update": {
+      " Some config settings may be incorrect or missing": {
+        "": ""
+      }
+    }
+  },
+  "Extra Abilities": "",
+  "Party Unit Frames": "",
+  "Raid Unit Frames": "",
+  "Use Raid-Style Party Frames": "",
+  "Show Party Frame Background": "",
+  "Use Horizontal Groups": "",
+  "Buff Frame": "",
+  "Debuff Frame": "",
+  "Icon Wrap": "",
+  "Down": "",
+  "Up": "",
+  "Left": "",
+  "Right": "",
+  "Icon Direction": "",
+  "Icon Limit Buff Frame": "",
+  "Show Full": "",
+  "Talking Dead Frame": "",
+  "Width": "",
+  "Height": "",
+  "Leave Vehicle Button": "",
+  "This version is from an older Dragonflight beta and no longer supported": {
+    " Importing may not work in-game": {
+      "": ""
+    }
+  },
+  "Icon Limit": "",
+  "Talking Head Frame": "",
+  "Chat Frame": "",
+  "This is the current version known to Wago": {
+    "io": {
+      "": ""
+    }
+  },
+  "Unknown Element [-type-]": "",
+  "Boss Unit Frames": "",
+  "Cast Bar On Side": "",
+  "Show Cast Time": "",
+  "View Raid Size": "",
+  "Frame Width": "",
+  "Frame Height": "",
+  "Display Border": "",
+  "Keep Groups Together": "",
+  "Sort Players By": "",
+  "Role": "",
+  "Group": "",
+  "Alphabetical": "",
+  "Row Size": "",
+  "Arena Unit Frames": "",
+  "ElvUI no longer supports old format strings": "",
+  "Wago is exporting in the new format - please make sure you have the latest version of ElvUI installed": "",
+  "Accessibility": "",
+  "Leaves Group": "",
+  "'[-name-]' calls LeaveParty() which could potentially be used for malicious intent": {
+    "": ""
+  },
+  "'[-name-]' calls LeaveBattlefield() which could potentially be used for malicious intent": {
+    "": ""
+  },
+  "Wrath Classic": "",
+  "Show Support Key": "",
+  "Generate new Support Key": "",
+  "Remove Existing support Key?": "",
+  "Refresh support Key Warning": "",
+  "Support key copied": "",
+  "Support key failed to copy please upgrade to a modern browser": "",
+  "You may use an Support key to prove account ownership should you need support from the Wago team, as we don't have your email - this is not used anywhere else": "",
+  "There is a newer version of this import, are you sure you want to copy this version?": "",
+  "There is a newer version of this import": "",
+  "Are you sure you want to copy this version?": "",
+  "Per WeakAuras Companion\n                                  App": "",
+  "Wrath of the Lich King": "",
+  "All imports": "",
+  "WotLK": "",
+  "Legacy": "",
+  "Note that the expansion filter is only applied to WeakAura imports": "",
+  "Favorites": "",
+  "Addon": ""
 }

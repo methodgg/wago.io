@@ -8,7 +8,7 @@
             <span>{{ $t('The Burning Crusade Classic') }}</span>
           </h2>
         </md-layout>
-        <addon-info addon="weakaura" expansion="tbc"></addon-info>
+        <addon-info game="wow" addon="weakaura" expansion="tbc"></addon-info>
       </div>
     </md-layout>
     <md-layout>
@@ -159,7 +159,7 @@ export default {
       if (typeof item === 'string') {
         item = window.Categories.match(item)
       }
-      this.$store.commit('setSearchText', `expansion:tbc type:WEAKAURA category:${item.id}`)
+      this.$store.commit('setSearchText', `category:${item.id}`)
       this.$router.push('/tbc-weakauras/' + item.slug)
     }
   },

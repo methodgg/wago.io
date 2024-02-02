@@ -27,21 +27,21 @@
       <md-layout>
         <md-subheader>{{ $t("PvE Content") }}</md-subheader>
         <md-list class="md-double-line md-dense">
-          <md-list-item v-bind:key="shadowlandsRaids[0].id" :class="shadowlandsRaids[0].id + ' md-inset'">
+          <md-list-item v-bind:key="dragonflightRaids[0].id" :class="dragonflightRaids[0].id + ' md-inset'">
             <div class="menu-image"></div>
             <div class="md-list-text-container">
-              <router-link :to="'/collections/' + shadowlandsRaids[0].slug">{{ $t('Shadowlands') }}</router-link>
+              <router-link :to="'/collections/' + dragonflightRaids[0].slug">{{ $t('Dragonflight') }}</router-link>
               <span>
-                <router-link v-for="item in shadowlandsRaids" v-bind:key="item.id" :to="'/collections/' + item.slug">{{ item.text }}</router-link>
+                <router-link v-for="item in dragonflightRaids" v-bind:key="item.id" :to="'/collections/' + item.slug">{{ item.text }}</router-link>
               </span>
             </div>
           </md-list-item>
-          <md-list-item v-bind:key="tbcRaids[0].id" :class="tbcRaids[0].id + ' md-inset'">
+          <md-list-item v-bind:key="wotlkRaids[0].id" :class="wotlkRaids[0].id + ' md-inset'">
             <div class="menu-image"></div>
             <div class="md-list-text-container">
-              <router-link :to="'/collections/' + tbcRaids[0].slug">{{ $t('Burning Crusade Classic') }}</router-link>
+              <router-link :to="'/collections/' + wotlkRaids[0].slug">{{ $t('Wrath Classic') }}</router-link>
               <span>
-                <router-link v-for="item in tbcRaids" v-bind:key="item.id" :to="'/collections/' + item.slug">{{ item.text }}</router-link>
+                <router-link v-for="item in wotlkRaids" v-bind:key="item.id" :to="'/collections/' + item.slug">{{ item.text }}</router-link>
               </span>
             </div>
           </md-list-item>
@@ -56,7 +56,7 @@
           </md-list-item>
         </md-list>
 
-        <md-subheader>{{ $t("Legacy Content") }}</md-subheader>
+        <!--md-subheader>{{ $t("Legacy Content") }}</md-subheader>
         <md-list class="md-double-line md-dense">
           <md-list-item v-bind:key="bfaRaids[0].id" :class="bfaRaids[0].id + ' md-inset'">
             <div class="menu-image"></div>
@@ -85,7 +85,7 @@
               </span>
             </div>
           </md-list-item>
-        </md-list>
+        </md-list>-->
 
         <md-subheader>{{ $t("PvP") }}</md-subheader>
         <md-list class="md-double-line md-dense">
@@ -196,8 +196,8 @@ export default {
       if (typeof item === 'string') {
         item = window.Categories.match(item)
       }
-      this.$store.commit('setSearchText', `type:COLLECTION category:${item.id}`)
-      this.$router.push('/' + item.slug)
+      this.$store.commit('setSearchText', `category:${item.id}`)
+      this.$router.push('/collections/' + item.slug)
     }
   },
   data: function () {
@@ -209,6 +209,9 @@ export default {
     classes: function () {
       return window.Categories.classCategories()
     },
+    dragonflightRaids: function () {
+      return window.Categories.raidCategories(['raidvaultincarnates', 'dfdungeon'])
+    },
     shadowlandsRaids: function () {
       return window.Categories.raidCategories(['raidsepulcherfirst', 'raidsantumdom', 'raidnathria', 'sldungeon'])
     },
@@ -218,8 +221,11 @@ export default {
     legionRaids: function () {
       return window.Categories.raidCategories(['raidantorus', 'raidtomb', 'raidnh', 'dungeon'])
     },
+    wotlkRaids: function () {
+      return window.Categories.raidCategories(['raidbt', 'raidtoc', 'raidicc', 'raidvoa', 'wotlkdungeon'])
+    },
     tbcRaids: function () {
-      return window.Categories.raidCategories(['raidbt', 'raidsw', 'raidmthyjal', 'raidssc', 'raidtk', 'raidgruul', 'raidkarazhan', 'tbcdungeon'])
+      return window.Categories.raidCategories(['raidulduar', 'raidsw', 'raidmthyjal', 'raidssc', 'raidtk', 'raidgruul', 'raidkarazhan', 'tbcdungeon'])
     },
     classicRaids: function () {
       return window.Categories.raidCategories(['raidnaxxramas', 'raidtempleaq', 'raidruinsaq', 'raidzulgurub', 'raidblackwinglair', 'raidmoltencore', 'classicdungeon'])

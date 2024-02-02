@@ -6,7 +6,7 @@
           <md-avatar class='square'><category-image :group="'t-opie'"></category-image></md-avatar>
           <h2 id="addon-name">OPie</h2>
         </md-layout>
-        <addon-info addon="opie"></addon-info>
+        <addon-info game="wow" addon="opie"></addon-info>
       </div>
     </md-layout>
     <md-layout>
@@ -71,7 +71,7 @@ export default {
       if (typeof item === 'string') {
         item = window.Categories.match(item)
       }
-      this.$store.commit('setSearchText', `type:OPIE category:${item.id}`)
+      this.$store.commit('setSearchText', `category:${item.id}`)
       this.$router.push('/opie/' + item.slug)
     }
   },

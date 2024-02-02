@@ -6,7 +6,7 @@
           <md-avatar class='square'><category-image :group="'t-elvui'"></category-image></md-avatar>
           <h2 id="addon-name">ElvUI</h2>
         </md-layout>
-        <addon-info addon="elvui"></addon-info>
+        <addon-info game="wow" addon="elvui"></addon-info>
       </div>
     </md-layout>
     <md-subheader>{{ $t("Classes") }}</md-subheader>
@@ -58,8 +58,8 @@ export default {
       if (typeof item === 'string') {
         item = window.Categories.match(item)
       }
-      this.$store.commit('setSearchText', `type:ELVUI category:${item.id}`)
-      this.$router.push('/' + item.slug)
+      this.$store.commit('setSearchText', `category:${item.id}`)
+      this.$router.push('/elvui' + item.slug)
     }
   },
   data: function () {

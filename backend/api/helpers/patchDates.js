@@ -3,6 +3,9 @@ var patches = [
   { date: moment('2021-11-23T03:00:00Z'), game: 'ffxiv', patch: "FFXIV Endwalker", domain: 1 },
   { date: moment('2001-01-01T03:00:00Z'), game: 'ffxiv', patch: "FFXIV Shadowbringers", domain: 1 },
 
+  { date: moment('2023-10-11T03:00:00Z'), game: 'wotlk', patch: "WoW WotLK Classic 3.4.3", domain: 0 },
+  { date: moment('2023-06-20T03:00:00Z'), game: 'wotlk', patch: "WoW WotLK Classic 3.4.2", domain: 0 },
+  { date: moment('2023-01-16T03:00:00Z'), game: 'wotlk', patch: "WoW WotLK Classic 3.4.1", domain: 0 },
   { date: moment('2022-09-26T03:00:00Z'), game: 'wotlk', patch: "WoW WotLK Classic 3.4.0", domain: 0 },
   { date: moment('2022-07-15T03:00:00Z'), game: 'wotlk', patch: "WoW WotLK Classic 3.4.0 Beta", domain: 0 },
 
@@ -58,7 +61,7 @@ var patches = [
 ]
 
 module.exports = {
-  getDate: function (strDate, game, domain) {
+  getPatch: function (strDate, game, domain) {
     var date = moment(strDate)
 
     for (var i = 0; i < patches.length; i++) {
@@ -103,5 +106,10 @@ module.exports = {
     else {
       return this.gameVersion(100000000) // default to the latest
     }
+  },
+
+  dateToToc(date) {
+    const version = getPatch(date).match(/(\d+)\.(\d+)\.(\d+)/)
+    return GameVersion.patchToToc(version[0])
   }
 }

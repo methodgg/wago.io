@@ -1,5 +1,5 @@
 <template>
-  <div v-bind:class="{ noFormat: truncate && truncate > 0 }" :class="'usertext ' + text.format">
+  <div :class="`usertext ${text.format} ${truncate && truncate > 0 && 'noFormat'}`">
     <slot></slot>
   </div>
 </template>
@@ -12,7 +12,11 @@ import prism from 'markdown-it-prism'
 import 'prismjs/components/prism-lua'
 import 'prismjs/components/prism-sass'
 import { Sanitizer } from "@esri/arcgis-html-sanitizer"
-const sanitizer = new Sanitizer()
+const sanitizer = new Sanitizer({
+  whitelist: {
+    code: []
+  }
+}, true)
 
 // Actual default values
 var md = require('markdown-it')({
@@ -30,7 +34,7 @@ var md = require('markdown-it')({
 export default {
   props: ['text', 'truncate', 'hideLinks', 'plaintext', 'enableLinks'],
   mounted: function() {
-    this.$el.innerHTML = sanitizer.sanitize(this.formatText())
+    this.$el.innerHTML = this.formatText()
   },
   methods: {
     formatText: function () {
@@ -81,6 +85,7 @@ export default {
         if (!this.enableLinks || this.truncate) {
           html = html.replace(/<\/?a(?:(?= )[^>]*)?>/g, '')
         }
+        html = sanitizer.sanitize(html)
         if (this.truncate) {
           return html
         }

@@ -129,7 +129,7 @@
 </template>
 
 <script>
-import categories from '../libs/categories'
+import categories from '../libs/categories2'
 import CategoryImage from '../UI/CategoryImage.vue'
 import AddonInfoBox from '../UI/AddonInfoBox.vue'
 export default {

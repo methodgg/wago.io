@@ -10,7 +10,7 @@
 <script>
 import CategoryImage from '../UI/CategoryImage.vue'
 export default {
-  props: ['addon', 'expansion'],
+  props: ['addon', 'expansion', 'game'],
   components: {
     'category-image': CategoryImage
   },
@@ -20,15 +20,18 @@ export default {
     }
   },
   methods: {
-    doSearch (link) {
-      if (typeof link.domain !== 'undefined') {
-        this.$store.commit('setDomain', link.domain)
-      }
+    doSearch (link) {      
+      this.$store.commit('setSearchToggles', {
+        mode: 'imports',
+        game: this.game,
+        expansion: this.expansion,
+        type: this.addon,
+      })
       if (this.expansion) {
-        this.$router.push({name: 'search', query: {}, props: true, params: {query: `expansion: ${this.expansion} type:${this.addon}`, contextDomain: link.domain}})
+        this.$router.push(`/search/imports/${this.game}/${this.expansion}-${this.addon}/`)
       }
       else {
-        this.$router.push({name: 'search', query: {}, props: true, params: {query: `type:${this.addon}`, contextDomain: link.domain}})
+        this.$router.push(`/search/imports/${this.game}/${this.addon}/`)
       }
     }
   },

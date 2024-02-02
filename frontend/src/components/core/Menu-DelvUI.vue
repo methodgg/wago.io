@@ -6,7 +6,7 @@
           <md-avatar class='square'><category-image :group="'t-delvui'"></category-image></md-avatar>
           <h2 id="addon-name">DelvUI</h2>
         </md-layout>
-        <addon-info addon="delvui"></addon-info>
+        <addon-info game="xiv" addon="delvui"></addon-info>
       </div>
     </md-layout>
     <md-layout md-row>
@@ -137,8 +137,8 @@ export default {
       if (typeof item === 'string') {
         item = window.Categories.match(item)
       }
-      this.$store.commit('setSearchText', `type:DELVUI category:${item.id}`)
-      this.$router.push('/' + item.slug)
+      this.$store.commit('setSearchText', `category:${item.id}`)
+      this.$router.push('/delvui/' + item.slug)
     }
   },
   data: function () {

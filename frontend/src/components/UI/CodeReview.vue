@@ -32,14 +32,15 @@
     <div v-if="highlights && (highlights.dependencies.length || highlights.highlights.size)" :class="'highlights' + (!alerts ? ' without-alerts' : '')">
       <div v-if="highlights.dependencies.length">
         <em>{{ $t('Import Dependencies') }}</em>
-        <template v-for="dep of highlights.dependencies"><span><md-icon :class="{warning: dep.warn}">extension</md-icon> {{ dep }}</span></span></template>
+        <template v-for="dep of highlights.dependencies"><span><md-icon :class="{warning: dep.warn}">extension</md-icon> {{ dep }}</span></template>
       </div>
       <div v-if="highlights.highlights.size">
         <em>{{ $t('Highlighted Functionality') }}</em>
-        <template v-if="highlights.highlights.has('keybind')"><span><md-icon>keyboard</md-icon> {{ $t('Sets keybinds') }}</span></span></template>
-        <template v-if="highlights.highlights.has('tts')"><span><md-icon>volume_up</md-icon> {{ $t('Uses text-to-speech') }}</span></span></template>
-        <template v-if="highlights.highlights.has('audio')"><span><md-icon>volume_up</md-icon> {{ $t('Plays audio') }}</span></span></template>
-        <template v-if="highlights.highlights.has('chat')"><span><md-icon>chat</md-icon> {{ $t('Sends chat messages') }}</span></span></template>
+        <template v-if="highlights.highlights.has('leavegroup')"><span><md-icon>groups</md-icon> {{ $t('Leaves Group') }}</span></template>
+        <template v-if="highlights.highlights.has('keybind')"><span><md-icon>keyboard</md-icon> {{ $t('Sets keybinds') }}</span></template>
+        <template v-if="highlights.highlights.has('tts')"><span><md-icon>volume_up</md-icon> {{ $t('Uses text-to-speech') }}</span></template>
+        <template v-if="highlights.highlights.has('audio')"><span><md-icon>volume_up</md-icon> {{ $t('Plays audio') }}</span></template>
+        <template v-if="highlights.highlights.has('chat')"><span><md-icon>chat</md-icon> {{ $t('Sends chat messages') }}</span></template>
       </div>
     </div>
   </md-layout>

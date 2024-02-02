@@ -1,5 +1,11 @@
-#content a:not(.md-button) { color: #d7373d }
-.md-card {max-width: 100%}
+#content a:not(.md-button) {
+  color: #d7373d
+}
+
+.md-card {
+  max-width: 100%;
+  z-index: inherit !important;
+}
 
 .menu-image {
   width: 48px;
@@ -8,8 +14,27 @@
   background-size: cover;
   align-self: flex-start;
 }
-.search-input .ql-editor .search-tag.category { padding-left: 20px; background-position: 4px 2px; background-size: 20px 20px; background-repeat: no-repeat}
-.search-input .ql-editor .search-tag.tag-user { background-image: url('menu-user.png'); padding-left: 20px; background-position: 4px 2px; background-size: 20px 20px; background-repeat: no-repeat}
+
+.search-input .ql-editor .search-tag.category {
+  padding-left: 20px;
+  background-position: 4px 2px;
+  background-size: 20px 20px;
+  background-repeat: no-repeat
+}
+
+.search-input .ql-editor .search-tag.tag-user {
+  background-image: url('menu-user.png');
+  padding-left: 20px;
+  background-position: 4px 2px;
+  background-size: 20px 20px;
+  background-repeat: no-repeat
+}
+
+.codeResult .ace_content .found-text {
+  position: absolute;
+  background: #bcff6b;
+  opacity: .3;
+}
 
 body iframe:not(.md-image) {
   height: revert-layer;
@@ -18,303 +43,1074 @@ body iframe:not(.md-image) {
 /**************
 * CATEGORIES
 ***************/
-.md-chip { border-radius:4px!important; margin:0 6px 6px 0; background-repeat: no-repeat; background-position: 2px 5px; background-size: 22px 22px; text-shadow: 1px 1px rgba(0, 0, 0, 0.12); }
-#tags .md-chip {background-color: #1F1F1F!important}
-.searchTags .md-chip {background-color: #101010!important}
-.multiselect .md-chip { background-image: none!important; margin: 0}
-.md-chip.show_more { color: #FFF!important; padding-left: 8px!important; cursor:pointer }
+.md-chip {
+  border-radius: 4px !important;
+  margin: 0 6px 6px 0;
+  background-repeat: no-repeat;
+  background-position: 2px 5px;
+  background-size: 22px 22px;
+  text-shadow: 1px 1px rgba(0, 0, 0, 0.12);
+}
+
+#tags .md-chip {
+  background-color: #1F1F1F !important
+}
+
+.searchTags .md-chip {
+  background-color: #101010 !important
+}
+
+.multiselect .md-chip {
+  background-image: none !important;
+  margin: 0
+}
+
+.md-chip.show_more {
+  color: #FFF !important;
+  padding-left: 8px !important;
+  cursor: pointer
+}
 
 /* Classes */
-.md-chip.cl-deathknight { color: #C41F3B!important; background-image: url('menu-deathknight.png') }
-.cl-deathknight a, .cl-deathknight { color: #C41F3B!important }
-.multiselect .md-chip.cl-deathknight { background-color: #C41F3B!important; color: black!important }
+.md-chip.cl-deathknight {
+  color: #C41F3B !important;
+  background-image: url('menu-deathknight.png')
+}
 
-.md-chip.cl-demonhunter { color: #A330C9!important; background-image: url('menu-demonhunter.png') }
-.cl-demonhunter a, .cl-demonhunter { color: #A330C9!important }
-.multiselect .md-chip.cl-demonhunter { background-color: #A330C9!important; color: black!important }
+.cl-deathknight a,
+.cl-deathknight {
+  color: #C41F3B !important
+}
 
-.md-chip.cl-druid { color: #FF7D0A!important; background-image: url('menu-druid.png') }
-.cl-druid a, .cl-druid { color: #FF7D0A!important }
-.multiselect .md-chip.cl-druid { background-color: #FF7D0A!important; color: black!important }
+.multiselect .md-chip.cl-deathknight {
+  background-color: #C41F3B !important;
+  color: black !important
+}
 
-.md-chip.cl-hunter { color: #ABD473!important; background-image: url('menu-hunter.png') }
-.cl-hunter a, .cl-hunter { color: #ABD473!important }
-.multiselect .md-chip.cl-hunter { background-color: #ABD473!important; color: black!important }
+.md-chip.cl-demonhunter {
+  color: #A330C9 !important;
+  background-image: url('menu-demonhunter.png')
+}
 
-.md-chip.cl-mage { color: #69CCF0!important; background-image: url('menu-mage.png') }
-.cl-mage a, .cl-mage { color: #69CCF0!important }
-.multiselect .md-chip.cl-mage { background-color: #69CCF0!important; color: black!important }
+.cl-demonhunter a,
+.cl-demonhunter {
+  color: #A330C9 !important
+}
 
-.md-chip.cl-monk { color: #00FF96!important; background-image: url('menu-monk.png') }
-.cl-monk a, .cl-monk { color: #00FF96!important }
-.multiselect .md-chip.cl-monk { background-color: #00FF96!important; color: black!important }
+.multiselect .md-chip.cl-demonhunter {
+  background-color: #A330C9 !important;
+  color: black !important
+}
 
-.md-chip.cl-paladin { color: #F58CBA!important; background-image: url('menu-paladin.png') }
-.cl-paladin a, .cl-paladin { color: #F58CBA!important }
-.multiselect .md-chip.cl-paladin { background-color: #F58CBA!important; color: black!important }
+.md-chip.cl-druid {
+  color: #FF7D0A !important;
+  background-image: url('menu-druid.png')
+}
 
-.md-chip.cl-priest { color: #FFFFFF!important; ; background-image: url('menu-priest.png') }
-.cl-priest a, .cl-priest { color: #A9A9A9!important }
-.multiselect .md-chip.cl-priest { background-color: #FFFFFF!important; color: black!important }
+.cl-druid a,
+.cl-druid {
+  color: #FF7D0A !important
+}
 
-.md-chip.cl-rogue { color: #FFF569!important; background-image: url('menu-rogue.png')}
-.cl-rogue a, .cl-rogue { color: #e8d901!important }
-.multiselect .md-chip.cl-rogue { background-color: #FFF569!important; color: black!important }
+.multiselect .md-chip.cl-druid {
+  background-color: #FF7D0A !important;
+  color: black !important
+}
 
-.md-chip.cl-shaman { color: #0070DE!important; background-image: url('menu-shaman.png') }
-.cl-shaman a, .cl-shaman { color: #0070DE!important }
-.multiselect .md-chip.cl-shaman { background-color: #0070DE!important; color: black!important }
+.md-chip.cl-hunter {
+  color: #ABD473 !important;
+  background-image: url('menu-hunter.png')
+}
 
-.md-chip.cl-warlock { color: #9482C9!important; background-image: url('menu-warlock.png') }
-.cl-warlock a, .cl-warlock { color: #9482C9!important }
-.multiselect .md-chip.cl-warlock { background-color: #9482C9!important; color: black!important }
+.cl-hunter a,
+.cl-hunter {
+  color: #ABD473 !important
+}
 
-.md-chip.cl-warrior { color: #C79C6E!important; background-image: url('menu-warrior.png') }
-.cl-warrior a, .cl-warrior { color: #C79C6E!important }
-.multiselect .md-chip.cl-warrior { background-color: #C79C6E!important; color: black!important }
+.multiselect .md-chip.cl-hunter {
+  background-color: #ABD473 !important;
+  color: black !important
+}
+
+.md-chip.cl-mage {
+  color: #69CCF0 !important;
+  background-image: url('menu-mage.png')
+}
+
+.cl-mage a,
+.cl-mage {
+  color: #69CCF0 !important
+}
+
+.multiselect .md-chip.cl-mage {
+  background-color: #69CCF0 !important;
+  color: black !important
+}
+
+.md-chip.cl-monk {
+  color: #00FF96 !important;
+  background-image: url('menu-monk.png')
+}
+
+.cl-monk a,
+.cl-monk {
+  color: #00FF96 !important
+}
+
+.multiselect .md-chip.cl-monk {
+  background-color: #00FF96 !important;
+  color: black !important
+}
+
+.md-chip.cl-paladin {
+  color: #F58CBA !important;
+  background-image: url('menu-paladin.png')
+}
+
+.cl-paladin a,
+.cl-paladin {
+  color: #F58CBA !important
+}
+
+.multiselect .md-chip.cl-paladin {
+  background-color: #F58CBA !important;
+  color: black !important
+}
+
+.md-chip.cl-priest {
+  color: #FFFFFF !important;
+  ;
+  background-image: url('menu-priest.png')
+}
+
+.cl-priest a,
+.cl-priest {
+  color: #A9A9A9 !important
+}
+
+.multiselect .md-chip.cl-priest {
+  background-color: #FFFFFF !important;
+  color: black !important
+}
+
+.md-chip.cl-rogue {
+  color: #FFF569 !important;
+  background-image: url('menu-rogue.png')
+}
+
+.cl-rogue a,
+.cl-rogue {
+  color: #e8d901 !important
+}
+
+.multiselect .md-chip.cl-rogue {
+  background-color: #FFF569 !important;
+  color: black !important
+}
+
+.md-chip.cl-shaman {
+  color: #0070DE !important;
+  background-image: url('menu-shaman.png')
+}
+
+.cl-shaman a,
+.cl-shaman {
+  color: #0070DE !important
+}
+
+.multiselect .md-chip.cl-shaman {
+  background-color: #0070DE !important;
+  color: black !important
+}
+
+.md-chip.cl-warlock {
+  color: #9482C9 !important;
+  background-image: url('menu-warlock.png')
+}
+
+.cl-warlock a,
+.cl-warlock {
+  color: #9482C9 !important
+}
+
+.multiselect .md-chip.cl-warlock {
+  background-color: #9482C9 !important;
+  color: black !important
+}
+
+.md-chip.cl-warrior {
+  color: #C79C6E !important;
+  background-image: url('menu-warrior.png')
+}
+
+.cl-warrior a,
+.cl-warrior {
+  color: #C79C6E !important
+}
+
+.multiselect .md-chip.cl-warrior {
+  background-color: #C79C6E !important;
+  color: black !important
+}
 
 /* misc */
-.md-chip.misc { color: #D0B58B!important; background-image: url('menu-misc.png') }
-.misc a, .misc { color: #D0B58B!important}
-.multiselect .md-chip.misc { background-color: #D0B58B!important; color: black!important }
+.md-chip.misc {
+  color: #D0B58B !important;
+  background-image: url('menu-misc.png')
+}
 
-.md-chip.roles { color: #BED0C1!important; background-image: url('menu-roles.png') }
-.roles a, .roles { color: #BED0C1!important}
-.multiselect .md-chip.roles { background-color: #BED0C1!important; color: black!important }
+.misc a,
+.misc {
+  color: #D0B58B !important
+}
 
-.md-chip.plater { color: #FFC972!important; background-image: url('menu-plater.png') }
-.plater a, .plater { color: #FFC972!important}
-.multiselect .md-chip.plater { background-color: #FFC972!important; color: black!important }
+.multiselect .md-chip.misc {
+  background-color: #D0B58B !important;
+  color: black !important
+}
 
-.md-chip.encounternotes { color: #DE0B72!important; background-image: url('menu-encounternotes.png') }
-.encounternotes a, .encounternotes { color: #DE0B72!important}
-.multiselect .md-chip.encounternotes { background-color: #DE0B72!important; color: black!important }
+.md-chip.roles {
+  color: #BED0C1 !important;
+  background-image: url('menu-roles.png')
+}
 
-.md-chip.vuhdo { color: #6BB85E!important; background-image: url('menu-vuhdo.png') }
-.vuhdo a, .vuhdo { color: #6BB85E!important}
-.multiselect .md-chip.vuhdo { background-color: #6BB85E!important; color: black!important }
+.roles a,
+.roles {
+  color: #BED0C1 !important
+}
 
-.md-chip.opie { color: #2595E6!important; background-image: url('menu-opie.png') }
-.opie a, .opie { color: #2595E6!important}
-.multiselect .md-chip.opie { background-color: #2595E6!important; color: black!important }
+.multiselect .md-chip.roles {
+  background-color: #BED0C1 !important;
+  color: black !important
+}
 
-.md-chip.rpcampaign { color: #C3793A!important; background-image: url('menu-trpcamp.png') }
-.rpcampaign a, .rpcampaign { color: #C3793A!important}
-.multiselect .md-chip.rpcampaign { background-color: #C3793A!important; color: black!important }
+.md-chip.plater {
+  color: #FFC972 !important;
+  background-image: url('menu-plater.png')
+}
 
-.md-chip.rplang { color: #269C7D!important; background-image: url('menu-lang.png') }
-.rplang a, .rplang { color: #269C7D!important}
-.multiselect .md-chip.rplang { background-color: #269C7D!important; color: black!important }
+.plater a,
+.plater {
+  color: #FFC972 !important
+}
 
-.md-chip.accessibility { color: #BD10E0!important; background-image: url('menu-accessibility.png') }
-.accessibility a, .accessibility { color: #BD10E0!important}
-.multiselect .md-chip.accessibility { background-color: #BD10E0!important; color: black!important }
+.multiselect .md-chip.plater {
+  background-color: #FFC972 !important;
+  color: black !important
+}
 
-.md-chip.equip, .md-chip.rpitem { color: #7ED321!important; background-image: url('menu-equip.png') }
-.equip a, .equip, .rpitem a, .rpitem { color: #7ED321!important}
-.multiselect .md-chip.equip, .multiselect .md-chip.rpitem { background-color: #7ED321!important; color: black!important }
+.md-chip.encounternotes {
+  color: #DE0B72 !important;
+  background-image: url('menu-encounternotes.png')
+}
 
-.md-chip.mechanics { color: #F55F37!important; background-image: url('menu-mechanics.png') }
-.mechanics a, .mechanics { color: #F55F37!important}
-.multiselect .md-chip.mechanics { background-color: #F55F37!important; color: black!important }
+.encounternotes a,
+.encounternotes {
+  color: #DE0B72 !important
+}
 
-.md-chip.development { color: #D27B61!important; font-family: monospace; background-image: url('menu-development.png') }
-.development a, .development { color: #D27B61!important}
-.multiselect .md-chip.development { background-color: #D27B61!important; color: black!important }
+.multiselect .md-chip.encounternotes {
+  background-color: #DE0B72 !important;
+  color: black !important
+}
 
-.md-chip.snippets { color: #d18cf3!important; font-family: monospace; background-image: url('menu-snippets.png') }
-.snippets a, .snippets { color: #d18cf3!important}
-.multiselect .md-chip.snippets { background-color: #d18cf3!important; color: black!important }
+.md-chip.vuhdo {
+  color: #6BB85E !important;
+  background-image: url('menu-vuhdo.png')
+}
+
+.vuhdo a,
+.vuhdo {
+  color: #6BB85E !important
+}
+
+.multiselect .md-chip.vuhdo {
+  background-color: #6BB85E !important;
+  color: black !important
+}
+
+.md-chip.opie {
+  color: #2595E6 !important;
+  background-image: url('menu-opie.png')
+}
+
+.opie a,
+.opie {
+  color: #2595E6 !important
+}
+
+.multiselect .md-chip.opie {
+  background-color: #2595E6 !important;
+  color: black !important
+}
+
+.md-chip.rpcampaign {
+  color: #C3793A !important;
+  background-image: url('menu-trpcamp.png')
+}
+
+.rpcampaign a,
+.rpcampaign {
+  color: #C3793A !important
+}
+
+.multiselect .md-chip.rpcampaign {
+  background-color: #C3793A !important;
+  color: black !important
+}
+
+.md-chip.rplang {
+  color: #269C7D !important;
+  background-image: url('menu-lang.png')
+}
+
+.rplang a,
+.rplang {
+  color: #269C7D !important
+}
+
+.multiselect .md-chip.rplang {
+  background-color: #269C7D !important;
+  color: black !important
+}
+
+.md-chip.accessibility {
+  color: #BD10E0 !important;
+  background-image: url('menu-accessibility.png')
+}
+
+.accessibility a,
+.accessibility {
+  color: #BD10E0 !important
+}
+
+.multiselect .md-chip.accessibility {
+  background-color: #BD10E0 !important;
+  color: black !important
+}
+
+.md-chip.equip,
+.md-chip.rpitem {
+  color: #7ED321 !important;
+  background-image: url('menu-equip.png')
+}
+
+.equip a,
+.equip,
+.rpitem a,
+.rpitem {
+  color: #7ED321 !important
+}
+
+.multiselect .md-chip.equip,
+.multiselect .md-chip.rpitem {
+  background-color: #7ED321 !important;
+  color: black !important
+}
+
+.md-chip.mechanics {
+  color: #F55F37 !important;
+  background-image: url('menu-mechanics.png')
+}
+
+.mechanics a,
+.mechanics {
+  color: #F55F37 !important
+}
+
+.multiselect .md-chip.mechanics {
+  background-color: #F55F37 !important;
+  color: black !important
+}
+
+.md-chip.development {
+  color: #D27B61 !important;
+  font-family: monospace;
+  background-image: url('menu-development.png')
+}
+
+.development a,
+.development {
+  color: #D27B61 !important
+}
+
+.multiselect .md-chip.development {
+  background-color: #D27B61 !important;
+  color: black !important
+}
+
+.md-chip.snippets {
+  color: #d18cf3 !important;
+  font-family: monospace;
+  background-image: url('menu-snippets.png')
+}
+
+.snippets a,
+.snippets {
+  color: #d18cf3 !important
+}
+
+.multiselect .md-chip.snippets {
+  background-color: #d18cf3 !important;
+  color: black !important
+}
 
 
 /* pvp */
-.md-chip.pvp-arena { color: #ed1b24!important; background-image: url('menu-arenas.png') }
-.pvp-arena a, .pvp-arena { color: #ed1b24!important}
-.multiselect .md-chip.pvp-arena { background-color: #ed1b24!important; color: black!important }
+.md-chip.pvp-arena {
+  color: #ed1b24 !important;
+  background-image: url('menu-arenas.png')
+}
 
-.md-chip.pvp-battleground { color: #02518a!important; background-image: url('menu-battlegrounds.png') }
-.pvp-battleground a, .pvp-battleground { color: #02518a!important}
-.multiselect .md-chip.pvp-battleground { background-color: #02518a!important; color: black!important }
+.pvp-arena a,
+.pvp-arena {
+  color: #ed1b24 !important
+}
 
-.md-chip.pvp-world { color: #F5CD37!important; background-image: url('menu-wpvp.png') }
-.pvp-world a, .pvp-world { color: #F5CD37!important}
-.multiselect .md-chip.pvp-world { background-color: #F5CD37!important; color: black!important }
+.multiselect .md-chip.pvp-arena {
+  background-color: #ed1b24 !important;
+  color: black !important
+}
+
+.md-chip.pvp-battleground {
+  color: #02518a !important;
+  background-image: url('menu-battlegrounds.png')
+}
+
+.pvp-battleground a,
+.pvp-battleground {
+  color: #02518a !important
+}
+
+.multiselect .md-chip.pvp-battleground {
+  background-color: #02518a !important;
+  color: black !important
+}
+
+.md-chip.pvp-world {
+  color: #F5CD37 !important;
+  background-image: url('menu-wpvp.png')
+}
+
+.pvp-world a,
+.pvp-world {
+  color: #F5CD37 !important
+}
+
+.multiselect .md-chip.pvp-world {
+  background-color: #F5CD37 !important;
+  color: black !important
+}
 
 /* professions */
-.md-chip.prof-gathering { color: #5E63B8!important; background-image: url('menu-gathering.png') }
-.prof-gathering a, .prof-gathering { color: #5E63B8!important}
-.multiselect .md-chip.prof-gathering { background-color: #5E63B8!important; color: black!important }
+.md-chip.prof-gathering {
+  color: #5E63B8 !important;
+  background-image: url('menu-gathering.png')
+}
 
-.md-chip.prof-crafting { color: #B85E5F!important; background-image: url('menu-crafting.png') }
-.prof-crafting a, .prof-crafting { color: #B85E5F!important}
-.multiselect .md-chip.prof-crafting { background-color: #B85E5F!important; color: black!important }
+.prof-gathering a,
+.prof-gathering {
+  color: #5E63B8 !important
+}
 
-.md-chip.prof-secondary { color: #C4C4C4!important; background-image: url('menu-secondaryprof.png') }
-.prof-secondary a, .prof-secondary { color: #C4C4C4!important}
-.multiselect .md-chip.prof-secondary { background-color: #C4C4C4!important; color: black!important }
+.multiselect .md-chip.prof-gathering {
+  background-color: #5E63B8 !important;
+  color: black !important
+}
+
+.md-chip.prof-crafting {
+  color: #B85E5F !important;
+  background-image: url('menu-crafting.png')
+}
+
+.prof-crafting a,
+.prof-crafting {
+  color: #B85E5F !important
+}
+
+.multiselect .md-chip.prof-crafting {
+  background-color: #B85E5F !important;
+  color: black !important
+}
+
+.md-chip.prof-secondary {
+  color: #C4C4C4 !important;
+  background-image: url('menu-secondaryprof.png')
+}
+
+.prof-secondary a,
+.prof-secondary {
+  color: #C4C4C4 !important
+}
+
+.multiselect .md-chip.prof-secondary {
+  background-color: #C4C4C4 !important;
+  color: black !important
+}
 
 /* raids */
-.md-chip.emeraldnightmare { color: #6b2100!important; background-image: url('menu-emeraldnightmare.png') }
-.emeraldnightmare a, .emeraldnightmare { color: #6b2100!important}
-.multiselect .md-chip.emeraldnightmare { background-color: #6b2100!important; color: black!important }
+.md-chip.emeraldnightmare {
+  color: #6b2100 !important;
+  background-image: url('menu-emeraldnightmare.png')
+}
 
-.md-chip.trialofvalor { color: #8F0995!important; background-image: url('menu-trialofvalor.png') }
-.trialofvalor a, .trialofvalor { color: #8F0995!important}
-.multiselect .md-chip.trialofvalor { background-color: #8F0995!important; color: black!important }
+.emeraldnightmare a,
+.emeraldnightmare {
+  color: #6b2100 !important
+}
 
-.md-chip.nighthold { color: #cb02b7!important; background-image: url('menu-nighthold.png') }
-.nighthold a, .nighthold { color: #cb02b7!important}
-.multiselect .md-chip.nighthold { background-color: #cb02b7!important; color: black!important }
+.multiselect .md-chip.emeraldnightmare {
+  background-color: #6b2100 !important;
+  color: black !important
+}
 
-.md-chip.tombofsargeras { color: #006d35!important; background-image: url('menu-tombofsarg.png') }
-.tombofsargeras a, .tombofsargeras { color: #006d35!important}
-.multiselect .md-chip.tombofsargeras { background-color: #006d35!important; color: black!important }
+.md-chip.trialofvalor {
+  color: #8F0995 !important;
+  background-image: url('menu-trialofvalor.png')
+}
 
-.md-chip.antorus { color: #1978aa!important; background-image: url('menu-antorus.png') }
-.antorus a, .antorus { color: #1978aa!important}
-.multiselect .md-chip.antorus { background-color: #1978aa!important; color: black!important }
+.trialofvalor a,
+.trialofvalor {
+  color: #8F0995 !important
+}
 
-.md-chip.uldir { color: #D42D20!important; background-image: url('menu-uldir.png') }
-.uldir a, .uldir { color: #D42D20!important}
-.multiselect .md-chip.uldir { background-color: #D42D20!important; color: black!important }
+.multiselect .md-chip.trialofvalor {
+  background-color: #8F0995 !important;
+  color: black !important
+}
 
-.md-chip.zuldazar { color: #4BB21F!important; background-image: url('menu-zuldazar.png') }
-.zuldazar a, .zuldazar { color: #4BB21F!important}
-.multiselect .md-chip.zuldazar { background-color: #4BB21F!important; color: black!important }
+.md-chip.nighthold {
+  color: #cb02b7 !important;
+  background-image: url('menu-nighthold.png')
+}
 
-.md-chip.crucible { color: #3329b3!important; background-image: url('menu-cruciblestorms.png') }
-.crucible a, .crucible { color: #3329b3!important}
-.multiselect .md-chip.crucible { background-color: #3329b3!important; color: black!important }
-.theme-dark .crucible a, .theme-dark .crucible, .theme-dark .md-chip.crucible { color: #4c41dc!important}
+.nighthold a,
+.nighthold {
+  color: #cb02b7 !important
+}
 
-.md-chip.eternalpalace { color: #FF98EC!important; background-image: url('menu-eternalpalace.png') }
-.eternalpalace a, .eternalpalace { color: #FF98EC!important}
-.multiselect .md-chip.eternalpalace { background-color: #FF98EC!important; color: black!important }
+.multiselect .md-chip.nighthold {
+  background-color: #cb02b7 !important;
+  color: black !important
+}
 
-.md-chip.nyalotha { color: #5EE1A6!important; background-image: url('menu-nyalotha.png') }
-.nyalotha a, .nyalotha { color: #5EE1A6!important}
-.multiselect .md-chip.nyalotha { background-color: #5EE1A6!important; color: black!important }
+.md-chip.tombofsargeras {
+  color: #006d35 !important;
+  background-image: url('menu-tombofsarg.png')
+}
 
-.md-chip.nathria { color: #9693BD!important; background-image: url('menu-nathria.png') }
-.nathria a, .nathria { color: #9693BD!important}
-.multiselect .md-chip.nathria { background-color: #9693BD!important; color: black!important }
+.tombofsargeras a,
+.tombofsargeras {
+  color: #006d35 !important
+}
 
-.md-chip.sanctumdom { color: #5CE000!important; background-image: url('menu-sanctumofdom.png') }
-.sanctumdom a, .sanctumdom { color: #5CE000!important}
-.multiselect .md-chip.sanctumdom { background-color: #5CE000!important; color: black!important }
+.multiselect .md-chip.tombofsargeras {
+  background-color: #006d35 !important;
+  color: black !important
+}
 
-.md-chip.torghast { color: #D80143!important; background-image: url('menu-torghast.png') }
-.torghast a, .torghast { color: #D80143!important}
-.multiselect .md-chip.torghast { background-color: #D80143!important; color: black!important }
+.md-chip.antorus {
+  color: #1978aa !important;
+  background-image: url('menu-antorus.png')
+}
 
-.md-chip.hellfirecitadel { color: #689E12!important; background-image: url('menu-hellfirecitadel.png') }
-.hellfirecitadel a, .hellfirecitadel { color: #689E12!important}
-.multiselect .md-chip.hellfirecitadel { background-color: #689E12!important; color: black!important }
+.antorus a,
+.antorus {
+  color: #1978aa !important
+}
 
-.md-chip.dungeon { color: #F5A623!important; background-image: url('menu-dungeon.png') }
-.dungeon a, .dungeon { color: #F5A623!important}
-.multiselect .md-chip.dungeon { background-color: #F5A623!important; color: black!important }
+.multiselect .md-chip.antorus {
+  background-color: #1978aa !important;
+  color: black !important
+}
 
-.md-chip.affixes { color: #ef2254!important; background-image: url('menu-affixes.png') }
-.affixes a, .affixes { color: #ef2254!important}
-.multiselect .md-chip.affixes { background-color: #ef2254!important; color: black!important }
+.md-chip.uldir {
+  color: #D42D20 !important;
+  background-image: url('menu-uldir.png')
+}
 
-.md-chip.affixWeek { color: #D3B549!important; background-image: url('menu-mdt.png') }
-.affixWeek a, .affixWeek { color: #D3B549!important}
-.multiselect .md-chip.affixWeek { background-color: #D3B549!important; color: black!important }
+.uldir a,
+.uldir {
+  color: #D42D20 !important
+}
 
-.md-chip.speed { color: #42bce4!important; background-image: url('menu-speed.png') }
-.speed a, .speed { color: #42bce4!important}
-.multiselect .md-chip.speed { background-color: #42bce4!important; color: black!important }
+.multiselect .md-chip.uldir {
+  background-color: #D42D20 !important;
+  color: black !important
+}
+
+.md-chip.zuldazar {
+  color: #4BB21F !important;
+  background-image: url('menu-zuldazar.png')
+}
+
+.zuldazar a,
+.zuldazar {
+  color: #4BB21F !important
+}
+
+.multiselect .md-chip.zuldazar {
+  background-color: #4BB21F !important;
+  color: black !important
+}
+
+.md-chip.crucible {
+  color: #3329b3 !important;
+  background-image: url('menu-cruciblestorms.png')
+}
+
+.crucible a,
+.crucible {
+  color: #3329b3 !important
+}
+
+.multiselect .md-chip.crucible {
+  background-color: #3329b3 !important;
+  color: black !important
+}
+
+.theme-dark .crucible a,
+.theme-dark .crucible,
+.theme-dark .md-chip.crucible {
+  color: #4c41dc !important
+}
+
+.md-chip.eternalpalace {
+  color: #FF98EC !important;
+  background-image: url('menu-eternalpalace.png')
+}
+
+.eternalpalace a,
+.eternalpalace {
+  color: #FF98EC !important
+}
+
+.multiselect .md-chip.eternalpalace {
+  background-color: #FF98EC !important;
+  color: black !important
+}
+
+.md-chip.nyalotha {
+  color: #5EE1A6 !important;
+  background-image: url('menu-nyalotha.png')
+}
+
+.nyalotha a,
+.nyalotha {
+  color: #5EE1A6 !important
+}
+
+.multiselect .md-chip.nyalotha {
+  background-color: #5EE1A6 !important;
+  color: black !important
+}
+
+.md-chip.nathria {
+  color: #9693BD !important;
+  background-image: url('menu-nathria.png')
+}
+
+.nathria a,
+.nathria {
+  color: #9693BD !important
+}
+
+.multiselect .md-chip.nathria {
+  background-color: #9693BD !important;
+  color: black !important
+}
+
+.md-chip.sanctumdom {
+  color: #5CE000 !important;
+  background-image: url('menu-sanctumofdom.png')
+}
+
+.sanctumdom a,
+.sanctumdom {
+  color: #5CE000 !important
+}
+
+.multiselect .md-chip.sanctumdom {
+  background-color: #5CE000 !important;
+  color: black !important
+}
+
+.md-chip.torghast {
+  color: #D80143 !important;
+  background-image: url('menu-torghast.png')
+}
+
+.torghast a,
+.torghast {
+  color: #D80143 !important
+}
+
+.multiselect .md-chip.torghast {
+  background-color: #D80143 !important;
+  color: black !important
+}
+
+.md-chip.hellfirecitadel {
+  color: #689E12 !important;
+  background-image: url('menu-hellfirecitadel.png')
+}
+
+.hellfirecitadel a,
+.hellfirecitadel {
+  color: #689E12 !important
+}
+
+.multiselect .md-chip.hellfirecitadel {
+  background-color: #689E12 !important;
+  color: black !important
+}
+
+.md-chip.dungeon {
+  color: #F5A623 !important;
+  background-image: url('menu-dungeon.png')
+}
+
+.dungeon a,
+.dungeon {
+  color: #F5A623 !important
+}
+
+.multiselect .md-chip.dungeon {
+  background-color: #F5A623 !important;
+  color: black !important
+}
+
+.md-chip.affixes {
+  color: #ef2254 !important;
+  background-image: url('menu-affixes.png')
+}
+
+.affixes a,
+.affixes {
+  color: #ef2254 !important
+}
+
+.multiselect .md-chip.affixes {
+  background-color: #ef2254 !important;
+  color: black !important
+}
+
+.md-chip.affixWeek {
+  color: #D3B549 !important;
+  background-image: url('menu-mdt.png')
+}
+
+.affixWeek a,
+.affixWeek {
+  color: #D3B549 !important
+}
+
+.multiselect .md-chip.affixWeek {
+  background-color: #D3B549 !important;
+  color: black !important
+}
+
+.md-chip.speed {
+  color: #42bce4 !important;
+  background-image: url('menu-speed.png')
+}
+
+.speed a,
+.speed {
+  color: #42bce4 !important
+}
+
+.multiselect .md-chip.speed {
+  background-color: #42bce4 !important;
+  color: black !important
+}
 
 /* Classic */
-.md-chip.worldboss { color: #CC0DBC!important; background-image: url('menu-worldboss.png') }
-.worldboss a, .worldboss { color: #CC0DBC!important}
-.multiselect .md-chip.worldboss { background-color: #CC0DBC!important; color: black!important }
+.md-chip.worldboss {
+  color: #CC0DBC !important;
+  background-image: url('menu-worldboss.png')
+}
 
-.md-chip.moltencore { color: #F6921A!important; background-image: url('menu-moltencore.png') }
-.moltencore a, .moltencore { color: #F6921A!important}
-.multiselect .md-chip.moltencore { background-color: #F6921A!important; color: black!important }
+.worldboss a,
+.worldboss {
+  color: #CC0DBC !important
+}
 
-.md-chip.blackwinglair { color: #007AEE!important; background-image: url('menu-blackwinglair.png') }
-.blackwinglair a, .blackwinglair { color: #007AEE!important}
-.multiselect .md-chip.blackwinglair { background-color: #007AEE!important; color: black!important }
+.multiselect .md-chip.worldboss {
+  background-color: #CC0DBC !important;
+  color: black !important
+}
 
-.md-chip.aq20 { color: #00EE7A!important; background-image: url('menu-aq20.png') }
-.aq20 a, .aq20 { color: #00EE7A!important}
-.multiselect .md-chip.aq20 { background-color: #00EE7A!important; color: black!important }
+.md-chip.moltencore {
+  color: #F6921A !important;
+  background-image: url('menu-moltencore.png')
+}
 
-.md-chip.aq40 { color: #DF86B2!important; background-image: url('menu-aq40.png') }
-.aq40 a, .aq40 { color: #DF86B2!important}
-.multiselect .md-chip.aq40 { background-color: #DF86B2!important; color: black!important }
+.moltencore a,
+.moltencore {
+  color: #F6921A !important
+}
 
-.md-chip.zulgurub { color: #B8FF25!important; background-image: url('menu-zulgurub.png') }
-.zulgurub a, .zulgurub { color: #B8FF25!important}
-.multiselect .md-chip.zulgurub { background-color: #B8FF25!important; color: black!important }
+.multiselect .md-chip.moltencore {
+  background-color: #F6921A !important;
+  color: black !important
+}
 
-.md-chip.naxxramas { color: #B3ACAC!important; background-image: url('menu-naxxramas.png') }
-.naxxramas a, .naxxramas { color: #B3ACAC!important}
-.multiselect .md-chip.naxxramas { background-color: #B3ACAC!important; color: black!important }
+.md-chip.blackwinglair {
+  color: #007AEE !important;
+  background-image: url('menu-blackwinglair.png')
+}
 
-.md-chip.ssc { color: #48FF98!important; background-image: url('menu-naxxramas.png') }
-.ssc a, .ssc { color: #48FF98!important}
-.multiselect .md-chip.ssc { background-color: #48FF98!important; color: black!important }
+.blackwinglair a,
+.blackwinglair {
+  color: #007AEE !important
+}
 
-.md-chip.tk { color: #FF2DC8!important; background-image: url('menu-naxxramas.png') }
-.tk a, .tk { color: #FF2DC8!important}
-.multiselect .md-chip.tk { background-color: #FF2DC8!important; color: black!important }
+.multiselect .md-chip.blackwinglair {
+  background-color: #007AEE !important;
+  color: black !important
+}
 
-.md-chip.mthyjal { color: #FF492D!important; background-image: url('menu-naxxramas.png') }
-.mthyjal a, .mthyjal { color: #FF492D!important}
-.multiselect .md-chip.mthyjal { background-color: #FF492D!important; color: black!important }
+.md-chip.aq20 {
+  color: #00EE7A !important;
+  background-image: url('menu-aq20.png')
+}
 
-.md-chip.blacktemple { color: #09AD02!important; background-image: url('menu-bt.png') }
-.blacktemple a, .blacktemple { color: #09AD02!important}
-.multiselect .md-chip.blacktemple { background-color: #09AD02!important; color: black!important }
+.aq20 a,
+.aq20 {
+  color: #00EE7A !important
+}
 
-.md-chip.sunwell { color: #02FFEA!important; background-image: url('menu-sw.png') }
-.sunwell a, .sunwell { color: #02FFEA!important}
-.multiselect .md-chip.sunwell { background-color: #02FFEA!important; color: black!important }
+.multiselect .md-chip.aq20 {
+  background-color: #00EE7A !important;
+  color: black !important
+}
 
-.md-chip.karazhan { color: #48BAFF!important; background-image: url('menu-kara.png') }
-.karazhan a, .karazhan { color: #48BAFF!important}
-.multiselect .md-chip.karazhan { background-color: #48BAFF!important; color: black!important }
+.md-chip.aq40 {
+  color: #DF86B2 !important;
+  background-image: url('menu-aq40.png')
+}
 
-.md-chip.gruul { color: #FF8748!important; background-image: url('menu-gruul.png') }
-.gruul a, .gruul { color: #FF8748!important}
-.multiselect .md-chip.gruul { background-color: #FF8748!important; color: black!important }
+.aq40 a,
+.aq40 {
+  color: #DF86B2 !important
+}
 
-.md-chip.dungeontbc { color: #F6A622!important; background-image: url('menu-dungeontbc.png') }
-.dungeontbc a, .dungeontbc { color: #F6A622!important}
-.multiselect .md-chip.dungeontbc { background-color: #F6A622!important; color: black!important }
+.multiselect .md-chip.aq40 {
+  background-color: #DF86B2 !important;
+  color: black !important
+}
+
+.md-chip.zulgurub {
+  color: #B8FF25 !important;
+  background-image: url('menu-zulgurub.png')
+}
+
+.zulgurub a,
+.zulgurub {
+  color: #B8FF25 !important
+}
+
+.multiselect .md-chip.zulgurub {
+  background-color: #B8FF25 !important;
+  color: black !important
+}
+
+.md-chip.naxxramas {
+  color: #B3ACAC !important;
+  background-image: url('menu-naxxramas.png')
+}
+
+.naxxramas a,
+.naxxramas {
+  color: #B3ACAC !important
+}
+
+.multiselect .md-chip.naxxramas {
+  background-color: #B3ACAC !important;
+  color: black !important
+}
+
+.md-chip.ssc {
+  color: #48FF98 !important;
+  background-image: url('menu-naxxramas.png')
+}
+
+.ssc a,
+.ssc {
+  color: #48FF98 !important
+}
+
+.multiselect .md-chip.ssc {
+  background-color: #48FF98 !important;
+  color: black !important
+}
+
+.md-chip.tk {
+  color: #FF2DC8 !important;
+  background-image: url('menu-naxxramas.png')
+}
+
+.tk a,
+.tk {
+  color: #FF2DC8 !important
+}
+
+.multiselect .md-chip.tk {
+  background-color: #FF2DC8 !important;
+  color: black !important
+}
+
+.md-chip.mthyjal {
+  color: #FF492D !important;
+  background-image: url('menu-naxxramas.png')
+}
+
+.mthyjal a,
+.mthyjal {
+  color: #FF492D !important
+}
+
+.multiselect .md-chip.mthyjal {
+  background-color: #FF492D !important;
+  color: black !important
+}
+
+.md-chip.blacktemple {
+  color: #09AD02 !important;
+  background-image: url('menu-bt.png')
+}
+
+.blacktemple a,
+.blacktemple {
+  color: #09AD02 !important
+}
+
+.multiselect .md-chip.blacktemple {
+  background-color: #09AD02 !important;
+  color: black !important
+}
+
+.md-chip.sunwell {
+  color: #02FFEA !important;
+  background-image: url('menu-sw.png')
+}
+
+.sunwell a,
+.sunwell {
+  color: #02FFEA !important
+}
+
+.multiselect .md-chip.sunwell {
+  background-color: #02FFEA !important;
+  color: black !important
+}
+
+.md-chip.karazhan {
+  color: #48BAFF !important;
+  background-image: url('menu-kara.png')
+}
+
+.karazhan a,
+.karazhan {
+  color: #48BAFF !important
+}
+
+.multiselect .md-chip.karazhan {
+  background-color: #48BAFF !important;
+  color: black !important
+}
+
+.md-chip.gruul {
+  color: #FF8748 !important;
+  background-image: url('menu-gruul.png')
+}
+
+.gruul a,
+.gruul {
+  color: #FF8748 !important
+}
+
+.multiselect .md-chip.gruul {
+  background-color: #FF8748 !important;
+  color: black !important
+}
+
+.md-chip.dungeontbc {
+  color: #F6A622 !important;
+  background-image: url('menu-dungeontbc.png')
+}
+
+.dungeontbc a,
+.dungeontbc {
+  color: #F6A622 !important
+}
+
+.multiselect .md-chip.dungeontbc {
+  background-color: #F6A622 !important;
+  color: black !important
+}
 
 /* ---- END CATEGORIES ---- */
 
 /* global md theme changes */
 
-#app .md-theme-default.md-toolbar, #app .md-theme-default.md-button-toggle.md-primary .md-toggle {
+#app .md-theme-default.md-toolbar,
+#app .md-theme-default.md-button-toggle.md-primary .md-toggle {
   background: #000;
   color: rgba(255, 255, 255, .87);
 }
-.md-select { z-index: 0 }
+
+.md-select {
+  z-index: 0
+}
 
 /* User roles */
-.user-admin, .user-admin:hover { font-weight: bold; color:#B80000!important; }
-.user-moderator, .user-moderator:hover { font-weight: bold; color:#C9097D!important; }
-.user-method, .user-method:hover { font-weight: bold; color:#c09100!important; }
-.user-goldsub, .user-goldsub:hover, .user-ambassador, .user-ambassador:hover { font-weight: bold; color:#c09100!important; }
-.user-sub, .user-sub:hover { font-weight: bold; color:#9bbb59!important; }
-.user-default { color: rgba(0, 0, 0, 0.87)!important}
+.user-admin,
+.user-admin:hover {
+  font-weight: bold;
+  color: #B80000 !important;
+}
+
+.user-moderator,
+.user-moderator:hover {
+  font-weight: bold;
+  color: #C9097D !important;
+}
+
+.user-method,
+.user-method:hover {
+  font-weight: bold;
+  color: #c09100 !important;
+}
+
+.user-goldsub,
+.user-goldsub:hover,
+.user-ambassador,
+.user-ambassador:hover {
+  font-weight: bold;
+  color: #c09100 !important;
+}
+
+.user-sub,
+.user-sub:hover {
+  font-weight: bold;
+  color: #9bbb59 !important;
+}
+
+.user-default {
+  color: rgba(0, 0, 0, 0.87) !important
+}
 
 
 /* XBBCode */
 .xbbcode-b {
-  font-weight:bold;
+  font-weight: bold;
 }
 
 .xbbcode-center {
-  margin-left:auto;
-  margin-right:auto;
+  margin-left: auto;
+  margin-right: auto;
   display: block;
   text-align: center;
 }
@@ -329,80 +1125,191 @@ body iframe:not(.md-image) {
 }
 
 .xbbcode-img {
-  max-height:30px;
-  max-width:100%;
+  max-height: 30px;
+  max-width: 100%;
 }
 
 .xbbcode-justify {
-	display: block;
-	text-align: justify;
+  display: block;
+  text-align: justify;
 }
 
 .xbbcode-left {
-	display: block;
-	text-align: left;
+  display: block;
+  text-align: left;
 }
 
 .xbbcode-right {
-	display: block;
-	text-align: right;
+  display: block;
+  text-align: right;
 }
 
 .xbbcode-s {
-    text-decoration: line-through;
+  text-decoration: line-through;
 }
 
-.xbbcode-size-4 {font-size:4px;}
-.xbbcode-size-5 {font-size:5px;}
-.xbbcode-size-6 {font-size:6px;}
-.xbbcode-size-7 {font-size:7px;}
-.xbbcode-size-8 {font-size:8px;}
-.xbbcode-size-9 {font-size:9px;}
-.xbbcode-size-10 {font-size:10px;}
-.xbbcode-size-11 {font-size:11px;}
-.xbbcode-size-12 {font-size:12px;}
-.xbbcode-size-13 {font-size:13px;}
-.xbbcode-size-14 {font-size:14px;}
-.xbbcode-size-15 {font-size:15px;}
-.xbbcode-size-16 {font-size:16px;}
-.xbbcode-size-17 {font-size:17px;}
-.xbbcode-size-18 {font-size:18px;}
-.xbbcode-size-19 {font-size:19px;}
-.xbbcode-size-20 {font-size:20px;}
-.xbbcode-size-21 {font-size:21px;}
-.xbbcode-size-22 {font-size:22px;}
-.xbbcode-size-23 {font-size:23px;}
-.xbbcode-size-24 {font-size:24px;}
-.xbbcode-size-25 {font-size:25px;}
-.xbbcode-size-26 {font-size:26px;}
-.xbbcode-size-27 {font-size:27px;}
-.xbbcode-size-28 {font-size:28px;}
-.xbbcode-size-29 {font-size:29px;}
-.xbbcode-size-30 {font-size:30px;}
-.xbbcode-size-31 {font-size:31px;}
-.xbbcode-size-32 {font-size:32px;}
-.xbbcode-size-33 {font-size:33px;}
-.xbbcode-size-34 {font-size:34px;}
-.xbbcode-size-35 {font-size:35px;}
-.xbbcode-size-36 {font-size:36px;}
-.xbbcode-size-37 {font-size:37px;}
-.xbbcode-size-38 {font-size:38px;}
-.xbbcode-size-39 {font-size:39px;}
-.xbbcode-size-40 {font-size:40px;}
+.xbbcode-size-4 {
+  font-size: 4px;
+}
+
+.xbbcode-size-5 {
+  font-size: 5px;
+}
+
+.xbbcode-size-6 {
+  font-size: 6px;
+}
+
+.xbbcode-size-7 {
+  font-size: 7px;
+}
+
+.xbbcode-size-8 {
+  font-size: 8px;
+}
+
+.xbbcode-size-9 {
+  font-size: 9px;
+}
+
+.xbbcode-size-10 {
+  font-size: 10px;
+}
+
+.xbbcode-size-11 {
+  font-size: 11px;
+}
+
+.xbbcode-size-12 {
+  font-size: 12px;
+}
+
+.xbbcode-size-13 {
+  font-size: 13px;
+}
+
+.xbbcode-size-14 {
+  font-size: 14px;
+}
+
+.xbbcode-size-15 {
+  font-size: 15px;
+}
+
+.xbbcode-size-16 {
+  font-size: 16px;
+}
+
+.xbbcode-size-17 {
+  font-size: 17px;
+}
+
+.xbbcode-size-18 {
+  font-size: 18px;
+}
+
+.xbbcode-size-19 {
+  font-size: 19px;
+}
+
+.xbbcode-size-20 {
+  font-size: 20px;
+}
+
+.xbbcode-size-21 {
+  font-size: 21px;
+}
+
+.xbbcode-size-22 {
+  font-size: 22px;
+}
+
+.xbbcode-size-23 {
+  font-size: 23px;
+}
+
+.xbbcode-size-24 {
+  font-size: 24px;
+}
+
+.xbbcode-size-25 {
+  font-size: 25px;
+}
+
+.xbbcode-size-26 {
+  font-size: 26px;
+}
+
+.xbbcode-size-27 {
+  font-size: 27px;
+}
+
+.xbbcode-size-28 {
+  font-size: 28px;
+}
+
+.xbbcode-size-29 {
+  font-size: 29px;
+}
+
+.xbbcode-size-30 {
+  font-size: 30px;
+}
+
+.xbbcode-size-31 {
+  font-size: 31px;
+}
+
+.xbbcode-size-32 {
+  font-size: 32px;
+}
+
+.xbbcode-size-33 {
+  font-size: 33px;
+}
+
+.xbbcode-size-34 {
+  font-size: 34px;
+}
+
+.xbbcode-size-35 {
+  font-size: 35px;
+}
+
+.xbbcode-size-36 {
+  font-size: 36px;
+}
+
+.xbbcode-size-37 {
+  font-size: 37px;
+}
+
+.xbbcode-size-38 {
+  font-size: 38px;
+}
+
+.xbbcode-size-39 {
+  font-size: 39px;
+}
+
+.xbbcode-size-40 {
+  font-size: 40px;
+}
 
 .xbbcode-u {
   text-decoration: underline;
 }
 
 .xbbcode-table {
-  border-collapse:collapse;
+  border-collapse: collapse;
 }
 
-.xbbcode-table , .xbbcode-th, .xbbcode-td {
+.xbbcode-table,
+.xbbcode-th,
+.xbbcode-td {
   border: 1px solid #666;
 }
 
 .xbbcode-taggeduser {
   font-weight: 300;
 }
-

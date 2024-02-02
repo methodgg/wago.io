@@ -337,12 +337,12 @@ module.exports = function (fastify, opts, next) {
       else if (decoded.obj.CastSounds) {
         scan.type = 'PLATER'
         const scanDoc = await scan.save()
-        return res.send({scan: scanDoc._id.toString(), type: 'PLATER', name: 'Plater Cast Sounds', categories: []})
+        return res.send({ scan: scanDoc._id.toString(), type: 'PLATER', name: 'Plater Cast Sounds', categories: [] })
       }
       else if (decoded.obj.CastColor) {
         scan.type = 'PLATER'
         const scanDoc = await scan.save()
-        return res.send({scan: scanDoc._id.toString(), type: 'PLATER', name: 'Plater Cast Colors', categories: []})
+        return res.send({ scan: scanDoc._id.toString(), type: 'PLATER', name: 'Plater Cast Colors', categories: [] })
       }
       // animation
       else if ((decoded.obj[1] && decoded.obj[1].animation_type) || (decoded.obj['2'] && decoded.obj['2'].animation_type)) {
@@ -748,7 +748,7 @@ module.exports = function (fastify, opts, next) {
     for (const addon of Object.values(Addons)) {
       if (wago.type.match(addon.typeMatch) && wago.domain === addon.domain) {
         if (addon.addWagoData) {
-          let data = addon.addWagoData(code, wago)
+          let data = await addon.addWagoData(code, wago)
           if (data.invalid) {
             return res.code(403).send({ error: data.invalid })
           }
@@ -858,7 +858,7 @@ module.exports = function (fastify, opts, next) {
     for (const addon of Object.values(Addons)) {
       if (wago.type.match(addon.typeMatch)) {
         if (addon.addWagoData) {
-          let data = addon.addWagoData(code, wago)
+          let data = await addon.addWagoData(code, wago)
           if (data.invalid) {
             return res.code(403).send({ error: data.invalid })
           }

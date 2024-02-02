@@ -164,12 +164,16 @@
 
     <div id="currentcontent">
       <strong>{{ $t('Current WeakAuras') }}</strong>
-      <div id="current-wa">
-        <router-link :to="'/dragonflight-weakauras/' + currentWA.dragonflight[0].slug" :style="`border-color: ${currentWA.dragonflight[0].color}99; color:${currentWA.dragonflight[0].color}; background-color:${currentWA.dragonflight[0].color}11; background-image:url('/static/image/menu/${currentWA.dragonflight[0].image}')`"><span>{{ currentWA.dragonflight[0].text }}</span></router-link>
-        <router-link :to="'/wotlk-weakauras/' + currentWA.wotlk[0].slug" :style="`border-color: ${currentWA.wotlk[0].color}99; color:${currentWA.wotlk[0].color}; background-color:${currentWA.wotlk[0].color}11; background-image:url('/static/image/menu/${currentWA.wotlk[0].image}')`"><span>{{ currentWA.wotlk[0].text }} [WotLK]</span></router-link>
-        <router-link :to="'/dragonflight-weakauras/' + currentWA.dragonflight[1].slug" :style="`border-color: ${currentWA.dragonflight[1].color}99; color:${currentWA.dragonflight[1].color}; background-color:${currentWA.dragonflight[1].color}11; background-image:url('/static/image/menu/${currentWA.dragonflight[1].image}')`"><span>{{ currentWA.dragonflight[1].text }}</span></router-link>
-        <router-link :to="'/wotlk-weakauras/' + currentWA.wotlk[1].slug" :style="`border-color: ${currentWA.wotlk[1].color}99; color:${currentWA.wotlk[1].color}; background-color:${currentWA.wotlk[1].color}11; background-image:url('/static/image/menu/${currentWA.wotlk[1].image}')`"><span>{{ currentWA.wotlk[1].text }}</span></router-link>
-      </div>
+      <md-layout>
+        <advert ad="video-sidebar" />
+        <div id="current-wa">
+          <router-link :to="'/dragonflight-weakauras/' + currentWA.dragonflight[0].slug" :style="`border-color: ${currentWA.dragonflight[0].color}99; color:${currentWA.dragonflight[0].color}; background-color:${currentWA.dragonflight[0].color}11; background-image:url('/static/image/menu/${currentWA.dragonflight[0].image}')`"><span>{{ currentWA.dragonflight[0].text }}</span></router-link>
+          <router-link :to="'/dragonflight-weakauras/' + currentWA.dragonflight[1].slug" :style="`border-color: ${currentWA.dragonflight[1].color}99; color:${currentWA.dragonflight[1].color}; background-color:${currentWA.dragonflight[1].color}11; background-image:url('/static/image/menu/${currentWA.dragonflight[1].image}')`"><span>{{ currentWA.dragonflight[1].text }}</span></router-link>
+
+          <router-link :to="'/wotlk-weakauras/' + currentWA.wotlk[0].slug" :style="`border-color: ${currentWA.wotlk[0].color}99; color:${currentWA.wotlk[0].color}; background-color:${currentWA.wotlk[0].color}11; background-image:url('/static/image/menu/${currentWA.wotlk[0].image}')`"><span>{{ currentWA.wotlk[0].text }}</span></router-link>          
+          <router-link :to="'/wotlk-weakauras/' + currentWA.wotlk[1].slug" :style="`border-color: ${currentWA.wotlk[1].color}99; color:${currentWA.wotlk[1].color}; background-color:${currentWA.wotlk[1].color}11; background-image:url('/static/image/menu/${currentWA.wotlk[1].image}')`"><span>{{ currentWA.wotlk[1].text }}</span></router-link>
+        </div>
+      </md-layout>
     </div>
 
     <md-layout id="col2" :md-column-medium="true" md-vertical-align="start" v-if="!isTest">
@@ -329,8 +333,11 @@
 
 #currentcontent {
   margin: 16px 0 0; width:100%;
-  & > .md-layout > div {
-    flex: 1;
+  & > .md-layout {    
+    justify-content: space-between;
+    div {
+      flex: 1
+    }
   }
   #current-wa {
     display: grid;
@@ -358,6 +365,21 @@
         text-decoration: none;
         transform: scale(1.075);
       }
+      & + a { order: 3 }
+      & + a+a { order: 2 }
+      & + a+a+a { order: 4 }
+    }
+  }
+  .wago-ad-container {
+    margin: 0 0 16px 16px;
+    padding: 0 8px;
+    order: 2;
+    & + #current-wa {
+      grid-template-columns: repeat(1, minmax(0, 1fr));
+      
+      a+a { order: 2 }
+      a+a+a { order: 3 }
+      a+a+a+a { order: 4 }
     }
   }
 }
@@ -444,6 +466,9 @@ import CategoryImage from './UI/CategoryImage.vue'
 import CTA_WagoAddons from './UI/CTAWagoAddons.vue'
 import WagoNews from './core/News.vue'
 import VueMarkdown from 'vue-markdown'
+
+import { Sanitizer } from "@esri/arcgis-html-sanitizer"
+const sanitizer = new Sanitizer()
 
 function flatten (arr) {
   return arr.reduce(function (flat, toFlatten) {

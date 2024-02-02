@@ -1,6 +1,6 @@
 const execa = require('execa')
 const execaOptions = {
-  cwd: __dirname+'/../lua',
+  cwd: __dirname + '/../lua',
   timeout: 35000
 }
 const runLua = async function (luaScript, opt) {
@@ -42,7 +42,7 @@ module.exports = {
       return false
     }
     try {
-      return {str: result, obj: JSON.parse(result)}
+      return { str: result, obj: JSON.parse(result) }
     }
     catch (e) {
       return false
@@ -71,7 +71,7 @@ module.exports = {
       return false
     }
     try {
-      return {str: result, obj: JSON.parse(result)}
+      return { str: result, obj: JSON.parse(result) }
     }
     catch (e) {
       return false
@@ -129,7 +129,7 @@ module.exports = {
       return false
     }
     try {
-      return {str: result, obj: JSON.parse(result)}
+      return { str: result, obj: JSON.parse(result) }
     }
     catch (e) {
       return false
@@ -167,7 +167,7 @@ module.exports = {
       return false
     }
     try {
-      return {str: result, obj: JSON.parse(result)}
+      return { str: result, obj: JSON.parse(result) }
     }
     catch (e) {
       return false
@@ -224,7 +224,7 @@ module.exports = {
       return false
     }
     try {
-      return {str: result, obj: JSON.parse(result)}
+      return { str: result, obj: JSON.parse(result) }
     }
     catch (e) {
       return false
@@ -240,7 +240,7 @@ module.exports = {
       return false
     }
     try {
-      return {str: result, obj: JSON.parse(result)}
+      return { str: result, obj: JSON.parse(result) }
     }
     catch (e) {
       return false
@@ -335,7 +335,7 @@ module.exports = {
       return false
     }
     try {
-      return {str: result, obj: JSON.parse(result)}
+      return { str: result, obj: JSON.parse(result) }
     }
     catch (e) {
       return false
@@ -367,14 +367,14 @@ module.exports = {
 
   BuildMDT_DungeonTable: async (directory, cb) => {
     var luaCode = 'local MDT={dungeonTotalCount={}, mapPOIs={}, dungeonEnemies={}, scaleMultiplier={}, L={}}\nlocal dungeonIndex\nfunction GetLocale() return "enUS" end\n'
-    
+
     // load in lang files so it doesn't try to concatenate strings with nils
-    var lang = await fs.readFile(directory+'/Locales/enUS.lua', 'utf8')
+    var lang = await fs.readFile(directory + '/Locales/enUS.lua', 'utf8')
     lang = lang.replace(/local addonName, MDT = \.\.\./, '')
     luaCode = luaCode + "\n--wago insert:Locales/enUS.lua\n" + lang
 
     // load in some tables from core file
-    var core = await fs.readFile(directory+'/MythicDungeonTools.lua', 'utf8')
+    var core = await fs.readFile(directory + '/MythicDungeonTools.lua', 'utf8')
     core = core.replace(/local AddonName, MDT = \.\.\./, 'local AddonName, MDT = "MDT", {}')
     core = core.replace(/local affixWeeks =/g, 'MDT.affixWeeks =')
     core = core.replace(/local dungeonList =/, 'MDT.dungeonList =')
@@ -383,7 +383,7 @@ module.exports = {
     luaCode = luaCode + "\n--wago insert:MythicDungeonTools.lua\n" + core
 
     // load in some tables from dungeonEnemies file
-    var enemies = await fs.readFile(directory+'/DungeonEnemies.lua', 'utf8')
+    var enemies = await fs.readFile(directory + '/DungeonEnemies.lua', 'utf8')
     enemies = enemies.replace(/local MDT = MDT/, '')
     enemies = enemies.replace(/local L = MDT\.L/, '')
     luaCode = luaCode + "\n--wago insert:DungeonEnemies.lua\n" + enemies
@@ -391,7 +391,7 @@ module.exports = {
     var dungeonFiles = await fs.readdir(directory + '/Shadowlands')
     for (let i = 0; i < dungeonFiles.length; i++) {
       if (dungeonFiles[i].match(/\.lua$/)) {
-        let dungeon = await fs.readFile(directory+'/Shadowlands/'+dungeonFiles[i], 'utf8')
+        let dungeon = await fs.readFile(directory + '/Shadowlands/' + dungeonFiles[i], 'utf8')
         dungeon = dungeon.replace(/local dungeonIndex/, 'dungeonIndex')
         dungeon = dungeon.replace(/local L = MDT\.L/, '')
         luaCode = luaCode + `\n--wago insert:${directory}/${dungeonFiles[i]}\n` + dungeon
@@ -400,7 +400,7 @@ module.exports = {
     var dungeonFiles = await fs.readdir(directory + '/BattleForAzeroth')
     for (let i = 0; i < dungeonFiles.length; i++) {
       if (dungeonFiles[i].match(/\.lua$/)) {
-        let dungeon = await fs.readFile(directory+'/BattleForAzeroth/'+dungeonFiles[i], 'utf8')
+        let dungeon = await fs.readFile(directory + '/BattleForAzeroth/' + dungeonFiles[i], 'utf8')
         dungeon = dungeon.replace(/local dungeonIndex/, 'dungeonIndex')
         dungeon = dungeon.replace(/local L = MDT\.L/, '')
         luaCode = luaCode + `\n--wago insert:${directory}/${dungeonFiles[i]}\n` + dungeon

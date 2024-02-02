@@ -1,35 +1,35 @@
 // model Comment
 const mongoose = require('mongoose'),
-      ObjectId = mongoose.Schema.Types.ObjectId
+  ObjectId = mongoose.Schema.Types.ObjectId
 
 const Schema = new mongoose.Schema({
   wagoID: { type: String, ref: 'WagoItem', index: true },
-  authorID: { type: ObjectId, ref: 'Users', index: true},
-  commentText: {type: String, index: 'text'},
-  codeReview: {type: String, index: true, maxlength: 256},
-  codeReviewFalsePositive: {type: Boolean},
+  authorID: { type: ObjectId, ref: 'Users', index: true },
+  commentText: { type: String, index: 'text' },
+  codeReview: { type: String, index: true, maxlength: 256 },
+  codeReviewFalsePositive: { type: Boolean },
   postDate: { type: Date, default: +new Date() },
   usersTagged: [{
     _id: false,
-    userID: { type: ObjectId, ref: 'Users', index: true},
-    read: {type: Boolean, default: false}
+    userID: { type: ObjectId, ref: 'Users', index: true },
+    read: { type: Boolean, default: false }
   }],
   _indexComment: Boolean
 })
 
-Schema.statics.findUnread = async function(userID) {
-  const comments = await this.find({usersTagged: {$elemMatch: {userID: userID, read: false}}}).populate('wagoID').select('wagoID').exec()
+Schema.statics.findUnread = async function (userID) {
+  const comments = await this.find({ usersTagged: { $elemMatch: { userID: userID, read: false } } }).populate('wagoID').select('wagoID').exec()
   var unread = []
   comments.forEach(c => {
     if (c.wagoID && c.wagoID._id && !c.wagoID.deleted) {
-      unread.push({_id: c._id, wagoID: c.wagoID._id})
+      unread.push({ _id: c._id, wagoID: c.wagoID._id })
     }
   })
   return unread
 }
 
-Schema.statics.findMentions = async function(userID, includeRead) {
-  const comments = await this.find({"usersTagged.userID": userID}).select('wagoID usersTagged.$').exec()
+Schema.statics.findMentions = async function (userID, includeRead) {
+  const comments = await this.find({ "usersTagged.userID": userID }).select('wagoID usersTagged.$').exec()
 
   var mentions = []
   comments.forEach((mention) => {
@@ -50,18 +50,25 @@ Schema.virtual('indexedCommentData').get(async function () {
       deleted: true
     }
   }
+
   const data = {
     id: this._id,
     text: this.commentText,
     timestamp: Math.round(this.postDate.getTime() / 1000),
     taggedIDs: this.usersTagged.map(x => x.userID.toString())
   }
-
   await this.populate('wagoID').execPopulate()
   if (this.wagoID && this.wagoID._id) {
+
     data.importID = this.wagoID._id.toString()
     data.importName = this.wagoID.name
     data.hidden = this.wagoID.visibility !== 'Public'
+
+    data.type = this.wagoID.type.replace(/.*-WEAKAURA/, 'WEAKAURA')
+    data.expansion = -1
+    if ((data.type === 'WEAKAURA' || data.type === 'PLATER') && !this.wagoID.encrypted) {
+      data.expansion = (GameVersion.tocToPatch(this.wagoID.tocversion).major || 0) - 1
+    }
   }
   else {
     return {
@@ -69,6 +76,8 @@ Schema.virtual('indexedCommentData').get(async function () {
       deleted: true
     }
   }
+
+  if (data.expansion === null) console.log(this._id)
 
   await this.populate('authorID').execPopulate()
   if (this.authorID && this.authorID._id) {

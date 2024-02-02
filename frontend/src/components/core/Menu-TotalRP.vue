@@ -6,7 +6,7 @@
           <md-avatar class='square'><category-image :group="'t-totalrp3'"></category-image></md-avatar>
           <h2 id="addon-name">Total RP 3</h2>
         </md-layout>
-        <addon-info addon="totalrp3"></addon-info>
+        <addon-info game="wow" addon="totalrp3"></addon-info>
       </div>
     </md-layout>
     <md-subheader>Total RP 3</md-subheader>
@@ -69,7 +69,7 @@ export default {
       if (typeof item === 'string') {
         item = window.Categories.match(item)
       }
-      this.$store.commit('setSearchText', `type:TOTALRP3 category:${item.id}`)
+      this.$store.commit('setSearchText', `category:${item.id}`)
       this.$router.push('/totalrp/' + item.slug)
     }
   },

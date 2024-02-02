@@ -155,6 +155,9 @@ module.exports = {
       sysCat = 'plater3'
     }
 
+    if (!json.tocversion) {
+      json.tocversion = patchDates.dateToToc(wago.modified)
+    }
     json.url = wago.url + '/' + code.version
     json.version = code.version
     json.semver = code.versionString

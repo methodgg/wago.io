@@ -8,15 +8,9 @@
     <div :class="{'search-dropdown': true, hidden: dropdownMenu === ''}" ref="searchDropdown">
       <md-list v-if="dropdownMenu === 'main'">
         <md-list-item><h4>{{ $t('Search Options') }}<span class="close-search" @click="clearSearch()">✖</span></h4></md-list-item>
-        <md-list-item v-if="searchMode.match(/^(wow|xiv|code)$/)" @click="addSearchText('Type:')"><strong>{{ $t('Type') }}</strong><span>{{ $t('Example') }}: {{ $t('WeakAura; Plater') }}</span></md-list-item>
-        <md-list-item v-if="searchMode.match(/^(wow|code)$/)" @click="addSearchText('Expansion:')"><strong>{{ $t('Expansion') }}</strong><span>{{ $t('Example') }}: {{ $t('Shadowlands; TBCC') }}</span></md-list-item>
-        <md-list-item v-if="searchMode.match(/^(wow|xiv|code)$/)" @click="addSearchText('Metric:')"><strong>{{ $t('Metric') }}</strong><span>{{ $t('Example') }}: {{ $t('Installs>150; Stars>90') }}</span></md-list-item>
+        <md-list-item @click="addSearchText('Metric:')"><strong>{{ $t('Metric') }}</strong><span>{{ $t('Example') }}: {{ $t('Installs>150; Stars>90') }}</span></md-list-item>
         <md-list-item v-if="searchMode.match(/comments/) && $store.state.user" @click="addSearchText('Mentions:')"><strong>{{ $t('Mentions') }}</strong><span>{{ $t('Example') }}: {{ $t('Unread') }}</span></md-list-item>
         <md-list-item @click="addSearchText('Date:')"><strong>{{ $t('Date') }}</strong><span>{{ $t('Example') }}: {{exampleDate}}</span></md-list-item>
-        <md-list-item><h4>{{ $t('Search Mode') }}</h4></md-list-item>
-        <md-list-item v-if="!searchMode.match(/^(wow|xiv)$/)" @click="setSearchMode('standard')"><strong>{{ $t('Standard Search') }}</strong><span>{{ $t('Search and filter imports') }}</span></md-list-item>
-        <md-list-item v-if="!searchMode.match(/comments/)" @click="setSearchMode('comments')"><strong>{{ $t('Comment Search') }}</strong><span>{{ $t('Search and filter comments') }}</span></md-list-item>
-        <!--<md-list-item v-if="!domain && (searchMode !== 'code' && betaUser)" @click="setSearchMode('code')"><strong>[Beta] {{ $t('Code Search') }}</strong><span>{{ $t('Search the custom code of imports') }}</span></md-list-item>-->
       </md-list>
       <md-list v-else-if="dropdownMenu === 'expansion' && !domain">
         <md-list-item><h4>{{ $t('Expansion Options') }}<span class="close-search" @click="clearSearch(/expansion:\s*/i)">✖</span></h4></md-list-item>
@@ -52,11 +46,11 @@
           <md-button :class="{ 'md-toggle': dateType === 'after' }"@click="dateType='after'">{{ $t('After') }}</md-button>
         </md-button-toggle>
         <datepicker v-model="selectedDate" :inline="true" :disabled-dates="datePickerCfg.disabledDates" @selected="addDateField('date')" />
-        <template v-if="!domain">
+        <!--<template v-if="!domain">
           <md-list-item><h4>{{ $t('Or filter by recent patch') }}</h4></md-list-item>
           <md-list-item @click="replaceSearchText(/(date|during|before|after):\s*/i, `after:2021-06-29`)"><strong>{{ $t('Shadowlands Patch 9.1.0') }}</strong><span>2021-06-29</span></md-list-item>
           <md-list-item @click="replaceSearchText(/(date|during|before|after):\s*/i, `after:2021-06-01`)"><strong>{{ $t('The Burning Crusade Classic Patch 2.5.1') }}</strong><span>2021-06-01</span></md-list-item>
-        </template>
+        </template>-->
       </md-list>
       <md-list v-else-if="dropdownMenu === 'metric'">
         <md-list-item><h4>{{ $t('Configure a metric filter') }}<span class="close-search" @click="clearSearch(/metric:\s*/i)">✖</span></h4></md-list-item>
@@ -169,7 +163,10 @@ export default {
       return parseInt(this.$store.state.domain || '0')
     },
     searchMode () {
-      return this.$store.state.searchMode || 'wow'
+      if (!this.$store.state.searchMode || this.$store.state.searchMode === 'wow') {
+        return 'imports'
+      }
+      return this.$store.state.searchMode
     },
     typeFilters () {
       if (this.domain === 1) { // FF14
@@ -211,9 +208,6 @@ export default {
   },
   watch: {
     watchSiteSearch (value) {
-      if (!value) {
-        this.$store.commit('setSearchMode', 'wow')
-      }
       this.quill.setContents([{ insert: `${value} \n` }])
       for (let i = 0; i < (value.match(/!|:/g) || []).length; i++) {
         this.parseSearchString()
@@ -252,61 +246,62 @@ export default {
       this.showPlaceholder = (contents.ops.length === 0 || (contents.ops.length === 1 && contents.ops[0] && contents.ops[0].insert === '\n'))
       for (let i = 0; i < contents.ops.length; i++) {
         if (typeof contents.ops[i].insert === 'string') {
-          if (contents.ops[i].insert.match(/!(code|comments|starred)!/i)) {
-            let m = contents.ops[i].insert.match(/(.*)(!(code|comments|starred)!)(.*)/i)
-            if (m) {
-              hasChanges = true
-              delta = delta
-                .retain(m[1].length)
-                .delete(m[2].length)
-                .retain(m[4].length)
-              this.searchMode = m[3]
-            }
-          }
+          if (0) {}
+          // if (contents.ops[i].insert.match(/!(code|comments|starred)!/i)) {
+          //   let m = contents.ops[i].insert.match(/(.*)(!(code|comments|starred)!)(.*)/i)
+          //   if (m) {
+          //     hasChanges = true
+          //     delta = delta
+          //       .retain(m[1].length)
+          //       .delete(m[2].length)
+          //       .retain(m[4].length)
+          //     this.searchMode = m[3]
+          //   }
+          // }
 
-          else if (contents.ops[i].insert.match(/expansion:/i)) {
-            let hasExpansion = false
-            for (let exp of this.expansionFilters) {
-              let m = contents.ops[i].insert.match(exp.regex)
-              if (m) {
-                hasChanges = true
-                this.inputHasTag = true
-                openMenu = true
-                hasExpansion = true
-                delta = delta
-                  .retain(m[1].length)
-                  .delete(m[2].length)
-                  .insert({tag: {text: exp.name, class: exp.class, search: exp.search}})
-                  .retain(m[3].length)
-                break
-              }
-              if (!hasExpansion) {
-                this.dropdownMenu = 'expansion'
-              }
-            }
-          }
+          // else if (contents.ops[i].insert.match(/expansion:/i)) {
+          //   let hasExpansion = false
+          //   for (let exp of this.expansionFilters) {
+          //     let m = contents.ops[i].insert.match(exp.regex)
+          //     if (m) {
+          //       hasChanges = true
+          //       this.inputHasTag = true
+          //       openMenu = true
+          //       hasExpansion = true
+          //       delta = delta
+          //         .retain(m[1].length)
+          //         .delete(m[2].length)
+          //         .insert({tag: {text: exp.name, class: exp.class, search: exp.search}})
+          //         .retain(m[3].length)
+          //       break
+          //     }
+          //     if (!hasExpansion) {
+          //       this.dropdownMenu = 'expansion'
+          //     }
+          //   }
+          // }
 
-          else if (contents.ops[i].insert.match(/type:/i)) {
-            let hasType = false
-            for (let exp of this.typeFilters) {
-              let m = contents.ops[i].insert.match(exp.regex)
-              if (m) {
-                hasChanges = true
-                this.inputHasTag = true
-                openMenu = true
-                hasType = true
-                delta = delta
-                  .retain(m[1].length)
-                  .delete(m[2].length)
-                  .insert({tag: {text: exp.name, class: exp.class, search: exp.search}})
-                  .retain(m[3].length)
-                break
-              }
-              if (!hasType) {
-                this.dropdownMenu = 'type'
-              }
-            }
-          }
+          // else if (contents.ops[i].insert.match(/type:/i)) {
+          //   let hasType = false
+          //   for (let exp of this.typeFilters) {
+          //     let m = contents.ops[i].insert.match(exp.regex)
+          //     if (m) {
+          //       hasChanges = true
+          //       this.inputHasTag = true
+          //       openMenu = true
+          //       hasType = true
+          //       delta = delta
+          //         .retain(m[1].length)
+          //         .delete(m[2].length)
+          //         .insert({tag: {text: exp.name, class: exp.class, search: exp.search}})
+          //         .retain(m[3].length)
+          //       break
+          //     }
+          //     if (!hasType) {
+          //       this.dropdownMenu = 'type'
+          //     }
+          //   }
+          // }
 
           else if (contents.ops[i].insert.match(/collection:/i)) {
             let m = contents.ops[i].insert.match(/(.*)(collection:\s?([\w-]{7,14}))(.*)/i)
@@ -342,7 +337,7 @@ export default {
             }
           }
 
-          else if (this.searchMode.match(/^(wow|xvi)$/) && contents.ops[i].insert.match(/(category|tag):/i)) {
+          else if (contents.ops[i].insert.match(/(category|tag):/i)) {
             let str = this.getRawSearch()
             let type, game
             let m = str.match(/type:(\w+)/i)
@@ -411,6 +406,26 @@ export default {
             }
           }
 
+          else if (contents.ops[i].insert.match(/metric:/i)) {
+            // let m = contents.ops[i].insert.match(/(.*)(mentions:\s?(unread|read|all))(.*)/i)
+            // let hasType = false
+            // if (m) {
+            //   hasChanges = true
+            //   this.inputHasTag = true
+            //   openMenu = true
+            //   hasType = true
+            //   delta = delta
+            //     .retain(m[1].length)
+            //     .delete(m[2].length)
+            //     .insert({tag: {text: `🚨 ${m[3]}`, class: 'tag-mentions', search: `mentions:${m[3]}`}})
+            //     .retain(m[4].length)
+            //   break
+            // }
+            // else {
+              this.dropdownMenu = 'metric'
+            // }
+          }
+
           else if (contents.ops[i].insert.match(/mentions:/i)) {
             let m = contents.ops[i].insert.match(/(.*)(mentions:\s?(unread|read|all))(.*)/i)
             let hasType = false
@@ -470,26 +485,27 @@ export default {
     },
     addMetricField: function () {
       const num = parseInt(this.metricValue)
-      const str = `metric:${this.metricName}${this.metricComp}${num}`
+      const str = `Metric:${this.metricName}${this.metricComp}${num} `
       if (num > 0) {
         this.$nextTick(() => {
           this.replaceSearchText(new RegExp(`metric:\\s*`, 'i'), str)
           this.dropdownMenu = 'main'
+          this.quill.setSelection(this.quill.getLength(), 0)
         })
       }
     },
-    setSearchMode: function (mode) {
-      if (mode === 'standard' && this.domain === 0) {
-        this.$store.commit('setSearchMode', 'wow')
-      }
-      else if (mode === 'standard' && this.domain === 1) {
-        this.$store.commit('setSearchMode', 'xiv')
-      }
-      else {
-        this.$store.commit('setSearchMode', mode)
-      }
-      this.quill.focus()
-    },
+    // setSearchMode: function (mode) {
+    //   if (mode === 'standard' && this.domain === 0) {
+    //     this.$store.commit('setSearchMode', 'wow')
+    //   }
+    //   else if (mode === 'standard' && this.domain === 1) {
+    //     this.$store.commit('setSearchMode', 'xiv')
+    //   }
+    //   else {
+    //     this.$store.commit('setSearchMode', mode)
+    //   }
+    //   this.quill.focus()
+    // },
     addSearchText: function (text) {
       let selection = this.quill.getSelection(true)
       if (selection) {
@@ -536,9 +552,6 @@ export default {
 
       let str = ''
       let betaUser = false
-      if (!this.searchMode.match(/^(wow|xvi)$/)) {
-        str = `!${this.searchMode}!`
-      }
       search.childNodes.forEach(node => {
         if (node.nodeName === '#text') {
           str = `${str} ${node.nodeValue}`
@@ -553,7 +566,7 @@ export default {
       const str = this.getRawSearch().trim()
       if (str) {
         this.$store.commit('setSearchText', str, true)
-        this.$router.push(`/search/${str.replace(/^!(\w+)!/, '').replace(/\s+/g, '%20')}`)
+        this.$router.push(`/search?q=${str.replace(/^!(\w+)!/, '').replace(/\s+/g, '%20')}`)
       }
       this.quill.focus()
     },
@@ -565,7 +578,6 @@ export default {
       else {
         this.dropdownMenu = ''
       }
-
     },
     openDropdownMenu: function (reset) {
       if (!this.dropdownMenu || reset) {
@@ -652,7 +664,7 @@ export default {
       position: absolute;
     }
 
-    &.wow-search, &.xiv-search {
+    &.search-input {
       width: calc(100% - 40px);
       &:before {
         content: 'Search';
@@ -661,13 +673,14 @@ export default {
         padding-left: 66px;
       }
     }
+    /*
     &.code-search {
       width: calc(100% - 30px - 40px);
       &:before {
         content: '[Beta] Code';
       }
       .ql-editor {
-        padding-left: 96px; /*56px*/
+        padding-left: 96px;
       }
     }
 
@@ -689,7 +702,7 @@ export default {
       .ql-editor {
         padding-left: 70px;
       }
-    }
+    }*/
 
     .ql-editor {
       margin: 0;
@@ -808,7 +821,7 @@ export default {
   position: absolute;
   top: 63px;
   width: 90%; max-width: 400px;
-  z-index: 9999999;
+  z-index: 9999999!important;
   border: 1px solid #040404;
   &.hidden {
     display: none;
@@ -823,7 +836,6 @@ export default {
         margin: 0;
         font-size: 14px;
         text-transform: uppercase;
-        border-bottom: 1px solid #777;
         margin: 8px 0;
         width: 100%;
         color: #c0272d;

@@ -6,7 +6,7 @@
           <md-avatar class='square'><category-image :group="'t-vuhdo'"></category-image></md-avatar>
           <h2 id="addon-name">VuhDo</h2>
         </md-layout>
-        <addon-info addon="vuhdo"></addon-info>
+        <addon-info game="wow" addon="vuhdo"></addon-info>
       </div>
     </md-layout>
     <md-layout>
@@ -74,7 +74,7 @@ export default {
       if (typeof item === 'string') {
         item = window.Categories.match(item)
       }
-      this.$store.commit('setSearchText', `type:VUHDO category:${item.id}`)
+      this.$store.commit('setSearchText', `category:${item.id}`)
       this.$router.push('/vuhdo/' + item.slug)
     }
   },

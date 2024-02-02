@@ -6,7 +6,7 @@
           <md-avatar class='square'><category-image :group="'t-tpie'"></category-image></md-avatar>
           <h2 id="addon-name">TPie</h2>
         </md-layout>
-        <addon-info addon="tpie"></addon-info>
+        <addon-info game="xiv" addon="tpie"></addon-info>
       </div>
     </md-layout>
     <md-layout md-row>
@@ -137,7 +137,7 @@ export default {
       if (typeof item === 'string') {
         item = window.Categories.match(item)
       }
-      this.$store.commit('setSearchText', `type:TPIE category:${item.id}`)
+      this.$store.commit('setSearchText', `category:${item.id}`)
       this.$router.push('/tpie/' + item.slug)
     }
   },

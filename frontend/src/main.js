@@ -59,7 +59,11 @@ const store = new Vuex.Store({
     advertSetup: false,
     advertBlocked: false,
     streambuffVideo: true,
-    user: {},
+    user: {
+      config: {
+        searchOptions: {}
+      }
+    },
     loggedIn: false,
     wotm: {},
     wago: {},
@@ -76,6 +80,11 @@ const store = new Vuex.Store({
       image: 'https://wago.io/media/favicon/apple-touch-icon-180x180.png'
     },
     siteSearch: '',
+    searchMode: '',
+    searchGame: '',
+    searchExpansion: '',
+    searchType: '',
+    searchVersion: '',
     execSearch: 0,
     domain: window.localStorage.getItem('domain') || '0',
     firstAd: false,
@@ -89,7 +98,7 @@ const store = new Vuex.Store({
   },
   mutations: {
     // store.commit('setLocale', 'en-US')
-    setLocale (state, locale) {
+    setLocale(state, locale) {
       if (locale.indexOf('-') === 2) {
         // locale already in lang-region format
       }
@@ -103,7 +112,7 @@ const store = new Vuex.Store({
       }
       else {
         // what is this!
-        var e = {name: 'UnknownLocale', message: locale}
+        var e = { name: 'UnknownLocale', message: locale }
         throw e
       }
 
@@ -139,7 +148,7 @@ const store = new Vuex.Store({
     },
 
     // store.commit('setUser', {JSON user object from API...})
-    setUser (state, user) {
+    setUser(state, user) {
       if (!user.hideAds) {
         store.commit('loadAds')
       }
@@ -155,12 +164,12 @@ const store = new Vuex.Store({
       }
     },
 
-    loadAds (state) {
+    loadAds(state) {
       if (state.isMaintenance) {
         return
       }
       const body = document.querySelector('body')
-      if (process.env.NODE_ENV === 'development') {
+      if (0 && process.env.NODE_ENV === 'development') {
         state.advertSetup = true
         state.advertBlocked = false
         body.classList.add('ads-enabled')
@@ -182,7 +191,7 @@ const store = new Vuex.Store({
           },
         };
         const streambuffScript = document.createElement('script')
-        streambuffScript.setAttribute('src', 'https://streambuff.gg/js/init.js')      
+        streambuffScript.setAttribute('src', 'https://streambuff.gg/js/init.js')
         // body.appendChild(streambuffScript)
       }
       else if (!state.advertSetup) {
@@ -190,23 +199,23 @@ const store = new Vuex.Store({
 
         //**** Nitropay
         window.nitroAds = window.nitroAds || {
-          createAd: function() {
-            return new Promise(e=>{window.nitroAds.queue.push(["createAd",arguments,e])})
+          createAd: function () {
+            return new Promise(e => { window.nitroAds.queue.push(["createAd", arguments, e]) })
           },
-          addUserToken: function(){window.nitroAds.queue.push(["addUserToken",arguments])},
-          queue:[]
+          addUserToken: function () { window.nitroAds.queue.push(["addUserToken", arguments]) },
+          queue: []
         }
         const nitropay = document.createElement('script')
-        nitropay.setAttribute('src', 'https://s.nitropay.com/ads-437.js')        
+        nitropay.setAttribute('src', 'https://s.nitropay.com/ads-437.js')
         const sideRail = {
-          demo: process.env.NODE_ENV === 'development' || window.location.hostname.match(/test/),
-          refreshLimit: 10,
+          demo: !!(process.env.NODE_ENV === 'development' || window.location.hostname.match(/test/)),
+          refreshLimit: 0,
           refreshTime: 30,
           format: 'rail',
           railOffsetTop: 150,
           railOffsetBottom: 40,
           railSpacing: 6,
-          railCollisionWhitelist: ['.md-select-content', '.leaderboard-top', '#visibilty', '#importAs', '#expire', '.op-sr'],
+          railCollisionWhitelist: ['.md-select-content', '.leaderboard-top', '.leaderboard-bottom', '#bottom-anchor', '#footer#', '#visibilty', '#importAs', '#expire', '.op-sr', '#content-frame'],
           sizes: [
             ['160', '600'],
             ['300', '600'],
@@ -214,17 +223,11 @@ const store = new Vuex.Store({
           ],
           mediaQuery: '(min-width: 1908px)'
         }
-        const thinRail = {
-          sizes: [
-            ['160', '600']
-          ],
-          mediaQuery: '(min-width: 1628px) and (max-width: 1907px)'
-        }
         nitropay.onload = () => {
-            state.advertSetup = true
+          state.advertSetup = true
           state.advertBlocked = false
           window.advertRails.make()
-          }
+        }
         nitropay.onerror = () => {
           state.advertSetup = true
           state.advertBlocked = true
@@ -232,26 +235,30 @@ const store = new Vuex.Store({
         body.appendChild(nitropay)
 
         window.advertRails = {
+          ads: [],
           make: () => {
-            if (this.left && this.left.onNavigate) {
-              this.left.onNavigate()
-      }
-            if (this.left2 && this.left2.onNavigate) {
-              this.left2.onNavigate()
-            }
-            if (this.right && this.right.onNavigate) {
-              this.right.onNavigate()
-            }
-            if (this.right2 && this.right2.onNavigate) {
-              this.right2.onNavigate()
-            }
-            if (this.left || this.left2 || this.right || this.right2) {
-              return
-            }
-            this.left = window.nitroAds.createAd('rail-left', Object.assign({rail: 'left'}, sideRail))
-            this.right = window.nitroAds.createAd('rail-right', Object.assign({rail: 'right'}, sideRail))
-            // this.left2 = window.nitroAds.createAd('rail-left-small', Object.assign({rail: 'left'}, sideRail, thinRail))
-            // this.right2 = window.nitroAds.createAd('rail-right-small', Object.assign({rail: 'right'}, sideRail, thinRail))
+            window.advertRails.ads.push(window.nitroAds.createAd('rail-left', Object.assign({ rail: 'left' }, sideRail)))
+            window.advertRails.ads.push(window.nitroAds.createAd('rail-right', Object.assign({ rail: 'right' }, sideRail)))
+            window.advertRails.ads.push(window.nitroAds.createAd('bottom-anchor', {
+              demo: false,//!!(process.env.NODE_ENV === 'development' || window.location.hostname.match(/test/)),
+              refreshLimit: 0,
+              refreshTime: 30,
+              format: "anchor",
+              anchor: "bottom",
+              anchorBgColor: 'rgb(51 51 51 / 50%)',
+              anchorPersistClose: true,
+              mediaQuery: "(min-width: 0px)",
+              report: {
+                enabled: true,
+                icon: true,
+                wording: "Report Ad",
+                position: "top-right"
+              }
+            }))
+          },
+          refresh: () => {
+            console.log('onNavigate =>', window.advertRails)
+            window.advertRails.ads.map(x => x && x.onNavigate && x.onNavigate())
           }
         }
 
@@ -264,26 +271,26 @@ const store = new Vuex.Store({
           height: 191.25,
           onEmbedServed: () => {
             state.streambuffVideo = true
-    },
+          },
           onEmbedMissing: () => {
             state.streambuffVideo = false
           },
         }
         const streambuffScript = document.createElement('script')
-        streambuffScript.setAttribute('src', 'https://streambuff.gg/js/init.js')      
+        streambuffScript.setAttribute('src', 'https://streambuff.gg/js/init.js')
         body.appendChild(streambuffScript)
 
-        
+
       }
     },
 
-    setStreamEmbed (state, streamEmbed) {
+    setStreamEmbed(state, streamEmbed) {
       if (state.streamEmbed !== '__streamspread' && streamEmbed) {
         Vue.set(state, 'streamEmbed', streamEmbed)
       }
     },
 
-    userClearMention (state, commentID) {
+    userClearMention(state, commentID) {
       if (!state.user || !state.user.UID) {
         return
       }
@@ -294,14 +301,14 @@ const store = new Vuex.Store({
       }
     },
 
-    userSearchOption (state, data) {
+    userSearchOption(state, data) {
       if (!state.user) {
         return
       }
       state.user.config.searchOptions[data.field] = data.value
     },
 
-    setSearchText (state, text) {
+    setSearchText(state, text) {
       Vue.set(state, 'siteSearch', '')
       Vue.nextTick(() => {
         let q = text.replace(/\s{2,}/g, ' ').trim()
@@ -309,31 +316,58 @@ const store = new Vuex.Store({
         if (m && m[1]) {
           q = q.replace(m[0], '')
           Vue.set(state, 'searchMode', m[1])
-          window.localStorage.setItem('searchMode', m[1])
+          window.localStorage.setItem('search.mode', m[1])
         }
         Vue.set(state, 'siteSearch', q.trim())
         state.execSearch++
       })
     },
 
-    setDomain (state, domain){
+    setSearchGame(state, data) {
+      Vue.set(state, 'searchGame', data.game + '')
+      window.localStorage.setItem(`search.game`, data.game)
+    },
+
+    setDomain(state, domain) {
       Vue.set(state, 'domain', domain + '')
       window.localStorage.setItem('domain', domain + '')
     },
 
-    setSearchMode (state, mode){
+    setSearchMode(state, mode) {
       Vue.set(state, 'searchMode', mode + '')
-      window.localStorage.setItem('searchMode', mode + '')
+      window.localStorage.setItem('search.mode', mode + '')
     },
 
-    setSearchOpts (state, opts) {
+    setSearchExpansion(state, data) {
+      Vue.set(state, 'searchExpansion', data.expansion + '')
+      window.localStorage.setItem(`search.expansion.${data.game}`, data.expansion)
+    },
+
+    setSearchType(state, data) {
+      Vue.set(state, 'searchType', type + '')
+      window.localStorage.setItem(`search.type.${data.game}`, data.type)
+    },
+
+    setSearchToggles(state, data) {
+      console.log('set toggles', data)
+      Vue.set(state, 'searchMode', data.mode + '')
+      window.localStorage.setItem('search.mode', data.mode + '')
+      Vue.set(state, 'searchGame', data.game + '')
+      window.localStorage.setItem(`search.game`, data.game)
+      Vue.set(state, 'searchExpansion', data.expansion + '')
+      window.localStorage.setItem(`search.expansion.${data.game}`, data.expansion)
+      Vue.set(state, 'searchType', data.type + '')
+      window.localStorage.setItem(`search.type.${data.game}`, data.type)
+    },
+
+    setSearchOpts(state, opts) {
       Vue.set(state, 'searchMode', opts.mode || '')
-      window.localStorage.setItem('searchMode', opts.mode || '')
+      window.localStorage.setItem('search.mode', opts.mode || '')
       Vue.set(state, 'siteSearch', (opts.query || '').trim())
       state.execSearch++
     },
 
-    setPageInfo (state, page) {
+    setPageInfo(state, page) {
       if (!page.title) {
         page.title = state.pageInfo.title
       }
@@ -366,45 +400,45 @@ const store = new Vuex.Store({
       window.prerenderReady = true
     },
 
-    setWotm (state, wotm) {
+    setWotm(state, wotm) {
       state.wotm = JSON.parse(decodeURIComponent(wotm))
     },
-    setWago (state, wago) {
+    setWago(state, wago) {
       state.wago = wago
     },
-    setAddons (state, addons) {
+    setAddons(state, addons) {
       state.addons = addons
     },
-    setWagoJSON (state, json) {
+    setWagoJSON(state, json) {
       state.wago.code.json = json
     },
-    setMDTWeek (state, week) {
+    setMDTWeek(state, week) {
       state.MDTWeek = week
     },
-    setLoginRedirect (state, path) {
+    setLoginRedirect(state, path) {
       state.loginRedirect = path
     },
-    setEditorTheme (state, theme) {
+    setEditorTheme(state, theme) {
       window.setCookie('editorTheme', theme, 365)
       state.editorTheme = theme
       Vue.set(state.user.config, 'editor', theme)
     },
-    saveMDT (state, table) {
+    saveMDT(state, table) {
       state.mdtDungeonTable = table
     },
 
-    showAd (state) {
+    showAd(state) {
       state.firstAd = true
     },
 
-    linkApp (state) {
+    linkApp(state) {
       state.linkApp = true
     },
 
-    SOCKET_OPEN (state, socket)  {
+    SOCKET_OPEN(state, socket) {
 
     },
-    SOCKET_DATA (state, data)  {
+    SOCKET_DATA(state, data) {
       if (data.setStream) {
         store.commit('setStreamEmbed', data.setStream)
       }
@@ -414,10 +448,10 @@ const store = new Vuex.Store({
     }
   },
   getters: {
-    i18nLanguage (state) {
+    i18nLanguage(state) {
       return state.locale.split('-')[0]
     },
-    i18nRegion (state) {
+    i18nRegion(state) {
       return state.locale.split('-')[1]
     }
   }
@@ -477,13 +511,16 @@ router.afterEach((to, from) => {
     }
   }
 
+  if (!from.matched.length || !to.matched.length || (to.matched[0].path === from.matched[0].path && to.matched[0].path === '/:wagoID')) {
+    return
+  }
   if (!from.matched.length || (to.matched[0].path !== from.matched[0].path || to.matched[0].path !== '/:wagoID')) {
     if (window.advertRails) {
-      window.advertRails.make()
+      window.advertRails.refresh()
     }
 
     gtag('config', 'G-WYTP0LZWS6', {
-      'page_title' : document.title,
+      'page_title': document.title,
       'page_path': to.fullPath
     });
   }
@@ -528,28 +565,36 @@ Vue.use(VueMaterial)
 
 
 const isEmbedPage = !!(document.getElementById('embed-body'))
-Vue.use({install: function (v) {
-  v.prototype.$env = process.env.NODE_ENV
-}})
+Vue.use({
+  install: function (v) {
+    v.prototype.$env = process.env.NODE_ENV
+    if (window.location.hostname.match(/itsmark/)) v.prototype.$env = 'development'
+  }
+})
 var dataServers
 var authServer
 var socketServer
 const socketCID = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15)
 if (process.env.NODE_ENV === 'development') {
-  dataServers = ['http://dev.local:3030']
-  authServer = 'http://dev.local:3030'
-  socketServer = 'ws://dev.local:3030/ws'
+  dataServers = ['http://localhost:3030']
+  authServer = 'http://localhost:3030'
+  socketServer = 'ws://localhost:3030/ws'
 }
 else if (window.location.hostname.match(/test/)) {
   dataServers = ['https://data1.wago.io']
   authServer = 'https://data1.wago.io'
   socketServer = 'wss://data1.wago.io/ws'
 }
+else if (window.location.hostname.match(/itsmark/)) {
+  dataServers = ['https://wagodata.itsmark.me']
+  authServer = 'https://wagodata.itsmark.me'
+  socketServer = 'wss://wagodata.itsmark.me/ws'
+}
 else {
   // using round robin client-based load balancing
   // dataServers = getServersByCountry(window.cfCountry) // attempt to detect country by cloudflare and assign regional data servers when available
   dataServers = ['https://data.wago.io']
-  authServer = 'https://data.wago.io' 
+  authServer = 'https://data.wago.io'
   socketServer = 'wss://data.wago.io/ws'
 }
 
@@ -575,7 +620,7 @@ Vue.use(VueAxios, axios)
 Vue.axios.defaults.baseURL = dataServers[0]
 Vue.axios.defaults.timeout = 10000
 Vue.axios.defaults.withCredentials = true // to use cookies with CORS
-if (window.readCookie('token') &&  window === window.parent) {
+if (window.readCookie('token') && window === window.parent) {
   Vue.axios.defaults.headers = { 'x-auth-token': window.readCookie('token') }
 }
 
@@ -647,8 +692,8 @@ const http = {
         }
         catch (err) {
           console.error(err)
-            window.eventHub.$emit('showSnackBar', i18next.t('Error could not reach data server'))
-          }
+          window.eventHub.$emit('showSnackBar', i18next.t('Error could not reach data server'))
+        }
       },
       post: async function (url, params) {
         // prepend API server
@@ -768,7 +813,7 @@ const http = {
           // session expired or no session at all, clear cookies
           window.clearCookie('token')
           window.clearCookie('theme')
-          Vue.axios.defaults.headers = { }
+          Vue.axios.defaults.headers = {}
         }
 
         if (json.mdtWeek) {
@@ -803,7 +848,7 @@ const socket = {
         connection.onmessage = (event) => {
           const data = JSON.parse(event.data)
           if (data.ping) {
-            Vue.prototype.$socket.send({pong: 1})
+            Vue.prototype.$socket.send({ pong: 1 })
           }
           else if (data.error) {
             window.eventHub.$emit('showSnackBar', `Socket Error: ${data.error}`)
@@ -816,27 +861,27 @@ const socket = {
           }
         }
 
-        connection.onopen  = (event) => {
+        connection.onopen = (event) => {
           this.connected = true
           this.socket = event.target
           store.commit('SOCKET_OPEN', this)
-          this.reconnect = setTimeout(function() {
+          this.reconnect = setTimeout(function () {
             connection.close()
-          }, 1000*60*20)
+          }, 1000 * 60 * 20)
         }
 
-        connection.onclose  = (event) => {
+        connection.onclose = (event) => {
           connection.close()
           this.connected = false
           clearTimeout(this.reconnect)
         }
 
-        connection.onerror  = (error, event) => {
+        connection.onerror = (error, event) => {
           connection.close()
           this.connected = false
           clearTimeout(this.reconnect)
           const that = this
-          this.reconnect = setTimeout(function() {
+          this.reconnect = setTimeout(function () {
             that.connect()
           }, 5000)
         }
@@ -846,11 +891,44 @@ const socket = {
 }
 Vue.use(socket)
 
+const DBC = {
+  install: function (Vue) {
+    Vue.prototype.$DBC = {
+      items: [],
+      cache: {},
+      get: null,
+      lookup: function (lookup) {
+        this.items.push(lookup)
+      },
+      process: async function () {
+        let items = [...this.items]
+        this.items = []
+        for (const lookup of items) {
+          if (this.cache[lookup.id]) {
+            lookup.done(this.cache[lookup.id])
+          }
+          else {
+            try {
+              let res = await Vue.prototype.http.get('/lookup/dbc', { id: lookup.id })
+              if (res) {
+                this.cache[lookup.id] = res
+                lookup.done(res)
+              }
+            }
+            catch (e) { console.log(e) }
+          }
+        }
+      }
+    }
+  }
+}
+Vue.use(DBC)
+
 const isMobile = {
   install: (Vue) => {
     let agent = navigator.userAgent || navigator.vendor || window.opera
     // eslint-disable-next-line
-    Vue.prototype.$isMobile = /(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino/i.test(agent)||/1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i.test(agent.substr(0, 4))
+    Vue.prototype.$isMobile = /(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino/i.test(agent) || /1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i.test(agent.substr(0, 4))
   }
 }
 Vue.use(isMobile)
@@ -907,7 +985,7 @@ Vue.use(VueAuth, {
   auth: driverAuthBearer,
   http: driverHttpAxios,
   router: driverRouterVueRouter,
-  fetchData: {enabled: false},
+  fetchData: { enabled: false },
   oauth2: {
     battlenet: {
       url: 'https://us.battle.net/oauth/authorize',
@@ -955,7 +1033,7 @@ Vue.use(VueAuth, {
         // client_id: '-lUfSkaxFXmH-l0EBKFchZ3LmYGnjwKSL-93pVhZm2qiQXhZmaaNMyx8LuS1OiZ-',
         redirect_uri: 'auth/patreon',
         response_type: 'code',
-        scope:'users pledges-to-me'
+        scope: 'users pledges-to-me'
       }
     }
   }

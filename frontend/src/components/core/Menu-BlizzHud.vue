@@ -7,7 +7,7 @@
           <h2 id="addon-name">BlizzHUD</h2>
         </md-layout>
         <div style="margin:16px">BlizzHUD is the new built-in HUD editor in Dragonflight, currently available in beta. Be warned that it's changing rapidly and there may be breaking changes with old imports.</div>
-        <addon-info addon="blizzhud"></addon-info>
+        <addon-info game="wow" addon="blizzhud"></addon-info>
       </div>
     </md-layout>
     <md-subheader>{{ $t("Classes") }}</md-subheader>
@@ -59,8 +59,8 @@ export default {
       if (typeof item === 'string') {
         item = window.Categories.match(item)
       }
-      this.$store.commit('setSearchText', `type:BlizzHUD category:${item.id}`)
-      this.$router.push('/' + item.slug)
+      this.$store.commit('setSearchText', `category:${item.id}`)
+      this.$router.push('/blizzhud/' + item.slug)
     }
   },
   data: function () {

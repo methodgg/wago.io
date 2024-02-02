@@ -8,7 +8,7 @@
             <span>{{ $t('Legion') }}</span>
           </h2>
         </md-layout>
-        <addon-info addon="weakaura" expansion="legion"></addon-info>
+        <addon-info game="wow" addon="weakaura" expansion="legacy"></addon-info>
       </div>
     </md-layout>
     <md-layout>
@@ -142,7 +142,7 @@ export default {
       if (typeof item === 'string') {
         item = window.Categories.match(item)
       }
-      this.$store.commit('setSearchText', `expansion:legion type:WEAKAURA category:${item.id}`)
+      this.$store.commit('setSearchText', `category:${item.id}`)
       this.$router.push('/legion-weakauras/' + item.slug)
     }
   },

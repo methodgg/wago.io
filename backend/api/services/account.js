@@ -5,7 +5,7 @@ const image = require('../helpers/image')
 
 // build localeArray
 var localeArray = []
-config.supportedLocales.forEach(function(loc) {
+config.supportedLocales.forEach(function (loc) {
   localeArray.push(loc.code)
 })
 var supportedLocales = new locale.Locales(localeArray)
@@ -114,7 +114,7 @@ module.exports = (fastify, opts, next) => {
       who.companionHideAlert = user.account.companionHideAlert
 
       const unreadComments = Comments.findUnread(user._id)
-      const myCollections = WagoItem.find({_userId: user._id, type: 'COLLECTION', deleted: false}).select('_id name').sort('name').exec()
+      const myCollections = WagoItem.find({ _userId: user._id, type: 'COLLECTION', deleted: false }).select('_id name').sort('name').exec()
       who.unreadMentions = await unreadComments
       who.collections = await myCollections
       data.user = who
@@ -133,16 +133,16 @@ module.exports = (fastify, opts, next) => {
     // validate user input against supported locales
     var input = new locale.Locales(req.body.locale)
     var locale = input.best(supportedLocales)
-    res.send({setLocale: locale})
+    res.send({ setLocale: locale })
   })
 
   // change username
   fastify.post('/update/username', async (req, res) => {
     if (!req.user || !req.body.name) {
-      return res.code(403).send({error: "forbidden"})
+      return res.code(403).send({ error: "forbidden" })
     }
     else if (req.body.name.match(/[%/\\<>]/)) {
-      return res.code(401).send({error: "invalid input"})
+      return res.code(401).send({ error: "invalid input" })
     }
 
     // make sure username is unique
@@ -151,17 +151,17 @@ module.exports = (fastify, opts, next) => {
       req.user.account.username = req.body.name
       req.user.search.username = req.body.name.toLowerCase()
       await req.user.save()
-      return res.send({success: true})
+      return res.send({ success: true })
     }
     else {
-      return res.send({exists: true})
+      return res.send({ exists: true })
     }
   })
 
   // upload image
   fastify.post('/upload/avatar', async (req, res) => {
     if (!req.user || !req.body.file) {
-      return res.code(403).send({error: "forbidden"})
+      return res.code(403).send({ error: "forbidden" })
     }
 
     var base64 = req.body.file
@@ -184,27 +184,27 @@ module.exports = (fastify, opts, next) => {
       }
       req.user.profile.avatar = img
       req.user.save()
-      res.send({success: true, avatar: img})
+      res.send({ success: true, avatar: img })
     }
     else {
-      res.send({error: 'not image'})
+      res.send({ error: 'not image' })
     }
   })
 
   // select avatar option
   fastify.post('/update/avatar', async (req, res) => {
     if (!req.user || !req.body.avatar) {
-      return res.code(403).send({error: "forbidden"})
+      return res.code(403).send({ error: "forbidden" })
     }
 
     // import by selected option
     switch (req.body.avatar) {
       // generate new from adorable.io - now self hosted with original api opensource and offline
       case 'adorable':
-        const img = await image.avatarFromURL('https://avatars.dicebear.com/api/gridy/' + req.user._id.toString() + Date.now() + '.svg', req.user._id.toString(), req.body.avatar)
+        const img = await image.avatarFromURL('https://api.dicebear.com/7.x/big-ears-neutral/svg?seed=' + this._id.toString() + Date.now(), req.user._id.toString(), req.body.avatar)
         req.user.profile.avatar = img
         req.user.save()
-        res.send({success: true, avatar: img})
+        res.send({ success: true, avatar: img })
         break
 
       // copying from oauth provider
@@ -216,7 +216,7 @@ module.exports = (fastify, opts, next) => {
         if (req.user[req.body.avatar] && req.user[req.body.avatar].avatar) {
           req.user.profile.avatar = req.user[req.body.avatar].avatar
           req.user.save()
-          res.send({success: true, avatar: req.user.profile.avatar})
+          res.send({ success: true, avatar: req.user.profile.avatar })
         }
         break
     }
@@ -225,7 +225,7 @@ module.exports = (fastify, opts, next) => {
   // set profile visibility
   fastify.post('/update/profile-visibility', (req, res) => {
     if (!req.user) {
-      return res.code(403).send({error: "forbidden"})
+      return res.code(403).send({ error: "forbidden" })
     }
 
     if (req.body.value === 'Private') {
@@ -236,13 +236,13 @@ module.exports = (fastify, opts, next) => {
     }
 
     req.user.save()
-    res.send({succes: true})
+    res.send({ succes: true })
   })
 
   // set default import visibility
   fastify.post('/update/import-default-visibility', async (req, res) => {
     if (!req.user) {
-      return res.code(403).send({error: "forbidden"})
+      return res.code(403).send({ error: "forbidden" })
     }
 
     if (req.body.value === 'Private' || req.body.value === 'Hidden') {
@@ -253,38 +253,38 @@ module.exports = (fastify, opts, next) => {
     }
 
     req.user.save()
-    res.send({succes: true})
+    res.send({ succes: true })
   })
 
   fastify.post('/update/theme', (req, res) => {
     if (!req.user || !req.body.theme || !req.body.editor || !req.body.theme.match(/^(classic|dark)$/)) {
-      return res.code(403).send({error: "forbidden"})
+      return res.code(403).send({ error: "forbidden" })
     }
 
     req.user.config.theme = req.body.theme
     req.user.config.editor = req.body.editor
     req.user.save()
-    res.send({succes: true})
+    res.send({ succes: true })
   })
 
   fastify.post('/update/editorSyntax', (req, res) => {
     if (!req.user || !req.body.syntax || req.body.syntax.length > 32) {
-      return res.code(403).send({error: "forbidden"})
+      return res.code(403).send({ error: "forbidden" })
     }
 
     req.user.config.textSyntax = req.body.syntax
     req.user.save()
-    res.send({succes: true})
+    res.send({ succes: true })
   })
 
   fastify.post('/disableCompanionAlert', (req, res) => {
     if (!req.user) {
-      return res.code(403).send({error: "forbidden"})
+      return res.code(403).send({ error: "forbidden" })
     }
 
     req.user.account.companionHideAlert = true
     req.user.save()
-    res.send({succes: true})
+    res.send({ succes: true })
   })
 
   /**
@@ -292,49 +292,49 @@ module.exports = (fastify, opts, next) => {
    */
   fastify.post('/discord/options', (req, res) => {
     if (!req.user || !req.user.discord || !req.user.discord.id) {
-      return res.code(403).send({error: "forbidden"})
+      return res.code(403).send({ error: "forbidden" })
     }
     req.user.discord.options.messageOnFaveUpdate = req.body.msgOnFaveUpdate && true || false
-    req.user.discord.options.messageOnComment  = req.body.msgOnComment && true || false
+    req.user.discord.options.messageOnComment = req.body.msgOnComment && true || false
     if (req.body.createWebhook && req.body.createWebhook.match(/^https:\/\/(ptb.)?discord(app)?.com\/api\/webhooks\/[^\s]+/)) {
       req.user.discord.webhooks.onCreate = req.body.createWebhook
     }
-    else if (req.body.createWebhook ) {
-      return res.code(400).send({error: "invalid web hook"})
+    else if (req.body.createWebhook) {
+      return res.code(400).send({ error: "invalid web hook" })
     }
     else {
       req.user.discord.webhooks.onCreate = null
     }
 
     req.user.save()
-    res.send({succes: true})
+    res.send({ succes: true })
   })
 
   fastify.post('/api-key', async (req, res) => {
     if (!req.user || !req.user.access.api) {
-      return res.code(403).send({error: "forbidden"})
+      return res.code(403).send({ error: "forbidden" })
     }
 
     if (!req.user.account.api_key || req.body.new) {
       var key = await req.user.createAPIKey()
-      res.send({key: key})
+      res.send({ key: key })
     }
     else {
-      res.send({key: req.user.account.api_key})
+      res.send({ key: req.user.account.api_key })
     }
   })
 
   fastify.post('/support-key', async (req, res) => {
     if (!req.user) {
-      return res.code(403).send({error: "forbidden"})
+      return res.code(403).send({ error: "forbidden" })
     }
 
     if (!req.user.account.support_key || req.body.new) {
       var key = await req.user.createAPIKey('support_key')
-      res.send({key: key})
+      res.send({ key: key })
     }
     else {
-      res.send({key: req.user.account.support_key})
+      res.send({ key: req.user.account.support_key })
     }
   })
 
