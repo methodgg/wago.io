@@ -677,7 +677,7 @@ export default {
       this.searchMode = this.context.mode || this.$store.state.searchMode || window.localStorage.getItem(`search.mode`) || 'imports'
       this.searchGame = this.context.game || this.$store.state.searchGame || window.localStorage.getItem(`search.game`) || 'wow'
       if (this.context.expansion || this.context.type) {
-        this.searchExpansion = this.context.expansion || this.$store.state.searchExpansion || window.localStorage.getItem(`search.expansion.${this.searchGame}`) || ''
+        this.searchExpansion = this.context.expansion || this.$store.state.searchExpansion || window.localStorage.getItem(`search.expansion.${this.searchGame}`) || ''        
         this.searchType = this.context.type || this.$store.state.searchType || window.localStorage.getItem(`search.type.${this.searchGame}`) || ''
       }
       else if (!this.context.expansionType) {
@@ -697,7 +697,13 @@ export default {
         this.searchExpansion = ''
         this.searchType = this.context.expansionType
       }
-      
+
+      if (this.searchExpansion === 'all') {
+        this.searchExpansion = ''
+      }
+      if (this.searchType === 'all') {
+        this.searchType = ''
+      }    
       if (this.context.query) {
         this.searchString = this.context.query.trim()
       }
@@ -821,7 +827,8 @@ export default {
     right: 0;
   }
 }
-#searchData .md-button-toggle { flex-wrap: wrap}
+#searchData { width: 100%}
+#searchData .md-button-toggle { flex-wrap: wrap;}
 #queried {margin-bottom: 8px; display: inline-block;}
 
 #searchPage {
