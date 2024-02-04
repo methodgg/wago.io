@@ -34,7 +34,8 @@ export default {
     fixed: String,
     patreonLink: Boolean,
     frame: {type: Boolean, default: true},
-    container: {type: Boolean, default: true}
+    container: {type: Boolean, default: true},
+    float: {type: String, default: 'auto'}
   },
   comments: true,
   data: () => {
@@ -89,9 +90,9 @@ export default {
         else if (this.adNetwork === 'nitropay' && this.ad.match(/video/)) {
           this.nitroAd = await window.nitroAds.createAd(this.ad, {
             format: 'video-nc',
-            mediaQuery: '(min-width: 1025px)',
+            mediaQuery: '(min-width: 900px)',
             video: {
-              float: 'never',
+              float: this.float,
               hidePlaylist: true
             },            
             report: {
@@ -104,7 +105,7 @@ export default {
         else if (this.adNetwork === 'nitropay' && this.ad.match(/mobile-anchor/)) {
           this.nitroAd = await window.nitroAds.createAd(this.ad, {
             demo: process.env.NODE_ENV === 'development' || window.location.hostname.match(/test/),
-            refreshLimit: 10,
+            refreshLimit: 0,
             refreshTime: 30,
             format: 'anchor',
             anchor: 'bottom',
@@ -123,7 +124,7 @@ export default {
         else if (this.adNetwork === 'nitropay' && this.ad.match(/mobile/)) {
           this.nitroAd = await window.nitroAds.createAd(this.ad, {
             demo: process.env.NODE_ENV === 'development' || window.location.hostname.match(/test/),
-            refreshLimit: 10,
+            refreshLimit: 0,
             refreshTime: 30,
             renderVisibleOnly: true,
             refreshVisibleOnly: true,
@@ -139,7 +140,7 @@ export default {
         else if (this.adNetwork === 'nitropay' && this.ad.match(/search/)) {
           this.nitroAd = await window.nitroAds.createAd(this.ad, {
             demo: process.env.NODE_ENV === 'development' || window.location.hostname.match(/test/),
-            refreshLimit: 10,
+            refreshLimit: 0,
             refreshTime: 30,
             renderVisibleOnly: true,
             refreshVisibleOnly: true,
@@ -154,7 +155,7 @@ export default {
         else if (this.adNetwork === 'nitropay' && !this.ad.match(/asteri/)) {
           this.nitroAd = await window.nitroAds.createAd(this.ad, {
             demo: process.env.NODE_ENV === 'development' || window.location.hostname.match(/test/),
-            refreshLimit: 10,
+            refreshLimit: 0,
             refreshTime: 30,
             renderVisibleOnly: false,
             refreshVisibleOnly: true,
@@ -214,15 +215,14 @@ export default {
       }
     },
     $route (to, from) {
-      if (!from.matched.length || (to.matched[0].path === from.matched[0].path && to.matched[0].path === '/:wagoID')) {
+      if (!from.matched.length || !to.matched.length || (to.matched[0].path === from.matched[0].path && to.matched[0].path === '/:wagoID')) {
         return
       }
       if (this.enableAd && this.nitroAd && this.nitroAd.onNavigate) {
         this.$nextTick(function () {
-          // this.insertAd()
-          if (!this.ad.match(/video/)) {
+          // if (!this.ad.match(/video/)) {
             this.nitroAd.onNavigate()
-          }
+          // }
         })
       }
     }
@@ -304,7 +304,7 @@ export default {
   display: flex!important;
   .wago-advert-text {
     font-size: 80%;
-    z-index: 99999;
+    z-index: 9;
   }
   &.no-frame {
     background: none!important;
@@ -317,9 +317,13 @@ export default {
     margin: 0 0 16px 10px;
     padding: 0;
     width: 340px;
+    z-index: inherit;
     .wago-advert-text {
       padding-left: 4px;
     }
+  }
+  &.video-sidebar.forced-float {
+    height: 0;
   }
   &.streambuff-no {
     background: none;
@@ -329,7 +333,10 @@ export default {
   &.rectangle-sidebar {
     width: 340px;
     margin: 0 0 16px 10px;
-    padding: 22px 0 12px 0;
+    padding: 8px 0 12px;
+    .wago-advert-text {
+      margin: 0 20px;
+    }
   }
   &.leaderboard-top, &.leaderboard-bottom {
     display: flex;

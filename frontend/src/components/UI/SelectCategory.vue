@@ -55,7 +55,7 @@ export default {
       let type = this.type
       let domain = this.domain
       if (this.type === 'COLLECTION') {
-        game = game.replace(/legion|bfa/, 'sl')
+        game = game.replace(/legion|bfa/, 'df')
       }
       else if (!this.type.match(/WEAKAURA/)) {
         game = null
@@ -68,7 +68,7 @@ export default {
       if (values && values.length > 0) {
         this.selectText = ''
         if (!values[0].parent) {
-          var children = window.Categories.matchChildren(values[0].id, type, game)
+          var children = window.Categories.matchChildren(values[0].id, type)
           this.categoryOptions = []
           // remove already selected categories
           for (var i = 0; i < children.length; i++) {

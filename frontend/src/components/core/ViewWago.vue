@@ -1056,7 +1056,7 @@
             </md-layout>
 
           </md-layout>
-          <search v-if="wago.type === 'COLLECTION'" :contextSearch="'Collection: ' + wago._id" :collection="true"></search>
+          <search v-if="wago.type === 'COLLECTION'" :context="{ query: `Collection: ${wago._id}`, type: '', mode: 'imports', game: wago.domain === 1 && 'ffxiv' || 'wow' }" :collection="true"></search>
         </div>
 
         <!-- SIDE PANEL COMMENTS -->

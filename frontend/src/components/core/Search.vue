@@ -5,7 +5,11 @@
         <div id="searchData">
           <slot></slot>
           <md-layout md-row>
-            <p id="searchQuery"><small v-if="queryOptions" v-html="queryOptions"></small><em v-if="queryHTML" v-html="queryHTML"></em><strong v-html="$t('Found [-count-] results', {count: new Intl.NumberFormat().format(results.total)})"></strong></p>
+            <p id="searchQuery">
+              <small v-if="queryOptions" v-html="queryOptions"></small>
+              <em v-if="queryHTML" v-html="queryHTML"></em>
+              <strong v-html="$t('Found [-count-] results', {count: new Intl.NumberFormat().format(results.total)})"></strong>
+            </p>
             <md-layout v-if="results" id="searchOptions">
               <div>
                 <div>
@@ -76,6 +80,8 @@
                     searchType === 'totalrp3' && 'TotalRP' ||
                     searchType === 'vuhdo' && 'VuhDo' ||
                     searchType === 'dbm' && 'DBM' ||
+                    searchType === 'shippets' && 'Snippets' ||
+                    searchType === 'collection' && 'Collections' ||
                     $t('All')
                     }}</small>
                 </div>
@@ -105,6 +111,7 @@
                     <div @click="setType('totalrp3')">Total RP</div>
                     <div @click="setType('vuhdo')">VuhDo</div>
                     <div @click="setType('dbm')">DBM</div>
+                    <div @click="setType('collection')">Collection</div>
                   </div>
                 </md-button-toggle>
               </div>
@@ -151,7 +158,7 @@
                     $t('Best Match')}}</small>
                 </div>
                 <md-button-toggle md-single class="md-accent md-warn">
-                  <md-button v-if="$env === 'development' || $store.state.user.hideAds" :class="{ 'md-toggle': searchSort === 'bestmatchv3' }" class="md-icon-button" @click="searchSort='bestmatchv3'">
+                  <md-button v-if="$env === 'development' || ($store.state.user.access && $store.state.user.access.beta)" :class="{ 'md-toggle': searchSort === 'bestmatchv3' }" class="md-icon-button" @click="searchSort='bestmatchv3'">
                     <md-icon>mood</md-icon>
                     <md-tooltip md-direction="bottom" class="">[BETA] New Best Match</md-tooltip>
                   </md-button>
@@ -341,33 +348,13 @@ export default {
       this.searchMode = to.params.mode || window.localStorage.getItem(`search.mode`) || 'imports'
       this.searchGame = to.params.game || window.localStorage.getItem(`search.game`) || 'wow'
 
-
-      console.log('NEW ROUTE', to, this.context, this.searchMode, this.searchGame)
-
-      let expType = to.params.expansionType || ''
-      if (expType.match(/-/)) {
-        const s = expType.split('-')
-        this.searchExpansion = s[0]
-        this.searchType = s[1]
-      }
-      else if (expType.match(/^(classic|tbc|wotlk|cata|mop|wod|legion|bfa|sl|df|ww)$/)) {
-        this.searchExpansion = expType
-        this.searchType = ''
-      }
-      else if (expType) {
-        this.searchExpansion = ''
-        this.searchType = expType
-      }
-      else {
-        this.searchExpansion = window.localStorage.getItem(`search.expansion.${this.searchGame}`) || ''
-        this.searchType = window.localStorage.getItem(`search.type.${this.searchGame}`) || ''
-      }
-
       const params = new Proxy(new URLSearchParams(window.location.search), {
         get: (searchParams, prop) => searchParams.get(prop),
       })
       this.searchString = (params.q || '').trim()
-      console.log('searching', this.searchMode, this.searchGame, this.searchString)
+      if (this.context) {
+        this.parseContext()
+      }
 
       this.$store.commit('setSearchText', this.searchString, true)
       this.execSearch()
@@ -389,7 +376,6 @@ export default {
       this.execSearch()
     },
     searchExpansion (val) {
-      console.log('UPDATE EXPANSION', val)
       this.execSearch()
     },
     searchType (val) {
@@ -412,8 +398,11 @@ export default {
     updateRoute: function (replace=false) {
       if (this.searchExpansion === 'undefined') this.searchExpansion = ''
       let expansionType = this.searchExpansion || this.searchType
-      if (this.searchExpansion && this.searchExpansion !== 'undefined' && this.searchType) {
+      if (this.searchExpansion && this.searchExpansion !== 'undefined' && this.searchType === 'weakaura') {
         expansionType = `${this.searchExpansion}-${this.searchType}`
+      }
+      else if (this.searchType) {
+        expansionType = this.searchType
       }
       if (!this.searchString || this.searchString === 'undefined') {
         this.searchString = ''
@@ -585,12 +574,21 @@ export default {
       }
       this.http.get(searchURL, this.searchParams).then((res) => {
         let hits = res.hits || res.results
-        // if (document.getElementById('selected-expansion')) {
-        //   this.queryOptions = `${document.getElementById('selected-expansion').innerText} ${document.getElementById('selected-mode').innerText}`
-        // }
-        // else {
-        //   this.queryOptions = `${document.getElementById('selected-game').innerText} ${document.getElementById('selected-mode').innerText}`
-        // }
+        const fieldText = []
+        if (document.getElementById('selected-expansion')) {
+          fieldText.push(document.getElementById('selected-expansion').innerText)
+        }
+        else {
+          fieldText.push(document.getElementById('selected-game').innerText)
+        }
+        if (document.getElementById('selected-addon')) {
+          fieldText.push(document.getElementById('selected-addon').innerText)
+        }
+        if (document.getElementById('selected-mode')) {
+          fieldText.push(document.getElementById('selected-mode').innerText)
+        }
+
+        this.queryOptions = fieldText.join(' - ')
         this.queryHTML = document.querySelector('.ql-editor p').innerHTML
         this.queryHTML = this.queryHTML.replace(/<button.*?<\/button>/g, '').replace(/<br\/?\s*>/, '')
 
@@ -673,24 +671,14 @@ export default {
       this.http.post('/comments/clear', {comment: id}).then(res => {
         this.$store.commit('userClearMention', id)
       })
-    }
-  },
-  created: function () {
-    this.initTime = new Date
-    window.addEventListener('scroll', this.watchScroll)
-      
-    const params = new Proxy(new URLSearchParams(window.location.search), {
-      get: (searchParams, prop) => searchParams.get(prop),
-    })
-    this.searchString = (params.q || '').trim()
-    console.log('CREATED', this.context, this.searchString)
+    },
 
-    if (this.context && this.context.game) {
-      this.searchMode = this.context.mode
-      this.searchGame = this.context.game
-      if (this.context.expansion) {
-        this.searchExpansion = this.context.expansion
-        this.searchType = this.context.type
+    parseContext() {
+      this.searchMode = this.context.mode || this.$store.state.searchMode || window.localStorage.getItem(`search.mode`) || 'imports'
+      this.searchGame = this.context.game || this.$store.state.searchGame || window.localStorage.getItem(`search.game`) || 'wow'
+      if (this.context.expansion || this.context.type) {
+        this.searchExpansion = this.context.expansion || this.$store.state.searchExpansion || window.localStorage.getItem(`search.expansion.${this.searchGame}`) || ''
+        this.searchType = this.context.type || this.$store.state.searchType || window.localStorage.getItem(`search.type.${this.searchGame}`) || ''
       }
       else if (!this.context.expansionType) {
         this.searchExpansion = window.localStorage.getItem(`search.expansion.${this.searchGame}`) || ''
@@ -709,28 +697,37 @@ export default {
         this.searchExpansion = ''
         this.searchType = this.context.expansionType
       }
+      
+      if (this.context.query) {
+        this.searchString = this.context.query.trim()
+      }
        
-      console.log('set mode A', this.searchMode)
       window.localStorage.setItem(`search.mode`, this.searchMode)
       window.localStorage.setItem(`search.game`, this.searchGame)
       window.localStorage.setItem(`search.expansion.${this.searchGame}`, this.searchExpansion)
       window.localStorage.setItem(`search.type.${this.searchGame}`, this.searchType)
+    }
+  },
+  created: function () {
+    this.initTime = new Date
+    window.addEventListener('scroll', this.watchScroll)
+      
+    const params = new Proxy(new URLSearchParams(window.location.search), {
+      get: (searchParams, prop) => searchParams.get(prop),
+    })
+    this.searchString = (params.q || '').trim()
 
-      if (this.context.query) {
-        this.searchString = this.context.query.trim()
-      }
+    if (this.context) {
+      this.parseContext()
     }    
     else {
-      console.log('CREATED FROM STORE', this.$store.state.searchMode, typeof this.$store.state.searchMode)
       this.searchMode = this.$store.state.searchMode || window.localStorage.getItem(`search.mode`) || 'imports'
       this.searchGame = this.$store.state.searchGame || window.localStorage.getItem(`search.game`) || 'wow'
       this.searchExpansion = this.$store.state.searchExpansion || window.localStorage.getItem(`search.expansion.${this.searchGame}`) || ''
       this.searchType = this.$store.state.searchType || window.localStorage.getItem(`search.type.${this.searchGame}`) || ''
     }
+
     this.$store.commit('setSearchText', this.searchString, true)
-
-      console.log('search created', this.searchString)
-
   },
   destroyed: function () {
     window.removeEventListener('scroll', this.watchScroll)

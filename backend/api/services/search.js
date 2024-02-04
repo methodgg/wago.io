@@ -17,6 +17,8 @@ function expansionIndex(exp) {
   else if (exp === 'tbc') return 1
   else if (exp === 'wotlk') return 2
   else if (exp === 'cata') return 3
+  else if (exp === 'mop') return 4
+  else if (exp === 'wod') return 5
   else if (exp === 'legion') return 6
   else if (exp === 'bfa') return 7
   else if (exp === 'sl') return 8
@@ -82,96 +84,95 @@ async function searchElastic(req, res) {
     }
   }
 
-  // if (req.query.game === 'xiv') {
-  //   esFilter.push(({ term: { domain: 1 } }))
-  // }
-  // else {
-  //   esFilter.push(({ term: { domain: 0 } })) // wow
-  // }
+  if (req.query.game === 'xiv') {
+    esFilter.push(({ term: { domain: 1 } }))
+  }
+  else {
+    esFilter.push(({ term: { domain: 0 } })) // wow
+  }
 
   let filterExpansion = []
   let defaultFilterExpansion
-  // if (req.query.expansion === 'legacy') {
-  //   filterExpansion = [
-  //     { term: { expansion: { value: expansionIndex('sl') } } },
-  //     { term: { expansion: { value: expansionIndex('bfa') } } },
-  //     { term: { expansion: { value: expansionIndex('legion') } } },
-  //     { term: { expansion: { value: expansionIndex('wod') } } },
-  //     { term: { expansion: { value: expansionIndex('tbc') } } },
-  //   ]
-  // }
-  // else if (parseInt(req.query.expansion) > -1) {
-  //   filterExpansion = [{ term: { expansion: { value: parseInt(req.query.expansion) } } }]
-  // }
-  // else if (expansionIndex(req.query.expansion) > -1) {
-  //   filterExpansion = [{ term: { expansion: { value: expansionIndex(req.query.expansion) } } }]
-  // }
+  if (req.query.expansion === 'legacy') {
+    filterExpansion = [
+      { term: { expansion: { value: expansionIndex('sl') } } },
+      { term: { expansion: { value: expansionIndex('bfa') } } },
+      { term: { expansion: { value: expansionIndex('legion') } } },
+      { term: { expansion: { value: expansionIndex('wod') } } },
+      { term: { expansion: { value: expansionIndex('tbc') } } },
+    ]
+  }
+  else if (parseInt(req.query.expansion) > -1) {
+    filterExpansion = [{ term: { expansion: { value: parseInt(req.query.expansion) } } }]
+  }
+  else if (expansionIndex(req.query.expansion) > -1) {
+    filterExpansion = [{ term: { expansion: { value: expansionIndex(req.query.expansion) } } }]
+  }
 
-  // // old search format
-  // else if (query.match(/expansion:/)) {
-  //   m = query.match(/expansion:\s?(df|sl|bfa|legion|wod|wotlk|tbc|classic)/)
-  //   if (m) {
-  //     while (m) {
-  //       query = query.replace(m[0], '')
-  //       filterExpansion.push({ term: { expansion: { value: expansionIndex(m[1]) } } })
-  //       m = query.match(/expansion:\s?(df|sl|bfa|legion|wod|wotlk|tbc|classic)/i)
-  //     }
-  //   }
-  //   else if (searchMode.match(/imports|code/) && searchMode !== 'stars') {
-  //     // if no expansion is specified then default to the current games
-  //     defaultFilterExpansion = []
-  //     defaultFilterExpansion.push({ term: { expansion: { value: expansionIndex('df') } } })
-  //     defaultFilterExpansion.push({ term: { expansion: { value: expansionIndex('wotlk') } } })
-  //     defaultFilterExpansion.push({ term: { expansion: { value: -1 } } })
-  //   }
-  // }
+  // old search format
+  else if (query.match(/expansion:/)) {
+    m = query.match(/expansion:\s?(df|sl|bfa|legion|wod|wotlk|tbc|classic)/)
+    if (m) {
+      while (m) {
+        query = query.replace(m[0], '')
+        filterExpansion.push({ term: { expansion: { value: expansionIndex(m[1]) } } })
+        m = query.match(/expansion:\s?(df|sl|bfa|legion|wod|wotlk|tbc|classic)/i)
+      }
+    }
+    else if (searchMode.match(/imports|code/) && searchMode !== 'stars') {
+      // if no expansion is specified then default to the current games
+      defaultFilterExpansion = []
+      defaultFilterExpansion.push({ term: { expansion: { value: expansionIndex('df') } } })
+      defaultFilterExpansion.push({ term: { expansion: { value: expansionIndex('wotlk') } } })
+      defaultFilterExpansion.push({ term: { expansion: { value: -1 } } })
+    }
+  }
 
-  // if (filterExpansion.length) {
-  //   filterExpansion.push({ term: { expansion: { value: -1 } } }) // so that we dont exclude imports that are not expansion specific
-  //   esFilter.push(({ bool: { should: filterExpansion } }))
-  // }
+  if (filterExpansion.length) {
+    filterExpansion.push({ term: { expansion: { value: -1 } } }) // so that we dont exclude imports that are not expansion specific
+    esFilter.push(({ bool: { should: filterExpansion } }))
+  }
+  let filterTypes = []
+  if (req.query.type && req.query.type !== 'all') {
+    esFilter.push(({ bool: { should: { term: { 'type': req.query.type.toUpperCase() } } } }))
+  }
+  // old search format
+  else if (query.match(/expansion:/)) {
+    m = query.match(/type:\s?(\w+)/i)
+    while (m) {
+      filterTypes.push({ term: { 'type': m[1].toUpperCase() } })
+      query = query.replace(m[0], '')
+      m = query.match(/type:\s?(\w+)/i)
+    }
+    if (filterTypes.length) {
+      esFilter.push(({ bool: { should: filterTypes } }))
+    }
+  }
 
-  // let filterTypes = []
-  // if (req.query.type && req.query.type !== 'all') {
-  //   esFilter.push(({ bool: { should: { term: { 'type': req.query.type.toUpperCase() } } } }))
-  // }
-  // // old search format
-  // else if (query.match(/expansion:/)) {
-  //   m = query.match(/type:\s?(\w+)/i)
-  //   while (m) {
-  //     filterTypes.push({ term: { 'type': m[1].toUpperCase() } })
-  //     query = query.replace(m[0], '')
-  //     m = query.match(/type:\s?(\w+)/i)
-  //   }
-  //   if (filterTypes.length) {
-  //     esFilter.push(({ bool: { should: filterTypes } }))
-  //   }
-  // }
-
-  // let filterUsers = []
-  // m = query.match(/(?:user:\s?"(.*)")/i)
+  let filterUsers = []
+  m = query.match(/(?:user:\s?"(.*)")/i)
   var searchingOwnProfile = false
-  // while (m && m[0]) {
-  //   try {
-  //     let user = await User.findOne({ "search.username": m[1].toLowerCase() })
-  //     if (user) {
-  //       if (req.user && user._id.equals(req.user._id)) {
-  //         searchingOwnProfile = true
-  //       }
-  //       else if (user.account.hidden) {
-  //         return res.send({ profile: "private", hits: [] })
-  //       }
-  //       filterUsers.push({ term: { userId: user._id } })
-  //     }
-  //   }
-  //   catch { }
-  //   query = query.replace(m[0], '')
-  //   m = query.match(/(?:user:\s?"(\w+)")/i)
-  // }
-  // if (filterUsers.length) {
-  //   defaultFilterExpansion = null
-  //   esFilter.push(({ bool: { should: filterUsers } }))
-  // }
+  while (m && m[0]) {
+    try {
+      let user = await User.findOne({ "search.username": m[1].toLowerCase() })
+      if (user) {
+        if (req.user && user._id.equals(req.user._id)) {
+          searchingOwnProfile = true
+        }
+        else if (user.account.hidden) {
+          return res.send({ profile: "private", hits: [] })
+        }
+        filterUsers.push({ term: { userId: user._id } })
+      }
+    }
+    catch { }
+    query = query.replace(m[0], '')
+    m = query.match(/(?:user:\s?"(\w+)")/i)
+  }
+  if (filterUsers.length) {
+    defaultFilterExpansion = null
+    esFilter.push(({ bool: { should: filterUsers } }))
+  }
 
   m = query.match(/mentions:(unread|read|all)/i)
   if (m && req.user && searchMode === 'comments') {

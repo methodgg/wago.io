@@ -117,7 +117,7 @@ export default {
 </script>
 
 <style>
-.embed-container {width: 100%; margin: 16px 0 0 16px; overflow: hidden; text-align: center!important; border-radius: 2px; position: relative;
+.embed-container {width: 100%; margin: 16px 0 0 10px; overflow: hidden; text-align: center!important; border-radius: 2px; position: relative;
 /*max-height: 230px; position: fixed; z-index: 999999; right: 2px; bottom: 2px; margin: auto!important;*/ }
 .ss-embed-container {height: 250px}
 .twitch-embed-container {aspect-ratio: 16 / 9;}
