@@ -30,7 +30,7 @@
                   </md-button>
                 </md-button-toggle>
               </div>
-              <div v-if="(!searchType || searchType === 'weakaura') && (searchGame === 'wow')">
+              <div v-if="(searchType === 'all' || searchType === 'weakaura') && (searchGame === 'wow')">
                 <div>
                   <label>{{ $t('Expansion') }}</label>
                   <small id="selected-expansion">{{
@@ -42,7 +42,7 @@
                     }}</small>
                 </div>
                 <md-button-toggle md-single class="md-accent md-warn select-search-mode">
-                  <md-button :class="{ 'md-toggle': !searchExpansion }" class="md-icon-button" @click="setExpansion('')">
+                  <md-button :class="{ 'md-toggle': !searchExpansion }" class="md-icon-button" @click="setExpansion('all')">
                     <img src="../../assets/game-wow.svg">
                     <md-tooltip md-direction="bottom" class="">{{ $t("All") }}</md-tooltip>
                   </md-button>
@@ -86,7 +86,7 @@
                     }}</small>
                 </div>
                 <md-button-toggle md-single class="md-accent md-warn select-search-mode">
-                  <md-button :class="{ 'md-toggle': !searchType }" class="md-icon-button" @click="setType('')">
+                  <md-button :class="{ 'md-toggle': !searchType }" class="md-icon-button" @click="setType('all')">
                     <img src="../../assets/wagoio-logo.png">
                     <md-tooltip md-direction="bottom" class="">{{ $t("All") }}</md-tooltip>
                   </md-button>
@@ -677,12 +677,12 @@ export default {
       this.searchMode = this.context.mode || this.$store.state.searchMode || window.localStorage.getItem(`search.mode`) || 'imports'
       this.searchGame = this.context.game || this.$store.state.searchGame || window.localStorage.getItem(`search.game`) || 'wow'
       if (this.context.expansion || this.context.type) {
-        this.searchExpansion = this.context.expansion || this.$store.state.searchExpansion || window.localStorage.getItem(`search.expansion.${this.searchGame}`) || ''        
-        this.searchType = this.context.type || this.$store.state.searchType || window.localStorage.getItem(`search.type.${this.searchGame}`) || ''
+        this.searchExpansion = this.context.expansion || this.$store.state.searchExpansion || window.localStorage.getItem(`search.expansion.${this.searchGame}`) || 'all'        
+        this.searchType = this.context.type || this.$store.state.searchType || window.localStorage.getItem(`search.type.${this.searchGame}`) || 'all'
       }
       else if (!this.context.expansionType) {
-        this.searchExpansion = window.localStorage.getItem(`search.expansion.${this.searchGame}`) || ''
-        this.searchType = window.localStorage.getItem(`search.type.${this.searchGame}`) || ''
+        this.searchExpansion = window.localStorage.getItem(`search.expansion.${this.searchGame}`) || 'all'
+        this.searchType = window.localStorage.getItem(`search.type.${this.searchGame}`) || 'all'
       }
       else if (this.context.expansionType.match(/-/)) {
         let s = this.context.expansionType.split('-')
@@ -697,13 +697,7 @@ export default {
         this.searchExpansion = ''
         this.searchType = this.context.expansionType
       }
-
-      if (this.searchExpansion === 'all') {
-        this.searchExpansion = ''
-      }
-      if (this.searchType === 'all') {
-        this.searchType = ''
-      }    
+ 
       if (this.context.query) {
         this.searchString = this.context.query.trim()
       }
