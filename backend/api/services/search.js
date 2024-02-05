@@ -105,7 +105,7 @@ async function searchElastic(req, res) {
   else if (parseInt(req.query.expansion) > -1) {
     filterExpansion = [{ term: { expansion: { value: parseInt(req.query.expansion) } } }]
   }
-  else if (expansionIndex(req.query.expansion) > -1) {
+  else if (req.query.expansion && expansionIndex(req.query.expansion) > -1) {
     filterExpansion = [{ term: { expansion: { value: expansionIndex(req.query.expansion) } } }]
   }
 
