@@ -43,7 +43,7 @@
     "mkdirp-promise": "^5.0.1",
     "mmmagic": "^0.5.3",
     "moment": "^2.29.1",
-    "mongoosastic": "^4.6.0",
+    "mongoosastic": "^5.0.0",
     "mongoose": "^5.12.0",
     "node-object-hash": "^2.3.1",
     "node-ssh": "^11.1.1",
@@ -56,7 +56,7 @@
     "sharp": "^0.26.3",
     "shelljs.exec": "^1.1.8",
     "shortid": "^2.2.16",
-    "tap": "^14.11.0",
+    "tap": "^16.0.0",
     "twitter-lite": "^0.14.0",
     "uninstall": "0.0.0",
     "webp-converter": "^2.3.3"
