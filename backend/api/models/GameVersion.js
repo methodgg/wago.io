@@ -17,7 +17,7 @@ Schema.virtual('game').get(function () {
     if (this.domain === 1) {
         return 'Final Fantasy XIV'
     }
-    switch (this.major) {
+    switch (this.major - 1) {
         case 0: switch (this.minor) {
             case 14: return 'Season of Mastery'
             case 15: return 'Season of Discovery'
@@ -43,7 +43,7 @@ Schema.virtual('game_short').get(function () {
     if (this.domain === 1) {
         return 'XIV'
     }
-    switch (this.major) {
+    switch (this.major - 1 {
         case 0: return 'Classic'
         case 1: return 'TBC'
         case 2: return 'WotLK'
