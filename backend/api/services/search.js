@@ -303,6 +303,7 @@ async function searchElastic(req, res) {
     catch { }
     query = query.replace(m[0], '')
   }
+
   if (defaultFilterExpansion) {
     esFilter.push(({ bool: { should: defaultFilterExpansion } }))
   }
@@ -364,18 +365,18 @@ async function searchElastic(req, res) {
   if (esShould.length > 0) {
     esFilter.push({ bool: { should: esShould } })
   }
-
   let textQuery = ''
-  let searchIndex = 'imports'
+  let searchFields = []
+  let searchIndex = 'imports'  
+  if (searchMode === 'comments') {
+    searchIndex = 'comments'
+    searchFields = ['text']
+  }
+
   let highlight
-  if (esQuery) {
-    let searchFields = []
+  if (esQuery && searchIndex === 'imports') {
     if (searchMode === 'code') {
       searchFields = ['customCode']
-    }
-    else if (searchMode === 'comments') {
-      searchIndex = 'comments'
-      searchFields = ['text']
     }
     else if (sortMode === 'bestmatchv3') {
       searchFields = ["description", "name^2", "custom_slug^2", "auraNames"]
@@ -474,7 +475,6 @@ async function searchElastic(req, res) {
     esFilter.push({ simple_query_string: { query: searchSettings.secondarySearch.slice(page * resultsPerPage, resultsPerPage).join(' '), fields: ["_id"] } })
   }
 
-  console.log(searchIndex, esQuery, esFilter)
   return res.send(await elastic.search({
     index: searchIndex,
     algorithm: (sortMode.match(/bestmatch/)) ? sortMode : 'rawsort',
@@ -816,7 +816,6 @@ async function oldSearch(req, res) {
   var results
   // setup function_score
   if (sortMode === 'bestmatchv2') {
-    // console.log(JSON.stringify({must: esQuery, filter: esFilter}, null, 2))
     results = await WagoItem.esSearch({
       query: {
         function_score: {
