@@ -43,7 +43,7 @@ Schema.virtual('game_short').get(function () {
     if (this.domain === 1) {
         return 'XIV'
     }
-    switch (this.major - 1 {
+    switch (this.major - 1) {
         case 0: return 'Classic'
         case 1: return 'TBC'
         case 2: return 'WotLK'
