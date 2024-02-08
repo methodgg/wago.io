@@ -84,11 +84,13 @@ async function searchElastic(req, res) {
     }
   }
 
+  if (!req.query.q.match(/mentions:/)) {
   if (req.query.game === 'xiv') {
     esFilter.push(({ term: { domain: 1 } }))
   }
   else {
     esFilter.push(({ term: { domain: 0 } })) // wow
+    }
   }
 
   let filterExpansion = []
@@ -301,7 +303,6 @@ async function searchElastic(req, res) {
     catch { }
     query = query.replace(m[0], '')
   }
-
   if (defaultFilterExpansion) {
     esFilter.push(({ bool: { should: defaultFilterExpansion } }))
   }
@@ -363,6 +364,7 @@ async function searchElastic(req, res) {
   if (esShould.length > 0) {
     esFilter.push({ bool: { should: esShould } })
   }
+
   let textQuery = ''
   let searchIndex = 'imports'
   let highlight
@@ -472,6 +474,7 @@ async function searchElastic(req, res) {
     esFilter.push({ simple_query_string: { query: searchSettings.secondarySearch.slice(page * resultsPerPage, resultsPerPage).join(' '), fields: ["_id"] } })
   }
 
+  console.log(searchIndex, esQuery, esFilter)
   return res.send(await elastic.search({
     index: searchIndex,
     algorithm: (sortMode.match(/bestmatch/)) ? sortMode : 'rawsort',

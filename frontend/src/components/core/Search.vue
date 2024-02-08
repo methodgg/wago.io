@@ -37,12 +37,12 @@
                     searchExpansion === 'classic' && $t('Classic') ||
                     searchExpansion === 'wotlk' && $t('WotLK') ||
                     searchExpansion === 'df' && $t('Dragonflight') ||
-                    searchExpansion === '' && $t('All') ||
+                    (!searchExpansion || searchExpansion === 'all') && $t('All') ||
                     $t('Legacy')
                     }}</small>
                 </div>
                 <md-button-toggle md-single class="md-accent md-warn select-search-mode">
-                  <md-button :class="{ 'md-toggle': !searchExpansion }" class="md-icon-button" @click="setExpansion('all')">
+                  <md-button :class="{ 'md-toggle': !searchExpansion || searchExpansion === 'all' }" class="md-icon-button" @click="setExpansion('all')">
                     <img src="../../assets/game-wow.svg">
                     <md-tooltip md-direction="bottom" class="">{{ $t("All") }}</md-tooltip>
                   </md-button>
@@ -86,7 +86,7 @@
                     }}</small>
                 </div>
                 <md-button-toggle md-single class="md-accent md-warn select-search-mode">
-                  <md-button :class="{ 'md-toggle': !searchType }" class="md-icon-button" @click="setType('all')">
+                  <md-button :class="{ 'md-toggle': !searchType || searchType === 'all' }" class="md-icon-button" @click="setType('all')">
                     <img src="../../assets/wagoio-logo.png">
                     <md-tooltip md-direction="bottom" class="">{{ $t("All") }}</md-tooltip>
                   </md-button>
@@ -102,7 +102,7 @@
                     <category-image :group="'t-plater'"></category-image>
                     <md-tooltip md-direction="bottom" class="">{{ $t("Plater") }}</md-tooltip>
                   </md-button>
-                  <div id="addon-button" :class="{ 'md-toggle': searchType && !searchType.match(/^(weakaura|elvui|plater)$/) }" class="md-button md-icon-button md-theme-default">
+                  <div id="addon-button" :class="{ 'md-toggle': searchType && !searchType.match(/^(all|weakaura|elvui|plater)$/) }" class="md-button md-icon-button md-theme-default">
                     <img src="../../assets/misc-addons.svg">
                   </div>
                   <div id="addon-dropdown">
@@ -408,13 +408,13 @@ export default {
         this.searchString = ''
       }
       this.searchString = this.searchString.trim()
-      let path = `/search/${this.searchMode}?q=${encodeURI(this.searchString)}`
+      let path = `/search/${this.searchMode}?q=${encodeURIComponent(this.searchString)}`
       if (expansionType && this.searchGame === 'wow') {
-        path = `/search/${this.searchMode}/${this.searchGame}/${expansionType}?q=${encodeURI(this.searchString)}`
+        path = `/search/${this.searchMode}/${this.searchGame}/${expansionType}?q=${encodeURIComponent(this.searchString)}`
       }
       else if (this.searchGame) {
-        path = `/search/${this.searchMode}/${this.searchGame}?q=${encodeURI(this.searchString)}`
-      }
+        path = `/search/${this.searchMode}/${this.searchGame}?q=${encodeURIComponent(this.searchString)}`
+      }      
 
       if (!replace) {
         this.$router.push({ path })
