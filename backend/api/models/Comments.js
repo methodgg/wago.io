@@ -100,12 +100,12 @@ Schema.virtual('indexedCommentData').get(async function () {
 
 async function updateIndexes() {
   if (this.commentText) {
-    await elastic.addDoc('comment', await this.indexedCommentData)
+    await elastic.addDoc('comments', await this.indexedCommentData)
     this._indexComment = true
   }
   else if (this._indexImport) {
     this._indexComment = false
-    await elastic.removeDoc('comment', this._id)
+    await elastic.removeDoc('comments', this._id)
   }
 }
 
