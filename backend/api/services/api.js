@@ -54,7 +54,7 @@ module.exports = function (fastify, opts, next) {
     const t = i18next.getFixedT(req.query.lang || 'en-US')
     const categories = {}
     for (const [id, cat] of Object.entries(Categories.translate(t))) {
-      categories[id] = { name: cat.text, slug: cat.slug }
+      categories[id] = { name: cat.text, slug: cat.slug, color: Categories.getAttr(cat, 'color'), image: Categories.getAttr(cat, 'image') }
     }
     res.send(categories)
   })
