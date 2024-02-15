@@ -85,11 +85,11 @@ async function searchElastic(req, res) {
   }
 
   if (!req.query.q.match(/mentions:/)) {
-  if (req.query.game === 'xiv') {
-    esFilter.push(({ term: { domain: 1 } }))
-  }
-  else {
-    esFilter.push(({ term: { domain: 0 } })) // wow
+    if (req.query.game === 'xiv') {
+      esFilter.push(({ term: { domain: 1 } }))
+    }
+    else {
+      esFilter.push(({ term: { domain: 0 } })) // wow
     }
   }
 
@@ -367,7 +367,7 @@ async function searchElastic(req, res) {
   }
   let textQuery = ''
   let searchFields = []
-  let searchIndex = 'imports'  
+  let searchIndex = 'imports'
   if (searchMode === 'comments') {
     searchIndex = 'comments'
     searchFields = ['text']
@@ -475,7 +475,7 @@ async function searchElastic(req, res) {
     esFilter.push({ simple_query_string: { query: searchSettings.secondarySearch.slice(page * resultsPerPage, resultsPerPage).join(' '), fields: ["_id"] } })
   }
 
-  return res.send(await elastic.search({
+  const results = await elastic.search({
     index: searchIndex,
     algorithm: (sortMode.match(/bestmatch/)) ? sortMode : 'rawsort',
     query: { must: esQuery, filter: esFilter },
@@ -484,7 +484,17 @@ async function searchElastic(req, res) {
     sort: esSort,
     page,
     highlight
-  }))
+  })
+  results.hits.map(r => {
+    r.descriptionSanitized = r.description
+    .replace(/\[\/?(?:b|i|u|s|left|center|right|justify|quote|code|list|img|spoil|color|face|font|large|small|sub|sup|size|li|\*|ol|ul|url|noparse|taggeduser|table|tbody|tfoot|td|th|tr).*?\]/ig, '')
+    .replace(/<[^>]*>/g, '')
+    .replace(/<\/?[^>]+>/g, '')
+    .replace(/(?:https?|ftp):\/\/[\n\S]+/g, '')
+    return r
+  })
+
+  return res.send(results)
 }
 
 async function oldSearch(req, res) {
