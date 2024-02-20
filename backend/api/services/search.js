@@ -486,7 +486,7 @@ async function searchElastic(req, res) {
     highlight
   })
   results.hits.map(r => {
-    r.descriptionSanitized = r.description
+    r.descriptionSanitized = (r.description || '')
     .replace(/\[\/?(?:b|i|u|s|left|center|right|justify|quote|code|list|img|spoil|color|face|font|large|small|sub|sup|size|li|\*|ol|ul|url|noparse|taggeduser|table|tbody|tfoot|td|th|tr).*?\]/ig, '')
     .replace(/<[^>]*>/g, '')
     .replace(/<\/?[^>]+>/g, '')
