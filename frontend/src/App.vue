@@ -18,12 +18,9 @@
               <svg aria-hidden="true" focusable="false" class="header-patreon" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M512 194.8c0 101.3-82.4 183.8-183.8 183.8-101.7 0-184.4-82.4-184.4-183.8 0-101.6 82.7-184.3 184.4-184.3C429.6 10.5 512 93.2 512 194.8zM0 501.5h90v-491H0v491z"></path></svg>
               {{ $t('Support Wago.io') }}
             </md-button>
-            <div class="coach-wrap">
-              <md-button v-if="(this.$store.state.user.UID || this.$store.state.user.guest) && !this.$store.state.user.hideAds" href="https://bit.ly/MetafyWoW" target="_blank" class="btn-coaching">
-                <img src="./assets/metafy-icon.png" class="coaching-logo" />
-                <span class="coaching-text">Metafy Coaching</span>
-              </md-button>
-            </div>
+            <router-link id="mdt-btn" to="/dragonflight-mdt" class="md-button alert-button">
+              <img src="./assets/mdt.png" /> Mythic+ Routes
+            </router-link>
           </div>
           <div id="hr-nav" class="md-hide-xsmall">
             <h2 class="md-title md-hide-small-and-up" id="logo"><router-link to="/"><img src="./assets/wagoio-logo.png"/></router-link></h2>
@@ -41,7 +38,7 @@
             <span :class="User.css"><md-icon>person</md-icon> {{ User.name }}</span>
             <md-list-expand>
               <md-list>
-                <md-list-item><router-link :to="'/p/'+User.name">{{ $t("My Profile") }}</router-link></md-list-item>
+                <md-list-item><router-link :to="'/p/'+encodeURIComponent(User.name)">{{ $t("My Profile") }}</router-link></md-list-item>
                 <md-list-item><router-link to="/my/mentions">{{ $t("My Mentions") }} <span class="unreadCount" v-if="User.unreadMentions.length">{{ User.unreadMentions.length }}</span></router-link></md-list-item>
                 <md-list-item><router-link to="/my/stars">{{ $t("My Favorites") }}</router-link></md-list-item>
                 <md-list-item><router-link to="/account">{{ $t("Account Settings") }}</router-link></md-list-item>
@@ -59,7 +56,7 @@
           <md-list-item><router-link to='/elvui'>ElvUI</router-link></md-list-item>
           <!--<md-list-item v-if="User && User.access && User.access.beta"><router-link to='/create-new-note'>Encounter Notes [Beta]</router-link></md-list-item>-->
           <!-- <md-list-item><router-link to='/grid2'>Grid2</router-link></md-list-item> -->
-          <!--<md-list-item><router-link to='/mdt'>Mythic Dungeon Tools</router-link></md-list-item>-->
+          <md-list-item><router-link to='/mdt'>Mythic Dungeon Tools</router-link></md-list-item>
           <md-list-item><router-link to='/plater'>Plater Nameplates</router-link></md-list-item>
           <md-list-item><router-link to='/totalrp'>Total RP</router-link></md-list-item>
           <md-list-item><router-link to='/vuhdo'>VuhDo</router-link></md-list-item>
@@ -93,6 +90,7 @@
               </router-link>
               <router-link to='/blizzhud'>BlizzHUD</router-link>
               <router-link to='/elvui'>ElvUI</router-link>
+              <router-link to='/dragonflight-mdt'>Mythic Dungeon Tools</router-link>
               <router-link to='/opie'>OPie</router-link>
               <router-link to='/plater'>Plater Nameplates</router-link>
               <router-link to='/totalrp'>Total RP</router-link>
@@ -122,7 +120,7 @@
             <div class="menu-section">
             <span>{{ $t("My Data") }}  <md-icon>expand_more</md-icon></span>
               <div class="sub-nav">
-                <router-link :to="'/p/'+User.name">{{ $t("My Profile") }}</router-link>
+                <router-link :to="'/p/'+encodeURIComponent(User.name)">{{ $t("My Profile") }}</router-link>
                 <router-link to="/my/mentions">{{ $t("My Mentions") }} <span class="unreadCount" v-if="User.unreadMentions.length">{{ User.unreadMentions.length }}</span></router-link>
                 <router-link to="/my/stars">{{ $t("My Favorites") }}</router-link>
               </div>
@@ -471,7 +469,7 @@ export default {
       return params.get('id')
     },
     includeSidebar () {
-      return !(this.$store.state.user.hideAds || this.$store.state.isMaintenance)
+      return !(this.$store.state.user.hideAds || this.$store.state.isMaintenance || this.$store.state.pageInfo.layout === 'MDT')
     }
   },
   watch: {
@@ -479,6 +477,9 @@ export default {
       if (this.$refs.mobileSidebar) {
         this.$refs.mobileSidebar.close()
       }
+      this.$store.commit('setPageInfo', {
+        layout: 'default',
+      })
     },
     advSearchType () {
       this.buildSearch(false)
@@ -880,46 +881,11 @@ body.theme-dark .md-input-container label a { -webkit-text-fill-color: initial }
   }
 }
 
-
-.coach-wrap {
-    margin-right: 15px;
-    display: flex;
-}
-.btn-coaching {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    line-height: 1;
-    height: auto;
-    padding: 7px 10px;
-    color: #fcd23e !important;
-    border: 1px solid #fcd23e !important;
-    border-bottom: 1px solid #fcd23e !important;
-    border-radius: 4px;
-    background: rgba(255, 255, 255, 0.05);
-    margin: auto 0;
-    font-size: 15px;
-    flex-wrap: nowrap;
-    min-width: 170px;
-    text-decoration: none !important;
-}
-.btn-coaching .coaching-logo {
-    width: 22px;
+#mdt-btn {
+  border-color: #c1272d  !important;
+  img {
     height: 20px;
-    display: inline-block;
+  }
 }
-.btn-coaching .coaching-text {
-    font-weight: bold;
-    color: #fcd23e;
-}
-.btn-coaching:hover,
-.btn-coaching:focus {
-    border-color: #fde48b !important;
-    background: rgba(255, 255, 255, 0.075) !important;
-    transform: scale(1.075);
-}
-.btn-coaching:hover .coaching-text,
-.btn-coaching:focus .coaching-text {
-    color: #fde48b;
-}
+
 </style>

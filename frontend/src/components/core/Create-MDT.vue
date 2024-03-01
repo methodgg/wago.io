@@ -12,7 +12,7 @@
 </template>
 
 <script>
-import categories from '../libs/categories'
+import categories from '../libs/categories2'
 import MDTBuilder from '../UI/MDTBuilder.vue'
 export default {
   components: {
@@ -30,38 +30,40 @@ export default {
   },
   methods: {
     createMDT (dungeonTable) {
-      var week
-      let game = this.game || 'bfa'
+      let week = 1
+      let game = this.game || 'df'
       let season = this.season
-      try {
-        week = parseInt(this.$route.params.week.replace(/[^\d]/g, ''))
-        if (!season && game === 'bfa') {
-          season = 4
-        }
-        var category = categories.match(`mdtaffix-${game}-s${season}-w${week}`)
-        if (!category) {
-          this.loading = false
-          return
-        }
-        this.affixes = category.contains
-      }
-      catch (e) {
-        console.error(e)
-      }
+      // try {
+      //   week = parseInt(this.$route.params.week.replace(/[^\d]/g, ''))
+      //   if (!season && game === 'df') {
+      //     season = 4
+      //   }
+      //   var category = categories.match(`mdtaffix-${game}-s${season}-w${week}`)
+      //   if (!category) {
+      //     this.loading = false
+      //     return
+      //   }
+      //   this.affixes = category.contains
+      // }
+      // catch (e) {
+      //   console.error(e)
+      // }
 
       if (this.mapID < 0 || !week) {
         this.loading = false
         return
       }
-      var table = {
+      const table = {
         text: this.dungeonName,
         objects: [],
         value: {
           currentSublevel: 1,
           currentPull: 1,
           teeming: this.affixes.indexOf(5) >= 0,
-          currentDungeonIdx: this.mapID + 1,
-          pulls: this.pulls || []
+          currentDungeonIdx: this.mapID,
+          pulls: this.pulls || [{
+            color: "ff3eff"
+          }]
         },
         week: week
       }
@@ -79,16 +81,19 @@ export default {
     }
   },
   created () {
-    var dungeons = categories.raidCategories(['mdt-sldun'])[0].bosses
+    const dungeons = categories.raidCategories(['df-mdt-s3'], 'MDT')[0].bosses
     for (let i = 0; i < dungeons.length; i++) {
-      if (dungeons[i].slug.match(this.$route.params.dungeon)) {
-        this.mapID = parseInt(dungeons[i].id.replace(/[^\d]*/, '')) - 1
+      if (dungeons[i].mdtID && dungeons[i].slug.match(this.$route.params.dungeon)) {
+        this.mapID = dungeons[i].mdtID
         this.dungeonName = this.$t(dungeons[i].text)
         break
       }
     }
-    this.http.get('/data/mdtDungeonTable-' + this.mapID).then((res) => {
+    this.http.get('/data/mdtDungeonTable-' + (this.mapID)).then((res) => {
       if (res && res.value) {
+        this.$store.commit('setPageInfo', {
+          layout: 'MDT',
+        })
         this.createMDT(res.value)
       }
     })

@@ -1,7 +1,7 @@
 <template>
   <md-card id="searchPage" :class="collection ? 'collection' : ''">
     <md-layout id="searchLayout">
-      <md-layout>
+      <md-layout id="searchMeta">
         <div id="searchData">
           <slot></slot>
           <md-layout md-row>
@@ -11,7 +11,7 @@
               <strong v-html="$t('Found [-count-] results', {count: new Intl.NumberFormat().format(results.total)})"></strong>
             </p>
             <md-layout v-if="results" id="searchOptions">
-              <div>
+              <div v-if="searchMode !== 'comments'">
                 <div>
                   <label>{{ $t('Game') }}</label>
                   <small id="selected-game">{{
@@ -30,7 +30,7 @@
                   </md-button>
                 </md-button-toggle>
               </div>
-              <div v-if="(searchType === 'all' || searchType === 'weakaura') && (searchGame === 'wow')">
+              <div v-if="(searchType === 'all' || searchType === 'weakaura') && (searchGame === 'wow') && searchMode !== 'comments'">
                 <div>
                   <label>{{ $t('Expansion') }}</label>
                   <small id="selected-expansion">{{
@@ -68,7 +68,7 @@
                   </div>
                 </md-button-toggle>
               </div>
-              <div v-if="searchGame === 'wow'">
+              <div v-if="searchGame === 'wow' && searchMode !== 'comments'">
                 <div>
                   <label>{{ $t('Addon') }}</label>
                   <small id="selected-addon">{{
@@ -80,6 +80,7 @@
                     searchType === 'totalrp3' && 'TotalRP' ||
                     searchType === 'vuhdo' && 'VuhDo' ||
                     searchType === 'dbm' && 'DBM' ||
+                    searchType === 'mdt' && 'MDT' ||
                     searchType === 'shippets' && 'Snippets' ||
                     searchType === 'collection' && 'Collections' ||
                     $t('All')
@@ -102,7 +103,11 @@
                     <category-image :group="'t-plater'"></category-image>
                     <md-tooltip md-direction="bottom" class="">{{ $t("Plater") }}</md-tooltip>
                   </md-button>
-                  <div id="addon-button" :class="{ 'md-toggle': searchType && !searchType.match(/^(all|weakaura|elvui|plater)$/) }" class="md-button md-icon-button md-theme-default">
+                  <md-button :class="{ 'md-toggle': searchType === 'mdt' }" class="md-icon-button" @click="setType('mdt')">
+                    <category-image :group="'t-mdt'"></category-image>
+                    <md-tooltip md-direction="bottom" class="">{{ $t("MDT") }}</md-tooltip>
+                  </md-button>
+                  <div id="addon-button" :class="{ 'md-toggle': searchType && !searchType.match(/^(all|weakaura|elvui|plater|mdt)$/) }" class="md-button md-icon-button md-theme-default">
                     <img src="../../assets/misc-addons.svg">
                   </div>
                   <div id="addon-dropdown">
@@ -116,7 +121,7 @@
                 </md-button-toggle>
               </div>
               
-              <div v-if="searchGame === 'wow'" id="toggle-spacer"></div>
+              <div v-if="searchGame === 'wow' && searchMode !== 'comments'" id="toggle-spacer"></div>
               <div>
                 <div>
                   <label>{{ $t('Mode') }}</label>
@@ -550,7 +555,7 @@ export default {
       return ''
     },
     runSearch: function (sid, force) {
-      let query = this.$store.state.siteSearch.trim().replace(/\s{2,}/g, ' ')
+      let query = this.$store.state.siteSearch.trim().replace(/\s{2,}/g, ' ').replace(/#/g, '%23')
       this.disableInstalls = this.searchType.match(/(weakaura|plater)/) === null
       this.disableCode = (this.searchType && this.searchType.match(/(weakaura|plater)/) === null) || this.searchGame !== 'wow'
       this.disableMetrics = this.$store.state.searchMode.match(/starred|comments/) !== null
@@ -563,7 +568,12 @@ export default {
       }
 
       this.isSearching = true
-      this.searchParams = {q: query, mode: this.searchMode, game: this.searchGame, expansion: this.searchExpansion, type: this.searchType, page: 0, sort: this.searchSort}
+      if (this.searchMode === 'comments') {
+        this.searchParams = {q: query, mode: this.searchMode, page: 0, sort: this.searchSort}
+      }
+      else {
+        this.searchParams = {q: query, mode: this.searchMode, game: this.searchGame, expansion: this.searchExpansion, type: this.searchType, page: 0, sort: this.searchSort}
+      }
 
       if (query.match(/\b(?:alerts?|mentioned):\s*(1|true)\b/i)) {
         this.searchParams.includeRead = this.includeReadMentions
@@ -578,7 +588,7 @@ export default {
         if (document.getElementById('selected-expansion')) {
           fieldText.push(document.getElementById('selected-expansion').innerText)
         }
-        else {
+        else if (document.getElementById('selected-game')) {
           fieldText.push(document.getElementById('selected-game').innerText)
         }
         if (document.getElementById('selected-addon')) {
@@ -833,6 +843,10 @@ export default {
   background: none;
   box-shadow: none;
 
+  #searchMeta {
+    flex: 0
+  }
+
   #searchLayout {
     flex-direction: column;
   }
@@ -1069,6 +1083,7 @@ export default {
 #searchResults {
   width: 100%;
   margin-top: 16px;
+  flex: 1;
   & > .md-layout > div {
     max-width: 100%;
   }

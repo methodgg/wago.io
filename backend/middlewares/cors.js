@@ -1,10 +1,10 @@
 module.exports = function (req, res, next) {
   const method = req.raw.method && req.raw.method.toUpperCase && req.raw.method.toUpperCase()
-  const allowedOrigins = [/^https:\/\/([^.]+\.)?wago.io/, /^http:\/\/io:8080/, /^http:\/\/localhost:\d+/]
+  const allowedOrigins = [/^https:\/\/([^.]+\.)?wago.io/, /^http:\/\/localhost:\d+/]
 
   let allow = true
-  if (!req.headers.origin) {
-    res.header('Access-Control-Allow-Origin', '*')
+  if (!req.headers.origin || config.env === 'development' || config.env === 'staging') {
+    res.header('Access-Control-Allow-Origin', req.headers.origin)
   }
   else if (req.raw.url.match(/^\/api\//)) {
     res.header('Access-Control-Allow-Origin', req.headers.origin)

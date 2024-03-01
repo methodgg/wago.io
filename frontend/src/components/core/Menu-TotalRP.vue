@@ -11,44 +11,52 @@
     </md-layout>
     <md-subheader>Total RP 3</md-subheader>
     <md-layout>
-      <md-list class="md-double-line md-dense">
-        <md-list-item class="md-inset totalrp1">
-          <div class="menu-image"></div>
-          <div class="md-list-text-container">
-            <router-link to="/totalrp/campaigns">Campaigns</router-link>
-            <span>
-              <a v-for="(item, index) in campaigns" v-bind:key="item.id" :href="'/totalrp/' + item.slug" @click.prevent="searchRoute(item)">{{ item.text }}</a>
-            </span>
-          </div>
-        </md-list-item>
-      </md-list>
-
-      <md-list class="md-double-line md-dense">
-        <md-list-item class="md-inset totalrp4">
+      <md-layout>
+        <md-list class="md-double-line md-dense">
+          <md-list-item class="md-inset totalrp1">
             <div class="menu-image"></div>
-          <div class="md-list-text-container">
-            <router-link to="/totalrp/items">Items</router-link>
-            <span>
-              <router-link v-for="(item, index) in items" :to="'/totalrp/' + item.slug" v-bind:key="index">{{ item.text }}</router-link>
-            </span>
-          </div>
-        </md-list-item>
-      </md-list>
+            <div class="md-list-text-container">
+              <router-link to="/totalrp/campaigns">Campaigns</router-link>
+              <span>
+                <a v-for="(item, index) in campaigns" v-bind:key="item.id" :href="'/totalrp/' + item.slug"
+                  @click.prevent="searchRoute(item)">{{ item.text }}</a>
+              </span>
+            </div>
+          </md-list-item>
+        </md-list>
 
-      <md-list class="md-double-line md-dense">
-        <md-list-item class="md-inset rplang1">
+        <md-list class="md-double-line md-dense">
+          <md-list-item class="md-inset totalrp4">
             <div class="menu-image"></div>
-          <div class="md-list-text-container">
-            <router-link to="/totalrp">Languages</router-link>
-            <span>
-              <router-link v-for="(item, index) in languages" :to="'/totalrp/' + item.slug" v-bind:key="index">{{ item.text }}</router-link>
-            </span>
-          </div>
-        </md-list-item>
-      </md-list>
+            <div class="md-list-text-container">
+              <router-link to="/totalrp/items">Items</router-link>
+              <span>
+                <router-link v-for="(item, index) in items" :to="'/totalrp/' + item.slug" v-bind:key="index">{{ item.text
+                                  }}</router-link>
+              </span>
+            </div>
+          </md-list-item>
+        </md-list>
 
-      <md-list></md-list>
+        <md-list class="md-double-line md-dense">
+          <md-list-item class="md-inset rplang1">
+            <div class="menu-image"></div>
+            <div class="md-list-text-container">
+              <router-link to="/totalrp">Languages</router-link>
+              <span>
+                <router-link v-for="(item, index) in languages" :to="'/totalrp/' + item.slug" v-bind:key="index">{{
+                                  item.text }}</router-link>
+              </span>
+            </div>
+          </md-list-item>
+        </md-list>
 
+      </md-layout>
+      <md-layout>
+        <md-list>
+          <advert ad="video-sidebar" />
+        </md-list>
+      </md-layout>
     </md-layout>
   </div>
 </template>
@@ -101,27 +109,103 @@ export default {
 
 <style lang="scss">
 .addon-name {
-  .md-avatar {margin: 16px; border-radius: 4px;}
-  h2 {margin: 16px 0 0 0; line-height: 40px}
+  .md-avatar {
+    margin: 16px;
+    border-radius: 4px;
+  }
+
+  h2 {
+    margin: 16px 0 0 0;
+    line-height: 40px
+  }
 }
-h2 .faded {opacity: .3}
-h2 span {font-size:80%; cursor: pointer}
-#searchForm { padding: 16px; flex: 1 }
-#searchForm button { margin-top: -3px }
 
-#addon-name .md-theme-default.md-switch {margin: 0 8px; zoom:0.8}
-#addon-name .md-theme-default.md-switch.md-checked .md-switch-container {background-color: rgba(0, 0, 0, 0.38);}
-#addon-name .md-theme-default.md-switch.md-checked .md-switch-thumb {background-color: #fafafa;}
+h2 .faded {
+  opacity: .3
+}
 
-#search-totalrp .md-list-item img { height: 48px; padding-right: 16px; vertical-align:top}
-#search-totalrp a { margin-right: 12px }
-#search-totalrp .md-list-item.md-inset .md-list-item-container { padding-left: 24px; flex-wrap: wrap; padding-bottom: 16px }
-#search-totalrp .md-list-text-container a { white-space: nowrap; display: inline-block }
-#search-totalrp .md-list-text-container > a, #search-totalrp .md-list-text-container > .parent-category { font-size: 18px; font-weight: bold; line-height: 19px; }
-#search-totalrp .md-list-text-container span{ white-space: normal; line-height: 22px}
-#search-totalrp .md-layout { align-items: flex-start}
+h2 span {
+  font-size: 80%;
+  cursor: pointer
+}
 
-#search-totalrp .md-subheader { width: 100% }
-#search-totalrp .md-subheader + .md-list { width: 100% }
-.md-list:after { background-color: transparent!important }
-</style>
+#searchForm {
+  padding: 16px;
+  flex: 1
+}
+
+#searchForm button {
+  margin-top: -3px
+}
+
+#addon-name .md-theme-default.md-switch {
+  margin: 0 8px;
+  zoom: 0.8
+}
+
+#addon-name .md-theme-default.md-switch.md-checked .md-switch-container {
+  background-color: rgba(0, 0, 0, 0.38);
+}
+
+#addon-name .md-theme-default.md-switch.md-checked .md-switch-thumb {
+  background-color: #fafafa;
+}
+
+#search-totalrp .md-list-item img {
+  height: 48px;
+  padding-right: 16px;
+  vertical-align: top
+}
+
+#search-totalrp a {
+  margin-right: 12px
+}
+
+#search-totalrp .md-list-item.md-inset .md-list-item-container {
+  padding-left: 24px;
+  flex-wrap: wrap;
+  padding-bottom: 16px
+}
+
+#search-totalrp .md-list-text-container a {
+  white-space: nowrap;
+  display: inline-block
+}
+
+#search-totalrp .md-list-text-container>a,
+#search-totalrp .md-list-text-container>.parent-category {
+  font-size: 18px;
+  font-weight: bold;
+  line-height: 19px;
+}
+
+#search-totalrp .md-list-text-container span {
+  white-space: normal;
+  line-height: 22px
+}
+
+#search-totalrp .md-layout {
+  align-items: flex-start
+}
+
+#search-totalrp .md-subheader {
+  width: 100%
+}
+
+#search-totalrp .md-subheader+.md-list {
+  width: 100%
+}
+
+.md-list:after {
+  background-color: transparent !important
+}
+
+#search-totalrp .wago-ad-container {
+  max-width: 260px;
+  background: none;
+  box-shadow: none;
+  min-height: 160px;
+  #video-sidebar {
+    min-height: auto
+  }
+}</style>

@@ -28,7 +28,7 @@ function expansionIndex(exp) {
 }
 
 async function searchElastic(req, res) {
-  let query = req.query.q || req.body.q || ''
+  let query = (req.query.q || req.body.q || '')
   if (typeof query !== 'string') {
     query = ''
   }
@@ -152,11 +152,11 @@ async function searchElastic(req, res) {
   }
 
   let filterUsers = []
-  m = query.match(/(?:user:\s?"(.*)")/i)
+  m = query.match(/(?:user:\s?"(.+)")/i)
   var searchingOwnProfile = false
   while (m && m[0]) {
     try {
-      let user = await User.findOne({ "search.username": m[1].toLowerCase() })
+      let user = await User.findOne({ "search.username": decodeURI(m[1].toLowerCase()).replace(/%23/g, "#") })
       if (user) {
         if (req.user && user._id.equals(req.user._id)) {
           searchingOwnProfile = true
@@ -164,12 +164,12 @@ async function searchElastic(req, res) {
         else if (user.account.hidden) {
           return res.send({ profile: "private", hits: [] })
         }
-        filterUsers.push({ term: { userId: user._id } })
+        filterUsers.push({ term: { userId: user._id.toString() } })
       }
     }
     catch { }
     query = query.replace(m[0], '')
-    m = query.match(/(?:user:\s?"(\w+)")/i)
+    m = query.match(/(?:user:\s?"(.+)")/i)
   }
   if (filterUsers.length) {
     defaultFilterExpansion = null
@@ -178,7 +178,8 @@ async function searchElastic(req, res) {
 
   m = query.match(/mentions:(unread|read|all)/i)
   if (m && req.user && searchMode === 'comments') {
-    let unreadComments = (await Comments.findUnread(req.user._id)).map(x => { return { term: { id: x._id } } })
+    let unreadComments = (await Comments.findUnread(req.user._id)).map(x => { return { term: { _id: x._id } } })    
+    // allowHidden = true
     m[1] = m[1].toLowerCase()
     if (m[1] === 'unread') {
       if (unreadComments && unreadComments.length) {
@@ -382,6 +383,7 @@ async function searchElastic(req, res) {
       searchFields = ["description", "name^2", "custom_slug^2", "auraNames"]
     }
     else {
+      query = query.replace(/'/g, '')
       searchFields = ["description_plain", "name_plain^2", "custom_slug_plain^2"]
     }
     textQuery = esQuery

@@ -13,6 +13,7 @@
     <md-subheader>{{ $t("Classes") }}</md-subheader>
     <md-layout>
       <md-layout v-for="(classes, index) in aClasses" v-bind:key="index">
+        <advert ad="video-sidebar" v-if="index == 2" />
         <md-list class="md-double-line md-dense">
           <md-list-item v-for="cls in classes" v-bind:key="cls.id" :class="cls.id + ' md-inset'">
             <div class="menu-image"></div>
@@ -71,7 +72,7 @@ export default {
   computed: {
     aClasses: function () {
       var cats = window.Categories.classCategories()
-      return [[cats[0], cats[1], cats[2], cats[3]], [cats[4], cats[5], cats[6], cats[7]], [cats[8], cats[9], cats[10], cats[11], cats[12]]]
+      return [[cats[0], cats[1], cats[2], cats[3], cats[4]], [cats[5], cats[6], cats[7], cats[8], cats[9]], [cats[10], cats[11], cats[12]]]
     },
     roles: function () {
       return window.Categories.getCategories(['role4', 'role1', 'role2', 'role3'])
@@ -112,4 +113,13 @@ h2 span {font-size:80%; cursor: pointer}
 #search-blizzhud .md-subheader { width: 100% }
 #search-blizzhud .md-subheader + .md-list { width: 100% }
 .md-list:after { background-color: transparent!important }
+#search-collections .wago-ad-container {
+  max-width: 260px;
+  background: none;
+  box-shadow: none;
+  min-height: 160px;
+  #video-sidebar {
+    min-height: auto
+  }
+}
 </style>

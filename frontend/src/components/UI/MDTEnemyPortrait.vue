@@ -3,7 +3,7 @@
     width: (size || 36) + 'px', 
     height: (size || 36) + 'px', 
     'border-radius': (size || 36) + 'px', 
-    'background-image': 'url(https://media.wago.io/mdt/portraits-' + mapID + '.png)',
+    'background-image': 'url(https://media.wago.io/mdt/portraits-' + mapSlug + '.png)',
     'background-position': (-offset.x) + 'px ' + (-offset.y) + 'px',
     'background-size': bgSize,
     border: inspiring ? '1px solid #30d9ff' : 'none'
@@ -15,7 +15,7 @@
 
 <script>
 export default {
-  props: ['mapID', 'offset', 'size', 'inspiring'],
+  props: ['mapID', 'offset', 'size', 'inspiring', 'mapSlug'],
   methods: {
     click: function (e) {
       this.$emit('click', e)
@@ -52,7 +52,8 @@ export default {
           return '1600%'
 
         default:
-          return '3339%' // bfa
+          return '1800%'
+          // return '3339%' // bfa
       }
     }
   }

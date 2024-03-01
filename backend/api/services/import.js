@@ -60,6 +60,7 @@ module.exports = function (fastify, opts, next) {
     }
 
     if (scan.type) {
+      console.log('scan found', scan.type)
       return res.send({ scan: scan._id, type: scan.type, name: scan.name, categories: scan.categories, game: scan.game, domain: scan.domain })
     }
 
@@ -494,6 +495,11 @@ module.exports = function (fastify, opts, next) {
         wago.game = patchDates.gameVersion(json.tocversion)
       }
 
+      if (req.body.name) {
+        wago.name = req.body.name
+      }
+      }
+
       // set expiry option
       switch (req.body.expireAfter) {
         case '15m':
@@ -521,11 +527,6 @@ module.exports = function (fastify, opts, next) {
           }
           else {
             wago.expires_at = new Date().setTime(new Date().getTime() + 3 * 30 * 24 * 60 * 60 * 1000)
-          }
-      }
-
-      if (req.body.name) {
-        wago.name = req.body.name
       }
     }
 
@@ -587,66 +588,6 @@ module.exports = function (fastify, opts, next) {
         }
       }
     }
-    // otherwise check for system tags by import type
-    // else if (wago.type === 'VUHDO') {
-    //   wago.categories.push('vuhdo0')
-
-    //   if (json.bouquetName) {
-    //     wago.categories.push('vuhdo2')
-    //   }
-    //   else if (json.keyLayout) {
-    //     wago.categories.push('vuhdo3')
-    //   }
-    //   else { // vuhdo profile
-    //     wago.categories.push('vuhdo1')
-    //   }
-    // }
-    // else if (wago.type === 'TOTALRP3') {
-    //   if (json[2].TY === 'CA') {
-    //     wago.categories.push('totalrp1')
-    //   }
-    //   else if (json[2].TY === 'IT') {
-    //     wago.categories.push('totalrp4')
-    //   }
-    // }
-    else if (wago.type === 'MDT') {
-      if (json.value.currentDungeonIdx && parseInt(json.value.currentDungeonIdx) > 0 && global.Categories.match('mdt-sldun' + json.value.currentDungeonIdx)) {
-        wago.categories.push('mdt-sldun' + json.value.currentDungeonIdx)
-      }
-      else if (json.value.currentDungeonIdx && parseInt(json.value.currentDungeonIdx) > 0 && global.Categories.match('mdtdun' + json.value.currentDungeonIdx)) {
-        wago.categories.push('mdtdun' + json.value.currentDungeonIdx)
-      }
-
-      const affixWeeks = await redis.get('static:mdtAffixWeeks')
-      if (json.week && affixWeeks && affixWeeks.value[json.week - 1]) {
-        affixWeeks.value[json.week - 1].forEach((affixID) => {
-          wago.categories.push('mdtaffix' + affixID)
-        })
-      }
-    }
-    // else if (wago.type === 'PLATER') {
-    //   wago.categories.push('plater0')
-    //   if (!Array.isArray(json) && json[1] && json[1].animation_type) {
-    //     // plater profile
-    //     wago.categories.push('plater4')
-    //   }
-    //   else if (!Array.isArray(json) && json.NpcColor) {
-    //     // plater npc color
-    //     wago.categories.push('plater5')
-    //   }
-    //   else if (json.type === 'script' || (Array.isArray(json) && typeof json[8] === 'number') || typeof json['9'] === 'number') {
-    //     // plater script
-    //     wago.categories.push('plater2')
-    //   }
-    //   else if (json.type === 'hook' || (Array.isArray(json) && typeof json[8] === 'object') || typeof json['9'] === 'object') {
-    //     // plater hook
-    //     wago.categories.push('plater3')
-    //   }
-    //   else if (!Array.isArray(json)) {
-    //     // plater profile
-    //     wago.categories.push('plater1')
-    //   }
-    // }
 
     if (wago.categories.length > 0) {
       wago.categories = Categories.validateCategories(wago.categories)
@@ -1093,9 +1034,9 @@ module.exports = function (fastify, opts, next) {
       //   encoded = await lua.JSON2ElvUI(json)
       // break
 
-      case 'MDT':
-        encoded = await lua.JSON2MDT(json)
-        break
+      // case 'MDT':
+      //   encoded = await lua.JSON2MDT(json)
+      //   break
 
       // case 'PLATER':
       //   encoded = await lua.JSON2Plater(json)

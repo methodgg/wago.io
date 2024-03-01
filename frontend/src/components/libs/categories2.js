@@ -159,6 +159,17 @@ class Categories {
       'dfdungeons3-4': {slug: 'pve/dragonflight-dungeons/black-rook-hold', i18n: 'warcraft:instances.740', domain: 0, parent: 'dfdungeon', types: ['WEAKAURA'], games: ['df']},
       'dfdungeons3-5': {slug: 'pve/dragonflight-dungeons/the-everbloom', i18n: 'warcraft:instances.556', domain: 0, parent: 'dfdungeon', types: ['WEAKAURA'], games: ['df']},
       'dfdungeons3-6': {slug: 'pve/dragonflight-dungeons/throne-of-the-tides', i18n: 'warcraft:instances.65', domain: 0, parent: 'dfdungeon', types: ['WEAKAURA'], games: ['df']},
+      
+      'df-mdt-s3': {slug: 'pve/dragonflight-dungeons-s3', image: 'dungeon.png', color: '#F5A623', i18n: 'Season 3 Dungeons', domain: 0, types: ['MDT'], games: ['df']},
+      // --- Season 3
+      'df-mdt-s3-1': {slug: 'pve/dragonflight-dungeons-s3/waycrest-manor', i18n: 'warcraft:instances.1021', domain: 0, parent: 'df-mdt-s3', mdtID: 102, types: ['MDT'], games: ['df']},
+      'df-mdt-s3-2': {slug: 'pve/dragonflight-dungeons-s3/darkheart-thicket', i18n: 'warcraft:instances.762', domain: 0, parent: 'df-mdt-s3', mdtID: 4, types: ['MDT'], games: ['df']},
+      'df-mdt-s3-3': {slug: 'pve/dragonflight-dungeons-s3/atal-dazar', i18n: 'warcraft:instances.968', domain: 0, parent: 'df-mdt-s3', mdtID: 15, types: ['MDT'], games: ['df']},
+      'df-mdt-s3-4': {slug: 'pve/dragonflight-dungeons-s3/black-rook-hold', i18n: 'warcraft:instances.740', domain: 0, parent: 'df-mdt-s3', mdtID: 103, types: ['MDT'], games: ['df']},
+      'df-mdt-s3-5': {slug: 'pve/dragonflight-dungeons-s3/the-everbloom', i18n: 'warcraft:instances.556', domain: 0, parent: 'df-mdt-s3', mdtID: 104, types: ['MDT'], games: ['df']},
+      'df-mdt-s3-6': {slug: 'pve/dragonflight-dungeons-s3/throne-of-the-tides', i18n: 'warcraft:instances.65', domain: 0, parent: 'df-mdt-s3', mdtID: 105, types: ['MDT'], games: ['df']},
+      'df-mdt-s3-7': {slug: 'pve/dragonflight-dungeons-s3/dawn-of-the-infinite/galakronds-fall', i18n: 'warcraft:dungeons.2431', domain: 0, mdtID: 100, parent: 'df-mdt-s3', types: ['MDT'], games: ['df']},
+      'df-mdt-s3-8': {slug: 'pve/dragonflight-dungeons-s3/dawn-of-the-infinite/murozonds-rise', i18n: 'warcraft:dungeons.2432', domain: 0, mdtID: 101, parent: 'df-mdt-s3', types: ['MDT'], games: ['df']},
 
       // --- Season 2
       'dfdungeon-s2': {subheader: true, i18n: 'Season 2 Dungeons', domain: 0, parent: 'dfdungeon', system: true, types: ['WEAKAURA'], games: ['df']},
@@ -745,27 +756,43 @@ class Categories {
       'mdt-sldun35': {slug: 'pve/shadowlands-dungeons/the-necrotic-wake', i18n: 'warcraft:zones.TheNecroticWake', domain: 0, system: true, parent: 'mdtdungeon', types: ['MDT'], games: ['sl']},
       'mdt-sldun36': {slug: 'pve/shadowlands-dungeons/theater-of-pain', i18n: 'warcraft:zones.TheaterOfPain', domain: 0, system: true, parent: 'mdtdungeon', types: ['MDT'], games: ['sl']},
       'mdtaffix': {slug: 'affixes', image: 'affixes.png', color: '#ef2254', i18n: 'Affixes', domain: 0, system: true, types: ['MDT']},
-      'mdtaffix2': {slug: 'affixes/skittish', i18n: 'Skittish', domain: 0, system: true, parent: 'affixes', types: ['MDT']},
-      'mdtaffix3': {slug: 'affixes/volcanic', i18n: 'Volcanic', domain: 0, system: true, parent: 'affixes', types: ['MDT']},
-      'mdtaffix4': {slug: 'affixes/necrotic', i18n: 'Necrotic', domain: 0, system: true, parent: 'affixes', types: ['MDT']},
-      'mdtaffix5': {slug: 'affixes/teeming', i18n: 'Teeming', domain: 0, system: true, parent: 'affixes', types: ['MDT']},
-      'mdtaffix6': {slug: 'affixes/raging', i18n: 'Raging', domain: 0, system: true, parent: 'affixes', types: ['MDT']},
-      'mdtaffix7': {slug: 'affixes/bolstering', i18n: 'Bolstering', domain: 0, system: true, parent: 'affixes', types: ['MDT']},
-      'mdtaffix8': {slug: 'affixes/sanguine', i18n: 'Sanguine', domain: 0, system: true, parent: 'affixes', types: ['MDT']},
-      'mdtaffix9': {slug: 'affixes/tyrannical', i18n: 'Tyrannical', domain: 0, system: true, parent: 'affixes', types: ['MDT']},
-      'mdtaffix10': {slug: 'affixes/fortified', i18n: 'Fortified', domain: 0, system: true, parent: 'affixes', types: ['MDT']},
-      'mdtaffix11': {slug: 'affixes/bursting', i18n: 'Bursting', domain: 0, system: true, parent: 'affixes', types: ['MDT']},
-      'mdtaffix12': {slug: 'affixes/grievous', i18n: 'Grievous', domain: 0, system: true, parent: 'affixes', types: ['MDT']},
-      'mdtaffix13': {slug: 'affixes/explosive', i18n: 'Explosive', domain: 0, system: true, parent: 'affixes', types: ['MDT']},
-      'mdtaffix14': {slug: 'affixes/quaking', i18n: 'Quaking', domain: 0, system: true, parent: 'affixes', types: ['MDT']},
-      'mdtaffix16': {slug: 'affixes/infested', i18n: 'Infested', domain: 0, system: true, parent: 'affixes', types: ['MDT']},
-      'mdtaffix117': {slug: 'affixes/reaping', i18n: 'Reaping', domain: 0, system: true, parent: 'affixes', types: ['MDT']},
-      'mdtaffix119': {slug: 'affixes/beguiling', i18n: 'Beguiling', domain: 0, system: true, parent: 'affixes', types: ['MDT']},
-      'mdtaffix120': {slug: 'affixes/awakened', i18n: 'Awakened', domain: 0, system: true, parent: 'affixes', types: ['MDT']},
-      'mdtaffix121': {slug: 'affixes/prideful', i18n: 'Prideful', domain: 0, system: true, parent: 'affixes', types: ['MDT']},
-      'mdtaffix122': {slug: 'affixes/inspiring', i18n: 'Inspiring', domain: 0, system: true, parent: 'affixes', types: ['MDT']},
-      'mdtaffix123': {slug: 'affixes/spiteful', i18n: 'Spiteful', domain: 0, system: true, parent: 'affixes', types: ['MDT']},
-      'mdtaffix124': {slug: 'affixes/storming', i18n: 'Storming', domain: 0, system: true, parent: 'affixes', types: ['MDT']},
+      'mdtaffix3': {slug: 'affixes/volcanic', i18n: 'warcraft:affixes.3', domain: 0, system: true, parent: 'affixes', types: ['MDT']},
+      'mdtaffix6': {slug: 'affixes/raging', i18n: 'warcraft:affixes.6', domain: 0, system: true, parent: 'affixes', types: ['MDT']},
+      'mdtaffix7': {slug: 'affixes/bolstering', i18n: 'warcraft:affixes.7', domain: 0, system: true, parent: 'affixes', types: ['MDT']},
+      'mdtaffix8': {slug: 'affixes/sanguine', i18n:  'warcraft:affixes.8', domain: 0, system: true, parent: 'affixes', types: ['MDT']},
+      'mdtaffix9': {slug: 'affixes/tyrannical', i18n: 'warcraft:affixes.9', domain: 0, system: true, parent: 'affixes', types: ['MDT']},
+      'mdtaffix10': {slug: 'affixes/fortified', i18n:  'warcraft:affixes.10', domain: 0, system: true, parent: 'affixes', types: ['MDT']},
+      'mdtaffix11': {slug: 'affixes/bursting', i18n: 'warcraft:affixes.11', domain: 0, system: true, parent: 'affixes', types: ['MDT']},
+      'mdtaffix134': {slug: 'affixes/entangling', i18n: 'warcraft:affixes.134', domain: 0, system: true, parent: 'affixes', types: ['MDT']},
+      'mdtaffix136': {slug: 'affixes/incorporeal', i18n: 'warcraft:affixes.136', domain: 0, system: true, parent: 'affixes', types: ['MDT']},
+      'mdtaffix123': {slug: 'affixes/spiteful', i18n: 'warcraft:affixes.123', domain: 0, system: true, parent: 'affixes', types: ['MDT']},
+      'mdtaffix124': {slug: 'affixes/storming', i18n: 'warcraft:affixes.124', domain: 0, system: true, parent: 'affixes', types: ['MDT']},
+      // 'mdtaffix-df-s3-w1': {slug: 'affixes/dragonflight-s3/week-1', i18n: '[-affix1-], [-affix2-], [-affix3-]', domain: 0, types: ['MDT']},
+      // 'mdtaffix-df-s3-w2': {slug: 'affixes/dragonflight-s3/week-2', i18n: '[-affix1-], [-affix2-], [-affix3-]', domain: 0, types: ['MDT']},
+      // 'mdtaffix-df-s3-w3': {slug: 'affixes/dragonflight-s3/week-3', i18n: '[-affix1-], [-affix2-], [-affix3-]', domain: 0, types: ['MDT']},
+      // 'mdtaffix-df-s3-w4': {slug: 'affixes/dragonflight-s3/week-4', i18n: '[-affix1-], [-affix2-], [-affix3-]', domain: 0, types: ['MDT']},
+      // 'mdtaffix-df-s3-w5': {slug: 'affixes/dragonflight-s3/week-5', i18n: '[-affix1-], [-affix2-], [-affix3-]', domain: 0, types: ['MDT']},
+      // 'mdtaffix-df-s3-w6': {slug: 'affixes/dragonflight-s3/week-6', i18n: '[-affix1-], [-affix2-], [-affix3-]', domain: 0, types: ['MDT']},
+      // 'mdtaffix-df-s3-w7': {slug: 'affixes/dragonflight-s3/week-7', i18n: '[-affix1-], [-affix2-], [-affix3-]', domain: 0, types: ['MDT']},
+      // 'mdtaffix-df-s3-w8': {slug: 'affixes/dragonflight-s3/week-8', i18n: '[-affix1-], [-affix2-], [-affix3-]', domain: 0, types: ['MDT']},
+      // 'mdtaffix-df-s3-w9': {slug: 'affixes/dragonflight-s3/week-9', i18n: '[-affix1-], [-affix2-], [-affix3-]', domain: 0, types: ['MDT']},
+      // 'mdtaffix-df-s3-w10': {slug: 'affixes/dragonflight-s3/week-10', i18n: '[-affix1-], [-affix2-], [-affix3-]', domain: 0, types: ['MDT']},
+      // 'mdtaffix-df-s3-w11': {slug: 'affixes/dragonflight-s3/week-11', i18n: '[-affix1-], [-affix2-], [-affix3-]', domain: 0, types: ['MDT']},
+      // 'mdtaffix-df-s3-w12': {slug: 'affixes/dragonflight-s3/week-12', i18n: '[-affix1-], [-affix2-], [-affix3-]', domain: 0, types: ['MDT']},
+
+      // 'mdtaffix2': {slug: 'affixes/skittish', i18n: 'Skittish', domain: 0, system: true, parent: 'affixes', types: ['MDT']},
+      // 'mdtaffix4': {slug: 'affixes/necrotic', i18n: 'Necrotic', domain: 0, system: true, parent: 'affixes', types: ['MDT']},
+      // 'mdtaffix5': {slug: 'affixes/teeming', i18n: 'Teeming', domain: 0, system: true, parent: 'affixes', types: ['MDT']},
+      // 'mdtaffix10': {slug: 'affixes/fortified', i18n: 'Fortified', domain: 0, system: true, parent: 'affixes', types: ['MDT']},
+      // 'mdtaffix12': {slug: 'affixes/grievous', i18n: 'Grievous', domain: 0, system: true, parent: 'affixes', types: ['MDT']},
+      // 'mdtaffix13': {slug: 'affixes/explosive', i18n: 'Explosive', domain: 0, system: true, parent: 'affixes', types: ['MDT']},
+      // 'mdtaffix14': {slug: 'affixes/quaking', i18n: 'Quaking', domain: 0, system: true, parent: 'affixes', types: ['MDT']},
+      // 'mdtaffix16': {slug: 'affixes/infested', i18n: 'Infested', domain: 0, system: true, parent: 'affixes', types: ['MDT']},
+      // 'mdtaffix117': {slug: 'affixes/reaping', i18n: 'Reaping', domain: 0, system: true, parent: 'affixes', types: ['MDT']},
+      // 'mdtaffix119': {slug: 'affixes/beguiling', i18n: 'Beguiling', domain: 0, system: true, parent: 'affixes', types: ['MDT']},
+      // 'mdtaffix120': {slug: 'affixes/awakened', i18n: 'Awakened', domain: 0, system: true, parent: 'affixes', types: ['MDT']},
+      // 'mdtaffix121': {slug: 'affixes/prideful', i18n: 'Prideful', domain: 0, system: true, parent: 'affixes', types: ['MDT']},
+      // 'mdtaffix122': {slug: 'affixes/inspiring', i18n: 'Inspiring', domain: 0, system: true, parent: 'affixes', types: ['MDT']},
       // 'mdtaffix-bfa-s1-w1': {slug: 'affixes/s1/week1', i18n: '[-affix1-], [-affix2-], [-affix3-], [-affix4-]', domain: 0},
       // 'mdtaffix-bfa-s1-w2': {slug: 'affixes/s1/week2', i18n: '[-affix1-], [-affix2-], [-affix3-], [-affix4-]', domain: 0},
       // 'mdtaffix-bfa-s1-w3': {slug: 'affixes/s1/week3', i18n: '[-affix1-], [-affix2-], [-affix3-], [-affix4-]', domain: 0},
@@ -1068,6 +1095,15 @@ class Categories {
     return null
   }
 
+  findByMDT_ID (mdtID) {
+    for (const [id, cat] of Object.entries(this.categories)) {
+      if (cat.mdtID === mdtID) {
+        return id
+      }
+    }
+    return null
+  }
+
   findMDTSeason (a1, a2, a3, a4) {
     if (parseInt(a1)) {
       a1 = 'mdtaffix' + a1
@@ -1131,13 +1167,16 @@ class Categories {
     return classes
   }
 
-  raidCategories (zones) {
+  raidCategories (zones, typeFilter) {
     let raids = []
     zones.forEach((zone) => {
       let z = this.match(zone)
-      if (z) {
-        z.bosses = this.matchChildren(z.id)
+      if (z && (!typeFilter || z.types.includes(typeFilter))) {
+        z.bosses = this.matchChildren(z.id, typeFilter)
         raids.push(z)
+      }
+      else if (z) {
+        console.log('skipped', z)
       }
     })
 

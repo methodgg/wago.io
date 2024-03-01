@@ -19,17 +19,17 @@ const fastify = require('fastify')(fastifyOpt)
 // --- GLOBAL MODULES
 const Redis = require("ioredis")
 global.RedisConnect = new Redis(config.redis)
-const {Queue, Worker, QueueScheduler, QueueEvents} = require('bullmq')
+const { Queue, Worker, QueueScheduler, QueueEvents } = require('bullmq')
 const Profiler = require('./api/models/Profiler')
 const discordBot = require('./discordBot')
-global.taskQueue = new Queue('taskQueue', {connection: RedisConnect})
-global.taskQueueDiscordBot = new Queue('taskQueueDiscordBot', {connection: RedisConnect})
+const GameVersion = require('./api/models/GameVersion')
+global.taskQueue = new Queue('taskQueue', { connection: RedisConnect })
+global.taskQueueDiscordBot = new Queue('taskQueueDiscordBot', { connection: RedisConnect })
 global.async = require('async')
 global.axios = require('axios')
 global.bluebird = require('bluebird')
 global.commonRegex = require('./commonRegex')
 global.elastic = require('./api/helpers/elasticsearch')
-global.meili = require('./api/helpers/meilisearch')
 global.redis = new Redis(config.redis)
 redis = require('./middlewares/decorateRedis')(redis)
 global.redis2 = new Redis(config.redis2)
@@ -69,11 +69,11 @@ fastify.addHook('preHandler', require('./middlewares/analytics'))
 fastify.addHook('preHandler', require('./middlewares/getRegion'))
 
 // --- ROUTES
-fastify.get('/ws', {websocket: true}, require('./api/services/websocket'))
-fastify.get('/logout', (req, res) => {res.redirect('/auth/logout')})
-fastify.get('/ping', (req, res) => {res.send({pong: true, host: config.base_url, you: req.raw.ip})})
-fastify.get('/favicon.ico', (req, res) => {res.redirect('https://media.wago.io/favicon/favicon.ico')})
-fastify.get('/loaderio-ea4a5150f4d42634b2499beaf72f04a9.txt', (req, res) => {res.send('loaderio-ea4a5150f4d42634b2499beaf72f04a9')})
+fastify.get('/ws', { websocket: true }, require('./api/services/websocket'))
+fastify.get('/logout', (req, res) => { res.redirect('/auth/logout') })
+fastify.get('/ping', (req, res) => { res.send({ pong: true, host: config.base_url, you: req.raw.ip }) })
+fastify.get('/favicon.ico', (req, res) => { res.redirect('https://media.wago.io/favicon/favicon.ico') })
+fastify.get('/loaderio-ea4a5150f4d42634b2499beaf72f04a9.txt', (req, res) => { res.send('loaderio-ea4a5150f4d42634b2499beaf72f04a9') })
 fastify.register(require('./api/services/account'), { prefix: '/account' })
 fastify.register(require('./api/services/admin'), { prefix: '/admin' })
 fastify.register(require('./api/services/api'), { prefix: '/api' })
@@ -92,35 +92,43 @@ const startServer = async () => {
   try {
     await fastify.listen(config.port, '0.0.0.0')
     console.log(`Fastify listening on ${fastify.server.address().port}`)
-    await mongoose.connect(config.db.uri, {useNewUrlParser: true, useCreateIndex: true, useFindAndModify: false, useUnifiedTopology: true})
+    await mongoose.connect(config.db.uri, { useNewUrlParser: true, useCreateIndex: true, useFindAndModify: false, useUnifiedTopology: true })
     const models = await fs.readdir('./api/models')
     models.forEach((model) => {
-      if (model.indexOf('.js')<0) return
+      if (model.indexOf('.js') < 0) return
       model = model.split('.')[0]
       global[model] = require('./api/models/' + model)
     })
     global.Categories = require('../frontend/src/components/libs/categories2')
-    await meili.getIndexes()
 
     const encodeDecodeAddons = await fs.readdir('./api/helpers/encode-decode')
     global.Addons = {}
     encodeDecodeAddons.forEach((addon) => {
-      if (addon.indexOf('.js')<0) return
+      if (addon.indexOf('.js') < 0) return
       addon = addon.split('.')[0]
       global.Addons[addon] = require('./api/helpers/encode-decode/' + addon)
     })
-    
+
     const profilerTasks = {}
 
     const runTask = require('./api/helpers/tasks')
-    if (config.env === 'processing' || require('os').hostname().match(/wago-processing/)) {
+    // runTask('ProcessAllCode')
+    if (config.env === 'processing' || config.env === 'development' || config.env === 'staging' || require('os').hostname().match(/wago-processing/)) {
       // setup queues and workers
-      new QueueScheduler('taskQueue', {connection: RedisConnect})
+      new QueueScheduler('taskQueue', { connection: RedisConnect })
       const worker = new Worker('taskQueue', async (job) => {
+        console.log('run task', job.name, job.data)
         await runTask(job.name, job.data, profilerTasks[job.id])
       }, {
         concurrency: 2,
-        connection: RedisConnect
+        connection: RedisConnect,
+        removeOnComplete: {
+          age: 3600, // keep up to 1 hour
+          count: 1000, // keep up to 100 jobs
+        },
+        removeOnFail: {
+          age: 24 * 3600, // keep up to 24 hours
+        }
       })
       worker.on('active', async (job) => {
         profilerTasks[job.id] = await Profiler.startTask(job)
@@ -144,7 +152,8 @@ const startServer = async () => {
         }
       })
     }
-    if (config.env === 'processing' || require('os').hostname().match(/wago-processing-01$/)) {
+
+    if (config.env === 'development' || config.env === 'staging' || require('os').hostname().match(/wago-processing-01$/)) {
       const cleanup = await taskQueue.getRepeatableJobs()
       for (let i = 0; i < cleanup.length; i++) {
         await taskQueue.removeRepeatableByKey(cleanup[i].key)
@@ -165,22 +174,27 @@ const startServer = async () => {
       await taskQueue.add('SyncElastic', { table: 'comments' }, { repeat: { cron: '0 10 25 * *' }, priority: 10 })
 
       // run once at startup (1 host only)
-      // await elastic.ensureIndexes()
+      await elastic.ensureIndexes(true)
+      // await runTask('SyncElastic', { table: 'comments' })
 
-      global.discordBot = require('./discordBot')
-      discordBot.start()
+      if (config.env === 'development' || require('os').hostname().match(/wago-processing-01$/)) {
+        global.discordBot = require('./discordBot')
+        discordBot.start()
 
-      new QueueScheduler('taskQueueDiscordBot', {connection: RedisConnect})
-      const worker = new Worker('taskQueueDiscordBot', async (job) => {
-        await runTask(job.name, job.data, profilerTasks[job.id])
-      }, {
-        concurrency: 3,
-        connection: RedisConnect
-      })
+        new QueueScheduler('taskQueueDiscordBot', { connection: RedisConnect })
+        new Worker('taskQueueDiscordBot', async (job) => {
+          await runTask(job.name, job.data, profilerTasks[job.id])
+        }, {
+          concurrency: 3,
+          connection: RedisConnect
+        })
+      }
     }
 
     if (config.env === 'development') {
-      // require('./unitTests')
+      // await GameVersion.updatePatches()
+      // await taskQueue.add('ProcessAllCode')
+      // await taskQueue.add('SyncElastic', { table: 'imports' })
     }
   } catch (err) {
     console.log('FASTIFY ERROR', err)

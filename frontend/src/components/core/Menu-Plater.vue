@@ -51,6 +51,7 @@
         </md-list>
       </md-layout>
       <md-layout v-for="(classes, index) in aClasses" v-bind:key="index">
+        <advert ad="video-sidebar" v-if="index===2"/>
         <md-subheader>{{ $t("Classes") }}</md-subheader>
         <md-list class="md-double-line md-dense">
           <md-list-item v-for="cls in classes" v-bind:key="cls.id" :class="cls.id + ' md-inset'">
@@ -144,4 +145,8 @@ h2 span {font-size:80%; cursor: pointer}
 #search-plater .md-subheader { width: 100% }
 #search-plater .md-subheader + .md-list { width: 100% }
 .md-list:after { background-color: transparent!important }
+#search-plater .wago-ad-container {
+  max-width: 260px; background: none; box-shadow: none; min-height: 160px;
+  #video-sidebar {min-height: 160px}
+}
 </style>

@@ -88,7 +88,6 @@ Schema.statics.updatePatches = async function () {
     try {
         const res = await axios.get('https://wago.tools/api/builds')
         for (const [product, builds] of Object.entries(res.data)) {
-            console.log('Updating...', product)
             const domain = 0
             const done = {} // since we don't use build numbers we can ignore duplicate versions with the otherwise same data
             const isTest = !(product === 'wow' || product === 'wow_classic' || product === 'wow_classic_era')
@@ -130,8 +129,11 @@ Schema.statics.updatePatches = async function () {
 
 Schema.statics.findVersion = async function (toc, date, domain, isTest = false) {
     let gameVersion
-    if (toc) {
+    if (toc && toc > 100) {
         gameVersion = await this.findOne({ domain: domain, tocversion: toc, date: { $lt: date }, isTest }).sort({ date: -1 })
+    }
+    else if (toc) {
+        gameVersion = await this.findOne({ domain: domain, major: toc, date: { $lt: date }, isTest }).sort({ date: -1 })
     }
     else {
         gameVersion = await this.findOne({ domain: domain, date: { $lt: date }, isTest }).sort({ date: -1 })

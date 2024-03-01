@@ -77,7 +77,8 @@ const store = new Vuex.Store({
     pageInfo: {
       title: 'Import',
       description: 'Database of sharable World of Warcraft addon elements',
-      image: 'https://wago.io/media/favicon/apple-touch-icon-180x180.png'
+      image: 'https://wago.io/media/favicon/apple-touch-icon-180x180.png',
+      layout: 'default'
     },
     siteSearch: '',
     searchMode: '',
@@ -236,9 +237,16 @@ const store = new Vuex.Store({
 
         window.advertRails = {
           ads: [],
-          make: () => {
+          makeRails: () => {
             window.advertRails.ads.push(window.nitroAds.createAd('rail-left', Object.assign({ rail: 'left' }, sideRail)))
             window.advertRails.ads.push(window.nitroAds.createAd('rail-right', Object.assign({ rail: 'right' }, sideRail)))
+          },
+          destroyRails: () => {
+            document.getElementById('rail-left') && document.getElementById('rail-left').remove()
+            document.getElementById('rail-right') && document.getElementById('rail-right').remove()
+          },
+          make: () => {
+            window.advertRails.makeRails()
             window.advertRails.ads.push(window.nitroAds.createAd('bottom-anchor', {
               demo: false,//!!(process.env.NODE_ENV === 'development' || window.location.hostname.match(/test/)),
               refreshLimit: 0,
@@ -396,7 +404,10 @@ const store = new Vuex.Store({
       else {
         page.robots = 'index,follow'
       }
-      state.pageInfo = JSON.parse(JSON.stringify(page))
+      if (!page.layout) {
+        page.layout = state.pageInfo.layout || 'default'
+      }
+      state.pageInfo = Object.assign({}, page)
       window.prerenderReady = true
     },
 

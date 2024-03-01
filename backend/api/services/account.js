@@ -104,6 +104,7 @@ module.exports = (fastify, opts, next) => {
       who.access.developer = user.roles.developer
       who.access.community_leader = user.roles.community_leader
       who.access.contestWinner = user.roles.artContestWinnerAug2018
+      who.access.premium = user.access.premium
 
       if (user.roles.isAdmin.access) {
         who.access.admin = user.roles.isAdmin

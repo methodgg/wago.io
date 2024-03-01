@@ -2,7 +2,7 @@
   <div id="build-mdt">
     <div class="flex-container" v-if="mdtDungeonTable.dungeonSubLevels">
       <div class="flex-col flex-left">
-        <md-input-container>
+        <!-- <md-input-container>
           <label for="subMap">{{ "Map" }}</label>
           <md-select name="subMap" id="subMap" v-model="subMapID" v-if="mdtDungeonTable.dungeonSubLevels.length > 1">
             <template v-for="(name, id) in mdtDungeonTable.dungeonSubLevels">
@@ -10,7 +10,7 @@
             </template>
           </md-select>
           <md-input v-else readonly :value="mdtDungeonTable.dungeonSubLevels[0]"></md-input>
-        </md-input-container>
+        </md-input-container> -->
       </div>
       <div class="flex-col flex-right" style="position:relative" v-if="!readonly">
         <md-input-container class="md-hide-small-and-up" id="mobilePull" v-if="currentPull >= 0">
@@ -19,6 +19,7 @@
         <md-button id="wago-options-toggle" class="md-icon-button md-raised md-hide-small-and-up" @click="toggleMDTOptions">
           <md-icon>more_horiz</md-icon>
         </md-button>
+        <md-button class="md-hide-xsmall" @click="goFullScreen" v-if="wago._id"><md-icon>fullscreen</md-icon> {{ $t("Full Screen") }}</md-button>
         <md-button class="md-hide-xsmall" @click="exportChanges" v-if="wago._id"><md-icon>open_in_new</md-icon> {{ $t("Export/Fork changes") }}</md-button>
         <md-button class="md-hide-xsmall" v-if="canEdit" @click="$refs['saveChangesDialog'].open()" ref="saveChangesButton"><md-icon>save</md-icon> {{ $t("Save changes") }}</md-button>
         <md-button class="md-hide-xsmall" v-if="scratch" @click="saveFromScratch"><md-icon>save</md-icon> {{ $t("Save MDT") }}</md-button>
@@ -60,293 +61,292 @@
       </md-dialog>
     </div>
 
-    <md-layout md-row style="flex-wrap: nowrap">
-      <md-layout id="stageContainer" md-vertical-align="start">
-        <div id="builder" ref="canvas" v-bind:class="annotationClass">
-          <ui-loading v-if="mdtLoading || !tableData"></ui-loading>
-          <v-stage v-else-if="konvaStageConfig.width > 0" ref="mdtStage" id="mdtStage" :config="konvaStageConfig" @scroll.passive="zoomStage">
-            <slot>1</slot> <!-- defined slots prevent Konva from spamming "<div>undefined</div>" -->
-            <v-layer ref="mdtMap" v-if="mdtDungeonTable.dungeonSubLevels">
-              <slot>1</slot>
-              <template v-if="mapTiles.length" v-for="(tile, i) in mapTiles">
+    <div id="mdtWrapper"></div>
+    <teleport :to="fullscreenTarget">
+      <md-layout md-row style="flex-wrap: nowrap" id="mdtContainer">
+        <md-layout id="stageContainer" md-vertical-align="start">
+          <div id="builder" ref="canvas" v-bind:class="annotationClass">
+            <ui-loading v-if="mdtLoading || !tableData"></ui-loading>
+            <v-stage v-else-if="konvaStageConfig.width > 0" ref="mdtStage" id="mdtStage" :config="konvaStageConfig" @scroll.passive="zoomStage">
+              <slot>1</slot> <!-- defined slots prevent Konva from spamming "<div>undefined</div>" -->
+              <v-layer ref="mdtMap" v-if="mdtDungeonTable.dungeonSubLevels">
                 <slot>1</slot>
-                <v-image :config="tile" />
-              </template>
-              <template v-for="(poi, i) in mdtDungeonTable.mapPOIs[subMapID]">
-                <slot>1</slot>
-                <mdt-poi :data="poi" :mdtScale="mdtScale" :mapID="mapID" @mouseover="setPOITooltip" @mouseout="setPOITooltip(null)" @mousemove="moveTooltip" @click="clickPOI" />
-              </template>
-              
-              <!-- polygon hull wrapping pulls -->
-              <template v-for="(pull, id) in tableData.value.pulls">
-                <v-line :config="getHull(id)"></v-line>
-              </template>
-
-              <template v-for="(creature, i) in enemies">
-                <slot>1</slot>
-                <template v-if="creature">
-                  <template v-for="(clone, j) in creature.clones">
-                    <slot>1</slot>
-                    <v-line v-if="clone && clone.patrol && clone.sublevel === subMapID + 1 && (!clone.teeming || (clone.teeming && isTeemingSelected())) && (!clone.week || clone.week.indexOf(tableData.week)) && (!clone.faction || (clone.faction === tableData.faction))"
-                      @mouseover="setTargetHover(creature, clone, j, undefined, true)"
-                      @mouseleave="setTargetHover()"
-                      :config="{
-                        points: linePointsObjXY(clone.patrol),
-                        strokeWidth: 1,
-                        stroke: clone.hover ? '#77FD32' : '#150047',
-                        dash: [5, 3, 2, 3],
-                        lineCap: 'round',
-                        lineJoin: 'round'
-                      }"
-                    />
-                  </template>
-                </template>
-              </template>
-              <v-image
-                :config="{
-                  image: enemyPortraitMap,
-                  scaleX: 1/5,
-                  scaleY: 1/5,
-                  listening: false
-                }"
-              />
-              <template v-for="(creature, i) in enemies">
-                <slot>1</slot>
-                <template v-if="creature">
+                <template v-if="mapTiles.length" v-for="(tile, i) in mapTiles">
                   <slot>1</slot>
-                  <template v-for="(clone, j) in creature.clones">
-                    <slot>1</slot>
-                    <v-circle v-if="clone && (!clone.sublevel || clone.sublevel === subMapID + 1) && (!clone.teeming || (clone.teeming && isTeemingSelected())) && (!clone.week || clone.week.indexOf(tableData.week)) && (!clone.faction || (clone.faction === tableData.faction))"
-                      @click="selectCreature(i, j)"
-                      @tap="selectCreature(i, j)"
-                      @mouseover="setTargetHover(creature, clone, j)"
-                      @mouseleave="setTargetHover()"
-                      @mousemove="moveTooltip()"
-                      :config="{
-                        x: clone.x * mdtScale,
-                        y: clone.y * -mdtScale,
-                        radius: Math.round(5 * creature.scale * (creature.isBoss ? 1.7 : 1) * (mdtDungeonTable.scaleMultiplier || 1)) / mdtScale,
-                        fill: isCreatureNoTarget(creature.id) ? 'rgba(33, 33, 33, 0.4)' :
-                              clone.hover ? hexToRGB(clone.color, 0.65) :
-                              clone.pull >= 0 ? hexToRGB(clone.color, 0.2) :
-                              'rgba(0, 0, 0, 0)',
-                        stroke: isCreatureNoTarget(creature.id) ? '#333333' :
-                                isInspiring(clone) ? '#30d9ff' :
-                                creature.isBoss ? 'gold' :
-                                clone.pull >= 0 ? hexToRGB(clone.color, 1) :
-                                'black',
-                        strokeWidth: creature.isBoss || isInspiring(clone) ? .5 : .2,
-                        strokeEnabled: true,
-                        shadowColor: 'white',
-                        shadowOpacity: 1,
-                        shadowEnabled : clone.hoverAvatar || false,
-                        shadowOffset: {x: 0, y: 0},
-                        shadowBlur: 10,
-                      }"
-                    />
+                  <v-image :config="tile" />
+                </template>
+                <template v-for="(poi, i) in mdtDungeonTable.mapPOIs[subMapID]">
+                  <slot>1</slot>
+                  <mdt-poi :data="poi" :mdtScale="mdtScale" :mapID="mapID" @mouseover="setPOITooltip" @mouseout="setPOITooltip(null)" @mousemove="moveTooltip" @click="clickPOI" />
+                </template>
+
+                <!-- polygon hull wrapping pulls -->
+                <template v-for="(pull, id) in tableData.value.pulls">
+                  <v-line :config="getHull(id)"></v-line>
+                </template>
+
+                <template v-for="(creature, i) in enemies">
+                  <slot>1</slot>
+                  <template v-if="creature">
+                    <template v-for="(clone, j) in creature.clones">
+                      <slot>1</slot>
+                      <v-line v-if="clone && clone.patrol && clone.sublevel === subMapID + 1 && (!clone.teeming || (clone.teeming && isTeemingSelected())) && (!clone.week || clone.week.indexOf(tableData.week)) && (!clone.faction || (clone.faction === tableData.faction))"
+                        @mouseover="setTargetHover(creature, clone, j, undefined, true)"
+                        @mouseleave="setTargetHover()"
+                        :config="{
+                          points: linePointsObjXY(clone.patrol),
+                          strokeWidth: 1,
+                          stroke: clone.hover ? '#77FD32' : '#150047',
+                          dash: [5, 3, 2, 3],
+                          lineCap: 'round',
+                          lineJoin: 'round'
+                        }"
+                      />
+                    </template>
                   </template>
                 </template>
-              </template>
-              <v-circle v-if="hoverSpecific.cloneIndex >= 0"
-                :config="{
-                  x: enemies[hoverSpecific.creatureIndex].clones[hoverSpecific.cloneIndex].x * mdtScale,
-                  y: enemies[hoverSpecific.creatureIndex].clones[hoverSpecific.cloneIndex].y * -mdtScale,
-                  radius: Math.round(7 * enemies[hoverSpecific.creatureIndex].scale * (enemies[hoverSpecific.creatureIndex].isBoss ? 1.7 : 1) * (mdtDungeonTable.scaleMultiplier || 1)) / mdtScale,
-                  stroke: isInspiring(enemies[hoverSpecific.creatureIndex].clones[hoverSpecific.cloneIndex]) ? '#30d9ff' : (enemies[hoverSpecific.creatureIndex].isBoss ? 'gold' : 'black'),
-                  strokeWidth: 3,
-                  strokeEnabled: true,
-                  fillPatternX: (-Math.round(7 * enemies[hoverSpecific.creatureIndex].scale * (enemies[hoverSpecific.creatureIndex].isBoss ? 1.7 : 1) * (mdtDungeonTable.scaleMultiplier || 1))) / mdtScale,
-                  fillPatternY: (-Math.round(7 * enemies[hoverSpecific.creatureIndex].scale * (enemies[hoverSpecific.creatureIndex].isBoss ? 1.7 : 1) * (mdtDungeonTable.scaleMultiplier || 1))) / mdtScale,
-                  fillPatternImage: enemyPortraits,
-                  fillPatternOffset: getEnemyPortraitOffset(hoverSpecific.creatureIndex, 115),
-                  fillPatternRepeat: 'no-repeat',
-                  fillPatternScaleX: Math.round(7 * enemies[hoverSpecific.creatureIndex].scale * (enemies[hoverSpecific.creatureIndex].isBoss ? 1.7 : 1) * (mdtDungeonTable.scaleMultiplier || 1)) / 64,
-                  fillPatternScaleY: Math.round(7 * enemies[hoverSpecific.creatureIndex].scale * (enemies[hoverSpecific.creatureIndex].isBoss ? 1.7 : 1) * (mdtDungeonTable.scaleMultiplier || 1)) / 64,
-                  listening: false
-                }"
-              />
-              <template v-for="(obj, id) in tableData.objects">
-                <!-- note -->
-                <mdt-poi v-if="obj && obj.n && obj.d && obj.d[2] === subMapID + 1" :data="obj" :annotationsIndex="id" :mdtScale="mdtScale" :mapID="mapID" @mouseover="setPOITooltip(obj); setSelectedMoveAnnotation(id)" @mouseout="setPOITooltip(null); setSelectedMoveAnnotation(null)" @mousemove="moveTooltip" @click="clickPOI(obj, id)" />
-                <!-- arrow -->
-                <v-arrow v-else-if="obj && obj.t && obj.l && obj.l.length >= 4 && obj.d[2] === subMapID + 1 && obj.d[3]" @mouseover="setSelectedMoveAnnotation(id)" @mouseout="setSelectedMoveAnnotation(null)" :config="{
-                  points: linePointsXY(obj.l),
-                  strokeWidth: Math.max(obj.d[0] * 0.4, (id === selectedMoveAnnotationID ? 2 : 0)),
-                  stroke: '#' + (id === selectedMoveAnnotationID ? '0288D1' : obj.d[4]),
-                  fill: '#' + (id === selectedMoveAnnotationID ? '0288D1' : obj.d[4])
-                }"/>
-                <!-- line -->
-                <v-line v-else-if="obj && obj.l && obj.l.length >= 4 && obj.d[2] === subMapID + 1 && obj.d[3]" @mouseover="setSelectedMoveAnnotation(id)" @mouseout="setSelectedMoveAnnotation(null)" :config="{
-                  points: linePointsXY(obj.l),
-                  strokeWidth: Math.max(obj.d[0] * 0.4, (id === selectedMoveAnnotationID ? 2 : 0)),
-                  stroke: '#' + (id === selectedMoveAnnotationID ? '0288D1' : obj.d[4]),
-                  tension: .3
-                }"/>
-                <!-- ring -->
-                <!-- triangle -->
-              </template>
-            </v-layer>
-          </v-stage>
-        </div>
-        <div id="mdtAnnotateMenu" v-if="!mdtLoading && !readonly">
-          <div class="annotate-label">{{ $t('Tools') }}</div>
-          <md-button-toggle md-single class="md-primary">
-            <div class="md-icon-button md-toggle" ref="annotate-standard" @click="setAnnotate('standard')" @mouseover="setPOITooltip('annotation', $t('Selection Tool'))" @mouseout="setPOITooltip(null)">
-              <md-ink-ripple />
-              <md-icon style="transform:rotate(-65deg); margin-top:-2px">near_me</md-icon>
-            </div>
-            <div class="md-icon-button" ref="annotate-freedraw" @click="setAnnotate('freedraw')" @mouseover="setPOITooltip('annotation', $t('Pencil Tool'))" @mouseout="setPOITooltip(null)">
-              <md-ink-ripple />
-              <md-icon>edit</md-icon>
-            </div>
-            <div class="md-icon-button" ref="annotate-note" @click="setAnnotate('note')" @mouseover="setPOITooltip('annotation', $t('Create Note Tool'))" @mouseout="setPOITooltip(null)">
-              <md-ink-ripple />
-              <md-icon>receipt</md-icon>
-            </div>
-            <div class="md-icon-button" ref="annotate-line" @click="setAnnotate('line')" @mouseover="setPOITooltip('annotation', $t('Line Tool'))" @mouseout="setPOITooltip(null)">
-              <md-ink-ripple />
-              <md-icon style="transform:rotate(-45deg); font-size: 28px; margin-left: -5px; margin-top: -2px">remove</md-icon>
-            </div>
-            <div class="md-icon-button" ref="annotate-arrow" @click="setAnnotate('arrow')" @mouseover="setPOITooltip('annotation', $t('Arrow Tool'))" @mouseout="setPOITooltip(null)">
-              <md-icon>call_made</md-icon>
-            </div>
-            <div class="md-icon-button" ref="annotate-box" @click="setAnnotate('box')" @mouseover="setPOITooltip('annotation', $t('Box Tool'))" @mouseout="setPOITooltip(null)">
-              <md-icon style="margin:">check_box_outline_blank</md-icon>
-            </div>
-            <div class="md-icon-button" ref="annotate-move" @click="setAnnotate('move')" @mouseover="setPOITooltip('annotation', $t('Move Object Tool'))" @mouseout="setPOITooltip(null)" >
-              <md-ink-ripple />
-              <md-icon style="transform:rotate(-45deg); margin-top:-2px; margin-left: 1px">zoom_out_map</md-icon>
-            </div>
-            <div class="md-icon-button" ref="annotate-eraser" @click="setAnnotate('eraser', $event)" @mouseover="setPOITooltip('annotation', $t('Eraser Tool\nShift click to clear all annotations'))" @mouseout="setPOITooltip(null)" >
-              <md-ink-ripple />
-              <md-icon>remove_circle_outline</md-icon>
-            </div>
-          </md-button-toggle>
-          <div id="stroke-input" @mouseover="setPOITooltip('annotation', $t('Set Line Width'))" @mouseout="setPOITooltip(null)">
-            <button @click="paintingStrokeWidth = Math.max(paintingStrokeWidth - 1, 1)">-</button>
-            <input min="1" max="20" v-model="paintingStrokeWidth" type="number">
-            <button @click="paintingStrokeWidth = Math.min(paintingStrokeWidth + 1, 20)">+</button>
+                <v-image
+                  :config="{
+                    image: enemyPortraitMap,
+                    scaleX: 1/2.174,
+                    scaleY: 1/2.174,
+                    listening: false
+                  }"
+                />
+                <template v-for="(creature, i) in enemies">
+                  <slot>1</slot>
+                  <template v-if="creature">
+                    <slot>1</slot>
+                    <template v-for="(clone, j) in creature.clones">
+                      <slot>1</slot>
+                      <v-circle v-if="clone && (!clone.sublevel || clone.sublevel === subMapID + 1) && (!clone.teeming || (clone.teeming && isTeemingSelected())) && (!clone.week || clone.week.indexOf(tableData.week)) && (!clone.faction || (clone.faction === tableData.faction))"
+                        @click="selectCreature(i, j)"
+                        @tap="selectCreature(i, j)"
+                        @mouseover="setTargetHover(creature, clone, j)"
+                        @mouseleave="setTargetHover()"
+                        @mousemove="moveTooltip()"
+                        :config="{
+                          x: clone.x * mdtScale,
+                          y: clone.y * -mdtScale,
+                          radius: Math.round(5 * creature.scale * (creature.isBoss ? 1.7 : 1) * (mdtDungeonTable.scaleMultiplier || 1)) * mdtScale,
+                          fill: isCreatureNoTarget(creature.id) ? 'rgba(33, 33, 33, 0.4)' :
+                                clone.hover ? hexToRGB(clone.color, 0.65) :
+                                clone.pull >= 0 ? hexToRGB(clone.color, 0.2) :
+                                'rgba(0, 0, 0, 0)',
+                          stroke: isCreatureNoTarget(creature.id) ? '#333333' :
+                                  isInspiring(clone) ? '#30d9ff' :
+                                  creature.isBoss ? 'gold' :
+                                  clone.pull >= 0 ? hexToRGB(clone.color, 1) :
+                                  'black',
+                          strokeWidth: creature.isBoss || isInspiring(clone) ? .5 : .2,
+                          strokeEnabled: true,
+                          shadowColor: 'white',
+                          shadowOpacity: 1,
+                          shadowEnabled : clone.hoverAvatar || false,
+                          shadowOffset: {x: 0, y: 0},
+                          shadowBlur: 10,
+                        }"
+                      />
+                    </template>
+                  </template>
+                </template>
+                <v-circle v-if="hoverSpecific.cloneIndex >= 0"
+                  :config="{
+                    x: enemies[hoverSpecific.creatureIndex].clones[hoverSpecific.cloneIndex].x * mdtScale,
+                    y: enemies[hoverSpecific.creatureIndex].clones[hoverSpecific.cloneIndex].y * -mdtScale,
+                    radius: Math.round(5 * enemies[hoverSpecific.creatureIndex].scale * (enemies[hoverSpecific.creatureIndex].isBoss ? 1.7 : 1) * (mdtDungeonTable.scaleMultiplier || 1)) * mdtScale,
+                    stroke: isInspiring(enemies[hoverSpecific.creatureIndex].clones[hoverSpecific.cloneIndex]) ? '#30d9ff' : (enemies[hoverSpecific.creatureIndex].isBoss ? 'gold' : 'black'),
+                    strokeWidth: 1,
+                    strokeEnabled: true,
+                    listening: false
+                  }"
+                >
+
+                </v-circle>
+                <template v-for="(obj, id) in tableData.objects">
+                  <!-- note -->
+                  <mdt-poi v-if="obj && obj.n && obj.d && obj.d[2] === subMapID + 1" :data="obj" :annotationsIndex="id" :mdtScale="mdtScale" :mapID="mapID" @mouseover="setPOITooltip(obj); setSelectedMoveAnnotation(id)" @mouseout="setPOITooltip(null); setSelectedMoveAnnotation(null)" @mousemove="moveTooltip" @click="clickPOI(obj, id)" />
+                  <!-- arrow -->
+                  <v-arrow v-else-if="obj && obj.t && obj.l && obj.l.length >= 4 && obj.d[2] === subMapID + 1 && obj.d[3]" @mouseover="setSelectedMoveAnnotation(id)" @mouseout="setSelectedMoveAnnotation(null)" :config="{
+                    points: linePointsXY(obj.l),
+                    strokeWidth: Math.max(obj.d[0] * 0.4, (id === selectedMoveAnnotationID ? 2 : 0)),
+                    stroke: '#' + (id === selectedMoveAnnotationID ? '0288D1' : obj.d[4]),
+                    fill: '#' + (id === selectedMoveAnnotationID ? '0288D1' : obj.d[4])
+                  }"/>
+                  <!-- line -->
+                  <v-line v-else-if="obj && obj.l && obj.l.length >= 4 && obj.d[2] === subMapID + 1 && obj.d[3]" @mouseover="setSelectedMoveAnnotation(id)" @mouseout="setSelectedMoveAnnotation(null)" :config="{
+                    points: linePointsXY(obj.l),
+                    strokeWidth: Math.max(obj.d[0] * 0.4, (id === selectedMoveAnnotationID ? 2 : 0)),
+                    stroke: '#' + (id === selectedMoveAnnotationID ? '0288D1' : obj.d[4]),
+                    tension: .3
+                  }"/>
+                  <!-- ring -->
+                  <!-- triangle -->
+                </template>
+              </v-layer>
+            </v-stage>
           </div>
-          <div id="color-input" @mouseover="setPOITooltip('annotation', $t('Set Line Color'))" @mouseout="setPOITooltip(null)">
-            <button @click="showColorPicker" v-bind:style="{'background-color': paintingStrokeColor.hex}"></button>
-          </div>
-          <div v-if="isColorPickerOpen" id="color-picker">
-            <color-picker v-model="paintingStrokeColor" :disableAlpha="true" />
-          </div>
-        </div>
-      </md-layout>
-      <md-layout id="mdtOptions" md-vertical-align="start" v-bind:class="{'hidden': hideMobileOptions}">
-        <md-card v-if="!mdtLoading">
-          <md-card-area v-if="!readonly" class="md-hide-small-and-up">
-            <md-button @click="exportChanges" v-if="wago._id"><md-icon>open_in_new</md-icon> {{ $t("Export/Fork changes") }}</md-button>
-            <md-button v-if="canEdit" @click="$refs['saveChangesDialog'].open()" ref="saveChangesButton"><md-icon>save</md-icon> {{ $t("Save changes") }}</md-button>
-          </md-card-area>
-
-          <md-card-area v-if="!readonly">
-            <div class="inlineContainer">
-              <template v-for="(affixID, k) in selectedAffixes">
-                <span v-html="displayAffix(affixID)" class="affix"></span>
-              </template>
-              <md-button class="md-raised md-accent" @click="toggleAffixSelection" id="changeAffixesBtn">{{ $t("Change Affixes") }}</md-button>
-              <md-button class="md-raised" disabled id="sumPct"><md-icon>functions</md-icon>
-                <span v-if="pullDetails.length">{{ Math.round(100*pullDetails[pullDetails.length - 1].percentRunningTotal)/100 }}%</span>
-                <span v-else>0%</span>
-              </md-button>
-            </div>
-          </md-card-area>
-
-          <md-card-area v-if="mapID === 15">
-            <!-- Freehold Crew Option -->
-            <div class="inlineContainer">
-              <md-layout md-row>
-                <md-checkbox v-model="tableData.freeholdCrewSelected" @change="updateTableString()">{{ $t('Join Crew [-crew-]', {crew: freeholdCrew()}) }}</md-checkbox>
-              </md-layout>
-            </div>
-          </md-card-area>
-
-          <md-card-area v-if="mapID === 18">
-            <!-- Boralus Faction Option -->
-            <div class="inlineContainer">
-              <md-layout md-row>
-                <md-radio v-model.number="tableData.faction" md-value="1" @change="updateTableString(true)">{{ $t('Horde') }}</md-radio>
-                <md-radio v-model.number="tableData.faction" md-value="2" @change="updateTableString(true)">{{ $t('Alliance') }}</md-radio>
-              </md-layout>
-            </div>
-          </md-card-area>
-
-          <md-list class="custom-list md-double-line md-dense" id="mdtPulls">
-            <template v-for="pull in tableData.value.pulls.length">
-              <div @mouseover="setTargetHover(false, false, false, pull - 1)" @mouseleave="setTargetHover()">
-                <md-list-item class="mdt-pull" v-bind:class="{selected: currentPull === pull - 1}" @click="selectPull(pull - 1)" v-bind:style="{'border-left-color': '#' + (pullDetails[pull - 1].color || '228b22'), 'background-color': hexToRGB(pullDetails[pull - 1].color, 0.1)}">
-                  <div class="md-list-text-container" v-if="pullDetails[pull - 1]">
-                    <span>{{ $t('Pull [-num-]', { num : pull}) }}; {{ pullDetails[pull - 1].percent }}%</span>
-                    <span v-html="pullDetails[pull - 1].hList"></span>
-                    <md-progress :md-progress="pullDetails[pull - 1].percentRunningTotal"></md-progress>
-                    <div v-show-slide="currentPull === pull - 1" class="mdtGroupDetails">
-                      <div v-for="(details, detailIndex) in pullDetails[pull - 1].groups">
-                        <span v-if="parseInt(details.g)" class="groupnum">{{ details.g }}</span>
-                        <span v-else class="singlepull">➽</span>
-                        <template v-for="(target, targetIndex) in details.targets">
-                          <mdt-enemy-portrait :size="36" :mapID="mapID" :offset="getEnemyPortraitOffset(target.enemyIndex, 36)" :inspiring="isInspiring(target, targetIndex)"
-                            @mouseover="setTargetHoverAvatar(pull - 1, detailIndex, targetIndex, true)"
-                            @mouseleave="setTargetHoverAvatar(pull - 1, detailIndex, targetIndex, false)"
-                          />
-                        </template>
-                      </div>
-                    </div>
-                  </div>
-                </md-list-item>
+          <div id="mdtAnnotateMenu" v-if="!mdtLoading && !readonly">
+            <div class="annotate-label">{{ $t('Tools') }}</div>
+            <md-button-toggle md-single class="md-primary">
+              <div id="color-input" @mouseover="setPOITooltip('annotation', $t('Set Line Color'))" @mouseout="setPOITooltip(null)">
+                <button @click="showColorPicker" v-bind:style="{'background-color': paintingStrokeColor.hex}"></button>
               </div>
-              <template v-for="reapPct in reapingPercents">
-                <div class="reaping-pull" v-if="reapingPullDetails[reapPct] && reapingPullDetails[reapPct].pull === pull && ((isReapingSelected() && reapingPullDetails[reapPct].targets && reapingPullDetails[reapPct].targets.length) || isPridefulSelected())"
-                  @mouseoverx="setReapingHover(pull - 1)" @mouseleave="setTargetHover()">
-                  <md-list-item v-bind:class="{selected: currentReapingPull === reapPct}"
-                    @click="selectReapingPull(reapPct)">
-                    <div class="md-list-text-container">
-                      <span v-if="isReapingSelected()">{{ $t('Reaping [-num-]%', { num : reapPct}) }}</span>
-                      <span v-else-if="isPridefulSelected()">{{ $t('Manifestation of Pride [-num-]%', { num : reapPct}) }}</span>
-                      <span v-html="reapingPullDetails[reapPct].hList"></span>
-                      <div v-show-slide="currentReapingPull === reapPct" class="mdtGroupDetails">
-                        <div>
-                          <template v-for="(iconURL, targetIndex) in reapingPullDetails[reapPct].targets">
-                            <div :style="{'background-image': 'url(' + iconURL + ')'}" class="reapingTargetIcon"></div>
+              <div v-if="isColorPickerOpen" id="color-picker">
+                <color-picker v-model="paintingStrokeColor" :disableAlpha="true" />
+              </div>
+              <div id="stroke-input" @mouseover="setPOITooltip('annotation', $t('Set Line Width'))" @mouseout="setPOITooltip(null)">
+                <button @click="paintingStrokeWidth = Math.max(paintingStrokeWidth - 1, 1)">-</button>
+                <input min="1" max="20" v-model="paintingStrokeWidth" type="number">
+                <button @click="paintingStrokeWidth = Math.min(paintingStrokeWidth + 1, 20)">+</button>
+              </div>
+              <div class="md-icon-button md-toggle" ref="annotate-standard" @click="setAnnotate('standard')" @mouseover="setPOITooltip('annotation', $t('Selection Tool'))" @mouseout="setPOITooltip(null)">
+                <md-ink-ripple />
+                <md-icon style="transform:rotate(-65deg); margin-top:-2px">near_me</md-icon>
+              </div>
+              <div class="md-icon-button" ref="annotate-freedraw" @click="setAnnotate('freedraw')" @mouseover="setPOITooltip('annotation', $t('Pencil Tool'))" @mouseout="setPOITooltip(null)">
+                <md-ink-ripple />
+                <md-icon>edit</md-icon>
+              </div>
+              <div class="md-icon-button" ref="annotate-note" @click="setAnnotate('note')" @mouseover="setPOITooltip('annotation', $t('Create Note Tool'))" @mouseout="setPOITooltip(null)">
+                <md-ink-ripple />
+                <md-icon>receipt</md-icon>
+              </div>
+              <div class="md-icon-button" ref="annotate-line" @click="setAnnotate('line')" @mouseover="setPOITooltip('annotation', $t('Line Tool'))" @mouseout="setPOITooltip(null)">
+                <md-ink-ripple />
+                <md-icon style="transform:rotate(-45deg); font-size: 28px; margin-left: -5px; margin-top: -2px">remove</md-icon>
+              </div>
+              <div class="md-icon-button" ref="annotate-arrow" @click="setAnnotate('arrow')" @mouseover="setPOITooltip('annotation', $t('Arrow Tool'))" @mouseout="setPOITooltip(null)">
+                <md-icon>call_made</md-icon>
+              </div>
+              <!-- <div class="md-icon-button" ref="annotate-box" @click="setAnnotate('box')" @mouseover="setPOITooltip('annotation', $t('Box Tool'))" @mouseout="setPOITooltip(null)">
+                <md-icon style="margin:">check_box_outline_blank</md-icon>
+              </div> -->
+              <div class="md-icon-button" ref="annotate-move" @click="setAnnotate('move')" @mouseover="setPOITooltip('annotation', $t('Move Object Tool'))" @mouseout="setPOITooltip(null)" >
+                <md-ink-ripple />
+                <md-icon style="transform:rotate(-45deg); margin-top:-2px; margin-left: 1px">zoom_out_map</md-icon>
+              </div>
+              <div class="md-icon-button" ref="annotate-eraser" @click="setAnnotate('eraser', $event)" @mouseover="setPOITooltip('annotation', $t('Eraser Tool\nShift click to clear all annotations'))" @mouseout="setPOITooltip(null)" >
+                <md-ink-ripple />
+                <md-icon>remove_circle_outline</md-icon>
+              </div>
+            </md-button-toggle>
+          </div>
+        </md-layout>
+        <md-layout id="mdtOptions" md-vertical-align="start" v-bind:class="{'hidden': hideMobileOptions}">
+          <md-card v-if="!mdtLoading">
+            <md-card-area v-if="!readonly" class="md-hide-small-and-up">
+              <md-button @click="exportChanges" v-if="wago._id"><md-icon>open_in_new</md-icon> {{ $t("Export/Fork changes") }}</md-button>
+              <md-button v-if="canEdit" @click="$refs['saveChangesDialog'].open()" ref="saveChangesButton"><md-icon>save</md-icon> {{ $t("Save changes") }}</md-button>
+            </md-card-area>
+
+            <md-card-area v-if="!readonly">
+              <div class="inlineContainer">
+                <template v-for="(affixID, k) in selectedAffixes">
+                  <span v-html="displayAffix(affixID)" class="affix"></span>
+                </template>
+                <!-- <md-button class="md-raised md-accent" @click="toggleAffixSelection" id="changeAffixesBtn">{{ $t("Change Affixes") }}</md-button> -->
+                <md-button class="md-raised" disabled id="sumPct"><md-icon>functions</md-icon>
+                  <span v-if="pullDetails.length">{{ Math.round(100*pullDetails[pullDetails.length - 1].percentRunningTotal)/100 }}%</span>
+                  <span v-else>0%</span>
+                </md-button>
+                <md-button class="md-hide-xsmall" v-if="wago._id && isFullScreen" @click="exitFullScreen"><md-icon>fullscreen_exit</md-icon> {{ $t("Exit Full Screen") }}</md-button>
+              </div>
+            </md-card-area>
+
+            <md-card-area v-if="false && mapID === 15">
+              <!-- Freehold Crew Option -->
+              <div class="inlineContainer">
+                <md-layout md-row>
+                  <md-checkbox v-model="tableData.freeholdCrewSelected" @change="updateTableString()">{{ $t('Join Crew [-crew-]', {crew: freeholdCrew()}) }}</md-checkbox>
+                </md-layout>
+              </div>
+            </md-card-area>
+
+            <md-card-area v-if="false && mapID === 18">
+              <!-- Boralus Faction Option -->
+              <div class="inlineContainer">
+                <md-layout md-row>
+                  <md-radio v-model.number="tableData.faction" md-value="1" @change="updateTableString(true)">{{ $t('Horde') }}</md-radio>
+                  <md-radio v-model.number="tableData.faction" md-value="2" @change="updateTableString(true)">{{ $t('Alliance') }}</md-radio>
+                </md-layout>
+              </div>
+            </md-card-area>
+
+            <md-list class="custom-list md-double-line md-dense" id="mdtPulls">
+              <template v-for="pull in tableData.value.pulls.length">
+                <div @mouseover="setTargetHover(false, false, false, pull - 1)" @mouseleave="setTargetHover()">
+                  <md-list-item class="mdt-pull" v-bind:class="{selected: currentPull === pull - 1}" @click="selectPull(pull - 1)" v-bind:style="{'border-left-color': '#' + (pullDetails[pull - 1].color || '228b22'), 'background-color': hexToRGB(pullDetails[pull - 1].color, 0.1)}">
+                    <div class="md-list-text-container" v-if="pullDetails[pull - 1]">
+                      <span>{{ $t('Pull [-num-]', { num : pull}) }}; {{ pullDetails[pull - 1].percent }}%</span>
+                      <span v-html="pullDetails[pull - 1].hList"></span>
+                      <md-progress :md-progress="pullDetails[pull - 1].percentRunningTotal"></md-progress>
+                      <div v-show-slide="currentPull === pull - 1" class="mdtGroupDetails">
+                        <div v-for="(details, detailIndex) in pullDetails[pull - 1].groups">
+                          <span v-if="parseInt(details.g)" class="groupnum">{{ details.g }}</span>
+                          <span v-else class="singlepull">➽</span>
+                          <template v-for="(target, targetIndex) in details.targets">
+                            <mdt-enemy-portrait :size="36" :mapID="mapID" :mapSlug="mapSlug" :offset="getEnemyPortraitOffset(target.enemyIndex, 36)" :inspiring="isInspiring(target, targetIndex)"
+                              @mouseover="setTargetHoverAvatar(pull - 1, detailIndex, targetIndex, true)"
+                              @mouseleave="setTargetHoverAvatar(pull - 1, detailIndex, targetIndex, false)"
+                            />
                           </template>
                         </div>
                       </div>
                     </div>
                   </md-list-item>
                 </div>
-              </template>
-            </template>
-            <md-list-item @click="createPull()" style="margin-bottom: 16px" v-if="!readonly">
-              <div class="md-list-text-container">
-                <span>➕ {{ $t('Create new pull') }}</span>
-              </div><br>
-            </md-list-item>
-          </md-list>
-
-          <md-sidenav class="md-right" ref="affixSelection">
-            <md-list class="md-double-line md-dense" id="selectAffixWeek">
-              <template v-for="(week, k) in affixOptions">
-                <md-list-item @click="setAffixWeek(k)">
-                  <div class="affixWeek">
-                    <template v-for="affixID in week">
-                      <span v-html="displayAffix(affixID)" class="affix"></span>
-                    </template>
+                <template v-for="reapPct in reapingPercents">
+                  <div class="reaping-pull" v-if="reapingPullDetails[reapPct] && reapingPullDetails[reapPct].pull === pull && ((isReapingSelected() && reapingPullDetails[reapPct].targets && reapingPullDetails[reapPct].targets.length) || isPridefulSelected())"
+                    @mouseoverx="setReapingHover(pull - 1)" @mouseleave="setTargetHover()">
+                    <md-list-item v-bind:class="{selected: currentReapingPull === reapPct}"
+                      @click="selectReapingPull(reapPct)">
+                      <div class="md-list-text-container">
+                        <span v-if="isReapingSelected()">{{ $t('Reaping [-num-]%', { num : reapPct}) }}</span>
+                        <span v-else-if="isPridefulSelected()">{{ $t('Manifestation of Pride [-num-]%', { num : reapPct}) }}</span>
+                        <span v-html="reapingPullDetails[reapPct].hList"></span>
+                        <div v-show-slide="currentReapingPull === reapPct" class="mdtGroupDetails">
+                          <div>
+                            <template v-for="(iconURL, targetIndex) in reapingPullDetails[reapPct].targets">
+                              <div :style="{'background-image': 'url(' + iconURL + ')'}" class="reapingTargetIcon"></div>
+                            </template>
+                          </div>
+                        </div>
+                      </div>
+                    </md-list-item>
                   </div>
-                  <span class="affixMeta">{{ $t("Week [-num-]", {num: k + 1 }) }}</span>
-                </md-list-item>
+                </template>
               </template>
+              <md-list-item @click="createPull()" style="margin-bottom: 16px" v-if="!readonly">
+                <div class="md-list-text-container">
+                  <span>➕ {{ $t('Create new pull') }}</span>
+                </div><br>
+              </md-list-item>
             </md-list>
-          </md-sidenav>
-        </md-card>
+
+            <md-sidenav class="md-right" ref="affixSelection">
+              <md-list class="md-double-line md-dense" id="selectAffixWeek">
+                <template v-for="(week, k) in affixOptions">
+                  <md-list-item @click="setAffixWeek(k)">
+                    <div class="affixWeek">
+                      <template v-for="affixID in week">
+                        <span v-html="displayAffix(affixID)" class="affix"></span>
+                      </template>
+                    </div>
+                    <span class="affixMeta">{{ $t("Week [-num-]", {num: k + 1 }) }}</span>
+                  </md-list-item>
+                </template>
+              </md-list>
+            </md-sidenav>
+          </md-card>
+        </md-layout>
       </md-layout>
-    </md-layout>
+    </teleport>
     <export-modal v-if="!readonly" :json="tableString" :type="wago.type" :showExport="showExport" :wagoID="wago._id" @hideExport="hideExport"></export-modal>
     <div id="mdtTooltip" v-if="tooltipPOI || tooltipEnemy.name" v-bind:style="{top: cursorTooltipY + 'px', left: cursorTooltipX + 'px'}">
       <div class="tooltipPOI" v-if="tooltipPOI" v-html="tooltipPOI.replace(/\\n/g, '<br>')"></div>
       <div class="tooltipEnemy" v-else-if="tooltipEnemy.name">
-        <mdt-enemy-portrait :size="56" :mapID="mapID" :offset="getEnemyPortraitOffset(tooltipEnemy.enemyIndex, 56)" />
+        <mdt-enemy-portrait :size="56" :mapID="mapID" :mapSlug="mapSlug" :offset="getEnemyPortraitOffset(tooltipEnemy.enemyIndex, 56)" />
         <span v-if="tooltipEnemy.isBoss" style="margin-left:-3px">💀 </span><strong>{{ tooltipEnemy.name }}</strong>
         <span>{{ $t('Level [-level-] [-type-]', {level: tooltipEnemy.level, type: tooltipEnemy.creatureType}) }}</span>
         <span>{{ $t('[-hp-] HP @ +10', {hp: calcEnemyHealth(tooltipEnemy, true)}) }}</span>
@@ -373,12 +373,13 @@
 <script>
 const semver = require('semver')
 const async = require('async')
-import Categories from '../libs/categories'
+import Categories from '../libs/categories2'
 const hull = require('hull.js')
 import ExportJSON from './ExportJSON'
 import MDTEnemyPortrait from './MDTEnemyPortrait'
 import MDTPOI from './MDTPOI'
 import InputSemver from '../UI/Input-Semver.vue'
+import Teleport from '../libs/Teleport.vue'
 
 
 export default {
@@ -386,7 +387,7 @@ export default {
   props: ['scratch', 'readonly', 'cipherKey', 'affixes'],
   data: function () {
     return {
-      mdtScale: 539 / 450, // 1.197777 repeating, of course. Found by trial and error; there may be something that more accurately scales wow pixels into real pixels, but this is very close.
+      mdtScale: 2.3, // there may be something that more accurately scales wow pixels into real pixels, but this is very close.
       mdtLoading: true,
       tableString: this.$store.state.wago.code.json,
       tableData: JSON.parse(this.$store.state.wago.code.json),
@@ -398,6 +399,7 @@ export default {
       showExport: false,
       mapID: 0,
       subMapID: 0,
+      mapSlug: '',
       mdtDungeonTable: this.$store.state.MDTTable,
       mdtLevel: 10,
       mapTiles: [],
@@ -415,6 +417,7 @@ export default {
       selectedAffixes: [],
       affixOptions: [],
       hoverSpecific: {},
+      isFullScreen: false,
       dungeonAffixes: {
         1: { name: 'Overflowing', icon: 'inv_misc_volatilewater' },
         2: { name: 'Skittish', icon: 'Spell_Magic_LesserInvisibilty' },
@@ -466,15 +469,16 @@ export default {
   },
   created: function () {
     this.hideMobileOptions = (this.screenWidth < 800)
-    this.mapID = this.tableData.value.currentDungeonIdx - 1
+    this.mapID = this.tableData.value.currentDungeonIdx
     if (this.$store.state.mdtDungeonTable) {
       this.mdtDungeonTable = this.$store.state.mdtDungeonTable
     }
-    this.checkKonvaSize = setInterval(this.updateKonvaSize, 100)
+    // this.checkKonvaSize = setInterval(this.updateKonvaSize, 100)
 
-    this.http.get('/data/mdtDungeonTable-' + this.mapID).then((res) => {
+    this.http.get('/data/mdtDungeonTable-' + (this.mapID - 1)).then((res) => {
       if (res && res.value) {
         this.mdtDungeonTable = res.value
+        this.mapSlug = this.mdtDungeonTable.slug
         this.$store.commit('saveMDT', this.mdtDungeonTable)
         this.init()
       }
@@ -482,7 +486,7 @@ export default {
   },
   destroyed () {
     window.removeEventListener('resize', this.setMap)
-    clearInterval(this.checkKonvaSize)
+    // clearInterval(this.checkKonvaSize)
   },
   watch: {
     subMapID: function (val) {
@@ -494,7 +498,8 @@ export default {
     'mdt-enemy-portrait': MDTEnemyPortrait,
     'mdt-poi': MDTPOI,
     'input-semver': InputSemver,
-    'color-picker': require('vue-color').Chrome
+    'color-picker': require('vue-color').Chrome,
+    'teleport': Teleport
   },
   mounted () {
     this.latestVersion.semver = semver.valid(semver.coerce(this.wago.versions.versions[0].versionString))
@@ -504,6 +509,10 @@ export default {
   },
   methods: {
     init () {
+      this.updateKonvaSize()
+      // validate data
+      this.mdtDungeonTable.mapPOIs  = this.mdtDungeonTable.mapPOIs  || {}
+      
       if (!this.tableData.week) {
         this.tableData.week = 1
       }
@@ -543,6 +552,30 @@ export default {
       }
     },
 
+    goFullScreen () {
+      window.advertRails.destroyRails()
+      this.isFullScreen = true
+      const stage = this.$refs.mdtStage.getStage()
+      stage.width(document.body.offsetWidth - 350)
+      stage.height(document.body.offsetHeight)
+      stage.scale({ x: 1, y: 1 })
+      this.$nextTick(() => {
+        stage.batchDraw()        
+      })
+    },
+
+    exitFullScreen () {
+      this.isFullScreen = false
+      const stage = this.$refs.mdtStage.getStage()
+      stage.width(Math.min(818, document.body.offsetWidth - 16))
+      stage.height(666)
+      stage.scale({ x: 1, y: 1 })
+      this.$nextTick(() => {
+        stage.batchDraw()
+        window.advertRails.makeRails()
+      })
+    },
+
     updateTableString (reloadMap) {
       this.$nextTick(() => {
         if (reloadMap) {
@@ -570,9 +603,7 @@ export default {
         var stage = vue.$refs.mdtStage.getStage()
         var canvas = vue.$refs.canvas
         stage.draggable(true)
-        stage.position({x: (1000 - document.getElementById('stageContainer').offsetWidth) * -0.6, y: 0})
-        stage.scale({ x: 1, y: 1 })
-        stage.batchDraw()
+        vue.positionMap(stage)
 
         if (vue.stageEvents) {
           return
@@ -593,7 +624,7 @@ export default {
             y: stage.getPointerPosition().y / oldScale - stage.y() / oldScale
           }
 
-          var newScale = Math.min(10, Math.max(1, evt.deltaY < 0 ? oldScale * scaleBy : oldScale / scaleBy))
+          var newScale = Math.min(10, Math.max(.25, evt.deltaY < 0 ? oldScale * scaleBy : oldScale / scaleBy))
 
           if (newScale === oldScale) {
             return false
@@ -792,20 +823,34 @@ export default {
       })
     },
 
+    positionMap(stage) {      
+      if (this.isFullScreen) return stage.batchDraw()
+      stage.scale({ x: 125/216, y: 125/216 })
+      stage.position({x: 0, y: 0})
+
+      switch (this.mapSlug) {
+        case 'DawnOfTheInfiniteLower':
+          stage.position({x: -185, y: -75})
+          break
+      }
+
+      stage.batchDraw()
+    },
+
     updateKonvaSize () {
       if (!this.mdtDungeonTable.dungeonMaps) {
         return
       }
       var w
       if (this.readonly) {
-        w = Math.min(1000, document.body.offsetWidth - 16)
+        w = Math.min(818, document.body.offsetWidth - 16)
       }
       else {
         w = document.getElementById('builder') && document.getElementById('builder').offsetWidth || 0
       }
       if (!this.konvaStageConfig || w !== this.konvaStageConfig.width) {
-        this.konvaStageConfig = {width: w, height: 666, x: (1000 - document.getElementById('stageContainer').offsetWidth) * -0.6}
-        this.setMap()
+        this.konvaStageConfig = {width: w, height: 666, x: (818 - document.getElementById('stageContainer').offsetWidth) * -0.6}
+        // this.setMap()
       }
     },
 
@@ -822,7 +867,7 @@ export default {
 
       // enemy portraits
       this.enemyPortraits = new Image()
-      this.enemyPortraits.src = `https://media.wago.io/mdt/portraits-${this.mapID}.png`
+      this.enemyPortraits.src = `https://media.wago.io/mdt/portraits-${this.mapSlug}.png`
       preload.push(this.enemyPortraits.src)
 
       var faction = ''
@@ -831,24 +876,20 @@ export default {
       }
 
       this.enemyPortraitMap = new Image()
-      this.enemyPortraitMap.src = `https://media.wago.io/mdt/portraitMap-${this.mapID}-${subMap + 1}${this.isTeemingSelected() ? '-Teeming' : ''}${faction}.${this.webpSupport ? 'webp' : 'png'}`
+      this.enemyPortraitMap.src = `https://media.wago.io/mdt/portraitMap-${this.mapSlug}${this.isTeemingSelected() ? '-Teeming' : ''}${faction}.png`
       preload.push(this.enemyPortraitMap.src)
 
       // build map files
       var dir = this.mdtDungeonTable.dungeonMaps[0]
       var map = this.mdtDungeonTable.dungeonMaps[subMap + 1]
       this.mapTiles = []
-      var path = 'https://media.wago.io/wow-ui-textures/Worldmap'
-      if (this.mapID >= 26) {
-        path = 'https://media.wago.io/wow-ui-textures/WorldMap' // why do you do this Blizzard?
-      }
 
       if (this.mdtDungeonTable.mapInfo && this.mdtDungeonTable.mapInfo.tileFormat === 15) {
         let scale = 256 / 3.827
         for (let i = 1; i <= 10; i++) {
           for (let j = 1; j <= 15; j++) {
             let image = new Image()
-            image.src = `${path}/${dir}/${map}${(i - 1) * 15 + j}.PNG`
+            image.src = `${path}/${dir}/${map}${(i - 1) * 15 + j}.png`.toLowerCase()
             preload.push(image.src)
             this.mapTiles.push({image, x: (j - 1) * scale, y: (i - 1) * scale, width: scale, height: scale})
           }
@@ -859,9 +900,9 @@ export default {
           let row = (i - 1) % 4
           let col = Math.floor((i - 1) / 4)
           let image = new Image()
-          image.src = `${path}/${dir}/${map}${i}.PNG`
+          image.src = `https://media.wago.io/mdt/${this.mdtDungeonTable.slug}.png`
           preload.push(image.src)
-          this.mapTiles.push({image, x: row * 256, y: col * 256})
+          this.mapTiles.push({image, x: 0, y: 0})
         }
       }
 
@@ -877,11 +918,6 @@ export default {
         this.mdtLoading = false
         this.setupStage()
         return
-      }
-      else {
-        if (document.getElementById('stageContainer')) {
-          // this.$set(this.konvaStageConfig, 'offsetX', (1000 - document.getElementById('stageContainer').offsetWidth) * -0.4)
-        }
       }
 
       // load the images
@@ -1099,7 +1135,7 @@ export default {
           continue
         }
         for (let cloneIndex of clones) {
-          if (this.enemies[creatureIndex - 1] && this.enemies[creatureIndex - 1].clones[cloneIndex - 1] && this.enemies[creatureIndex - 1].clones[cloneIndex - 1].sublevel === this.subMapID + 1) {
+          if (this.enemies[creatureIndex - 1] && this.enemies[creatureIndex - 1].clones[cloneIndex - 1] && this.enemies[creatureIndex - 1].clones[cloneIndex - 1].sublevel === this.subMapID + 1 && (this.isTeemingSelected() || !this.enemies[creatureIndex - 1].clones[cloneIndex - 1].teeming)) {
             let padding = (Math.round(5 * this.enemies[creatureIndex - 1].scale * (this.enemies[creatureIndex - 1].isBoss ? 1.7 : 1) * (this.mdtDungeonTable.scaleMultiplier || 1)) / this.mdtScale) / 1.3
             vertices.push([(this.enemies[creatureIndex - 1].clones[cloneIndex - 1].x - padding) * this.mdtScale, (-this.enemies[creatureIndex - 1].clones[cloneIndex - 1].y + padding) * this.mdtScale])
             vertices.push([(this.enemies[creatureIndex - 1].clones[cloneIndex - 1].x - padding) * this.mdtScale, (-this.enemies[creatureIndex - 1].clones[cloneIndex - 1].y - padding) * this.mdtScale])
@@ -1156,6 +1192,7 @@ export default {
     },
 
     isTeemingSelected () {
+      return false
       return this.selectedAffixes.indexOf(5) >= 0
     },
 
@@ -1295,9 +1332,12 @@ export default {
         clones.forEach((cloneIndex) => {
           cloneIndex--
           // if not being pulled or not on teeming map
+          if (!this.enemies[enemyIndex] || !this.enemies[enemyIndex].clones) {
+            return
+          }
           if (!this.enemies[enemyIndex].clones[cloneIndex] || (this.enemies[enemyIndex].clones[cloneIndex].teeming && !isTeeming) || (this.enemies[enemyIndex].clones[cloneIndex].week && !this.enemies[enemyIndex].clones[cloneIndex].week[this.tableData.week])) {
             // if clone is set to current pullIndex, remove it
-            if (this.enemies[enemyIndex].clones[cloneIndex] === pullIndex) {
+            if (!this.enemies[enemyIndex].clones && this.enemies[enemyIndex].clones[cloneIndex] === pullIndex) {
               this.$set(this.enemies[enemyIndex].clones[cloneIndex], 'pull', -1)
             }
             return
@@ -1390,6 +1430,9 @@ export default {
 
         clones.forEach((cloneIndex) => {
           cloneIndex--
+          if (!this.enemies[enemyIndex] || !this.enemies[enemyIndex].clones) {
+            return
+          }
           if (!this.enemies[enemyIndex].clones[cloneIndex] || (this.enemies[enemyIndex].clones[cloneIndex].teeming && !isTeeming) || (this.enemies[enemyIndex].clones[cloneIndex].faction && this.tableData.faction !== this.enemies[enemyIndex].clones[cloneIndex].faction) || this.isCreatureNoTarget(this.enemies[enemyIndex].id)) {
             // if clone is set to current pullIndex, remove it
             if (this.enemies[enemyIndex].clones[cloneIndex] === pullIndex) {
@@ -1736,6 +1779,9 @@ export default {
 
       }
     },
+    fullscreenTarget: function () {
+      return this.isFullScreen ? 'body' : '#mdtWrapper'
+    },
     wago: function () {
       return this.$store.state.wago
     },
@@ -1760,7 +1806,7 @@ export default {
 }
 </script>
 
-<style>
+<style lang="scss">
 #builder, #mdtStage { width: 100% }
 #build-mdt .md-select-content { max-height: calc(70vh); margin-bottom: 32px }
 #build-mdt .md-select { width: auto }
@@ -1773,8 +1819,9 @@ export default {
 #build-mdt .ace_editor { box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2), 0 2px 2px rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.12); }
 #build-mdt .md-theme-default.md-sidenav .md-sidenav-content { background-color: inherit; min-width: 360px; }
 #builder { position: relative; min-height: 666px }
-#builder canvas { position: absolute; left: 0; top: 0; width:60%; max-width: 1000px; height: 666px; max-height: 666px; }
+#builder canvas { position: absolute; left: 0; top: 0; width:60%; }
 #stageContainer { max-width:1000px; width:60%; height:666px; position: relative; flex: 2 }
+#mdtOptions{ max-width: 280px;}
 #mdtOptions .md-card { margin: 0; overflow: hidden; width: 100%; height: 666px; overflow-y: auto;}
 #mdtOptions .md-card .md-sidenav-content { min-width: 75%; }
 #mdtOptions .md-sidenav-backdrop { position: fixed }
@@ -1786,7 +1833,7 @@ export default {
 #embed-body #mdtOptions .md-card::-webkit-scrollbar-thumb:hover { background: #555; }
 
 #sumPct { color: inherit; text-transform: none }
-.inlineContainer { display: inline-flex; flex-direction: row; flex-wrap: wrap; }
+.inlineContainer { display: inline-flex; flex-direction: row;  }
 .affix { padding-right: 6px; padding-bottom: 4px; white-space: nowrap; line-height:36px; display: inline; }
 .affix img { width: 22px; height: 22px; }
 .topaffix { margin: 6px 4px; padding: 0; white-space: nowrap; line-height:36px; display: inline-block;}
@@ -1807,24 +1854,25 @@ export default {
 .mdtGroupDetails .singlepull:before { content: 'Singles'; font-size: 9px; position: absolute; top: -15px; right: 6px; text-align: right }
 .mdtGroupDetails .groupnum, .mdtGroupDetails .singlepull { position: relative; font-size: 26px; width: 1.7em; display: inline-block; text-align: right; padding-right: 6px; }
 .mdtGroupDetails .enemyPortrait { margin-top: -9px; width:32px; height:32px; z-index:99 }
-#mdtTooltip { z-index: 100; position: fixed; padding: 16px; background: rgba(0, 0, 0, .8); border: 2px solid black; color: white; }
+#mdtTooltip { z-index: 1001; position: fixed; padding: 16px; background: rgba(0, 0, 0, .8); border: 2px solid black; color: white; }
 #mdtTooltip .tooltipPOI { max-width: 240px }
 #mdtTooltip .tooltipPOI span + span { font-size: 90%; color: #DDD }
 #mdtTooltip .tooltipEnemy { width: 210px; position: relative; }
 #mdtTooltip .tooltipEnemy span { display: block }
 #mdtTooltip .tooltipEnemy span img { max-height: 16px }
 #mdtTooltip .tooltipEnemy .enemyPortrait { position: absolute; left: -48px; top: -48px; border: 2px solid black; }
-#mdtAnnotateMenu { position: absolute; top: 36px; left: 18px; width: 50px; border: 1px solid black; background: #212121; opacity: .9 }
-#mdtAnnotateMenu .annotate-label { text-align: center; text-decoration: underline; font-weight: bold; font-size: 12px }
+#mdtAnnotateMenu { position: absolute; top: 0; left: calc(50% - 120px); width: 240px; border: 1px solid black; background: #212121; opacity: .9 }
+#mdtAnnotateMenu .annotate-label { text-align: center; text-decoration: underline; font-weight: bold; font-size: 12px; display: none }
 #mdtAnnotateMenu .md-button-toggle { padding: 0}
 #mdtAnnotateMenu .md-icon-button { display: inline-block; position: relative; padding: 2px; width: 24px; min-width: 24px; max-width: 24px; height: 24px; min-height: 24px; max-height: 24px; }
 #mdtAnnotateMenu .md-icon-button i.md-icon { font-size: 18px; margin: 0; color: white; cursor: pointer }
-#stroke-input { text-align: center }
+#stroke-input { text-align: center; margin: 0 .2rem }
 #stroke-input input { text-align: center; font-weight: bold; font-size: 12px; height: 24px; width:18px; padding: 0; color: white; background: none; border: 0; }
 #stroke-input button { border: 0; background: none; color: white; padding:0; width: 10px; cursor: pointer }
 #stroke-input input[type="number"] { -webkit-appearance: textfield; -moz-appearance: textfield; appearance: textfield; }
 #stroke-input input[type="number"]::-webkit-inner-spin-button, #stroke-input input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; }
-#color-input button { width: 100%; height: 18px; border: 1px solid black; border-width: 1px 3px }
+#color-input { margin-top:-2px; margin-left:2px }
+#color-input button { width: 1rem; height: 18px; border: 1px solid black; border-width: 1px }
 #color-picker .vc-chrome-body { background: #333 }
 #color-picker .vc-chrome-active-color { width: 24px; height: 24px; }
 #color-picker .vc-chrome-hue-wrap { margin-top: 7px; }
@@ -1848,4 +1896,33 @@ export default {
 }
 
 .hidden { display: none!important }
+
+body > #mdtContainer {
+  position: fixed;
+  background: #212121;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index:1000;
+  width: 100vw;
+  height: 100vh;
+  #stageContainer {
+    width: calc(100% - 350px);
+    max-width: calc(100% - 350px);
+    height: 100vh;
+    #mdtStage > div, #mdtStage canvas {
+      max-width: 100%!important;
+    }
+  }
+  #mdtOptions {
+    width: 350px;
+    max-width: 350px;
+    height: 100vh;
+    .md-card {
+      height: 100vh !important;
+      min-height: 100vh;;
+    }
+  }
+}
 </style>

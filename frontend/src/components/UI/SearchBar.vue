@@ -208,6 +208,7 @@ export default {
   },
   watch: {
     watchSiteSearch (value) {
+      value = decodeURIComponent(value)
       this.quill.setContents([{ insert: `${value} \n` }])
       for (let i = 0; i < (value.match(/!|:/g) || []).length; i++) {
         this.parseSearchString()
@@ -566,7 +567,7 @@ export default {
       const str = this.getRawSearch().trim()
       if (str) {
         this.$store.commit('setSearchText', str, true)
-        this.$router.push(`/search?q=${str.replace(/^!(\w+)!/, '').replace(/\s+/g, '%20')}`)
+        this.$router.push(`/search?q=${str.replace(/^!(\w+)!/, '').replace(/\s+/g, '%20').replace(/#/g, '%23')}`)
       }
       this.quill.focus()
     },

@@ -18,7 +18,8 @@
             <div class="md-list-text-container">
               <router-link :to="'/opie/' + prof.slug">{{ prof.text }}</router-link>
               <span>
-                <router-link  v-for="spec in prof.specs" v-bind:key="spec.id" :to="'/opie/' + spec.slug">{{ spec.text }}</router-link>
+                <router-link v-for="spec in prof.specs" v-bind:key="spec.id" :to="'/opie/' + spec.slug">{{ spec.text
+                }}</router-link>
               </span>
             </div>
           </md-list-item>
@@ -30,7 +31,8 @@
             <div class="md-list-text-container">
               <router-link to="/opie">{{ $t("Content") }}</router-link>
               <span>
-                <a v-for="item in content" v-bind:key="item.id" :href="'/opie/' + item.slug" @click.prevent="searchRoute(item)">{{ item.text }}</a>
+                <a v-for="item in content" v-bind:key="item.id" :href="'/opie/' + item.slug"
+                  @click.prevent="searchRoute(item)">{{ item.text }}</a>
               </span>
             </div>
           </md-list-item>
@@ -38,6 +40,7 @@
 
       </md-layout>
       <md-layout v-for="(classes, index) in aClasses" v-bind:key="index">
+        <advert ad="video-sidebar" v-if="index === 2" />
         <md-subheader>{{ $t("Classes") }}</md-subheader>
         <md-list class="md-double-line md-dense">
           <md-list-item v-for="cls in classes" v-bind:key="cls.id" :class="cls.id + ' md-inset'">
@@ -45,7 +48,8 @@
             <div class="md-list-text-container">
               <router-link :to="'/opie/' + cls.slug">{{ cls.text }}</router-link>
               <span>
-                <router-link  v-for="spec in cls.specs" v-bind:key="spec.id" :to="'/opie/' + spec.slug">{{ spec.text.replace(cls.text, '').trim() }}</router-link>
+                <router-link v-for="spec in cls.specs" v-bind:key="spec.id" :to="'/opie/' + spec.slug">{{
+                  spec.text.replace(cls.text, '').trim() }}</router-link>
               </span>
             </div>
           </md-list-item>
@@ -100,34 +104,110 @@ export default {
       title: 'OPie',
       description: this.$t('Browse OPie imports')
     })
-    this.http.get('/search/menu', {view: 'OPie'})
+    this.http.get('/search/menu', { view: 'OPie' })
   }
 }
 </script>
 
 <style lang="scss">
 .addon-name {
-  .md-avatar {margin: 16px; border-radius: 4px;}
-  h2 {margin: 16px 0 0 0; line-height: 40px}
+  .md-avatar {
+    margin: 16px;
+    border-radius: 4px;
+  }
+
+  h2 {
+    margin: 16px 0 0 0;
+    line-height: 40px
+  }
 }
-h2 .faded {opacity: .3}
-h2 span {font-size:80%; cursor: pointer}
-#searchForm { padding: 16px; flex: 1 }
-#searchForm button { margin-top: -3px }
 
-#addon-name .md-theme-default.md-switch {margin: 0 8px; zoom:0.8}
-#addon-name .md-theme-default.md-switch.md-checked .md-switch-container {background-color: rgba(0, 0, 0, 0.38);}
-#addon-name .md-theme-default.md-switch.md-checked .md-switch-thumb {background-color: #fafafa;}
+h2 .faded {
+  opacity: .3
+}
 
-#search-opie .md-list-item img { height: 48px; padding-right: 16px; vertical-align:top}
-#search-opie a { margin-right: 12px }
-#search-opie .md-list-item.md-inset .md-list-item-container { padding-left: 24px; flex-wrap: wrap; padding-bottom: 16px }
-#search-opie .md-list-text-container a { white-space: nowrap; display: inline-block }
-#search-opie .md-list-text-container > a, #search-opie .md-list-text-container > .parent-category { font-size: 18px; font-weight: bold; line-height: 19px; }
-#search-opie .md-list-text-container span{ white-space: normal; line-height: 22px}
-#search-opie .md-layout { align-items: flex-start}
+h2 span {
+  font-size: 80%;
+  cursor: pointer
+}
 
-#search-opie .md-subheader { width: 100% }
-#search-opie .md-subheader + .md-list { width: 100% }
-.md-list:after { background-color: transparent!important }
-</style>
+#searchForm {
+  padding: 16px;
+  flex: 1
+}
+
+#searchForm button {
+  margin-top: -3px
+}
+
+#addon-name .md-theme-default.md-switch {
+  margin: 0 8px;
+  zoom: 0.8
+}
+
+#addon-name .md-theme-default.md-switch.md-checked .md-switch-container {
+  background-color: rgba(0, 0, 0, 0.38);
+}
+
+#addon-name .md-theme-default.md-switch.md-checked .md-switch-thumb {
+  background-color: #fafafa;
+}
+
+#search-opie .md-list-item img {
+  height: 48px;
+  padding-right: 16px;
+  vertical-align: top
+}
+
+#search-opie a {
+  margin-right: 12px
+}
+
+#search-opie .md-list-item.md-inset .md-list-item-container {
+  padding-left: 24px;
+  flex-wrap: wrap;
+  padding-bottom: 16px
+}
+
+#search-opie .md-list-text-container a {
+  white-space: nowrap;
+  display: inline-block
+}
+
+#search-opie .md-list-text-container>a,
+#search-opie .md-list-text-container>.parent-category {
+  font-size: 18px;
+  font-weight: bold;
+  line-height: 19px;
+}
+
+#search-opie .md-list-text-container span {
+  white-space: normal;
+  line-height: 22px
+}
+
+#search-opie .md-layout {
+  align-items: flex-start
+}
+
+#search-opie .md-subheader {
+  width: 100%
+}
+
+#search-opie .md-subheader+.md-list {
+  width: 100%
+}
+
+.md-list:after {
+  background-color: transparent !important
+}
+
+#search-opie .wago-ad-container {
+  max-width: 260px;
+  background: none;
+  box-shadow: none;
+  min-height: 160px;
+  #video-sidebar {
+    min-height: auto
+  }
+}</style>

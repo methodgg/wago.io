@@ -19,13 +19,15 @@
             <div class="md-list-text-container">
               <router-link :to="'/vuhdo/' + cls.slug">{{ cls.text }}</router-link>
               <span>
-                <router-link  v-for="spec in cls.specs" v-bind:key="spec.id" :to="'/vuhdo/' + spec.slug">{{ spec.text.replace(cls.text, '').trim() }}</router-link>
+                <router-link v-for="spec in cls.specs" v-bind:key="spec.id" :to="'/vuhdo/' + spec.slug">{{
+                  spec.text.replace(cls.text, '').trim() }}</router-link>
               </span>
             </div>
           </md-list-item>
         </md-list>
       </md-layout>
       <md-layout>
+        <advert ad="video-sidebar" />
         <md-subheader>Vuhdo</md-subheader>
         <md-list class="md-double-line md-dense">
           <md-list-item class="md-inset vuhdo1">
@@ -33,7 +35,8 @@
             <div class="md-list-text-container">
               <router-link to="/vuhdo">Vuhdo</router-link>
               <span>
-                <a v-for="(item, index) in vuhdo" :href="'/vuhdo/' + item.slug" @click.prevent="searchRoute(item)" v-bind:key="index">{{ item.text }}</a>
+                <a v-for="(item, index) in vuhdo" :href="'/vuhdo/' + item.slug" @click.prevent="searchRoute(item)"
+                  v-bind:key="index">{{ item.text }}</a>
               </span>
             </div>
           </md-list-item>
@@ -47,7 +50,8 @@
             <div class="md-list-text-container">
               <router-link to="/vuhdo/roles">{{ $t("Class Roles") }}</router-link>
               <span>
-                <router-link v-for="(item, index) in roles" :to="'/vuhdo/' + item.slug" v-bind:key="index">{{ item.text }}</router-link>
+                <router-link v-for="(item, index) in roles" :to="'/vuhdo/' + item.slug" v-bind:key="index">{{ item.text
+                }}</router-link>
               </span>
             </div>
           </md-list-item>
@@ -70,7 +74,7 @@ export default {
       this.$router.push('/search/' + this.searchString.trim().replace(/\s+/g, '+'))
     },
     searchRoute: function (item) {
-      this.$store.commit('userSearchOption', {field: 'expansion', value: 'sl'})
+      this.$store.commit('userSearchOption', { field: 'expansion', value: 'sl' })
       if (typeof item === 'string') {
         item = window.Categories.match(item)
       }
@@ -101,7 +105,7 @@ export default {
       title: 'Vuhdo',
       description: this.$t('Browse Vudho imports')
     })
-    this.http.get('/search/menu', {view: 'Vuhdo'})
+    this.http.get('/search/menu', { view: 'Vuhdo' })
   }
 }
 </script>
@@ -109,28 +113,104 @@ export default {
 
 <style lang="scss">
 .addon-name {
-  .md-avatar {margin: 16px; border-radius: 4px;}
-  h2 {margin: 16px 0 0 0; line-height: 40px}
+  .md-avatar {
+    margin: 16px;
+    border-radius: 4px;
+  }
+
+  h2 {
+    margin: 16px 0 0 0;
+    line-height: 40px
+  }
 }
-h2 .faded {opacity: .3}
-h2 span {font-size:80%; cursor: pointer}
-#searchForm { padding: 16px; flex: 1 }
-#searchForm button { margin-top: -3px }
 
-#addon-name .md-theme-default.md-switch {margin: 0 8px; zoom:0.8}
-#addon-name .md-theme-default.md-switch.md-checked .md-switch-container {background-color: rgba(0, 0, 0, 0.38);}
-#addon-name .md-theme-default.md-switch.md-checked .md-switch-thumb {background-color: #fafafa;}
+h2 .faded {
+  opacity: .3
+}
 
-#search-vuhdo .md-list-item img { height: 48px; padding-right: 16px; vertical-align:top}
-#search-vuhdo a { margin-right: 12px }
-#search-vuhdo .md-list-item.md-inset .md-list-item-container { padding-left: 24px; flex-wrap: wrap; padding-bottom: 16px }
-#search-vuhdo .md-list-text-container a { white-space: nowrap; display: inline-block }
-#search-vuhdo .md-list-text-container > a, #search-vuhdo .md-list-text-container > .parent-category { font-size: 18px; font-weight: bold; line-height: 19px; }
-#search-vuhdo .md-list-text-container span{ white-space: normal; line-height: 22px}
-#search-vuhdo .md-layout { align-items: flex-start}
+h2 span {
+  font-size: 80%;
+  cursor: pointer
+}
 
-#search-vuhdo .md-subheader { width: 100% }
-#search-vuhdo .md-subheader + .md-list { width: 100% }
-.md-list:after { background-color: transparent!important }
-</style>
+#searchForm {
+  padding: 16px;
+  flex: 1
+}
+
+#searchForm button {
+  margin-top: -3px
+}
+
+#addon-name .md-theme-default.md-switch {
+  margin: 0 8px;
+  zoom: 0.8
+}
+
+#addon-name .md-theme-default.md-switch.md-checked .md-switch-container {
+  background-color: rgba(0, 0, 0, 0.38);
+}
+
+#addon-name .md-theme-default.md-switch.md-checked .md-switch-thumb {
+  background-color: #fafafa;
+}
+
+#search-vuhdo .md-list-item img {
+  height: 48px;
+  padding-right: 16px;
+  vertical-align: top
+}
+
+#search-vuhdo a {
+  margin-right: 12px
+}
+
+#search-vuhdo .md-list-item.md-inset .md-list-item-container {
+  padding-left: 24px;
+  flex-wrap: wrap;
+  padding-bottom: 16px
+}
+
+#search-vuhdo .md-list-text-container a {
+  white-space: nowrap;
+  display: inline-block
+}
+
+#search-vuhdo .md-list-text-container>a,
+#search-vuhdo .md-list-text-container>.parent-category {
+  font-size: 18px;
+  font-weight: bold;
+  line-height: 19px;
+}
+
+#search-vuhdo .md-list-text-container span {
+  white-space: normal;
+  line-height: 22px
+}
+
+#search-vuhdo .md-layout {
+  align-items: flex-start
+}
+
+#search-vuhdo .md-subheader {
+  width: 100%
+}
+
+#search-vuhdo .md-subheader+.md-list {
+  width: 100%
+}
+
+.md-list:after {
+  background-color: transparent !important
+}
+
+#search-vuhdo .wago-ad-container {
+  max-width: 260px;
+  background: none;
+  box-shadow: none;
+  min-height: 160px;
+  #video-sidebar {
+    min-height: auto
+  }
+}</style>
 

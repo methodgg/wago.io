@@ -6,7 +6,7 @@
           <md-avatar class='square'><category-image :group="'t-collection'"></category-image></md-avatar>
           <h2 id="addon-name">Collections</h2>
         </md-layout>
-        <addon-info addon="collection"></addon-info>
+        <addon-info game="wow" addon="collection"></addon-info>
       </div>
     </md-layout>
     <md-layout>
@@ -18,7 +18,8 @@
             <div class="md-list-text-container">
               <router-link :to="'/collections/' + cls.slug">{{ cls.text }}</router-link>
               <span>
-                <router-link v-for="spec in cls.specs" v-bind:key="spec.id" :to="'/collections/' + spec.slug">{{ spec.text.replace(cls.text, '').trim() }}</router-link>
+                <router-link v-for="spec in cls.specs" v-bind:key="spec.id" :to="'/collections/' + spec.slug">{{
+                  spec.text.replace(cls.text, '').trim() }}</router-link>
               </span>
             </div>
           </md-list-item>
@@ -32,7 +33,8 @@
             <div class="md-list-text-container">
               <router-link :to="'/collections/' + dragonflightRaids[0].slug">{{ $t('Dragonflight') }}</router-link>
               <span>
-                <router-link v-for="item in dragonflightRaids" v-bind:key="item.id" :to="'/collections/' + item.slug">{{ item.text }}</router-link>
+                <router-link v-for="item in dragonflightRaids" v-bind:key="item.id" :to="'/collections/' + item.slug">{{
+                  item.text }}</router-link>
               </span>
             </div>
           </md-list-item>
@@ -41,7 +43,8 @@
             <div class="md-list-text-container">
               <router-link :to="'/collections/' + wotlkRaids[0].slug">{{ $t('Wrath Classic') }}</router-link>
               <span>
-                <router-link v-for="item in wotlkRaids" v-bind:key="item.id" :to="'/collections/' + item.slug">{{ item.text }}</router-link>
+                <router-link v-for="item in wotlkRaids" v-bind:key="item.id" :to="'/collections/' + item.slug">{{
+                  item.text }}</router-link>
               </span>
             </div>
           </md-list-item>
@@ -50,7 +53,8 @@
             <div class="md-list-text-container">
               <router-link :to="'/collections/' + classicRaids[0].slug">{{ $t('Classic') }}</router-link>
               <span>
-                <router-link v-for="item in classicRaids" v-bind:key="item.id" :to="'/collections/' + item.slug">{{ item.text }}</router-link>
+                <router-link v-for="item in classicRaids" v-bind:key="item.id" :to="'/collections/' + item.slug">{{
+                  item.text }}</router-link>
               </span>
             </div>
           </md-list-item>
@@ -87,6 +91,16 @@
           </md-list-item>
         </md-list>-->
 
+        <md-subheader>{{ $t("Professions") }}</md-subheader>
+        <md-list class="md-double-line md-dense">
+          <md-list-item v-for="prof in professions" v-bind:key="prof.id" :class="prof.id + ' md-inset'">
+            <div class="menu-image"></div>
+            <div class="md-list-text-container">
+              <router-link :to="'/collections/' + prof.slug">{{ prof.text }}</router-link>
+            </div>
+          </md-list-item>
+        </md-list>
+
         <md-subheader>{{ $t("PvP") }}</md-subheader>
         <md-list class="md-double-line md-dense">
           <md-list-item class="md-inset pvp">
@@ -94,7 +108,8 @@
             <div class="md-list-text-container">
               <router-link to="/collections/pvp">{{ $t("PvP") }}</router-link>
               <span>
-                <router-link v-for="item in pvp" v-bind:key="item.id" :to="'/collections/' + item.slug">{{ item.text }}</router-link>
+                <router-link v-for="item in pvp" v-bind:key="item.id" :to="'/collections/' + item.slug">{{ item.text
+                }}</router-link>
               </span>
             </div>
           </md-list-item>
@@ -102,6 +117,7 @@
       </md-layout>
 
       <md-layout>
+        <advert ad="video-sidebar" />
         <md-subheader>{{ $t("Miscellaneous") }}</md-subheader>
         <md-list class="md-double-line md-dense">
           <md-list-item class="md-inset role0">
@@ -109,7 +125,8 @@
             <div class="md-list-text-container">
               <router-link to='/collections/class-roles'>{{ $t("Class Roles") }}</router-link>
               <span>
-                <router-link v-for="item in roles" v-bind:key="item.id" :to="'/collections/' + item.slug">{{ item.text }}</router-link>
+                <router-link v-for="item in roles" v-bind:key="item.id" :to="'/collections/' + item.slug">{{ item.text
+                }}</router-link>
               </span>
             </div>
           </md-list-item>
@@ -126,7 +143,8 @@
             <div class="md-list-text-container">
               <router-link to='/collections/equipment'>{{ $t("Equipment") }}</router-link>
               <span>
-                <router-link v-for="item in equip" v-bind:key="item.id" :to="'/collections/' + item.slug">{{ item.text }}</router-link>
+                <router-link v-for="item in equip" v-bind:key="item.id" :to="'/collections/' + item.slug">{{ item.text
+                }}</router-link>
               </span>
             </div>
           </md-list-item>
@@ -136,18 +154,9 @@
             <div class="md-list-text-container">
               <router-link to='/collections/other'>{{ $t("General") }}</router-link>
               <span>
-                <router-link v-for="item in misc" v-bind:key="item.id" :to="'/collections/' + item.slug">{{ item.text }}</router-link>
+                <router-link v-for="item in misc" v-bind:key="item.id" :to="'/collections/' + item.slug">{{ item.text
+                }}</router-link>
               </span>
-            </div>
-          </md-list-item>
-        </md-list>
-
-        <md-subheader>{{ $t("Professions") }}</md-subheader>
-        <md-list class="md-double-line md-dense">
-          <md-list-item v-for="prof in professions" v-bind:key="prof.id" :class="prof.id + ' md-inset'">
-            <div class="menu-image"></div>
-            <div class="md-list-text-container">
-              <router-link :to="'/collections/' + prof.slug">{{ prof.text }}</router-link>
             </div>
           </md-list-item>
         </md-list>
@@ -159,7 +168,8 @@
             <div class="md-list-text-container">
               <router-link to="/collections/development">{{ $t("Development") }}</router-link>
               <span>
-                <router-link v-for="item in development" v-bind:key="item.id" :to="'/collections/' + item.slug">{{ item.text }}</router-link>
+                <router-link v-for="item in development" v-bind:key="item.id" :to="'/collections/' + item.slug">{{
+                  item.text }}</router-link>
               </span>
             </div>
           </md-list-item>
@@ -169,7 +179,8 @@
             <div class="md-list-text-container">
               <router-link to="/collections/snippets">{{ $t("Code Snippets") }}</router-link>
               <span>
-                <router-link v-for="item in snippets" v-bind:key="item.id" :to="'/collections/' + item.slug">{{ item.text }}</router-link>
+                <router-link v-for="item in snippets" v-bind:key="item.id" :to="'/collections/' + item.slug">{{ item.text
+                }}</router-link>
               </span>
             </div>
           </md-list-item>
@@ -263,34 +274,111 @@ export default {
       title: 'Collections',
       description: this.$t('Browse Collections')
     })
-    this.http.get('/search/menu', {view: 'Collections'})
+    this.http.get('/search/menu', { view: 'Collections' })
   }
 }
 </script>
 
 <style lang="scss">
 .addon-name {
-  .md-avatar {margin: 16px; border-radius: 4px;}
-  h2 {margin: 16px 0 0 0; line-height: 40px}
+  .md-avatar {
+    margin: 16px;
+    border-radius: 4px;
+  }
+
+  h2 {
+    margin: 16px 0 0 0;
+    line-height: 40px
+  }
 }
-h2 .faded {opacity: .3}
-h2 span {font-size:80%; cursor: pointer}
-#searchForm { padding: 16px; flex: 1 }
-#searchForm button { margin-top: -3px }
 
-#addon-name .md-theme-default.md-switch {margin: 0 8px; zoom:0.8}
-#addon-name .md-theme-default.md-switch.md-checked .md-switch-container {background-color: rgba(0, 0, 0, 0.38);}
-#addon-name .md-theme-default.md-switch.md-checked .md-switch-thumb {background-color: #fafafa;}
+h2 .faded {
+  opacity: .3
+}
 
-#search-collections .md-list-item img { height: 48px; padding-right: 16px; vertical-align:top}
-#search-collections a { margin-right: 12px }
-#search-collections .md-list-item.md-inset .md-list-item-container { padding-left: 24px; flex-wrap: wrap; padding-bottom: 16px }
-#search-collections .md-list-text-container a { white-space: nowrap; display: inline-block }
-#search-collections .md-list-text-container > a, #search-collections .md-list-text-container > .parent-category { font-size: 18px; font-weight: bold; line-height: 19px; }
-#search-collections .md-list-text-container span{ white-space: normal; line-height: 22px}
-#search-collections .md-layout { align-items: flex-start}
+h2 span {
+  font-size: 80%;
+  cursor: pointer
+}
 
-#search-collections .md-subheader { width: 100% }
-#search-collections .md-subheader + .md-list { width: 100% }
-.md-list:after { background-color: transparent!important }
+#searchForm {
+  padding: 16px;
+  flex: 1
+}
+
+#searchForm button {
+  margin-top: -3px
+}
+
+#addon-name .md-theme-default.md-switch {
+  margin: 0 8px;
+  zoom: 0.8
+}
+
+#addon-name .md-theme-default.md-switch.md-checked .md-switch-container {
+  background-color: rgba(0, 0, 0, 0.38);
+}
+
+#addon-name .md-theme-default.md-switch.md-checked .md-switch-thumb {
+  background-color: #fafafa;
+}
+
+#search-collections .md-list-item img {
+  height: 48px;
+  padding-right: 16px;
+  vertical-align: top
+}
+
+#search-collections a {
+  margin-right: 12px
+}
+
+#search-collections .md-list-item.md-inset .md-list-item-container {
+  padding-left: 24px;
+  flex-wrap: wrap;
+  padding-bottom: 16px
+}
+
+#search-collections .md-list-text-container a {
+  white-space: nowrap;
+  display: inline-block
+}
+
+#search-collections .md-list-text-container>a,
+#search-collections .md-list-text-container>.parent-category {
+  font-size: 18px;
+  font-weight: bold;
+  line-height: 19px;
+}
+
+#search-collections .md-list-text-container span {
+  white-space: normal;
+  line-height: 22px
+}
+
+#search-collections .md-layout {
+  align-items: flex-start
+}
+
+#search-collections .md-subheader {
+  width: 100%
+}
+
+#search-collections .md-subheader+.md-list {
+  width: 100%
+}
+
+.md-list:after {
+  background-color: transparent !important
+}
+
+#search-collections .wago-ad-container {
+  max-width: 260px;
+  background: none;
+  box-shadow: none;
+  min-height: 160px;
+  #video-sidebar {
+    min-height: auto
+  }
+}
 </style>

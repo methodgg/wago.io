@@ -2,6 +2,7 @@
   <md-layout md-row id="addon-meta">
     <template v-for="link in links">
       <md-button v-if="link.url.match(/^\/search/)" @click="doSearch(link)">{{ link.name }}</md-button>
+      <md-button v-else-if="link.url.match(/^\//)" @click="$router.push(link.url)">{{ link.name }}</md-button>
       <md-button v-else :href="link.url" target="_blank" rel="noopener">{{ link.name }}</md-button>
     </template>
   </md-layout>
@@ -61,6 +62,12 @@ export default {
           links.push({url: searchURL, name: this.$t('Search ElvUI'), domain: 0})
           links.push({url: 'https://www.tukui.org/', name: this.$t('View ElvUI Website')})
           links.push({url: 'https://discord.gg/xFWcfgE', name: this.$t('Join ElvUI Discord')})
+          break
+
+        case 'mdt':
+          links.push({url: '/dragonflight-mdt/pve/dragonflight-dungeons-s3', name: this.$t('Search MDT'), domain: 0})
+          links.push({url: 'https://addons.wago.io/addons/mythic-dungeon-tools', name: this.$t('Download MDT')})
+          links.push({url: 'https://discord.gg/tdxMPb3', name: this.$t('Join MDT Discord')})
           break
 
         case 'opie':

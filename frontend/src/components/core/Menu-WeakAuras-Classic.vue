@@ -20,7 +20,8 @@
             <div class="md-list-text-container">
               <a :href="'/classic-weakauras/' + cls.slug" @click.prevent="searchRoute(cls)">{{ cls.text }}</a>
               <span>
-                <a v-for="spec in cls.specs" v-bind:key="spec.id" :href="'/classic-weakauras/' + spec.slug" @click.prevent="searchRoute(spec)">{{ spec.text.replace(cls.text, '').trim() }}</a>
+                <a v-for="spec in cls.specs" v-bind:key="spec.id" :href="'/classic-weakauras/' + spec.slug"
+                  @click.prevent="searchRoute(spec)">{{ spec.text.replace(cls.text, '').trim() }}</a>
               </span>
             </div>
           </md-list-item>
@@ -33,7 +34,8 @@
             <div class="md-list-text-container">
               <a :href="'/classic-weakauras/' + prof.slug" @click.prevent="searchRoute(prof)">{{ prof.text }}</a>
               <span>
-                <a  v-for="spec in prof.specs" v-bind:key="spec.id" :href="'/classic-weakauras/' + spec.slug" @click.prevent="searchRoute(spec)">{{ spec.text }}</a>
+                <a v-for="spec in prof.specs" v-bind:key="spec.id" :href="'/classic-weakauras/' + spec.slug"
+                  @click.prevent="searchRoute(spec)">{{ spec.text }}</a>
               </span>
             </div>
           </md-list-item>
@@ -48,7 +50,8 @@
             <div class="md-list-text-container">
               <a :href="'/classic-weakauras/' + raid.slug" @click.prevent="searchRoute(raid)">{{ raid.text }}</a>
               <span>
-                <a v-for="boss in raid.bosses" v-bind:key="boss.id" :href="'/classic-weakauras/' + boss.slug" @click.prevent="searchRoute(boss)">{{ boss.text }}</a>
+                <a v-for="boss in raid.bosses" v-bind:key="boss.id" :href="'/classic-weakauras/' + boss.slug"
+                  @click.prevent="searchRoute(boss)">{{ boss.text }}</a>
               </span>
             </div>
           </md-list-item>
@@ -61,7 +64,8 @@
             <div class="md-list-text-container">
               <a href="/classic-weakauras/roles" @click.prevent="searchRoute('role0')">{{ $t("Class Roles") }}</a>
               <span>
-                <a v-for="item in roles" v-bind:key="item.id" :href="'/classic-weakauras/' + item.slug" @click.prevent="searchRoute(item)">{{ item.text }}</a>
+                <a v-for="item in roles" v-bind:key="item.id" :href="'/classic-weakauras/' + item.slug"
+                  @click.prevent="searchRoute(item)">{{ item.text }}</a>
               </span>
             </div>
           </md-list-item>
@@ -69,9 +73,11 @@
           <md-list-item class="md-inset mech">
             <div class="menu-image"></div>
             <div class="md-list-text-container">
-              <a href="/classic-weakauras/combat-mechanics" @click.prevent="searchRoute('mech')">{{ $t("Combat Mechanics") }}</a>
+              <a href="/classic-weakauras/combat-mechanics" @click.prevent="searchRoute('mech')">{{ $t("Combat Mechanics")
+              }}</a>
               <span>
-                <a v-for="item in mechanics" v-bind:key="item.id"  :href="'/classic-weakauras/' + item.slug" @click.prevent="searchRoute(item)">{{ item.text }}</a>
+                <a v-for="item in mechanics" v-bind:key="item.id" :href="'/classic-weakauras/' + item.slug"
+                  @click.prevent="searchRoute(item)">{{ item.text }}</a>
               </span>
             </div>
           </md-list-item>
@@ -81,7 +87,8 @@
             <div class="md-list-text-container">
               <a href="/classic-weakauras/equipment" @click.prevent="searchRoute('equip')">{{ $t("Equipment") }}</a>
               <span>
-                <a v-for="item in equip" v-bind:key="item.id"  :href="'/classic-weakauras/' + item.slug" @click.prevent="searchRoute(item)">{{ item.text }}</a>
+                <a v-for="item in equip" v-bind:key="item.id" :href="'/classic-weakauras/' + item.slug"
+                  @click.prevent="searchRoute(item)">{{ item.text }}</a>
               </span>
             </div>
           </md-list-item>
@@ -91,21 +98,25 @@
             <div class="md-list-text-container">
               <a href="/classic-weakauras/general" @click.prevent="searchRoute('gen0')">{{ $t("General") }}</a>
               <span>
-                <a v-for="item in misc" v-bind:key="item.id"  :href="'/classic-weakauras/' + item.slug" @click.prevent="searchRoute(item)">{{ item.text }}</a>
+                <a v-for="item in misc" v-bind:key="item.id" :href="'/classic-weakauras/' + item.slug"
+                  @click.prevent="searchRoute(item)">{{ item.text }}</a>
               </span>
             </div>
           </md-list-item>
         </md-list>
       </md-layout>
       <md-layout>
-        <md-subheader></md-subheader>
+        <md-subheader>
+          <advert ad="video-sidebar" />
+        </md-subheader>
         <md-list class="md-double-line md-dense">
           <md-list-item v-for="raid in classicRaids2" v-bind:key="raid.id" :class="raid.id + ' md-inset'">
             <div class="menu-image"></div>
             <div class="md-list-text-container">
               <a :href="'/classic-weakauras/' + raid.slug" @click.prevent="searchRoute(raid)">{{ raid.text }}</a>
               <span>
-                <a v-for="boss in raid.bosses" v-bind:key="boss.id" :href="'/classic-weakauras/' + boss.slug" @click.prevent="searchRoute(boss)">{{ boss.text }}</a>
+                <a v-for="boss in raid.bosses" v-bind:key="boss.id" :href="'/classic-weakauras/' + boss.slug"
+                  @click.prevent="searchRoute(boss)">{{ boss.text }}</a>
               </span>
             </div>
           </md-list-item>
@@ -118,7 +129,8 @@
             <div class="md-list-text-container">
               <a href="/classic-weakauras/pvp" @click.prevent="searchRoute('pvp')">{{ $t("PvP") }}</a>
               <span>
-                <a v-for="item in pvp" v-bind:key="item.id" :href="'/classic-weakauras/' + item.slug" @click.prevent="searchRoute(item)">{{ item.text }}</a>
+                <a v-for="item in pvp" v-bind:key="item.id" :href="'/classic-weakauras/' + item.slug"
+                  @click.prevent="searchRoute(item)">{{ item.text }}</a>
               </span>
             </div>
           </md-list-item>
@@ -131,7 +143,8 @@
             <div class="md-list-text-container">
               <a href="/classic-weakauras/development" @click.prevent="searchRoute('gen5')">{{ $t("Development") }}</a>
               <span>
-                <a v-for="item in development" v-bind:key="item.id" :href="'/classic-weakauras/' + item.slug" @click.prevent="searchRoute(item)">{{ item.text }}</a>
+                <a v-for="item in development" v-bind:key="item.id" :href="'/classic-weakauras/' + item.slug"
+                  @click.prevent="searchRoute(item)">{{ item.text }}</a>
               </span>
             </div>
           </md-list-item>
@@ -152,11 +165,11 @@ export default {
   props: ['contextGame'],
   methods: {
     runSearch: function () {
-      this.$store.commit('userSearchOption', {field: 'expansion', value: 'classic'})
+      this.$store.commit('userSearchOption', { field: 'expansion', value: 'classic' })
       this.$router.push('/search/' + this.searchString.trim().replace(/\s+/g, '+'))
     },
     searchRoute: function (item) {
-      this.$store.commit('userSearchOption', {field: 'expansion', value: 'classic'})
+      this.$store.commit('userSearchOption', { field: 'expansion', value: 'classic' })
       if (typeof item === 'string') {
         item = window.Categories.match(item)
       }
@@ -218,34 +231,110 @@ export default {
       title: 'WeakAuras',
       description: this.$t('Browse WeakAura imports')
     })
-    this.http.get('/search/menu', {view: 'WeakAuras-Classic'})
+    this.http.get('/search/menu', { view: 'WeakAuras-Classic' })
   }
 }
 </script>
 
 <style lang="scss">
 .addon-name {
-  .md-avatar {margin: 16px; border-radius: 4px;}
-  h2 {margin: 16px 0 0 0; line-height: 40px}
+  .md-avatar {
+    margin: 16px;
+    border-radius: 4px;
+  }
+
+  h2 {
+    margin: 16px 0 0 0;
+    line-height: 40px
+  }
 }
-h2 .faded {opacity: .3}
-h2 span {font-size:80%; cursor: pointer}
-#searchForm { padding: 16px; flex: 1 }
-#searchForm button { margin-top: -3px }
 
-#addon-name .md-theme-default.md-switch {margin: 0 8px; zoom:0.8}
-#addon-name .md-theme-default.md-switch.md-checked .md-switch-container {background-color: rgba(0, 0, 0, 0.38);}
-#addon-name .md-theme-default.md-switch.md-checked .md-switch-thumb {background-color: #fafafa;}
+h2 .faded {
+  opacity: .3
+}
 
-#search-weakaura .md-list-item img { height: 48px; padding-right: 16px; vertical-align:top}
-#search-weakaura a { margin-right: 12px }
-#search-weakaura .md-list-item.md-inset .md-list-item-container { padding-left: 24px; flex-wrap: wrap; padding-bottom: 16px }
-#search-weakaura .md-list-text-container a { white-space: nowrap; display: inline-block }
-#search-weakaura .md-list-text-container > a, #search-weakaura .md-list-text-container > .parent-category { font-size: 18px; font-weight: bold; line-height: 19px; }
-#search-weakaura .md-list-text-container span{ white-space: normal; line-height: 22px}
-#search-weakaura .md-layout { align-items: flex-start}
+h2 span {
+  font-size: 80%;
+  cursor: pointer
+}
 
-#search-weakaura .md-subheader { width: 100% }
-#search-weakaura .md-subheader + .md-list { width: 100% }
-.md-list:after { background-color: transparent!important }
-</style>
+#searchForm {
+  padding: 16px;
+  flex: 1
+}
+
+#searchForm button {
+  margin-top: -3px
+}
+
+#addon-name .md-theme-default.md-switch {
+  margin: 0 8px;
+  zoom: 0.8
+}
+
+#addon-name .md-theme-default.md-switch.md-checked .md-switch-container {
+  background-color: rgba(0, 0, 0, 0.38);
+}
+
+#addon-name .md-theme-default.md-switch.md-checked .md-switch-thumb {
+  background-color: #fafafa;
+}
+
+#search-weakaura .md-list-item img {
+  height: 48px;
+  padding-right: 16px;
+  vertical-align: top
+}
+
+#search-weakaura a {
+  margin-right: 12px
+}
+
+#search-weakaura .md-list-item.md-inset .md-list-item-container {
+  padding-left: 24px;
+  flex-wrap: wrap;
+  padding-bottom: 16px
+}
+
+#search-weakaura .md-list-text-container a {
+  white-space: nowrap;
+  display: inline-block
+}
+
+#search-weakaura .md-list-text-container>a,
+#search-weakaura .md-list-text-container>.parent-category {
+  font-size: 18px;
+  font-weight: bold;
+  line-height: 19px;
+}
+
+#search-weakaura .md-list-text-container span {
+  white-space: normal;
+  line-height: 22px
+}
+
+#search-weakaura .md-layout {
+  align-items: flex-start
+}
+
+#search-weakaura .md-subheader {
+  width: 100%
+}
+
+#search-weakaura .md-subheader+.md-list {
+  width: 100%
+}
+
+.md-list:after {
+  background-color: transparent !important
+}
+
+#search-weakaura .wago-ad-container {
+  max-width: 260px;
+  background: none;
+  box-shadow: none;
+  min-height: 160px;
+  #video-sidebar {
+    min-height: auto
+  }
+}</style>

@@ -296,6 +296,16 @@ Schema.virtual('access.restrictSubs').get(function () {
 
   return false
 })
+Schema.virtual('access.premium').get(function () {
+  return this.roles.isAdmin.access ||
+    this.roles.subscriber ||
+    this.roles.gold_subscriber ||
+    this.roles.pro_subscriber ||
+    this.roles.community_leader ||
+    this.roles.ambassador ||
+    this.roles.developer ||
+    this.roles.artContestWinnerAug2018
+})
 
 Schema.virtual('roleclass').get(function () {
   if (this.roles.isAdmin.access)

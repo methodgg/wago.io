@@ -1,6 +1,7 @@
 const battlenet = require('./battlenet')
 const cloudflare = require('cloudflare')({ token: config.cloudflare.dnsToken })
 const decompress = require('@atomic-reactor/decompress')
+const { Octokit } = require('@octokit/rest');
 const image = require('./image')
 const lua = require('./lua')
 const md5 = require('md5')
@@ -11,10 +12,15 @@ const luacheck = require('./luacheck')
 const elastic = require('./elasticsearch')
 const patchDates = require('./patchDates')
 const codeMetrics = require('./codeMetrics')
+const categories = require('../../../frontend/src/components/libs/categories2')
 
 const ENUM = require('../../middlewares/enum')
 const logger = require('../../middlewares/matomo')
 const logError = require('../../middlewares/matomoErrors')
+
+const octokit = new Octokit({
+  auth: config.github.token
+})
 
 
 module.exports = async (task, data) => {
@@ -38,8 +44,8 @@ module.exports = async (task, data) => {
       case 'UpdateGuildMembership':
         return await UpdateGuildMembership()
 
-      // case 'UpdateSupportedAddons':
-      //   return await UpdateSupportedAddons()
+      case 'UpdateMDT':
+        return await updateMDT()
 
       case 'UpdateLatestAddonReleases':
         return await UpdateLatestAddonReleases()
@@ -578,6 +584,116 @@ async function ComputeStatistics() {
   await redis.set('stats:mean:stars', mean || 0)
 }
 
+async function updateMDT(branch='master', path='') {
+  try {
+    const response = await octokit.repos.getContent({
+      owner: 'Nnoggie',
+      repo: 'MythicDungeonTools',
+      path,
+      ref: branch,
+    })
+
+    // Filter the response to get only file objects (exclude directories)
+    const dungeonFiles = response.data.filter(file => {
+      return file.type === 'file' && file.path.match(/\/\w+.lua$/)
+      }
+    )
+    for (const f of dungeonFiles) {
+      await updateMDTDungeon(f, branch)
+    }
+
+    // Recursively fetch files in subdirectories
+    const subdirectories = response.data.filter(file => file.type === 'dir' && file.path.match(/BattleForAzeroth|Dragonflight|Legion|Shadowlands|WrathOfTheLichKing/))
+    for (const dir of subdirectories) {
+      await updateMDT(branch, dir.path)
+    }
+  } catch (error) {
+    console.error('Error fetching files:', error);
+    process.exit()
+  }
+}
+
+async function updateMDTDungeon(file, branch) {
+  const response = await octokit.repos.getContent({
+    owner: 'Nnoggie',
+    repo: 'MythicDungeonTools',
+    path: file.path,
+    ref: branch,
+  });
+  const contents = Buffer.from(response.data.content, 'base64').toString('utf-8')
+  if (!contents.match(/MDT\.dungeonEnemies\[dungeonIndex\]/)) {
+      return
+  }
+  const luaCode = `local MDT = {
+    L=function(s) return s end, 
+    dungeonList={},
+    mapInfo={},
+    zoneIdToDungeonIdx={},
+    dungeonMaps={},
+    dungeonSubLevels={},
+    dungeonTotalCount={},
+    mapPOIs={},
+    scaleMultiplier={},
+    dungeonEnemies={}
+  }
+  ${contents}
+  MDT.dungeonIndex = dungeonIndex`
+  .replace('= ...', '= "..."')
+  .replace(/L\["([^"]+)"\]/g, 'L("$1")');
+
+  const json = await lua.runLua(`dofile("./wago-legacy.lua"); ${luaCode} Table2JSON(MDT)`)
+  const mdtData = JSON.parse(json)
+
+  if (!categories.findByMDT_ID(mdtData.dungeonIndex)) {
+    return
+  }
+  console.log('Process for MDT', file.path, mdtData.dungeonIndex)
+
+  // mdtData.dungeonDimensions = []
+  // mdtData.dungeonEnemies.forEach((enemies, mapID) => {
+  //   // console.log(mapID)
+  //   mdtData.dungeonDimensions.push({ maxX: -9999999, minX: 9999999, maxY: -9999999, minY: 9999999 })
+  //   if (!enemies) return
+  //   enemies.forEach((creature) => {
+  //     if (!creature || !creature.clones) return
+  //     creature.clones.forEach((clone) => {
+  //       if (!clone) {
+  //         return
+  //       }
+  //       mdtData.dungeonDimensions[mapID].maxX = Math.max(mdtData.dungeonDimensions[mapID].maxX, clone.x)
+  //       mdtData.dungeonDimensions[mapID].minX = Math.min(mdtData.dungeonDimensions[mapID].minX, clone.x)
+  //       mdtData.dungeonDimensions[mapID].maxY = Math.max(mdtData.dungeonDimensions[mapID].maxY, clone.y)
+  //       mdtData.dungeonDimensions[mapID].minY = Math.min(mdtData.dungeonDimensions[mapID].minY, clone.y)
+  //     })
+  //   })
+  // })
+
+  const mapID = mdtData.dungeonIndex - 1
+  const enemyHash = md5(JSON.stringify(mdtData.dungeonEnemies[mapID]))  
+  const currentData = await SiteData.findById('mdtDungeonTable-' + mapID).exec()
+
+  const mapData = {
+    slug: path.basename(file.path).replace(/\.lua/, ''),
+    enemyHash,
+    affixWeeks: mdtData.affixWeeks,
+    dungeonEnemies: mdtData.dungeonEnemies[mapID],
+    mapPOIs: mdtData.mapPOIs[mapID],
+    mapInfo: mdtData.mapInfo[mapID],
+    dungeonTotalCount: mdtData.dungeonTotalCount[mapID],
+    dungeonSubLevels: mdtData.dungeonSubLevels[mapID],
+    dungeonMaps: mdtData.dungeonMaps[mapID]
+  }
+
+  await SiteData.findByIdAndUpdate('mdtDungeonTable-' + (mapID), { value: mapData }, { upsert: true }).exec()
+
+  overwrite = true
+  if (overwrite || !currentData || (currentData.value.enemyHash !== enemyHash && mapData.dungeonMaps && mapData.dungeonEnemies && mapData.dungeonEnemies.length)) {
+    console.log('make portrait map', mapID, file.path)
+    await buildStaticMDTPortraits(mapData, mapID, false)
+    // await buildStaticMDTPortraits(mapData, mapID, true)
+  }
+}
+
 async function UpdateLatestAddonReleases() {
   const addons = [
     { name: 'WeakAuras-2', host: 'github', url: 'https://api.github.com/repos/weakAuras/WeakAuras2/releases' },
@@ -1006,120 +1122,119 @@ async function UpdateGameVersions() {
   GameVersions
 }
 
-async function updateMDTData(release, assets) {
-  if (!assets.zipball_url) {
-    logError('Unable to find MDT download', assets)
-    return false
-  }
-  const addonDir = path.resolve(__dirname, '../lua', 'addons', 'MDT', release.version)
-  await mkdirp(addonDir)
-  const zipFile = path.resolve(addonDir, 'MDT.zip')
-  const writer = require('fs').createWriteStream(zipFile)
-  var axiosDownload = { method: 'GET', responseType: 'stream', url: assets.zipball_url }
+// async function updateMDTData(release, assets) {
+//   if (!assets.zipball_url) {
+//     logError('Unable to find MDT download', assets)
+//     return false
+//   }
+//   const addonDir = path.resolve(__dirname, '../lua', 'addons', 'MDT', release.version)
+//   await mkdirp(addonDir)
+//   const zipFile = path.resolve(addonDir, 'MDT.zip')
+//   const writer = require('fs').createWriteStream(zipFile)
+//   var axiosDownload = { method: 'GET', responseType: 'stream', url: assets.zipball_url }
 
-  const response = await axios(axiosDownload)
-  response.data.pipe(writer)
-  await new Promise((resolve, reject) => {
-    writer.on('finish', resolve)
-    writer.on('error', reject)
-  })
-  await decompress(zipFile, addonDir)
-  // get commit directory
-  const commit = await fs.readdir(addonDir)
-  var mdtData = await lua.BuildMDT_DungeonTable(`${addonDir}/${commit[1]}`)
-  mdtData = JSON.parse(mdtData)
+//   const response = await axios(axiosDownload)
+//   response.data.pipe(writer)
+//   await new Promise((resolve, reject) => {
+//     writer.on('finish', resolve)
+//     writer.on('error', reject)
+//   })
+//   await decompress(zipFile, addonDir)
+//   // get commit directory
+//   const commit = await fs.readdir(addonDir)
+//   var mdtData = await lua.BuildMDT_DungeonTable(`${addonDir}/${commit[1]}`)
+//   mdtData = JSON.parse(mdtData)
 
-  // calculate dimensions
-  mdtData.dungeonDimensions = []
-  mdtData.dungeonEnemies.forEach((enemies, mapID) => {
-    // console.log(mapID)
-    mdtData.dungeonDimensions.push({ maxX: -9999999, minX: 9999999, maxY: -9999999, minY: 9999999 })
-    if (!enemies) return
-    enemies.forEach((creature) => {
-      if (!creature || !creature.clones) return
-      creature.clones.forEach((clone) => {
-        if (!clone) {
-          return
-        }
-        mdtData.dungeonDimensions[mapID].maxX = Math.max(mdtData.dungeonDimensions[mapID].maxX, clone.x)
-        mdtData.dungeonDimensions[mapID].minX = Math.min(mdtData.dungeonDimensions[mapID].minX, clone.x)
-        mdtData.dungeonDimensions[mapID].maxY = Math.max(mdtData.dungeonDimensions[mapID].maxY, clone.y)
-        mdtData.dungeonDimensions[mapID].minY = Math.min(mdtData.dungeonDimensions[mapID].minY, clone.y)
-      })
-    })
-  })
+//   // calculate dimensions
+//   mdtData.dungeonDimensions = []
+//   mdtData.dungeonEnemies.forEach((enemies, mapID) => {
+//     // console.log(mapID)
+//     mdtData.dungeonDimensions.push({ maxX: -9999999, minX: 9999999, maxY: -9999999, minY: 9999999 })
+//     if (!enemies) return
+//     enemies.forEach((creature) => {
+//       if (!creature || !creature.clones) return
+//       creature.clones.forEach((clone) => {
+//         if (!clone) {
+//           return
+//         }
+//         mdtData.dungeonDimensions[mapID].maxX = Math.max(mdtData.dungeonDimensions[mapID].maxX, clone.x)
+//         mdtData.dungeonDimensions[mapID].minX = Math.min(mdtData.dungeonDimensions[mapID].minX, clone.x)
+//         mdtData.dungeonDimensions[mapID].maxY = Math.max(mdtData.dungeonDimensions[mapID].maxY, clone.y)
+//         mdtData.dungeonDimensions[mapID].minY = Math.min(mdtData.dungeonDimensions[mapID].minY, clone.y)
+//       })
+//     })
+//   })
 
-  // save core data plus for each dungeon
-  await SiteData.findByIdAndUpdate('mdtDungeonTable', { value: mdtData }, { upsert: true }).exec()
-  await SiteData.findByIdAndUpdate('mdtAffixWeeks', { value: mdtData.affixWeeks }, { upsert: true }).exec()
-  await cloudflare.zones.purgeCache(config.cloudflare.zoneID, { files: ['https://data.wago.io/data/mdtDungeonTable', 'https://data.wago.io/data/mdtAffixWeeks'] })
-  for (let mapID = 0; mapID < mdtData.dungeonEnemies.length; mapID++) {
-    let Obj = {
-      affixWeeks: mdtData.affixWeeks,
-      dungeonEnemies: mdtData.dungeonEnemies[mapID],
-      enemyHash: md5(JSON.stringify(mdtData.dungeonEnemies[mapID])),
-      mapPOIs: mdtData.mapPOIs[mapID],
-      mapInfo: mdtData.mapInfo[mapID],
-      dungeonTotalCount: mdtData.dungeonTotalCount[mapID],
-      scaleMultiplier: mdtData.scaleMultiplier[mapID],
-      dungeonSubLevels: mdtData.dungeonSubLevels[mapID],
-      dungeonMaps: mdtData.dungeonMaps[mapID],
-      dungeonDimensions: mdtData.dungeonDimensions[mapID]
-    }
-    if (mapID === 15) {
-      Obj.freeholdCrews = mdtData.freeholdCrews
-    }
-    const currentHash = await SiteData.findById('mdtDungeonTable-' + mapID).exec()
-    await SiteData.findByIdAndUpdate('mdtDungeonTable-' + mapID, { value: Obj }, { upsert: true }).exec()
-    await cloudflare.zones.purgeCache(config.cloudflare.zoneID, { files: ['https://data.wago.io/data/mdtDungeonTable-' + mapID] })
+//   // save core data plus for each dungeon
+//   // await SiteData.findByIdAndUpdate('mdtDungeonTable', { value: mdtData }, { upsert: true }).exec()
+//   // await SiteData.findByIdAndUpdate('mdtAffixWeeks', { value: mdtData.affixWeeks }, { upsert: true }).exec()
+//   // await cloudflare.zones.purgeCache(config.cloudflare.zoneID, { files: ['https://data.wago.io/data/mdtDungeonTable', 'https://data.wago.io/data/mdtAffixWeeks'] })
+//   for (let mapID = 0; mapID < mdtData.dungeonEnemies.length; mapID++) {
+//     let Obj = {
+//       affixWeeks: mdtData.affixWeeks,
+//       dungeonEnemies: mdtData.dungeonEnemies[mapID],
+//       enemyHash: md5(JSON.stringify(mdtData.dungeonEnemies[mapID])),
+//       mapPOIs: mdtData.mapPOIs[mapID],
+//       mapInfo: mdtData.mapInfo[mapID],
+//       dungeonTotalCount: mdtData.dungeonTotalCount[mapID],
+//       scaleMultiplier: mdtData.scaleMultiplier[mapID],
+//       dungeonSubLevels: mdtData.dungeonSubLevels[mapID],
+//       dungeonMaps: mdtData.dungeonMaps[mapID],
+//       dungeonDimensions: mdtData.dungeonDimensions[mapID]
+//     }
+//     if (mapID === 15) {
+//       Obj.freeholdCrews = mdtData.freeholdCrews
+//     }
+//     const currentHash = await SiteData.findById('mdtDungeonTable-' + mapID).exec()
+//     await SiteData.findByIdAndUpdate('mdtDungeonTable-' + mapID, { value: Obj }, { upsert: true }).exec()
+//     await cloudflare.zones.purgeCache(config.cloudflare.zoneID, { files: ['https://data.wago.io/data/mdtDungeonTable-' + mapID] })
 
-    // currentHash.value.enemyHash = null // force regenerate
-    // if new portrait maps are required
-    if ((!currentHash || currentHash.value.enemyHash !== Obj.enemyHash) && Obj.dungeonMaps && Obj.dungeonEnemies && Obj.dungeonEnemies.length) {
-      try {
-        console.log('make portrait map', mapID)
-        for (let subMapID = 1; subMapID <= Object.keys(Obj.dungeonMaps).length; subMapID++) {
-          if (mapID === 18) {
-            await buildStaticMDTPortraits(Obj, mapID, subMapID, false, 1)
-            await buildStaticMDTPortraits(Obj, mapID, subMapID, false, 2)
-            await buildStaticMDTPortraits(Obj, mapID, subMapID, true, 1)
-            await buildStaticMDTPortraits(Obj, mapID, subMapID, true, 2)
-          }
-          else {
-            await buildStaticMDTPortraits(Obj, mapID, subMapID, false)
-            await buildStaticMDTPortraits(Obj, mapID, subMapID, true)
-          }
-          break
-        }
-        logger({ e_c: 'Generate MDT portrait maps', e_a: Obj.dungeonMaps['0'], e_n: Obj.dungeonMaps['0'] })
-      }
-      catch (e) {
-        logError(e, 'Generating MDT portrait maps ' + Obj.dungeonMaps['0'])
-      }
-    }
-  }
+//     // currentHash.value.enemyHash = null // force regenerate
+//     // if new portrait maps are required
+//     if ((!currentHash || currentHash.value.enemyHash !== Obj.enemyHash) && Obj.dungeonMaps && Obj.dungeonEnemies && Obj.dungeonEnemies.length) {
+//       try {
+//         console.log('make portrait map', mapID)
+//         for (let subMapID = 1; subMapID <= Object.keys(Obj.dungeonMaps).length; subMapID++) {
+//           if (mapID === 18) {
+//             await buildStaticMDTPortraits(Obj, mapID, subMapID, false, 1)
+//             await buildStaticMDTPortraits(Obj, mapID, subMapID, false, 2)
+//             await buildStaticMDTPortraits(Obj, mapID, subMapID, true, 1)
+//             await buildStaticMDTPortraits(Obj, mapID, subMapID, true, 2)
+//           }
+//           else {
+//             await buildStaticMDTPortraits(Obj, mapID, subMapID, false)
+//             await buildStaticMDTPortraits(Obj, mapID, subMapID, true)
+//           }
+//           break
+//         }
+//         logger({ e_c: 'Generate MDT portrait maps', e_a: Obj.dungeonMaps['0'], e_n: Obj.dungeonMaps['0'] })
+//       }
+//       catch (e) {
+//         logError(e, 'Generating MDT portrait maps ' + Obj.dungeonMaps['0'])
+//       }
+//     }
+//   }
 
-  return
-}
+//   return
+// }
 
-async function buildStaticMDTPortraits(json, mapID, subMapID, teeming, faction) {
+async function buildStaticMDTPortraits(json, mapID, teeming, faction) {
   // this is very finicky so only run it locally to generate the images
   if (config.env !== 'development') {
     return
   }
-  const puppeteer = require('puppeteer-firefox')
-  const mdtScale = 539 / 450
+  const puppeteer = require('puppeteer')
   if (teeming) teeming = '-Teeming'
   else teeming = ''
 
-  var imgName = `portraitMap-${mapID}-${subMapID}${teeming}`
+  let imgName = `portraitMap-${json.slug}${teeming}`
 
   if (faction) {
     imgName = imgName + '-Faction' + faction
   }
-  console.log('make map for', json.dungeonMaps["0"], imgName)
+  console.log('make map for', imgName)
 
-  var html = `<!DOCTYPE html>
+  const html =`<!DOCTYPE html>
   <html>
   <head>
     <script src="https://unpkg.com/konva@2.4.2/konva.min.js"></script>
@@ -1137,49 +1252,59 @@ async function buildStaticMDTPortraits(json, mapID, subMapID, teeming, faction) 
   <body>
     <div id="container"></div>
     <script>
-      var multiplier = 5
+      const multiplier = 5
+      const spriteSize = 138
 
-      var stage = new Konva.Stage({
+      const stage = new Konva.Stage({
         container: 'container',
         width: 1024 * multiplier,
         height: 768 * multiplier
       });
 
-      var layer = new Konva.Layer();
-      var enemyPortraits = new Image()
-      enemyPortraits.src = 'https://wago.io/mdt/portraits-${mapID}.png?'
+      const layer = new Konva.Layer();
+      const enemyPortraits = new Image()
+      enemyPortraits.src = 'https://media.wago.io/mdt/portraits-${json.slug}.png'
       enemyPortraits.crossOrigin = 'Anonymous'
-      enemyPortraits.onload = () => { console.log(enemyPortraits.src, 'loaded') `
+      enemyPortraits.onload = () => { console.log(enemyPortraits.src, 'loaded') 
+
+      const scaleBase = 19/30
+      const scaleBoss = scaleBase * 2
+      const json = ${JSON.stringify(json)}
+
+      function getEnemyPortraitOffset(numCreatures, creatureIndex, size) {
+        let row = 0
+        size = size || 36
+        if (creatureIndex >= Math.ceil(numCreatures / 2)) {
+          row++
+        }
+        return { x: ((creatureIndex) - (Math.ceil(numCreatures / 2) * row)) * size + size/2, y: row * size + size/2 }
+      }
 
   json.dungeonEnemies.forEach((creature, i) => {
     if (!creature || !creature.clones) return
 
     creature.clones.forEach((clone, j) => {
-      if (clone && (!clone.sublevel || clone.sublevel === subMapID) && (!clone.teeming || (clone.teeming && teeming)) && (!clone.faction || (clone.faction === faction))) {
-        html = html + `
-            var circle${i}_${j} = new Konva.Circle({
-              x: ${clone.x * mdtScale} * multiplier,
-              y: ${clone.y * -mdtScale} * multiplier,
-              radius: ${Math.round(5 * creature.scale * (creature.isBoss ? 1.7 : 1) * (json.scaleMultiplier || 1)) / mdtScale} * multiplier,
-              fillPatternX: ${(-Math.round(5 * creature.scale * (creature.isBoss ? 1.7 : 1))) / mdtScale} * multiplier,
-              fillPatternY: ${(-Math.round(5 * creature.scale * (creature.isBoss ? 1.7 : 1))) / mdtScale} * multiplier,
+      if (clone && (!clone.teeming || (clone.teeming && ${teeming ? 1 : 0})) && (!clone.faction || (clone.faction === faction))) {
+            let radius = Math.round(5 * (creature.scale * (creature.isBoss ? 1.7 : 1) * (json.scaleMultiplier || 1))) * multiplier
+            const circle = new Konva.Circle({
+              x: clone.x * multiplier,
+              y: -clone.y * multiplier,
+              radius,
               fillPatternImage: enemyPortraits,
-              fillPatternOffset: ${getEnemyPortraitOffset(json.dungeonEnemies.length, i, 115)},
+              fillPatternScale: { x: radius * 2 / spriteSize, y: radius * 2 / spriteSize },
+              fillPatternOffset: getEnemyPortraitOffset(json.dungeonEnemies.length, i, 138),
               fillPatternRepeat: 'no-repeat',
-              fillPatternScaleX: ${Math.round(5 * creature.scale * (creature.isBoss ? 1.7 : 1)) / 64} * multiplier,
-              fillPatternScaleY: ${Math.round(5 * creature.scale * (creature.isBoss ? 1.7 : 1)) / 64} * multiplier,
-              stroke: '${creature.isBoss ? 'gold' : 'black'}',
+              stroke: creature.isBoss ? 'gold' : 'black',
               strokeWidth: .5 * multiplier
             })
 
             // add the shape to the layer
-            layer.add(circle${i}_${j});`
+            layer.add(circle)
       }
     })
     return
   })
 
-  html = html + `
       stage.add(layer);
 
       setTimeout(() => {
@@ -1188,13 +1313,14 @@ async function buildStaticMDTPortraits(json, mapID, subMapID, teeming, faction) 
         img.id = 'img'
         document.body.appendChild(img)
         document.getElementById('container').remove()
+        console.log('img created')
       }, 1000)
     }
     </script>
   </body>
   </html>`
 
-  // await fs.writeFile('../test.html', html, 'utf8')
+  // await fs.writeFile('../tmp-mdt.html', html, 'utf8')
   console.log('launch puppeteer')
   const browser = await puppeteer.launch({
     args: [
@@ -1205,29 +1331,22 @@ async function buildStaticMDTPortraits(json, mapID, subMapID, teeming, faction) 
   await page.setCacheEnabled(false)
   await page.setContent(html)
 
-  page.on('console', msg => {
-    for (let i = 0; i < msg.args().length; ++i)
-      console.log(`${i}: ${msg.args()[i]}`);
-  });
   await page.waitForSelector('img', { timeout: 120000 })
   const base64 = await page.evaluate(() => {
     return document.getElementById('img').src
   })
   await browser.close()
   const buffer = Buffer.from(base64.replace(/^data:image\/\w+;base64,/, ""), 'base64')
+  if (buffer.length > 5000) {
   await image.saveMdtPortraitMap(buffer, imgName)
+  }
+  else {
+    console.error('Could not create portrait map')
+  }
   return
 }
 
-function getEnemyPortraitOffset(numCreatures, creatureIndex, size) {
-  var row = 0
-  size = size || 36
-  if (creatureIndex >= Math.ceil(numCreatures / 2)) {
-    row++
-  }
-  var o = { x: ((creatureIndex) - (Math.ceil(numCreatures / 2) * row)) * size, y: row * size }
-  return `{x: ${o.x}, y: ${o.y}}`
-}
+
 
 /*
 

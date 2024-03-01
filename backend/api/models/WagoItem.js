@@ -165,7 +165,7 @@ Schema.virtual('url').get(function () {
   return 'https://wago.io/' + this.slug
 })
 Schema.virtual('expansionIndex').get(function () {
-  if (!this.type.match(/WEAKAURA/)) return -1
+  if (!this.type.match(/WEAKAURA|MDT/)) return -1
 
   else if (this.game === 'classic') return 0
   else if (this.game === 'tbc') return 1
@@ -405,6 +405,9 @@ Schema.virtual('indexedImportData').get(async function () {
       // if import is missing json then we have bad data, could probably just delete it, but don't index anything
       return null
     }
+  }
+  else if (data.type === 'MDT') {    
+    data.expansion = 9
   }
   else {
     data.expansion = -1
