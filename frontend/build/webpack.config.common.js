@@ -1,78 +1,60 @@
-'use strict';
+const { VueLoaderPlugin } = require('vue-loader');
+const HtmlPlugin = require('html-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
+const path = require('path');
 
-const VueLoaderPlugin      = require('vue-loader/lib/plugin');
-const HtmlPlugin           = require('html-webpack-plugin');
-const CopyWebpackPlugin    = require('copy-webpack-plugin')
-const helpers              = require('./helpers');
-const isDev                = process.env.NODE_ENV !== 'production';
-var MiniCSSExtractPlugin
-if (!isDev) { // since this plugin breaks dev build if required but not used
-  MiniCSSExtractPlugin = require('mini-css-extract-plugin');
-}
+// Assuming `helpers.root` is a utility function you've defined. Ensure its compatibility.
+const helpers = require('./helpers')
+const isDev = process.env.NODE_ENV !== 'production';
 
 const webpackConfig = {
   entry: {
-    polyfill: '@babel/polyfill',
-    main: helpers.root('src', 'main'),
+    main: [helpers.root('src', 'main.js')],
   },
   resolve: {
-    extensions: [ '.js', '.vue' ],
+    extensions: ['.js', '.vue'],
     alias: {
-      'vue$': isDev ? 'vue/dist/vue.runtime.js' : 'vue/dist/vue.runtime.min.js',
-      '@': helpers.root('src')
-    }
+      vue$: isDev ? 'vue/dist/vue.runtime.js' : 'vue/dist/vue.runtime.min.js',
+      '@': helpers.root('src'),
+    },
   },
   module: {
     rules: [
       {
         test: /\.vue$/,
         loader: 'vue-loader',
-        include: [ helpers.root('src') ]
       },
       {
-        test: /\.js$/,
+        test: /\.m?js$/,
         loader: 'babel-loader',
-        include: [ helpers.root('src') ]
+        include: [/node_modules\/keycloak-js/, /src/],
       },
       {
-        test: /\.css$/,
+        test: /\.s?css$/,
         use: [
-          isDev ? 'vue-style-loader' : MiniCSSExtractPlugin.loader,
-          { loader: 'css-loader', options: { sourceMap: isDev } },
+          'vue-style-loader',
+          'css-loader',
+          'sass-loader'
         ]
       },
       {
-        test: /\.scss$/,
-        use: [
-          isDev ? 'vue-style-loader' : MiniCSSExtractPlugin.loader,
-          { loader: 'css-loader', options: { sourceMap: isDev } },
-          { loader: 'sass-loader', options: { sourceMap: isDev } }
-        ]
+        test: /\.(jpe?g|png|gif|woff|woff2|eot|ttf|svg|md)(\?[a-z0-9=.]+)?$/,
+        type: 'asset', // Use Webpack 5 asset modules instead of 'url-loader'
+        parser: {
+          dataUrlCondition: {
+            maxSize: 100000, // 100kb
+          },
+        },
       },
-      {
-        test: /\.sass$/,
-        use: [
-          isDev ? 'vue-style-loader' : MiniCSSExtractPlugin.loader,
-          { loader: 'css-loader', options: { sourceMap: isDev } },
-          { loader: 'sass-loader', options: { sourceMap: isDev } }
-        ]
-      },
-      {
-        test: /\.(jpe?g|png|gif|woff|woff2|eot|ttf|svg)(\?[a-z0-9=.]+)?$/,
-        loader: 'url-loader?limit=100000',
-        options: {
-          esModule: false,
-        }
-      }
-    ]
+    ],
   },
   plugins: [
     new VueLoaderPlugin(),
-    new HtmlPlugin({ template: 'index.html', filename: 'index.html', chunksSortMode: 'dependency' }),
-    new HtmlPlugin({ template: 'embed.html', filename: 'embed.html', chunksSortMode: 'dependency' }),
-    new HtmlPlugin({ template: 'test.html', filename: 'test.html', chunksSortMode: 'dependency' }),
-    new CopyWebpackPlugin([{from: 'static', to: 'static'}])
-  ]
+    new HtmlPlugin({ template: 'index.html', filename: 'index.html', chunksSortMode: 'auto' }),
+    new HtmlPlugin({ template: 'embed.html', filename: 'embed.html', chunksSortMode: 'auto' }),
+    new HtmlPlugin({ template: 'test.html', filename: 'test.html', chunksSortMode: 'auto' }),
+    new CopyWebpackPlugin({ patterns: [{ from: 'static', to: 'static' }] }),
+  ],
 };
 
 module.exports = webpackConfig;

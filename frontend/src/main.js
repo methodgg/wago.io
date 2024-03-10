@@ -1,4 +1,3 @@
-require('es6-promise').polyfill()
 window.prerenderReady = false
 /**
  * Setup global functions & variables in window
@@ -555,8 +554,7 @@ Vue.use(VueCryptojs)
 
 // setup vue material
 import VueMaterial from 'vue-material'
-import 'vue-material/dist/vue-material.css'
-
+// require('vue-material/dist/vue-material.css')
 Vue.use(VueMaterial)
 // Vue.material.registerTheme({
 //   default: {

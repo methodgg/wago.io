@@ -1,15 +1,15 @@
 'use strict';
 
-const webpack              = require('webpack');
-const merge                = require('webpack-merge');
-const FriendlyErrorsPlugin = require('friendly-errors-webpack-plugin');
-const helpers              = require('./helpers');
-const commonConfig         = require('./webpack.config.common');
-const environment          = {NODE_ENV: 'development'}
+const webpack = require('webpack');
+const {merge} = require('webpack-merge');
+const helpers = require('./helpers');
+const commonConfig = require('./webpack.config.common');
+const environment = { NODE_ENV: 'development' }
+const path = require('path')
 
 const webpackConfig = merge(commonConfig, {
     mode: 'development',
-    devtool: 'cheap-module-eval-source-map',
+    devtool: 'eval-cheap-module-source-map',
     output: {
         path: helpers.root('dist'),
         publicPath: '/',
@@ -24,21 +24,23 @@ const webpackConfig = merge(commonConfig, {
     },
     plugins: [
         new webpack.EnvironmentPlugin(environment),
-        new webpack.HotModuleReplacementPlugin(),
-        new FriendlyErrorsPlugin()
     ],
     devServer: {
         compress: true,
         historyApiFallback: true,
-        hot: true,
         open: true,
-        overlay: true,
-        host: '0.0.0.0',
+        client: {
+          overlay: true, // Moved into the client object
+        },
+        host: 'localhost',
         port: 8080,
-        disableHostCheck: true,
-        stats: {
-            normal: true
-        }
+        allowedHosts: 'all', // Use allowedHosts: 'all' to replace disableHostCheck
+        static: { // For serving static files, specify directories under static
+          directory: path.join(__dirname, 'public'), // Example: path to your static files directory
+        },
+        devMiddleware: {
+          stats: 'normal', // Moved into devMiddleware
+        },
     }
 });
 
