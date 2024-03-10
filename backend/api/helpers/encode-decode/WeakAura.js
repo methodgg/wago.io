@@ -147,7 +147,7 @@ module.exports = {
     else if (meta.game === 'tbc') meta.type = 'TBC-WEAKAURA'
     else if (meta.game === 'wotlk') meta.type = 'WOTLK-WEAKAURA'
     else if (meta.game === 'cata') meta.type = 'CATA-WEAKAURA'
-    else if (wago.game === 'unknown') wago.type = 'UNKNOWN-WEAKAURA'
+    else if (meta.game === 'unknown') meta.type = 'UNKNOWN-WEAKAURA'
 
     if (obj.wagoID) {
       meta.fork = obj.wagoID

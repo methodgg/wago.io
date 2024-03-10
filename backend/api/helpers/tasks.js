@@ -991,8 +991,8 @@ async function ProcessCode(data) {
   doc.categories = [...new Set(doc.categories)]
   doc.codeProcessVersion = codeProcessVersion
 
-  await doc.save()
-  await code.save()
+  await WagoItem.findOneAndUpdate({_id: doc._id}, {$set: doc})
+  await WagoCode.findOneAndUpdate({auraID: code.auraID, version: code.version}, {$set: code})
 
   if (doc._userId && !doc.deleted && !doc.expires_at) {
     const d = await doc.indexedImportData
