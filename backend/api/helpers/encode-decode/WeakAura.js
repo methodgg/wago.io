@@ -2,7 +2,7 @@ const getCode = require('../code-detection/get-code')
 const patchDates = require('../patchDates')
 
 module.exports = {
-  typeMatch: /^(CLASSIC-|TBC-|WOTLK-)?WEAKAURA$/i,
+  typeMatch: /^(CLASSIC-|TBC-|WOTLK-|CATA-)?WEAKAURA$/i,
   domain: ENUM.DOMAIN.WOW,
 
   decode: async (encodedString, exec) => {
@@ -146,6 +146,8 @@ module.exports = {
     if (meta.game === 'classic') meta.type = 'CLASSIC-WEAKAURA'
     else if (meta.game === 'tbc') meta.type = 'TBC-WEAKAURA'
     else if (meta.game === 'wotlk') meta.type = 'WOTLK-WEAKAURA'
+    else if (meta.game === 'cata') meta.type = 'CATA-WEAKAURA'
+    else if (wago.game === 'unknown') wago.type = 'UNKNOWN-WEAKAURA'
 
     if (obj.wagoID) {
       meta.fork = obj.wagoID
@@ -289,6 +291,8 @@ module.exports = {
       if (wago.game === 'classic') wago.type = 'CLASSIC-WEAKAURA'
       else if (wago.game === 'tbc') wago.type = 'TBC-WEAKAURA'
       else if (wago.game === 'wotlk') wago.type = 'WOTLK-WEAKAURA'
+      else if (wago.game === 'cata') wago.type = 'CATA-WEAKAURA'
+      else if (wago.game === 'unknown') wago.type = 'UNKNOWN-WEAKAURA'
       else wago.type = 'WEAKAURA'
 
       json = sortJSON(json)

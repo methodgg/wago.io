@@ -28,8 +28,6 @@ module.exports = {
   },
 
   encode: async (json, exec) => {
-    console.log('encode vuhdo')
-    console.trace()
     const lua = `
       local t = JSON:decode("${json}")
 

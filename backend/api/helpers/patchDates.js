@@ -94,17 +94,20 @@ module.exports = {
     else if (tocversion >= 70000) {
       return 'legion'
     }
-    else if (tocversion >= 30000) {
+    else if (tocversion >= 40400 && tocversion <= 49999) {
+      return 'cata'
+    }
+    else if (tocversion >= 30400 && tocversion <= 39999) {
       return 'wotlk'
     }
-    else if (tocversion >= 20000) {
+    else if (tocversion >= 20501 && tocversion <= 29999) {
       return 'tbc'
     }
-    else if (tocversion >= 10000) {
+    else if (tocversion >= 11403 && tocversion <= 19999) {
       return 'classic'
     }
     else {
-      return this.gameVersion(100000000) // default to the latest
+      return 'unknown' // probably old version from a private wow server using a backported WA addon
     }
   },
 

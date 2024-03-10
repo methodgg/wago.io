@@ -11,7 +11,7 @@
               <strong v-html="$t('Found [-count-] results', {count: new Intl.NumberFormat().format(results.total)})"></strong>
             </p>
             <md-layout v-if="results" id="searchOptions">
-              <div v-if="searchMode !== 'comments'">
+              <div v-if="searchGame !== 'wow'">
                 <div>
                   <label>{{ $t('Game') }}</label>
                   <small id="selected-game">{{
@@ -36,6 +36,7 @@
                   <small id="selected-expansion">{{
                     searchExpansion === 'classic' && $t('Classic') ||
                     searchExpansion === 'wotlk' && $t('WotLK') ||
+                    searchExpansion === 'cata' && $t('Cataclysm') ||
                     searchExpansion === 'df' && $t('Dragonflight') ||
                     (!searchExpansion || searchExpansion === 'all') && $t('All') ||
                     $t('Legacy')
@@ -50,6 +51,10 @@
                     <img src="../../assets/df-toggle.svg">
                     <md-tooltip md-direction="bottom" class="">{{ $t("Dragonflight") }}</md-tooltip>
                   </md-button>
+                  <md-button :class="{ 'md-toggle': searchExpansion === 'cata' }" class="md-icon-button" @click="setExpansion('cata')">
+                    <img src="../../assets/cata-toggle.svg">
+                    <md-tooltip md-direction="bottom" class="">{{ $t("Cataclysm") }}</md-tooltip>
+                  </md-button>
                   <md-button :class="{ 'md-toggle': searchExpansion === 'wotlk' }" class="md-icon-button" @click="setExpansion('wotlk')">
                     <img src="../../assets/wotlk-toggle.svg">
                     <md-tooltip md-direction="bottom" class="">{{ $t("Wrath of the Lich King") }}</md-tooltip>
@@ -58,7 +63,7 @@
                     <img src="../../assets/classic-toggle.svg">
                     <md-tooltip md-direction="bottom" class="">{{ $t("Classic") }}</md-tooltip>
                   </md-button>
-                  <md-button :class="{ 'md-toggle': searchExpansion && !searchExpansion.match(/df|wotlk|classic/) }" class="md-icon-button" @click="setExpansion('legacy')">
+                  <md-button :class="{ 'md-toggle': searchExpansion && !searchExpansion.match(/df|cata|wotlk|classic/) }" class="md-icon-button" @click="setExpansion('legacy')">
                     <img src="../../assets/legacy-toggle.svg">
                     <md-tooltip md-direction="bottom" class="">{{ $t("Legacy") }}</md-tooltip>
                   </md-button>
@@ -92,7 +97,7 @@
                     <md-tooltip md-direction="bottom" class="">{{ $t("All") }}</md-tooltip>
                   </md-button>
                   <md-button :class="{ 'md-toggle': searchType === 'weakaura' }" class="md-icon-button" @click="setType('weakaura')">
-                    <img src="../../assets/weakauralogo.png">
+                    <category-image :group="'t-weakaura-nobg'"></category-image>
                     <md-tooltip md-direction="bottom" class="">{{ $t("WeakAuras") }}</md-tooltip>
                   </md-button>
                   <md-button :class="{ 'md-toggle': searchType === 'elvui' }" class="md-icon-button" @click="setType('elvui')">
@@ -104,7 +109,7 @@
                     <md-tooltip md-direction="bottom" class="">{{ $t("Plater") }}</md-tooltip>
                   </md-button>
                   <md-button :class="{ 'md-toggle': searchType === 'mdt' }" class="md-icon-button" @click="setType('mdt')">
-                    <category-image :group="'t-mdt'"></category-image>
+                    <category-image :group="'t-mdt'" style="filter:drop-shadow(1px 1px 0 #212121) drop-shadow(-1px -1px 0 #212121) drop-shadow(1px -1px 0 #212121) drop-shadow(-1px 1px 0 #212121)"></category-image>
                     <md-tooltip md-direction="bottom" class="">{{ $t("MDT") }}</md-tooltip>
                   </md-button>
                   <div id="addon-button" :class="{ 'md-toggle': searchType && !searchType.match(/^(all|weakaura|elvui|plater|mdt)$/) }" class="md-button md-icon-button md-theme-default">

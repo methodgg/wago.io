@@ -175,6 +175,9 @@ Schema.virtual('expansionIndex').get(function () {
   else if (this.game === 'bfa') return 7
   else if (this.game === 'sl') return 8
   else if (this.game === 'df') return 9
+  else if (this.game === 'ww') return 9
+
+  return -1
 })
 Schema.virtual('categoryRanks').get(function () {
   let root = 0

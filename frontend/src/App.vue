@@ -52,7 +52,7 @@
           <md-list-item><a href="https://addons.wago.io">Wago Addons</a><md-divider></md-divider></md-list-item>
           <md-list-item class="menu-section">World of Warcraft</md-list-item>
           <md-list-item><router-link to='/blizzhud'>BlizzHUD</router-link></md-list-item>
-          <md-list-item><router-link to='/dbm'>DBM</router-link></md-list-item>
+          <md-list-item><router-link to='/search/imports/wow/dbm'>DBM</router-link></md-list-item>
           <md-list-item><router-link to='/elvui'>ElvUI</router-link></md-list-item>
           <!--<md-list-item v-if="User && User.access && User.access.beta"><router-link to='/create-new-note'>Encounter Notes [Beta]</router-link></md-list-item>-->
           <!-- <md-list-item><router-link to='/grid2'>Grid2</router-link></md-list-item> -->
@@ -64,8 +64,9 @@
           <md-list-item><router-link to='/classic-weakauras'>Classic WeakAuras</router-link><md-divider></md-divider></md-list-item>
           <!--<md-list-item><router-link to='/tbc-weakauras'>TBC WeakAuras</router-link><md-divider></md-divider></md-list-item>-->
           <md-list-item><router-link to='/wotlk-weakauras'>WotLK WeakAuras</router-link><md-divider></md-divider></md-list-item>
-          <md-list-item class="menu-section">Final Fantasy XIV</md-list-item>
-          <md-list-item><router-link to='/delvui'>DelvUI</router-link></md-list-item>
+          <md-list-item><router-link to='/cataclysm-weakauras'>Cata WeakAuras</router-link><md-divider></md-divider></md-list-item>
+          <!-- <md-list-item class="menu-section">Final Fantasy XIV</md-list-item> -->
+          <!-- <md-list-item><router-link to='/delvui'>DelvUI</router-link></md-list-item> -->
           <!--<md-list-item><router-link to='/tpie'>TPie</router-link><md-divider></md-divider></md-list-item>-->
           <md-list-item class="menu-section">General</md-list-item>
           <md-list-item><router-link to='/collections'>{{ $t("Collections") }}</router-link></md-list-item>
@@ -75,15 +76,30 @@
       <div class="full-navbar md-hide-xsmall" ref="full-navbar" id="full-navbar">
         <div class="nav">
           <router-link to='/' class="home-import-btn">{{ $t("Import") }}</router-link>
-          <div class="menu-section">
+          <div class="menu-section" v-if="false">
+            <span>World of Warcraft <md-icon>expand_more</md-icon></span>
+            <div class="sub-nav">
+              <router-link v-for="(addon, key) of addonDB" :to='addon.path' :key="key">
+                <div class="md-list-text-container">
+                  {{ addon.name }}
+                  <span class="game-select" v-if="addon.submenu">
+                    <router-link v-for="(item, key) of addon.submenu" :to="item.path" :key="key"> {{ item.name }}</router-link>
+                  </span>
+                </div>
+              </router-link>
+              <router-link to='/addon-imports'>{{ $t('More...') }}</router-link>
+            </div>
+          </div>
+          <div class="menu-section" v-else>
             <span>World of Warcraft <md-icon>expand_more</md-icon></span>
             <div class="sub-nav">
               <router-link to='/dragonflight-weakauras'>
                 <div class="md-list-text-container">
                   WeakAuras
                   <span class="game-select">
-                    <router-link to='/dragonflight-weakauras'>Dragonflight</router-link> -
-                    <router-link to='/wotlk-weakauras'>WotLK</router-link> -
+                    <router-link to='/dragonflight-weakauras'>Dragonflight</router-link>
+                    <router-link to='/cataclysm-weakauras'>Cataclysm</router-link>
+                    <router-link to='/wotlk-weakauras'>WotLK</router-link>
                     <router-link to='/classic-weakauras'>Classic</router-link>
                   </span>
                 </div>
@@ -95,16 +111,16 @@
               <router-link to='/plater'>Plater Nameplates</router-link>
               <router-link to='/totalrp'>Total RP</router-link>
               <router-link to='/vuhdo'>VuhDo</router-link>
-              <router-link to='/dbm'>DBM</router-link>
+              <router-link to='/search/imports/wow/dbm'>DBM</router-link>
             </div>
           </div>
-          <div class="menu-section">
+          <!-- <div class="menu-section">
             <span>Final Fantasy XIV <md-icon>expand_more</md-icon></span>
             <div class="sub-nav">
               <router-link to='/delvui'>DelvUI</router-link>
-              <!--<router-link to='/tpie'>TPie</router-link>-->
+              <router-link to='/tpie'>TPie</router-link>
             </div>
-          </div>
+          </div> -->
           <div class="menu-section">
             <span>Addons <md-icon>expand_more</md-icon></span>
             <div class="sub-nav">
@@ -209,6 +225,7 @@ import LoginButton from './components/UI/LoginButton.vue'
 import NotificationBanner from './components/UI/NotificationBanner.vue'
 import ViewEmbed from './components/core/ViewEmbed.vue'
 import StreamEmbed from './components/UI/StreamEmbed.vue'
+import addonDB from './components/libs/addons'
 
 export default {
   name: 'app',
@@ -235,7 +252,8 @@ export default {
       advSearchDate: '',
       today: new Date(),
       showAddonsButton: window.localStorage.getItem('notification-1'),
-      videoEmbedHTML: ''
+      videoEmbedHTML: '',
+      addonDB
     }
   },
   created: function () {
@@ -734,7 +752,9 @@ body, html {
 .mainnav .md-list-item img { max-height: 32px }
 .mainnav .md-list-item a { justify-content: start }
 .mainnav .md-list-item a span.unreadCount { margin-left: 8px; line-height: 18px }
-a span.game-select {padding-top: 3px}
+.game-select {padding-top: 3px}
+.game-select a:after {content:' - '; color: rgba(255, 255, 255, .87)}
+.game-select a:last-child:after {content:''}
 .mainnav .md-list-item a span.menu-action { width: 100% }
 .mainnav .md-list-item { height: 36px }
 .mainnav .md-list-item.multi-line { height: 40px }

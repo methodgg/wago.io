@@ -113,12 +113,12 @@ async function searchElastic(req, res) {
 
   // old search format
   else if (query.match(/expansion:/)) {
-    m = query.match(/expansion:\s?(df|sl|bfa|legion|wod|wotlk|tbc|classic)/)
+    m = query.match(/expansion:\s?(df|sl|bfa|legion|wod|cata|wotlk|tbc|classic)/)
     if (m) {
       while (m) {
         query = query.replace(m[0], '')
         filterExpansion.push({ term: { expansion: { value: expansionIndex(m[1]) } } })
-        m = query.match(/expansion:\s?(df|sl|bfa|legion|wod|wotlk|tbc|classic)/i)
+        m = query.match(/expansion:\s?(df|sl|bfa|legion|wod|cata|wotlk|tbc|classic)/i)
       }
     }
     else if (searchMode.match(/imports|code/) && searchMode !== 'stars') {
@@ -130,16 +130,13 @@ async function searchElastic(req, res) {
     }
   }
 
-  if (filterExpansion.length) {
-    filterExpansion.push({ term: { expansion: { value: -1 } } }) // so that we dont exclude imports that are not expansion specific
-    esFilter.push(({ bool: { should: filterExpansion } }))
-  }
   let filterTypes = []
   if (req.query.type && req.query.type !== 'all') {
+    filterTypes.push( req.query.type.toUpperCase() )
     esFilter.push(({ bool: { should: { term: { 'type': req.query.type.toUpperCase() } } } }))
   }
   // old search format
-  else if (query.match(/expansion:/)) {
+  else if (query.match(/type:/)) {
     m = query.match(/type:\s?(\w+)/i)
     while (m) {
       filterTypes.push({ term: { 'type': m[1].toUpperCase() } })
@@ -149,6 +146,13 @@ async function searchElastic(req, res) {
     if (filterTypes.length) {
       esFilter.push(({ bool: { should: filterTypes } }))
     }
+  }
+
+  if (filterExpansion.length) {
+    if (filterTypes.filter(x => !x.match(/WEAKAURA/)).length) {
+        filterExpansion.push({ term: { expansion: { value: -1 } } }) // so that we dont exclude imports that are not expansion specific
+    }
+    esFilter.push(({ bool: { should: filterExpansion } }))
   }
 
   let filterUsers = []
@@ -568,6 +572,7 @@ async function oldSearch(req, res) {
     filterTypes.push({ term: { 'type.keyword': m[1].toUpperCase() } })
     if (m[1].toUpperCase() === 'WEAKAURA') {
       // temp until index is optimized
+      filterTypes.push({ term: { 'type.keyword': 'CATA-WEAKAURA' } })
       filterTypes.push({ term: { 'type.keyword': 'WOTLK-WEAKAURA' } })
       filterTypes.push({ term: { 'type.keyword': 'TBC-WEAKAURA' } })
       filterTypes.push({ term: { 'type.keyword': 'CLASSIC-WEAKAURA' } })

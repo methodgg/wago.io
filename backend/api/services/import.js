@@ -72,6 +72,7 @@ module.exports = function (fastify, opts, next) {
         case 'CLASSIC-WEAKAURA':
         case 'TBC-WEAKAURA':
         case 'WOTLK-WEAKAURA':
+        case 'CATA-WEAKAURA':
           test.WEAKAURA = true
           break
         case 'PLATER':
@@ -153,7 +154,7 @@ module.exports = function (fastify, opts, next) {
     }
 
     // if decoded data looks like a valid WEAKAURA
-    if ((test.WEAKAURA || test['CLASSIC-WEAKAURA'] || test['TBC-WEAKAURA'] || test['WOTLK-WEAKAURA']) && decoded && decoded.obj.d && decoded.obj.d.id) {
+    if ((test.WEAKAURA || test['CLASSIC-WEAKAURA'] || test['TBC-WEAKAURA'] || test['WOTLK-WEAKAURA'] || test['CATA-WEAKAURA']) && decoded && decoded.obj.d && decoded.obj.d.id) {
       scan.type = 'WEAKAURA'
 
       // check for classic import
@@ -162,6 +163,7 @@ module.exports = function (fastify, opts, next) {
         if (scan.game === 'classic') scan.type = 'CLASSIC-WEAKAURA'
         else if (scan.game === 'tbc') scan.type = 'TBC-WEAKAURA'
         else if (scan.game === 'wotlk') scan.type = 'WOTLK-WEAKAURA'
+        else if (scan.game === 'cata') scan.type = 'CATA-WEAKAURA'
       }
       const scanDoc = await scan.save()
 
