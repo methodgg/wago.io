@@ -73,6 +73,7 @@ module.exports = function (fastify, opts, next) {
         case 'TBC-WEAKAURA':
         case 'WOTLK-WEAKAURA':
         case 'CATA-WEAKAURA':
+        case 'UNKNOWN-WEAKAURA':
           test.WEAKAURA = true
           break
         case 'PLATER':
