@@ -67,6 +67,18 @@ Schema.virtual('name').get(function () {
 
 Schema.statics.tocToPatch = function (toc) {
     toc = parseInt(toc)
+    if (toc >= 40000 && toc < 40400) {
+        return 0
+    }
+    else if (toc >= 30000 && toc < 30400) {
+        return 0
+    }
+    else if (toc >= 20000 && toc < 20501) {
+        return 0
+    }
+    else if (toc >= 10000 && toc < 11403) {
+        return 0
+    }
     const major = Math.floor(toc / 10000 % 100)
     const minor = Math.floor(toc / 100 % 100)
     const patch = toc % 100

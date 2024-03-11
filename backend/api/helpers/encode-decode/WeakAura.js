@@ -2,7 +2,7 @@ const getCode = require('../code-detection/get-code')
 const patchDates = require('../patchDates')
 
 module.exports = {
-  typeMatch: /^(CLASSIC-|TBC-|WOTLK-|CATA-)?WEAKAURA$/i,
+  typeMatch: /^(UNKNOWN-|CLASSIC-|TBC-|WOTLK-|CATA-)?WEAKAURA$/i,
   domain: ENUM.DOMAIN.WOW,
 
   decode: async (encodedString, exec) => {

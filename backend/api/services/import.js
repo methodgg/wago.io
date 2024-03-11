@@ -41,6 +41,7 @@ module.exports = function (fastify, opts, next) {
         // if string was decoded but for a different addon (keep the decoded obj but search for the correct addon)
         continue
       }
+
       let meta = addon.processMeta(decodedObj)
       if (decodedObj && meta) {
         scan.decoded = JSON.stringify(decodedObj)
@@ -73,6 +74,7 @@ module.exports = function (fastify, opts, next) {
         case 'TBC-WEAKAURA':
         case 'WOTLK-WEAKAURA':
         case 'CATA-WEAKAURA':
+        case 'UNKNOWN-WEAKAURA':
           test.WEAKAURA = true
           break
         case 'PLATER':
@@ -154,7 +156,7 @@ module.exports = function (fastify, opts, next) {
     }
 
     // if decoded data looks like a valid WEAKAURA
-    if ((test.WEAKAURA || test['CLASSIC-WEAKAURA'] || test['TBC-WEAKAURA'] || test['WOTLK-WEAKAURA'] || test['CATA-WEAKAURA']) && decoded && decoded.obj.d && decoded.obj.d.id) {
+    if ((test.WEAKAURA || test['CLASSIC-WEAKAURA'] || test['TBC-WEAKAURA'] || test['WOTLK-WEAKAURA'] || test['CATA-WEAKAURA'] || test['UNKNOWN-WEAKAURA']) && decoded && decoded.obj.d && decoded.obj.d.id) {
       scan.type = 'WEAKAURA'
 
       // check for classic import
@@ -164,6 +166,7 @@ module.exports = function (fastify, opts, next) {
         else if (scan.game === 'tbc') scan.type = 'TBC-WEAKAURA'
         else if (scan.game === 'wotlk') scan.type = 'WOTLK-WEAKAURA'
         else if (scan.game === 'cata') scan.type = 'CATA-WEAKAURA'
+        else if (scan.game === 'unknown') scan.type = 'UNKNOWN-WEAKAURA'
       }
       const scanDoc = await scan.save()
 
