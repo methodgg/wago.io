@@ -706,7 +706,7 @@ module.exports = function (fastify, opts, next) {
         wagoCode.luacheck = code.luacheck
       }
     }
-    else if (doc.type.match(/WEAKAURA/)) {
+    else if (doc.type.match(/WEAKAURA/) && !doc.type.match(/UNKNOWN/)) {
       var json = JSON.parse(code.json)
       // check for any missing data
       if (doc.latestVersion.iteration === code.version && (
