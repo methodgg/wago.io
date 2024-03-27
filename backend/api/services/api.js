@@ -261,6 +261,7 @@ module.exports = function (fastify, opts, next) {
     user.username = req.user.account.username
     user.avatar = req.user.profile.avatar
     user.hideAds = req.user.access.hideAds
+    user.imports = (await WagoItem.find({_userId: req.user._id}).select({_id:1}).exec()).map(x => x._id)
     res.send(user)
   })
 
