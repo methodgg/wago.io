@@ -150,6 +150,17 @@ class Categories {
       'raidvaultincarnates8': {slug: 'pve/vault-of-the-incarnates/dathea-ascended', i18n: 'warcraft:encounters.2502', domain: 0, parent: 'raidvaultincarnates', types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
 
       'dfdungeon': {slug: 'pve/dragonflight-dungeons', image: 'dungeon.png', color: '#F5A623', i18n: 'Dragonflight Dungeons', domain: 0, types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
+      // --- Season 4
+      'dfdungeon-s4': {subheader: true, i18n: 'Season 4 Dungeons', domain: 0, parent: 'dfdungeon', system: true, types: ['WEAKAURA'], games: ['df']},
+      'dfdungeon1': {slug: 'pve/dragonflight-dungeons/brackenhide-hollow', i18n: 'warcraft:instances.1196', domain: 0, parent: 'dfdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
+      'dfdungeon2': {slug: 'pve/dragonflight-dungeons/uldaman-legacy-of-tyr', i18n: 'warcraft:instances.1197', domain: 0, parent: 'dfdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
+      'dfdungeon4': {slug: 'pve/dragonflight-dungeons/neltharus', i18n: 'warcraft:instances.1199', domain: 0, parent: 'dfdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
+      'dfdungeon8': {slug: 'pve/dragonflight-dungeons/halls-of-infusion', i18n: 'warcraft:instances.1204', domain: 0, parent: 'dfdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
+      'dfdungeon5': {slug: 'pve/dragonflight-dungeons/algethar-acadamy', i18n: 'warcraft:instances.1201', domain: 0, parent: 'dfdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
+      'dfdungeon6': {slug: 'pve/dragonflight-dungeons/ruby-life-pools', i18n: 'warcraft:instances.1202', domain: 0, parent: 'dfdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
+      'dfdungeon7': {slug: 'pve/dragonflight-dungeons/the-azure-vault', i18n: 'warcraft:instances.1203', domain: 0, parent: 'dfdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
+      'dfdungeon3': {slug: 'pve/dragonflight-dungeons/the-nokhud-offensive', i18n: 'warcraft:instances.1198', domain: 0, parent: 'dfdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
+
       // --- Season 3
       'dfdungeon-s3': {subheader: true, i18n: 'Season 3 Dungeons', domain: 0, parent: 'dfdungeon', system: true, types: ['WEAKAURA'], games: ['df']},
       'dfdungeon9': {slug: 'pve/dragonflight-dungeons/dawn-of-the-infinite', i18n: 'warcraft:instances.1209', domain: 0, parent: 'dfdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
@@ -173,40 +184,18 @@ class Categories {
 
       // --- Season 2
       'dfdungeon-s2': {subheader: true, i18n: 'Season 2 Dungeons', domain: 0, parent: 'dfdungeon', system: true, types: ['WEAKAURA'], games: ['df']},
-      'dfdungeon1': {slug: 'pve/dragonflight-dungeons/brackenhide-hollow', i18n: 'warcraft:instances.1196', domain: 0, parent: 'dfdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
-      'dfdungeon2': {slug: 'pve/dragonflight-dungeons/uldaman-legacy-of-tyr', i18n: 'warcraft:instances.1197', domain: 0, parent: 'dfdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
-      'dfdungeon4': {slug: 'pve/dragonflight-dungeons/neltharus', i18n: 'warcraft:instances.1199', domain: 0, parent: 'dfdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
-      'dfdungeon8': {slug: 'pve/dragonflight-dungeons/halls-of-infusion', i18n: 'warcraft:instances.1204', domain: 0, parent: 'dfdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
       'dfdungeons2-1': {slug: 'pve/dragonflight-dungeons/neltharions-lair', i18n: 'warcraft:instances.767', domain: 0, parent: 'dfdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
       'dfdungeons2-2': {slug: 'pve/dragonflight-dungeons/freehold', i18n: 'warcraft:instances.1001', domain: 0, parent: 'dfdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
       'dfdungeons2-3': {slug: 'pve/dragonflight-dungeons/the-underrot', i18n: 'warcraft:instances.1022', domain: 0, parent: 'dfdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
       'dfdungeons2-4': {slug: 'pve/dragonflight-dungeons/the-vortex-pinnacle', i18n: 'warcraft:instances.68', domain: 0, parent: 'dfdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
 
-      'dfdungeon-other': {subheader: true, i18n: 'Other DF Dungeons', domain: 0, parent: 'dfdungeon', system: true, types: ['WEAKAURA'], games: ['df']},
-      'dfdungeon9': {slug: 'pve/dragonflight-dungeons/dawn-of-the-infinite', i18n: 'warcraft:instances.1209', domain: 0, parent: 'dfdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
-      'dfdungeon5': {slug: 'pve/dragonflight-dungeons/algethar-acadamy', i18n: 'warcraft:instances.1201', domain: 0, parent: 'dfdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
-      'dfdungeon6': {slug: 'pve/dragonflight-dungeons/ruby-life-pools', i18n: 'warcraft:instances.1202', domain: 0, parent: 'dfdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
-      'dfdungeon7': {slug: 'pve/dragonflight-dungeons/the-azure-vault', i18n: 'warcraft:instances.1203', domain: 0, parent: 'dfdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
-      'dfdungeon3': {slug: 'pve/dragonflight-dungeons/the-nokhud-offensive', i18n: 'warcraft:instances.1198', domain: 0, parent: 'dfdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
-      // --- Season 2
       // --- Season 1
       'dfdungeon-s1': {subheader: true, i18n: 'Season 1 Dungeons', domain: 0, parent: 'dfdungeon', system: true, types: ['WEAKAURA'], games: ['df']},
-      'dfdungeon5': {slug: 'pve/dragonflight-dungeons/algethar-acadamy', i18n: 'warcraft:instances.1201', domain: 0, parent: 'dfdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
-      'dfdungeon6': {slug: 'pve/dragonflight-dungeons/ruby-life-pools', i18n: 'warcraft:instances.1202', domain: 0, parent: 'dfdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
-      'dfdungeon7': {slug: 'pve/dragonflight-dungeons/the-azure-vault', i18n: 'warcraft:instances.1203', domain: 0, parent: 'dfdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
-      'dfdungeon3': {slug: 'pve/dragonflight-dungeons/the-nokhud-offensive', i18n: 'warcraft:instances.1198', domain: 0, parent: 'dfdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
       'dfdungeons1-1': {slug: 'pve/dragonflight-dungeons/court-of-stars', i18n: 'warcraft:instances.800', domain: 0, parent: 'dfdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
       'dfdungeons1-2': {slug: 'pve/dragonflight-dungeons/halls-of-valor', i18n: 'warcraft:instances.721', domain: 0, parent: 'dfdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
       'dfdungeons1-3': {slug: 'pve/dragonflight-dungeons/shadowmoon-burial-grounds', i18n: 'warcraft:instances.537', domain: 0, parent: 'dfdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
       'dfdungeons1-4': {slug: 'pve/dragonflight-dungeons/temple-of-the-jade-serpent', i18n: 'warcraft:instances.313', domain: 0, parent: 'dfdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
-
-      'dfdungeon-other': {subheader: true, i18n: 'Other DF Dungeons', domain: 0, parent: 'dfdungeon', system: true, types: ['WEAKAURA'], games: ['df']},
-      'dfdungeon1': {slug: 'pve/dragonflight-dungeons/brackenhide-hollow', i18n: 'warcraft:instances.1196', domain: 0, parent: 'dfdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
-      'dfdungeon2': {slug: 'pve/dragonflight-dungeons/uldaman-legacy-of-tyr', i18n: 'warcraft:instances.1197', domain: 0, parent: 'dfdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
-      'dfdungeon4': {slug: 'pve/dragonflight-dungeons/neltharus', i18n: 'warcraft:instances.1199', domain: 0, parent: 'dfdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
-      'dfdungeon8': {slug: 'pve/dragonflight-dungeons/halls-of-infusion', i18n: 'warcraft:instances.1204', domain: 0, parent: 'dfdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['df']}, 
-      // --- Season 1
-
+      
       // shadowlands
       'raidsepulcherfirst': {slug: 'pve/sepulcher-of-the-first-ones', image: 'sepulcherfirst.png', color: '#50FFEA', i18n: 'warcraft:instances.1195', domain: 0, types: ['WEAKAURA', 'COLLECTION'], games: ['sl']},
       'raidsepulcherfirst1': {slug: 'pve/sepulcher-of-the-first-ones/solitary-guardian', color: '#50FFEA', i18n: 'warcraft:encounters.2458', domain: 0, parent: 'raidsepulcherfirst', types: ['WEAKAURA', 'COLLECTION'], games: ['sl']},
