@@ -768,7 +768,10 @@ module.exports = function (fastify, opts, next) {
     wagoCode.encoded = code.encoded
     wagoCode.version = code.version
     wagoCode.versionString = versionString
-    wagoCode.changelog = code.changelog
+    wagoCode.changelog = code.changelog && code.changelog.text ? code.changelog : {
+        text: "",
+        format: ""
+    },
     wagoCode.customCode = code.customCode
     wagoCode.tableMetrics = code.tableMetrics
 
