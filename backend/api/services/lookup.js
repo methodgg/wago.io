@@ -418,7 +418,10 @@ module.exports = function (fastify, opts, next) {
         if (versionString !== '1.0.' + (v.version - 1) && versionString !== '0.0.' + v.version) {
           versionString = versionString + '-' + v.version
         }
-        versionHistory.push({ version: v.version, versionString: versionString, date: v.updated, changelog: v.changelog })
+        versionHistory.push({ version: v.version, versionString: versionString, date: v.updated, changelog: v.changelog && v.changelog.text ? v.changelog : {
+            text: "",
+            format: ""
+        }})
       })
       wago.versions = { total: versions.length, versions: versionHistory }
 
