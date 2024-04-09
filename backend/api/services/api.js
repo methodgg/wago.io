@@ -148,6 +148,12 @@ module.exports = function (fastify, opts, next) {
           doc.versions.versions[0].changelog = JSON.parse(doc.versions.versions[0].changelog)
         }
         wago.changelog = doc.versions.versions[0].changelog
+        if (!wago.changelog.text) {
+            wago.changelog = {
+                text: "",
+                format: ""
+            }
+        }
         wago.regionType = doc.regionType
         wagos.push(wago)
         if (!doc.restricted && !doc.private) {
@@ -162,6 +168,12 @@ module.exports = function (fastify, opts, next) {
           doc.latestVersion.changelog = JSON.parse(doc.latestVersion.changelog)
         }
         wago.changelog = doc.latestVersion.changelog
+        if (!wago.changelog.text) {
+            wago.changelog = {
+                text: "",
+                format: ""
+            }
+        }
         wago.regionType = doc.regionType
         wagos.push(wago)
         if (!doc.restricted && !doc.private) {
