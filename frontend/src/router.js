@@ -13,6 +13,7 @@ const MenuWeakAurasClassic = resolve => require(['@/components/core/Menu-WeakAur
 const MenuWeakAurasTBC = resolve => require(['@/components/core/Menu-WeakAuras-TBC.vue'], resolve)
 const MenuWeakAurasWotLK = resolve => require(['@/components/core/Menu-WeakAuras-WotLK.vue'], resolve)
 const MenuWeakAurasCata = resolve => require(['@/components/core/Menu-WeakAuras-Cata.vue'], resolve)
+const MenuMacro = resolve => require(['@/components/core/Menu-Macro.vue'], resolve)
 const MenuBlizzHUD = resolve => require(['@/components/core/Menu-BlizzHud.vue'], resolve)
 const MenuElvUI = resolve => require(['@/components/core/Menu-ElvUI.vue'], resolve)
 const MenuVuhdo = resolve => require(['@/components/core/Menu-Vuhdo.vue'], resolve)
@@ -147,6 +148,11 @@ export default {
     { path: '/classic-weakauras/:c1/:c2', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'weakaura'), type: 'weakaura', game: 'wow', expansion: 'classic', mode: 'imports' } }) },
     { path: '/classic-weakauras/:c1/:c2/:c3', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'weakaura'), type: 'weakaura', game: 'wow', expansion: 'classic', mode: 'imports' } }) },
     { path: '/classic-weakauras/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'weakaura'), type: 'weakaura', game: 'wow', expansion: 'classic', mode: 'imports' } }) },
+    { path: '/macros', component: MenuMacro },
+    { path: '/macros/:c1', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'macro'), type: 'macro', game: 'wow', mode: 'imports' } }) },
+    { path: '/macros/:c1/:c2', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'macros'), type: 'macros', game: 'wow', mode: 'imports' } }) },
+    { path: '/macros/:c1/:c2/:c3', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'macros'), type: 'macros', game: 'wow', mode: 'imports' } }) },
+    { path: '/macros/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'macros'), type: 'macros', game: 'wow', mode: 'imports' } }) },
     { path: '/elvui', component: MenuElvUI },
     { path: '/elvui/:c1', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'elvui'), type: 'elvui', game: 'wow', mode: 'imports' } }) },
     { path: '/elvui/:c1/:c2', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'elvui'), type: 'elvui', game: 'wow', mode: 'imports' } }) },

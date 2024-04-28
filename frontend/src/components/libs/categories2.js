@@ -816,6 +816,7 @@ class Categories {
       'mdtaffix136': {slug: 'affixes/incorporeal', i18n: 'warcraft:affixes.136', domain: 0, system: true, parent: 'affixes', types: ['MDT']},
       'mdtaffix123': {slug: 'affixes/spiteful', i18n: 'warcraft:affixes.123', domain: 0, system: true, parent: 'affixes', types: ['MDT']},
       'mdtaffix124': {slug: 'affixes/storming', i18n: 'warcraft:affixes.124', domain: 0, system: true, parent: 'affixes', types: ['MDT']},
+
       // 'mdtaffix-df-s3-w1': {slug: 'affixes/dragonflight-s3/week-1', i18n: '[-affix1-], [-affix2-], [-affix3-]', domain: 0, types: ['MDT']},
       // 'mdtaffix-df-s3-w2': {slug: 'affixes/dragonflight-s3/week-2', i18n: '[-affix1-], [-affix2-], [-affix3-]', domain: 0, types: ['MDT']},
       // 'mdtaffix-df-s3-w3': {slug: 'affixes/dragonflight-s3/week-3', i18n: '[-affix1-], [-affix2-], [-affix3-]', domain: 0, types: ['MDT']},
@@ -965,6 +966,14 @@ class Categories {
       'opie4': {slug: 'equipment', image: 'opie.png', color: '#2595E6', i18n: 'Equipment', domain: 0, types: ['OPIE']},
       'opie5': {slug: 'equipment/trinkets', image: 'opie.png', color: '#2595E6', i18n: 'Trinkets', domain: 0, types: ['OPIE']},
       'opie6': {slug: 'utility', image: 'opie.png', color: '#2595E6', i18n: 'Utility', domain: 0, types: ['OPIE']},
+
+      'macro0': {slug: 'utility', image: 'macro.png', color: '#BA25BF', i18n: 'Utility', domain: 0, types: ['MACRO']},
+      'macro1': {slug: 'utility/consumables', image: 'macro.png', color: '#BA25BF', i18n: 'Consumables', domain: 0, types: ['MACRO']},
+      'macro2': {slug: 'utility/vehicles', image: 'macro.png', color: '#BA25BF', i18n: 'Vehicles', domain: 0, types: ['MACRO']},
+      'macro3': {slug: 'utility/equipment', image: 'macro.png', color: '#BA25BF', i18n: 'Equipment', domain: 0, types: ['MACRO']},
+      'macro4': {slug: 'targeting', image: 'crosshair.png', color: '#E0EAB9', i18n: 'Targeting', domain: 0, types: ['MACRO']},
+      'macro5': {slug: 'targeting/raids', image: 'crosshair.png', color: '#E0EAB9', i18n: 'Raids', domain: 0, types: ['MACRO']},
+      'macro6': {slug: 'targeting/dungeons', image: 'crosshair.png', color: '#E0EAB9', i18n: 'Dungeons', domain: 0, types: ['MACRO']},
 
       'plater1': {slug: 'plater-profiles', image: 'plater.png', color: '#FFC972', i18n: 'Plater Profiles', domain: 0, system: true, types: ['PLATER']},
       'plater2': {slug: 'plater-scripts', image: 'plater.png', color: '#FFC972', i18n: 'Plater Scripts', domain: 0, system: true, types: ['PLATER']},

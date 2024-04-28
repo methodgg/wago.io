@@ -1,83 +1,173 @@
 <template>
-  <div v-html="formatText()" v-bind:class="{ noFormat: truncate > 0 }" :class="'usertext ' + (text.format || 'bbcode') "></div>
+    <div>
+        <div id="code-editor" :class="{readonly: this.readonly}"></div>
+    </div>
 </template>
 
 <script>
-import XBBCode from '../libs/xbbcode'
-const markdown = require('markdown').markdown
+import loader from "@monaco-editor/loader"
+import { getHighlighter } from 'shiki'
+import { shikiToMonaco } from '@shikijs/monaco'
+import wowMacroLanguage from '../libs/wowMacro.language'
 
 export default {
-  props: ['text', 'truncate', 'plaintext', 'enableLinks'],
-  mounted () {
-    let monacoScript = document.createElement('script')
-    monacoScript.setAttribute('src', 'https://www.google.com/recaptcha/api.js')
-    document.head.appendChild(monacoScript)
-  },
-  methods: {
-    formatText: function () {
-      // validate content
-      if (!this.text.text) {
-        return ''
-      }
-      // format plaintext
-      else if (this.plaintext) {
-        var plaintext = this.text.text.replace(/\[\/?(?:b|center|code|color|face|font|i|justify|large|left|li|noparse|ol|php|quote|right|s|size|small|sub|sup|taggeduser|table|tbody|tfoot|td|th|tr|u|url|\*)*?.*?\]/g, '').replace(/\n/g, ' ')
-
-        // if shortening the text
-        if (this.truncate && this.truncate > 0 && plaintext.length > this.truncate) {
-          // truncate to length
-          plaintext = plaintext.substr(0, this.truncate)
-          // truncate to last word
-          plaintext = plaintext.substr(0, Math.min(plaintext.length, plaintext.lastIndexOf(' '))) + '...'
+    props: {
+        diffEditor: { type: Boolean, default: false }, 
+        original: String,
+        value: String,
+        lang: {type: String, default: 'json'},
+        readonly: { type: Boolean, default: false }, 
+    },
+    data () {
+        return {
+            editor: null,
+            editorHeight: (this.value.match(/\n/g).length+4) * 19
         }
-        return plaintext
-      }
+    },
+    watch: {
+        editorHeight() {
+            if (this.editor) {
+                this.editor.updateOptions({height: this.editorHeight})
+            }
+        },
+        value() {
+            if (this.editor && this.value !== this.getValue()) {
+                this.setValue(this.value)
+            }
+        },
+        lang() {
+            if (!this.editor) return
+            if (this.diffEditor) {
+                const { original, modified } = this.editor.getModel()
+                monaco.editor.setModelLanguage(original, this.lang)
+                monaco.editor.setModelLanguage(modified, this.lang)
+            }
+            else {
+                monaco.editor.setModelLanguage(this.editor.getModel(), this.lang)
+            }
+        },
+    },
+    methods: {
+        setDiffModel(value, original) {
+            const originalModel = monaco.editor.createModel(original, this.lang)
+            const modifiedModel = monaco.editor.createModel(value, this.lang)
+            this.editor.setModel({
+                original: originalModel,
+                modified: modifiedModel
+            })
+        },
 
-      // format bbcode
-      else if (this.text.format === 'bbcode') {
-        return XBBCode.process({
-          text: this.text.text,
-          tags: {},
-          removeMisalignedTags: true,
-          addInLineBreaks: !(this.truncate > 0),
-          enableURLs: this.enableLinks && !(this.truncate),
-          enableWagoURLs: this.enableLinks && !(this.truncate)
-        }).html
-      }
+        getSelf() {
+            if (!this.editor) return null
+            return this.diffEditor ? this.editor.modifiedEditor : this.editor
+        },
 
-      // format markdown
-      else if (this.text.format === 'markdown') {
-        var html = markdown.toHTML(this.text.text)
-        if (!this.enableLinks || this.truncate) {
-          html = html.replace(/<\/?a(?:(?= )[^>]*)?>/g, '')
+        setValue(value) {
+            let editor = this.getSelf()
+            if(editor) return editor.setValue(value)
+        },
+
+        getValue() {
+            let editor = this.getSelf()
+            if (!editor) return ''
+            return editor.getValue()
+        },
+
+        resizeEditor() {
+            if (this.editor) {
+                this.editor.layout({
+                    width: document.getElementById('code-editor').offsetWidth - 8 , 
+                    height: (this.editor.getModel().getLineCount() + (this.readonly ? 0 : 3)) * 19
+                })
+            }
         }
-        return html.replace(/\n/, '<br>')
-      }
+    },
+    mounted: async function() {
+        const highlighter = await getHighlighter({
+            themes: [
+                wowMacroLanguage.theme,
+            ],
+            langs: [
+                'json',
+                'lua',                
+                {"scopeName": "source.wowMacro"}
+            ],
+        })
 
-      else {
-        return this.text.text
-      }
+        const editorOptions = {
+            minimap: {enabled: (this.value.match(/\n/g) || []).length > 50}
+        }
+        if (this.readonly) {
+            editorOptions.readOnly = true
+            editorOptions.lineNumbers = false
+            editorOptions.lineDecorationsWidth = 2
+            editorOptions.minimap = { enabled: false }
+            editorOptions.overviewRulerLanes = 0
+            editorOptions.hideCursorInOverviewRuler = true
+            editorOptions.scrollbar = {vertical: 'hidden'}
+            editorOptions.overviewRulerBorder = false
+            editorOptions.selectionHighlight = false
+            editorOptions.glyphMargin = false
+            editorOptions.folding = false
+        }
+
+        const _this = this
+        loader.init().then(async (monaco) => {
+            if (_this.lang === 'wowMacro') {
+                monaco.languages.register({id: 'wowMacro'})
+                monaco.languages.setMonarchTokensProvider('wowMacro', wowMacroLanguage.tokenProvider)
+                // monaco.editor.defineTheme('wowMacro', wowMacroLanguage.theme)
+                // _this.options.theme = 'wowMacro'
+            }
+            shikiToMonaco(highlighter, monaco)
+            _this.editor = monaco.editor[_this.diffEditor ? 'createDiffEditor' : 'create'](document.getElementById("code-editor"), {
+                value: _this.value,
+                languages: ['json', 'lua', 'wowMacro'],
+                language: _this.lang,
+                ...editorOptions
+            })
+            
+            _this.resizeEditor()
+
+            if (_this.diffEditor) {
+                _this.setDiffModel(_this.value, _this.original)
+            }
+            else {
+                _this.editor.onDidChangeModelContent(event => {
+                    _this.$emit('change', _this.getValue(), event)
+                    _this.$emit('input', _this.getValue())
+                    _this.resizeEditor()
+                })
+            }
+        })
+    },
+    computed: {
+        // User () {
+        //   return this.$store.state.user
+        // },
     }
-  }
 }
 </script>
 
-<style>
-.noFormat * {
-  color: inherit!important;
-  font-weight: inherit!important;
-  font-size: inherit!important;
-  font-style: inherit!important;
-  text-decoration: inherit!important;
-  margin-left: inherit!important;
-  margin-right: inherit!important;
-  text-align: inherit!important;
-  display: inline!important;
+<style scoped>
+#code-editor {
+    width: 100%;
+    min-height: 5rem;
 }
-.noFormat img, .noFormat table {
-  display: none!important;
-}
-.usertext.bbcode ol, .usertext.bbcode ul { margin: 0}
-.usertext.bbcode ol, .usertext.bbcode ul, .usertext.bbcode li { white-space: normal}
 </style>
+<style>
+.monaco-editor .view-line:has(.mtk30) {
+    background: #1A1A1A;
+    border: 1px solid #003322;
+}
+.monaco-editor .view-line:has(.mtk32) {
+    background: #2A1A1A;
+    border: 1px solid #332222;
+}
+.readonly .monaco-editor .current-line, 
+.readonly .monaco-editor .wordHighlightText,
+.readonly .monaco-editor .cursors-layer {
+    display: none!important;
+}
 
+</style>

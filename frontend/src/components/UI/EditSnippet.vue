@@ -3,7 +3,7 @@
     <codereview v-if="this.$store.state.wago.code.luacheck && this.$store.state.wago.code.luacheck['Lua: Snippet']" name="Luacheck" :luacheck="true">{{this.$store.state.wago.code.luacheck['Lua: Snippet']}}</codereview>
     <div class="flex-container">
       <div class="flex-col flex-right">
-        <md-button v-if="editorSelected !== 'tabledata'" @click="formatCode"><md-icon>code</md-icon> {{ $t("Format Lua") }}</md-button>
+        <md-button @click="formatCode"><md-icon>code</md-icon> {{ $t("Format Lua") }}</md-button>
         <md-button @click="exportChanges"><md-icon>open_in_new</md-icon> {{ $t("Export/Fork changes") }}</md-button>
         <md-button v-if="canEdit" @click="generateNextVersionData(); $refs['saveChangesDialog'].open()" ref="saveChangesButton"><md-icon>save</md-icon> {{ $t("Save changes") }}</md-button>
       </div>
@@ -31,8 +31,7 @@
       </md-dialog>
     </div>
 
-    <!--<monaco-editor v-model="editorContent" theme="vs-dark" @init="editorInit" :language="aceLanguage" :style="{width:'100%', height: '500px'}"></monaco-editor>-->
-    <editor v-model="editorContent" @init="editorInit" :lang="aceLanguage" :theme="editorTheme" width="100%" height="500"></editor>
+    <monaco-editor v-model="luaCode" :lang="editorLang"></monaco-editor>
     <export-modal :lua="luaCode" :type="wago.type" :showExport="showExport" :wagoID="wago._id" @hideExport="hideExport"></export-modal>
   </div>
 </template>
@@ -44,6 +43,7 @@ import luamin from '../libs/luamin'
 import InputSemver from '../UI/Input-Semver.vue'
 import ExportLua from './ExportLua'
 import CodeReview from './CodeReview'
+import MonacoEditor from './MonacoEditor.vue'
 
 export default {
   name: 'edit-common',
@@ -52,8 +52,7 @@ export default {
     return {
       luaCode: this.$store.state.wago.code.lua,
       editorFile: '',
-      aceLanguage: 'lua',
-      aceEditor: null,
+      editorLang: 'lua',
       showExport: false,
       latestVersion: {semver: this.$store.state.wago.versions.versions[0].versionString},
       newImportVersion: {major: 1, minor: 0, patch: 1},
@@ -64,38 +63,15 @@ export default {
   watch: {
   },
   components: {
-    editor: require('vue2-ace-editor'),
+    'monaco-editor': MonacoEditor,
     'export-modal': ExportLua,
     'input-semver': InputSemver,
     codereview: CodeReview
     // MonacoEditor
   },
   methods: {
-    editorInit: function (editor) {
-      this.aceEditor = editor
-      window.braceRequires()
-      editor.setOptions({
-        autoScrollEditorIntoView: true,
-        scrollPastEnd: true,
-        printMargin: false,
-        minLines: 80,
-        maxLines: 1000
-      })
-    },
-    luacheckInit: function (editor) {
-      window.braceRequires()
-      editor.setOptions({
-        scrollPastEnd: false,
-        printMargin: false,
-        maxLines: 100,
-        readOnly: true
-      })
-    },
-
     formatCode: function () {
-      var lua = this.aceEditor.getValue()
-      lua = luamin.Beautify(lua, {})
-      this.aceEditor.setValue(lua, -1)
+      this.luaCode = luamin.Beautify(this.luaCode, {})
     },
 
     saveChanges: function () {
@@ -103,7 +79,7 @@ export default {
       var post = {}
       post.wagoID = this.wago._id
       post.type = this.wago.type
-      post.lua = this.aceEditor.getValue()
+      post.lua = this.luaCode
       post.newVersion = this.newImportVersion.semver
       post.changelog = this.newChangelog.text
       post.changelogFormat = this.newChangelog.format
@@ -136,7 +112,6 @@ export default {
       }, 150)
     },
     exportChanges: function () {
-      this.luaCode = this.aceEditor.getValue()
       this.showExport = true
     },
     hideExport: function () {
@@ -174,10 +149,10 @@ export default {
     },
     editorTheme: function () {
       if (!this.$store.state.user || !this.$store.state.user.config || !this.$store.state.user.config.editor) {
-        return 'tomorrow'
+        return 'terminal'
       }
       else {
-        return this.$store.state.user.config.editor || 'tomorrow'
+        return this.$store.state.user.config.editor || 'terminal'
       }
     }
   }

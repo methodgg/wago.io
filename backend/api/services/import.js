@@ -29,7 +29,12 @@ module.exports = function (fastify, opts, next) {
         continue
       }
       else if (typeof decodedObj !== 'object' && (!req.body.type || req.body.type.match(addon.typeMatch) || (req.body.wagolib && addonFile === 'WagoLib'))) {
-        decodedObj = await addon.decode(req.body.importString.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim(), lua.runLua)
+        if (addon.plainText) {
+            decodedObj = await addon.decode(req.body.importString.trim())
+        }
+        else {
+            decodedObj = await addon.decode(req.body.importString.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim(), lua.runLua)
+        }
       }
       if (!decodedObj) {
         continue

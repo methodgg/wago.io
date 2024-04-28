@@ -86,6 +86,7 @@
                     searchType === 'vuhdo' && 'VuhDo' ||
                     searchType === 'dbm' && 'DBM' ||
                     searchType === 'mdt' && 'MDT' ||
+                    searchType === 'macro' && 'MACRO' ||
                     searchType === 'shippets' && 'Snippets' ||
                     searchType === 'collection' && 'Collections' ||
                     $t('All')
@@ -108,11 +109,15 @@
                     <category-image :group="'t-plater'"></category-image>
                     <md-tooltip md-direction="bottom" class="">{{ $t("Plater") }}</md-tooltip>
                   </md-button>
+                  <md-button :class="{ 'md-toggle': searchType === 'macro' }" class="md-icon-button" @click="setType('macro')">
+                    <category-image :group="searchType === 'macro' ? 't-macro-search' : 't-macro'"></category-image>
+                    <md-tooltip md-direction="bottom" class="">{{ $t("Macro") }}</md-tooltip>
+                  </md-button>
                   <md-button :class="{ 'md-toggle': searchType === 'mdt' }" class="md-icon-button" @click="setType('mdt')">
                     <category-image :group="'t-mdt'" style="filter:drop-shadow(1px 1px 0 #212121) drop-shadow(-1px -1px 0 #212121) drop-shadow(1px -1px 0 #212121) drop-shadow(-1px 1px 0 #212121)"></category-image>
                     <md-tooltip md-direction="bottom" class="">{{ $t("MDT") }}</md-tooltip>
                   </md-button>
-                  <div id="addon-button" :class="{ 'md-toggle': searchType && !searchType.match(/^(all|weakaura|elvui|plater|mdt)$/) }" class="md-button md-icon-button md-theme-default">
+                  <div id="addon-button" :class="{ 'md-toggle': searchType && !searchType.match(/^(all|weakaura|elvui|plater|mdt|macro)$/) }" class="md-button md-icon-button md-theme-default">
                     <img src="../../assets/misc-addons.svg">
                   </div>
                   <div id="addon-dropdown">

@@ -31,8 +31,8 @@
       </md-dialog>
     </div>
     
-    <editor v-model="editorContent" @init="editorInit" :lang="aceLanguage" :theme="editorTheme" width="100%" height="500" @input="setHasUnsavedChanges(true)"></editor>
-    <export-modal :json="tableString" :type="wago.type" :showExport="showExport" :wagoID="wago._id" :wagolib="wago.wagolib" @hideExport="hideExport"></export-modal>
+    <monaco-editor v-model="editorContent" @input="setHasUnsavedChanges"></monaco-editor>
+    <export-modal :json="editorContent" :type="wago.type" :showExport="showExport" :wagoID="wago._id" :wagolib="wago.wagolib" @hideExport="hideExport"></export-modal>
   </div>
 </template>
 
@@ -40,6 +40,7 @@
 const semver = require('semver')
 import ExportJSON from './ExportJSON.vue'
 import InputSemver from '../UI/Input-Semver.vue'
+import MonacoEditor from './MonacoEditor.vue'
 
 export default {
   name: 'edit-common',
@@ -47,41 +48,26 @@ export default {
   data: function () {
     return {
       tableString: this.$store.state.wago.code.json,
+      editorContent: this.$store.state.wago.code.json,
       editorFile: '',
-      aceLanguage: 'json',
-      aceEditor: null,
       showExport: false,
       latestVersion: {semver: this.$store.state.wago.versions.versions[0].versionString},
       newImportVersion: {major: 1, minor: 0, patch: 1},
-      newChangelog: {}
+      newChangelog: {},
     }
   },
-  watch: {
-  },
   components: {
-    editor: require('vue2-ace-editor'),
+    'monaco-editor': MonacoEditor,
     'export-modal': ExportJSON,
     'input-semver': InputSemver
   },
   methods: {
-    editorInit: function (editor) {
-      this.aceEditor = editor
-      window.braceRequires()
-      editor.setOptions({
-        autoScrollEditorIntoView: true,
-        scrollPastEnd: true,
-        printMargin: false,
-        minLines: 80,
-        maxLines: 1000
-      })
-    },
-
     saveChanges: function () {
       this.$refs['saveChangesDialog'].close()
       var post = {}
       post.wagoID = this.wago._id
       post.type = this.wago.type
-      post.json = this.aceEditor.getValue()
+      post.json = this.editorContent
       post.newVersion = this.newImportVersion.semver
       post.changelog = this.newChangelog.text
       post.changelogFormat = this.newChangelog.format
@@ -116,8 +102,9 @@ export default {
       this.$emit('set-has-unsaved-changes', bool)
     },
     exportChanges: function () {
-      this.tableString = this.aceEditor.getValue()
+      this.tableString = this.editorContent
       this.showExport = true
+      console.log(this.tableString)
     },
     hideExport: function () {
       this.showExport = false
@@ -136,15 +123,6 @@ export default {
     }
   },
   computed: {
-    editorContent: {
-      get: function () {
-        return this.$store.state.wago.code.json
-      },
-
-      set: function () {
-
-      }
-    },
     wago: function () {
       return this.$store.state.wago
     },
@@ -159,10 +137,10 @@ export default {
     },
     editorTheme: function () {
       if (!this.$store.state.user || !this.$store.state.user.config || !this.$store.state.user.config.editor) {
-        return 'tomorrow'
+        return 'terminal'
       }
       else {
-        return this.$store.state.user.config.editor || 'tomorrow'
+        return this.$store.state.user.config.editor || 'terminal'
       }
     }
   }

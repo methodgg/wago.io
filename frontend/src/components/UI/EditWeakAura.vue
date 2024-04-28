@@ -58,8 +58,8 @@
     </div>
     <codereview v-else-if="customCodeIndex === -1 && codeReview && codeReview.info && codeReview.info.nloc" name="Code Analysis" :codeInfo="true" :json="codeReview.info"></codereview>
 
-    <editor v-model="editorContent" @init="editorInit" :lang="aceLanguage" :theme="editorTheme" width="100%" height="500" @input="setHasUnsavedChanges(true)"></editor>
-
+    <monaco-editor v-model="editorContent" :lang="editorLang" @input="setHasUnsavedChanges"></monaco-editor>
+    
     <md-dialog md-open-from="#extractFromGroupButton" md-close-to="#extractFromGroupButton" ref="extractFromGroupDialog">
       <md-dialog-title>{{ $t("Extract from group") }}</md-dialog-title>
 
@@ -74,7 +74,7 @@
         <md-button class="md-primary" @click="$refs.extractFromGroupDialog.close()">{{ $t("Close") }}</md-button>
       </md-dialog-actions>
     </md-dialog>
-    <export-modal :json="tableString" :type="'WeakAura'" :showExport="showExport" :wagoID="wago._id" @hideExport="hideExport"></export-modal>
+    <export-modal :json="editorContent" :type="'WeakAura'" :showExport="showExport" :wagoID="wago._id" @hideExport="hideExport"></export-modal>
   </div>
 </template>
 
@@ -85,6 +85,7 @@ import luamin from '../libs/luamin'
 import InputSemver from '../UI/Input-Semver.vue'
 import ExportJSON from './ExportJSON'
 import CodeReview from './CodeReview'
+import MonacoEditor from './MonacoEditor.vue'
 
 export default {
   name: 'edit-weakaura',
@@ -95,9 +96,9 @@ export default {
       editorPreviousObj: {},
       tableData: JSON.parse(this.$store.state.wago.code.json),
       tableString: this.$store.state.wago.code.json,
+      editorLang: 'json',
+      editorContent: this.$store.state.wago.code.json,
       editorFile: '',
-      aceLanguage: 'json',
-      aceEditor: null,
       showExport: false,
       extractData: false,
       latestVersion: {semver: semver.valid(semver.coerce(this.$store.state.wago.versions.versions[0].versionString))},
@@ -114,12 +115,12 @@ export default {
     customCodeIndex: async function (newIndex, oldIndex) {
       const unsavedTableState = this.unsavedTable
       if (oldIndex === -1) {
-        let table = this.aceEditor.getValue()
+        let table = this.editorContent
         this.$store.commit('setWagoJSON', table)
         this.tableData = JSON.parse(table)
       }
       else if (this.customCode[oldIndex]) {
-        let updatedLua = this.aceEditor.getValue()
+        let updatedLua = this.editorContent
         let safeLua = updatedLua.replace(/\\/g, '\\\\').replace(/\r\n|\n|\r/g, '\\n').replace(/"/g, '\\"')
         this.$set(this.customCode[oldIndex], 'lua', updatedLua)
         if (this.customCode[oldIndex].keypath.match(/^\w/)) {
@@ -132,23 +133,20 @@ export default {
 
       await this.$nextTick()
       if (newIndex === -1) {
-        this.aceEditor.setValue('')
-        this.aceEditor.getSession().setMode('ace/mode/json')
-        this.aceEditor.setValue(JSON.stringify(this.tableData, null, 2), -1)
+        this.editorContent = JSON.stringify(this.tableData, null, 2)
+        this.editorLang = 'json'
       }
       else if (this.customCode[newIndex]) {
-        this.aceEditor.setValue('')
-        this.aceEditor.getSession().setMode('ace/mode/lua')
-        this.aceEditor.setValue(this.customCode[newIndex].lua, -1)
+        this.editorContent = this.customCode[newIndex].lua
+        this.editorLang = 'lua'
       }
 
       await this.$nextTick()
-      this.aceEditor.getSession().getUndoManager().reset()
       this.setHasUnsavedChanges(unsavedTableState)
     }
   },
   components: {
-    editor: require('vue2-ace-editor'),
+    'monaco-editor': MonacoEditor,
     'export-modal': ExportJSON,
     'input-semver': InputSemver,
     codereview: CodeReview
@@ -164,28 +162,6 @@ export default {
     }
   },
   methods: {
-    editorInit: function (editor) {
-      this.editorFile = this.tableData.d.id
-      this.aceEditor = editor
-      window.braceRequires()
-      editor.setOptions({
-        autoScrollEditorIntoView: true,
-        scrollPastEnd: true,
-        printMargin: false,
-        minLines: 80,
-        maxLines: 1000
-      })
-    },
-    luacheckInit: function (editor) {
-      window.braceRequires()
-      editor.setOptions({
-        scrollPastEnd: false,
-        printMargin: false,
-        maxLines: 100,
-        readOnly: true
-      })
-    },
-
     loadByKeypath: async function (keypath) {
       for (let i = 0; i < this.customCode.length; i++) {
         if (this.customCode[i].keypath === keypath) {
@@ -209,9 +185,7 @@ export default {
     },
 
     formatCode: function () {
-      var lua = this.aceEditor.getValue()
-      lua = luamin.Beautify(lua, {})
-      this.aceEditor.setValue(lua, -1)
+      this.editorContent = luamin.Beautify(this.editorContent, {})
     },
 
     saveChanges: async function () {
@@ -222,7 +196,7 @@ export default {
       let post = {}
       post.wagoID = this.wago._id
       post.type = this.wago.type
-      post.json = this.aceEditor.getValue()
+      post.json = this.editorContent
       post.newVersion = this.newImportVersion.semver
       post.changelog = this.newChangelog.text
       post.changelogFormat = this.newChangelog.format
@@ -313,12 +287,11 @@ export default {
       }
     },
     exportChanges: function () {
-      if (this.editorSelected === 'tabledata') {
-        this.tableString = this.aceEditor.getValue()
+      if (this.customCodeIndex === -1) {
         this.showExport = true
       }
       else {
-        this.editorSelected = 'tabledata'
+        this.customCodeIndex = -1
         var t = this
         setTimeout(function () {
           t.exportChanges()
@@ -330,15 +303,6 @@ export default {
     }
   },
   computed: {
-    editorContent: {
-      get: function () {
-        return this.$store.state.wago.code.json
-      },
-
-      set: function () {
-
-      }
-    },
     groupedWA: function () {
       if (!this.tableData.c) {
         return false

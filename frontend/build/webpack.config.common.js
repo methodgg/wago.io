@@ -1,7 +1,7 @@
 const { VueLoaderPlugin } = require('vue-loader');
 const HtmlPlugin = require('html-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
-const path = require('path');
+const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 
 // Assuming `helpers.root` is a utility function you've defined. Ensure its compatibility.
 const helpers = require('./helpers')
@@ -54,6 +54,7 @@ const webpackConfig = {
     new HtmlPlugin({ template: 'embed.html', filename: 'embed.html', chunksSortMode: 'auto' }),
     new HtmlPlugin({ template: 'test.html', filename: 'test.html', chunksSortMode: 'auto' }),
     new CopyWebpackPlugin({ patterns: [{ from: 'static', to: 'static' }] }),
+    new MonacoWebpackPlugin(),    
   ],
 };
 

@@ -72,6 +72,7 @@
     <img src="./../../assets/new-addon.png" v-else-if="group === 'new-addon'"/>
     <img src="./../../assets/weakauras.png" v-else-if="group === 't-weakaura'"/>
     <img src="./../../assets/weakauras.png" v-else-if="group === 't-classic-weakaura'"/>
+    <img src="./../../assets/weakauralogo.png" v-else-if="group === 't-weakaura-nobg'"/>
     <img src="./../../assets/tukui.png" v-else-if="group === 't-elvui'"/>
     <img src="./../../assets/mdt.png" v-else-if="group === 't-mdt'"/>
     <img src="./../../assets/menu-opie.png" v-else-if="group === 't-opie'"/>
@@ -79,8 +80,14 @@
     <img src="./../../assets/menu-trpcamp.png" v-else-if="group === 't-totalrp' || group === 't-totalrp3'"/>
     <img src="./../../assets/menu-blizzhud.png" v-else-if="group === 't-blizzhud'"/>
     <img src="./../../assets/menu-plater.png" v-else-if="group === 't-plater'"/>
+    <img src="./../../assets/menu-macro.png" v-else-if="group === 't-macro'"/>
+    <img src="./../../assets/macro-search.png" v-else-if="group === 't-macro-search'"/>
     <img src="./../../assets/menu-encounternotes.png" v-else-if="group === 't-encounternotes'"/>
     <img src="./../../assets/delvui.png" v-else-if="group === 't-delvui'"/>
+
+    <img src="./../../assets/df-toggle.svg" v-else-if="group === 'exp-df'"/>
+    <img src="./../../assets/wotlk-toggle.svg" v-else-if="group === 'exp-wotlk'"/>
+    <img src="./../../assets/classic-toggle.svg" v-else-if="group === 'exp-classic'"/>
   </div>
 </template>
 

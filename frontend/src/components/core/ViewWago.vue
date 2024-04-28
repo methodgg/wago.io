@@ -19,42 +19,6 @@
         <h3>{{ wago.name }}</h3>
         <md-subheader><span v-for="(cat, n) in wago.categories" :key="n" :class="cat.cls" disabled v-if="cat.text">{{ cat.text }}</span></md-subheader>
       </div>
-      <div class="md-card" id="sticky-header">
-        <h1>{{ wago.name }}
-          <div>
-            <span v-if="currentVersionString && !currentVersionString.match(/undefined/)">v{{ currentVersionString }}</span>
-            <span>{{ displayExpansion(wago) }}{{ wago.type }}</span>
-          </div>
-        </h1>
-        <div v-if="wago.type.match(/WEAKAURA|PLATER/) && wago.visibility && !wago.visibility.encrypted" id="sendToDesktopAppBtn" class="md-hide-xsmall md-button copy-import-button" @click="sendToApp()">
-          <md-icon>airplay</md-icon> {{ $t("Send to Desktop App") }}
-          <md-button @click.stop="sendToApp('ask')" id="helpAppButton" class="md-icon-button md-raised"><md-icon>help</md-icon></md-button>
-        </div>
-        <md-button v-if="wago.code && wago.code.encoded" @click="copyEncoded" class="copy-import-button" id="copyImportBtn">
-          <md-icon>assignment</md-icon> <span>{{ $t("Copy import string") }}</span>
-          <md-button @click="openHelpDialog" id="helpImportingButton" class="md-icon-button md-raised"><md-icon>help</md-icon></md-button>
-
-          <md-tooltip v-if="!isLatestVersion() || hasUnsavedChanges || corruptedData || (codeReview && codeReview.alerts)" md-direction="bottom" class="CopyWarningTooltip">
-
-            <template v-if="!isLatestVersion()">
-              <p><strong>{{ $t("There is a newer version of this import") }}</strong><br>{{ $t("Are you sure you want to copy this version?") }}</p>
-            </template>
-            
-            <template v-if="hasUnsavedChanges">
-              <p><strong>{{ $t("You have unsaved changes") }}</strong><br>{{ $t("Be sure to save or fork to generate a new string with your modifications") }}</p>
-            </template>
-            
-            <template v-if="corruptedData">
-              <p><strong>{{ $t("This import is corrupted and will likely not work as expected") }}</strong></p>
-            </template>
-            
-            <template v-if="codeReview && codeReview.alerts">
-              <p><strong>{{ $t("This import has alerts, you are strongly suggested to review the code before installing") }}</strong></p>
-            </template>
-            
-          </md-tooltip>
-        </md-button>
-      </div>
       <md-dialog md-open-from="#helpImportingButton" md-close-to="#helpImportingButton" ref="helpDialog" id="helpDialog">
         <md-dialog-title>{{ $t("How do I import this?") }}</md-dialog-title>
 
@@ -148,6 +112,12 @@
             <li>{{ $t('Paste the string into the window with ctrl-V (or command-V on a Mac), click Okay, then Yes to confirm') }} <img src="https://media.wago.io/site/vuhdo-encoded.png" /></li>
           </ol>
         </md-dialog-content>
+
+        <md-dialog-content v-else-if="wago.type.match(/MACRO/)">
+          <ol>
+            <li>{{ $t('Open the macro options by typing "/macro" into your chat window') }} </li>
+          </ol>
+        </md-dialog-content>
       </md-dialog>
       <md-dialog v-if="wago.user && User && wago.UID && wago.UID === User.UID" md-open-from="#newImportButton" md-close-to="#newImportButton" ref="newImportDialog" id="newImportDialog" @open="focusFieldByRef('importStringField')">
         <md-dialog-title>{{ $t("Import new string") }}</md-dialog-title>
@@ -180,57 +150,100 @@
         </md-dialog-actions>
       </md-dialog>
 
-      <md-layout md-row id="import-meta">
-        <md-card id="wago-header" ref="header">
-          <md-card-header>
-            <div>
-              <md-avatar>
-                <ui-image :img="wago.user.avatar"></ui-image>
-              </md-avatar>
-              <div class="item">
-                <div class="md-title" v-if="wago.type === 'COLLECTION' && wago.UID && wago.user.searchable" v-html="$t('Collected by [-name-]', {name: `<a href='/p/${encodeURIComponent(wago.user.name)}' class='${wago.user.roleClass}'>${escapeText(wago.user.name)}</a>`, 'interpolation': {'escapeValue': false}})"></div>
-                <div class="md-title" v-else-if="wago.type === 'COLLECTION' && wago.UID" v-html="$t('Imported by [-name-]', {name: `<span class='${wago.user.roleClass}'>${escapeText(wago.user.name)}</span>`, 'interpolation': {'escapeValue': false}})"></div>
-                <div class="md-title" v-else-if="wago.UID && wago.user.searchable" v-html="$t('Imported by [-name-]', {name: `<a href='/p/${encodeURIComponent(wago.user.name)}' class='${wago.user.roleClass}'>${escapeText(wago.user.name)}</a>`, 'interpolation': {'escapeValue': false}})"></div>
-                <div class="md-title" v-else-if="wago.UID" v-html="$t('Imported by [-name-]', {name: `<span class='${wago.user.roleClass}'>${escapeText(wago.user.name)}</span>`, 'interpolation': {'escapeValue': false}})"></div>
-                <div class="md-title" v-else>{{ $t("Imported by guest") }}</div>
-                <div class="md-subhead" v-if="wago.type !== 'COLLECTION'">{{ wago.date.modified | moment('MMM Do YYYY') }} <template v-if="wago.patch">[{{ wago.patch }}]</template></div>
+      <div class="md-layout">
+        <div id="import-header-container">
+          <div class="md-card" id="import-header">
+            <h1>{{ wago.name }}
+              <div>
+                <span v-if="currentVersionString && !currentVersionString.match(/undefined/)">v{{ currentVersionString }}</span>
+                <span>{{ displayExpansion(wago) }}{{ wago.type }}</span>
               </div>
-              <div class="item">
-                <div class="md-title">{{ $t("[-count-] star", { count: wago.favoriteCount }) }}</div>
-                <div class="md-subhead">{{ $t("[-count-] view", { count: wago.viewCount }) }}</div>
-              </div>
-              <div class="item" v-if="wago.type.match(/WEAKAURA/)">
-                <div class="md-title">{{ $t("[-count-] install", { count: wago.installCount }) }}</div>
-              </div>
-              <div id="tags">
-                <template>
-                  <router-link v-for="(cat, n) in wago.categories" :key="n" :to="'/' + typeSlug + cat.slug">
-                    <md-chip :class="cat.id" disabled v-if="cat.text && (n<5 || showMoreCategories)">{{ cat.text }}</md-chip>
-                  </router-link>
-                </template>
-                <span @click="viewAllCategories()"><md-chip v-if="wago.categories.length > 5 && !showMoreCategories" class="show_more">{{ $t("[-count-] more", {count: wago.categories.length - 5}) }}</md-chip></span>
-              </div>
+            </h1>
+            <div v-if="wago.type.match(/WEAKAURA|PLATER/) && wago.visibility && !wago.visibility.encrypted" id="sendToDesktopAppBtn" class="md-hide-xsmall md-button copy-import-button" @click="sendToApp()">
+              <md-icon>airplay</md-icon> {{ $t("Send to Desktop App") }}
+              <md-button @click.stop="sendToApp('ask')" id="helpAppButton" class="md-icon-button md-raised"><md-icon>help</md-icon></md-button>
             </div>
-            
-            <div><advert ad="video-sidebar" /></div>
-          </md-card-header>
+            <md-button v-if="wago.code && wago.code.encoded" @click="copyEncoded" class="copy-import-button" id="copyImportBtn">
+              <md-icon>assignment</md-icon> 
+              <span v-if="wago.type === 'MACRO'">{{ $t("Copy Macro") }}</span>
+              <span v-else>{{ $t("Copy import string") }}</span>
+              <md-button @click="openHelpDialog" id="helpImportingButton" class="md-icon-button md-raised"><md-icon>help</md-icon></md-button>
 
-          <div id="wago-actions" v-if="User && User.UID">
-            <md-button v-if="wago.user && wago.UID && wago.UID === User.UID && wago.code && wago.code.encoded" @click="generateNextVersionData(); $refs['newImportDialog'].open()" id="newImportButton"><md-icon>input</md-icon> {{ $t("Import new string") }}</md-button>
-            <md-button v-if="(!wago.UID || wago.UID !== User.UID)" @click="$refs.reportmodal.open()">
-              <md-icon>flag</md-icon> {{ $t("Report") }}
-            </md-button>
-            <span></span>
-            <md-button @click="newComment">
-              <md-icon>comment</md-icon> {{ $t("Post Comment") }}
-            </md-button>
-            <md-button @click="toggleFavorite">
-              <md-icon v-if="wago.myfave">star</md-icon>
-              <md-icon v-else>star_border</md-icon> {{ $t("Favorite") }}
+              <md-tooltip v-if="!isLatestVersion() || hasUnsavedChanges || corruptedData || (codeReview && codeReview.alerts)" md-direction="bottom" class="CopyWarningTooltip">
+
+                <template v-if="!isLatestVersion()">
+                  <p><strong>{{ $t("There is a newer version of this import") }}</strong><br>{{ $t("Are you sure you want to copy this version?") }}</p>
+                </template>
+                
+                <template v-if="hasUnsavedChanges">
+                  <p><strong>{{ $t("You have unsaved changes") }}</strong><br>{{ $t("Be sure to save or fork to generate a new string with your modifications") }}</p>
+                </template>
+                
+                <template v-if="corruptedData">
+                  <p><strong>{{ $t("This import is corrupted and will likely not work as expected") }}</strong></p>
+                </template>
+                
+                <template v-if="codeReview && codeReview.alerts">
+                  <p><strong>{{ $t("This import has alerts, you are strongly suggested to review the code before installing") }}</strong></p>
+                </template>
+                
+              </md-tooltip>
             </md-button>
           </div>
-        </md-card>
-      </md-layout>
+          <md-layout md-row id="import-meta">
+            <md-card id="wago-header" ref="header">
+              <md-card-header>
+                <div>
+                  <md-avatar>
+                    <ui-image :img="wago.user.avatar"></ui-image>
+                  </md-avatar>
+                  <div class="item">
+                    <div class="md-title" v-if="wago.type === 'COLLECTION' && wago.UID && wago.user.searchable" v-html="$t('Collected by [-name-]', {name: `<a href='/p/${encodeURIComponent(wago.user.name)}' class='${wago.user.roleClass}'>${escapeText(wago.user.name)}</a>`, 'interpolation': {'escapeValue': false}})"></div>
+                    <div class="md-title" v-else-if="wago.type === 'COLLECTION' && wago.UID" v-html="$t('Imported by [-name-]', {name: `<span class='${wago.user.roleClass}'>${escapeText(wago.user.name)}</span>`, 'interpolation': {'escapeValue': false}})"></div>
+                    <div class="md-title" v-else-if="wago.UID && wago.user.searchable" v-html="$t('Imported by [-name-]', {name: `<a href='/p/${encodeURIComponent(wago.user.name)}' class='${wago.user.roleClass}'>${escapeText(wago.user.name)}</a>`, 'interpolation': {'escapeValue': false}})"></div>
+                    <div class="md-title" v-else-if="wago.UID" v-html="$t('Imported by [-name-]', {name: `<span class='${wago.user.roleClass}'>${escapeText(wago.user.name)}</span>`, 'interpolation': {'escapeValue': false}})"></div>
+                    <div class="md-title" v-else>{{ $t("Imported by guest") }}</div>
+                    <div class="md-subhead" v-if="wago.type !== 'COLLECTION'">{{ wago.date.modified | moment('MMM Do YYYY') }} <template v-if="wago.patch">[{{ wago.patch }}]</template></div>
+                  </div>
+                  <div class="item">
+                    <div class="md-title">{{ $t("[-count-] star", { count: wago.favoriteCount }) }}</div>
+                    <div class="md-subhead">{{ $t("[-count-] view", { count: wago.viewCount }) }}</div>
+                  </div>
+                  <div class="item" v-if="wago.type.match(/WEAKAURA/)">
+                    <div class="md-title">{{ $t("[-count-] install", { count: wago.installCount }) }}</div>
+                  </div>
+                  <div id="tags">
+                    <template>
+                      <router-link v-for="(cat, n) in wago.categories" :key="n" :to="'/' + typeSlug + cat.slug">
+                        <md-chip :class="cat.id" disabled v-if="cat.text && (n<5 || showMoreCategories)">{{ cat.text }}</md-chip>
+                      </router-link>
+                    </template>
+                    <span @click="viewAllCategories()"><md-chip v-if="wago.categories.length > 5 && !showMoreCategories" class="show_more">{{ $t("[-count-] more", {count: wago.categories.length - 5}) }}</md-chip></span>
+                  </div>
+                </div>
+                
+                <div><advert ad="video-sidebar" /></div>
+              </md-card-header>
+
+              <div id="wago-actions" v-if="User && User.UID">
+                <md-button v-if="wago.user && wago.UID && wago.UID === User.UID && wago.code && wago.code.encoded" @click="generateNextVersionData(); $refs['newImportDialog'].open()" id="newImportButton"><md-icon>input</md-icon> {{ $t("Import new string") }}</md-button>
+                <md-button v-if="(!wago.UID || wago.UID !== User.UID)" @click="$refs.reportmodal.open()">
+                  <md-icon>flag</md-icon> {{ $t("Report") }}
+                </md-button>
+                <span></span>
+                <md-button @click="newComment">
+                  <md-icon>comment</md-icon> {{ $t("Post Comment") }}
+                </md-button>
+                <md-button @click="toggleFavorite">
+                  <md-icon v-if="wago.myfave">star</md-icon>
+                  <md-icon v-else>star_border</md-icon> {{ $t("Favorite") }}
+                </md-button>
+              </div>
+            </md-card>
+          </md-layout>
+        </div>
+        <advert v-if="wago.type==='MDT'" ad="rectangle-sidebar" :patreonLink="true" />
+      </div>
 
       <md-dialog md-open-from="#sendToDesktopAppBtn" md-close-to="#sendToDesktopAppBtn" ref="sendToAppDialog">
         <md-dialog-title>Send to App</md-dialog-title>
@@ -252,7 +265,7 @@
           </div>
           <p v-if="selectedApp=='WagoApp' || !selectedApp" class="app-info">
             <img src="./../../assets/wagoio-logo.png"> {{$t('WagoApp is your all-in-one tool for managing your World of Warcraft addons and supported imports. Stay up to date and stay in style!') }}
-          </pageInfo>
+          </p>
           <p v-else-if="selectedApp=='WeakAurasCompanion'" class="app-info">
             <img src="./../../assets/weakauralogo.png"> {{$t('The WeakAuras Companion automatically fetches updates to the auras you have installed directly from Wago, without having to manually copy-paste import strings all the time. It also makes sure you don\'t miss any updates, always keeping you up to date with the latest versions.') }}
           </p>
@@ -291,7 +304,7 @@
                   <md-button v-if="wago.versions && wago.versions.total > 1" v-bind:class="{'md-toggle': showPanel === 'versions'}" @click="toggleFrame('versions')" ref="versionsButton">{{ $t("[-count-] version", { count: wago.versions.total }) }}</md-button>
                   <md-button v-if="wago.code && !wago.code.Q && hasCodeDiffs" v-bind:class="{'md-toggle': showPanel === 'diffs'}" @click="toggleFrame('diffs')" ref="diffsButton">{{ $t("Code Diffs") }}</md-button>
                   <md-button v-if="wago.code && wago.code.customCode && wago.code.customCode[0] && wago.code.customCode[0].luacheck && wago.type !== 'SNIPPET'" v-bind:class="{'md-toggle': showPanel === 'codereview'}" @click="toggleFrame('codereview')">{{ $t("Code Review") }}</md-button>
-                  <md-button v-if="wago.type !== 'ERROR' && wago.type !== 'COLLECTION' && wago.visibility && wago.visibility.public" v-bind:class="{'md-toggle': showPanel === 'embed'}" @click="toggleFrame('embed')">{{ $t("Embed") }}</md-button>
+                  <md-button v-if="wago.type !== 'ERROR' && wago.type !== 'COLLECTION' && wago.type !== 'MDT' && wago.visibility && wago.visibility.public" v-bind:class="{'md-toggle': showPanel === 'embed'}" @click="toggleFrame('embed')">{{ $t("Embed") }}</md-button>
                   <md-button v-if="wago.type === 'MDT'" v-bind:class="{'md-toggle': showPanel === 'builder'}" @click="toggleFrame('builder')">{{ $t("Builder") }}</md-button>
                   <md-button v-if="wago.type === 'BLIZZHUD'" v-bind:class="{'md-toggle': showPanel === 'hudsettings'}" @click="toggleFrame('hudsettings')">{{ $t("Hud Settings") }}</md-button>
                   <md-button v-if="wago.type !== 'ERROR' && wago.type !== 'COLLECTION'" v-bind:class="{'md-toggle': showPanel === 'editor'}" @click="toggleFrame('editor')">{{ $t("Editor") }}</md-button>
@@ -507,7 +520,7 @@
                       </md-layout>
                     </md-layout>
                   </div>
-                  <div v-if="!wago.image && !wago.audio && wago.type !== 'ERROR' && wago.type !== 'DBM'">
+                  <div v-if="!wago.image && !wago.audio && wago.type !== 'ERROR' && wago.type !== 'DBM' && wago.type !== 'MDT'">
                     <div>
                       <label id="categoryLabel">{{ $t("Categories") }}</label>
                       <md-button class="md-icon-button md-raised" @click="numCategorySets++">
@@ -580,8 +593,9 @@
               <!-- DESCRIPTIONS FRAME -->
               <div id="wago-description-container" class="wago-container" v-if="showPanel=='description'">
                 <div id="wago-description" style="padding-top:2px">
-                  <div v-if="codeReview.info && wago.type.match(/WEAKAURA|PLATER/)" id="import-info">
-                    <template v-if="codeReview.info.dependencies.length">
+                  <edit-macro v-if="wago.type=='MACRO' && wago.code" @update-version="updateVersion" :cipherKey="decryptKey" :readonly="true"></edit-macro>
+                  <div v-if="codeReview.info && wago.type.match(/WEAKAURA|PLATER|MACRO/)" id="import-info">
+                    <template v-if="codeReview.info.dependencies?.length">
                       <em>{{ $t('Import Dependencies') }}</em><br>
                       <template v-for="dep of codeReview.info.dependencies">
                         <span><md-icon :class="{warning: dep.warn}">extension</md-icon> {{ dep }}</span><br>
@@ -589,33 +603,36 @@
                     </template>
                     <template v-if="codeReview.info.highlights.size">
                       <em>{{ $t('Highlighted Functionality') }}</em><br>
-                      <template v-if="codeReview.info.highlights.has('leavegroup')"><span><md-icon>groups</md-icon> {{ $t('Leaves Group') }}</span></span><br></template>
-                      <template v-if="codeReview.info.highlights.has('keybind')"><span><md-icon>keyboard</md-icon> {{ $t('Sets keybinds') }}</span></span><br></template>
-                      <template v-if="codeReview.info.highlights.has('tts')"><span><md-icon>volume_up</md-icon> {{ $t('Uses text-to-speech') }}</span></span><br></template>
-                      <template v-if="codeReview.info.highlights.has('audio')"><span><md-icon>volume_up</md-icon> {{ $t('Plays audio') }}</span></span><br></template>
-                      <template v-if="codeReview.info.highlights.has('chat')"><span><md-icon>chat</md-icon> {{ $t('Sends chat messages') }}</span></span><br></template>
+                      <template v-if="codeReview.info.highlights.has('macro.script')"><span><md-icon>directions_run</md-icon> {{ $t('Runs Lua Script') }}</span><br></template>
+                      <template v-if="codeReview.info.highlights.has('leavegroup')"><span><md-icon>groups</md-icon> {{ $t('Leaves Group') }}</span><br></template>
+                      <template v-if="codeReview.info.highlights.has('keybind')"><span><md-icon>keyboard</md-icon> {{ $t('Sets keybinds') }}</span><br></template>
+                      <template v-if="codeReview.info.highlights.has('tts')"><span><md-icon>volume_up</md-icon> {{ $t('Uses text-to-speech') }}</span><br></template>
+                      <template v-if="codeReview.info.highlights.has('audio')"><span><md-icon>volume_up</md-icon> {{ $t('Plays audio') }}</span><br></template>
+                      <template v-if="codeReview.info.highlights.has('chat')"><span><md-icon>chat</md-icon> {{ $t('Sends chat messages') }}</span><br></template>
                     </template>
-                    <em>{{ $t('Code Metrics') }}</em><br>
-                    <template v-if="codeReview.info.nloc || codeReview.errors || codeReview.warnings">
-                      <template v-if="codeReview.alerts"><span>{{ $t('Code Alerts') }}<span>{{ codeReview.alerts }}</span></span><br></template>
-                      <template v-if="codeReview.errors"><span>{{ $t('Luacheck Errors') }}<span>{{ codeReview.errors }}</span></span><br></template>
-                      <template v-if="codeReview.warnings"><span>{{ $t('Luacheck Warnings') }}<span>{{ codeReview.warnings }}</span></span><br></template>
-                      <span title="Without comments or empty lines">{{ $t('Lines of code') }}<span>{{ codeReview.info.nloc }}</span></span><br>
-                      <span>{{ $t('Tokens') }}<span>{{ codeReview.info.tokens }}</span></span><br>
-                      <span>{{ $t('Globals') }}<span>{{ codeReview.info.globals.size }}</span></span><br>
-                      <span>{{ $t('Cyclomatic complexity') }}<span :class="{
-                        metricsOK: typeof codeReview.info.ccn === 'number' && codeReview.info.ccn <= 10,
-                        metricsWarn: typeof codeReview.info.ccn === 'number' && codeReview.info.ccn <= 20 && codeReview.info.ccn > 10,
-                        metricsAlert: typeof codeReview.info.ccn === 'number' && codeReview.info.ccn > 20}
-                      ">{{ codeReview.info.ccn }}</span></span><br>
-                      <span>{{ $t('Maintainability Index') }}<span :class="{
-                        metricsOK: typeof codeReview.info.maintainability === 'number' && codeReview.info.maintainability >= 20,
-                        metricsWarn: typeof codeReview.info.maintainability === 'number' && codeReview.info.maintainability < 20 && codeReview.info.maintainability >= 10,
-                        metricsAlert: typeof codeReview.info.maintainability === 'number' && codeReview.info.maintainability < 10 && codeReview.info.maintainability >= 0}
-                      ">{{ codeReview.info.maintainability }}</span></span><br>
-                      <template v-if="!codeReview.warnings && !codeReview.errors && !codeReview.alerts"><span>{{ $t('Luacheck') }}<span>{{$t('OK')}}</span></span><br></template>
+                    <template v-if="wago.type !== 'MACRO'">
+                        <em>{{ $t('Code Metrics') }}</em><br>
+                        <template v-if="codeReview.info.nloc || codeReview.errors || codeReview.warnings">
+                        <template v-if="codeReview.alerts"><span>{{ $t('Code Alerts') }}<span>{{ codeReview.alerts }}</span></span><br></template>
+                        <template v-if="codeReview.errors"><span>{{ $t('Luacheck Errors') }}<span>{{ codeReview.errors }}</span></span><br></template>
+                        <template v-if="codeReview.warnings"><span>{{ $t('Luacheck Warnings') }}<span>{{ codeReview.warnings }}</span></span><br></template>
+                        <span title="Without comments or empty lines">{{ $t('Lines of code') }}<span>{{ codeReview.info.nloc }}</span></span><br>
+                        <span>{{ $t('Tokens') }}<span>{{ codeReview.info.tokens }}</span></span><br>
+                        <span>{{ $t('Globals') }}<span>{{ codeReview.info.globals.size }}</span></span><br>
+                        <span>{{ $t('Cyclomatic complexity') }}<span :class="{
+                            metricsOK: typeof codeReview.info.ccn === 'number' && codeReview.info.ccn <= 10,
+                            metricsWarn: typeof codeReview.info.ccn === 'number' && codeReview.info.ccn <= 20 && codeReview.info.ccn > 10,
+                            metricsAlert: typeof codeReview.info.ccn === 'number' && codeReview.info.ccn > 20}
+                        ">{{ codeReview.info.ccn }}</span></span><br>
+                        <span>{{ $t('Maintainability Index') }}<span :class="{
+                            metricsOK: typeof codeReview.info.maintainability === 'number' && codeReview.info.maintainability >= 20,
+                            metricsWarn: typeof codeReview.info.maintainability === 'number' && codeReview.info.maintainability < 20 && codeReview.info.maintainability >= 10,
+                            metricsAlert: typeof codeReview.info.maintainability === 'number' && codeReview.info.maintainability < 10 && codeReview.info.maintainability >= 0}
+                        ">{{ codeReview.info.maintainability }}</span></span><br>
+                        <template v-if="!codeReview.warnings && !codeReview.errors && !codeReview.alerts"><span>{{ $t('Luacheck') }}<span>{{$t('OK')}}</span></span><br></template>
+                        </template>
+                        <template v-else>{{ $t('No custom code') }}</template>
                     </template>
-                    <template v-else>{{ $t('No custom code') }}</template>
                   </div>
 
                   <div v-if="(wago.screens && wago.screens.length) || (wago.videos && wago.videos.length)" class="screenshots">
@@ -627,6 +644,7 @@
                     <div>v{{ wago.code.versionString }}</div>
                     <formatted-text :text="wago.code.changelog" :enableLinks="wago.user.enableLinks"></formatted-text>
                   </div>
+                  
                   <formatted-text v-if="wago.type !== 'ERROR' || wago.description.text" :text="wago.description.text && wago.description.text.length ? wago.description : {text: $t('No description for this import has been provided')}" :enableLinks="wago.user.enableLinks"></formatted-text>
                   <template v-if="wago.type === 'ERROR' && wago.errorReport && wago.errorReport.length > 1">
                     <md-tabs @change="selectError">
@@ -1027,6 +1045,7 @@
                   <edit-plater v-else-if="wago.type=='PLATER' && wago.code" @set-has-unsaved-changes="setHasUnsavedChanges" :unsavedTable="hasUnsavedChanges" @update-encoded="updateEncoded" @update-version="updateVersion" :cipherKey="decryptKey" :loadFn="quickLoadEditorFn" :customFn="wago.code.customCode"></edit-plater>
                   <edit-snippet v-else-if="wago.type=='SNIPPET' && wago.code" @update-version="updateVersion" :cipherKey="decryptKey" :loadFn="quickLoadEditorFn"></edit-snippet>
                   <edit-delvui v-else-if="wago.type=='DELVUI' && wago.code" @update-version="updateVersion" :cipherKey="decryptKey" :loadFn="quickLoadEditorFn"></edit-delvui>
+                  <edit-macro v-else-if="wago.type=='MACRO' && wago.code" @update-version="updateVersion" :cipherKey="decryptKey" :loadFn="quickLoadEditorFn"></edit-macro>
                   <edit-common v-else-if="wago.code" @set-has-unsaved-changes="setHasUnsavedChanges" @update-encoded="updateEncoded" @update-version="updateVersion" :cipherKey="decryptKey"></edit-common>
                 </div>
               </div>
@@ -1232,6 +1251,7 @@ import EditDelvUI from '../UI/EditDelvUI.vue'
 import EditSnippet from '../UI/EditSnippet.vue'
 import EditPlater from '../UI/EditPlater.vue'
 import EditWeakAura from '../UI/EditWeakAura.vue'
+import EditMacro from '../UI/EditMacro.vue'
 import MDTBuilder from '../UI/MDTBuilder.vue'
 import BlizzHudSettings from '../UI/BlizzHudSettings.vue'
 import InputSemver from '../UI/Input-Semver.vue'
@@ -1257,6 +1277,7 @@ export default {
     Lightbox,
     'edit-common': EditCommon,
     'edit-snippet': EditSnippet,
+    'edit-macro': EditMacro,
     'edit-plater': EditPlater,
     'edit-weakaura': EditWeakAura,
     'edit-delvui': EditDelvUI,
@@ -1559,10 +1580,10 @@ export default {
     },
     editorTheme: function () {
       if (!this.$store.state.user || !this.$store.state.user.config || !this.$store.state.user.config.editor) {
-        return 'tomorrow'
+        return 'terminal'
       }
       else {
-        return this.$store.state.user.config.editor || 'tomorrow'
+        return this.$store.state.user.config.editor || 'terminal'
       }
     },
     listVersions: function () {
@@ -1688,6 +1709,17 @@ export default {
         this.updateDescFormat = res.description.format || this.$store.state.user.defaultEditorSyntax
         this.wago.typePrefix = ''
 
+        if (this.wago.type === 'MDT') {
+          this.$store.commit('setPageInfo', {
+            layout: 'MDT',
+          })
+        }
+        else {          
+          this.$store.commit('setPageInfo', {
+            layout: 'default',
+          })
+        }
+
         switch (this.wago.type) {
           case 'COLLECTION':
             this.showPanel = 'description'
@@ -1719,11 +1751,21 @@ export default {
             this.showPanel = 'description'
             this.typeSlug = 'totalrp/'
             break
+          case 'MACRO':
+            this.showPanel = 'description'
+            this.typeSlug = 'macro/'
+            break
           case 'WEAKAURA':
           case 'CLASSIC-WEAKAURA':
           case 'TBC-WEAKAURA':
           case 'WOTLK-WEAKAURA':
+          case 'CATA-WEAKAURA':
             this.showPanel = this.wago.description.text ? 'description' : 'editor'
+            if (this.wago.game === 'cata') {
+              this.wago.typePrefix = 'CATA'
+              this.typeSlug = 'cataclysm-weakauras/'
+            }
+            else 
             if (this.wago.game === 'wotlk') {
               this.wago.typePrefix = 'WOTLK'
               this.typeSlug = 'wotlk-weakauras/'
@@ -1754,6 +1796,33 @@ export default {
             }
             else {
               this.typeSlug = 'weakauras/'
+            }
+            break
+            
+          case 'MACRO':
+          case 'CLASSIC-MACRO':
+          case 'CATA-MACRO':
+          case 'DF-MACRO':
+          case 'TWW-MACRO':
+            this.showPanel = this.wago.description.text ? 'description' : 'editor'
+            if (this.wago.game === 'cata') {
+              this.wago.typePrefix = 'CATA'
+              this.typeSlug = 'cataclysm-macros/'
+            }
+            else if (this.wago.game === 'classic') {
+              this.wago.typePrefix = 'CLASSIC'
+              this.typeSlug = 'classic-macros/'
+            }
+            else if (this.wago.game === 'df') {
+              this.wago.typePrefix = 'DF'
+              this.typeSlug = 'dragonflight-macros/'
+            }
+            else if (this.wago.game === 'tww') {
+              this.wago.typePrefix = 'TWW'
+              this.typeSlug = 'tww-macros/'
+            }
+            else {
+              this.typeSlug = 'df-macros/'
             }
             break
           case 'BLIZZHUD':
@@ -1841,15 +1910,7 @@ export default {
         }
       })
     },
-    parseCodeObject (code) {
-      if (code && code.json) {
-        code.obj = JSON.parse(code.json)
-        code.json = JSON.stringify(code.obj, null, 2)
-      }
-
-      if (!code.Q) {
-        this.codeQueue = null
-      }
+    async parseCodeObject (code) {
       this.codeReview.errors = 0
       this.codeReview.warnings = 0
       this.codeReview.alerts = 0
@@ -1862,6 +1923,19 @@ export default {
         globals: new Set(),
         dependencies: [],
         highlights: new Set()
+      }
+      if (this.wago.type === 'MACRO' && code && code.encoded) {
+        if (code.encoded.match(/^\/(run|script|console)/m)) {
+            this.codeReview.info.highlights.add('macro.script')
+        }
+      }
+      if (code && code.json) {
+        code.obj = JSON.parse(code.json)
+        code.json = JSON.stringify(code.obj, null, 2)
+      }
+
+      if (!code.Q) {
+        this.codeQueue = null
       }
       if (code.tableMetrics && code.tableMetrics.dependencies) {
         this.codeReview.info.dependencies = code.tableMetrics.dependencies.filter(this.isDependancyRequired)
@@ -2414,13 +2488,14 @@ export default {
     hideVideo () {
       this.videoEmbedHTML = ''
     },
-    toggleFrame (frame) {
+    async toggleFrame (frame) {
+      this.showPanel = ''
+      await this.$nextTick()
       this.showPanel = frame
       this.hideTabs = true
       if (frame === 'config') {
-        this.$nextTick(function () {
-          setupConfigEvents(this)
-        })
+        await this.$nextTick()
+        setupConfigEvents(this)
       }
     },
     toTop () {
@@ -3163,13 +3238,16 @@ export default {
 
 <style src="vue-multiselect/dist/vue-multiselect.min.css"></style>
 <style lang="scss">
-#sticky-header {
+#import-header-container {
+  flex: 1;
+  flex-wrap: no-wrap;
+}
+#import-header {
   padding: 16px;
   display: flex;
   flex-direction: row;
   background: #333333;
   margin: 0 0 16px 0;
-  position: sticky;
   top: 0;
   z-index: 20!important;
   h1 {
@@ -3180,6 +3258,7 @@ export default {
     text-overflow: ellipsis;
     overflow: hidden;
     margin: 0;
+    max-width: 615px;
     div {
       font-size: 14px;
       opacity: .7;
@@ -3219,6 +3298,7 @@ export default {
 
 #import-meta {
   margin-bottom: 16px;
+  align-items: flex-start;
 }
 
 #wago-actions {

@@ -1286,5 +1286,24 @@
   "Search MDT": "",
   "Join MDT Discord": "",
   "MDT": "",
-  "Download MDT": ""
+  "Download MDT": "",
+  "Full Screen": "",
+  "Exit Full Screen": "",
+  "More": {
+    "": {
+      "": {
+        "": ""
+      }
+    }
+  },
+  "Browse Imports": "",
+  "Cataclysm Classic": "",
+  "Cataclysm PvE": "",
+  "Cataclysm": "",
+  "Typesense Test": "",
+  "Browse macro imports": "",
+  "Macro": "",
+  "Utility": "",
+  "Search Macros": "",
+  "Macro guide on Warcraft Wiki": ""
 }

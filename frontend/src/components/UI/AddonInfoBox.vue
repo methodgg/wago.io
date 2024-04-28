@@ -64,6 +64,11 @@ export default {
           links.push({url: 'https://discord.gg/xFWcfgE', name: this.$t('Join ElvUI Discord')})
           break
 
+        case 'macro':
+          links.push({url: searchURL, name: this.$t('Search Macros'), domain: 0})
+          links.push({url: 'https://warcraft.wiki.gg/wiki/Making_a_macro', name: this.$t('Macro guide on Warcraft Wiki')})
+          break
+
         case 'mdt':
           links.push({url: '/dragonflight-mdt/pve/dragonflight-dungeons-s3', name: this.$t('Search MDT'), domain: 0})
           links.push({url: 'https://addons.wago.io/addons/mythic-dungeon-tools', name: this.$t('Download MDT')})

@@ -34,7 +34,7 @@ export default {
         return false
       }
       var vue = this
-      this.http.post('/import/json/scan', { json: this.json, type: this.type, forkOf: this.wagoID, wagolib: this.wagolib }).then((res) => {
+      this.http.post('/import/json/scan', { json: JSON.stringify(JSON.parse(this.json)), type: this.type, forkOf: this.wagoID, wagolib: this.wagolib }).then((res) => {
         vue.forkString = res.encoded
         vue.scanID = res.scan
         vue.needsScan = false

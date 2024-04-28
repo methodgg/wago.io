@@ -18,9 +18,11 @@
               <svg aria-hidden="true" focusable="false" class="header-patreon" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M512 194.8c0 101.3-82.4 183.8-183.8 183.8-101.7 0-184.4-82.4-184.4-183.8 0-101.6 82.7-184.3 184.4-184.3C429.6 10.5 512 93.2 512 194.8zM0 501.5h90v-491H0v491z"></path></svg>
               {{ $t('Support Wago.io') }}
             </md-button>
-            <router-link id="mdt-btn" to="/dragonflight-mdt" class="md-button alert-button">
-              <img src="./assets/mdt.png" /> Mythic+ Routes
+            
+            <router-link id="macro-btn" to='/macros' class="md-button alert-button">
+                <img src="./assets/menu-macro.png" /> WoW Macros are now supported!
             </router-link>
+            
           </div>
           <div id="hr-nav" class="md-hide-xsmall">
             <h2 class="md-title md-hide-small-and-up" id="logo"><router-link to="/"><img src="./assets/wagoio-logo.png"/></router-link></h2>
@@ -54,20 +56,15 @@
           <md-list-item><router-link to='/blizzhud'>BlizzHUD</router-link></md-list-item>
           <md-list-item><router-link to='/search/imports/wow/dbm'>DBM</router-link></md-list-item>
           <md-list-item><router-link to='/elvui'>ElvUI</router-link></md-list-item>
-          <!--<md-list-item v-if="User && User.access && User.access.beta"><router-link to='/create-new-note'>Encounter Notes [Beta]</router-link></md-list-item>-->
-          <!-- <md-list-item><router-link to='/grid2'>Grid2</router-link></md-list-item> -->
+          <md-list-item><router-link to='/macros'>Macros</router-link><md-divider></md-divider></md-list-item>
           <md-list-item><router-link to='/mdt'>Mythic Dungeon Tools</router-link></md-list-item>
           <md-list-item><router-link to='/plater'>Plater Nameplates</router-link></md-list-item>
           <md-list-item><router-link to='/totalrp'>Total RP</router-link></md-list-item>
           <md-list-item><router-link to='/vuhdo'>VuhDo</router-link></md-list-item>
           <md-list-item><router-link to='/dragonflight-weakauras'>Dragonflight WeakAuras</router-link><md-divider></md-divider></md-list-item>
           <md-list-item><router-link to='/classic-weakauras'>Classic WeakAuras</router-link><md-divider></md-divider></md-list-item>
-          <!--<md-list-item><router-link to='/tbc-weakauras'>TBC WeakAuras</router-link><md-divider></md-divider></md-list-item>-->
           <md-list-item><router-link to='/wotlk-weakauras'>WotLK WeakAuras</router-link><md-divider></md-divider></md-list-item>
           <md-list-item><router-link to='/cataclysm-weakauras'>Cata WeakAuras</router-link><md-divider></md-divider></md-list-item>
-          <!-- <md-list-item class="menu-section">Final Fantasy XIV</md-list-item> -->
-          <!-- <md-list-item><router-link to='/delvui'>DelvUI</router-link></md-list-item> -->
-          <!--<md-list-item><router-link to='/tpie'>TPie</router-link><md-divider></md-divider></md-list-item>-->
           <md-list-item class="menu-section">General</md-list-item>
           <md-list-item><router-link to='/collections'>{{ $t("Collections") }}</router-link></md-list-item>
           <md-list-item><router-link to='/snippets'><span class="menu-action" @click="$store.commit('setSearchText', `type:SNIPPET`)">{{ $t("Snippets") }}</span></router-link><md-divider></md-divider></md-list-item>
@@ -106,6 +103,7 @@
               </router-link>
               <router-link to='/blizzhud'>BlizzHUD</router-link>
               <router-link to='/elvui'>ElvUI</router-link>
+              <router-link to='/macros'>Macros</router-link>
               <router-link to='/dragonflight-mdt'>Mythic Dungeon Tools</router-link>
               <router-link to='/opie'>OPie</router-link>
               <router-link to='/plater'>Plater Nameplates</router-link>
@@ -901,10 +899,47 @@ body.theme-dark .md-input-container label a { -webkit-text-fill-color: initial }
   }
 }
 
-#mdt-btn {
-  border-color: #c1272d  !important;
+#macro-btn {
+  border-color: #BA25BF  !important;
+  position: relative;
+  overflow: initial;
+  z-index: 99;
   img {
     height: 20px;
+  }
+  
+  .sub-nav {
+    display: none;
+    flex-direction: column;
+    align-items: flex-start;
+    box-shadow: 5px 5px 30px #00000066;
+    border-radius: 0 0 2px 2px;
+    min-width: 140px;
+    z-index: 99!important;
+    text-align: left;
+    & > * {
+      padding: 4px 12px;
+      color: white;
+      background: #3A3A3A;
+      cursor: pointer;
+      display: block;
+      &:hover {
+        background: #444444;
+        text-decoration: none;
+      }
+    }
+    :last-child {
+      border-radius: 0 0 2px 2px;
+    }
+  }
+  &:hover {
+    background: #3A3A3A;
+    .sub-nav {
+      display: block;
+      position: absolute;
+      top: 39px;
+      left: 0;
+    }
   }
 }
 
