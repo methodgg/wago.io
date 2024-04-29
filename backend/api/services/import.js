@@ -714,7 +714,8 @@ module.exports = function (fastify, opts, next) {
           code.encoded = await addon.encode(code.json.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim(), lua.runLua)
         }
         else if (addon.encodeRaw) {
-          code.encoded = await addon.encodeRaw(code.json)
+          code.encoded = await addon.encodeRaw(scan.input)
+          delete code.json
         }
       }
     }

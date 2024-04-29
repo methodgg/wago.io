@@ -1,23 +1,25 @@
-const reSlashCommand = /^\/\w+/m
+const reSlashCommand = /^(\/\w+|#)/m
 
 module.exports = {
   typeMatch: /^MACRO$/i,
   domain: ENUM.DOMAIN.WOW,
+  plainText: true,
 
   decode: async (str) => {
     // does this look like a macro?
     if (!str.match(reSlashCommand)) {
       return false
     }
-    return str.replace(/\\n/)
+    return str
   },
 
-  encode: async (str) => {
-    if (!encodedString.match(reSlashCommand)) {
+  encodeRaw: async (str) => {
+    str = str.replace(/^"|"$/mg, '')
+    if (!str.match(reSlashCommand)) {
         return false
     }
     
-    return str.replace(/target=/g, '@')
+    return str.replace(/target=/g, '@').replace("\\n", "\n")
   },
 
   processMeta: () => {
@@ -29,4 +31,3 @@ module.exports = {
 
   plainText: true
 }
-
