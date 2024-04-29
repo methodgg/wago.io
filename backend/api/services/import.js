@@ -718,7 +718,6 @@ module.exports = function (fastify, opts, next) {
         }
       }
     }
-
     wago.categories = [...new Set(wago.categories)]
     wago.modified = Date.now()
     await wago.save()
@@ -1103,7 +1102,7 @@ module.exports = function (fastify, opts, next) {
     }
     wago.modified = Date.now()
     await wago.save()
-    var code = new WagoCode({
+    const code = new WagoCode({
       auraID: wago._id,
       version: wago.latestVersion.iteration,
       versionString: wago.latestVersion.versionString,
@@ -1113,6 +1112,10 @@ module.exports = function (fastify, opts, next) {
       },
       lua: req.body.lua
     })
+    if (wago.type === 'MACRO') {
+        code.encoded = req.body.lua
+        delete code.lua
+    }
     webhooks.discord.onUpdate(req.user, wago)
 
     if (wago.encrypted && req.body.cipherKey) {

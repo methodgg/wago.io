@@ -125,7 +125,7 @@
         <md-dialog-content>
           <md-input-container :class="{ 'md-input-invalid': newImportString && newImportStringStatus.indexOf('Invalid') >= 0, 'md-input-status': newImportStringStatus }">
             <label>{{ $t("Paste a new [-type-] string to update this Wago", {type: wago.type.toLowerCase() }) }}</label>
-            <md-input v-model="newImportString" ref="importStringField"></md-input>
+            <md-textarea v-model="newImportString" ref="importStringField" id="importStringField"></md-textarea>
             <span class="md-error" v-if="newImportStringStatus.length>0">{{ newImportStringStatus }}</span>
           </md-input-container>
         </md-dialog-content>
@@ -594,7 +594,7 @@
               <div id="wago-description-container" class="wago-container" v-if="showPanel=='description'">
                 <div id="wago-description" style="padding-top:2px">
                   <edit-macro v-if="wago.type=='MACRO' && wago.code" @update-version="updateVersion" :cipherKey="decryptKey" :readonly="true"></edit-macro>
-                  <div v-if="codeReview.info && wago.type.match(/WEAKAURA|PLATER|MACRO/)" id="import-info">
+                  <div v-if="codeReview.info && (wago.type.match(/WEAKAURA|PLATER/) || (wago.type.match(/MACRO/) && codeReview.info.highlights.size))" id="import-info">
                     <template v-if="codeReview.info.dependencies?.length">
                       <em>{{ $t('Import Dependencies') }}</em><br>
                       <template v-for="dep of codeReview.info.dependencies">
@@ -3399,6 +3399,7 @@ a.showvid:hover:before  .md-icon { opacity:1 }
 .changelog-text { border-bottom: 1px solid #333; margin-bottom: 8px; }
 .md-table tbody .md-table-row.changelog-row { border-top-color: #333;}
 
+#importStringField {max-height: 32px}
 #import-info {padding: 8px; background: #333; margin: 0 0 16px 16px; border: 2px solid #009690; border-radius:2px; box-shadow: 0 1px 5px rgb(0 0 0 / 20%), 0 2px 2px rgb(0 0 0 / 14%), 0 3px 1px -2px rgb(0 0 0 / 12%);  white-space: nowrap; }
 #import-info em { font-weight: bold; font-style: normal; padding-bottom: 4px; display: inline-block; color: #009690}
 #import-info br + em { padding-top: 4px; }

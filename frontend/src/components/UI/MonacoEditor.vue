@@ -21,7 +21,7 @@ export default {
     data () {
         return {
             editor: null,
-            editorHeight: (this.value.match(/\n/g).length+4) * 19
+            editorHeight: 50
         }
     },
     watch: {
@@ -77,7 +77,7 @@ export default {
             if (this.editor) {
                 this.editor.layout({
                     width: document.getElementById('code-editor').offsetWidth - 8 , 
-                    height: (this.editor.getModel().getLineCount() + (this.readonly ? 0 : 3)) * 19
+                    height: (Math.min(this.editor.getModel().getLineCount(), 100) + (this.readonly ? 0 : 3)) * 19
                 })
             }
         }
@@ -124,6 +124,7 @@ export default {
                 value: _this.value,
                 languages: ['json', 'lua', 'wowMacro'],
                 language: _this.lang,
+                wordWrap: (this.lang !== 'json'),
                 ...editorOptions
             })
             

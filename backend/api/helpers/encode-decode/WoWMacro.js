@@ -1,3 +1,5 @@
+const reSlashCommand = /^\/\w+/m
+
 module.exports = {
   typeMatch: /^MACRO$/i,
   domain: ENUM.DOMAIN.WOW,
@@ -28,4 +30,3 @@ module.exports = {
   plainText: true
 }
 
-const reSlashCommand = /^\/(cancelaura|cancelqueuedspell|cancelform|cast|castrandom|castsequence|changeactionbar|startattack|stopattack|stopcasting|stopspelltarget|swapactionbar|use|usetoy|userandom|guilddemote|guilddisband|guildinfo|guildinvite|guildleader|guildquit|guildmotd|guildpromote|guildroster|guildremove|clearworldmarker|invite|ffa|group|master|mainassist|mainassistoff|maintank|maintankoff|promote|raidinfo|readycheck|requestinvite|targetmarker|threshold|uninvite|worldmarker|petassist|petattack|petautocastoff|petautocaston|petautocasttoggle|petdefensive|petdismiss|petfollow|petmoveto|petpassive|petstay|duel|forfeit|pvp|wargame|console|click|disableaddons|enableaddons|help|logout|macrohelp|played|quit|random|reload|script|stopmacro|time|timetest|who|assist|clearfocus|cleartarget|focus|target|targetexact|targetenemy|targetenemyplayer|targetfriend|targetfriendplayer|targetparty|targetraid|targetlastenemy|targetlastfriend|targetlasttarget)/m
