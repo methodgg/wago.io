@@ -218,6 +218,7 @@ async function UpdatePatreonAccounts() {
       // addon supporter 8747907
       // gold supporter 8747906
       // ultimate supporter 8751772
+      user.roles.patreonTier = tier
       user.roles.subscriber = (tier == 8747937 || tier == 8747907 || tier == 8747906 || tier == 8751772)
       user.roles.gold_subscriber = (tier == 8747906 || tier == 8751772)
       addonSubs.push(user._id.toString())
@@ -255,6 +256,7 @@ async function UpdatePatreonAccounts_grandfathered(skipExisting) {
       }
       // subscriber 1385924
       // gold sub 1386010
+      user.roles.patreonTier = tier
       user.roles.subscriber = tier > 0
       user.roles.gold_subscriber = tier > 1385924
       // user.roles.guild_subscriber = (!patrons[i].attributes.declined_since && patrons[i].attributes.amount_cents >= 1500)

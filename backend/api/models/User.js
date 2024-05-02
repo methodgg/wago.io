@@ -42,6 +42,7 @@ const Schema = new mongoose.Schema({
         embed: { type: Boolean, default: false }
       }
     },
+    patreonTier: {type: Number},
     subscriber: { type: Boolean, default: false },
     gold_subscriber: { type: Boolean, default: false },
     pro_subscriber: { type: Boolean, default: false },
@@ -282,6 +283,10 @@ Schema.virtual('access.api').get(function () {
 })
 Schema.virtual('access.hideAds').get(function () {
   if (this.roles.subscriber || this.roles.gold_subscriber || this.roles.pro_subscriber || this.roles.community_leader || this.roles.ambassador || this.roles.developer || this.roles.artContestWinnerAug2018) return true
+  return false
+})
+Schema.virtual('access.hideAddonAds').get(function () {
+  if (this.roles.patreonTier === 8747907 || this.roles.patreonTier === 8751772 || this.roles.community_leader || this.roles.ambassador || this.roles.developer) return true
   return false
 })
 Schema.virtual('access.restrictGuild').get(function () {
