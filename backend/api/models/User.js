@@ -42,7 +42,7 @@ const Schema = new mongoose.Schema({
         embed: { type: Boolean, default: false }
       }
     },
-    patreonTier: {type: Number},
+    patreonTier: {type: Number, default: 0},
     subscriber: { type: Boolean, default: false },
     gold_subscriber: { type: Boolean, default: false },
     pro_subscriber: { type: Boolean, default: false },
