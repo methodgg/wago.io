@@ -957,6 +957,7 @@ async function ProcessCode(data) {
       case 'CLASSIC-WEAKAURA':
       case 'TBC-WEAKAURA':
       case 'WOTLK-WEAKAURA':
+      case 'CATA-WEAKAURA':
       case 'PLATER':
         const json = JSON.parse(code.json)
 
@@ -1028,8 +1029,11 @@ async function ProcessAllCode() {
   var cursor = WagoItem.find({
     deleted: false,
     _userId: { $exists: true },
-    codeProcessVersion: { $lt: codeProcessVersion },
-    type: { $in: ['WEAKAURA', 'CLASSIC-WEAKAURA', 'TBC-WEAKAURA', 'WOTLK-WEAKAURA', 'PLATER'] },
+    type: {$regex: /WEAKAURA/}, $or: [
+        {$and: [{tocversion: {$lt: 40400}}, {tocversion: {$gt: 40000}}]},
+        {$and: [{tocversion: {$lt: 30400}}, {tocversion: {$gt: 30000}}]},
+        {$and: [{tocversion: {$lt: 20501}}, {tocversion: {$gt: 20000}}]},
+    ]
   }).cursor({ batchSize: 50 })
 
   let count = 0
