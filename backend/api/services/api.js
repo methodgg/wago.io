@@ -55,7 +55,14 @@ module.exports = function (fastify, opts, next) {
     const categories = {}
     for (const [id, cat] of Object.entries(Categories.translate(t))) {
         if (cat.text) {
-            categories[id] = { name: cat.text, slug: cat.slug ?? null, color: Categories.getAttr(cat, 'color') ?? null, image: Categories.getAttr(cat, 'image') ?? null }
+            categories[id] = {
+                name: cat.text, 
+                slug: cat.slug ?? null, 
+                color: Categories.getAttr(cat, 'color') ?? null, 
+                image: Categories.getAttr(cat, 'image') ?? null,
+                games: cat.games,
+                types: cat.types
+            }
         }
     }
     res.send(categories)
