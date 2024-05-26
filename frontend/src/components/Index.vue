@@ -170,8 +170,8 @@
           <router-link :to="'/dragonflight-weakauras/' + currentWA.dragonflight[0].slug" :style="`border-color: ${currentWA.dragonflight[0].color}99; color:${currentWA.dragonflight[0].color}; background-color:${currentWA.dragonflight[0].color}11; background-image:url('/static/image/menu/${currentWA.dragonflight[0].image}')`"><span>{{ currentWA.dragonflight[0].text }}</span></router-link>
           <router-link :to="'/dragonflight-weakauras/' + currentWA.dragonflight[1].slug" :style="`border-color: ${currentWA.dragonflight[1].color}99; color:${currentWA.dragonflight[1].color}; background-color:${currentWA.dragonflight[1].color}11; background-image:url('/static/image/menu/${currentWA.dragonflight[1].image}')`"><span>{{ currentWA.dragonflight[1].text }}</span></router-link>
 
-          <router-link :to="'/wotlk-weakauras/' + currentWA.wotlk[0].slug" :style="`border-color: ${currentWA.wotlk[0].color}99; color:${currentWA.wotlk[0].color}; background-color:${currentWA.wotlk[0].color}11; background-image:url('/static/image/menu/${currentWA.wotlk[0].image}')`"><span>{{ currentWA.wotlk[0].text }}</span></router-link>          
-          <router-link :to="'/wotlk-weakauras/' + currentWA.wotlk[1].slug" :style="`border-color: ${currentWA.wotlk[1].color}99; color:${currentWA.wotlk[1].color}; background-color:${currentWA.wotlk[1].color}11; background-image:url('/static/image/menu/${currentWA.wotlk[1].image}')`"><span>{{ currentWA.wotlk[1].text }}</span></router-link>
+          <router-link :to="'/cataclysm-weakauras/' + currentWA.cata[0].slug" :style="`border-color: ${currentWA.cata[0].color}99; color:${currentWA.cata[0].color}; background-color:${currentWA.cata[0].color}11; background-image:url('/static/image/menu/${currentWA.cata[0].image}')`"><span>{{ currentWA.cata[0].text }}</span></router-link>          
+          <router-link :to="'/cataclysm-weakauras/' + currentWA.cata[1].slug" :style="`border-color: ${currentWA.cata[1].color}99; color:${currentWA.cata[1].color}; background-color:${currentWA.cata[1].color}11; background-image:url('/static/image/menu/${currentWA.cata[1].image}')`"><span>{{ currentWA.cata[1].text }}</span></router-link>
         </div>
       </md-layout>
     </div>
@@ -525,9 +525,9 @@ export default {
           Categories.getCategories('raidamirdrassil')[0],
           Categories.getCategories('dfdungeon')[0],
         ],
-        wotlk: [
-          Categories.getCategories('raidicc')[0],
-          Categories.getCategories('wotlkdungeon')[0],
+        cata: [
+          Categories.getCategories('raidblackwingdescent')[0],
+          Categories.getCategories('raidbastiontwilight')[0],
         ],
         // classic: [
         //   Categories.getCategories('raidnaxxramas')[0],
