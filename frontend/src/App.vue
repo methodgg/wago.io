@@ -63,7 +63,6 @@
           <md-list-item><router-link to='/vuhdo'>VuhDo</router-link></md-list-item>
           <md-list-item><router-link to='/dragonflight-weakauras'>Dragonflight WeakAuras</router-link><md-divider></md-divider></md-list-item>
           <md-list-item><router-link to='/classic-weakauras'>Classic WeakAuras</router-link><md-divider></md-divider></md-list-item>
-          <md-list-item><router-link to='/wotlk-weakauras'>WotLK WeakAuras</router-link><md-divider></md-divider></md-list-item>
           <md-list-item><router-link to='/cataclysm-weakauras'>Cata WeakAuras</router-link><md-divider></md-divider></md-list-item>
           <md-list-item class="menu-section">General</md-list-item>
           <md-list-item><router-link to='/collections'>{{ $t("Collections") }}</router-link></md-list-item>
@@ -96,7 +95,6 @@
                   <span class="game-select">
                     <router-link to='/dragonflight-weakauras'>Dragonflight</router-link>
                     <router-link to='/cataclysm-weakauras'>Cataclysm</router-link>
-                    <router-link to='/wotlk-weakauras'>WotLK</router-link>
                     <router-link to='/classic-weakauras'>Classic</router-link>
                   </span>
                 </div>
