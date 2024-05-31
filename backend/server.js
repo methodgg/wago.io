@@ -77,6 +77,7 @@ fastify.get('/loaderio-ea4a5150f4d42634b2499beaf72f04a9.txt', (req, res) => { re
 fastify.register(require('./api/services/account'), { prefix: '/account' })
 fastify.register(require('./api/services/admin'), { prefix: '/admin' })
 fastify.register(require('./api/services/api'), { prefix: '/api' })
+fastify.register(require('./api/services/api-v2'), { prefix: '/api/v2' })
 fastify.register(require('./api/services/auth'), { prefix: '/auth' })
 fastify.register(require('./api/services/comments'), { prefix: '/comments' })
 fastify.register(require('./api/services/data'), { prefix: '/data' })

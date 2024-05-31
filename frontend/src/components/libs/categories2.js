@@ -1129,8 +1129,9 @@ class Categories {
   matchChildren (parent, addon, game) {
     if (!parent) return []
     let children = []
-    for (const cat of Object.values(this.categories)) {
+    for (const [id, cat] of Object.entries(this.categories)) {
       if (cat.parent === parent && (!addon || !cat.types || cat.types.indexOf(addon) >= 0) && (!game || !cat.games || cat.games.indexOf(game) >= 0)) {
+        cat.id = id
         children.push(cat)
       }
     }
@@ -1256,8 +1257,9 @@ class Categories {
 
   rootCategories (addon, game, domain) {
     let roots = []
-    for (const cat of Object.values(this.categories)) {
+    for (const [id, cat] of Object.entries(this.categories)) {
       if (!cat.parent && !cat.system && cat.domain === domain && (!addon || !cat.types || cat.types.indexOf(addon) >= 0) && (!game || !cat.games || cat.games.indexOf(game) >= 0)) {
+        cat.id = id
         roots.push(cat)
       }
     }
