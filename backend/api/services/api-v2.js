@@ -43,7 +43,6 @@ module.exports = function (fastify, opts, next) {
 function recursiveCategories(cats, type, game, t) {
     if (!cats) return null
     const categories = []
-    console.log(cats, typeof cats)
     for (const cat of cats) {
         if (!cat.slug) {
             continue // skip menu subtitles
@@ -63,31 +62,31 @@ function recursiveCategories(cats, type, game, t) {
 function invertExpansionId(x) {
     switch (x) {
         case 'classic': return 0
-        case 0: return 'classic'
+        case '0': return 'classic'
         case 'tbc': return 1
-        case 1: return 'tbc'
+        case '1': return 'tbc'
         case 'wotlk': return 2
-        case 2: return 'wotlk'
+        case '2': return 'wotlk'
         case 'cata': return 3
-        case 3: return 'cata'
+        case '3': return 'cata'
         case 'mop': return 4
-        case 4: return 'mop'
+        case '4': return 'mop'
         case 'wod': return 5
-        case 5: return 'wod'
+        case '5': return 'wod'
         case 'legion': return 6
-        case 6: return 'legion'
+        case '6': return 'legion'
         case 'bfa': return 7
-        case 7: return 'bfa'
+        case '7': return 'bfa'
         case 'sl': return 8
-        case 8: return 'sl'
+        case '8': return 'sl'
         case 'df': return 9
-        case 9: return 'df'
+        case '9': return 'df'
         case 'tww': return 10
-        case 10: return 'tww'
+        case '10': return 'tww'
         case 'midnight': return 11
-        case 11: return 'midnight'
+        case '11': return 'midnight'
         case 'tlt': return 12
-        case 12: return 'tlt'   
+        case '12': return 'tlt'   
     }
     return 0
 }
