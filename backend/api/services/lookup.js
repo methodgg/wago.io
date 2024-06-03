@@ -477,7 +477,7 @@ module.exports = function (fastify, opts, next) {
       for (let c of comments) {
         wago.codeReviewComments[c.codeReview] = {
           date: c.postDate,
-          text: c.commentText,
+          text: c.commentText ?? '',
           format: 'bbcode',
           falsePositive: c.codeReviewFalsePositive,
           author: {
