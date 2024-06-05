@@ -90,6 +90,10 @@ module.exports = {
           if t.triggers[n].trigger and t.triggers[n].trigger.actualSpec then
           t.triggers[n].trigger.actualSpec = fixNumericIndexes(t.triggers[n].trigger.actualSpec)
           end
+
+          if t.triggers[n].trigger and t.triggers[n].trigger.arena_spec then
+            t.triggers[n].trigger.arena_spec = fixNumericIndexes(t.triggers[n].trigger.arena_spec)
+          end
         end
       end
 
