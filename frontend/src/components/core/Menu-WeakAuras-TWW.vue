@@ -8,7 +8,7 @@
               <span>{{ $t('The War Within') }}</span>
             </h2>
           </md-layout>
-          <addon-info game="wow" addon="weakaura" expansion="df"></addon-info>
+          <addon-info game="wow" addon="weakaura" expansion="tww"></addon-info>
         </div>
       </md-layout>
       <md-layout>
