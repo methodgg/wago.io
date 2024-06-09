@@ -5,6 +5,7 @@ const Logout = resolve => require(['@/components/core/Logout.vue'], resolve)
 const Account = resolve => require(['@/components/core/Account.vue'], resolve)
 const Admin = resolve => require(['@/components/core/Admin.vue'], resolve)
 
+const MenuWeakAurasTWW = resolve => require(['@/components/core/Menu-WeakAuras-TWW.vue'], resolve)
 const MenuWeakAurasDragonflight = resolve => require(['@/components/core/Menu-WeakAuras-Dragonflight.vue'], resolve)
 const MenuWeakAurasShadowlands = resolve => require(['@/components/core/Menu-WeakAuras-Shadowlands.vue'], resolve)
 const MenuWeakAurasBFA = resolve => require(['@/components/core/Menu-WeakAuras-BFA.vue'], resolve)
@@ -19,22 +20,18 @@ const MenuElvUI = resolve => require(['@/components/core/Menu-ElvUI.vue'], resol
 const MenuVuhdo = resolve => require(['@/components/core/Menu-Vuhdo.vue'], resolve)
 const MenuTotalRP = resolve => require(['@/components/core/Menu-TotalRP.vue'], resolve)
 const MenuOPie = resolve => require(['@/components/core/Menu-OPie.vue'], resolve)
-const MenuTPie = resolve => require(['@/components/core/Menu-TPie.vue'], resolve)
 const MenuPlater = resolve => require(['@/components/core/Menu-Plater.vue'], resolve)
 // const MenuMDTBFA = resolve => require(['@/components/core/Menu-MDT-BFA.vue'], resolve)
 // const MenuMDTShadowlands = resolve => require(['@/components/core/Menu-MDT-Shadowlands.vue'], resolve)
 const MenuMDTDragonflight = resolve => require(['@/components/core/Menu-MDT-Dragonflight.vue'], resolve)
 const CreateMDT = resolve => require(['@/components/core/Create-MDT.vue'], resolve)
-const CreateEncounterNotes = resolve => require(['@/components/core/Create-Notes.vue'], resolve)
 const MenuCollections = resolve => require(['@/components/core/Menu-Collections.vue'], resolve)
-const MenuAddons = resolve => require(['@/components/core/Menu-Addons.vue'], resolve)
 const MenuDelvUI = resolve => require(['@/components/core/Menu-DelvUI.vue'], resolve)
 
 const TermsOfService = resolve => require(['@/components/core/TermsOfService.vue'], resolve)
 const PrivacyPolicy = resolve => require(['@/components/core/PrivacyPolicy.vue'], resolve)
 
 const ViewWago = resolve => require(['@/components/core/ViewWago.vue'], resolve)
-const ViewProfile = resolve => require(['@/components/core/ViewProfile.vue'], resolve)
 
 const News = resolve => require(['@/components/core/News.vue'], resolve)
 const Search = resolve => require(['@/components/core/Search.vue'], resolve)
@@ -108,6 +105,11 @@ export default {
     { path: '/weakauras/:c1/:c2', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'weakaura'), type: 'weakaura', game: 'wow', expansion: 'df', mode: 'imports' } }) },
     { path: '/weakauras/:c1/:c2/:c3', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'weakaura'), type: 'weakaura', game: 'wow', expansion: 'df', mode: 'imports' } }) },
     { path: '/weakauras/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'weakaura'), type: 'weakaura', game: 'wow', expansion: 'df', mode: 'imports' } }) },
+    { path: '/the-war-within-weakauras', component: MenuWeakAurasTWW },
+    { path: '/the-war-within-weakauras/:c1', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'weakaura'), type: 'weakaura', game: 'wow', expansion: 'tww', mode: 'imports' } }) },
+    { path: '/the-war-within-weakauras/:c1/:c2', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'weakaura'), type: 'weakaura', game: 'wow', expansion: 'tww', mode: 'imports' } }) },
+    { path: '/the-war-within-weakauras/:c1/:c2/:c3', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'weakaura'), type: 'weakaura', game: 'wow', expansion: 'tww', mode: 'imports' } }) },
+    { path: '/the-war-within-weakauras/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'weakaura'), type: 'weakaura', game: 'wow', expansion: 'tww', mode: 'imports' } }) },
     { path: '/dragonflight-weakauras', component: MenuWeakAurasDragonflight },
     { path: '/dragonflight-weakauras/:c1', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'weakaura'), type: 'weakaura', game: 'wow', expansion: 'df', mode: 'imports' } }) },
     { path: '/dragonflight-weakauras/:c1/:c2', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'weakaura'), type: 'weakaura', game: 'wow', expansion: 'df', mode: 'imports' } }) },

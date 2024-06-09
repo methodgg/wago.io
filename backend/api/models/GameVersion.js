@@ -54,7 +54,7 @@ Schema.virtual('game_short').get(function () {
         case 7: return 'BfA'
         case 8: return 'SL'
         case 9: return 'DF'
-        case 10: return 'WW'
+        case 10: return 'TWW'
         case 11: return 'Midnight'
         case 12: return 'TLT'
         default: 'WoW'

@@ -35,9 +35,9 @@
                   <label>{{ $t('Expansion') }}</label>
                   <small id="selected-expansion">{{
                     searchExpansion === 'classic' && $t('Classic') ||
-                    searchExpansion === 'wotlk' && $t('WotLK') ||
                     searchExpansion === 'cata' && $t('Cataclysm') ||
                     searchExpansion === 'df' && $t('Dragonflight') ||
+                    searchExpansion === 'tww' && $t('The War Within') ||
                     (!searchExpansion || searchExpansion === 'all') && $t('All') ||
                     $t('Legacy')
                     }}</small>
@@ -47,6 +47,10 @@
                     <img src="../../assets/game-wow.svg">
                     <md-tooltip md-direction="bottom" class="">{{ $t("All") }}</md-tooltip>
                   </md-button>
+                  <md-button :class="{ 'md-toggle': searchExpansion === 'tww' }" class="md-icon-button" @click="setExpansion('tww')">
+                    <img src="../../assets/tww-toggle.svg">
+                    <md-tooltip md-direction="bottom" class="">{{ $t("The War Within") }}</md-tooltip>
+                  </md-button>
                   <md-button :class="{ 'md-toggle': searchExpansion === 'df' }" class="md-icon-button" @click="setExpansion('df')">
                     <img src="../../assets/df-toggle.svg">
                     <md-tooltip md-direction="bottom" class="">{{ $t("Dragonflight") }}</md-tooltip>
@@ -55,15 +59,11 @@
                     <img src="../../assets/cata-toggle.svg">
                     <md-tooltip md-direction="bottom" class="">{{ $t("Cataclysm") }}</md-tooltip>
                   </md-button>
-                  <md-button :class="{ 'md-toggle': searchExpansion === 'wotlk' }" class="md-icon-button" @click="setExpansion('wotlk')">
-                    <img src="../../assets/wotlk-toggle.svg">
-                    <md-tooltip md-direction="bottom" class="">{{ $t("Wrath of the Lich King") }}</md-tooltip>
-                  </md-button>
                   <md-button :class="{ 'md-toggle': searchExpansion === 'classic' }" class="md-icon-button" @click="setExpansion('classic')">
                     <img src="../../assets/classic-toggle.svg">
                     <md-tooltip md-direction="bottom" class="">{{ $t("Classic") }}</md-tooltip>
                   </md-button>
-                  <md-button :class="{ 'md-toggle': searchExpansion && !searchExpansion.match(/df|cata|wotlk|classic/) }" class="md-icon-button" @click="setExpansion('legacy')">
+                  <md-button :class="{ 'md-toggle': searchExpansion && !searchExpansion.match(/tww|df|cata|classic/) }" class="md-icon-button" @click="setExpansion('legacy')">
                     <img src="../../assets/legacy-toggle.svg">
                     <md-tooltip md-direction="bottom" class="">{{ $t("Legacy") }}</md-tooltip>
                   </md-button>
@@ -709,7 +709,7 @@ export default {
         this.searchExpansion = s[0]
         this.searchType = s[1]
       }
-      else if (this.context.expansionType.match(/^(classic|tbc|wotlk|cata|mop|wod|legion|bfa|sl|df|ww)$/)) {
+      else if (this.context.expansionType.match(/^(classic|tbc|wotlk|cata|mop|wod|legion|bfa|sl|df|tww)$/)) {
         this.searchExpansion = this.context.expansionType
         this.searchType = ''
       }
@@ -1039,6 +1039,10 @@ export default {
       &.tag-user {
         color: #FFC83D;
         border-color: #FFC83D;
+      }
+      &.exp-tww {
+        border-color: #27eab0;
+        color: #27eab0;
       }
       &.exp-df {
         border-color: #27eab0;

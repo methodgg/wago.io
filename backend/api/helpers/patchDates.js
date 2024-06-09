@@ -82,7 +82,10 @@ module.exports = {
 
   gameVersion: function (tocversion) {
     tocversion = parseInt(tocversion)
-    if (tocversion >= 100000) {
+    if (tocversion >= 110000) {
+      return 'tww'
+    }
+    else if (tocversion >= 100000) {
       return 'df'
     }
     else if (tocversion >= 90000) {

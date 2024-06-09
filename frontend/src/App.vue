@@ -61,9 +61,10 @@
           <md-list-item><router-link to='/plater'>Plater Nameplates</router-link></md-list-item>
           <md-list-item><router-link to='/totalrp'>Total RP</router-link></md-list-item>
           <md-list-item><router-link to='/vuhdo'>VuhDo</router-link></md-list-item>
+          <md-list-item><router-link to='/the-war-within-weakauras'>The War Within WeakAuras</router-link><md-divider></md-divider></md-list-item>
           <md-list-item><router-link to='/dragonflight-weakauras'>Dragonflight WeakAuras</router-link><md-divider></md-divider></md-list-item>
-          <md-list-item><router-link to='/classic-weakauras'>Classic WeakAuras</router-link><md-divider></md-divider></md-list-item>
           <md-list-item><router-link to='/cataclysm-weakauras'>Cata WeakAuras</router-link><md-divider></md-divider></md-list-item>
+          <md-list-item><router-link to='/classic-weakauras'>Classic WeakAuras</router-link><md-divider></md-divider></md-list-item>
           <md-list-item class="menu-section">General</md-list-item>
           <md-list-item><router-link to='/collections'>{{ $t("Collections") }}</router-link></md-list-item>
           <md-list-item><router-link to='/snippets'><span class="menu-action" @click="$store.commit('setSearchText', `type:SNIPPET`)">{{ $t("Snippets") }}</span></router-link><md-divider></md-divider></md-list-item>
@@ -93,6 +94,7 @@
                 <div class="md-list-text-container">
                   WeakAuras
                   <span class="game-select">
+                    <router-link to='/the-war-within-weakauras'>The War Within</router-link>
                     <router-link to='/dragonflight-weakauras'>Dragonflight</router-link>
                     <router-link to='/cataclysm-weakauras'>Cataclysm</router-link>
                     <router-link to='/classic-weakauras'>Classic</router-link>

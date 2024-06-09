@@ -69,7 +69,8 @@
     "13-5": "Initial",
     "13-1": "Devastation",
     "13-2": "Preservation",
-    "13-3": "Augmentation"
+    "13-3": "Augmentation",
+    "14-5": "Adventurer"
   },
   "zones": {
     "209": "Shadowfang Keep",
@@ -765,6 +766,7 @@
     "2808": "Racial - Dracthyr",
     "2810": "Evoker",
     "2811": "Stygia Crafting",
+    "2816": "Adventurer",
     "2817": "Language: Cypher",
     "2819": "Protoform Synthesis",
     "2821": "Arcana Manipulation",
@@ -786,7 +788,22 @@
     "2850": "Pet - Lesser Dragonkin",
     "2855": "Language: Furbolg",
     "2870": "Shipment Prototype",
+    "2871": "Khaz Algar Alchemy",
+    "2872": "Khaz Algar Blacksmithing",
+    "2873": "Khaz Algar Cooking",
+    "2874": "Khaz Algar Enchanting",
+    "2875": "Khaz Algar Engineering",
+    "2876": "Khaz Algar Fishing",
+    "2877": "Khaz Algar Herbalism",
+    "2878": "Khaz Algar Inscription",
+    "2879": "Khaz Algar Jewelcrafting",
+    "2880": "Khaz Algar Leatherworking",
+    "2881": "Khaz Algar Mining",
+    "2882": "Khaz Algar Skinning",
+    "2883": "Khaz Algar Tailoring",
+    "2884": "Language: Earthen",
     "2886": "Supply Shipments",
+    "2895": "Racial - Earthen",
     "firstaid": "First Aid"
   },
   "encounters": {
@@ -1797,10 +1814,54 @@
     "2555": "Council of Dreams",
     "2556": "Nymue, Weaver of the Cycle",
     "2557": "Volcoross",
+    "2559": "Blazikon",
+    "2560": "The Candle King",
+    "2561": "The Darkness",
     "2562": "Aurostor, The Hibernator",
     "2563": "Smolderon",
     "2564": "Gnarlroot",
-    "2565": "Tindral Sageswift, Seer of the Flame"
+    "2565": "Tindral Sageswift, Seer of the Flame",
+    "2566": "Kyrioss",
+    "2567": "Stormguard Gorren",
+    "2568": "Voidstone Monstrosity",
+    "2569": "Ol' Waxbeard",
+    "2570": "Baron Braunpyke",
+    "2571": "Captain Dailcry",
+    "2572": "E.D.N.A.",
+    "2573": "Prioress Murrpray",
+    "2579": "Skarmorak",
+    "2580": "Shadowcrown",
+    "2581": "Anub'ikkaj",
+    "2582": "Void Speaker Eirich",
+    "2583": "Avanoxx",
+    "2584": "Anub'zekt",
+    "2585": "Ki'katal the Harvester",
+    "2586": "Brew Master Aldryr",
+    "2587": "I'pa",
+    "2588": "Benk Buzzbee",
+    "2589": "Goldie Baronbottom",
+    "2590": "Master Machinists Brokk and Dorlita",
+    "2593": "Rasha'nan",
+    "2594": "Orator Krix'vizk",
+    "2595": "Fangs of the Queen",
+    "2596": "Izo, the Grand Splicer",
+    "2599": "Sikran, Captain of the Sureki",
+    "2600": "The Coaglamation",
+    "2601": "Nexus-Princess Ky'veza",
+    "2602": "Queen Ansurek",
+    "2607": "Ulgrax the Devourer",
+    "2608": "The Silken Court",
+    "2609": "Rasha'nan",
+    "2611": "The Bloodbound Horror",
+    "2612": "Broodtwister Ovi'nax",
+    "2617": "General Umbriss",
+    "2618": "Drahga Shadowburner",
+    "2619": "Erudax, the Duke of Below",
+    "2625": "Orta, the Broken Mountain",
+    "2627": "Forgemaster Throngus",
+    "2635": "Aggregation of Horrors",
+    "2636": "Shurrai, Atrocity of the Undersea",
+    "2637": "Kordac, the Dormant Protector"
   },
   "expansions": {
     "68": "Classic",
@@ -1813,7 +1874,8 @@
     "396": "Battle for Azeroth",
     "499": "Shadowlands",
     "503": "Dragonflight",
-    "505": "Current Season"
+    "505": "Current Season",
+    "514": "The War Within"
   },
   "instances": {
     "63": "Deadmines",
@@ -1994,7 +2056,31 @@
     "1206": "The Nokud Offensive",
     "1207": "Amirdrassil, the Dream's Hope",
     "1208": "Aberrus, the Shadowed Crucible",
-    "1209": "Dawn of the Infinite"
+    "1209": "Dawn of the Infinite",
+    "1210": "Darkflame Cleft",
+    "1267": "Priory of the Sacred Flame",
+    "1268": "The Rookery",
+    "1269": "The Stonevault",
+    "1270": "The Dawnbreaker",
+    "1271": "Ara-Kara, City of Echoes",
+    "1272": "Cinderbrew Meadery",
+    "1273": "Nerub-ar Palace",
+    "1274": "City of Threads",
+    "1278": "Khaz Algar",
+    "1279": "Fungal Folly",
+    "1280": "Mycomancer Cavern",
+    "1281": "Kriegval's Rest",
+    "1282": "The Waterworks",
+    "1283": "The Sinkhole",
+    "1284": "Tak-Rethan Abyss",
+    "1285": "Nightfall Sanctum",
+    "1286": "The Underkeep",
+    "1287": "Earthcrawl Mines",
+    "1288": "The Dread Pit",
+    "1289": "Skittering Breach",
+    "1290": "The Spiral Weave",
+    "1291": "Zekvir's Lair",
+    "1293": "The Underkeep"
   },
   "specs": {
     "62": "Arcane",
@@ -3272,8 +3358,11 @@
     "2403": "Aberrus, the Shadowed Crucible",
     "2404": "Aberrus, the Shadowed Crucible",
     "2405": "Aberrus, the Shadowed Crucible",
+    "2406": "11.0 Delves - Prototype - 01",
+    "2407": "11.0 Delves - Prototype - 02",
     "2408": "Time Rift: Azmerloth",
     "2409": "Time Rift: Azmourne",
+    "2410": "11.0 Delves - Prototype - 03",
     "2411": "The Leeching Vaults",
     "2412": "Reliquary of Opulence",
     "2413": "Blood from Stone",
@@ -3287,6 +3376,7 @@
     "2421": "Domination's Grasp",
     "2422": "The Grand Design",
     "2423": "10.2 Dream - Local - Misfit Dragons - Halls of Valor (KRB)",
+    "2424": "11.0 Delves - Prototype - 04",
     "2425": "Time Rift: Ulderoth",
     "2426": "Time Rift: Azewrath",
     "2427": "Time Rift: Azq'roth",
@@ -3298,10 +3388,12 @@
     "2433": "A Hero's Resolve",
     "2434": "Retrieving the Disc",
     "2436": "Ruby Life Pools",
+    "2437": "Fungal Folly",
     "2438": "The Final Beacon",
     "2439": "Brackenhide Hollow",
     "2440": "Neltharus",
     "2442": "The Nokhud Offensive",
+    "2443": "Kriegval's Rest",
     "2444": "Halls of Infusion",
     "2464": "Algeth'ar Academy",
     "2465": "Uldaman: Legacy of Tyr",
@@ -3311,11 +3403,188 @@
     "2469": "Fate of Amirdrassil",
     "2484": "10.2.5 - VS Mode - LFG Dungeon (OJF)",
     "2498": "The Azure Vault",
+    "2499": "The Hall of Awakening",
+    "2500": "The Waterworks",
+    "2501": "New Candle, New Hope",
     "2502": "Amirdrassil, the Dream's Hope",
     "2503": "Amirdrassil, the Dream's Hope",
     "2504": "Amirdrassil, the Dream's Hope",
+    "2507": "The Dread Pit",
+    "2508": "Nightfall Sanctum",
+    "2509": "Mycomancer Cavern",
+    "2510": "The Sinkhole (Flooded)",
+    "2511": "Skittering Breach",
+    "2512": "Zekvir's Lair",
+    "2513": "Tak-Rethan Abyss (Flooded)",
+    "2514": "The Spiral Weave",
+    "2516": "Random Dungeon (The War Within)",
+    "2517": "Random Heroic (The War Within)",
+    "2518": "Darkflame Cleft",
+    "2519": "Darkflame Cleft",
+    "2520": "Darkflame Cleft",
+    "2521": "Darkflame Cleft",
+    "2522": "Earthcrawl Mines",
+    "2523": "The Dawnbreaker",
+    "2524": "The Dawnbreaker",
+    "2525": "The Dawnbreaker",
+    "2528": "Temple of the Jade Serpent",
     "2529": "Dawn of the Infinite: Galakrond's Fall",
-    "2530": "Dawn of the Infinite: Murozond's Rise"
+    "2530": "Dawn of the Infinite: Murozond's Rise",
+    "2531": "11.0 Z5 - Level Up - Ch 3 - Q04 - Escape The Burrows! (JSS)",
+    "2532": "11.0 Z2 - Faction Repeatable - Awakening The Machine (NJS)",
+    "2533": "The Underkeep",
+    "2537": "Random Mists of Pandaria Heroic",
+    "2538": "Random Timerunning Dungeon (Mists of Pandaria)",
+    "2539": "Random Heroic Timerunning Dungeon (Mists of Pandaria)",
+    "2540": "Temple of the Jade Serpent",
+    "2541": "Temple of the Jade Serpent",
+    "2542": "Stormstout Brewery",
+    "2543": "Stormstout Brewery",
+    "2544": "Shado-Pan Monastery",
+    "2545": "Shado-Pan Monastery",
+    "2546": "Siege of Niuzao Temple",
+    "2547": "Siege of Niuzao Temple",
+    "2548": "Gate of the Setting Sun",
+    "2549": "Gate of the Setting Sun",
+    "2550": "Mogu'shan Palace",
+    "2551": "Mogu'shan Palace",
+    "2552": "Scarlet Halls",
+    "2553": "Scarlet Halls",
+    "2554": "Scarlet Monastery",
+    "2555": "Scarlet Monastery",
+    "2556": "Scholomance",
+    "2557": "Scholomance",
+    "2558": "Random Timerunning Scenario (Mists of Pandaria)",
+    "2559": "Random Heroic Timerunning Scenario (Mists of Pandaria)",
+    "2560": "Greenstone Village",
+    "2561": "Unga Ingoo",
+    "2562": "A Brewing Storm",
+    "2563": "A Brewing Storm",
+    "2564": "Arena of Annihilation",
+    "2565": "Brewmoon Festival",
+    "2566": "Crypt of Forgotten Kings",
+    "2567": "Crypt of Forgotten Kings",
+    "2568": "Assault on Zan'vess",
+    "2569": "Dagger in the Dark",
+    "2570": "Dagger in the Dark",
+    "2572": "A Little Patience",
+    "2573": "A Little Patience",
+    "2574": "Domination Point",
+    "2575": "Battle on the High Seas",
+    "2576": "Battle on the High Seas",
+    "2577": "Battle on the High Seas",
+    "2578": "Battle on the High Seas",
+    "2579": "Theramore's Fall",
+    "2580": "Theramore's Fall",
+    "2581": "Blood in the Snow",
+    "2582": "Blood in the Snow",
+    "2583": "Dark Heart of Pandaria",
+    "2584": "Dark Heart of Pandaria",
+    "2585": "The Secrets of Ragefire",
+    "2586": "The Secrets of Ragefire",
+    "2587": "Downfall",
+    "2588": "The Underhold",
+    "2589": "Gates of Retribution",
+    "2590": "Vale of Eternal Sorrows",
+    "2591": "Pinnacle of Storms",
+    "2592": "Halls of Flesh-Shaping",
+    "2593": "Forgotten Depths",
+    "2594": "Last Stand of the Zandalari",
+    "2595": "Nightmare of Shek'zeer",
+    "2596": "The Dread Approach",
+    "2597": "The Vault of Mysteries",
+    "2598": "Guardians of Mogu'shan",
+    "2599": "Terrace of Endless Spring",
+    "2600": "Assault on Zan'vess",
+    "2604": "Ara-Kara, City of Echoes",
+    "2605": "Ara-Kara, City of Echoes",
+    "2606": "Ara-Kara, City of Echoes",
+    "2607": "Ara-Kara, City of Echoes",
+    "2608": "Lion's Landing",
+    "2609": "The Fall of Shan Bu",
+    "2610": "To the Skies!",
+    "2611": "Assault on Shaol'mara",
+    "2613": "Tear Down This Wall!",
+    "2614": "The Fall of Shan Bu",
+    "2615": "To the Skies!",
+    "2616": "Assault on Zeb'tula",
+    "2617": "Stormsea Landing",
+    "2618": "Tear Down This Wall!",
+    "2619": "Proving Grounds: White Tiger Temple",
+    "2620": "Troves of the Thunder King",
+    "2623": "Noodle Time",
+    "2624": "Finding the Secret Ingredient",
+    "2637": "The Rookery",
+    "2642": "City of Threads",
+    "2643": "City of Threads",
+    "2645": "Nerub-ar Palace",
+    "2647": "City of Threads",
+    "2648": "City of Threads",
+    "2649": "The Skittering Battlements",
+    "2650": "Secrets of Nerub-ar Palace",
+    "2651": "A Queen's Fall",
+    "2652": "City of Threads",
+    "2653": "The Rookery",
+    "2654": "Ara-Kara, City of Echoes",
+    "2655": "Darkflame Cleft",
+    "2656": "The Dawnbreaker",
+    "2657": "The Rookery (Quest)",
+    "2658": "The Rookery",
+    "2659": "The Sinkhole",
+    "2660": "Tak-Rethan Abyss",
+    "2661": "A Brewing Storm",
+    "2662": "Battle on the High Seas",
+    "2663": "Battle on the High Seas",
+    "2664": "Blood in the Snow",
+    "2665": "Dark Heart of Pandaria",
+    "2666": "The Secrets of Ragefire",
+    "2667": "Crypt of Forgotten Kings",
+    "2668": "Greenstone Village",
+    "2669": "Unga Ingoo",
+    "2670": "A Brewing Storm",
+    "2671": "Arena of Annihilation",
+    "2672": "Brewmoon Festival",
+    "2673": "Crypt of Forgotten Kings",
+    "2674": "Assault on Zan'vess",
+    "2675": "Dagger in the Dark",
+    "2676": "Dagger in the Dark",
+    "2677": "A Little Patience",
+    "2678": "A Little Patience",
+    "2679": "Domination Point",
+    "2680": "Battle on the High Seas",
+    "2681": "Battle on the High Seas",
+    "2682": "Theramore's Fall",
+    "2683": "Theramore's Fall",
+    "2684": "Blood in the Snow",
+    "2685": "Dark Heart of Pandaria",
+    "2686": "The Secrets of Ragefire",
+    "2687": "Assault on Zan'vess",
+    "2688": "Lion's Landing",
+    "2689": "Cinderbrew Meadery",
+    "2690": "Cinderbrew Meadery",
+    "2691": "Cinderbrew Meadery",
+    "2692": "Cinderbrew Meadery",
+    "2693": "The Stonevault",
+    "2694": "The Stonevault",
+    "2695": "Priory of the Sacred Flame",
+    "2696": "Priory of the Sacred Flame",
+    "2697": "Priory of the Sacred Flame",
+    "2698": "Priory of the Sacred Flame",
+    "2699": "Priory of the Sacred Flame",
+    "2700": "Cinderbrew Meadery",
+    "2701": "The Stonevault",
+    "2703": "The Primal Bulwark",
+    "2704": "Discarded Works",
+    "2705": "Caverns of Infusion",
+    "2706": "Fury of the Storm",
+    "2707": "Fury of Giants",
+    "2708": "Neltharion's Shadow",
+    "2709": "Edge of the Void",
+    "2710": "Incarnate's Wake",
+    "2711": "Molten Incursion",
+    "2712": "The Viridian Weave",
+    "2713": "Fate of Amirdrassil",
+    "2715": "Queen Ansurek"
   },
   "affixes": {
     "1": "Overflowing",
@@ -3350,5 +3619,147 @@
     "135": "Afflicted",
     "136": "Incorporeal",
     "137": "Shielding"
+  },
+  "keystoneAffix": {
+    "1": {
+      "name": "Overflowing",
+      "desc": "Healing in excess of a target's maximum health is instead converted to a heal absorption effect."
+    },
+    "2": {
+      "name": "Skittish",
+      "desc": "Enemies pay far less attention to threat generated by tanks."
+    },
+    "3": {
+      "name": "Volcanic",
+      "desc": "While in combat, enemies periodically cause gouts of flame to erupt beneath the feet of distant players."
+    },
+    "4": {
+      "name": "Necrotic",
+      "desc": "All enemies' melee attacks apply a stacking blight that inflicts damage over time and reduces healing received."
+    },
+    "5": {
+      "name": "Teeming",
+      "desc": "Additional non-boss enemies are present throughout the dungeon."
+    },
+    "6": {
+      "name": "Raging",
+      "desc": "Non-boss enemies enrage at 30% health remaining, temporarily granting immunity to crowd control effects."
+    },
+    "7": {
+      "name": "Bolstering",
+      "desc": "When any non-boss enemy dies, its death cry empowers nearby allies, temporarily increasing their damage by 20%."
+    },
+    "8": {
+      "name": "Sanguine",
+      "desc": "When slain, non-boss enemies leave behind a lingering pool of ichor that heals their allies and damages players."
+    },
+    "9": {
+      "name": "Tyrannical",
+      "desc": "Bosses have 30% more health. Bosses and their minions inflict up to 15% increased damage."
+    },
+    "10": {
+      "name": "Fortified",
+      "desc": "Non-boss enemies have 20% more health and inflict up to 30% increased damage."
+    },
+    "11": {
+      "name": "Bursting",
+      "desc": "When slain, non-boss enemies explode, causing all players to suffer damage over 4 sec. This effect stacks."
+    },
+    "12": {
+      "name": "Grievous",
+      "desc": "Injured players suffer increasing damage over time until healed."
+    },
+    "13": {
+      "name": "Explosive",
+      "desc": "While in combat, enemies periodically summon Explosive Orbs that will detonate if not destroyed."
+    },
+    "14": {
+      "name": "Quaking",
+      "desc": "Periodically, all players emit a shockwave, inflicting damage and interrupting nearby allies."
+    },
+    "16": {
+      "name": "Infested",
+      "desc": "Some non-boss enemies have been infested with a Spawn of G'huun."
+    },
+    "117": {
+      "name": "Reaping",
+      "desc": "Non-boss enemies are empowered by Bwonsamdi and periodically seek vengeance from beyond the grave."
+    },
+    "119": {
+      "name": "Beguiling",
+      "desc": "Azshara's Emissaries are present throughout the dungeon."
+    },
+    "120": {
+      "name": "Awakened",
+      "desc": "Obelisks throughout the dungeon allow players to enter Ny'alotha and confront powerful servants of N'Zoth. If a servant is not dealt with, they must be faced during the final boss encounter."
+    },
+    "121": {
+      "name": "Prideful",
+      "desc": "Players overflow with pride as they defeat non-boss enemies, eventually forming a Manifestation of Pride. Defeating this Manifestation greatly empowers players."
+    },
+    "122": {
+      "name": "Inspiring",
+      "desc": "Some non-boss enemies have an inspiring presence that strengthens their allies."
+    },
+    "123": {
+      "name": "Spiteful",
+      "desc": "Fiends rise from the corpses of non-boss enemies and pursue random players."
+    },
+    "124": {
+      "name": "Storming",
+      "desc": "While in combat, enemies periodically summon damaging whirlwinds."
+    },
+    "128": {
+      "name": "Tormented",
+      "desc": "Servants of the Jailer can be found throughout the dungeon and grant powerful boons when defeated. If a servant is not dealt with, they empower the final boss."
+    },
+    "129": {
+      "name": "Infernal",
+      "desc": "Infernal Beacons can be found near some bosses. Activating a Beacon or engaging a nearby boss will trigger a Legion invasion."
+    },
+    "130": {
+      "name": "Encrypted",
+      "desc": "Enemies throughout the dungeon possess relics of the First Ones. Destroy the relics to summon the First Ones' Automa and gain powerful bonuses, based on the order in which they were destroyed."
+    },
+    "131": {
+      "name": "Shrouded",
+      "desc": "Nathrezim infiltrators have disguised themselves among enemies throughout the dungeon. Cartel Ta will reward you handsomely for assisting in their capture."
+    },
+    "132": {
+      "name": "Thundering",
+      "desc": "Enemies have 5% more health. While in combat, players are periodically overcharged with primal power from Raszageth's unending storm. This power comes with great risk, and failure to discharge it quickly can have stunning consequences."
+    },
+    "133": {
+      "name": "[PH]",
+      "desc": "[PH]"
+    },
+    "134": {
+      "name": "Entangling",
+      "desc": "While in combat, entangling vines periodically appear and snare players."
+    },
+    "135": {
+      "name": "Afflicted",
+      "desc": "While in combat, afflicted souls periodically appear and seek the aid of players."
+    },
+    "136": {
+      "name": "Incorporeal",
+      "desc": "While in combat, incorporeal beings periodically appear and attempt to weaken players."
+    },
+    "137": {
+      "name": "Shielding",
+      "desc": "While in combat, enemies periodically summon Shielding Orbs that shield nearby enemies if not destroyed."
+    },
+    "144": {
+      "name": "[PH]",
+      "desc": "[PH]"
+    },
+    "145": {
+      "name": "[PH]",
+      "desc": "[PH]"
+    },
+    "146": {
+      "name": "[PH]",
+      "desc": "[PH]"
+    }
   }
 }

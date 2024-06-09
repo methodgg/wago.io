@@ -90,7 +90,8 @@ class Categories {
       'gen16': {slug: 'general/warfronts', i18n: 'Warfronts', domain: 0, parent: 'gen0', types: ['WEAKAURA', 'COLLECTION'], games: ['bfa']},
       'gen17': {slug: 'general/island-expeditions', i18n: 'Island Expeditions', domain: 0, parent: 'gen0', types: ['WEAKAURA', 'COLLECTION'], games: ['bfa']},
       'gen18': {slug: 'general/covenants', i18n: 'Covenants', domain: 0, parent: 'gen0', types: ['WEAKAURA', 'COLLECTION'], games: ['sl']},
-      'gen19': {slug: 'general/dragon-riding', i18n: 'Dragon Riding', domain: 0, parent: 'gen0', types: ['WEAKAURA'], games: ['df']},
+      'gen19': {slug: 'general/dragon-riding', i18n: 'Dragon Riding', domain: 0, parent: 'gen0', types: ['WEAKAURA'], games: ['df', 'tww']},
+      'gen20': {slug: 'general/delves', i18n: 'Delves', domain: 0, parent: 'gen0', types: ['WEAKAURA'], games: ['tww']},
 
       'equip': {slug: 'equipment', image: 'equipment.png', color: '#7ED321', i18n: 'Equipment', domain: 0, types: ['WEAKAURA', 'COLLECTION']},
       'legen': {slug: 'equipment/legendaries', i18n: 'Legendaries', domain: 0, parent: 'equip', types: ['WEAKAURA', 'COLLECTION'], games: ['legion', 'bfa', 'sl', 'df']},
@@ -148,6 +149,36 @@ class Categories {
       'raidvaultincarnates6': {slug: 'pve/vault-of-the-incarnates/raszageth-the-storm-eater', i18n: 'warcraft:encounters.2499', domain: 0, parent: 'raidvaultincarnates', types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
       'raidvaultincarnates7': {slug: 'pve/vault-of-the-incarnates/terros', i18n: 'warcraft:encounters.2500', domain: 0, parent: 'raidvaultincarnates', types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
       'raidvaultincarnates8': {slug: 'pve/vault-of-the-incarnates/dathea-ascended', i18n: 'warcraft:encounters.2502', domain: 0, parent: 'raidvaultincarnates', types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
+
+      // the war within
+      'raidnerubarpalace': {slug: 'pve/nerubar-palace', image: 'nerubpalace.png', color: '#E0108B', i18n: 'warcraft:instances.1273', domain: 0, types: ['WEAKAURA', 'COLLECTION'], games: ['tww']},
+      'raidnerubarpalace1': {slug: 'pve/nerubar-palace/ulgrax-the-devourer', i18n: 'warcraft:encounters.2607', domain: 0, parent: 'raidnerubarpalace', types: ['WEAKAURA', 'COLLECTION'], games: ['tww']},
+      'raidnerubarpalace2': {slug: 'pve/nerubar-palace/the-bloodhound-horror', i18n: 'warcraft:encounters.2611', domain: 0, parent: 'raidnerubarpalace', types: ['WEAKAURA', 'COLLECTION'], games: ['tww']},
+      'raidnerubarpalace3': {slug: 'pve/nerubar-palace/sikran-captain-of-the-sureki', i18n: 'warcraft:encounters.2599', domain: 0, parent: 'raidnerubarpalace', types: ['WEAKAURA', 'COLLECTION'], games: ['tww']},
+      'raidnerubarpalace4': {slug: 'pve/nerubar-palace/rasha-nan', i18n: 'warcraft:encounters.2609', domain: 0, parent: 'raidnerubarpalace', types: ['WEAKAURA', 'COLLECTION'], games: ['tww']},
+      'raidnerubarpalace5': {slug: 'pve/nerubar-palace/broodtwister-ovi-nax', i18n: 'warcraft:encounters.2612', domain: 0, parent: 'raidnerubarpalace', types: ['WEAKAURA', 'COLLECTION'], games: ['tww']},
+      'raidnerubarpalace6': {slug: 'pve/nerubar-palace/nexus-princess-ky-veza', i18n: 'warcraft:encounters.2601', domain: 0, parent: 'raidnerubarpalace', types: ['WEAKAURA', 'COLLECTION'], games: ['tww']},
+      'raidnerubarpalace7': {slug: 'pve/nerubar-palace/the-silken-court', i18n: 'warcraft:encounters.2608', domain: 0, parent: 'raidnerubarpalace', types: ['WEAKAURA', 'COLLECTION'], games: ['tww']},
+      'raidnerubarpalace8': {slug: 'pve/nerubar-palace/queen-ansurek', i18n: 'warcraft:encounters.2602', domain: 0, parent: 'raidnerubarpalace', types: ['WEAKAURA', 'COLLECTION'], games: ['tww']},
+
+
+      'twwdungeon': {slug: 'pve/the-war-within-dungeons', image: 'dungeon.png', color: '#F5A623', i18n: 'Dungeons', domain: 0, types: ['WEAKAURA', 'COLLECTION'], games: ['tww']},
+      // --- Season 1
+      'twwdungeon-s1': {subheader: true, i18n: 'Season 1 Dungeons', domain: 0, parent: 'twwdungeon', system: true, types: ['WEAKAURA'], games: ['df']},
+      'twwdungeon6': {slug: 'pve/the-war-within-dungeons/ara-kara-city-of-echoes', i18n: 'warcraft:instances.1271', domain: 0, parent: 'twwdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['tww']},
+      'twwdungeon8': {slug: 'pve/the-war-within-dungeons/city-of-threads', i18n: 'warcraft:instances.1273', domain: 0, parent: 'twwdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['tww']},
+      'twwdungeon3': {slug: 'pve/the-war-within-dungeons/the-rookery', i18n: 'warcraft:instances.1268', domain: 0, parent: 'twwdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['tww']},
+      'twwdungeon4': {slug: 'pve/the-war-within-dungeons/the-stonevault', i18n: 'warcraft:instances.1269', domain: 0, parent: 'twwdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['tww']},
+      'twwdungeons1-1': {slug: 'pve/the-war-within-dungeons/mists-of-tirna-scithe', i18n: 'warcraft:instances.1184', domain: 0, parent: 'twwdungeon', types: ['WEAKAURA'], games: ['tww']},
+      'twwdungeons1-2': {slug: 'pve/the-war-within-dungeons/the-necrotic-wake', i18n: 'warcraft:instances.1182', domain: 0, parent: 'twwdungeon', types: ['WEAKAURA'], games: ['tww']},
+      'twwdungeons1-3': {slug: 'pve/the-war-within-dungeons/siege-of-boralus', i18n: 'warcraft:instances.1023', domain: 0, parent: 'twwdungeon', types: ['WEAKAURA'], games: ['tww']},
+      'twwdungeons1-4': {slug: 'pve/the-war-within-dungeons/grim-batol', i18n: 'warcraft:instances.71', domain: 0, parent: 'twwdungeon', types: ['WEAKAURA'], games: ['tww']},
+      
+      'twwdungeon-other': {subheader: true, i18n: 'Other Dungeons', domain: 0, parent: 'twwdungeon', system: true, types: ['WEAKAURA'], games: ['df']},
+      'twwdungeon1': {slug: 'pve/the-war-within-dungeons/darkflame-cleft', i18n: 'warcraft:instances.1210', domain: 0, parent: 'twwdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['tww']},
+      'twwdungeon2': {slug: 'pve/the-war-within-dungeons/priory-of-the-sacred-flame', i18n: 'warcraft:instances.1267', domain: 0, parent: 'twwdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['tww']},
+      'twwdungeon5': {slug: 'pve/the-war-within-dungeons/the-dawnbreaker', i18n: 'warcraft:instances.1270', domain: 0, parent: 'twwdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['tww']},
+      'twwdungeon7': {slug: 'pve/the-war-within-dungeons/cinderbrew-meadery', i18n: 'warcraft:instances.1272', domain: 0, parent: 'twwdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['tww']},
 
       'dfdungeon': {slug: 'pve/dragonflight-dungeons', image: 'dungeon.png', color: '#F5A623', i18n: 'Dragonflight Dungeons', domain: 0, types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
       // --- Season 4
