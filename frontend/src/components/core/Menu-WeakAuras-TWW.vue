@@ -18,9 +18,9 @@
             <md-list-item v-for="cls in classes" v-bind:key="cls.id" :class="cls.id + ' md-inset'">
               <div class="menu-image"></div>
               <div class="md-list-text-container">
-                <a :href="'/tww-weakauras/' + cls.slug" @click.prevent="searchRoute(cls)">{{ cls.text }}</a>
+                <a :href="'/the-war-within-weakauras/' + cls.slug" @click.prevent="searchRoute(cls)">{{ cls.text }}</a>
                 <span>
-                  <a v-for="spec in cls.specs" v-bind:key="spec.id" :href="'/tww-weakauras/' + spec.slug"
+                  <a v-for="spec in cls.specs" v-bind:key="spec.id" :href="'/the-war-within-weakauras/' + spec.slug"
                     @click.prevent="searchRoute(spec)">{{ spec.text.replace(cls.text, '').trim() }}</a>
                 </span>
               </div>
@@ -33,10 +33,10 @@
             <md-list-item v-for="raid in raids" v-bind:key="raid.id" :class="raid.id + ' md-inset'">
               <div class="menu-image"></div>
               <div class="md-list-text-container">
-                <a :href="'/tww-weakauras/' + raid.slug" @click.prevent="searchRoute(raid)">{{ raid.text }}</a>
+                <a :href="'/the-war-within-weakauras/' + raid.slug" @click.prevent="searchRoute(raid)">{{ raid.text }}</a>
                 <span>
                   <template v-for="boss in raid.bosses">
-                    <a v-if="boss.slug" v-bind:key="boss.id" :href="'/tww-weakauras/' + boss.slug"
+                    <a v-if="boss.slug" v-bind:key="boss.id" :href="'/the-war-within-weakauras/' + boss.slug"
                       @click.prevent="searchRoute(boss)">{{ boss.text }}</a>
                     <span v-else-if="boss.subheader" v-bind:key="'header'+boss.id" class="subsection">{{ boss.text }}</span>
                   </template>
@@ -50,9 +50,9 @@
             <md-list-item class="md-inset pvp">
               <div class="menu-image"></div>
               <div class="md-list-text-container">
-                <a href="/tww-weakauras/pvp" @click.prevent="searchRoute('pvp')">{{ $t("PvP") }}</a>
+                <a href="/the-war-within-weakauras/pvp" @click.prevent="searchRoute('pvp')">{{ $t("PvP") }}</a>
                 <span>
-                  <a v-for="item in pvp" v-bind:key="item.id" :href="'/tww-weakauras/' + item.slug"
+                  <a v-for="item in pvp" v-bind:key="item.id" :href="'/the-war-within-weakauras/' + item.slug"
                     @click.prevent="searchRoute(item)">{{ item.text }}</a>
                 </span>
               </div>
@@ -67,10 +67,10 @@
             <md-list-item class="md-inset role0">
               <div class="menu-image"></div>
               <div class="md-list-text-container">
-                <a href="/tww-weakauras/class-roles" @click.prevent="searchRoute('role0')">{{ $t("Class Roles")
+                <a href="/the-war-within-weakauras/class-roles" @click.prevent="searchRoute('role0')">{{ $t("Class Roles")
                 }}</a>
                 <span>
-                  <a v-for="item in roles" v-bind:key="item.id" :href="'/tww-weakauras/' + item.slug"
+                  <a v-for="item in roles" v-bind:key="item.id" :href="'/the-war-within-weakauras/' + item.slug"
                     @click.prevent="searchRoute(item)">{{ item.text }}</a>
                 </span>
               </div>
@@ -79,9 +79,9 @@
             <md-list-item class="md-inset mech">
               <div class="menu-image"></div>
               <div class="md-list-text-container">
-                <a href="/tww-weakauras/combat-mechanics" @click.prevent="searchRoute('mech')">{{ $t("Combat Mechanics") }}</a>
+                <a href="/the-war-within-weakauras/combat-mechanics" @click.prevent="searchRoute('mech')">{{ $t("Combat Mechanics") }}</a>
                 <span>
-                  <a v-for="item in mechanics" v-bind:key="item.id" :href="'/tww-weakauras/' + item.slug"
+                  <a v-for="item in mechanics" v-bind:key="item.id" :href="'/the-war-within-weakauras/' + item.slug"
                     @click.prevent="searchRoute(item)">{{ item.text }}</a>
                 </span>
               </div>
@@ -90,9 +90,9 @@
             <md-list-item class="md-inset equip">
               <div class="menu-image"></div>
               <div class="md-list-text-container">
-                <a href="/tww-weakauras/equipment" @click.prevent="searchRoute('equip')">{{ $t("Equipment") }}</a>
+                <a href="/the-war-within-weakauras/equipment" @click.prevent="searchRoute('equip')">{{ $t("Equipment") }}</a>
                 <span>
-                  <a v-for="item in equip" v-bind:key="item.id" :href="'/tww-weakauras/' + item.slug"
+                  <a v-for="item in equip" v-bind:key="item.id" :href="'/the-war-within-weakauras/' + item.slug"
                     @click.prevent="searchRoute(item)">{{ item.text }}</a>
                 </span>
               </div>
@@ -101,10 +101,10 @@
             <md-list-item class="md-inset accessibility">
               <div class="menu-image"></div>
               <div class="md-list-text-container">
-                <a href="/tww-weakauras/accessibility" @click.prevent="searchRoute('accessibility')">{{
+                <a href="/the-war-within-weakauras/accessibility" @click.prevent="searchRoute('accessibility')">{{
                   $t("Accessibility") }}</a>
                 <span>
-                  <a v-for="item in accessibility" v-bind:key="item.id" :href="'/tww-weakauras/' + item.slug"
+                  <a v-for="item in accessibility" v-bind:key="item.id" :href="'/the-war-within-weakauras/' + item.slug"
                     @click.prevent="searchRoute(item)">{{ item.text }}</a>
                 </span>
               </div>
@@ -113,9 +113,9 @@
             <md-list-item class="md-inset gen0">
               <div class="menu-image"></div>
               <div class="md-list-text-container">
-                <a href="/tww-weakauras/general" @click.prevent="searchRoute('gen0')">{{ $t("General") }}</a>
+                <a href="/the-war-within-weakauras/general" @click.prevent="searchRoute('gen0')">{{ $t("General") }}</a>
                 <span>
-                  <a v-for="item in misc" v-bind:key="item.id" :href="'/tww-weakauras/' + item.slug"
+                  <a v-for="item in misc" v-bind:key="item.id" :href="'/the-war-within-weakauras/' + item.slug"
                     @click.prevent="searchRoute(item)">{{ item.text }}</a>
                 </span>
               </div>
@@ -127,9 +127,9 @@
             <md-list-item v-for="prof in professions" v-bind:key="prof.id" :class="prof.id + ' md-inset'">
               <div class="menu-image"></div>
               <div class="md-list-text-container">
-                <a :href="'/tww-weakauras/' + prof.slug" @click.prevent="searchRoute(prof)">{{ prof.text }}</a>
+                <a :href="'/the-war-within-weakauras/' + prof.slug" @click.prevent="searchRoute(prof)">{{ prof.text }}</a>
                 <span>
-                  <a v-for="spec in prof.specs" v-bind:key="spec.id" :href="'/tww-weakauras/' + spec.slug"
+                  <a v-for="spec in prof.specs" v-bind:key="spec.id" :href="'/the-war-within-weakauras/' + spec.slug"
                     @click.prevent="searchRoute(spec)">{{ spec.text }}</a>
                 </span>
               </div>
@@ -141,10 +141,10 @@
             <md-list-item class="md-inset gen5">
               <div class="menu-image"></div>
               <div class="md-list-text-container">
-                <a href="/tww-weakauras/development" @click.prevent="searchRoute('gen5')">{{ $t("Development")
+                <a href="/the-war-within-weakauras/development" @click.prevent="searchRoute('gen5')">{{ $t("Development")
                 }}</a>
                 <span>
-                  <a v-for="item in development" v-bind:key="item.id" :href="'/tww-weakauras/' + item.slug"
+                  <a v-for="item in development" v-bind:key="item.id" :href="'/the-war-within-weakauras/' + item.slug"
                     @click.prevent="searchRoute(item)">{{ item.text }}</a>
                 </span>
               </div>
@@ -198,7 +198,7 @@
           item = window.Categories.match(item)
         }
         this.$store.commit('setSearchText', `category:${item.id}`)
-        this.$router.push('/tww-weakauras/' + item.slug)
+        this.$router.push('/the-war-within-weakauras/' + item.slug)
       }
     },
     data: function () {

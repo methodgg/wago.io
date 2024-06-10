@@ -10,19 +10,19 @@ class Categories {
       // include root if category is top level
       // include [types] if category is restricted to certain import types
       // include [games] if category is restricted to certain games/expansions
-      'cl6': {slug: 'classes/death-knight', image: 'deathknight.png', color: '#C41F3B', i18n: 'warcraft:classes.6', domain: 0, games: ['wotlk', 'cata', 'legion', 'bfa', 'sl', 'df']},
-      'cl6-1': {slug: 'classes/death-knight/blood', i18n: 'warcraft:specs.250', domain: 0, parent: 'cl6', games: ['wotlk', 'cata', 'legion', 'bfa', 'sl', 'df']},
-      'cl6-2': {slug: 'classes/death-knight/frost', i18n: 'warcraft:specs.251', domain: 0, parent: 'cl6', games: ['wotlk', 'cata', 'legion', 'bfa', 'sl', 'df']},
-      'cl6-3': {slug: 'classes/death-knight/unholy', i18n: 'warcraft:specs.252', domain: 0, parent: 'cl6', games: ['wotlk', 'cata', 'legion', 'bfa', 'sl', 'df']},
+      'cl6': {slug: 'classes/death-knight', image: 'deathknight.png', color: '#C41F3B', i18n: 'warcraft:classes.6', domain: 0, games: ['wotlk', 'cata', 'legion', 'bfa', 'sl', 'df', 'tww']},
+      'cl6-1': {slug: 'classes/death-knight/blood', i18n: 'warcraft:specs.250', domain: 0, parent: 'cl6', games: ['wotlk', 'cata', 'legion', 'bfa', 'sl', 'df', 'tww']},
+      'cl6-2': {slug: 'classes/death-knight/frost', i18n: 'warcraft:specs.251', domain: 0, parent: 'cl6', games: ['wotlk', 'cata', 'legion', 'bfa', 'sl', 'df', 'tww']},
+      'cl6-3': {slug: 'classes/death-knight/unholy', i18n: 'warcraft:specs.252', domain: 0, parent: 'cl6', games: ['wotlk', 'cata', 'legion', 'bfa', 'sl', 'df', 'tww']},
 
-      'cl12': {slug: 'classes/demon-hunter', image: 'demonhunter.png', color: '#A330C9', i18n: 'warcraft:classes.12', domain: 0, games: ['legion', 'bfa', 'sl', 'df']},
-      'cl12-1': {slug: 'classes/demon-hunter/havoc', cls:'cl-demonhunter', i18n: 'warcraft:specs.577', domain: 0, parent: 'cl12', games: ['legion', 'bfa', 'sl', 'df']},
-      'cl12-2': {slug: 'classes/demon-hunter/vengeance', i18n: 'warcraft:specs.581', domain: 0, parent: 'cl12', games: ['legion', 'bfa', 'sl', 'df']},
+      'cl12': {slug: 'classes/demon-hunter', image: 'demonhunter.png', color: '#A330C9', i18n: 'warcraft:classes.12', domain: 0, games: ['legion', 'bfa', 'sl', 'df', 'tww']},
+      'cl12-1': {slug: 'classes/demon-hunter/havoc', cls:'cl-demonhunter', i18n: 'warcraft:specs.577', domain: 0, parent: 'cl12', games: ['legion', 'bfa', 'sl', 'df', 'tww']},
+      'cl12-2': {slug: 'classes/demon-hunter/vengeance', i18n: 'warcraft:specs.581', domain: 0, parent: 'cl12', games: ['legion', 'bfa', 'sl', 'df', 'tww']},
 
       'cl11': {slug: 'classes/druid', image: 'druid.png', color: '#FF7D0A', i18n: 'warcraft:classes.11', domain: 0},
       'cl11-1': {slug: 'classes/druid/balance', i18n: 'warcraft:specs.102', domain: 0, parent: 'cl11'},
       'cl11-2': {slug: 'classes/druid/feral', i18n: 'warcraft:specs.103', domain: 0, parent: 'cl11'},
-      'cl11-3': {slug: 'classes/druid/guardian', i18n: 'warcraft:specs.104', domain: 0, parent: 'cl11', games: ['legion', 'bfa', 'sl', 'df']},
+      'cl11-3': {slug: 'classes/druid/guardian', i18n: 'warcraft:specs.104', domain: 0, parent: 'cl11', games: ['legion', 'bfa', 'sl', 'df', 'tww']},
       'cl11-4': {slug: 'classes/druid/restoration', i18n: 'warcraft:specs.105', domain: 0, parent: 'cl11'},
 
       'cl13': {slug: 'classes/evoker', image: 'evoker.png', color: '#33937F', i18n: 'warcraft:classes.13', domain: 0, games: ['df']},
@@ -40,10 +40,10 @@ class Categories {
       'cl8-2': {slug: 'classes/mage/fire', i18n: 'warcraft:specs.63', domain: 0, parent: 'cl8'},
       'cl8-3': {slug: 'classes/mage/frost', i18n: 'warcraft:specs.64', domain: 0, parent: 'cl8'},
 
-      'cl10': {slug: 'classes/monk', image: 'monk.png', color: '#00FF96', i18n: 'warcraft:classes.10', domain: 0, games: ['legion', 'bfa', 'sl', 'df']},
-      'cl10-1': {slug: 'classes/monk/brewmaster', i18n: 'warcraft:specs.268', domain: 0, parent: 'cl10', games: ['legion', 'bfa', 'sl', 'df']},
-      'cl10-2': {slug: 'classes/monk/mistweaver', i18n: 'warcraft:specs.270', domain: 0, parent: 'cl10', games: ['legion', 'bfa', 'sl', 'df']},
-      'cl10-3': {slug: 'classes/monk/windwalker', i18n: 'warcraft:specs.269', domain: 0, parent: 'cl10', games: ['legion', 'bfa', 'sl', 'df']},
+      'cl10': {slug: 'classes/monk', image: 'monk.png', color: '#00FF96', i18n: 'warcraft:classes.10', domain: 0, games: ['legion', 'bfa', 'sl', 'df', 'tww']},
+      'cl10-1': {slug: 'classes/monk/brewmaster', i18n: 'warcraft:specs.268', domain: 0, parent: 'cl10', games: ['legion', 'bfa', 'sl', 'df', 'tww']},
+      'cl10-2': {slug: 'classes/monk/mistweaver', i18n: 'warcraft:specs.270', domain: 0, parent: 'cl10', games: ['legion', 'bfa', 'sl', 'df', 'tww']},
+      'cl10-3': {slug: 'classes/monk/windwalker', i18n: 'warcraft:specs.269', domain: 0, parent: 'cl10', games: ['legion', 'bfa', 'sl', 'df', 'tww']},
 
       'cl2': {slug: 'classes/paladin', image: 'paladin.png', color: '#F58CBA', i18n: 'warcraft:classes.2', domain: 0},
       'cl2-1': {slug: 'classes/paladin/holy', i18n: 'warcraft:specs.65', domain: 0, parent: 'cl2'},
@@ -57,7 +57,7 @@ class Categories {
 
       'cl4': {slug: 'classes/rogue', image: 'rogue.png', color: '#FFF569', lightColor: '#E8D901', i18n: 'warcraft:classes.4', domain: 0},
       'cl4-1': {slug: 'classes/rogue/assassination', i18n: 'warcraft:specs.259', domain: 0, parent: 'cl4'},
-      'cl4-2': {slug: 'classes/rogue/outlaw', i18n: 'warcraft:specs.260', domain: 0, parent: 'cl4', games: ['legion', 'bfa', 'sl', 'df']},
+      'cl4-2': {slug: 'classes/rogue/outlaw', i18n: 'warcraft:specs.260', domain: 0, parent: 'cl4', games: ['legion', 'bfa', 'sl', 'df', 'tww']},
       'cl4-2c': {slug: 'classes/rogue/combat', i18n: 'warcraft:classes.4-2c', domain: 0, parent: 'cl4', games: ['classic', 'tbc', 'wotlk', 'cata']},
       'cl4-3': {slug: 'classes/rogue/subtlety', i18n: 'warcraft:specs.261', domain: 0, parent: 'cl4'},
 
@@ -77,16 +77,16 @@ class Categories {
       'cl1-3': {slug: 'classes/warrior/protection', i18n: 'warcraft:specs.73', domain: 0, parent: 'cl1'},
 
       'gen0': {slug: 'general', image:'miscellaneous.png', color: '#D0B58B', i18n: 'General', domain: 0, types: ['WEAKAURA', 'COLLECTION']},
-      'gen7': {slug: 'general/achievements', i18n: 'Achievements', domain: 0, parent: 'gen0', types: ['WEAKAURA', 'COLLECTION'], games: ['wotlk', 'cata', 'legion', 'bfa', 'sl', 'df']},
+      'gen7': {slug: 'general/achievements', i18n: 'Achievements', domain: 0, parent: 'gen0', types: ['WEAKAURA', 'COLLECTION'], games: ['wotlk', 'cata', 'legion', 'bfa', 'sl', 'df', 'tww']},
       'gen2': {slug: 'general/questing', i18n: 'Questing', domain: 0, parent: 'gen0', types: ['WEAKAURA', 'COLLECTION']},
       'gen6': {slug: 'general/non-combat', i18n: 'Non-Combat', domain: 0, parent: 'gen0', types: ['WEAKAURA', 'COLLECTION']},
-      'gen9': {slug: 'general/currency', i18n: 'Currency', domain: 0, parent: 'gen0', types: ['WEAKAURA', 'COLLECTION'], games: ['wotlk', 'cata', 'legion', 'bfa', 'sl', 'df']},
+      'gen9': {slug: 'general/currency', i18n: 'Currency', domain: 0, parent: 'gen0', types: ['WEAKAURA', 'COLLECTION'], games: ['wotlk', 'cata', 'legion', 'bfa', 'sl', 'df', 'tww']},
       'gen10': {slug: 'general/reputation', i18n: 'Reputation', domain: 0, parent: 'gen0', types: ['WEAKAURA', 'COLLECTION']},
-      'gen11': {slug: 'general/collectibles', i18n: 'Collectibles', domain: 0, parent: 'gen0', types: ['WEAKAURA', 'COLLECTION'], games: ['wotlk', 'cata' , 'legion', 'bfa', 'sl', 'df']},
-      'gen12': {slug: 'general/world-events', i18n: 'World Events', domain: 0, parent: 'gen0', types: ['WEAKAURA', 'COLLECTION'], games: ['wotlk', 'cata' , 'legion', 'bfa', 'sl', 'df']},
-      'gen13': {slug: 'general/world-events/darkmoon-faire', i18n: 'Darkmoon Faire', domain: 0, parent: 'gen0', types: ['WEAKAURA', 'COLLECTION'], games: ['cata', 'legion', 'bfa', 'sl', 'df']},
+      'gen11': {slug: 'general/collectibles', i18n: 'Collectibles', domain: 0, parent: 'gen0', types: ['WEAKAURA', 'COLLECTION'], games: ['wotlk', 'cata' , 'legion', 'bfa', 'sl', 'df', 'tww']},
+      'gen12': {slug: 'general/world-events', i18n: 'World Events', domain: 0, parent: 'gen0', types: ['WEAKAURA', 'COLLECTION'], games: ['wotlk', 'cata' , 'legion', 'bfa', 'sl', 'df', 'tww']},
+      'gen13': {slug: 'general/world-events/darkmoon-faire', i18n: 'Darkmoon Faire', domain: 0, parent: 'gen0', types: ['WEAKAURA', 'COLLECTION'], games: ['cata', 'legion', 'bfa', 'sl', 'df', 'tww']},
       'gen14': {slug: 'general/world-events/brawlers-guild', i18n: 'Brawler\', domain: 0s Guild', parent: 'gen0', types: ['WEAKAURA', 'COLLECTION'], games: ['legion', 'bfa', 'sl']},
-      'gen15': {slug: 'general/pet-battles', i18n: 'Pet Battles', domain: 0, parent: 'gen0', types: ['WEAKAURA', 'COLLECTION'], games: ['legion', 'bfa', 'sl', 'df']},
+      'gen15': {slug: 'general/pet-battles', i18n: 'Pet Battles', domain: 0, parent: 'gen0', types: ['WEAKAURA', 'COLLECTION'], games: ['legion', 'bfa', 'sl', 'df', 'tww']},
       'gen16': {slug: 'general/warfronts', i18n: 'Warfronts', domain: 0, parent: 'gen0', types: ['WEAKAURA', 'COLLECTION'], games: ['bfa']},
       'gen17': {slug: 'general/island-expeditions', i18n: 'Island Expeditions', domain: 0, parent: 'gen0', types: ['WEAKAURA', 'COLLECTION'], games: ['bfa']},
       'gen18': {slug: 'general/covenants', i18n: 'Covenants', domain: 0, parent: 'gen0', types: ['WEAKAURA', 'COLLECTION'], games: ['sl']},
@@ -94,15 +94,15 @@ class Categories {
       'gen20': {slug: 'general/delves', i18n: 'Delves', domain: 0, parent: 'gen0', types: ['WEAKAURA'], games: ['tww']},
 
       'equip': {slug: 'equipment', image: 'equipment.png', color: '#7ED321', i18n: 'Equipment', domain: 0, types: ['WEAKAURA', 'COLLECTION']},
-      'legen': {slug: 'equipment/legendaries', i18n: 'Legendaries', domain: 0, parent: 'equip', types: ['WEAKAURA', 'COLLECTION'], games: ['legion', 'bfa', 'sl', 'df']},
+      'legen': {slug: 'equipment/legendaries', i18n: 'Legendaries', domain: 0, parent: 'equip', types: ['WEAKAURA', 'COLLECTION'], games: ['legion', 'bfa', 'sl', 'df', 'tww']},
       'equip1': {slug: 'equipment/trinkets', i18n: 'Trinkets', domain: 0, parent: 'equip', types: ['WEAKAURA', 'COLLECTION']},
       'equip2': {slug: 'equipment/item-enhancements', i18n: 'Item Enhancements', domain: 0, parent: 'equip', types: ['WEAKAURA', 'COLLECTION']},
 
       'mech': {slug: 'combat-mechanics', image: 'mechanics.png', color: '#F55F37', i18n: 'Combat Mechanics', domain: 0, types: ['WEAKAURA', 'COLLECTION']},
-      'mech1': {slug: 'combat-mechanics/battle-resurrection', i18n: 'Battle Resurrection', domain: 0, parent: 'mech', types: ['WEAKAURA'], games: ['legion', 'bfa', 'sl', 'df']},
+      'mech1': {slug: 'combat-mechanics/battle-resurrection', i18n: 'Battle Resurrection', domain: 0, parent: 'mech', types: ['WEAKAURA'], games: ['legion', 'bfa', 'sl', 'df', 'tww']},
       'mech2': {slug: 'combat-mechanics/interrupts', i18n: 'Interrupts', domain: 0, parent: 'mech', types: ['WEAKAURA']},
       'mech3': {slug: 'combat-mechanics/theorycrafting', i18n: 'Theorycrafting', domain: 0, parent: 'mech', types: ['WEAKAURA', 'COLLECTION']},
-      'mech4': {slug: 'combat-mechanics/vehicles', i18n: 'Vehicles', domain: 0, parent: 'mech', types: ['WEAKAURA'], games: ['wotlk', 'cata', 'legion', 'bfa', 'sl', 'df']},
+      'mech4': {slug: 'combat-mechanics/vehicles', i18n: 'Vehicles', domain: 0, parent: 'mech', types: ['WEAKAURA'], games: ['wotlk', 'cata', 'legion', 'bfa', 'sl', 'df', 'tww']},
       'mech5': {slug: 'combat-mechanics/consumables', i18n: 'Consumables', domain: 0, parent: 'mech', types: ['WEAKAURA', 'COLLECTION']},
       'mech6': {slug: 'combat-mechanics/group-buffs', i18n: 'Group Buffs', domain: 0, parent: 'mech', types: ['WEAKAURA', 'COLLECTION']},
 
@@ -780,7 +780,7 @@ class Categories {
       'torghast2': {slug: 'pve/torghast/anima', i18n: 'Anima', domain: 0, parent: 'torghast', types: ['WEAKAURA'], games: ['sl']},
 
       'pvp': {slug: 'pvp', image: 'pvp.png', color: '#ed1b24', i18n: 'PvP', domain: 0, types: ['WEAKAURA']},
-      'arena': {slug: 'pvp/arena', i18n: 'Arena', domain: 0, parent: 'pvp', types: ['WEAKAURA'], games: ['tbc', 'wotlk', 'cata', 'legion', 'bfa', 'sl', 'df']},
+      'arena': {slug: 'pvp/arena', i18n: 'Arena', domain: 0, parent: 'pvp', types: ['WEAKAURA'], games: ['tbc', 'wotlk', 'cata', 'legion', 'bfa', 'sl', 'df', 'tww']},
       'bg': {slug: 'pvp/battlegrounds', i18n: 'Battlegrounds', domain: 0, parent: 'pvp'},
       'wpvp': {slug: 'pvp/world-pvp', i18n: 'World PvP', domain: 0, parent: 'pvp'},
       'wpvp1': {slug: 'pvp/duels', i18n: 'Duels', domain: 0, parent: 'pvp'},
@@ -796,8 +796,8 @@ class Categories {
       'prof7': {slug: 'professions/crafting/blacksmithing', i18n: 'warcraft:professions.164', domain: 0, parent: 'prof5', types: ['WEAKAURA', 'OPIE']},
       'prof8': {slug: 'professions/crafting/enchanting', i18n: 'warcraft:professions.333', domain: 0, parent: 'prof5', types: ['WEAKAURA', 'OPIE']},
       'prof9': {slug: 'professions/crafting/engineering', i18n: 'warcraft:professions.202', domain: 0, parent: 'prof5', types: ['WEAKAURA', 'OPIE']},
-      'prof10': {slug: 'professions/crafting/inscription', i18n: 'warcraft:professions.773', domain: 0, parent: 'prof5', types: ['WEAKAURA', 'OPIE'], games: ['wotlk', 'cata', 'legion', 'bfa', 'sl', 'df']},
-      'prof11': {slug: 'professions/crafting/jewelcrafting', i18n: 'warcraft:professions.755', domain: 0, parent: 'prof5', types: ['WEAKAURA', 'OPIE'], games: ['tbc', 'wotlk', 'cata', 'legion', 'bfa', 'sl', 'df']},
+      'prof10': {slug: 'professions/crafting/inscription', i18n: 'warcraft:professions.773', domain: 0, parent: 'prof5', types: ['WEAKAURA', 'OPIE'], games: ['wotlk', 'cata', 'legion', 'bfa', 'sl', 'df', 'tww']},
+      'prof11': {slug: 'professions/crafting/jewelcrafting', i18n: 'warcraft:professions.755', domain: 0, parent: 'prof5', types: ['WEAKAURA', 'OPIE'], games: ['tbc', 'wotlk', 'cata', 'legion', 'bfa', 'sl', 'df', 'tww']},
       'prof12': {slug: 'professions/crafting/leatherworking', i18n: 'warcraft:professions.165', domain: 0, parent: 'prof5', types: ['WEAKAURA', 'OPIE']},
       'prof13': {slug: 'professions/crafting/tailoring', i18n: 'warcraft:professions.197', domain: 0, parent: 'prof5', types: ['WEAKAURA', 'OPIE']},
       'prof14': {slug: 'professions/secondary', image: 'secondaryprof.png', color: '#C4C4C4', i18n: 'Secondary Professions', domain: 0, types: ['WEAKAURA', 'OPIE']},
