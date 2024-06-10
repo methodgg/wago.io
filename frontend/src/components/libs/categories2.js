@@ -25,10 +25,10 @@ class Categories {
       'cl11-3': {slug: 'classes/druid/guardian', i18n: 'warcraft:specs.104', domain: 0, parent: 'cl11', games: ['legion', 'bfa', 'sl', 'df', 'tww']},
       'cl11-4': {slug: 'classes/druid/restoration', i18n: 'warcraft:specs.105', domain: 0, parent: 'cl11'},
 
-      'cl13': {slug: 'classes/evoker', image: 'evoker.png', color: '#33937F', i18n: 'warcraft:classes.13', domain: 0, games: ['df']},
-      'cl13-1': {slug: 'classes/evoker/devastation', cls:'cl-demonhunter', i18n: 'warcraft:specs.1467', domain: 0, parent: 'cl13', games: ['df']},
-      'cl13-2': {slug: 'classes/evoker/preservation', i18n: 'warcraft:specs.1468', domain: 0, parent: 'cl13', games: ['df']},
-      'cl13-3': {slug: 'classes/evoker/augmentation', i18n: 'warcraft:specs.1473', domain: 0, parent: 'cl13', games: ['df']},
+      'cl13': {slug: 'classes/evoker', image: 'evoker.png', color: '#33937F', i18n: 'warcraft:classes.13', domain: 0, games: ['df', 'tww']},
+      'cl13-1': {slug: 'classes/evoker/devastation', cls:'cl-demonhunter', i18n: 'warcraft:specs.1467', domain: 0, parent: 'cl13', games: ['df', 'tww']},
+      'cl13-2': {slug: 'classes/evoker/preservation', i18n: 'warcraft:specs.1468', domain: 0, parent: 'cl13', games: ['df', 'tww']},
+      'cl13-3': {slug: 'classes/evoker/augmentation', i18n: 'warcraft:specs.1473', domain: 0, parent: 'cl13', games: ['df', 'tww']},
 
       'cl3': {slug: 'classes/hunter', image: 'hunter.png', color: '#ABD473', i18n: 'warcraft:classes.3', domain: 0},
       'cl3-1': {slug: 'classes/hunter/beast-mastery', i18n: 'warcraft:specs.253', domain: 0, parent: 'cl3'},
@@ -164,7 +164,7 @@ class Categories {
 
       'twwdungeon': {slug: 'pve/the-war-within-dungeons', image: 'dungeon.png', color: '#F5A623', i18n: 'Dungeons', domain: 0, types: ['WEAKAURA', 'COLLECTION'], games: ['tww']},
       // --- Season 1
-      'twwdungeon-s1': {subheader: true, i18n: 'Season 1 Dungeons', domain: 0, parent: 'twwdungeon', system: true, types: ['WEAKAURA'], games: ['df']},
+      'twwdungeon-s1': {subheader: true, i18n: 'Season 1 Dungeons', domain: 0, parent: 'twwdungeon', system: true, types: ['WEAKAURA'], games: ['tww']},
       'twwdungeon6': {slug: 'pve/the-war-within-dungeons/ara-kara-city-of-echoes', i18n: 'warcraft:instances.1271', domain: 0, parent: 'twwdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['tww']},
       'twwdungeon8': {slug: 'pve/the-war-within-dungeons/city-of-threads', i18n: 'warcraft:instances.1274', domain: 0, parent: 'twwdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['tww']},
       'twwdungeon3': {slug: 'pve/the-war-within-dungeons/the-rookery', i18n: 'warcraft:instances.1268', domain: 0, parent: 'twwdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['tww']},
@@ -174,7 +174,7 @@ class Categories {
       'twwdungeons1-3': {slug: 'pve/the-war-within-dungeons/siege-of-boralus', i18n: 'warcraft:instances.1023', domain: 0, parent: 'twwdungeon', types: ['WEAKAURA'], games: ['tww']},
       'twwdungeons1-4': {slug: 'pve/the-war-within-dungeons/grim-batol', i18n: 'warcraft:instances.71', domain: 0, parent: 'twwdungeon', types: ['WEAKAURA'], games: ['tww']},
       
-      'twwdungeon-other': {subheader: true, i18n: 'Other Dungeons', domain: 0, parent: 'twwdungeon', system: true, types: ['WEAKAURA'], games: ['df']},
+      'twwdungeon-other': {subheader: true, i18n: 'Other Dungeons', domain: 0, parent: 'twwdungeon', system: true, types: ['WEAKAURA'], games: ['tww']},
       'twwdungeon1': {slug: 'pve/the-war-within-dungeons/darkflame-cleft', i18n: 'warcraft:instances.1210', domain: 0, parent: 'twwdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['tww']},
       'twwdungeon2': {slug: 'pve/the-war-within-dungeons/priory-of-the-sacred-flame', i18n: 'warcraft:instances.1267', domain: 0, parent: 'twwdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['tww']},
       'twwdungeon5': {slug: 'pve/the-war-within-dungeons/the-dawnbreaker', i18n: 'warcraft:instances.1270', domain: 0, parent: 'twwdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['tww']},
