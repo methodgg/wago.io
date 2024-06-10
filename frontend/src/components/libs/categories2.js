@@ -166,7 +166,7 @@ class Categories {
       // --- Season 1
       'twwdungeon-s1': {subheader: true, i18n: 'Season 1 Dungeons', domain: 0, parent: 'twwdungeon', system: true, types: ['WEAKAURA'], games: ['df']},
       'twwdungeon6': {slug: 'pve/the-war-within-dungeons/ara-kara-city-of-echoes', i18n: 'warcraft:instances.1271', domain: 0, parent: 'twwdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['tww']},
-      'twwdungeon8': {slug: 'pve/the-war-within-dungeons/city-of-threads', i18n: 'warcraft:instances.1273', domain: 0, parent: 'twwdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['tww']},
+      'twwdungeon8': {slug: 'pve/the-war-within-dungeons/city-of-threads', i18n: 'warcraft:instances.1274', domain: 0, parent: 'twwdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['tww']},
       'twwdungeon3': {slug: 'pve/the-war-within-dungeons/the-rookery', i18n: 'warcraft:instances.1268', domain: 0, parent: 'twwdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['tww']},
       'twwdungeon4': {slug: 'pve/the-war-within-dungeons/the-stonevault', i18n: 'warcraft:instances.1269', domain: 0, parent: 'twwdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['tww']},
       'twwdungeons1-1': {slug: 'pve/the-war-within-dungeons/mists-of-tirna-scithe', i18n: 'warcraft:instances.1184', domain: 0, parent: 'twwdungeon', types: ['WEAKAURA'], games: ['tww']},
