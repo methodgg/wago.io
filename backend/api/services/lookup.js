@@ -311,6 +311,8 @@ module.exports = function (fastify, opts, next) {
     const getScreenshots = async () => {
       const screens = await Screenshot.findForWago(wago._id)
       if (!screens || !screens.length) {
+        wago.screens = null
+        wago.thumbnail = null
         return
       }
       wago.screens = []
@@ -327,7 +329,7 @@ module.exports = function (fastify, opts, next) {
           saveDoc = true
         }
       }
-      wago.thumbnail = doc.previewStatic || doc.previewImage
+      wago.thumbnail = doc.previewStatic || doc.previewImage || null
       screens.forEach((screen) => {
         wago.screens.push({ _id: screen._id.toString(), src: screen.url, thumb: screen.url, title: screen.caption })
       })
