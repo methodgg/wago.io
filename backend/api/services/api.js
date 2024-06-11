@@ -279,6 +279,7 @@ module.exports = function (fastify, opts, next) {
       return res.code(401).send({ error: "no_user" })
     }
     let user = {}
+    user.user_id = req.user._id
     user.username = req.user.account.username
     user.avatar = req.user.profile.avatar
     user.hideAds = req.user.access.hideAds
