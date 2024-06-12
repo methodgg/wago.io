@@ -131,7 +131,7 @@ module.exports = function (fastify, opts, next) {
       wago.forkOf = doc.forkOf || doc.fork_of
       wago.type = (doc.type || '').match(/WEAKAURA/) && 'WEAKAURA' || doc.type
       wago.game = doc.game
-      wago.thumbnail = doc.thumbnail || doc.previewStatic || doc.previewImage
+      wago.thumbnail = doc.thumbnail || doc.previewStatic || doc.previewImage || null
       if (doc.username) {
         wago.username = doc.username
       }
