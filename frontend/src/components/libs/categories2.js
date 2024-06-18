@@ -167,7 +167,7 @@ class Categories {
       'twwdungeon-s1': {subheader: true, i18n: 'Season 1 Dungeons', domain: 0, parent: 'twwdungeon', system: true, types: ['WEAKAURA'], games: ['tww']},
       'twwdungeon6': {slug: 'pve/the-war-within-dungeons/ara-kara-city-of-echoes', i18n: 'warcraft:instances.1271', domain: 0, parent: 'twwdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['tww']},
       'twwdungeon8': {slug: 'pve/the-war-within-dungeons/city-of-threads', i18n: 'warcraft:instances.1274', domain: 0, parent: 'twwdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['tww']},
-      'twwdungeon3': {slug: 'pve/the-war-within-dungeons/the-rookery', i18n: 'warcraft:instances.1268', domain: 0, parent: 'twwdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['tww']},
+      'twwdungeon5': {slug: 'pve/the-war-within-dungeons/the-dawnbreaker', i18n: 'warcraft:instances.1270', domain: 0, parent: 'twwdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['tww']},
       'twwdungeon4': {slug: 'pve/the-war-within-dungeons/the-stonevault', i18n: 'warcraft:instances.1269', domain: 0, parent: 'twwdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['tww']},
       'twwdungeons1-1': {slug: 'pve/the-war-within-dungeons/mists-of-tirna-scithe', i18n: 'warcraft:instances.1184', domain: 0, parent: 'twwdungeon', types: ['WEAKAURA'], games: ['tww']},
       'twwdungeons1-2': {slug: 'pve/the-war-within-dungeons/the-necrotic-wake', i18n: 'warcraft:instances.1182', domain: 0, parent: 'twwdungeon', types: ['WEAKAURA'], games: ['tww']},
@@ -177,7 +177,7 @@ class Categories {
       'twwdungeon-other': {subheader: true, i18n: 'Other Dungeons', domain: 0, parent: 'twwdungeon', system: true, types: ['WEAKAURA'], games: ['tww']},
       'twwdungeon1': {slug: 'pve/the-war-within-dungeons/darkflame-cleft', i18n: 'warcraft:instances.1210', domain: 0, parent: 'twwdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['tww']},
       'twwdungeon2': {slug: 'pve/the-war-within-dungeons/priory-of-the-sacred-flame', i18n: 'warcraft:instances.1267', domain: 0, parent: 'twwdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['tww']},
-      'twwdungeon5': {slug: 'pve/the-war-within-dungeons/the-dawnbreaker', i18n: 'warcraft:instances.1270', domain: 0, parent: 'twwdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['tww']},
+      'twwdungeon3': {slug: 'pve/the-war-within-dungeons/the-rookery', i18n: 'warcraft:instances.1268', domain: 0, parent: 'twwdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['tww']},
       'twwdungeon7': {slug: 'pve/the-war-within-dungeons/cinderbrew-meadery', i18n: 'warcraft:instances.1272', domain: 0, parent: 'twwdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['tww']},
 
       'dfdungeon': {slug: 'pve/dragonflight-dungeons', image: 'dungeon.png', color: '#F5A623', i18n: 'Dragonflight Dungeons', domain: 0, types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
