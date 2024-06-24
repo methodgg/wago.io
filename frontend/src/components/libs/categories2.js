@@ -1314,7 +1314,7 @@ class Categories {
   filterSystemTags (cats) {
     let systemTags = []
     for (const cat of cats) {
-      if (this.categories[cat] && this.categories[cat].system) {
+      if (this.categories[cat] && this.categories[cat].system && !this.categories[cat].subheader) {
         systemTags.push(cat)
       }
     }

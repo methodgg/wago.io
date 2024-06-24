@@ -3363,11 +3363,11 @@ a.showvid:hover:before  .md-icon { opacity:1 }
 
 #wago-config { padding-bottom: 10em!important}
 
-#video-modal { width: 70vw; height: 39.375vw; z-index:999; margin: auto; background: none; outline: none}
+#video-modal { width: 70vw; aspect-ratio: 16/9; z-index:999; margin: auto; background: none; outline: none}
 #video-modal > .md-dialog {width: 100%; height: 100%; background: none; position: relative }
 .video-wrapper { position: relative; }
 .video-wrapper:before { display: block; content:""; width: 100%; padding-top: 56.25%}
-.video-wrapper iframe { position: absolute; top: 0;	left: 0; bottom: 0; right: 0; width:100%; height: 100% }
+.video-wrapper iframe { position: absolute; top: 0;	left: 0; bottom: 0; right: 0; width:100%; aspect-ratio: 16/9;}
 
 .md-button-toggle { padding: 0 16px 16px; flex-wrap: wrap; }
 .md-button .commentAttn { color: #c2272e !important; -webkit-text-fill-color: #c2272e }
