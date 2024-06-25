@@ -1,17 +1,27 @@
 <template>
   <div class="placeholder-img">
-    <strong>{{ text.split('').join(' ') }}<span></span></strong>
+    <strong v-if="!defaultImage">{{ text.split('').join(' ') }}<span></span></strong>
     <div v-if="icon" class="rounded category-image"><img :src="icon"></div>
+    <div v-if="defaultImage" class="default-image"><img :src="defaultImage"></div>
     <category-image v-else :group="'t-' + text.toLowerCase()" :class="'c-' + text.toLowerCase()"></category-image>
   </div>
 </template>
 
 <script>
+import BigWigs from '../../assets/placeholder-bigwigs.jpg'
 import CategoryImage from '../UI/CategoryImage.vue'
 export default {
   props: ['text', 'width', 'height', 'icon'],
   components: {
     CategoryImage
+  },
+  computed: {
+    defaultImage () {
+        if (this.text.toLowerCase() === 'bigwigs') {
+            return BigWigs
+        }
+        return false
+    }
   }
 }
 </script>
@@ -29,6 +39,14 @@ export default {
     span {
       width: 100%;
       display: inline-block;
+    }
+  }
+  .default-image {
+    height: 100%;
+    text-align: center;
+    img {
+      max-width: 100%;
+      max-height: 100%;
     }
   }
   .category-image {
