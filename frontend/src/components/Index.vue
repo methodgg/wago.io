@@ -146,7 +146,7 @@
           </md-layout>
         </md-layout>
 
-        <div v-if="scanID && importType !== 'Lua Error' && importType !== 'DBM' && importType !== 'MDT'">
+        <div v-if="scanID && importType !== 'Lua Error' && importType !== 'DBM' && importType !== 'BIGWIGS' && importType !== 'MDT'">
           <label id="categoryLabel">{{ $t("Categories") }}</label>
           <md-button class="md-icon-button md-raised" @click="numCategorySets++">
             <md-icon>add</md-icon>

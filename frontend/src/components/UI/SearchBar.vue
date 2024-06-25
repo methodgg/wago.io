@@ -30,6 +30,7 @@
         <md-list-item v-if="!domain" @click="replaceSearchText(/type:\s*/i, 'type:OPIE')">OPie</md-list-item>
         <md-list-item v-if="!domain" @click="replaceSearchText(/type:\s*/i, 'type:TOTALRP3')">Total RP</md-list-item>
         <md-list-item v-if="!domain" @click="replaceSearchText(/type:\s*/i, 'type:DBM')">DBM</md-list-item>
+        <md-list-item v-if="!domain" @click="replaceSearchText(/type:\s*/i, 'type:BIGWIGS')">BigWigs</md-list-item>
         <md-list-item v-if="domain === 1" @click="replaceSearchText(/type:\s*/i, 'type:DELVUI')">DelvUI</md-list-item>
       </md-list>
       <md-list v-else-if="dropdownMenu === 'mentions' && $store.state.user">
@@ -183,6 +184,7 @@ export default {
           {regex: /(.*)(type:\s?OPie)(.*)/i, name: 'OPie', class:'imptype type-opie', search: 'type:opie'},
           {regex: /(.*)(type:\s?TotalRP3?)(.*)/i, name: 'Total RP', class:'imptype type-totalrp', search: 'type:totalrp3'},
           {regex: /(.*)(type:\s?DBM)(.*)/i, name: 'DBM', class:'imptype type-dbm', search: 'type:dbm'},
+          {regex: /(.*)(type:\s?BigWigs)(.*)/i, name: 'BigWigs', class:'imptype type-bigwigs', search: 'type:bigwigs'},
           {regex: /(.*)(type:\s?BlizzHUD)(.*)/i, name: 'BlizzHUD', class:'imptype type-blizzhud', search: 'type:blizzhud'},
           {regex: /(.*)(type:\s?Collection?)(.*)/i, name: 'Collection', class:'imptype type-collection', search: 'type:collection'},
           {regex: /(.*)(type:\s?Snippet?)(.*)/i, name: 'Snippet', class:'imptype type-snippet', search: 'type:snippet'},

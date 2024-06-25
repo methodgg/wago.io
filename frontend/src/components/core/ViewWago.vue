@@ -520,7 +520,7 @@
                       </md-layout>
                     </md-layout>
                   </div>
-                  <div v-if="!wago.image && !wago.audio && wago.type !== 'ERROR' && wago.type !== 'DBM' && wago.type !== 'MDT'">
+                  <div v-if="!wago.image && !wago.audio && wago.type !== 'ERROR' && wago.type !== 'DBM' && wago.type !== 'BIGWIGS' && wago.type !== 'MDT'">
                     <div>
                       <label id="categoryLabel">{{ $t("Categories") }}</label>
                       <md-button class="md-icon-button md-raised" @click="numCategorySets++">

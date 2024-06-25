@@ -53,6 +53,7 @@
           <md-list-item><router-link to='/news'>{{ $t("Site News") }}</router-link></md-list-item>
           <md-list-item><a href="https://addons.wago.io">Wago Addons</a><md-divider></md-divider></md-list-item>
           <md-list-item class="menu-section">World of Warcraft</md-list-item>
+          <md-list-item><router-link to='/search/imports/wow/bigwigs'>BigWigs</router-link></md-list-item>
           <md-list-item><router-link to='/blizzhud'>BlizzHUD</router-link></md-list-item>
           <md-list-item><router-link to='/search/imports/wow/dbm'>DBM</router-link></md-list-item>
           <md-list-item><router-link to='/elvui'>ElvUI</router-link></md-list-item>
@@ -109,6 +110,7 @@
               <router-link to='/plater'>Plater Nameplates</router-link>
               <router-link to='/totalrp'>Total RP</router-link>
               <router-link to='/vuhdo'>VuhDo</router-link>
+              <router-link to='/search/imports/wow/bigwigs'>BigWigs</router-link>
               <router-link to='/search/imports/wow/dbm'>DBM</router-link>
             </div>
           </div>

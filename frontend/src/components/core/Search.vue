@@ -85,6 +85,7 @@
                     searchType === 'totalrp3' && 'TotalRP' ||
                     searchType === 'vuhdo' && 'VuhDo' ||
                     searchType === 'dbm' && 'DBM' ||
+                    searchType === 'bigwigs' && 'BigWigs' ||
                     searchType === 'mdt' && 'MDT' ||
                     searchType === 'macro' && 'MACRO' ||
                     searchType === 'shippets' && 'Snippets' ||
@@ -121,11 +122,12 @@
                     <img src="../../assets/misc-addons.svg">
                   </div>
                   <div id="addon-dropdown">
+                    <div @click="setType('bigwigs')">BigWigs</div>
                     <div @click="setType('blizzhud')">BlizzHud</div>
+                    <div @click="setType('dbm')">DBM</div>
                     <div @click="setType('opie')">OPie</div>
                     <div @click="setType('totalrp3')">Total RP</div>
                     <div @click="setType('vuhdo')">VuhDo</div>
-                    <div @click="setType('dbm')">DBM</div>
                     <div @click="setType('collection')">Collection</div>
                   </div>
                 </md-button-toggle>
