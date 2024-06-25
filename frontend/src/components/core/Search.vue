@@ -119,16 +119,16 @@
                     <md-tooltip md-direction="bottom" class="">{{ $t("MDT") }}</md-tooltip>
                   </md-button>
                   <div id="addon-button" :class="{ 'md-toggle': searchType && !searchType.match(/^(all|weakaura|elvui|plater|mdt|macro)$/) }" class="md-button md-icon-button md-theme-default">
-                    <img src="../../assets/misc-addons.svg">
+                    <img src="../../assets/misc-addons.svg" style="margin-top:2px">
                   </div>
                   <div id="addon-dropdown">
-                    <div @click="setType('bigwigs')">BigWigs</div>
-                    <div @click="setType('blizzhud')">BlizzHud</div>
-                    <div @click="setType('dbm')">DBM</div>
-                    <div @click="setType('opie')">OPie</div>
-                    <div @click="setType('totalrp3')">Total RP</div>
-                    <div @click="setType('vuhdo')">VuhDo</div>
-                    <div @click="setType('collection')">Collection</div>
+                    <div @click="setType('bigwigs')"><span class="addon-icon"><img src="../../assets/menu-bigwigs.png"></span> BigWigs</div>
+                    <div @click="setType('blizzhud')"><span class="addon-icon"><img src="../../assets/menu-blizzhud.png"></span> BlizzHud</div>
+                    <div @click="setType('dbm')"><span class="addon-icon"><img src="../../assets/menu-dbm.png"></span> Deadly Boss Mods</div>
+                    <div @click="setType('opie')"><span class="addon-icon"><img src="../../assets/menu-opie.png"></span> OPie</div>
+                    <div @click="setType('totalrp3')"><span class="addon-icon"><img src="../../assets/menu-trpcamp.png"></span> Total RP</div>
+                    <div @click="setType('vuhdo')"><span class="addon-icon"><img src="../../assets/menu-vuhdo.png"></span>VuhDo</div>
+                    <div @click="setType('collection')"><span class="addon-icon"><img src="../../assets/menu-collection.png"></span> Collection</div>
                   </div>
                 </md-button-toggle>
               </div>
@@ -821,11 +821,25 @@ export default {
       box-shadow: 5px 5px 30px #00000066;
       min-width: 170px;
       z-index: 99!important;
+      .addon-icon {
+        width: 20px;
+        margin-right: 8px;
+        margin-left: -4px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: flex-end;
+        img {
+          max-width: 100%;
+          max-height: 16px;
+        }
+      }
       & > * {
         padding: 8px 16px;
         color: white;
         background: #3A3A3A;
         cursor: pointer;
+        display: flex;
+        align-items: center;
         &:hover {
           background: #444444;
           text-decoration: none;

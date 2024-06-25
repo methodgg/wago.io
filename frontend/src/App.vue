@@ -93,7 +93,7 @@
             <div class="sub-nav">
               <router-link to='/dragonflight-weakauras'>
                 <div class="md-list-text-container">
-                  WeakAuras
+                  <span class="sub-nav-heading"><span class="addon-icon"><img src="./assets/weakauras.png"></span> WeakAuras</span>
                   <span class="game-select">
                     <router-link to='/the-war-within-weakauras'>The War Within</router-link>
                     <router-link to='/dragonflight-weakauras'>Dragonflight</router-link>
@@ -102,16 +102,16 @@
                   </span>
                 </div>
               </router-link>
-              <router-link to='/blizzhud'>BlizzHUD</router-link>
-              <router-link to='/elvui'>ElvUI</router-link>
-              <router-link to='/macros'>Macros</router-link>
-              <router-link to='/dragonflight-mdt'>Mythic Dungeon Tools</router-link>
-              <router-link to='/opie'>OPie</router-link>
-              <router-link to='/plater'>Plater Nameplates</router-link>
-              <router-link to='/totalrp'>Total RP</router-link>
-              <router-link to='/vuhdo'>VuhDo</router-link>
-              <router-link to='/search/imports/wow/bigwigs'>BigWigs</router-link>
-              <router-link to='/search/imports/wow/dbm'>DBM</router-link>
+              <router-link to='/blizzhud'><span class="addon-icon"><img src="./assets/menu-blizzhud.png"></span> BlizzHUD</router-link>
+              <router-link to='/elvui'><span class="addon-icon"><img src="./assets/tukui.png"></span> ElvUI</router-link>
+              <router-link to='/macros'><span class="addon-icon"><img src="./assets/menu-macro.png"></span> Macros</router-link>
+              <router-link to='/dragonflight-mdt'><span class="addon-icon"><img src="./assets/mdt.png"></span> Mythic Dungeon Tools</router-link>
+              <router-link to='/opie'><span class="addon-icon"><img src="./assets/menu-opie.png"></span> OPie</router-link>
+              <router-link to='/plater'><span class="addon-icon"><img src="./assets/menu-plater.png"></span> Plater Nameplates</router-link>
+              <router-link to='/totalrp'><span class="addon-icon"><img src="./assets/menu-trpcamp.png"></span> Total RP</router-link>
+              <router-link to='/vuhdo'><span class="addon-icon"><img src="./assets/menu-vuhdo.png"></span> VuhDo</router-link>
+              <router-link to='/search/imports/wow/bigwigs'><span class="addon-icon"><img src="./assets/menu-bigwigs.png"></span> BigWigs</router-link>
+              <router-link to='/search/imports/wow/dbm'><span class="addon-icon"><img src="./assets/menu-dbm.png"></span> Deadly Boss Mods</router-link>
             </div>
           </div>
           <!-- <div class="menu-section">
@@ -641,6 +641,8 @@ body, html {
           color: white;
           background: #3A3A3A;
           cursor: pointer;
+          display: flex;
+          align-items: center;
           &:hover {
             background: #444444;
             text-decoration: none;
@@ -648,6 +650,11 @@ body, html {
         }
         :last-child {
           border-radius: 0 0 2px 2px;
+        }
+        .sub-nav-heading {
+            font-size: inherit;
+            display: flex;
+            align-items: center;
         }
       }
       &:hover {
@@ -658,6 +665,19 @@ body, html {
           top: 40px;
           left: 0;
         }
+      }
+      
+      .addon-icon {
+        width: 20px;
+        margin-right: 8px;
+        margin-left: -4px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: flex-end;
+        img {
+          max-width: 100%;
+          max-height: 16px;
+        }          
       }
     }
   }

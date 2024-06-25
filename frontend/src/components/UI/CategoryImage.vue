@@ -80,6 +80,7 @@
     <img src="./../../assets/menu-trpcamp.png" v-else-if="group === 't-totalrp' || group === 't-totalrp3'"/>
     <img src="./../../assets/menu-blizzhud.png" v-else-if="group === 't-blizzhud'"/>
     <img src="./../../assets/menu-plater.png" v-else-if="group === 't-plater'"/>
+    <img src="./../../assets/menu-bigwigs.png" v-else-if="group === 't-bigwigs'"/>
     <img src="./../../assets/menu-macro.png" v-else-if="group === 't-macro'"/>
     <img src="./../../assets/macro-search.png" v-else-if="group === 't-macro-search'"/>
     <img src="./../../assets/menu-encounternotes.png" v-else-if="group === 't-encounternotes'"/>

@@ -8,7 +8,7 @@
 </template>
 
 <script>
-import BigWigs from '../../assets/placeholder-bigwigs.jpg'
+import BigWigs from '../../assets/placeholder-bigwigs.png'
 import CategoryImage from '../UI/CategoryImage.vue'
 export default {
   props: ['text', 'width', 'height', 'icon'],
