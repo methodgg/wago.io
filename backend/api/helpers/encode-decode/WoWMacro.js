@@ -22,12 +22,13 @@ module.exports = {
     return str.replace(/target=/g, '@').replace("\\n", "\n")
   },
 
-  processMeta: () => {
+  processMeta: (obj) => {
+    if (typeof obj !== 'string' || !obj.match(reSlashCommand)) {
+      return false
+    }
     return {
         type: "MACRO",
         name: "My Macro"
     }
   },
-
-  plainText: true
 }
