@@ -1,5 +1,6 @@
 const i18next = require('i18next')
 const i18nextBackend = require('i18next-fs-backend')
+const bcrypt = require('bcrypt')
 
 const langs = ['de-DE', 'en-GB', 'en-US', 'es-ES', 'es-MX', 'fr-FR', 'it-IT', 'ko-KR', 'pl-PL', 'pt-BR', 'pt-PT', 'ru-RU', 'zh-CN']
 i18next.use(i18nextBackend).init({
@@ -288,5 +289,47 @@ module.exports = function (fastify, opts, next) {
     res.send(user)
   })
 
-  next()
+
+    fastify.post('/user/auth/:type', async (req, res) => {
+        if (!req.internalAuthRequest) {
+            return res.code(401).send({ error: "invalid_request" })
+        }
+        let user
+        if (req.params.type === 'password') {
+            if (!req.body.username || !req.body.password) {
+                return res.code(401).send({ error: "invalid_login" })
+            }
+            user = await User.findByUsername(req.body.username)
+            if (!user || !user.account.password) {
+                return res.code(403).send({ error: "unknown_user" })
+            }
+            const auth = await bcrypt.compare(req.body.password, user.account.password)
+            if (!auth) {
+                return res.code(403).send({ error: "invalid_login" })
+            }
+        }
+        else if (req.params.type.match(/^google|battlenet|patreon|discord$/)) {
+            user = await User.findOne({ [`${req.params.type}.id`]: req.body.id })
+            if (!user) {
+                return res.code(403).send({ error: "unknown_user" })
+            }
+        }
+        else {
+            return res.code(401).send({ error: "invalid_request" })
+        }
+        return res.send({
+            user_id: user._id,
+            username: user.account.username,
+            avatar: user.profile.avatar ?? {},
+            api_key: user.account.api_key ?? null,
+            socials: {
+                google: user.google?.id ?? null,
+                battlenet: user.battlenet?.id ?? null,
+                patreon: user.patreon?.id ?? null,
+                discord: user.discord?.id ?? null
+            }
+        })
+    })
+
+    next()
 }
