@@ -300,8 +300,11 @@ module.exports = function (fastify, opts, next) {
                 return res.code(401).send({ error: "invalid_login" })
             }
             user = await User.findByUsername(req.body.username)
-            if (!user || !user.account.password) {
+            if (!user) {
                 return res.code(403).send({ error: "unknown_user" })
+            }
+            else if (!user.account.password) {
+                return res.code(403).send({ error: "invalid_login" })
             }
             const auth = await bcrypt.compare(req.body.password, user.account.password)
             if (!auth) {
