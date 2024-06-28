@@ -325,6 +325,7 @@ module.exports = function (fastify, opts, next) {
             username: user.account.username,
             avatar: user.profile.avatar ?? {},
             api_key: user.account.api_key ?? null,
+            created: user.account.created,
             socials: {
                 google: user.google?.id ?? null,
                 battlenet: user.battlenet?.id ?? null,
