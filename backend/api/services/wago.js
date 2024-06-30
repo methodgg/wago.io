@@ -6,6 +6,7 @@ const FileType = require('file-type')
 const videoParser = require('js-video-url-parser')
 const crypto = require("crypto-js")
 const tmpDir = __dirname + '/../../run-tmp/'
+const wagoRoutes = require('../../../frontend/src/router').routes.map(x => x.path).filter(x => x.match(/^\/\w+/))
 
 module.exports = function (fastify, opts, next) {
   // sets favorite for a wago
@@ -91,7 +92,7 @@ module.exports = function (fastify, opts, next) {
     if (!req.user || !req.user.access.custom_slug || !req.body.wagoID) {
       return res.code(403).send({error: "forbidden"})
     }
-    else if (!req.body.slug || req.body.slug.match(/[\s%#/\\<>]/) || (req.body.slug.length < 7 && !req.body.slug.match(/[^\u0000-\u007F]/))) {
+    else if (!req.body.slug || req.body.slug.match(/[\s%#/\\<>]/) || (req.body.slug.length < 7 && !req.body.slug.match(/[^\u0000-\u007F]/)) || wagoRoutes.includes('/' + req.body.slug)) {
       return res.code(401).send({error: "invalid input"})
     }
 

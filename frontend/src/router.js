@@ -86,7 +86,7 @@ function GetContextSearch(params, type, expansion) {
   return search
 }
 
-export default {
+module.exports = {
   mode: 'history',
   routes: [
     // index/import form with dev log
