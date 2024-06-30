@@ -36,7 +36,7 @@ module.exports = {
         local sharingVersion = "BW1"
         local t = JSON:decode("${json}")
         
-        local serialized = LibSerialize:Serialize(exportOptions)
+        local serialized = LibSerialize:Serialize(t)
         local compressed = LibDeflate:CompressDeflate(serialized, {level = 9})
         local compressedForPrint = LibDeflate:EncodeForPrint(compressed)
         return sharingVersion..":"..compressedForPrint`
