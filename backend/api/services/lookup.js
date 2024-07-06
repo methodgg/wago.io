@@ -234,7 +234,7 @@ module.exports = function (fastify, opts, next) {
     }
     wago.date = { created: doc.created, modified: doc.modified }
     wago.expires = doc.expires_at
-    wago.patch = doc.patch_name
+    wago.patch = doc.patch_name ?? ''
     wago.description = { text: doc.description, format: doc.description_format }
     wago.categories = doc.categories
     wago.regionType = doc.regionType
@@ -717,6 +717,7 @@ module.exports = function (fastify, opts, next) {
       if (doc.latestVersion.iteration === code.version && (
         (code.version && (!code.encoded || !code.customCode || ((json.d.version !== code.version || json.d.url !== doc.url + '/' + code.version) || (json.c && json.c[0] && json.c[0].version !== code.version) || (json.d.semver !== code.versionString))))
         || (code.customCode.filter(x => x.lua && !x.metrics.nloc).length)
+        || (!doc.patch_name && json.d.tocversion)
         || (doc.game !== patchDates.gameVersion(json.d.tocversion))
       )
       ) {

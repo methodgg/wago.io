@@ -203,6 +203,10 @@ module.exports = function (fastify, opts, next) {
         }
       }
 
+      if (doc.type.match(/WEAKAURA/) && (!doc.tocversion || !doc.patch_name)) {
+        taskQueue.add('ProcessCode', { id: doc._id, version: code.versionString }, { priority: req.user && req.user.access.queueSkip && 2 || 5, jobId: `${doc._id}:${code.version}:${code.versionString}` })
+      }
+
       wago.version = code.version
       let versionString = code.versionString
       if (versionString !== '1.0.' + (code.version + 1) && versionString !== '0.0.' + code.version) {
