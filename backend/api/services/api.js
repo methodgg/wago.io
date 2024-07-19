@@ -335,7 +335,8 @@ module.exports = function (fastify, opts, next) {
                 battlenet: user.battlenet?.id ?? null,
                 patreon: user.patreon?.id ?? null,
                 discord: user.discord?.id ?? null
-            }
+            },
+            wowChars: user.battlenet?.characters ?? []
         })
     })
 
