@@ -12,8 +12,8 @@ module.exports = {
 
     },
   
-    encodeRaw: async (json) => {
-      return (JSON.parse(json)).join(' ')
+    encodeRaw: async (str) => {
+        return str
     },
   
     processMeta: (obj) => {
