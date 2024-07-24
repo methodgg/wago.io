@@ -1025,7 +1025,7 @@ function fuzzyTextString(text) {
 }
 
 module.exports = function (fastify, opts, next) {
-  fastify.get('/ts', typesenseSearch)
+//   fastify.get('/ts', typesenseSearch)
   fastify.get('/ms', oldSearch)
   fastify.get('/es', searchElastic)
   fastify.get('/', searchElastic)
