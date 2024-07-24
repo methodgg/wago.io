@@ -25,7 +25,9 @@ function expansionIndex(exp) {
   else if (exp === 'df') return 9
   else if (exp === 'tww') return 10
   else if (exp === 'all') return -1
-  return 9
+  return 10
+}
+
 }
 
 async function searchElastic(req, res) {
@@ -55,11 +57,8 @@ async function searchElastic(req, res) {
   else if (sort === 'installs') {
     esSort.unshift({ installs: 'desc' })
   }
-  else if (sort === 'bestmatchv3') {//} && req.user?.access.beta) {
-    sortMode = 'bestmatchv3'
-  }
   else {
-    sortMode = 'bestmatchv2'
+    sortMode = 'bestmatchv3'
   }
 
   // search mode
@@ -98,6 +97,7 @@ async function searchElastic(req, res) {
   let defaultFilterExpansion
   if (req.query.expansion === 'legacy') {
     filterExpansion = [
+      { term: { expansion: { value: expansionIndex('df') } } },
       { term: { expansion: { value: expansionIndex('sl') } } },
       { term: { expansion: { value: expansionIndex('bfa') } } },
       { term: { expansion: { value: expansionIndex('legion') } } },
