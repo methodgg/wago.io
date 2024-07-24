@@ -28,8 +28,6 @@ function expansionIndex(exp) {
   return 10
 }
 
-}
-
 async function searchElastic(req, res) {
   let query = (req.query.q || req.body.q || '')
   if (typeof query !== 'string') {
@@ -1027,6 +1025,7 @@ function fuzzyTextString(text) {
 }
 
 module.exports = function (fastify, opts, next) {
+  fastify.get('/ts', typesenseSearch)
   fastify.get('/ms', oldSearch)
   fastify.get('/es', searchElastic)
   fastify.get('/', searchElastic)
