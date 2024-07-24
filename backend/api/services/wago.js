@@ -110,8 +110,15 @@ module.exports = function (fastify, opts, next) {
     }
     else {
       // make sure slug is unique
-      var exists = await WagoItem.lookup(req.body.slug)
-      if (!exists || exists._id === wago._id) {
+      const exists = await WagoItem.lookup(req.body.slug)
+      if (!exists || exists._id === wago._id) {        
+        const blocked = await BlockedSlugs.find({})
+        for (const slug of blocked) {
+          if (req.body.slug.match(new RegExp(slug.slug, 'i'))) {
+            return res.code(401).send({error: "blocked slug"})
+          }
+        }
+
         wago.custom_slug = req.body.slug
         await wago.save()
         redis.clear(wago)
