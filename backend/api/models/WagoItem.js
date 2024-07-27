@@ -128,6 +128,8 @@ const Schema = new mongoose.Schema({
     code: mongoose.Schema.Types.ObjectId
   },
 
+  embeddedStrData: mongoose.Schema.Types.Mixed,
+
   // type=WAGOLIB
   wagolib: {
     addon: { type: String, index: true },

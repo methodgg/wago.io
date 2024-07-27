@@ -12,6 +12,7 @@ const Schema = new mongoose.Schema({
   fork: String,
   addon: String,
   description: String,
+  embeddedStrData: mongoose.Schema.Types.Mixed,
   expires: { type: Date, default: Date.now, expires: 11*3600 } // expires in 11 minutes (client js assumes 10 minutes to account for delay)
 })
 
