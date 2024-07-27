@@ -50,6 +50,20 @@ module.exports = {
     local ring = JSON:decode("${json}")
     local strnums = true
     -- fix json
+    function fixNumericIndexes(tbl)
+      local fixed = {}
+      for k, v in pairs(tbl) do
+        if type(k) == "string" and tonumber(k) and tonumber(k) > 0 then
+          fixed[tonumber(k)] = v
+        elseif type(k) == "table" then
+          fixed[k] = fixNumericIndexes(v)
+        else
+          fixed[k] = v
+        end
+      end
+      return fixed
+    end
+    ring = fixNumericIndexes(ring)
     while strnums do
       strnums = false
       for key, value in pairs(ring) do
@@ -60,20 +74,32 @@ module.exports = {
         end
       end
     end
-    if ring then
-      ring, first = RK_SerializeDescription(copy(ring)) or false, true
-      ring.limit, ring.save = type(ring.limit) == "string" and ring.limit:match("[^A-Z]") and "PLAYER" or ring.limit
-      for i=1,#ring do
-        local v = ring[i]
-        if v[1] == nil and type(v.id) == "string" then
-          v.id, first = encodeMacro(RK_QuantizeMacro(v.id, not first)), false
-        end
-        v.sliceToken = nil
+
+    local props = copy(ring)
+	local q, m, haveMacroCache = {}, {}, false
+	repeat
+		local props = m[table.remove(q)] or props
+		props.limit = type(props.limit) == "string" and props.limit:match("[^A-Z]") and "PLAYER" or props.limit
+		props.save, props.hotkey, props.v, props.vm, props.dropTokens = nil
+		for i=1,#props do
+			local v = props[i]
+			local st = v[1]
+			if st == nil and type(v.id) == "string" then
+				v.id, haveMacroCache = IM:EncodeCommands(v.id, haveMacroCache), true
+			elseif st == "ring" then
+				local sn = v[2]
+				if sn == name then
+					m[name] = 0
+				elseif ring[sn] and ring[sn].save and not m[sn] then
+					q[#q+1], m[sn] = sn, copy(ring[sn])
+				end
+			end
+			v.caption = nil -- DEPRECATED [2101/X4]
+			v.sliceToken, v.vm = nil
       end
-      return Opie_serialize(ring, sSign, sRegRev)
-    else
-      return ''
-    end`
+	until not q[1]
+	props._scv = 1
+	return Opie_serialize(props)`
     try {
       let encodedString = await exec(lua)
       return encodedString
@@ -97,15 +123,16 @@ module.exports = {
   }
 }
 
+
 const opieLua = `
-local Opie_serialize, Opie_unserialize do
-local sigT, sigN = {}
-for i, c in ("01234qwertyuiopasdfghjklzxcvbnm5678QWERTYUIOPASDFGHJKLZXCVBNM9"):gmatch("()(.)") do sigT[i-1], sigT[c], sigN = c, i-1, i end
+local sb, sc = string.byte, string.char
+local sigT, sigB, sigN = {}, {}
+for i, c in ("01234qwertyuiopasdfghjklzxcvbnm5678QWERTYUIOPASDFGHJKLZXCVBNM9"):gmatch("()(.)") do sigT[i-1], sigT[c], sigB[sb(c)], sigN = c, i-1, i-1, i end
 local function checksum(s)
-  local h = (134217689 * #s) % 17592186044399
+    local h, p2, p3 = (134217689 * #s) % 17592186044399, sigN^2, sigN^3
   for i=1,#s,4 do
     local a, b, c, d = s:match("(.?)(.?)(.?)(.?)", i)
-    a, b, c, d = sigT[a], (sigT[b] or 0) * sigN, (sigT[c] or 0) * sigN^2, (sigT[d] or 0) * sigN^3
+        a, b, c, d = sigT[a], (sigT[b] or 0) * sigN, (sigT[c] or 0) * p2, (sigT[d] or 0) * p3
     h = (h * 211 + a + b + c + d) % 17592186044399
   end
   return h % 3298534883309
@@ -122,101 +149,240 @@ local function cenc(c)
 end
 local function venc(v, t, reg)
   if reg[v] then
-    table.insert(t, sigT[1] .. sigT[reg[v]])
+        t[#t+1] = sigT[1] .. sigT[reg[v]]
   elseif type(v) == "table" then
     local n = math.min(sigN-1, #v)
     for i=n,1,-1 do venc(v[i], t, reg) end
-    table.insert(t, sigT[3] .. sigT[n])
+        t[#t+1] = sigT[3] .. sigT[n]
     for k,v2 in pairs(v) do
       if not (type(k) == "number" and k >= 1 and k <= n and k % 1 == 0) then
         venc(v2, t, reg)
         venc(k, t, reg)
-        table.insert(t, sigT[4])
+                t[#t+1] = sigT[4]
       end
     end
   elseif type(v) == "number" then
-    if v % 1 ~= 0 then error("non-integer value") end
-    if v < -1000000 then error("integer underflow") end
-    table.insert(t, sigT[5] .. nenc(v + 1000000, 4))
+        if v >= -1000000 and v < 13776336 and v % 1 == 0 then
+            t[#t+1] = sigT[5] .. nenc(v + 1000000, 4)
+        elseif (v+v == v) or (v < 0) == (v >= 0) then
+            error("not a (real) number")
+        else
+            local f, e = math.frexp(v)
+            if e < -1070 then
+                f, e = f / 2, e + 1
+            end
+            t[#t+1] = sigT[f < 0 and 14 or 13] .. nenc(e+1500-1, 2) .. nenc(f*2^53*(f < 0 and -1 or 1), 9)
+        end
   elseif type(v) == "string" then
-    table.insert(t, sigT[6] .. v:gsub("[^a-zA-Z5-8]", cenc) .. "9")
+        t[#t+1] = sigT[6] .. v:gsub("[^a-zA-Z5-8]", cenc) .. "9"
   else
-    table.insert(t, sigT[1] .. ((v == true and sigT[1]) or (v == nil and sigT[0]) or sigT[2]))
+        t[#t+1] = sigT[1] .. ((v == true and sigT[1]) or (v == nil and sigT[0]) or sigT[2])
+    end
+    return t
+end
+local function tenc(t)
+    local u, ua, fm, fc = {}, {}, {}, sigN-3
+    for i=3,sigN-1 do
+        fm[sigT[1] .. sigT[i]] = sigT[2] .. sigT[i]
+    end
+    for i=1,#t do
+        local k = t[i]
+        if fm[k] then
+            fc, fm[k] = fc - 1, nil
+        elseif u[k] then
+            u[k] = u[k] + 1
+        elseif #k >= 4 then
+            ua[#ua+1], u[k] = k, 1
+        end
+    end
+    table.sort(ua, function(a, b)
+        return (#a-2)*(u[a]-1) > (#b-2)*(u[b]-1)
+    end)
+    for i=fc+1, #ua do
+        u[ua[i]], ua[i] = nil
+    end
+    local r, s = next(fm)
+    for i=1,#t do
+        local uk = u[t[i]]
+        if uk == nil then
+        elseif type(uk) == "string" then
+            t[i] = uk
+        elseif r and uk > 1 then
+            u[t[i]], t[i], r, s = r, t[i] .. s, next(fm, r)
+        end
   end
   return t
 end
 
-local ops = {"local ops, sigT, sigN, s, r, pri = {}, ...\\nlocal cdec, ndec = function(c, l) return string.char(sigT[c]*(sigN-1) + sigT[l]) end, function(s) local r = 0 for i=1,#s do r = r * sigN + sigT[s:sub(i,i)] end return r end",
-  "s[d+1], d, pos = r[sigT[pri:sub(pos,pos)]], d + 1, pos + 1", "r[sigT[pri:sub(pos,pos)]], pos = s[d], pos + 1",
-  "local t, n = {}, sigT[pri:sub(pos,pos)]\\nfor i=1,n do t[i] = s[d-i+1] end\\ns[d - n + 1], d, pos = t, d - n + 1, pos + 1", "s[d-2][s[d]], d = s[d-1], d - 2",
-  "s[d+1], d, pos = ndec(pri:sub(pos, pos + 3)) - 1000000, d + 1, pos + 4", "d, s[d+1], pos = d + 1, pri:match('^(.-)9()', pos)\\ns[d] = s[d]:gsub('([0-4])(.)', cdec)",
-  "s[d-1], d = s[d-1]+s[d], d - 1", "s[d-1], d = s[d-1]*s[d], d - 1", "s[d-1], d = s[d-1]/s[d], d - 1", "function ops.bind(...) s, r, pri = ... end\\nreturn ops"}
-for i=2,#ops-1 do ops[i] = ("ops[%q] = function(d, pos)\\n %s\\n return d, pos\\nend"):format(sigT[i-1], ops[i]) end
-ops = loadstring(table.concat(ops, "\\n"))(sigT, sigN)
-
-function Opie_serialize(t, sign, regGhost)
-  local payload = table.concat(venc(t, {}, setmetatable({},regGhost)), "")
-  return ((sign .. nenc(checksum(sign .. payload), 7) .. payload):gsub("(.......)", "%1 "):gsub(" ?$", ".", 1))
-end
-function Opie_unserialize(s, sign, regGhost)
-  local h, pri = s:gsub("[^a-zA-Z0-9.]", ""):match("^" .. sign .. "(.......)([^.]+)")
-  if nenc(checksum(sign .. pri), 7) ~= h then return end
-
-  local stack, depth, pos, len = {}, 0, 1, #pri
-  ops.bind(stack, setmetatable({true, false}, regGhost), pri)
-  while pos <= len do
-    depth, pos = ops[pri:sub(pos, pos)](depth, pos + 1)
-  end
-  return depth == 1 and stack[1]
-end
+local function copy(t, copies)
+	local into = {}
+	copies = copies or {}
+	copies[t] = into
+	for k,v in pairs(t) do
+		k = type(k) == "table" and (copies[k] or copy(k, copies)) or k
+		v = type(v) == "table" and (copies[v] or copy(v, copies)) or v
+		into[k] = v
+	end
+	return into
 end
 
-local encodeMacro, decodeMacro do
-local hash_ChatTypeInfoList = {}
-local hash_EmoteTokenList = {}
-local function slash_i18n(command, lead)
-  if lead == "!" then return "\\n!" .. command end
-  local key = command:upper()
-  if type(hash_ChatTypeInfoList[key]) == "string" and not hash_ChatTypeInfoList[key]:match("!") then
-    return "\\n!" .. hash_ChatTypeInfoList[key] .. "!" .. command
-  elseif type(hash_EmoteTokenList[key]) == "string" and not hash_EmoteTokenList[key]:match("!") then
-    return "\\n!" .. hash_EmoteTokenList[key] .. "!" .. command
-  end
-end
-local function slash_l10n(key, command)
-  if key == "" then return "\\n!" .. command end
-  local k2 = command:upper()
-  if hash_ChatTypeInfoList[k2] == key or hash_EmoteTokenList[k2] == key then
-  elseif _G["SLASH_" .. key .. 1] then
-    return "\\n" .. _G["SLASH_" .. key .. 1]
-  else
-    local i, v = 2, EMOTE1_TOKEN
-    while v do
-      if v == key then
-        return "\\n" .. _G["EMOTE" .. (i-1) .. "_CMD1"]
-      end
-      i, v = i + 1, _G["EMOTE" .. i .. "_TOKEN"]
+local ops do
+    local s, r, pri
+    local function cdec(c, l)
+        return sc(sigT[c]*(sigN-1) + sigT[l])
     end
-  end
-  return "\\n" .. command
+    local function ndec(p, l)
+        local r = 0
+        for i=p,p+l-1 do
+            r = r * sigN + sigB[sb(pri,i)]
+        end
+        return r
+    end
+    ops = {
+        function(d, pos)
+            s[d+1] = r[sigB[sb(pri, pos)]]
+            return d+1, pos+1
+        end,
+        function(d, pos)
+            r[sigB[sb(pri,pos)]] = s[d]
+            return d, pos+1
+        end,
+        function(d, pos)
+            local t, n = {}, sigB[sb(pri,pos)]
+            for i=1,n do
+                t[i] = s[d-i+1]
+            end
+            s[d - n + 1] = t
+            return d+1-n, pos+1
+        end,
+        function(d, pos)
+            s[d-2][s[d]] = s[d-1]
+            return d-2, pos
+        end,
+        function(d, pos)
+            s[d+1] = ndec(pos, 4) - 1000000
+            return d+1, pos+4
+        end,
+        function(d, pos)
+            d, s[d+1], pos = d+1, pri:match('^(.-)9()', pos)
+            s[d] = s[d]:gsub('([0-4])(.)', cdec)
+            return d, pos
+        end,
+        function(d, pos)
+            s[d-1] = s[d-1]+s[d]
+            return d-1, pos
+        end,
+        function(d, pos)
+            s[d-1] = s[d-1]*s[d]
+            return d-1, pos
+        end,
+        function(d, pos)
+            s[d-1] = s[d-1]/s[d]
+            return d-1, pos
+        end,
+        function(d, pos)
+            s[d-1] = s[d-1]-s[d]
+            return d-1, pos
+        end,
+        function(d, pos)
+            s[d-1] = s[d-1]^s[d]
+            return d-1, pos
+        end,
+        function(d, pos)
+            s[d-1] = s[d-1]*2^s[d]
+            return d-1, pos
+        end,
+        function(d, pos)
+            s[d+1] =  2^(ndec(pos,2)-1500) * (ndec(pos+2,9)*2^-52)
+            return d+1, pos+11
+        end,
+        function(d, pos)
+            s[d+1] = -2^(ndec(pos,2)-1500) * (ndec(pos+2,9)*2^-52)
+            return d+1, pos+11
+        end,
+        function(d, pos)
+            s[d-1] = r[s[d]]
+            return d-1, pos
+        end,
+        function(d, pos)
+            r[s[d]] = s[d-1]
+            return d-1, pos
+        end,
+    }
+    local opsB = {}
+    for i=1,#ops do
+        opsB[sb(sigT[i])] = ops[i]
+    end
+    ops = opsB
+    function ops.bind(...)
+        s, r, pri = ...
 end
-function encodeMacro(m)
-  return ("\\n" .. m):gsub("\\n(([/!])%S*)", slash_i18n):sub(2)
 end
-function decodeMacro(m)
-  return ("\\n" .. m):gsub("\\n!(.-)!(%S*)", slash_l10n):sub(2)
+
+local defaultSign = sc(111,101,116,111,104,72,55)
+local st = {
+    [defaultSign] = {"name", "hotkey", "offset", "noOpportunisticCA", "noPersistentCA", "internal", "limit", "id", "skipSpecs", "caption", "icon", "show"},
+}
+
+function Opie_serialize(t, sign)
+    sign = sign == nil and defaultSign or sign
+    local rt, sd = {}, st[sign]
+    for i=1, sd and #sd or 0 do
+        rt[sd[i]] = 2+i
+    end
+    local payload = table.concat(tenc(venc(t, {}, setmetatable({}, {__index=rt}))), "")
+    return ((sign .. nenc(checksum(sign .. payload), 7) .. payload):gsub("(.......)", "%1 "):gsub(" ?$", ".", 1))
+end
+function Opie_unserialize(s)
+    local ssign, h, pri = s:gsub("[^a-zA-Z0-9.]", ""):match("^(" .. ("."):rep(#defaultSign) .. ")(.......)([^.]+)")
+    if st[ssign] == nil or nenc(checksum(ssign .. pri), 7) ~= h then return end
+    local rt, sd = {true, false}, st[ssign]
+    for i=1, sd and #sd or 0 do
+        rt[2+i] = sd[i]
+    end
+    local stack, depth, pos, len = {}, 0, 1, #pri
+    ops.bind(stack, setmetatable({}, {__index=rt}), pri)
+    while pos <= len do
+        depth, pos = ops[sb(pri, pos)](depth, pos + 1)
+    end
+    ops.bind()
+    return depth == 1 and stack[1]
+end
+
+local function genSliceTokenIndexMap(props)
+	local r = {}
+	for i=1, #props do
+		r[props[i].sliceToken or r] = i
+	end
+	r[r] = nil
+	return r
+end
+function FindSliceWithAction(props, needle, avoidTokens)
+    local mv, mi
+    for i=1, #props do
+        local si = props[i]
+        if not avoidTokens[si.sliceToken] then
+            local v = BUP.DiffSlice(props[i], needle)
+            if v and v % 2 > 0 and (mv == nil or v > mv) then
+                mv, mi = v, i
 end
 end
-function RK_SerializeDescription(props)
-for _, slice in ipairs(props) do
-  if slice[1] == "spell" or slice[1] == "macrotext" then
-    slice.id, slice[1], slice[2] = slice[2]
-  end
-  dropUnderscoreKeys(slice)
+    end
+    return mi
 end
-dropUnderscoreKeys(props)
-props.sortScope = nil
-return props
+function DiffSlice(slice, bs)
+    if not bs then return end
+    local am, mm, ia, ib = true, true, slice, bs
+    repeat
+        for k,v in pairs(ia) do
+            local kt = type(k)
+            am = am and (kt ~= "number" or ib[k] == v)
+            mm = mm and (kt ~= "string" or ib[k] == v or ignoreSliceFields[k] or k:sub(1,1) == "_")
+        end
+        ia, ib = ib, ia
+    until ia == slice or not (am or mm)
+    local r = (am and 1 or 0) + (mm and 2 or 0)
+    return r > 0 and r or nil
 end
 function dropUnderscoreKeys(t)
 for k in pairs(t) do
@@ -225,171 +391,49 @@ for k in pairs(t) do
   end
 end
 end
-function copy(orig)
-local orig_type = type(orig)
-local newT
-if orig_type == 'table' then
-  newT = {}
-  for orig_key, orig_value in next, orig, nil do
-    newT[copy(orig_key)] = copy(orig_value)
-  end
-  setmetatable(newT, copy(getmetatable(orig)))
-else -- number, string, boolean, etc
-  newT = orig
-end
-return newT
-end
-local RK_ParseMacro, RK_QuantizeMacro do
-local castAlias = {["#show"]=0, ["#showtooltip"]=0} do
-  for n,v in ("CAST:1 USE:1 CASTSEQUENCE:2 CASTRANDOM:3 USERANDOM:3"):gmatch("(%a+):(%d+)") do
-    local v, idx, s = v+0, 1
-    repeat
-      if s then
-        castAlias[s] = v
-      end
-      s, idx = _G["SLASH_" .. n .. idx], idx+1
-    until not s
+
+function RK_SerializeDescription(props, bp)
+	local stim, drop = bp and bp.v and props.v == bp.v and genSliceTokenIndexMap(bp)
+	if stim then
+		local present = genSliceTokenIndexMap(props)
+		for tok, bidx in pairs(stim) do
+			if not present[tok] then
+				local alt = FindSliceWithAction(props, bp[bidx], stim)
+				if alt then
+					props[alt].sliceToken, present[tok] = tok, alt
+				else
+					drop = drop or {}
+					drop[tok] = 1
+				end
   end
 end
-local function replaceSpellID(ctype, sidlist, prefix, tk)
-  local sr, ar
-  for id, sn in sidlist:gmatch("%d+") do
-    id = id + 0
-    return prefix .. "spell:" .. id
-  end
-end
-local replaceMountTag do
-  local skip, gmSid, gmPref, fmSid, fmPref = {[44153]=1, [44151]=1, [61451]=1, [75596]=1, [61309]=1, [169952]=1, [171844]=1, [213339]=1,}
-  local function IsKnownSpell(sid)
-    local sn, sr = GetSpellInfo(sid or 0), GetSpellSubtext(sid or 0)
-    return GetSpellInfo(sn, sr) ~= nil and sid or (RW:GetCastEscapeAction(sn) and sid)
-  end
-  local function findMount(prefSID, mtype)
-    local myFactionId, nc, cs = UnitFactionGroup("player") == "Horde" and 0 or 1, 0
-    local idm = C_MountJournal.GetMountIDs()
-    local gmi, gmiex = C_MountJournal.GetMountInfoByID, C_MountJournal.GetMountInfoExtraByID
-    for i=1, #idm do
-      i = idm[i]
-      local _1, sid, _3, _4, _5, _6, _7, factionLocked, factionId, hide, have = gmi(i)
-      if have and not hide
-         and (not factionLocked or factionId == myFactionId)
-         and RW:IsSpellCastable(sid)
-         then
-        local _, _, _, _, t = gmiex(i)
-        if sid == prefSID then
-          return sid
-        elseif t == mtype and not skip[sid] then
-          nc = nc + 1
-          if math.random(1,nc) == 1 then
-            cs = sid
+		if type(props.dropTokens) == "table" then
+			for tok, c in pairs(props.dropTokens) do
+				c = not (present[tok] or drop and drop[tok]) and (type(c) ~= "number" and 1 or c < 99 and c + 1)
+				if c then
+					drop = drop or {}
+					drop[tok] = c
           end
         end
       end
     end
-    return cs
-  end
-  function replaceMountTag(ctype, tag, prefix)
-    if not MODERN then
-    elseif tag == "ground" then
-      gmSid = gmSid and IsKnownSpell(gmSid) or findMount(gmPref or gmSid, 230)
-      return replaceSpellID(ctype, tostring(gmSid), prefix)
-    elseif tag == "air" then
-      fmSid = fmSid and IsKnownSpell(fmSid) or findMount(fmPref or fmSid, 248)
-      return replaceSpellID(ctype, tostring(fmSid), prefix)
-    end
-    return nil
-  end
-end
-local function replaceAlternatives(ctype, replaceFunc, args)
-  local ret, alt2, rfCtx
-  for alt, cpos in (args .. ","):gmatch("(.-),()") do
-    alt2, rfCtx = replaceFunc(ctype, alt, rfCtx, args, cpos)
-    if alt == alt2 or (alt2 and alt2:match("%S")) then
-      ret = (ret and (ret .. ", ") or "") .. alt2:match("^%s*(.-)%s*$")
-    end
-  end
-  return ret
-end
-local function genLineParser(replaceFunc)
-  return function(commandPrefix, command, args)
-    local ctype = castAlias[command:lower()]
-    if not ctype then return end
-    local pos, len, ret = 1, #args
-    repeat
-      local cstart, cend, vend = pos
-      repeat
-        local ce, cs = args:match("();", pos) or (len+1), args:match("()%[", pos)
-        if cs and cs < ce then
-          pos = args:match("%]()", cs)
-        else
-          cend, vend, pos = pos, ce-1, ce + 1
-        end
-      until cend or not pos
-      if not pos then return end
-      local cval = args:sub(cend, vend)
-      if ctype < 2 then
-        cval = replaceFunc(ctype, args:sub(cend, vend))
-      else
-        local val, reset = args:sub(cend, vend)
-        if ctype == 2 then reset, val = val:match("^(%s*reset=%S+%s*)"), val:gsub("^%s*reset=%S+%s*", "") end
-        val = replaceAlternatives(ctype, replaceFunc, val)
-        cval = val and ((reset or "") .. val) or nil
-      end
-      if cval or ctype == 0 then
-        local clause = (cstart < cend and (args:sub(cstart, cend-1):match("^%s*(.-)%s*$") .. " ") or "") .. (cval and cval:match("^%s*(.-)%s*$") or "")
-        ret = (ret and (ret .. "; ") or commandPrefix) .. clause
-      end
-    until not pos or pos > #args
-    return ret or ""
-  end
-end
-local parseLine, quantizeLine, prepareQuantizer do
-  parseLine = genLineParser(function(ctype, value)
-    local prefix, tkey, tval = value:match("^%s*(!?)%s*{{(%a+):([%a%d/]+)}}%s*$")
-    if tkey == "spell" or tkey == "spellr" then
-      return replaceSpellID(ctype, tval, prefix, tkey)
-    elseif tkey == "mount" then
-      return replaceMountTag(ctype, tval, prefix)
-    end
-    return value
-  end)
-  local spells, OTHER_SPELL_IDS = {}, {150544, 243819}
-  quantizeLine = genLineParser(function(ctype, value, ctx, args, cpos)
-    if type(ctx) == "number" and ctx > 0 then
-      return nil, ctx-1
-    end
-    local cc, mark, name = 0, value:match("^%s*(!?)(.-)%s*$")
-    repeat
-      local sid, peek, cnpos = spells[name:lower()]
-      if sid then
-        if not MODERN then
-          local rname = name:gsub("%s*%([^)]+%)$", "")
-          local sid2 = rname ~= name and spells[rname:lower()]
-          if sid2 then
-            return (mark .. "{{spellr:" .. sid .. "}}"), cc
-          end
-        end
-        return (mark .. "{{spell:" .. sid .. "}}"), cc
-      end
-      if ctype >= 2 and args then
-        peek, cnpos = args:match("^([^,]+),?()", cpos)
-        if peek then
-          cc, name, cpos = cc + 1, name .. ", " .. peek:match("^%s*(.-)%s*$"), cnpos
-        end
-      end
-    until not peek or cc > 5
-    return value
-  end)
-end
-function RK_ParseMacro(macro)
-  if type(macro) == "string" and (macro:match("{{spellr?:[%d/]+}}") or macro:match("{{mount:%a+}}") ) then
-    macro = ("\\n" .. macro):gsub("(\\n([#/]%S+) ?)([^\\n]*)", parseLine)
-  end
-  return macro
-end
-function RK_QuantizeMacro(macro, useCache)
-  return type(macro) == "string" and ("\\n" .. macro):gsub("(\\n([#/]%S+) ?)([^\\n]*)", quantizeLine):sub(2) or macro
-end
+	for _, slice in ipairs(props) do
+		if stim then
+			local bs = props[stim[slice.sliceToken]]
+			slice.vm = bs and DiffSlice(slice, bs) or nil
+		end
+		if slice[1] == "spell" or slice[1] == "imptext" then
+			slice.id, slice[1], slice[2] = slice[2]
+		end
+		--dropUnderscoreKeys(slice)
+	end
+	--dropUnderscoreKeys(props)
+	if stim then
+		props.v, props.vm, props.dropTokens = bp.v, BUP.DiffRingMeta(props, bp) or nil, drop
+	end
+	props.sortScope = nil
+	props.quarantineBind = nil -- DEPRECATED [2310/Z2]
+	return props
 end
 
-local sReg, sRegRev, sSign = {__index={nil, nil, "name", "hotkey", "offset", "noOpportunisticCA", "noPersistentCA", "internal", "limit", "id", "skipSpecs", "caption", "icon", "show"}}, {__index={}}, string.char(111,101,116,111,104,72,55)`
+`
