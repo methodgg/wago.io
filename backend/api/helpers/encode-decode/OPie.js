@@ -38,8 +38,13 @@ module.exports = {
       return false
     }
   },
+  encodeRaw: (str) => {
+    // bandaid since I can't figure out why this is no longer working
+    // no re-encoding right now
+    return str
+  },
 
-  encode: async (json, exec) => {
+  xencode: async (json, exec) => {
     const lua = `
     ${opieLua}
     local ring = JSON:decode("${json}")
