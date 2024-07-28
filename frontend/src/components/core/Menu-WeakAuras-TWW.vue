@@ -153,6 +153,12 @@
   
           <md-subheader>{{ $t("Other Expansions") }}</md-subheader>
           <md-list class="md-double-line md-dense">
+            <md-list-item class="raidaberrus md-inset'">
+              <div class="menu-image" style="align-self:center"></div>
+              <div class="md-list-text-container">
+                <router-link to="/dragonflight-weakauras/">{{ $t('Dragonflight') }}</router-link>
+              </div>
+            </md-list-item>
             <md-list-item class="torghast md-inset'">
               <div class="menu-image" style="align-self:center"></div>
               <div class="md-list-text-container">

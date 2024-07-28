@@ -81,6 +81,7 @@
                     searchType === 'elvui' && 'ElvUI' ||
                     searchType === 'plater' && 'Plater Nameplates' ||
                     searchType === 'blizzhud' && 'BlizzHud' ||
+                    searchType === 'cell' && 'Cell' ||
                     searchType === 'opie' && 'OPie' ||
                     searchType === 'totalrp3' && 'TotalRP' ||
                     searchType === 'vuhdo' && 'VuhDo' ||
@@ -124,6 +125,7 @@
                   <div id="addon-dropdown">
                     <div @click="setType('bigwigs')"><span class="addon-icon"><img src="../../assets/menu-bigwigs.png"></span> BigWigs</div>
                     <div @click="setType('blizzhud')"><span class="addon-icon"><img src="../../assets/menu-blizzhud.png"></span> BlizzHud</div>
+                    <div @click="setType('cell')"><span class="addon-icon"><img src="../../assets/menu-cell.png"></span> Cell</div>
                     <div @click="setType('dbm')"><span class="addon-icon"><img src="../../assets/menu-dbm.png"></span> Deadly Boss Mods</div>
                     <div @click="setType('opie')"><span class="addon-icon"><img src="../../assets/menu-opie.png"></span> OPie</div>
                     <div @click="setType('totalrp3')"><span class="addon-icon"><img src="../../assets/menu-trpcamp.png"></span> Total RP</div>
@@ -167,19 +169,19 @@
                 <div>
                   <label>{{ $t('Sort') }}</label>
                   <small>{{
+                    searchSort === 'tstest' && $t('Typesense Test') ||
                     searchSort === 'date' && $t('Date') ||
                     searchSort === 'stars' && $t('Stars') ||
                     searchSort === 'views' && $t('Views') ||
                     searchSort === 'installs' && $t('Installs') ||
-                    searchSort === 'bestmatchv3' && '[Beta] New Best Match' ||
                     $t('Best Match')}}</small>
                 </div>
                 <md-button-toggle md-single class="md-accent md-warn">
-                  <md-button v-if="$env === 'development' || ($store.state.user.access && $store.state.user.access.beta)" :class="{ 'md-toggle': searchSort === 'bestmatchv3' }" class="md-icon-button" @click="searchSort='bestmatchv3'">
-                    <md-icon>mood</md-icon>
-                    <md-tooltip md-direction="bottom" class="">[BETA] New Best Match</md-tooltip>
-                  </md-button>
-                  <md-button :class="{ 'md-toggle': searchSort === 'bestmatchv2' }" class="md-icon-button" @click="searchSort='bestmatchv2'">
+                    <!-- <md-button :class="{ 'md-toggle': searchSort === 'tstest' }" class="md-icon-button" @click="searchSort='tstest'">
+                      <md-icon>search</md-icon>
+                      <md-tooltip md-direction="bottom" class="">Typesense Test</md-tooltip>
+                    </md-button> -->
+                  <md-button :class="{ 'md-toggle': searchSort === 'bestmatchv3' }" class="md-icon-button" @click="searchSort='bestmatchv3'">
                     <md-icon>check_circle</md-icon>
                     <md-tooltip md-direction="bottom" class="">{{ $t("Best Match") }}</md-tooltip>
                   </md-button>
@@ -210,7 +212,6 @@
       <div id="searchResults">
         <ui-loading v-if="isSearching"></ui-loading>
         <md-layout md-column v-else-if="!isSearching && results.results && results.results.length">
-          <ui-warning v-if="searchSort === 'bestmatchv3'" mode="info">We are iterating on a new search algorithm and hope it will return more relevant results. This beta phase of the search function is currently only available to Wago Patrons; and the results will likely change as we fine-tune the numbers.</ui-warning>
           
           <template v-for="(result, index) in results.results">
             <advert ad="video-sidebar"  v-if="index==1" />
@@ -321,7 +322,7 @@ export default {
       results: {
         total: 0
       },
-      searchSort: window.localStorage.getItem('searchSort') || 'bestmatchv2',
+      searchSort: window.localStorage.getItem('searchSort') || 'bestmatchv3',
       searchMode: '',
       searchGame: '',
       searchExpansion: '',
@@ -571,6 +572,10 @@ export default {
       this.disableInstalls = this.searchType.match(/(weakaura|plater)/) === null
       this.disableCode = (this.searchType && this.searchType.match(/(weakaura|plater)/) === null) || this.searchGame !== 'wow'
       this.disableMetrics = this.$store.state.searchMode.match(/starred|comments/) !== null
+
+      if (this.searchSort === 'bestmatchv2') {
+        this.searchSort = 'bestmatchv3'
+      }
 
       if (this.disableInstalls && this.searchSort.match(/installs/)) {
         this.searchSort = ''

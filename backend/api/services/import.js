@@ -47,7 +47,7 @@ module.exports = function (fastify, opts, next) {
         continue
       }
 
-      let meta = addon.processMeta(decodedObj)
+      let meta = addon.processMeta(decodedObj, req.body.importString.trim())
       if (decodedObj && meta) {
         scan.decoded = JSON.stringify(decodedObj)
         scan.type = meta.type
@@ -57,6 +57,7 @@ module.exports = function (fastify, opts, next) {
         scan.categories = meta.categories || []
         scan.fork = meta.fork || req.body.forkOf
         scan.addon = addonFile
+        scan.embeddedStrData = meta.embeddedStrData
         await scan.save()
         scan.scan = scan._id
         if (meta.wagolibAddon) {
@@ -470,6 +471,7 @@ module.exports = function (fastify, opts, next) {
       wago.description = scan.description
       wago.game = scan.game || patchDates.gameVersion()
       wago.name = req.body.name
+      wago.embeddedStrData = scan.embeddedStrData
     }
     else {
       // legacy scan
@@ -676,6 +678,8 @@ module.exports = function (fastify, opts, next) {
       wago.latestVersion.versionString = newVersion
     }
 
+    wago.embeddedStrData = scan.embeddedStrData
+
     wago.latestVersion.changelog = {
       text: req.body.changelog,
       format: req.body.changelogFormat || 'bbcode'
@@ -711,7 +715,7 @@ module.exports = function (fastify, opts, next) {
           }
         }
         if (addon.encode) {
-          code.encoded = await addon.encode(code.json.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim(), lua.runLua)
+          code.encoded = await addon.encode(code.json.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim(), lua.runLua, wago)
         }
         else if (addon.encodeRaw) {
           code.encoded = await addon.encodeRaw(scan.input)
@@ -821,7 +825,7 @@ module.exports = function (fastify, opts, next) {
           }
         }
         if (addon.encode) {
-          code.encoded = await addon.encode(code.json.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim(), lua.runLua)
+          code.encoded = await addon.encode(code.json.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim(), lua.runLua, wago)
         }
         else if (addon.encodeRaw) {
           code.encoded = await addon.encodeRaw(code.json)
@@ -1034,6 +1038,7 @@ module.exports = function (fastify, opts, next) {
           scan.game = meta.game || patchDates.gameVersion()
           scan.categories = meta.categories || []
           scan.addon = addonFile
+          scan.embeddedStrData = meta.embeddedStrData
           await scan.save()
           return res.send({ scan: scan._id, type: scan.type, name: scan.name, categories: scan.categories, game: scan.game, encoded: encoded })
         }

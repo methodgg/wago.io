@@ -918,7 +918,7 @@ async function ProcessCode(data) {
       }
       if (data.encode || !code.encoded) {
         if (addon.encode) {
-          code.encoded = await addon.encode(code.json.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim(), lua.runLua)
+          code.encoded = await addon.encode(code.json.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim(), lua.runLua, doc)
         }
         else if (addon.encodeRaw) {
           code.encoded = await addon.encodeRaw(code.json)
@@ -937,7 +937,7 @@ async function ProcessCode(data) {
         }
         if (data.encode || !code.encoded) {
           if (addon.encode) {
-            code.encoded = await addon.encode(code.json.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim(), lua.runLua)
+            code.encoded = await addon.encode(code.json.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim(), lua.runLua, doc)
           }
           else if (addon.encodeRaw) {
             code.encoded = await addon.encodeRaw(code.json)
