@@ -40,7 +40,7 @@ module.exports = {
       success, data = LibSerialize:Deserialize(data)
 
       if success and data then
-        return JSON:encode(data)
+        return JSON:encode(data, {forceTableToObject = {quickAssist = 1}})
       end
       return data`
     try {
@@ -56,6 +56,22 @@ module.exports = {
     const lua = `
     local t = JSON:decode("${json}")
     if not t then return "" end
+
+    function fixNumericIndexes(tbl)
+      local fixed = {}
+      for k, v in pairs(tbl) do
+        if tonumber(k) and tonumber(k) > 0 then
+          fixed[tonumber(k)] = v
+        else
+          fixed[k] = v
+        end
+      end
+      return fixed
+    end
+
+    if t and t.quickAssist then
+      t.quickAssist = fixNumericIndexes(t.quickAssist)
+    end
 
     local serialized = LibSerialize:Serialize(t)
     local compressed = LibDeflate:CompressDeflate(serialized, {level = 9})

@@ -21,6 +21,7 @@ const MenuVuhdo = resolve => require(['@/components/core/Menu-Vuhdo.vue'], resol
 const MenuTotalRP = resolve => require(['@/components/core/Menu-TotalRP.vue'], resolve)
 const MenuOPie = resolve => require(['@/components/core/Menu-OPie.vue'], resolve)
 const MenuPlater = resolve => require(['@/components/core/Menu-Plater.vue'], resolve)
+const MenuCell = resolve => require(['@/components/core/Menu-Cell.vue'], resolve)
 // const MenuMDTBFA = resolve => require(['@/components/core/Menu-MDT-BFA.vue'], resolve)
 // const MenuMDTShadowlands = resolve => require(['@/components/core/Menu-MDT-Shadowlands.vue'], resolve)
 const MenuMDTDragonflight = resolve => require(['@/components/core/Menu-MDT-Dragonflight.vue'], resolve)
@@ -85,7 +86,6 @@ function GetContextSearch(params, type, expansion) {
 
   return search
 }
-
 module.exports = {
   mode: 'history',
   routes: [
@@ -97,10 +97,11 @@ module.exports = {
     { path: '/login', component: Login },
     { path: '/logout', component: Logout },
     { path: '/account', component: Account },
+    { path: '/settings', component: Account },
     { path: '/admin', component: Admin },
 
     // menus/categories
-    { path: '/weakauras', component: MenuWeakAurasDragonflight },
+    { path: '/weakauras', component: MenuWeakAurasTWW },
     { path: '/weakauras/:c1', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'weakaura'), type: 'weakaura', game: 'wow', expansion: 'df', mode: 'imports' } }) },
     { path: '/weakauras/:c1/:c2', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'weakaura'), type: 'weakaura', game: 'wow', expansion: 'df', mode: 'imports' } }) },
     { path: '/weakauras/:c1/:c2/:c3', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'weakaura'), type: 'weakaura', game: 'wow', expansion: 'df', mode: 'imports' } }) },
@@ -180,6 +181,11 @@ module.exports = {
     { path: '/plater/:c1/:c2', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'Plater'), type: 'plater', game: 'wow', mode: 'imports' } }) },
     { path: '/plater/:c1/:c2/:c3', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'Plater'), type: 'plater', game: 'wow', mode: 'imports' } }) },
     { path: '/plater/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'Plater'), type: 'plater', game: 'wow', mode: 'imports' } }) },
+    { path: '/cell', component: MenuCell },
+    { path: '/cell/:c1', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'Cell'), type: 'cell', game: 'wow', mode: 'imports' } }) },
+    { path: '/cell/:c1/:c2', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'Cell'), type: 'cell', game: 'wow', mode: 'imports' } }) },
+    { path: '/cell/:c1/:c2/:c3', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'Cell'), type: 'cell', game: 'wow', mode: 'imports' } }) },
+    { path: '/cell/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'Cell'), type: 'cell', game: 'wow', mode: 'imports' } }) },
     { path: '/totalrp', component: MenuTotalRP },
     { path: '/totalrp/:c1', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'totalrp3'), type: 'totalrp3', game: 'wow', mode: 'imports' } }) },
     { path: '/totalrp/:c1/:c2', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'totalrp3'), type: 'totalrp3', game: 'wow', mode: 'imports' } }) },

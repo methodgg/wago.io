@@ -718,7 +718,7 @@ local function json_string_literal(value)
    return '"' .. newval .. '"'
 end
 
-local function object_or_array(self, T, etc)
+local function object_or_array(self, T, etc, table_name)
    --
    -- We need to inspect all the keys... if there are any strings, we'll convert to a JSON
    -- object. If there are only numbers, it's a JSON array.
@@ -729,28 +729,36 @@ local function object_or_array(self, T, etc)
    local string_keys = { }
    local number_keys = { }
    local number_keys_must_be_strings = false
+   local number_keys_must_be_numbers = false
    local number_keys_use_zero_index = 0
    local maximum_number_key
 
-   for key in pairs(T) do
-      local nKey = tonumber(key)
-      if type(key) == "string" or nKey > 1000 then
-          table.insert(string_keys, key)
-      elseif nKey ~= nil then
-          table.insert(number_keys, nKey)
-          if nKey == 0 then
-              number_keys_use_zero_index = 1
-          end
-          if nKey <= 0 or nKey > 1000 then
-              number_keys_must_be_strings = true
-              number_keys_use_zero_index = 0 -- if strings are keys then keep them original values
-          elseif not maximum_number_key or key > maximum_number_key then
-              maximum_number_key = key
-          end
-      else
-         self:onEncodeError("can't encode table with a key of type " .. type(key), etc)
-      end
+   if etc and etc.forceTableToObject and etc.forceTableToObject[table_name] then
+        number_keys_must_be_strings = true
+   elseif etc and etc.forceTableToArray and etc.forceTableToArray[table_name] then
+        number_keys_must_be_numbers = false
    end
+
+
+    for key in pairs(T) do
+        local nKey = tonumber(key)
+        if type(key) == "string" or nKey > 1000 or number_keys_must_be_strings then
+            table.insert(string_keys, key)
+        elseif nKey ~= nil then
+            table.insert(number_keys, nKey)
+            if nKey == 0 then
+                number_keys_use_zero_index = 1
+            end
+            if (nKey <= 0 or nKey > 1000) and not number_keys_must_be_numbers then
+                number_keys_must_be_strings = true
+                number_keys_use_zero_index = 0 -- if strings are keys then keep them original values
+            elseif not maximum_number_key or key > maximum_number_key then
+                maximum_number_key = key
+            end
+        else
+            self:onEncodeError("can't encode table with a key of type " .. type(key), etc)
+        end
+    end
 
    if #string_keys == 0 and not number_keys_must_be_strings then
       --
@@ -826,7 +834,7 @@ end
 --    align_keys        -- if true, align all the keys when formatting a table
 --
 local encode_value -- must predeclare because it calls itself
-function encode_value(self, value, parents, etc, options, indent)
+function encode_value(self, value, parents, etc, options, indent, key_name)
 
    if value == nil then
       return 'null'
@@ -890,7 +898,7 @@ function encode_value(self, value, parents, etc, options, indent)
 
       local result_value
 
-      local object_keys, maximum_number_key, map = object_or_array(self, T, etc)
+      local object_keys, maximum_number_key, map = object_or_array(self, T, etc, key_name)
       if maximum_number_key then
          --
          -- An array...
@@ -938,7 +946,7 @@ function encode_value(self, value, parents, etc, options, indent)
 
             local PARTS = { }
             for _, key in ipairs(object_keys) do
-               local encoded_val = encode_value(self, TT[key],       parents, etc, options, indent)
+               local encoded_val = encode_value(self, TT[key],       parents, etc, options, indent, tostring(key))
                local encoded_key = encode_value(self, tostring(key), parents, etc, options, indent)
                table.insert(PARTS, string.format("%s:%s", encoded_key, encoded_val))
             end
