@@ -52,10 +52,10 @@ export default {
           links.push({url: searchURL, name: this.$t('Search BlizzHUD'), domain: 0})
           break
 
-        case 'delvui':
-          links.push({url: searchURL, name: this.$t('Search DelvUI'), domain: 1})
-          links.push({url: 'https://github.com/DelvUI/DelvUI', name: this.$t('View DelvUI Website')})
-          links.push({url: 'https://discord.gg/delvui', name: this.$t('Join DelvUI Discord')})
+        case 'cell':
+          links.push({url: searchURL, name: this.$t('Search Cell'), domain: 1})
+          links.push({url: 'https://addons.wago.io/addons/cell', name: this.$t('Download Cell')})
+          links.push({url: 'https://discord.gg/9PSe3fKQGJ', name: this.$t('Join Cell Discord')})
           break
 
         case 'elvui':

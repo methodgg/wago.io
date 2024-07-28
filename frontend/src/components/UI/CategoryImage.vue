@@ -75,6 +75,7 @@
     <img src="./../../assets/weakauralogo.png" v-else-if="group === 't-weakaura-nobg'"/>
     <img src="./../../assets/tukui.png" v-else-if="group === 't-elvui'"/>
     <img src="./../../assets/mdt.png" v-else-if="group === 't-mdt'"/>
+    <img src="./../../assets/menu-cell.png" v-else-if="group === 't-cell'"/>
     <img src="./../../assets/menu-opie.png" v-else-if="group === 't-opie'"/>
     <img src="./../../assets/menu-vuhdo.png" v-else-if="group === 't-vuhdo'"/>
     <img src="./../../assets/menu-trpcamp.png" v-else-if="group === 't-totalrp' || group === 't-totalrp3'"/>

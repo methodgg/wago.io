@@ -19,8 +19,8 @@
               {{ $t('Support Wago.io') }}
             </md-button>
             
-            <router-link id="macro-btn" to='/macros' class="md-button alert-button">
-                <img src="./assets/menu-macro.png" /> WoW Macros are now supported!
+            <router-link id="cell-btn" to='/cell' class="md-button alert-button">
+                <img src="./assets/menu-cell.png" /> Cell Profiles are now supported!
             </router-link>
             
           </div>
@@ -55,6 +55,7 @@
           <md-list-item class="menu-section">World of Warcraft</md-list-item>
           <md-list-item><router-link to='/search/imports/wow/bigwigs'>BigWigs</router-link></md-list-item>
           <md-list-item><router-link to='/blizzhud'>BlizzHUD</router-link></md-list-item>
+          <md-list-item><router-link to='/cell'>Cell</router-link></md-list-item>
           <md-list-item><router-link to='/search/imports/wow/dbm'>DBM</router-link></md-list-item>
           <md-list-item><router-link to='/elvui'>ElvUI</router-link></md-list-item>
           <md-list-item><router-link to='/macros'>Macros</router-link><md-divider></md-divider></md-list-item>
@@ -63,7 +64,6 @@
           <md-list-item><router-link to='/totalrp'>Total RP</router-link></md-list-item>
           <md-list-item><router-link to='/vuhdo'>VuhDo</router-link></md-list-item>
           <md-list-item><router-link to='/the-war-within-weakauras'>The War Within WeakAuras</router-link><md-divider></md-divider></md-list-item>
-          <md-list-item><router-link to='/dragonflight-weakauras'>Dragonflight WeakAuras</router-link><md-divider></md-divider></md-list-item>
           <md-list-item><router-link to='/cataclysm-weakauras'>Cata WeakAuras</router-link><md-divider></md-divider></md-list-item>
           <md-list-item><router-link to='/classic-weakauras'>Classic WeakAuras</router-link><md-divider></md-divider></md-list-item>
           <md-list-item class="menu-section">General</md-list-item>
@@ -91,27 +91,28 @@
           <div class="menu-section" v-else>
             <span>World of Warcraft <md-icon>expand_more</md-icon></span>
             <div class="sub-nav">
-              <router-link to='/dragonflight-weakauras'>
+              <router-link to='/the-war-within-weakauras'>
                 <div class="md-list-text-container">
                   <span class="sub-nav-heading"><span class="addon-icon"><img src="./assets/weakauras.png"></span> WeakAuras</span>
                   <span class="game-select">
                     <router-link to='/the-war-within-weakauras'>The War Within</router-link>
-                    <router-link to='/dragonflight-weakauras'>Dragonflight</router-link>
                     <router-link to='/cataclysm-weakauras'>Cataclysm</router-link>
                     <router-link to='/classic-weakauras'>Classic</router-link>
                   </span>
                 </div>
               </router-link>
-              <router-link to='/blizzhud'><span class="addon-icon"><img src="./assets/menu-blizzhud.png"></span> BlizzHUD</router-link>
               <router-link to='/elvui'><span class="addon-icon"><img src="./assets/tukui.png"></span> ElvUI</router-link>
-              <router-link to='/macros'><span class="addon-icon"><img src="./assets/menu-macro.png"></span> Macros</router-link>
               <router-link to='/dragonflight-mdt'><span class="addon-icon"><img src="./assets/mdt.png"></span> Mythic Dungeon Tools</router-link>
+              <router-link to='/plater' style="border-bottom:1px solid #444"><span class="addon-icon"><img src="./assets/menu-plater.png"></span> Plater Nameplates</router-link>
+
+              <router-link to='/search/imports/wow/bigwigs'><span class="addon-icon"><img src="./assets/menu-bigwigs.png"></span> BigWigs</router-link>
+              <router-link to='/blizzhud'><span class="addon-icon"><img src="./assets/menu-blizzhud.png"></span> BlizzHUD</router-link>
+              <router-link to='/cell'><span class="addon-icon"><img src="./assets/menu-cell.png"></span> Cell</router-link>
+              <router-link to='/search/imports/wow/dbm'><span class="addon-icon"><img src="./assets/menu-dbm.png"></span> Deadly Boss Mods</router-link>
+              <router-link to='/macros'><span class="addon-icon"><img src="./assets/menu-macro.png"></span> Macros</router-link>
               <router-link to='/opie'><span class="addon-icon"><img src="./assets/menu-opie.png"></span> OPie</router-link>
-              <router-link to='/plater'><span class="addon-icon"><img src="./assets/menu-plater.png"></span> Plater Nameplates</router-link>
               <router-link to='/totalrp'><span class="addon-icon"><img src="./assets/menu-trpcamp.png"></span> Total RP</router-link>
               <router-link to='/vuhdo'><span class="addon-icon"><img src="./assets/menu-vuhdo.png"></span> VuhDo</router-link>
-              <router-link to='/search/imports/wow/bigwigs'><span class="addon-icon"><img src="./assets/menu-bigwigs.png"></span> BigWigs</router-link>
-              <router-link to='/search/imports/wow/dbm'><span class="addon-icon"><img src="./assets/menu-dbm.png"></span> Deadly Boss Mods</router-link>
             </div>
           </div>
           <!-- <div class="menu-section">
@@ -921,8 +922,8 @@ body.theme-dark .md-input-container label a { -webkit-text-fill-color: initial }
   }
 }
 
-#macro-btn {
-  border-color: #BA25BF  !important;
+#cell-btn {
+  border-color: #26B90E  !important;
   position: relative;
   overflow: initial;
   z-index: 99;

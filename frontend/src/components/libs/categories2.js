@@ -1046,6 +1046,13 @@ class Categories {
       'vuhdo2': {slug: 'bouquets', image: 'vuhdo.png', color: '#6BB85E', i18n: 'Vuhdo Bouquets', domain: 0, system: true, types: ['VUHDO']},
       'vuhdo3': {slug: 'key-layouts', image: 'vuhdo.png', color: '#6BB85E', i18n: 'Vuhdo Key Layouts', domain: 0, system: true, types: ['VUHDO']},
 
+      'cell1': {slug: 'complete-profiles', image: 'cell.png', color: '#56E93E', i18n: 'Cell Profiles', domain: 0, system: true, types: ['CELL']},
+      'cell2': {slug: 'layouts', image: 'cell.png', color: '#56E93E', i18n: 'Cell Layouts', domain: 0, system: true, types: ['CELL']},
+      'cell3': {slug: 'indicators', image: 'cell.png', color: '#56E93E', i18n: 'Cell Indicators', domain: 0, system: true, types: ['CELL']},
+      'cell4': {slug: 'click-castings', image: 'cell.png', color: '#56E93E', i18n: 'Click Castings', domain: 0, system: true, types: ['CELL']},
+      'cell5': {slug: 'debuffs', image: 'cell.png', color: '#56E93E', i18n: 'Debuffs', domain: 0, system: true, types: ['CELL']},
+      'cell6': {slug: 'quick-assist', image: 'cell.png', color: '#56E93E', i18n: 'Quick Assist', domain: 0, system: true, types: ['CELL']},
+
       ///////////////////////////////////////////////////////
       // FINAL FANTASY CATEGORIES
       ///////////////////////////////////////////////////////
