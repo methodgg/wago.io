@@ -25,6 +25,7 @@ const MenuCell = resolve => require(['@/components/core/Menu-Cell.vue'], resolve
 // const MenuMDTBFA = resolve => require(['@/components/core/Menu-MDT-BFA.vue'], resolve)
 // const MenuMDTShadowlands = resolve => require(['@/components/core/Menu-MDT-Shadowlands.vue'], resolve)
 const MenuMDTDragonflight = resolve => require(['@/components/core/Menu-MDT-Dragonflight.vue'], resolve)
+const MenuMDTTheWarWithin = resolve => require(['@/components/core/Menu-MDT-TWW.vue'], resolve)
 const CreateMDT = resolve => require(['@/components/core/Create-MDT.vue'], resolve)
 const MenuCollections = resolve => require(['@/components/core/Menu-Collections.vue'], resolve)
 const MenuDelvUI = resolve => require(['@/components/core/Menu-DelvUI.vue'], resolve)
@@ -198,7 +199,7 @@ module.exports = {
     { path: '/delvui/:c1/:c2', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'delvui'), type: 'delui', game: 'xiv', mode: 'imports' } }) },
     { path: '/delvui/:c1/:c2/:c3', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'delvui'), type: 'delui', game: 'xiv', mode: 'imports' } }) },
     { path: '/delvui/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'delvui'), type: 'delui', game: 'xiv', mode: 'imports' } }) },
-    // { path: '/addons', component: MenuAddons },
+    { path: '/addons', component: MenuAddons },
     // { path: '/addons/elvui', redirect: '/elvui' },
     // { path: '/addons/opie', redirect: '/opie' },
     // { path: '/addons/plater', redirect: '/plater' },
@@ -207,16 +208,21 @@ module.exports = {
     // { path: '/addons/weakauras', redirect: '/weakauras' },
     // { path: '/addons/classic-weakauras', redirect: '/classic-weakauras' },
     // { path: '/addons/tbc-weakauras', redirect: '/tbc-weakauras' },
-    { path: '/mdt', component: MenuMDTDragonflight },
+    { path: '/mdt', component: MenuMDTTheWarWithin },
     { path: '/mdt/:c1', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'mdt'), type: 'mdt', game: 'wow', expansion: 'df', mode: 'imports' } }) },
     { path: '/mdt/:c1/:c2', component: Search, props: (route) => (route) => ({ context: { query: GetContextSearch(route.params, 'mdt'), type: 'mdt', game: 'wow', expansion: 'df', mode: 'imports' } }) },
     { path: '/mdt/:c1/:c2/:c3', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'mdt'), type: 'mdt', game: 'wow', expansion: 'df', mode: 'imports' } }) },
     { path: '/mdt/:c1/:c2/:c3/:c4', component: Search, props: (route) => (route) => ({ context: { query: GetContextSearch(route.params, 'mdt'), type: 'mdt', game: 'wow', expansion: 'df', mode: 'imports' } }) },
-    { path: '/dragonflight-mdt', component: MenuMDTDragonflight },
-    { path: '/dragonflight-mdt/:c1', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'mdt'), type: 'mdt', game: 'wow', expansion: 'df', mode: 'imports' } }) },
-    { path: '/dragonflight-mdt/:c1/:c2', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'mdt'), type: 'mdt', game: 'wow', expansion: 'df', mode: 'imports' } }) },
-    { path: '/dragonflight-mdt/:c1/:c2/:c3', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'mdt'), type: 'mdt', game: 'wow', expansion: 'df', mode: 'imports' } }) },
-    { path: '/dragonflight-mdt/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'mdt'), type: 'mdt', game: 'wow', expansion: 'df', mode: 'imports' } }) },
+    // { path: '/dragonflight-mdt', component: MenuMDTDragonflight },
+    // { path: '/dragonflight-mdt/:c1', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'mdt'), type: 'mdt', game: 'wow', expansion: 'df', mode: 'imports' } }) },
+    // { path: '/dragonflight-mdt/:c1/:c2', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'mdt'), type: 'mdt', game: 'wow', expansion: 'df', mode: 'imports' } }) },
+    // { path: '/dragonflight-mdt/:c1/:c2/:c3', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'mdt'), type: 'mdt', game: 'wow', expansion: 'df', mode: 'imports' } }) },
+    // { path: '/dragonflight-mdt/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'mdt'), type: 'mdt', game: 'wow', expansion: 'df', mode: 'imports' } }) },
+    { path: '/the-war-within-mdt', component: MenuMDTTheWarWithin },
+    { path: '/the-war-within-mdt/:c1', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'mdt'), type: 'mdt', game: 'wow', expansion: 'tww', mode: 'imports' } }) },
+    { path: '/the-war-within-mdt/:c1/:c2', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'mdt'), type: 'mdt', game: 'wow', expansion: 'tww', mode: 'imports' } }) },
+    { path: '/the-war-within-mdt/:c1/:c2/:c3', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'mdt'), type: 'mdt', game: 'wow', expansion: 'tww', mode: 'imports' } }) },
+    { path: '/the-war-within-mdt/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'mdt'), type: 'mdt', game: 'wow', expansion: 'tww', mode: 'imports' } }) },
     // { path: '/bfa-mdt', component: MenuMDTBFA },
     // { path: '/bfa-mdt/:c1', component: Search, props: (route) => ({ contextGame: 'bfa', query: GetContextSearch(route.params, 'MDT') }) },
     // { path: '/bfa-mdt/:c1/:c2', component: Search, props: (route) => ({ contextGame: 'bfa', query: GetContextSearch(route.params, 'MDT') }) },

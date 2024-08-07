@@ -81,7 +81,7 @@ export default {
     }
   },
   created () {
-    const dungeons = categories.raidCategories(['df-mdt-s3'], 'MDT')[0].bosses
+    const dungeons = categories.raidCategories(['tww-mdt-s1'], 'MDT')[0].bosses
     for (let i = 0; i < dungeons.length; i++) {
       if (dungeons[i].mdtID && dungeons[i].slug.match(this.$route.params.dungeon)) {
         this.mapID = dungeons[i].mdtID
@@ -89,7 +89,7 @@ export default {
         break
       }
     }
-    this.http.get('/data/mdtDungeonTable-' + (this.mapID)).then((res) => {
+    this.http.get('/data/mdtDungeonTable-' + (this.mapID-1)).then((res) => {
       if (res && res.value) {
         this.$store.commit('setPageInfo', {
           layout: 'MDT',

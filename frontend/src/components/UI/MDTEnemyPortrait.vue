@@ -40,18 +40,31 @@ export default {
           return '900%'
         case 30:
           return '1200%'
-        case 31:
-          return '1800%'
         case 32:
           return '1300%'
         case 33:
           return '1200%'
         case 34:
           return '1600%'
-        case 35:
-          return '1600%'
 
-        default:
+        // tww
+        case 31:
+          return '1605%'
+        case 35:
+          return '1620%'
+        case 110:
+          return '1310%'
+        case 111:
+          return '905%'  
+        case 112:
+          return '1005%'  
+        case 113:
+          return '1020%'  
+        case 114:
+          return '1410%'  // city of threads
+        
+
+        default: // all dragonflight
           return '1800%'
           // return '3339%' // bfa
       }
