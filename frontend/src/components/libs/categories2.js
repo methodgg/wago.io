@@ -180,6 +180,17 @@ class Categories {
       'twwdungeon3': {slug: 'pve/the-war-within-dungeons/the-rookery', i18n: 'warcraft:instances.1268', domain: 0, parent: 'twwdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['tww']},
       'twwdungeon7': {slug: 'pve/the-war-within-dungeons/cinderbrew-meadery', i18n: 'warcraft:instances.1272', domain: 0, parent: 'twwdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['tww']},
 
+      'tww-mdt-s1': {slug: 'pve/the-war-within-dungeons-s1', image: 'dungeon.png', color: '#F5A623', i18n: 'Season 1 Dungeons', domain: 0, types: ['MDT'], games: ['df']},
+      // --- Season 3
+      'tww-mdt-s1-1': {slug: 'pve/the-war-within-dungeons-s1/ara-kara-city-of-echoes', i18n: 'warcraft:instances.1271', domain: 0, parent: 'tww-mdt-s1', mdtID: 113, types: ['MDT'], games: ['df']},
+      'tww-mdt-s1-2': {slug: 'pve/the-war-within-dungeons-s1/city-of-threads', i18n: 'warcraft:instances.1274', domain: 0, parent: 'tww-mdt-s1', mdtID: 114, types: ['MDT'], games: ['df']},
+      'tww-mdt-s1-3': {slug: 'pve/the-war-within-dungeons-s1/grim-batol', i18n: 'warcraft:instances.71', domain: 0, parent: 'tww-mdt-s1', mdtID: 112, types: ['MDT'], games: ['df']},
+      'tww-mdt-s1-4': {slug: 'pve/the-war-within-dungeons-s1/the-dawnbreaker', i18n: 'warcraft:instances.1270', domain: 0, parent: 'tww-mdt-s1', mdtID: 111, types: ['MDT'], games: ['df']},
+      'tww-mdt-s1-5': {slug: 'pve/the-war-within-dungeons-s1/the-stonevault', i18n: 'warcraft:instances.1269', domain: 0, parent: 'tww-mdt-s1', mdtID: 110, types: ['MDT'], games: ['df']},
+      'tww-mdt-s1-6': {slug: 'pve/the-war-within-dungeons-s1/siege-of-boralus', i18n: 'warcraft:instances.1023', domain: 0, parent: 'tww-mdt-s1', mdtID: 19, types: ['MDT'], games: ['df']},
+      'tww-mdt-s1-7': {slug: 'pve/the-war-within-dungeons-s1/mists-of-tirna-scithe', i18n: 'warcraft:instances.1184', domain: 0, mdtID: 31, parent: 'tww-mdt-s1', types: ['MDT'], games: ['df']},
+      'tww-mdt-s1-8': {slug: 'pve/the-war-within-dungeons-s1/the-necrotic-wake', i18n: 'warcraft:instances.1182', domain: 0, mdtID: 35, parent: 'tww-mdt-s1', types: ['MDT'], games: ['df']},
+
       'dfdungeon': {slug: 'pve/dragonflight-dungeons', image: 'dungeon.png', color: '#F5A623', i18n: 'Dragonflight Dungeons', domain: 0, types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
       // --- Season 4
       'dfdungeon-s4': {subheader: true, i18n: 'Season 4 Dungeons', domain: 0, parent: 'dfdungeon', system: true, types: ['WEAKAURA'], games: ['df']},

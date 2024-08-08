@@ -112,7 +112,7 @@
   }
   </script>
   
-  <style lang="scss">
+  <style scoped lang="scss">
   .addon-name {
     .md-avatar {margin: 16px; border-radius: 4px;}
     h2 {margin: 16px 0 0 0; line-height: 40px}

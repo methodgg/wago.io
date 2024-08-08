@@ -5,6 +5,7 @@ const Logout = resolve => require(['@/components/core/Logout.vue'], resolve)
 const Account = resolve => require(['@/components/core/Account.vue'], resolve)
 const Admin = resolve => require(['@/components/core/Admin.vue'], resolve)
 
+const MenuAddons = resolve => require(['@/components/core/Menu-Addons.vue'], resolve)
 const MenuWeakAurasTWW = resolve => require(['@/components/core/Menu-WeakAuras-TWW.vue'], resolve)
 const MenuWeakAurasDragonflight = resolve => require(['@/components/core/Menu-WeakAuras-Dragonflight.vue'], resolve)
 const MenuWeakAurasShadowlands = resolve => require(['@/components/core/Menu-WeakAuras-Shadowlands.vue'], resolve)
@@ -97,6 +98,7 @@ module.exports = {
     // auth
     { path: '/login', component: Login },
     { path: '/logout', component: Logout },
+    { path: '/settings', component: Account },
     { path: '/account', component: Account },
     { path: '/settings', component: Account },
     { path: '/admin', component: Admin },

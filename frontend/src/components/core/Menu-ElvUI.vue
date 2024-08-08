@@ -90,7 +90,7 @@ export default {
 }
 </script>
 
-<style lang="scss">
+<style scoped lang="scss">
 .addon-name {
   .md-avatar {
     margin: 16px;

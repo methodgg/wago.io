@@ -215,7 +215,7 @@ const store = new Vuex.Store({
           railOffsetTop: 150,
           railOffsetBottom: 40,
           railSpacing: 6,
-          railCollisionWhitelist: ['.md-select-content', '.leaderboard-top', '.leaderboard-bottom', '#bottom-anchor', '#footer#', '#visibilty', '#importAs', '#expire', '.op-sr', '#content-frame'],
+          railCollisionWhitelist: ['*'],
           sizes: [
             ['160', '600'],
             ['300', '600'],
