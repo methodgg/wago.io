@@ -1,4 +1,5 @@
 const crypto = require('crypto')
+const ObjectId = require('mongoose').Types.ObjectId
 
 module.exports = function (fastify, opts, next) {
   // Allow github webhook to post and trigger addon update task
