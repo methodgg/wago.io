@@ -16,16 +16,21 @@ module.exports = function (fastify, opts, next) {
         .createHmac('sha256', config.wagoAuthKey)
         .update(body, 'utf8')
         .digest('hex')
-
+      
     if (computedSignature !== req.headers['signature']) {
         return res.status(401).send({error: 'invalid_signature'})
     }
 
+    if (req.body.type !== 'user.upserted') {
+        return res.status(400).send({error: 'unknown_type'})
+    }
+
+    const payload = req.body.payload
     try {
-        query = { _id: ObjectId(req.body.id) }
+        query = { _id: ObjectId(payload.id) }
     }
     catch {
-        query = { "wagoAuth.id": req.body.id }
+        query = { "wagoAuth.id": payload.id }
     }
 
     const user = await User.findOne(query)
@@ -33,37 +38,38 @@ module.exports = function (fastify, opts, next) {
         return res.status(400).send({error: 'user_not_found'})
     }
 
-    if (req.body.username) {
-        user.account.username = req.body.username
+    if (payload.username) {
+        user.account.username = payload.username
+        user.search.username = payload.username.toLowerCase()
     }
-    if (req.body.avatar?.endsWith('.gif')) {
-        user.profile.avatar = {gif: req.body.avatar}        
+    if (payload.avatar?.endsWith('.gif')) {
+        user.profile.avatar = {gif: payload.avatar}        
     }
-    else if (req.body.avatar?.endsWith('.webp')) {
-        user.profile.avatar = {webp: req.body.avatar}        
+    else if (payload.avatar?.endsWith('.webp')) {
+        user.profile.avatar = {webp: payload.avatar}        
     }
-    else if (req.body.avatar?.endsWith('.png')) {
-        user.profile.avatar = {png: req.body.avatar}        
+    else if (payload.avatar?.endsWith('.png')) {
+        user.profile.avatar = {png: payload.avatar}        
     }
 
     user.wagoAuth = {
-        id: req.body.id,
-        name: req.body.username,
+        id: payload.id,
+        name: payload.username,
     }
 
-    if (req.body.socialLogins?.discord) {
-        user.discord.id = req.body.socialLogins.discord
+    if (payload.socialLogins?.discord) {
+        user.discord.id = payload.socialLogins.discord
     }
-    if (req.body.socialLogins?.battlenet) {
-        user.battlenet.id = req.body.socialLogins.battlenet
-        if (req.body.wowChars?.length) {
-            user.battle.net.characters = req.body.wowChars
+    if (payload.socialLogins?.battlenet) {
+        user.battlenet.id = payload.socialLogins.battlenet
+        if (payload.wowChars?.length) {
+            user.battle.net.characters = payload.wowChars
         }
     }
     
-    user.roles.subscriber = req.body.benefits?.includes('green_name_tag')
-    user.roles.gold_subscriber = req.body.benefits?.includes('gold_name_tag')
-    user.account.verified_human = user.account.verified_human || user.roles.subscriber || user.roles.gold_subscriber || Boolean(req.body.email_verified_at)
+    user.roles.subscriber = payload.benefits?.includes('green_name_tag')
+    user.roles.gold_subscriber = payload.benefits?.includes('gold_name_tag')
+    user.account.verified_human = user.account.verified_human || user.roles.subscriber || user.roles.gold_subscriber || Boolean(payload.email_verified_at)
 
     await user.save()
     res.send({done: true})
