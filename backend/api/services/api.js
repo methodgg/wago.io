@@ -324,7 +324,7 @@ module.exports = function (fastify, opts, next) {
         else if (req.params.type === 'lookup') {
             user = await User.findByUsername(req.body.username)
             if (!user) {
-                return res.code(403).send({ error: "unknown_user" })
+                return res.code(404).send({ error: "unknown_user" })
             }
         }
         else {
