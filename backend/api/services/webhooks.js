@@ -11,12 +11,13 @@ module.exports = function (fastify, opts, next) {
   })
 
   fastify.post('/webhooks/wago-account', async (req, res) => {
-    const body = JSON.stringify(req.body)
+    const payloadString = (JSON.stringify(req.body)).replace(/\//g, '\\/')
+
     const computedSignature = crypto
         .createHmac('sha256', config.wagoAuthKey)
-        .update(body, 'utf8')
+        .update(payloadString, 'utf8')
         .digest('hex')
-      
+
     if (computedSignature !== req.headers['signature']) {
         return res.status(401).send({error: 'invalid_signature'})
     }
