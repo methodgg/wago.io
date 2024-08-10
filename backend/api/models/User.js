@@ -53,6 +53,10 @@ const Schema = new mongoose.Schema({
     developer: { type: Boolean, default: false },
     artContestWinnerAug2018: { type: Boolean, default: false }
   },
+  wagoAuth: {
+    id: String,
+    name: String
+  },
   facebook: {
     id: String,
     email: String,
