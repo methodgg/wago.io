@@ -95,9 +95,6 @@ module.exports = {
     { path: '/test.html', component: Index },
 
     // auth
-    { path: '/login', beforeEnter() {
-        window.location.replace(`https://accounts.wago.io/oauth/authorize?client_id=9cc008ea-23d8-48e5-b93d-cad0cc395c42&redirect_uri=${encodeURIComponent(window.location.protocol + "//" + window.location.host)}%2Fauth%2Fwago&response_type=code&scope=`)
-    } },
     { path: '/logout', component: Logout },
     { path: '/settings', component: Account },
     { path: '/account', component: Account },

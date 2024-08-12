@@ -48,7 +48,7 @@
               </md-list>
             </md-list-expand>
           </md-list-item>
-          <md-list-item v-else><router-link to='/login'>{{ $t("Login") }}</router-link></md-list-item>
+          <md-list-item v-else><login-button v-if="!isMaintenance"></login-button></md-list-item>
           <md-list-item><router-link to='/'>{{ $t("Import") }}</router-link></md-list-item>
           <md-list-item><router-link to='/news'>{{ $t("Site News") }}</router-link></md-list-item>
           <md-list-item><a href="https://addons.wago.io">Wago Addons</a><md-divider></md-divider></md-list-item>
@@ -103,7 +103,7 @@
                     </div>
                 </router-link>
                 <router-link to='/elvui'><span class="addon-icon"><img src="./assets/tukui.png"></span> ElvUI</router-link>
-                <router-link to='/the-war-within-mdt'><span class="addon-icon"><img src="./assets/mdt.png"></span> Mythic Dungeon Tools</router-link>
+                <router-link to='/the-war-within-mdt'><span class="addon-icon"><img src="./assets/mdt.png"></span> Mythic Dungeon Tools <div class="newAlert-orange"><span>{{ $t('Updated') }}</span></div></router-link>
                 <router-link to='/plater'><span class="addon-icon"><img src="./assets/menu-plater.png"></span> Plater Nameplates</router-link>
               </div>
               <div class="menu-group">
@@ -621,6 +621,9 @@ body, html {
 #full-navbar {
   background: #333333;
   width: 100%;
+  &.transition .sub-nav {
+    display: none!important;
+  }
   .nav {
     display: flex;
     max-width: 1250px;
@@ -923,8 +926,9 @@ body.ads-enabled {
 .md-card > h3 + .md-subheader { padding:0; min-height:0 }
 
 .unreadCount { margin-left: 8px; background: #c1272d; color: white; padding: 4px; border-radius: 2px!important;  }
-.newAlert{ display: flex; justify-content: flex-end; flex-grow: 1 }
+.newAlert, .newAlert-orange { display: flex; justify-content: flex-end; flex-grow: 1 }
 .newAlert span { background: #c1272d; color: white; padding: 2px 4px; border-radius: 2px!important; }
+.newAlert-orange span { background: #c15827; color: white; padding: 2px 4px; border-radius: 2px!important; }
 .md-snackbar-container { border: 1px solid black }
 
 #randombtn {
