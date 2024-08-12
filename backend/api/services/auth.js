@@ -720,7 +720,7 @@ async function oAuthLogin(req, res, provider, authUser, callback) {
     }
     
     user.roles.subscriber = authUser.benefits?.includes('green_name_tag')
-    user.roles.gold_subscriber = authUser.benefits?.includes('gold_name_tag')
+    user.roles.gold_subscriber = authUser.benefits?.includes('golden_name_tag')
     user.account.verified_human = user.account.verified_human || user.roles.subscriber || user.roles.gold_subscriber || Boolean(authUser.email_verified_at)
 
     makeSession(req, res, { UID: user._id }, user)
