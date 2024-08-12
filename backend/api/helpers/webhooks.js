@@ -115,7 +115,21 @@ module.exports = {
 }
 
 async function sendDiscordWebhook(data, id, token) {
-  await axios.post(`https://discord.com/api/webhooks/${id}/${token}?wait=true`, data)
+    try {
+        await axios.post(`https://discord.com/api/webhooks/${id}/${token}?wait=true`, data)
+    }
+    catch (e) {
+        LoggedMsg.write('DISCORD_MSG_TO_WEBHOOK_ERROR', e.message, {
+            message: e?.message,
+            name: e?.name,
+            stack: e?.stack,
+            config: e?.config,
+            code: e?.code,
+            status: e?.response?.status,
+            data: e?.response?.data,
+            headers: e?.response?.headers
+        })
+    }
 }
 
 // async function modifyDiscordWebhook(string, id, token, msgID) {

@@ -9,17 +9,7 @@ const Schema = new mongoose.Schema({
 })
 
 Schema.statics.write = async function(type, message, obj) {
-    const serializedError = {
-        message: obj?.message,
-        name: obj?.name,
-        stack: obj?.stack,
-        config: obj?.config,
-        code: obj?.code,
-        status: obj?.response?.status,
-        data: obj?.response?.data,
-        headers: obj?.response?.headers
-    };
-    this.create({type, message, obj: serializedError})
+    this.create({type, message, obj})
 }
 
 const LoggedMsg = mongoose.model('LoggedMsg', Schema)

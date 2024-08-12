@@ -20,10 +20,20 @@ module.exports = function (fastify, opts, next) {
         .digest('hex')
 
     if (computedSignature !== req.headers['signature']) {
+        LoggedMsg.write('FAILED_AUTH_WH', "invalid webhook signature", {
+            type: req.body.type,
+            body: req.body,
+            computedSignature
+        })
         return res.status(401).send({error: 'invalid_signature'})
     }
 
     if (req.body.type !== 'user.upserted') {
+        LoggedMsg.write('FAILED_AUTH_WH', "invalid type", {
+            type: req.body.type,
+            body: req.body,
+            computedSignature
+        })
         return res.status(400).send({error: 'unknown_type'})
     }
 

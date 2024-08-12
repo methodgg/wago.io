@@ -185,8 +185,18 @@ module.exports = {
       await channel.send(embed)
     }
     catch (e) {
-      console.error('discord send message error')
-      console.error(e)
+        LoggedMsg.write('DISCORD_MSG_TO_USER_ERROR', e.message, {
+            message: e?.message,
+            name: e?.name,
+            stack: e?.stack,
+            config: e?.config,
+            code: e?.code,
+            status: e?.response?.status,
+            data: e?.response?.data,
+            headers: e?.response?.headers
+        })
+        console.error('discord send message error')
+        console.error(e)
     }
   },
 
@@ -212,8 +222,18 @@ module.exports = {
       channel.send(embed)
     }
     catch (e) {
-      console.error('discord send message error')
-      console.error(e)
+        LoggedMsg.write('DISCORD_MSG_TO_USER_ERROR', e.message, {
+            message: e?.message,
+            name: e?.name,
+            stack: e?.stack,
+            config: e?.config,
+            code: e?.code,
+            status: e?.response?.status,
+            data: e?.response?.data,
+            headers: e?.response?.headers
+        })
+        console.error('discord send message error')
+        console.error(e)
     }
   }
 }

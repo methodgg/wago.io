@@ -289,7 +289,16 @@ async function unifiedWagoAuth(req, res) {
             accessToken = response.data.access_token
         }
         catch (e) {
-            LoggedMsg.write('FAILED_AUTH', e.message, e)
+            LoggedMsg.write('FAILED_AUTH', e.message, {
+                message: e?.message,
+                name: e?.name,
+                stack: e?.stack,
+                config: e?.config,
+                code: e?.code,
+                status: e?.response?.status,
+                data: e?.response?.data,
+                headers: e?.response?.headers
+            })
         }
     }
 
@@ -305,7 +314,16 @@ async function unifiedWagoAuth(req, res) {
         oAuthLogin(req, res, 'wago', authResponse.data)
     }
     catch (e) {        
-        LoggedMsg.write('FAILED_AUTH', e.message, e)
+        LoggedMsg.write('FAILED_AUTH', e.message, {
+            message: e?.message,
+            name: e?.name,
+            stack: e?.stack,
+            config: e?.config,
+            code: e?.code,
+            status: e?.response?.status,
+            data: e?.response?.data,
+            headers: e?.response?.headers
+        })
         return res.code(403).send({ error: 'Unable to auth with Wago' })
     }
 }
