@@ -288,12 +288,12 @@ async function unifiedWagoAuth(req, res) {
         }
       })
       if (!authResponse.data.id) {
-        throw 'invalid'
+        throw 'invalid user data received'
       }
       oAuthLogin(req, res, 'wago', authResponse.data)
     }
-    catch (e) {
-      console.log(e.message, e.body, e.response?.body)
+    catch (e) {        
+      LoggedMsg.write('FAILED_AUTH', e.message, e)
     //   req.trackError(e, 'Failed Wago Auth')
       return res.code(403).send({ error: 'Unable to auth with Wago' })
     }

@@ -28,6 +28,7 @@ module.exports = function (fastify, opts, next) {
     }
 
     const payload = req.body.payload
+    let query
     try {
         query = { _id: ObjectId(payload.id) }
     }
@@ -37,7 +38,7 @@ module.exports = function (fastify, opts, next) {
 
     const user = await User.findOne(query)
     if (!user) {
-        return res.status(400).send({error: 'user_not_found'})
+        return res.send({error: 'new_user'})
     }
 
     if (payload.username) {
