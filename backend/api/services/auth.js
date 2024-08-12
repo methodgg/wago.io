@@ -5,6 +5,7 @@ const jwt = require('jsonwebtoken')
 const querystring = require('querystring')
 const battlenet = require('../helpers/battlenet')
 const hcaptchaVerify = require('hcaptcha').verify
+const ObjectId = require('mongoose').Types.ObjectId
 
 const image = require('../helpers/image')
 
@@ -89,97 +90,101 @@ async function makeSession(req, res, token, user) {
       who.config = user.config
 
       const unreadComments = Comments.findUnread(user._id)
-      const myCollections = WagoItem.find({_userId: user._id, type: 'COLLECTION', deleted: false}).select('_id name').sort('name').exec()
+      const myCollections = WagoItem.find({ _userId: user._id, type: 'COLLECTION', deleted: false }).select('_id name').sort('name').exec()
       who.unreadMentions = await unreadComments
       who.collections = await myCollections
       // return user info when finished
-      var data = {login: true, token: token, user: who}
+      var data = { login: true, token: token, user: who }
       return res.send(data)
     }
     else {
-      return res.code(403).send({error: "unknown_user"})
+      return res.code(403).send({ error: "unknown_user" })
     }
   }
   catch (e) {
     req.trackError(e)
-    return res.code(403).send({error: "invalid_token"})
+    return res.code(403).send({ error: "invalid_token" })
   }
 }
 
 module.exports = function (fastify, opts, next) {
   // update password
-  fastify.post('/changepass', async (req, res) => {
-    if (!req.user || !req.body.newPass) {
-      res.code(403).send({error: 'forbidden'})
-    }
-    // if user does not currently have a password then we don't need further validation, just save and return
-    if (!req.user.account.password) {
-      const hashed = await bcrypt.hash(req.body.newPass, 10)
-      req.user.account.password = hashed
-      await req.user.save()
-      res.send({success: true})
-    }
-    else {
-      const authenticated = await bcrypt.compare(req.body.password, req.user.account.password)
-      if (authenticated) {
-        const hashed = await bcrypt.hash(req.body.newPass, 10)
-        req.user.account.password = hashed
-        await req.user.save()
-        res.send({success: true})
-      }
-      else {
-        res.send({error: 'Incorrect password'})
-      }
-    }
-  })
+//   fastify.post('/changepass', async (req, res) => {
+//     if (!req.user || !req.body.newPass) {
+//       res.code(403).send({ error: 'forbidden' })
+//     }
+//     // if user does not currently have a password then we don't need further validation, just save and return
+//     if (!req.user.account.password) {
+//       const hashed = await bcrypt.hash(req.body.newPass, 10)
+//       req.user.account.password = hashed
+//       await req.user.save()
+//       res.send({ success: true })
+//     }
+//     else {
+//       const authenticated = await bcrypt.compare(req.body.password, req.user.account.password)
+//       if (authenticated) {
+//         const hashed = await bcrypt.hash(req.body.newPass, 10)
+//         req.user.account.password = hashed
+//         await req.user.save()
+//         res.send({ success: true })
+//       }
+//       else {
+//         res.send({ error: 'Incorrect password' })
+//       }
+//     }
+//   })
   // logout
   const Logout = async (req, res) => {
     if (req.user && req.user.SID) {
       UserSessions.findById(req.user.SID).remove().exec()
     }
-    res.send({action: 'logout!'})
+    res.send({ action: 'logout!' })
   }
   fastify.post('/logout', Logout)
   fastify.get('/logout', Logout)
 
   // attempt to log into Wago
   const Login = async (req, res) => {
-    switch(req.params.provider) {
-      case 'battlenet':
-        battlenetAuth(req, res)
+    switch (req.params.provider) {
+      case 'wago':
+        unifiedWagoAuth(req, res)
         break
 
-      case 'battlenetCN':
-        battlenetAuth(req, res, 'CN')
-        break
+    //   case 'battlenet':
+    //     battlenetAuth(req, res)
+    //     break
 
-      case 'discord':
-        discordAuth(req, res)
-        break
+    //   case 'battlenetCN':
+    //     battlenetAuth(req, res, 'CN')
+    //     break
 
-      case 'google':
-        googleAuth(req, res)
-        break
+    //   case 'discord':
+    //     discordAuth(req, res)
+    //     break
 
-      case 'patreon':
-        patreonAuth(req, res)
-        break
+    //   case 'google':
+    //     googleAuth(req, res)
+    //     break
 
-      case 'twitch':
-        twitchAuth(req, res)
-        break
+    //   case 'patreon':
+    //     patreonAuth(req, res)
+    //     break
 
-      case 'twitter':
-        twitterAuth(req, res)
-        break
+    //   case 'twitch':
+    //     twitchAuth(req, res)
+    //     break
 
-      case 'login':
-        localAuth(req, res)
-        break
+    //   case 'twitter':
+    //     twitterAuth(req, res)
+    //     break
 
-      case 'create':
-        createUser(req, res)
-        break
+    //   case 'login':
+    //     localAuth(req, res)
+    //     break
+
+    //   case 'create':
+    //     createUser(req, res)
+    //     break
 
       case 'user':
       case 'refresh':
@@ -187,21 +192,21 @@ module.exports = function (fastify, opts, next) {
         break;
 
       default:
-        return res.code(404).send({error: 'invalid_provider', provider: req.params.provider})
+        return res.code(404).send({ error: 'invalid_provider', provider: req.params.provider })
     }
   }
   fastify.post('/:provider', Login)
   fastify.get('/:provider', Login)
 
   fastify.get('/hash', async function (req, res) {
-    res.send({hash: await bcrypt.hash(req.query.pw, 10)})
+    res.send({ hash: await bcrypt.hash(req.query.pw, 10) })
   })
 
   next()
 }
 
 // Login with username/password against wago database
-async function localAuth (req, res) {
+async function localAuth(req, res) {
   try {
     var valid = await hcaptchaVerify(config.hcaptcha.secret, req.body.captcha)
     const recent = new Date(new Date().getTime() - 1000 * 60)
@@ -209,7 +214,7 @@ async function localAuth (req, res) {
       // find user(s) with entered name
       const user = await User.findByUsername(req.body.username)
       if (!user || !user.account.password) {
-        return res.code(403).send({error: "invalid_login"})
+        return res.code(403).send({ error: "invalid_login" })
       }
       // check if password is a match
       const auth = await bcrypt.compare(req.body.password, user.account.password)
@@ -224,18 +229,18 @@ async function localAuth (req, res) {
   catch (e) {
     console.log(e)
   }
-  return res.code(403).send({error: "invalid_login"})
+  return res.code(403).send({ error: "invalid_login" })
 }
 
 // create local user
-async function createUser (req, res) {
+async function createUser(req, res) {
   if (!req.body.password || req.body.password.length < 6) {
-    return res.code(403).send({error: 'bad password'})
+    return res.code(403).send({ error: 'bad password' })
   }
   let username = req.body.username.replace(/^ +/, '_').replace(/ +$/, '_')
   let test = await User.findByUsername(username)
   if (test) {
-    return res.code(403).send({error: "Error: Username already exists"})
+    return res.code(403).send({ error: "Error: Username already exists" })
   }
 
   try {
@@ -260,8 +265,39 @@ async function createUser (req, res) {
     console.log(e)
   }
 
-  return res.code(403).send({error: 'bad captcha'})
+  return res.code(403).send({ error: 'bad captcha' })
 }
+
+// unified wago auth
+async function unifiedWagoAuth(req, res) {
+    try {
+      const response = await axios.post('https://accounts.wago.io/oauth/token', querystring.stringify({
+        code: req.body.code || req.query.code,
+        client_id: config.auth.wago.clientID,
+        client_secret: config.auth.wago.clientSecret,
+        redirect_uri: req.headers.origin + '/auth/wago',
+        grant_type: 'authorization_code'
+      }), {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded"
+        }
+      })
+      const authResponse = await axios.get('https://accounts.wago.io/api/users', {
+        headers: {
+          Authorization: 'Bearer ' + response.data.access_token
+        }
+      })
+      if (!authResponse.data.id) {
+        throw 'invalid'
+      }
+      oAuthLogin(req, res, 'wago', authResponse.data)
+    }
+    catch (e) {
+      console.log(e.message, e.body, e.response?.body)
+    //   req.trackError(e, 'Failed Wago Auth')
+      return res.code(403).send({ error: 'Unable to auth with Wago' })
+    }
+  }
 
 // Login through Blizzard Battle.net
 async function battlenetAuth(req, res, region) {
@@ -352,7 +388,7 @@ async function battlenetAuth(req, res, region) {
         profiles.cn = []
       }
       else if (region === 'CN') {
-        var profiles = {us: [], eu: [], kr: [], tw: []}
+        var profiles = { us: [], eu: [], kr: [], tw: [] }
         try {
           let accounts = await getWoWProfile('cn', response.data.access_token)
           accounts = accounts.data.wow_accounts
@@ -390,7 +426,7 @@ async function battlenetAuth(req, res, region) {
         }
 
         if (char.guild && char.guildRealmSlug) {
-          chars.push({region: region, realm: char.realmSlug, name: char.name, guild: char.guild, guildRealm: char.guildRealmSlug, bnetID: char.bnetID })
+          chars.push({ region: region, realm: char.realmSlug, name: char.name, guild: char.guild, guildRealm: char.guildRealmSlug, bnetID: char.bnetID })
           const guild = await battlenet.lookupGuild(region, char.guildRealm, char.guild)
           if (guild && guild.members) {
             for (let j = 0; j < guild.members.length; j++) {
@@ -408,7 +444,7 @@ async function battlenetAuth(req, res, region) {
           }
         }
         else {
-          chars.push({region: region, realm: char.realm, name: char.name, bnetID: char.bnetID })
+          chars.push({ region: region, realm: char.realm, name: char.name, bnetID: char.bnetID })
         }
         if (char.level >= 50) {
           if (mostRecent < char.lastModified) {
@@ -446,7 +482,7 @@ async function battlenetAuth(req, res, region) {
     })
   }
   else {
-    return res.code(403).send({error: 'Unable to auth with Blizzard'})
+    return res.code(403).send({ error: 'Unable to auth with Blizzard' })
   }
 }
 
@@ -476,7 +512,7 @@ async function discordAuth(req, res) {
   }
   catch (e) {
     req.trackError(e, 'Failed Discord Auth')
-    return res.code(403).send({error: 'Unable to auth with Discord'})
+    return res.code(403).send({ error: 'Unable to auth with Discord' })
   }
 }
 
@@ -502,7 +538,7 @@ async function googleAuth(req, res) {
   }
   catch (e) {
     req.trackError(e, 'Failed Google Auth')
-    return res.code(403).send({error: 'Unable to auth with Google'})
+    return res.code(403).send({ error: 'Unable to auth with Google' })
   }
 }
 
@@ -513,7 +549,7 @@ async function patreonAuth(req, res) {
       code: req.body.code || req.query.code,
       client_id: config.auth.patreon.clientID,
       client_secret: config.auth.patreon.clientSecret,
-      redirect_uri:  req.headers.origin + '/auth/patreon',
+      redirect_uri: req.headers.origin + '/auth/patreon',
       grant_type: 'authorization_code'
     }), {
       headers: {
@@ -533,7 +569,7 @@ async function patreonAuth(req, res) {
   catch (e) {
     console.log(e)
     req.trackError(e, 'Failed Patreon Auth')
-    return res.code(403).send({error: 'Unable to auth with Patreon'})
+    return res.code(403).send({ error: 'Unable to auth with Patreon' })
   }
 }
 
@@ -565,7 +601,7 @@ async function twitchAuth(req, res) {
   }
   catch (e) {
     req.trackError(e, 'Failed Twitch Auth')
-    return res.code(403).send({error: 'Unable to auth with Twitch'})
+    return res.code(403).send({ error: 'Unable to auth with Twitch' })
   }
 }
 
@@ -581,14 +617,14 @@ async function twitterAuth(req, res) {
     if (!req.body.oauth_token) {
       const response = await twitter.getRequestToken(req.headers.origin + '/auth/twitter')
       twitterRequestSecrets[response.oauth_token] = response.oauth_token_secret
-      res.send({requestToken: response.oauth_token})
+      res.send({ requestToken: response.oauth_token })
       // delete from memory and invalidate this req token after 1 minute
       setTimeout(function () {
         delete twitterRequestSecrets[response.oauth_token]
       }, 60000)
     }
     else if (req.body.oauth_token && twitterRequestSecrets[req.body.oauth_token]) {
-      const authResponse = await twitter.getAccessToken({oauth_token: req.body.oauth_token, oauth_verifier: req.body.oauth_verifier})
+      const authResponse = await twitter.getAccessToken({ oauth_token: req.body.oauth_token, oauth_verifier: req.body.oauth_verifier })
       if (!authResponse.user_id) {
         throw 'invalid'
       }
@@ -596,237 +632,76 @@ async function twitterAuth(req, res) {
       oAuthLogin(req, res, 'twitter', authResponse)
     }
     else {
-      req.trackError({message: 'Invalid oauth token'}, 'Failed Twitter Auth 1')
-      return res.code(403).send({error: 'Unable to auth with Twitter'})
+      req.trackError({ message: 'Invalid oauth token' }, 'Failed Twitter Auth 1')
+      return res.code(403).send({ error: 'Unable to auth with Twitter' })
     }
   }
   catch (e) {
     req.trackError(e, 'Failed Twitter Auth 2')
-    return res.code(403).send({error: 'Unable to auth with Twitter'})
+    return res.code(403).send({ error: 'Unable to auth with Twitter' })
   }
 }
 
 async function oAuthLogin(req, res, provider, authUser, callback) {
   // oAuth JSON profile assumed good at this point, log user in, register social login to existing user, or register as new user
-  var query
-  var profile
-  var newAcctName
-  var avatarURL
-  var humanDetected = false
-  var paid = 0
-  switch (provider) {
-  case 'battlenet':
-    query = {"battlenet.id": authUser.id}
-    profile = {
-      id: authUser.id,
-      name: authUser.name,
-      updateStatus: 'pending-API',
-      updateDate: new Date()
-    }
-    humanDetected = authUser.maxLevel
-    newAcctName = authUser.name
-    avatarURL = authUser.avatar
-    break
+    let query
+    let avatarURL
 
-  case 'discord':
-    query = {"discord.id": authUser.id}
-    profile = {
-      id: authUser.id,
-      name: authUser.username + '#' + authUser.discriminator,
-    }
-    newAcctName = authUser.username
-    avatarURL = 'https://cdn.discordapp.com/avatars/' + authUser.id + '/' + authUser.avatar + '.png?size=64'
-    break
-
-  case 'google':
-    query = {"google.id": authUser.sub}
-    profile = {
-      id: authUser.sub,
-      name: authUser.name,
-    }
-    newAcctName = authUser.name
-    avatarURL = authUser.picture
-    break
-
-  case 'patreon':
-    query = {"patreon.id": authUser.id}
     try {
-      profile = {
+        query = { _id: ObjectId(authUser.id) }
+    }
+    catch {
+        query = { "wagoAuth.id": authUser.id }
+    }
+    avatarURL = authUser.avatar
+
+    let oauthUser = await User.findOne(query)
+    // if already logged in and oauth matches
+    if (oauthUser) {
+        user = oauthUser
+    }
+    else {
+        user = new User()
+    }
+
+    user.account.username = authUser.username
+    if (authUser.avatar?.endsWith('.gif')) {
+        user.profile.avatar = {gif: authUser.avatar}        
+    }
+    else if (authUser.avatar?.endsWith('.webp')) {
+        user.profile.avatar = {webp: authUser.avatar}        
+    }
+    else if (authUser.avatar?.endsWith('.png')) {
+        user.profile.avatar = {png: authUser.avatar}        
+    }
+
+    user.wagoAuth = {
         id: authUser.id,
-        name: authUser.attributes.vanity || authUser.attributes.first_name
-      }
-      avatarURL = authUser.attributes.thumb_url
-      if (authUser.relationships.pledges.data.length>0 && authUser.relationships.pledges.data[0].attributes) {
-        profile.amount_cents = authUser.relationships.pledges.data[0].attributes.amount_cents
-      }
-    }
-    catch (e) {
-      return res.send(500, {error: 'Could not read patreon data', error: e, auth: authUser})
-    }
-    newAcctName = profile.name
-
-    // paid users are verified humans
-    if (profile.amount_cents > 0) {
-      humanDetected = true
-      paid = profile.amount_cents
-    }
-    break
-
-  case 'twitch':
-    query = {"twitch.id": authUser.id}
-    profile = {
-      id: authUser.id,
-      name: authUser.display_name,
-      refreshToken: authUser.refresh_token
-    }
-    avatarURL = authUser.profile_image_url
-    break
-
-  case 'twitter':
-    query = {"twitter.id": authUser.user_id}
-    profile = {
-      id: authUser.user_id,
-      name: '@' + authUser.screen_name,
-    }
-    newAcctName = authUser.screen_name
-    avatarURL = authUser.profile_image_url_https
-  break
-  }
-
-  var oauthUser = await User.findOne(query)
-  // if already logged in and oauth matches
-  if (req.user && ((oauthUser && req.user._id.equals(oauthUser._id)))) {
-    if (avatarURL) {
-      var img = await image.avatarFromURL(avatarURL, oauthUser._id.toString(), provider)
-      if (!img.error) {
-        profile.avatar = img
-      }
+        name: authUser.username,
     }
 
-    // update profile
-    if (oauthUser[provider] && oauthUser[provider].options) {
-      profile.options = oauthUser[provider].options
+    if (authUser.socialLogins?.discord) {
+        user.discord.id = authUser.socialLogins.discord
     }
-    if (oauthUser[provider] && oauthUser[provider].webhooks) {
-      profile.webhooks = oauthUser[provider].webhooks
+    if (authUser.socialLogins?.battlenet) {
+        user.battlenet.id = authUser.socialLogins.battlenet
+        if (authUser.wowChars?.length) {
+            user.battle.net.characters = authUser.wowChars
+        }
     }
-    req.user[provider] = profile
-    // if human detected then set verified flag
-    if (humanDetected) {
-      req.user.account.verified_human = true
-    }
-    if (paid>=100) {
-      req.user.roles.subscriber = true
-    }
-    if (paid>=400) {
-      req.user.roles.gold_subscriber = true
-    }
-    makeSession(req, res, {UID: req.user._id}, req.user)
+    
+    user.roles.subscriber = authUser.benefits?.includes('green_name_tag')
+    user.roles.gold_subscriber = authUser.benefits?.includes('gold_name_tag')
+    user.account.verified_human = user.account.verified_human || user.roles.subscriber || user.roles.gold_subscriber || Boolean(authUser.email_verified_at)
+
+    makeSession(req, res, { UID: user._id }, user)
+    req.user = user
     if (callback) {
-      callback(req.user)
+      callback(user)
     }
     else {
-      await req.user.save()
+      await user.save()
     }
-    return
-  }
-
-  // if not registered then create a new account
-  else if (!oauthUser && (req.user || newAcctName)) {
-    var user
-    if (req.user) {
-      user = req.user
-    }
-    else {
-      user = new User()
-    }
-    var img = await image.avatarFromURL(avatarURL, user._id.toString(), provider)
-    if (!img.error) {
-      profile.avatar = img
-    }
-    user[provider] = profile
-    if (humanDetected) {
-      user.account.verified_human = true
-    }
-    if (paid>=100) {
-      user.roles.subscriber = true
-    }
-    if (paid>=400) {
-      user.roles.gold_subscriber = true
-    }
-
-    // if user exists but this is a new oauth then save it
-    if (req.user) {
-      makeSession(req, res, {UID: user._id}, user)
-      if (callback) {
-        callback(user)
-      }
-      else {
-        await user.save()
-      }
-      return
-    }
-    else {
-      // if brand new user, check if we can use the username
-      const exists = await User.findByUsername(newAcctName)
-      // if username exists then assign unique name
-      if (exists) {
-        user.account.username = newAcctName + user._id.toString()
-      }
-      else {
-        user.account.username = newAcctName
-      }
-      user.search.username = user.account.username.toLowerCase()
-
-      makeSession(req, res, {UID: user._id}, user)
-      if (callback) {
-        callback(user)
-      }
-      else {
-        await user.save()
-      }
-      return
-    }
-  }
-
-  // if oauth is registered in wago then update profile and log user in
-  else if (oauthUser) {
-    var img = await image.avatarFromURL(avatarURL, oauthUser._id.toString(), provider)
-    if (!img.error) {
-      profile.avatar = img
-    }
-    var who = {}
-    who.UID = oauthUser._id
-    // update profile
-    if (oauthUser[provider] && oauthUser[provider].options) {
-      profile.options = oauthUser[provider].options
-    }
-    if (oauthUser[provider] && oauthUser[provider].webhooks) {
-      profile.webhooks = oauthUser[provider].webhooks
-    }
-    if (humanDetected) {
-      user.account.verified_human = true
-    }
-    if (paid>=100) {
-      user.roles.subscriber = true
-    }
-    if (paid>=400) {
-      user.roles.gold_subscriber = true
-    }
-    oauthUser[provider] = profile
-
-    makeSession(req, res, who, oauthUser)
-    if (callback) {
-      callback(oauthUser)
-    }
-    else {
-      await oauthUser.save()
-    }
-    return
-  }
-  else {
-    return res.send({err: 'Invalid input'})
-  }
 }
 
 async function getWoWProfile(region, token) {

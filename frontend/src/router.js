@@ -25,7 +25,6 @@ const MenuPlater = resolve => require(['@/components/core/Menu-Plater.vue'], res
 const MenuCell = resolve => require(['@/components/core/Menu-Cell.vue'], resolve)
 // const MenuMDTBFA = resolve => require(['@/components/core/Menu-MDT-BFA.vue'], resolve)
 // const MenuMDTShadowlands = resolve => require(['@/components/core/Menu-MDT-Shadowlands.vue'], resolve)
-const MenuMDTDragonflight = resolve => require(['@/components/core/Menu-MDT-Dragonflight.vue'], resolve)
 const MenuMDTTheWarWithin = resolve => require(['@/components/core/Menu-MDT-TWW.vue'], resolve)
 const CreateMDT = resolve => require(['@/components/core/Create-MDT.vue'], resolve)
 const MenuCollections = resolve => require(['@/components/core/Menu-Collections.vue'], resolve)
@@ -96,7 +95,9 @@ module.exports = {
     { path: '/test.html', component: Index },
 
     // auth
-    { path: '/login', component: Login },
+    { path: '/login', beforeEnter() {
+        window.location.replace(`https://accounts.wago.io/oauth/authorize?client_id=9cc008ea-23d8-48e5-b93d-cad0cc395c42&redirect_uri=${encodeURIComponent(window.location.protocol + "//" + window.location.host)}%2Fauth%2Fwago&response_type=code&scope=`)
+    } },
     { path: '/logout', component: Logout },
     { path: '/settings', component: Account },
     { path: '/account', component: Account },

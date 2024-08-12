@@ -264,7 +264,6 @@ const store = new Vuex.Store({
             }))
           },
           refresh: () => {
-            console.log('onNavigate =>', window.advertRails)
             window.advertRails.ads.map(x => x && x.onNavigate && x.onNavigate())
           }
         }
@@ -492,6 +491,12 @@ router.beforeEach((to, from, next) => {
       store.commit('setLoginRedirect', from.path)
     }
   }
+
+  document.getElementById('full-navbar')?.classList.add('transition')
+  setTimeout(() => {
+    document.getElementById('full-navbar')?.classList.remove('transition')  
+  }, 100)
+    
 
   // hide any open menus on navigation
   var needClick = document.querySelectorAll('.md-menu-backdrop')
@@ -996,55 +1001,16 @@ Vue.use(VueAuth, {
   router: driverRouterVueRouter,
   fetchData: { enabled: false },
   oauth2: {
-    battlenet: {
-      url: 'https://us.battle.net/oauth/authorize',
-      method: 'POST',
-      params: {
-        client_id: bnetClientID,
-        redirect_uri: 'auth/battlenet',
-        response_type: 'code',
-        scope: 'wow.profile'
-      }
+    wago: {
+        url: 'https://accounts.wago.io/oauth/authorize',
+        method: 'POST',
+        params: {
+          client_id: '9cc008ea-23d8-48e5-b93d-cad0cc395c42',
+          redirect_uri: 'auth/wago',
+          response_type: 'code',
+          scope: '',
+        }
     },
-    battlenetCN: {
-      url: 'https://www.battlenet.com.cn/oauth/authorize',
-      method: 'POST',
-      params: {
-        client_id: bnetClientID,
-        redirect_uri: 'auth/battlenetCN',
-        response_type: 'code',
-        scope: 'wow.profile'
-      }
-    },
-    discord: {
-      url: 'https://discordapp.com/api/oauth2/authorize',
-      method: 'POST',
-      params: {
-        client_id: '716425995854544986',
-        redirect_uri: 'auth/discord',
-        response_type: 'code',
-        scope: 'identify'
-      }
-    },
-    google: {
-      url: 'https://accounts.google.com/o/oauth2/auth',
-      params: {
-        client_id: '1066257896372-gn76b3s7sfra5s46861urve9rved56vd.apps.googleusercontent.com',
-        redirect_uri: 'auth/google',
-        response_type: 'code',
-        scope: 'profile openid'
-      }
-    },
-    patreon: {
-      url: 'https://www.patreon.com/oauth2/authorize?f=1',
-      params: {
-        client_id: 'nH4Fu9yH7Jcw5Xw9856vPKz3gJDK2IpSEXZ9nsI8GgVVpOR2YZ3-3IEE-6JzIAIj',
-        // client_id: '-lUfSkaxFXmH-l0EBKFchZ3LmYGnjwKSL-93pVhZm2qiQXhZmaaNMyx8LuS1OiZ-',
-        redirect_uri: 'auth/patreon',
-        response_type: 'code',
-        scope: 'users pledges-to-me'
-      }
-    }
   }
 })
 
