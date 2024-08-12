@@ -23,7 +23,8 @@ module.exports = function (fastify, opts, next) {
         LoggedMsg.write('FAILED_AUTH_WH', "invalid webhook signature", {
             type: req.body.type,
             body: req.body,
-            computedSignature
+            computedSignature,
+            expectedSignature: req.headers['signature']
         })
         return res.status(401).send({error: 'invalid_signature'})
     }
@@ -31,8 +32,7 @@ module.exports = function (fastify, opts, next) {
     if (req.body.type !== 'user.upserted') {
         LoggedMsg.write('FAILED_AUTH_WH', "invalid type", {
             type: req.body.type,
-            body: req.body,
-            computedSignature
+            body: req.body
         })
         return res.status(400).send({error: 'unknown_type'})
     }
