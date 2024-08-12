@@ -11,38 +11,8 @@ module.exports = function (fastify, opts, next) {
     res.send({done: true})
   })
 
-  fastify.get('/webhooks/test', async (req, res) => {
-    const body = {
-            "type": "user.upserted",
-            "payload": {
-            "id": "659352af8e4e111509caa7ad",
-            "username": "René659352af8e4e111509caa7ad",
-            "email": null,
-            "avatar": "https://media.wago.io/avatars/659352af8e4e111509caa7ad/u-1705696013597.webp",
-            "email_verified_at": null,
-            "created_at": "2024-01-02T00:02:55.000000Z",
-            "updated_at": "2024-08-12T22:22:13.000000Z",
-            "is_creator": false,
-            "is_admin": false,
-            "socialLogins": {
-                "patreon": "68549595"
-            },
-            "benefits": [],
-            "creator_subscriptions": []
-            }
-        }
-        const payloadString = (JSON.stringify(body)).replace(/\//g, '\\/')
-        const expected = 'f7078927ba77af94a5cef86464f1e50e8ab078ca04714a0e9eddb58bf85423aa'
-
-        const computedSignature = crypto
-            .createHmac('sha256', config.wagoAuthKey)
-            .update(payloadString, 'utf8')
-            .digest('hex')
-        console.log(expected, computedSignature)
-  })
-
   fastify.post('/webhooks/wago-account', async (req, res) => {
-    const payloadString = (JSON.stringify(req.body)).replace(/\//g, '\\/')
+    const payloadString = phpJsonEncode(req.body)
 
     const computedSignature = crypto
         .createHmac('sha256', config.wagoAuthKey)
@@ -119,4 +89,20 @@ module.exports = function (fastify, opts, next) {
   })
 
   next()
+}
+
+
+function phpJsonEncode(obj) {
+    // Use JSON.stringify to get the initial JSON string
+    let jsonString = JSON.stringify(obj);
+
+    // Escape forward slashes
+    jsonString = jsonString.replace(/\//g, '\\/');
+
+    // Convert UTF-8 characters to \uXXXX format
+    jsonString = jsonString.replace(/[\u007F-\uFFFF]/g, function (c) {
+        return '\\u' + ('0000' + c.charCodeAt(0).toString(16)).slice(-4);
+    });
+
+    return jsonString;
 }
