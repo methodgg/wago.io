@@ -45,6 +45,8 @@ const Schema = new mongoose.Schema({
     patreonTier: {type: Number, default: 0},
     subscriber: { type: Boolean, default: false },
     gold_subscriber: { type: Boolean, default: false },
+    legacy_subscriber: { type: Boolean, default: false },
+    legacy_gold_subscriber: { type: Boolean, default: false },
     pro_subscriber: { type: Boolean, default: false },
     ambassador: { type: Boolean, default: false },
     methodRaider: { type: Boolean, default: false },
@@ -254,13 +256,13 @@ Schema.virtual('avatarURL').get(async function () {
 
 Schema.virtual('access.custom_slug').get(function () {
   if (this.roles.isAdmin.access) return true
-  if (this.roles.gold_subscriber || this.roles.pro_subscriber || this.roles.ambassador || this.roles.community_leader || this.roles.developer || this.roles.artContestWinnerAug2018) return true
+  if (this.roles.gold_subscriber || this.roles.legacy_gold_subscriber || this.roles.pro_subscriber || this.roles.ambassador || this.roles.community_leader || this.roles.developer || this.roles.artContestWinnerAug2018) return true
 
   return false
 })
 Schema.virtual('access.animatedAvatar').get(function () {
   if (this.roles.isAdmin.access) return true
-  if (this.roles.subscriber || this.roles.gold_subscriber || this.roles.pro_subscriber || this.roles.community_leader || this.roles.ambassador || this.roles.developer || this.roles.artContestWinnerAug2018) return true
+  if (this.roles.subscriber || this.roles.gold_subscriber || this.roles.legacy_subscriber || this.roles.legacy_gold_subscriber || this.roles.pro_subscriber || this.roles.community_leader || this.roles.ambassador || this.roles.developer || this.roles.artContestWinnerAug2018) return true
 
   return false
 })
@@ -272,7 +274,7 @@ Schema.virtual('access.queueSkip').get(function () {
 })
 Schema.virtual('access.referrals').get(function () {
   if (this.roles.isAdmin.access) return true
-  if (this.roles.subscriber || this.roles.gold_subscriber || this.roles.pro_subscriber || this.roles.community_leader || this.roles.ambassador || this.roles.developer || this.roles.artContestWinnerAug2018) return true
+  if (this.roles.subscriber || this.roles.gold_subscriber || this.roles.legacy_subscriber || this.roles.legacy_gold_subscriber || this.roles.pro_subscriber || this.roles.community_leader || this.roles.ambassador || this.roles.developer || this.roles.artContestWinnerAug2018) return true
 
   return false
 })
@@ -286,7 +288,7 @@ Schema.virtual('access.api').get(function () {
   return true
 })
 Schema.virtual('access.hideAds').get(function () {
-  if (this.roles.subscriber || this.roles.gold_subscriber || this.roles.pro_subscriber || this.roles.community_leader || this.roles.ambassador || this.roles.developer || this.roles.artContestWinnerAug2018) return true
+  if (this.roles.subscriber || this.roles.gold_subscriber || this.roles.legacy_subscriber || this.roles.legacy_gold_subscriber || this.roles.pro_subscriber || this.roles.community_leader || this.roles.ambassador || this.roles.developer || this.roles.artContestWinnerAug2018) return true
   return false
 })
 Schema.virtual('access.hideAddonAds').get(function () {
@@ -295,7 +297,7 @@ Schema.virtual('access.hideAddonAds').get(function () {
 })
 Schema.virtual('access.restrictGuild').get(function () {
   if (this.roles.isAdmin.access) return true
-  if (this.roles.gold_subscriber || this.roles.pro_subscriber || this.roles.ambassador || this.roles.community_leader || this.roles.developer || this.roles.artContestWinnerAug2018) return true
+  if (this.roles.gold_subscriber || this.roles.pro_subscriber || this.roles.legacy_subscriber || this.roles.legacy_gold_subscriber || this.roles.ambassador || this.roles.community_leader || this.roles.developer || this.roles.artContestWinnerAug2018) return true
 
   return false
 })
@@ -309,6 +311,8 @@ Schema.virtual('access.premium').get(function () {
   return this.roles.isAdmin.access ||
     this.roles.subscriber ||
     this.roles.gold_subscriber ||
+    this.roles.legacy_subscriber ||
+    this.roles.legacy_gold_subscriber ||
     this.roles.pro_subscriber ||
     this.roles.community_leader ||
     this.roles.ambassador ||
@@ -321,9 +325,9 @@ Schema.virtual('roleclass').get(function () {
     return 'user-admin'
   else if (this.roles.isAdmin.moderator)
     return 'user-moderator'
-  else if (this.roles.gold_subscriber || this.roles.artContestWinnerAug2018 || this.roles.pro_subscriber)
+  else if (this.roles.gold_subscriber || this.roles.legacy_gold_subscriber || this.roles.artContestWinnerAug2018 || this.roles.pro_subscriber)
     return 'user-goldsub'
-  else if (this.roles.subscriber)
+  else if (this.roles.subscriber || this.roles.legacy_subscriber)
     return 'user-sub'
   else if (this.roles.ambassador || this.roles.developer || this.roles.community_leader)
     return 'user-goldsub'

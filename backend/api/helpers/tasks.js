@@ -194,10 +194,50 @@ async function UpdateLatestNews() {
 }
 
 async function UpdatePatreonAccounts() {
-  let nextURL = 'https://www.patreon.com/api/oauth2/v2/campaigns/8814646/members?include=currently_entitled_tiers,user&fields%5Btier%5D=title'
-  const addonSubs = []
+//   let nextURL = 'https://www.patreon.com/api/oauth2/v2/campaigns/8814646/members?include=currently_entitled_tiers,user&fields%5Btier%5D=title'
+//   const addonSubs = []
+//   while (nextURL) {
+//     const response = await axios.get(nextURL, { headers: { Authorization: 'Bearer ' + config.auth.patreon.creatorToken } })
+//     const patrons = response.data.data
+//     for (let i = 0; i < patrons.length; i++) {
+//       if (!patrons[i] || !patrons[i].relationships || !patrons[i].relationships.user || !patrons[i].relationships.user.data || !patrons[i].relationships.user.data.id) {
+//         continue
+//       }
+//       const user = await User.findOne({ "patreon.id": patrons[i].relationships.user.data.id })
+//       if (!user) {
+//         continue
+//       }
+//       let tier
+//       try {
+//         tier = patrons[i].relationships.currently_entitled_tiers.data[0].id
+//       }
+//       catch (e) {
+//         tier = 0
+//       }
+//       // supporter 8747937
+//       // addon supporter 8747907
+//       // gold supporter 8747906
+//       // ultimate supporter 8751772
+//       user.roles.patreonTier = tier
+//       user.roles.subscriber = (tier == 8747937 || tier == 8747907 || tier == 8747906 || tier == 8751772)
+//       user.roles.gold_subscriber = (tier == 8747906 || tier == 8751772)
+//       addonSubs.push(user._id.toString())
+//       await user.save()
+//     }
+//     if (response.data.links && response.data.links.next) {
+//       nextURL = response.data.links.next
+//     }
+//     else {
+//       nextURL = null
+//     }
+//   }
+  return await UpdatePatreonAccounts_grandfathered()
+}
+
+async function UpdatePatreonAccounts_grandfathered() {
+  let nextURL = 'https://www.patreon.com/api/oauth2/v2/campaigns/562591/members?include=currently_entitled_tiers,user&fields%5Btier%5D=title'
   while (nextURL) {
-    const response = await axios.get(nextURL, { headers: { Authorization: 'Bearer ' + config.auth.patreon.creatorToken } })
+    const response = await axios.get(nextURL, { headers: { Authorization: 'Bearer ' + config.auth.patreon_old.creatorToken } })
     const patrons = response.data.data
     for (let i = 0; i < patrons.length; i++) {
       if (!patrons[i] || !patrons[i].relationships || !patrons[i].relationships.user || !patrons[i].relationships.user.data || !patrons[i].relationships.user.data.id) {
@@ -214,51 +254,10 @@ async function UpdatePatreonAccounts() {
       catch (e) {
         tier = 0
       }
-      // supporter 8747937
-      // addon supporter 8747907
-      // gold supporter 8747906
-      // ultimate supporter 8751772
-      user.roles.patreonTier = tier
-      user.roles.subscriber = (tier == 8747937 || tier == 8747907 || tier == 8747906 || tier == 8751772)
-      user.roles.gold_subscriber = (tier == 8747906 || tier == 8751772)
-      addonSubs.push(user._id.toString())
-      await user.save()
-    }
-    if (response.data.links && response.data.links.next) {
-      nextURL = response.data.links.next
-    }
-    else {
-      nextURL = null
-    }
-  }
-  return await UpdatePatreonAccounts_grandfathered(addonSubs)
-}
-
-async function UpdatePatreonAccounts_grandfathered(skipExisting) {
-  let nextURL = 'https://www.patreon.com/api/oauth2/v2/campaigns/562591/members?include=currently_entitled_tiers,user&fields%5Btier%5D=title'
-  while (nextURL) {
-    const response = await axios.get(nextURL, { headers: { Authorization: 'Bearer ' + config.auth.patreon_old.creatorToken } })
-    const patrons = response.data.data
-    for (let i = 0; i < patrons.length; i++) {
-      if (!patrons[i] || !patrons[i].relationships || !patrons[i].relationships.user || !patrons[i].relationships.user.data || !patrons[i].relationships.user.data.id) {
-        continue
-      }
-      const user = await User.findOne({ "patreon.id": patrons[i].relationships.user.data.id })
-      if (!user || skipExisting.includes(user._id.toString())) {
-        continue
-      }
-      let tier
-      try {
-        tier = patrons[i].relationships.currently_entitled_tiers.data[0].id
-      }
-      catch (e) {
-        tier = 0
-      }
       // subscriber 1385924
       // gold sub 1386010
-      user.roles.patreonTier = tier
-      user.roles.subscriber = tier > 0
-      user.roles.gold_subscriber = tier > 1385924
+      user.roles.legacy_subscriber = tier > 0
+      user.roles.legacy_gold_subscriber = tier > 1385924
       // user.roles.guild_subscriber = (!patrons[i].attributes.declined_since && patrons[i].attributes.amount_cents >= 1500)
       await user.save()
     }
@@ -597,7 +596,7 @@ async function updateMDT(branch='master', path='') {
 
     // Filter the response to get only file objects (exclude directories)
     const dungeonFiles = response.data.filter(file => {
-      return file.type === 'file' && file.path.match(/\/\w+.lua$/)
+        return file.type === 'file' && file.path.match(/\/\w+.lua$/)
       }
     )
     for (const f of dungeonFiles) {
@@ -1225,7 +1224,7 @@ async function buildStaticMDTPortraits(json, mapID, teeming, faction) {
   await browser.close()
   const buffer = Buffer.from(base64.replace(/^data:image\/\w+;base64,/, ""), 'base64')
   if (buffer.length > 5000) {
-  await image.saveMdtPortraitMap(buffer, imgName)
+    await image.saveMdtPortraitMap(buffer, imgName)
   }
   else {
     console.error('Could not create portrait map', imgName)
