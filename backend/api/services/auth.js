@@ -271,7 +271,7 @@ async function createUser(req, res) {
 // unified wago auth
 async function unifiedWagoAuth(req, res) {
     let accessToken = await redis.get(`auth:${req.body.code}`)
-    if (!accessToken || accessToken === '0') {
+    if (!accessToken) {
         await redis.set(`auth:${req.body.code}`, '0')
         try {
             const response = await axios.post('https://accounts.wago.io/oauth/token', querystring.stringify({
@@ -300,6 +300,16 @@ async function unifiedWagoAuth(req, res) {
                 headers: e?.response?.headers
             })
         }
+    }
+    else if (accessToken === '0') {
+        let x = 0
+        const intervalID = setInterval(async function () {
+            accessToken = await redis.get(`auth:${req.body.code}`)
+         
+            if (accessToken !== '0' || ++x === 7) {
+                clearInterval(intervalID);
+            }
+         }, 100);
     }
 
     if (accessToken && accessToken !== '0' && accessToken !== 'null') {
