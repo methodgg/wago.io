@@ -302,30 +302,32 @@ async function unifiedWagoAuth(req, res) {
         }
     }
 
-    try {
-        const authResponse = await axios.get('https://accounts.wago.io/api/users', {
-            headers: {
-                Authorization: 'Bearer ' + accessToken
+    if (accessToken && accessToken !== '0' && accessToken !== 'null') {
+        try {
+            const authResponse = await axios.get('https://accounts.wago.io/api/users', {
+                headers: {
+                    Authorization: 'Bearer ' + accessToken
+                }
+            })
+            if (!authResponse.data.id) {
+                throw 'invalid user data received'
             }
-        })
-        if (!authResponse.data.id) {
-            throw 'invalid user data received'
+            return oAuthLogin(req, res, 'wago', authResponse.data)
         }
-        oAuthLogin(req, res, 'wago', authResponse.data)
+        catch (e) {        
+            LoggedMsg.write('FAILED_AUTH', e.message, {
+                message: e?.message,
+                name: e?.name,
+                stack: e?.stack,
+                config: e?.config,
+                code: e?.code,
+                status: e?.response?.status,
+                data: e?.response?.data,
+                headers: e?.response?.headers
+            })
+        }
     }
-    catch (e) {        
-        LoggedMsg.write('FAILED_AUTH', e.message, {
-            message: e?.message,
-            name: e?.name,
-            stack: e?.stack,
-            config: e?.config,
-            code: e?.code,
-            status: e?.response?.status,
-            data: e?.response?.data,
-            headers: e?.response?.headers
-        })
-        return res.code(403).send({ error: 'Unable to auth with Wago' })
-    }
+    return res.code(403).send({ error: 'Unable to auth with Wago' })
 }
 
 // Login through Blizzard Battle.net
