@@ -989,30 +989,6 @@ else {
   bnetClientID = '32e7423b92714e888c73e087be3a9ad3'
 }
 
-// setup third party oauth authentication
-import VueAuth from '@websanova/vue-auth/dist/vue-auth.esm.js'
-import driverAuthBearer from '@websanova/vue-auth/dist/drivers/auth/bearer.esm.js'
-import driverHttpAxios from '@websanova/vue-auth/dist/drivers/http/axios.1.x.esm.js'
-import driverRouterVueRouter from '@websanova/vue-auth/dist/drivers/router/vue-router.2.x.esm.js'
-
-Vue.use(VueAuth, {
-  auth: driverAuthBearer,
-  http: driverHttpAxios,
-  router: driverRouterVueRouter,
-  fetchData: { enabled: false },
-  oauth2: {
-    wago: {
-        url: 'https://accounts.wago.io/oauth/authorize',
-        method: 'POST',
-        params: {
-          client_id: '9cc008ea-23d8-48e5-b93d-cad0cc395c42',
-          redirect_uri: 'auth/wago',
-          response_type: 'code',
-          scope: '',
-        }
-    },
-  }
-})
 
 // setup global components
 import UIImage from './components/UI/Image.vue'

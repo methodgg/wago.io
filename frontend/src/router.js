@@ -95,6 +95,14 @@ module.exports = {
     { path: '/test.html', component: Index },
 
     // auth
+    { path: '/login', beforeEnter() {
+        if (process.env.NODE_ENV === 'development') {
+            window.location.href = 'http://localhost:3030/auth/redirect'
+        }
+        else {
+            window.location.href = 'https://data.wago.io/auth/redirect'  
+        }
+    }},
     { path: '/logout', component: Logout },
     { path: '/settings', component: Account },
     { path: '/account', component: Account },

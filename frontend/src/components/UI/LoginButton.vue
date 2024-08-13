@@ -29,8 +29,10 @@ export default {
       return this.$store.state.user
     },
     loginURL () {
-      return `https://accounts.wago.io/oauth/authorize?client_id=9cc008ea-23d8-48e5-b93d-cad0cc395c42&redirect_uri=${encodeURIComponent(window.location.protocol + '//' + window.location.host)}%2Fauth%2Fwago&response_type=code&scope=`
-        
+        if (process.env.NODE_ENV === 'development') {
+            return 'http://localhost:3030/auth/redirect'
+        }
+        return 'https://data.wago.io/auth/redirect'       
     },
     supportedLocales () {
       var uniqueLang = []
