@@ -1,16 +1,16 @@
 <template>
   <div v-if="User && User.name">
-    <md-menu ref="loginButton" md-offset-x="-205" md-size="4">
+    <md-menu ref="loginButton" md-offset-y="50" md-size="4">
       <md-button id="loginbutton" md-menu-trigger :class="User.css">{{ User.name }} <md-icon>account_circle</md-icon></md-button>
       <md-menu-content>
-        <md-list-item><router-link to="/account">{{ $t("Account Settings") }}</router-link></md-list-item>
+        <md-list-item><router-link to="/settings">{{ $t("Settings") }}</router-link></md-list-item>
         <md-list-item v-if="User.access.admin"><router-link to="/admin">Admin</router-link></md-list-item>
         <md-list-item><router-link to="/logout">Logout</router-link></md-list-item>
       </md-menu-content>
     </md-menu>
   </div>
   <div v-else>
-    <md-button href="" @click="$router.push('/login')">{{ $t("Login") }} <md-icon>account_circle</md-icon></md-button>
+    <md-button :href="loginURL">{{ $t("Login") }} <md-icon>account_circle</md-icon></md-button>
   </div>
 </template>
 
@@ -27,6 +27,10 @@ export default {
   computed: {
     User () {
       return this.$store.state.user
+    },
+    loginURL () {
+      return `https://accounts.wago.io/oauth/authorize?client_id=9cc008ea-23d8-48e5-b93d-cad0cc395c42&redirect_uri=${encodeURIComponent(window.location.protocol + '//' + window.location.host)}%2Fauth%2Fwago&response_type=code&scope=`
+        
     },
     supportedLocales () {
       var uniqueLang = []

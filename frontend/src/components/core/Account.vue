@@ -1,10 +1,11 @@
 <template>
-  <md-layout>
-    <md-layout md-column>
+  <div>
+    <md-layout md-column style="margin-top: 0px;">
+      <wago-oauth></wago-oauth>
       <md-card>
         <md-layout>
           <md-layout>
-            <h2>{{ $t("Profile Settings") }}</h2>
+            <h2>{{ $t("Website Options") }}</h2>
           </md-layout>
           <md-layout md-align="end">
             <md-avatar class="md-large">
@@ -13,35 +14,10 @@
           </md-layout>
         </md-layout>
         <md-card-content>
-          <md-input-container :class="{ 'md-input-invalid': updateNameError, 'md-input-status': updateNameHasStatus }">
-            <label>{{ $t("Username") }}</label>
-            <md-input v-model="editName" @change="onUpdateName()" :debounce="600"></md-input>
-            <span class="md-error" v-if="updateNameStatus.length>0">{{ updateNameStatus }}</span>
-          </md-input-container>
-
-          <md-layout>
-            <md-layout>
-              <md-input-container :class="{ 'md-input-invalid': uploadAvatarError, 'md-input-status': uploadAvatarProgress }">
-                <md-file v-model="uploadAvatar" accept="image/*" :placeholder="$t('Upload avatar image')" @selected="onUploadAvatar($event)"></md-file>
-                <span class="md-error" v-if="uploadAvatarProgress.length>0">{{ uploadAvatarProgress }}</span>
-              </md-input-container>
-            </md-layout>
-            <md-layout>
-              <md-input-container>
-                <label for="selectAvatar">{{ $t("Or select image") }}</label>
-                <md-select id="selectAvatar" v-model="selectAvatar" @selected="onSelectAvatar" :disabled="selectAvatar!=''">
-                  <md-option value="adorable">{{ $t("Create new random avatar") }}</md-option>
-                  <md-option value="battlenet" v-if="$store.state.user.battlenet && $store.state.user.battlenet.avatar && $store.state.user.battlenet.avatar.png">{{ $t("Import from Blizzard Battlenet profile") }}</md-option>
-                  <md-option value="discord" v-if="$store.state.user.discord && $store.state.user.discord.avatar && $store.state.user.discord.avatar.png">{{ $t("Import from Discord profile") }}</md-option>
-                  <md-option value="google" v-if="$store.state.user.google && $store.state.user.google.avatar && $store.state.user.google.avatar.png">{{ $t("Import from Google profile") }}</md-option>
-                  <md-option value="patreon" v-if="$store.state.user.patreon && $store.state.user.patreon.avatar && $store.state.user.patreon.avatar.png">{{ $t("Import from Patreon profile") }}</md-option>
-                  <md-option value="twitter" v-if="$store.state.user.twitter && $store.state.user.twitter.avatar && $store.state.user.twitter.avatar.png">{{ $t("Import from Twitter profile") }}</md-option>
-                </md-select>
-              </md-input-container>
-            </md-layout>
-          </md-layout>
-
-          <md-layout>
+          <md-layout style="margin-bottom: 16px">
+              <p v-html="$t('To make changes to your user account, please visit your account page on {{LINK}}.').replace('{{LINK}}', '<a href=\'https://accounts.wago.io\'>accounts.wago.io</a>')"></p> 
+          </md-layout> 
+          <md-layout>   
             <md-layout>
               <md-input-container class="md-input-status">
                 <label for="profileVisibility">{{ $t("My profile") }}</label>
@@ -65,117 +41,37 @@
             </md-layout>
           </md-layout>
         </md-card-content>
-      </md-card>
-      <md-card>
-        <h2>{{ $t("Website Options") }}</h2>
         <md-card-content>
           <p>{{ $t("Select default editor syntax") }}</p>
           <md-button-toggle md-single class="md-primary">
             <md-button v-bind:class="{'md-toggle': selectEditorSyntax === 'bbcode'}" @click="setEditorSyntax('bbcode')">BBCode</md-button>
             <md-button v-bind:class="{'md-toggle': selectEditorSyntax === 'markdown'}" @click="setEditorSyntax('markdown')">Markdown</md-button>
           </md-button-toggle>
-          <p>{{ $t("Select site theme") }}</p>
-          <md-button-toggle md-single class="md-primary">
-            <md-button v-bind:class="{'md-toggle': selectTheme === 'classic'}" @click="setTheme('classic')">{{ $t("Classic") }}</md-button>
-            <md-button v-bind:class="{'md-toggle': selectTheme === 'dark'}" @click="setTheme('dark')">{{ $t("Dark") }}</md-button>
-            <md-button v-bind:class="{'md-toggle': selectTheme === 'waluigi'}" @click="setTheme('waluigi')">Wahh-go-uigi</md-button>
-          </md-button-toggle>
-          <p>{{ $t("Select editor theme") }}</p>
-          <div v-if="selectTheme === 'classic'">
-            <md-button-toggle md-single class="md-primary">
-              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'chrome'}" @click="setEditorTheme('chrome')">Chrome</md-button>
-              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'clouds'}" @click="setEditorTheme('clouds')">Clouds</md-button>
-              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'crimson_editor'}" @click="setEditorTheme('crimson_editor')">Crimson</md-button>
-              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'dawn'}" @click="setEditorTheme('dawn')">Dawn</md-button>
-              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'dreamweaver'}" @click="setEditorTheme('dreamweaver')">Dreamweaver</md-button>
-              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'eclipse'}" @click="setEditorTheme('eclipse')">Eclipse</md-button>
-              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'github'}" @click="setEditorTheme('github')">GitHub</md-button>
-              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'iplastic'}" @click="setEditorTheme('iplastic')">IPlastic</md-button>
-              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'solarized_light'}" @click="setEditorTheme('solarized_light')">Solarized Light</md-button>
-              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'textmate'}" @click="setEditorTheme('textmate')">TextMate</md-button>
-              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'tomorrow'}" @click="setEditorTheme('tomorrow')">Tomorrow</md-button>
-              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'xcode'}" @click="setEditorTheme('xcode')">XCode</md-button>
-              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'kuroir'}" @click="setEditorTheme('kuroir')">Kuroir</md-button>
-              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'katzenmilch'}" @click="setEditorTheme('katzenmilch')">KatzenMilch</md-button>
-              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'sqlserver'}" @click="setEditorTheme('sqlserver')">SQL Server</md-button>
-            </md-button-toggle>
-          </div>
-          <div></div>
-          <div v-if="selectTheme === 'dark' || selectTheme === 'waluigi'">
-            <md-button-toggle md-single class="md-primary">
-              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'ambiance'}" @click="setEditorTheme('ambiance')">Ambiance</md-button>
-              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'chaos'}" @click="setEditorTheme('chaos')">Chaos</md-button>
-              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'clouds_midnight'}" @click="setEditorTheme('clouds_midnight')">Clouds Midnight</md-button>
-              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'cobalt'}" @click="setEditorTheme('cobalt')">Cobalt</md-button>
-              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'idle_fingers'}" @click="setEditorTheme('idle_fingers')">Idle Fingers</md-button>
-              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'kr_theme'}" @click="setEditorTheme('kr_theme')">krTheme</md-button>
-              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'merbivore'}" @click="setEditorTheme('merbivore')">Merbivore</md-button>
-              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'merbivore_soft'}" @click="setEditorTheme('merbivore_soft')">Merbivore Soft</md-button>
-              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'mono_industrial'}" @click="setEditorTheme('mono_industrial')">Mono Industrial</md-button>
-              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'monokai'}" @click="setEditorTheme('monokai')">Monokai</md-button>
-              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'pastel_on_dark'}" @click="setEditorTheme('pastel_on_dark')">Pastel on Dark</md-button>
-              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'solarized_dark'}" @click="setEditorTheme('solarized_dark')">Solarized Dark</md-button>
-              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'terminal'}" @click="setEditorTheme('terminal')">Terminal</md-button>
-              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'tomorrow_night'}" @click="setEditorTheme('tomorrow_night')">Tomorrow Night</md-button>
-              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'tomorrow_night_blue'}" @click="setEditorTheme('tomorrow_night_blue')">Tomorrow Night Blue</md-button>
-              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'tomorrow_night_bright'}" @click="setEditorTheme('tomorrow_night_bright')">Tomorrow Night Bright</md-button>
-              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'tomorrow_night_eighties'}" @click="setEditorTheme('tomorrow_night_eighties')">Tomorrow Night Eighties</md-button>
-              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'twilight'}" @click="setEditorTheme('twilight')">Twilight</md-button>
-              <md-button v-bind:class="{'md-toggle': selectEditorTheme === 'vibrant_ink'}" @click="setEditorTheme('vibrant_ink')">Vibrant Ink</md-button>
-            </md-button-toggle>
-          </div>
-          <br>
-          <editor v-model="demoEditorContent" @init="editorInit" lang="lua" :theme="selectEditorTheme" width="100%" height="115"></editor>
-          <hr>
-          <p v-if="$store.state.user.localAcct">{{ $t("Change password") }}</p>
-          <p v-else><strong>{{ $t("Create password") }}</strong></p>
-          <p>{{ $t("Wago does not store emails or any other way of contacting users, and therefore has no password recovery system") }}</p>
-
-          <md-input-container v-if="$store.state.user.localAcct" :class="{ 'md-input-invalid': currentPasswordError.length > 0 }">
-            <label>{{ $t("Current password") }}</label>
-            <md-input v-model="currentPassword" type="password"></md-input>
-            <span class="md-error" v-if="currentPasswordError.length>0">{{ currentPasswordError }}</span>
-          </md-input-container>
-
-          <md-input-container :class="{ 'md-input-invalid': (newPassword.length>0 && newPassword.length < 6) }">
-            <label>{{ $t("New password") }}</label>
-            <md-input v-model="newPassword" type="password"></md-input>
-            <span class="md-error" v-if="newPassword.length>0 && newPassword.length < 6">{{ $t("Password must have at least 6 characters") }}</span>
-          </md-input-container>
-
-          <md-input-container :class="{ 'md-input-invalid': (newPassword.length>0 && newPassword.length < 6) }">
-            <label>{{ $t("Confirm password") }}</label>
-            <md-input v-model="confirmPassword" type="password"></md-input>
-            <span class="md-error" v-if="confirmPassword.length>0 && newPassword.length > 0 && confirmPassword !== newPassword">{{ $t("Password does not match") }}</span>
-          </md-input-container>
-
-          <md-button @click="onChangePassword">{{ $t("Submit") }}</md-button>
-
         </md-card-content>
       </md-card>
     </md-layout>
-    <md-layout md-column id="col2">
+    <md-layout md-column>
       <md-card v-if="User">
         <h2>{{ $t("Account Status") }}</h2>
         <md-card-content>
-          <ui-warning v-if="User.access && User.access.human" mode="ok">
+          <!--<ui-warning v-if="User.accs && User.access.human" mode="ok">
             {{ $t("Anti-spam") }}<br>
             {{ $t("Your account is verified as belonging to a human, hyperlinks are allowed in your descriptions") }}
           </ui-warning>
           <ui-warning v-else mode="alert">
             {{ $t("Anti-spam") }}<br>
-            {{ $t("To enable hyperlinks in your descriptions, connect or update your Wago account with a Battlenet account with a max level character, or with a Patreon subscription") }}
+            <span v-html="$t('To enable hyperlinks in your descriptions, update your Wago account with a valid e-mail, or with a Patreon subscription at {{LINK}}').replace('{{LINK}}', '<a href=\'https://accounts.wago.io\'>accounts.wago.io</a>')"></span>
           </ui-warning>
-          <br>
+          <br>-->
           <ui-warning v-if="User.access && (User.access.admin || User.access.goldSub || User.access.guild_subscriber || User.access.ambassador || User.access.contestWinner || User.access.methodRaider || User.access.methodStreamer)" mode="gold">
             <span v-if="User.access.admin" style="padding-right:16px">[Wago.io Admin]</span>
-            <span v-if="User.access.ambassador" style="padding-right:16px">[Wago.io Ambassador]</span>
-            <span v-if="User.access.methodRaider" style="padding-right:16px">[Method Raider]</span>
-            <span v-if="User.access.methodStreamer" style="padding-right:16px">[Method Streamer]</span>
-            <span v-if="User.access.community_leader" style="padding-right:16px">[Community Leader]</span>
-            <span v-if="User.access.developer" style="padding-right:16px">[Addon Developer]</span>
-            <span v-if="User.access.contestWinner" style="padding-right:16px">[{{ $t("Contest Winner") }}]</span>
-            <span v-if="User.access.guild_subscriber">[{{ $t("Guild Subscriber") }}]</span>
+            <span v-else-if="User.access.ambassador" style="padding-right:16px">[Wago.io Ambassador]</span>
+            <span v-else-if="User.access.methodRaider" style="padding-right:16px">[Method Raider]</span>
+            <span v-else-if="User.access.methodStreamer" style="padding-right:16px">[Method Streamer]</span>
+            <span v-else-if="User.access.community_leader" style="padding-right:16px">[Community Leader]</span>
+            <span v-else-if="User.access.developer" style="padding-right:16px">[Addon Developer]</span>
+            <span v-else-if="User.access.contestWinner" style="padding-right:16px">[{{ $t("Contest Winner") }}]</span>
+            <span v-else-if="User.access.guild_subscriber">[{{ $t("Guild Subscriber") }}]</span>
             <span v-else-if="User.access.goldSub">[{{ $t("Gold Subscriber") }}]</span>
             <br>{{ $t("Animated avatars are enabled") }}
             <br>{{ $t("Custom URLs are enabled") }}
@@ -217,9 +113,8 @@
           </md-card-content>
         </div>
       </md-card>
-      <wago-oauth></wago-oauth>
     </md-layout>
-  </md-layout>
+</div>
 </template>
 
 <script>
@@ -555,7 +450,6 @@ end`,
         }
       )
     },
-    }
   }
 }
 </script>
