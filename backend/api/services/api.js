@@ -332,7 +332,7 @@ module.exports = function (fastify, opts, next) {
         }
         return res.send({
             user_id: user._id,
-            username: user.account.username,
+            username: user.account.username ?? `user${user._id}`,
             avatar: user.profile.avatar ?? {},
             api_key: user.account.api_key ?? null,
             created: user.account.created,
