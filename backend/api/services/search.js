@@ -386,8 +386,7 @@ async function searchElastic(req, res) {
       searchFields = ["description", "name^2", "custom_slug^2", "auraNames"]
     }
     else {
-      query = query.replace(/'/g, '')
-      searchFields = ["description_plain", "name_plain^2", "custom_slug_plain^2"]
+      searchFields = ["description", "name^2", "custom_slug^2"]
     }
     textQuery = esQuery
     let simpleSearch
@@ -402,7 +401,7 @@ async function searchElastic(req, res) {
           },
         }
       }
-      else if (sortMode === 'bestmatchv3') {
+      else {
         simpleSearch = {
           bool: {
             should: [
@@ -426,17 +425,6 @@ async function searchElastic(req, res) {
               },
             ]
           }
-        }
-      }
-      else {
-        // bestmatchv2
-        simpleSearch = {
-          simple_query_string: {
-            query: fuzzyTextString(textQuery),
-            fields: searchFields,
-            default_operator: "AND",
-            minimum_should_match: '-25%'
-          },
         }
       }
     }
