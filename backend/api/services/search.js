@@ -180,7 +180,7 @@ async function searchElastic(req, res) {
   }
 
   m = query.match(/mentions:(unread|read|all)/i)
-  if (m && req.user && searchMode === 'comments') {
+  if (m && m[1] && req.user && searchMode === 'comments') {
     let unreadComments = (await Comments.findUnread(req.user._id)).map(x => { return { term: { _id: x._id } } })    
     // allowHidden = true
     m[1] = m[1].toLowerCase()
@@ -251,7 +251,7 @@ async function searchElastic(req, res) {
     defaultFilterExpansion = null
     esFilter.push(({ bool: { should: filterCats } }))
     if (catSearch) {
-      esSort.unshift('categoriesRoot')
+      esSort.unshift({categoriesRoot: {missing: "_last"}})
     }
   }
 
