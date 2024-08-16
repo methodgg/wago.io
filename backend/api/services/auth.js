@@ -235,14 +235,16 @@ async function unifiedWagoAuth(req, res) {
                 grant_type: 'authorization_code'
             }), {
                 headers: {
-                    "Content-Type": "application/x-www-form-urlencoded"
+                    "Content-Type": "application/x-www-form-urlencoded",
+                    "User-Agent": `Wago.io Backend/${config.gitref}`
                 }
             })
             
             const accessToken = response.data.access_token
             const authResponse = await axios.get('https://accounts.wago.io/api/users', {
                 headers: {
-                    Authorization: 'Bearer ' + accessToken
+                    Authorization: 'Bearer ' + accessToken,
+                    "User-Agent": `Wago.io Backend/${config.gitref}`
                 }
             })
             if (!authResponse.data.id) {
