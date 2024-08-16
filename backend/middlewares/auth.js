@@ -21,27 +21,45 @@ module.exports = async function(req, res) {
         }
 
         try {
-            const accountLookup = await axios.get('https://accounts.wago.io/api/users', {
-                headers: {
-                    Authorization: 'Bearer ' + apiKey
-                }
-            })
-            if (accountLookup?.data?.id) {
+            let accountID = await redis.get(`apiauth:${apiKey}`)
+            if (!accountID) {
+                const accountLookup = await axios.get('https://accounts.wago.io/api/users', {
+                    headers: {
+                        Authorization: 'Bearer ' + apiKey
+                    }
+                })
+                accountID = accountLookup?.data?.id
+            }
+            if (accountID) {
                 let query
                 try {
-                    query = { _id: ObjectId(accountLookup.id) }
+                    query = { _id: ObjectId(accountID) }
                 }
                 catch {
-                    query = { "wagoAuth.id": accountLookup.id }
+                    query = { "wagoAuth.id": accountID }
                 }
                 const user = await User.findOne(query)
                 if (user) {
+                    redis.set(`apiauth:${apiKey}`, user._id, 'EX', 120)
                     req.user = user
                     return
                 }
             }
         }
-        catch {}
+        catch (error) {
+            LoggedMsg.write('API_KEY_ERROR', error.message, {
+                message: error?.message,
+                name: error?.name,
+                url: req.url,
+                host: config.host,
+                stack: error?.stack,
+                config: error?.config,
+                code: error?.code,
+                status: error?.response?.status,
+                data: error?.response?.data,
+                headers: error?.response?.headers
+            })
+        }
         return res.code(401).send({msg: 'Invalid API Key'})
     }
 
