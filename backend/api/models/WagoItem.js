@@ -246,7 +246,7 @@ Schema.methods.getThumbnailURL = async function (size) {
     if (this._userId) {
       user = await User.findById(this._userId).exec()
       if (user) {
-        user = { name: user.account.username, avatar: user.profile.avatar.gif || user.profile.avatar.png }
+        user = { name: user.account.username, avatar: user.profile.avatar.webp || user.profile.avatar.gif || user.profile.avatar.png }
       }
     }
     if (screen && screen.localFile) {
@@ -285,7 +285,7 @@ Schema.methods.getCardImageURL = async function () {
     if (this._userId) {
       user = await User.findById(this._userId).exec()
       if (user) {
-        user = { name: user.account.username, avatar: user.profile.avatar.gif || user.profile.avatar.png }
+        user = { name: user.account.username, avatar: user.profile.avatar.webp || user.profile.avatar.gif || user.profile.avatar.png }
       }
     }
     if (screen && screen.localFile) {
