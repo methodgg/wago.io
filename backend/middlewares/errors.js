@@ -14,6 +14,8 @@ module.exports = function (error, req, res) {
   LoggedMsg.write('ERROR', error.message, {
       message: error?.message,
       name: error?.name,
+      url: req.url,
+      host: config.host,
       stack: error?.stack,
       config: error?.config,
       code: error?.code,
