@@ -26,7 +26,9 @@ module.exports = async function(req, res) {
                 const accountLookup = await axios.get('https://accounts.wago.io/api/users', {
                     headers: {
                         Authorization: 'Bearer ' + apiKey,
-                        "User-Agent": `Wago.io Backend/${config.gitref}`
+                        "User-Agent": `Wago.io Backend/${config.gitref}`,
+                        "Auth-Type": "api-key",
+                        "Client-User-Agent": req.headers['user-agent']
                     }
                 })
                 accountID = accountLookup?.data?.id

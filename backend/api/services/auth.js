@@ -236,7 +236,9 @@ async function unifiedWagoAuth(req, res) {
             }), {
                 headers: {
                     "Content-Type": "application/x-www-form-urlencoded",
-                    "User-Agent": `Wago.io Backend/${config.gitref}`
+                    "User-Agent": `Wago.io Backend/${config.gitref}`,
+                    "Auth-Type": "oauth",
+                    "Client-User-Agent": req.headers['user-agent']
                 }
             })
             
