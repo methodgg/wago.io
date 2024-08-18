@@ -345,9 +345,9 @@ async function searchElastic(req, res) {
     esShould.push({ term: { taggedIDs: { value: req.user._id.toString(), boost: 3 } } })
   }
   else if (req.user && !allowHidden) {
-    esFilter.push({ term: { hidden: false } })
-    esShould.push({ term: { _userId: { value: req.user._id, boost: 0 } } })
-    esShould.push({ term: { restrictedUsers: { value: req.user._id.toString(), boost: 5 } } })
+    esShould.push({ term: { hidden: false } })
+    esShould.push({ term: { userID: { value: req.user._id, boost: 0 } } })
+    esShould.push({ term: { restrictions: { value: req.user._id.toString(), boost: 5 } } })
     if (req.user.battlenet && req.user.battlenet.guilds && req.user.battlenet.guilds.length) {
       esShould.push({
         simple_query_string: {
@@ -357,15 +357,11 @@ async function searchElastic(req, res) {
         }
       })
     }
-    if (req.user.twitch && req.user.twitch.id) {
-      esShould.push({ term: { restrictedTwitchUsers: { value: req.user.twitch.id, boost: 5 } } })
-    }
-    esShould.push({ bool: { filter: [{ term: { hidden: { value: false, boost: 0 } } }] } })
   }
   else if (!allowHidden) {
     esFilter.push({ term: { hidden: false } })
   }
-
+  
   if (esShould.length > 0) {
     esFilter.push({ bool: { should: esShould } })
   }
@@ -775,7 +771,6 @@ async function oldSearch(req, res) {
     esFilter.push({ term: { encrypted: false } })
     esFilter.push({ term: { restricted: false } })
   }
-
   if (esShould.length > 0) {
     esFilter.push({ bool: { should: esShould } })
   }
