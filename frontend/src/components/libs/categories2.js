@@ -1063,6 +1063,11 @@ class Categories {
       'cell4': {slug: 'click-castings', image: 'cell.png', color: '#56E93E', i18n: 'Click Castings', domain: 0, system: true, types: ['CELL']},
       'cell5': {slug: 'debuffs', image: 'cell.png', color: '#56E93E', i18n: 'Debuffs', domain: 0, system: true, types: ['CELL']},
       'cell6': {slug: 'quick-assist', image: 'cell.png', color: '#56E93E', i18n: 'Quick Assist', domain: 0, system: true, types: ['CELL']},
+      
+      'gse1': {slug: 'gse-sequences', image: 'gse.png', color: '#00CCCC', i18n: 'GSE Sequences', domain: 0, system: true, types: ['GSE']},
+      'gse2': {slug: 'gse-macros', image: 'gse.png', color: '#00CCCC', i18n: 'GSE Macros', domain: 0, system: true, types: ['GSE']},
+      'gse3': {slug: 'gse-variables', image: 'gse.png', color: '#00CCCC', i18n: 'GSE Variables', domain: 0, system: true, types: ['GSE']},
+      'gse4': {slug: 'gse-collections', image: 'gse.png', color: '#00CCCC', i18n: 'GSE Collections', domain: 0, system: true, types: ['GSE']},
 
       ///////////////////////////////////////////////////////
       // FINAL FANTASY CATEGORIES
@@ -1138,7 +1143,7 @@ class Categories {
         continue
       }
       styles += `
-      .md-chip.${id}, .${id} .menu-image, .search-input .ql-editor .search-tag.category.${id} {color:${color}; background-image:url('/static/image/menu/${image}')}
+      .md-chip.${id}, .${id} .menu-image, #searchWrapper .search-tag.category.${id} {color:${color}; background-image:url('/static/image/menu/${image}')}
       .${id}, .${id} a {color:${color}!important}
       .search-tag.${id} {border-color:${color}}
       .multiselect .md-chip.${id} {background: ${color}; color: black!important}`

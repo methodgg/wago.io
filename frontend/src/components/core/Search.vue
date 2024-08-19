@@ -82,6 +82,7 @@
                     searchType === 'plater' && 'Plater Nameplates' ||
                     searchType === 'blizzhud' && 'BlizzHud' ||
                     searchType === 'cell' && 'Cell' ||
+                    searchType === 'gse' && 'GSE' ||
                     searchType === 'opie' && 'OPie' ||
                     searchType === 'totalrp3' && 'TotalRP' ||
                     searchType === 'vuhdo' && 'VuhDo' ||
@@ -127,6 +128,7 @@
                     <div @click="setType('blizzhud')"><span class="addon-icon"><img src="../../assets/menu-blizzhud.png"></span> BlizzHud</div>
                     <div @click="setType('cell')"><span class="addon-icon"><img src="../../assets/menu-cell.png"></span> Cell</div>
                     <div @click="setType('dbm')"><span class="addon-icon"><img src="../../assets/menu-dbm.png"></span> Deadly Boss Mods</div>
+                    <div @click="setType('gse')"><span class="addon-icon"><img src="../../assets/menu-gse.png"></span> GSE</div>
                     <div @click="setType('opie')"><span class="addon-icon"><img src="../../assets/menu-opie.png"></span> OPie</div>
                     <div @click="setType('totalrp3')"><span class="addon-icon"><img src="../../assets/menu-trpcamp.png"></span> Total RP</div>
                     <div @click="setType('vuhdo')"><span class="addon-icon"><img src="../../assets/menu-vuhdo.png"></span>VuhDo</div>

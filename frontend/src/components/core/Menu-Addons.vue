@@ -73,6 +73,15 @@
             <md-subheader>{{ $t('Tools & Macros') }}</md-subheader>
 
             <md-list class="md-double-line md-dense">
+                <md-list-item class="md-inset">
+                <div class="menu-image"><img src="../../assets/menu-gse.png" alt="Icon" /></div>
+                <div class="md-list-text-container">
+                    <router-link to="/gse">GSE: Advanced Macro Compiler</router-link>
+                </div>
+                </md-list-item>
+            </md-list>
+
+            <md-list class="md-double-line md-dense">
               <md-list-item class="md-inset">
                 <div class="menu-image"><img src="../../assets/menu-macro.png" alt="Icon" /></div>
                 <div class="md-list-text-container">
@@ -175,8 +184,8 @@
     },
     mounted: function () {
       this.$store.commit('setPageInfo', {
-        title: 'addons',
-        description: this.$t('Browse addons imports')
+        title: 'Browse Addons',
+        description: this.$t('Browse addons')
       })
       this.http.get('/search/menu', { view: 'addons' })
     }
@@ -242,10 +251,7 @@
     a{font-size: 14px!important; font-weight: normal!important; color: #bbb!important}
   }
   
-  #addon-list .md-list-item.md-inset .md-list-item-container {
-    padding-left: 24px;
-    padding-bottom: 16px
-  }
+
   
   #addon-list .md-list-text-container {
     align-self: center;

@@ -621,9 +621,20 @@ module.exports = function (fastify, opts, next) {
       }
     }
     else {
-      code.encoded = scan.input
       code.json = scan.decoded
+      for (const addon of Object.values(Addons)) {
+        if (wago.type.match(addon.typeMatch) && wago.domain === addon.domain) {
+          if (addon.encode) {
+            code.encoded = await addon.encode(scan.decoded.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim(), lua.runLua, wago)
+          }
+          else if (addon.encodeRaw) {
+            code.encoded = await addon.encodeRaw(scan.decoded)
+            delete code.json
+          }
+        }
+      }
     }
+          
     code.version = 1
     code.versionString = '1.0.0'
 

@@ -23,6 +23,7 @@ const MenuTotalRP = resolve => require(['@/components/core/Menu-TotalRP.vue'], r
 const MenuOPie = resolve => require(['@/components/core/Menu-OPie.vue'], resolve)
 const MenuPlater = resolve => require(['@/components/core/Menu-Plater.vue'], resolve)
 const MenuCell = resolve => require(['@/components/core/Menu-Cell.vue'], resolve)
+const MenuGSE = resolve => require(['@/components/core/Menu-GSE.vue'], resolve)
 // const MenuMDTBFA = resolve => require(['@/components/core/Menu-MDT-BFA.vue'], resolve)
 // const MenuMDTShadowlands = resolve => require(['@/components/core/Menu-MDT-Shadowlands.vue'], resolve)
 const MenuMDTTheWarWithin = resolve => require(['@/components/core/Menu-MDT-TWW.vue'], resolve)
@@ -202,11 +203,11 @@ module.exports = {
     { path: '/totalrp/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'totalrp3'), type: 'totalrp3', game: 'wow', mode: 'imports' } }) },
     { path: '/bigwigs', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'bigwigs'), type: 'bigwigs', game: 'wow', mode: 'imports' } }) },
     { path: '/dbm', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'dbm'), type: 'dbm', game: 'wow', mode: 'imports' } }) },
-    { path: '/delvui', component: MenuDelvUI },
-    { path: '/delvui/:c1', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'delvui'), type: 'delui', game: 'xiv', mode: 'imports' } }) },
-    { path: '/delvui/:c1/:c2', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'delvui'), type: 'delui', game: 'xiv', mode: 'imports' } }) },
-    { path: '/delvui/:c1/:c2/:c3', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'delvui'), type: 'delui', game: 'xiv', mode: 'imports' } }) },
-    { path: '/delvui/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'delvui'), type: 'delui', game: 'xiv', mode: 'imports' } }) },
+    { path: '/gse', component: MenuGSE },
+    { path: '/gse/:c1', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'gse'), type: 'gse', game: 'wow', mode: 'imports' } }) },
+    { path: '/gse/:c1/:c2', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'gse'), type: 'gse', game: 'wow', mode: 'imports' } }) },
+    { path: '/gse/:c1/:c2/:c3', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'gse'), type: 'gse', game: 'wow', mode: 'imports' } }) },
+    { path: '/gse/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'gse'), type: 'gse', game: 'wow', mode: 'imports' } }) },
     { path: '/addons', component: MenuAddons },
     // { path: '/addons/elvui', redirect: '/elvui' },
     // { path: '/addons/opie', redirect: '/opie' },
