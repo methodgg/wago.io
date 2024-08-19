@@ -22,7 +22,7 @@ module.exports = async function(req, res) {
 
         try {
             let accountID = await redis.get(`apiauth:${apiKey}`)
-            if (!accountID) {
+            if (!accountID && apiKey.match(/^[A-Za-z0-9_-]{2,}(?:\.[A-Za-z0-9_-]{2,}){2}$/)) {
                 const accountLookup = await axios.get('https://accounts.wago.io/api/users', {
                     headers: {
                         Authorization: 'Bearer ' + apiKey,
