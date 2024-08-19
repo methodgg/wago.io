@@ -121,7 +121,7 @@
   
   #search-cell .md-list-item img { height: 48px; padding-right: 16px; vertical-align:top}
   #search-cell a { margin-right: 12px }
-  #search-cell .md-list-item.md-inset .md-list-item-container { padding-left: 24px; flex-wrap: wrap; padding-bottom: 16px }
+  #search-cell li.md-list-item.md-inset { padding-left: 24px; flex-wrap: wrap; padding-bottom: 16px }
   #search-cell .md-list-text-container a { white-space: nowrap; display: inline-block }
   #search-cell .md-list-text-container > a, #search-cell .md-list-text-container > .parent-category { font-size: 18px; font-weight: bold; line-height: 19px; }
   #search-cell .md-list-text-container span{ white-space: normal; line-height: 22px}

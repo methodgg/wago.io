@@ -103,7 +103,7 @@ h2 span {font-size:80%; cursor: pointer}
 
 #search-blizzhud .md-list-item img { height: 48px; padding-right: 16px; vertical-align:top}
 #search-blizzhud a { margin-right: 12px }
-#search-blizzhud .md-list-item.md-inset .md-list-item-container { padding-left: 24px; flex-wrap: wrap; padding-bottom: 16px }
+#search-blizzhud li.md-list-item.md-inset { padding-left: 24px; flex-wrap: wrap; padding-bottom: 16px }
 #search-blizzhud .md-list-text-container a { white-space: nowrap; display: inline-block }
 #search-blizzhud .md-list-text-container > a, #search-blizzhud .md-list-text-container > .parent-category { font-size: 18px; font-weight: bold; line-height: 19px; }
 #search-blizzhud .md-list-text-container span{ white-space: normal; line-height: 22px}

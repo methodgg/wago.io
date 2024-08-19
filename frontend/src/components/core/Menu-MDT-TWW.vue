@@ -261,7 +261,7 @@
     margin-right: 12px
   }
   
-  #search-mdt .md-list-item.md-inset .md-list-item-container {
+  #search-mdt li.md-list-item.md-inset {
     padding-left: 24px;
     flex-wrap: wrap;
     padding-bottom: 16px

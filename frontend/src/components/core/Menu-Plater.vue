@@ -136,7 +136,7 @@ h2 span {font-size:80%; cursor: pointer}
 
 #search-plater .md-list-item img { height: 48px; padding-right: 16px; vertical-align:top}
 #search-plater a { margin-right: 12px }
-#search-plater .md-list-item.md-inset .md-list-item-container { padding-left: 24px; flex-wrap: wrap; padding-bottom: 16px }
+#search-plater li.md-list-item.md-inset { padding-left: 24px; flex-wrap: wrap; padding-bottom: 16px }
 #search-plater .md-list-text-container a { white-space: nowrap; display: inline-block }
 #search-plater .md-list-text-container > a, #search-plater .md-list-text-container > .parent-category { font-size: 18px; font-weight: bold; line-height: 19px; }
 #search-plater .md-list-text-container span{ white-space: normal; line-height: 22px}

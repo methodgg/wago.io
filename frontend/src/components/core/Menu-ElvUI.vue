@@ -144,7 +144,7 @@ h2 span {
   margin-right: 12px
 }
 
-#search-elvui .md-list-item.md-inset .md-list-item-container {
+#search-elvui li.md-list-item.md-inset {
   padding-left: 24px;
   flex-wrap: wrap;
   padding-bottom: 16px

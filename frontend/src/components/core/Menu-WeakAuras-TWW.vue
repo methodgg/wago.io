@@ -336,7 +336,7 @@
     margin-right: 12px
   }
   
-  #search-weakaura .md-list-item.md-inset .md-list-item-container {
+  #search-weakaura li.md-list-item.md-inset {
     padding-left: 24px;
     flex-wrap: wrap;
     padding-bottom: 16px

@@ -198,7 +198,7 @@ h2 span {font-size:80%; cursor: pointer}
 
 #search-tpie .md-list-item img { height: 48px; padding-right: 16px; vertical-align:top}
 #search-tpie a { margin-right: 12px }
-#search-tpie .md-list-item.md-inset .md-list-item-container { padding-left: 24px; flex-wrap: wrap; padding-bottom: 16px }
+#search-tpie li.md-list-item.md-inset { padding-left: 24px; flex-wrap: wrap; padding-bottom: 16px }
 #search-tpie .md-list-text-container a { white-space: nowrap; display: inline-block }
 #search-tpie .md-list-text-container > a, #search-tpie .md-list-text-container > .parent-category { font-size: 18px; font-weight: bold; line-height: 19px; }
 #search-tpie .md-list-text-container span{ white-space: normal; line-height: 22px}

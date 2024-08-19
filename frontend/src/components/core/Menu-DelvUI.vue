@@ -244,7 +244,7 @@ h2 span {
   margin-right: 12px
 }
 
-#search-delvui .md-list-item.md-inset .md-list-item-container {
+#search-delvui li.md-list-item.md-inset {
   padding-left: 24px;
   flex-wrap: wrap;
   padding-bottom: 16px

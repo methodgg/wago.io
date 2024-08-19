@@ -281,7 +281,7 @@ h2 span {font-size:80%; cursor: pointer}
 
 #search-mdt .md-list-item img { height: 48px; padding-right: 16px; vertical-align:top}
 #search-mdt a { margin-right: 12px }
-#search-mdt .md-list-item.md-inset .md-list-item-container { padding-left: 24px; flex-wrap: wrap; padding-bottom: 16px }
+#search-mdt li.md-list-item.md-inset { padding-left: 24px; flex-wrap: wrap; padding-bottom: 16px }
 #search-mdt .md-list-text-container a { white-space: nowrap; display: inline-block }
 #search-mdt .md-list-text-container > a { font-size: 18px; font-weight: bold; line-height: 19px; }
 #search-mdt .md-list-text-container span{ white-space: normal; line-height: 22px}
