@@ -27,8 +27,9 @@ module.exports = async function(req, res) {
                     headers: {
                         Authorization: 'Bearer ' + apiKey,
                         "User-Agent": `Wago.io Backend/${config.gitref}`,
-                        "Auth-Type": "api-key",
-                        "Client-User-Agent": req.headers['user-agent']
+                        "X-Auth-Type": "api-key",
+                        "X-Client-User-Agent": req.headers['user-agent'],
+                        "X-URL": req.raw.url
                     }
                 })
                 accountID = accountLookup?.data?.id
