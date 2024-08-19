@@ -804,6 +804,7 @@
     "2884": "Language: Earthen",
     "2886": "Supply Shipments",
     "2895": "Racial - Earthen",
+    "2902": "All - Warbands",
     "firstaid": "First Aid"
   },
   "encounters": {
@@ -1830,7 +1831,7 @@
     "2572": "E.D.N.A.",
     "2573": "Prioress Murrpray",
     "2579": "Skarmorak",
-    "2580": "Shadowcrown",
+    "2580": "Speaker Shadowcrown",
     "2581": "Anub'ikkaj",
     "2582": "Void Speaker Eirich",
     "2583": "Avanoxx",
@@ -1840,7 +1841,7 @@
     "2587": "I'pa",
     "2588": "Benk Buzzbee",
     "2589": "Goldie Baronbottom",
-    "2590": "Master Machinists Brokk and Dorlita",
+    "2590": "Master Machinists",
     "2593": "Rasha'nan",
     "2594": "Orator Krix'vizk",
     "2595": "Fangs of the Queen",
@@ -1861,7 +1862,8 @@
     "2627": "Forgemaster Throngus",
     "2635": "Aggregation of Horrors",
     "2636": "Shurrai, Atrocity of the Undersea",
-    "2637": "Kordac, the Dormant Protector"
+    "2637": "Kordac, the Dormant Protector",
+    "2654": "Chopper Redhook"
   },
   "expansions": {
     "68": "Classic",
@@ -3584,7 +3586,21 @@
     "2711": "Molten Incursion",
     "2712": "The Viridian Weave",
     "2713": "Fate of Amirdrassil",
-    "2715": "Queen Ansurek"
+    "2715": "Queen Ansurek",
+    "2717": "The Rookery",
+    "2718": "The Rookery",
+    "2719": "The Dawnbreaker",
+    "2720": "The Stonevault",
+    "2721": "The Stonevault",
+    "2722": "City of Threads",
+    "2723": "Random Heroic (The War Within: Season 1)",
+    "2724": "The Stonevault",
+    "2725": "The Dawnbreaker",
+    "2726": "Ara-Kara, City of Echoes",
+    "2727": "Mists of Tirna Scithe",
+    "2728": "The Necrotic Wake",
+    "2729": "Siege of Boralus",
+    "2730": "Grim Batol"
   },
   "affixes": {
     "1": "Overflowing",
@@ -3659,7 +3675,7 @@
     },
     "10": {
       "name": "Fortified",
-      "desc": "Non-boss enemies have 20% more health and inflict up to 30% increased damage."
+      "desc": "Non-boss enemies have 20% more health and inflict up to 20% increased damage."
     },
     "11": {
       "name": "Bursting",
@@ -3730,8 +3746,8 @@
       "desc": "Enemies have 5% more health. While in combat, players are periodically overcharged with primal power from Raszageth's unending storm. This power comes with great risk, and failure to discharge it quickly can have stunning consequences."
     },
     "133": {
-      "name": "[PH]",
-      "desc": "[PH]"
+      "name": "Focused",
+      "desc": "Non-boss enemies with mana have 30% increased Haste, but take 10% increased Frost and Fire damage."
     },
     "134": {
       "name": "Entangling",
@@ -3750,16 +3766,44 @@
       "desc": "While in combat, enemies periodically summon Shielding Orbs that shield nearby enemies if not destroyed."
     },
     "144": {
-      "name": "[PH]",
-      "desc": "[PH]"
+      "name": "Thorned",
+      "desc": "Non-boss enemies without mana inflict Physical damage to their attackers when attacked, but take 10% increased Holy and Shadow damage."
     },
     "145": {
-      "name": "[PH]",
-      "desc": "[PH]"
+      "name": "Reckless",
+      "desc": "Non-boss enemies without mana ignore 20% armor with their attacks, but their armor is reduced by 30% and they take 10% increased Arcane damage."
     },
     "146": {
-      "name": "[PH]",
-      "desc": "[PH]"
+      "name": "Attuned",
+      "desc": "Non-boss enemies with mana inflict 20% increased magic damage, but take 10% increased Nature damage and 30% increased damage from Bleed effects."
+    },
+    "147": {
+      "name": "Xal'atath's Guile",
+      "desc": "Xal'atath betrays players, revoking her bargains and increasing the health and damage of enemies by 20%"
+    },
+    "148": {
+      "name": "Xal'atath's Bargain: Ascendant",
+      "desc": "While in combat, Xal'atath rains down orbs of cosmic energy that empower enemies or players."
+    },
+    "152": {
+      "name": "Challenger's Peril",
+      "desc": "Dying subtracts 15 seconds from time remaining."
+    },
+    "153": {
+      "name": "Xal'atath's Bargain: Frenzied",
+      "desc": "Non-boss enemies become frenzied at 30% health remaining, increasing their Haste by 40%, but increasing their damage taken by 20%."
+    },
+    "158": {
+      "name": "Xal'atath's Bargain: Voidbound",
+      "desc": "While in combat, Xal'atath summons a Void Emissary that empowers nearby enemies."
+    },
+    "159": {
+      "name": "Xal'atath's Bargain: Oblivion",
+      "desc": "While in combat, Xal'atath manifests crystals from the void that can be absorbed by enemies or players."
+    },
+    "160": {
+      "name": "Xal'atath's Bargain: Devour",
+      "desc": "While in combat, Xal'atath tears open rifts that devour the essence of players."
     }
   }
 }

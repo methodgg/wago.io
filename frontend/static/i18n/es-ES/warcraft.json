@@ -551,6 +551,7 @@
     "2884": "Idioma: terráneo",
     "2886": "Envíos de suministros",
     "2895": "Racial: terráneo",
+    "2902": "Todo - Bandas guerreras",
     "alchemy": "Alquimia",
     "archeology": "Arqueología",
     "blacksmith": "Herrería",
@@ -1591,9 +1592,9 @@
     "2572": "E.D.N.A.",
     "2573": "Priora Murrezo",
     "2579": "Skarmorak",
-    "2580": "Coronasombría",
+    "2580": "Oradora Coronasombría",
     "2581": "Anub'ikkaj",
-    "2582": "Void Speaker Eirich",
+    "2582": "Portavoz del Vacío Eirich",
     "2583": "Avanoxx",
     "2584": "Anub'zekt",
     "2585": "Ki'katal la Cosechadora",
@@ -1601,28 +1602,29 @@
     "2587": "I'pa",
     "2588": "Benk Abejorro",
     "2589": "Áurea Barónez",
-    "2590": "Maestros maquinistas Brokk y Dorlita",
+    "2590": "Maestros maquinistas",
     "2593": "Rasha'nan",
     "2594": "Orador Krix'vizk",
     "2595": "Colmillos de la reina",
     "2596": "Izo la Gran Ensambladora",
     "2599": "Sikran, capitán de los sureki",
     "2600": "Coaglamación",
-    "2601": "Nexus-Princess Ky'veza",
+    "2601": "Princesa del Nexo Ky'veza",
     "2602": "Reina Ansurek",
-    "2607": "Ulgrax the Devourer",
+    "2607": "Ul'grax el Devorador",
     "2608": "La Corte de la Seda",
     "2609": "Rasha'nan",
     "2611": "El horror vinculado a la sangre",
     "2612": "Tuercelinajes Ovi'nax",
     "2617": "General Umbriss",
     "2618": "Drahga Quemasombras",
-    "2619": "Erudax, el Duque de las profundidades",
+    "2619": "Erudax, Duque del Inframundo",
     "2625": "Orta, la Montaña Quebrada",
     "2627": "Maestro de forja Throngus",
-    "2635": "Aggregation of Horrors",
+    "2635": "Agregación de horrores",
     "2636": "Shurrai, Atrocidad del Inframar",
-    "2637": "Kordac, el Protector Durmiente"
+    "2637": "Kordac, el Protector Durmiente",
+    "2654": "Cortador Ganchorrojo"
   },
   "expansions": {
     "68": "World of Warcraft",
@@ -3258,10 +3260,10 @@
     "2598": "Guardianes de Mogu'shan",
     "2599": "Veranda de la Primavera Eterna",
     "2600": "Asalto a Zan'vess",
-    "2604": "Ara-Kara, City of Echoes",
-    "2605": "Ara-Kara, City of Echoes",
-    "2606": "Ara-Kara, City of Echoes",
-    "2607": "Ara-Kara, City of Echoes",
+    "2604": "Ara-Kara, Ciudad de los Ecos",
+    "2605": "Ara-Kara, Ciudad de los Ecos",
+    "2606": "Ara-Kara, Ciudad de los Ecos",
+    "2607": "Ara-Kara, Ciudad de los Ecos",
     "2608": "El Desembarco del León",
     "2609": "La Caída de Shan Bu",
     "2610": "¡Hacia los Cielos!",
@@ -3276,24 +3278,24 @@
     "2620": "Los Tesoros del Rey del Trueno",
     "2623": "La Hora de los Fideos",
     "2624": "El Ingrediente Secreto",
-    "2637": "The Rookery",
-    "2642": "City of Threads",
-    "2643": "City of Threads",
-    "2645": "Nerub-ar Palace",
-    "2647": "City of Threads",
-    "2648": "City of Threads",
+    "2637": "Grajero",
+    "2642": "Ciudad Tejida",
+    "2643": "Ciudad Tejida",
+    "2645": "Palacio Nerub'ar",
+    "2647": "Ciudad Tejida",
+    "2648": "Ciudad Tejida",
     "2649": "Las Almenas Correteantes",
     "2650": "Secretos del Palacio Nerub'ar",
     "2651": "La Caída de la Reina",
-    "2652": "City of Threads",
-    "2653": "The Rookery",
-    "2654": "Ara-Kara, City of Echoes",
+    "2652": "Ciudad Tejida",
+    "2653": "Grajero",
+    "2654": "Ara-Kara, Ciudad de los Ecos",
     "2655": "Grieta de Flama Oscura",
-    "2656": "El Rompealbas",
+    "2656": "Rompealbas",
     "2657": "El Grajero (misión)",
-    "2658": "The Rookery",
-    "2659": "The Sinkhole",
-    "2660": "Tak-Rethan Abyss",
+    "2658": "Grajero",
+    "2659": "Sumidero",
+    "2660": "Abismo de Tak-Rethan",
     "2661": "Cervezas y Truenos",
     "2662": "Batalla en Alta Mar",
     "2663": "Batalla en Alta Mar",
@@ -3322,20 +3324,20 @@
     "2686": "Los Secretos de Sima Ígnea",
     "2687": "Asalto a Zan'vess",
     "2688": "El Desembarco del León",
-    "2689": "Cinderbrew Meadery",
-    "2690": "Cinderbrew Meadery",
-    "2691": "Cinderbrew Meadery",
-    "2692": "Cinderbrew Meadery",
-    "2693": "The Stonevault",
-    "2694": "The Stonevault",
-    "2695": "Priory of the Sacred Flame",
-    "2696": "Priory of the Sacred Flame",
-    "2697": "Priory of the Sacred Flame",
-    "2698": "Priory of the Sacred Flame",
-    "2699": "Priory of the Sacred Flame",
-    "2700": "Cinderbrew Meadery",
-    "2701": "The Stonevault",
-    "2703": "El Baluarte Primigenio",
+    "2689": "Lagar de Tragoceniza",
+    "2690": "Lagar de Tragoceniza",
+    "2691": "Lagar de Tragoceniza",
+    "2692": "Lagar de Tragoceniza",
+    "2693": "La Petrocámara",
+    "2694": "La Petrocámara",
+    "2695": "Priorato de la Llama Sagrada",
+    "2696": "Priorato de la Llama Sagrada",
+    "2697": "Priorato de la Llama Sagrada",
+    "2698": "Priorato de la Llama Sagrada",
+    "2699": "Priorato de la Llama Sagrada",
+    "2700": "Lagar de Tragoceniza",
+    "2701": "La Petrocámara",
+    "2703": "Baluarte Primigenio",
     "2704": "Obras Desechadas",
     "2705": "Cavernas de Infusión",
     "2706": "Furia de la tormenta",
@@ -3346,7 +3348,21 @@
     "2711": "Incursión de arrabio",
     "2712": "El tejido viridiano",
     "2713": "Destino de Amirdrassil",
-    "2715": "Queen Ansurek"
+    "2715": "Reina Ansurek",
+    "2717": "El Grajero",
+    "2718": "El Grajero",
+    "2719": "El Rompealbas",
+    "2720": "La Petrocámara",
+    "2721": "La Petrocámara",
+    "2722": "Ciudad Tejida",
+    "2723": "Heroica aleatoria (The War Within: Temporada 1)",
+    "2724": "La Petrocámara",
+    "2725": "El Rompealbas",
+    "2726": "Ara-Kara, Ciudad de los Ecos",
+    "2727": "Nieblas de Tirna Scithe",
+    "2728": "Estela Necrótica",
+    "2729": "Asedio de Boralus",
+    "2730": "Grim Batol"
   },
   "affixes": {
     "1": "Rebosante",
@@ -3421,7 +3437,7 @@
     },
     "10": {
       "name": "Reforzada",
-      "desc": "Los enemigos que no son jefes tienen un 20% más de salud e infligen hasta un 30% más de daño."
+      "desc": "Los enemigos que no son jefes tienen un 20% más de salud e infligen hasta un 20% más de daño."
     },
     "11": {
       "name": "Detonante",
@@ -3492,8 +3508,8 @@
       "desc": "Los enemigos tienen un 5% más de salud. Durante el combate, los jugadores se sobrecargan periódicamente con el poder primigenio de la tormenta interminable de Raszageth. Este poder conlleva un gran riesgo y, si no se descarga rápidamente, puede tener graves consecuencias."
     },
     "133": {
-      "name": "[PH]",
-      "desc": "[PH]"
+      "name": "Enfocada",
+      "desc": "Los enemigos que tienen maná y no son jefes tienen un 30% más de celeridad, pero reciben un 10% más de daño de Escarcha y Fuego."
     },
     "134": {
       "name": "Enredadera",
@@ -3512,16 +3528,44 @@
       "desc": "Durante el combate, los enemigos invocan periódicamente unos orbes de escudo que protegen a los enemigos cercanos si no se destruyen."
     },
     "144": {
-      "name": "[PH]",
-      "desc": "[PH]"
+      "name": "Espinada",
+      "desc": "Los enemigos que no tienen maná y no son jefes infligen daño físico a sus atacantes cuando reciben un ataque, pero reciben un 10% más de daño Sagrado y de las Sombras."
     },
     "145": {
-      "name": "[PH]",
-      "desc": "[PH]"
+      "name": "Temeraria",
+      "desc": "Los enemigos que no tienen maná y no son jefes ignoran un 20% de armadura con sus ataques, pero su armadura se reduce un 30% y reciben un 10% más de daño Arcano."
     },
     "146": {
-      "name": "[PH]",
-      "desc": "[PH]"
+      "name": "Armonizada",
+      "desc": "Los enemigos que tienen maná y no son jefes infligen un 20% de daño mágico aumentado, pero reciben un 10% más de daño de Naturaleza y un 30% más de daño de los efectos de sangrado."
+    },
+    "147": {
+      "name": "Argucia de Xal'atath",
+      "desc": "Xal'atath traiciona a los jugadores, lo que anula sus tratos y aumenta un 20% la salud y el daño de los enemigos."
+    },
+    "148": {
+      "name": "Trato de Xal'atath: Ascendiente",
+      "desc": "Durante el combate, Xal'atath lanza orbes de energía Cósmica que potencian a los enemigos o a los jugadores."
+    },
+    "152": {
+      "name": "Temeridad de contendiente",
+      "desc": "Al morir se quitan 15 s al tiempo restante."
+    },
+    "153": {
+      "name": "Trato de Xal'atath: Enloquecida",
+      "desc": "Los enemigos que no son jefes enloquecen cuando les queda el 30% de salud, lo que aumenta un 40% su celeridad y un 20% el daño recibido."
+    },
+    "158": {
+      "name": "Trato de Xal'atath: Ligada al Vacío",
+      "desc": "Mientras está en combate, Xal'atath invoca una Emisaria del Vacío que potencia a los enemigos cercanos."
+    },
+    "159": {
+      "name": "Trato de Xal'atath: Olvido",
+      "desc": "Mientras está en combate, Xal'atath manifiesta unos cristales del Vacío que pueden ser absorbidos tanto por enemigos como por jugadores."
+    },
+    "160": {
+      "name": "Trato de Xal'atath: Devorar",
+      "desc": "Mientras está en combate, Xal'atath abre unas fallas que devoran la esencia de los jugadores."
     }
   }
 }

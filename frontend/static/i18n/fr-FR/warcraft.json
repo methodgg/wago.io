@@ -551,6 +551,7 @@
     "2884": "Langue : terrestre",
     "2886": "Cargaisons de ravitaillement",
     "2895": "Racial – Terrestre",
+    "2902": "Tout – Bataillons",
     "alchemy": "Alchimie",
     "archeology": "Archéologie",
     "blacksmith": "Forge",
@@ -1591,9 +1592,9 @@
     "2572": "E.D.N.A.",
     "2573": "Prieuresse Murrpray",
     "2579": "Skarmorak",
-    "2580": "Couronne d’ombre",
+    "2580": "Mandataire Couronne d’ombre",
     "2581": "Anub’ikkaj",
-    "2582": "Void Speaker Eirich",
+    "2582": "Orateur du Vide Eirich",
     "2583": "Avanoxx",
     "2584": "Anub’zekt",
     "2585": "Ki’katal la Moissonneuse",
@@ -1601,16 +1602,16 @@
     "2587": "I’pa",
     "2588": "Benk Bourdon",
     "2589": "Goldie Baronnie",
-    "2590": "Maîtres machinistes Brokk et Dorlita",
+    "2590": "Machinistes en chef",
     "2593": "Rasha’nan",
     "2594": "Mandataire Krix’vizk",
-    "2595": "Crocs de la Reine",
-    "2596": "Izo, le grand faisceau",
-    "2599": "Sirkan, capitaine des Surekis",
+    "2595": "Crocs de la reine",
+    "2596": "Izo, le Grand Faisceau",
+    "2599": "Sikran, capitaine des Surekis",
     "2600": "La Coaglamation",
-    "2601": "Nexus-Princess Ky'veza",
+    "2601": "Princesse-nexus Ky’veza",
     "2602": "Reine Ansurek",
-    "2607": "Ulgrax the Devourer",
+    "2607": "Ulgrax le Dévoreur",
     "2608": "La cour Soyeuse",
     "2609": "Rasha’nan",
     "2611": "L’horreur liée par le sang",
@@ -1620,9 +1621,10 @@
     "2619": "Erudax, le duc d’En bas",
     "2625": "Orta, la montagne brisée",
     "2627": "Maître-forge Throngus",
-    "2635": "Aggregation of Horrors",
+    "2635": "Agrégation d’horreurs",
     "2636": "Shurrai, Atrocité des fonds Marins",
-    "2637": "Kordac, le protecteur inerte"
+    "2637": "Kordac, le protecteur inerte",
+    "2654": "Crochesang"
   },
   "expansions": {
     "68": "Donjons classiques",
@@ -3172,7 +3174,7 @@
     "2503": "Amirdrassil, l’Espoir du Rêve",
     "2504": "Amirdrassil, l’Espoir du Rêve",
     "2507": "La fosse de l’Effroi",
-    "2508": "Sanctuaire crépusculaire",
+    "2508": "Sanctuaire Crépusculaire",
     "2509": "Grotte de Mycomancie",
     "2510": "Le Puisard (inondé)",
     "2511": "Brèche Grouillante",
@@ -3258,10 +3260,10 @@
     "2598": "Gardiens des Mogu’shan",
     "2599": "Terrasse Printanière",
     "2600": "L’attaque de Zan’vess",
-    "2604": "Ara-Kara, City of Echoes",
-    "2605": "Ara-Kara, City of Echoes",
-    "2606": "Ara-Kara, City of Echoes",
-    "2607": "Ara-Kara, City of Echoes",
+    "2604": "Ara-Kara, la cité des Échos",
+    "2605": "Ara-Kara, la cité des Échos",
+    "2606": "Ara-Kara, la cité des Échos",
+    "2607": "Ara-Kara, la cité des Échos",
     "2608": "Le territoire du Lion",
     "2609": "La chute de Shan Bu",
     "2610": "En route vers les cieux !",
@@ -3276,24 +3278,24 @@
     "2620": "Le fabuleux trésor du roi-tonnerre",
     "2623": "L’heure des nouilles",
     "2624": "Trouver l’ingrédient secret",
-    "2637": "The Rookery",
-    "2642": "City of Threads",
-    "2643": "City of Threads",
-    "2645": "Nerub-ar Palace",
-    "2647": "City of Threads",
-    "2648": "City of Threads",
+    "2637": "La colonie",
+    "2642": "Cité des Fils",
+    "2643": "Cité des Fils",
+    "2645": "Palais des Nérub’ar",
+    "2647": "Cité des Fils",
+    "2648": "Cité des Fils",
     "2649": "Les remparts Grouillants",
     "2650": "Secrets du palais des Nérub’ar",
     "2651": "La chute d’une reine",
-    "2652": "City of Threads",
-    "2653": "The Rookery",
-    "2654": "Ara-Kara, City of Echoes",
+    "2652": "Cité des Fils",
+    "2653": "La colonie",
+    "2654": "Ara-Kara, la cité des Échos",
     "2655": "Faille de Flamme-Noire",
     "2656": "Le Brise-Aube",
     "2657": "La colonie (quête)",
-    "2658": "The Rookery",
-    "2659": "The Sinkhole",
-    "2660": "Tak-Rethan Abyss",
+    "2658": "La colonie",
+    "2659": "Le Puisard",
+    "2660": "Abysse de Tak-Rethan",
     "2661": "Une bière foudroyante",
     "2662": "Bataille en haute mer",
     "2663": "Bataille en haute mer",
@@ -3322,23 +3324,23 @@
     "2686": "Les secrets de Ragefeu",
     "2687": "L’assaut de Zan’vess",
     "2688": "Le territoire du Lion",
-    "2689": "Cinderbrew Meadery",
-    "2690": "Cinderbrew Meadery",
-    "2691": "Cinderbrew Meadery",
-    "2692": "Cinderbrew Meadery",
-    "2693": "The Stonevault",
-    "2694": "The Stonevault",
-    "2695": "Priory of the Sacred Flame",
-    "2696": "Priory of the Sacred Flame",
-    "2697": "Priory of the Sacred Flame",
-    "2698": "Priory of the Sacred Flame",
-    "2699": "Priory of the Sacred Flame",
-    "2700": "Cinderbrew Meadery",
-    "2701": "The Stonevault",
+    "2689": "Hydromellerie de Brassecendre",
+    "2690": "Hydromellerie de Brassecendre",
+    "2691": "Hydromellerie de Brassecendre",
+    "2692": "Hydromellerie de Brassecendre",
+    "2693": "La Cavepierre",
+    "2694": "La Cavepierre",
+    "2695": "Prieuré de la Flamme sacrée",
+    "2696": "Prieuré de la Flamme sacrée",
+    "2697": "Prieuré de la Flamme sacrée",
+    "2698": "Prieuré de la Flamme sacrée",
+    "2699": "Prieuré de la Flamme sacrée",
+    "2700": "Hydromellerie de Brassecendre",
+    "2701": "La Cavepierre",
     "2703": "Rempart primordial",
     "2704": "Les rebuts",
     "2705": "Les cavernes de l’Imprégnation",
-    "2706": "Fureur de l’orage",
+    "2706": "La fureur de l’orage",
     "2707": "Fureur des Géants",
     "2708": "L’ombre de Neltharion",
     "2709": "Au bord du Vide",
@@ -3346,7 +3348,21 @@
     "2711": "Incursion en fusion",
     "2712": "La trame viride",
     "2713": "Le destin d’Amirdrassil",
-    "2715": "Queen Ansurek"
+    "2715": "Reine Ansurek",
+    "2717": "La colonie",
+    "2718": "La colonie",
+    "2719": "Le Brise-Aube",
+    "2720": "La Cavepierre",
+    "2721": "La Cavepierre",
+    "2722": "Cité des Fils",
+    "2723": "Donjon aléatoire héroïque de The War Within – Saison 1",
+    "2724": "La Cavepierre",
+    "2725": "Le Brise-Aube",
+    "2726": "Ara-Kara, la cité des Échos",
+    "2727": "Brumes de Tirna Scithe",
+    "2728": "Sillage nécrotique",
+    "2729": "Siège de Boralus",
+    "2730": "Grim Batol"
   },
   "affixes": {
     "1": "Débordant",
@@ -3421,7 +3437,7 @@
     },
     "10": {
       "name": "Fortifié",
-      "desc": "Les ennemis normaux ont 20% de points de vie supplémentaires et leurs dégâts sont augmentés d’au maximum 30%."
+      "desc": "Les unités ennemies normales ont 20 % de points de vie supplémentaires et infligent jusqu’à un maximum de 20 % de dégâts supplémentaires."
     },
     "11": {
       "name": "Détonant",
@@ -3492,8 +3508,8 @@
       "desc": "Les adversaires ont 5% de points de vie en plus. Pendant le combat, les personnages-joueurs sont surchargés d’énergie primordiale par la tempête sans fin de Raszageth. Ce regain de puissance ne va pas sans risque, et le fait de ne pas s’en décharger rapidement peut entraîner des conséquences désastreuses."
     },
     "133": {
-      "name": "[PH]",
-      "desc": "[PH]"
+      "name": "Focalisé",
+      "desc": "La Hâte des unités ennemies normales avec du mana augmente de 30 %, mais les dégâts de givre et de feu qu’elles subissent augmentent aussi de 10 %."
     },
     "134": {
       "name": "Enchevêtrement",
@@ -3512,16 +3528,44 @@
       "desc": "En combat, les adversaires invoquent périodiquement des orbes qui protègent leurs alliés à proximité s’ils ne sont pas détruits."
     },
     "144": {
-      "name": "[PH]",
-      "desc": "[PH]"
+      "name": "Épineux",
+      "desc": "Les unités ennemies normales sans mana infligent des dégâts physiques à leurs assaillants lorsqu’elles sont attaquées, mais les dégâts du sacré et d’ombre qu’elles subissent augmentent de 10 %."
     },
     "145": {
-      "name": "[PH]",
-      "desc": "[PH]"
+      "name": "Téméraire",
+      "desc": "Les unités ennemies normales sans mana ignorent 20 % d’armure avec leurs attaques, mais leur propre armure est réduite de 30 % et les dégâts des arcanes qu’elles subissent augmentent de 10 %."
     },
     "146": {
-      "name": "[PH]",
-      "desc": "[PH]"
+      "name": "Harmonisation",
+      "desc": "Les unités ennemies normales avec du mana infligent 20 % de dégâts magiques supplémentaires, mais les dégâts de nature qu’elles subissent augmentent de 10 % et les dégâts qui leur sont infligés par les effets de saignement augmentent de 30 %."
+    },
+    "147": {
+      "name": "Ruse de Xal’atath",
+      "desc": "Xal’atath trahit les joueurs, revient sur ses pactes et augmente les points de vie et les dégâts des adversaires de 20 %."
+    },
+    "148": {
+      "name": "Marché de Xal’atath : Sublimation",
+      "desc": "En combat, Xal’atath fait pleuvoir des orbes d’énergie cosmique qui renforcent les adversaires ou les personnages-joueurs."
+    },
+    "152": {
+      "name": "Péril de prétendant",
+      "desc": "Mourir retire 15 secondes au temps restant."
+    },
+    "153": {
+      "name": "Marché de Xal’atath : Frénétique",
+      "desc": "Les adversaires autres que les boss deviennent frénétiques lorsqu’ils atteignent 30 % de leurs points de vie, ce qui augmente leur Hâte de 40 %, mais aussi les dégâts qu’ils subissent de 20 %."
+    },
+    "158": {
+      "name": "Marché de Xal’atath : Lié par le Vide",
+      "desc": "En combat, Xal’atath invoque un émissaire du Vide qui renforce les adversaires proches."
+    },
+    "159": {
+      "name": "Marché de Xal’atath : oubli",
+      "desc": "Pendant le combat, Xal’atath fait apparaître des cristaux du Vide, que les adversaires ou les personnages-joueurs peuvent absorber."
+    },
+    "160": {
+      "name": "Marché de Xal’atath : dévorer",
+      "desc": "En combat, Xal’atath ouvre des failles qui dévorent l’essence des personnages-joueurs."
     }
   }
 }

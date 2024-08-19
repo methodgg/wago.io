@@ -551,6 +551,7 @@
     "2884": "Sprache: Irden",
     "2886": "Vorratslieferungen",
     "2895": "Volksfähigkeit - Irdene",
+    "2902": "Alle - Kriegsmeuten",
     "alchemy": "Alchemie",
     "archeology": "Archäologie",
     "blacksmith": "Schmiedekunst",
@@ -1591,9 +1592,9 @@
     "2572": "I.N.G.A.",
     "2573": "Priorin Murrbet",
     "2579": "Skarmorak",
-    "2580": "Schattenkrone",
+    "2580": "Sprecherin Schattenkrone",
     "2581": "Anub'ikkaj",
-    "2582": "Void Speaker Eirich",
+    "2582": "Leerensprecher Eirich",
     "2583": "Avanoxx",
     "2584": "Anub'zekt",
     "2585": "Ki'katal die Ernterin",
@@ -1601,16 +1602,16 @@
     "2587": "I'pa",
     "2588": "Benk Sumsebrumm",
     "2589": "Goldie Barontasch",
-    "2590": "Meistermaschinisten Brokk und Dorlita",
+    "2590": "Meistermaschinisten",
     "2593": "Rasha'nan",
     "2594": "Orator Krix'vizk",
     "2595": "Fänge der Königin",
     "2596": "Izo, die große Verbinderin",
     "2599": "Sikran, Hauptmann der Sureki",
     "2600": "Das Koaglamat",
-    "2601": "Nexus-Princess Ky'veza",
+    "2601": "Nexusprinzessin Ky'veza",
     "2602": "Königin Ansurek",
-    "2607": "Ulgrax the Devourer",
+    "2607": "Ulgrax der Verschlinger",
     "2608": "Der Seidenhof",
     "2609": "Rasha'nan",
     "2611": "Der blutgebundene Schrecken",
@@ -1620,9 +1621,10 @@
     "2619": "Erudax, der Herzog der Tiefe",
     "2625": "Orta, der durchbrochene Berg",
     "2627": "Schmiedemeister Throngus",
-    "2635": "Aggregation of Horrors",
+    "2635": "Ansammlung der Schrecken",
     "2636": "Shurrai, Grässlichkeit des Untermeers",
-    "2637": "Kordac, der schlummernde Beschützer"
+    "2637": "Kordac, der schlummernde Beschützer",
+    "2654": "Rothaken der Häcksler"
   },
   "expansions": {
     "68": "Classic",
@@ -3258,10 +3260,10 @@
     "2598": "Wächter von Mogu'shan",
     "2599": "Terrasse des Endlosen Frühlings",
     "2600": "Angriff auf Zan'vess",
-    "2604": "Ara-Kara, City of Echoes",
-    "2605": "Ara-Kara, City of Echoes",
-    "2606": "Ara-Kara, City of Echoes",
-    "2607": "Ara-Kara, City of Echoes",
+    "2604": "Ara-Kara, Stadt der Echos",
+    "2605": "Ara-Kara, Stadt der Echos",
+    "2606": "Ara-Kara, Stadt der Echos",
+    "2607": "Ara-Kara, Stadt der Echos",
     "2608": "Die Löwenlandung",
     "2609": "Der Sturz von Shan'Bu",
     "2610": "In die Lüfte!",
@@ -3276,24 +3278,24 @@
     "2620": "Schatzkammer des Donnerkönigs",
     "2623": "Nudelzeit",
     "2624": "Die Geheimzutat",
-    "2637": "The Rookery",
-    "2642": "City of Threads",
-    "2643": "City of Threads",
-    "2645": "Nerub-ar Palace",
-    "2647": "City of Threads",
-    "2648": "City of Threads",
+    "2637": "Die Brutstätte",
+    "2642": "Stadt der Fäden",
+    "2643": "Stadt der Fäden",
+    "2645": "Palast der Nerub'ar",
+    "2647": "Stadt der Fäden",
+    "2648": "Stadt der Fäden",
     "2649": "Die huschenden Festungsmauern",
     "2650": "Geheimnisse des Palastes der Nerub'ar",
     "2651": "Sturz einer Königin",
-    "2652": "City of Threads",
-    "2653": "The Rookery",
-    "2654": "Ara-Kara, City of Echoes",
+    "2652": "Stadt der Fäden",
+    "2653": "Die Brutstätte",
+    "2654": "Ara-Kara, Stadt der Echos",
     "2655": "Dunkelflammenspalt",
     "2656": "Die Morgenbringer",
     "2657": "Die Brutstätte (Quest)",
-    "2658": "The Rookery",
-    "2659": "The Sinkhole",
-    "2660": "Tak-Rethan Abyss",
+    "2658": "Die Brutstätte",
+    "2659": "Erdsturz",
+    "2660": "Tak-Rethan-Abgrund",
     "2661": "Ein Sturm braut sich zusammen",
     "2662": "Schlacht auf hoher See",
     "2663": "Schlacht auf hoher See",
@@ -3322,19 +3324,19 @@
     "2686": "Geheimnisse des Flammenschlunds",
     "2687": "Angriff auf Zan'vess",
     "2688": "Löwenlandung",
-    "2689": "Cinderbrew Meadery",
-    "2690": "Cinderbrew Meadery",
-    "2691": "Cinderbrew Meadery",
-    "2692": "Cinderbrew Meadery",
-    "2693": "The Stonevault",
-    "2694": "The Stonevault",
-    "2695": "Priory of the Sacred Flame",
-    "2696": "Priory of the Sacred Flame",
-    "2697": "Priory of the Sacred Flame",
-    "2698": "Priory of the Sacred Flame",
-    "2699": "Priory of the Sacred Flame",
-    "2700": "Cinderbrew Meadery",
-    "2701": "The Stonevault",
+    "2689": "Metbrauerei Glutbräu",
+    "2690": "Metbrauerei Glutbräu",
+    "2691": "Metbrauerei Glutbräu",
+    "2692": "Metbrauerei Glutbräu",
+    "2693": "Das Steingewölbe",
+    "2694": "Das Steingewölbe",
+    "2695": "Priorat der Heiligen Flamme",
+    "2696": "Priorat der Heiligen Flamme",
+    "2697": "Priorat der Heiligen Flamme",
+    "2698": "Priorat der Heiligen Flamme",
+    "2699": "Priorat der Heiligen Flamme",
+    "2700": "Metbrauerei Glutbräu",
+    "2701": "Das Steingewölbe",
     "2703": "Das Primalistenbollwerk",
     "2704": "Verworfene Arbeiten",
     "2705": "Höhlen der Infusion",
@@ -3346,7 +3348,21 @@
     "2711": "Geschmolzene Invasion",
     "2712": "Das Viridiangewebe",
     "2713": "Schicksal von Amirdrassil",
-    "2715": "Queen Ansurek"
+    "2715": "Königin Ansurek",
+    "2717": "Die Brutstätte",
+    "2718": "Die Brutstätte",
+    "2719": "Die Morgenbringer",
+    "2720": "Das Steingewölbe",
+    "2721": "Das Steingewölbe",
+    "2722": "Stadt der Fäden",
+    "2723": "Zufälliger heroischer Dungeon (The War Within: Saison 1)",
+    "2724": "Das Steingewölbe",
+    "2725": "Die Morgenbringer",
+    "2726": "Ara-Kara, Stadt der Echos",
+    "2727": "Nebel von Tirna Scithe",
+    "2728": "Die Nekrotische Schneise",
+    "2729": "Belagerung von Boralus",
+    "2730": "Grim Batol"
   },
   "affixes": {
     "1": "Überschüssig",
@@ -3421,7 +3437,7 @@
     },
     "10": {
       "name": "Verstärkt",
-      "desc": "Normale Gegner haben 20% mehr Gesundheit und verursachen bis zu 30% mehr Schaden."
+      "desc": "Normale Gegner haben 20% mehr Gesundheit und verursachen bis zu 20% mehr Schaden."
     },
     "11": {
       "name": "Platzend",
@@ -3492,8 +3508,8 @@
       "desc": "Gegner haben 5% mehr Gesundheit. Im Kampf werden Spielercharaktere in regelmäßigen Abständen mit der Urgewalt durch Raszageths unendlichen Sturm überladen. Diese Macht birgt große Risiken, und wenn sie nicht umgehend entladen wird, kann dies erstaunliche Auswirkungen zur Folge haben."
     },
     "133": {
-      "name": "[PH]",
-      "desc": "[PH]"
+      "name": "Fokussiert",
+      "desc": "Gegner mit Mana, die keine Bosse sind, erhalten um 30% erhöhtes Tempo, aber erleiden 10% mehr Frost- und Feuerschaden."
     },
     "134": {
       "name": "Umschlingend",
@@ -3512,16 +3528,44 @@
       "desc": "Gegner, die sich im Kampf befinden, beschwören regelmäßig Schildkugeln, die Gegnern in der Nähe einen Schild gewähren, wenn sie nicht zerstört werden."
     },
     "144": {
-      "name": "[PH]",
-      "desc": "[PH]"
+      "name": "Dornenbedeckt",
+      "desc": "Gegner ohne Mana, die keine Bosse sind, fügen Angreifern körperlichen Schaden zu, wenn sie angegriffen werden, aber erleiden 10% mehr Heilig- und Schattenschaden."
     },
     "145": {
-      "name": "[PH]",
-      "desc": "[PH]"
+      "name": "Tollkühn",
+      "desc": "Gegner ohne Mana, die keine Bosse sind, ignorieren bei ihren Angriffen 20% Rüstung, aber ihre eigene Rüstung ist um 30% verringert und sie erleiden 10% mehr Arkanschaden."
     },
     "146": {
-      "name": "[PH]",
-      "desc": "[PH]"
+      "name": "Abgestimmt",
+      "desc": "Gegner mit Mana, die keine Bosse sind, verursachen 20% mehr Magieschaden, aber erleiden 10% mehr Naturschaden und 30% mehr Schaden durch Blutungseffekte."
+    },
+    "147": {
+      "name": "Xal'ataths List",
+      "desc": "Xal'atath hintergeht Spielercharaktere, wobei sie ihre Handelsabmachungen widerruft und die Gesundheit und den Schaden von Gegnern um 20% erhöht."
+    },
+    "148": {
+      "name": "Xal'ataths Handel: Aszendenz",
+      "desc": "Während des Kampfes lässt Xal'atath Kugeln kosmischer Energie niederregnen, die Gegner oder Spielercharaktere ermächtigt."
+    },
+    "152": {
+      "name": "Tücke des Herausforderers",
+      "desc": "Beim Tod werden 15 Sekunden von der verbleibenden Zeit abgezogen."
+    },
+    "153": {
+      "name": "Xal'ataths Handel: Raserei",
+      "desc": "Gegner, die keine Bosse sind, verfallen bei 30% verbleibender Gesundheit in Raserei, wodurch sich ihr Tempo um 40%, aber dafür auch der von ihnen erlittene Schaden um 20% erhöht."
+    },
+    "158": {
+      "name": "Xal'ataths Handel: Leerengebunden",
+      "desc": "Xal'atath beschwört während des Kampfes eine Leerenabgesandte, die Gegner in der Nähe ermächtigt."
+    },
+    "159": {
+      "name": "Xal'ataths Handel: Vergessen",
+      "desc": "Xal'atath manifestiert im Kampf Kristalle aus der Leere, die von Gegnern oder Spielercharakteren absorbiert werden können."
+    },
+    "160": {
+      "name": "Xal'ataths Handel: Verschlingen",
+      "desc": "Xal'atath öffnet während des Kampfes Risse, die die Essenz von Spielercharakteren verschlingen."
     }
   }
 }
