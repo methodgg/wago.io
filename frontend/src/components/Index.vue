@@ -284,7 +284,7 @@
 #index {margin: 16px 0;}
 #index .wago-video-ad-container {margin-left: 16px;}
 
-#importform, #addonReleases { z-index:5; padding: 16px; width:100% }
+#importform { z-index:5; padding: 16px; width:100%; z-index: 10}
 #importform textarea { max-height: 110px; min-height:110px }
 #importform .field-group .md-input-container { display: inline-block; max-width: 32%; position: relative}
 .field-group2 .md-input-container, .field-group2 strong { display: inline-block; max-width: 49%;}

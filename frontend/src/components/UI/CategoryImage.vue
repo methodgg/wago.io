@@ -85,7 +85,7 @@
     <img src="./../../assets/menu-macro.png" v-else-if="group === 't-macro'"/>
     <img src="./../../assets/macro-search.png" v-else-if="group === 't-macro-search'"/>
     <img src="./../../assets/menu-encounternotes.png" v-else-if="group === 't-encounternotes'"/>
-    <img src="./../../assets/delvui.png" v-else-if="group === 't-delvui'"/>
+    <img src="./../../assets/menu-gse.png" v-else-if="group === 't-gse'"/>
 
     <img src="./../../assets/df-toggle.svg" v-else-if="group === 'exp-df'"/>
     <img src="./../../assets/wotlk-toggle.svg" v-else-if="group === 'exp-wotlk'"/>

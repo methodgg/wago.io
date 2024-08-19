@@ -1,11 +1,11 @@
 <template>
-  <multiselect v-model="multiSelectValue" :options="categoryOptions" label="text" :multiple="true" trackBy="id" :max="maxSelections" :close-on-select="false" :clear-on-select="false" :hide-selected="true" :placeholder="selectText || ''" :searchable="false" select-label="" open-direction="bottom">
+  <multiselect v-model="multiSelectValue" :options="categoryOptions" label="text" :multiple="true" trackBy="id" :max="maxSelections" :close-on-select="false" :clear-on-select="false" :hide-selected="true" :placeholder="selectText || ''" :searchable="false" select-label="" open-direction="bottom" :class="{ 'system-tag': isSystem }">
     <template slot="tag" slot-scope="{ option, remove }">
-      <span :class="'custom__tag ' + option.id"><span>{{ option.text }}</span><span class="multiselect_remove" @click="remove(option)" v-if="(!option.parent && multiSelectValue.length === 1) || !option.root">❌</span><span v-else style='padding-right:4px'>:</span>
+      <span :class="'custom__tag ' + option.id"><span>{{ option.text }}</span><span class="multiselect_remove" @click="remove(option)" v-if="!option.system && (option.parent || multiSelectValue.length === 1)">❌</span>
       </span>
     </template>
     <template slot="option" slot-scope="props">
-      <div :class="'md-chip ' + props.option.id"><div class="option__title">{{ props.option.text }}</div></div>
+      <div :class="`md-chip ${props.option.id}`"><div class="option__title">{{ props.option.text }}</div></div>
     </template>
     <template slot="maxElements" slot-scope="props">
       {{ $t('No additional categories can be added') }}
@@ -34,6 +34,15 @@ export default {
         this.$emit('update', newValue)
         return newValue
       }
+    },
+    isSystem: function () {
+        if (Array.isArray(this.selectedCategories)) {
+          return this.selectedCategories.filter(c => c.system).length > 0
+        }
+        else if (this.selectedCategories) {
+          return this.selectedCategories.system
+        }
+        return false
     }
   },
   data: function () {
@@ -53,7 +62,7 @@ export default {
       }
       let game = this.game
       let type = this.type
-      let domain = this.domain
+      let domain = this.domain ?? 0
       if (this.type === 'COLLECTION') {
         game = game.replace(/legion|bfa/, 'df')
       }
@@ -108,11 +117,13 @@ export default {
 </script>
 
 <style>
-.multiselect { min-height: 0; cursor: pointer; margin-bottom: 16px }
+.multiselect { min-height: 0; cursor: pointer; margin-bottom: 16px; z-index: 999999 }
+.multiselect.system-tag {pointer-events: none; cursor: default}
 .multiselect__tags { padding-top: 14px}
 .multiselect__tags, .multiselect__single { border-width: 0 0 1px 0; border: 0; background: none; color: #B6B6B6;}
 .multiselect__single:empty { display: none }
 .multiselect_remove { cursor: pointer }
+.custom__tag {margin-right: 16px}
 ul.multiselect__content { display: flex!important; flex-wrap: wrap }
 ul.multiselect__content .multiselect__element { flex: 1 1 25%; z-index:3;}
 ul.multiselect__content .multiselect__element .multiselect__option { padding: 0; min-height: 0 }
