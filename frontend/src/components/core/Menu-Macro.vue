@@ -104,7 +104,7 @@
     },
     mounted: function () {
       this.$store.commit('setPageInfo', {
-        title: 'Blizz HUD',
+        title: 'Macros',
         description: this.$t('Browse Macros')
       })
       this.http.get('/search/menu', {view: 'macro'})

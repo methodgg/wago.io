@@ -88,7 +88,7 @@
     },
     mounted: function () {
       this.$store.commit('setPageInfo', {
-        title: 'Blizz HUD',
+        title: 'GSE',
         description: this.$t('Browse GSE imports')
       })
       this.http.get('/search/menu', {view: 'gse'})
