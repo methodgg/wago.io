@@ -600,7 +600,7 @@ module.exports = function (fastify, opts, next) {
     }
 
     if (doc.encrypted) {
-      delete code.customCode // normally this is deleted automatically when an import is encrypted but seems not 100% 
+      code.customCode = [] // normally this is deleted automatically when an import is encrypted but seems not 100% 
       return res.cache(604800).send(code)
     }
 
