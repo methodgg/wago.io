@@ -1,7 +1,6 @@
 const getCode = require('../code-detection/get-code')
 const patchDates = require('../patchDates')
-const regexCell = /^!CELL:\d+:(ALL|LAYOUT:(.+)|INDICATOR:\d+|CLICKCASTING:(.+)|DEBUFF:(\d+):(\w+)|QUICKASSIST)![a-zA-Z0-9\(\)]*$/
-const cellExportVersion = 236
+const regexCell = /^!CELL:(\d+):(ALL|LAYOUT:(.+)|INDICATOR:\d+|CLICKCASTING:(.+)|DEBUFF:(\d+):(\w+)|QUICKASSIST)![a-zA-Z0-9\(\)]*$/
 
 module.exports = {
   typeMatch: /^CELL$/,
@@ -40,7 +39,7 @@ module.exports = {
       success, data = LibSerialize:Deserialize(data)
 
       if success and data then
-        return JSON:encode(data, {forceTableToObject = {quickAssist = 1}})
+        return JSON:encode(data)
       end
       return data`
     try {
@@ -53,6 +52,16 @@ module.exports = {
   },
 
   encode: async (json, exec, wago) => {
+    let cellType
+    let cellVersion
+    if (typeof wago.embeddedStrData === 'string') {
+        cellType = wago.embeddedStrData
+        cellVersion = 236
+    }
+    else {
+        cellType = wago.embeddedStrData.type
+        cellVersion = wago.embeddedStrData.version
+    }
     const lua = `
     local t = JSON:decode("${json}")
     if not t then return "" end
@@ -60,6 +69,9 @@ module.exports = {
     function fixNumericIndexes(tbl)
       local fixed = {}
       for k, v in pairs(tbl) do
+        if type(v) == "table" then
+          v = fixNumericIndexes(v)
+        end
         if tonumber(k) and tonumber(k) > 0 then
           fixed[tonumber(k)] = v
         else
@@ -69,9 +81,7 @@ module.exports = {
       return fixed
     end
 
-    if t and t.quickAssist then
-      t.quickAssist = fixNumericIndexes(t.quickAssist)
-    end
+    t = fixNumericIndexes(t)
 
     local serialized = LibSerialize:Serialize(t)
     local compressed = LibDeflate:CompressDeflate(serialized, {level = 9})
@@ -79,10 +89,10 @@ module.exports = {
     return encoded`
     try {
       const encodedString = await exec(lua)
-      return `!CELL:${cellExportVersion}:${wago.embeddedStrData}!${encodedString}`
+      return `!CELL:${cellVersion}:${cellType}!${encodedString}`
     }
     catch (e) {
-        console.log(e)
+      console.log(e)
       return false
     }
   },
@@ -95,7 +105,10 @@ module.exports = {
 
     meta.type = 'CELL'
     const strMeta = regexCell.exec(importString)
-    meta.embeddedStrData = strMeta[1]
+    meta.embeddedStrData = {
+        version: parseInt(strMeta[1]),
+        type: strMeta[2]
+    }
 
     if (strMeta[1].startsWith('ALL') && obj.general && obj.appearance) {
         meta.name = `Cell Complete Profile`
