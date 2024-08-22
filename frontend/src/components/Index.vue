@@ -152,7 +152,7 @@
             <md-icon>add</md-icon>
           </md-button>
           <div v-for="n in numCategorySets">
-            <div v-if="scanID" class="has-category-select">
+            <div v-if="scanID" class="has-category-select" :style="`z-index: ${100-n}`">
               <category-select :selectedCategories="setCategories[n-1]" @update="cat => {setCategories[n-1] = cat; onUpdateCategories()}" :type="(importType === 'WEAKAURAS2' ? 'WEAKAURA' : importType).toUpperCase()" :game="importGame"></category-select>
             </div>
           </div>

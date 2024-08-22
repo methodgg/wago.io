@@ -1,7 +1,7 @@
 <template>
   <multiselect v-model="multiSelectValue" :options="categoryOptions" label="text" :multiple="true" trackBy="id" :max="maxSelections" :close-on-select="false" :clear-on-select="false" :hide-selected="true" :placeholder="selectText || ''" :searchable="false" select-label="" open-direction="bottom" :class="{ 'system-tag': isSystem }">
     <template slot="tag" slot-scope="{ option, remove }">
-      <span :class="'custom__tag ' + option.id"><span>{{ option.text }}</span><span class="multiselect_remove" @click="remove(option)" v-if="!option.system && (option.parent || multiSelectValue.length === 1)">❌</span>
+      <span :class="'custom__tag ' + option.id"><span>{{ option.text }}</span><span class="multiselect_remove" @click="remove(option)" v-if="!option.system && (option.parent || !hasChildren(option.id))">❌</span>
       </span>
     </template>
     <template slot="option" slot-scope="props">
@@ -43,7 +43,7 @@ export default {
           return this.selectedCategories.system
         }
         return false
-    }
+    },
   },
   data: function () {
     return {
@@ -108,6 +108,10 @@ export default {
       else {
         this.maxSelections = values.length
       }
+    },
+    
+    hasChildren: function (id) {
+        return this.selectedCategories.filter(c => c.id !== id && c.id?.startsWith(id)).length > 0
     }
   },
   mounted: function () {
