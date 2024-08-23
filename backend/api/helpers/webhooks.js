@@ -16,7 +16,7 @@ module.exports = {
       let embeds = [{
         title: `Updated Import: ${wago.name}`,
         type: 'rich',
-        description: `${author.account.username} has created a new ${wago.type} import.`,
+        description: `${author.account.username} has created a new ${type} import.`,
         url: wago.url,
         timestamp: new Date(),
         color: 12658477, // #c1272d
