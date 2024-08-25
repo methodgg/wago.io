@@ -63,7 +63,7 @@ module.exports = (fastify, opts, next) => {
       var who = {}
       who.UID = user._id
       who.name = user.account.username || 'User-' + user._id.toString()
-      who.avatar = user.avatarURL
+      who.avatar = await user.avatarURL
       who.css = user.roleClass
 
       if (user.battlenet && user.battlenet.guilds && user.battlenet.guilds.length) {
@@ -71,14 +71,6 @@ module.exports = (fastify, opts, next) => {
       }
       who.battlenet = user.battlenet || false
       who.discord = user.discord || false
-      who.google = user.google || false
-      who.patreon = user.patreon || false
-      who.twitch = user.twitch || false
-      who.twitch.refreshToken = undefined
-      who.twitter = user.twitter || false
-      if (user.account.password) {
-        who.localAcct = true
-      }
 
       who.defaultImportVisibility = user.account.default_aura_visibility
       who.defaultEditorSyntax = user.config.textSyntax
@@ -113,6 +105,8 @@ module.exports = (fastify, opts, next) => {
       who.hideAds = user.access.hideAds
       who.config = user.config
       who.companionHideAlert = user.account.companionHideAlert
+
+      who.webhookOnImport = user.webhookOnImport
 
       const unreadComments = Comments.findUnread(user._id)
       const myCollections = WagoItem.find({ _userId: user._id, type: 'COLLECTION', deleted: false }).select('_id name').sort('name').exec()
@@ -237,7 +231,7 @@ module.exports = (fastify, opts, next) => {
     }
 
     req.user.save()
-    res.send({ succes: true })
+    res.send({ success: true })
   })
 
   // set default import visibility
@@ -254,7 +248,7 @@ module.exports = (fastify, opts, next) => {
     }
 
     req.user.save()
-    res.send({ succes: true })
+    res.send({ success: true })
   })
 
   fastify.post('/update/theme', (req, res) => {
@@ -265,7 +259,7 @@ module.exports = (fastify, opts, next) => {
     req.user.config.theme = req.body.theme
     req.user.config.editor = req.body.editor
     req.user.save()
-    res.send({ succes: true })
+    res.send({ success: true })
   })
 
   fastify.post('/update/editorSyntax', (req, res) => {
@@ -275,7 +269,7 @@ module.exports = (fastify, opts, next) => {
 
     req.user.config.textSyntax = req.body.syntax
     req.user.save()
-    res.send({ succes: true })
+    res.send({ success: true })
   })
 
   fastify.post('/disableCompanionAlert', (req, res) => {
@@ -285,7 +279,7 @@ module.exports = (fastify, opts, next) => {
 
     req.user.account.companionHideAlert = true
     req.user.save()
-    res.send({ succes: true })
+    res.send({ success: true })
   })
 
   /**
@@ -297,18 +291,34 @@ module.exports = (fastify, opts, next) => {
     }
     req.user.discord.options.messageOnFaveUpdate = req.body.msgOnFaveUpdate && true || false
     req.user.discord.options.messageOnComment = req.body.msgOnComment && true || false
-    if (req.body.createWebhook && req.body.createWebhook.match(/^https:\/\/(ptb.)?discord(app)?.com\/api\/webhooks\/[^\s]+/)) {
-      req.user.discord.webhooks.onCreate = req.body.createWebhook
-    }
-    else if (req.body.createWebhook) {
-      return res.code(400).send({ error: "invalid web hook" })
-    }
-    else {
-      req.user.discord.webhooks.onCreate = null
-    }
 
     req.user.save()
-    res.send({ succes: true })
+    res.send({ success: true })
+  })
+
+  fastify.post('/webhook', async (req, res) => {
+    if (!req.user) {
+        return res.code(403).send({ error: "forbidden" })
+    }
+
+    if (typeof req.body.webhookURL !== 'string' || req.body.webhookURL === '') {
+        req.user.webhookOnImport.url = ''
+        if (req.user.discord?.webhooks?.onCreate) {
+            req.user.discord.webhooks.onCreate = null
+        }
+        await req.user.save()
+        return res.send({success: true})
+    }
+    else if (req.body.webhookURL.match(/^https:\/\/\w+\.\w+/)) {
+        req.user.webhookOnImport.url = req.body.webhookURL
+        if (req.user.discord?.webhooks?.onCreate) {
+            req.user.discord.webhooks.onCreate = null
+        }
+        await req.user.save()
+        return res.send({success: true})
+    }
+    
+    res.send({error: 'Invalid webhook URL'})
   })
 
   fastify.post('/api-key', async (req, res) => {

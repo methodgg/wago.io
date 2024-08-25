@@ -575,6 +575,8 @@
                       </div>
                     </div>
                   </div>
+                  
+                  
 
                   <md-card-actions>
                     <md-button id="deleteWago" @click="$refs['deleteWago'].open()">Delete Import</md-button>
@@ -587,6 +589,33 @@
                       </md-dialog-actions>
                     </md-dialog>
                   </md-card-actions>
+                  
+                  <h3>{{ $t('Advanced Config') }}</h3>
+                  <p>{{ $t("Enter a Webhook URL to recieve notifications you create or update an import. Discord Webhooks will be detected and automatically formatted to what Discord expects to post in a channel, otherwise POST data will match the below schema.") }}</p>
+                  <p>{{ $t("This Webhook will override the global Webhook setting on the settings page, and will be sent regardless of the import's visibility setting, for this import only.") }}</p>
+                  <md-input-container :class="{ 'md-input-invalid': webhookError, 'md-input-status': webhookStatus }">
+                    <label>{{ $t("Webhook") }}</label>
+                    <md-textarea v-model="editWebhook" @change="onUpdateWebhook()" :debounce="600"></md-textarea>
+                    <span class="md-error" v-if="webhookStatus.length>0">{{ webhookStatus }}</span>
+                  </md-input-container>
+
+                  <md-button-toggle class="md-accent" md-single>
+                    <md-button v-bind:class="{'md-toggle': webhookDisplay === -1}" @click="webhookDisplay=-1">{{ $t("Example") }}</md-button>
+                    <md-button v-for="(item, index) in advancedConfig.webhookOnImport?.history" :key="index" v-bind:class="{'md-toggle': webhookDisplay === index}" @click="webhookDisplay=index">{{ item.date | moment("MMMM Do YYYY, h:mm a") }}</md-button>
+                  </md-button-toggle>
+        
+                  <div v-if="webhookDisplay === -1">
+                    <p>{{ $t('Example POST Data') }}</p>
+                    <monaco-editor v-model="exampleWebhook" lang="json"></monaco-editor>
+                  </div>
+                  <div v-else>
+                    <p>{{ $t('POST To') }} <strong>{{ advancedConfig.webhookOnImport.history[webhookDisplay].url }}</strong></p>
+                    <p>{{ $t('Return Status') }} <strong>{{ advancedConfig.webhookOnImport.history[webhookDisplay].status }}</strong></p>
+                    <p>{{ $t('Response Data') }}</p>
+                    <monaco-editor v-model="advancedConfig.webhookOnImport.history[webhookDisplay].response" :lang="advancedConfig.webhookOnImport.history[webhookDisplay].responseLang"></monaco-editor>
+                    <p>{{ $t('POST Data') }}</p>
+                    <monaco-editor v-model="advancedConfig.webhookOnImport.history[webhookDisplay].data" :lang="advancedConfig.webhookOnImport.history[webhookDisplay].dataLang"></monaco-editor>
+                  </div>  
                 </md-card>
               </div>
 
@@ -1259,7 +1288,9 @@ import ViewDiffs from '../UI/ViewDiffs.vue'
 import AddonInfoBox from '../UI/AddonInfoBox.vue'
 import Codereview from '../UI/CodeReview.vue'
 import Search from '../core/Search.vue'
+import MonacoEditor from '../UI/MonacoEditor.vue'
 import semver from 'semver'
+
 import detectCustomCode from '../libs/detectCustomCode'
 const openCustomProtocol = require('../libs/customProtocolDetection')
 
@@ -1291,7 +1322,8 @@ export default {
     Multiselect,
     CategorySelect,
     Search,
-    Codereview
+    Codereview,
+    MonacoEditor
   },
   created: function () {
     this.fetchWago()
@@ -1341,6 +1373,9 @@ export default {
       updateDescStatus: '',
       updateDescError: false,
       updateDescFormat: this.$store.state.user.defaultEditorSyntax,
+      editWebhook: '',
+      webhookError: false,
+      webhookStatus: '', 
       editVisibility: 'Public',
       editGame: '',
       showMoreCategories: false,
@@ -1405,7 +1440,9 @@ export default {
       enableModeration: false,
       moderation: [],
       modAction: '',
-      modComments: ''
+      modComments: '',
+      advancedConfig: {},
+      webhookDisplay: -1
     }
   },
   watch: {
@@ -1608,6 +1645,18 @@ export default {
         }
       }
       return false
+    },
+    exampleWebhook: function () {        
+        return JSON.stringify({
+            title: this.wago.name,
+            version: this.wago.versions.versions[0].versionString,
+            changelog: this.wago.versions.versions[0].changelog.text,
+            url: this.wago.url,
+            type: this.wago.type,
+            author: this.$store.state.user.name,
+            avatar: this.wago.user.avatar.png ?? this.wago.user.avatar.webp ?? this.wago.user.avatar.gif ?? this.wago.user.avatar.jpg,
+            screenshot: this.wago.screens && this.wago.screens[0]?.src || "https://media.wago.io/path/to/screenshot.png",
+        }, null, 4)
     }
   },
   methods: {
@@ -1702,6 +1751,11 @@ export default {
         if (res.codeURL) {
           this.getCode(res.codeURL)
         }
+
+        if (res.UID && res.UID === this.$store.state.user.UID) {
+            this.getAdvancedConfig(wagoID)            
+        }
+        
         // initial config
         this.editName = res.name
         this.editSlug = res.slug
@@ -1881,6 +1935,46 @@ export default {
           unlisted: (res.visibility.hidden || res.visibility.private || res.visibility.restricted)
         })
       })
+    },
+    async getAdvancedConfig (id) {
+        try {
+            const advanced = await this.http.get('/lookup/wago/advanced', {id})
+            this.advancedConfig = advanced ?? {}
+            this.editWebhook = this.advancedConfig?.webhookOnImport?.url ?? ''
+            this.advancedConfig.webhookOnImport.history.reverse()
+            for (const item of this.advancedConfig.webhookOnImport.history) {
+                if (typeof item.data === 'string') {
+                    try {
+                        let data = JSON.parse(item.data)
+                        item.data = JSON.stringify(data, null, 4)
+                        item.dataLang = 'json'
+                    }
+                    catch {
+                        item.dataLang = 'html'
+                    }
+                }
+                else {
+                    item.data = JSON.stringify(item.data, null, 4)
+                    item.dataLang = 'json'
+                }
+                
+                if (typeof item.response === 'string') {
+                    try {
+                        let data = JSON.parse(item.response)
+                        item.response = JSON.stringify(data, null, 4)
+                        item.responseLang = 'json'
+                    }
+                    catch {
+                        item.responseLang = 'html'
+                    }
+                }
+                else {
+                    item.response = JSON.stringify(item.response, null, 4)
+                    item.responseLang = 'json'
+                }
+            }
+        }
+        catch (e) {console.error('failed to get advanced config', e)}
     },
     getCode (url, update = 0) {
       var getCode
@@ -2649,53 +2743,38 @@ export default {
       })
     },
 
-    onUpdateSlug () {
-      this.$nextTick(function () {
-        this.updateSlugHasStatus = true
-        if (this.editSlug === '') {
-          this.editSlug = this.wago._id
-        }
-        // %#/\\<> and white space are invalid characters. String must be 7 letters long or include unicode.
-        if (this.editSlug.match(/[\s%#/\\<>]/) || (this.editSlug.length < 7 && !this.editSlug.match(/[^\u0000-\u007F]/))) {
-          this.updateSlugStatus = this.$t('Custom URLs can not contain the following characters %#/\\<> or spaces and be at 7 characters long')
-          this.updateSlugError = true
-          return false
-        }
-
-        this.updateSlugError = false
-        this.updateSlugStatus = this.$t('Saving')
-        var vue = this
-        this.http.post('/wago/update/slug', {
-          wagoID: vue.wago._id,
-          slug: this.editSlug.trim()
-        }).then((res) => {
+    onUpdateWebhook () {
+        this.$nextTick(() => {
+            this.updateWebhookStatus = false
+            this.webhookError = false
+            let promise
+            if (this.editWebhook === '' && this.advancedConfig?.webhookOnImport?.url) {
+                promise = this.http.post('/wago/update/webhook', {
+                    wagoID: this.wago._id,
+                    webhookURL: ''
+                })
+            }
+            else if (!this.editWebhook.match(/^https:\/\/\w+\.\w+/)) {
+                this.webhookStatus = this.$t('Invalid Webhook URL')
+                this.webhookError = true
+                return
+            }
+            else {
+                promise = this.http.post('/wago/update/webhook', {
+                    wagoID: this.wago._id,
+                    webhookURL: this.editWebhook.trim()
+                })
+            }
+            
+            promise.then((res) => {
           if (res.success) {
-            vue.updateSlugStatus = vue.$t('Saved')
-            vue.$set(vue.wago, 'slug', this.editSlug)
-            vue.$set(vue.wago, 'url', 'https://wago.io/' + this.editSlug)
-            // prevent page load from resetting the view and scrolling to the top
-            vue.doNotReloadWago = true
-            window.preventScroll = true
-            // update url
-            vue.$router.replace('/' + this.editSlug)
-            setTimeout(function () {
-              vue.updateSlugHasStatus = false
-              // allow page loads to reset view, once again
-              vue.doNotReloadWago = false
-              window.preventScroll = undefined
-            }, 600)
-          }
-          else if (res.exists) {
-            vue.updateSlugStatus = vue.$t('Error this URL is already in use')
-            this.updateSlugError = true
+                    this.advancedConfig.webhookOnImport.url = this.editWebhook
+                    this.webhookStatus = this.$t('Saved')
           }
           else {
-            this.updateSlugStatus = this.$t('Error could not save')
-            this.updateSlugError = true
+                    this.webhookStatus = this.$t('Error could not save')
+                    this.webhookError = true
           }
-        }).catch((e) => {
-          this.updateSlugStatus = this.$t('Error could not save')
-          this.updateSlugError = true
         })
       })
     },
@@ -2744,6 +2823,57 @@ export default {
       }).catch((err) => {
         console.error(err)
         window.eventHub.$emit('showSnackBar', vue.$t('Error could not save'))
+      })
+    },
+
+    onUpdateSlug () {        
+      this.$nextTick(function () {
+        this.updateSlugHasStatus = true
+        if (this.editSlug === '') {
+          this.editSlug = this.wago._id
+        }
+        // %#/\\<> and white space are invalid characters. String must be 7 letters long or include unicode.
+        if (this.editSlug.match(/[\s%#/\\<>]/) || (this.editSlug.length < 7 && !this.editSlug.match(/[^\u0000-\u007F]/))) {
+          this.updateSlugStatus = this.$t('Custom URLs can not contain the following characters %#/\\<> or spaces and be at 7 characters long')
+          this.updateSlugError = true
+          return false
+        }
+
+        this.updateSlugError = false
+        this.updateSlugStatus = this.$t('Saving')
+        var vue = this
+        this.http.post('/wago/update/slug', {
+          wagoID: vue.wago._id,
+          slug: this.editSlug.trim()
+        }).then((res) => {
+          if (res.success) {
+            vue.updateSlugStatus = vue.$t('Saved')
+            vue.$set(vue.wago, 'slug', this.editSlug)
+            vue.$set(vue.wago, 'url', 'https://wago.io/' + this.editSlug)
+            // prevent page load from resetting the view and scrolling to the top
+            vue.doNotReloadWago = true
+            window.preventScroll = true
+            // update url
+            vue.$router.replace('/' + this.editSlug)
+            setTimeout(function () {
+              vue.updateSlugHasStatus = false
+              // allow page loads to reset view, once again
+              vue.doNotReloadWago = false
+              window.preventScroll = undefined
+            }, 600)
+          }
+          else if (res.exists) {
+            vue.updateSlugStatus = vue.$t('Error this URL is already in use')
+            this.updateSlugError = true
+          }
+          else {
+            this.updateSlugStatus = this.$t('Error could not save')
+            this.updateSlugError = true
+          }
+        }).catch((e) => {
+          this.updateSlugStatus = this.$t('Error could not save')
+          this.updateSlugError = true
+        })
       })
     },
 

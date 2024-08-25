@@ -162,6 +162,16 @@ const Schema = new mongoose.Schema({
       expansion: { type: String, default: "" }
     }
   },
+  webhookOnImport: {
+    url: String,
+    history: [{
+        url: String,
+        status: Number,
+        data: mongoose.Schema.Types.Mixed,
+        response: mongoose.Schema.Types.Mixed,
+        date: { type: Date, default: Date.now },
+    }]
+  },
   search: {
     username: { type: String, index: true, maxlength: 128 }
   }

@@ -54,7 +54,7 @@
       <md-card v-if="User">
         <h2>{{ $t("Account Status") }}</h2>
         <md-card-content>
-          <!--<ui-warning v-if="User.accs && User.access.human" mode="ok">
+          <ui-warning v-if="User.access && User.access.human" mode="ok">
             {{ $t("Anti-spam") }}<br>
             {{ $t("Your account is verified as belonging to a human, hyperlinks are allowed in your descriptions") }}
           </ui-warning>
@@ -62,7 +62,7 @@
             {{ $t("Anti-spam") }}<br>
             <span v-html="$t('To enable hyperlinks in your descriptions, update your Wago account with a valid e-mail, or with a Patreon subscription at {{LINK}}').replace('{{LINK}}', '<a href=\'https://accounts.wago.io\'>accounts.wago.io</a>')"></span>
           </ui-warning>
-          <br>-->
+          <br>
           <ui-warning v-if="User.access && (User.access.admin || User.access.goldSub || User.access.guild_subscriber || User.access.ambassador || User.access.contestWinner || User.access.methodRaider || User.access.methodStreamer)" mode="gold">
             <span v-if="User.access.admin" style="padding-right:16px">[Wago.io Admin]</span>
             <span v-else-if="User.access.ambassador" style="padding-right:16px">[Wago.io Ambassador]</span>
@@ -104,13 +104,17 @@
           <md-card-content>
             <md-checkbox v-model="discordOptionFaveUpdateMsg" @change="onChangeDiscordOptions">{{ $t("Recieve a private message on Discord whenever a Wago you have starred is updated") }}</md-checkbox><br>
             <md-checkbox v-model="discordOptionCommentMsg" @change="onChangeDiscordOptions">{{ $t("Recieve a private message on Discord whenever you recieve a comment") }}</md-checkbox><br>
-            <p>{{ $t("Have your own Discord server? Enter a webhook to broadcast to your selected channel whenever you create or update a Wago") }}</p>
-            <md-input-container>
-              <label>{{ $t("Webhook URL") }}</label>
-              <md-input v-model="discordOptionCreateWebhook" @change="onChangeDiscordOptions" :debounce="600"></md-input>
-              <span class="md-error" v-if="discordOptionCreateWebhookStatus.length > 0">{{ discordOptionCreateWebhookStatus }}</span>
-            </md-input-container>
           </md-card-content>
+        </div>
+        
+        <div>
+          <h2>{{ $t("Webhook") }}</h2>
+          <p>{{ $t("Enter a Webhook URL to recieve a you create or update an import. Discord Webhooks will be automatically formatted to what Discord expects to post in a channel, otherwise data will match the below schema.") }}</p>
+          <md-input-container>
+            <label>{{ $t("Webhook URL") }}</label>
+            <md-input v-model="webhookURL" @change="onChangeWebhook" :debounce="600"></md-input>
+            <span class="md-error" v-if="webhookURLStatus.length > 0">{{ webhookURLStatus }}</span>
+          </md-input-container>
         </div>
       </md-card>
     </md-layout>
@@ -162,8 +166,8 @@ end`,
       confirmPassword: '',
       discordOptionFaveUpdateMsg: this.$store.state.user.discord && this.$store.state.user.discord.options && this.$store.state.user.discord.options.messageOnFaveUpdate,
       discordOptionCommentMsg: this.$store.state.user.discord && this.$store.state.user.discord.options && this.$store.state.user.discord.options.messageOnComment,
-      discordOptionCreateWebhook: this.$store.state.user.discord && this.$store.state.user.discord.webhooks && this.$store.state.user.discord.webhooks.onCreate,
-      discordOptionCreateWebhookStatus: ''
+      webhookURL: this.$store.state.user.webhookOnImport?.url ?? this.$store.state.user.discord?.webhooks?.onCreate,
+      webhookURLStatus: ''
     }
   },
   computed: {
@@ -211,7 +215,7 @@ end`,
   mounted: function () {
     // account page requires user to be logged in
     if (!this.$store.state.user.UID) {
-      this.$router.replace('/login')
+      this.$router.replace('/')
     }
     this.$store.commit('setPageInfo', {
       title: this.$t('Account')
@@ -398,10 +402,26 @@ end`,
       this.$nextTick(function () {
         var params = {
           msgOnFaveUpdate: this.discordOptionFaveUpdateMsg,
-          msgOnComment: this.discordOptionCommentMsg,
-          createWebhook: this.discordOptionCreateWebhook
+          msgOnComment: this.discordOptionCommentMsg
         }
         this.http.post('/account/discord/options', params).then((res) => {
+          if (res.error) {
+            window.eventHub.$emit('showSnackBar', res.error)
+          }
+        }).catch((err) => {
+          console.log(err)
+          window.eventHub.$emit('showSnackBar', vue.$t('Error could not save'))
+        })
+      })
+    },
+
+    onChangeWebhook () {
+      var vue = this
+      this.$nextTick(function () {
+        var params = {
+          webhookURL: this.webhookURL
+        }
+        this.http.post('/account/webhook/options', params).then((res) => {
           if (res.error) {
             window.eventHub.$emit('showSnackBar', res.error)
           }

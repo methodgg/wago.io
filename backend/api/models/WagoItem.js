@@ -137,6 +137,17 @@ const Schema = new mongoose.Schema({
     anythingTable: { type: String, index: true }
   },
 
+  webhookOnImport: {
+    url: String,
+    history: [{
+        url: String,
+        status: Number,
+        data: mongoose.Schema.Types.Mixed,
+        response: mongoose.Schema.Types.Mixed,
+        date: { type: Date, default: Date.now },
+    }]
+  },
+
   _indexImport: Boolean,
   _indexCode: Boolean,
   _meiliWA: Boolean

@@ -822,6 +822,31 @@ module.exports = function (fastify, opts, next) {
     res.send({success: true, name: collection.name, collectionID: collection._id})
   })
 
+  fastify.post('/update/webhook', async (req, res) => {
+    if (!req.user || !req.body.wagoID) {
+        return res.code(403).send({error: "forbidden"})
+    }
+  
+    const wago = await WagoItem.findById(req.body.wagoID).exec()
+    if (!wago || !wago._userId.equals(req.user._id)) {
+        return res.code(403).send({error: "forbidden"})
+    }
+
+    if (typeof req.body.webhookURL !== 'string' || req.body.webhookURL === '') {
+        wago.webhookOnImport.url = ''
+        await wago.save()
+        return res.send({success: true})
+    }
+    else if (req.body.webhookURL.match(/^https:\/\/\w+\.\w+/)) {
+        wago.webhookOnImport.url = req.body.webhookURL
+        await wago.save()
+        console.log(wago.webhookOnImport)
+        return res.send({success: true})
+    }
+    
+    res.send({error: 'Invalid webhook URL'})
+  })
+
   // submit moderation report
   fastify.post('/report', async (req, res) => {
     if (!req.user || !req.body.wagoID || !req.body.reason || !req.body.reason.match(/Inappropriate|Malicious|Other|Request Review|False Positive/)) {

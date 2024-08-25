@@ -831,6 +831,23 @@ module.exports = function (fastify, opts, next) {
     return res.send(comments)
   })
 
+  // get advanced/private config
+  fastify.get('/wago/advanced', async (req, res, next) => {
+    if (!req.user || !req.query.id) {
+        return res.code(403).send({error: "forbidden"})
+    }
+  
+    const wago = await WagoItem.findById(req.query.id).exec()
+    if (!wago || !wago._userId.equals(req.user._id)) {
+        return res.code(403).send({error: "forbidden"})
+    }
+
+    return res.send({
+        wagoID: wago._id,
+        webhookOnImport: wago.webhookOnImport 
+      })
+  })
+
   // get profile info for user search
   fastify.get('/profile', async (req, res, next) => {
     if (!req.query.user) {

@@ -606,7 +606,10 @@ module.exports = function (fastify, opts, next) {
       wago.relevancy = Categories.relevanceScores(wago.categories)
     }
 
-    // time to save!
+    // time to save!    
+    if (req.body.importAs === 'User' && req.user) {
+        await webhooks.onImport(req.user, wago)
+    }
     var doc = await wago.save()
     var code = new WagoCode({ auraID: doc._id })
     if (wago.type === 'SNIPPET') {
@@ -647,9 +650,7 @@ module.exports = function (fastify, opts, next) {
 
     await code.save()
     await taskQueue.add('ProcessCode', { id: doc._id, version: code.versionString, addon: scan.addon, encode: true }, { priority: req.user && req.user.access.queueSkip && 2 || 5, jobId: `${doc._id}:${code.version}:${code.versionString}` })
-    if (req.body.importAs === 'User' && req.user && !wago.hidden && !wago.private && !wago.encrypted && !wago.restricted && req.user.discord && req.user.discord.webhooks && req.user.discord.webhooks.onCreate) {
-      webhooks.discord.onCreate(req.user, wago)
-    }
+
     res.send({ success: true, wagoID: doc._id })
   })
 
@@ -736,6 +737,16 @@ module.exports = function (fastify, opts, next) {
     }
     wago.categories = [...new Set(wago.categories)]
     wago.modified = Date.now()
+    
+    // send message to starred users    
+    taskQueueDiscordBot.add('DiscordMessage', { type: 'update', author: req.user._id, wago: wago._id, message: req.body.text })
+
+    // send update to webhook
+    if (req.user) {
+        await webhooks.onImport(req.user, wago)
+    }
+
+    console.log(wago.webhookOnImport)
     await wago.save()
 
     if (wago.encrypted && req.body.cipherKey) {
@@ -754,14 +765,6 @@ module.exports = function (fastify, opts, next) {
     code.versionString = wago.latestVersion.versionString
 
     await code.save()
-
-    // send message to starred users    
-    taskQueueDiscordBot.add('DiscordMessage', { type: 'update', author: req.user._id, wago: wago._id, message: req.body.text })
-
-    // send update to webhook
-    if (req.user && !wago.hidden && !wago.private && !wago.restricted && req.user.discord && req.user.discord.webhooks && req.user.discord.webhooks.onCreate) {
-      webhooks.discord.onUpdate(req.user, wago)
-    }
     redis.clear(wago)
     res.send({ success: true, wagoID: wago._id })
   })
@@ -928,15 +931,15 @@ module.exports = function (fastify, opts, next) {
       // break
     }
 
-    if (req.user && !wago.hidden && !wago.private && !wago.restricted && req.user.discord && req.user.discord.webhooks && req.user.discord.webhooks.onCreate) {
-      webhooks.discord.onUpdate(req.user, wago)
-    }
-
     if (wago.encrypted && req.body.cipherKey) {
       code.encoded = crypto.AES.encrypt(code.encoded, req.body.cipherKey)
       code.json = crypto.AES.encrypt(code.json, req.body.cipherKey)
       code.text = crypto.AES.encrypt(code.text, req.body.cipherKey)
       code.lua = crypto.AES.encrypt(code.lua, req.body.cipherKey)
+    }
+
+    if (req.user) {
+        await webhooks.onImport(req.user, wago)
     }
 
     await wago.save()
@@ -997,6 +1000,11 @@ module.exports = function (fastify, opts, next) {
         }
       }
       wago.categories = Categories.validateCategories(wago.categories)
+      
+      if (req.body.importAs === 'User' && req.user) {
+        await webhooks.onImport(req.user, wago)
+      }
+
       var doc = await wago.save()
       var code = new WagoCode()
       code.auraID = doc._id
@@ -1005,10 +1013,7 @@ module.exports = function (fastify, opts, next) {
       code.version = 1
       code.versionString = '1.0.0'
       await code.save()
-      // broadcast to discord webhook?
-      if (req.body.importAs === 'User' && req.user && !wago.hidden && !wago.private && req.user.discord && req.user.discord.webhooks.onCreate) {
-        webhooks.discord.onCreate(req.user, wago)
-      }
+
       res.send({ success: true, wagoID: doc._id })
     }
     else {
@@ -1118,7 +1123,10 @@ module.exports = function (fastify, opts, next) {
       wago.latestVersion.versionString = newVersion
     }
     wago.modified = Date.now()
+
+    await webhooks.onImport(req.user, wago)
     await wago.save()
+    
     const code = new WagoCode({
       auraID: wago._id,
       version: wago.latestVersion.iteration,
@@ -1133,7 +1141,6 @@ module.exports = function (fastify, opts, next) {
         code.encoded = req.body.lua
         delete code.lua
     }
-    webhooks.discord.onUpdate(req.user, wago)
 
     if (wago.encrypted && req.body.cipherKey) {
       code.encoded = crypto.AES.encrypt(code.encoded, req.body.cipherKey)
