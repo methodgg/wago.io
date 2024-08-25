@@ -21,7 +21,7 @@ module.exports = {
     },
   
     processMeta: (obj) => {
-      if (!obj || !Array.isArray(obj.categories) || !Array.isArray(obj.order) || !Array.isArray(obj.modifications) || !Array.isArray(obj.hidden) || !obj.version) {
+      if (!obj || !Array.isArray(obj.categories) || !Array.isArray(obj.modifications) || !obj.version) {
         return false
       }
       let meta = {}

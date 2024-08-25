@@ -86,6 +86,7 @@
                     searchType === 'opie' && 'OPie' ||
                     searchType === 'totalrp3' && 'TotalRP' ||
                     searchType === 'vuhdo' && 'VuhDo' ||
+                    searchType === 'baganator' && 'Baganator' ||
                     searchType === 'dbm' && 'DBM' ||
                     searchType === 'bigwigs' && 'BigWigs' ||
                     searchType === 'mdt' && 'MDT' ||
@@ -96,10 +97,10 @@
                     }}</small>
                 </div>
                 <md-button-toggle md-single class="md-accent md-warn select-search-mode">
-                  <md-button :class="{ 'md-toggle': !searchType || searchType === 'all' }" class="md-icon-button" @click="setType('all')">
-                    <img src="../../assets/wagoio-logo.png">
-                    <md-tooltip md-direction="bottom" class="">{{ $t("All") }}</md-tooltip>
-                  </md-button>
+                    <md-button :class="{ 'md-toggle': !searchType || searchType === 'all' }" class="md-icon-button" @click="setType('all')">
+                      <img src="../../assets/wagoio-logo.png">
+                      <md-tooltip md-direction="bottom" class="">{{ $t("All") }}</md-tooltip>
+                    </md-button>
                   <md-button :class="{ 'md-toggle': searchType === 'weakaura' }" class="md-icon-button" @click="setType('weakaura')">
                     <category-image :group="'t-weakaura-nobg'"></category-image>
                     <md-tooltip md-direction="bottom" class="">{{ $t("WeakAuras") }}</md-tooltip>
@@ -124,6 +125,7 @@
                     <img src="../../assets/misc-addons.svg" style="margin-top:2px">
                   </div>
                   <div id="addon-dropdown">
+                    <div @click="setType('baganator')"><span class="addon-icon"><img src="../../assets/menu-baginator.png"></span> Baganator</div>
                     <div @click="setType('bigwigs')"><span class="addon-icon"><img src="../../assets/menu-bigwigs.png"></span> BigWigs</div>
                     <div @click="setType('blizzhud')"><span class="addon-icon"><img src="../../assets/menu-blizzhud.png"></span> BlizzHud</div>
                     <div @click="setType('cell')"><span class="addon-icon"><img src="../../assets/menu-cell.png"></span> Cell</div>

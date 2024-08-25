@@ -76,7 +76,7 @@
               <md-list-item class="md-inset">
                 <div class="menu-image"><img src="../../assets/menu-baginator.png" alt="Icon" /></div>
                 <div class="md-list-text-container">
-                  <router-link to="/search/imports/wow/Baganator ">Baganator </router-link>
+                  <router-link to="/search/imports/wow/baganator ">Baganator </router-link>
                 </div>
               </md-list-item>
             </md-list>
