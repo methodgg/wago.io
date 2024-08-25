@@ -109,12 +109,31 @@
         
         <div>
           <h2>{{ $t("Webhook") }}</h2>
-          <p>{{ $t("Enter a Webhook URL to recieve a you create or update an import. Discord Webhooks will be automatically formatted to what Discord expects to post in a channel, otherwise data will match the below schema.") }}</p>
+          <p>{{ $t("Enter a Webhook URL to recieve notifications you create or update an import. Discord Webhooks will be detected and automatically formatted to what Discord expects to post in a channel, otherwise POST data will match the below schema.") }}</p>
+          <p>{{ $t("Note that hidden, private, encrypted or restricted auras will not have a webhook sent from this global setting, but individual imports can have their own webhook settings which override this one.") }}</p>
           <md-input-container>
             <label>{{ $t("Webhook URL") }}</label>
             <md-input v-model="webhookURL" @change="onChangeWebhook" :debounce="600"></md-input>
             <span class="md-error" v-if="webhookURLStatus.length > 0">{{ webhookURLStatus }}</span>
           </md-input-container>
+
+          <md-button-toggle class="md-accent" md-single>
+            <md-button v-bind:class="{'md-toggle': webhookDisplay === -1}" @click="webhookDisplay=-1">{{ $t("Example") }}</md-button>
+            <md-button v-for="(item, index) in $store.state.user.webhookOnImport.history" :key="index" v-bind:class="{'md-toggle': webhookDisplay === index}" @click="webhookDisplay=index">{{ item.date | moment("MMMM Do YYYY, h:mm a") }}</md-button>
+          </md-button-toggle>
+
+          <div v-if="webhookDisplay === -1">
+            <p>{{ $t('Example POST Data') }}</p>
+            <monaco-editor v-model="exampleWebhook" lang="json"></monaco-editor>
+          </div>
+          <div v-else>
+            <p>{{ $t('POST To') }} <strong>{{ $store.state.user.webhookOnImport.history[webhookDisplay].url }}</strong></p>
+            <p>{{ $t('Return Status') }} <strong>{{ $store.state.user.webhookOnImport.history[webhookDisplay].status }}</strong></p>
+            <p>{{ $t('Response Data') }}</p>
+            <monaco-editor v-model="$store.state.user.webhookOnImport.history[webhookDisplay].response" :lang="$store.state.user.webhookOnImport.history[webhookDisplay].responseLang"></monaco-editor>
+            <p>{{ $t('POST Data') }}</p>
+            <monaco-editor v-model="$store.state.user.webhookOnImport.history[webhookDisplay].data" :lang="$store.state.user.webhookOnImport.history[webhookDisplay].dataLang"></monaco-editor>
+          </div>            
         </div>
       </md-card>
     </md-layout>
@@ -126,6 +145,7 @@
 import WagoOauth from '../UI/WagoOauth.vue'
 import WagoAPIKey from '../UI/WagoApiKey.vue'
 import WagoSupportKey from '../UI/WagoSupportKey.vue'
+import MonacoEditor from '../UI/MonacoEditor.vue'
 const openCustomProtocol = require('../libs/customProtocolDetection')
 
 export default {
@@ -133,7 +153,8 @@ export default {
     'wago-oauth': WagoOauth,
     editor: require('vue2-ace-editor'),
     'wago-api-key': WagoAPIKey,
-    'support-api-key': WagoSupportKey
+    'support-api-key': WagoSupportKey,
+    'monaco-editor': MonacoEditor
   },
   data: function () {
     return {
@@ -167,10 +188,24 @@ end`,
       discordOptionFaveUpdateMsg: this.$store.state.user.discord && this.$store.state.user.discord.options && this.$store.state.user.discord.options.messageOnFaveUpdate,
       discordOptionCommentMsg: this.$store.state.user.discord && this.$store.state.user.discord.options && this.$store.state.user.discord.options.messageOnComment,
       webhookURL: this.$store.state.user.webhookOnImport?.url ?? this.$store.state.user.discord?.webhooks?.onCreate,
-      webhookURLStatus: ''
+      webhookURLStatus: '',
+      webhookDisplay: -1,
     }
   },
   computed: {
+    exampleWebhook () {
+        return JSON.stringify({
+            title: "Some title",
+            version: "1.0.2",
+            changelog: "Some changes as mentioned",
+            url: "https://wago.io/import-url",
+            type: "WEAKAURA",
+            author: this.$store.state.user.name,
+            avatar: "https://media.wago.io/path/to/avatar.png",
+            screenshot: "https://media.wago.io/path/to/screenshot.png",
+        }, null, 4)
+    },
+
     profileVisibilityStatus () {
       if (this.selectProfileVisibility === 'Public') {
         return ' '
@@ -210,16 +245,48 @@ end`,
         console.log(err)
         window.eventHub.$emit('showSnackBar', this.$t('Error could not save'))
       })
-    }
+    },
   },
   mounted: function () {
-    // account page requires user to be logged in
-    if (!this.$store.state.user.UID) {
-      this.$router.replace('/')
-    }
-    this.$store.commit('setPageInfo', {
-      title: this.$t('Account')
-    })
+        // account page requires user to be logged in
+        if (!this.$store.state.user.UID) {
+            this.$router.replace('/')
+        }
+        this.$store.commit('setPageInfo', {
+            title: this.$t('Account')
+        })
+        this.$store.state.user.webhookOnImport.history.reverse()
+        for (const item of this.$store.state.user.webhookOnImport.history) {
+            if (typeof item.data === 'string') {
+                try {
+                    let data = JSON.parse(item.data)
+                    item.data = JSON.stringify(data, null, 4)
+                    item.dataLang = 'json'
+                }
+                catch {
+                    item.dataLang = 'html'
+                }
+            }
+            else {
+                item.data = JSON.stringify(item.data, null, 4)
+                item.dataLang = 'json'
+            }
+            
+            if (typeof item.response === 'string') {
+                try {
+                    let data = JSON.parse(item.response)
+                    item.response = JSON.stringify(data, null, 4)
+                    item.responseLang = 'json'
+                }
+                catch {
+                    item.responseLang = 'html'
+                }
+            }
+            else {
+                item.response = JSON.stringify(item.response, null, 4)
+                item.responseLang = 'json'
+            }
+        }
   },
   methods: {
     onUpdateName () {
@@ -421,7 +488,7 @@ end`,
         var params = {
           webhookURL: this.webhookURL
         }
-        this.http.post('/account/webhook/options', params).then((res) => {
+        this.http.post('/account/webhook', params).then((res) => {
           if (res.error) {
             window.eventHub.$emit('showSnackBar', res.error)
           }
