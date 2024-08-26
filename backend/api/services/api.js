@@ -328,7 +328,7 @@ module.exports = function (fastify, opts, next) {
             }
         }
         else {
-            return res.code(400).send({ error: "unknown_auth_type" })
+            return res.code(400).send({ error: "unknown_auth_type", type: req.params.type })
         }
         return res.send({
             user_id: user._id,
