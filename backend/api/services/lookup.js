@@ -422,7 +422,7 @@ module.exports = function (fastify, opts, next) {
         }
         versionHistory.push({ version: v.version, versionString: versionString, date: v.updated, changelog: v.changelog && v.changelog.text ? v.changelog : {
             text: "",
-            format: ""
+            format: "bbcode"
         }})
       })
       wago.versions = { total: versions.length, versions: versionHistory }
@@ -776,7 +776,7 @@ module.exports = function (fastify, opts, next) {
     wagoCode.versionString = versionString
     wagoCode.changelog = code.changelog && code.changelog.text ? code.changelog : {
         text: "",
-        format: ""
+        format: "bbcode"
     },
     wagoCode.customCode = code.customCode
     wagoCode.tableMetrics = code.tableMetrics
