@@ -167,14 +167,26 @@ module.exports = {
     else {
       subtitle = 'A comment has been posted mentioning you.'
     }
-    let avatar = await author.avatarURL
+
+    let avatar
+    try {
+        avatar = await author.avatarURL
+    }
+    catch (e) {
+    }
+    let thumbnail
+    try {
+        thumbnail = await wago.getThumbnailURL()
+    }
+    catch (e) {
+    }
     const embed = new Discord.MessageEmbed()
       .setColor('#c1272d')
       .setTitle('Comment Posted: ' + wago.name)
       .setDescription(subtitle)
       .setURL(wago.url)
-      .setImage(await wago.getThumbnailURL())
-      .setAuthor(author.account.username, avatar.png, `https://wago.io${author.profile.url}`)
+      .setImage(thumbnail)
+      .setAuthor(author.account.username, avatar.png ?? 'https://accounts.wago.io/images/wago-logo.svg', `https://wago.io${author.profile.url}`)
       .addFields({ name: 'Message', value: message })
       .setTimestamp()
       .setFooter('Wago.io', 'https://media.wago.io/favicon/favicon-16x16.png')
@@ -193,7 +205,8 @@ module.exports = {
             code: e?.code,
             status: e?.response?.status,
             data: e?.response?.data,
-            headers: e?.response?.headers
+            headers: e?.response?.headers,
+            embed
         })
         console.error('discord send message error')
         console.error(e)
@@ -201,20 +214,33 @@ module.exports = {
   },
 
   postUpdate: async (author, to, wago) => {
-    let avatar = await author.avatarURL
+    let avatar
+    try {
+        avatar = await author.avatarURL
+    }
+    catch (e) {
+    }
+    let thumbnail
+    try {
+        thumbnail = await wago.getThumbnailURL()
+    }
+    catch (e) {
+    }
     const embed = new Discord.MessageEmbed()
       .setColor('#c1272d')
       .setTitle(`Update: ${wago.name} - ${wago.latestVersion.versionString}`)
       .setDescription('An update to one of your starred imports has been imported.')
       .setURL(wago.url)
-      .setImage(await wago.getThumbnailURL())
-      .setAuthor(author.account.username, avatar.png, `https://wago.io${author.profile.url}`)
+      .setImage(thumbnail)
+      .setAuthor(author.account.username, avatar.png ?? 'https://accounts.wago.io/images/wago-logo.svg', `https://wago.io${author.profile.url}`)
       .setTimestamp()
       .setFooter('Wago.io', 'https://media.wago.io/favicon/favicon-16x16.png')
 
     if (wago.latestVersion.changelog.text) {
       embed.addFields({ name: 'Changelog', value: wago.latestVersion.changelog.text.replace(/\[(\w+)[^\]]*](.*?)\[\/\1]/g, '') })
     }
+
+    console.log(embed)
 
     try {
       let discordUser = await client.users.fetch(to.discord.id)
@@ -230,7 +256,8 @@ module.exports = {
             code: e?.code,
             status: e?.response?.status,
             data: e?.response?.data,
-            headers: e?.response?.headers
+            headers: e?.response?.headers,
+            embed
         })
         console.error('discord send message error')
         console.error(e)
