@@ -187,7 +187,7 @@ module.exports = {
       .setURL(wago.url)
       .setImage(thumbnail)
       .setAuthor(author.account.username, avatar.png ?? 'https://accounts.wago.io/images/wago-logo.svg', `https://wago.io${author.profile.url}`)
-      .addFields({ name: 'Message', value: message })
+      .addFields({ name: 'Message', value: message.substring(0, 512) })
       .setTimestamp()
       .setFooter('Wago.io', 'https://media.wago.io/favicon/favicon-16x16.png')
 
@@ -206,10 +206,9 @@ module.exports = {
             status: e?.response?.status,
             data: e?.response?.data,
             headers: e?.response?.headers,
-            embed
+            embed,
+            to: to.discord.id
         })
-        console.error('discord send message error')
-        console.error(e)
     }
   },
 
@@ -240,8 +239,6 @@ module.exports = {
       embed.addFields({ name: 'Changelog', value: wago.latestVersion.changelog.text.replace(/\[(\w+)[^\]]*](.*?)\[\/\1]/g, '') })
     }
 
-    console.log(embed)
-
     try {
       let discordUser = await client.users.fetch(to.discord.id)
       let channel = await discordUser.createDM()
@@ -257,10 +254,9 @@ module.exports = {
             status: e?.response?.status,
             data: e?.response?.data,
             headers: e?.response?.headers,
-            embed
+            embed,
+            to: to.discord.id
         })
-        console.error('discord send message error')
-        console.error(e)
     }
   }
 }

@@ -231,7 +231,7 @@ Schema.virtual('profile.visibility').set(function (val) {
 })
 Schema.virtual('profile.url').get(function () {
   if (this.account.hidden || !this.account.username) return false
-  return '/p/' + this.account.username
+  return '/p/' + encodeURIComponent(this.account.username)
 })
 Schema.virtual('profile.name').get(function () {
   return this.account.username || 'User-' + this._id
