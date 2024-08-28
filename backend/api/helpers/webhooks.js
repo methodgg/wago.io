@@ -31,7 +31,7 @@ module.exports = {
         let record
 
         try {
-            if (url.match(/^https:\/\/discord\.com\/api\/webhooks\/(\w+)\/([-\w]+)$/)) {
+            if (url.match(/^https:\/\/discord(app)?\.com\/api\/webhooks\/(\w+)\/([-\w]+)$/)) {
                 data = [{
                     title: wago.latestVersion.iteration > 1 ? `Updated Import: ${wago.name}` : `New Import: ${wago.name}`,
                     type: 'rich',
