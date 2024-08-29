@@ -148,6 +148,10 @@ const Schema = new mongoose.Schema({
     }]
   },
 
+  uiPackSettings: {
+    paidPackOptOut: { type: Boolean, default: false },
+  },
+
   _indexImport: Boolean,
   _indexCode: Boolean,
   _meiliWA: Boolean

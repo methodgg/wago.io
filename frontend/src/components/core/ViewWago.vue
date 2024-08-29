@@ -520,6 +520,18 @@
                       </md-layout>
                     </md-layout>
                   </div>
+
+                  
+                  <md-layout md-row  v-if="wago.type.match(/WEAKAURA/)">
+                    <md-input-container>
+                      <label for="paidPackOptOut">{{ $t("Allow this WeakAura in paid UI Packs") }} <a href="https://uipacks.wago.io/" target="_blank">{{ $t("View UI Packs") }}</a></label>
+                      <md-select name="paidPackOptOut" id="paidPackOptOut" v-model="editUIPackSettings.paidPackOptOut">
+                        <md-option :value="false">{{ $t("Yes") }}</md-option>
+                        <md-option :value="true">{{ $t("No") }}</md-option>
+                      </md-select>
+                    </md-input-container>
+                  </md-layout>
+
                   <div v-if="!wago.image && !wago.audio && wago.type !== 'ERROR' && wago.type !== 'DBM' && wago.type !== 'BIGWIGS' && wago.type !== 'MDT'">
                     <div>
                       <label id="categoryLabel">{{ $t("Categories") }}</label>
@@ -1377,6 +1389,7 @@ export default {
       webhookError: false,
       webhookStatus: '', 
       editVisibility: 'Public',
+      editUIPackSettings: {},
       editGame: '',
       showMoreCategories: false,
       editCategories: [],
@@ -1459,6 +1472,14 @@ export default {
       if (this.showPanel === 'config') {
         this.onUpdateGame()
       }
+    },
+    editUIPackSettings: {
+        handler(val) {
+            if (this.showPanel === 'config') {
+                this.onUpdateUIPack()
+            }
+        },
+        deep: true
     },
     newImportString: function (val) {
       var vue = this
@@ -1762,6 +1783,7 @@ export default {
         this.editDesc = res.description.text
         this.updateDescFormat = res.description.format || this.$store.state.user.defaultEditorSyntax
         this.wago.typePrefix = ''
+        this.editUIPackSettings = res.uiPackSettings
 
         if (this.wago.type === 'MDT') {
           this.$store.commit('setPageInfo', {
@@ -1807,7 +1829,7 @@ export default {
             break
           case 'MACRO':
             this.showPanel = 'description'
-            this.typeSlug = 'macro/'
+            this.typeSlug = 'macros/'
             break
           case 'WEAKAURA':
           case 'CLASSIC-WEAKAURA':
@@ -1975,6 +1997,17 @@ export default {
             }
         }
         catch (e) {console.error('failed to get advanced config', e)}
+    },
+    onUpdateUIPack: function (v) {
+        this.http.post('/wago/update/uipack-options', {
+            wagoID: this.wago._id,
+            paidPackOptOut: this.wago.uiPackSettings.paidPackOptOut
+        }).then((res) => {
+            window.eventHub.$emit('showSnackBar', this.$t('Preference saved'))
+        }).catch((err) => {
+            console.error(err)
+            window.eventHub.$emit('showSnackBar', this.$t('Error could not save'))
+        })
     },
     getCode (url, update = 0) {
       var getCode

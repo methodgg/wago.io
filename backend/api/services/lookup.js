@@ -251,6 +251,7 @@ module.exports = function (fastify, opts, next) {
     wago.installCount = doc.popularity.installed_count
     wago.UID = doc._userId
     wago.alerts = {}
+    wago.uiPackSettings = doc.uiPackSettings
 
     if (doc.type === 'ERROR' || (req.user && req.user._id.equals(wago.UID) && req.user.access.referrals)) {
       doc.referrals.sort((a, b) => {

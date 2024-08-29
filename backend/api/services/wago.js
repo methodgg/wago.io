@@ -822,6 +822,23 @@ module.exports = function (fastify, opts, next) {
     res.send({success: true, name: collection.name, collectionID: collection._id})
   })
 
+    fastify.post('/update/uipack-options', async (req, res) => {
+        if (!req.user || !req.body.wagoID) {
+            return res.code(403).send({error: "forbidden"})
+        }
+
+        const wago = await WagoItem.findById(req.body.wagoID).exec()
+        if (!wago || !wago._userId.equals(req.user._id)) {
+            return res.code(403).send({error: "forbidden"})
+        }
+
+        wago.uiPackSettings.paidPackOptOut = Boolean(req.body.paidPackOptOut)
+        await wago.save()
+        redis.clear(wago)
+        return res.send({success: true})
+
+    })
+
   fastify.post('/update/webhook', async (req, res) => {
     if (!req.user || !req.body.wagoID) {
         return res.code(403).send({error: "forbidden"})
