@@ -524,7 +524,7 @@
                   
                   <md-layout md-row  v-if="wago.type.match(/WEAKAURA/)">
                     <md-input-container>
-                      <label for="paidPackOptOut">{{ $t("Allow this WeakAura in paid UI Packs") }} <a href="https://uipacks.wago.io/" target="_blank">{{ $t("View UI Packs") }}</a></label>
+                      <label for="paidPackOptOut">{{ $t("Allow this WeakAura in paid UI Packs") }} - <a href="https://uipacks.wago.io/" target="_blank">{{ $t("What are UI Packs") }}</a></label>
                       <md-select name="paidPackOptOut" id="paidPackOptOut" v-model="editUIPackSettings.paidPackOptOut">
                         <md-option :value="false">{{ $t("Yes") }}</md-option>
                         <md-option :value="true">{{ $t("No") }}</md-option>
