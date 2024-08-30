@@ -99,7 +99,7 @@
                       <span class="sub-nav-heading"><span class="addon-icon"><img src="./assets/weakauras.png"></span> WeakAuras</span>
                       <span class="game-select">
                           <router-link to='/the-war-within-weakauras'>{{ $t("The War Within") }}</router-link>
-                          <router-link to='/cataclysm-weakauras'>{{ $t("Cataclysm") }}Cataclysm</router-link>
+                          <router-link to='/cataclysm-weakauras'>{{ $t("Cataclysm") }}</router-link>
                           <router-link to='/classic-weakauras'>{{ $t("Classic") }}</router-link>
                       </span>
                       </div>
