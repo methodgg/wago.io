@@ -5,7 +5,7 @@
       <md-menu-content>
         <md-list-item><router-link to="/settings">{{ $t("Settings") }}</router-link></md-list-item>
         <md-list-item v-if="User.access.admin"><router-link to="/admin">Admin</router-link></md-list-item>
-        <md-list-item><router-link to="/logout">Logout</router-link></md-list-item>
+        <md-list-item><router-link to="/logout">{{ $t("Logout") }}</router-link></md-list-item>
       </md-menu-content>
     </md-menu>
   </div>

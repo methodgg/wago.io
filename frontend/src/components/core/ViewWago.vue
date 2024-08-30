@@ -246,7 +246,7 @@
       </div>
 
       <md-dialog md-open-from="#sendToDesktopAppBtn" md-close-to="#sendToDesktopAppBtn" ref="sendToAppDialog">
-        <md-dialog-title>Send to App</md-dialog-title>
+        <md-dialog-title>{{ $t("Send to App") }}</md-dialog-title>
 
         <md-dialog-content id="app-info">
           <p>{{ $t('The WagoApp and WeakAuras Companion both act as a bridge between Wago and your in-game addons, and allow you to quickly install imports from Wago.') }}</p>
@@ -255,12 +255,12 @@
             <div class="select-app" :class="{selected:selectedApp=='WagoApp' || !selectedApp}" @click="selectedApp='WagoApp'">
               <div class="app-logo"><img src="./../../assets/wagoio-logo.png"></div>
               <div class="app-name">WagoApp</div>
-              <div class="app-link"><a href="#">Download WagoApp</a></div>
+              <div class="app-link"><a href="#">{{ $t("Download WagoApp") }}</a></div>
             </div>
             <div class="select-app" :class="{selected:selectedApp=='WeakAurasCompanion'}" @click="selectedApp='WeakAurasCompanion'">
               <div class="app-logo"><img src="./../../assets/weakauralogo.png"></div>
               <div class="app-name">WeakAuras Companion</div>
-              <div class="app-link"><a href="https://weakauras.wtf" target="blank">Download WeakAuras Companion</a></div>
+              <div class="app-link"><a href="https://weakauras.wtf" target="blank">{{ $t("Download WeakAuras Companion") }}</a></div>
             </div>
           </div>
           <p v-if="selectedApp=='WagoApp' || !selectedApp" class="app-info">

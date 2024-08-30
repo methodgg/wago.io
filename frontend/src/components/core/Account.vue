@@ -93,7 +93,7 @@
             <p>Documentation and more endpoints soon™</p>
           </md-card-content>
 
-          <h2>Support Key</h2>
+          <h2>{{ $t("Support Key") }}Support Key</h2>
           <md-card-content>
             <p>{{ $t("You may use an Support key to prove account ownership should you need support from the Wago team, as we don't have your email - this is not used anywhere else") }}</p>
             <support-api-key key="support_key"/>
