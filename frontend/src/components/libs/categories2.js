@@ -1027,6 +1027,7 @@ class Categories {
 
       'platerutilities': {slug: 'utilities', image: 'snippets.png', color: '#d18cf3', i18n: 'Utilities', domain: 0, types: ['PLATER']},
       'platerdungeons': {slug: 'dungeons', image: 'snippets.png', color: '#d18cf3', i18n: 'Dungeons', domain: 0, types: ['PLATER']},
+      'platerraids': {slug: 'raids', image: 'snippets.png', color: '#d18cf3', i18n: 'Raids', domain: 0, types: ['PLATER']},
       'platerpvp': {slug: 'pvp', image: 'snippets.png', color: '#d18cf3', i18n: 'PvP', domain: 0, types: ['PLATER']},
       'platertorghast': {slug: 'torghast', image: 'snippets.png', color: '#d18cf3', i18n: 'warcraft:zones.Torghast', domain: 0, types: ['PLATER']},
       'platernathria': {slug: 'castle-nathria', image: 'snippets.png', color: '#d18cf3', i18n: 'warcraft:instances.1190', domain: 0, types: ['PLATER']},

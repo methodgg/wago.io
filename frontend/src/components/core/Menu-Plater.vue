@@ -107,7 +107,7 @@ export default {
       return window.Categories.getCategories(['plater1', 'plater2', 'plater3', 'plater4', 'plater5', 'plater6', 'plater7'])
     },
     content: function () {
-      return window.Categories.getCategories(['platerpvp', 'platerdungeons', 'platerraidzuldazar', 'platerraidcrucible', 'platerraideternalpalace', 'platerraidnyalotha', 'platerraiduldir', 'platerutilities'])
+      return window.Categories.getCategories(['platerpvp', 'platerdungeons', 'platerraids', 'platerutilities'])
     }
   },
   mounted: function () {
