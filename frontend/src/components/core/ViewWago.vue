@@ -250,9 +250,9 @@
 
         <md-dialog-content id="app-info">
           <p>{{ $t('The WagoApp and WeakAuras Companion both act as a bridge between Wago and your in-game addons, and allow you to quickly install imports from Wago.') }}</p>
-          <p>{{ $t('Select which app you have installed and wish to use.') }}</p>
+          <p>{{ $t('Select which app you have installed and wish to use.') }} {{ !wago.type.match(/WEAKAURA/) ? $t('WagoApp temporarily disabled for [-type-] imports.', {type: wago.type}) : '' }}</p>
           <div id="app-choice">
-            <div class="select-app" :class="{selected:selectedApp=='WagoApp' || !selectedApp}" @click="selectedApp='WagoApp'">
+            <div class="select-app" :class="{selected:selectedApp=='WagoApp' || (!selectedApp && wago.type.match(/WEAKAURA/)), disabled: !wago.type.match(/WEAKAURA/)}" @click="selectedApp='WagoApp'">
               <div class="app-logo"><img src="./../../assets/wagoio-logo.png"></div>
               <div class="app-name">WagoApp</div>
               <div class="app-link"><a href="#">{{ $t("Download WagoApp") }}</a></div>
@@ -522,7 +522,7 @@
                   </div>
 
                   
-                  <md-layout md-row  v-if="wago.type.match(/WEAKAURA/)">
+                  <md-layout md-row v-if="false && wago.type.match(/WEAKAURA/)">
                     <md-input-container>
                       <label for="paidPackOptOut">{{ $t("Allow this WeakAura in paid UI Packs") }} - <a href="https://uipacks.wago.io/" target="_blank">{{ $t("What are UI Packs") }}</a></label>
                       <md-select name="paidPackOptOut" id="paidPackOptOut" v-model="editUIPackSettings.paidPackOptOut">
@@ -587,7 +587,7 @@
                       </div>
                     </div>
                   </div>
-                  
+
                   
 
                   <md-card-actions>
@@ -681,19 +681,18 @@
                     <img v-for="(image, k) in wago.screens" v-lazy="image.src || image.thumb" @click="$refs.lightbox.showImage(k)">
                   </div>
 
-                  <div v-if="wago.code && wago.code.changelog && wago.code.changelog.text" class="changelog-text">
-                    <div>v{{ wago.code.versionString }}</div>
-                    <formatted-text :text="wago.code.changelog" :enableLinks="wago.user.enableLinks"></formatted-text>
+                  <div v-if="wago.versions?.versions && wago.versions.versions[0] && wago.versions.versions[0].changelog.text" class="changelog-text">
+                    <div>v{{ wago.versions.versions[0].versionString }}</div>
+                    <formatted-text :text="wago.versions.versions[0].changelog" :enableLinks="wago.user.enableLinks"></formatted-text>
                   </div>
                   
-                  <formatted-text v-if="wago.type !== 'ERROR' || wago.description.text" :text="wago.description.text && wago.description.text.length ? wago.description : {text: $t('No description for this import has been provided')}" :enableLinks="wago.user.enableLinks"></formatted-text>
+                  <formatted-text id="description-container" v-if="wago.type !== 'ERROR' || wago.description.text" :text="wago.description.text && wago.description.text.length ? wago.description : {text: $t('No description for this import has been provided')}" :enableLinks="wago.user.enableLinks"></formatted-text>
                   <template v-if="wago.type === 'ERROR' && wago.errorReport && wago.errorReport.length > 1">
                     <md-tabs @change="selectError">
                       <md-tab v-for="(error, key) in wago.errorReport" :md-label="key + 1" :key="key" :id="'err' + (key + 1)" :md-active="selectedError === key + 1">
                         <ui-warning v-if="error.text.match(/ADDON_ACTION_BLOCKED/)" mode="alert">
                           {{ $t("ADDON_ACTION_BLOCKED usually refers to addon taint and the stack detailed below is probably not the cause of this error") }}
-                        </ui-warning><br>
-                        <formatted-text :text="error"></formatted-text>
+                        </ui-warning><br><formatted-text :text="error"></formatted-text>
                       </md-tab>
                     </md-tabs>
                   </template>
@@ -701,6 +700,7 @@
                     <ui-warning v-if="wago.errorReport[0].text.match(/ADDON_ACTION_BLOCKED/)" mode="alert">
                       {{ $t("ADDON_ACTION_BLOCKED usually refers to addon taint and the stack detailed below is probably not the cause of this error") }}
                     </ui-warning><br>
+                    
                     <formatted-text :text="wago.errorReport[0]"></formatted-text>
                   </template>
                 </div>
@@ -1455,7 +1455,7 @@ export default {
       modAction: '',
       modComments: '',
       advancedConfig: {},
-      webhookDisplay: -1
+      webhookDisplay: -1,
     }
   },
   watch: {
@@ -1539,7 +1539,7 @@ export default {
           break
       }
       document.getElementById('embed-iframe').contentWindow.setColor(this.iframeColorEdit, val.hex.replace(/#/, ''))
-    }
+    }    
   },
   computed: {
     wago () {
@@ -1797,6 +1797,10 @@ export default {
         }
 
         switch (this.wago.type) {
+          case 'BLIZZHUD':
+            this.showPanel = 'description'
+            this.typeSlug = 'blizzhud/'
+            break
           case 'COLLECTION':
             this.showPanel = 'description'
             this.typeSlug = 'collections/'
@@ -1949,6 +1953,22 @@ export default {
             this.moderation = res
           })
         }
+        
+        this.$nextTick(() => {
+            const width = document.getElementById('import-meta').offsetWidth
+            let widthAttr = 'max-width'
+            if (this.wago.type === 'MACRO') {
+                widthAttr = 'width'
+            }
+            if (width >= 495) {
+                document.getElementById('description-container').setAttribute('style', `overflow:hidden; text-overflow:ellipsis; ${widthAttr}: ${width-160}px`)
+            }
+            else {
+                document.getElementById('description-container').setAttribute('style', `overflow:hidden; text-overflow:ellipsis; ${widthAttr}: ${width}px`)
+            }
+        
+            document.getElementById('import-header').setAttribute('style', `overflow:hidden; text-overflow:ellipsis; width: ${width}px`)
+        })
 
         vue.$store.commit('setPageInfo', {
           title: res.name,
@@ -2425,12 +2445,12 @@ export default {
       return list
     },
     sendToApp (mode) {
-      let app = this.selectedApp || window.localStorage.getItem('Selected-Desktop-App')
+      let app = this.selectedApp || window.localStorage.getItem(`Selected-Desktop-App-${this.wago.type}`)
       if (!app && mode === 'open') {
         app = 'WagoApp'
       }
       else if (!app || mode === 'ask') {
-        if (!this.selectedApp) {
+        if (!this.selectedApp && this.wago.type.match(/WEAKAURA/)) {
           this.selectedApp = 'WagoApp'
         }
         this.$refs.sendToAppDialog.open()
@@ -2438,7 +2458,7 @@ export default {
       }
 
       if (this.rememberAppChoice) {
-        window.localStorage.setItem('Selected-Desktop-App', app)
+        window.localStorage.setItem(`Selected-Desktop-App-${this.wago.type}`, app)
         this.rememberAppChoice = false
       }
       else {
@@ -2800,16 +2820,16 @@ export default {
             }
             
             promise.then((res) => {
-          if (res.success) {
+                if (res.success) {
                     this.advancedConfig.webhookOnImport.url = this.editWebhook
                     this.webhookStatus = this.$t('Saved')
-          }
-          else {
+                }
+                else {
                     this.webhookStatus = this.$t('Error could not save')
                     this.webhookError = true
-          }
+                }
+            })
         })
-      })
     },
 
     onUpdateDescription () {
@@ -3767,6 +3787,7 @@ ul:not(.md-list) > li.multiselect__element + li { margin-top: 0 }
 #app-info #app-choice .select-app {width: 240px; max-width: 33%; text-align: center; border: 1px solid #555; display: flex; flex-direction: column;}
 #app-info #app-choice .select-app.selected {outline: 6px solid #C0272DBB}
 #app-info #app-choice .select-app:hover { cursor: pointer; background: #333}
+#app-info #app-choice .select-app.disabled { opacity: .5; pointer-events: none}
 #app-info #app-choice .app-logo {height: 90px; margin: 16px; justify-content:center; display: flex; align-items: flex-end}
 #app-info #app-choice .app-logo img {max-height: 100%; max-width: 100%;}
 #app-info #app-choice .app-name {font-size: 120%; font-weight: bold; margin-bottom: 16px}

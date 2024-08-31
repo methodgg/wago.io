@@ -167,8 +167,8 @@
       <md-layout>
         <advert ad="video-sidebar" />
         <div id="current-wa">
-          <router-link :to="'/dragonflight-weakauras/' + currentWA.dragonflight[0].slug" :style="`border-color: ${currentWA.dragonflight[0].color}99; color:${currentWA.dragonflight[0].color}; background-color:${currentWA.dragonflight[0].color}11; background-image:url('/static/image/menu/${currentWA.dragonflight[0].image}')`"><span>{{ currentWA.dragonflight[0].text }}</span></router-link>
-          <router-link :to="'/dragonflight-weakauras/' + currentWA.dragonflight[1].slug" :style="`border-color: ${currentWA.dragonflight[1].color}99; color:${currentWA.dragonflight[1].color}; background-color:${currentWA.dragonflight[1].color}11; background-image:url('/static/image/menu/${currentWA.dragonflight[1].image}')`"><span>{{ currentWA.dragonflight[1].text }}</span></router-link>
+          <router-link :to="'/the-war-within-weakauras/' + currentWA.modern[0].slug" :style="`border-color: ${currentWA.modern[0].color}99; color:${currentWA.modern[0].color}; background-color:${currentWA.modern[0].color}11; background-image:url('/static/image/menu/${currentWA.modern[0].image}')`"><span>{{ currentWA.modern[0].text }}</span></router-link>
+          <router-link :to="'/the-war-within-weakauras/' + currentWA.modern[1].slug" :style="`border-color: ${currentWA.modern[1].color}99; color:${currentWA.modern[1].color}; background-color:${currentWA.modern[1].color}11; background-image:url('/static/image/menu/${currentWA.modern[1].image}')`"><span>The War Within {{ currentWA.modern[1].text }}</span></router-link>
 
           <router-link :to="'/cataclysm-weakauras/' + currentWA.cata[0].slug" :style="`border-color: ${currentWA.cata[0].color}99; color:${currentWA.cata[0].color}; background-color:${currentWA.cata[0].color}11; background-image:url('/static/image/menu/${currentWA.cata[0].image}')`"><span>{{ currentWA.cata[0].text }}</span></router-link>          
           <router-link :to="'/cataclysm-weakauras/' + currentWA.cata[1].slug" :style="`border-color: ${currentWA.cata[1].color}99; color:${currentWA.cata[1].color}; background-color:${currentWA.cata[1].color}11; background-image:url('/static/image/menu/${currentWA.cata[1].image}')`"><span>{{ currentWA.cata[1].text }}</span></router-link>
@@ -521,9 +521,9 @@ export default {
   computed: {
     currentWA () {
       return {
-        dragonflight: [
-          Categories.getCategories('raidamirdrassil')[0],
-          Categories.getCategories('dfdungeon')[0],
+        modern: [
+          Categories.getCategories('raidnerubarpalace')[0],
+          Categories.getCategories('twwdungeon')[0],
         ],
         cata: [
           Categories.getCategories('raidblackwingdescent')[0],

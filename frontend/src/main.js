@@ -483,15 +483,6 @@ router.beforeEach((to, from, next) => {
     Vue.$refs['mobile-sidebar'].close()
   }
 
-  if (to.path === '/login') {
-    if (from.path === '/') {
-      store.commit('setLoginRedirect', '/account')
-    }
-    else {
-      store.commit('setLoginRedirect', from.path)
-    }
-  }
-
   document.getElementById('full-navbar')?.classList.add('transition')
   setTimeout(() => {
     document.getElementById('full-navbar')?.classList.remove('transition')  
@@ -506,7 +497,7 @@ router.beforeEach((to, from, next) => {
 
   // beta server require login (if JS does not know user is logged in when visiting the page then wait for whoami request handled in App.vue)
   if (window.requireBetaAccess && (!store.state.user.access || !store.state.user.access.beta) && !to.path.match(/^\/(login|auth)/)) {
-    router.replace('/login')
+    router.replace('/')
     return next(false)
   }
 
@@ -656,7 +647,7 @@ const http = {
   install: function (Vue, options) {
     Vue.prototype.http = {
       config: function (url) {
-        var headers = {}
+        var headers = {'Content-Type': 'application/json'}
 
         // add jwt token
         if (window.readCookie('token') && window === window.parent && url.match(new RegExp('^' + dataServers[0]))) {
@@ -980,16 +971,6 @@ Vue.use(require('vue-scrollto'), {
   duration: 350
 })
 
-// since b.net only allows a single callback per app we need a second key for a beta app
-var bnetClientID
-if (window.location.hostname === 'io') {
-  bnetClientID = '814f698f09d446a8b5ba7b1b6123fb3f'
-}
-else {
-  bnetClientID = '32e7423b92714e888c73e087be3a9ad3'
-}
-
-
 // setup global components
 import UIImage from './components/UI/Image.vue'
 Vue.component('ui-image', UIImage)
@@ -1002,50 +983,6 @@ Vue.component('ui-warning', UIWarning)
 
 import UIAdvert from './components/UI/Advert.vue'
 Vue.component('advert', UIAdvert)
-
-// window.braceRequires = function () {
-//   // ace editor themes and file types
-//   require('brace/mode/html')
-//   require('brace/mode/json')
-//   require('brace/mode/lua')
-//   require('./components/libs/ace-wowmacro')
-//   // bright themes
-//   require('brace/theme/chrome')
-//   require('brace/theme/clouds')
-//   require('brace/theme/crimson_editor')
-//   require('brace/theme/dawn')
-//   require('brace/theme/dreamweaver')
-//   require('brace/theme/eclipse')
-//   require('brace/theme/github')
-//   require('brace/theme/iplastic')
-//   require('brace/theme/solarized_light')
-//   require('brace/theme/textmate')
-//   require('brace/theme/tomorrow')
-//   require('brace/theme/xcode')
-//   require('brace/theme/kuroir')
-//   require('brace/theme/katzenmilch')
-//   require('brace/theme/sqlserver')
-//   // dark themes
-//   require('brace/theme/ambiance')
-//   require('brace/theme/chaos')
-//   require('brace/theme/clouds_midnight')
-//   require('brace/theme/cobalt')
-//   require('brace/theme/idle_fingers')
-//   require('brace/theme/kr_theme')
-//   require('brace/theme/merbivore')
-//   require('brace/theme/merbivore_soft')
-//   require('brace/theme/mono_industrial')
-//   require('brace/theme/monokai')
-//   require('brace/theme/pastel_on_dark')
-//   require('brace/theme/solarized_dark')
-//   require('brace/theme/terminal')
-//   require('brace/theme/tomorrow_night')
-//   require('brace/theme/tomorrow_night_blue')
-//   require('brace/theme/tomorrow_night_bright')
-//   require('brace/theme/tomorrow_night_eighties')
-//   require('brace/theme/twilight')
-//   require('brace/theme/vibrant_ink')
-// }
 
 // setup Konva
 import VueKonva from 'vue-konva'

@@ -10,7 +10,7 @@
     </md-menu>
   </div>
   <div v-else>
-    <md-button :href="loginURL">{{ $t("Login") }} <md-icon>account_circle</md-icon></md-button>
+    <a :href="loginURL" @click.prevent="login()" class="md-button">{{ $t("Login") }} <md-icon>account_circle</md-icon></a>
   </div>
 </template>
 
@@ -22,6 +22,12 @@ export default {
       if (this.$store.state.locale !== loc) {
         this.$store.commit('setLocale', loc)
       }
+    },
+    login: function () {
+        window.clearCookie('token')
+        this.$nextTick(() => {
+            window.location = this.loginURL    
+        })        
     }
   },
   computed: {
@@ -32,7 +38,7 @@ export default {
         if (process.env.NODE_ENV === 'development') {
             return 'http://localhost:3030/auth/redirect'
         }
-        return 'https://data.wago.io/auth/redirect'       
+        return 'https://wago.io/login'       
     },
     supportedLocales () {
       var uniqueLang = []

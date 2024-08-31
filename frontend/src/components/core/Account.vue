@@ -84,10 +84,10 @@
             <br>{{ $t("Access to Wago [Beta] features") }}
           </ui-warning>
         </md-card-content>
-        <div v-if="User.access && User.access.api">
+        <div>
           <h2>API</h2>
           <md-card-content>
-            <p>{{ $t("You may use an API key to access Wago programmatically, through your own software or a third party app such as the WeakAuras Updater") }}</p>
+            <p>{{ $t("You may use an API key to access Wago programmatically, through your own software or a third party app such as the WeakAuras Companion") }}</p>
             <p>{{ $t("Treat this key like your password") }}</p>
             <wago-api-key />
             <p>Documentation and more endpoints soon™</p>
