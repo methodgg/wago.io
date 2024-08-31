@@ -64,7 +64,8 @@ module.exports = async function(req, res) {
                 headers: error?.response?.headers
             })
         }
-        return res.code(401).send({msg: 'Invalid API Key'})
+        return // let the invividual routes handle no-user errors so that public data will still work with invalid keys
+        return res.code(401).send({msg: 'Invalid API Key'}) 
     }
 
     var userToken = req.headers['x-auth-token']

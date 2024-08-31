@@ -268,7 +268,6 @@
               vue.axios.defaults.headers = { 'x-auth-token': res.token }
             }
   
-            console.log(res.user)
             if (res.user) {
               this.$store.commit('setUser', res.user)
               if (vue.$route.path === '/login') {
