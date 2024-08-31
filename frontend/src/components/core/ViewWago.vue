@@ -602,32 +602,34 @@
                     </md-dialog>
                   </md-card-actions>
                   
-                  <h3>{{ $t('Advanced Config') }}</h3>
-                  <p>{{ $t("Enter a Webhook URL to recieve notifications you create or update an import. Discord Webhooks will be detected and automatically formatted to what Discord expects to post in a channel, otherwise POST data will match the below schema.") }}</p>
-                  <p>{{ $t("This Webhook will override the global Webhook setting on the settings page, and will be sent regardless of the import's visibility setting, for this import only.") }}</p>
-                  <md-input-container :class="{ 'md-input-invalid': webhookError, 'md-input-status': webhookStatus }">
-                    <label>{{ $t("Webhook") }}</label>
-                    <md-textarea v-model="editWebhook" @change="onUpdateWebhook()" :debounce="600"></md-textarea>
-                    <span class="md-error" v-if="webhookStatus.length>0">{{ webhookStatus }}</span>
-                  </md-input-container>
+                  <template v-if="wago.type !== 'ERROR' && wago.type !== 'COLLECTION'">
+                    <h3>{{ $t('Advanced Config') }}</h3>
+                    <p>{{ $t("Enter a Webhook URL to recieve notifications you create or update an import. Discord Webhooks will be detected and automatically formatted to what Discord expects to post in a channel, otherwise POST data will match the below schema.") }}</p>
+                    <p>{{ $t("This Webhook will override the global Webhook setting on the settings page, and will be sent regardless of the import's visibility setting, for this import only.") }}</p>
+                    <md-input-container :class="{ 'md-input-invalid': webhookError, 'md-input-status': webhookStatus }">
+                        <label>{{ $t("Webhook") }}</label>
+                        <md-textarea v-model="editWebhook" @change="onUpdateWebhook()" :debounce="600"></md-textarea>
+                        <span class="md-error" v-if="webhookStatus.length>0">{{ webhookStatus }}</span>
+                    </md-input-container>
 
-                  <md-button-toggle class="md-accent" md-single>
-                    <md-button v-bind:class="{'md-toggle': webhookDisplay === -1}" @click="webhookDisplay=-1">{{ $t("Example") }}</md-button>
-                    <md-button v-for="(item, index) in advancedConfig.webhookOnImport?.history" :key="index" v-bind:class="{'md-toggle': webhookDisplay === index}" @click="webhookDisplay=index">{{ item.date | moment("MMMM Do YYYY, h:mm a") }}</md-button>
-                  </md-button-toggle>
-        
-                  <div v-if="webhookDisplay === -1">
-                    <p>{{ $t('Example POST Data') }}</p>
-                    <monaco-editor v-model="exampleWebhook" lang="json"></monaco-editor>
-                  </div>
-                  <div v-else>
-                    <p>{{ $t('POST To') }} <strong>{{ advancedConfig.webhookOnImport.history[webhookDisplay].url }}</strong></p>
-                    <p>{{ $t('Return Status') }} <strong>{{ advancedConfig.webhookOnImport.history[webhookDisplay].status }}</strong></p>
-                    <p>{{ $t('Response Data') }}</p>
-                    <monaco-editor v-model="advancedConfig.webhookOnImport.history[webhookDisplay].response" :lang="advancedConfig.webhookOnImport.history[webhookDisplay].responseLang"></monaco-editor>
-                    <p>{{ $t('POST Data') }}</p>
-                    <monaco-editor v-model="advancedConfig.webhookOnImport.history[webhookDisplay].data" :lang="advancedConfig.webhookOnImport.history[webhookDisplay].dataLang"></monaco-editor>
-                  </div>  
+                    <md-button-toggle class="md-accent" md-single>
+                        <md-button v-bind:class="{'md-toggle': webhookDisplay === -1}" @click="webhookDisplay=-1">{{ $t("Example") }}</md-button>
+                        <md-button v-for="(item, index) in advancedConfig.webhookOnImport?.history" :key="index" v-bind:class="{'md-toggle': webhookDisplay === index}" @click="webhookDisplay=index">{{ item.date | moment("MMMM Do YYYY, h:mm a") }}</md-button>
+                    </md-button-toggle>
+            
+                    <div v-if="webhookDisplay === -1">
+                        <p>{{ $t('Example POST Data') }}</p>
+                        <monaco-editor v-model="exampleWebhook" lang="json"></monaco-editor>
+                    </div>
+                    <div v-else>
+                        <p>{{ $t('POST To') }} <strong>{{ advancedConfig.webhookOnImport.history[webhookDisplay].url }}</strong></p>
+                        <p>{{ $t('Return Status') }} <strong>{{ advancedConfig.webhookOnImport.history[webhookDisplay].status }}</strong></p>
+                        <p>{{ $t('Response Data') }}</p>
+                        <monaco-editor v-model="advancedConfig.webhookOnImport.history[webhookDisplay].response" :lang="advancedConfig.webhookOnImport.history[webhookDisplay].responseLang"></monaco-editor>
+                        <p>{{ $t('POST Data') }}</p>
+                        <monaco-editor v-model="advancedConfig.webhookOnImport.history[webhookDisplay].data" :lang="advancedConfig.webhookOnImport.history[webhookDisplay].dataLang"></monaco-editor>
+                    </div>  
+                  </template> 
                 </md-card>
               </div>
 
@@ -1670,8 +1672,8 @@ export default {
     exampleWebhook: function () {        
         return JSON.stringify({
             title: this.wago.name,
-            version: this.wago.versions.versions[0].versionString,
-            changelog: this.wago.versions.versions[0].changelog.text,
+            version: this.wago.versions?.versions[0].versionString,
+            changelog: this.wago.versions?.versions[0].changelog.text,
             url: this.wago.url,
             type: this.wago.type,
             author: this.$store.state.user.name,
