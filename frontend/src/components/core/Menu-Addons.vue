@@ -3,7 +3,7 @@
       <md-layout md-row class="addon-name nowrap">
         <div class="grow">
           <md-layout md-row>
-            <h2 id="addon-name">Addons With Supported Import Strings</h2>
+            <h2 id="addon-name">{{ $t("Addons With Supported Import Strings") }}</h2>
           </md-layout>
         </div>
       </md-layout>
@@ -14,9 +14,9 @@
             <md-list-item class="md-inset">
               <div class="menu-image"><img src="../../assets/weakauras.png" alt="Icon" /></div>
               <div class="md-list-text-container weakauras-list">
-                <router-link to='/the-war-within-weakauras'>The War Within</router-link>
-                <router-link to='/cataclysm-weakauras'>Cataclysm</router-link>
-                <router-link to='/classic-weakauras'>Classic</router-link>
+                <router-link to='/the-war-within-weakauras'>{{ $t("The War Within") }}</router-link>
+                <router-link to='/cataclysm-weakauras'>{{ $t("Cataclysm") }}</router-link>
+                <router-link to='/classic-weakauras'>{{ $t("Classic") }}</router-link>
               </div>
             </md-list-item>
           </md-list>

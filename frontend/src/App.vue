@@ -98,9 +98,9 @@
                       <div class="md-list-text-container">
                       <span class="sub-nav-heading"><span class="addon-icon"><img src="./assets/weakauras.png"></span> WeakAuras</span>
                       <span class="game-select">
-                          <router-link to='/the-war-within-weakauras'>The War Within</router-link>
-                          <router-link to='/cataclysm-weakauras'>Cataclysm</router-link>
-                          <router-link to='/classic-weakauras'>Classic</router-link>
+                          <router-link to='/the-war-within-weakauras'>{{ $t("The War Within") }}</router-link>
+                          <router-link to='/cataclysm-weakauras'>{{ $t("Cataclysm") }}</router-link>
+                          <router-link to='/classic-weakauras'>{{ $t("Classic") }}</router-link>
                       </span>
                       </div>
                   </router-link>
@@ -143,9 +143,9 @@
               </div>
             </div> -->
             <div class="menu-section">
-              <span>Addons <md-icon>expand_more</md-icon></span>
+              <span>{{ $t("Addons") }} <md-icon>expand_more</md-icon></span>
               <div class="sub-nav">
-                <a href="https://addons.wago.io">Download Addons</a>
+                <a href="https://addons.wago.io">{{ $t("Download Addons") }}</a>
                 <a href="https://addons.wago.io/app">Wago App</a>
               </div>
             </div>
