@@ -425,7 +425,7 @@ module.exports = (fastify, opts, next) => {
 
     await report.save()
     await report.populate('authorID').execPopulate()
-    webhooks.discord.onReport(req.user, wago, report)
+    webhooks.onReport(req.user, wago, report)
     res.send({success: true, report, deleted: wago.deleted, moderated: wago.moderated, moderatedComment: report.comment})
   })
 

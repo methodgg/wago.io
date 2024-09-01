@@ -883,7 +883,7 @@ module.exports = function (fastify, opts, next) {
       comment: req.body.comments || '',
     })
     await report.save()
-    webhooks.discord.onReport(req.user, wago, report)
+    webhooks.onReport(req.user, wago, report)
     res.send({success: true})
   })
 
