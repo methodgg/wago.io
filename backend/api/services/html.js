@@ -42,15 +42,17 @@ module.exports = function (fastify, opts, next) {
     }
     embed.code = code.encoded
 
+
     let jsResult = `function wagoWrite(content) {
         ${req.query.container ? `document.querySelector('${req.query.container}').innerHTML = content` : `document.write(content)`}
     };`    
     jsResult += `function wagoCopy(e,o){o=o.code;var t;e&&e.querySelector&&(t=e.querySelector(".clickToCopyWago"));var n=document.createElement("textarea");n.style.cssText="position:fixed;top:0;left:0;width:2em;height:2em;padding:0;border:0;outline:none;boxShadow:none;background:transparent",n.value=o,document.body.appendChild(n),n.select();try{return document.execCommand("copy"),document.body.removeChild(n),t&&(t.textContent="Copied!",setTimeout(function(){t.textContent="Click to copy"},3e3)),!0}catch(d){return document.body.removeChild(n),!1}}void 0===window.wagoCopy;`
     jsResult += `var wago=wago||{};wago["c${wago.id}"]=${JSON.stringify(embed)};`
+    let embedStyle = ''
     if (embed.theme.logo) {
-        jsResult += `wagoWrite('<style>#wago-${embed.id} a{display:inline;padding:0 2px;margin:0;border:0}#wago-${embed.id} img{display:inline;padding:0;margin:0;border:0;height:50px}#wago-${embed.id} button{display:inline;padding:4px 16px;min-width: 130px;background-color:${embed.theme.buttonBG};cursor:pointer;color:${embed.theme.textColor};border:0;text-align:center;vertical-align:top;border-radius:6px}#wago-${embed.id} button:hover{background-color:${theme.buttonHover}}#wago-${wago._id} .clickToCopy{display:block;padding:0;margin:0;font-size:10px}#wago-${embed.id} .wagoName{display:block;padding:0;margin:4px 0;font-weight:bold;font-size:13px}</style>');`
+        embedStyle = `<style>#wago-${embed.id} a{display:inline;padding:0 2px;margin:0;border:0}#wago-${embed.id} img{display:inline;padding:0;margin:0;border:0;height:50px}#wago-${embed.id} button{display:inline;padding:4px 16px;min-width: 130px;background-color:${embed.theme.buttonBG};cursor:pointer;color:${embed.theme.textColor};border:0;text-align:center;vertical-align:top;border-radius:6px}#wago-${embed.id} button:hover{background-color:${theme.buttonHover}}#wago-${wago._id} .clickToCopy{display:block;padding:0;margin:0;font-size:10px}#wago-${embed.id} .wagoName{display:block;padding:0;margin:4px 0;font-weight:bold;font-size:13px}</style>`
     }
-    jsResult += `wagoWrite('<span id="wago-${embed.id}" class="wagoEmbed">${embed.theme.logoHTML}<button onclick="wagoCopy(this, wago[\\'c${wago.id}\\'])" class="wagoCopyButton"><small class="clickToCopyWago">Click to copy</small><div class="wagoName">${embed.name.replace(/'/g, "\\'")}</div></button></span>');`  
+    jsResult += `wagoWrite('${embedStyle}<span id="wago-${embed.id}" class="wagoEmbed">${embed.theme.logoHTML}<button onclick="wagoCopy(this, wago[\\'c${wago.id}\\'])" class="wagoCopyButton"><small class="clickToCopyWago">Click to copy</small><div class="wagoName">${embed.name.replace(/'/g, "\\'")}</div></button></span>');`  
 
     res.send(jsResult)
   })
