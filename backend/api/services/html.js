@@ -43,7 +43,7 @@ module.exports = function (fastify, opts, next) {
     embed.code = code.encoded
 
     let jsResult = `function wagoWrite(content) {
-        ${req.query.container ? `document.getElementById('${req.query.container}').innerHTML = content` : `document.write(content)`}
+        ${req.query.container ? `document.querySelector('${req.query.container}').innerHTML = content` : `document.write(content)`}
     };`    
     jsResult += `function wagoCopy(e,o){o=o.code;var t;e&&e.querySelector&&(t=e.querySelector(".clickToCopyWago"));var n=document.createElement("textarea");n.style.cssText="position:fixed;top:0;left:0;width:2em;height:2em;padding:0;border:0;outline:none;boxShadow:none;background:transparent",n.value=o,document.body.appendChild(n),n.select();try{return document.execCommand("copy"),document.body.removeChild(n),t&&(t.textContent="Copied!",setTimeout(function(){t.textContent="Click to copy"},3e3)),!0}catch(d){return document.body.removeChild(n),!1}}void 0===window.wagoCopy;`
     jsResult += `var wago=wago||{};wago["c${wago.id}"]=${JSON.stringify(embed)};`
