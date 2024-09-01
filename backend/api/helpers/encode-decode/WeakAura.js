@@ -87,8 +87,12 @@ module.exports = {
             t.triggers[n].trigger.talent.multi = fixNumericIndexes(t.triggers[n].trigger.talent.multi)
           end
 
+          if t.triggers[n].trigger and t.triggers[n].trigger.specId and t.triggers[n].trigger.specId.multi then
+            t.triggers[n].trigger.specId.multi = fixNumericIndexes(t.triggers[n].trigger.specId.multi)
+          end
+
           if t.triggers[n].trigger and t.triggers[n].trigger.actualSpec then
-          t.triggers[n].trigger.actualSpec = fixNumericIndexes(t.triggers[n].trigger.actualSpec)
+            t.triggers[n].trigger.actualSpec = fixNumericIndexes(t.triggers[n].trigger.actualSpec)
           end
 
           if t.triggers[n].trigger and t.triggers[n].trigger.arena_spec then
