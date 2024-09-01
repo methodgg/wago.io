@@ -91,6 +91,10 @@ module.exports = {
             t.triggers[n].trigger.specId.multi = fixNumericIndexes(t.triggers[n].trigger.specId.multi)
           end
 
+          if t.triggers[n].trigger and t.triggers[n].trigger.herotalent and t.triggers[n].trigger.herotalent.multi then
+            t.triggers[n].trigger.herotalent.multi = fixNumericIndexes(t.triggers[n].trigger.herotalent.multi)
+          end
+
           if t.triggers[n].trigger and t.triggers[n].trigger.actualSpec then
             t.triggers[n].trigger.actualSpec = fixNumericIndexes(t.triggers[n].trigger.actualSpec)
           end
