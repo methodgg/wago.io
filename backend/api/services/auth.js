@@ -302,6 +302,7 @@ async function oAuthLogin(req, res, provider, authUser, callback) {
     }
 
     user.account.username = authUser.username
+    user.search.username = authUser.username.toLowerCase()
     if (authUser.avatar?.endsWith('.gif')) {
         user.profile.avatar = {gif: authUser.avatar}        
     }

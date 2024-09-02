@@ -86,6 +86,12 @@ module.exports = async function(req, res) {
         req.user = user
         req.user.SID = session._id
         req.user.isAdmin = user.roles.isAdmin
+
+        // fix any invalid search field when they auth
+        if (user.search?.username !== user.account.username.toLowerCase()) {
+            user.search.username = user.account.username.toLowerCase()
+            await user.save()
+        }
     }
     return 
 }
