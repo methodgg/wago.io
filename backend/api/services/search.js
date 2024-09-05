@@ -65,7 +65,13 @@ async function searchElastic(req, res) {
   }
   else if (req.query.mode === 'starred' && req.user) {
     searchMode = 'stars'
-    const faves = await WagoFavorites.find({ userID: req.user._id, type: 'Star' }).select('wagoID')
+    const faves = await WagoFavorites.aggregate([
+        {$match:{ userID: req.user._id, type: 'Star' }},
+        {$lookup: { from: 'wagoitems', localField: 'wagoID', foreignField: '_id', as: 'wago' }},
+        {$unwind: '$wago'},
+        {$match:{ $or: [{"wago._userId": req.user._id}, {"wago.private": false, "wago.blocked": false, "wago.moderated": false}], type: 'Star' }},
+        {$project: { wagoID: 1 }}
+    ])
     let ids = []
     faves.forEach(fave => {
       ids.push(fave.wagoID)
@@ -181,10 +187,11 @@ async function searchElastic(req, res) {
 
   m = query.match(/mentions:(unread|read|all)/i)
   if (m && m[1] && req.user && searchMode === 'comments') {
-    let unreadComments = (await Comments.findUnread(req.user._id)).map(x => { return { term: { _id: x._id } } })    
+    console.log(unreadComments)  
     // allowHidden = true
     m[1] = m[1].toLowerCase()
     if (m[1] === 'unread') {
+      const unreadComments = (await Comments.findUnread(req.user._id)).map(x => { return { term: { _id: x._id } } })  
       if (unreadComments && unreadComments.length) {
         esFilter.push(({ bool: { should: unreadComments } }))
       }
@@ -196,11 +203,16 @@ async function searchElastic(req, res) {
       }
     }
     else if (m[1] === 'read') {
-      esFilter.push(({ bool: { should: { term: { taggedIDs: req.user._id } } } }))
-
-      if (unreadComments && unreadComments.length) {
-        esFilter.push(({ bool: { must_not: unreadComments } }))
-      }
+        const readComments = (await Comments.findMentions(req.user._id)).map(x => { return { term: { _id: x._id } } })  
+        if (readComments && readComments.length) {
+          esFilter.push(({ bool: { should: readComments } }))
+        }
+        else {
+          return res.send({
+            hits: [],
+            total: 0
+          })
+        }
     }
     else if (m[1] === 'all') {
       esFilter.push(({ bool: { should: { term: { taggedIDs: req.user._id } } } }))
