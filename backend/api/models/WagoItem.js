@@ -261,7 +261,8 @@ Schema.methods.getThumbnailURL = async function (size) {
     if (this._userId) {
       user = await User.findById(this._userId).exec()
       if (user) {
-        user = { name: user.account.username, avatar: user.profile.avatar.webp || user.profile.avatar.gif || user.profile.avatar.png }
+        await user.avatarURL // make sure we have data here
+        user = { name: user.account.username, avatar: user.profile.avatar.webp || user.profile.avatar.gif || user.profile.avatar.png || "https://media.wago.io/avatars/62ebf029da9ef14623e27f4c/b-1659629755105.png" }
       }
     }
     if (screen && screen.localFile) {
@@ -300,7 +301,8 @@ Schema.methods.getCardImageURL = async function () {
     if (this._userId) {
       user = await User.findById(this._userId).exec()
       if (user) {
-        user = { name: user.account.username, avatar: user.profile.avatar.webp || user.profile.avatar.gif || user.profile.avatar.png }
+        await user.avatarURL // make sure we have data here
+        user = { name: user.account.username, avatar: user.profile.avatar.webp || user.profile.avatar.gif || user.profile.avatar.png || "https://media.wago.io/avatars/62ebf029da9ef14623e27f4c/b-1659629755105.png" }
       }
     }
     if (screen && screen.localFile) {
