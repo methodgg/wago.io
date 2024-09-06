@@ -187,7 +187,6 @@ async function searchElastic(req, res) {
 
   m = query.match(/mentions:(unread|read|all)/i)
   if (m && m[1] && req.user && searchMode === 'comments') {
-    console.log(unreadComments)  
     // allowHidden = true
     m[1] = m[1].toLowerCase()
     if (m[1] === 'unread') {
