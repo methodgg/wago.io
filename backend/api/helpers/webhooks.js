@@ -50,8 +50,9 @@ module.exports = {
                     footer: {
                         text: 'Wago.io',
                         icon_url: 'https://media.wago.io/favicon/favicon-16x16.png'
-                    }
-                }]        
+                    },
+                    fields: [{ name: `Version ${wago.latestVersion.versionString}`, value: wago.latestVersion.changelog.text.replace(/\[(\w+)[^\]]*](.*?)\[\/\1]/g, '$2') }]
+                }]
                 response = await axios.post(`${url}?wait=true`, {embeds: data})
             }
             else {
