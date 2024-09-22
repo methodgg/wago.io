@@ -591,13 +591,13 @@
                   
 
                   <md-card-actions>
-                    <md-button id="deleteWago" @click="$refs['deleteWago'].open()">Delete Import</md-button>
+                    <md-button id="deleteWago" @click="$refs['deleteWago'].open()">{{ $t("Delete Import") }}</md-button>
                     <md-dialog md-open-from="#deleteWago" md-close-to="#deleteWago" ref="deleteWago">
                       <md-dialog-title>{{ $t("Are you sure you want to delete this import?") }}</md-dialog-title>
                       <md-dialog-content>{{ $t("There is no way to undo this action") }}</md-dialog-content>
                       <md-dialog-actions>
-                        <md-button class="md-primary" @click="$refs['deleteWago'].close()">Cancel</md-button>
-                        <md-button class="md-primary" @click="onDeleteImport()">Delete</md-button>
+                        <md-button class="md-primary" @click="$refs['deleteWago'].close()">{{ $t("Cancel") }}</md-button>
+                        <md-button class="md-primary" @click="onDeleteImport()">{{ $t("Delete") }}</md-button>
                       </md-dialog-actions>
                     </md-dialog>
                   </md-card-actions>
