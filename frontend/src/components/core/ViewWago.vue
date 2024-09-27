@@ -639,7 +639,7 @@
 
               <!-- DESCRIPTIONS FRAME -->
               <div id="wago-description-container" class="wago-container" v-if="showPanel=='description'">
-                <div id="wago-description" style="padding-top:2px">
+                <div id="wago-description">
                   <edit-macro v-if="wago.type=='MACRO' && wago.code" @update-version="updateVersion" :cipherKey="decryptKey" :readonly="true"></edit-macro>
                   <div v-if="codeReview.info && (wago.type.match(/WEAKAURA|PLATER/) || (wago.type.match(/MACRO/) && codeReview.info.highlights.size))" id="import-info">
                     <template v-if="codeReview.info.dependencies?.length">
@@ -3502,7 +3502,17 @@ export default {
 #wago-tabs .md-button-toggle button { text-align:left }
 
 #wago-content { flex: 1; flex-direction: column }
-#wago-content > div { margin: 0 8px 16px 0; width: 100%; }
+#wago-content .wago-container > div { 
+    margin: 0 8px 16px 0; 
+    width: 100%;
+    max-width: 1090px;
+    overflow: hidden;
+    padding: 8px 4px;
+    text-overflow: ellipsis;
+}
+body.ads-enabled #wago-content .wago-container > div {
+    max-width: 740px;
+}
 #addCollectionButton, #newCommentButton { margin-top: 0 }
 
 #import-meta {
@@ -3585,7 +3595,7 @@ a.showvid:hover:before  .md-icon { opacity:1 }
 .wago-container > h2 { padding: 0 16px; margin: 8px 0 16px }
 .wago-container > div { margin: 0; }
 .wago-container .border { border-bottom: 1px solid rgba(128, 128, 128, 0.5) }
-#wago-config, #wago-embed { background: rgba(128, 128, 128, 0.1); padding: 16px;}
+#wago-config, #wago-embed { background: rgba(128, 128, 128, 0.1); padding: 16px!important;}
 
 #wago-flex-container { display: flex; flex-direction: row; }
 #wago-col-main { flex: 1.5 0 0 }

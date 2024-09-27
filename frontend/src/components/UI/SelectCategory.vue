@@ -129,6 +129,7 @@ export default {
 .multiselect_remove { cursor: pointer }
 .custom__tag {margin-right: 16px}
 ul.multiselect__content { display: flex!important; flex-wrap: wrap }
+.has-category-select .multiselect__tags-wrap {display: flex; flex-wrap: wrap}
 ul.multiselect__content .multiselect__element { flex: 1 1 25%; z-index:3;}
 ul.multiselect__content .multiselect__element .multiselect__option { padding: 0; min-height: 0 }
 ul.multiselect__content .multiselect__element .multiselect__option .md-chip { border-radius: 0; display: block; font-size: 13.5px; text-outline: none; box-shadow: none; position: relative; padding: 0 }
