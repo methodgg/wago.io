@@ -1343,7 +1343,7 @@
   "Settings": "",
   "Logout": "",
   "Support Key": "",
-  "Enter a Webhook URL to recieve notifications you create or update an import. Discord Webhooks will be detected and automatically formatted to what Discord expects to post in a channel, otherwise POST data will match the below schema.":"",
+  "Enter a Webhook URL to recieve notifications you create or update an import. Discord Webhooks will be detected and automatically formatted to what Discord expects to post in a channel, otherwise POST data will match the below schema.": "",
   "This Webhook will override the global Webhook setting on the settings page, and will be sent regardless of the import's visibility setting, for this import only.": "",
   "Example POST Data": "",
   "Favorite WeakAuras All Time": "",
@@ -1362,5 +1362,88 @@
   "Popular DelvUI This Week": "",
   "Installed": "",
   "Installed WeakAuras": "",
-  "Installed Cataclysm WeakAuras": ""
+  "Installed Cataclysm WeakAuras": "",
+  "Browse": "",
+  "More Addons": {
+    "": {
+      "": {
+        "": ""
+      }
+    }
+  },
+  "More Imports": {
+    "": {
+      "": {
+        "": ""
+      }
+    }
+  },
+  "To make changes to your user account, please visit your account page on {{LINK}}": {
+    "": ""
+  },
+  "To enable hyperlinks in your descriptions, update your Wago account with a valid e-mail, or with a Patreon subscription at {{LINK}}": "",
+  "You may use an API key to access Wago programmatically, through your own software or a third party app such as the WeakAuras Companion": "",
+  "Webhook": "",
+  "Enter a Webhook URL to recieve notifications you create or update an import": {
+    " Discord Webhooks will be detected and automatically formatted to what Discord expects to post in a channel, otherwise POST data will match the below schema": {
+      "": ""
+    }
+  },
+  "Note that hidden, private, encrypted or restricted auras will not have a webhook sent from this global setting, but individual imports can have their own webhook settings which override this one": {
+    "": ""
+  },
+  "POST To": "",
+  "Return Status": "",
+  "Response Data": "",
+  "POST Data": "",
+  "Browse addons": "",
+  "Browse Cell imports": "",
+  "GSE": "",
+  "Browse GSE imports": "",
+  "Browse Macros": "",
+  "The War Within Mythic+": "",
+  "WagoApp temporarily disabled for [-type-] imports": {
+    "": ""
+  },
+  "Allow this WeakAura in paid UI Packs": "",
+  "What are UI Packs": "",
+  "Advanced Config": "",
+  "This Webhook will override the global Webhook setting on the settings page, and will be sent regardless of the import's visibility setting, for this import only": {
+    "": ""
+  },
+  "Preference saved": "",
+  "Invalid Webhook URL": "",
+  "Search Cell": "",
+  "Download Cell": "",
+  "Join Cell Discord": "",
+  "Search GSE": "",
+  "Download GSE": "",
+  "Join GSE Discord": "",
+  "All rights reserved": {
+    "": ""
+  },
+  "Import Strings": "",
+  "[-num-] Unread": "",
+  "An error occured, please try again": "",
+  "Please try again": {
+    "": ""
+  },
+  "Download App": "",
+  "Open user menu": "",
+  "Wago": {
+    "io Settings": "",
+    "io Admin": ""
+  },
+  "Sign in": "",
+  "Sign up": "",
+  "New Import": "",
+  "Receive a private message on Discord whenever a Wago you have starred is updated": "",
+  "Receive a private message on Discord whenever you receive a comment": "",
+  "Enter a Webhook URL to receive notifications you create or update an import": {
+    " Discord Webhooks will be detected and automatically formatted to what Discord expects to post in a channel, otherwise POST data will match the below schema": {
+      "": ""
+    }
+  },
+  "You linked into an older version of this import, we are displaying the latest version": "You linked into an older version of this import, we are displaying the latest version.",
+  "View version [-version-]": ""
 }

@@ -393,7 +393,11 @@
                 {{ $t("This import is corrupted, missing data and can not be repaired, apologies but the author will need to re-import") }}
               </ui-warning>
 
-              <ui-warning v-if="!isLatestVersion()" mode="info" :html="$t('A more recent version of this import is available view the latest version [-url-]', {url: '/' + $store.state.wago.slug})"></ui-warning>
+              <ui-warning v-if="questionVersion" mode="info">
+                {{ $t('You linked into an older version of this import, we are displaying the latest version') }}
+                <a style="margin-left: 5px;" href="./" @click.prevent="selectVersion(questionVersion)">{{ $t('View version [-version-]', {version: questionVersion.versionString}) }}</a>.
+              </ui-warning>
+              <ui-warning v-else-if="!isLatestVersion()" mode="info" :html="$t('A more recent version of this import is available view the latest version [-url-]', {url: '/' + $store.state.wago.slug})"></ui-warning>
 
               <!-- CONFIG FRAME -->
               <div id="wago-config-container" class="wago-container" v-if="showPanel=='config'">
@@ -604,7 +608,7 @@
                   
                   <template v-if="wago.type !== 'ERROR' && wago.type !== 'COLLECTION'">
                     <h3>{{ $t('Advanced Config') }}</h3>
-                    <p>{{ $t("Enter a Webhook URL to recieve notifications you create or update an import. Discord Webhooks will be detected and automatically formatted to what Discord expects to post in a channel, otherwise POST data will match the below schema.") }}</p>
+                    <p>{{ $t("Enter a Webhook URL to receive notifications you create or update an import. Discord Webhooks will be detected and automatically formatted to what Discord expects to post in a channel, otherwise POST data will match the below schema.") }}</p>
                     <p>{{ $t("This Webhook will override the global Webhook setting on the settings page, and will be sent regardless of the import's visibility setting, for this import only.") }}</p>
                     <md-input-container :class="{ 'md-input-invalid': webhookError, 'md-input-status': webhookStatus }">
                         <label>{{ $t("Webhook") }}</label>
@@ -869,7 +873,7 @@
                           <md-table-cell>
                             <span class='version-num'>{{ ver.versionString }}</span>
                             <md-chip v-if="ver.versionString === currentVersionString">{{ $t("Active") }}</md-chip>
-                            <md-button v-else class='chip-button' :href="selectVersion([ver])">{{ $t("View") }}</md-button>
+                            <md-button v-else class='chip-button' @click="selectVersion(ver)">{{ $t("View") }}</md-button>
                             <md-button v-if="User && wago.UID && wago.UID === User.UID" class='chip-button' @click="modifyVersion(ver)">{{ $t("Modify Version") }}</md-button>
                           </md-table-cell>
                           <md-table-cell>
@@ -877,7 +881,7 @@
                           </md-table-cell>
                         </md-table-row>
                         <md-table-row class='changelog-row' v-if="ver.changelog && ver.changelog.text">
-                          <md-table-cell colspan="4"><span class='version-num'></span><formatted-text :text="ver.changelog" :enableLinks="wago.user.enableLinks"></formatted-text></md-table-cell>
+                          <md-table-cell colspan="4"><span class='version-num'></span><formatted-text :text="ver.changelog"></formatted-text></md-table-cell>
                         </md-table-row>
                       </template>
                     </md-table-body>
@@ -1458,6 +1462,8 @@ export default {
       modComments: '',
       advancedConfig: {},
       webhookDisplay: -1,
+      questionVersion: null,
+      useVersion: null
     }
   },
   watch: {
@@ -1718,9 +1724,9 @@ export default {
 
       var params = {}
       params.id = wagoID
-      this.version = this.$route.params.version
-      if (this.version) {
-        params.version = this.version
+      let loadVersion = this.$route.params.version
+      if (this.useVersion) {
+        params.version = this.useVersion
       }
 
 
@@ -1748,6 +1754,16 @@ export default {
           this.latestVersion.patch = semver.patch(this.latestVersion.semver)
 
           this.generateNextVersionData()
+
+          if (loadVersion && !this.useVersion) {
+            try {
+                this.questionVersion = res.versions.versions.filter((v) => v.versionString === loadVersion || v.version === parseInt(loadVersion))[0]
+            }
+            catch (e){
+                console.log(e)
+                this.questionVersion = null
+            }
+          }
         }
 
         if (res.versions && res.versions.total > 10) {
@@ -1921,7 +1937,7 @@ export default {
         setTimeout(function () {
           vue.doNotReloadWago = false
           window.preventScroll = undefined
-        }, 600)
+        }, 3000)
 
         if (res.visibility.hidden) {
           this.editVisibility = 'Hidden'
@@ -2331,8 +2347,11 @@ export default {
       if (this.isLatestVersion()) {
         this.$router.replace('/' + this.wago.slug)
       }
-      else {
-        this.$router.replace('/' + this.wago.slug + '/' + this.version)
+      else if (this.$route.params.version && this.useVersion) {
+        this.$router.replace('/' + this.wago.slug + '/' + this.currentVersion.semver)
+      }
+      else if (this.$route.params.version) {
+        this.questionVersion = this.$route.params.version
       }
 
       this.requireCipherKey = false
@@ -2684,15 +2703,20 @@ export default {
       }
     },
     selectVersion (v) {
-      if (v && v[0] && v[0].versionString) {
-        return '/' + this.$store.state.wago.slug + '/' + v[0].versionString.replace(/-.*/, '')
+        let url = '/' + this.$store.state.wago.slug
+        this.version = null
+        if (v?.versionString) {
+            url = '/' + this.$store.state.wago.slug + '/' + v.versionString.replace(/-.*/, '')
+            this.useVersion = v.versionString.replace(/-.*/, '')
       }
-      else if (v && v[0] && v[0].version) {
-        return '/' + this.$store.state.wago.slug + '/' + v[0].version
-      }
-      else {
-        return '/' + this.$store.state.wago.slug
-      }
+        else if (v?.version) {
+            url = '/' + this.$store.state.wago.slug + '/' + v.version
+            this.useVersion = v.version
+        }
+        this.questionVersion = null
+        this.doNotReloadWago = false
+        this.$router.replace(url)
+        this.fetchWago()
     },
     isLatestVersion () {
       if (!this.$route.params.version || !this.wago.versions || this.wago.versions.total <= 1) {
