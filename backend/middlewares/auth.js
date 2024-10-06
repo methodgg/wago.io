@@ -1,6 +1,7 @@
 
 const jwt = require('jsonwebtoken')
 const config = require('../config')
+const ObjectId = require('mongoose').Types.ObjectId
 
 module.exports = async function(req, res) {
     req.internalAuthRequest = (req.headers['wago-auth-key'] === config.wagoAuthKey)
