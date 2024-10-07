@@ -183,8 +183,12 @@
                   <p><strong>{{ $t("This import is corrupted and will likely not work as expected") }}</strong></p>
                 </template>
                 
+                <template v-if="codeReview && codeReview.fpsImpacted">
+                  <p v-if="codeReview.alerts"><strong>{{ $t("This import has FPS affecting alerts, your performance will be impacted without modifications") }}</strong></p>
+                </template>
+                
                 <template v-if="codeReview && codeReview.alerts">
-                  <p><strong>{{ $t("This import has alerts, you are strongly suggested to review the code before installing") }}</strong></p>
+                  <p v-if="codeReview.alerts"><strong>{{ $t("This import has alerts, you are strongly suggested to review the code before installing") }}</strong></p>
                 </template>
                 
               </md-tooltip>
@@ -2243,6 +2247,23 @@ export default {
                 this.codeReview.info.highlights.add('audio')
               }
             }
+          }
+
+          let modelAlert
+          if (item.regionType === 'model') {
+            modelAlert = true
+          }
+          else if (item.subRegions && item.subRegions.length) {
+            for (const sub of item.subRegions) {
+              if (sub.type === 'submodel') {
+                modelAlert = true
+              }
+            }          
+          }
+          if (modelAlert) {            
+            this.codeReview.alerts++
+            this.codeReview.fpsImpacted = true
+            this.codeReview.alertContent['model' + itemID] = {name: itemID, display: this.$t('\'[-name-]\' includes a model display which currently has causes signficant performance issues due to a WoW bug.', {name: itemID})}
           }
         }
         var detectedThrottles = {}
