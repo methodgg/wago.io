@@ -233,6 +233,7 @@ module.exports = {
 
   search: async function (o) {
     const resultsPerPage = 25
+    o.page = Math.min(o.page || 0, 100)
     let results = []
     if (o.algorithm === 'bestmatchv3' && o.index !== 'comments') {
       results = await client.search({
