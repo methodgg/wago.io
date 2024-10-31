@@ -94,6 +94,9 @@ module.exports = function (fastify, opts, next) {
       doc.comments = []
       const comments = await Comments.find({ wagoID: doc._id, codeReview: null }).sort({ postDate: -1 }).limit(10).populate('authorID').exec()
       for (let c of comments) {
+        if (!c.authorID?._id) {
+            continue
+        }
         doc.comments.push({
           cid: c._id.toString(),
           date: c.postDate,
