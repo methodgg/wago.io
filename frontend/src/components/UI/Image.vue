@@ -10,6 +10,8 @@
         <source v-if="img.png" :srcset="img.png" type="image/png">
         <source v-if="img.jpg" :srcset="img.jpg" type="image/jpeg">
         <img v-if="img.gif" :src="img.gif">
+        <img v-else-if="img.webp" :src="img.webp">
+        <img v-else-if="img.gif" :src="img.gif">
         <img v-else-if="img.png" :src="img.png">
         <img v-else-if="img.jpg" :src="img.jpg">
       </template>

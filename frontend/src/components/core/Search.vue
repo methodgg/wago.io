@@ -620,8 +620,24 @@ export default {
         }
 
         this.queryOptions = fieldText.join(' - ')
-        this.queryHTML = document.querySelector('.ql-editor p').innerHTML
-        this.queryHTML = this.queryHTML.replace(/<button.*?<\/button>/g, '').replace(/<br\/?\s*>/, '')
+        
+        const qlSearchBox = document.querySelector('.ql-editor p')
+        if (qlSearchBox) {
+            this.queryHTML = qlSearchBox.innerHTML
+            this.queryHTML = this.queryHTML.replace(/<button.*?<\/button>/g, '').replace(/<br\/?\s*>/, '')
+        }
+        else {
+            this.queryHTML = ''
+            document.querySelectorAll('#inputWrapper li').forEach((li) => {
+                if (li.innerHTML.match(/<input/)) {
+                    this.queryHTML += li.children[0].value
+                }
+                else {
+                    this.queryHTML += `<span class="${li.className}">${li.innerHTML}</span>` + ' '
+                }
+            })
+        }
+
 
         for (var i = 0; i < hits.length; i++) {
           if (hits[i] && typeof hits[i] === 'object' && hits[i].categories) {
@@ -757,7 +773,6 @@ export default {
       this.searchExpansion = this.$store.state.searchExpansion || window.localStorage.getItem(`search.expansion.${this.searchGame}`) || ''
       this.searchType = this.$store.state.searchType || window.localStorage.getItem(`search.type.${this.searchGame}`) || ''
     }
-
     this.$store.commit('setSearchText', this.searchString, true)
   },
   destroyed: function () {
@@ -1039,62 +1054,6 @@ export default {
   }
 }
 
-#searchQuery {
-  line-height:180%;
-  > * {
-    display: block;
-  }
-  .search-tag {    
-      &.imptype {
-        border-color: #fff0fd;
-        color: #fff0fd;
-      }
-      &.expansion {
-        border-color: #d8652e;
-        color: #d8652e;
-      }
-      &.tag-collection {
-        color: #CAA27E;
-        border-color: #CAA27E;
-      }
-      &.tag-mentions {
-        color: #ED7032;
-        border-color: #ED7032;
-      }
-      &.tag-user {
-        color: #FFC83D;
-        border-color: #FFC83D;
-      }
-      &.exp-tww {
-        border-color: #27eab0;
-        color: #27eab0;
-      }
-      &.exp-df {
-        border-color: #27eab0;
-        color: #27eab0;
-      }
-      &.exp-sl {
-        border-color: #eaae27;
-        color: #eaae27;
-      }
-      &.exp-tbc {
-        border-color: #BED82E;
-        color: #BED82E;
-      }
-      &.exp-wotlk {
-        border-color: #5764da;
-        color: #5764da;
-      }
-      &.filter-date {
-        border-color: #e2fffa;
-        color: #e2fffa;
-      }
-      &.filter-metric {
-        border-color: #9fecd0;
-        color: #9fecd0;
-      }
-  }
-}
 #searchOptions {
   flex: 1;
   justify-content: flex-end;
@@ -1166,4 +1125,70 @@ export default {
 
 
 
+</style>
+
+<style>
+#searchQuery {
+    line-height:180%;
+    > * {
+      display: block;
+    }    
+    .x-button {
+        display: none;
+    }
+    .search-tag {
+        padding-left: 20px;
+        background-size: 16px;
+        background-repeat: no-repeat;
+        
+        &.imptype {
+          border-color: #fff0fd;
+          color: #fff0fd;
+        }
+        &.expansion {
+          border-color: #d8652e;
+          color: #d8652e;
+        }
+        &.tag-collection {
+          color: #CAA27E;
+          border-color: #CAA27E;
+        }
+        &.tag-mentions {
+          color: #ED7032;
+          border-color: #ED7032;
+        }
+        &.tag-user {
+          color: #FFC83D;
+          border-color: #FFC83D;
+        }
+        &.exp-tww {
+          border-color: #27eab0;
+          color: #27eab0;
+        }
+        &.exp-df {
+          border-color: #27eab0;
+          color: #27eab0;
+        }
+        &.exp-sl {
+          border-color: #eaae27;
+          color: #eaae27;
+        }
+        &.exp-tbc {
+          border-color: #BED82E;
+          color: #BED82E;
+        }
+        &.exp-wotlk {
+          border-color: #5764da;
+          color: #5764da;
+        }
+        &.filter-date {
+          border-color: #e2fffa;
+          color: #e2fffa;
+        }
+        &.filter-metric {
+          border-color: #9fecd0;
+          color: #9fecd0;
+        }
+    }
+}
 </style>

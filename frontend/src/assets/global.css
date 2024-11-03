@@ -29,6 +29,9 @@
   background-size: 20px 20px;
   background-repeat: no-repeat
 }
+#searchQuery .search-tag.tag-user {
+    background-image: url('menu-user.png');
+}
 
 .codeResult .ace_content .found-text {
   position: absolute;

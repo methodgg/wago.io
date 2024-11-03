@@ -56,7 +56,7 @@ export default {
 </script>
 
 <style scoped>
-#loginbutton {margin-right: 0}
+#loginbutton {margin-right: 0; max-width: 230px; overflow: hidden; text-overflow: ellipsis;}
 .submenu > .md-button { padding: 0 }
 .submenu .md-menu { width: 100%}
 .submenu .md-menu .md-button { padding: 0 16px; margin: 0; width:100%; text-align: left; text-transform: initial; font-size: inherit; font-weight: inherit; }

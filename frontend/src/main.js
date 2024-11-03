@@ -635,7 +635,7 @@ axios.interceptors.response.use(function (response) {
     window.setCookie('token', response.data.token, 365)
     Vue.axios.defaults.headers = { 'x-auth-token': response.data.token }
     store.commit('setUser', response.data.user)
-    router.replace(store.loginRedirect || '/account')
+    router.replace(store.loginRedirect || '/settings')
   }
 
   return response

@@ -1,5 +1,5 @@
 <template>
-  <div class="menu-section">
+  <div class="menu-section drop-left">
     <span>{{buttonText.toUpperCase()}} <md-icon>translate</md-icon></span>
     <div class="sub-nav">
       <template v-for="item in supportedLocales">

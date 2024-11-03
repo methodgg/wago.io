@@ -4,6 +4,8 @@
       <div id="maincontent" v-if="!isEmbed">
         <div id="copyContainer"></div>
         <notification-banner id="maintenance" v-if="isMaintenance" :preventClose="true">Wago is in maintenance mode, and is read-only. </notification-banner>
+        <wago-header v-if="1"></wago-header>
+        <template v-else>
         <div id="topbar">
           <md-toolbar>
             <md-button class="md-icon-button md-hide-small-and-up" @click="toggleMobileNav()">
@@ -15,10 +17,6 @@
               <div id="top-search-bar">
                 <search-bar ref="searchField"></search-bar>
               </div>
-              <md-button v-if="(this.$store.state.user.UID || this.$store.state.user.guest) && !this.$store.state.user.hideAds" href="https://www.patreon.com/wagoio" target="_blank">
-                <svg aria-hidden="true" focusable="false" class="header-patreon" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M512 194.8c0 101.3-82.4 183.8-183.8 183.8-101.7 0-184.4-82.4-184.4-183.8 0-101.6 82.7-184.3 184.4-184.3C429.6 10.5 512 93.2 512 194.8zM0 501.5h90v-491H0v491z"></path></svg>
-                {{ $t('Support Wago.io') }}
-              </md-button>
               
               <a id="wago-btn" href='https://uipacks.wago.io/' class="md-button alert-button">
                   <img src="./assets/wagoio-logo.png" /> Wago UI Packs
@@ -82,7 +80,7 @@
                 <router-link v-for="(addon, key) of addonDB" :to='addon.path' :key="key">
                   <div class="md-list-text-container">
                     {{ addon.name }}
-                    <span class="game-select" v-if="addon.submenu">
+                            <span class="menu-game-select" v-if="addon.submenu">
                       <router-link v-for="(item, key) of addon.submenu" :to="item.path" :key="key"> {{ item.name }}</router-link>
                     </span>
                   </div>
@@ -97,7 +95,7 @@
                   <router-link to='/the-war-within-weakauras'>
                       <div class="md-list-text-container">
                       <span class="sub-nav-heading"><span class="addon-icon"><img src="./assets/weakauras.png"></span> WeakAuras</span>
-                      <span class="game-select">
+                            <span class="menu-game-select">
                           <router-link to='/the-war-within-weakauras'>{{ $t("The War Within") }}</router-link>
                           <router-link to='/cataclysm-weakauras'>{{ $t("Cataclysm") }}</router-link>
                           <router-link to='/classic-weakauras'>{{ $t("Classic") }}</router-link>
@@ -144,12 +142,19 @@
                 </div>
               </div>
             </template>
+
             <router-link id="randombtn" to='/random'><img src="./assets/random.png"></router-link>
   
             <div class="grow"></div>
+                    <md-button v-if="(this.$store.state.user.UID || this.$store.state.user.guest) && !this.$store.state.user.hideAds" href="https://www.patreon.com/wagoio" target="_blank" id="patreon-btn">
+                        <svg aria-hidden="true" focusable="false" class="header-patreon" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M512 194.8c0 101.3-82.4 183.8-183.8 183.8-101.7 0-184.4-82.4-184.4-183.8 0-101.6 82.7-184.3 184.4-184.3C429.6 10.5 512 93.2 512 194.8zM0 501.5h90v-491H0v491z"></path></svg>
+                        {{ $t('Support Wago.io') }}
+                    </md-button>
+        
             <select-locale display="code"></select-locale>
           </div>
         </div>
+        </template> 
   
         <md-snackbar md-position="top center" ref="snackbar" md-duration="4000">
           <span>{{ PopMsg }}</span>
@@ -164,7 +169,6 @@
               <advert v-if="asteriTest()" ad="embed-asteri" />
               <advert v-else ad="rectangle-sidebar" :patreonLink="true" />
               <stream-embed v-if="$store.state.streamEmbed && $store.state.streamEmbed !== '__none'" :stream="$store.state.streamEmbed" />
-              <advert v-else-if="!asteriTest()" ad="embed-streambuff" />
             </div>
           </div>
           <advert ad="leaderboard-bottom" :patreonLink="true" :frame="false" />
@@ -198,6 +202,8 @@
   import ViewEmbed from './components/core/ViewEmbed.vue'
   import StreamEmbed from './components/UI/StreamEmbed.vue'
   import addonDB from './components/libs/addons'
+
+  import WagoHeader from './components/UI/WagoHeader.vue'
   import WagoFooter from './components/UI/WagoFooter.vue'
   
   export default {
@@ -210,6 +216,7 @@
       'notification-banner': NotificationBanner,
       'advert': Advert,
       'stream-embed': StreamEmbed,
+      'wago-header': WagoHeader,
       'wago-footer': WagoFooter
     },
     data: () => {
@@ -457,6 +464,7 @@
         return params.get('id')
       },
       includeSidebar () {
+        if (window.innerWidth <= 1024) return false
         return !(this.$store.state.user.hideAds || this.$store.state.isMaintenance || this.$store.state.pageInfo.layout === 'MDT')
       }
     },
@@ -706,6 +714,11 @@
     position: -webkit-sticky;
     top: 0px;
   }
+  @media (max-width: 1050px) {
+      #patreon-btn {
+        display: none
+      }
+  }
   @media (min-width: 601px) {
     #app { pointer-events: none; }
     .md-backdrop { pointer-events: none }
@@ -785,9 +798,9 @@
   .mainnav .md-list-item img { max-height: 32px }
   .mainnav .md-list-item a { justify-content: start }
   .mainnav .md-list-item a span.unreadCount { margin-left: 8px; line-height: 18px }
-  .game-select {padding-top: 3px}
-  .game-select a:after {content:' - '; color: rgba(255, 255, 255, .87)}
-  .game-select a:last-child:after {content:''}
+  .menu-game-select {padding-top: 3px}
+  .menu-game-select a:after {content:' - '; color: rgba(255, 255, 255, .87)}
+  .menu-game-select a:last-child:after {content:''}
   .mainnav .md-list-item a span.menu-action { width: 100% }
   .mainnav .md-list-item { height: 36px }
   .mainnav .md-list-item.multi-line { height: 40px }
@@ -913,8 +926,8 @@
   }
   
   .submenu-single-line {line-height: 36px!important;  min-height: 36px; display: block;}
-  .game-select a {color: #999!important; font-size: 14px;}
-  .game-select a:hover {text-decoration: none!important; color: #BBB!important}
+  .menu-game-select a {color: #999!important; font-size: 14px;}
+  .menu-game-select a:hover {text-decoration: none!important; color: #BBB!important}
   
   .md-list-item.menu-section {
     background: #333333;
@@ -978,6 +991,7 @@
         left: 0;
       }
     }
+  }
   }
   
   </style>

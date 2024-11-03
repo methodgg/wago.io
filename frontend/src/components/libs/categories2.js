@@ -1144,7 +1144,7 @@ class Categories {
         continue
       }
       styles += `
-      .md-chip.${id}, .${id} .menu-image, #searchWrapper .search-tag.category.${id} {color:${color}; background-image:url('/static/image/menu/${image}')}
+      .md-chip.${id}, .${id} .menu-image, #searchQuery .search-tag.category.${id}, .search-container .search-tag.category.${id}, #searchWrapper .search-tag.category.${id} {color:${color}; background-image:url('/static/image/menu/${image}')}
       .${id}, .${id} a {color:${color}!important}
       .search-tag.${id} {border-color:${color}}
       .multiselect .md-chip.${id} {background: ${color}; color: black!important}`

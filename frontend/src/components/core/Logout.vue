@@ -14,7 +14,9 @@ export default {
     window.clearCookie('token')
     // show login form
     window.eventHub.$emit('showSnackBar', this.$t('Logout successful'))
-    this.$router.replace('/login')
+    this.$nextTick(() => {
+        window.location.href="https://accounts.wago.io/logout?redirect_url=https://wago.io"
+    })    
   }
 }
 </script>
