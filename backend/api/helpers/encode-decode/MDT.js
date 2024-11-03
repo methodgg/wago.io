@@ -102,15 +102,22 @@ module.exports = {
     json.wagoID = wago._id
     json = sortJSON(json)
     code.json = JSON.stringify(json)
-
-    wago.game = 'df'
+    
+    wago.game = 'tww'
     const version = await GameVersion.findVersion(10, wago.modified, 0)
     wago.patch_name = version.name
-    wago.categories = ['df-mdt-s3', categories.findByMDT_ID(json.value.currentDungeonIdx) || `mdt-${json.value.currentDungeonIdx}`]
+    wago.categories = [categories.findByMDT_ID(obj.value.currentDungeonIdx)]
+    if (categories[0]) {
+        categories.unshift(dungeonCategory.slice(0, -2))
+    }
+    else {
+        categories.push(`MDT-${obj.value.currentDungeonIdx}`)
+    }
     
     return { code, wago }
   }
 }
+  
 
 function sortJSON(obj) {
   // if a regular array then its already sorted but still sort any child objects
