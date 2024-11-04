@@ -429,7 +429,7 @@ Schema.virtual('indexedImportData').get(async function () {
     }
   }
   else if (data.type === 'MDT') {    
-    data.expansion = 9
+    data.expansion = 10 // TODO get this dynamically
   }
   else {
     data.expansion = -1
