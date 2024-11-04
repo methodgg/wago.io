@@ -89,6 +89,7 @@ module.exports = {
 
     return {
         name: obj.text && obj.text !== 'Default' ? obj.text : 'MDT Route',
+        game: 'tww',
         type: 'MDT',
         categories: [categories.findByMDT_ID(obj.value.currentDungeonIdx) || `MDT-${obj.value.currentDungeonIdx}`]
     }
@@ -104,7 +105,7 @@ module.exports = {
     code.json = JSON.stringify(json)
     
     wago.game = 'tww'
-    const version = await GameVersion.findVersion(10, wago.modified, 0)
+    const version = await GameVersion.findVersion(null, wago.modified, 0)
     wago.patch_name = version.name
     wago.categories = [categories.findByMDT_ID(obj.value.currentDungeonIdx)]
     if (categories[0]) {
