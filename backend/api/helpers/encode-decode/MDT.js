@@ -107,12 +107,12 @@ module.exports = {
     wago.game = 'tww'
     const version = await GameVersion.findVersion(null, wago.modified, 0)
     wago.patch_name = version.name
-    wago.categories = [categories.findByMDT_ID(obj.value.currentDungeonIdx)]
+    wago.categories = [categories.findByMDT_ID(json.value.currentDungeonIdx)]
     if (categories[0]) {
-        categories.unshift(dungeonCategory.slice(0, -2))
+        wago.categories.unshift(dungeonCategory.slice(0, -2))
     }
     else {
-        categories.push(`MDT-${obj.value.currentDungeonIdx}`)
+        wago.categories.push(`MDT-${json.value.currentDungeonIdx}`)
     }
     
     return { code, wago }
