@@ -229,7 +229,7 @@
         return window.Categories.classCategories('WEAKAURA', 'tww')
       },
       raids: function () {
-        return window.Categories.raidCategories(['raidnerubarpalace', 'twwdungeon'])
+        return window.Categories.raidCategories(['liberationofundermine', 'raidnerubarpalace', 'twwdungeon'])
       },
       misc: function () {
         return window.Categories.getCategories(['gen1', 'gen7', 'gen2', 'gen6', 'gen9', 'gen10', 'gen11', 'gen12', 'gen13', 'gen8', 'gen15', 'gen19', 'gen20'], null)

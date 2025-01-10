@@ -161,6 +161,16 @@ class Categories {
       'raidnerubarpalace7': {slug: 'pve/nerubar-palace/the-silken-court', i18n: 'warcraft:encounters.2608', domain: 0, parent: 'raidnerubarpalace', types: ['WEAKAURA', 'COLLECTION'], games: ['tww']},
       'raidnerubarpalace8': {slug: 'pve/nerubar-palace/queen-ansurek', i18n: 'warcraft:encounters.2602', domain: 0, parent: 'raidnerubarpalace', types: ['WEAKAURA', 'COLLECTION'], games: ['tww']},
 
+      'liberationofundermine': {slug: 'pve/liberation-of-undermine', image: 'liberationofundermine.png', color: '#DEC400', i18n: 'warcraft:instances.1296', domain: 0, types: ['WEAKAURA', 'COLLECTION'], games: ['tww']},
+      'liberationofundermine1': {slug: 'pve/liberation-of-undermine/vexie-and-the-geargrinders', i18n: 'warcraft:encounters.2639', domain: 0, parent: 'liberationofundermine', types: ['WEAKAURA', 'COLLECTION'], games: ['tww']},
+      'liberationofundermine2': {slug: 'pve/liberation-of-undermine/cauldron-of-carnage', i18n: 'warcraft:encounters.2640', domain: 0, parent: 'liberationofundermine', types: ['WEAKAURA', 'COLLECTION'], games: ['tww']},
+      'liberationofundermine3': {slug: 'pve/liberation-of-undermine/rik-reverb', i18n: 'warcraft:encounters.2641', domain: 0, parent: 'liberationofundermine', types: ['WEAKAURA', 'COLLECTION'], games: ['tww']},
+      'liberationofundermine4': {slug: 'pve/liberation-of-undermine/stix-bunkjunker', i18n: 'warcraft:encounters.2642', domain: 0, parent: 'liberationofundermine', types: ['WEAKAURA', 'COLLECTION'], games: ['tww']},
+      'liberationofundermine5': {slug: 'pve/liberation-of-undermine/sprocketmonger-lockenstock', i18n: 'warcraft:encounters.2653', domain: 0, parent: 'liberationofundermine', types: ['WEAKAURA', 'COLLECTION'], games: ['tww']},
+      'liberationofundermine6': {slug: 'pve/liberation-of-undermine/the-one-armed-bandit', i18n: 'warcraft:encounters.2644', domain: 0, parent: 'liberationofundermine', types: ['WEAKAURA', 'COLLECTION'], games: ['tww']},
+      'liberationofundermine7': {slug: 'pve/liberation-of-undermine/mugzee-heads-of-security', i18n: 'warcraft:encounters.2645', domain: 0, parent: 'liberationofundermine', types: ['WEAKAURA', 'COLLECTION'], games: ['tww']},
+      'liberationofundermine8': {slug: 'pve/liberation-of-undermine/chrome-king-gallywix', i18n: 'warcraft:encounters.2646', domain: 0, parent: 'liberationofundermine', types: ['WEAKAURA', 'COLLECTION'], games: ['tww']},
+
 
       'twwdungeon': {slug: 'pve/the-war-within-dungeons', image: 'dungeon.png', color: '#F5A623', i18n: 'Dungeons', domain: 0, types: ['WEAKAURA', 'COLLECTION'], games: ['tww']},
       // --- Season 1

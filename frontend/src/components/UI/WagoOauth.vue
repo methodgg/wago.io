@@ -63,7 +63,7 @@ export default {
     }
   },
   async mounted () {
-    if (!this.provider || window.readCookie('token')) {
+    if (!this.provider || !this.code) {
         this.$router.replace('/settings')
         return
     }
