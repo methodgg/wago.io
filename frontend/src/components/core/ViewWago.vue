@@ -163,6 +163,9 @@
               <md-icon>airplay</md-icon> {{ $t("Send to Desktop App") }}
               <md-button @click.stop="sendToApp('ask')" id="helpAppButton" class="md-icon-button md-raised"><md-icon>help</md-icon></md-button>
             </div>
+            <div v-if="wago.type === 'COLLECTION' && $store.state.isTest" id="installCollectionBtn" class="md-hide-xsmall md-button" @click="checkCollectionCompatibility()">
+              <md-icon>airplay</md-icon> {{ $t("Install as Dynamic UI Pack") }}
+            </div>
             <md-button v-if="wago.code && wago.code.encoded" @click="copyEncoded" class="copy-import-button" id="copyImportBtn">
               <md-icon>assignment</md-icon> 
               <span v-if="wago.type === 'MACRO'">{{ $t("Copy Macro") }}</span>
@@ -235,6 +238,9 @@
                   <md-icon>flag</md-icon> {{ $t("Report") }}
                 </md-button>
                 <span></span>
+                <md-button @click="$refs.collectionDialog.open()" v-if="$store.state.isTest && wago.type !== 'COLLECTION'" id="openCollectionBtn">
+                  <md-icon>inventory</md-icon> {{ $t("Add to Collection") }}
+                </md-button>
                 <md-button @click="newComment">
                   <md-icon>comment</md-icon> {{ $t("Post Comment") }}
                 </md-button>
@@ -248,6 +254,47 @@
         </div>
         <advert v-if="wago.type==='MDT'" ad="rectangle-sidebar" :patreonLink="true" />
       </div>
+
+      <md-dialog md-open-from="#openCollectionBtn" md-close-to="#openCollectionBtn" ref="collectionDialog">
+        <md-dialog-title>{{ $t("Add to Collection") }}</md-dialog-title>
+
+        <md-dialog-content id="collection-info" v-if="wago.type !== 'COLLECTION'">
+          <p>{{ $t('Collections are sets of imports curated by users and shared on the Wago platform.') }}</p>
+          <p>{{ $t('A collection can be exported to a Dynamic UI Pack to quickly install all the respective imports with the Wago App.') }}</p>
+          <br>
+          <p>{{ $t('Your collections') }}</p>
+          <div id="collection-choice">
+            <md-table>
+              <md-table-body>
+                <template v-for="collection in User.collections">
+                  <md-table-row :key="collection._id">
+                    <md-table-cell>
+                      {{ collection.name }}
+                    </md-table-cell>
+                    <md-table-cell v-if="wago.myCollections?.length > 0 && wago.myCollections.indexOf(collection._id) > -1">
+                      <md-button class="md-primary" @click="addToCollection(collection._id)"><md-icon>delete</md-icon>{{ $t("Remove from this collection")}}</md-button>
+                    </md-table-cell>
+                    <md-table-cell v-else class="md-end">
+                      <md-button class="md-primary" @click="addToCollection(collection._id)"><md-icon>check</md-icon>{{ $t("Add to this collection")}}</md-button>
+                    </md-table-cell>
+                    <md-table-cell class="md-end">
+                      <md-button class="md-primary md-button" @click="$router.replace('/' + collection._id)" >{{ $t("View collection")}}</md-button>
+                    </md-table-cell>
+                  </md-table-row>
+                </template>
+              </md-table-body>
+            </md-table>
+            <br>
+            <div v-if="!User.collections.length">{{  $t("You have not created any collections yet.") }}</div>
+            <button @click="openNewCollectionDialog()"><md-icon>add_box</md-icon>{{ $t("Create new collection") }}</button>
+          </div>          
+        </md-dialog-content>  
+
+        <md-dialog-actions>
+          <md-button class="md-primary" @click="$refs.collectionDialog.close()">{{ $t("Close") }}</md-button>
+        </md-dialog-actions>
+      </md-dialog>
+      
 
       <md-dialog md-open-from="#sendToDesktopAppBtn" md-close-to="#sendToDesktopAppBtn" ref="sendToAppDialog">
         <md-dialog-title>{{ $t("Send to App") }}</md-dialog-title>
@@ -307,7 +354,7 @@
                   <md-button v-if="wago.type !== 'COLLECTION'" v-bind:class="{'md-toggle': showPanel === 'collections'}" @click="toggleFrame('collections')">{{ $t("[-count-] collection", {count:  wago.collectionCount}) }}</md-button>
                   <md-button v-if="wago.versions && wago.versions.total > 1" v-bind:class="{'md-toggle': showPanel === 'versions'}" @click="toggleFrame('versions')" ref="versionsButton">{{ $t("[-count-] version", { count: wago.versions.total }) }}</md-button>
                   <md-button v-if="wago.code && !wago.code.Q && hasCodeDiffs" v-bind:class="{'md-toggle': showPanel === 'diffs'}" @click="toggleFrame('diffs')" ref="diffsButton">{{ $t("Code Diffs") }}</md-button>
-                  <md-button v-if="wago.code && wago.code.customCode && wago.code.customCode[0] && wago.code.customCode[0].luacheck && wago.type !== 'SNIPPET'" v-bind:class="{'md-toggle': showPanel === 'codereview'}" @click="toggleFrame('codereview')">{{ $t("Code Review") }}</md-button>
+                  <md-button v-if="wago.code && wago.code.customCode && wago.code.customCode[0] && wago.type !== 'SNIPPET'" v-bind:class="{'md-toggle': showPanel === 'codereview'}" @click="toggleFrame('codereview')">{{ $t("Code Review") }}</md-button>
                   <md-button v-if="wago.type !== 'ERROR' && wago.type !== 'COLLECTION' && wago.type !== 'MDT' && wago.visibility && wago.visibility.public" v-bind:class="{'md-toggle': showPanel === 'embed'}" @click="toggleFrame('embed')">{{ $t("Embed") }}</md-button>
                   <md-button v-if="wago.type === 'MDT'" v-bind:class="{'md-toggle': showPanel === 'builder'}" @click="toggleFrame('builder')">{{ $t("Builder") }}</md-button>
                   <md-button v-if="wago.type === 'BLIZZHUD'" v-bind:class="{'md-toggle': showPanel === 'hudsettings'}" @click="toggleFrame('hudsettings')">{{ $t("Hud Settings") }}</md-button>
@@ -363,7 +410,7 @@
               </ui-warning>
 
               <ui-warning v-if="wago.expires" mode="info">
-                {{ $t("This import will expire in [-time-]", {time: $moment(wago.expires).fromNow() }) }}<br>
+                {{ $t("This import will expire [-time-]", {time: $moment(wago.expires).fromNow() }) }}<br>
               </ui-warning>
 
               <ui-warning v-if="wago.visibility && wago.visibility.private">
@@ -695,7 +742,7 @@
                     <div>v{{ wago.versions.versions[0].versionString }}</div>
                     <formatted-text :text="wago.versions.versions[0].changelog" :enableLinks="wago.user.enableLinks"></formatted-text>
                   </div>
-                  
+
                   <formatted-text id="description-container" v-if="wago.type !== 'ERROR' || wago.description.text" :text="wago.description.text && wago.description.text.length ? wago.description : {text: $t('No description for this import has been provided')}" :enableLinks="wago.user.enableLinks"></formatted-text>
                   <template v-if="wago.type === 'ERROR' && wago.errorReport && wago.errorReport.length > 1">
                     <md-tabs @change="selectError">
@@ -1143,6 +1190,57 @@
       <div class="video-wrapper" v-html="videoEmbedHTML"></div>
     </md-dialog>
 
+    
+
+    <md-dialog ref="installCollectionDialog" id="installCollection-modal">
+      <md-dialog-title>{{ $t('Install Collection as a Dynamic UI Pack')}}</md-dialog-title>
+      <md-dialog-content>
+        <span>{{ $t('This requires that you have the Wago App installed. This process will build all compatible imports from this collection and allow you to quickly install all of them as a Dynamic UI Pack, using our UI Pack service.') }}</span>
+        <p><a href="https://addons.wago.io/app" target="_blank" class="red-btn md-button">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-5">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm.75-11.25a.75.75 0 0 0-1.5 0v4.59L7.3 9.24a.75.75 0 0 0-1.1 1.02l3.25 3.5a.75.75 0 0 0 1.1 0l3.25-3.5a.75.75 0 1 0-1.1-1.02l-1.95 2.1V6.75Z" clip-rule="evenodd" />
+            </svg>
+            <span>{{ $t("Download Wago App") }}</span>
+        </a></p>
+        <p>* {{ $t("For our initial Dynamic UI Pack launch, only WeakAuras are supported.") }}</p>
+        <ui-warning v-if="!collectionCompatibility?.length" mode="warn" :spinner="true" :html="$t('Checking for compatibility and conflicts')"></ui-warning>
+        <md-table v-else>
+          <md-table-body>
+            <md-table-row>
+              <md-table-cell>
+                <strong>{{ $t('Import Type')}}</strong>
+              </md-table-cell>
+              <md-table-cell>
+                <strong>{{ $t('# Imports')}}</strong>
+              </md-table-cell>
+              <md-table-cell>
+                <strong>{{ $t('Compatible') }}</strong>
+              </md-table-cell>
+            </md-table-row>
+            <template  v-for="item in collectionCompatibility">
+              <md-table-row>
+                <md-table-cell>
+                  {{ item._id }}
+                </md-table-cell>
+                <md-table-cell>
+                  {{ item.count }}
+                </md-table-cell>
+                <md-table-cell>
+                  <span v-if="item.ok" style="color:green"><md-icon>check</md-icon></span>
+                  <span v-else-if="!item.ok"><md-icon>close</md-icon> {{ $t('[-type-] imports are not supported in Dynamic UI Packs at this time.', {type: item._id}) }}</span>
+                </md-table-cell>
+              </md-table-row>
+            </template>
+          </md-table-body>
+        </md-table>
+      </md-dialog-content>
+
+      <md-dialog-actions>
+        <md-button class="md-primary" @click="$refs.installCollectionDialog.close()">{{ $t('Cancel') }}</md-button>
+        <md-button class="md-primary" @click="wagoAppCollection()" :disabled="!collectionCompatibility">{{ $t('Send to Wago App') }}</md-button>
+      </md-dialog-actions>
+    </md-dialog>
+
     <md-dialog ref="reportmodal" id="report-modal">
       <md-dialog-title>{{ $t('Thanks for helping to keep the Wago community positive!')}}</md-dialog-title>
       <md-dialog-content>
@@ -1372,6 +1470,7 @@ export default {
       showMoreVersions: true,
       showCollections: false,
       showMoreCollections: true,
+      collectionCompatibility: null,
       showEmbed: false,
       embedStyle: 'dark',
       customizeIframeColor: {},
@@ -1467,7 +1566,9 @@ export default {
       advancedConfig: {},
       webhookDisplay: -1,
       questionVersion: null,
-      useVersion: null
+      useVersion: null,
+      leftDiff: null,
+      rightDiff: null
     }
   },
   watch: {
@@ -1701,7 +1802,20 @@ export default {
         }, 500)
       }
     },
-    fetchWago () {
+    async checkCollectionCompatibility() {
+      this.$refs.installCollectionDialog.open()
+      if (!this.collectionCompatibility) {
+        const res = await this.http.get('/lookup/wago/collection-compatibility', {id: this.wago._id})
+        if (res?.length) {
+          console.log(res)
+          this.collectionCompatibility = res
+        }
+      }
+    },
+    wagoAppCollection() {
+      console.log('Not yet!')
+    },
+    fetchWago () {  
       this.checkCompanionBeta()
       if (this.doNotReloadWago) {
         return false
@@ -1806,6 +1920,7 @@ export default {
         this.updateDescFormat = res.description.format || this.$store.state.user.defaultEditorSyntax
         this.wago.typePrefix = ''
         this.editUIPackSettings = res.uiPackSettings
+        this.collectionCompatibility = null
 
         if (this.wago.type === 'MDT') {
           this.$store.commit('setPageInfo', {
@@ -1936,12 +2051,7 @@ export default {
             break
         }
 
-        vue.doNotReloadWago = true
         window.preventScroll = true
-        setTimeout(function () {
-          vue.doNotReloadWago = false
-          window.preventScroll = undefined
-        }, 3000)
 
         if (res.visibility.hidden) {
           this.editVisibility = 'Hidden'
@@ -1977,19 +2087,18 @@ export default {
         }
         
         this.$nextTick(() => {
-            const width = document.getElementById('import-meta').offsetWidth
+            const descContainer = document.getElementById('description-container')
+            const meta = document.getElementById('import-meta')
+            const header = document.getElementById('import-header')
+            if (!meta || !descContainer || !header) return
+
+            const width = meta.offsetWidth
             let widthAttr = 'max-width'
             if (this.wago.type === 'MACRO') {
                 widthAttr = 'width'
             }
-            if (width >= 495) {
-                document.getElementById('description-container').setAttribute('style', `overflow:hidden; text-overflow:ellipsis; ${widthAttr}: ${width-160}px`)
-            }
-            else {
-                document.getElementById('description-container').setAttribute('style', `overflow:hidden; text-overflow:ellipsis; ${widthAttr}: ${width}px`)
-            }
         
-            document.getElementById('import-header').setAttribute('style', `overflow:hidden; text-overflow:ellipsis; width: ${width}px`)
+            header.setAttribute('style', `overflow:hidden; text-overflow:ellipsis; width: ${width}px`)
         })
 
         vue.$store.commit('setPageInfo', {
@@ -2098,6 +2207,7 @@ export default {
             this.codeReview.info.highlights.add('macro.script')
         }
       }
+
       if (code && code.json) {
         code.obj = JSON.parse(code.json)
         code.json = JSON.stringify(code.obj, null, 2)
@@ -3502,6 +3612,9 @@ export default {
 #copyFail textarea { max-height: 110px; min-height:110px }
 #copyFail .md-input-container { display: inline-block; position: relative}
 
+#collection-choice button {width: auto; max-width: auto;}
+#collection-choice .md-table-row .md-table-cell:first-child {width: 100%}
+
 #view-wago > div { position: relative }
 #wago-header.md-card { padding:0 16px!important; flex: 1; margin: 0;}
 #wago-header.md-card h3 { margin: 0 }
@@ -3578,6 +3691,7 @@ body.ads-enabled #wago-content .wago-container > div {
   }
 }
 .copy-import-button { border: 2px solid #c1272d; border-radius: 25px; margin: 4px 28px; display: inline-block }
+#installCollectionBtn { border: 2px solid #c1272d; border-radius: 25px; margin: 4px; display: inline-block }
 #wago-collections-container button { margin-left: -2px }
 
 #helpImportingButton, #helpAppButton {position: absolute; right: -3px; top: -3px; margin: 0;}
@@ -3863,4 +3977,19 @@ ul:not(.md-list) > li.multiselect__element + li { margin-top: 0 }
 .moderation-item .md-avatar {margin: 8px 8px 8px 0;}
 .mod-action-buttons {align-items: center; padding:0; padding-bottom:16px;}
 
+.red-btn {
+    background: #C1272D;
+    color: #E3E3E3;
+    margin: 1em 0;
+    svg {
+        height: 20px;
+        & + span {
+            margin-left: 4px;
+        }
+    }
+    &:hover {
+        background: #9F1F26;
+        color: white;
+    }
+}
 </style>

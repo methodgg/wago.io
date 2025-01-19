@@ -357,7 +357,7 @@ async function searchElastic(req, res) {
   }
   else if (req.user && !allowHidden) {
     esShould.push({ term: { hidden: false } })
-    esShould.push({ term: { userID: { value: req.user._id, boost: 0 } } })
+    esShould.push({ term: { userId: { value: req.user._id, boost: 0 } } })
     esShould.push({ term: { restrictions: { value: req.user._id.toString(), boost: 5 } } })
     if (req.user.battlenet && req.user.battlenet.guilds && req.user.battlenet.guilds.length) {
       esShould.push({

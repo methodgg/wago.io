@@ -28,22 +28,22 @@
       <md-layout>
         <md-subheader>{{ $t("PvE Content") }}</md-subheader>
         <md-list class="md-double-line md-dense">
-          <md-list-item v-bind:key="dragonflightRaids[0].id" :class="dragonflightRaids[0].id + ' md-inset'">
+          <md-list-item v-bind:key="twwRaids[0].id" :class="twwRaids[0].id + ' md-inset'">
             <div class="menu-image"></div>
             <div class="md-list-text-container">
-              <router-link :to="'/collections/' + dragonflightRaids[0].slug">{{ $t('Dragonflight') }}</router-link>
+              <router-link :to="'/collections/' + twwRaids[0].slug">{{ $t('The War Within') }}</router-link>
               <span>
-                <router-link v-for="item in dragonflightRaids" v-bind:key="item.id" :to="'/collections/' + item.slug">{{
+                <router-link v-for="item in twwRaids" v-bind:key="item.id" :to="'/collections/' + item.slug">{{
                   item.text }}</router-link>
               </span>
             </div>
           </md-list-item>
-          <md-list-item v-bind:key="wotlkRaids[0].id" :class="wotlkRaids[0].id + ' md-inset'">
+          <md-list-item v-bind:key="cataRaids[0].id" :class="cataRaids[0].id + ' md-inset'">
             <div class="menu-image"></div>
             <div class="md-list-text-container">
-              <router-link :to="'/collections/' + wotlkRaids[0].slug">{{ $t('Wrath Classic') }}</router-link>
+              <router-link :to="'/collections/' + cataRaids[0].slug">{{ $t('Cataclysm Classic') }}</router-link>
               <span>
-                <router-link v-for="item in wotlkRaids" v-bind:key="item.id" :to="'/collections/' + item.slug">{{
+                <router-link v-for="item in cataRaids" v-bind:key="item.id" :to="'/collections/' + item.slug">{{
                   item.text }}</router-link>
               </span>
             </div>
@@ -220,6 +220,9 @@ export default {
     classes: function () {
       return window.Categories.classCategories()
     },
+    twwRaids: function () {
+      return window.Categories.raidCategories(['liberationofundermine', 'raidnerubarpalace', 'twwdungeon'])
+    },
     dragonflightRaids: function () {
       return window.Categories.raidCategories(['raidvaultincarnates', 'dfdungeon'])
     },
@@ -231,6 +234,9 @@ export default {
     },
     legionRaids: function () {
       return window.Categories.raidCategories(['raidantorus', 'raidtomb', 'raidnh', 'dungeon'])
+    },
+    cataRaids: function () {
+      return window.Categories.raidCategories(['raidblackwingdescent', 'raidbastiontwilight', 'raidfourwinds', 'raidfirelands', 'raiddragonsoul', 'raidbaradinhold', 'catadungeon'])
     },
     wotlkRaids: function () {
       return window.Categories.raidCategories(['raidbt', 'raidtoc', 'raidicc', 'raidvoa', 'wotlkdungeon'])

@@ -810,6 +810,47 @@ module.exports = function (fastify, opts, next) {
     return res.send(collections)
   })
 
+  // return array of collections this import is included in
+  fastify.get('/wago/collection-compatibility', async (req, res) => {
+    if (!req.query.id) {
+      return res.code(404).send({ error: "page_not_found" })
+    }
+
+    const doc = await WagoItem.lookup(req.query.id)
+    if (!doc || doc.deleted || doc.type !== 'COLLECTION') {
+      return res.code(404).send({ error: "page_not_found" })
+    }
+
+    else if ((doc.private || doc.moderated) && (!req.user || (!req.user._id.equals(doc._userId) && !(req.user.isAdmin.super || req.user.isAdmin.moderator)))) {
+      return res.code(401).send({ error: "page_not_accessible" })
+    }
+
+    else if (doc.restricted) {
+      if (!req.user) {
+        return res.code(401).send({ error: "page_not_accessible" })
+      }
+      if (!req.user._id.equals(doc._userId) && doc.restrictedUsers.indexOf(req.user._id.toString()) === -1 && !(req.user.isAdmin.super || req.user.isAdmin.moderator)) {
+        return res.code(401).send({ error: "page_not_accessible" })
+      }
+    }
+
+    const matchRestricted = [{restricted: false}]
+    const matchPrivate = [{private: false}]
+    if (req.user) {
+      matchRestricted.push({ _userId: req.user._id }, { restrictedUsers: req.user._id.toString() })
+      matchPrivate.push({ _userId: req.user._id })
+    }
+    const docs = await WagoItem.aggregate([
+      { $match: { _id: {$in: doc.collect}, "deleted": false, $and: [{ $or: matchRestricted }, { $or: matchPrivate }] } },
+      { $group: { _id: "$type", count: { $count: {} }, firstId: {$first: "$_id"}, firstName: {$first: "$name"} }},
+      { $sort: {_id: 1 }}
+    ])
+    if (!docs) {
+      return res.send([])
+    }
+    return res.send(docs.map(d => ({...d, ok: d._id === 'WEAKAURA' || d._id === 'TWW-WEAKAURA' || d._id === 'CATA-WEAKAURA'})))
+  })
+
   // find "more" comments on this import
   fastify.get('/wago/comments', async (req, res, next) => {
     if (!req.query.id || !req.query.page) {

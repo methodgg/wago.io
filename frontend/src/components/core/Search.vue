@@ -6,11 +6,11 @@
           <slot></slot>
           <md-layout md-row>
             <p id="searchQuery">
-              <small v-if="queryOptions" v-html="queryOptions"></small>
-              <em v-if="queryHTML" v-html="queryHTML"></em>
+              <small v-if="queryOptions && !collection" v-html="queryOptions"></small>
+              <em v-if="queryHTML && !collection" v-html="queryHTML"></em>
               <strong v-html="$t('Found [-count-] results', {count: new Intl.NumberFormat().format(results.total)})"></strong>
             </p>
-            <md-layout v-if="results" id="searchOptions">
+            <md-layout v-if="results && !collection" id="searchOptions">
               <div v-if="searchGame !== 'wow'">
                 <div>
                   <label>{{ $t('Game') }}</label>
@@ -418,6 +418,7 @@ export default {
     },
 
     updateRoute: function (replace=false) {
+      console.log('update route')
       if (this.searchExpansion === 'undefined') this.searchExpansion = ''
       let expansionType = this.searchExpansion || this.searchType
       if (this.searchExpansion && this.searchExpansion !== 'undefined' && this.searchType === 'weakaura') {
@@ -593,7 +594,15 @@ export default {
         this.searchParams = {q: query, mode: this.searchMode, page: 0, sort: this.searchSort}
       }
       else {
-        this.searchParams = {q: query, mode: this.searchMode, game: this.searchGame, expansion: this.searchExpansion, type: this.searchType, page: 0, sort: this.searchSort}
+        this.searchParams = {
+            q: query, 
+            mode: this.collection ? 'all' :(this.searchMode ?? '').trim(), 
+            game: this.collection ? 'all' :(this.searchGame ?? '').trim(), 
+            expansion: this.collection ? 'all' :(this.searchExpansion ?? '').trim(), 
+            type: this.collection ? 'all' :(this.searchType ?? '').trim(), 
+            page: 0, 
+            sort: this.collection ? 'bestmatchv3' :this.searchSort
+        }
       }
 
       if (query.match(/\b(?:alerts?|mentioned):\s*(1|true)\b/i)) {
