@@ -17,7 +17,8 @@
           <div class="code-review-content" :style="{height: height}" :class="{para: !luacheck}">
             <pre v-if="luacheck || alerts" v-html="parsedAlerts" class="parsedAlerts"></pre>
             <pre v-if="codeInfo" v-html="parsedInfo" class="parsedInfo"></pre>
-            <pre v-html="parsed"></pre>
+            <pre v-html="parsed" v-if="parsed"></pre>
+            <pre v-html="plaintext" v-if="plaintext"></pre>
           </div>
           <div v-if="author && !showForm && enableEveryFrameForm">
             <md-button @click="makeComment" class="md-primary">{{ $t("Submit Every Frame Report") }}</md-button>
@@ -26,6 +27,9 @@
             <md-checkbox v-model="falsePositive">{{ $t('Check if the \'Every Frame\' alert(s) have an undetected throttle or if Every Frame processing is actually necessary to function properly') }}</md-checkbox>
             <md-button @click.once="submitComment('EveryFrame')" class="md-primary">{{ $t("Submit") }}</md-button>
           </md-layout>
+          <div v-if="externalDoc">
+            <md-button @click="makeComment" class="md-primary" target="_blank" :href="externalDoc.url">{{ externalDoc.text }}</md-button>
+          </div>
         </template>
       </md-card-content>
     </md-card>
@@ -50,7 +54,7 @@
 import XBBCode from '../libs/xbbcode'
 
 export default {
-  props: ['name', 'link', 'luacheck', 'codeInfo', 'author', 'alerts', 'review', 'json', 'highlights', 'canMin'],
+  props: ['name', 'link', 'luacheck', 'plaintext', 'externalDoc', 'codeInfo', 'author', 'alerts', 'review', 'json', 'highlights', 'canMin'],
   data: function () {
     return {
       parsed: '',
@@ -549,6 +553,7 @@ export default {
 	}
 	button.md-button.md-primary {
 		margin-right: 0;
+    margin-left: 0;
 	}
 	.md-input-container {
 		margin-bottom: 8px;

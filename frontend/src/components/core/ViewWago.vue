@@ -193,6 +193,10 @@
                 <template v-if="codeReview && codeReview.alerts">
                   <p v-if="codeReview.alerts"><strong>{{ $t("This import has alerts, you are strongly suggested to review the code before installing") }}</strong></p>
                 </template>
+
+                <template v-if="codeReview && Object.keys(codeReview.deprecationWarnings).length">
+                  <p v-if="codeReview.alerts"><strong>{{ $t("This import has deprecation warnings, you are strongly suggested to review the code before installing") }}</strong></p>
+                </template>
                 
               </md-tooltip>
             </md-button>
@@ -404,6 +408,10 @@
                   <span v-else-if="wago.type.match(/PLATER/)" v-html="$t('Want some help fixing code review alerts? Come have a chat on the [-discord-].', {discord: `<a href='https://discord.com/invite/AGSzAZX'>Plater Discord</a>`, interpolation: {escapeValue: false}})"></span>
                 </div>
               </template>
+
+              <div v-if="codeReview?.deprecationWarnings?.CLEU" class="wago-container">
+                <codereview :alerts="true" :plaintext="$t('This WeakAura uses the deprecated event COMBAT_LOG_EVENT_UNFILTERED OR CLEU. As of WeakAuras version 5.19.0 (Jan-23-2025), this trigger is no longer supported and this import will probably not work as intended. See the deprecation notice for details and how to fix it.')" :name="$t('Deprecated!!')" :externalDoc="{url: 'https://github.com/WeakAuras/WeakAuras2/wiki/Deprecated-CLEU#fix-custom-trigger-event', text: 'Deprecation Notice'}"></codereview>
+              </div>
 
               <ui-warning v-if="wago.type === 'BLIZZHUD'" mode="alert">
                 Blizzard Hud is still early in development and not fully supported in-game nor on Wago.<br></br>If there are breaking changes in a future Alpha build, existing Blizz Hud imports may be deleted.
@@ -1153,8 +1161,9 @@
                 <template v-if="codeReview">
                   <h2>{{ $t('Code Review') }}</h2>
                   <!--<p>{{ $t('Wago checks for common but problematic code.') }}</p>-->
-                  <template v-if="codeReview.alerts">
-                    <codereview v-if="codeReview.alertContent" :alerts="codeReview.alertContent" :name="$t('Alert!!')" @loadFn="loadEditorFn" @setComment="setCodeReviewComment" :author="wago.user && User && wago.UID && wago.UID === User.UID"></codereview>
+                  <template v-if="codeReview.alerts || Object.keys(codeReview.deprecationWarnings).length">
+                    <codereview v-if="codeReview.alerts && codeReview.alertContent" :alerts="codeReview.alertContent" :name="$t('Alert!!')" @loadFn="loadEditorFn" @setComment="setCodeReviewComment" :author="wago.user && User && wago.UID && wago.UID === User.UID"></codereview>
+                    <codereview v-if="codeReview.deprecationWarnings.CLEU" :alerts="true" :plaintext="$t('This WeakAura uses the deprecated event COMBAT_LOG_EVENT_UNFILTERED OR CLEU. As of WeakAuras version 5.19.0 (Jan-23-2025), this trigger is no longer supported and this import will probably not work as intended. See the deprecation notice for details and how to fix it.')" :name="$t('Deprecated!!')" :externalDoc="{url: 'https://github.com/WeakAuras/WeakAuras2/wiki/Deprecated-CLEU#fix-custom-trigger-event', text: 'Deprecation Notice'}"></codereview>
                   </template>
                   <codereview v-else name="Review">{{ $t('No problems found.') }}</codereview>
                 </template>
@@ -2193,6 +2202,7 @@ export default {
       this.codeReview.warnings = 0
       this.codeReview.alerts = 0
       this.codeReview.alertContent = {}
+      this.codeReview.deprecationWarnings = {}
       this.codeReview.info = {
         nloc: 0,
         ccn: 0,
@@ -2331,10 +2341,10 @@ export default {
             this.codeReview.alertContent['oldInternalVersion' + itemID] = {name: itemID, display: this.$t('\'[-name-]\' internalVersion is very old and WeakAuras may have trouble importing.', {name: itemID})}
           }
 
-          if (item.actions.start && item.actions.start.do_message && item.actions.start.message && item.actions.start.message_type) {
+          if (item.actions && item.actions.start && item.actions.start.do_message && item.actions.start.message && item.actions.start.message_type) {
             this.codeReview.info.highlights.add('chat')
           }
-          if (item.actions.finish && item.actions.finish.do_message && item.actions.finish.message && item.actions.finish.message_type) {
+          if (item.actions && item.actions.finish && item.actions.finish.do_message && item.actions.finish.message && item.actions.finish.message_type) {
             this.codeReview.info.highlights.add('chat')
           }
           if (item.conditions && item.conditions.length) {
@@ -2345,16 +2355,27 @@ export default {
             }
           }
 
-          if (item.actions.start && item.actions.start.do_sound && item.actions.start.sound) {
+          if (item.actions && item.actions.start && item.actions.start.do_sound && item.actions.start.sound) {
             this.codeReview.info.highlights.add('audio')
           }
-          if (item.actions.finish && item.actions.finish.do_sound && item.actions.finish.sound) {
+          if (item.actions && item.actions.finish && item.actions.finish.do_sound && item.actions.finish.sound) {
             this.codeReview.info.highlights.add('audio')
           }
           if (item.conditions && item.conditions.length) {
             for (let cond of item.conditions) {
               if (cond && cond.property === 'sound' && cond.value && cond.value.sound && cond.value.sound_type === 'Play') {
                 this.codeReview.info.highlights.add('audio')
+              }
+            }
+          }
+
+          if (item.triggers) {
+            console.log(item)
+            for (const trigger of Object.values(item.triggers)) {
+              console.log('cleu?', itemID, item.triggers)
+              if (trigger?.trigger?.events?.match(/\b(COMBAT_LOG_EVENT_UNFILTERED|CLEU)\b(?!:)/)) {
+                console.log('CLEU!')
+                this.codeReview.deprecationWarnings.CLEU = true
               }
             }
           }
