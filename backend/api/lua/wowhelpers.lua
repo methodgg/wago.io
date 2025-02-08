@@ -44,4 +44,8 @@ function CreateFrame()
     return frame
 end
 
+function UnitFactionGroup() 
+    return "Horde"
+end
+
 SlashCmdList = {}

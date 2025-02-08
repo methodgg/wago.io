@@ -81,7 +81,7 @@ export default {
     }
   },
   created () {
-    const dungeons = categories.raidCategories(['tww-mdt-s1'], 'MDT')[0].bosses
+    const dungeons = categories.raidCategories(['tww-mdt-s2', 'tww-mdt-s1'], 'MDT')[0].bosses
     for (let i = 0; i < dungeons.length; i++) {
       if (dungeons[i].mdtID && dungeons[i].slug.match(this.$route.params.dungeon)) {
         this.mapID = dungeons[i].mdtID

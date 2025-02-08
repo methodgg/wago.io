@@ -61,7 +61,30 @@ export default {
         case 113:
           return '1020%'  
         case 114:
-          return '1410%'  // city of threads
+          return '1410%' 
+
+        // tww
+        case 116: // cinderbrew meadery
+          return '1220%'
+        case 117: // darkflame cleft
+          return '1315%'
+        case 118: // rookery
+          return '830%'
+        case 115: // priory
+          return '1315%'  
+        case 119: // floodgate
+          return '1220%'  
+        case 120: // motherlode
+          return '2025%'  
+        case 121: // theater of paion
+          return '1615%' 
+        case 122: // mechagon workshop
+          return '1110%' 
+
+      // 'tww-mdt-s2-5': {slug: 'pve/the-war-within-dungeons-s2/operation-floodgate', i18n: 'warcraft:instances.1298', domain: 0, parent: 'tww-mdt-s2', mdtID: 119, types: ['MDT'], games: ['df']},
+      // 'tww-mdt-s2-6': {slug: 'pve/the-war-within-dungeons-s2/the-motherlode', i18n: 'warcraft:instances.1012', domain: 0, parent: 'tww-mdt-s2', mdtID: 120, types: ['MDT'], games: ['df']},
+      // 'tww-mdt-s2-7': {slug: 'pve/the-war-within-dungeons-s2/theater-of-pain', i18n: 'warcraft:instances.1187', domain: 0, mdtID: 121, parent: 'tww-mdt-s2', types: ['MDT'], games: ['df']},
+      // 'tww-mdt-s2-8': {slug: 'pve/the-war-within-dungeons-s2/operation-mechagon-workshop', i18n: 'warcraft:instances.2028', domain: 0, mdtID: 122, parent: 'tww-mdt-s2', t
         
 
         default: // all dragonflight

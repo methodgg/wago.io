@@ -142,13 +142,13 @@ Schema.statics.updatePatches = async function () {
 Schema.statics.findVersion = async function (toc, date, domain, isTest = false) {
     let gameVersion
     if (toc && toc > 100) {
-        gameVersion = await this.findOne({ domain: domain, tocversion: toc, date: { $lt: date }, isTest }).sort({ date: -1 })
+        gameVersion = await this.findOne({ domain: domain, tocversion: toc, date: { $lt: date }, isTest, semver: {$ne: null} }).sort({ date: -1 })
     }
     else if (toc) {
-        gameVersion = await this.findOne({ domain: domain, major: toc, date: { $lt: date }, isTest }).sort({ date: -1 })
+        gameVersion = await this.findOne({ domain: domain, major: toc, date: { $lt: date }, isTest, semver: {$ne: null} }).sort({ date: -1 })
     }
     else {
-        gameVersion = await this.findOne({ domain: domain, date: { $lt: date }, isTest }).sort({ date: -1 })
+        gameVersion = await this.findOne({ domain: domain, date: { $lt: date }, isTest, semver: {$ne: null} }).sort({ date: -1 })
     }
     if (gameVersion) {
         return gameVersion

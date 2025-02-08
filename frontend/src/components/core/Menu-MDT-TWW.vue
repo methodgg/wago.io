@@ -155,7 +155,7 @@
     },
     computed: {
       dungeons: function () {
-        return categories.raidCategories(['tww-mdt-s1'], 'MDT')
+        return categories.raidCategories(['tww-mdt-s2', 'tww-mdt-s1'], 'MDT')
       },
       affixesS3: function () {
         return categories.getCategories([/^mdtaffix-df-s3-/], true)// also in Create-MDT and data.newAffix
