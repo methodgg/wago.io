@@ -67,17 +67,17 @@ export default {
         case 116: // cinderbrew meadery
           return '1220%'
         case 117: // darkflame cleft
-          return '1315%'
+          return '1510%'
         case 118: // rookery
-          return '830%'
+          return '920%'
         case 115: // priory
-          return '1315%'  
+          return '1515%'  
         case 119: // floodgate
-          return '1220%'  
+          return '1310%'  
         case 120: // motherlode
           return '2025%'  
         case 121: // theater of paion
-          return '1615%' 
+          return '1705%' 
         case 122: // mechagon workshop
           return '1110%' 
 

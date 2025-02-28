@@ -1,13 +1,24 @@
 <template>
-  <div class="embed-container" :class="{'twitch-embed-container': stream !== '__streamspread', 'ss-embed-container': stream === '__streamspread'}" v-if="/*stream !== '__streamspread' && */visible && showAds">
-    <div ref="player" class="embed-player" id="ss-player"></div>
-    <div class="embed-player-close" @click="closeStream()" v-if="twitchOn">
-      <img class="embed-player-close-icon" src="./../../assets/stream-close.png">
+  <div id="stream-embed" class="embed-container" :class="{'twitch-embed-container': stream !== '__streamspread', 'ss-embed-container': stream === '__streamspread'}" v-if="visible && showAds">
+    <div class="embedded-player" id="stream-player"></div>
+    <div class="embedded-player-close" @click="closeStream()" v-if="twitchOn">
+      <img class="embedded-player-close-icon" src="./../../assets/stream-close.png">
     </div>
+    <div style="overflow-y: auto; height: 404px;" id="stream-chat" v-if="includeChat">
+        <iframe :src="`https://www.twitch.tv/embed/${stream}/chat?darkpopout&parent=${embedParent}`" id="twitch-chat"
+            height="630"
+            width="350">
+        </iframe>
+    </div>
+
+
   </div>
 </template>
 
 <script>
+import { unref } from 'vue'
+let twitchPlayer
+
 export default {
   name: 'embedstream',
   props: { stream: String, preview: Boolean },
@@ -18,10 +29,10 @@ export default {
       source: '',
       loadJS: null,
       twitchOn: false,
-      twitchPlayer: null,
       loaded: false,
       refresh: null,
-      muted: true
+      muted: true,
+      embedParent: window.location.hostname
     }
   },
 
@@ -30,9 +41,9 @@ export default {
     const _this = this
 
     this.refresh = setInterval(function () {
-      if (_this.visible && _this.twitchPlayer && _this.twitchPlayer.getMuted()) {
+      if (_this.visible && twitchPlayer && twitchPlayer.getMuted()) {
         _this.visible = false
-        _this.muted = _this.twitchPlayer.getMuted()
+        _this.muted = twitchPlayer.getMuted()
         setTimeout(function () {
           _this.visible = true
           _this.loadEmbed()
@@ -54,6 +65,9 @@ export default {
     },
 
     async loadEmbed () {
+      const channel = unref(this.stream)
+      const muted = unref(this.muted)
+
       if (!this.showAds || this.stream === '__closed' || this.stream === '__none') {
         this.visible = false
         return false
@@ -69,7 +83,7 @@ export default {
         })
         this.source = 'streamspread'
       }
-      else if (!this.twitchPlayer) {
+      else if (!twitchPlayer) {
         this.loadJS = new Promise((resolve) => {
           let body = document.querySelector('body')
           let streamspread = document.createElement('script')
@@ -81,15 +95,16 @@ export default {
         this.source = 'twitch'
       }
 
-      if (this.source === 'twitch' && !this.twitchPlayer) {
+      if (this.source === 'twitch' && !twitchPlayer) {
+        twitchPlayer = 'pending...'
         await this.loadJS
-        this.twitchPlayer = new window.Twitch.Player(this.$refs.player, {
-          width: 426,
-          height: 240,
-          channel: this.stream,
-          muted: this.muted
+        twitchPlayer = new window.Twitch.Player('stream-player', {
+          autoplay: true,
+          width: 350,
+          channel,
+          muted,
         });
-        this.twitchPlayer.play()
+        twitchPlayer.play()
         this.twitchOn = true
       }
     }
@@ -112,22 +127,26 @@ export default {
       })
       return true
     },
+    
+    includeChat () {
+      return this.stream.toLowerCase() === 'method'
+    }
   }
 }
 </script>
 
 <style>
-.embed-container {width: 100%; margin: 16px 0 0 10px; overflow: hidden; text-align: center!important; border-radius: 2px; position: relative;
-/*max-height: 230px; position: fixed; z-index: 999999; right: 2px; bottom: 2px; margin: auto!important;*/ }
+.embed-container {width: 100%; margin: 16px 0 0 10px; text-align: center!important; border-radius: 2px; overflow: initial; position: relative;}
+#twitch-chat {border-radius: 2px; border:0}
 .ss-embed-container {height: 250px}
 .twitch-embed-container {aspect-ratio: 16 / 9;}
-.embed-player {width: 100%; height: 100%; border-radius: 2px;}
-.embed-player iframe, .embed-player iframe:not(.md-image) {height: inherit}
-.embed-player.preview {position: relative}
-.embed-player-close {width: 26px; height: 26px;cursor: pointer; background-color: #2A2530; border-radius: 50%; text-align: center; display: inline-block; opacity: 0.7; position: absolute; top: 8px; right: 8px}
-.embed-player-close:hover {opacity: 1}
-.embed-player-close-icon {width: 10px; height: auto; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);}
-@media (max-width: 1580px) {
+.embedded-player {width: 100%; height: 100%; border-radius: 2px;}
+.embedded-player iframe, .embedded-player iframe:not(.md-image) {height: inherit}
+.embedded-player.preview {position: relative}
+.embedded-player-close {width: 26px; height: 26px;cursor: pointer; background-color: #2A2530; border-radius: 50%; text-align: center; display: inline-block; opacity: 0.7; position: absolute; top: 8px; right: 8px}
+.embedded-player-close:hover {opacity: 1}
+.embedded-player-close-icon {width: 10px; height: auto; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);}
+@media (max-width: 1350px) {
   .embed-container {
     display: none!important;
   }

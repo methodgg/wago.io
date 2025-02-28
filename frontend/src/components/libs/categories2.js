@@ -174,6 +174,16 @@ class Categories {
 
       'twwdungeon': {slug: 'pve/the-war-within-dungeons', image: 'dungeon.png', color: '#F5A623', i18n: 'Dungeons', domain: 0, types: ['WEAKAURA', 'COLLECTION'], games: ['tww']},
       // --- Season 1
+      'twwdungeon-s2': {subheader: true, i18n: 'Season 2 Dungeons', domain: 0, parent: 'twwdungeon', system: true, types: ['WEAKAURA'], games: ['tww']},
+      'twwdungeon7': {slug: 'pve/the-war-within-dungeons/cinderbrew-meadery', i18n: 'warcraft:instances.1272', domain: 0, parent: 'twwdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['tww']},
+      'twwdungeon1': {slug: 'pve/the-war-within-dungeons/darkflame-cleft', i18n: 'warcraft:instances.1210', domain: 0, parent: 'twwdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['tww']},
+      'twwdungeon2': {slug: 'pve/the-war-within-dungeons/priory-of-the-sacred-flame', i18n: 'warcraft:instances.1267', domain: 0, parent: 'twwdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['tww']},
+      'twwdungeon3': {slug: 'pve/the-war-within-dungeons/the-rookery', i18n: 'warcraft:instances.1268', domain: 0, parent: 'twwdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['tww']},
+      'twwdungeon4': {slug: 'pve/the-war-within-dungeons/operation-floodgate', i18n: 'warcraft:instances.1298', domain: 0, parent: 'twwdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['tww']},
+      'twwdungeons2-1': {slug: 'pve/the-war-within-dungeons/the-motherlode', i18n: 'warcraft:instances.1012', domain: 0, parent: 'twwdungeon', types: ['WEAKAURA'], games: ['tww']},
+      'twwdungeons2-2': {slug: 'pve/the-war-within-dungeons/theater-of-pain', i18n: 'warcraft:instances.1187', domain: 0, parent: 'twwdungeon', types: ['WEAKAURA'], games: ['tww']},
+      'twwdungeons2-3': {slug: 'pve/the-war-within-dungeons/operation-mechagon-workshop', i18n: 'warcraft:dungeons.2028', domain: 0, parent: 'twwdungeon', types: ['WEAKAURA'], games: ['tww']},
+
       'twwdungeon-s1': {subheader: true, i18n: 'Season 1 Dungeons', domain: 0, parent: 'twwdungeon', system: true, types: ['WEAKAURA'], games: ['tww']},
       'twwdungeon6': {slug: 'pve/the-war-within-dungeons/ara-kara-city-of-echoes', i18n: 'warcraft:instances.1271', domain: 0, parent: 'twwdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['tww']},
       'twwdungeon8': {slug: 'pve/the-war-within-dungeons/city-of-threads', i18n: 'warcraft:instances.1274', domain: 0, parent: 'twwdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['tww']},
@@ -184,11 +194,7 @@ class Categories {
       'twwdungeons1-3': {slug: 'pve/the-war-within-dungeons/siege-of-boralus', i18n: 'warcraft:instances.1023', domain: 0, parent: 'twwdungeon', types: ['WEAKAURA'], games: ['tww']},
       'twwdungeons1-4': {slug: 'pve/the-war-within-dungeons/grim-batol', i18n: 'warcraft:instances.71', domain: 0, parent: 'twwdungeon', types: ['WEAKAURA'], games: ['tww']},
       
-      'twwdungeon-other': {subheader: true, i18n: 'Other Dungeons', domain: 0, parent: 'twwdungeon', system: true, types: ['WEAKAURA'], games: ['tww']},
-      'twwdungeon1': {slug: 'pve/the-war-within-dungeons/darkflame-cleft', i18n: 'warcraft:instances.1210', domain: 0, parent: 'twwdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['tww']},
-      'twwdungeon2': {slug: 'pve/the-war-within-dungeons/priory-of-the-sacred-flame', i18n: 'warcraft:instances.1267', domain: 0, parent: 'twwdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['tww']},
-      'twwdungeon3': {slug: 'pve/the-war-within-dungeons/the-rookery', i18n: 'warcraft:instances.1268', domain: 0, parent: 'twwdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['tww']},
-      'twwdungeon7': {slug: 'pve/the-war-within-dungeons/cinderbrew-meadery', i18n: 'warcraft:instances.1272', domain: 0, parent: 'twwdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['tww']},
+      // 'twwdungeon-other': {subheader: true, i18n: 'Other Dungeons', domain: 0, parent: 'twwdungeon', system: true, types: ['WEAKAURA'], games: ['tww']},
 
       'tww-mdt-s1': {slug: 'pve/the-war-within-dungeons-s1', image: 'dungeon.png', color: '#F5A623', i18n: 'Season 1 Dungeons', domain: 0, types: ['MDT'], games: ['df']},
       'tww-mdt-s1-1': {slug: 'pve/the-war-within-dungeons-s1/ara-kara-city-of-echoes', i18n: 'warcraft:instances.1271', domain: 0, parent: 'tww-mdt-s1', mdtID: 113, types: ['MDT'], games: ['df']},
@@ -200,7 +206,7 @@ class Categories {
       'tww-mdt-s1-7': {slug: 'pve/the-war-within-dungeons-s1/mists-of-tirna-scithe', i18n: 'warcraft:instances.1184', domain: 0, mdtID: 31, parent: 'tww-mdt-s1', types: ['MDT'], games: ['df']},
       'tww-mdt-s1-8': {slug: 'pve/the-war-within-dungeons-s1/the-necrotic-wake', i18n: 'warcraft:instances.1182', domain: 0, mdtID: 35, parent: 'tww-mdt-s1', types: ['MDT'], games: ['df']},
 
-      'tww-mdt-s2': {slug: 'pve/the-war-within-dungeons-s2', image: 'dungeon.png', color: '#F5A623', i18n: 'Season 2 Dungeons (PTR)', domain: 0, types: ['MDT'], games: ['df']},
+      'tww-mdt-s2': {slug: 'pve/the-war-within-dungeons-s2', image: 'dungeon.png', color: '#F5A623', i18n: 'Season 2 Dungeons', domain: 0, types: ['MDT'], games: ['df']},
       'tww-mdt-s2-1': {slug: 'pve/the-war-within-dungeons-s2/cinderbrew-meadery', i18n: 'warcraft:instances.1272', domain: 0, parent: 'tww-mdt-s2', mdtID: 116, types: ['MDT'], games: ['df']},
       'tww-mdt-s2-2': {slug: 'pve/the-war-within-dungeons-s2/darkflame-cleft', i18n: 'warcraft:instances.1210', domain: 0, parent: 'tww-mdt-s2', mdtID: 117, types: ['MDT'], games: ['df']},
       'tww-mdt-s2-3': {slug: 'pve/the-war-within-dungeons-s2/the-rookery', i18n: 'warcraft:instances.1268', domain: 0, parent: 'tww-mdt-s2', mdtID: 118, types: ['MDT'], games: ['df']},

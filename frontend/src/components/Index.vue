@@ -171,7 +171,10 @@
           <router-link :to="'/the-war-within-weakauras/' + currentWA.modern[1].slug" :style="`border-color: ${currentWA.modern[1].color}99; color:${currentWA.modern[1].color}; background-color:${currentWA.modern[1].color}11; background-image:url('/static/image/menu/${currentWA.modern[1].image}')`"><span>The War Within {{ currentWA.modern[1].text }}</span></router-link>
 
           <router-link :to="'/cataclysm-weakauras/' + currentWA.cata[0].slug" :style="`border-color: ${currentWA.cata[0].color}99; color:${currentWA.cata[0].color}; background-color:${currentWA.cata[0].color}11; background-image:url('/static/image/menu/${currentWA.cata[0].image}')`"><span>{{ currentWA.cata[0].text }}</span></router-link>          
-          <router-link :to="'/cataclysm-weakauras/' + currentWA.cata[1].slug" :style="`border-color: ${currentWA.cata[1].color}99; color:${currentWA.cata[1].color}; background-color:${currentWA.cata[1].color}11; background-image:url('/static/image/menu/${currentWA.cata[1].image}')`"><span>{{ currentWA.cata[1].text }}</span></router-link>
+
+          <!-- <a href="https://addons.wago.io/app" style="border-color: #DDDDDD99; color: #DDDDDD; background-color: #DDDDDD11; background-image: url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23DDDDDD%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4%22/%3E%3C/svg%3E');"><span>{{ $t('Download the Wago App') }}</span></a> -->
+          
+          <a href="https://docs.google.com/forms/d/e/1FAIpQLSeTRULzT7KCSoNAzxEel9mNJ8rzyqamrPT-u6dMYveD6QR_fg/viewform?usp=dialog" target="_blank" style="border-color: #DDDDDD99; color: #DDDDDD; background-color: #DDDDDD11; background-image: url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23DDDDDD%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M10.125 2.25h-4.5c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125v-9M10.125 2.25h.375a9 9 0 0 1 9 9v.375M10.125 2.25A3.375 3.375 0 0 1 13.5 5.625v1.5c0 .621.504 1.125 1.125 1.125h1.5a3.375 3.375 0 0 1 3.375 3.375M9 15l2.25 2.25L15 12%22/%3E%3C/svg%3E');"><span>{{ $t('We are hiring a Community Manager!') }}</span></a>
         </div>
       </md-layout>
     </div>
@@ -346,10 +349,10 @@
     row-gap: 8px;
     a {
       min-width: 33%;
-      min-height: 64px;
+      min-height: 54px;
       display: flex;
       align-items: center;
-      padding: 12px 8px 12px 64px;
+      padding: 8px 8px 8px 64px;
       font-size: 18px;
       vertical-align: middle;
       border-radius: 4px;
@@ -357,13 +360,14 @@
       border-style: solid;
       margin-bottom: 8px;
       background-repeat: no-repeat;
-      background-size: 48px;
-      background-position: 8px 50%;
+      background-size: 30px;
+      background-position: 16px 50%;
       transition: transform .3s;
       z-index: 5;
       &:hover {
         text-decoration: none;
         transform: scale(1.075);
+        z-index: 10;
       }
       & + a { order: 3 }
       & + a+a { order: 2 }
@@ -371,8 +375,8 @@
     }
   }
   .wago-ad-container {
-    margin: 0 0 16px 16px;
-    padding: 0 8px;
+    margin: 0 0 8px 16px;
+    padding: 0 8px 10px;
     order: 2;
     & + #current-wa {
       grid-template-columns: repeat(1, minmax(0, 1fr));
@@ -457,6 +461,62 @@ h3.spotlight-tab:hover, h3.spotlight-tab.selected {background-color: #333;}
     background-image: none!important;
   }
 }
+
+#browse-addons-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  a:hover {
+    filter: brightness(115%);
+    text-decoration: none;
+  }
+}
+#addon-imports {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  justify-content: space-between;
+  text-align: center;
+  margin-bottom: 16px;
+  a {
+    display: flex;
+    flex-direction: column;
+    flex-basis: 0;
+    flex-grow: 1;
+    padding: 4px 0;
+    color: white !important;
+    background: #333333;
+    &:hover {
+      background: #3a3a3a;
+      text-decoration: none;
+    }
+    .category-image {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-content: center;
+      text-align: center;
+      padding: 0 8px;
+      img {
+        max-width: 80px;
+        max-height: 80px;
+        margin: 0 auto;
+      }
+    }
+    div {
+      margin: 0 0 4px 0;
+      a {
+        display: inline;
+        padding: 4px;
+        font-size: 80%;
+        &:hover {
+          background: #222;
+        }
+      }
+    }
+  }
+}
 </style>
 
 <script>
@@ -466,6 +526,7 @@ import CategoryImage from './UI/CategoryImage.vue'
 import CTA_WagoAddons from './UI/CTAWagoAddons.vue'
 import WagoNews from './core/News.vue'
 import VueMarkdown from 'vue-markdown'
+import addonDB from './libs/addons'
 
 import { Sanitizer } from "@esri/arcgis-html-sanitizer"
 const sanitizer = new Sanitizer()
@@ -508,7 +569,8 @@ export default {
       restrictions: [{type: 'user', value: ''}],
       newRestrictionType: 'user',
       newRestrictionValue: '',
-      cipherKey: ''
+      cipherKey: '',
+      addonDB
     }
   },
   components: {
@@ -522,11 +584,11 @@ export default {
     currentWA () {
       return {
         modern: [
-          Categories.getCategories('raidnerubarpalace')[0],
+          Categories.getCategories('liberationofundermine')[0],
           Categories.getCategories('twwdungeon')[0],
         ],
         cata: [
-          Categories.getCategories('raidblackwingdescent')[0],
+          Categories.getCategories('raidfirelands')[0],
           Categories.getCategories('raidbastiontwilight')[0],
         ],
         // classic: [
@@ -592,6 +654,7 @@ export default {
         waMode: this.weakauramode,
         name: this.name,
         categories: JSON.stringify(flatten(this.setCategories)),
+        categoryIDs: flatten(this.setCategories).map(cat => cat.id),
         game: this.game
       }
       if (this.visibility === 'Encrypted') {

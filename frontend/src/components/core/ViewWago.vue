@@ -2370,11 +2370,8 @@ export default {
           }
 
           if (item.triggers) {
-            console.log(item)
             for (const trigger of Object.values(item.triggers)) {
-              console.log('cleu?', itemID, item.triggers)
-              if (trigger?.trigger?.events?.match(/\b(COMBAT_LOG_EVENT_UNFILTERED|CLEU)\b(?!:)/)) {
-                console.log('CLEU!')
+              if (trigger?.type === "custom" && !((trigger?.custom_type === "status" || trigger?.custom_type === "stateupdate") && trigger?.check === "update") && trigger?.trigger?.events?.match(/\b(COMBAT_LOG_EVENT_UNFILTERED|CLEU)\b(?!:)/)) {
                 this.codeReview.deprecationWarnings.CLEU = true
               }
             }
@@ -2497,7 +2494,11 @@ export default {
 
       // make sure we're using custom url
       if (this.isLatestVersion()) {
+        this.doNotReloadWago = true
         this.$router.replace('/' + this.wago.slug)
+        this.$nextTick(() => {
+          this.doNotReloadWago = false
+        })
       }
       else if (this.$route.params.version && this.useVersion) {
         this.$router.replace('/' + this.wago.slug + '/' + this.currentVersion.semver)
@@ -3082,14 +3083,10 @@ export default {
             vue.$set(vue.wago, 'slug', this.editSlug)
             vue.$set(vue.wago, 'url', 'https://wago.io/' + this.editSlug)
             // prevent page load from resetting the view and scrolling to the top
-            vue.doNotReloadWago = true
             window.preventScroll = true
-            // update url
-            vue.$router.replace('/' + this.editSlug)
             setTimeout(function () {
               vue.updateSlugHasStatus = false
               // allow page loads to reset view, once again
-              vue.doNotReloadWago = false
               window.preventScroll = undefined
             }, 600)
           }

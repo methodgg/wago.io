@@ -73,8 +73,8 @@ export default {
                     </a>
                 
                     <template v-if="(this.$store.state.user.UID || this.$store.state.user.guest) && !this.$store.state.user.hideAds">
-                        <a id="steelseries-btn" href='https://bit.ly/steelseries20' target="_blank" >
-                            <img src="../../assets/steelseries-logo.svg" /> WOW 20TH ANNIVERSARY
+                        <a id="holy-btn" href='https://bit.ly/WagoHoly' target="_blank" >
+                            <img src="../../assets/holy-icon-button.png" /> HOLY ENERGY DISCOUNTS
                         </a>        
                         <a id="patreon-btn" href="https://www.patreon.com/wagoio" target="_blank">
                             <svg aria-hidden="true" focusable="false" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M512 194.8c0 101.3-82.4 183.8-183.8 183.8-101.7 0-184.4-82.4-184.4-183.8 0-101.6 82.7-184.3 184.4-184.3C429.6 10.5 512 93.2 512 194.8zM0 501.5h90v-491H0v491z"></path></svg>
@@ -323,6 +323,7 @@ export default {
 
 #header-top-wrap {
     background: #1E1E1E;
+    border-bottom: 1px solid #3E3E3E;
     & > div {
         width: 1250px;
         max-width: 100%;
@@ -352,7 +353,7 @@ export default {
             align-items: center;
             height: 100%;
             img {                
-                max-height: 2em;
+                height: 31px;
             }
         }
     }
@@ -475,7 +476,6 @@ export default {
 
 #header-main-wrap {
     background: #2C2C2C;
-    border-top: 1px solid #3E3E3E;
     border-bottom: 1px solid #3E3E3E;
     #header-main {
         width: 1250px;
@@ -790,7 +790,7 @@ export default {
     }
     #header-top-wrap {
         #header-common {
-            padding: 4px 8px;
+            padding: 0 8px;
             flex-wrap: wrap;
             #logo {
                 margin-left: 16px;

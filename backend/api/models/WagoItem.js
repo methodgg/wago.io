@@ -192,7 +192,7 @@ Schema.virtual('expansionIndex').get(function () {
   else if (this.game === 'bfa') return 7
   else if (this.game === 'sl') return 8
   else if (this.game === 'df') return 9
-  else if (this.game === 'tww') return 9
+  else if (this.game === 'tww') return 10
 
   return -1
 })

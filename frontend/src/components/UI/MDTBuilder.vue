@@ -553,7 +553,9 @@ export default {
     },
 
     goFullScreen () {
-      window.advertRails.destroyRails()
+      if (window.advertRails) {
+        window.advertRails.destroyRails()            
+      }
       this.isFullScreen = true
       const stage = this.$refs.mdtStage.getStage()
       stage.width(document.body.offsetWidth - 350)
@@ -572,7 +574,9 @@ export default {
       stage.scale({ x: 1, y: 1 })
       this.$nextTick(() => {
         stage.batchDraw()
-        window.advertRails.makeRails()
+        if (window.advertRails) {
+            window.advertRails.makeRails()       
+        }
       })
     },
 
