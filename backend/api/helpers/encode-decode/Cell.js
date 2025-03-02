@@ -54,26 +54,29 @@ module.exports = {
   encode: async (json, exec, wago) => {
     let cellType
     let cellVersion
+    
     if (typeof wago.embeddedStrData === 'string') {
         cellType = wago.embeddedStrData
-        cellVersion = 236
+        cellVersion = 245
     }
     else {
         cellType = wago.embeddedStrData.type
         cellVersion = wago.embeddedStrData.version
     }
+
     const lua = `
     local t = JSON:decode("${json}")
     if not t then return "" end
 
-    function fixNumericIndexes(tbl)
+    function fixNumericIndexes(tbl, adj)
+      adj = adj or 0
       local fixed = {}
       for k, v in pairs(tbl) do
         if type(v) == "table" then
-          v = fixNumericIndexes(v)
+          v = fixNumericIndexes(v, adj)
         end
         if tonumber(k) and tonumber(k) > 0 then
-          fixed[tonumber(k)] = v
+          fixed[tonumber(k) + adj] = v
         else
           fixed[k] = v
         end
@@ -82,6 +85,9 @@ module.exports = {
     end
 
     t = fixNumericIndexes(t)
+    if t.snippets then
+      t.snippets = fixNumericIndexes(t.snippets, -1)
+    end
 
     local serialized = LibSerialize:Serialize(t)
     local compressed = LibDeflate:CompressDeflate(serialized, {level = 9})
