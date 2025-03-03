@@ -179,7 +179,7 @@ class Categories {
       'twwdungeon1': {slug: 'pve/the-war-within-dungeons/darkflame-cleft', i18n: 'warcraft:instances.1210', domain: 0, parent: 'twwdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['tww']},
       'twwdungeon2': {slug: 'pve/the-war-within-dungeons/priory-of-the-sacred-flame', i18n: 'warcraft:instances.1267', domain: 0, parent: 'twwdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['tww']},
       'twwdungeon3': {slug: 'pve/the-war-within-dungeons/the-rookery', i18n: 'warcraft:instances.1268', domain: 0, parent: 'twwdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['tww']},
-      'twwdungeon4': {slug: 'pve/the-war-within-dungeons/operation-floodgate', i18n: 'warcraft:instances.1298', domain: 0, parent: 'twwdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['tww']},
+      'twwdungeon9': {slug: 'pve/the-war-within-dungeons/operation-floodgate', i18n: 'warcraft:instances.1298', domain: 0, parent: 'twwdungeon', types: ['WEAKAURA', 'COLLECTION'], games: ['tww']},
       'twwdungeons2-1': {slug: 'pve/the-war-within-dungeons/the-motherlode', i18n: 'warcraft:instances.1012', domain: 0, parent: 'twwdungeon', types: ['WEAKAURA'], games: ['tww']},
       'twwdungeons2-2': {slug: 'pve/the-war-within-dungeons/theater-of-pain', i18n: 'warcraft:instances.1187', domain: 0, parent: 'twwdungeon', types: ['WEAKAURA'], games: ['tww']},
       'twwdungeons2-3': {slug: 'pve/the-war-within-dungeons/operation-mechagon-workshop', i18n: 'warcraft:dungeons.2028', domain: 0, parent: 'twwdungeon', types: ['WEAKAURA'], games: ['tww']},
