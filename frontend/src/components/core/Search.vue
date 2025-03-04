@@ -118,7 +118,7 @@
                     <md-tooltip md-direction="bottom" class="">{{ $t("Macro") }}</md-tooltip>
                   </md-button>
                   <md-button :class="{ 'md-toggle': searchType === 'mdt' }" class="md-icon-button" @click="setType('mdt')">
-                    <category-image :group="'t-mdt'" style="filter:drop-shadow(1px 1px 0 #212121) drop-shadow(-1px -1px 0 #212121) drop-shadow(1px -1px 0 #212121) drop-shadow(-1px 1px 0 #212121)"></category-image>
+                    <category-image :group="'t-mdt'"></category-image>
                     <md-tooltip md-direction="bottom" class="">{{ $t("MDT") }}</md-tooltip>
                   </md-button>
                   <div id="addon-button" :class="{ 'md-toggle': searchType && !searchType.match(/^(all|weakaura|elvui|plater|mdt|macro)$/) }" class="md-button md-icon-button md-theme-default">

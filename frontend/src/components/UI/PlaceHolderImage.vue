@@ -9,6 +9,8 @@
 
 <script>
 import BigWigs from '../../assets/placeholder-bigwigs.png'
+import DBM from '../../assets/placeholder-dbm.png'
+import MDT from '../../assets/placeholder-mdt.png'
 import CategoryImage from '../UI/CategoryImage.vue'
 export default {
   props: ['text', 'width', 'height', 'icon'],
@@ -19,6 +21,12 @@ export default {
     defaultImage () {
         if (this.text.toLowerCase() === 'bigwigs') {
             return BigWigs
+        }
+        if (this.text.toLowerCase() === 'dbm') {
+            return DBM
+        }
+        if (this.text.toLowerCase() === 'mdt') {
+            return MDT
         }
         return false
     }
