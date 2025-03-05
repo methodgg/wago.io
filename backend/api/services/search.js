@@ -41,6 +41,7 @@ async function searchElastic(req, res) {
   let searchMode = 'imports'
   let esQuery = false
   let allowHidden = false
+  let m
 
   let sort = req.query.sort || req.body.sort || ''
   if (sort === 'date') {
@@ -154,7 +155,7 @@ async function searchElastic(req, res) {
   }
 
   if (filterExpansion.length) {
-    if (filterTypes.filter(x => !x.match(/WEAKAURA/)).length) {
+    if (filterTypes.filter(x => !x?.match(/WEAKAURA/)).length) {
         filterExpansion.push({ term: { expansion: { value: -1 } } }) // so that we dont exclude imports that are not expansion specific
     }
     esFilter.push(({ bool: { should: filterExpansion } }))
