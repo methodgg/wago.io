@@ -53,7 +53,15 @@ module.exports = {
                     },
                     fields: [{ name: `Version ${wago.latestVersion.versionString}`, value: wago.latestVersion.changelog.text.replace(/\[(\w+)[^\]]*](.*?)\[\/\1]/g, '$2') }]
                 }]
-                response = await axios.post(`${url}?wait=true`, {embeds: data})
+
+                let appendedUrl
+                if (url.indexOf('?')){
+                    appendedUrl = `${url}&wait=true`
+                } else {
+                    appendedUrl = `${url}?wait=true`
+                }
+                
+                response = await axios.post(appendedUrl, {embeds: data})
             }
             else {
                 data = {
