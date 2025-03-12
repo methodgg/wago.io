@@ -68,16 +68,13 @@ module.exports = {
     if (!file || !userID || !avatarFormat) {
       return { error: 'bad_input', inputs: [file, userID, avatarFormat] }
     }
-    console.log(file, userID, avatarFormat)
     const time = Date.now()
     var returnData = {}
     try {
       // if animated avatar format - must be gif format AND user must have access to animated avatars
       if (avatarFormat === 'animated') {
-        console.log('hi')
         await fs.writeFile(tmpDir + '/b-' + time + '.gif', file)
         const webp = await webpc.gwebp(tmpDir + '/b-' + time + '.gif', tmpDir + '/b-' + time + '.webp', '-q 90')
-        console.log(webp)
         if (webp.indexOf('100') >= 0) {
           returnData = { gif: 'https://media.wago.io/avatars/' + userID + '/b-' + time + '.gif', webp: 'https://media.wago.io/avatars/' + userID + '/b-' + time + '.webp' }
         }
@@ -286,9 +283,14 @@ module.exports = {
     }
     var avatar
     if (author) {
+      let avatarURL = author.avatar
+      let legacy = avatarURL.match(/\/(https:\/\/media\.wago\.io\/.*$)/)
+      if (legacy?.[1]) {
+        avatarURL = legacy[1]
+      }
       const avatarFile = await axios.request({
         responseType: 'arraybuffer',
-        url: author.avatar,
+        url: avatarURL,
         method: 'get'
       })
       const circle = Buffer.from(`<svg viewBox="0 0 ${avatarSize} ${avatarSize}"><circle cx="${avatarSize / 2}" cy="${avatarSize / 2}" r="${avatarSize / 2}"/></svg>`)

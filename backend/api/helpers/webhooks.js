@@ -30,6 +30,12 @@ module.exports = {
         let data
         let record
 
+        let avatarURL = avatar.png ?? avatar.webp ?? avatar.gif ?? avatar.jpg
+        let legacy = avatarURL.match(/\/(https:\/\/media\.wago\.io\/.*$)/)
+        if (legacy?.[1]) {
+            avatarURL = legacy[1]
+        }
+
         try {
             if (url.match(/^https:\/\/discord(app)?\.com\/api\/webhooks\/(\w+)\/([-\w]+)(\?thread_id\=\d*)?$/)) {
                 data = [{
@@ -45,7 +51,7 @@ module.exports = {
                     author: {
                         name: author.account.username,
                         url: `https://wago.io${author.profile.url}`,
-                        icon_url: avatar.png ?? avatar.webp ?? avatar.gif ?? avatar.jpg
+                        icon_url: avatarURL
                     },
                     footer: {
                         text: 'Wago.io',
@@ -54,14 +60,8 @@ module.exports = {
                     fields: [{ name: `Version ${wago.latestVersion.versionString}`, value: wago.latestVersion.changelog.text.replace(/\[(\w+)[^\]]*](.*?)\[\/\1]/g, '$2') }]
                 }]
 
-                let appendedUrl
-                if (url.indexOf('?')){
-                    appendedUrl = `${url}&wait=true`
-                } else {
-                    appendedUrl = `${url}?wait=true`
-                }
-                
-                response = await axios.post(appendedUrl, {embeds: data})
+                url += url.includes('?') ? '&wait=true' : '?wait=true'
+                response = await axios.post(url, {embeds: data})
             }
             else {
                 data = {
@@ -86,6 +86,7 @@ module.exports = {
             }
         }
         catch (e) {
+            console.log('webhook error', e)
             record = {
                 url,
                 status: e.response?.status ?? 0,
