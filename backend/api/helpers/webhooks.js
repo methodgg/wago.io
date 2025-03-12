@@ -31,7 +31,7 @@ module.exports = {
         let record
 
         try {
-            if (url.match(/^https:\/\/discord(app)?\.com\/api\/webhooks\/(\w+)\/([-\w]+)$/)) {
+            if (url.match(/^https:\/\/discord(app)?\.com\/api\/webhooks\/(\w+)\/([-\w]+)(\?thread_id\=\d*)?$/)) {
                 data = [{
                     title: wago.latestVersion.iteration > 1 ? `Updated Import: ${wago.name}` : `New Import: ${wago.name}`,
                     type: 'rich',
@@ -53,7 +53,15 @@ module.exports = {
                     },
                     fields: [{ name: `Version ${wago.latestVersion.versionString}`, value: wago.latestVersion.changelog.text.replace(/\[(\w+)[^\]]*](.*?)\[\/\1]/g, '$2') }]
                 }]
-                response = await axios.post(`${url}?wait=true`, {embeds: data})
+
+                let appendedUrl
+                if (url.indexOf('?')){
+                    appendedUrl = `${url}&wait=true`
+                } else {
+                    appendedUrl = `${url}?wait=true`
+                }
+                
+                response = await axios.post(appendedUrl, {embeds: data})
             }
             else {
                 data = {
