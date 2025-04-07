@@ -1659,7 +1659,8 @@
     "2668": "General Forjainquina",
     "2669": "Embajador Latifuego",
     "2670": "Emperador Dagran Thaurissan",
-    "2683": "The Gobfather"
+    "2683": "El goblino",
+    "2773": "Zekvir"
   },
   "expansions": {
     "68": "World of Warcraft",
@@ -1882,9 +1883,10 @@
     "1291": "Guarida de Zekvir",
     "1292": "Stratholme: Entrada de Servicio",
     "1293": "The Underkeep",
-    "1296": "Liberation of Undermine",
+    "1296": "Liberación de Minahonda",
     "1298": "Operación: Compuerta",
-    "1301": "Profundidades de Roca Negra"
+    "1301": "Profundidades de Roca Negra",
+    "1310": "Guarida de Zekvir"
   },
   "specs": {
     "62": "Arcano",
@@ -3235,9 +3237,10 @@
     "2528": "Templo del Dragón de Jade",
     "2529": "El Amanecer del Infinito: la Caída de Galakrond",
     "2530": "El Amanecer del Infinito: el Ascenso de Murozond",
-    "2531": "11.0 Z5 - Level Up - Ch 3 - Q04 - Escape The Burrows! (JSS)",
+    "2531": "¡Huye de las Madrigueras!",
     "2532": "11.0 Z2 - Faction Repeatable - Awakening The Machine (NJS)",
     "2533": "El Infrastillo",
+    "2534": "Gesta del priorato",
     "2537": "Mazmorra heroica aleatoria de Mists of Pandaria",
     "2538": "Mazmorra aleatoria de asalto temporal (MoP)",
     "2539": "Mazmorra heroica aleatoria de asalto temp. (MoP)",
@@ -3319,10 +3322,17 @@
     "2620": "Los Tesoros del Rey del Trueno",
     "2623": "La Hora de los Fideos",
     "2624": "El Ingrediente Secreto",
+    "2634": "Mazmorra de Paseo en el tiempo (Classic)",
+    "2635": "La Masacre: Barrio Alabeo",
+    "2636": "Minas de la Muerte",
     "2637": "Grajero",
+    "2639": "Stratholme: Entrada Principal",
+    "2640": "Zul'Farrak",
+    "2641": "Stratholme: Entrada de Servicio",
     "2642": "Ciudad Tejida",
     "2643": "Ciudad Tejida",
     "2645": "Palacio Nerub'ar",
+    "2646": "La Masacre: Jardines de la Capital",
     "2647": "Ciudad Tejida",
     "2648": "Ciudad Tejida",
     "2649": "Las Almenas Correteantes",
@@ -3389,6 +3399,7 @@
     "2711": "Incursión de arrabio",
     "2712": "El tejido viridiano",
     "2713": "Destino de Amirdrassil",
+    "2714": "El códice de Cromi",
     "2715": "Reina Ansurek",
     "2717": "El Grajero",
     "2718": "El Grajero",
@@ -3403,7 +3414,41 @@
     "2727": "Nieblas de Tirna Scithe",
     "2728": "Estela Necrótica",
     "2729": "Asedio de Boralus",
-    "2730": "Grim Batol"
+    "2730": "Grim Batol",
+    "2731": "Guarida de Ratts",
+    "2749": "Excavación 9",
+    "2750": "Los Señores Supremos Elementales",
+    "2751": "Ciudad Forjatiniebla",
+    "2752": "El Trono Imperial",
+    "2753": "Profundidades de Roca Negra",
+    "2754": "Profundidades de Roca Negra",
+    "2757": "Canal Callejero",
+    "2758": "Visión horripilante de Ventormenta",
+    "2759": "Visión horripilante de Orgrimmar",
+    "2772": "Competición de demolición del Pez Hondo",
+    "2773": "Minas Reptaterra, historia de Brann",
+    "2779": "Liberación de Minahonda",
+    "2780": "Conmoción y sorpresa",
+    "2781": "Maquinista maníaco",
+    "2782": "Dos cabezas mejor que una",
+    "2783": "El Rey Cromado",
+    "2791": "Operación: Compuerta",
+    "2793": "Operación: Compuerta",
+    "2794": "Operación: Compuerta",
+    "2798": "El Rey Cromado",
+    "2802": "Operación: Compuerta",
+    "2803": "Dúos despiadados",
+    "2807": "Heroica aleatoria (The War Within: Temporada 2)",
+    "2808": "El Grajero",
+    "2809": "Grieta de Flama Oscura",
+    "2810": "Priorato de la Llama Sagrada",
+    "2811": "Lagar de Tragoceniza",
+    "2812": "Operación: Compuerta",
+    "2813": "Operación: Mecandria - Taller",
+    "2814": "¡¡LA VETA MADRE!!",
+    "2815": "Teatro del Dolor",
+    "2892": "Liberación de Minahonda",
+    "2893": "Liberación de Minahonda"
   },
   "affixes": {
     "1": "Rebosante",
@@ -3485,7 +3530,7 @@
     },
     "9": {
       "name": "Tiránica",
-      "desc": "Los jefes tienen un 30% más de salud. Los jefes y sus esbirros infligen hasta un 15% más de daño."
+      "desc": "Los jefes tienen un 25% más de salud. Los jefes y sus esbirros infligen hasta un 15% más de daño."
     },
     "10": {
       "name": "Reforzada",
@@ -3593,7 +3638,7 @@
     },
     "147": {
       "name": "Argucia de Xal'atath",
-      "desc": "Xal'atath traiciona a los jugadores, lo que anula sus tratos y aumenta un 20% la salud y el daño de los enemigos."
+      "desc": "Xal'atath traiciona a los jugadores, lo que anula sus tratos y provoca que, al morir, se reduzca en 15 s tiempo restante."
     },
     "148": {
       "name": "Trato de Xal'atath: Ascendiente",
@@ -3601,7 +3646,7 @@
     },
     "152": {
       "name": "Temeridad de contendiente",
-      "desc": "Al morir se quitan 15 s al tiempo restante."
+      "desc": "El temporizador aumenta 90 s, pero, al morir, se quitan 15 s al tiempo restante."
     },
     "153": {
       "name": "Trato de Xal'atath: Enloquecida",
@@ -3618,6 +3663,14 @@
     "160": {
       "name": "Trato de Xal'atath: Devorar",
       "desc": "Mientras está en combate, Xal'atath abre unas fallas que devoran la esencia de los jugadores."
+    },
+    "162": {
+      "name": "Trato de Xal'atath: Púlsar",
+      "desc": "Mientras está en combate, Xal'atath invoca unos púlsares que giran alrededor de los jugadores."
+    },
+    "165": {
+      "name": "",
+      "desc": ""
     }
   }
 }

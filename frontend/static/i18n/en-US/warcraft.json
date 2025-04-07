@@ -1898,7 +1898,8 @@
     "2668": "General Angerforge",
     "2669": "Ambassador Flamelash",
     "2670": "Emperor Dagran Thaurissan",
-    "2683": "The Gobfather"
+    "2683": "The Gobfather",
+    "2773": "Zekvir"
   },
   "expansions": {
     "68": "Classic",
@@ -2123,7 +2124,8 @@
     "1293": "The Underkeep",
     "1296": "Liberation of Undermine",
     "1298": "Operation: Floodgate",
-    "1301": "Blackrock Depths"
+    "1301": "Blackrock Depths",
+    "1310": "Zekvir's Lair"
   },
   "specs": {
     "62": "Arcane",
@@ -3473,9 +3475,10 @@
     "2528": "Temple of the Jade Serpent",
     "2529": "Dawn of the Infinite: Galakrond's Fall",
     "2530": "Dawn of the Infinite: Murozond's Rise",
-    "2531": "11.0 Z5 - Level Up - Ch 3 - Q04 - Escape The Burrows! (JSS)",
+    "2531": "Escape the Burrows!",
     "2532": "11.0 Z2 - Faction Repeatable - Awakening The Machine (NJS)",
     "2533": "The Underkeep",
+    "2534": "Priory Scenario",
     "2537": "Random Mists of Pandaria Heroic",
     "2538": "Random Timerunning Dungeon (Mists of Pandaria)",
     "2539": "Random Heroic Timerunning Dungeon (Mists of Pandaria)",
@@ -3557,10 +3560,17 @@
     "2620": "Troves of the Thunder King",
     "2623": "Noodle Time",
     "2624": "Finding the Secret Ingredient",
+    "2634": "Random Timewalking Dungeon (Classic)",
+    "2635": "Dire Maul - Warpood Quarter",
+    "2636": "Deadmines",
     "2637": "The Rookery",
+    "2639": "Stratholme - Main Gate",
+    "2640": "Zul'Farrak",
+    "2641": "Stratholme - Service Entrance",
     "2642": "City of Threads",
     "2643": "City of Threads",
     "2645": "Nerub-ar Palace",
+    "2646": "Dire Maul - Capital Gardens",
     "2647": "City of Threads",
     "2648": "City of Threads",
     "2649": "The Skittering Battlements",
@@ -3627,6 +3637,7 @@
     "2711": "Molten Incursion",
     "2712": "The Viridian Weave",
     "2713": "Fate of Amirdrassil",
+    "2714": "The Codex of Chromie",
     "2715": "Queen Ansurek",
     "2717": "The Rookery",
     "2718": "The Rookery",
@@ -3641,7 +3652,41 @@
     "2727": "Mists of Tirna Scithe",
     "2728": "The Necrotic Wake",
     "2729": "Siege of Boralus",
-    "2730": "Grim Batol"
+    "2730": "Grim Batol",
+    "2731": "Ratts' Lair",
+    "2749": "Excavation Site 9",
+    "2750": "The Elemental Overlords",
+    "2751": "Shadowforge City",
+    "2752": "The Imperial Seat",
+    "2753": "Blackrock Depths",
+    "2754": "Blackrock Depths",
+    "2757": "Sidestreet Sluice",
+    "2758": "Horrific Vision of Stormwind",
+    "2759": "Horrific Vision of Orgrimmar",
+    "2772": "Underpin's Demolition Competition",
+    "2773": "Earthcrawl Mines, Brann's Story",
+    "2779": "Liberation of Undermine",
+    "2780": "Shock and Awesome",
+    "2781": "Maniacal Machinist",
+    "2782": "Two Heads Are Better",
+    "2783": "The Chrome King",
+    "2791": "Operation: Floodgate",
+    "2793": "Operation: Floodgate",
+    "2794": "Operation: Floodgate",
+    "2798": "The Chrome King",
+    "2802": "Operation: Floodgate",
+    "2803": "Dastardly Duos",
+    "2807": "Random Heroic (The War Within: Season 2)",
+    "2808": "The Rookery",
+    "2809": "Darkflame Cleft",
+    "2810": "Priory of the Sacred Flame",
+    "2811": "Cinderbrew Meadery",
+    "2812": "Operation: Floodgate",
+    "2813": "Operation: Mechagon - Workshop",
+    "2814": "The MOTHERLODE!!",
+    "2815": "Theater of Pain",
+    "2892": "Liberation of Undermine",
+    "2893": "Liberation of Undermine"
   },
   "affixes": {
     "1": "Overflowing",
@@ -3723,7 +3768,7 @@
     },
     "9": {
       "name": "Tyrannical",
-      "desc": "Bosses have 30% more health. Bosses and their minions inflict up to 15% increased damage."
+      "desc": "Bosses have 25% more health. Bosses and their minions inflict up to 15% increased damage."
     },
     "10": {
       "name": "Fortified",
@@ -3831,7 +3876,7 @@
     },
     "147": {
       "name": "Xal'atath's Guile",
-      "desc": "Xal'atath betrays players, revoking her bargains and increasing the health and damage of enemies by 20%"
+      "desc": "Xal'atath betrays players, revoking her bargains while making deaths subtract 15 seconds from time remaining."
     },
     "148": {
       "name": "Xal'atath's Bargain: Ascendant",
@@ -3839,7 +3884,7 @@
     },
     "152": {
       "name": "Challenger's Peril",
-      "desc": "Dying subtracts 15 seconds from time remaining."
+      "desc": "The timer is increased by 90 seconds, but dying subtracts 15 seconds from time remaining."
     },
     "153": {
       "name": "Xal'atath's Bargain: Frenzied",
@@ -3856,6 +3901,14 @@
     "160": {
       "name": "Xal'atath's Bargain: Devour",
       "desc": "While in combat, Xal'atath tears open rifts that devour the essence of players."
+    },
+    "162": {
+      "name": "Xal'atath's Bargain: Pulsar",
+      "desc": "While in combat, Xal'atath summons pulsars that orbit players."
+    },
+    "165": {
+      "name": "",
+      "desc": ""
     }
   }
 }

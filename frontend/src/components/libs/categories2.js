@@ -711,6 +711,10 @@ class Categories {
       'tbcdungeon13': {slug: 'pve/tbc-dungeons/magisters-terrace', i18n: 'warcraft:instances.249', domain: 0, parent: 'tbcdungeon', types: ['WEAKAURA'], games: ['tbc']},
 
       // classic
+      'sod': {slug: 'pve/sod', image: 'sod.png', color: '#50E3C2', i18n: 'Season of Discovery', domain: 0, types: ['WEAKAURA', 'COLLECTION'], games: ['classic']},
+      'sod-scarletenclave': {slug: 'pve/sod/scarlet-enclave', i18n: 'Scarlet Enclave', domain: 0, parent: 'sod', types: ['WEAKAURA'], games: ['classic']},
+      'sod-runeengraving': {slug: 'pve/sod/rune-engraving', i18n: 'Rune Engraving', domain: 0, parent: 'sod', types: ['WEAKAURA'], games: ['classic']},
+
       'raidnaxxramas': {slug: 'pve/naxxramas', image: 'naxxramas.png', color: '#B3ACAC', i18n: 'warcraft:instances.754', domain: 0, types: ['WEAKAURA', 'COLLECTION'], games: ['classic', 'wotlk']},
       'raidnaxxramas1': {slug: 'pve/naxxramas/anub-rekhan', i18n: 'warcraft:encounters.1601', domain: 0, parent: 'raidnaxxramas', types: ['WEAKAURA'], games: ['classic', 'wotlk']},
       'raidnaxxramas2': {slug: 'pve/naxxramas/grand-widow-faerlina', i18n: 'warcraft:encounters.1602', domain: 0, parent: 'raidnaxxramas', types: ['WEAKAURA'], games: ['classic', 'wotlk']},

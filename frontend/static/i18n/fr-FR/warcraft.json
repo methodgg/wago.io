@@ -1659,10 +1659,11 @@
     "2668": "Général Forgehargne",
     "2669": "Ambassadeur Cinglefouet",
     "2670": "Empereur Dagran Thaurissan",
-    "2683": "The Gobfather"
+    "2683": "Gobleone",
+    "2773": "Zekvir"
   },
   "expansions": {
-    "68": "Donjons classiques",
+    "68": "Classic",
     "70": "Burning Crusade",
     "72": "Wrath of the Lich King",
     "73": "Cataclysm",
@@ -1882,9 +1883,10 @@
     "1291": "Tanière de Zekvir",
     "1292": "Stratholme – Entrée de service",
     "1293": "The Underkeep",
-    "1296": "Liberation of Undermine",
+    "1296": "Libération de Terremine",
     "1298": "Opération Vannes ouvertes",
-    "1301": "Les profondeurs de Rochenoire"
+    "1301": "Les profondeurs de Rochenoire",
+    "1310": "Tanière de Zekvir"
   },
   "specs": {
     "62": "Arcanes",
@@ -3215,7 +3217,7 @@
     "2503": "Amirdrassil, l’Espoir du Rêve",
     "2504": "Amirdrassil, l’Espoir du Rêve",
     "2507": "La fosse de l’Effroi",
-    "2508": "Sanctuaire Crépusculaire",
+    "2508": "Sanctuaire Noctechute",
     "2509": "Grotte de Mycomancie",
     "2510": "Le Puisard (inondé)",
     "2511": "Brèche Grouillante",
@@ -3235,9 +3237,10 @@
     "2528": "Temple du Serpent de jade",
     "2529": "Aube de l’Infini : Repos de Galakrond",
     "2530": "Aube de l’Infini : cime de Murozond",
-    "2531": "11.0 Z5 - Level Up - Ch 3 - Q04 - Escape The Burrows! (JSS)",
+    "2531": "S’échapper des Terriers !",
     "2532": "11.0 Z2 - Faction Repeatable - Awakening The Machine (NJS)",
     "2533": "Le donjon de l’Abîme",
+    "2534": "Scénario du prieuré",
     "2537": "Donjon aléatoire héroïque de Mists of Pandaria",
     "2538": "Donjon aléatoire des Coureurs du temps (Mists of Pandaria)",
     "2539": "Donjon aléatoire héroïque Coureurs du temps (Mists of Pandaria)",
@@ -3319,10 +3322,17 @@
     "2620": "Le fabuleux trésor du roi-tonnerre",
     "2623": "L’heure des nouilles",
     "2624": "Trouver l’ingrédient secret",
+    "2634": "Donjon des Marcheurs du temps aléatoire (Classic)",
+    "2635": "Hache-Tripes – Quartier de Crochebois",
+    "2636": "Les Mortemines",
     "2637": "La colonie",
+    "2639": "Stratholme – Grande porte",
+    "2640": "Zul’Farrak",
+    "2641": "Stratholme – Entrée de service",
     "2642": "Cité des Fils",
     "2643": "Cité des Fils",
     "2645": "Palais des Nérub’ar",
+    "2646": "Hache-Tripes – Grands jardins",
     "2647": "Cité des Fils",
     "2648": "Cité des Fils",
     "2649": "Les remparts Grouillants",
@@ -3389,6 +3399,7 @@
     "2711": "Incursion en fusion",
     "2712": "La trame viride",
     "2713": "Le destin d’Amirdrassil",
+    "2714": "Le codex de Chromie",
     "2715": "Reine Ansurek",
     "2717": "La colonie",
     "2718": "La colonie",
@@ -3403,7 +3414,41 @@
     "2727": "Brumes de Tirna Scithe",
     "2728": "Sillage nécrotique",
     "2729": "Siège de Boralus",
-    "2730": "Grim Batol"
+    "2730": "Grim Batol",
+    "2731": "Le repaire de Ratts",
+    "2749": "Site d’excavation 9",
+    "2750": "Les suzerains élémentaires",
+    "2751": "Ville des Ombreforge",
+    "2752": "Le Siège impérial",
+    "2753": "Les profondeurs de Rochenoire",
+    "2754": "Les profondeurs de Rochenoire",
+    "2757": "Chenal de ruelle",
+    "2758": "Vision horrifique de Hurlevent",
+    "2759": "Vision horrifique d’Orgrimmar",
+    "2772": "Compétition de démolition du Père Foreur",
+    "2773": "Mines de Rampeterre, histoire de Brann",
+    "2779": "Libération de Terremine",
+    "2780": "Choc et extra",
+    "2781": "Machiniste maniaque",
+    "2782": "Deux têtes valent vraiment mieux qu’une !",
+    "2783": "Le Roi du chrome",
+    "2791": "Opération Vannes ouvertes",
+    "2793": "Opération Vannes ouvertes",
+    "2794": "Opération Vannes ouvertes",
+    "2798": "Le Roi du chrome",
+    "2802": "Opération Vannes ouvertes",
+    "2803": "Duos infâmes",
+    "2807": "Donjon aléatoire héroïque de The War Within – Saison 2",
+    "2808": "La colonie",
+    "2809": "Faille de Flamme-Noire",
+    "2810": "Prieuré de la Flamme sacrée",
+    "2811": "Hydromellerie de Brassecendre",
+    "2812": "Opération Vannes ouvertes",
+    "2813": "Opération Mécagone – L’atelier",
+    "2814": "Le Filon",
+    "2815": "Théâtre de la Souffrance",
+    "2892": "Libération de Terremine",
+    "2893": "Libération de Terremine"
   },
   "affixes": {
     "1": "Débordant",
@@ -3485,7 +3530,7 @@
     },
     "9": {
       "name": "Tyrannique",
-      "desc": "Les boss ont 30% de points de vie supplémentaires. Les dégâts des boss et de leurs séides sont augmentés de 15% au maximum."
+      "desc": "Les boss ont 25 % de points de vie supplémentaires. Les dégâts des boss et de leurs séides sont augmentés de 15 % au maximum."
     },
     "10": {
       "name": "Fortifié",
@@ -3593,7 +3638,7 @@
     },
     "147": {
       "name": "Ruse de Xal’atath",
-      "desc": "Xal’atath trahit les joueurs, revient sur ses pactes et augmente les points de vie et les dégâts des adversaires de 20 %."
+      "desc": "Xal’atath trahit les personnages-joueurs et révoque ses pactes. En outre, les morts retirent 15 s au temps restant."
     },
     "148": {
       "name": "Marché de Xal’atath : Sublimation",
@@ -3601,7 +3646,7 @@
     },
     "152": {
       "name": "Péril de prétendant",
-      "desc": "Mourir retire 15 secondes au temps restant."
+      "desc": "Le chronomètre est rallongé de 90 secondes, mais mourir retire 15 secondes au temps restant."
     },
     "153": {
       "name": "Marché de Xal’atath : Frénétique",
@@ -3618,6 +3663,14 @@
     "160": {
       "name": "Marché de Xal’atath : dévorer",
       "desc": "En combat, Xal’atath ouvre des failles qui dévorent l’essence des personnages-joueurs."
+    },
+    "162": {
+      "name": "Marché de Xal’atath : pulsar",
+      "desc": "En combat, Xal’atath invoque des pulsars qui tournent autour des personnages-joueurs."
+    },
+    "165": {
+      "name": "",
+      "desc": ""
     }
   }
 }

@@ -87,7 +87,7 @@ module.exports = (fastify, opts, next) => {
         who.access.api = true
         who.apiKey = user.account.api_key
       }
-      who.access.sub = user.roles.subscriber || user.roles.legacy_subscriber
+      who.access.sub = user.roles.subscriber || user.roles.legacy_subscriber || user.roles.gold_subscriber || user.roles.legacy_gold_subscriber
       who.access.goldSub = user.roles.gold_subscriber || user.roles.legacy_gold_subscriber
       who.access.guild_subscriber = user.roles.guild_subscriber
       who.access.ambassador = user.roles.ambassador

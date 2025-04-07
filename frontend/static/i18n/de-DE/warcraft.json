@@ -1659,7 +1659,8 @@
     "2668": "General Zornesschmied",
     "2669": "Botschafter Flammenschlag",
     "2670": "Imperator Dagran Thaurissan",
-    "2683": "The Gobfather"
+    "2683": "Der Gobvater",
+    "2773": "Zekvir"
   },
   "expansions": {
     "68": "Classic",
@@ -1670,7 +1671,7 @@
     "124": "Warlords of Draenor",
     "395": "Legion",
     "396": "Battle for Azeroth",
-    "499": "Schattenlande",
+    "499": "Shadowlands",
     "503": "Dragonflight",
     "505": "Aktuelle Saison",
     "514": "The War Within"
@@ -1882,9 +1883,10 @@
     "1291": "Zekvirs Höhle",
     "1292": "Stratholme - Dienstboteneingang",
     "1293": "The Underkeep",
-    "1296": "Liberation of Undermine",
+    "1296": "Befreiung von Lorenhall",
     "1298": "Operation: Schleuse",
-    "1301": "Schwarzfelstiefen"
+    "1301": "Schwarzfelstiefen",
+    "1310": "Zekvirs Höhle"
   },
   "specs": {
     "62": "Arkan",
@@ -3235,9 +3237,10 @@
     "2528": "Tempel der Jadeschlange",
     "2529": "Dämmerung des Ewigen: Galakronds Sturz",
     "2530": "Dämmerung des Ewigen: Murozonds Erhebung",
-    "2531": "11.0 Z5 - Level Up - Ch 3 - Q04 - Escape The Burrows! (JSS)",
+    "2531": "Flucht aus dem Bau!",
     "2532": "11.0 Z2 - Faction Repeatable - Awakening The Machine (NJS)",
     "2533": "Die Tiefenfestung",
+    "2534": "Prioratszenario",
     "2537": "Zufälliger heroischer Dungeon (Mists of Pandaria)",
     "2538": "Zufälliger Zeitläuferdungeon (Mists of Pandaria)",
     "2539": "Zufälliger heroischer Zeitläuferdungeon (Mists of Pandaria)",
@@ -3319,10 +3322,17 @@
     "2620": "Schatzkammer des Donnerkönigs",
     "2623": "Nudelzeit",
     "2624": "Die Geheimzutat",
+    "2634": "Zufälliger Zeitwanderungsdungeon (Classic)",
+    "2635": "Düsterbruch - Wucherborkenviertel",
+    "2636": "Todesminen",
     "2637": "Die Brutstätte",
+    "2639": "Stratholme - Haupttor",
+    "2640": "Zul'Farrak",
+    "2641": "Stratholme - Dienstboteneingang",
     "2642": "Stadt der Fäden",
     "2643": "Stadt der Fäden",
     "2645": "Palast der Nerub'ar",
+    "2646": "Düsterbruch - Hauptstadtgärten",
     "2647": "Stadt der Fäden",
     "2648": "Stadt der Fäden",
     "2649": "Die huschenden Festungsmauern",
@@ -3389,6 +3399,7 @@
     "2711": "Geschmolzene Invasion",
     "2712": "Das Viridiangewebe",
     "2713": "Schicksal von Amirdrassil",
+    "2714": "Chromies Kodex",
     "2715": "Königin Ansurek",
     "2717": "Die Brutstätte",
     "2718": "Die Brutstätte",
@@ -3403,7 +3414,41 @@
     "2727": "Nebel von Tirna Scithe",
     "2728": "Die Nekrotische Schneise",
     "2729": "Belagerung von Boralus",
-    "2730": "Grim Batol"
+    "2730": "Grim Batol",
+    "2731": "Ratts Versteck",
+    "2749": "Ausgrabungsstätte 9",
+    "2750": "Die Oberanführer der Elementare",
+    "2751": "Schattenschmiede",
+    "2752": "Der Kaiserliche Sitz",
+    "2753": "Schwarzfelstiefen",
+    "2754": "Schwarzfelstiefen",
+    "2757": "Seitenstraßenschleuse",
+    "2758": "Verstörende Vision von Sturmwind",
+    "2759": "Verstörende Vision von Orgrimmar",
+    "2772": "Abrisswettkampf des Lorenbosses",
+    "2773": "Erdwühlerminen, Branns Geschichte",
+    "2779": "Befreiung von Lorenhall",
+    "2780": "Schockschwerenot",
+    "2781": "Manischer Maschinist",
+    "2782": "Zwei Köpfe sind besser",
+    "2783": "Der Chromkönig",
+    "2791": "Operation: Schleuse",
+    "2793": "Operation: Schleuse",
+    "2794": "Operation: Schleuse",
+    "2798": "Der Chromkönig",
+    "2802": "Operation: Schleuse",
+    "2803": "Durchtriebene Duos",
+    "2807": "Zufälliger heroischer Dungeon (The War Within: Saison 2)",
+    "2808": "Die Brutstätte",
+    "2809": "Dunkelflammenspalt",
+    "2810": "Priorat der Heiligen Flamme",
+    "2811": "Metbrauerei Glutbräu",
+    "2812": "Operation: Schleuse",
+    "2813": "Operation: Mechagon - Werkstatt",
+    "2814": "Das RIESENFLÖZ!!",
+    "2815": "Theater der Schmerzen",
+    "2892": "Befreiung von Lorenhall",
+    "2893": "Befreiung von Lorenhall"
   },
   "affixes": {
     "1": "Überschüssig",
@@ -3485,7 +3530,7 @@
     },
     "9": {
       "name": "Tyrannisch",
-      "desc": "Bosse haben 30% mehr Gesundheit. Bosse und ihre Diener verursachen bis zu 15% mehr Schaden."
+      "desc": "Bosse haben 25% mehr Gesundheit. Bosse und ihre Diener verursachen bis zu 15% mehr Schaden."
     },
     "10": {
       "name": "Verstärkt",
@@ -3593,7 +3638,7 @@
     },
     "147": {
       "name": "Xal'ataths List",
-      "desc": "Xal'atath hintergeht Spielercharaktere, wobei sie ihre Handelsabmachungen widerruft und die Gesundheit und den Schaden von Gegnern um 20% erhöht."
+      "desc": "Xal'atath betrügt Spielercharaktere und erklärt ihre Geschäfte für ungültig, während Todesfälle 15 Sekunden von der verbleibenden Zeit abziehen."
     },
     "148": {
       "name": "Xal'ataths Handel: Aszendenz",
@@ -3601,7 +3646,7 @@
     },
     "152": {
       "name": "Tücke des Herausforderers",
-      "desc": "Beim Tod werden 15 Sekunden von der verbleibenden Zeit abgezogen."
+      "desc": "Die Zeit wird um 90 Sekunden erhöht, doch beim Tod werden 15 Sekunden von der verbleibenden Zeit abgezogen."
     },
     "153": {
       "name": "Xal'ataths Handel: Raserei",
@@ -3618,6 +3663,14 @@
     "160": {
       "name": "Xal'ataths Handel: Verschlingen",
       "desc": "Xal'atath öffnet während des Kampfes Risse, die die Essenz von Spielercharakteren verschlingen."
+    },
+    "162": {
+      "name": "Xal'ataths Handel: Pulsare",
+      "desc": "Xal'atath beschwört während des Kampfes Pulsare, die um die Spielercharaktere kreisen"
+    },
+    "165": {
+      "name": "",
+      "desc": ""
     }
   }
 }
