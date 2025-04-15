@@ -253,49 +253,10 @@ module.exports = (fastify, opts, next) => {
     if (!req.query.name) {
       return res.send([])
     }
-    const results = await User.esSearch({
-      query: {
-        bool: {
-          should: [
-            {
-              regexp: {
-                "account.username": {
-                  value: req.query.name.toLowerCase(),
-                  boost: 2
-                }
-              }
-            },
-            {
-              regexp: {
-                "account.username": {
-                  value: req.query.name.toLowerCase() + '.*',
-                  boost: 1.2
-                }
-              }
-            },
-            {
-              regexp: {
-                "account.username": {
-                  value: '.*' + req.query.name.toLowerCase() + '.*',
-                  boost: .9
-                }
-              }
-            }
-          ]
-        }
-      },
-    },
-    { hydrate: true, sort: ['_score'], size: 10, from: 0})
-    if (results && results.hits && results.hits.hits) {
-      var users = []
-      for (user of results.hits.hits) {
-        users.push({name: user.account.username, _id: user._id})
-      }
-      res.send(users)
-    }
-    else {
-      res.send([])
-    }
+    return User.aggregate([{$match: {$or: [
+      {"search.username": req.query.name.toLowerCase()},
+      {"wagoAuth.id": req.query.name}
+    ]}}, {$project: {name: '$account.username', avatar: '$profile.avatar'}}])
   })
 
   fastify.post('/redis/get', async (req, res) => {
