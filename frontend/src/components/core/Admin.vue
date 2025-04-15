@@ -3,7 +3,7 @@
     <div id="admin" v-if="User && User.access && User.access.admin" v-bind="User">
       <!-- FRAME TOGGLES -->
       <md-button-toggle class="md-accent" md-single>
-        <md-button v-if="User.access.admin.super || User.access.admin.config.embed" :class="{'md-toggle': showPanel === 'sitecfg'}" @click="toggleFrame('sitecfg')">Site Config</md-button>
+        <md-button v-if="User.access.admin.super || User.access.admin.config?.embed" :class="{'md-toggle': showPanel === 'sitecfg'}" @click="toggleFrame('sitecfg')">Site Config</md-button>
         <md-button v-if="User.access.admin.blog || User.access.admin.super" :class="{'md-toggle': showPanel === 'blogpost'}" @click="toggleFrame('blogpost')">Blog Posts</md-button>
         <md-button v-if="User.access.admin.super || User.access.admin.moderator" :class="{'md-toggle': showPanel === 'users'}" @click="toggleFrame('users')">User Control</md-button>
         <md-button v-if="User.access.admin.super" :class="{'md-toggle': showPanel === 'status'}" @click="toggleFrame('status')">Status</md-button>
@@ -143,6 +143,12 @@
                   </md-list-item>
                 </md-list>
                 <md-list>
+                  <md-list-item>
+                    <div class="md-list-text-container">
+                      <span>Support Key</span>
+                      <span>{{ selectedUser.account.support_key || 'Not Created' }}</span>
+                    </div>
+                  </md-list-item>
                   <md-list-item>
                     <div class="md-list-text-container">
                       <span>Roles</span>
@@ -329,7 +335,7 @@
       </md-layout>
 
       <!-- ADVERTISING FRAME -->
-      <md-layout id="admin-advert-container" v-if="(User.access.admin.super || User.access.admin.config.embed) && showPanel=='sitecfg'">
+      <md-layout id="admin-advert-container" v-if="(User.access.admin.super || User.access.admin.config?.embed) && showPanel=='sitecfg'">
         <md-layout class="md-left" md-flex="15">
           <md-list class="md-double-line">
             <md-list-item @click="LoadAdvertConfig('streams')" v-bind:class="{selected: (siteConfigPanel === 'streams')}">
@@ -639,7 +645,7 @@ export default {
         setTimeout(p, 100)
         return
       }
-      if (this.User.access.admin.super || this.User.access.admin.config.embed) {
+      if (this.User.access.admin.super || this.User.access.admin.config?.embed) {
         this.toggleFrame('sitecfg')
       }
       else if (this.User.access.admin.blog) {
@@ -649,7 +655,7 @@ export default {
         this.toggleFrame('users')
       }
 
-      if (this.User.access.admin.super || this.User.access.admin.config.embed) {
+      if (this.User.access.admin.super || this.User.access.admin.config?.embed) {
         let data = await this.http.get('/admin/getstreamers')
         this.streamerList = data.streams
         this.activeUserCount = data.users

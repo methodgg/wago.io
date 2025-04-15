@@ -201,7 +201,7 @@ module.exports = (fastify, opts, next) => {
     if (!req.user || !req.user.isAdmin.access || !(req.user.isAdmin.super || req.user.isAdmin.moderator)) {
       return res.code(403).send({error: "forbidden"})
     }
-    const user = await User.findById(req.query.user).select({'account.username':1, 'account.created':1, 'account.verified_human':1, 'account.hidden':1, 'battlenet':1, 'discord':1, 'patreon':1, 'twitter':1, 'google':1, 'profile':1, 'roles':1})
+    const user = await User.findById(req.query.user).select({'account.username':1, 'account.created':1, 'account.verified_human':1, 'account.hidden':1, 'account.support_key':1, 'profile':1, 'roles':1})
     res.send(user)
   })
 
@@ -403,6 +403,8 @@ module.exports = (fastify, opts, next) => {
 
     if (req.body.action === 'Reprocess') {
       await taskQueue.add('ProcessCode', {id: wago._id, encode: true}, {priority: 1})
+    //   await elastic.addDoc('imports', await wago.indexedImportData)
+      console.log(await wago.indexedImportData)
       return res.send({success: true})
     }
     else if (req.body.action === 'Resolved') {
