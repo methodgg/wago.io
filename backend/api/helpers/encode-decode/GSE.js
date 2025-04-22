@@ -1,41 +1,48 @@
+const blizzEncoding = require('../blizzEncoding')
+
 module.exports = {
     typeMatch: /^GSE$/i,
     domain: ENUM.DOMAIN.WOW,
   
     decode: async (rawString, exec) => {
-      // test that string matches expected regex
-      let str = rawString.match(/```\s?([a-zA-Z0-9\(\)]+)\s```/)
-      let encodedString
-      if (str && str[1]) {
-        encodedString = str[1]
-      }
-      else {
-        str = rawString.match(/^[a-zA-Z0-9\(\)]+$/)
-        if (str) {
-            encodedString = str[0]
+        let v3Str = rawString.match(/!GSE3!([a-zA-Z0-9+=\/]+)/)
+        if (v3Str?.[1]) {
+            return blizzEncoding.fullDecode(v3Str[1])
         }
-      }
-      if (!encodedString) {
-        return false
-      }
-      const lua = createLuaDecode(encodedString)
-      try {
-        const obj = JSON.parse(await exec(lua))
-        if (obj.type === 'COLLECTION') {
-            for (const type of ['Sequences', 'Macros', 'Variables']) {
-                for (const [key, value] of Object.entries(obj.payload[type])) {
-                    if (typeof value === 'string' && value.match(/^[a-zA-Z0-9\(\)]+$/)) {
-                        obj.payload[type][key] = JSON.parse(await exec(createLuaDecode(value)))                        
+
+        // test that string matches expected regex
+        let str = rawString.match(/```\s?([a-zA-Z0-9\(\)]+)\s```/)
+        let encodedString
+        if (str && str[1]) {
+            encodedString = str[1]
+        }
+        else {
+            str = rawString.match(/^[a-zA-Z0-9\(\)]+$/)
+            if (str) {
+                encodedString = str[0]
+            }
+        }
+        if (!encodedString) {
+            return false
+        }
+        const lua = createLuaDecode(encodedString)
+        try {
+            const obj = JSON.parse(await exec(lua))
+            if (obj.type === 'COLLECTION') {
+                for (const type of ['Sequences', 'Macros', 'Variables']) {
+                    for (const [key, value] of Object.entries(obj.payload[type])) {
+                        if (typeof value === 'string' && value.match(/^[a-zA-Z0-9\(\)]+$/)) {
+                            obj.payload[type][key] = JSON.parse(await exec(createLuaDecode(value)))                        
+                        }
                     }
                 }
             }
+            return obj
         }
-        return obj
-      }
-      catch (e){
-        console.log(e)
-        return false
-      }
+        catch (e){
+            console.log(e)
+            return false
+        }
     },
   
     encode: async (json, exec) => {
