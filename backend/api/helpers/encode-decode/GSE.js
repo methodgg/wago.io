@@ -7,7 +7,7 @@ module.exports = {
     decode: async (rawString, exec) => {
         let v3Str = rawString.match(/!GSE3!([a-zA-Z0-9+=\/]+)/)
         if (v3Str?.[1]) {
-            return blizzEncoding.fullDecode(v3Str[1])
+            return blizzEncoding.standardDecode(v3Str[1])
         }
 
         // test that string matches expected regex

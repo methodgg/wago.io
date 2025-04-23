@@ -1,5 +1,6 @@
 const getCode = require('../code-detection/get-code')
 const patchDates = require('../patchDates')
+const blizzEncoding = require('../blizzEncoding')
 
 module.exports = {
   typeMatch: /^PLATER$/,
@@ -7,6 +8,11 @@ module.exports = {
 
   decode: async (encodedString, exec) => {
     // test that string matches expected regex
+    const v2Str = encodedString.match(/!PLATER:2!([a-zA-Z0-9+=\/]+)/)
+    if (v2Str?.[1]) {
+      return blizzEncoding.standardDecode(v2Str[1])
+    }
+
     if (!encodedString.match(/^[a-zA-Z0-9\(\)]*$/)) {
       return false
     }

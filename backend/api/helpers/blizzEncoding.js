@@ -78,7 +78,7 @@ function JSONtoMap(obj) {
     return obj;
 }
 
-async function fullDecode(encodedString) {
+async function standardDecode(encodedString) {
     try {
         const compressed = Buffer.from(encodedString, 'base64')
         const decompressed = await zlibDecompress(compressed)
@@ -92,7 +92,7 @@ async function fullDecode(encodedString) {
     }
 }
 
-async function fullEncode(json) {
+async function standardEncode(json) {
     try {
         const encodedMap = JSONtoMap(json)
         const encodedCbor = await borc.encode(encodedMap)
@@ -110,6 +110,6 @@ module.exports = {
     zlibCompress,
     mapToJSON,
     JSONtoMap,
-    fullDecode,
-    fullEncode
+    standardDecode,
+    standardEncode
 }
