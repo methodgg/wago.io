@@ -190,7 +190,7 @@ export default {
       return window.Categories.raidCategories(['raidcrucible', 'raidzuldazar', 'bfadungeon'])
     },
     classicRaids: function () {
-      return window.Categories.raidCategories(['raidmoltencore', 'raidblackwinglair', 'raidtempleaq', 'raidnaxxramas'])
+      return window.Categories.raidCategories(['raidmoltencore', 'raidblackwinglair', 'raidtempleaq', 'raidnaxxramas', 'sod'])
     },
     classicRaids2: function () {
       return window.Categories.raidCategories(['raidworld', 'raidzulgurub', 'raidruinsaq', 'classicdungeon'])

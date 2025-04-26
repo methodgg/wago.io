@@ -5,10 +5,10 @@
           <md-layout md-row>
             <md-avatar class='square'><category-image :group="'t-weakaura'"></category-image></md-avatar>
             <h2 id="addon-name">WeakAuras -
-              <span>{{ $t('Cataclysm Classic') }}</span>
+              <span>{{ $t('Mists of Pandaria Classic') }}</span>
             </h2>
           </md-layout>
-          <addon-info game="wow" addon="weakaura" expansion="cata"></addon-info>
+          <addon-info game="wow" addon="weakaura" expansion="mop"></addon-info>
         </div>
       </md-layout>
       <md-layout>
@@ -18,9 +18,9 @@
             <md-list-item v-for="cls in classes" v-bind:key="cls.id" :class="cls.id + ' md-inset'">
               <div class="menu-image"></div>
               <div class="md-list-text-container">
-                <a :href="'/cataclysm-weakauras/' + cls.slug" @click.prevent="searchRoute(cls)">{{ cls.text }}</a>
+                <a :href="'/mop-weakauras/' + cls.slug" @click.prevent="searchRoute(cls)">{{ cls.text }}</a>
                 <span>
-                  <a v-for="spec in cls.specs" v-bind:key="spec.id" :href="'/cataclysm-weakauras/' + spec.slug"
+                  <a v-for="spec in cls.specs" v-bind:key="spec.id" :href="'/mop-weakauras/' + spec.slug"
                     @click.prevent="searchRoute(spec)">{{ spec.text.replace(cls.text, '').trim() }}</a>
                 </span>
               </div>
@@ -32,9 +32,9 @@
             <md-list-item v-for="prof in professions" v-bind:key="prof.id" :class="prof.id + ' md-inset'">
               <div class="menu-image"></div>
               <div class="md-list-text-container">
-                <a :href="'/cataclysm-weakauras/' + prof.slug" @click.prevent="searchRoute(prof)">{{ prof.text }}</a>
+                <a :href="'/mop-weakauras/' + prof.slug" @click.prevent="searchRoute(prof)">{{ prof.text }}</a>
                 <span>
-                  <a v-for="spec in prof.specs" v-bind:key="spec.id" :href="'/cataclysm-weakauras/' + spec.slug"
+                  <a v-for="spec in prof.specs" v-bind:key="spec.id" :href="'/mop-weakauras/' + spec.slug"
                     @click.prevent="searchRoute(spec)">{{ spec.text }}</a>
                 </span>
               </div>
@@ -43,14 +43,14 @@
         </md-layout>
   
         <md-layout>
-          <md-subheader>{{ $t("Cataclysm PvE") }}</md-subheader>
+          <md-subheader>{{ $t("Mists of Pandaria PvE") }}</md-subheader>
           <md-list class="md-double-line md-dense">
-            <md-list-item v-for="raid in cataclysmRaids" v-bind:key="raid.id" :class="raid.id + ' md-inset'">
+            <md-list-item v-for="raid in mistsOfPandariaRaids" v-bind:key="raid.id" :class="raid.id + ' md-inset'">
               <div class="menu-image"></div>
               <div class="md-list-text-container">
-                <a :href="'/cataclysm-weakauras/' + raid.slug" @click.prevent="searchRoute(raid)">{{ raid.text }}</a>
+                <a :href="'/mop-weakauras/' + raid.slug" @click.prevent="searchRoute(raid)">{{ raid.text }}</a>
                 <span>
-                  <a v-for="boss in raid.bosses" v-bind:key="boss.id" :href="'/cataclysm-weakauras/' + boss.slug"
+                  <a v-for="boss in raid.bosses" v-bind:key="boss.id" :href="'/mop-weakauras/' + boss.slug"
                     @click.prevent="searchRoute(boss)">{{ boss.text }}</a>
                 </span>
               </div>
@@ -61,9 +61,9 @@
             <md-list-item class="md-inset role0">
               <div class="menu-image"></div>
               <div class="md-list-text-container">
-                <a href="/cataclysm-weakauras/roles" @click.prevent="searchRoute('role0')">{{ $t("Class Roles") }}</a>
+                <a href="/mop-weakauras/roles" @click.prevent="searchRoute('role0')">{{ $t("Class Roles") }}</a>
                 <span>
-                  <a v-for="item in roles" v-bind:key="item.id" :href="'/cataclysm-weakauras/' + item.slug"
+                  <a v-for="item in roles" v-bind:key="item.id" :href="'/mop-weakauras/' + item.slug"
                     @click.prevent="searchRoute(item)">{{ item.text }}</a>
                 </span>
               </div>
@@ -72,9 +72,9 @@
             <md-list-item class="md-inset mech">
               <div class="menu-image"></div>
               <div class="md-list-text-container">
-                <a href="/cataclysm-weakauras/mechanics" @click.prevent="searchRoute('mech')">{{ $t("Combat Mechanics") }}</a>
+                <a href="/mop-weakauras/mechanics" @click.prevent="searchRoute('mech')">{{ $t("Combat Mechanics") }}</a>
                 <span>
-                  <a v-for="item in mechanics" v-bind:key="item.id" :href="'/cataclysm-weakauras/' + item.slug"
+                  <a v-for="item in mechanics" v-bind:key="item.id" :href="'/mop-weakauras/' + item.slug"
                     @click.prevent="searchRoute(item)">{{ item.text }}</a>
                 </span>
               </div>
@@ -83,9 +83,9 @@
             <md-list-item class="md-inset equip">
               <div class="menu-image"></div>
               <div class="md-list-text-container">
-                <a href="/cataclysm-weakauras/equipment" @click.prevent="searchRoute('equipment')">{{ $t("Equipment") }}</a>
+                <a href="/mop-weakauras/equipment" @click.prevent="searchRoute('equipment')">{{ $t("Equipment") }}</a>
                 <span>
-                  <a v-for="item in equip" v-bind:key="item.id" :href="'/cataclysm-weakauras/' + item.slug"
+                  <a v-for="item in equip" v-bind:key="item.id" :href="'/mop-weakauras/' + item.slug"
                     @click.prevent="searchRoute(item)">{{ item.text }}</a>
                 </span>
               </div>
@@ -94,10 +94,10 @@
             <md-list-item class="md-inset accessibility">
               <div class="menu-image"></div>
               <div class="md-list-text-container">
-                <a href="/dragonflight-weakauras/accessibility" @click.prevent="searchRoute('accessibility')">{{
+                <a href="/mop-weakauras/accessibility" @click.prevent="searchRoute('accessibility')">{{
                   $t("Accessibility") }}</a>
                 <span>
-                  <a v-for="item in accessibility" v-bind:key="item.id" :href="'/dragonflight-weakauras/' + item.slug"
+                  <a v-for="item in accessibility" v-bind:key="item.id" :href="'/mop-weakauras/' + item.slug"
                     @click.prevent="searchRoute(item)">{{ item.text }}</a>
                 </span>
               </div>
@@ -106,9 +106,9 @@
             <md-list-item class="md-inset gen0">
               <div class="menu-image"></div>
               <div class="md-list-text-container">
-                <a href="/cataclysm-weakauras/general" @click.prevent="searchRoute('gen0')">{{ $t("General") }}</a>
+                <a href="/mop-weakauras/general" @click.prevent="searchRoute('gen0')">{{ $t("General") }}</a>
                 <span>
-                  <a v-for="item in misc" v-bind:key="item.id" :href="'/cataclysm-weakauras/' + item.slug"
+                  <a v-for="item in misc" v-bind:key="item.id" :href="'/mop-weakauras/' + item.slug"
                     @click.prevent="searchRoute(item)">{{ item.text }}</a>
                 </span>
               </div>
@@ -125,9 +125,9 @@
             <md-list-item class="md-inset pvp">
               <div class="menu-image"></div>
               <div class="md-list-text-container">
-                <a href="/cataclysm-weakauras/pvp" @click.prevent="searchRoute('pvp')">{{ $t("PvP") }}</a>
+                <a href="/mop-weakauras/pvp" @click.prevent="searchRoute('pvp')">{{ $t("PvP") }}</a>
                 <span>
-                  <a v-for="item in pvp" v-bind:key="item.id" :href="'/cataclysm-weakauras/' + item.slug"
+                  <a v-for="item in pvp" v-bind:key="item.id" :href="'/mop-weakauras/' + item.slug"
                     @click.prevent="searchRoute(item)">{{ item.text }}</a>
                 </span>
               </div>
@@ -139,9 +139,9 @@
             <md-list-item class="md-inset gen5">
               <div class="menu-image"></div>
               <div class="md-list-text-container">
-                <a href="/cataclysm-weakauras/development" @click.prevent="searchRoute('gen5')">{{ $t("Development") }}</a>
+                <a href="/mop-weakauras/development" @click.prevent="searchRoute('gen5')">{{ $t("Development") }}</a>
                 <span>
-                  <a v-for="item in development" v-bind:key="item.id" :href="'/cataclysm-weakauras/' + item.slug"
+                  <a v-for="item in development" v-bind:key="item.id" :href="'/mop-weakauras/' + item.slug"
                     @click.prevent="searchRoute(item)">{{ item.text }}</a>
                 </span>
               </div>
@@ -163,16 +163,16 @@
     props: ['contextGame'],
     methods: {
       runSearch: function () {
-        this.$store.commit('userSearchOption', { field: 'expansion', value: 'cataclysm' })
+        this.$store.commit('userSearchOption', { field: 'expansion', value: 'mists-of-pandaria' })
         this.$router.push('/search/' + this.searchString.trim().replace(/\s+/g, '+'))
       },
       searchRoute: function (item) {
-        this.$store.commit('userSearchOption', { field: 'expansion', value: 'cataclysm' })
+        this.$store.commit('userSearchOption', { field: 'expansion', value: 'mists-of-pandaria' })
         if (typeof item === 'string') {
           item = window.Categories.match(item)
         }
         this.$store.commit('setSearchText', `category:${item.id}`)
-        this.$router.push('/cataclysm-weakauras/' + item.slug)
+        this.$router.push('/mop-weakauras/' + item.slug)
       }
     },
     data: function () {
@@ -182,29 +182,28 @@
     },
     computed: {
       classes: function () {
-        return window.Categories.classCategories('WEAKAURA', 'cata')
+        return window.Categories.classCategories('WEAKAURA', 'mop')
       },
-
-      cataclysmRaids: function () {
-        return window.Categories.raidCategories(['raidblackwingdescent', 'raidbastiontwilight', 'raidfourwinds', 'raidfirelands','raidbaradinhold', 'raiddragonsoul', 'catadungeon'])
+      mistsOfPandariaRaids: function () {
+        return window.Categories.raidCategories(['raidmogushanvaults', 'raidheartoffear', 'raidterraceofendlessspring', 'raidthroneofthunder','raidsiegeoforgrimmar', 'mopdungeon'])
       },
       misc: function () {
-        return window.Categories.getCategories(['gen1', 'gen7', 'gen2', 'gen6', 'gen9', 'gen10', 'gen11', 'gen12', 'gen14', 'gen13', 'gen8', 'gen15', 'gen16', 'gen17'], null, 'WEAKAURA', 'cata')
+        return window.Categories.getCategories(['gen1', 'gen7', 'gen2', 'gen6', 'gen9', 'gen10', 'gen11', 'gen12', 'gen14', 'gen13', 'gen8', 'gen15', 'gen16', 'gen17'], null, 'WEAKAURA', 'mop')
       },
       roles: function () {
         return window.Categories.getCategories(['role4', 'role1', 'role2', 'role3'])
       },
       pvp: function () {
-        return window.Categories.getCategories([/^(arena|bg|wpvp1?|tolbarad)$/], null, 'WEAKAURA', 'cata')
+        return window.Categories.getCategories([/^(arena|bg|wpvp1?|tolbarad)$/], null, 'WEAKAURA', 'mop')
       },
       mechanics: function () {
-        return window.Categories.getCategories([/^mech[\d]+/], null, 'WEAKAURA', 'cata')
+        return window.Categories.getCategories([/^mech[\d]+/], null, 'WEAKAURA', 'mop')
       },
       equip: function () {
-        return window.Categories.getCategories([/^equip[\d]+/, 'legen'], null, 'WEAKAURA', 'cata')
+        return window.Categories.getCategories([/^equip[\d]+/, 'legen'], null, 'WEAKAURA', 'mop')
       },
       professions: function () {
-        return window.Categories.professionCategories('WEAKAURA', 'cata')
+        return window.Categories.professionCategories('WEAKAURA', 'mop')
       },
       accessibility: function () {
         return window.Categories.getCategories([/^accessibility[\d]+/], null)

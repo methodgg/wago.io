@@ -848,7 +848,7 @@ module.exports = function (fastify, opts, next) {
     if (!docs) {
       return res.send([])
     }
-    return res.send(docs.map(d => ({...d, ok: d._id === 'WEAKAURA' || d._id === 'TWW-WEAKAURA' || d._id === 'CATA-WEAKAURA'})))
+    return res.send(docs.map(d => ({...d, ok: d._id === 'WEAKAURA' || d._id === 'TWW-WEAKAURA' || d._id === 'CATA-WEAKAURA' || d._id === 'MOP-WEAKAURA'})))
   })
 
   // find "more" comments on this import

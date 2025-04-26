@@ -6,6 +6,7 @@ module.exports = {
     "TBC-WEAKAURA": 9,
     "WOTLK-WEAKAURA": 9,
     "CATA-WEAKAURA": 9,
+    "MOP-WEAKAURA": 9,
     "PLATER": 9,
     "SNIPPET": 8
   },

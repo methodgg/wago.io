@@ -108,6 +108,7 @@ async function searchElastic(req, res) {
       { term: { expansion: { value: expansionIndex('legion') } } },
       { term: { expansion: { value: expansionIndex('wod') } } },
       { term: { expansion: { value: expansionIndex('tbc') } } },
+      { term: { expansion: { value: expansionIndex('wotlk') } } },
     ]
   }
   else if (parseInt(req.query.expansion) > -1) {
@@ -119,12 +120,12 @@ async function searchElastic(req, res) {
 
   // old search format
   else if (query.match(/expansion:/)) {
-    m = query.match(/expansion:\s?(tww|df|sl|bfa|legion|wod|cata|wotlk|tbc|classic)/)
+    m = query.match(/expansion:\s?(tww|df|sl|bfa|legion|wod|mop|cata|wotlk|tbc|classic)/)
     if (m) {
       while (m) {
         query = query.replace(m[0], '')
         filterExpansion.push({ term: { expansion: { value: expansionIndex(m[1]) } } })
-        m = query.match(/expansion:\s?(tww|df|sl|bfa|legion|wod|cata|wotlk|tbc|classic)/i)
+        m = query.match(/expansion:\s?(tww|df|sl|bfa|legion|wod|mop|cata|wotlk|tbc|classic)/i)
       }
     }
     else if (searchMode.match(/imports|code/) && searchMode !== 'stars') {
@@ -567,6 +568,7 @@ async function oldSearch(req, res) {
     filterTypes.push({ term: { 'type.keyword': m[1].toUpperCase() } })
     if (m[1].toUpperCase() === 'WEAKAURA') {
       // temp until index is optimized
+      filterTypes.push({ term: { 'type.keyword': 'MOP-WEAKAURA' } })
       filterTypes.push({ term: { 'type.keyword': 'CATA-WEAKAURA' } })
       filterTypes.push({ term: { 'type.keyword': 'WOTLK-WEAKAURA' } })
       filterTypes.push({ term: { 'type.keyword': 'TBC-WEAKAURA' } })

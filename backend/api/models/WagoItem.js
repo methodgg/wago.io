@@ -188,6 +188,7 @@ Schema.virtual('expansionIndex').get(function () {
   else if (this.game === 'tbc') return 1
   else if (this.game === 'wotlk') return 2
   else if (this.game === 'cata') return 3
+  else if (this.game === 'mop') return 4
   else if (this.game === 'legion') return 6
   else if (this.game === 'bfa') return 7
   else if (this.game === 'sl') return 8

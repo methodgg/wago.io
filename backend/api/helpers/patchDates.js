@@ -97,6 +97,9 @@ module.exports = {
     else if (tocversion >= 70000) {
       return 'legion'
     }
+    else if (tocversion >= 50500 && tocversion <= 59999) {
+      return 'mop'
+    }
     else if (tocversion >= 40400 && tocversion <= 49999) {
       return 'cata'
     }

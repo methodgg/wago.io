@@ -36,6 +36,7 @@
                   <small id="selected-expansion">{{
                     searchExpansion === 'classic' && $t('Classic') ||
                     searchExpansion === 'cata' && $t('Cataclysm') ||
+                    searchExpansion === 'mop' && $t('Mists of Pandaria') ||
                     searchExpansion === 'df' && $t('Dragonflight') ||
                     searchExpansion === 'tww' && $t('The War Within') ||
                     (!searchExpansion || searchExpansion === 'all') && $t('All') ||
@@ -51,9 +52,9 @@
                     <img src="../../assets/tww-toggle.svg">
                     <md-tooltip md-direction="bottom" class="">{{ $t("The War Within") }}</md-tooltip>
                   </md-button>
-                  <md-button :class="{ 'md-toggle': searchExpansion === 'df' }" class="md-icon-button" @click="setExpansion('df')">
-                    <img src="../../assets/df-toggle.svg">
-                    <md-tooltip md-direction="bottom" class="">{{ $t("Dragonflight") }}</md-tooltip>
+                  <md-button :class="{ 'md-toggle': searchExpansion === 'mop' }" class="md-icon-button" @click="setExpansion('mop')">
+                    <img src="../../assets/mop-toggle.svg">
+                    <md-tooltip md-direction="bottom" class="">{{ $t("Mists of Pandaria Beta") }}</md-tooltip>
                   </md-button>
                   <md-button :class="{ 'md-toggle': searchExpansion === 'cata' }" class="md-icon-button" @click="setExpansion('cata')">
                     <img src="../../assets/cata-toggle.svg">
@@ -63,7 +64,7 @@
                     <img src="../../assets/classic-toggle.svg">
                     <md-tooltip md-direction="bottom" class="">{{ $t("Classic") }}</md-tooltip>
                   </md-button>
-                  <md-button :class="{ 'md-toggle': searchExpansion && !searchExpansion.match(/tww|df|cata|classic/) }" class="md-icon-button" @click="setExpansion('legacy')">
+                  <md-button :class="{ 'md-toggle': searchExpansion && !searchExpansion.match(/tww|mop|cata|classic/) }" class="md-icon-button" @click="setExpansion('legacy')">
                     <img src="../../assets/legacy-toggle.svg">
                     <md-tooltip md-direction="bottom" class="">{{ $t("Legacy") }}</md-tooltip>
                   </md-button>
