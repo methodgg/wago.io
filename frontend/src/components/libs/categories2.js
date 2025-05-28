@@ -10,10 +10,10 @@ class Categories {
       // include root if category is top level
       // include [types] if category is restricted to certain import types
       // include [games] if category is restricted to certain games/expansions
-      'cl6': {slug: 'classes/death-knight', image: 'deathknight.png', color: '#C41F3B', i18n: 'warcraft:classes.6', domain: 0, games: ['wotlk', 'cata', 'legion', 'bfa', 'sl', 'df', 'tww']},
-      'cl6-1': {slug: 'classes/death-knight/blood', i18n: 'warcraft:specs.250', domain: 0, parent: 'cl6', games: ['wotlk', 'cata', 'legion', 'bfa', 'sl', 'df', 'tww']},
-      'cl6-2': {slug: 'classes/death-knight/frost', i18n: 'warcraft:specs.251', domain: 0, parent: 'cl6', games: ['wotlk', 'cata', 'legion', 'bfa', 'sl', 'df', 'tww']},
-      'cl6-3': {slug: 'classes/death-knight/unholy', i18n: 'warcraft:specs.252', domain: 0, parent: 'cl6', games: ['wotlk', 'cata', 'legion', 'bfa', 'sl', 'df', 'tww']},
+      'cl6': {slug: 'classes/death-knight', image: 'deathknight.png', color: '#C41F3B', i18n: 'warcraft:classes.6', domain: 0, games: ['wotlk', 'cata', 'mop', 'legion', 'bfa', 'sl', 'df', 'tww']},
+      'cl6-1': {slug: 'classes/death-knight/blood', i18n: 'warcraft:specs.250', domain: 0, parent: 'cl6', games: ['wotlk', 'cata', 'mop', 'legion', 'bfa', 'sl', 'df', 'tww']},
+      'cl6-2': {slug: 'classes/death-knight/frost', i18n: 'warcraft:specs.251', domain: 0, parent: 'cl6', games: ['wotlk', 'cata', 'mop', 'legion', 'bfa', 'sl', 'df', 'tww']},
+      'cl6-3': {slug: 'classes/death-knight/unholy', i18n: 'warcraft:specs.252', domain: 0, parent: 'cl6', games: ['wotlk', 'cata', 'mop', 'legion', 'bfa', 'sl', 'df', 'tww']},
 
       'cl12': {slug: 'classes/demon-hunter', image: 'demonhunter.png', color: '#A330C9', i18n: 'warcraft:classes.12', domain: 0, games: ['legion', 'bfa', 'sl', 'df', 'tww']},
       'cl12-1': {slug: 'classes/demon-hunter/havoc', cls:'cl-demonhunter', i18n: 'warcraft:specs.577', domain: 0, parent: 'cl12', games: ['legion', 'bfa', 'sl', 'df', 'tww']},
@@ -22,7 +22,7 @@ class Categories {
       'cl11': {slug: 'classes/druid', image: 'druid.png', color: '#FF7D0A', i18n: 'warcraft:classes.11', domain: 0},
       'cl11-1': {slug: 'classes/druid/balance', i18n: 'warcraft:specs.102', domain: 0, parent: 'cl11'},
       'cl11-2': {slug: 'classes/druid/feral', i18n: 'warcraft:specs.103', domain: 0, parent: 'cl11'},
-      'cl11-3': {slug: 'classes/druid/guardian', i18n: 'warcraft:specs.104', domain: 0, parent: 'cl11', games: ['legion', 'bfa', 'sl', 'df', 'tww']},
+      'cl11-3': {slug: 'classes/druid/guardian', i18n: 'warcraft:specs.104', domain: 0, parent: 'cl11', games: ['mop', 'legion', 'bfa', 'sl', 'df', 'tww']},
       'cl11-4': {slug: 'classes/druid/restoration', i18n: 'warcraft:specs.105', domain: 0, parent: 'cl11'},
 
       'cl13': {slug: 'classes/evoker', image: 'evoker.png', color: '#33937F', i18n: 'warcraft:classes.13', domain: 0, games: ['df', 'tww']},
@@ -40,10 +40,10 @@ class Categories {
       'cl8-2': {slug: 'classes/mage/fire', i18n: 'warcraft:specs.63', domain: 0, parent: 'cl8'},
       'cl8-3': {slug: 'classes/mage/frost', i18n: 'warcraft:specs.64', domain: 0, parent: 'cl8'},
 
-      'cl10': {slug: 'classes/monk', image: 'monk.png', color: '#00FF96', i18n: 'warcraft:classes.10', domain: 0, games: ['legion', 'bfa', 'sl', 'df', 'tww']},
-      'cl10-1': {slug: 'classes/monk/brewmaster', i18n: 'warcraft:specs.268', domain: 0, parent: 'cl10', games: ['legion', 'bfa', 'sl', 'df', 'tww']},
-      'cl10-2': {slug: 'classes/monk/mistweaver', i18n: 'warcraft:specs.270', domain: 0, parent: 'cl10', games: ['legion', 'bfa', 'sl', 'df', 'tww']},
-      'cl10-3': {slug: 'classes/monk/windwalker', i18n: 'warcraft:specs.269', domain: 0, parent: 'cl10', games: ['legion', 'bfa', 'sl', 'df', 'tww']},
+      'cl10': {slug: 'classes/monk', image: 'monk.png', color: '#00FF96', i18n: 'warcraft:classes.10', domain: 0, games: ['mop', 'legion', 'bfa', 'sl', 'df', 'tww']},
+      'cl10-1': {slug: 'classes/monk/brewmaster', i18n: 'warcraft:specs.268', domain: 0, parent: 'cl10', games: ['mop', 'legion', 'bfa', 'sl', 'df', 'tww']},
+      'cl10-2': {slug: 'classes/monk/mistweaver', i18n: 'warcraft:specs.270', domain: 0, parent: 'cl10', games: ['mop', 'legion', 'bfa', 'sl', 'df', 'tww']},
+      'cl10-3': {slug: 'classes/monk/windwalker', i18n: 'warcraft:specs.269', domain: 0, parent: 'cl10', games: ['mop', 'legion', 'bfa', 'sl', 'df', 'tww']},
 
       'cl2': {slug: 'classes/paladin', image: 'paladin.png', color: '#F58CBA', i18n: 'warcraft:classes.2', domain: 0},
       'cl2-1': {slug: 'classes/paladin/holy', i18n: 'warcraft:specs.65', domain: 0, parent: 'cl2'},
@@ -92,6 +92,7 @@ class Categories {
       'gen18': {slug: 'general/covenants', i18n: 'Covenants', domain: 0, parent: 'gen0', types: ['WEAKAURA', 'COLLECTION'], games: ['sl']},
       'gen19': {slug: 'general/dragon-riding', i18n: 'Dragon Riding', domain: 0, parent: 'gen0', types: ['WEAKAURA'], games: ['df', 'tww']},
       'gen20': {slug: 'general/delves', i18n: 'Delves', domain: 0, parent: 'gen0', types: ['WEAKAURA'], games: ['tww']},
+      'gen21': {slug: 'general/horrific-visions', i18n: 'Horrific Visions', domain: 0, parent: 'gen0', types: ['WEAKAURA'], games: ['tww']},
 
       'equip': {slug: 'equipment', image: 'equipment.png', color: '#7ED321', i18n: 'Equipment', domain: 0, types: ['WEAKAURA', 'COLLECTION']},
       'legen': {slug: 'equipment/legendaries', i18n: 'Legendaries', domain: 0, parent: 'equip', types: ['WEAKAURA', 'COLLECTION'], games: ['legion', 'bfa', 'sl', 'df', 'tww']},

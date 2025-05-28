@@ -232,7 +232,7 @@
         return window.Categories.raidCategories(['liberationofundermine', 'raidnerubarpalace', 'twwdungeon'])
       },
       misc: function () {
-        return window.Categories.getCategories(['gen1', 'gen7', 'gen2', 'gen6', 'gen9', 'gen10', 'gen11', 'gen12', 'gen13', 'gen8', 'gen15', 'gen19', 'gen20'], null)
+        return window.Categories.getCategories(['gen1', 'gen7', 'gen2', 'gen6', 'gen9', 'gen10', 'gen11', 'gen12', 'gen13', 'gen8', 'gen15', 'gen19', 'gen20', 'gen21'], null)
       },
       roles: function () {
         return window.Categories.getCategories(['role4', 'role1', 'role2', 'role3'])
