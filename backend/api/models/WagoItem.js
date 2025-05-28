@@ -148,6 +148,8 @@ const Schema = new mongoose.Schema({
     }]
   },
 
+  enableComments: { type: Boolean, default: true },
+
   uiPackSettings: {
     paidPackOptOut: { type: Boolean, default: false },
   },

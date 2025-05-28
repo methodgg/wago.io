@@ -354,7 +354,7 @@
                   <md-button v-if="(User && User.access && User.access.beta && wago && wago.attachedMedia && wago.attachedMedia.length)" v-bind:class="{'md-toggle': showPanel === 'media'}" @click="toggleFrame('media')">{{ $t("Media") }} [Beta]</md-button>
                   <md-button v-if="wago.type === 'WEAKAURA' || wago.type === 'CLASSIC-WEAKAURA'" v-bind:class="{'md-toggle': showPanel === 'includedauras'}" @click="toggleFrame('includedauras')">{{ $t("Included Auras") }}</md-button>
                   <md-button v-if="wago.translations" v-bind:class="{'md-toggle': showPanel === 'translations'}" @click="toggleFrame('translations')">{{ $t("Translations") }}</md-button>
-                  <md-button v-bind:class="{'md-toggle': showPanel === 'comments'}" @click="toggleFrame('comments')"><span v-if="hasUnreadComments && showPanel !== 'comments'" class="commentAttn">{{$t("NEW")}}!! </span>{{ $t("[-count-] comment", {count: wago.commentCount }) }}</md-button>
+                  <md-button v-if="wago.enableComments === 'Enabled'" v-bind:class="{'md-toggle': showPanel === 'comments'}" @click="toggleFrame('comments')"><span v-if="hasUnreadComments && showPanel !== 'comments'" class="commentAttn">{{$t("NEW")}}!! </span>{{ $t("[-count-] comment", {count: wago.commentCount }) }}</md-button>
                   <md-button v-if="wago.type !== 'COLLECTION'" v-bind:class="{'md-toggle': showPanel === 'collections'}" @click="toggleFrame('collections')">{{ $t("[-count-] collection", {count:  wago.collectionCount}) }}</md-button>
                   <md-button v-if="wago.versions && wago.versions.total > 1" v-bind:class="{'md-toggle': showPanel === 'versions'}" @click="toggleFrame('versions')" ref="versionsButton">{{ $t("[-count-] version", { count: wago.versions.total }) }}</md-button>
                   <md-button v-if="wago.code && !wago.code.Q && hasCodeDiffs" v-bind:class="{'md-toggle': showPanel === 'diffs'}" @click="toggleFrame('diffs')" ref="diffsButton">{{ $t("Code Diffs") }}</md-button>
@@ -583,6 +583,17 @@
                       </md-layout>
                     </md-layout>
                   </div>
+
+                  
+                  <md-layout md-row>
+                    <md-input-container>
+                      <label for="enableComments">{{ $t("Comments") }}</label>
+                      <md-select name="enableComments" id="enableComments" v-model="enableComments">
+                        <md-option value="Enabled">{{ $t("Enabled") }}</md-option>
+                        <md-option value="Disabled">{{ $t("Disabled") }}</md-option>
+                      </md-select>
+                    </md-input-container>
+                  </md-layout>
 
                   
                   <md-layout md-row v-if="false && wago.type.match(/WEAKAURA/)">
@@ -1503,6 +1514,7 @@ export default {
       updateDescStatus: '',
       updateDescError: false,
       updateDescFormat: this.$store.state.user.defaultEditorSyntax,
+      enableComments: 'Enabled',
       editWebhook: '',
       webhookError: false,
       webhookStatus: '', 
@@ -1593,6 +1605,11 @@ export default {
     editGame: function (v) {
       if (this.showPanel === 'config') {
         this.onUpdateGame()
+      }
+    },
+    enableComments: function (v) {
+      if (this.showPanel === 'config') {
+        this.onUpdateEnableComments()
       }
     },
     editUIPackSettings: {
@@ -1986,13 +2003,17 @@ export default {
           case 'TBC-WEAKAURA':
           case 'WOTLK-WEAKAURA':
           case 'CATA-WEAKAURA':
+          case 'MOP-WEAKAURA':
             this.showPanel = this.wago.description.text ? 'description' : 'editor'
             if (this.wago.game === 'cata') {
               this.wago.typePrefix = 'CATA'
               this.typeSlug = 'cataclysm-weakauras/'
             }
-            else 
-            if (this.wago.game === 'wotlk') {
+            else if (this.wago.game === 'mop') {
+              this.wago.typePrefix = 'MOP'
+              this.typeSlug = 'mop-weakauras/'
+            }
+            else if (this.wago.game === 'wotlk') {
               this.wago.typePrefix = 'WOTLK'
               this.typeSlug = 'wotlk-weakauras/'
             }
@@ -2028,12 +2049,17 @@ export default {
           case 'MACRO':
           case 'CLASSIC-MACRO':
           case 'CATA-MACRO':
+          case 'MOP-MACRO':
           case 'DF-MACRO':
           case 'TWW-MACRO':
             this.showPanel = this.wago.description.text ? 'description' : 'editor'
             if (this.wago.game === 'cata') {
               this.wago.typePrefix = 'CATA'
               this.typeSlug = 'cataclysm-macros/'
+            }
+            else if (this.wago.game === 'mop') {
+              this.wago.typePrefix = 'MOP'
+              this.typeSlug = 'mop-macros/'
             }
             else if (this.wago.game === 'classic') {
               this.wago.typePrefix = 'CLASSIC'
@@ -2077,6 +2103,7 @@ export default {
         else {
           this.editVisibility = 'Public'
         }
+        this.enableComments = res.enableComments
         this.editGame = res.game
         this.editCategories = window.Categories.groupSets(res.categories)
         this.numCategorySets = this.editCategories.length
@@ -3052,6 +3079,20 @@ export default {
         vue.wago.visibility.private = res.private
         vue.wago.visibility.hidden = res.hidden
         vue.wago.visibility.restricted = res.restricted
+      }).catch((err) => {
+        console.error(err)
+        window.eventHub.$emit('showSnackBar', vue.$t('Error could not save'))
+      })
+    },
+
+    onUpdateEnableComments () {
+      var vue = this
+      this.http.post('/wago/update/enableComments', {
+        wagoID: vue.wago._id,
+        enableComments: this.enableComments
+      }).then((res) => {
+        vue.wago.enableComments = res.enableComments
+        this.enableComments = res.enableComments
       }).catch((err) => {
         console.error(err)
         window.eventHub.$emit('showSnackBar', vue.$t('Error could not save'))

@@ -211,6 +211,7 @@ module.exports = function (fastify, opts, next) {
     if (doc.moderated) {
       wago.moderatedComment = doc.moderatedComment
     }
+    wago.enableComments = doc.enableComments ? 'Enabled' : 'Disabled'
     wago.restrictions = []
     wago.restrictedUsers = doc.restrictedUsers || []
     wago.restrictedGuilds = doc.restrictedGuilds || []

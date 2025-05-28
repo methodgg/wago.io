@@ -256,6 +256,22 @@ module.exports = function (fastify, opts, next) {
     await wago.save()
     res.send({success: true, hidden: wago.hidden, private: wago.private, restricted: wago.restricted})
   })
+
+  // update wago enable comments
+  fastify.post('/update/enableComments', async (req, res) => {
+    if (!req.user || !req.body.wagoID) {
+      return res.code(403).send({error: "forbidden"})
+    }
+    var wago = await WagoItem.findById(req.body.wagoID).exec()
+    if (!wago || !wago._userId.equals(req.user._id)) {
+      return res.code(403).send({error: "forbidden"})
+    }
+
+    wago.enableComments = req.body.enableComments === 'Enabled'
+    await wago.save()
+    redis.clear(wago)
+    res.send({success: true, enableComments: wago.enableComments ? 'Enabled' : 'Disabled'})
+  })
   
   // update wago name
   fastify.post('/update/encryption', async (req, res) => {
