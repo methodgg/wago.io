@@ -6,8 +6,13 @@ module.exports = {
   domain: ENUM.DOMAIN.WOW,
 
   decode: async (encodedString, exec) => {
-    // test that string matches expected regex
-    if (!encodedString.match(/^!?(WA:2!)?[a-zA-Z0-9\(\)]*$/)) {
+    // test that string matches expected regex\
+    const v3Str = encodedString.match(/!WA:3!([a-zA-Z0-9+=\/]+)/)
+    if (v3Str?.[1]) {
+      return blizzEncoding.standardDecode(v3Str[1])
+    }
+
+    if (!encodedString.match(/^!?(WA:(1|2)!)?[a-zA-Z0-9\(\)]*$/)) {
       return false
     }
     const lua = `
