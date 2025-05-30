@@ -24,7 +24,7 @@ module.exports = {
       }
 
       const matchWA = /(!WA:2![a-zA-Z0-9\(\)]+)/
-      const matchPlater = /^([a-zA-Z0-9\(\)]{30,})$/
+      const matchPlater = /!PLATER:2!([a-zA-Z0-9+=\/]+)/
       let stringType
 
       let result = message.content.match(matchWA)
