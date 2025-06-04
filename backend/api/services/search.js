@@ -177,6 +177,9 @@ async function searchElastic(req, res) {
         }
         filterUsers.push({ term: { userId: user._id.toString() } })
       }
+      else {
+        return res.status(404).send({ hits: [], total: 0 })
+      }
     }
     catch { }
     query = query.replace(m[0], '')
