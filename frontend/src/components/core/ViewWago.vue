@@ -262,7 +262,7 @@
       <md-dialog md-open-from="#openCollectionBtn" md-close-to="#openCollectionBtn" ref="collectionDialog">
         <md-dialog-title>{{ $t("Add to Collection") }}</md-dialog-title>
 
-        <md-dialog-content id="collection-info" v-if="wago.type !== 'COLLECTION'">
+        <md-dialog-content id="collection-info" v-if="wago.type !== 'COLLECTION' && User?.UID">
           <p>{{ $t('Collections are sets of imports curated by users and shared on the Wago platform.') }}</p>
           <p>{{ $t('A collection can be exported to a Dynamic UI Pack to quickly install all the respective imports with the Wago App.') }}</p>
           <br>
@@ -2527,7 +2527,7 @@ export default {
           this.doNotReloadWago = false
         })
       }
-      else if (this.$route.params.version && this.useVersion) {
+      else if (this.$route.params.version && this.useVersion && this.currentVersion.semver) {
         this.$router.replace('/' + this.wago.slug + '/' + this.currentVersion.semver)
       }
       else if (this.$route.params.version) {
@@ -2888,7 +2888,7 @@ export default {
         if (v?.versionString) {
             url = '/' + this.$store.state.wago.slug + '/' + v.versionString.replace(/-.*/, '')
             this.useVersion = v.versionString.replace(/-.*/, '')
-      }
+        }
         else if (v?.version) {
             url = '/' + this.$store.state.wago.slug + '/' + v.version
             this.useVersion = v.version
