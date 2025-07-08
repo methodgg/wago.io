@@ -2041,6 +2041,10 @@ export default {
               this.wago.typePrefix = 'DF'
               this.typeSlug = 'dragonflight-weakauras/'
             }
+            else if (this.wago.game === 'tww') {
+              this.wago.typePrefix = 'TWW'
+              this.typeSlug = 'the-war-within-weakauras/'
+            }
             else {
               this.typeSlug = 'weakauras/'
             }
