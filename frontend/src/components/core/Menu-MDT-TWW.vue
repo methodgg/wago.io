@@ -53,7 +53,7 @@
             <md-button @click="createMDT()" class="md-raised" :disabled="!newAffix || !newDungeon">{{ $t("Build") }}</md-button>
           </md-whiteframe>
   
-          <advert ad="video-sidebar" /> 
+          <!-- <advert ad="video-sidebar" />  -->
           
         </md-layout>
       </md-layout>
@@ -155,7 +155,7 @@
     },
     computed: {
       dungeons: function () {
-        return categories.raidCategories(['tww-mdt-s2', 'tww-mdt-s1'], 'MDT')
+        return categories.raidCategories(['tww-mdt-s3', 'tww-mdt-s2', 'tww-mdt-s1'], 'MDT')
       },
       affixesS3: function () {
         return categories.getCategories([/^mdtaffix-df-s3-/], true)// also in Create-MDT and data.newAffix

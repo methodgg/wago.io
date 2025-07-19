@@ -39,7 +39,7 @@ export default {
         case 29:
           return '900%'
         case 30:
-          return '1200%'
+          return '920%'
         case 32:
           return '1300%'
         case 33:
@@ -80,6 +80,13 @@ export default {
           return '1705%' 
         case 122: // mechagon workshop
           return '1110%' 
+
+        case 123: // eco dome
+          return '1410%' 
+        case 37: // lower tazevesh
+          return '1610%'
+        case 38: // upper tazevesh
+          return '908%'
 
       // 'tww-mdt-s2-5': {slug: 'pve/the-war-within-dungeons-s2/operation-floodgate', i18n: 'warcraft:instances.1298', domain: 0, parent: 'tww-mdt-s2', mdtID: 119, types: ['MDT'], games: ['df']},
       // 'tww-mdt-s2-6': {slug: 'pve/the-war-within-dungeons-s2/the-motherlode', i18n: 'warcraft:instances.1012', domain: 0, parent: 'tww-mdt-s2', mdtID: 120, types: ['MDT'], games: ['df']},
