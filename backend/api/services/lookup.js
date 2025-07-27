@@ -238,7 +238,10 @@ module.exports = function (fastify, opts, next) {
     }
     wago.date = { created: doc.created, modified: doc.modified }
     wago.expires = doc.expires_at
-    wago.patch = doc.patch_name ?? ''
+    wago.patch = ''
+    if (!doc.type?.match(/MDT/)) {
+      wago.patch = doc.patch_name ?? ''
+    }
     wago.description = { text: doc.description, format: doc.description_format }
     wago.categories = doc.categories
     wago.regionType = doc.regionType
