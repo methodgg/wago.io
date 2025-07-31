@@ -47,7 +47,7 @@ module.exports = function(data, keypath) {
         name: `${data.id} - Display Text`,
         keypath: `${keypath}.customText`,
         lua: data.customText.trim(),
-        displayEveryFrame: data.customTextUpdate === 'update'
+        displayEveryFrame: data.customTextUpdate === 'update' && !data.customTextUpdateThrottle
       })
     }
     else if (isStringMatch(data.text1, /%c/) || isStringMatch(data.text2, /%c/) || isStringMatch(data.displayTextLeft, /%c/) || isStringMatch(data.displayTextRight, /%c/) || isStringMatch(data.displayStacks, /%c/)) {
@@ -55,7 +55,7 @@ module.exports = function(data, keypath) {
         name: `${data.id} - Display Stacks`,
         keypath: `${keypath}.customText`,
         lua: data.customText.trim(),
-        displayEveryFrame: data.customTextUpdate === 'update'
+        displayEveryFrame: data.customTextUpdate === 'update' && !data.customTextUpdateThrottle
       })
     }
     else if (data.subRegions && data.subRegions.length && data.subRegions.find(t => isStringMatch(t.text_text, /%c/))) {
@@ -63,7 +63,7 @@ module.exports = function(data, keypath) {
         name: `${data.id} - Custom Text`,
         keypath: `${keypath}.customText`,
         lua: data.customText.trim(),
-        displayEveryFrame: data.customTextUpdate === 'update'
+        displayEveryFrame: data.customTextUpdate === 'update' && !data.customTextUpdateThrottle
       })
     }
   }
@@ -134,7 +134,7 @@ function checkTrigger(codes, keypath, id, trigger, untrigger, index) {
       name: `${id} - Trigger ${index}`,
       keypath: `${keypath}.trigger.custom`,
       lua: trigger.custom.trim(),
-      triggerEveryFrame: trigger.check === 'update' && trigger.custom_type === 'status'
+      triggerEveryFrame: trigger.check === 'update' && trigger.custom_type === 'status' && !trigger.onUpdateThrottle
     })
   }
 
@@ -157,7 +157,7 @@ function checkTrigger(codes, keypath, id, trigger, untrigger, index) {
           name: `${id} - ${fn.replace(/^custom/, '')} ${index}`,
           keypath: `${keypath}.trigger.${fn}`,
           lua: trigger[fn].trim(),
-          triggerEveryFrame: trigger.check === 'update' && trigger.custom_type === 'status',
+          triggerEveryFrame: trigger.check === 'update' && trigger.custom_type === 'status' && !trigger.onUpdateThrottle,
           skipLuacheck: fn === 'customVariables'
         })
       }
