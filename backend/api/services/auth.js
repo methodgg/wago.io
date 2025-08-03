@@ -3,11 +3,8 @@ const config = require('../../config')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const querystring = require('querystring')
-const battlenet = require('../helpers/battlenet')
-const hcaptchaVerify = require('hcaptcha').verify
-const ObjectId = require('mongoose').Types.ObjectId
-
 const image = require('../helpers/image')
+const ObjectId = require('mongoose').Types.ObjectId
 
 async function makeSession(req, res, token, user) {
   token.expires = Date.now() + 90 * 24 * 60 * 60 * 1000 // require re-login 90 days from now
@@ -303,14 +300,8 @@ async function oAuthLogin(req, res, provider, authUser, callback) {
 
     user.account.username = authUser.username
     user.search.username = authUser.username.toLowerCase()
-    if (authUser.avatar?.endsWith('.gif')) {
-        user.profile.avatar = {gif: authUser.avatar}        
-    }
-    else if (authUser.avatar?.endsWith('.webp')) {
-        user.profile.avatar = {webp: authUser.avatar}        
-    }
-    else if (authUser.avatar?.endsWith('.png')) {
-        user.profile.avatar = {png: authUser.avatar}        
+    if (authUser.avatar) {
+      user.profile.avatar = await image.avatarFromURL(authUser.avatar, user._id.toString())
     }
 
     user.wagoAuth = {

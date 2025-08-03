@@ -55,14 +55,8 @@ module.exports = function (fastify, opts, next) {
         user.account.username = payload.username
         user.search.username = payload.username.toLowerCase()
     }
-    if (payload.avatar?.endsWith('.gif')) {
-        user.profile.avatar = {gif: payload.avatar}        
-    }
-    else if (payload.avatar?.endsWith('.webp')) {
-        user.profile.avatar = {webp: payload.avatar}        
-    }
-    else if (payload.avatar?.endsWith('.png')) {
-        user.profile.avatar = {png: payload.avatar}        
+    if (payload.avatar) {
+        user.profile.avatar = await image.avatarFromURL(payload.avatar, user._id.toString())
     }
 
     user.wagoAuth = {
@@ -80,7 +74,7 @@ module.exports = function (fastify, opts, next) {
         }
     }
     
-    user.roles.subscriber = payload.benefits?.includes('green_name_tag')
+    user.roles.subscriber = payload.benefits?.includes('green_name_tag') || payload.benefits?.includes('golden_name_tag')
     user.roles.gold_subscriber = payload.benefits?.includes('golden_name_tag')
     user.account.verified_human = user.account.verified_human || user.roles.subscriber || user.roles.gold_subscriber || Boolean(payload.email_verified_at)
 
