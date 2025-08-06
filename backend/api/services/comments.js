@@ -11,6 +11,10 @@ module.exports = function (fastify, opts, next) {
       return res.code(404).send({error: "no_wago"})
     }
 
+    if (wago.enableComments === false) {
+      return res.code(403).send({error: "comments_disabled"})
+    }
+
     wago.popularity.comments_count++
     wago.last_comment = Date.now()
     wago.save()
