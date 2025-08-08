@@ -159,14 +159,14 @@
                 <span>{{ displayExpansion(wago) }}{{ wago.type }}</span>
               </div>
             </h1>
-            <div v-if="wago.type.match(/WEAKAURA|PLATER/) && wago.visibility && !wago.visibility.encrypted" id="sendToDesktopAppBtn" class="md-hide-xsmall md-button copy-import-button" @click="sendToApp()">
+            <div v-if="wago.type.match(/WEAKAURA|PLATER/) && wago.visibility && !wago.visibility.encrypted && !codeReview.blocked" id="sendToDesktopAppBtn" class="md-hide-xsmall md-button copy-import-button" @click="sendToApp()">
               <md-icon>airplay</md-icon> {{ $t("Send to Desktop App") }}
               <md-button @click.stop="sendToApp('ask')" id="helpAppButton" class="md-icon-button md-raised"><md-icon>help</md-icon></md-button>
             </div>
             <div v-if="wago.type === 'COLLECTION' && $store.state.isTest" id="installCollectionBtn" class="md-hide-xsmall md-button" @click="checkCollectionCompatibility()">
               <md-icon>airplay</md-icon> {{ $t("Install as Dynamic UI Pack") }}
             </div>
-            <md-button v-if="wago.code && wago.code.encoded" @click="copyEncoded" class="copy-import-button" id="copyImportBtn">
+            <md-button v-if="wago.code && wago.code.encoded && !codeReview.blocked" @click="copyEncoded" class="copy-import-button" id="copyImportBtn">
               <md-icon>assignment</md-icon> 
               <span v-if="wago.type === 'MACRO'">{{ $t("Copy Macro") }}</span>
               <span v-else>{{ $t("Copy import string") }}</span>
@@ -196,9 +196,12 @@
 
                 <template v-if="codeReview && Object.keys(codeReview.deprecationWarnings).length">
                   <p v-if="codeReview.alerts"><strong>{{ $t("This import has deprecation warnings, you are strongly suggested to review the code before installing") }}</strong></p>
-                </template>
-                
+                </template>                
               </md-tooltip>
+            </md-button>
+            <md-button v-else-if="codeReview.blocked" @click="toggleFrame('codereview')"  >
+              <md-icon>assignment</md-icon>
+              <span>{{ $t("Copy String is BLOCKED - See Code Review") }}</span>
             </md-button>
           </div>
           <md-layout md-row id="import-meta">
@@ -2304,6 +2307,16 @@ export default {
                 this.codeReview.alerts++
                 this.codeReview.alertContent[c.keypath + 'getglobal'] = {name: c.name, display: this.$t('\'[-name-]\' calls getglobal() with a string or variable key which which could potentially be used to hide malicious intent.', {name: c.name}), keypath: c.keypath}
               }
+
+              if (blockedRegex.test(g)) {
+                this.codeReview.blocked = true
+                this.codeReview.blockedFn = this.codeReview.blockedFn || {}
+                this.codeReview.blockedFn[c.keypath + 'blocked'] = this.codeReview.blockedFn[c.keypath + 'blocked'] || new Set()
+                this.codeReview.blockedFn[c.keypath + 'blocked'].add(g)
+
+                this.codeReview.alerts++
+                this.codeReview.alertContent[c.keypath + 'blocked'] = {name: c.name, display: this.$t('\'[-name-]\' includes blocked functions <strong class="warn">[-blocked-]</strong>. Blocked functions are normally blocked within the addon with normal use, and there is probably no reason you want to include this potential vulnerability.', {name: c.name, blocked: [...this.codeReview.blockedFn[c.keypath + 'blocked']].join(', ')}), keypath: c.keypath}
+              }
             })
           }
 
@@ -2320,13 +2333,6 @@ export default {
             if (m && m.length) {
               this.codeReview.alerts += 1
               this.codeReview.alertContent['luacheck' + i] = {name: c.name, display: this.$t('\'[-name-]\' has triggered Luacheck alerts that should be reviewed.', {name: c.name}), keypath: c.keypath}
-            }
-            let blocked = c.luacheck.match(blockedRegex)
-            if (blocked) {
-              this.codeReview.securityAlert = true
-              blocked = [...new Set(blocked)]
-              this.codeReview.alerts += 1
-              this.codeReview.alertContent['blocked' + i] = {name: lc, display: this.$t('\'[-name-]\' includes blocked functions. Blocked functions are normally blocked within the addon with normal use, and there is probably no reason you want to include this potential vulnerability.', {name: lc}) + '\n\n0:' + blocked.join('\n0:'), keypath: c.keypath}
             }
           }
         })
