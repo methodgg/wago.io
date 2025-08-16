@@ -7,7 +7,8 @@ const Schema = new mongoose.Schema({
   viewers: Number,
   wagoViewers: Number,
   title: String,
-  game: String
+  game: String,
+  service: {type: String, default: 'twitch'}
 })
 
 const Streamers = mongoose.model('Streamers', Schema)

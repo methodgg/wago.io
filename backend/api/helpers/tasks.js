@@ -112,19 +112,22 @@ async function UpdateTwitchStatus(channel) {
   }
   for (let i = 0; i < streams.length; i++) {
     let channel = streams[i].channel
-    if (channel) {
+    if (channel && (streams[i].service === 'twitch' || !streams[i].service)) {
       const req = await axios.get(`https://api.twitch.tv/helix/streams?user_login=${channel}`, {
         headers: {
           'client-id': config.auth.twitch.clientID,
           'Authorization': 'Bearer ' + twitchToken
         }
       })
-      await redis.set(`twitch:${channel}:live`, (req.data.data.length > 0))
+      await redis.set(`streamer:twitch:${channel}:live`, (req.data.data.length > 0))
       status[channel] = (req.data.data.length > 0)
+    }
+    else if (channel && (streams[i].service === 'kick')) {
+      await redis.set(`streamer:kick:${channel}:live`, true) // not tracked right now so assume online
     }
   }
 
-  const streamers = await Streamer.find({})
+  const streamers = await Streamer.find({service: {$in: ['twitch', null]}})
   var getStreams = []
   for (let i = 0; i < streamers.length; i++) {
     getStreams.push(`user_login=${streamers[i].name}&`)
@@ -155,7 +158,7 @@ async function UpdateTwitchStatus(channel) {
         streamers[i].name = twitchStreamers[k].user_name
         await streamers[i].save()
         streamers[i].ok = true
-        await redis.set(`twitch:${streamers[i].name}:live`, 1)
+        await redis.set(`streamer:twitch:${streamers[i].name}:live`, 1)
       }
     }
   }
@@ -166,8 +169,8 @@ async function UpdateTwitchStatus(channel) {
       streamers[i].viewers = 0
       streamers[i].wagoViewers = 0
       await streamers[i].save()
-      await redis.del(`twitch:${streamers[i].name}:live`)
-      await redis2.zremrangebyscore(`allEmbeds:${streamers[i].name}`, '-inf', '+inf')
+      await redis.del(`streamer:twitch:${streamers[i].name}:live`)
+      await redis2.zremrangebyscore(`allEmbeds:twitch:${streamers[i].name}`, '-inf', '+inf')
     }
   }
 

@@ -119,8 +119,8 @@ module.exports = (fastify, opts, next) => {
     data.streamspread = defaultStream === '__streamspread'
     if (!data.streams) data.streams = []
     for (let i = 0; i < data.streams.length; i++) {
-      data.streams[i].online = await redis.get(`twitch:${data.streams[i].channel}:live`)
-      data.streams[i].viewing = await redis2.zcard(`allEmbeds:${data.streams[i].channel}`)
+      data.streams[i].online = await redis.get(`streamer:${data.streams[i].service ?? 'twitch'}:${data.streams[i].channel}:live`)
+      data.streams[i].viewing = await redis2.zcard(`allEmbeds:${data.streams[i].service ?? 'twitch'}${data.streams[i].channel}`)
     }
     res.send(data)
   })
@@ -138,7 +138,8 @@ module.exports = (fastify, opts, next) => {
         data.streams.push({
           channel: s.channel,
           exposure: s.exposure,
-          max: s.max
+          max: s.max,
+          service: s.service || 'twitch'
         })
       })
     }

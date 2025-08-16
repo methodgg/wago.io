@@ -2,7 +2,7 @@ module.exports = {
   determineStream: async function (cid, replace) {
     // existing embed?
     const current = await redis2.get(`currentstream:${cid}`)
-    if (current && (current === '__streamspread' || current === '__closed' || (!replace && await redis.get(`twitch:${current}:live`)))) {
+    if (current && (current === '__streamspread' || current === '__closed' || (!replace && await redis.get(`streamer:${current}:live`)))) {
       return current
     }
     else {
@@ -15,13 +15,13 @@ module.exports = {
     if (streamOverride.enabled && streamOverride.streams.length) {
       for (let i = 0; i < streamOverride.streams.length; i++) {
         // check exposure chance
-        if (Math.random() * 100 < streamOverride.streams[i].exposure && replace !== streamOverride.streams[i].channel && await redis.get(`twitch:${streamOverride.streams[i].channel}:live`)) {
+        if (Math.random() * 100 < streamOverride.streams[i].exposure && replace !== streamOverride.streams[i].channel && await redis.get(`streamer:${streamOverride.streams[i].service ?? 'twitch'}:${streamOverride.streams[i].channel}:live`)) {
           // and we are not over max viewer count...
-          const embedViewers = await redis2.zcount(`allEmbeds:${streamOverride.streams[i].channel}`, '-inf', '+inf')
+          const embedViewers = await redis2.zcount(`allEmbeds:${streamOverride.streams[i].service ?? 'twitch'}:${streamOverride.streams[i].channel}`, '-inf', '+inf')
           // then show stream to user
           if (embedViewers < parseInt(streamOverride.streams[i].max)) {
-            await redis2.set(`currentstream:${cid}`, streamOverride.streams[i].channel)
-            return streamOverride.streams[i].channel
+            await redis2.set(`currentstream:${cid}`, `${streamOverride.streams[i].service ?? 'twitch'}:${streamOverride.streams[i].channel}`)
+            return `${streamOverride.streams[i].service ?? 'twitch'}:${streamOverride.streams[i].channel}`
           }
         }
       }

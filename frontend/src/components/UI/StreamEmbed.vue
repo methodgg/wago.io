@@ -4,7 +4,7 @@
     <div class="embedded-player-close" @click="closeStream()" v-if="twitchOn">
       <img class="embedded-player-close-icon" src="./../../assets/stream-close.png">
     </div>
-    <div style="overflow-y: auto; height: 404px;" id="stream-chat" v-if="includeChat">
+    <div style="overflow-y: auto; height: 404px;" id="stream-chat" v-if="includeChat && this.streamService === 'twitch'">
         <iframe :src="`https://www.twitch.tv/embed/${stream}/chat?darkpopout&parent=${embedParent}`" id="twitch-chat"
             height="630"
             width="350">
@@ -32,7 +32,7 @@ export default {
       loaded: false,
       refresh: null,
       muted: true,
-      embedParent: window.location.hostname
+      embedParent: window.location.hostname,
     }
   },
 
@@ -65,7 +65,7 @@ export default {
     },
 
     async loadEmbed () {
-      const channel = unref(this.stream)
+      const channel = unref(this.streamChannel)
       const muted = unref(this.muted)
 
       if (!this.showAds || this.stream === '__closed' || this.stream === '__none') {
@@ -83,7 +83,7 @@ export default {
         })
         this.source = 'streamspread'
       }
-      else if (!twitchPlayer) {
+      else if (!twitchPlayer && this.streamService === 'twitch') {
         this.loadJS = new Promise((resolve) => {
           let body = document.querySelector('body')
           let streamspread = document.createElement('script')
@@ -94,8 +94,21 @@ export default {
         })
         this.source = 'twitch'
       }
+      else if (this.streamService === 'kick') {
+        this.loadJS = new Promise((resolve) => {
+          let container = document.getElementById('stream-player')
+          const iframe = document.createElement('iframe')
+          iframe.src = 'https://player.kick.com/' + channel + '?autoplay=true&muted=true'
+          iframe.frameborder = '0'
+          iframe.allowfullscreen = 'true'
+          iframe.scrolling = 'no'
+          iframe.id='kick-embed'
+          container.appendChild(iframe)
+        })
+        this.source = 'kick'
+      }
 
-      if (this.source === 'twitch' && !twitchPlayer) {
+      if (this.streamService === 'twitch' && !twitchPlayer) {
         twitchPlayer = 'pending...'
         await this.loadJS
         twitchPlayer = new window.Twitch.Player('stream-player', {
@@ -130,7 +143,13 @@ export default {
     
     includeChat () {
       return this.stream.toLowerCase() === 'method'
-    }
+    },
+    streamService () {
+      return this.stream?.split(':')?.[0]
+    },
+    streamChannel () {
+      return this.stream?.split(':')?.[1]
+    },
   }
 }
 </script>
@@ -151,4 +170,5 @@ export default {
     display: none!important;
   }
 }
+#kick-embed {border:0;width:100%;}
 </style>
