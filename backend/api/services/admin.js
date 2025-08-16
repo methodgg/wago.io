@@ -148,7 +148,7 @@ module.exports = (fastify, opts, next) => {
     const channelStatuses = await runTask('UpdateTwitchStatus', req.body.channel)
     await data.streams.forEach(async (stream, i) => {
       data.streams[i].online = channelStatuses[stream.channel]
-      data.streams[i].viewing = await redis2.zcard(`allEmbeds:${stream.channel}`)
+      data.streams[i].viewing = await redis2.zcard(`allEmbeds:${stream.service ?? 'twitch'}:${stream.channel}`)
     })
     res.send({success: true, streams: data.streams, enabled: data.enabled, streamspread: !!req.body.streamspread, activeUsers: await redis2.zcard('allSiteVisitors')})
   })
@@ -161,7 +161,7 @@ module.exports = (fastify, opts, next) => {
     const streams = await Streamers.find({}).sort({online: -1, offline: -1})
     let streamViewers = 0
     for (let i = 0; i < streams.length; i++) {
-      streams[i].wagoViewers = await redis2.zcard(`allEmbeds:${streams[i].name}`)
+      streams[i].wagoViewers = await redis2.zcard(`allEmbeds:${streams[i].service ?? 'twitch'}:${streams[i].name}`)
       streams[i].viewers = Math.max(streams[i].viewers - streams[i].wagoViewers, 0)
       streamViewers = streamViewers + streams[i].wagoViewers
     }
