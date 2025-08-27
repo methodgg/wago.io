@@ -6,7 +6,7 @@ const ObjectId = require('mongoose').Types.ObjectId
 module.exports = async function(req, res) {
     req.internalAuthRequest = (req.headers['wago-auth-key'] === config.wagoAuthKey)
     
-    if (req.raw.url.match(/^\/api\//)) {
+    if (req.raw.url.match(/^\/(api|lookup)\//) && (req.headers['api-key'] || req.query.key)) {
         const apiKey = req.headers['api-key'] ?? req.query.key
         if (!apiKey) {
             return
