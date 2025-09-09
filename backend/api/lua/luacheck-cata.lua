@@ -10952,7 +10952,6 @@ std = {
 	"CompleteQuest", -- [10873]
 	"ComputePetBonus", -- [10874]
 	"ConfirmAcceptQuest", -- [10875]
-	"ConfirmBarbersChoice", -- [10876]
 	"ConfirmBindOnUse", -- [10877]
 	"ConfirmBinder", -- [10878]
 	"ConfirmLootRoll", -- [10879]

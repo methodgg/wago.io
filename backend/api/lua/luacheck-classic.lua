@@ -10588,7 +10588,6 @@ std = {
 	"CompleteLFGRoleCheck", -- [10510]
 	"CompleteQuest", -- [10511]
 	"ConfirmAcceptQuest", -- [10512]
-	"ConfirmBarbersChoice", -- [10513]
 	"ConfirmBindOnUse", -- [10514]
 	"ConfirmBinder", -- [10515]
 	"ConfirmLootRoll", -- [10516]
