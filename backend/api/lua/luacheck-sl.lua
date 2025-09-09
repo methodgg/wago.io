@@ -40,7 +40,8 @@ std = {
     "UninviteUnit",
     "SendMailMailButton",
     "SendMailMoneyGold",
-    "MailFrameTab2"
+    "MailFrameTab2",
+    "ConfirmBarbersChoice"
   },
   read_globals = {
     "Wago",
