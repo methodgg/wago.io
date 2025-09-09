@@ -945,6 +945,7 @@ async function ProcessCode(data) {
       case 'TBC-WEAKAURA':
       case 'WOTLK-WEAKAURA':
       case 'CATA-WEAKAURA':
+      case 'MOP-WEAKAURA':
       case 'PLATER':
         const json = JSON.parse(code.json)
 
