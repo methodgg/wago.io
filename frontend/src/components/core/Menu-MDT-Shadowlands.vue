@@ -1,6 +1,5 @@
 <template>
   <div id="search-mdt" style="position:relative">
-    <advert ad="video-sidebar" class="forced-float" float="always" />
     <h2 id="addon-name">Mythic Dungeon Tools -
       <span>{{ $t('Shadowlands') }}</span>
     </h2>

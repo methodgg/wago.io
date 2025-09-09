@@ -54,17 +54,13 @@
                   </md-button>
                   <md-button :class="{ 'md-toggle': searchExpansion === 'mop' }" class="md-icon-button" @click="setExpansion('mop')">
                     <img src="../../assets/mop-toggle.svg">
-                    <md-tooltip md-direction="bottom" class="">{{ $t("Mists of Pandaria Beta") }}</md-tooltip>
-                  </md-button>
-                  <md-button :class="{ 'md-toggle': searchExpansion === 'cata' }" class="md-icon-button" @click="setExpansion('cata')">
-                    <img src="../../assets/cata-toggle.svg">
-                    <md-tooltip md-direction="bottom" class="">{{ $t("Cataclysm") }}</md-tooltip>
+                    <md-tooltip md-direction="bottom" class="">{{ $t("Mists of Pandaria") }}</md-tooltip>
                   </md-button>
                   <md-button :class="{ 'md-toggle': searchExpansion === 'classic' }" class="md-icon-button" @click="setExpansion('classic')">
                     <img src="../../assets/classic-toggle.svg">
                     <md-tooltip md-direction="bottom" class="">{{ $t("Classic") }}</md-tooltip>
                   </md-button>
-                  <md-button :class="{ 'md-toggle': searchExpansion && !searchExpansion.match(/tww|mop|cata|classic/) }" class="md-icon-button" @click="setExpansion('legacy')">
+                  <md-button :class="{ 'md-toggle': searchExpansion && !searchExpansion.match(/tww|mop|classic/) }" class="md-icon-button" @click="setExpansion('legacy')">
                     <img src="../../assets/legacy-toggle.svg">
                     <md-tooltip md-direction="bottom" class="">{{ $t("Legacy") }}</md-tooltip>
                   </md-button>
@@ -219,7 +215,6 @@
         <md-layout md-column v-else-if="!isSearching && results.results && results.results.length">
           
           <template v-for="(result, index) in results.results">
-            <advert ad="video-sidebar"  v-if="index==1" />
             <div v-if="index && index % 9 === 0 && $store.state.advertSetup" v-bind:key="`ad${index}`" class="wago-in-article-ad-container ad-in-search">
               <span class="wago-advert-text" v-if="!$store.state.advertBlocked">{{ $t('Advertisement') }} - <a href="https://www.patreon.com/wago" target="_blank" rel="noopener" class="wago-advert-patreon">{{ $t('Hide Ads with Patreon') }}</a></span>
               <advert :ad="'leaderboard-search-' + Math.round(index / 9)" v-if="results.results.length > 9" :container="$store.state.advertBlocked" />

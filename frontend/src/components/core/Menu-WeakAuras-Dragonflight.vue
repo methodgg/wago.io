@@ -61,7 +61,6 @@
 
       </md-layout>
       <md-layout>
-        <advert ad="video-sidebar" />
         <md-subheader>{{ $t("Miscellaneous") }}</md-subheader>
         <md-list class="md-double-line md-dense">
           <md-list-item class="md-inset role0">

@@ -235,8 +235,6 @@
                     <span @click="viewAllCategories()"><md-chip v-if="wago.categories.length > 5 && !showMoreCategories" class="show_more">{{ $t("[-count-] more", {count: wago.categories.length - 5}) }}</md-chip></span>
                   </div>
                 </div>
-                
-                <div><advert ad="video-sidebar" /></div>
               </md-card-header>
 
               <div id="wago-actions" v-if="User && User.UID">
@@ -2263,7 +2261,7 @@ export default {
       if (code.tableMetrics && code.tableMetrics.dependencies) {
         this.codeReview.info.dependencies = code.tableMetrics.dependencies.filter(this.isDependancyRequired)
       }
-      const blockedRegex = /^(_G\.)?(getfenv|setfenv|loadstring|pcall|SendMail|SetTradeMoney|AddTradeMoney|PickupTradeMoney|PickupPlayerMoney|TradeFrame|MailFrame|EnumerateFrames|RunScript|AcceptTrade|SetSendMailMoney|EditMacro|SlashCmdList|DevTools_DumpCommand|hash_SlashCmdList|CreateMacro|SetBindingMacro|GuildDisband|GuildUninvite|UninviteUnit|SendMailMailButton|SendMailMoneyGold|MailFrameTab2)$/g
+      const blockedRegex = /^(_G\.)?(getfenv|setfenv|loadstring|pcall|SendMail|SetTradeMoney|AddTradeMoney|PickupTradeMoney|PickupPlayerMoney|TradeFrame|MailFrame|EnumerateFrames|RunScript|AcceptTrade|SetSendMailMoney|EditMacro|SlashCmdList|DevTools_DumpCommand|hash_SlashCmdList|CreateMacro|SetBindingMacro|GuildDisband|GuildUninvite|UninviteUnit|SendMailMailButton|SendMailMoneyGold|MailFrameTab2|ConfirmBarbersChoice)$/g
 
       if (code && Array.isArray(code.customCode)) {
         code.customCode.forEach((c, i) => {

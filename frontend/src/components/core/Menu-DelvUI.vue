@@ -34,7 +34,6 @@
         </md-list>
       </md-layout>
       <md-layout>
-        <advert ad="video-sidebar" />
         <md-subheader>DelvUI</md-subheader>
         <md-list class="md-double-line md-dense">
           <md-list-item v-for="sys in delvuisys" v-bind:key="sys.id" :class="sys.id + ' md-inset'">

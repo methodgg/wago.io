@@ -165,7 +165,6 @@
     <div id="currentcontent">
       <strong>{{ $t('Current WeakAuras') }}</strong>
       <md-layout>
-        <advert ad="video-sidebar" />
         <div id="current-wa">
           <router-link :to="'/the-war-within-weakauras/' + currentWA.modern[0].slug" :style="`border-color: ${currentWA.modern[0].color}99; color:${currentWA.modern[0].color}; background-color:${currentWA.modern[0].color}11; background-image:url('/static/image/menu/${currentWA.modern[0].image}')`"><span>{{ currentWA.modern[0].text }}</span></router-link>
           <router-link :to="'/the-war-within-weakauras/' + currentWA.modern[1].slug" :style="`border-color: ${currentWA.modern[1].color}99; color:${currentWA.modern[1].color}; background-color:${currentWA.modern[1].color}11; background-image:url('/static/image/menu/${currentWA.modern[1].image}')`"><span>The War Within {{ currentWA.modern[1].text }}</span></router-link>
@@ -585,7 +584,7 @@ export default {
     currentWA () {
       return {
         modern: [
-          Categories.getCategories('liberationofundermine')[0],
+          Categories.getCategories('manaforgeomega')[0],
           Categories.getCategories('twwdungeon')[0],
         ],
         classic: [

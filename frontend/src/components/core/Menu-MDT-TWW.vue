@@ -51,10 +51,7 @@
               </md-input-container>-->
             </div>
             <md-button @click="createMDT()" class="md-raised" :disabled="!newAffix || !newDungeon">{{ $t("Build") }}</md-button>
-          </md-whiteframe>
-  
-          <!-- <advert ad="video-sidebar" />  -->
-          
+          </md-whiteframe>          
         </md-layout>
       </md-layout>
     </div>

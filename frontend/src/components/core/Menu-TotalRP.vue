@@ -52,11 +52,6 @@
         </md-list>
 
       </md-layout>
-      <md-layout>
-        <md-list>
-          <advert ad="video-sidebar" />
-        </md-list>
-      </md-layout>
     </md-layout>
   </div>
 </template>

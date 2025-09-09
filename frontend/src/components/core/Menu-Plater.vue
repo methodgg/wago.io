@@ -51,7 +51,6 @@
         </md-list>
       </md-layout>
       <md-layout v-for="(classes, index) in aClasses" v-bind:key="index">
-        <advert ad="video-sidebar" v-if="index===2"/>
         <md-subheader>{{ $t("Classes") }}</md-subheader>
         <md-list class="md-double-line md-dense">
           <md-list-item v-for="cls in classes" v-bind:key="cls.id" :class="cls.id + ' md-inset'">

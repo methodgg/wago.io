@@ -115,11 +115,7 @@
             </md-list-item>
           </md-list>
         </md-layout>
-        <md-layout>
-          <md-subheader>
-            <advert ad="video-sidebar" />
-          </md-subheader>
-  
+        <md-layout>  
           <md-subheader>{{ $t("PvP") }}</md-subheader>
           <md-list class="md-double-line md-dense">
             <md-list-item class="md-inset pvp">

@@ -116,9 +116,6 @@
         </md-list>
       </md-layout>
       <md-layout>
-        <md-subheader>
-          <advert ad="video-sidebar" />
-        </md-subheader>
         <md-list class="md-double-line md-dense">
           <md-list-item v-for="raid in wotlkRaids2" v-bind:key="raid.id" :class="raid.id + ' md-inset'">
             <div class="menu-image"></div>
