@@ -658,7 +658,10 @@ module.exports = function (fastify, opts, next) {
 
   // submit a scan ID for an existing import to update
   fastify.post('/update', async function (req, res) {
-    if (!req.user || !req.body.scanID || !req.body.wagoID) {
+    if (!req.user) {
+      return res.code(403).send({ error: 'invalid_user' })
+    }
+    if (!req.body.scanID || !req.body.wagoID) {
       return res.code(400).send({ error: 'invalid_import' })
     }
     const scan = await ImportScan.findById(req.body.scanID).exec()
