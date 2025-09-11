@@ -1,4 +1,5 @@
 const crypto = require('crypto')
+const image = require('../helpers/image')
 const ObjectId = require('mongoose').Types.ObjectId
 
 module.exports = function (fastify, opts, next) {
