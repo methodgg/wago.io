@@ -2261,7 +2261,7 @@ export default {
       if (code.tableMetrics && code.tableMetrics.dependencies) {
         this.codeReview.info.dependencies = code.tableMetrics.dependencies.filter(this.isDependancyRequired)
       }
-      const blockedRegex = /^(_G\.)?(getfenv|setfenv|loadstring|pcall|SendMail|SetTradeMoney|AddTradeMoney|PickupTradeMoney|PickupPlayerMoney|TradeFrame|MailFrame|EnumerateFrames|RunScript|AcceptTrade|SetSendMailMoney|EditMacro|SlashCmdList|DevTools_DumpCommand|hash_SlashCmdList|CreateMacro|SetBindingMacro|GuildDisband|GuildUninvite|UninviteUnit|SendMailMailButton|SendMailMoneyGold|MailFrameTab2|ConfirmBarbersChoice)$/g
+      const blockedRegex = /^(_G\.)?(getfenv|setfenv|loadstring|pcall|SendMail|SetTradeMoney|AddTradeMoney|PickupTradeMoney|PickupPlayerMoney|TradeFrame|MailFrame|EnumerateFrames|RunScript|AcceptTrade|SetSendMailMoney|EditMacro|SlashCmdList|DevTools_DumpCommand|hash_SlashCmdList|CreateMacro|SetBindingMacro|GuildDisband|GuildUninvite|UninviteUnit|SendMailMailButton|SendMailMoneyGold|MailFrameTab2|ConfirmBarbersChoice|ItemRackEvents)$/g
 
       if (code && Array.isArray(code.customCode)) {
         code.customCode.forEach((c, i) => {

@@ -42,6 +42,7 @@ std = {
     "SendMailMoneyGold",
     "MailFrameTab2",
     "ConfirmBarbersChoice",
+    "ItemRackEvents",
   },
   read_globals = {
     "Wago",

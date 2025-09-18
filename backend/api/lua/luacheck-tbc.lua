@@ -41,7 +41,8 @@ std = {
     "SendMailMailButton",
     "SendMailMoneyGold",
     "MailFrameTab2",
-    "ConfirmBarbersChoice"
+    "ConfirmBarbersChoice",
+    "ItemRackEvents",
   },
   read_globals = {
     "Wago",
