@@ -259,10 +259,10 @@ module.exports = {
     { path: '/snippets/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'Snippet'), type: 'snippet', mode: 'code' } }) },
 
     { path: '/fellowship-ui', component: MenuFellowshipUI },
-    { path: '/fellowship-ui/:c1', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'fellowshipui'), type: 'fellowshipui', game: 'fellowship', mode: 'imports' } }) },
-    { path: '/fellowship-ui/:c1/:c2', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'fellowshipui'), type: 'fellowshipui', game: 'fellowship', mode: 'imports' } }) },
-    { path: '/fellowship-ui/:c1/:c2/:c3', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'fellowshipui'), type: 'fellowshipui', game: 'fellowship', mode: 'imports' } }) },
-    { path: '/fellowship-ui/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'fellowshipui'), type: 'fellowshipui', game: 'fellowship', mode: 'imports' } }) },
+    { path: '/fellowship-ui/:c1', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'fellowship-ui'), type: 'fellowship-ui', game: 'fellowship', mode: 'imports' } }) },
+    { path: '/fellowship-ui/:c1/:c2', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'fellowship-ui'), type: 'fellowship-ui', game: 'fellowship', mode: 'imports' } }) },
+    { path: '/fellowship-ui/:c1/:c2/:c3', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'fellowship-ui'), type: 'fellowship-ui', game: 'fellowship', mode: 'imports' } }) },
+    { path: '/fellowship-ui/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'fellowship-ui'), type: 'fellowship-ui', game: 'fellowship', mode: 'imports' } }) },
 
     // { path: '/p/classic/:profile', component: ViewProfile, props: (route) => ({ query: 'User:' + route.params.profile }) },
     { path: '/p/:profile', component: Search, props: (route) => ({ context: { query: `User:"${route.params.profile}"`, mode: 'imports' } }) },
@@ -283,8 +283,8 @@ module.exports = {
     // search
     { name: 'searchredirect', path: '/search', component: Search, props: (route) => ({ context: { mode: 'imports', ...route.params } }) },
     { path: '/search/:mode', component: Search, props: (route) => ({ context: { ...route.params } }) },
-    { path: '/search/:mode/:game(wow|xiv)', component: Search, props: (route) => ({ context: { ...route.params } }) },
-    { path: '/search/:mode/:game(wow|xiv)/:expansionType', component: Search, props: (route) => ({ context: { ...route.params } }) },
+    { path: '/search/:mode/:game(wow|xiv|fellowship)', component: Search, props: (route) => ({ context: { ...route.params } }) },
+    { path: '/search/:mode/:game(wow|xiv|fellowship)/:expansionType', component: Search, props: (route) => ({ context: { ...route.params } }) },
     { path: '/search/', component: Search },
 
     // news

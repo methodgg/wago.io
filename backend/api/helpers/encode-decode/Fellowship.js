@@ -4,7 +4,7 @@ const losslessJSON = require("lossless-json")
 
 
 module.exports = {
-    typeMatch: /^FELLOWSHIP$/i,
+    typeMatch: /^FELLOWSHIP-UI$/i,
     domain: ENUM.DOMAIN.FELLOWSHIP,
   
     decode: async (encodedString) => {
@@ -50,7 +50,7 @@ module.exports = {
       const meta = {}
   
       meta.name = 'Fellowship Profile'
-      meta.type = 'FELLOWSHIP'
+      meta.type = 'FELLOWSHIP-UI'
   
       return meta
     },

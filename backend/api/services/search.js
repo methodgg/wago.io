@@ -89,15 +89,6 @@ async function searchElastic(req, res) {
     }
   }
 
-  if (!req.query.q.match(/mentions:/)) {
-    if (req.query.game === 'xiv') {
-      esFilter.push(({ term: { domain: 1 } }))
-    }
-    else {
-      esFilter.push(({ term: { domain: 0 } })) // wow
-    }
-  }
-
   let filterExpansion = []
   let defaultFilterExpansion
   if (req.query.expansion === 'legacy') {
