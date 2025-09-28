@@ -35,7 +35,7 @@ async function searchElastic(req, res) {
   }
 
   let page = parseInt(req.query.page || req.body.page || 0)
-  let esFilter = []
+  let esFilter = [{ term: { domain: req.domain } }]
   let esSort = ['_score']
   let sortMode = 'standard'
   let searchMode = 'imports'

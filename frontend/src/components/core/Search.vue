@@ -11,26 +11,7 @@
               <strong v-html="$t('Found [-count-] results', {count: new Intl.NumberFormat().format(results.total)})"></strong>
             </p>
             <md-layout v-if="results && !collection" id="searchOptions">
-              <div v-if="searchGame !== 'wow'">
-                <div>
-                  <label>{{ $t('Game') }}</label>
-                  <small id="selected-game">{{
-                    searchGame === 'xiv' && $t('FF XIV') ||
-                    $t('WoW')
-                    }}</small>
-                </div>
-                <md-button-toggle md-single class="md-accent md-warn select-search-mode">
-                  <md-button :class="{ 'md-toggle': searchGame === 'wow' }" class="md-icon-button" @click="setGame('wow')">
-                    <img src="../../assets/game-wow.svg">
-                    <md-tooltip md-direction="bottom" class="">{{ $t("World of Warcraft imports") }}</md-tooltip>
-                  </md-button>
-                  <md-button :class="{ 'md-toggle': searchGame === 'xiv' }" class="md-icon-button" @click="setGame('xiv')">
-                    <img src="../../assets/game-ffxiv.svg">
-                    <md-tooltip md-direction="bottom" class="">{{ $t("Final Fantasy XIV imports") }}</md-tooltip>
-                  </md-button>
-                </md-button-toggle>
-              </div>
-              <div v-if="(searchType === 'all' || searchType === 'weakaura') && (searchGame === 'wow') && searchMode !== 'comments'">
+              <div v-if="$store.state.gameDomain === 0 && (searchType === 'all' || searchType === 'weakaura') && searchMode !== 'comments'">
                 <div>
                   <label>{{ $t('Expansion') }}</label>
                   <small id="selected-expansion">{{
@@ -70,7 +51,7 @@
                   </div>
                 </md-button-toggle>
               </div>
-              <div v-if="searchGame === 'wow' && searchMode !== 'comments'">
+              <div v-if="$store.state.gameDomain === 0 && searchMode !== 'comments'">
                 <div>
                   <label>{{ $t('Addon') }}</label>
                   <small id="selected-addon">{{

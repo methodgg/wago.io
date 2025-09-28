@@ -35,6 +35,12 @@ window.clearCookie = function (name) {
 
 window.locales = require('../../i18nLocaleConfig').locales
 
+
+let GAME_DOMAIN = 0
+if (window.location.hostname === 'fellowship.wago.io' || window.location.hash === '#fellowship') {
+  GAME_DOMAIN = 2
+}
+
 // if (window.readCookie('theme')==='classic') {
 //   document.body.classList.add('theme-classic')
 //   document.body.classList.remove('theme-dark')
@@ -85,7 +91,6 @@ const store = new Vuex.Store({
     searchType: '',
     searchVersion: '',
     execSearch: 0,
-    domain: window.localStorage.getItem('domain') || '0',
     firstAd: false,
     linkApp: false,
     adProvider: null,
@@ -94,7 +99,8 @@ const store = new Vuex.Store({
       cid: null,
       isConnected: false,
       reconnectError: false
-    }
+    },
+    gameDomain: GAME_DOMAIN
   },
   mutations: {
     // store.commit('setLocale', 'en-US')
@@ -287,7 +293,8 @@ const store = new Vuex.Store({
           window.ramp.passiveMode = true
           
           const playwire = document.createElement('script')
-          playwire.setAttribute('src', '//cdn.intergient.com/1024383/76261/ramp.js')
+          playwire.setAttribute('src', '//cdn.intergient.com/1024383/72951/ramp.js')
+          playwire.setAttribute('data-cfasync', 'false')
           playwire.onerror = () => {
             state.advertSetup = true
             state.advertBlocked = true
@@ -348,12 +355,7 @@ const store = new Vuex.Store({
       Vue.set(state, 'searchGame', data.game + '')
       window.localStorage.setItem(`search.game`, data.game)
     },
-
-    setDomain(state, domain) {
-      Vue.set(state, 'domain', domain + '')
-      window.localStorage.setItem('domain', domain + '')
-    },
-
+    
     setSearchMode(state, mode) {
       Vue.set(state, 'searchMode', mode + '')
       window.localStorage.setItem('search.mode', mode + '')
@@ -365,7 +367,7 @@ const store = new Vuex.Store({
     },
 
     setSearchType(state, data) {
-      Vue.set(state, 'searchType', type + '')
+      Vue.set(state, 'searchType', data.type + '')
       window.localStorage.setItem(`search.type.${data.game}`, data.type)
     },
 
@@ -680,15 +682,21 @@ const http = {
       },
 
       get: async function (url, params) {
+        if (!params) {
+          params = {}
+        }
         // add referer for analytics
-        if (!refSent && document.referrer && !document.referrer.match(/^https:\/\/wago.io/) && !url.match(/^\/account\//)) {
-          params = params || {}
+        if (!refSent && document.referrer && !document.referrer.match(/^https:\/\/(\w+\.)?wago.io/) && !url.match(/^\/account\//)) {
           params._ref = document.referrer
           refSent = true
         }
 
         if (!url.match(/^http/)) {
           url = dataServers[0] + url
+        }
+
+        if (url.includes(dataServers[0])) {
+          params.domain = GAME_DOMAIN
         }
         // append querystring to url
         if (params) {
@@ -706,7 +714,7 @@ const http = {
           var res = await fetch(url, this.config(url))
           if (res.status === 429) {
             console.log('Whoh! Easy on the F5 key!')
-            window.eventHub.$emit('showSnackBar', i18next.t('Error rate limit exceeded'))
+            window.eventHub.$emit('showSnackBar', window.i18next.t('Error rate limit exceeded'))
             return {}
           }
           this.interceptHeaders(res)
@@ -715,7 +723,7 @@ const http = {
         }
         catch (err) {
           console.error(err)
-          window.eventHub.$emit('showSnackBar', i18next.t('Error could not reach data server'))
+          window.eventHub.$emit('showSnackBar', window.i18next.t('Error could not reach data server'))
         }
       },
       post: async function (url, params) {
@@ -726,6 +734,9 @@ const http = {
 
         if (!params) {
           params = {}
+        }
+        if (url.includes(dataServers[0])) {
+          params.domain = GAME_DOMAIN
         }
 
         var config = this.config(url)
@@ -738,7 +749,7 @@ const http = {
           var res = await fetch(url, config)
           if (res.status === 429) {
             console.log('Whoh! Easy on the F5 key!')
-            window.eventHub.$emit('showSnackBar', i18next.t('Error rate limit exceeded'))
+            window.eventHub.$emit('showSnackBar', window.i18next.t('Error rate limit exceeded'))
           }
           var type = this.interceptHeaders(res)
           var json
@@ -991,7 +1002,7 @@ i18next.use(XHR)
   .init({
     lng: store.state.locale,
     fallbackLng: 'en-US',
-    ns: ['translation', 'warcraft'],
+    ns: ['translation', GAME_DOMAIN === 2 ? 'fellowship' : 'warcraft'],
     load: 'currentOnly',
     returnEmptyString: false,
     backend: {

@@ -19,7 +19,11 @@ module.exports = {
     `
     try {
       let json = await exec(lua)
-      return JSON.parse(json)
+      const parsed = JSON.parse(json)
+      if (parsed.profile && parsed.profileVersion) {
+        return parsed
+      }
+      return false
     }
     catch (e) {
       console.log(e)

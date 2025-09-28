@@ -8,6 +8,7 @@ module.exports = {
   domain: ENUM.DOMAIN.FF14,
 
   decode: async function (encodedString) {
+    return false
     if (!encodedString.match(/^[a-zA-Z0-9\+\/\|=]*={0,2}$/)) {
       return false
     }

@@ -1445,5 +1445,73 @@
     }
   },
   "You linked into an older version of this import, we are displaying the latest version": "You linked into an older version of this import, we are displaying the latest version.",
-  "View version [-version-]": ""
+  "View version [-version-]": "",
+  "'[-name-]' includes a model display which currently has causes signficant performance issues due to a WoW bug": {
+    "": ""
+  },
+  "This import has FPS alerts, your FPS will be affected by this import without modifications": "",
+  "This import has FPS affecting alerts, your performance will be impacted without modifications": "",
+  "Profiles": "",
+  "Download the Wago App": "",
+  "This import will expire [-time-]": "",
+  "Install as Dynamic UI Pack": "",
+  "Add to Collection": "",
+  "Collections are sets of imports curated by users and shared on the Wago platform": {
+    "": ""
+  },
+  "A collection can be exported to a Dynamic UI Pack to quickly install all the respective imports with the Wago App": {
+    "": ""
+  },
+  "Your collections": "",
+  "Remove from this collection": "",
+  "Add to this collection": "",
+  "View collection": "",
+  "You have not created any collections yet": {
+    "": ""
+  },
+  "Install Collection as a Dynamic UI Pack": "",
+  "This requires that you have the Wago App installed": {
+    " This process will build all compatible imports from this collection and allow you to quickly install all of them as a Dynamic UI Pack, using our UI Pack service": {
+      "": ""
+    }
+  },
+  "Download Wago App": "",
+  "For our initial Dynamic UI Pack launch, only WeakAuras are supported": {
+    "": ""
+  },
+  "Checking for compatibility and conflicts": "",
+  "# Imports": "",
+  "Compatible": "",
+  "[-type-] imports are not supported in Dynamic UI Packs at this time": {
+    "": ""
+  },
+  "Send to Wago App": "",
+  "This import has deprecation warnings, you are strongly suggested to review the code before installing": "",
+  "This WeakAura uses the deprecated event COMBAT_LOG_EVENT_UNFILTERED OR CLEU": {
+    " As of WeakAuras version 5": {
+      "19": {
+        "0 (Jan-23-2025), this trigger is no longer supported and this import will probably not work as intended": {
+          " See the deprecation notice for details and how to fix it": {
+            "": ""
+          }
+        }
+      }
+    }
+  },
+  "Deprecated!!": "",
+  "We are hiring a Community Manager!": "",
+  "Sponsors": "",
+  "Mists of Pandaria Classic": "",
+  "Mists of Pandaria PvE": "",
+  "Mists of Pandaria": "",
+  "Mists of Pandaria Beta": "",
+  "Enabled": "",
+  "Disabled": "",
+  "Copy String is BLOCKED - See Code Review": "",
+  "'[-name-]' includes blocked functions <strong class=\"warn\">[-blocked-]</strong>": {
+    " Blocked functions are normally blocked within the addon with normal use, and there is probably no reason you want to include this potential vulnerability": {
+      "": ""
+    }
+  },
+  "Select Service": ""
 }

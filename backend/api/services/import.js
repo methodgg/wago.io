@@ -6,6 +6,7 @@ const battlenet = require('../helpers/battlenet')
 const semver = require('semver')
 const crypto = require("crypto-js")
 const patchDates = require('../helpers/patchDates')
+const losslessJSON = require("lossless-json")
 
 module.exports = function (fastify, opts, next) {
   /**
@@ -25,7 +26,7 @@ module.exports = function (fastify, opts, next) {
     var decodedObj
     for (const addonFile in Addons) {
       const addon = Addons[addonFile]
-      if (scan.decoded) {
+      if (scan.decoded || addon.domain !== req.domain) {
         continue
       }
       else if (typeof decodedObj !== 'object' && (!req.body.type || req.body.type.match(addon.typeMatch) || (req.body.wagolib && addonFile === 'WagoLib'))) {
@@ -36,6 +37,7 @@ module.exports = function (fastify, opts, next) {
             decodedObj = await addon.decode(req.body.importString.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim(), lua.runLua)
         }
       }
+      console.log(addonFile)
       if (!decodedObj) {
         continue
       }
@@ -49,7 +51,12 @@ module.exports = function (fastify, opts, next) {
 
       let meta = addon.processMeta(decodedObj, req.body.importString.trim())
       if (decodedObj && meta) {
-        scan.decoded = JSON.stringify(decodedObj)
+        if (addon.domain === ENUM.DOMAIN.FELLOWSHIP) {
+          scan.decoded = losslessJSON.stringify(decodedObj)
+        }
+        else {
+          scan.decoded = JSON.stringify(decodedObj)
+        }
         scan.type = meta.type
         scan.name = meta.name || meta.type
         scan.game = meta.game || patchDates.gameVersion()
@@ -462,7 +469,10 @@ module.exports = function (fastify, opts, next) {
 
     var wago = new WagoItem({ type: scan.type })
     var json = {}
-    if (scan.decoded) {
+    if (scan.decoded && scan.domain === ENUM.DOMAIN.FELLOWSHIP) {
+      json = losslessJSON.parse(scan.decoded)
+    }
+    else {
       json = JSON.parse(scan.decoded)
     }
 
@@ -785,9 +795,15 @@ module.exports = function (fastify, opts, next) {
     }
     var jsonString = ''
     try {
-      // this both validates the json and removes line breaks/etc
-      var json = JSON.parse(req.body.json)
-      jsonString = JSON.stringify(json)
+      // validates JSON and removes line breaks/etc
+      if (wago.domain === ENUM.DOMAIN.FELLOWSHIP) {
+        json = losslessJSON.parse(req.body.json)
+        jsonString = losslessJSON.stringify(json)
+      }
+      else {
+        json = JSON.parse(req.body.json)
+        jsonString = JSON.stringify(json)
+      }
     }
     catch (e) {
       return res.code(403).send({ error: 'invalid_import' })
@@ -1031,15 +1047,22 @@ module.exports = function (fastify, opts, next) {
     if (!req.body.json) {
       return res.code(400).send({ error: "Invalid data" })
     }
+    let json, jsonString
     try {
-      var json = JSON.parse(req.body.json)
-      var jsonString = JSON.stringify(json)
+      if (req.body.type === 'FELLOWSHIP') {
+        json = losslessJSON.parse(req.body.json)
+        jsonString = losslessJSON.stringify(json)
+      }
+      else {
+        json = JSON.parse(req.body.json)
+        jsonString = JSON.stringify(json)
+      }
     }
     catch (e) {
       console.log(e)
       return res.code(400).send({ error: "Invalid data" })
     }
-    var encoded
+    let encoded
     for (const addonFile in Addons) {
       const addon = Addons[addonFile]
       if ((req.body.type && req.body.type.match(addon.typeMatch)) || (req.body.wagolib && addonFile === 'WagoLib')) {

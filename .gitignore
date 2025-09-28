@@ -10,6 +10,7 @@ config.js
 */lua-scans/*.lua
 */logs/*.log
 .env
+experiments/*
 
 # auto generated
 i18n/**/warcraft.json

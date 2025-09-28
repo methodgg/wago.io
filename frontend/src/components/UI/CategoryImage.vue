@@ -90,6 +90,8 @@
     <img src="./../../assets/df-toggle.svg" v-else-if="group === 'exp-df'"/>
     <img src="./../../assets/wotlk-toggle.svg" v-else-if="group === 'exp-wotlk'"/>
     <img src="./../../assets/classic-toggle.svg" v-else-if="group === 'exp-classic'"/>
+
+    <img src="./../../assets/fellowship-logo.svg" v-else-if="group === 't-fellowship-ui'"/>
   </div>
 </template>
 

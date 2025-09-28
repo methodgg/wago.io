@@ -1316,3 +1316,9 @@ body iframe:not(.md-image) {
 .xbbcode-taggeduser {
   font-weight: 300;
 }
+
+/* ugly ad stuff */
+.md-card.md-theme-default.wago-ad-container.leaderboard-top.no-frame {
+    min-height: 290px;
+    padding: 10px;
+}

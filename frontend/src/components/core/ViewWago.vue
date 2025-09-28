@@ -153,56 +153,60 @@
       <div class="md-layout">
         <div id="import-header-container">
           <div class="md-card" id="import-header">
-            <h1>{{ wago.name }}
-              <div>
-                <span v-if="currentVersionString && !currentVersionString.match(/undefined/)">v{{ currentVersionString }}</span>
-                <span>{{ displayExpansion(wago) }}{{ wago.type }}</span>
+            <div class='import-header-a'>
+              <h1>{{ wago.name }}
+                <div>
+                  <span v-if="currentVersionString && !currentVersionString.match(/undefined/)">v{{ currentVersionString }}</span>
+                  <span>{{ displayExpansion(wago) }}{{ wago.type }}</span>
+                </div>
+              </h1>
+            </div>
+            <div class='import-header-b'>
+              <div v-if="wago.type.match(/WEAKAURA|PLATER/) && wago.visibility && !wago.visibility.encrypted && !codeReview.blocked" id="sendToDesktopAppBtn" class="md-hide-xsmall md-button copy-import-button" @click="sendToApp()">
+                <md-icon>airplay</md-icon> {{ $t("Send to Desktop App") }}
+                <md-button @click.stop="sendToApp('ask')" id="helpAppButton" class="md-icon-button md-raised"><md-icon>help</md-icon></md-button>
               </div>
-            </h1>
-            <div v-if="wago.type.match(/WEAKAURA|PLATER/) && wago.visibility && !wago.visibility.encrypted && !codeReview.blocked" id="sendToDesktopAppBtn" class="md-hide-xsmall md-button copy-import-button" @click="sendToApp()">
-              <md-icon>airplay</md-icon> {{ $t("Send to Desktop App") }}
-              <md-button @click.stop="sendToApp('ask')" id="helpAppButton" class="md-icon-button md-raised"><md-icon>help</md-icon></md-button>
+              <div v-if="wago.type === 'COLLECTION' && $store.state.isTest" id="installCollectionBtn" class="md-hide-xsmall md-button" @click="checkCollectionCompatibility()">
+                <md-icon>airplay</md-icon> {{ $t("Install as Dynamic UI Pack") }}
+              </div>
+              <md-button v-if="wago.code && wago.code.encoded && !codeReview.blocked" @click="copyEncoded" class="copy-import-button" id="copyImportBtn">
+                <md-icon>assignment</md-icon> 
+                <span v-if="wago.type === 'MACRO'">{{ $t("Copy Macro") }}</span>
+                <span v-else>{{ $t("Copy import string") }}</span>
+                <md-button @click="openHelpDialog" id="helpImportingButton" class="md-icon-button md-raised"><md-icon>help</md-icon></md-button>
+
+                <md-tooltip v-if="!isLatestVersion() || hasUnsavedChanges || corruptedData || (codeReview && codeReview.alerts)" md-direction="bottom" class="CopyWarningTooltip">
+
+                  <template v-if="!isLatestVersion()">
+                    <p><strong>{{ $t("There is a newer version of this import") }}</strong><br>{{ $t("Are you sure you want to copy this version?") }}</p>
+                  </template>
+                  
+                  <template v-if="hasUnsavedChanges">
+                    <p><strong>{{ $t("You have unsaved changes") }}</strong><br>{{ $t("Be sure to save or fork to generate a new string with your modifications") }}</p>
+                  </template>
+                  
+                  <template v-if="corruptedData">
+                    <p><strong>{{ $t("This import is corrupted and will likely not work as expected") }}</strong></p>
+                  </template>
+                  
+                  <template v-if="codeReview && codeReview.fpsImpacted">
+                    <p v-if="codeReview.alerts"><strong>{{ $t("This import has FPS affecting alerts, your performance will be impacted without modifications") }}</strong></p>
+                  </template>
+                  
+                  <template v-if="codeReview && codeReview.alerts">
+                    <p v-if="codeReview.alerts"><strong>{{ $t("This import has alerts, you are strongly suggested to review the code before installing") }}</strong></p>
+                  </template>
+
+                  <template v-if="codeReview && Object.keys(codeReview.deprecationWarnings).length">
+                    <p v-if="codeReview.alerts"><strong>{{ $t("This import has deprecation warnings, you are strongly suggested to review the code before installing") }}</strong></p>
+                  </template>                
+                </md-tooltip>
+              </md-button>
+              <md-button v-else-if="codeReview.blocked" @click="toggleFrame('codereview')"  >
+                <md-icon>assignment</md-icon>
+                <span>{{ $t("Copy String is BLOCKED - See Code Review") }}</span>
+              </md-button>
             </div>
-            <div v-if="wago.type === 'COLLECTION' && $store.state.isTest" id="installCollectionBtn" class="md-hide-xsmall md-button" @click="checkCollectionCompatibility()">
-              <md-icon>airplay</md-icon> {{ $t("Install as Dynamic UI Pack") }}
-            </div>
-            <md-button v-if="wago.code && wago.code.encoded && !codeReview.blocked" @click="copyEncoded" class="copy-import-button" id="copyImportBtn">
-              <md-icon>assignment</md-icon> 
-              <span v-if="wago.type === 'MACRO'">{{ $t("Copy Macro") }}</span>
-              <span v-else>{{ $t("Copy import string") }}</span>
-              <md-button @click="openHelpDialog" id="helpImportingButton" class="md-icon-button md-raised"><md-icon>help</md-icon></md-button>
-
-              <md-tooltip v-if="!isLatestVersion() || hasUnsavedChanges || corruptedData || (codeReview && codeReview.alerts)" md-direction="bottom" class="CopyWarningTooltip">
-
-                <template v-if="!isLatestVersion()">
-                  <p><strong>{{ $t("There is a newer version of this import") }}</strong><br>{{ $t("Are you sure you want to copy this version?") }}</p>
-                </template>
-                
-                <template v-if="hasUnsavedChanges">
-                  <p><strong>{{ $t("You have unsaved changes") }}</strong><br>{{ $t("Be sure to save or fork to generate a new string with your modifications") }}</p>
-                </template>
-                
-                <template v-if="corruptedData">
-                  <p><strong>{{ $t("This import is corrupted and will likely not work as expected") }}</strong></p>
-                </template>
-                
-                <template v-if="codeReview && codeReview.fpsImpacted">
-                  <p v-if="codeReview.alerts"><strong>{{ $t("This import has FPS affecting alerts, your performance will be impacted without modifications") }}</strong></p>
-                </template>
-                
-                <template v-if="codeReview && codeReview.alerts">
-                  <p v-if="codeReview.alerts"><strong>{{ $t("This import has alerts, you are strongly suggested to review the code before installing") }}</strong></p>
-                </template>
-
-                <template v-if="codeReview && Object.keys(codeReview.deprecationWarnings).length">
-                  <p v-if="codeReview.alerts"><strong>{{ $t("This import has deprecation warnings, you are strongly suggested to review the code before installing") }}</strong></p>
-                </template>                
-              </md-tooltip>
-            </md-button>
-            <md-button v-else-if="codeReview.blocked" @click="toggleFrame('codereview')"  >
-              <md-icon>assignment</md-icon>
-              <span>{{ $t("Copy String is BLOCKED - See Code Review") }}</span>
-            </md-button>
           </div>
           <md-layout md-row id="import-meta">
             <md-card id="wago-header" ref="header">
@@ -3653,6 +3657,8 @@ export default {
   padding: 16px;
   display: flex;
   flex-direction: row;
+  flex-wrap: wrap;
+  gap: 4px;
   background: #333333;
   margin: 0 0 16px 0;
   top: 0;
@@ -3672,6 +3678,13 @@ export default {
       span {margin-right: 16px}
     }
   }
+  .import-header-b {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-left: auto
+  }
   .md-button {
     margin: 0 4px;
   }
@@ -3687,7 +3700,7 @@ export default {
 #wago-header.md-card h3 { margin: 0 }
 #wago-header.md-card h3 + .md-subheader { padding:0; min-height:0 }
 
-#wago-header .md-card-header { padding-left: 0; padding-right: 4px; min-height: 160px; display: flex; justify-content: space-between; }
+#wago-header .md-card-header { padding-left: 0; padding-right: 4px; display: flex; justify-content: space-between; }
 #wago-header .md-card-header .item { padding-left: 0!important; float: left; display: inline; margin-right: 16px; vertical-align: middle }
 @media (min-width: 601px) {
   #wago-header .md-card-header .item+.item { margin-left: 16px; margin-right: 0 }
@@ -3712,7 +3725,7 @@ export default {
     text-overflow: ellipsis;
 }
 body.ads-enabled #wago-content .wago-container > div {
-    max-width: 740px;
+    max-width: 586px;
 }
 #addCollectionButton, #newCommentButton { margin-top: 0 }
 

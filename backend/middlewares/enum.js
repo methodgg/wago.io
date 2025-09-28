@@ -12,6 +12,7 @@ module.exports = {
   },
   DOMAIN: {
     WOW: 0,
-    FF14: 1
+    FF14: 1,
+    FELLOWSHIP: 2
   }
 }

@@ -104,6 +104,11 @@ export default {
           links.push({url: 'https://addons.wago.io/addons/weakauras', name: this.$t('Download WeakAuras')})
           links.push({url: 'https://weakauras.wtf', name: this.$t('Download Companion App')})
           links.push({url: 'https://discord.gg/weakauras', name: this.$t('Join WeakAuras Discord')})
+          break
+
+        case 'fellowship-ui':
+          links.push({url: searchURL, name: this.$t('Search Fellowship UI'), domain: 1})
+          break
       }
       return links
     }

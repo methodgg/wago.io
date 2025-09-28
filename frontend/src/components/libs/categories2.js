@@ -1234,6 +1234,23 @@ class Categories {
 
       'delvui1': {slug: 'delvui-profile', image: 'ffxiv/delvui.png', color: '#FDFDFD', i18n: 'DelvUI Profile', domain: 1, system: true, types: ['DELVUI']},
       'delvui2': {slug: 'delvui-config', image: 'ffxiv/delvui.png', color: '#FDFDFD', i18n: 'Single Config', domain: 1, system: true, types: ['DELVUI']},
+
+      ///////////////////////////////////////////////////////
+      // FELLOWSHIP CATEGORIES
+      ///////////////////////////////////////////////////////
+      'fellowship-tank-helena': {slug: 'helena', image: 'helena.png', color: '#B46932', i18n: 'fellowship:helena', domain: 1},
+      'fellowship-tank-meiko': {slug: 'meiko', image: 'meiko.png', color: '#27df5b', i18n: 'fellowship:meiko', domain: 1},
+      'fellowship-healer-sylvie': {slug: 'sylvie', image: 'sylvie.png', color: '#ea4f84', i18n: 'fellowship:sylvie', domain: 1},
+      'fellowship-healer-vigour': {slug: 'vigour', image: 'vigour.png', color: '#D3DBC5', i18n: 'fellowship:vigour', domain: 1},
+      'fellowship-dps-ardeos': {slug: 'ardeos', image: 'ardeos.png', color: '#eb6329', i18n: 'fellowship:ardeos', domain: 1},
+      'fellowship-dps-rime': {slug: 'rime', image: 'rime.png', color: '#1da7f5', i18n: 'fellowship:rime', domain: 1},
+      'fellowship-dps-mara': {slug: 'mara', image: 'mara.png', color: '#6e2df0', i18n: 'fellowship:mara', domain: 1},
+      'fellowship-dps-tariq': {slug: 'tariq', image: 'tariq.png', color: '#c859df', i18n: 'fellowship:tariq', domain: 1},
+
+      'fellowship-role0': {slug: 'class-roles', image: 'roles.png', color: '#BED0C1', i18n: 'Group Roles', domain: 1},
+      'fellowship-role1': {slug: 'class-roles/dps', i18n: 'fellowship:dps', domain: 1, parent: 'fellowship-role0'},
+      'fellowship-role2': {slug: 'class-roles/healer', i18n: 'fellowship:healer', domain: 1, parent: 'fellowship-role0'},
+      'fellowship-role3': {slug: 'class-roles/tank', i18n: 'fellowship:tank', domain: 1, parent: 'fellowship-role0'},
     }
   }
 

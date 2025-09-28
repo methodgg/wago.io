@@ -2,7 +2,6 @@
   <md-card v-if="enableAd && container" ref="adcontainer" :class="[
     advertBlocked ? 'wago-recovery-container' : 'wago-ad-container', ad,
     frame === false ? 'no-frame' : '',
-    ad.match(/streambuff/) && !$store.state.streambuffVideo ? 'streambuff-no' : '',
   ]">
     <template v-if="ad=='embed-asteri'">
       <div asterilivestream_profile="91_72" asterilivestream_width="300" asterilivestream_height="250"></div>
@@ -10,8 +9,8 @@
     <template v-else>
       <span class="wago-advert-text" v-if="patreonLink && !advertBlocked">{{ $t('Advertisement') }} - <a href="https://www.patreon.com/wagoio" target="_blank" rel="noopener" class="wago-advert-patreon">{{ $t('Hide Ads with Patreon') }}</a></span>
       <div>
-        <div :id="ad" :class="adClass + ' i-' + ad">
-          <div class="recovery" v-if="advertBlocked && !ad.match(/streambuff/)">
+        <div :id="adIdentifier" :class="adClass" :data-pw-desk="playwireDesktopAttr" :data-pw-mobile="playwireMobileAttr">
+          <div class="recovery" v-if="advertBlocked">
             <template v-if="ad.match(/leaderboard/)">
               <h3>{{ $t('Ad blocker detected') }} - {{ $t('This site is supported by advertising') }}</h3>
             </template>
@@ -49,24 +48,19 @@ export default {
       debounce: Date.now(),
       fixFrame: null,
       isTest: false,
-      adClass: '',
-      adNetwork: 'nitropay', // previously 'playwire',
+      adClass: false,
       timeout: null,
+      adIdentifier: '',
+      playwireDesktopAttr: false,
+      playwireMobileAttr: false,
     }
   },
 
   created () {
     window.addEventListener('resize', this.handleResize)
     window.addEventListener('scroll', this.watchScroll)
+    this.adIdentifier = this.ad
     this.insertAd()
-    if (this.ad.match(/asteri/)) {
-      setTimeout(() => {
-        const asteriScript = document.createElement('script')
-        asteriScript.setAttribute('src', 'https://asteriresearch.com/livestream-latest.min.js')      
-        document.querySelector('body').appendChild(asteriScript)
-      }, 1000)
-      return
-    }
   },
   destroyed () {
     window.removeEventListener('resize', this.handleResize)
@@ -77,116 +71,128 @@ export default {
       this.screenWidth = window.innerWidth
     },
     insertAd () {
-      if (!this.enableAd || this.timeout) {
+      if (!this.enableAd || this.timeout || !this.ad) {
         return
       }
       if (this.ad.match(/streambuff|asteri/)) {
         return // handled elsewhere
       }
       this.timeout = setTimeout(async () => {
-        if (!window.nitroAds) {
-          return
+        if (this.adNetwork === 'nitropay') {
+          if (!window.nitroAds) {
+            return
+          }
+          this.adClass = 'i-' + this.ad
+          if (this.ad.match(/video/)) {
+            this.nitroAd = await window.nitroAds.createAd(this.ad, {
+              format: 'floating',
+              mediaQuery: '(min-width: 900px)',
+              video: {
+                float: this.float,
+                hidePlaylist: true
+              },            
+              report: {
+                enabled: true,
+                wording: 'Report Ad',
+                position: 'top-right'
+              }
+            })
+          }
+          else if (this.ad.match(/mobile-anchor/)) {
+            this.nitroAd = await window.nitroAds.createAd(this.ad, {
+              demo: process.env.NODE_ENV === 'development' || window.location.hostname.match(/test/),
+              refreshLimit: 0,
+              refreshTime: 30,
+              format: 'anchor',
+              anchor: 'bottom',
+              anchorPersistClose: false,
+              renderVisibleOnly: false,
+              refreshVisibleOnly: true,
+              sizes: this.nitroPaySizes,
+              mediaQuery: '(max-width: 1024px)',
+              report: {
+                enabled: true,
+                wording: 'Report Ad',
+                position: 'bottom-right'
+              }
+            })
+          }
+          else if (this.ad.match(/mobile/)) {
+            this.nitroAd = await window.nitroAds.createAd(this.ad, {
+              demo: process.env.NODE_ENV === 'development' || window.location.hostname.match(/test/),
+              refreshLimit: 0,
+              refreshTime: 30,
+              renderVisibleOnly: true,
+              refreshVisibleOnly: true,
+              sizes: this.nitroPaySizes,
+              mediaQuery: '(min-width: 768px) and (max-width: 1024px), (min-width: 320px) and (max-width: 767px)',
+              report: {
+                enabled: true,
+                wording: 'Report Ad',
+                position: 'top-right'
+              }
+            })
+          }
+          else if (this.ad.match(/search/)) {
+            this.nitroAd = await window.nitroAds.createAd(this.ad, {
+              demo: process.env.NODE_ENV === 'development' || window.location.hostname.match(/test/),
+              refreshLimit: 0,
+              refreshTime: 30,
+              renderVisibleOnly: true,
+              refreshVisibleOnly: true,
+              sizes: this.nitroPaySizes,
+              report: {
+                enabled: true,
+                wording: 'Report Ad',
+                position: 'top-right'
+              }
+            })
+          }
+          else if (!this.ad.match(/asteri/)) {
+            this.nitroAd = await window.nitroAds.createAd(this.ad, {
+              demo: process.env.NODE_ENV === 'development' || window.location.hostname.match(/test/),
+              refreshLimit: 0,
+              refreshTime: 30,
+              renderVisibleOnly: false,
+              refreshVisibleOnly: true,
+              sizes: this.nitroPaySizes,
+              mediaQuery: '(min-width: 1025px)',
+              report: {
+                enabled: true,
+                wording: 'Report Ad',
+                position: 'top-right'
+              }
+            })
+          }
         }
-        else if (this.adNetwork === 'nitropay' && this.ad.match(/video/)) {
-          this.nitroAd = await window.nitroAds.createAd(this.ad, {
-            format: 'video-nc',
-            mediaQuery: '(min-width: 900px)',
-            video: {
-              float: this.float,
-              hidePlaylist: true
-            },            
-            report: {
-              enabled: true,
-              wording: 'Report Ad',
-              position: 'top-right'
-            }
+        else if (this.adNetwork === 'playwire') {
+          if (!window.ramp) {
+            return
+          }
+          if (this.ad === 'leaderboard-top' && this.$isMobile) {
+            this.adIdentifier = 'pwMobiLbAtf'
+            this.playwireMobileAttr = 'leaderboard_atf'
+          }
+          else if (this.ad === 'leaderboard-top') {
+            this.adIdentifier = 'pwDeskLbAtf'
+            this.playwireDesktopAttr = 'leaderboard_atf'
+          }
+          else if (this.ad === 'rectangle-sidebar') {
+            this.adIdentifier = 'pwDeskMedRectAtf'
+            this.playwireDesktopAttr = 'med_rect_atf'
+          }
+          else {
+            return
+          }
+          
+          this.$nextTick(function () {
+            window.ramp.que.push(function () {
+              window.ramp.addTag(this.adIdentifier);
+            })
           })
         }
-        else if (this.adNetwork === 'nitropay' && this.ad.match(/mobile-anchor/)) {
-          this.nitroAd = await window.nitroAds.createAd(this.ad, {
-            demo: process.env.NODE_ENV === 'development' || window.location.hostname.match(/test/),
-            refreshLimit: 0,
-            refreshTime: 30,
-            format: 'anchor',
-            anchor: 'bottom',
-            anchorPersistClose: false,
-            renderVisibleOnly: false,
-            refreshVisibleOnly: true,
-            sizes: this.nitroPaySizes,
-            mediaQuery: '(max-width: 1024px)',
-            report: {
-              enabled: true,
-              wording: 'Report Ad',
-              position: 'bottom-right'
-            }
-          })
-        }
-        else if (this.adNetwork === 'nitropay' && this.ad.match(/mobile/)) {
-          this.nitroAd = await window.nitroAds.createAd(this.ad, {
-            demo: process.env.NODE_ENV === 'development' || window.location.hostname.match(/test/),
-            refreshLimit: 0,
-            refreshTime: 30,
-            renderVisibleOnly: true,
-            refreshVisibleOnly: true,
-            sizes: this.nitroPaySizes,
-            mediaQuery: '(min-width: 768px) and (max-width: 1024px), (min-width: 320px) and (max-width: 767px)',
-            report: {
-              enabled: true,
-              wording: 'Report Ad',
-              position: 'top-right'
-            }
-          })
-        }
-        else if (this.adNetwork === 'nitropay' && this.ad.match(/search/)) {
-          this.nitroAd = await window.nitroAds.createAd(this.ad, {
-            demo: process.env.NODE_ENV === 'development' || window.location.hostname.match(/test/),
-            refreshLimit: 0,
-            refreshTime: 30,
-            renderVisibleOnly: true,
-            refreshVisibleOnly: true,
-            sizes: this.nitroPaySizes,
-            report: {
-              enabled: true,
-              wording: 'Report Ad',
-              position: 'top-right'
-            }
-          })
-        }
-        else if (this.adNetwork === 'nitropay' && !this.ad.match(/asteri/)) {
-          this.nitroAd = await window.nitroAds.createAd(this.ad, {
-            demo: process.env.NODE_ENV === 'development' || window.location.hostname.match(/test/),
-            refreshLimit: 0,
-            refreshTime: 30,
-            renderVisibleOnly: false,
-            refreshVisibleOnly: true,
-            sizes: this.nitroPaySizes,
-            mediaQuery: '(min-width: 1025px)',
-            report: {
-              enabled: true,
-              wording: 'Report Ad',
-              position: 'top-right'
-            }
-          })
-        }
-        // console.log('inserted ad', this.ad, this.nitroAd, (this.nitroAd ? this.nitroAd.onNavigate : undefined))
         this.timeout = undefined
         this.refreshId++
-        // else if (this.adNetwork === 'playwire') {
-        //   if (window.tyche && this.container) {
-        //     await window.tyche.addUnits([{
-        //       selectorId: this.uid,
-        //       type: this.ad
-        //     }])
-        //     tyche.displayUnits()
-        //   }
-        //   else if (window.tyche) {
-        //     console.log('add', this.ad)
-        //     await window.tyche.addUnits([{
-        //       type: this.ad
-        //     }])
-        //     tyche.displayUnits()
-        //   }
-        // }
       }, 50)
     },
 
@@ -201,9 +207,6 @@ export default {
   beforeDestroy: function () {
     if (this.fixFrame) {
       clearInterval(this.fixFrame)
-    }
-    if (this.adNetwork === 'playwire' && window.tyche && window.tyche.destroyUnits) {
-      window.tyche.destroyUnits(this.ad)
     }
   },
   watch: {
@@ -246,6 +249,9 @@ export default {
 
       return true
     },
+    adNetwork () {
+      return this.$store.state.adProvider || 'nitropay'
+    },
     advertBlocked () {
       return this.$store.state.advertBlocked
     },
@@ -280,7 +286,9 @@ export default {
         return [
           [728, 90],
           [970, 90],
-          // [970, 250],
+          [320, 100],
+          [320, 50],
+          [970, 250],
         ]
       }
       else if (this.ad.match(/rectangle/)) {
@@ -302,6 +310,7 @@ export default {
   width: auto;
   padding: 16px 4px 4px 4px;
   display: flex!important;
+  overflow: visible;
   .wago-advert-text {
     font-size: 80%;
     z-index: 9;

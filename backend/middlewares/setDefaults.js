@@ -16,4 +16,10 @@ module.exports = async function(req, res) {
   }
 
   req.tracking = {}
+  if (parseInt(req.body.domain ?? req.query.domain) === ENUM.DOMAIN.FELLOWSHIP || ('' + (req.body.domain ?? req.query.domain ?? '')).toUpperCase() === 'FELLOWSHIP') {
+    req.domain = ENUM.DOMAIN.FELLOWSHIP
+  }
+  else {
+    req.domain = ENUM.DOMAIN.WOW
+  }
 }

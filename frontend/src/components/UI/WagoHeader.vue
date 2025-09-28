@@ -50,6 +50,12 @@ export default {
 </script>
 <template>
     <div :class="{'mobile-open': mobileMenuOpen}">
+        <!-- <div id="header-domain-wrap">
+            <div id="header-domain">
+                <div :class="{selected: $store.state.gameDomain === 0}"><a href="https://wago.io"><img src="../../assets/wow-icon.svg" alt="World of Warcraft Logo" /> World of Warcraft</a></div>
+                <div :class="{selected: $store.state.gameDomain === 2}"><a href="https://fellowship.wago.io"><img src="../../assets/fellowship-logo.svg" alt="Fellowship Logo" /> Fellowship</a></div>
+            </div>
+        </div> -->
         <div id="header-top-wrap">
             <div id="menu-underlay" @click="closeMenus()" v-if="userMenuOpen || mobileLangMenuOpen"></div>
             <div id="header-common">                
@@ -63,23 +69,25 @@ export default {
                 </router-link>
                 <div id="header-common-links">
                     <router-link to="/" class="selected">{{ $t("Imports") }}</router-link>
-                    <a href="https://addons.wago.io">Addons</a>
-                    <a href="https://uipacks.wago.io">UI Packs</a>
-                    <a href="https://addons.wago.io/app" class="red-btn">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-5">
-                            <path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm.75-11.25a.75.75 0 0 0-1.5 0v4.59L7.3 9.24a.75.75 0 0 0-1.1 1.02l3.25 3.5a.75.75 0 0 0 1.1 0l3.25-3.5a.75.75 0 1 0-1.1-1.02l-1.95 2.1V6.75Z" clip-rule="evenodd" />
-                        </svg>
-                        <span>{{ $t("Download App") }}</span>
-                    </a>
-                
+                    <template v-if="$store.state.gameDomain === 0">
+                        <a href="https://addons.wago.io">Addons</a>
+                        <a href="https://uipacks.wago.io">UI Packs</a>
+                        <a href="https://addons.wago.io/app" class="red-btn">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-5">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm.75-11.25a.75.75 0 0 0-1.5 0v4.59L7.3 9.24a.75.75 0 0 0-1.1 1.02l3.25 3.5a.75.75 0 0 0 1.1 0l3.25-3.5a.75.75 0 1 0-1.1-1.02l-1.95 2.1V6.75Z" clip-rule="evenodd" />
+                            </svg>
+                            <span>{{ $t("Download App") }}</span>
+                        </a>
+                    </template>
+
                     <template v-if="(this.$store.state.user.UID || this.$store.state.user.guest) && !this.$store.state.user.hideAds">
-                        <a id="holy-btn" href='https://bit.ly/WagoHoly' target="_blank" >
-                            <img src="../../assets/holy-icon-button.png" /> HOLY ENERGY DISCOUNTS
-                        </a>        
                         <a id="patreon-btn" href="https://www.patreon.com/wagoio" target="_blank">
                             <svg aria-hidden="true" focusable="false" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M512 194.8c0 101.3-82.4 183.8-183.8 183.8-101.7 0-184.4-82.4-184.4-183.8 0-101.6 82.7-184.3 184.4-184.3C429.6 10.5 512 93.2 512 194.8zM0 501.5h90v-491H0v491z"></path></svg>
                             {{ $t('Support Wago.io') }}
                         </a>
+                        <a id="holy-btn" href='https://bit.ly/WagoHoly' target="_blank" >
+                            <img src="../../assets/holy-icon-green.png" /> Huge HOLY Discounts
+                        </a>   
                     </template>
                 </div>
                 <!-- <div class="flex-spacer"></div> -->
@@ -171,7 +179,10 @@ export default {
             <div id="header-main">
                 <router-link to="/" class="new-import">{{ $t("New Import") }}</router-link>            
                 <div id="header-search"><search-bar ref="searchField"></search-bar></div>
-                <div class="menu-section">
+                <div class="menu-section" v-if="$store.state.gameDomain === 2">
+                    <router-link to="/fellowship-ui">{{ $t("Browse") }}</router-link>    
+                </div>
+                <div class="menu-section" v-else>
                     <span>
                         {{ $t("Browse")}} 
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
@@ -183,12 +194,15 @@ export default {
                             <div class="menu-group">
                                 <router-link to='/the-war-within-weakauras'>
                                     <div class="md-list-text-container">
-                                    <span class="sub-nav-heading"><span class="menu-icon"><img src="../../assets/weakauras.png"></span> WeakAuras</span>
-                                    <span class="game-select">
-                                        <router-link to='/the-war-within-weakauras'>The War Within</router-link>
-                                        <router-link to='/cataclysm-weakauras'>Cataclysm</router-link>
-                                        <router-link to='/classic-weakauras'>Classic</router-link>
-                                    </span>
+                                        <span class="sub-nav-heading"><span class="menu-icon"><img src="../../assets/weakauras.png"></span> WeakAuras</span>
+                                        <span class="game-select">
+                                            <router-link to='/the-war-within-weakauras'>The War Within</router-link>
+                                            <router-link to='/mop-weakauras'>Mists of Pandaria</router-link>
+                                            <router-link to='/classic-weakauras'>Classic</router-link>
+                                        </span>
+                                        <!-- <span class="game-select">
+                                            <router-link to='/wod-weakauras'>Warlords of Draenor Beta</router-link>
+                                        </span> -->
                                     </div>
                                 </router-link>
                                 <router-link to='/elvui'><span class="menu-icon"><img src="../../assets/tukui.png"></span> ElvUI</router-link>
@@ -255,6 +269,11 @@ export default {
                     </router-link>
                 </template>
 
+                <div class="menu-section">
+                    <a v-if="$store.state.gameDomain !== 0" href="https://wago.io" class="domain-link"><img src="../../assets/wow-icon.svg" alt="WoW Logo" /> WoW</a>
+                    <a v-if="$store.state.gameDomain !== 2" href="https://fellowship.wago.io" class="domain-link"><img src="../../assets/fellowship-logo.svg" alt="Fellowship Logo" /> Fellowship</a>
+                </div>
+
                 
                 <div class="flex-spacer"></div>
                 
@@ -275,6 +294,32 @@ export default {
                         </div>
                     </div>
                 </div>
+            </div>  
+        </div>
+        <div id="header-bottom-row-wrap" v-if="0 && (this.$store.state.user.UID || this.$store.state.user.guest) && !this.$store.state.user.hideAds">   
+            <div id="header-bottom-row">
+                <span>{{ $t('Sponsors') }}</span>
+                <a id="holy-btn" href='https://bit.ly/WagoHoly' target="_blank" >
+                    <img src="../../assets/holy-icon-button.png" /> HOLY Energy Discounts
+                </a>   
+                <!-- <a id="steelseries-btn" href='https://bit.ly/SteelseriesLoU' target="_blank" >
+                    <img src="../../assets/steelseries-logo.svg" /> ARCTIS NOVA PRO
+                </a> -->
+                <!-- <a id="dailyquest-btn" href='https://bit.ly/DailyQuestLoU' target="_blank" >
+                    <img src="../../assets/dailyquest-icon.png" /> WoW Games, Win Prizes
+                </a> -->
+                
+                <a id="raidshadowlegends-btn" href='https://pl.go-ga.me/eqafcbbp' target="_blank" >
+                    <img src="../../assets/raid-shadow-legends-icon.png" /> Huge RAID Rewards
+                </a>
+                
+                <div class="flex-spacer"></div>
+
+                <div id="TopNavBanner"></div>
+
+                <!-- <a id="raid-btn" href='https://pl.go-ga.me/o3y0a0sn' target="_blank" >
+                    <img src="../../assets/raid-banner.png" />
+                </a> -->
             </div>  
         </div>
     </div>
@@ -319,6 +364,39 @@ export default {
     position: fixed;
     left:0; right:0; top:0; bottom:0;
     z-index:998
+}
+
+#header-domain-wrap {
+    background: #2C2C2C;
+    border-bottom: 1px solid #3E3E3E;
+}
+#header-domain {
+    width: 1250px;
+    max-width: 100%;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    .selected {
+        border-bottom: 2px solid #c1272d;
+        margin-bottom: -1px;
+    }
+    a {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 4px 8px;
+        border-radius: 4px;
+        margin: 2px;
+        color: #eee;
+        &:hover {
+            background-color: #1c1c1c;
+            text-decoration: none;
+        }
+        img {
+            height: 24px;
+        }
+    }
 }
 
 #header-top-wrap {
@@ -397,12 +475,15 @@ export default {
     }
 }
 
-#patreon-btn, #steelseries-btn {
+#patreon-btn, #steelseries-btn, #dailyquest-btn, #holy-btn, #raidshadowlegends-btn {
     background: none;
     color: #E3E3E3;
     padding: 12px!important;
     font-weight: normal;
     margin: 0!important;
+    border-radius: 8px;
+    display: flex;
+    gap: 4px;
     img, svg {
         height: 16px;
         margin-right: 4px;
@@ -410,7 +491,46 @@ export default {
 }
 #steelseries-btn {
     color: #F3F3F3!important;
-    background: #2b2b2b;
+    border: 1px solid;
+    &:hover, &:focus {
+        border-color: #FFFFFF;
+        background: #444;
+    }
+}
+#holy-btn {
+    color: #F3F3F3!important;
+    background: #252525;
+    border: 1px solid rgba(44,201,77,.75);
+    &:hover, &:focus {
+        border-color: rgb(44, 201, 77);
+        background: #444;
+    }
+}
+#dailyquest-btn {
+    color: #F3F3F3!important;
+    border: 1px solid rgba(255, 209, 0, 0.30);
+    &:hover, &:focus {
+        border-color: #FFD100;
+        color: #FFD100;
+        background: #231e1e;
+    }
+}
+#raidshadowlegends-btn {
+    color: #FFF!important;
+    background: #252525;
+    border: 1px solid rgb(213,194,162);
+    padding: 8px!important;
+    line-height: 24px;
+    img {
+        height: 24px;
+        margin: 0 4px;
+    }
+    &:hover, &:focus {
+        color: rgb(213,194,162)!important;
+    }
+}
+#raid-btn img {
+    max-height: 55px;
 }
 #header-user {
     flex-grow: 1;
@@ -474,10 +594,10 @@ export default {
     }
 }
 
-#header-main-wrap {
+#header-main-wrap, #header-bottom-row-wrap {
     background: #2C2C2C;
     border-bottom: 1px solid #3E3E3E;
-    #header-main {
+    #header-main, #header-bottom-row {
         width: 1250px;
         max-width: 100%;
         margin: 0 auto;
@@ -485,7 +605,7 @@ export default {
         justify-content: space-between;
         align-items: center;
         gap: 12px;
-        padding: 12px 0;
+        padding: 10px 0;
         font-size: 16px;
         line-height: 16px;
 
@@ -513,18 +633,22 @@ export default {
             color: white;
             position: relative;
             cursor: default;
-            & > span {
+            & > span, & > a {
                 padding: 12px;
                 border-radius: 8px;
                 display: flex;
                 justify-content: center;
+                align-items: center;
                 gap: 5px;
                 svg {
                     height: 16px;
                 }
             }
-            &:hover > span {
+            &:hover > span, &:hover > a {
                 background: #242424;
+            }
+            .domain-link img {
+                height: 32px;
             }
             &.red-btn {
                 padding: 12px;
@@ -628,6 +752,9 @@ export default {
         }
     }
 }
+#header-bottom-row-wrap #header-bottom-row {
+    padding: 5px 0;
+}
 
 .flex-spacer {
     flex-grow: 1;
@@ -670,7 +797,7 @@ export default {
 }
 
 @media (min-width: 1150px) and (max-width: 1270px) {
-    #header-top-wrap, #header-main-wrap {
+    #header-top-wrap, #header-main-wrap, #header-bottom-row-wrap {
         padding: 0 8px;
     }
 }
@@ -717,9 +844,13 @@ export default {
         display: flex;
     }
 
-    #header-main-wrap {
+    .flex-spacer {
         display: none;
-        #header-main {
+    }
+
+    #header-main-wrap, #header-bottom-row-wrap {
+        display: none;
+        #header-main, #header-bottom-row {
             flex-direction: column;
             align-items: flex-start;
             gap: 0;
@@ -781,8 +912,13 @@ export default {
             }
         }
     }
-    .mobile-open #header-main-wrap {
+    .mobile-open #header-main-wrap, .mobile-open #header-bottom-row-wrap {
         display: flex;
+    }
+
+    #header-bottom-row {
+        gap: 8px!important;
+        align-items: center!important;
     }
 
     .sub-nav {
@@ -797,7 +933,7 @@ export default {
             }
         }
     }
-    #header-main-wrap {
+    #header-main-wrap, #header-bottom-row-wrap {
         display: none;
         &.mobile-open {
             display: block;

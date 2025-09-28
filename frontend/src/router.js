@@ -15,6 +15,7 @@ const MenuWeakAurasClassic = resolve => require(['@/components/core/Menu-WeakAur
 const MenuWeakAurasTBC = resolve => require(['@/components/core/Menu-WeakAuras-TBC.vue'], resolve)
 const MenuWeakAurasWotLK = resolve => require(['@/components/core/Menu-WeakAuras-WotLK.vue'], resolve)
 const MenuWeakAurasCata = resolve => require(['@/components/core/Menu-WeakAuras-Cata.vue'], resolve)
+const MenuWeakAurasMop = resolve => require(['@/components/core/Menu-WeakAuras-MoP.vue'], resolve)
 const MenuMacro = resolve => require(['@/components/core/Menu-Macro.vue'], resolve)
 const MenuBlizzHUD = resolve => require(['@/components/core/Menu-BlizzHud.vue'], resolve)
 const MenuElvUI = resolve => require(['@/components/core/Menu-ElvUI.vue'], resolve)
@@ -29,7 +30,7 @@ const MenuGSE = resolve => require(['@/components/core/Menu-GSE.vue'], resolve)
 const MenuMDTTheWarWithin = resolve => require(['@/components/core/Menu-MDT-TWW.vue'], resolve)
 const CreateMDT = resolve => require(['@/components/core/Create-MDT.vue'], resolve)
 const MenuCollections = resolve => require(['@/components/core/Menu-Collections.vue'], resolve)
-const MenuDelvUI = resolve => require(['@/components/core/Menu-DelvUI.vue'], resolve)
+const MenuFellowshipUI = resolve => require(['@/components/core/Menu-FellowshipUI.vue'], resolve)
 
 const TermsOfService = resolve => require(['@/components/core/TermsOfService.vue'], resolve)
 const PrivacyPolicy = resolve => require(['@/components/core/PrivacyPolicy.vue'], resolve)
@@ -141,6 +142,11 @@ module.exports = {
     { path: '/legion-weakauras/:c1/:c2', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'weakaura'), type: 'weakaura', game: 'wow', expansion: 'legion', mode: 'imports' } }) },
     { path: '/legion-weakauras/:c1/:c2/:c3', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'weakaura'), type: 'weakaura', game: 'wow', expansion: 'legion', mode: 'imports' } }) },
     { path: '/legion-weakauras/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'weakaura'), type: 'weakaura', game: 'wow', expansion: 'legion', mode: 'imports' } }) },
+    { path: '/mop-weakauras', component: MenuWeakAurasMop },
+    { path: '/mop-weakauras/:c1', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'weakaura'), type: 'weakaura', game: 'wow', expansion: 'mop', mode: 'imports' } }) },
+    { path: '/mop-weakauras/:c1/:c2', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'weakaura'), type: 'weakaura', game: 'wow', expansion: 'mop', mode: 'imports' } }) },
+    { path: '/mop-weakauras/:c1/:c2/:c3', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'weakaura'), type: 'weakaura', game: 'wow', expansion: 'mop', mode: 'imports' } }) },
+    { path: '/mop-weakauras/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'weakaura'), type: 'weakaura', game: 'wow', expansion: 'mop', mode: 'imports' } }) },
     { path: '/cataclysm-weakauras', component: MenuWeakAurasCata },
     { path: '/cataclysm-weakauras/:c1', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'weakaura'), type: 'weakaura', game: 'wow', expansion: 'cata', mode: 'imports' } }) },
     { path: '/cataclysm-weakauras/:c1/:c2', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'weakaura'), type: 'weakaura', game: 'wow', expansion: 'cata', mode: 'imports' } }) },
@@ -251,6 +257,12 @@ module.exports = {
     { path: '/snippets/:c1/:c2', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'Snippet'), type: 'snippet', mode: 'code' } }) },
     { path: '/snippets/:c1/:c2/:c3', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'Snippet'), type: 'snippet', mode: 'code' } }) },
     { path: '/snippets/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'Snippet'), type: 'snippet', mode: 'code' } }) },
+
+    { path: '/fellowship-ui', component: MenuFellowshipUI },
+    { path: '/fellowship-ui/:c1', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'fellowshipui'), type: 'fellowshipui', game: 'fellowship', mode: 'imports' } }) },
+    { path: '/fellowship-ui/:c1/:c2', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'fellowshipui'), type: 'fellowshipui', game: 'fellowship', mode: 'imports' } }) },
+    { path: '/fellowship-ui/:c1/:c2/:c3', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'fellowshipui'), type: 'fellowshipui', game: 'fellowship', mode: 'imports' } }) },
+    { path: '/fellowship-ui/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'fellowshipui'), type: 'fellowshipui', game: 'fellowship', mode: 'imports' } }) },
 
     // { path: '/p/classic/:profile', component: ViewProfile, props: (route) => ({ query: 'User:' + route.params.profile }) },
     { path: '/p/:profile', component: Search, props: (route) => ({ context: { query: `User:"${route.params.profile}"`, mode: 'imports' } }) },
