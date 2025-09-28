@@ -162,123 +162,125 @@
       </md-whiteframe>
     </md-layout>
 
-    <div id="currentcontent">
-      <strong>{{ $t('Current WeakAuras') }}</strong>
-      <md-layout>
-        <div id="current-wa">
-          <router-link :to="'/the-war-within-weakauras/' + currentWA.modern[0].slug" :style="`border-color: ${currentWA.modern[0].color}99; color:${currentWA.modern[0].color}; background-color:${currentWA.modern[0].color}11; background-image:url('/static/image/menu/${currentWA.modern[0].image}')`"><span>{{ currentWA.modern[0].text }}</span></router-link>
-          <router-link :to="'/the-war-within-weakauras/' + currentWA.modern[1].slug" :style="`border-color: ${currentWA.modern[1].color}99; color:${currentWA.modern[1].color}; background-color:${currentWA.modern[1].color}11; background-image:url('/static/image/menu/${currentWA.modern[1].image}')`"><span>The War Within {{ currentWA.modern[1].text }}</span></router-link>
+    <template v-if="$store.state.gameDomain === 0">
+      <div id="currentcontent">
+        <strong>{{ $t('Current WeakAuras') }}</strong>
+        <md-layout>
+          <div id="current-wa">
+            <router-link :to="'/the-war-within-weakauras/' + currentWA.modern[0].slug" :style="`border-color: ${currentWA.modern[0].color}99; color:${currentWA.modern[0].color}; background-color:${currentWA.modern[0].color}11; background-image:url('/static/image/menu/${currentWA.modern[0].image}')`"><span>{{ currentWA.modern[0].text }}</span></router-link>
+            <router-link :to="'/the-war-within-weakauras/' + currentWA.modern[1].slug" :style="`border-color: ${currentWA.modern[1].color}99; color:${currentWA.modern[1].color}; background-color:${currentWA.modern[1].color}11; background-image:url('/static/image/menu/${currentWA.modern[1].image}')`"><span>The War Within {{ currentWA.modern[1].text }}</span></router-link>
 
-          <router-link :to="'/cataclysm-weakauras/' + currentWA.classic[0].slug" :style="`border-color: ${currentWA.classic[0].color}99; color:${currentWA.classic[0].color}; background-color:${currentWA.classic[0].color}11; background-image:url('/static/image/menu/${currentWA.classic[0].image}')`"><span>{{ currentWA.classic[0].text }}</span></router-link>    
-          <router-link :to="'/classic-weakauras/' + currentWA.classic[1].slug" :style="`border-color: ${currentWA.classic[1].color}99; color:${currentWA.classic[1].color}; background-color:${currentWA.classic[1].color}11; background-image:url('/static/image/menu/${currentWA.classic[1].image}')`"><span>{{ currentWA.classic[1].text }}</span></router-link>          
+            <router-link :to="'/cataclysm-weakauras/' + currentWA.classic[0].slug" :style="`border-color: ${currentWA.classic[0].color}99; color:${currentWA.classic[0].color}; background-color:${currentWA.classic[0].color}11; background-image:url('/static/image/menu/${currentWA.classic[0].image}')`"><span>{{ currentWA.classic[0].text }}</span></router-link>    
+            <router-link :to="'/classic-weakauras/' + currentWA.classic[1].slug" :style="`border-color: ${currentWA.classic[1].color}99; color:${currentWA.classic[1].color}; background-color:${currentWA.classic[1].color}11; background-image:url('/static/image/menu/${currentWA.classic[1].image}')`"><span>{{ currentWA.classic[1].text }}</span></router-link>          
 
-          <!-- <a href="https://addons.wago.io/app" style="border-color: #DDDDDD99; color: #DDDDDD; background-color: #DDDDDD11; background-image: url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23DDDDDD%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4%22/%3E%3C/svg%3E');"><span>{{ $t('Download the Wago App') }}</span></a> -->
-          
-          <!-- <a href="https://docs.google.com/forms/d/e/1FAIpQLSeTRULzT7KCSoNAzxEel9mNJ8rzyqamrPT-u6dMYveD6QR_fg/viewform?usp=dialog" target="_blank" style="border-color: #DDDDDD99; color: #DDDDDD; background-color: #DDDDDD11; background-image: url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23DDDDDD%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M10.125 2.25h-4.5c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125v-9M10.125 2.25h.375a9 9 0 0 1 9 9v.375M10.125 2.25A3.375 3.375 0 0 1 13.5 5.625v1.5c0 .621.504 1.125 1.125 1.125h1.5a3.375 3.375 0 0 1 3.375 3.375M9 15l2.25 2.25L15 12%22/%3E%3C/svg%3E');"><span>{{ $t('We are hiring a Community Manager!') }}</span></a> -->
-        </div>
-      </md-layout>
-    </div>
-
-    <md-layout id="col2" :md-column-medium="true" md-vertical-align="start" v-if="!isTest">
-      <div id="topwagos" v-if="topLists && topLists[topID]">
-        <md-whiteframe>
-          <md-list class="md-dense">
-            <md-list-item class="top-list-header">
-              <md-menu md-align-trigger md-size="6">
-                <md-button class="md-dense" md-menu-trigger>{{ $t(topLists[topID].title) }}</md-button>
-                <div class="top-list-note" v-if="topLists[topID].title.match(/Installed/)">{{ $t('Per WeakAuras Companion App') }}</div>
-                <md-menu-content class="top-list-menu">
-                  <template v-for="(list, index) in topLists">
-                    <md-menu-item :key="index" @click="topID = index">{{ $t(list.title) }}</md-menu-item>
-                    <md-divider v-if="list.lastOfSection"></md-divider>
-                  </template>
-                </md-menu-content>
-              </md-menu>
-            </md-list-item>
-            <md-list-item v-for="(item, index) in topLists[topID].imports" :key="index">
-              <router-link :to="'/' + item.slug">
-                <div class="md-list-text-container">
-                  <span>{{ item.name }}</span>
-                  <span v-if="item.date">{{ item.display | moment('MMM Do YYYY LT') }}</span>
-                  <span v-else>{{ $t(item.display, item) }}</span>
-                </div>
-              </router-link>
-              </router-link>
-            </md-list-item>
-          </md-list>
-        </md-whiteframe>
-        <md-whiteframe v-if="$screenWidth >= 1780">
-          <md-list class="md-dense">
-            <md-list-item class="top-list-header">
-              <md-menu md-align-trigger md-size="6">
-                <md-button class="md-dense" md-menu-trigger>{{ $t(topLists[topID2].title) }} <span class="down-arrow"></span></md-button>
-                <div class="top-list-note" v-if="topLists[topID2].title.match(/Installed/)">{{ $t('Per WeakAuras Companion App') }}</div>
-                <md-menu-content class="top-list-menu">
-                  <template v-for="(list, index) in topLists">
-                    <md-menu-item :key="index" @click="topID2 = index">{{ $t(list.title) }}</md-menu-item>
-                    <md-divider v-if="list.lastOfSection"></md-divider>
-                  </template>
-                </md-menu-content>
-              </md-menu>
-            </md-list-item>
-            <md-list-item v-for="(item, index) in topLists[topID2].imports" :key="index">
-              <router-link :to="'/' + item.slug">
-                <div class="md-list-text-container">
-                  <span>{{ item.name }}</span>
-                  <span v-if="item.date">{{ item.display | moment('MMM Do YYYY LT') }}</span>
-                  <span v-else>{{ $t(item.display, item) }}</span>
-                </div>
-              </router-link>
-            </md-list-item>
-          </md-list>
-        </md-whiteframe>
-        <md-whiteframe>
-          <md-list class="md-dense">
-            <md-list-item>
-              <strong>{{ $t(topLists[topLists.length - 2].title) }}</strong>
-            </md-list-item>
-            <md-list-item v-for="(item, index) in topLists[topLists.length - 2].imports" :key="index">
-              <router-link :to="'/' + item.slug">
-                <div class="md-list-text-container">
-                  <span>{{ item.name }}</span>
-                  <span>{{ item.display | moment('MMM Do YYYY LT') }}</span>
-                </div>
-              </router-link>
-            </md-list-item>
-          </md-list>
-        </md-whiteframe>
-        <md-whiteframe v-if="$screenWidth >= 1780">
-          <md-list class="md-dense" id="newest-imports">
-            <md-list-item>
-              <strong>{{ $t(topLists[topLists.length - 1].title) }}</strong>
-            </md-list-item>
-            <md-list-item v-for="(item, index) in topLists[topLists.length - 1].imports" :key="index" v-if="index < 3">
-              <router-link :to="'/' + item.slug">
-                <div class="md-list-text-container">
-                  <span>{{ item.name }}</span>
-                  <span>{{ item.display | moment('MMM Do YYYY LT') }}</span>
-                </div>
-              </router-link>
-            </md-list-item>
-          </md-list>
-        </md-whiteframe>
+            <!-- <a href="https://addons.wago.io/app" style="border-color: #DDDDDD99; color: #DDDDDD; background-color: #DDDDDD11; background-image: url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23DDDDDD%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4%22/%3E%3C/svg%3E');"><span>{{ $t('Download the Wago App') }}</span></a> -->
+            
+            <!-- <a href="https://docs.google.com/forms/d/e/1FAIpQLSeTRULzT7KCSoNAzxEel9mNJ8rzyqamrPT-u6dMYveD6QR_fg/viewform?usp=dialog" target="_blank" style="border-color: #DDDDDD99; color: #DDDDDD; background-color: #DDDDDD11; background-image: url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23DDDDDD%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M10.125 2.25h-4.5c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125v-9M10.125 2.25h.375a9 9 0 0 1 9 9v.375M10.125 2.25A3.375 3.375 0 0 1 13.5 5.625v1.5c0 .621.504 1.125 1.125 1.125h1.5a3.375 3.375 0 0 1 3.375 3.375M9 15l2.25 2.25L15 12%22/%3E%3C/svg%3E');"><span>{{ $t('We are hiring a Community Manager!') }}</span></a> -->
+          </div>
+        </md-layout>
       </div>
 
-      <!--<md-table v-if="addonReleases.length > 0" id="addonReleases">
-        <md-table-header>
-          <md-table-row>
-            <md-table-head>{{ $t("Latest addons") }}</md-table-head>
-            <md-table-head>{{ $t("Version") }}</md-table-head>
-          </md-table-row>
-        </md-table-header>
-        <md-table-body>
-          <md-table-row v-for="(addon, addonIndex) in addonReleases" :key="addonIndex" v-if="addon.addon !== 'Grid2'">
-            <md-table-cell>{{ addon.addon }}</md-table-cell>
-            <md-table-cell><a :href="addon.url" target="_blank" rel="noopener">{{ addon.version }}</a><br><span>{{ addon.date | moment('MMM Do YYYY') }}</span></md-table-cell>
-          </md-table-row>
-        </md-table-body>
-      </md-table>-->
-    </md-layout>
+      <md-layout id="col2" :md-column-medium="true" md-vertical-align="start" v-if="!isTest">
+        <div id="topwagos" v-if="topLists && topLists[topID]">
+          <md-whiteframe>
+            <md-list class="md-dense">
+              <md-list-item class="top-list-header">
+                <md-menu md-align-trigger md-size="6">
+                  <md-button class="md-dense" md-menu-trigger>{{ $t(topLists[topID].title) }}</md-button>
+                  <div class="top-list-note" v-if="topLists[topID].title.match(/Installed/)">{{ $t('Per WeakAuras Companion App') }}</div>
+                  <md-menu-content class="top-list-menu">
+                    <template v-for="(list, index) in topLists">
+                      <md-menu-item :key="index" @click="topID = index">{{ $t(list.title) }}</md-menu-item>
+                      <md-divider v-if="list.lastOfSection"></md-divider>
+                    </template>
+                  </md-menu-content>
+                </md-menu>
+              </md-list-item>
+              <md-list-item v-for="(item, index) in topLists[topID].imports" :key="index">
+                <router-link :to="'/' + item.slug">
+                  <div class="md-list-text-container">
+                    <span>{{ item.name }}</span>
+                    <span v-if="item.date">{{ item.display | moment('MMM Do YYYY LT') }}</span>
+                    <span v-else>{{ $t(item.display, item) }}</span>
+                  </div>
+                </router-link>
+                </router-link>
+              </md-list-item>
+            </md-list>
+          </md-whiteframe>
+          <md-whiteframe v-if="$screenWidth >= 1780">
+            <md-list class="md-dense">
+              <md-list-item class="top-list-header">
+                <md-menu md-align-trigger md-size="6">
+                  <md-button class="md-dense" md-menu-trigger>{{ $t(topLists[topID2].title) }} <span class="down-arrow"></span></md-button>
+                  <div class="top-list-note" v-if="topLists[topID2].title.match(/Installed/)">{{ $t('Per WeakAuras Companion App') }}</div>
+                  <md-menu-content class="top-list-menu">
+                    <template v-for="(list, index) in topLists">
+                      <md-menu-item :key="index" @click="topID2 = index">{{ $t(list.title) }}</md-menu-item>
+                      <md-divider v-if="list.lastOfSection"></md-divider>
+                    </template>
+                  </md-menu-content>
+                </md-menu>
+              </md-list-item>
+              <md-list-item v-for="(item, index) in topLists[topID2].imports" :key="index">
+                <router-link :to="'/' + item.slug">
+                  <div class="md-list-text-container">
+                    <span>{{ item.name }}</span>
+                    <span v-if="item.date">{{ item.display | moment('MMM Do YYYY LT') }}</span>
+                    <span v-else>{{ $t(item.display, item) }}</span>
+                  </div>
+                </router-link>
+              </md-list-item>
+            </md-list>
+          </md-whiteframe>
+          <md-whiteframe>
+            <md-list class="md-dense">
+              <md-list-item>
+                <strong>{{ $t(topLists[topLists.length - 2].title) }}</strong>
+              </md-list-item>
+              <md-list-item v-for="(item, index) in topLists[topLists.length - 2].imports" :key="index">
+                <router-link :to="'/' + item.slug">
+                  <div class="md-list-text-container">
+                    <span>{{ item.name }}</span>
+                    <span>{{ item.display | moment('MMM Do YYYY LT') }}</span>
+                  </div>
+                </router-link>
+              </md-list-item>
+            </md-list>
+          </md-whiteframe>
+          <md-whiteframe v-if="$screenWidth >= 1780">
+            <md-list class="md-dense" id="newest-imports">
+              <md-list-item>
+                <strong>{{ $t(topLists[topLists.length - 1].title) }}</strong>
+              </md-list-item>
+              <md-list-item v-for="(item, index) in topLists[topLists.length - 1].imports" :key="index" v-if="index < 3">
+                <router-link :to="'/' + item.slug">
+                  <div class="md-list-text-container">
+                    <span>{{ item.name }}</span>
+                    <span>{{ item.display | moment('MMM Do YYYY LT') }}</span>
+                  </div>
+                </router-link>
+              </md-list-item>
+            </md-list>
+          </md-whiteframe>
+        </div>
+
+        <!--<md-table v-if="addonReleases.length > 0" id="addonReleases">
+          <md-table-header>
+            <md-table-row>
+              <md-table-head>{{ $t("Latest addons") }}</md-table-head>
+              <md-table-head>{{ $t("Version") }}</md-table-head>
+            </md-table-row>
+          </md-table-header>
+          <md-table-body>
+            <md-table-row v-for="(addon, addonIndex) in addonReleases" :key="addonIndex" v-if="addon.addon !== 'Grid2'">
+              <md-table-cell>{{ addon.addon }}</md-table-cell>
+              <md-table-cell><a :href="addon.url" target="_blank" rel="noopener">{{ addon.version }}</a><br><span>{{ addon.date | moment('MMM Do YYYY') }}</span></md-table-cell>
+            </md-table-row>
+          </md-table-body>
+        </md-table>-->
+      </md-layout>
+    </template>
   </div>
 </template>
 

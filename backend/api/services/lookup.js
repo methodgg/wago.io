@@ -163,7 +163,7 @@ module.exports = function (fastify, opts, next) {
           pop.save()
 
           // if counting then also check referrer
-          if (req.query._ref && req.query._ref.match && !req.query._ref.match(/^https:\/\/wago.io/)) {
+          if (req.query._ref && req.query._ref.match && !req.query._ref.match(/^https:\/\/(\w+\.)?wago.io/)) {
             var foundRef = false
             if (doc.type === 'ERROR' && doc.expires_at) {
               doc.expires_at = null

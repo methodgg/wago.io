@@ -20,7 +20,7 @@ export default {
   components: {
     Multiselect
   },
-  props: ['selectedCategories', 'type', 'game', 'domain'],
+  props: ['selectedCategories', 'type', 'game'],
   computed: {
     multiSelectValue: {
       get: function () {
@@ -62,14 +62,14 @@ export default {
       }
       let game = this.game
       let type = this.type
-      let domain = this.domain ?? 0
+      let domain = this.$store.state.gameDomain || 0
       if (this.type === 'COLLECTION') {
         game = game.replace(/legion|bfa/, 'df')
       }
       else if (!this.type.match(/WEAKAURA/)) {
         game = null
       }
-      else {
+      else if (domain === 0) {
         type = 'WEAKAURA'
       }
 
