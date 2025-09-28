@@ -37,7 +37,6 @@ module.exports = function (fastify, opts, next) {
             decodedObj = await addon.decode(req.body.importString.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim(), lua.runLua)
         }
       }
-      console.log(addonFile)
       if (!decodedObj) {
         continue
       }
@@ -761,7 +760,6 @@ module.exports = function (fastify, opts, next) {
         await webhooks.onImport(req.user, wago)
     }
 
-    console.log(wago.webhookOnImport)
     await wago.save()
 
     if (wago.encrypted && req.body.cipherKey) {

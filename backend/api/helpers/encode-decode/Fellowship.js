@@ -9,7 +9,7 @@ module.exports = {
   
     decode: async (encodedString) => {
       // test that string matches expected regex
-      if (config.env !== 'development') {
+      if (!encodedString.match(/^[-A-Za-z0-9+/]*={0,3}$/)) {
         return false
       }
       try {
@@ -26,7 +26,7 @@ module.exports = {
         return obj
       }
       catch (e) {
-        return 's'
+        return false
       }
     },
   
