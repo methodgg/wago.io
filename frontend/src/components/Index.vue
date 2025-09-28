@@ -172,14 +172,24 @@
 
             <router-link :to="'/cataclysm-weakauras/' + currentWA.classic[0].slug" :style="`border-color: ${currentWA.classic[0].color}99; color:${currentWA.classic[0].color}; background-color:${currentWA.classic[0].color}11; background-image:url('/static/image/menu/${currentWA.classic[0].image}')`"><span>{{ currentWA.classic[0].text }}</span></router-link>    
             <router-link :to="'/classic-weakauras/' + currentWA.classic[1].slug" :style="`border-color: ${currentWA.classic[1].color}99; color:${currentWA.classic[1].color}; background-color:${currentWA.classic[1].color}11; background-image:url('/static/image/menu/${currentWA.classic[1].image}')`"><span>{{ currentWA.classic[1].text }}</span></router-link>          
-
-            <!-- <a href="https://addons.wago.io/app" style="border-color: #DDDDDD99; color: #DDDDDD; background-color: #DDDDDD11; background-image: url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23DDDDDD%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4%22/%3E%3C/svg%3E');"><span>{{ $t('Download the Wago App') }}</span></a> -->
-            
-            <!-- <a href="https://docs.google.com/forms/d/e/1FAIpQLSeTRULzT7KCSoNAzxEel9mNJ8rzyqamrPT-u6dMYveD6QR_fg/viewform?usp=dialog" target="_blank" style="border-color: #DDDDDD99; color: #DDDDDD; background-color: #DDDDDD11; background-image: url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23DDDDDD%22 stroke-width=%222%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22%3E%3Cpath d=%22M10.125 2.25h-4.5c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125v-9M10.125 2.25h.375a9 9 0 0 1 9 9v.375M10.125 2.25A3.375 3.375 0 0 1 13.5 5.625v1.5c0 .621.504 1.125 1.125 1.125h1.5a3.375 3.375 0 0 1 3.375 3.375M9 15l2.25 2.25L15 12%22/%3E%3C/svg%3E');"><span>{{ $t('We are hiring a Community Manager!') }}</span></a> -->
           </div>
         </md-layout>
       </div>
+    </template>
+    <template v-else-if="$store.state.gameDomain === 2">
+      <div id="currentcontent">
+        <strong>{{ $t('Browse By Hero') }}</strong>
+        <md-layout>
+          <div id="current-wa">
+            <template v-for="hero in fellowshipHero">
+              <router-link :to="'/fellowship/' + hero.slug" :style="`border-color: ${hero.color}99; color:${hero.color}; background-color:${hero.color}11; background-image:url('/static/image/menu/${hero.image}')`"><span>{{ hero.text }}</span></router-link>
+            </template>
+          </div>
+        </md-layout>
+      </div>
+    </template>
 
+    <template v-if="$store.state.gameDomain === 0">
       <md-layout id="col2" :md-column-medium="true" md-vertical-align="start" v-if="!isTest">
         <div id="topwagos" v-if="topLists && topLists[topID]">
           <md-whiteframe>
@@ -594,6 +604,9 @@ export default {
           {...Categories.getCategories('sod-scarletenclave')[0], image: Categories.getCategories('sod')[0].image, color: Categories.getCategories('sod')[0].color},
         ],
       }
+    },
+    fellowshipHero () {
+      return Categories.getCategories(/^fellowship-(tank|healer|dps)/, true)
     },
     user () {
       return this.$store.state.user

@@ -51,6 +51,7 @@ module.exports = {
   
       meta.name = 'Fellowship Profile'
       meta.type = 'FELLOWSHIP-UI'
+      meta.game = 'fellowship'
   
       return meta
     },

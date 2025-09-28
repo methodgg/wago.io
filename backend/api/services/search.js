@@ -91,7 +91,8 @@ async function searchElastic(req, res) {
 
   let filterExpansion = []
   let defaultFilterExpansion
-  if (req.query.expansion === 'legacy') {
+  if (req.domain) {}
+  else if (req.query.expansion === 'legacy') {
     filterExpansion = [
       { term: { expansion: { value: expansionIndex('df') } } },
       { term: { expansion: { value: expansionIndex('sl') } } },
