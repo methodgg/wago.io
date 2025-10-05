@@ -108,7 +108,7 @@ module.exports = (fastify, opts, next) => {
 
       who.webhookOnImport = user.webhookOnImport
 
-      const unreadComments = Comments.findUnread(user._id)
+      const unreadComments = Comments.findUnread(user._id, req.domain)
       const myCollections = WagoItem.find({ _userId: user._id, type: 'COLLECTION', deleted: false }).select('_id name').sort('name').exec()
       who.unreadMentions = await unreadComments
       who.collections = await myCollections

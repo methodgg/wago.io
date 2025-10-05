@@ -17,11 +17,11 @@ const Schema = new mongoose.Schema({
   _indexComment: Boolean
 })
 
-Schema.statics.findUnread = async function (userID) {
+Schema.statics.findUnread = async function (userID, domain) {
   const comments = await this.find({ usersTagged: { $elemMatch: { userID: userID, read: false } } }).populate('wagoID').select('wagoID').exec()
   var unread = []
   comments.forEach(c => {
-    if (c.wagoID && c.wagoID._id && !c.wagoID.deleted) {
+    if (c.wagoID && c.wagoID._id && !c.wagoID.deleted && (c.wagoID.domain === domain || (!c.wagoID.domain && !domain))) {
       unread.push({ _id: c._id, wagoID: c.wagoID._id })
     }
   })

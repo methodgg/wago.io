@@ -187,7 +187,7 @@ async function searchElastic(req, res) {
     // allowHidden = true
     m[1] = m[1].toLowerCase()
     if (m[1] === 'unread') {
-      const unreadComments = (await Comments.findUnread(req.user._id)).map(x => { return { term: { _id: x._id } } })  
+      const unreadComments = (await Comments.findUnread(req.user._id, req.domain)).map(x => { return { term: { _id: x._id } } })  
       if (unreadComments && unreadComments.length) {
         esFilter.push(({ bool: { should: unreadComments } }))
       }
