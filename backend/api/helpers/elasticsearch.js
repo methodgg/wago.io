@@ -155,7 +155,8 @@ module.exports = {
             userName: { type: 'text', index: false },
             userAvatar: { type: 'text', index: false },
             userClass: { type: 'text', index: false },
-            userLinked: { type: 'boolean', index: false }
+            userLinked: { type: 'boolean', index: false },
+            domain: { type: 'short' },
           }
         }
       })

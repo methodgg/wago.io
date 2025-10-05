@@ -66,6 +66,7 @@ Schema.virtual('indexedCommentData').get(async function () {
 
     data.type = this.wagoID.type.replace(/.*-WEAKAURA/, 'WEAKAURA')
     data.expansion = -1
+    data.domain = this.wagoID.domain ?? 0
     if ((data.type === 'WEAKAURA' || data.type === 'PLATER') && !this.wagoID.encrypted) {
       data.expansion = (GameVersion.tocToPatch(this.wagoID.tocversion).major || 0) - 1
     }
