@@ -203,12 +203,16 @@ module.exports = function (fastify, opts, next) {
     }
 
     await redis.set(`AUTH:${state}`, req.raw.ip, 'EX', 600)
-
     let host = 'https://wago.io'
+    let client_id = '9cc008ea-23d8-48e5-b93d-cad0cc395c42'
     if (config.env === 'development') {
         host = 'http://localhost:8080'
     }
-    res.redirect(`https://accounts.wago.io/oauth/authorize?client_id=9cc008ea-23d8-48e5-b93d-cad0cc395c42&redirect_uri=${host}%2Fauth%2Fwago&response_type=code&scope=&state=${state}`)
+    else if (req.domain === 2) {
+      host = 'https://fellowship.wago.io'
+      client_id = 'a00cb212-318f-4d0c-a95d-400ea770d6d8'
+    }
+    res.redirect(`https://accounts.wago.io/oauth/authorize?client_id=${client_id}&redirect_uri=${host}%2Fauth%2Fwago&response_type=code&scope=&state=${state}`)
   })
 
   fastify.get('/hash', async function (req, res) {
@@ -224,10 +228,12 @@ async function unifiedWagoAuth(req, res) {
     if (state === req.raw.ip) {
         try {
             await redis.del(`AUTH:${req.body.state}`)
+            const clientID = config.auth.wago['clientID' + req.domain] ?? config.auth.wago.clientID0
+            const clientSecret = config.auth.wago['clientSecret' + req.domain] ?? config.auth.wago.clientSecret0
             const response = await axios.post('https://accounts.wago.io/oauth/token', querystring.stringify({
                 code: req.body.code,
-                client_id: config.auth.wago.clientID,
-                client_secret: config.auth.wago.clientSecret,
+                client_id: clientID,
+                client_secret: clientSecret,
                 redirect_uri: req.headers.origin + '/auth/wago',
                 grant_type: 'authorization_code'
             }), {
