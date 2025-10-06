@@ -19,6 +19,9 @@ module.exports = async function(req, res) {
   if (parseInt(req.body.domain ?? req.query.domain) === ENUM.DOMAIN.FELLOWSHIP || ('' + (req.body.domain ?? req.query.domain ?? '')).toUpperCase() === 'FELLOWSHIP') {
     req.domain = ENUM.DOMAIN.FELLOWSHIP
   }
+  else if (typeof req.body.domain === 'undefined' && typeof req.query.domain === 'undefined' && req.headers.referer?.includes('fellowship.wago.io') && req.url === '/auth/redirect') {
+    req.domain = ENUM.DOMAIN.FELLOWSHIP
+  }
   else {
     req.domain = ENUM.DOMAIN.WOW
   }
