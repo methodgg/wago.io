@@ -182,7 +182,7 @@ class Categories {
       'manaforgeomega7': {slug: 'pve/mana-forge-omega/nexus-king-salhadaar', i18n: 'warcraft:encounters.2690', domain: 0, parent: 'manaforgeomega', types: ['WEAKAURA', 'COLLECTION'], games: ['tww']},
       'manaforgeomega8': {slug: 'pve/mana-forge-omega/dimensius-the-all-devouring', i18n: 'warcraft:encounters.2691', domain: 0, parent: 'manaforgeomega', types: ['WEAKAURA', 'COLLECTION'], games: ['tww']},
 
-      'legionremix': {slug: 'pve/legion-remix', image: 'antorus.png', color: '#1978aa', i18n: 'Region Remix', domain: 0, types: ['WEAKAURA', 'COLLECTION'], games: ['tww']},
+      'legionremix': {slug: 'pve/legion-remix', image: 'antorus.png', color: '#1978aa', i18n: 'Legion Remix', domain: 0, types: ['WEAKAURA', 'COLLECTION'], games: ['tww']},
 
       'twwdungeon': {slug: 'pve/the-war-within-dungeons', image: 'dungeon.png', color: '#F5A623', i18n: 'Dungeons', domain: 0, types: ['WEAKAURA', 'COLLECTION'], games: ['tww']},
       
