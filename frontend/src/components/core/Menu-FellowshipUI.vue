@@ -6,7 +6,7 @@
             <md-avatar class='square'><category-image :group="'t-fellowship-ui'"></category-image></md-avatar>
             <h2 id="addon-name">Fellowship UI</h2>
           </md-layout>
-          <addon-info game="wow" addon="fellowship-ui"></addon-info>
+          <addon-info game="fellowship" addon="fellowship-ui"></addon-info>
         </div>
       </md-layout>
       <md-subheader>{{ $t("Heroes") }}</md-subheader>
