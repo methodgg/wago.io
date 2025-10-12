@@ -1002,6 +1002,10 @@ async function ProcessCode(data) {
       { url: `https://data.wago.io/lookup/wago/code?id=${doc.slug}&version=${code.versionString}`, headers: { Origin: 'https://wago.io' } },
       { url: `https://data.wago.io/lookup/wago/code?id=${doc._id}&version=${code.versionString}-${doc.latestVersion.iteration}`, headers: { Origin: 'https://wago.io' } },
       { url: `https://data.wago.io/lookup/wago/code?id=${doc.slug}&version=${code.versionString}-${doc.latestVersion.iteration}`, headers: { Origin: 'https://wago.io' } },
+      { url: `https://data.wago.io/lookup/wago/code?id=${doc._id}&version=${code.versionString}&domain=${doc.domain}`, headers: { Origin: 'https://wago.io' } },
+      { url: `https://data.wago.io/lookup/wago/code?id=${doc.slug}&version=${code.versionString}&domain=${doc.domain}`, headers: { Origin: 'https://wago.io' } },
+      { url: `https://data.wago.io/lookup/wago/code?id=${doc._id}&version=${code.versionString}-${doc.latestVersion.iteration}&domain=${doc.domain}`, headers: { Origin: 'https://wago.io' } },
+      { url: `https://data.wago.io/lookup/wago/code?id=${doc.slug}&version=${code.versionString}-${doc.latestVersion.iteration}&domain=${doc.domain}`, headers: { Origin: 'https://wago.io' } },
     ]
   })
   await redis.clear(doc)
