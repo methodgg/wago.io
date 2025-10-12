@@ -178,11 +178,25 @@ function checkTrigger(codes, keypath, id, trigger, untrigger, index) {
 }
 
 function checkActionCustom(codes, keypath, id, item) {
-  if (item && item.do_custom && isValidCodeString(item.custom)) {
+  if (item?.do_custom && isValidCodeString(item.custom)) {
     codes.push({
       name: id,
       keypath: `${keypath}.custom`,
       lua: item.custom
+    })
+  }
+  if (item?.do_custom_load && isValidCodeString(item.customOnLoad)) {
+    codes.push({
+      name: id + ' On Load',
+      keypath: `${keypath}.customOnLoad`,
+      lua: item.customOnLoad
+    })
+  }
+  if (item?.do_custom_unload && isValidCodeString(item.customOnUnload)) {
+    codes.push({
+      name: id + ' On Unload',
+      keypath: `${keypath}.customOnUnload`,
+      lua: item.customOnUnload
     })
   }
   return codes
