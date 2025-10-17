@@ -1245,6 +1245,7 @@ class Categories {
       'fellowship-healer-sylvie': {slug: 'sylvie', image: 'sylvie.png', color: '#ea4f84', i18n: 'fellowship:sylvie', domain: 2},
       'fellowship-healer-vigour': {slug: 'vigour', image: 'vigour.png', color: '#D3DBC5', i18n: 'fellowship:vigour', domain: 2},
       'fellowship-dps-ardeos': {slug: 'ardeos', image: 'ardeos.png', color: '#eb6329', i18n: 'fellowship:ardeos', domain: 2},
+      'fellowship-dps-elarion': {slug: 'elarion', image: 'elarion.png', color: '#a986ff', i18n: 'fellowship:elarion', domain: 2},
       'fellowship-dps-rime': {slug: 'rime', image: 'rime.png', color: '#1da7f5', i18n: 'fellowship:rime', domain: 2},
       'fellowship-dps-mara': {slug: 'mara', image: 'mara.png', color: '#6e2df0', i18n: 'fellowship:mara', domain: 2},
       'fellowship-dps-tariq': {slug: 'tariq', image: 'tariq.png', color: '#c859df', i18n: 'fellowship:tariq', domain: 2},
