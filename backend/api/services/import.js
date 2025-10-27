@@ -53,7 +53,7 @@ module.exports = function (fastify, opts, next) {
         if (addon.domain === ENUM.DOMAIN.FELLOWSHIP) {
           scan.decoded = losslessJSON.stringify(decodedObj)
         }
-        else {
+        else if (scan.type !== 'SNIPPET') {
           scan.decoded = JSON.stringify(decodedObj)
         }
         scan.type = meta.type
@@ -470,6 +470,9 @@ module.exports = function (fastify, opts, next) {
     var json = {}
     if (scan.decoded && scan.domain === ENUM.DOMAIN.FELLOWSHIP) {
       json = losslessJSON.parse(scan.decoded)
+    }
+    else if (scan.type === 'SNIPPET') {
+      json = scan.input
     }
     else {
       json = JSON.parse(scan.decoded)
