@@ -65,6 +65,7 @@
                     searchType === 'totalrp3' && 'TotalRP' ||
                     searchType === 'vuhdo' && 'VuhDo' ||
                     searchType === 'baganator' && 'Baganator' ||
+                    searchType === 'platynator' && 'Platynator' ||
                     searchType === 'dbm' && 'DBM' ||
                     searchType === 'bigwigs' && 'BigWigs' ||
                     searchType === 'mdt' && 'MDT' ||
@@ -110,6 +111,7 @@
                     <div @click="setType('dbm')"><span class="addon-icon"><img src="../../assets/menu-dbm.png"></span> Deadly Boss Mods</div>
                     <div @click="setType('gse')"><span class="addon-icon"><img src="../../assets/menu-gse.png"></span> GSE</div>
                     <div @click="setType('opie')"><span class="addon-icon"><img src="../../assets/menu-opie.png"></span> OPie</div>
+                    <div @click="setType('platynator')"><span class="addon-icon"><img src="../../assets/menu-platynator.png"></span> Platynator</div>
                     <div @click="setType('totalrp3')"><span class="addon-icon"><img src="../../assets/menu-trpcamp.png"></span> Total RP</div>
                     <div @click="setType('vuhdo')"><span class="addon-icon"><img src="../../assets/menu-vuhdo.png"></span>VuhDo</div>
                     <div @click="setType('collection')"><span class="addon-icon"><img src="../../assets/menu-collection.png"></span> Collection</div>
@@ -709,7 +711,11 @@ export default {
     parseContext() {
       this.searchMode = this.context.mode || this.$store.state.searchMode || window.localStorage.getItem(`search.mode`) || 'imports'
       this.searchGame = this.context.game || this.$store.state.searchGame || window.localStorage.getItem(`search.game`) || 'wow'
-      if (this.context.expansion || this.context.type) {
+      if (this.$store.state.gameDomain) {
+        this.searchExpansion = 'fellowship'
+        this.searchType = 'fellowship-ui'
+      }
+      else if (this.context.expansion || this.context.type) {
         this.searchExpansion = this.context.expansion || this.$store.state.searchExpansion || window.localStorage.getItem(`search.expansion.${this.searchGame}`) || 'all'        
         this.searchType = this.context.type || this.$store.state.searchType || window.localStorage.getItem(`search.type.${this.searchGame}`) || 'all'
       }

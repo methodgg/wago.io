@@ -109,8 +109,11 @@ module.exports = {
       return false
     }
 
-    meta.type = 'CELL'
     const strMeta = regexCell.exec(importString)
+    if (!strMeta) {
+      return false
+    }
+    meta.type = 'CELL'
     meta.embeddedStrData = {
         version: parseInt(strMeta[1]),
         type: strMeta[2]

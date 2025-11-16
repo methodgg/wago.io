@@ -1,161 +1,14 @@
 <template>
     <div id="app">
+      <notification-banner id="maintenance" v-if="isMaintenance" :preventClose="true">Our search engine is currently repopulating. Not all imports can be found until this completes. Approx ETA {{ maintenanceDate | moment('MMM Do LT') }}.</notification-banner>
+      <notification-banner id="platynator-notice" v-if="isPlatynatorNew"><router-link to="/search/imports/wow/platynator">Platynator imports are now available on Wago.</router-link></notification-banner>
+      <wago-header></wago-header>
+
       <div id="menu-underlay" @click="closeMenus()" v-if="userMenuOpen"></div>
       <div id="maincontent" v-if="!isEmbed">
         <div id="copyContainer"></div>
-        <notification-banner id="maintenance" v-if="isMaintenance" :preventClose="true">Wago is in maintenance mode, and is read-only. </notification-banner>
-        <wago-header v-if="1"></wago-header>
-        <template v-else>
-        <div id="topbar">
-          <md-toolbar>
-            <md-button class="md-icon-button md-hide-small-and-up" @click="toggleMobileNav()">
-              <md-icon>menu</md-icon>
-            </md-button>
-            <h2 class="md-title" @click="$store.commit('setSearchText', '')" id="logo"><router-link to="/"><img src="./assets/wagoio-logo.png"/></router-link></h2>
-  
-            <div id="h-nav" class="md-hide-xsmall">
-              <div id="top-search-bar">
-                <search-bar ref="searchField"></search-bar>
-              </div>
-              
-              <a id="wago-btn" href='https://uipacks.wago.io/' class="md-button alert-button">
-                  <img src="./assets/wagoio-logo.png" /> Wago UI Packs
-              </a>
-              
-            </div>
-            <div id="hr-nav" class="md-hide-xsmall">
-              <h2 class="md-title md-hide-small-and-up" id="logo"><router-link to="/"><img src="./assets/wagoio-logo.png"/></router-link></h2>
-              <div v-if="User && User.unreadMentions && User.unreadMentions.length" id="header-unread">
-                <router-link to="/my/mentions"><md-icon>comment</md-icon> <span class="unreadCount">{{ User.unreadMentions.length }}</span></router-link>
-              </div>
-              <login-button v-if="!isMaintenance"></login-button>
-            </div>
-          </md-toolbar>
-        </div>
-        <md-sidenav class="md-hide-small-and-up md-left" ref="mobileSidebar" id="mobile-sidebar">
-          <search-bar ref="searchField"></search-bar>
-          <md-list>
-            <md-list-item v-if="LoggedIn">
-              <span :class="User.css"><md-icon>person</md-icon> {{ User.name }}</span>
-              <md-list-expand>
-                <md-list>
-                  <md-list-item><router-link :to="'/p/'+encodeURIComponent(User.name)">{{ $t("My Profile") }}</router-link></md-list-item>
-                  <md-list-item><router-link to="/my/mentions">{{ $t("My Mentions") }} <span class="unreadCount" v-if="User.unreadMentions.length">{{ User.unreadMentions.length }}</span></router-link></md-list-item>
-                  <md-list-item><router-link to="/my/stars">{{ $t("My Favorites") }}</router-link></md-list-item>
-                  <md-list-item><router-link to="/settings">{{ $t("Settings") }}</router-link></md-list-item>
-                  <md-list-item v-if="User.access.admin"><router-link to="/admin">Admin</router-link></md-list-item>
-                </md-list>
-              </md-list-expand>
-            </md-list-item>
-            <md-list-item v-else><login-button v-if="!isMaintenance"></login-button></md-list-item>
-            <md-list-item><router-link to='/'>{{ $t("Import") }}</router-link></md-list-item>
-            <md-list-item><router-link to='/news'>{{ $t("Site News") }}</router-link></md-list-item>
-            <md-list-item><a href="https://addons.wago.io">Wago Addons</a><md-divider></md-divider></md-list-item>
-            <md-list-item class="menu-section">World of Warcraft</md-list-item>
-            <md-list-item><router-link to='/search/imports/wow/bigwigs'>BigWigs</router-link></md-list-item>
-            <md-list-item><router-link to='/blizzhud'>BlizzHUD</router-link></md-list-item>
-            <md-list-item><router-link to='/cell'>Cell</router-link></md-list-item>
-            <md-list-item><router-link to='/search/imports/wow/dbm'>DBM</router-link></md-list-item>
-            <md-list-item><router-link to='/elvui'>ElvUI</router-link></md-list-item>
-            <md-list-item><router-link to='/gse'>GSE</router-link></md-list-item>
-            <md-list-item><router-link to='/macros'>Macros</router-link><md-divider></md-divider></md-list-item>
-            <md-list-item><router-link to='/the-war-within-mdt'>Mythic Dungeon Tools</router-link></md-list-item>
-            <md-list-item><router-link to='/plater'>Plater Nameplates</router-link></md-list-item>
-            <md-list-item><router-link to='/totalrp'>Total RP</router-link></md-list-item>
-            <md-list-item><router-link to='/vuhdo'>VuhDo</router-link></md-list-item>
-            <md-list-item><router-link to='/the-war-within-weakauras'>The War Within WeakAuras</router-link><md-divider></md-divider></md-list-item>
-            <md-list-item><router-link to='/cataclysm-weakauras'>Cata WeakAuras</router-link><md-divider></md-divider></md-list-item>
-            <md-list-item><router-link to='/classic-weakauras'>Classic WeakAuras</router-link><md-divider></md-divider></md-list-item>
-            <md-list-item class="menu-section">General</md-list-item>
-            <md-list-item><router-link to='/collections'>{{ $t("Collections") }}</router-link></md-list-item>
-            <md-list-item><router-link to='/snippets'><span class="menu-action" @click="$store.commit('setSearchText', `type:SNIPPET`)">{{ $t("Snippets") }}</span></router-link><md-divider></md-divider></md-list-item>
-          </md-list>
-        </md-sidenav>
-        <div class="full-navbar md-hide-xsmall" ref="full-navbar" id="full-navbar">
-          <div class="nav">
-            <router-link to='/' class="home-import-btn">{{ $t("Import") }}</router-link>
-            <div class="menu-section" v-if="false">
-              <span>World of Warcraft <md-icon>expand_more</md-icon></span>
-              <div class="sub-nav">
-                <router-link v-for="(addon, key) of addonDB" :to='addon.path' :key="key">
-                  <div class="md-list-text-container">
-                    {{ addon.name }}
-                            <span class="menu-game-select" v-if="addon.submenu">
-                      <router-link v-for="(item, key) of addon.submenu" :to="item.path" :key="key"> {{ item.name }}</router-link>
-                    </span>
-                  </div>
-                </router-link>
-                <router-link to='/addon-imports'>{{ $t('More Imports...') }}</router-link>
-              </div>
-            </div>
-            <div class="menu-section" v-else>
-              <span>World of Warcraft <md-icon>expand_more</md-icon></span>
-              <div class="sub-nav">
-                <div class="menu-group">
-                  <router-link to='/the-war-within-weakauras'>
-                      <div class="md-list-text-container">
-                      <span class="sub-nav-heading"><span class="addon-icon"><img src="./assets/weakauras.png"></span> WeakAuras</span>
-                            <span class="menu-game-select">
-                          <router-link to='/the-war-within-weakauras'>{{ $t("The War Within") }}</router-link>
-                          <router-link to='/cataclysm-weakauras'>{{ $t("Cataclysm") }}</router-link>
-                          <router-link to='/classic-weakauras'>{{ $t("Classic") }}</router-link>
-                      </span>
-                      </div>
-                  </router-link>
-                  <router-link to='/elvui'><span class="addon-icon"><img src="./assets/tukui.png"></span> ElvUI</router-link>
-                  <router-link to='/the-war-within-mdt'><span class="addon-icon"><img src="./assets/mdt.png"></span> Mythic Dungeon Tools <div class="newAlert-orange"><span>{{ $t('Updated') }}</span></div></router-link>
-                  <router-link to='/plater'><span class="addon-icon"><img src="./assets/menu-plater.png"></span> Plater Nameplates</router-link>
-                </div>
-                <div class="menu-group">
-                  <router-link v-if="isBaganatorNew" to='/search/imports/wow/baganator'><span class="addon-icon"><img src="./assets/menu-baginator.png"></span> Baganator <div class="newAlert"><span>{{ $t('New') }}</span></div></router-link>
-                  <router-link v-if="isCellNew" to='/cell'><span class="addon-icon"><img src="./assets/menu-cell.png"></span> Cell <div class="newAlert"><span>{{ $t('New') }}</span></div></router-link>
-                  <router-link v-if="isGSENew" to='/gse'><span class="addon-icon"><img src="./assets/menu-gse.png"></span> GSE: Advanced Macro Compiler <div class="newAlert"><span>{{ $t('New') }}</span></div></router-link>
-                  <router-link to='/addons'><span class="addon-icon"><img src="/static/image/menu/mechanics.png"></span> {{$t('More Imports...')}}</router-link>
-                </div>
-              </div>
-            </div>
-            <!-- <div class="menu-section">
-              <span>Final Fantasy XIV <md-icon>expand_more</md-icon></span>
-              <div class="sub-nav">
-                <router-link to='/delvui'>DelvUI</router-link>
-                <router-link to='/tpie'>TPie</router-link>
-              </div>
-            </div> -->
-            <div class="menu-section">
-              <span>{{ $t("Addons") }} <md-icon>expand_more</md-icon></span>
-              <div class="sub-nav">
-                <a href="https://addons.wago.io">{{ $t("Download Addons") }}</a>
-                <a href="https://addons.wago.io/app">Wago App</a>
-              </div>
-            </div>
-            <router-link to='/collections'>{{ $t("Collections") }}</router-link>
-            <router-link to='/snippets'>{{ $t("Snippets") }}</router-link>
-            <!--<router-link to='/snippets'><span class="menu-action" @click="$store.commit('setSearchText', `type:SNIPPET`)">{{ $t("Snippets") }}</span></router-link>-->
-  
-            <template v-if="LoggedIn">
-              <div class="menu-section">
-              <span>{{ $t("My Data") }}  <md-icon>expand_more</md-icon></span>
-                <div class="sub-nav">
-                  <router-link :to="'/p/'+encodeURIComponent(User.name)">{{ $t("My Profile") }}</router-link>
-                  <router-link to="/my/mentions">{{ $t("My Mentions") }} <span class="unreadCount" v-if="User.unreadMentions.length">{{ User.unreadMentions.length }}</span></router-link>
-                  <router-link to="/my/stars">{{ $t("My Favorites") }}</router-link>
-                </div>
-              </div>
-            </template>
-
-            <router-link id="randombtn" to='/random'><img src="./assets/random.png"></router-link>
-  
-            <div class="grow"></div>
-                    <md-button v-if="(this.$store.state.user.UID || this.$store.state.user.guest) && !this.$store.state.user.hideAds" href="https://www.patreon.com/wagoio" target="_blank" id="patreon-btn">
-                        <svg aria-hidden="true" focusable="false" class="header-patreon" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M512 194.8c0 101.3-82.4 183.8-183.8 183.8-101.7 0-184.4-82.4-184.4-183.8 0-101.6 82.7-184.3 184.4-184.3C429.6 10.5 512 93.2 512 194.8zM0 501.5h90v-491H0v491z"></path></svg>
-                        {{ $t('Support Wago.io') }}
-                    </md-button>
-        
-            <select-locale display="code"></select-locale>
-          </div>
-        </div>
-        </template> 
-  
+        <div id="TopMobileBanner"></div>
+          
         <md-snackbar md-position="top center" ref="snackbar" md-duration="4000">
           <span>{{ PopMsg }}</span>
           <md-button @click.native="$refs.snackbar.close()">{{ $t("Close") }}</md-button>
@@ -169,9 +22,12 @@
               <advert v-if="asteriTest()" ad="embed-asteri" />
               <advert v-else ad="rectangle-sidebar" :patreonLink="true" />
               <stream-embed v-if="$store.state.streamEmbed && $store.state.streamEmbed !== '__none'" :stream="$store.state.streamEmbed" />
+              <div v-else style="margin-left:10px">
+                <a :href="appBanner.url" target="_blank"><img :src="appBanner.image" id="dl-app-image" alt="Download the Wago App"></a>
+              </div>
             </div>
           </div>
-          <advert ad="leaderboard-bottom" :patreonLink="true" :frame="false" />
+          <!-- <advert ad="leaderboard-bottom" :patreonLink="true" :frame="false" /> -->
         </div>
 
         <wago-footer></wago-footer>
@@ -232,16 +88,25 @@
         advSearchMentioned: false,
         advSearchDate: '',
         today: new Date(),
-        isBaganatorNew: new Date() < new Date('2024-09-25'),
-        isCellNew: new Date() < new Date('2024-08-28'),
-        isGSENew: new Date() < new Date('2024-09-20'),
+        isPlatynatorNew: new Date() < new Date('2025-11-30'),
         showAddonsButton: window.localStorage.getItem('notification-1'),
         videoEmbedHTML: '',
         addonDB,
-        userMenuOpen: false
+        userMenuOpen: false,
+        maintenanceDate: new Date('2024-01-08T22:30:00Z'),
+        appBanner: {
+          url: 'https://bit.ly/WagoAppAddons',
+          image: 'https://media.wago.io/site/app-addons.png'
+        }
       }
     },
     created: function () {
+      if (Math.random() > 0.5) {
+        this.appBanner = {
+          url: 'https://bit.ly/WagoAppUIPacks',
+          image: 'https://media.wago.io/site/app-uipacks.png'
+        }
+      }
       // listen for link click events at the document level
       if (document.addEventListener) {
         document.addEventListener('click', (e) => {
@@ -465,7 +330,7 @@
       },
       includeSidebar () {
         if (window.innerWidth <= 1024) return false
-        return !(this.$store.state.user.hideAds || this.$store.state.isMaintenance || this.$store.state.pageInfo.layout === 'MDT')
+        return ((this.$store.state.user.UID || this.$store.state.user.guest) && !this.$store.state.user.hideAds) && !this.$store.state.isMaintenance && this.$store.state.pageInfo.layout !== 'MDT'
       }
     },
     watch: {
@@ -568,6 +433,7 @@
   }
   #maincontent {
     /*background: #2C2C2C;*/
+    padding: 0 4px;
   }
   #menu-underlay {
     position: fixed;
@@ -580,8 +446,6 @@
   #globalmenu a:hover {
     background: #212121;
   }
-  
-  
   
   #topbar {
     background: #000000;
@@ -713,6 +577,21 @@
     position: sticky;
     position: -webkit-sticky;
     top: 0px;
+  }
+  @media (max-width: 1149px) {
+    #TopMobileBanner {
+      margin: 16px auto 0;
+      max-width: 455px;
+      max-height: 55px;
+    }
+    #TopNavBanner {
+      display: none
+    }
+  }
+  @media (min-width: 1150px) {
+    #TopMobileBanner {
+      display: none
+    }
   }
   @media (max-width: 1050px) {
       #patreon-btn {
@@ -924,6 +803,12 @@
     margin: 0 auto;
     max-width: 1250px;
   }
+  .ads-enabled #content {
+    max-width: 1100px;
+  }
+  #search-weakaura .md-list.md-dense .md-list-item.md-inset .md-list-item-container {
+    padding-left: 0;
+  }
   
   .submenu-single-line {line-height: 36px!important;  min-height: 36px; display: block;}
   .menu-game-select a {color: #999!important; font-size: 14px;}
@@ -992,6 +877,58 @@
       }
     }
   }
-  }
+
+#patreon-btn {
+    padding: 5px 8px!important;
+    margin: 2px 8px!important;
+    text-transform: none;
+    position: relative;
+    overflow: initial;
+    z-index: 99;
+    svg {
+      height: 20px;
+      margin-right: 4px;
+    }
+    
+    .sub-nav {
+      display: none;
+      flex-direction: column;
+      align-items: flex-start;
+      box-shadow: 5px 5px 30px #00000066;
+      border-radius: 0 0 2px 2px;
+      min-width: 140px;
+      z-index: 99!important;
+      text-align: left;
+      & > * {
+        padding: 4px 12px;
+        color: white;
+        background: #3A3A3A;
+        cursor: pointer;
+        display: block;
+        &:hover {
+          background: #444444;
+          text-decoration: none;
+        }
+      }
+      :last-child {
+        border-radius: 0 0 2px 2px;
+      }
+    }
+    &:hover {
+      background: #3A3A3A;
+      .sub-nav {
+        display: block;
+        position: absolute;
+        top: 39px;
+        left: 0;
+      }
+    }
+}
+
+#dl-app-image {
+  border: 1px solid #be262c;
+  border-radius: 4px;
+  overflow: hidden;
+}
   
-  </style>
+</style>

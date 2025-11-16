@@ -43,8 +43,8 @@ export default {
 </script>
 
 <style>
-#notification-banner { position: absolute; top: 0; left: 0; background-color: #c1272d; width: 100%; min-height: 40px; display: flex; justify-content: space-between }
-#notification-banner .md-button.md-icon-button .md-icon, .md-button.md-fab .md-icon { color: black }
+#notification-banner { background-color: #c1272d; width: 100%; min-height: 40px; display: flex; justify-content: space-between }
+#notification-banner .md-button.md-icon-button .md-icon, .md-button.md-fab .md-icon { color: white }
 #notification-msg {flex: 1; text-align: center; font-weight: bold; color: #FFF; line-height: 40px; font-size: 18px; padding-left: 22px}
-#notification-msg a {color: inherit; text-decoration:none; display: block}
+#notification-msg a {color: inherit; text-decoration:none}
 </style>

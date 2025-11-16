@@ -17,8 +17,10 @@ module.exports = {
     },
   
     processMeta: (obj) => {
-      var meta = {type: 'BLIZZHUD', game: 'df', name: 'Blizz HUD Config', categories: []}
+      if (!Array.isArray(obj) || obj.length !== obj.filter(s => typeof s === 'string' && s.match(/^\d+ /)).length) {
+        return false
+      }
   
-      return meta
+      return {type: 'BLIZZHUD', game: 'tww', name: 'Blizz HUD Config', categories: []}
     }
   }

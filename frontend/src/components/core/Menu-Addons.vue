@@ -15,7 +15,7 @@
               <div class="menu-image"><img src="../../assets/weakauras.png" alt="Icon" /></div>
               <div class="md-list-text-container weakauras-list">
                 <router-link to='/the-war-within-weakauras'>{{ $t("The War Within") }}</router-link>
-                <router-link to='/cataclysm-weakauras'>{{ $t("Cataclysm") }}</router-link>
+                <router-link to='/mop-weakauras'>{{ $t("Mists of Pandaria") }}</router-link>
                 <router-link to='/classic-weakauras'>{{ $t("Classic") }}</router-link>
               </div>
             </md-list-item>
@@ -61,6 +61,15 @@
 
           <md-list class="md-double-line md-dense">
             <md-list-item class="md-inset">
+              <div class="menu-image"><img src="../../assets/menu-platynator.png" alt="Icon" /></div>
+              <div class="md-list-text-container">
+                <router-link to="/search/imports/wow/platynator">Platynator</router-link>
+              </div>
+            </md-list-item>
+          </md-list>
+
+          <md-list class="md-double-line md-dense">
+            <md-list-item class="md-inset">
               <div class="menu-image"><img src="../../assets/menu-vuhdo.png" alt="Icon" /></div>
               <div class="md-list-text-container">
                 <router-link to="/vuhdo">VuhDo</router-link>
@@ -76,7 +85,7 @@
               <md-list-item class="md-inset">
                 <div class="menu-image"><img src="../../assets/menu-baginator.png" alt="Icon" /></div>
                 <div class="md-list-text-container">
-                  <router-link to="/search/imports/wow/baganator ">Baganator </router-link>
+                  <router-link to="/search/imports/wow/baganator">Baganator </router-link>
                 </div>
               </md-list-item>
             </md-list>
