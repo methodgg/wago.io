@@ -13,7 +13,11 @@ module.exports = {
     },
   
     encodeRaw: async (str) => {
-        return str
+      if (str.startsWith('["')) {
+        const a = JSON.parse(str)
+        return a.join(' ')
+      }
+      return str
     },
   
     processMeta: (obj) => {

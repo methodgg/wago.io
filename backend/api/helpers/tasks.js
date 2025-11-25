@@ -903,24 +903,26 @@ async function ProcessCode(data) {
         if (meta.code) { code = meta.code }
         if (meta.wago) { doc = meta.wago }
       }
+      }
       if (data.encode || !code.encoded) {
         if (addon.encode) {
           code.encoded = await addon.encode(code.json.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim(), lua.runLua, doc)
         }
         else if (addon.encodeRaw) {
           code.encoded = await addon.encodeRaw(code.json)
-        }
       }
     }
   }
   else if (doc.type) {
     // match addon by type
     for (const addon of Object.values(Addons)) {
-      if (addon.addWagoData && doc.type.match(addon.typeMatch)) {
+      if (doc.type.match(addon.typeMatch)) {
+        if (addon.addWagoData) {
         let meta = await addon.addWagoData(code, doc)
         if (meta) {
           if (meta.code) { code = meta.code }
           if (meta.wago) { doc = meta.wago }
+          }
         }
         if (data.encode || !code.encoded) {
           if (addon.encode) {
@@ -981,6 +983,7 @@ async function ProcessCode(data) {
 
   doc.categories = [...new Set(doc.categories)]
   doc.codeProcessVersion = codeProcessVersion
+  doc.forceReprocess = false
 
   await WagoItem.findOneAndUpdate({_id: doc._id}, {$set: doc})
   await WagoCode.findOneAndUpdate({auraID: code.auraID, version: code.version}, {$set: code})

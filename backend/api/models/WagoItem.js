@@ -33,6 +33,7 @@ const Schema = new mongoose.Schema({
   game: { type: String, default: 'df', index: true }, // expansion code
   domain: { type: Number, default: ENUM.DOMAIN.WOW, index: true }, // actual game: 'WOW' or 'FF14'
   tocversion: Number,
+  forceReprocess: Boolean,
 
   hidden: { type: Boolean, default: false, index: true },
   private: { type: Boolean, default: false, index: true },
