@@ -103,7 +103,10 @@ module.exports = {
     else if (tocversion >= 40400 && tocversion <= 49999) {
       return 'cata'
     }
-    else if (tocversion >= 30400 && tocversion <= 39999) {
+    else if (tocversion >= 38000 && tocversion <= 39999) {
+      return 'titan-wotlk'
+    }
+    else if (tocversion >= 30400 && tocversion <= 37999) {
       return 'wotlk'
     }
     else if (tocversion >= 20501 && tocversion <= 29999) {

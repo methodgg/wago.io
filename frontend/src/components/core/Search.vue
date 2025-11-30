@@ -16,6 +16,7 @@
                   <label>{{ $t('Expansion') }}</label>
                   <small id="selected-expansion">{{
                     searchExpansion === 'classic' && $t('Classic') ||
+                    searchExpansion === 'titan-wotlk' && $t('Titan Reforged Classic WotLK') ||
                     searchExpansion === 'cata' && $t('Cataclysm') ||
                     searchExpansion === 'mop' && $t('Mists of Pandaria') ||
                     searchExpansion === 'df' && $t('Dragonflight') ||
@@ -41,7 +42,11 @@
                     <img src="../../assets/classic-toggle.svg">
                     <md-tooltip md-direction="bottom" class="">{{ $t("Classic") }}</md-tooltip>
                   </md-button>
-                  <md-button :class="{ 'md-toggle': searchExpansion && !searchExpansion.match(/tww|mop|classic/) }" class="md-icon-button" @click="setExpansion('legacy')">
+                  <md-button :class="{ 'md-toggle': searchExpansion === 'titan-wotlk' }" class="md-icon-button" @click="setExpansion('titan-wotlk')">
+                    <img src="../../assets/wotlk-toggle.svg">
+                    <md-tooltip md-direction="bottom" class="">{{ $t("Titan Reforged Classic WotLK") }}</md-tooltip>
+                  </md-button>
+                  <md-button :class="{ 'md-toggle': searchExpansion && !searchExpansion.match(/tww|mop|classic|titan-wotlk/) }" class="md-icon-button" @click="setExpansion('legacy')">
                     <img src="../../assets/legacy-toggle.svg">
                     <md-tooltip md-direction="bottom" class="">{{ $t("Legacy") }}</md-tooltip>
                   </md-button>
@@ -652,6 +657,10 @@ export default {
         this.$set(this.results, 'index', res.index)
         this.$set(this.results, 'results', hits)
         this.isSearching = false
+          
+        if (window.ramp?.pageReprocess) {
+          window.ramp.pageReprocess()
+        }
       })
     },
     watchScroll () {
@@ -695,9 +704,15 @@ export default {
 
         this.isSearchingMore = false
 
-        if (window.tyche) {
-          window.tyche.displayUnits()
-        }
+        this.$nextTick(() => {
+          if (window.tyche?.displayUnits) {
+            window.tyche.displayUnits()
+          }
+          
+          if (window.ramp?.pageReprocess) {
+              window.ramp.pageReprocess()
+          }
+        })
       })
     },
 
@@ -725,8 +740,14 @@ export default {
       }
       else if (this.context.expansionType.match(/-/)) {
         let s = this.context.expansionType.split('-')
-        this.searchExpansion = s[0]
-        this.searchType = s[1]
+        if (s[2]) {
+          this.searchExpansion = `${s[0]}-${s[1]}`
+          this.searchType = s[2]
+        }
+        else {
+          this.searchExpansion = s[0]
+          this.searchType = s[1]
+        }
       }
       else if (this.context.expansionType.match(/^(classic|tbc|wotlk|cata|mop|wod|legion|bfa|sl|df|tww)$/)) {
         this.searchExpansion = this.context.expansionType
@@ -900,7 +921,7 @@ export default {
   }
   .ad-in-search {
     text-align: center;
-    padding: 16px 0 32px 0;
+    padding: 0;
     .wago-advert-text {
       font-size: 80%;
       z-index: 99999;

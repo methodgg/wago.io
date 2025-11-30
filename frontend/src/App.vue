@@ -19,8 +19,8 @@
           <div id="content" :class="{'with-sidebar': includeSidebar}">
             <router-view></router-view>
             <div v-if="includeSidebar" :class="{'side-bar': true, 'with-stream': $store.state.streamEmbed !== '__none'}">
-              <advert v-if="asteriTest()" ad="embed-asteri" />
-              <advert v-else ad="rectangle-sidebar" :patreonLink="true" />
+              <advert ad="rectangle-sidebar" :patreonLink="true" />
+              <div id="pwVideoContainer"></div>
               <stream-embed v-if="$store.state.streamEmbed && $store.state.streamEmbed !== '__none'" :stream="$store.state.streamEmbed" />
               <div v-else style="margin-left:10px">
                 <a :href="appBanner.url" target="_blank"><img :src="appBanner.image" id="dl-app-image" alt="Download the Wago App"></a>
@@ -88,7 +88,7 @@
         advSearchMentioned: false,
         advSearchDate: '',
         today: new Date(),
-        isPlatynatorNew: new Date() < new Date('2025-11-30'),
+        isPlatynatorNew: new Date() < new Date('2025-11-24'),
         showAddonsButton: window.localStorage.getItem('notification-1'),
         videoEmbedHTML: '',
         addonDB,

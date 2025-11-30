@@ -46,7 +46,9 @@ Schema.virtual('game_short').get(function () {
     switch (this.major - 1) {
         case 0: return 'Classic'
         case 1: return 'TBC'
-        case 2: return 'WotLK'
+        case 2: 
+            if (this.minor >= 80) return 'Titan Reforged WotLK'
+            return 'WotLK'
         case 3: return 'Cata'
         case 4: return 'MoP'
         case 5: return 'WoD'
@@ -102,7 +104,7 @@ Schema.statics.updatePatches = async function () {
         for (const [product, builds] of Object.entries(res.data)) {
             const domain = 0
             const done = {} // since we don't use build numbers we can ignore duplicate versions with the otherwise same data
-            const isTest = !(product === 'wow' || product === 'wow_classic' || product === 'wow_classic_era')
+            const isTest = !(product === 'wow' || product === 'wow_classic' || product === 'wow_classic_era' || product === 'wow_classic_titan')
             for (const data of builds.reverse()) {
                 const date = new Date(data.created_at)
                 const tocversion = this.patchToToc(data.version)

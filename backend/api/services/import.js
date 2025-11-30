@@ -85,6 +85,7 @@ module.exports = function (fastify, opts, next) {
         case 'CLASSIC-WEAKAURA':
         case 'TBC-WEAKAURA':
         case 'WOTLK-WEAKAURA':
+        case 'TITAN-WOTLK-WEAKAURA':
         case 'CATA-WEAKAURA':
         case 'MOP-WEAKAURA':
         case 'UNKNOWN-WEAKAURA':
@@ -178,6 +179,7 @@ module.exports = function (fastify, opts, next) {
         if (scan.game === 'classic') scan.type = 'CLASSIC-WEAKAURA'
         else if (scan.game === 'tbc') scan.type = 'TBC-WEAKAURA'
         else if (scan.game === 'wotlk') scan.type = 'WOTLK-WEAKAURA'
+        else if (scan.game === 'titan-wotlk') scan.type = 'TITAN-WOTLK-WEAKAURA'
         else if (scan.game === 'cata') scan.type = 'CATA-WEAKAURA'
         else if (scan.game === 'mop') scan.type = 'MOP-WEAKAURA'
         else if (scan.game === 'unknown') scan.type = 'UNKNOWN-WEAKAURA'

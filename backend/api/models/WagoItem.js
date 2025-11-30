@@ -198,6 +198,8 @@ Schema.virtual('expansionIndex').get(function () {
   else if (this.game === 'df') return 9
   else if (this.game === 'tww') return 10
 
+  else if (this.game === 'titan-wotlk') return 1002
+
   return -1
 })
 Schema.virtual('categoryRanks').get(function () {

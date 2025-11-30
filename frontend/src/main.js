@@ -178,14 +178,9 @@ const store = new Vuex.Store({
       if (!state.advertSetup) {
         body.classList.add('ads-enabled')
 
-        let provider
-        if (window.location.hash === '#playwire' || (window.location.hash !== '#nitropay' && Math.random() < 0.5)) {
-          provider = 'playwire'
-        }
-        else {
-          provider = 'nitropay'
-        }
-        sessionStorage.setItem('ad_provider', provider)
+        // let provider = 'nitropay'
+        let provider = 'playwire'
+        // sessionStorage.setItem('ad_provider', provider)
 
         if (provider === 'nitropay') {
           //**** Nitropay
@@ -206,13 +201,13 @@ const store = new Vuex.Store({
             railOffsetTop: 150,
             railOffsetBottom: 40,
             railSpacing: 6,
-            railCollisionWhitelist: ['*'],
+            railCollisionWhitelist: ['#app', '#maincontent', '#content-frame', '#rail-left', '#rail-left-close', '#rail-right', '#rail-right-close'],
             sizes: [
               ['160', '600'],
               ['300', '600'],
               ['300', '250'],
             ],
-            mediaQuery: '(min-width: 1908px)'
+            mediaQuery: '(min-width: 1800px)'
           }
           nitropay.onload = () => {
             state.advertSetup = true
@@ -283,7 +278,16 @@ const store = new Vuex.Store({
               }))
             },
             refresh: () => {
-              window.advertRails.ads.map(x => x && x.onNavigate && x.onNavigate())
+              window.advertRails.ads.map(async x => {
+                try {
+                  const ad = await x
+                  console.log('ad on navigate', ad)
+                  ad.onNavigate()
+                }
+                catch (e) {
+                  console.error(e)
+                }
+              })
             }
           }
         }
@@ -528,21 +532,17 @@ router.beforeEach((to, from, next) => {
 router.afterEach((to, from) => {
   if (!window.preventScroll) {
     window.scrollTo(0, 0)
-    if (!to.path.match(/^\/(login|account)/)) {
-      // eslint-disable-next-line
-      // load new ad
-    }
   }
 
   if (!from.matched.length || !to.matched.length || (to.matched[0].path === from.matched[0].path && to.matched[0].path === '/:wagoID')) {
     return
   }
   if (!from.matched.length || (to.matched[0].path !== from.matched[0].path || to.matched[0].path !== '/:wagoID')) {
-    if (window.advertRails?.refresh && store.state.adProvider === 'nitropay') {
-      window.advertRails.refresh()
-    }
-    else if (window.ramp?.spaNewPage && store.state.adProvider === 'playwire') {
+    if (window.ramp?.spaNewPage) {
       window.ramp.spaNewPage()
+    }
+    else if (window.advertRails?.refresh && sessionStorage.getItem('ad_provider') === 'nitropay') {
+      window.advertRails.refresh()
     }
 
     gtag('config', 'G-WYTP0LZWS6', {
@@ -998,6 +998,7 @@ import VueI18Next from '@panter/vue-i18next'
 
 import XHR from 'i18next-xhr-backend'
 Vue.use(VueI18Next)
+console.log('GAME_DOMAIN', GAME_DOMAIN)
 i18next.use(XHR)
   .init({
     lng: store.state.locale,

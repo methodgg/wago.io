@@ -86,7 +86,7 @@ module.exports = function (fastify, opts, next) {
     }
     let findType = {}
     if (req.params.importType === 'weakauras') {
-      findType = { '$or': [{ type: 'CLASSIC-WEAKAURA' }, { type: 'TBC-WEAKAURA' }, { type: 'WOTLK-WEAKAURA' }, { type: 'CATA-WEAKAURA' }, { type: 'MOP-WEAKAURA' }, { type: 'WEAKAURA' }] }
+      findType = { '$or': [{ type: 'CLASSIC-WEAKAURA' }, { type: 'TBC-WEAKAURA' }, { type: 'WOTLK-WEAKAURA' }, { type: 'TITAN-WOTLK-WEAKAURA' }, { type: 'CATA-WEAKAURA' }, { type: 'MOP-WEAKAURA' }, { type: 'WEAKAURA' }] }
     }
     else if (req.params.importType === 'plater') {
       findType = { type: 'PLATER' }

@@ -69,7 +69,7 @@ export default {
                 </router-link>
                 <div id="header-common-links">
                     <router-link to="/" class="selected">{{ $t("Imports") }}</router-link>
-                    <template v-if="$store.state.gameDomain === 0">
+                    <template>
                         <a href="https://addons.wago.io">Addons</a>
                         <a href="https://uipacks.wago.io">UI Packs</a>
                         <a href="https://addons.wago.io/app" class="red-btn">
@@ -85,9 +85,12 @@ export default {
                             <svg aria-hidden="true" focusable="false" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M512 194.8c0 101.3-82.4 183.8-183.8 183.8-101.7 0-184.4-82.4-184.4-183.8 0-101.6 82.7-184.3 184.4-184.3C429.6 10.5 512 93.2 512 194.8zM0 501.5h90v-491H0v491z"></path></svg>
                             {{ $t('Support Wago.io') }}
                         </a>
-                        <a id="holy-btn" href='https://bit.ly/WagoHoly' target="_blank" >
+                        <!--<a id="holy-btn" href='https://bit.ly/WagoHoly' target="_blank" >
                             <img src="../../assets/holy-icon-green.png" /> Huge HOLY Discounts
-                        </a>   
+                        </a>-->
+                        <a id="instant-gaming-btn" href='https://bit.ly/InstantGamingWago' target="_blank" >
+                            <img src="../../assets/instant-gaming-logo-icon.png" /> Huge Game Discounts
+                        </a>     
                     </template>
                 </div>
                 <!-- <div class="flex-spacer"></div> -->
@@ -177,7 +180,11 @@ export default {
         </div>
         <div id="header-main-wrap">   
             <div id="header-main">
-                <router-link to="/" class="new-import">{{ $t("New Import") }}</router-link>            
+                <router-link to="/" class="new-import">                    
+                    <img v-if="$store.state.gameDomain === 0" src="../../assets/wow-icon.svg" alt="WoW Logo" /> 
+                    <img v-if="$store.state.gameDomain === 2" src="../../assets/fellowship-logo.svg" alt="Fellowship Logo" /> 
+                    {{ $t("New Import") }}
+                </router-link>
                 <div id="header-search"><search-bar ref="searchField"></search-bar></div>
                 <div class="menu-section" v-if="$store.state.gameDomain === 2">
                     <router-link to="/fellowship-ui">{{ $t("Browse") }}</router-link>    
@@ -200,9 +207,9 @@ export default {
                                             <router-link to='/mop-weakauras'>Mists of Pandaria</router-link>
                                             <router-link to='/classic-weakauras'>Classic</router-link>
                                         </span>
-                                        <!-- <span class="game-select">
-                                            <router-link to='/wod-weakauras'>Warlords of Draenor Beta</router-link>
-                                        </span> -->
+                                        <span class="game-select">
+                                            <router-link to='/titan-reforged-wotlk-weakauras'>Titan Reforged WotLK Classic</router-link>
+                                        </span>
                                     </div>
                                 </router-link>
                                 <router-link to='/elvui'><span class="menu-icon"><img src="../../assets/tukui.png"></span> ElvUI</router-link>
@@ -475,7 +482,7 @@ export default {
     }
 }
 
-#patreon-btn, #steelseries-btn, #dailyquest-btn, #holy-btn, #raidshadowlegends-btn {
+#patreon-btn, #steelseries-btn, #dailyquest-btn, #holy-btn, #raidshadowlegends-btn, #instant-gaming-btn {
     background: none;
     color: #E3E3E3;
     padding: 12px!important;
@@ -504,6 +511,19 @@ export default {
     &:hover, &:focus {
         border-color: rgb(44, 201, 77);
         background: #444;
+    }
+}
+#instant-gaming-btn {
+    color: #F3F3F3!important;
+    background: #2B1A19;
+    border: 1px solid #8E321F;
+    &:hover, &:focus {
+        border-color: #FF4F27;
+        background-color: #39201F!important;
+    }
+    img {
+        width: 20px;
+        height: 20px;
     }
 }
 #dailyquest-btn {
@@ -647,8 +667,11 @@ export default {
             &:hover > span, &:hover > a {
                 background: #242424;
             }
-            .domain-link img {
-                height: 32px;
+            .domain-link {
+                padding: 4px 12px;
+                img {
+                    height: 32px;
+                }
             }
             &.red-btn {
                 padding: 12px;
@@ -732,11 +755,16 @@ export default {
         border-radius: 8px;
         padding: 12px;
         position: relative;
+        line-height: 23px;
         &:hover {
             background-color: #555555;
         }
         svg {
             height: 20px;
+        }
+        img {
+            height: 28px;
+            padding-right: 4px;
         }
     }
     

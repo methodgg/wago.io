@@ -1,7 +1,5 @@
 <template>
-  <div>
     <wago-app />
-  </div>
 </template>
 
 <script>

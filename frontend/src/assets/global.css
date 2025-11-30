@@ -1322,3 +1322,9 @@ body iframe:not(.md-image) {
     min-height: 290px;
     padding: 10px;
 }
+
+@media (min-width: 601px) {
+  .flex-skin-docked #content .side-bar {
+    top: 108px;
+  }
+}

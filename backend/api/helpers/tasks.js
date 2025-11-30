@@ -946,6 +946,7 @@ async function ProcessCode(data) {
       case 'CLASSIC-WEAKAURA':
       case 'TBC-WEAKAURA':
       case 'WOTLK-WEAKAURA':
+      case 'TITAN-WOTLK-WEAKAURA':
       case 'CATA-WEAKAURA':
       case 'MOP-WEAKAURA':
       case 'PLATER':

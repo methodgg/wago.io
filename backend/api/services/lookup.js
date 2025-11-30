@@ -713,9 +713,9 @@ module.exports = function (fastify, opts, next) {
       }
     }
 
-    const processJobId = `${doc._id}:${code.version}:${code.versionString}:${Math.floor(Date.now() / 360000)}` // deduplication at one job per hour
+    const processJobId = `${doc._id}:${code.version}:${code.versionString}:${Math.floor(Date.now() / 360000 * (config.env === 'development' ? 60 : 1))}` // deduplication at one job per hour
     if (doc.forceReprocess) {
-      var q = await taskQueue.add('ProcessCode', { id: doc._id, version: code.versionString }, { priority: req.user && req.user.access.queueSkip && 2 || 5, jobId: processJobId })
+      var q = await taskQueue.add('ProcessCode', { id: doc._id, version: code.versionString, encode: true }, { priority: req.user && req.user.access.queueSkip && 2 || 5, jobId: processJobId })
       wagoCode.Q = q.id
     }
     else if (doc.type === 'SNIPPET') {

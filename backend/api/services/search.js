@@ -25,6 +25,8 @@ function expansionIndex(exp) {
   else if (exp === 'df') return 9
   else if (exp === 'tww') return 10
   else if (exp === 'all') return -1
+
+  else if (exp === 'titan-wotlk') return 1002
   return 10
 }
 
@@ -547,7 +549,7 @@ async function oldSearch(req, res) {
   }
 
   let filterExpansion = [{ term: { game: '' } }]
-  m = query.match(/expansion:\s?(tww|df|sl|bfa|legion|wod|wotlk|tbc|classic)/)
+  m = query.match(/expansion:\s?(tww|df|sl|bfa|legion|wod|(titan-)?wotlk|tbc|classic)/)
   while (m) {
     query = query.replace(m[0], '')
     filterExpansion.push({ term: { game: m[1] } })
@@ -566,6 +568,7 @@ async function oldSearch(req, res) {
       filterTypes.push({ term: { 'type.keyword': 'MOP-WEAKAURA' } })
       filterTypes.push({ term: { 'type.keyword': 'CATA-WEAKAURA' } })
       filterTypes.push({ term: { 'type.keyword': 'WOTLK-WEAKAURA' } })
+      filterTypes.push({ term: { 'type.keyword': 'TITAN-WOTLK-WEAKAURA' } })
       filterTypes.push({ term: { 'type.keyword': 'TBC-WEAKAURA' } })
       filterTypes.push({ term: { 'type.keyword': 'CLASSIC-WEAKAURA' } })
     }

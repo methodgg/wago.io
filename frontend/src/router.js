@@ -14,6 +14,7 @@ const MenuWeakAurasLegion = resolve => require(['@/components/core/Menu-WeakAura
 const MenuWeakAurasClassic = resolve => require(['@/components/core/Menu-WeakAuras-Classic.vue'], resolve)
 const MenuWeakAurasTBC = resolve => require(['@/components/core/Menu-WeakAuras-TBC.vue'], resolve)
 const MenuWeakAurasWotLK = resolve => require(['@/components/core/Menu-WeakAuras-WotLK.vue'], resolve)
+const MenuWeakAurasTitanWotLK = resolve => require(['@/components/core/Menu-WeakAuras-TitanWotLK.vue'], resolve)
 const MenuWeakAurasCata = resolve => require(['@/components/core/Menu-WeakAuras-Cata.vue'], resolve)
 const MenuWeakAurasMop = resolve => require(['@/components/core/Menu-WeakAuras-MoP.vue'], resolve)
 const MenuMacro = resolve => require(['@/components/core/Menu-Macro.vue'], resolve)
@@ -101,6 +102,9 @@ module.exports = {
         if (process.env.NODE_ENV === 'development') {
             window.location.href = 'http://localhost:3030/auth/redirect'
         }
+        else if (window.location.host === 'fellowship.wago.io') {
+            window.location.href = 'https://data.wago.io/auth/redirect?domain=2'  
+        }
         else {
             window.location.href = 'https://data.wago.io/auth/redirect'  
         }
@@ -157,6 +161,11 @@ module.exports = {
     { path: '/wotlk-weakauras/:c1/:c2', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'weakaura'), type: 'weakaura', game: 'wow', expansion: 'wotlk', mode: 'imports' } }) },
     { path: '/wotlk-weakauras/:c1/:c2/:c3', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'weakaura'), type: 'weakaura', game: 'wow', expansion: 'wotlk', mode: 'imports' } }) },
     { path: '/wotlk-weakauras/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'weakaura'), type: 'weakaura', game: 'wow', expansion: 'wotlk', mode: 'imports' } }) },
+    { path: '/titan-reforged-wotlk-weakauras', component: MenuWeakAurasTitanWotLK },
+    { path: '/titan-reforged-wotlk-weakauras/:c1', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'weakaura'), type: 'weakaura', game: 'wow', expansion: 'titan-wotlk', mode: 'imports' } }) },
+    { path: '/titan-reforged-wotlk-weakauras/:c1/:c2', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'weakaura'), type: 'weakaura', game: 'wow', expansion: 'titan-wotlk', mode: 'imports' } }) },
+    { path: '/titan-reforged-wotlk-weakauras/:c1/:c2/:c3', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'weakaura'), type: 'weakaura', game: 'wow', expansion: 'titan-wotlk', mode: 'imports' } }) },
+    { path: '/titan-reforged-wotlk-weakauras/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'weakaura'), type: 'weakaura', game: 'wow', expansion: 'titan-wotlk', mode: 'imports' } }) },
     { path: '/tbc-weakauras', component: MenuWeakAurasTBC },
     { path: '/tbc-weakauras/:c1', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'weakaura'), type: 'weakaura', game: 'wow', expansion: 'tbc', mode: 'imports' } }) },
     { path: '/tbc-weakauras/:c1/:c2', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'weakaura'), type: 'weakaura', game: 'wow', expansion: 'tbc', mode: 'imports' } }) },
