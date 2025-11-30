@@ -198,7 +198,7 @@ Schema.virtual('expansionIndex').get(function () {
   else if (this.game === 'df') return 9
   else if (this.game === 'tww') return 10
 
-  else if (this.game === 'titan-wotlk') return 1002
+  else if (this.game === 'titan-wotlk') return 102
 
   return -1
 })
@@ -414,7 +414,7 @@ Schema.virtual('indexedImportData').get(async function () {
   if ((data.type === 'WEAKAURA' || data.type === 'PLATER') && !this.encrypted) {
     data.expansion = (GameVersion.tocToPatch(this.tocversion).major || 0) - 1 // vanilla = 0
     if (isTitan) {
-      data.expansion += 1000
+      data.expansion += 100
     }
     const code = await WagoCode.lookup(this._id)
     try {

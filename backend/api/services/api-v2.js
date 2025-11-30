@@ -87,8 +87,8 @@ function invertExpansionId(x) {
         case '11': return 'midnight'
         case 'tlt': return 12
         case '12': return 'tlt'   
-        case '1002': return 'titan-wotlk'
-        case 'titan-wotlk': return 1002
+        case '102': return 'titan-wotlk'
+        case 'titan-wotlk': return 102
     }
     return 0
 }

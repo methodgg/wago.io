@@ -24,9 +24,9 @@ function expansionIndex(exp) {
   else if (exp === 'sl') return 8
   else if (exp === 'df') return 9
   else if (exp === 'tww') return 10
-  else if (exp === 'all') return -1
+  else if (exp === 'titan-wotlk') return 102
 
-  else if (exp === 'titan-wotlk') return 1002
+  else if (exp === 'all') return -1
   return 10
 }
 
