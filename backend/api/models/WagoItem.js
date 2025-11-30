@@ -400,6 +400,7 @@ Schema.virtual('indexedImportData').get(async function () {
 
   data.patchIteration = await GameVersion.patchIteration(this.tocversion)
   data.hidden = this.hidden || this.private || this.moderated || this.encrypted || this.restricted || this.deleted || this.blocked
+  const isTitan = Boolean(this.type.match(/TITAN/))
   data.type = this.type.replace(/.*-WEAKAURA/, 'WEAKAURA')
   if (this.restricted) {
     data.restrictions = this.restrictedUsers.concat(this.restrictedGuilds)
@@ -412,6 +413,9 @@ Schema.virtual('indexedImportData').get(async function () {
 
   if ((data.type === 'WEAKAURA' || data.type === 'PLATER') && !this.encrypted) {
     data.expansion = (GameVersion.tocToPatch(this.tocversion).major || 0) - 1 // vanilla = 0
+    if (isTitan) {
+      data.expansion += 1000
+    }
     const code = await WagoCode.lookup(this._id)
     try {
       if (this.auraNames) {
