@@ -2,7 +2,7 @@
 document.addEventListener('scroll', function() {
     const anchor = document.getElementById('bottom-anchor')
     const anchorClose = document.getElementById('bottom-anchor-close')
-    if (!anchor) return
+    if (!anchor?.style) return
     const scrollPosition = window.scrollY + window.innerHeight
     const offset = (document.body.scrollHeight - scrollPosition) > 78 ? 0 : 78
 
@@ -106,9 +106,10 @@ body.ads-enabled #footer-anchor {
     color: #5A5A5A;
 }
 
-#bottom-anchor, #bottom-anchor-close {
+#bottom-anchor, #bottom-anchor-close, #pw-oop-bottom_rail {
     padding-top: 0!important;    
     background: none!important;
+    border: 0!important;
     transition: bottom 0.05s linear!important;
 }
 </style>

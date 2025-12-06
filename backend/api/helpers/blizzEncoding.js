@@ -94,7 +94,8 @@ async function standardDecode(encodedString) {
 
 async function standardEncode(json) {
     try {
-        const encodedMap = JSONtoMap(json)
+        const obj = JSON.parse(json)
+        const encodedMap = JSONtoMap(obj)
         const encodedCbor = await borc.encode(encodedMap)
         const compressed = await zlibCompress(encodedCbor)
         return Buffer.from(compressed).toString('base64')

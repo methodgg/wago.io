@@ -63,7 +63,8 @@
                     searchType === 'weakaura' &&'WeakAuras' ||
                     searchType === 'elvui' && 'ElvUI' ||
                     searchType === 'plater' && 'Plater Nameplates' ||
-                    searchType === 'blizzhud' && 'BlizzHud' ||
+                    searchType === 'blizzhud' && 'Blizzard Edit Mode' ||
+                    searchType === 'cooldown-manager' && 'Blizzard Cooldown Manager' ||
                     searchType === 'cell' && 'Cell' ||
                     searchType === 'gse' && 'GSE' ||
                     searchType === 'opie' && 'OPie' ||
@@ -111,7 +112,8 @@
                   <div id="addon-dropdown">
                     <div @click="setType('baganator')"><span class="addon-icon"><img src="../../assets/menu-baginator.png"></span> Baganator</div>
                     <div @click="setType('bigwigs')"><span class="addon-icon"><img src="../../assets/menu-bigwigs.png"></span> BigWigs</div>
-                    <div @click="setType('blizzhud')"><span class="addon-icon"><img src="../../assets/menu-blizzhud.png"></span> BlizzHud</div>
+                    <div @click="setType('blizzhud')"><span class="addon-icon"><img src="../../assets/menu-blizzhud.png"></span> Blizzard Edit Mode</div>
+                    <div @click="setType('cooldown-manager')"><span class="addon-icon"><img src="../../assets/menu-blizzhud.png"></span> Blizzard Cooldown Manager</div>
                     <div @click="setType('cell')"><span class="addon-icon"><img src="../../assets/menu-cell.png"></span> Cell</div>
                     <div @click="setType('dbm')"><span class="addon-icon"><img src="../../assets/menu-dbm.png"></span> Deadly Boss Mods</div>
                     <div @click="setType('gse')"><span class="addon-icon"><img src="../../assets/menu-gse.png"></span> GSE</div>
@@ -738,7 +740,7 @@ export default {
         this.searchExpansion = window.localStorage.getItem(`search.expansion.${this.searchGame}`) || 'all'
         this.searchType = window.localStorage.getItem(`search.type.${this.searchGame}`) || 'all'
       }
-      else if (this.context.expansionType.match(/-/)) {
+      else if (this.context.expansionType.match(/(classic|tbc|wotlk|cata|mop|wod|legion|bfa|sl|df|tww)-/)) {
         let s = this.context.expansionType.split('-')
         if (s[2]) {
           this.searchExpansion = `${s[0]}-${s[1]}`

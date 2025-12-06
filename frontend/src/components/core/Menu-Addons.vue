@@ -27,7 +27,16 @@
             <md-list-item class="md-inset">
               <div class="menu-image"><img src="../../assets/menu-blizzhud.png" alt="Icon" /></div>
               <div class="md-list-text-container">
-                <router-link to="/blizzhud">BlizzHud</router-link>
+                <router-link to="/blizzhud">Blizzard Edit Mode</router-link>
+              </div>
+            </md-list-item>
+          </md-list>
+
+          <md-list class="md-double-line md-dense">
+            <md-list-item class="md-inset">
+              <div class="menu-image"><img src="../../assets/menu-blizzhud.png" alt="Icon" /></div>
+              <div class="md-list-text-container">
+                <router-link to="/blizzard-cooldown-manager">Blizzard Cooldown Manager</router-link>
               </div>
             </md-list-item>
           </md-list>
@@ -269,7 +278,9 @@
     a{font-size: 14px!important; font-weight: normal!important; color: #bbb!important}
   }
   
-
+  #addon-list .md-list-item-container {
+    padding-left: 16px;
+  }
   
   #addon-list .md-list-text-container {
     align-self: center;

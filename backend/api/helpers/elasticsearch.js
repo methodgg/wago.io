@@ -64,7 +64,7 @@ module.exports = {
             customCode: { type: 'text' },
             categoriesRoot: { type: 'short' },
             categoriesTotal: { type: 'short' },
-            expansion: { type: 'byte' },
+            expansion: { type: 'short' },
             patchIteration: { type: 'long' },
             installs: { type: 'long' },
             stars: { type: 'long' },

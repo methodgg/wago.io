@@ -52,6 +52,10 @@ export default {
           links.push({url: searchURL, name: this.$t('Search BlizzHUD'), domain: 0})
           break
 
+        case 'cooldown-manager':
+          links.push({url: searchURL, name: this.$t('Search Blizzard Cooldown Manager'), domain: 0})
+          break
+
         case 'cell':
           links.push({url: searchURL, name: this.$t('Search Cell'), domain: 1})
           links.push({url: 'https://addons.wago.io/addons/cell', name: this.$t('Download Cell')})
@@ -64,13 +68,19 @@ export default {
           links.push({url: 'https://discord.gg/xFWcfgE', name: this.$t('Join ElvUI Discord')})
           break
 
+        case 'gse':
+          links.push({url: searchURL, name: this.$t('Search GSE'), domain: 0})
+          links.push({url: 'https://addons.wago.io/addons/gse-advanced-macro-compiler', name: this.$t('Download GSE')})
+          links.push({url: 'https://discord.gg/yUS9R4ZXZA', name: this.$t('Join GSE Discord')})
+          break
+
         case 'macro':
           links.push({url: searchURL, name: this.$t('Search Macros'), domain: 0})
           links.push({url: 'https://warcraft.wiki.gg/wiki/Making_a_macro', name: this.$t('Macro guide on Warcraft Wiki')})
           break
 
         case 'mdt':
-          links.push({url: '/dragonflight-mdt/pve/dragonflight-dungeons-s3', name: this.$t('Search MDT'), domain: 0})
+          links.push({url: '/the-war-within-mdt/pve/the-war-within-dungeons-s1', name: this.$t('Search MDT'), domain: 0})
           links.push({url: 'https://addons.wago.io/addons/mythic-dungeon-tools', name: this.$t('Download MDT')})
           links.push({url: 'https://discord.gg/tdxMPb3', name: this.$t('Join MDT Discord')})
           break
@@ -114,24 +124,24 @@ export default {
     }
   },
   mounted: async function () {
-    if (!this.$store.state.addons[0]) {
-      var vue = this
-      await this.http.get('/lookup/index').then((res) => {
-        if (res.addons) {
-          vue.addonReleases = JSON.parse(JSON.stringify(res.addons))
-          vue.$store.commit('setAddons', vue.addonReleases)
-        }
-      })
-    }
+    // if (!this.$store.state.addons[0]) {
+    //   var vue = this
+    //   await this.http.get('/lookup/index').then((res) => {
+    //     if (res.addons) {
+    //       vue.addonReleases = JSON.parse(JSON.stringify(res.addons))
+    //       vue.$store.commit('setAddons', vue.addonReleases)
+    //     }
+    //   })
+    // }
 
-    if (this.$store.state.addons[0]) {
-      this.$store.state.addons.forEach((addon) => {
-        if (addon.addon.toLowerCase().indexOf(this.addon.toLowerCase()) >= 0 && addon.phase === 'Release') {
-          this.addonData = addon
-          this.addonData.version = this.addonData.version.replace(/^v/, '')
-        }
-      })
-    }
+    // if (this.$store.state.addons[0]) {
+    //   this.$store.state.addons.forEach((addon) => {
+    //     if (addon.addon.toLowerCase().indexOf(this.addon.toLowerCase()) >= 0 && addon.phase === 'Release') {
+    //       this.addonData = addon
+    //       this.addonData.version = this.addonData.version.replace(/^v/, '')
+    //     }
+    //   })
+    // }
   }
 }
 </script>

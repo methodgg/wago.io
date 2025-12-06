@@ -19,6 +19,7 @@ const MenuWeakAurasCata = resolve => require(['@/components/core/Menu-WeakAuras-
 const MenuWeakAurasMop = resolve => require(['@/components/core/Menu-WeakAuras-MoP.vue'], resolve)
 const MenuMacro = resolve => require(['@/components/core/Menu-Macro.vue'], resolve)
 const MenuBlizzHUD = resolve => require(['@/components/core/Menu-BlizzHud.vue'], resolve)
+const MenuBlizzCDM= resolve => require(['@/components/core/Menu-BlizzCooldownManager.vue'], resolve)
 const MenuElvUI = resolve => require(['@/components/core/Menu-ElvUI.vue'], resolve)
 const MenuVuhdo = resolve => require(['@/components/core/Menu-Vuhdo.vue'], resolve)
 const MenuTotalRP = resolve => require(['@/components/core/Menu-TotalRP.vue'], resolve)
@@ -186,11 +187,21 @@ module.exports = {
     { path: '/elvui/:c1/:c2', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'elvui'), type: 'elvui', game: 'wow', mode: 'imports' } }) },
     { path: '/elvui/:c1/:c2/:c3', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'elvui'), type: 'elvui', game: 'wow', mode: 'imports' } }) },
     { path: '/elvui/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'elvui'), type: 'elvui', game: 'wow', mode: 'imports' } }) },
+    { path: '/blizzard-edit-mode', component: MenuBlizzHUD },
+    { path: '/blizzard-edit-mode/:c1', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'blizzhud'), type: 'blizzhud', game: 'wow', mode: 'imports' } }) },
+    { path: '/blizzard-edit-mode/:c1/:c2', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'blizzhud'), type: 'blizzhud', game: 'wow', mode: 'imports' } }) },
+    { path: '/blizzard-edit-mode/:c1/:c2/:c3', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'blizzhud'), type: 'blizzhud', game: 'wow', mode: 'imports' } }) },
+    { path: '/blizzard-edit-mode/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'blizzhud'), type: 'blizzhud', game: 'wow', mode: 'imports' } }) },
     { path: '/blizzhud', component: MenuBlizzHUD },
     { path: '/blizzhud/:c1', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'blizzhud'), type: 'blizzhud', game: 'wow', mode: 'imports' } }) },
     { path: '/blizzhud/:c1/:c2', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'blizzhud'), type: 'blizzhud', game: 'wow', mode: 'imports' } }) },
     { path: '/blizzhud/:c1/:c2/:c3', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'blizzhud'), type: 'blizzhud', game: 'wow', mode: 'imports' } }) },
     { path: '/blizzhud/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'blizzhud'), type: 'blizzhud', game: 'wow', mode: 'imports' } }) },
+    { path: '/blizzard-cooldown-manager', component: MenuBlizzCDM },
+    { path: '/blizzard-cooldown-manager/:c1', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'cooldownmanager'), type: 'cooldown-manager', game: 'wow', mode: 'imports' } }) },
+    { path: '/blizzard-cooldown-manager/:c1/:c2', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'cooldownmanager'), type: 'cooldown-manager', game: 'wow', mode: 'imports' } }) },
+    { path: '/blizzard-cooldown-manager/:c1/:c2/:c3', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'cooldownmanager'), type: 'cooldown-manager', game: 'wow', mode: 'imports' } }) },
+    { path: '/blizzard-cooldown-manager/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'cooldownmanager'), type: 'cooldown-manager', game: 'wow', mode: 'imports' } }) },
     { path: '/vuhdo', component: MenuVuhdo },
     { path: '/vuhdo/:c1', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'vuhdo'), type: 'vuhdo', game: 'wow', mode: 'imports' } }) },
     { path: '/vuhdo/:c1/:c2', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'vuhdo'), type: 'vuhdo', game: 'wow', mode: 'imports' } }) },
