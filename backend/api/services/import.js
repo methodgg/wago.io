@@ -29,7 +29,7 @@ module.exports = function (fastify, opts, next) {
       if (scan.decoded || addon.domain !== req.domain) {
         continue
       }
-      else if (typeof decodedObj !== 'object' && (!req.body.type || req.body.type.match(addon.typeMatch) || (req.body.wagolib && addonFile === 'WagoLib'))) {
+      else if (!decodedObj && (!req.body.type || req.body.type.match(addon.typeMatch) || (req.body.wagolib && addonFile === 'WagoLib'))) {
         if (addon.plainText) {
             decodedObj = await addon.decode(req.body.importString.trim())
         }
@@ -73,10 +73,10 @@ module.exports = function (fastify, opts, next) {
     }
 
     if (scan.type) {
-      console.log('scan found', scan.type)
       return res.send({ scan: scan._id, type: scan.type, name: scan.name, categories: scan.categories, game: scan.game, domain: scan.domain })
     }
 
+    console.log("LEGACY")
     // legacy import code follows
     if (req.body.type) {
       test[req.body.type.toUpperCase()] = true
@@ -639,16 +639,22 @@ module.exports = function (fastify, opts, next) {
         code.text = scan.input
       }
     }
+    else if (wago.encrypted) {
+      code.encoded = scan.input
+      code.json = scan.decoded
+    }
     else {
       code.json = scan.decoded
       for (const addon of Object.values(Addons)) {
         if (wago.type.match(addon.typeMatch) && wago.domain === addon.domain) {
           if (addon.encode) {
             code.encoded = await addon.encode(scan.decoded.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim(), lua.runLua, wago)
+            break
           }
           else if (addon.encodeRaw) {
             code.encoded = await addon.encodeRaw(scan.decoded)
             delete code.json
+            break
           }
         }
       }
