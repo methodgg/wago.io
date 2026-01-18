@@ -15,12 +15,13 @@
                 <div>
                   <label>{{ $t('Expansion') }}</label>
                   <small id="selected-expansion">{{
-                    searchExpansion === 'classic' && $t('Classic') ||
+                    searchExpansion === 'classic' && $t('WoW Classic') ||
+                    searchExpansion === 'tbc' && $t('The Burning Crusade Classic') ||
                     searchExpansion === 'titan-wotlk' && $t('Titan Reforged Classic WotLK') ||
                     searchExpansion === 'cata' && $t('Cataclysm') ||
-                    searchExpansion === 'mop' && $t('Mists of Pandaria') ||
+                    searchExpansion === 'mop' && $t('Mists of Pandaria Classic') ||
                     searchExpansion === 'df' && $t('Dragonflight') ||
-                    searchExpansion === 'tww' && $t('The War Within') ||
+                    searchExpansion === 'tww' && twwAvailable && $t('The War Within') ||
                     (!searchExpansion || searchExpansion === 'all') && $t('All') ||
                     $t('Legacy')
                     }}</small>
@@ -30,7 +31,7 @@
                     <img src="../../assets/game-wow.svg">
                     <md-tooltip md-direction="bottom" class="">{{ $t("All") }}</md-tooltip>
                   </md-button>
-                  <md-button :class="{ 'md-toggle': searchExpansion === 'tww' }" class="md-icon-button" @click="setExpansion('tww')">
+                  <md-button v-if="twwAvailable" :class="{ 'md-toggle': searchExpansion === 'tww' }" class="md-icon-button" @click="setExpansion('tww')">
                     <img src="../../assets/tww-toggle.svg">
                     <md-tooltip md-direction="bottom" class="">{{ $t("The War Within") }}</md-tooltip>
                   </md-button>
@@ -38,13 +39,17 @@
                     <img src="../../assets/mop-toggle.svg">
                     <md-tooltip md-direction="bottom" class="">{{ $t("Mists of Pandaria") }}</md-tooltip>
                   </md-button>
-                  <md-button :class="{ 'md-toggle': searchExpansion === 'classic' }" class="md-icon-button" @click="setExpansion('classic')">
-                    <img src="../../assets/classic-toggle.svg">
-                    <md-tooltip md-direction="bottom" class="">{{ $t("Classic") }}</md-tooltip>
-                  </md-button>
                   <md-button :class="{ 'md-toggle': searchExpansion === 'titan-wotlk' }" class="md-icon-button" @click="setExpansion('titan-wotlk')">
                     <img src="../../assets/wotlk-toggle.svg">
-                    <md-tooltip md-direction="bottom" class="">{{ $t("Titan Reforged Classic WotLK") }}</md-tooltip>
+                    <md-tooltip md-direction="bottom" class="">{{ $t("Titan Reforged WotLK Classic") }}</md-tooltip>
+                  </md-button>
+                  <md-button :class="{ 'md-toggle': searchExpansion === 'classic' }" class="md-icon-button" @click="setExpansion('tbc')">
+                    <img src="../../assets/tbc-toggle.svg">
+                    <md-tooltip md-direction="bottom" class="">{{ $t("The Burning Crusade Classic") }}</md-tooltip>
+                  </md-button>
+                  <md-button :class="{ 'md-toggle': searchExpansion === 'classic' }" class="md-icon-button" @click="setExpansion('classic')">
+                    <img src="../../assets/classic-toggle.svg">
+                    <md-tooltip md-direction="bottom" class="">{{ $t("WoW Classic") }}</md-tooltip>
                   </md-button>
                   <md-button :class="{ 'md-toggle': searchExpansion && !searchExpansion.match(/tww|mop|classic|titan-wotlk/) }" class="md-icon-button" @click="setExpansion('legacy')">
                     <img src="../../assets/legacy-toggle.svg">
@@ -340,7 +345,9 @@ export default {
       disableCode: false,
       searchOnce: null,
       queryHTML: '',
-      queryOptions: ''
+      queryOptions: '',
+      twwAvailable: (new Date() <= new Date('2026-01-20T00:00:00Z'))
+
     }
   },
   props: ['context', 'collection'],

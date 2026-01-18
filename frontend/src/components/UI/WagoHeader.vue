@@ -13,6 +13,7 @@ export default {
             mobileLangMenuOpen: false,
             mobileMenuOpen: false,
             isGSENew: new Date() < new Date('2024-09-20'),
+            twwAvailable: (new Date() <= new Date('2026-01-20T00:00:00Z'))
         }
     },
     methods: {
@@ -203,12 +204,17 @@ export default {
                                     <div class="md-list-text-container">
                                         <span class="sub-nav-heading"><span class="menu-icon"><img src="../../assets/weakauras.png"></span> WeakAuras</span>
                                         <span class="game-select">
-                                            <router-link to='/the-war-within-weakauras'>The War Within</router-link>
+                                            <router-link v-if="twwAvailable" to='/the-war-within-weakauras'>The War Within</router-link>
                                             <router-link to='/mop-weakauras'>Mists of Pandaria</router-link>
-                                            <router-link to='/classic-weakauras'>Classic</router-link>
                                         </span>
                                         <span class="game-select">
                                             <router-link to='/titan-reforged-wotlk-weakauras'>Titan Reforged WotLK Classic</router-link>
+                                        </span>
+                                        <span class="game-select">
+                                            <router-link to='/tbc-weakauras'>The Burning Crusade Classic</router-link>
+                                        </span>
+                                        <span class="game-select">
+                                            <router-link to='/classic-weakauras'>WoW Classic</router-link>
                                         </span>
                                     </div>
                                 </router-link>

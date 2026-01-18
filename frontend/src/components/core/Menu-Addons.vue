@@ -14,9 +14,11 @@
             <md-list-item class="md-inset">
               <div class="menu-image"><img src="../../assets/weakauras.png" alt="Icon" /></div>
               <div class="md-list-text-container weakauras-list">
-                <router-link to='/the-war-within-weakauras'>{{ $t("The War Within") }}</router-link>
-                <router-link to='/mop-weakauras'>{{ $t("Mists of Pandaria") }}</router-link>
-                <router-link to='/classic-weakauras'>{{ $t("Classic") }}</router-link>
+                <router-link to='/the-war-within-weakauras' v-if="twwAvailable">{{ $t("The War Within") }}</router-link>
+                <router-link to='/mop-weakauras'>{{ $t("Mists of Pandaria Classic") }}</router-link>                
+                <router-link to='/titan-reforged-wotlk-weakauras'>{{ $t("Titan Reforged WotLK Classic") }}</router-link>
+                <router-link to='/tbc-weakauras'>{{ $t("The Burning Crusade Classic") }}</router-link>
+                <router-link to='/classic-weakauras'>{{ $t("WoW Classic") }}</router-link>
               </div>
             </md-list-item>
           </md-list>
@@ -36,7 +38,7 @@
             <md-list-item class="md-inset">
               <div class="menu-image"><img src="../../assets/menu-blizzhud.png" alt="Icon" /></div>
               <div class="md-list-text-container">
-                <router-link to="/blizzard-cooldown-manager">Blizzard Cooldown Manager</router-link>
+                <router-link to="/blizzard-cooldown-manager">Blizzard Cooldown Manager</router-link> <small>Midnight Beta</small>
               </div>
             </md-list-item>
           </md-list>
@@ -191,7 +193,8 @@
     },
     data: function () {
       return {
-        searchString: 'Type: addons '
+        searchString: 'Type: addons ',
+        twwAvailable: (new Date() <= new Date('2026-01-20T00:00:00Z'))
       }
     },
     computed: {

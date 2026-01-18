@@ -7,7 +7,7 @@
             <label>{{ $t("Paste your import string here") }}</label>
             <div id="inputStringWrapper">
               <md-textarea id="inputStringTextarea" name="importString" placeholder=" " v-model="importString"></md-textarea>
-              <div v-if="!importString" v-html="$t('Paste your WeakAura, ElvUI or Vuhdo string here')"></div>
+              <div v-if="!importString" v-html="$t('Paste your import string here')"></div>
             </div>
             <span class="md-error">{{ importErrorMsg }}</span>
           </md-input-container>
@@ -164,14 +164,42 @@
 
     <template v-if="$store.state.gameDomain === 0">
       <div id="currentcontent">
-        <strong>{{ $t('Current WeakAuras') }}</strong>
+        <strong>{{ $t('Browse by Addon') }}</strong>
         <md-layout>
-          <div id="current-wa">
-            <router-link :to="'/the-war-within-weakauras/' + currentWA.modern[0].slug" :style="`border-color: ${currentWA.modern[0].color}99; color:${currentWA.modern[0].color}; background-color:${currentWA.modern[0].color}11; background-image:url('/static/image/menu/${currentWA.modern[0].image}')`"><span>{{ currentWA.modern[0].text }}</span></router-link>
-            <router-link :to="'/the-war-within-weakauras/' + currentWA.modern[1].slug" :style="`border-color: ${currentWA.modern[1].color}99; color:${currentWA.modern[1].color}; background-color:${currentWA.modern[1].color}11; background-image:url('/static/image/menu/${currentWA.modern[1].image}')`"><span>The War Within {{ currentWA.modern[1].text }}</span></router-link>
+          <md-button-toggle md-single class="md-accent md-warn select-browse-mode">
+            <md-button :class="{ 'md-toggle': !browseExpansion }" @click="browseExpansion=''">
+              <img src="../assets/midnight-toggle.svg"> {{ $t("Midnight") }}
+            </md-button>
+            <md-button :class="{ 'md-toggle': browseExpansion === 'mop' }" @click="browseExpansion='mop'">
+              <img src="../assets/mop-toggle.svg"> {{ $t("Mists of Pandaria") }}
+            </md-button>
+            <md-button :class="{ 'md-toggle': browseExpansion === 'titan-wotlk' }" @click="browseExpansion='titan-wotlk'">
+              <img src="../assets/wotlk-toggle.svg">{{ $t("Titan Reforged") }}
+            </md-button>
+            <md-button :class="{ 'md-toggle': browseExpansion === 'tbc' }" @click="browseExpansion='tbc'">
+              <img src="../assets/tbc-toggle.svg"> {{ $t("The Burning Crusade") }}
+            </md-button>
+            <md-button :class="{ 'md-toggle': browseExpansion === 'classic' }" @click="browseExpansion='classic'">
+              <img src="../assets/classic-toggle.svg"> {{ $t("Classic") }}
+            </md-button>
+          </md-button-toggle>
+        </md-layout>
+        <md-layout>
+          <div id="browse-addon-list">
+            <template v-if="currentWA[browseExpansion]">
+              <router-link :to="expansionData[browseExpansion]?.slug || '/'" style="border-color: #cccccc99; color:#cccccc; background-color:#cccccc11;"><span><md-avatar class='square'><category-image :group="'t-weakaura'"></category-image></md-avatar> 
+                {{ $t("[-expansion-] WeakAuras", {expansion: expansionData[browseExpansion]?.name || 'Midnight'}) }}</span>
+              </router-link>
+              <router-link v-for="(category, index) in currentWA[browseExpansion]" :key="index" :to="'/' + category.slug" class="addon-list-category" :style="`border-color: ${category.color}99; color:${category.color}; background-color:${category.color}11; background-image:url('/static/image/menu/${category.image}')`"><span>{{ category.text }} WeakAuras</span></router-link>
+            </template>
+            <router-link to="/elvui/" style="border-color: #fe7c0099; color:#fe7c00; background-color:#fe7c0011;"><span><md-avatar class='square'><category-image :group="'t-elvui'"></category-image></md-avatar> ElvUI</span></router-link>
+            <router-link to="/plater/" style="border-color: #fcc77199; color:#fcc771; background-color:#fcc77111;"><span><md-avatar class='square'><category-image :group="'t-plater'"></category-image></md-avatar> Plater</span></router-link>
+            <router-link to="/blizzhud/" style="border-color: #009ae499; color:#009ae4; background-color:#009ae411;"><span><md-avatar class='square'><category-image :group="'t-blizzhud'"></category-image></md-avatar> Blizzard Edit Mode</span></router-link>
+            <router-link v-if="!browseExpansion" to="/blizzard-cooldown-manager/" style="border-color: #009ae499; color:#009ae4; background-color:#009ae411;"><span><md-avatar class='square'><category-image :group="'t-blizzhud'"></category-image></md-avatar> Blizzard Cooldown Manager</span></router-link>
+            <router-link to="/cell/" style="border-color: #218a3799; color:#218a37; background-color:#218a3711;"><span><md-avatar class='square'><category-image :group="'t-cell'"></category-image></md-avatar> Cell</span></router-link>
 
-            <router-link :to="'/mop-weakauras/' + currentWA.classic[0].slug" :style="`border-color: ${currentWA.classic[0].color}99; color:${currentWA.classic[0].color}; background-color:${currentWA.classic[0].color}11; background-image:url('/static/image/menu/${currentWA.classic[0].image}')`"><span>{{ currentWA.classic[0].text }}</span></router-link>    
-            <router-link :to="'/classic-weakauras/' + currentWA.classic[1].slug" :style="`border-color: ${currentWA.classic[1].color}99; color:${currentWA.classic[1].color}; background-color:${currentWA.classic[1].color}11; background-image:url('/static/image/menu/${currentWA.classic[1].image}')`"><span>{{ currentWA.classic[1].text }}</span></router-link>          
+            <router-link to="/addons/" style="border-color: #f45e3699; color:#f45e36; background-color:#f45e3611;"><span><md-avatar class='square'><img src="/static/image/menu/mechanics.png"></category-image></md-avatar> {{$t('Browse More Addons')}}</span></router-link>
+
           </div>
         </md-layout>
       </div>
@@ -180,16 +208,16 @@
       <div id="currentcontent">
         <strong>{{ $t('Browse By Hero') }}</strong>
         <md-layout>
-          <div id="current-wa">
+          <div id="browse-addon-list">
             <template v-for="hero in fellowshipHero">
-              <router-link :to="'/fellowship-ui/' + hero.slug" :style="`border-color: ${hero.color}99; color:${hero.color}; background-color:${hero.color}11; background-image:url('/static/image/menu/${hero.image}')`"><span>{{ hero.text }}</span></router-link>
+              <router-link class="addon-list-category" :to="'/fellowship-ui/' + hero.slug" :style="`border-color: ${hero.color}99; color:${hero.color}; background-color:${hero.color}11; background-image:url('/static/image/menu/${hero.image}')`"><span>{{ hero.text }}</span></router-link>
             </template>
           </div>
         </md-layout>
       </div>
     </template>
 
-    <template v-if="$store.state.gameDomain === 0">
+    <template v-if="0 && $store.state.gameDomain === 0">
       <md-layout id="col2" :md-column-medium="true" md-vertical-align="start" v-if="!isTest">
         <div id="topwagos" v-if="topLists && topLists[topID]">
           <md-whiteframe>
@@ -354,7 +382,7 @@
       flex: 1
     }
   }
-  #current-wa {
+  #browse-addon-list {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     column-gap: 16px;
@@ -364,22 +392,29 @@
       min-height: 54px;
       display: flex;
       align-items: center;
-      padding: 8px 8px 8px 64px;
+      padding: 8px 8px 8px 8px;
       font-size: 18px;
       vertical-align: middle;
       border-radius: 4px;
       border-width: 2px;
       border-style: solid;
       margin-bottom: 8px;
-      background-repeat: no-repeat;
-      background-size: 30px;
-      background-position: 16px 50%;
       transition: transform .3s;
       z-index: 5;
+      .md-avatar {
+        margin-right: 8px;
+        border-radius: 4px;
+      }
+      &.addon-list-category {
+        padding-left: 64px;
+        background-repeat: no-repeat;
+        background-size: 30px;
+        background-position: 16px 50%;
+      }
       &:hover {
         text-decoration: none;
-        transform: scale(1.075);
-        z-index: 10;
+        transform: scale(1.05);
+        z-index: 100;
       }
       & + a { order: 3 }
       & + a+a { order: 2 }
@@ -390,7 +425,7 @@
     margin: 0 0 8px 16px;
     padding: 0 8px 10px;
     order: 2;
-    & + #current-wa {
+    & + #browse-addon-list {
       grid-template-columns: repeat(1, minmax(0, 1fr));
       
       a+a { order: 2 }
@@ -463,12 +498,20 @@ h3.spotlight-tab:hover, h3.spotlight-tab.selected {background-color: #333;}
 .spotlights3 .spotlight-more { padding: 12px; border: 1px solid #333; background: #333; margin: 0 2px 2px 0;}
 .spotlights3 .spotlight-more:hover { text-decoration: none!important; background: #444}
 
+.select-browse-mode {
+  flex-wrap: wrap!important;
+  margin: 4px 0;
+  padding: 0!important;
+  .md-toggle:hover:not([disabled]) { background-color: #9F1F26!important}
+  img { height: 24px; margin-right: 8px; vertical-align: middle}
+}
+
 @media (max-width: 560px) {
   .spotlights .md-card {max-width: 100%}
 }
 
 @media (max-width: 600px) {
-  #currentcontent #current-wa a {
+  #currentcontent #browse-addon-list a {
     padding-left: 12px;
     background-image: none!important;
   }
@@ -559,6 +602,7 @@ export default {
       visibility: 'Public',
       importAs: 'Guest',
       expire: '3mo',
+      browseExpansion: localStorage.getItem('browseExpansion') || '',
       name: '',
       weakauramode: '',
       setCategories: [],
@@ -582,7 +626,13 @@ export default {
       newRestrictionType: 'user',
       newRestrictionValue: '',
       cipherKey: '',
-      addonDB
+      addonDB,
+      expansionData: {
+        'mop': {name: 'Mists of Pandaria', slug: '/mop-weakauras'},
+        'tbc': {name: 'The Burning Crusade', slug: '/tbc-weakauras'},
+        'titan-wotlk': {name: 'Titan Reforged', slug: '/titan-reforged-wotlk-weakauras'},
+        'classic': {name: 'Classic', slug: '/classic-weakauras'}
+      }
     }
   },
   components: {
@@ -595,13 +645,19 @@ export default {
   computed: {
     currentWA () {
       return {
-        modern: [
-          Categories.getCategories('manaforgeomega')[0],
-          Categories.getCategories('twwdungeon')[0],
+        mop: [
+          Categories.getCategories('raidthroneofthunder')[0],
+          Categories.getCategories('mopdungeon')[0],
+        ],
+        tbc: [
+          Categories.getCategories('raidkarazhan')[0],
+          Categories.getCategories('tbcdungeon')[0],
         ],
         classic: [
-          Categories.getCategories('raidterraceofendlessspring')[0],
           Categories.getCategories('raidnaxxramas')[0],
+          Categories.getCategories('classicdungeon')[0],
+        ],
+        'titan-wotlk': [
         ],
       }
     },
@@ -754,6 +810,9 @@ export default {
         this.visibility = u.defaultImportVisibility
         this.expire = 'never'
       }
+    },
+    browseExpansion: function (val) {
+      localStorage.setItem('browseExpansion', val)
     },
     importString: function (val) {
       val = val.trim()
