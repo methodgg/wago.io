@@ -2,25 +2,35 @@
 const zlib = require('zlib')
 const borc = require('borc')
 
-function zlibDecompress(gzipped) {
+function zlibDecompress(zipped, method) {
     return new Promise((resolve, reject) => {
-        zlib.inflateRaw(gzipped, (err, result) => {
-            if (err) {
-                return reject(err);
-            }
-            resolve(result);
-        });
+        if (method === 'inflateRaw' || method === 'inflate' || method === 'gunzip') {
+            zlib[method](zipped, (err, result) => {
+                if (err) {
+                    return reject(err);
+                }
+                resolve(result);
+            });
+        }
+        else {
+            reject('Invalid compression method', method);
+        }
     });
 }
 
-function zlibCompress(gzipped) {
+function zlibCompress(content, method) {
     return new Promise((resolve, reject) => {
-        zlib.deflateRaw(gzipped, (err, result) => {
-            if (err) {
-                return reject(err);
-            }
-            resolve(result);
-        });
+        if (method === 'deflateRaw' || method === 'deflate' || method === 'gzip') {
+            zlib[method](content, (err, result) => {
+                if (err) {
+                    return reject(err);
+                }
+                resolve(result);
+            });
+        }
+        else {
+            reject('Invalid compression method', method);
+        }
     });
 }
 
@@ -78,13 +88,34 @@ function JSONtoMap(obj) {
     return obj;
 }
 
-async function standardDecode(encodedString) {
+// C_EncodingUtil.CompressString options:
+// 0 = deflateRaw/inflateRaw (default)
+// 1 = deflate/inflate - with zlib wrapper
+// 2 = gzip/gunzip
+async function standardDecode(encodedString, {serialization='CBOR', compression='inflateRaw', encoding='base64'}={}) {
     try {
-        const compressed = Buffer.from(encodedString, 'base64')
-        const decompressed = await zlibDecompress(compressed)
-        const decodedMap = await borc.decodeFirst(decompressed)
-        const json = mapToJSON(decodedMap)
-        return json
+        let compressed
+        if (encoding === 'base64' || encoding === 'hex') {
+            compressed = Buffer.from(encodedString, encoding)
+        }
+        else {
+            console.error('Unknown encoding', encoding)
+            return false
+        }
+
+        const decompressed = await zlibDecompress(compressed, compression)
+
+        if (serialization === 'JSON') {
+            return JSON.parse(decompressed)
+        }
+        else if (serialization === 'CBOR') {
+            const decodedMap = await borc.decodeFirst(decompressed)
+            return mapToJSON(decodedMap)
+        }
+        else {
+            console.error('Unknown serialization', serialization)
+            return false
+        }
     }
     catch (e) {
         console.log(e)
@@ -92,13 +123,43 @@ async function standardDecode(encodedString) {
     }
 }
 
-async function standardEncode(json) {
+async function standardEncode(json, {serialization='CBOR', compression='deflateRaw', encoding='base64'}={}) {
     try {
-        const obj = JSON.parse(json)
-        const encodedMap = JSONtoMap(obj)
-        const encodedCbor = await borc.encode(encodedMap)
-        const compressed = await zlibCompress(encodedCbor)
-        return Buffer.from(compressed).toString('base64')
+        let seralized
+        if (serialization === 'JSON') {
+            if (typeof json === 'string') {
+                seralized = json
+            }
+            else {
+                seralized = JSON.stringify(json)
+            }
+        }
+        else if (serialization === 'CBOR') {
+            let obj            
+            if (typeof json === 'string') {
+                console.log(json)
+                obj = JSON.parse(json)
+            }
+            else {
+                obj = json
+            }
+            const objMap = JSONtoMap(obj)
+            seralized = await borc.encode(objMap)
+        }
+        else {
+            console.error('Unknown serialization', serialization)
+            return false
+        }
+        
+        const compressed = await zlibCompress(seralized, compression)
+
+        if (encoding === 'base64' || encoding === 'hex') {
+            return Buffer.from(compressed).toString(encoding)
+        }
+        else {
+            console.error('Unknown encoding', encoding)
+            return false
+        }
     }
     catch (e) {
         console.log(e)

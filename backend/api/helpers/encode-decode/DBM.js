@@ -14,7 +14,10 @@ module.exports = {
     `
     try {
       let json = await exec(lua)
-      return JSON.parse(json)
+      if (json.match(/^\s*\{/)) {
+        return JSON.parse(json)
+      }
+      return false
     }
     catch {
       return false
@@ -27,7 +30,6 @@ module.exports = {
     return LibDeflate:EncodeForPrint(LibDeflate:CompressDeflate(LibSerialize:Serialize(t), {level = 9}))`
     try {
       let encodedString = await exec(lua)
-      console.log('encoded')
       return encodedString
     }
     catch (e) {

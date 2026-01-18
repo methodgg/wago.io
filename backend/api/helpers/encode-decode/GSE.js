@@ -40,23 +40,23 @@ module.exports = {
             return obj
         }
         catch (e){
-            console.log(e)
             return false
         }
     },
   
-    encode: async (json, exec) => {
-      const lua = `
-      ${gseLua}
-      local t = JSON:decode("${json}")
-      return gse_encodeB64(LibCompress:Compress(Serializer:Serialize(t), {level = 9}))`
-      try {
-        let encodedString = await exec(lua)
-        return encodedString
-      }
-      catch (e) {
-        return false
-      }
+    encodeRaw: async (json, exec) => {
+        return '!GSE3!' + await blizzEncoding.standardEncode(json)
+        // const lua = `
+        // ${gseLua}
+        // local t = JSON:decode("${json}")
+        // return gse_encodeB64(LibCompress:Compress(Serializer:Serialize(t), {level = 9}))`
+        // try {
+        //     let encodedString = await exec(lua)
+        //     return encodedString
+        // }
+        // catch (e) {
+        //     return false
+        // }
     },
   
     processMeta: (obj, importString) => {
@@ -170,8 +170,13 @@ function createLuaDecode (encodedString) {
     return `
         ${gseLua}
         local encoded = "${encodedString}"
-        local success, deserialized = Serializer:Deserialize(LibCompress:Decompress(gse_decodeB64(encoded)))
-        return JSON:encode(deserialized)
+        local a,b,c
+        a = gse_decodeB64(encoded)
+        if a then b = LibCompress:Decompress(a) end
+        if b then success, c = Serializer:Deserialize(b) end
+        if success and c then return JSON:encode(deserialized) end
+        return ''
+
       `
 }
 

@@ -23,7 +23,6 @@ module.exports = {
       `
       try {
         let json = await exec(lua)
-        console.log(json)
         return JSON.parse(json)
       }
       catch {

@@ -16,6 +16,8 @@ module.exports = {
     if (!encodedString.match(/^[a-zA-Z0-9\(\)]*$/)) {
       return false
     }
+
+    // support old strings
     const lua = `
       local str = "${encodedString}"
       local decoded = LibDeflate:DecodeForPrint(str)
@@ -38,22 +40,23 @@ module.exports = {
     }
   },
 
-  encode: async (json, exec) => {
-    const lua = `
-    local t = JSON:decode("${json}")
-    if not t then return "" end
+  encodeRaw: async (json, exec) => {
+    return '!PLATER:2!' + await blizzEncoding.standardEncode(json)
+    // const lua = `
+    // local t = JSON:decode("${json}")
+    // if not t then return "" end
 
-    local serialized = Serializer:Serialize(t)
-    local compressed = LibDeflate:CompressDeflate(serialized, {level = 9})
-    local encoded = LibDeflate:EncodeForPrint(compressed)
-    return encoded`
-    try {
-      let encodedString = await exec(lua)
-      return encodedString
-    }
-    catch (e) {
-      return false
-    }
+    // local serialized = Serializer:Serialize(t)
+    // local compressed = LibDeflate:CompressDeflate(serialized, {level = 9})
+    // local encoded = LibDeflate:EncodeForPrint(compressed)
+    // return encoded`
+    // try {
+    //   let encodedString = await exec(lua)
+    //   return encodedString
+    // }
+    // catch (e) {
+    //   return false
+    // }
   },
 
   processMeta: (obj) => {
@@ -65,7 +68,6 @@ module.exports = {
     meta.type = 'PLATER'
 
     meta.game = patchDates.gameVersion(obj.tocversion)
-
     if (obj.url) {
       let m = obj.url.match(/https:\/\/wago.io\/([^\/]+)\//)
       if (m && m[1]) {
@@ -73,23 +75,6 @@ module.exports = {
       }
     }
 
-    /*if (Array.isArray(obj)) {
-      // if old format script
-      if (typeof obj[8] === 'number' && typeof obj[1] === 'string') {
-        meta.name = obj[1]
-        meta.description = obj[5]
-      }
-      // if old format hook/mod
-      else if (typeof obj[8] === 'object' && typeof obj[0] === 'string') {
-        meta.name = obj[0]
-        meta.description = obj[2]
-      }
-      // if old format animation
-      else if (typeof obj[0] === 'object' && typeof obj[1] === 'object' && obj[0].animation_type && obj[0].duration && obj[1].animation_type && obj[1].duration) {
-        meta.name = 'Plater Animation'
-      }
-    }
-    else*/
     if (obj.OptionsPanelDB && obj.OptionsPanelDB.PlaterOptionsPanelFrame) {
       meta.name = 'Plater Profile'
     }

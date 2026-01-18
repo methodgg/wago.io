@@ -26,7 +26,7 @@ module.exports = {
       }
       let meta = {}
   
-      meta.name = 'Baganator  Categories'
+      meta.name = 'Baganator Categories'
       meta.type = 'BAGANATOR'
   
       return meta
