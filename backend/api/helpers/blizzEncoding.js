@@ -45,8 +45,8 @@ function mapToJSON(obj) {
         let parsedKey = mapToJSON(key);
   
         // If parsedKey is a string that looks like a number, cast it
-        if (typeof parsedKey === 'string' && /^\d+$/.test(parsedKey)) {
-          const num = parseInt(parsedKey, 10);
+        if (typeof parsedKey === 'string' && /^-?\d+$/.test(parsedKey)) {
+          const num = parseFloat(parsedKey, 10);
           if (num >= 0) parsedKey = num;
         }
   
@@ -74,8 +74,8 @@ function JSONtoMap(obj) {
         let actualKey = key;
   
         // Rule: convert numeric string keys back to numbers
-        if (/^\d+$/.test(key)) {
-          const num = parseInt(key, 10);
+        if (/^-?\d+$/.test(key)) {
+          const num = parseFloat(key, 10);
           if (num) actualKey = num;
         }
   
@@ -137,7 +137,6 @@ async function standardEncode(json, {serialization='CBOR', compression='deflateR
         else if (serialization === 'CBOR') {
             let obj            
             if (typeof json === 'string') {
-                console.log(json)
                 obj = JSON.parse(json)
             }
             else {
