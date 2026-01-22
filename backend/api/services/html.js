@@ -1,4 +1,4 @@
-const image = require('../helpers/image')
+const moment = require('moment')
 
 module.exports = function (fastify, opts, next) {
   // generates .js for external embeds
@@ -50,9 +50,9 @@ module.exports = function (fastify, opts, next) {
     jsResult += `var wago=wago||{};wago["c${wago.id}"]=${JSON.stringify(embed)};`
     let embedStyle = ''
     if (embed.theme.logo) {
-        embedStyle = `<style>#wago-${embed.id} a{display:inline;padding:0 2px;margin:0;border:0}#wago-${embed.id} img{display:inline;padding:0;margin:0;border:0;height:50px}#wago-${embed.id} button{display:inline;padding:4px 16px;min-width: 130px;background-color:${embed.theme.buttonBG};cursor:pointer;color:${embed.theme.textColor};border:0;text-align:center;vertical-align:top;border-radius:6px}#wago-${embed.id} button:hover{background-color:${theme.buttonHover}}#wago-${wago._id} .clickToCopy{display:block;padding:0;margin:0;font-size:10px}#wago-${embed.id} .wagoName{display:block;padding:0;margin:4px 0;font-weight:bold;font-size:13px}</style>`
+        embedStyle = `<style>#wago-${embed.id} a{display:inline;padding:0 2px;margin:0;border:0}#wago-${embed.id} img{display:inline;padding:0;margin:0;border:0;height:50px}#wago-${embed.id} button{display:inline;padding:4px 16px;min-width: 130px;background-color:${embed.theme.buttonBG};cursor:pointer;color:${embed.theme.textColor};border:0;text-align:center;vertical-align:top;border-radius:6px}#wago-${embed.id} button:hover{background-color:${theme.buttonHover}}#wago-${wago._id} .clickToCopy{display:block;padding:0;margin:0;font-size:10px}#wago-${embed.id} .wagoName{display:block;padding:0;margin:4px 0;font-weight:bold;font-size:13px} .wagoAge{display:block;padding:0;margin:4px 0;font-size:10px}</style>`
     }
-    jsResult += `wagoWrite('${embedStyle}<span id="wago-${embed.id}" class="wagoEmbed">${embed.theme.logoHTML}<button onclick="wagoCopy(this, wago[\\'c${wago.id}\\'])" class="wagoCopyButton"><small class="clickToCopyWago">Click to copy</small><div class="wagoName">${embed.name.replace(/'/g, "\\'")}</div></button></span>');`  
+    jsResult += `wagoWrite('${embedStyle}<span id="wago-${embed.id}" class="wagoEmbed">${embed.theme.logoHTML}<button onclick="wagoCopy(this, wago[\\'c${wago.id}\\'])" class="wagoCopyButton"><small class="clickToCopyWago">Click to copy</small><div class="wagoName">${embed.name.replace(/'/g, "\\'")}${req.query.age ? '<small class="wagoAge">Updated ' + moment(wago.modified).fromNow() + ' </small>': ''}</div></button></span>');`  
 
     res.send(jsResult)
   })
