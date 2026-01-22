@@ -45,9 +45,9 @@ function mapToJSON(obj) {
         let parsedKey = mapToJSON(key);
   
         // If parsedKey is a string that looks like a number, cast it
-        if (typeof parsedKey === 'string' && /^-?\d+$/.test(parsedKey)) {
+        if (typeof parsedKey === 'string' && /^-?[\d.]+$/.test(parsedKey)) {
           const num = parseFloat(parsedKey, 10);
-          if (num >= 0) parsedKey = num;
+          if (!isNaN(num)) parsedKey = num;
         }
   
         result[parsedKey] = mapToJSON(value);
@@ -76,7 +76,7 @@ function JSONtoMap(obj) {
         // Rule: convert numeric string keys back to numbers
         if (/^-?\d+$/.test(key)) {
           const num = parseFloat(key, 10);
-          if (num) actualKey = num;
+          if (!isNaN(num)) actualKey = num;
         }
   
         result.set(actualKey, JSONtoMap(value));
