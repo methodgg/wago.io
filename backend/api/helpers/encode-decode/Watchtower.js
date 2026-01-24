@@ -13,7 +13,7 @@ module.exports = {
         try {
             const obj = {
                 type: content[1],
-                data: await blizzEncoding.standardDecode(content[2], {serialization: 'JSON'})
+                data: await blizzEncoding.standardDecode(content[2])
             }
             return obj
         }
@@ -27,7 +27,7 @@ module.exports = {
         const obj = JSON.parse(json)
         console.log('encode', obj)
         const prefix = `WT1:${obj.type}:`
-        return prefix + await blizzEncoding.standardEncode(obj.data, {serialization: 'JSON'})
+        return prefix + await blizzEncoding.standardEncode(obj.data)
     }
     catch (e) {
       return false
