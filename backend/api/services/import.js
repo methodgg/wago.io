@@ -775,9 +775,7 @@ module.exports = function (fastify, opts, next) {
 
     code.version = wago.latestVersion.iteration
     code.versionString = wago.latestVersion.versionString
-
-    await code.save()   
-
+      
     if (wago.encrypted && req.body.cipherKey) {
       code.encoded = crypto.AES.encrypt(code.encoded, req.body.cipherKey)
       code.json = crypto.AES.encrypt(code.json, req.body.cipherKey)
@@ -785,8 +783,10 @@ module.exports = function (fastify, opts, next) {
       code.lua = crypto.AES.encrypt(code.lua, req.body.cipherKey)
       code.customCodeEncrypted = crypto.AES.encrypt(JSON.stringify(code.customCode), req.body.cipherKey)
       delete code.customCode
+      await code.save()   
     }
-    else {
+    else {      
+      await code.save()   
       await taskQueue.add('ProcessCode', { id: wago._id, version: code.versionString, addon: scan.addon }, { priority: req.user && req.user.access.queueSkip && 2 || 5, jobId: `${wago._id}:${code.version}:${code.versionString}` })
     }
 
