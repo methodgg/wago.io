@@ -244,6 +244,7 @@ module.exports = function (fastify, opts, next) {
     }
     wago.description = { text: doc.description, format: doc.description_format }
     wago.categories = doc.categories
+    wago.categories_other = doc.categories_other || []
     wago.regionType = doc.regionType
     // wago.attachedMedia = doc.attachedMedia
     wago.game = doc.game

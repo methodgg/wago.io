@@ -291,6 +291,7 @@
                   <formatted-text v-else :text="result.description" :plaintext="true" :hideLinks="true" :truncate="250"></formatted-text>
                   <div class="searchTags">
                     <span>{{ displayExpansion(result) }}{{ result.wagolib && result.wagolib.addon || result.type }}</span>
+                    <md-chip v-for="(cat, n) in result.categoriesOther" v-bind:key="n" :class="findMatchingCategoryClass(cat)" disabled>{{ $t(cat) }}</md-chip>
                     <md-chip v-for="(cat, n) in result.categories" v-bind:key="cat.id" :class="cat.id" disabled v-if="cat && cat.text && n<4">{{ cat.text }}</md-chip>
                   </div>
                 </div>
@@ -647,11 +648,6 @@ export default {
               return window.Categories.categories[cat]
             })
           }
-          // if (hits[i] && typeof hits[i] === 'object' && hits[i].code) {
-          //   hits[i].code = hits[i].categories.map((cat) => {
-          //     return window.Categories.categories[cat]
-          //   })
-          // }
         }
 
         if (query.match(/collection:/i)) {
@@ -775,6 +771,11 @@ export default {
       window.localStorage.setItem(`search.game`, this.searchGame)
       window.localStorage.setItem(`search.expansion.${this.searchGame}`, this.searchExpansion)
       window.localStorage.setItem(`search.type.${this.searchGame}`, this.searchType)
+    },
+
+    findMatchingCategoryClass(str) {
+      const cat = window.Categories.match(this.$t(str))
+      return cat?.id || 'sod'
     }
   },
   created: function () {

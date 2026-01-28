@@ -19,6 +19,7 @@ const Schema = new mongoose.Schema({
   type: { type: String, index: true },
   subtype: String,
   categories: { type: Array, index: true },
+  categories_other: { type: Array, index: true },
   categories_auto: { type: Boolean, default: false },
 
   created: { type: Date, default: Date.now, index: true },
@@ -396,7 +397,8 @@ Schema.virtual('indexedImportData').get(async function () {
 
   const data = await this.meiliWAData
   data.id = this._id
-  data.customCode = ''
+  data.customCode = ''  
+  data.categoriesOther = this.categories_other || [],
 
   data.patchIteration = await GameVersion.patchIteration(this.tocversion)
   data.hidden = this.hidden || this.private || this.moderated || this.encrypted || this.restricted || this.deleted || this.blocked

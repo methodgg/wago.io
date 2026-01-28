@@ -1,63 +1,72 @@
+const blizzEncoding = require('../blizzEncoding')
+
 module.exports = {
     typeMatch: /^BIGWIGS$/i,
     domain: ENUM.DOMAIN.WOW,
   
     decode: async (encodedString, exec) => {
       // test that string matches expected regex
-      if (!encodedString.match(/^BW1:[a-zA-Z0-9\(\)]*$/)) {
-        return false
+      const content = encodedString.match(/^(BW2|BWIS1):([a-zA-Z0-9+=\/]+)$/)
+      if (content?.[2]) {
+          try {
+              const obj = await blizzEncoding.standardDecode(content[2])
+              return obj
+          }
+          catch (e){console.log(e)}
       }
-      const lua = `
-        local sharingVersion = "BW1"
-        local encoded = "${encodedString}"
 
-        local versionPlain, importData = encoded:match("^(%w+):(.+)$")
-		if versionPlain ~= sharingVersion then return end
-		local decodedForPrint = LibDeflate:DecodeForPrint(importData)
-		if not decodedForPrint then return end
-		local decompressed = LibDeflate:DecompressDeflate(decodedForPrint)
-		if not decompressed then return end
-		local success, data = LibSerialize:Deserialize(decompressed)
-		if not success or not data.version or data.version ~= sharingVersion then return end
-        return JSON:encode(data)
-      `
-      try {
-        let json = await exec(lua)
-        return JSON.parse(json)
+      if (encodedString.match(/^BW1:[a-zA-Z0-9\(\)]*$/)) {
+        const lua = `
+          local sharingVersion = "BW1"
+          local encoded = "${encodedString}"
+
+          local versionPlain, importData = encoded:match("^(%w+):(.+)$")
+          if versionPlain ~= sharingVersion then return end
+          local decodedForPrint = LibDeflate:DecodeForPrint(importData)
+          if not decodedForPrint then return end
+          local decompressed = LibDeflate:DecompressDeflate(decodedForPrint)
+          if not decompressed then return end
+          local success, data = LibSerialize:Deserialize(decompressed)
+          if not success or not data.version or data.version ~= sharingVersion then return end
+          return JSON:encode(data)
+        `
+        try {
+          let json = await exec(lua)
+          return JSON.parse(json)
+        }
+        catch(e) {
+          return false
+        }
       }
-      catch {
-        return false
-      }
+
+      return false
     },
   
-    encode: async (json, exec) => {
-        const lua = `
-        local sharingVersion = "BW1"
-        local t = JSON:decode("${json}")
-        
-        local serialized = LibSerialize:Serialize(t)
-        local compressed = LibDeflate:CompressDeflate(serialized, {level = 9})
-        local compressedForPrint = LibDeflate:EncodeForPrint(compressed)
-        return sharingVersion..":"..compressedForPrint`
+    encodeRaw: async (json, exec) => {
       try {
-        let encodedString = await exec(lua)
-        return encodedString
+          const obj = JSON.parse(json)
+          const prefix = obj.zone ? 'BWIS1:' : 'BW2:'
+          return prefix + await blizzEncoding.standardEncode(obj)
       }
       catch (e) {
         return false
       }
     },
   
-    processMeta: (obj) => {
-      if (!obj || typeof obj.version !== 'string'  || !obj.version.match(/^BW\d+$/)) {
-        return false
-      }
-      let meta = {}
-  
-      meta.name = 'BigWigs Profile'
+    processMeta: (obj, encString) => {
+      const meta = {}
       meta.type = 'BIGWIGS'
-  
+
+      if (encString.startsWith('BW2:')) {
+        meta.name = 'BigWigs Profile'
+      }
+      else if (encString.startsWith('BWIS1:')) {
+        meta.name = 'BigWigs Instance Settings'
+        // obj.zone field - can be either 2 numbers, positive for an instance ID, negative for a mapArtID (the world map)
+        // https://wago.tools/db2/Map (positive) 
+        // https://wago.tools/db2/UiMap (negative)
+      }
+
       return meta
     }
-  }
-  
+}

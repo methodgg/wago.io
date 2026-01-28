@@ -1,5 +1,3 @@
-const getCode = require('../code-detection/get-code')
-const patchDates = require('../patchDates')
 const blizzEncoding = require('../blizzEncoding')
 
 module.exports = {
@@ -25,7 +23,6 @@ module.exports = {
   encodeRaw: async (json, exec) => {
     try {
         const obj = JSON.parse(json)
-        console.log('encode', obj)
         const prefix = `WT1:${obj.type}:`
         return prefix + await blizzEncoding.standardEncode(obj.data)
     }

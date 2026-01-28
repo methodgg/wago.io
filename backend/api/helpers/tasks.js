@@ -959,6 +959,15 @@ async function ProcessCode(data) {
         tableMetrics.dependencies = [...tableMetrics.dependencies]
         code.tableMetrics = tableMetrics
         break
+
+      case 'BIGWIGS':
+        const bwjson = JSON.parse(code.json)
+        if (bwjson.zone < 0) {
+          doc.categories_other = [`warcraft:UiMap.${bwjson.zone * -1}`]
+        }
+        else if (bwjson.zone > 0) {
+          doc.categories_other = [`warcraft:Map.${bwjson.zone}`]
+        }
     }
   }
   catch (e) {

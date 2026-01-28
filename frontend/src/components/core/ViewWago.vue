@@ -17,7 +17,10 @@
       </md-button>
       <div id="wago-mobile-header" class="md-hide-small-and-up" v-bind:class="{'md-hide-xsmall': !hideMobileHeader}">
         <h3>{{ wago.name }}</h3>
-        <md-subheader><span v-for="(cat, n) in wago.categories" :key="n" :class="cat.cls" disabled v-if="cat.text">{{ cat.text }}</span></md-subheader>
+        <md-subheader>
+            <span v-for="(cat, n) in wago.categories_other" :key="n" :class="findMatchingCategoryClass(cat)" disabled>{{ $t(cat) }}</span>
+            <span v-for="(cat, n) in wago.categories" :key="n" :class="cat.cls" disabled v-if="cat.text">{{ cat.text }}</span>
+        </md-subheader>
       </div>
       <md-dialog md-open-from="#helpImportingButton" md-close-to="#helpImportingButton" ref="helpDialog" id="helpDialog">
         <md-dialog-title>{{ $t("How do I import this?") }}</md-dialog-title>
@@ -232,6 +235,7 @@
                   </div>
                   <div id="tags">
                     <template>
+                      <md-chip v-for="(cat, n) in wago.categories_other" :key="n" :class="findMatchingCategoryClass(cat)" disabled>{{ $t(cat) }}</md-chip>
                       <router-link v-for="(cat, n) in wago.categories" :key="n" :to="'/' + typeSlug + cat.slug">
                         <md-chip :class="cat.id" disabled v-if="cat.text && (n<5 || showMoreCategories)">{{ cat.text }}</md-chip>
                       </router-link>
@@ -417,6 +421,10 @@
               <div v-if="codeReview?.deprecationWarnings?.CLEU" class="wago-container">
                 <codereview :alerts="true" :plaintext="$t('This WeakAura uses the deprecated event COMBAT_LOG_EVENT_UNFILTERED OR CLEU. As of WeakAuras version 5.19.0 (Jan-23-2025), this trigger is no longer supported and this import will probably not work as intended. See the deprecation notice for details and how to fix it.')" :name="$t('Deprecated!!')" :externalDoc="{url: 'https://github.com/WeakAuras/WeakAuras2/wiki/Deprecated-CLEU#fix-custom-trigger-event', text: 'Deprecation Notice'}"></codereview>
               </div>
+
+              <ui-warning v-if="codeReview?.tbcAnniversaryWarning">
+                {{ $t('This WeakAura was created for the original TBC Classic and may not work as expected in the TBC Classic Anniversary.') }}
+              </ui-warning>
 
               <ui-warning v-if="wago.type === 'BLIZZHUD'" mode="alert">
                 Blizzard Hud is still early in development and not fully supported in-game nor on Wago.<br></br>If there are breaking changes in a future Alpha build, existing Blizz Hud imports may be deleted.
@@ -1936,6 +1944,15 @@ export default {
         if (res.visibility.encrypted) {
           this.requireCipherKey = true
         }
+
+        if (res.type === 'COOLDOWN-MANAGER' && (new Date().getTime()) < 1769716800000) {
+          // cache buster for CDM until Jan. 29 2026
+          res.codeURL += (res.codeURL.includes('?') ? '&' : '?') + 'cdmCacheBuster=3'
+        }
+        else if (res.visibility?.encrypted && (new Date().getTime()) < 1770163200000) {
+          // cache buster for CDM until Feb. 4 2026
+          res.codeURL += (res.codeURL.includes('?') ? '&' : '?') + 'cdmCacheBuster=4'
+        }
         if (res.codeURL) {
           this.getCode(res.codeURL)
         }
@@ -2239,6 +2256,7 @@ export default {
       this.codeReview.alerts = 0
       this.codeReview.alertContent = {}
       this.codeReview.deprecationWarnings = {}
+      this.codeReview.tbcAnniversaryWarning = false
       this.codeReview.info = {
         nloc: 0,
         ccn: 0,
@@ -2370,6 +2388,9 @@ export default {
         for (let item of auras) {
           i++
           let itemID = item.id
+          if (this.wago.game === 'tbc' && item.tocversion < 20505) {
+            this.codeReview.tbcAnniversaryWarning = true
+          }
           if (itemID.length > 127) {
             this.codeReview.alerts++
             this.codeReview.alertContent['longID' + itemID] = {name: itemID, display: this.$t('\'[-name-]\' id length is needlessly long.', {name: itemID}) + '(0):' + this.$t('This is the name used in the WeakAura interface and may cause an overflow error and crash the game.')}
@@ -2572,6 +2593,11 @@ export default {
       }
 
       return ''
+    },
+
+    findMatchingCategoryClass(str) {
+      const cat = window.Categories.match(this.$t(str))
+      return cat?.id || 'sod'
     },
 
     decryptImport () {
