@@ -62,9 +62,9 @@ module.exports = {
       }
       else if (encString.startsWith('BWIS1:')) {
         meta.name = 'BigWigs Instance Settings'
-        // obj.zone field - can be either 2 numbers, positive for an instance ID, negative for a mapArtID (the world map)
-        // https://wago.tools/db2/Map (positive) 
-        // https://wago.tools/db2/UiMap (negative)
+      }
+      else {
+        return false
       }
 
       return meta
