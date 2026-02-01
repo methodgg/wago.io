@@ -24,7 +24,7 @@ module.exports = {
       }
 
       const matchWA = /(!WA:2![a-zA-Z0-9\(\)]+)/
-      const matchPlater = /!PLATER:2!([a-zA-Z0-9+=\/]+)/
+      const matchPlater = /(!PLATER:2![a-zA-Z0-9+=\/]+)/
       let stringType
 
       let result = message.content.match(matchWA)
@@ -67,7 +67,7 @@ module.exports = {
         meta = WA.processMeta(decoded)
       }
       else if (stringType === 'Plater') {
-        decoded = await Plater.decode(importString.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim(), lua.runLua)
+        decoded = await Plater.decode(importString.trim())
         meta = Plater.processMeta(decoded)
       }
 
@@ -97,7 +97,6 @@ module.exports = {
         })
 
         await code.save()
-        console.log('process')
         await taskQueue.add('ProcessCode', { id: wago._id, version: code.versionString, addon: wago.addon, encode: true }, { priority: 2, jobId: `${wago._id}:${code.version}:${code.versionString}` })
         client.api.channels[message.channel.id].messages.post({
           data: {
