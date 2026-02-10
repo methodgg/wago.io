@@ -33,19 +33,30 @@ export default {
   computed: {
     bgSize: function () {
       switch (this.mapID) {
-        // 100% per x-sprites
-        case 28:
-          return '1500%'
-        case 29:
+        // midnight s1
+        case 11: // seat of the triumvirate
+          return '1110%'
+
+        case 45: // algethar academy
           return '900%'
-        case 30:
-          return '920%'
-        case 32:
+          
+        case 150: // pit of saron
+          return '1215%'
+
+        case 151: // skyreach
+          return '1115%'
+
+        case 152: // windrunner spire
+          return '1610%'
+
+        case 153: // magisters terrace
           return '1300%'
-        case 33:
-          return '1200%'
-        case 34:
-          return '1600%'
+
+        case 154: // maisara caverns
+          return '1615%'
+
+        case 155: // nexus point xenas
+          return '1710%'
 
         // tww
         case 31:

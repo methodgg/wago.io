@@ -39,14 +39,25 @@ module.exports = {
       success, data = LibSerialize:Deserialize(data)
 
       if success and data then
-        return JSON:encode(data)
+        return JSON:encode(data, {"forceTableToArray" = {"snippets" = true}})
       end
       return data`
     try {
       let json = await exec(lua)
-      return JSON.parse(json)
+      const obj = JSON.parse(json)
+      // fix snippets
+      // if (obj.snippets) {
+      //   const snippets = []
+      //   const snippetKeys = Object.keys(obj.snippets).map(k => parseInt(k)).sort().filter(k => k >= 0).map(k => "" + k)
+      //   for (const k of snippetKeys) {
+      //     snippets.push(obj.snippets[k])
+      //   }
+      //   obj.snippets = snippets
+      // }
+      return obj
     }
-    catch {
+    catch (e) {
+      console.log(e)
       return false
     }
   },
@@ -68,15 +79,14 @@ module.exports = {
     local t = JSON:decode("${json}")
     if not t then return "" end
 
-    function fixNumericIndexes(tbl, adj)
-      adj = adj or 0
+    function fixNumericIndexes(tbl)
       local fixed = {}
       for k, v in pairs(tbl) do
         if type(v) == "table" then
-          v = fixNumericIndexes(v, adj)
+          v = fixNumericIndexes(v)
         end
         if tonumber(k) and tonumber(k) > 0 then
-          fixed[tonumber(k) + adj] = v
+          fixed[tonumber(k)] = v
         else
           fixed[k] = v
         end
@@ -84,10 +94,7 @@ module.exports = {
       return fixed
     end
 
-    t = fixNumericIndexes(t)
-    if t.snippets then
-      t.snippets = fixNumericIndexes(t.snippets, -1)
-    end
+    t = fixNumericIndexes(t, false)
 
     local serialized = LibSerialize:Serialize(t)
     local compressed = LibDeflate:CompressDeflate(serialized, {level = 9})

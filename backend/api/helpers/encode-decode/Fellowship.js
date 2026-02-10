@@ -20,13 +20,11 @@ module.exports = {
         const decompressed = zlib.inflateSync(payload)
         const shifted = [...Buffer.from(decompressed)].map(b => {
           if (b >= 0x1f) return String.fromCharCode(b+1);
-          // console.log('invalid value', b)
           return `$0x${b.toString(16).padStart(2,'0')}$`;
         }).join('');
 
         const jsonStr = shifted.toString("latin1")
         
-        // console.log(jsonStr)
         const obj = losslessJSON.parse(jsonStr)
 
         obj.vheader = header.toString("base64")

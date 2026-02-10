@@ -163,49 +163,10 @@
     </md-layout>
 
     <template v-if="$store.state.gameDomain === 0">
-      <div id="currentcontent">
-        <strong>{{ $t('Browse by Addon') }}</strong>
-        <md-layout>
-          <md-button-toggle md-single class="md-accent md-warn select-browse-mode">
-            <md-button :class="{ 'md-toggle': !browseExpansion }" @click="browseExpansion=''">
-              <img src="../assets/midnight-toggle.svg"> {{ $t("Midnight") }}
-            </md-button>
-            <md-button :class="{ 'md-toggle': browseExpansion === 'mop' }" @click="browseExpansion='mop'">
-              <img src="../assets/mop-toggle.svg"> {{ $t("Mists of Pandaria") }}
-            </md-button>
-            <md-button :class="{ 'md-toggle': browseExpansion === 'titan-wotlk' }" @click="browseExpansion='titan-wotlk'">
-              <img src="../assets/wotlk-toggle.svg">{{ $t("Titan Reforged") }}
-            </md-button>
-            <md-button :class="{ 'md-toggle': browseExpansion === 'tbc' }" @click="browseExpansion='tbc'">
-              <img src="../assets/tbc-toggle.svg"> {{ $t("The Burning Crusade") }}
-            </md-button>
-            <md-button :class="{ 'md-toggle': browseExpansion === 'classic' }" @click="browseExpansion='classic'">
-              <img src="../assets/classic-toggle.svg"> {{ $t("Classic") }}
-            </md-button>
-          </md-button-toggle>
-        </md-layout>
-        <md-layout>
-          <div id="browse-addon-list">
-            <template v-if="currentWA[browseExpansion]">
-              <router-link :to="expansionData[browseExpansion]?.slug || '/'" style="border-color: #cccccc99; color:#cccccc; background-color:#cccccc11;"><span><md-avatar class='square'><category-image :group="'t-weakaura'"></category-image></md-avatar> 
-                {{ $t("[-expansion-] WeakAuras", {expansion: expansionData[browseExpansion]?.name || 'Midnight'}) }}</span>
-              </router-link>
-              <router-link v-for="(category, index) in currentWA[browseExpansion]" :key="index" :to="'/' + category.slug" class="addon-list-category" :style="`border-color: ${category.color}99; color:${category.color}; background-color:${category.color}11; background-image:url('/static/image/menu/${category.image}')`"><span>{{ category.text }} WeakAuras</span></router-link>
-            </template>
-            <router-link to="/elvui/" style="border-color: #fe7c0099; color:#fe7c00; background-color:#fe7c0011;"><span><md-avatar class='square'><category-image :group="'t-elvui'"></category-image></md-avatar> ElvUI</span></router-link>
-            <router-link to="/plater/" style="border-color: #fcc77199; color:#fcc771; background-color:#fcc77111;"><span><md-avatar class='square'><category-image :group="'t-plater'"></category-image></md-avatar> Plater</span></router-link>
-            <router-link to="/blizzhud/" style="border-color: #009ae499; color:#009ae4; background-color:#009ae411;"><span><md-avatar class='square'><category-image :group="'t-blizzhud'"></category-image></md-avatar> Blizzard Edit Mode</span></router-link>
-            <router-link v-if="!browseExpansion" to="/blizz-cooldown-manager/" style="border-color: #009ae499; color:#009ae4; background-color:#009ae411;"><span><md-avatar class='square'><category-image :group="'t-blizzhud'"></category-image></md-avatar> Blizzard Cooldown Manager</span></router-link>
-            <router-link to="/cell/" style="border-color: #218a3799; color:#218a37; background-color:#218a3711;"><span><md-avatar class='square'><category-image :group="'t-cell'"></category-image></md-avatar> Cell</span></router-link>
-
-            <router-link to="/addons/" style="border-color: #f45e3699; color:#f45e36; background-color:#f45e3611;"><span><md-avatar class='square'><img src="/static/image/menu/mechanics.png"></category-image></md-avatar> {{$t('Browse More Addons')}}</span></router-link>
-
-          </div>
-        </md-layout>
-      </div>
+      <browse-addons></browse-addons>
     </template>
     <template v-else-if="$store.state.gameDomain === 2">
-      <div id="currentcontent">
+      <div id="browse">
         <strong>{{ $t('Browse By Hero') }}</strong>
         <md-layout>
           <div id="browse-addon-list">
@@ -374,7 +335,7 @@
 #sitenews .md-card {margin: 16px 0 0; width:100%}
 #sitenews .md-card .md-subhead { opacity: 1 }
 
-#currentcontent {
+#browse {
   margin: 16px 0 0; width:100%;
   & > .md-layout {    
     justify-content: space-between;
@@ -416,21 +377,13 @@
         transform: scale(1.05);
         z-index: 100;
       }
-      & + a { order: 3 }
-      & + a+a { order: 2 }
-      & + a+a+a { order: 4 }
     }
   }
   .wago-ad-container {
     margin: 0 0 8px 16px;
     padding: 0 8px 10px;
-    order: 2;
     & + #browse-addon-list {
       grid-template-columns: repeat(1, minmax(0, 1fr));
-      
-      a+a { order: 2 }
-      a+a+a { order: 3 }
-      a+a+a+a { order: 4 }
     }
   }
 }
@@ -511,7 +464,7 @@ h3.spotlight-tab:hover, h3.spotlight-tab.selected {background-color: #333;}
 }
 
 @media (max-width: 600px) {
-  #currentcontent #browse-addon-list a {
+  #browse #browse-addon-list a {
     padding-left: 12px;
     background-image: none!important;
   }
@@ -581,7 +534,7 @@ import CategoryImage from './UI/CategoryImage.vue'
 import CTA_WagoAddons from './UI/CTAWagoAddons.vue'
 import WagoNews from './core/News.vue'
 import VueMarkdown from 'vue-markdown'
-import addonDB from './libs/addons'
+import BrowseAddons from './UI/BrowseAddons.vue'
 
 import { Sanitizer } from "@esri/arcgis-html-sanitizer"
 const sanitizer = new Sanitizer()
@@ -602,7 +555,6 @@ export default {
       visibility: 'Public',
       importAs: 'Guest',
       expire: '3mo',
-      browseExpansion: localStorage.getItem('browseExpansion') || '',
       name: '',
       weakauramode: '',
       setCategories: [],
@@ -626,7 +578,6 @@ export default {
       newRestrictionType: 'user',
       newRestrictionValue: '',
       cipherKey: '',
-      addonDB,
       expansionData: {
         'mop': {name: 'Mists of Pandaria', slug: '/mop-weakauras'},
         'tbc': {name: 'The Burning Crusade', slug: '/tbc-weakauras'},
@@ -640,7 +591,8 @@ export default {
     'vue-markdown': VueMarkdown,
     'wago-news': WagoNews,
     'category-image': CategoryImage,
-    'cta-wago-addons': CTA_WagoAddons
+    'cta-wago-addons': CTA_WagoAddons,
+    'browse-addons': BrowseAddons
   },
   computed: {
     currentWA () {
@@ -810,9 +762,6 @@ export default {
         this.visibility = u.defaultImportVisibility
         this.expire = 'never'
       }
-    },
-    browseExpansion: function (val) {
-      localStorage.setItem('browseExpansion', val)
     },
     importString: function (val) {
       val = val.trim()

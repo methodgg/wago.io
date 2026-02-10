@@ -1,10 +1,11 @@
 // Resolve promises allow lazy-load components
 const Index = resolve => require(['@/components/Index.vue'], resolve)
-const Login = resolve => require(['@/components/core/Login.vue'], resolve)
 const Logout = resolve => require(['@/components/core/Logout.vue'], resolve)
 const Account = resolve => require(['@/components/core/Account.vue'], resolve)
 const Admin = resolve => require(['@/components/core/Admin.vue'], resolve)
 
+const ViewAddon = resolve => require(['@/components/core/ViewAddon.vue'], resolve) 
+const BrowseAddons = resolve => require(['@/components/UI/BrowseAddons.vue'], resolve) 
 const MenuAddons = resolve => require(['@/components/core/Menu-Addons.vue'], resolve)
 const MenuWeakAurasTWW = resolve => require(['@/components/core/Menu-WeakAuras-TWW.vue'], resolve)
 const MenuWeakAurasDragonflight = resolve => require(['@/components/core/Menu-WeakAuras-Dragonflight.vue'], resolve)
@@ -30,6 +31,7 @@ const MenuGSE = resolve => require(['@/components/core/Menu-GSE.vue'], resolve)
 // const MenuMDTBFA = resolve => require(['@/components/core/Menu-MDT-BFA.vue'], resolve)
 // const MenuMDTShadowlands = resolve => require(['@/components/core/Menu-MDT-Shadowlands.vue'], resolve)
 const MenuMDTTheWarWithin = resolve => require(['@/components/core/Menu-MDT-TWW.vue'], resolve)
+const MenuMDTMidnight = resolve => require(['@/components/core/Menu-MDT-Midnight.vue'], resolve)
 const CreateMDT = resolve => require(['@/components/core/Create-MDT.vue'], resolve)
 const MenuCollections = resolve => require(['@/components/core/Menu-Collections.vue'], resolve)
 const MenuFellowshipUI = resolve => require(['@/components/core/Menu-FellowshipUI.vue'], resolve)
@@ -117,6 +119,13 @@ module.exports = {
     { path: '/admin', component: Admin },
 
     // menus/categories
+    { path: '/browse/', component: BrowseAddons },
+    { path: '/browse/:addon', component: ViewAddon },
+    { path: '/browse/:addon/:c1', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, route.params.addon), type: route.params.addon, game: 'wow', mode: 'imports' } }) },
+    { path: '/browse/:addon/:c1/:c2', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, route.params.addon), type: route.params.addon, game: 'wow', mode: 'imports' } }) },
+    { path: '/browse/:addon/:c1/:c2/:c3', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, route.params.addon), type: route.params.addon, game: 'wow', mode: 'imports' } }) },
+    { path: '/browse/:addon/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, route.params.addon), type: route.params.addon, game: 'wow', mode: 'imports' } }) },
+
     { path: '/weakauras', component: MenuWeakAurasTWW },
     { path: '/weakauras/:c1', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'weakaura'), type: 'weakaura', game: 'wow', expansion: 'df', mode: 'imports' } }) },
     { path: '/weakauras/:c1/:c2', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'weakaura'), type: 'weakaura', game: 'wow', expansion: 'df', mode: 'imports' } }) },
@@ -197,11 +206,11 @@ module.exports = {
     { path: '/blizzhud/:c1/:c2', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'blizzhud'), type: 'blizzhud', game: 'wow', mode: 'imports' } }) },
     { path: '/blizzhud/:c1/:c2/:c3', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'blizzhud'), type: 'blizzhud', game: 'wow', mode: 'imports' } }) },
     { path: '/blizzhud/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'blizzhud'), type: 'blizzhud', game: 'wow', mode: 'imports' } }) },
-    { path: '/blizzard-cooldown-manager', component: MenuBlizzCDM },
-    { path: '/blizzard-cooldown-manager/:c1', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'cooldownmanager'), type: 'cooldown-manager', game: 'wow', mode: 'imports' } }) },
-    { path: '/blizzard-cooldown-manager/:c1/:c2', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'cooldownmanager'), type: 'cooldown-manager', game: 'wow', mode: 'imports' } }) },
-    { path: '/blizzard-cooldown-manager/:c1/:c2/:c3', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'cooldownmanager'), type: 'cooldown-manager', game: 'wow', mode: 'imports' } }) },
-    { path: '/blizzard-cooldown-manager/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'cooldownmanager'), type: 'cooldown-manager', game: 'wow', mode: 'imports' } }) },
+    { path: '/blizz-cooldown-manager', component: MenuBlizzCDM },
+    { path: '/blizz-cooldown-manager/:c1', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'cooldownmanager'), type: 'cooldown-manager', game: 'wow', mode: 'imports' } }) },
+    { path: '/blizz-cooldown-manager/:c1/:c2', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'cooldownmanager'), type: 'cooldown-manager', game: 'wow', mode: 'imports' } }) },
+    { path: '/blizz-cooldown-manager/:c1/:c2/:c3', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'cooldownmanager'), type: 'cooldown-manager', game: 'wow', mode: 'imports' } }) },
+    { path: '/blizz-cooldown-manager/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'cooldownmanager'), type: 'cooldown-manager', game: 'wow', mode: 'imports' } }) },
     { path: '/vuhdo', component: MenuVuhdo },
     { path: '/vuhdo/:c1', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'vuhdo'), type: 'vuhdo', game: 'wow', mode: 'imports' } }) },
     { path: '/vuhdo/:c1/:c2', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'vuhdo'), type: 'vuhdo', game: 'wow', mode: 'imports' } }) },
@@ -243,11 +252,16 @@ module.exports = {
     // { path: '/addons/weakauras', redirect: '/weakauras' },
     // { path: '/addons/classic-weakauras', redirect: '/classic-weakauras' },
     // { path: '/addons/tbc-weakauras', redirect: '/tbc-weakauras' },
-    { path: '/mdt', component: MenuMDTTheWarWithin },
+    { path: '/mdt', component: MenuMDTMidnight },
     { path: '/mdt/:c1', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'mdt'), type: 'mdt', game: 'wow', expansion: 'df', mode: 'imports' } }) },
     { path: '/mdt/:c1/:c2', component: Search, props: (route) => (route) => ({ context: { query: GetContextSearch(route.params, 'mdt'), type: 'mdt', game: 'wow', expansion: 'df', mode: 'imports' } }) },
     { path: '/mdt/:c1/:c2/:c3', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'mdt'), type: 'mdt', game: 'wow', expansion: 'df', mode: 'imports' } }) },
     { path: '/mdt/:c1/:c2/:c3/:c4', component: Search, props: (route) => (route) => ({ context: { query: GetContextSearch(route.params, 'mdt'), type: 'mdt', game: 'wow', expansion: 'df', mode: 'imports' } }) },
+    { path: '/midnight-mdt', component: MenuMDTMidnight },
+    { path: '/midnight-mdt/:c1', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'mdt'), type: 'mdt', game: 'wow', expansion: 'tww', mode: 'imports' } }) },
+    { path: '/midnight-mdt/:c1/:c2', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'mdt'), type: 'mdt', game: 'wow', expansion: 'tww', mode: 'imports' } }) },
+    { path: '/midnight-mdt/:c1/:c2/:c3', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'mdt'), type: 'mdt', game: 'wow', expansion: 'tww', mode: 'imports' } }) },
+    { path: '/midnight-mdt/:c1/:c2/:c3/:c4', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'mdt'), type: 'mdt', game: 'wow', expansion: 'tww', mode: 'imports' } }) },
     // { path: '/dragonflight-mdt', component: MenuMDTDragonflight },
     // { path: '/dragonflight-mdt/:c1', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'mdt'), type: 'mdt', game: 'wow', expansion: 'df', mode: 'imports' } }) },
     // { path: '/dragonflight-mdt/:c1/:c2', component: Search, props: (route) => ({ context: { query: GetContextSearch(route.params, 'mdt'), type: 'mdt', game: 'wow', expansion: 'df', mode: 'imports' } }) },

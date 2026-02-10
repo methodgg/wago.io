@@ -995,6 +995,7 @@ Vue.use(VueKonva)
 window.Categories = window.Categories = require('./components/libs/categories2')
 window.i18next = window.i18next = require('i18next')
 import VueI18Next from '@panter/vue-i18next'
+import addonDB from './components/libs/addons'
 
 import XHR from 'i18next-xhr-backend'
 Vue.use(VueI18Next)
@@ -1017,7 +1018,7 @@ i18next.use(XHR)
     }
   }, () => {
     const i18n = new VueI18Next(i18next)
-    window.Categories.init()
+    window.Categories.init(null, addonDB)
     /* eslint-disable no-unused-vars */
     window.eventHub = new Vue()
     new Vue({

@@ -12,6 +12,7 @@ const luacheck = require('./luacheck')
 const elastic = require('./elasticsearch')
 const patchDates = require('./patchDates')
 const codeMetrics = require('./codeMetrics')
+const wowAddons = require('./wowAddons')
 const categories = require('../../../frontend/src/components/libs/categories2')
 
 const ENUM = require('../../middlewares/enum')
@@ -45,7 +46,7 @@ module.exports = async (task, data) => {
         return await UpdateGuildMembership()
 
       case 'UpdateMDT':
-        return await updateMDT()
+        return await updateMDT(data?.branch, data?.path, data?.fileMatch)
 
       case 'UpdateLatestAddonReleases':
         return await UpdateLatestAddonReleases()
@@ -594,7 +595,7 @@ async function ComputeStatistics() {
   await redis.set('stats:mean:stars', mean || 0)
 }
 
-async function updateMDT(branch='master', path='') {
+async function updateMDT(branch='master', path='', fileMatch=/.lua$/) {
   try {
     const response = await octokit.repos.getContent({
       owner: 'Nnoggie',
@@ -605,7 +606,7 @@ async function updateMDT(branch='master', path='') {
 
     // Filter the response to get only file objects (exclude directories)
     const dungeonFiles = response.data.filter(file => {
-        return file.type === 'file' && file.path.match(/\/\w+.lua$/)
+        return file.type === 'file' && file.path.match(fileMatch)
       }
     )
     for (const f of dungeonFiles) {
@@ -613,9 +614,9 @@ async function updateMDT(branch='master', path='') {
     }
 
     // Recursively fetch files in subdirectories
-    const subdirectories = response.data.filter(file => file.type === 'dir' && file.path.match(/BattleForAzeroth|Dragonflight|Legion|Shadowlands|TheWarWithin/))
+    const subdirectories = response.data.filter(file => file.type === 'dir' && file.path.match(/BattleForAzeroth|Dragonflight|Legion|Shadowlands|TheWarWithin|Midnight/))
     for (const dir of subdirectories) {
-      await updateMDT(branch, dir.path)
+      await updateMDT(branch, dir.path, fileMatch)
     }
   } catch (error) {
     console.error('Error fetching files:', error);
@@ -678,7 +679,7 @@ async function updateMDTDungeon(file, branch) {
 
   overwrite = true
   if (overwrite || !currentData || (currentData.value.enemyHash !== enemyHash && mapData.dungeonMaps && mapData.dungeonEnemies && mapData.dungeonEnemies.length)) {
-    await buildStaticMDTPortraits(mapData, mapID, false)
+    await buildStaticMDTPortraits(mapData, mapID, false, branch)
     // await buildStaticMDTPortraits(mapData, mapID, true) // teeming
   }
 }
@@ -782,7 +783,7 @@ async function SyncElastic(table) {
     let doc
     switch (table) {
       case 'imports':
-        const cursorImports = WagoItem.find({ _userId: { $exists: true }, expires_at: null }).cursor()
+        const cursorImports = WagoItem.find({ _userId: { $exists: true }, expires_at: null }).sort({created: -1}).cursor()
         doc = await cursorImports.next()
         while (doc) {
           count++
@@ -893,9 +894,19 @@ async function ProcessCode(data) {
   var doc = await WagoItem.lookup(data.id)
   var code = await WagoCode.lookup(data.id, data.version)
   if (!doc || doc.type.match(/UNKNOWN/) || !code || !code._id || doc.encrypted) {
+    console.log('no process', data.id)
     return
   }
-  if (data.addon && Addons[data.addon]) {
+  code.encoded = null
+  let hasAddedData = await wowAddons.addWagoData(doc, code)
+  const encoded = await wowAddons.toEncodedString(code.json, doc.type)
+
+  if (encoded) {
+    code.encoded = encoded
+    code.json = sortJSON(code.json)
+  }
+
+  if (!code.encoded && data.addon && Addons[data.addon]) {
     const addon = Addons[data.addon]
     if (addon && addon.addWagoData) {
       let meta = await addon.addWagoData(code, doc)
@@ -903,25 +914,26 @@ async function ProcessCode(data) {
         if (meta.code) { code = meta.code }
         if (meta.wago) { doc = meta.wago }
       }
+    }
+    if (data.encode || !code.encoded) {
+      if (addon.encode) {
+        code.encoded = await addon.encode(code.json.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim(), lua.runLua, doc)
       }
-      if (data.encode || !code.encoded) {
-        if (addon.encode) {
-          code.encoded = await addon.encode(code.json.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim(), lua.runLua, doc)
-        }
-        else if (addon.encodeRaw) {
-          code.encoded = await addon.encodeRaw(code.json)
+      else if (addon.encodeRaw) {
+        code.encoded = await addon.encodeRaw(code.json)
       }
     }
   }
-  else if (doc.type) {
+  else if (!code.encoded && doc.type) {
     // match addon by type
     for (const addon of Object.values(Addons)) {
       if (doc.type.match(addon.typeMatch)) {
         if (addon.addWagoData) {
-        let meta = await addon.addWagoData(code, doc)
-        if (meta) {
-          if (meta.code) { code = meta.code }
-          if (meta.wago) { doc = meta.wago }
+          let meta = await addon.addWagoData(code, doc)
+          if (meta) {
+            if (meta.code) { code = meta.code }
+            if (meta.wago) { doc = meta.wago }
+            hasAddedData = true
           }
         }
         if (data.encode || !code.encoded) {
@@ -932,49 +944,53 @@ async function ProcessCode(data) {
             code.encoded = await addon.encodeRaw(code.json)
           }
         }
+        break
       }
     }
   }
-  let err
-  try {
-    switch (doc.type) {
-      case 'SNIPPET':
-        code.customCode = await CodeReview([{ id: 'Lua', name: 'Snippet', lua: code.lua }], doc)
-        break
+  if (!hasAddedData) {
+    let err
+    try {
+      console.log('processing', data.id, doc.type)
+      switch (doc.type) {
+        case 'SNIPPET':
+          code.customCode = await CodeReview([{ id: 'Lua', name: 'Snippet', lua: code.lua }], doc)
+          break
 
-      case 'WEAKAURA':
-      case 'CLASSIC-WEAKAURA':
-      case 'TBC-WEAKAURA':
-      case 'WOTLK-WEAKAURA':
-      case 'TITAN-WOTLK-WEAKAURA':
-      case 'CATA-WEAKAURA':
-      case 'MOP-WEAKAURA':
-      case 'PLATER':
-        const json = JSON.parse(code.json)
+        case 'WEAKAURA':
+        case 'CLASSIC-WEAKAURA':
+        case 'TBC-WEAKAURA':
+        case 'WOTLK-WEAKAURA':
+        case 'TITAN-WOTLK-WEAKAURA':
+        case 'CATA-WEAKAURA':
+        case 'MOP-WEAKAURA':
+        case 'PLATER':
+          const json = JSON.parse(code.json)
 
-        doc.domain = 0
+          doc.domain = 0
 
-        code.customCode = await CodeReview(getCode(json, doc.type), doc)
-        let tableMetrics = TableReview(json)
-        tableMetrics.dependencies = [...tableMetrics.dependencies]
-        code.tableMetrics = tableMetrics
-        break
+          code.customCode = await CodeReview(getCode(json, doc.type), doc)
+          let tableMetrics = TableReview(json)
+          tableMetrics.dependencies = [...tableMetrics.dependencies]
+          code.tableMetrics = tableMetrics
+          break
 
-      case 'BIGWIGS':
-        const bwjson = JSON.parse(code.json)
-        if (bwjson.zone < 0) {
-          doc.categories_other = [`warcraft:UiMap.${bwjson.zone * -1}`]
-        }
-        else if (bwjson.zone > 0) {
-          doc.categories_other = [`warcraft:Map.${bwjson.zone}`]
-        }
+        case 'BIGWIGS':
+          const bwjson = JSON.parse(code.json)
+          if (bwjson.zone < 0) {
+            doc.categories_other = [`warcraft:UiMap.${bwjson.zone * -1}`]
+          }
+          else if (bwjson.zone > 0) {
+            doc.categories_other = [`warcraft:Map.${bwjson.zone}`]
+          }
+      }
     }
+    catch (e) {
+      console.error(data, e)
+      err = true
+    }
+    if (err) throw 'Code Processing Error'
   }
-  catch (e) {
-    console.error(data, e)
-    err = true
-  }
-  if (err) throw 'Code Processing Error'
 
   doc.blocked = false
   if (code.version > 1) {
@@ -982,7 +998,7 @@ async function ProcessCode(data) {
   }
   code.isLatestVersion = true
 
-  if (code.customCode && code.customCode.length) {
+  if (code.customCode?.length) {
     doc.hasCustomCode = true
     code.customCode.forEach(c => {
       if (c.luacheck && c.luacheck.match(commonRegex.WeakAuraBlacklist)) {

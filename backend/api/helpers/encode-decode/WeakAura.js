@@ -9,7 +9,7 @@ module.exports = {
     // test that string matches expected regex\
     const v3Str = encodedString.match(/!WA:3!([a-zA-Z0-9+=\/]+)/)
     if (v3Str?.[1]) {
-      return blizzEncoding.standardDecode(v3Str[1])
+      return blizzEncoding.decode(v3Str[1])
     }
 
     if (!encodedString.match(/^!?(WA:(1|2)!)?[a-zA-Z0-9\(\)]*$/)) {
@@ -57,7 +57,8 @@ module.exports = {
       let json = await exec(lua)
       return JSON.parse(json)
     }
-    catch {
+    catch (e) {
+      console.log(e)
       return false
     }
   },

@@ -96,7 +96,7 @@ module.exports = {
 			end
 			v.caption = nil -- DEPRECATED [2101/X4]
 			v.sliceToken, v.vm = nil
-      end
+		end
 	until not q[1]
 	props._scv = 1
 	return Opie_serialize(props)`
@@ -112,7 +112,7 @@ module.exports = {
 
   processMeta: (obj) => {
     var meta = {categories: []}
-    if (!obj || !obj.name) {
+    if (!obj || !obj.name || !obj['1']) {
       return false
     }
 
@@ -130,38 +130,38 @@ local sigT, sigB, sigN = {}, {}
 for i, c in ("01234qwertyuiopasdfghjklzxcvbnm5678QWERTYUIOPASDFGHJKLZXCVBNM9"):gmatch("()(.)") do sigT[i-1], sigT[c], sigB[sb(c)], sigN = c, i-1, i-1, i end
 local function checksum(s)
     local h, p2, p3 = (134217689 * #s) % 17592186044399, sigN^2, sigN^3
-  for i=1,#s,4 do
-    local a, b, c, d = s:match("(.?)(.?)(.?)(.?)", i)
+    for i=1,#s,4 do
+        local a, b, c, d = s:match("(.?)(.?)(.?)(.?)", i)
         a, b, c, d = sigT[a], (sigT[b] or 0) * sigN, (sigT[c] or 0) * p2, (sigT[d] or 0) * p3
-    h = (h * 211 + a + b + c + d) % 17592186044399
-  end
-  return h % 3298534883309
+        h = (h * 211 + a + b + c + d) % 17592186044399
+    end
+    return h % 3298534883309
 end
 local function nenc(v, b, rest)
-  if b == 0 then return v == 0 and rest or error("numeric overflow") end
-  local v1 = v % sigN
-  local v2 = (v - v1) / sigN
-  return nenc(v2, b - 1, sigT[v1] .. (rest or ""))
+    if b == 0 then return v == 0 and rest or error("numeric overflow") end
+    local v1 = v % sigN
+    local v2 = (v - v1) / sigN
+    return nenc(v2, b - 1, sigT[v1] .. (rest or ""))
 end
 local function cenc(c)
-  local b, m = c:byte(), sigN-1
-  return sigT[(b - b % m) / m] .. sigT[b % m]
+    local b, m = c:byte(), sigN-1
+    return sigT[(b - b % m) / m] .. sigT[b % m]
 end
 local function venc(v, t, reg)
-  if reg[v] then
+    if reg[v] then
         t[#t+1] = sigT[1] .. sigT[reg[v]]
-  elseif type(v) == "table" then
-    local n = math.min(sigN-1, #v)
-    for i=n,1,-1 do venc(v[i], t, reg) end
+    elseif type(v) == "table" then
+        local n = math.min(sigN-1, #v)
+        for i=n,1,-1 do venc(v[i], t, reg) end
         t[#t+1] = sigT[3] .. sigT[n]
-    for k,v2 in pairs(v) do
-      if not (type(k) == "number" and k >= 1 and k <= n and k % 1 == 0) then
-        venc(v2, t, reg)
-        venc(k, t, reg)
+        for k,v2 in pairs(v) do
+            if not (type(k) == "number" and k >= 1 and k <= n and k % 1 == 0) then
+                venc(v2, t, reg)
+                venc(k, t, reg)
                 t[#t+1] = sigT[4]
-      end
-    end
-  elseif type(v) == "number" then
+            end
+        end
+    elseif type(v) == "number" then
         if v >= -1000000 and v < 13776336 and v % 1 == 0 then
             t[#t+1] = sigT[5] .. nenc(v + 1000000, 4)
         elseif (v+v == v) or (v < 0) == (v >= 0) then
@@ -173,9 +173,9 @@ local function venc(v, t, reg)
             end
             t[#t+1] = sigT[f < 0 and 14 or 13] .. nenc(e+1500-1, 2) .. nenc(f*2^53*(f < 0 and -1 or 1), 9)
         end
-  elseif type(v) == "string" then
+    elseif type(v) == "string" then
         t[#t+1] = sigT[6] .. v:gsub("[^a-zA-Z5-8]", cenc) .. "9"
-  else
+    else
         t[#t+1] = sigT[1] .. ((v == true and sigT[1]) or (v == nil and sigT[0]) or sigT[2])
     end
     return t
@@ -210,8 +210,8 @@ local function tenc(t)
         elseif r and uk > 1 then
             u[t[i]], t[i], r, s = r, t[i] .. s, next(fm, r)
         end
-  end
-  return t
+    end
+    return t
 end
 
 local function copy(t, copies)
@@ -316,7 +316,7 @@ local ops do
     ops = opsB
     function ops.bind(...)
         s, r, pri = ...
-end
+    end
 end
 
 local defaultSign = sc(111,101,116,111,104,72,55)
@@ -365,8 +365,8 @@ function FindSliceWithAction(props, needle, avoidTokens)
             local v = BUP.DiffSlice(props[i], needle)
             if v and v % 2 > 0 and (mv == nil or v > mv) then
                 mv, mi = v, i
-end
-end
+            end
+        end
     end
     return mi
 end
@@ -385,11 +385,11 @@ function DiffSlice(slice, bs)
     return r > 0 and r or nil
 end
 function dropUnderscoreKeys(t)
-for k in pairs(t) do
-  if type(k) == "string" and k:sub(1,1) == "_" then
-    t[k] = nil
-  end
-end
+	for k in pairs(t) do
+		if type(k) == "string" and k:sub(1,1) == "_" then
+			t[k] = nil
+		end
+	end
 end
 
 function RK_SerializeDescription(props, bp)
@@ -405,18 +405,18 @@ function RK_SerializeDescription(props, bp)
 					drop = drop or {}
 					drop[tok] = 1
 				end
-  end
-end
+			end
+		end
 		if type(props.dropTokens) == "table" then
 			for tok, c in pairs(props.dropTokens) do
 				c = not (present[tok] or drop and drop[tok]) and (type(c) ~= "number" and 1 or c < 99 and c + 1)
 				if c then
 					drop = drop or {}
 					drop[tok] = c
-          end
-        end
-      end
-    end
+				end
+			end
+		end
+	end
 	for _, slice in ipairs(props) do
 		if stim then
 			local bs = props[stim[slice.sliceToken]]

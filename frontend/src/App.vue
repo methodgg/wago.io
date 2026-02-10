@@ -57,7 +57,7 @@
   import NotificationBanner from './components/UI/NotificationBanner.vue'
   import ViewEmbed from './components/core/ViewEmbed.vue'
   import StreamEmbed from './components/UI/StreamEmbed.vue'
-  import addonDB from './components/libs/addons'
+  import addons from './components/libs/addons'
 
   import WagoHeader from './components/UI/WagoHeader.vue'
   import WagoFooter from './components/UI/WagoFooter.vue'
@@ -75,7 +75,7 @@
       'wago-header': WagoHeader,
       'wago-footer': WagoFooter
     },
-    data: () => {
+    data: function () {
       return {
         PopMsg: 'test',
         gSearch: '',
@@ -91,7 +91,6 @@
         isPlatynatorNew: new Date() < new Date('2025-11-24'),
         showAddonsButton: window.localStorage.getItem('notification-1'),
         videoEmbedHTML: '',
-        addonDB,
         userMenuOpen: false,
         maintenanceDate: new Date('2024-01-08T22:30:00Z'),
         appBanner: {
@@ -303,6 +302,9 @@
       }
     },
     computed: {
+      addonDB: function() {
+          return addons(this.$t)
+      },
       lang () {
         return this.$store.getters.language
       },

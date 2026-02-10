@@ -1,15 +1,5 @@
 
-function findAll(regex, str) {
-  var matches = []
-  var m
-  while ((m = regex.exec(str)) !== null) {
-    if (m.index === regex.lastIndex) {
-      regex.lastIndex++
-    }
-    matches.push(m)
-  }
-  return matches
-}
+const wowAddons = require('../helpers/wowAddons')
 
 function expansionIndex(exp) {
   exp = (exp || '').toLowerCase()
@@ -133,8 +123,9 @@ async function searchElastic(req, res) {
 
   let filterTypes = []
   if (req.query.type && req.query.type !== 'all') {
-    filterTypes.push( req.query.type.toUpperCase() )
-    esFilter.push(({ bool: { should: { term: { 'type': req.query.type.toUpperCase() } } } }))
+    const findByType = wowAddons.addons.find(x => x.slug === req.query.type)?.type || req.query.type.toUpperCase()
+    filterTypes.push( findByType )
+    esFilter.push(({ bool: { should: { term: { 'type': findByType } } } }))
   }
   // old search format
   else if (query.match(/type:/)) {

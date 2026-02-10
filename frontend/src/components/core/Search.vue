@@ -21,7 +21,8 @@
                     searchExpansion === 'cata' && $t('Cataclysm') ||
                     searchExpansion === 'mop' && $t('Mists of Pandaria Classic') ||
                     searchExpansion === 'df' && $t('Dragonflight') ||
-                    searchExpansion === 'tww' && twwAvailable && $t('The War Within') ||
+                    searchExpansion === 'tww' && $t('The War Within') ||
+                    searchExpansion === 'midnight' && $t('Midnight') ||
                     (!searchExpansion || searchExpansion === 'all') && $t('All') ||
                     $t('Legacy')
                     }}</small>
@@ -31,9 +32,9 @@
                     <img src="../../assets/game-wow.svg">
                     <md-tooltip md-direction="bottom" class="">{{ $t("All") }}</md-tooltip>
                   </md-button>
-                  <md-button v-if="twwAvailable" :class="{ 'md-toggle': searchExpansion === 'tww' }" class="md-icon-button" @click="setExpansion('tww')">
-                    <img src="../../assets/tww-toggle.svg">
-                    <md-tooltip md-direction="bottom" class="">{{ $t("The War Within") }}</md-tooltip>
+                  <md-button v-if="twwAvailable" :class="{ 'md-toggle': searchExpansion === 'tww' }" class="md-icon-button" @click="setExpansion('midnight')">
+                    <img src="../../assets/midnight-toggle.svg">
+                    <md-tooltip md-direction="bottom" class="">{{ $t("Midnight") }}</md-tooltip>
                   </md-button>
                   <md-button :class="{ 'md-toggle': searchExpansion === 'mop' }" class="md-icon-button" @click="setExpansion('mop')">
                     <img src="../../assets/mop-toggle.svg">
@@ -62,73 +63,26 @@
                 </md-button-toggle>
               </div>
               <div v-if="$store.state.gameDomain === 0 && searchMode !== 'comments'">
-                <div>
-                  <label>{{ $t('Addon') }}</label>
-                  <small id="selected-addon">{{
-                    searchType === 'weakaura' &&'WeakAuras' ||
-                    searchType === 'elvui' && 'ElvUI' ||
-                    searchType === 'plater' && 'Plater Nameplates' ||
-                    searchType === 'blizzhud' && 'Blizzard Edit Mode' ||
-                    searchType === 'cooldown-manager' && 'Blizzard Cooldown Manager' ||
-                    searchType === 'cell' && 'Cell' ||
-                    searchType === 'gse' && 'GSE' ||
-                    searchType === 'opie' && 'OPie' ||
-                    searchType === 'totalrp3' && 'TotalRP' ||
-                    searchType === 'vuhdo' && 'VuhDo' ||
-                    searchType === 'baganator' && 'Baganator' ||
-                    searchType === 'platynator' && 'Platynator' ||
-                    searchType === 'dbm' && 'DBM' ||
-                    searchType === 'bigwigs' && 'BigWigs' ||
-                    searchType === 'mdt' && 'MDT' ||
-                    searchType === 'macro' && 'MACRO' ||
-                    searchType === 'shippets' && 'Snippets' ||
-                    searchType === 'collection' && 'Collections' ||
-                    $t('All')
-                    }}</small>
-                </div>
-                <md-button-toggle md-single class="md-accent md-warn select-search-mode">
-                    <md-button :class="{ 'md-toggle': !searchType || searchType === 'all' }" class="md-icon-button" @click="setType('all')">
-                      <img src="../../assets/wagoio-logo.png">
-                      <md-tooltip md-direction="bottom" class="">{{ $t("All") }}</md-tooltip>
-                    </md-button>
-                  <md-button :class="{ 'md-toggle': searchType === 'weakaura' }" class="md-icon-button" @click="setType('weakaura')">
-                    <category-image :group="'t-weakaura-nobg'"></category-image>
-                    <md-tooltip md-direction="bottom" class="">{{ $t("WeakAuras") }}</md-tooltip>
-                  </md-button>
-                  <md-button :class="{ 'md-toggle': searchType === 'elvui' }" class="md-icon-button" @click="setType('elvui')">
-                    <category-image :group="'t-elvui'"></category-image>
-                    <md-tooltip md-direction="bottom" class="">{{ $t("ElvUI") }}</md-tooltip>
-                  </md-button>
-                  <md-button :class="{ 'md-toggle': searchType === 'plater' }" class="md-icon-button" @click="setType('plater')">
-                    <category-image :group="'t-plater'"></category-image>
-                    <md-tooltip md-direction="bottom" class="">{{ $t("Plater") }}</md-tooltip>
-                  </md-button>
-                  <md-button :class="{ 'md-toggle': searchType === 'macro' }" class="md-icon-button" @click="setType('macro')">
-                    <category-image :group="searchType === 'macro' ? 't-macro-search' : 't-macro'"></category-image>
-                    <md-tooltip md-direction="bottom" class="">{{ $t("Macro") }}</md-tooltip>
-                  </md-button>
-                  <md-button :class="{ 'md-toggle': searchType === 'mdt' }" class="md-icon-button" @click="setType('mdt')">
-                    <category-image :group="'t-mdt'"></category-image>
-                    <md-tooltip md-direction="bottom" class="">{{ $t("MDT") }}</md-tooltip>
-                  </md-button>
-                  <div id="addon-button" :class="{ 'md-toggle': searchType && !searchType.match(/^(all|weakaura|elvui|plater|mdt|macro)$/) }" class="md-button md-icon-button md-theme-default">
-                    <img src="../../assets/misc-addons.svg" style="margin-top:2px">
-                  </div>
-                  <div id="addon-dropdown">
-                    <div @click="setType('baganator')"><span class="addon-icon"><img src="../../assets/menu-baginator.png"></span> Baganator</div>
-                    <div @click="setType('bigwigs')"><span class="addon-icon"><img src="../../assets/menu-bigwigs.png"></span> BigWigs</div>
-                    <div @click="setType('blizzhud')"><span class="addon-icon"><img src="../../assets/menu-blizzhud.png"></span> Blizzard Edit Mode</div>
-                    <div @click="setType('cooldown-manager')"><span class="addon-icon"><img src="../../assets/menu-blizzhud.png"></span> Blizzard Cooldown Manager</div>
-                    <div @click="setType('cell')"><span class="addon-icon"><img src="../../assets/menu-cell.png"></span> Cell</div>
-                    <div @click="setType('dbm')"><span class="addon-icon"><img src="../../assets/menu-dbm.png"></span> Deadly Boss Mods</div>
-                    <div @click="setType('gse')"><span class="addon-icon"><img src="../../assets/menu-gse.png"></span> GSE</div>
-                    <div @click="setType('opie')"><span class="addon-icon"><img src="../../assets/menu-opie.png"></span> OPie</div>
-                    <div @click="setType('platynator')"><span class="addon-icon"><img src="../../assets/menu-platynator.png"></span> Platynator</div>
-                    <div @click="setType('totalrp3')"><span class="addon-icon"><img src="../../assets/menu-trpcamp.png"></span> Total RP</div>
-                    <div @click="setType('vuhdo')"><span class="addon-icon"><img src="../../assets/menu-vuhdo.png"></span>VuhDo</div>
-                    <div @click="setType('collection')"><span class="addon-icon"><img src="../../assets/menu-collection.png"></span> Collection</div>
-                  </div>
-                </md-button-toggle>
+                <div>&nbsp;</div>               
+                    <button id="addon-button" class="md-button md-icon-button md-theme-default">
+                      <img v-if="searchAddon?.image" :src="`/static/image/menu/${searchAddon.image}`">
+                      <img v-else-if="searchType === 'weakaura'" src="/static/image/menu/weakauras.png">
+                      <img v-else src="../../assets/misc-addons.svg">
+                      {{ $t('Search [-addon-]', {addon: searchAddon?.name || 
+                        searchType === 'weakaura' && 'WeakAuras' ||
+                        searchType === 'snippets' && $t('Snippets') ||
+                        searchType === 'collection' && $t('Collections')
+                      || $t('All imports')})}}
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                        </svg>   
+                    </button>
+                    
+                    <div id="addon-dropdown">
+                        <div @click="setType('all')"><span class="addon-icon"><img src="../../assets/misc-addons.svg"></span> {{ $t('All Imports') }}</div>
+                        <div v-for="addon in addonDB" @click="setType(addon.slug ?? addon.searchSlug)"><span class="addon-icon"><img :src="`/static/image/menu/${addon.image}`"></span> {{ addon.name }}</div>
+                        <div @click="setType('collection')"><span class="addon-icon"><img src="../../assets/menu-collection.png"></span> {{ $t('Collections') }}</div>
+                    </div>
               </div>
               
               <div v-if="searchGame === 'wow' && searchMode !== 'comments'" id="toggle-spacer"></div>
@@ -311,6 +265,7 @@ import SearchMeta from '../UI/SearchMeta.vue'
 import FormattedText from '../UI/FormattedText.vue'
 import PlaceHolderImage from '../UI/PlaceHolderImage.vue'
 import CategoryImage from '../UI/CategoryImage.vue'
+import addons from '../libs/addons'
 
 export default {
   data: function () {
@@ -401,6 +356,12 @@ export default {
   computed: {
     unreadMentions() {
       return this.$store.state.user && this.$store.state.user.unreadMentions && this.$store.state.user.unreadMentions.map(x => x._id)
+    },
+    addonDB: function() {
+        return addons(this.$t).filter(x => x.slug || x.searchSlug)
+    },
+    searchAddon: function() {
+      return this.addonDB.find(x => ((x.type && x.type === this.searchType?.toUpperCase()) || (x.slug && x.slug === this.searchType?.toLowerCase()) || (x.searchSlug && x.searchSlug === this.searchType?.toLowerCase())))
     }
   },
   methods: {
@@ -861,8 +822,8 @@ export default {
       max-width: 32px;
       max-height: 24px;
     }
-
-    & > #addon-dropdown {
+  }
+  #addon-dropdown {
       display: none;
       flex-direction: column;
       box-shadow: 5px 5px 30px #00000066;
@@ -896,8 +857,27 @@ export default {
         border-radius: 0 0 2px 2px;
       }
     }
+  #addon-button {
+    width: auto;
+    text-transform: none;
+    display: flex;
+    align-items: center;
+    flex-grow: 1;
+    border: 1px solid #444;
+    border-radius: 8px;
+    img {
+      max-width: 24px;
+      max-height: 24px;
+      margin: 0 8px 0 0;
+    }
+    svg {
+      color: inherit;
+      width: 20px;
+      height: 20px;
+      margin-left: 4px;
+    }
   }
-  #addon-button:hover ~ #addon-dropdown, #addon-dropdown:hover {
+  #addon-button:hover ~ #addon-dropdown, #addon-button:focus ~ #addon-dropdown, #addon-dropdown:hover {
     display: flex;
     position: absolute;
     top: 58px;

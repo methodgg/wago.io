@@ -205,7 +205,7 @@ export default {
                                         <span class="sub-nav-heading"><span class="menu-icon"><img src="../../assets/weakauras.png"></span> WeakAuras</span>
                                         <span class="game-select">
                                             <router-link v-if="twwAvailable" to='/the-war-within-weakauras'>The War Within</router-link>
-                                            <router-link to='/mop-weakauras'>Mists of Pandaria</router-link>
+                                            <router-link to='/mop-weakauras'>Mists of Pandaria Classic</router-link>
                                         </span>
                                         <span class="game-select">
                                             <router-link to='/titan-reforged-wotlk-weakauras'>Titan Reforged WotLK Classic</router-link>
@@ -218,14 +218,14 @@ export default {
                                         </span>
                                     </div>
                                 </router-link>
-                                <router-link to='/elvui'><span class="menu-icon"><img src="../../assets/tukui.png"></span> ElvUI</router-link>
-                                <router-link to='/the-war-within-mdt'><span class="menu-icon"><img src="../../assets/mdt.png"></span> Mythic Dungeon Tools</router-link>
-                                <router-link to='/plater'><span class="menu-icon"><img src="../../assets/menu-plater.png"></span> Plater Nameplates</router-link>
+                                <router-link to='/browse/elvui'><span class="menu-icon"><img src="../../assets/tukui.png"></span> ElvUI</router-link>
+                                <router-link to='/mdt'><span class="menu-icon"><img src="../../assets/mdt.png"></span> Mythic Dungeon Tools</router-link>
+                                <router-link to='/browse/plater'><span class="menu-icon"><img src="../../assets/menu-plater.png"></span> Plater Nameplates</router-link>
                             </div>
                             <div class="menu-group">
-                                <router-link v-if="isGSENew" to='/gse'><span class="menu-icon"><img src="../../assets/menu-gse.png"></span> GSE: Advanced Macro Compiler <div class="newAlert"><span>{{ $t('New') }}</span></div></router-link>
+                                <router-link v-if="isGSENew" to='/browse/gse'><span class="menu-icon"><img src="../../assets/menu-gse.png"></span> GSE: Advanced Macro Compiler <div class="newAlert"><span>{{ $t('New') }}</span></div></router-link>
                                 <router-link to='/collections'><span class="menu-icon"><img src="../../assets/menu-collection.png"></span> {{$t('Collections')}}</router-link>
-                                <router-link to='/addons'><span class="menu-icon"><img src="/static/image/menu/mechanics.png"></span> {{$t('More Imports...')}}</router-link>
+                                <router-link to="/browse"><span class="menu-icon"><img src="/static/image/menu/mechanics.png"></span> {{$t('More Imports...')}}</router-link>
                             </div>
                         </div>
                     </div>

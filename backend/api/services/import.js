@@ -8,6 +8,8 @@ const crypto = require("crypto-js")
 const patchDates = require('../helpers/patchDates')
 const losslessJSON = require("lossless-json")
 
+const wowAddons = require('../helpers/wowAddons')
+
 module.exports = function (fastify, opts, next) {
   /**
    * Scans an import string and validates the input.
@@ -20,10 +22,20 @@ module.exports = function (fastify, opts, next) {
       return res.code(400).send({ error: 'invalid_import' })
     }
 
-    var test = {}
-    var scan = new ImportScan({ input: req.body.importString })
+    const scan = new ImportScan({ input: req.body.importString, domain: req.domain })
 
-    var decodedObj
+    if (req.domain === ENUM.DOMAIN.WOW) {
+      await wowAddons.toDecodedObject(scan)
+      if (scan.type) {
+        scan.fork = scan.fork ?? req.body.forkOf
+        await scan.save()
+        console.log('modern import', scan.type)
+        return res.send({ scan: scan._id, type: scan.type, name: scan.name, categories: scan.categories, game: scan.game, domain: scan.domain })
+      }
+    }
+
+    // older addons / legacy v2
+    let decodedObj
     for (const addonFile in Addons) {
       const addon = Addons[addonFile]
       if (scan.decoded || addon.domain !== req.domain) {
@@ -77,7 +89,8 @@ module.exports = function (fastify, opts, next) {
     }
 
     console.log("LEGACY")
-    // legacy import code follows
+    const test = {}
+    // legacy v1 import code follows
     if (req.body.type) {
       test[req.body.type.toUpperCase()] = true
       switch (req.body.type.toUpperCase()) {
@@ -645,16 +658,21 @@ module.exports = function (fastify, opts, next) {
     }
     else {
       code.json = scan.decoded
-      for (const addon of Object.values(Addons)) {
-        if (wago.type.match(addon.typeMatch) && wago.domain === addon.domain) {
-          if (addon.encode) {
-            code.encoded = await addon.encode(scan.decoded.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim(), lua.runLua, wago)
-            break
-          }
-          else if (addon.encodeRaw) {
-            code.encoded = await addon.encodeRaw(scan.decoded)
-            delete code.json
-            break
+      if (req.domain === ENUM.DOMAIN.WOW) {
+        code.encoded = await wowAddons.toEncodedString(scan.decoded, scan.type)
+      }
+      if (!code.encoded) {
+        for (const addon of Object.values(Addons)) {
+          if (wago.type.match(addon.typeMatch) && wago.domain === addon.domain) {
+            if (addon.encode) {
+              code.encoded = await addon.encode(scan.decoded.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim(), lua.runLua, wago)
+              break
+            }
+            else if (addon.encodeRaw) {
+              code.encoded = await addon.encodeRaw(scan.decoded)
+              delete code.json
+              break
+            }
           }
         }
       }
@@ -737,26 +755,32 @@ module.exports = function (fastify, opts, next) {
       versionString = versionString + '-' + wago.latestVersion.iteration
     }
 
-    for (const addon of Object.values(Addons)) {
-      if (wago.type.match(addon.typeMatch) && wago.domain === addon.domain) {
-        if (addon.addWagoData) {
-          let data = await addon.addWagoData(code, wago)
-          if (data.invalid) {
-            return res.code(403).send({ error: data.invalid })
+    if (req.domain === ENUM.DOMAIN.WOW) {
+      code.encoded = await wowAddons.toEncodedString(code.json, wago.type)
+    }
+    
+    if (!code.encoded) {
+      for (const addon of Object.values(Addons)) {
+        if (wago.type.match(addon.typeMatch) && wago.domain === addon.domain) {
+          if (addon.addWagoData) {
+            let data = await addon.addWagoData(code, wago)
+            if (data.invalid) {
+              return res.code(403).send({ error: data.invalid })
+            }
+            if (data && data.code) {
+              code = data.code
+            }
+            if (data && data.wago) {
+              wago = data.wago
+            }
           }
-          if (data && data.code) {
-            code = data.code
+          if (addon.encode) {
+            code.encoded = await addon.encode(code.json.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim(), lua.runLua, wago)
           }
-          if (data && data.wago) {
-            wago = data.wago
+          else if (addon.encodeRaw) {
+            code.encoded = await addon.encodeRaw(scan.decoded)
+            delete code.json
           }
-        }
-        if (addon.encode) {
-          code.encoded = await addon.encode(code.json.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim(), lua.runLua, wago)
-        }
-        else if (addon.encodeRaw) {
-          code.encoded = await addon.encodeRaw(scan.decoded)
-          delete code.json
         }
       }
     }
@@ -854,26 +878,32 @@ module.exports = function (fastify, opts, next) {
     if (versionString !== '1.0.' + (wago.latestVersion.iteration - 1) && versionString !== '0.0.' + wago.latestVersion.iteration) {
       versionString = versionString + '-' + wago.latestVersion.iteration
     }
+    
+    if (req.domain === ENUM.DOMAIN.WOW) {
+      code.encoded = await wowAddons.toEncodedString(code.json, wago.type)
+    }
 
-    for (const addon of Object.values(Addons)) {
-      if (wago.type.match(addon.typeMatch)) {
-        if (addon.addWagoData) {
-          let data = await addon.addWagoData(code, wago)
-          if (data.invalid) {
-            return res.code(403).send({ error: data.invalid })
+    if (!code.encoded) {
+      for (const addon of Object.values(Addons)) {
+        if (wago.type.match(addon.typeMatch)) {
+          if (addon.addWagoData) {
+            let data = await addon.addWagoData(code, wago)
+            if (data.invalid) {
+              return res.code(403).send({ error: data.invalid })
+            }
+            if (data && data.code) {
+              code = data.code
+            }
+            if (data && data.wago) {
+              wago = data.wago
+            }
           }
-          if (data && data.code) {
-            code = data.code
+          if (addon.encode) {
+            code.encoded = await addon.encode(code.json.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim(), lua.runLua, wago)
           }
-          if (data && data.wago) {
-            wago = data.wago
+          else if (addon.encodeRaw) {
+            code.encoded = await addon.encodeRaw(code.json)
           }
-        }
-        if (addon.encode) {
-          code.encoded = await addon.encode(code.json.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim(), lua.runLua, wago)
-        }
-        else if (addon.encodeRaw) {
-          code.encoded = await addon.encodeRaw(code.json)
         }
       }
     }
@@ -1072,6 +1102,17 @@ module.exports = function (fastify, opts, next) {
       console.log(e)
       return res.code(400).send({ error: "Invalid data" })
     }
+
+    if (req.domain === ENUM.DOMAIN.WOW) {
+      const encoded = await wowAddons.toEncodedString(req.body.json, req.body.type)
+      if (encoded) {
+        const scan = await new ImportScan({ type: req.body.type.toUpperCase(), input: encoded, decoded: req.body.json, domain: req.domain, fork: req.body.forkOf })
+        await scan.save()
+        console.log('modern import', scan.type)
+        return res.send({ scan: scan._id, type: scan.type, name: scan.name, categories: scan.categories, game: scan.game, domain: scan.domain, encoded: encoded })
+      }
+    }
+
     let encoded
     for (const addonFile in Addons) {
       const addon = Addons[addonFile]
@@ -1097,32 +1138,6 @@ module.exports = function (fastify, opts, next) {
           return res.send({ scan: scan._id, type: scan.type, name: scan.name, categories: scan.categories, game: scan.game, encoded: encoded })
         }
       }
-    }
-    switch (req.body.type.toUpperCase()) {
-      // case 'ELVUI':
-      //   encoded = await lua.JSON2ElvUI(json)
-      // break
-
-      // case 'MDT':
-      //   encoded = await lua.JSON2MDT(json)
-      //   break
-
-      // case 'PLATER':
-      //   encoded = await lua.JSON2Plater(json)
-      // break
-
-      // case 'TOTALRP3':
-      //   encoded = await lua.JSON2TotalRP3(json)
-      // break
-
-      // case 'VUHDO':
-      //   encoded = await lua.JSON2VuhDo(json)
-      // break
-
-      // case 'WEAKAURA':
-      // case 'CLASSIC-WEAKAURA':
-      //   encoded = await lua.JSON2WeakAura(json)
-      // break
     }
     if (!encoded) {
       return res.code(400).send({ error: "Invalid data" })

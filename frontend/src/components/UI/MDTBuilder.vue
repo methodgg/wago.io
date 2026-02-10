@@ -475,10 +475,12 @@ export default {
     }
     // this.checkKonvaSize = setInterval(this.updateKonvaSize, 100)
 
+    const seasonSuffix = '-midnight-s1'
+
     this.http.get('/data/mdtDungeonTable-' + (this.mapID - 1)).then((res) => {
       if (res && res.value) {
         this.mdtDungeonTable = res.value
-        this.mapSlug = this.mdtDungeonTable.slug
+        this.mapSlug = this.mdtDungeonTable.slug + seasonSuffix
         this.$store.commit('saveMDT', this.mdtDungeonTable)
         this.init()
       }
@@ -869,6 +871,8 @@ export default {
       var preload = []
       // var promises = []
 
+      let imgSuffix = '-midnight-s1'
+
       // enemy portraits
       this.enemyPortraits = new Image()
       this.enemyPortraits.src = `https://media.wago.io/mdt/portraits-${this.mapSlug}.png`
@@ -904,7 +908,7 @@ export default {
           let row = (i - 1) % 4
           let col = Math.floor((i - 1) / 4)
           let image = new Image()
-          image.src = `https://media.wago.io/mdt/${this.mdtDungeonTable.slug}.png`
+          image.src = `https://media.wago.io/mdt/${this.mapSlug}.png`
           preload.push(image.src)
           this.mapTiles.push({image, x: 0, y: 0})
         }

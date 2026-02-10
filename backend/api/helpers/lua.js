@@ -28,7 +28,7 @@ module.exports = {
   runLua: async (str) => {
     return await runLua(`
     ${wagoLua}
-    function runLua() 
+    local function runLua() 
       ${str} 
     end 
     print(runLua())`)

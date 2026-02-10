@@ -5,7 +5,7 @@
           <md-layout md-row>
             <md-avatar class='square'><category-image :group="'t-mdt'"></category-image></md-avatar>
             <h2 id="addon-name">Mythic Dungeon Tools -
-              <span>{{ $t('The War Within') }}</span>
+              <span>{{ $t('Midnight') }}</span>
             </h2>
           </md-layout>
           <addon-info game="wow" addon="mdt" expansion="df"></addon-info>
@@ -13,17 +13,17 @@
       </md-layout>
       <md-layout>
         <md-layout md-column>
-          <md-subheader>{{ $t("The War Within Mythic+") }}</md-subheader>
+          <md-subheader>{{ $t("Midnight Mythic+") }}</md-subheader>
           <md-list class="md-double-line md-dense">
             <md-list-item v-for="dungeon in dungeons" v-bind:key="dungeon.id" :class="dungeon.id + ' md-inset'">
               <div class="menu-image"></div>
               <div class="md-list-text-container">
                 <span>
-                  <a :href="'/the-war-within-mdt/' + dungeon.slug" @click.prevent="searchRoute(dungeon)" class="subheader">{{ dungeon.text }}</a>
+                  <a :href="'/midnight-mdt/' + dungeon.slug" @click.prevent="searchRoute(dungeon)" class="subheader">{{ dungeon.text }}</a>
                   <template v-for="boss in dungeon.bosses">
-                    <a v-if="boss.subheader" v-bind:key="'header'+boss.id" :href="'/the-war-within-mdt/' + dungeon.slug" @click.prevent="searchRoute(dungeon)" class="subheader">{{ boss.text }}</a>
+                    <a v-if="boss.subheader" v-bind:key="'header'+boss.id" :href="'/midnight-mdt/' + dungeon.slug" @click.prevent="searchRoute(dungeon)" class="subheader">{{ boss.text }}</a>
   
-                    <a v-else-if="boss.slug" v-bind:key="boss.id" :href="'/the-war-within-mdt/' + boss.slug"
+                    <a v-else-if="boss.slug" v-bind:key="boss.id" :href="'/midnight-mdt/' + boss.slug"
                       @click.prevent="searchRoute(boss)">{{ boss.text }}</a>
                       
                   </template>
@@ -70,7 +70,7 @@
           item = window.Categories.match(item)
         }
         this.$store.commit('setSearchText', `category:${item.id}`)
-        this.$router.push('/the-war-within-mdt/' + item.slug)
+        this.$router.push('/midnight-mdt/' + item.slug)
       },
       createMDT: function () {
         try {
@@ -81,21 +81,6 @@
           console.error(e.message)
         }
       },
-      importWCL: function () {
-        this.wclLoading = true
-        this.http.get('/lookup/wcl/mdt-events', {
-          log: this.wclURL,
-          dungeon: this.wclDungeonIndex
-        }).then((pulls) => {
-          this.wclLoading = false
-          const dungeon = categories.search(this.wclDungeons[this.wclDungeonIndex].name, 'mdt').slug.split(/\//).pop()
-          const week = 1 // categories.match(this.newAffix).slug.split(/\//).pop()
-          this.$router.push({name: 'create-mdt', params: {dungeon, week, pulls}})
-        })
-        .catch((e) => {
-          console.error(e.message)
-        })
-      }
     },
     data: function () {
       return {
@@ -121,47 +106,10 @@
       currentWeek: function (val) {
         this.newAffix = 'mdtaffix-sl-s1-w' + val
       },
-      wclURL: function (val) {
-        this.wclDungeonIndex = -1
-        this.wclDungeons.splice(0, this.wclDungeons.length)
-        var m = val.match(/(https:\/\/)?[\w]?\.?warcraftlogs.com\/reports\/([\w\d]+)/)
-        if (m && m[2]) {
-          this.wclURL = m[2]
-          return
-        }
-        if (val.match(/^[\w\d]+$/)) {
-          this.wclLoading = true
-          // id found
-          this.http.get('/lookup/wcl/dungeons', {
-            log: val
-          }).then((data) => {
-            this.wclLoading = false
-            this.wclDungeons = data.dungeons
-            if (this.wclDungeons.length) {
-              this.wclDungeonIndex = 0
-            }
-          })
-        }
-      }
     },
     computed: {
       dungeons: function () {
-        return categories.raidCategories(['tww-mdt-s3', 'tww-mdt-s2', 'tww-mdt-s1'], 'MDT')
-      },
-      affixesS3: function () {
-        return categories.getCategories([/^mdtaffix-df-s3-/], true)// also in Create-MDT and data.newAffix
-      },
-      affixes: function () {
-        return categories.getCategories([/^mdtaffix\d/])
-      },
-      speed: function () {
-        return categories.getCategories([/^mdtspeed[\d]+/])
-      },
-      classes: function () {
-        return categories.classCategories()
-      },
-      currentWeek: function () {
-        return this.$store.state.MDTWeek
+        return categories.raidCategories(['midnight-mdt-s1'], 'MDT')
       }
     },
     mounted: async function () {

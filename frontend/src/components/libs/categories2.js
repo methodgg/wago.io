@@ -76,17 +76,17 @@ class Categories {
       'cl1-2': {slug: 'classes/warrior/fury', i18n: 'warcraft:specs.72', domain: 0, parent: 'cl1'},
       'cl1-3': {slug: 'classes/warrior/protection', i18n: 'warcraft:specs.73', domain: 0, parent: 'cl1'},
 
-      'gen0': {slug: 'general', image:'miscellaneous.png', color: '#D0B58B', i18n: 'General', domain: 0, types: ['WEAKAURA', 'COLLECTION', 'WATCHTOWER']},
-      'gen7': {slug: 'general/achievements', i18n: 'Achievements', domain: 0, parent: 'gen0', types: ['WEAKAURA', 'COLLECTION', 'WATCHTOWER'], games: ['wotlk', 'cata', 'mop', 'legion', 'bfa', 'sl', 'df', 'tww', 'titan-wotlk']},
-      'gen2': {slug: 'general/questing', i18n: 'Questing', domain: 0, parent: 'gen0', types: ['WEAKAURA', 'COLLECTION', 'WATCHTOWER']},
-      'gen6': {slug: 'general/non-combat', i18n: 'Non-Combat', domain: 0, parent: 'gen0', types: ['WEAKAURA', 'COLLECTION', 'WATCHTOWER']},
-      'gen9': {slug: 'general/currency', i18n: 'Currency', domain: 0, parent: 'gen0', types: ['WEAKAURA', 'COLLECTION', 'WATCHTOWER'], games: ['wotlk', 'cata', 'mop', 'legion', 'bfa', 'sl', 'df', 'tww', 'titan-wotlk']},
-      'gen10': {slug: 'general/reputation', i18n: 'Reputation', domain: 0, parent: 'gen0', types: ['WEAKAURA', 'COLLECTION', 'WATCHTOWER']},
-      'gen11': {slug: 'general/collectibles', i18n: 'Collectibles', domain: 0, parent: 'gen0', types: ['WEAKAURA', 'COLLECTION', 'WATCHTOWER'], games: ['wotlk', 'cata', 'mop' , 'legion', 'bfa', 'sl', 'df', 'tww', 'titan-wotlk']},
-      'gen12': {slug: 'general/world-events', i18n: 'World Events', domain: 0, parent: 'gen0', types: ['WEAKAURA', 'COLLECTION', 'WATCHTOWER'], games: ['wotlk', 'cata', 'mop' , 'legion', 'bfa', 'sl', 'df', 'tww', 'titan-wotlk']},
-      'gen13': {slug: 'general/world-events/darkmoon-faire', i18n: 'Darkmoon Faire', domain: 0, parent: 'gen0', types: ['WEAKAURA', 'COLLECTION', 'WATCHTOWER'], games: ['cata', 'mop', 'legion', 'bfa', 'sl', 'df', 'tww']},
-      'gen14': {slug: 'general/world-events/brawlers-guild', i18n: 'Brawler\'s Guild', domain: 0, parent: 'gen0', types: ['WEAKAURA', 'COLLECTION', 'WATCHTOWER'], games: ['legion', 'bfa', 'sl']},
-      'gen15': {slug: 'general/pet-battles', i18n: 'Pet Battles', domain: 0, parent: 'gen0', types: ['WEAKAURA', 'COLLECTION', 'WATCHTOWER'], games: ['mop', 'legion', 'bfa', 'sl', 'df', 'tww']},
+      'gen0': {slug: 'general', image:'miscellaneous.png', color: '#D0B58B', i18n: 'General', domain: 0, types: ['WEAKAURA', 'COLLECTION']},
+      'gen7': {slug: 'general/achievements', i18n: 'Achievements', domain: 0, parent: 'gen0', types: ['WEAKAURA', 'COLLECTION'], games: ['wotlk', 'cata', 'mop', 'legion', 'bfa', 'sl', 'df', 'tww', 'titan-wotlk']},
+      'gen2': {slug: 'general/questing', i18n: 'Questing', domain: 0, parent: 'gen0', types: ['WEAKAURA', 'COLLECTION']},
+      'gen6': {slug: 'general/non-combat', i18n: 'Non-Combat', domain: 0, parent: 'gen0', types: ['WEAKAURA', 'COLLECTION']},
+      'gen9': {slug: 'general/currency', i18n: 'Currency', domain: 0, parent: 'gen0', types: ['WEAKAURA', 'COLLECTION'], games: ['wotlk', 'cata', 'mop', 'legion', 'bfa', 'sl', 'df', 'tww', 'titan-wotlk']},
+      'gen10': {slug: 'general/reputation', i18n: 'Reputation', domain: 0, parent: 'gen0', types: ['WEAKAURA', 'COLLECTION']},
+      'gen11': {slug: 'general/collectibles', i18n: 'Collectibles', domain: 0, parent: 'gen0', types: ['WEAKAURA', 'COLLECTION'], games: ['wotlk', 'cata', 'mop' , 'legion', 'bfa', 'sl', 'df', 'tww', 'titan-wotlk']},
+      'gen12': {slug: 'general/world-events', i18n: 'World Events', domain: 0, parent: 'gen0', types: ['WEAKAURA', 'COLLECTION'], games: ['wotlk', 'cata', 'mop' , 'legion', 'bfa', 'sl', 'df', 'tww', 'titan-wotlk']},
+      'gen13': {slug: 'general/world-events/darkmoon-faire', i18n: 'Darkmoon Faire', domain: 0, parent: 'gen0', types: ['WEAKAURA', 'COLLECTION'], games: ['cata', 'mop', 'legion', 'bfa', 'sl', 'df', 'tww']},
+      'gen14': {slug: 'general/world-events/brawlers-guild', i18n: 'Brawler\'s Guild', domain: 0, parent: 'gen0', types: ['WEAKAURA', 'COLLECTION'], games: ['legion', 'bfa', 'sl']},
+      'gen15': {slug: 'general/pet-battles', i18n: 'Pet Battles', domain: 0, parent: 'gen0', types: ['WEAKAURA', 'COLLECTION'], games: ['mop', 'legion', 'bfa', 'sl', 'df', 'tww']},
       'gen16': {slug: 'general/warfronts', i18n: 'Warfronts', domain: 0, parent: 'gen0', types: ['WEAKAURA', 'COLLECTION'], games: ['bfa']},
       'gen17': {slug: 'general/island-expeditions', i18n: 'Island Expeditions', domain: 0, parent: 'gen0', types: ['WEAKAURA', 'COLLECTION'], games: ['bfa']},
       'gen18': {slug: 'general/covenants', i18n: 'Covenants', domain: 0, parent: 'gen0', types: ['WEAKAURA', 'COLLECTION'], games: ['sl']},
@@ -113,10 +113,10 @@ class Categories {
       'role2': {slug: 'class-roles/healing', i18n: 'Healing', domain: 0, parent: 'role0'},
       'role3': {slug: 'class-roles/tanking', i18n: 'Tanking', domain: 0, parent: 'role0'},
       
-      'accessibility': {slug: 'accessibility', image: 'accessibility.png', color: '#BD10E0', i18n: 'Accessibility', domain: 0, types: ['WEAKAURA', 'WATCHTOWER']},
-      'accessibility1': {slug: 'accessibility/audible', i18n: 'Audible', color: '#BD10E0', domain: 0, parent: 'accessibility', types: ['WEAKAURA', 'WATCHTOWER']},
-      'accessibility2': {slug: 'accessibility/visual', i18n: 'Visual', color: '#BD10E0', domain: 0, parent: 'accessibility', types: ['WEAKAURA', 'WATCHTOWER']},
-      'accessibility3': {slug: 'accessibility/controls', i18n: 'Controls', color: '#BD10E0', domain: 0, parent: 'accessibility', types: ['WEAKAURA', 'WATCHTOWER']},
+      'accessibility': {slug: 'accessibility', image: 'accessibility.png', color: '#BD10E0', i18n: 'Accessibility', domain: 0, types: ['WEAKAURA']},
+      'accessibility1': {slug: 'accessibility/audible', i18n: 'Audible', color: '#BD10E0', domain: 0, parent: 'accessibility', types: ['WEAKAURA']},
+      'accessibility2': {slug: 'accessibility/visual', i18n: 'Visual', color: '#BD10E0', domain: 0, parent: 'accessibility', types: ['WEAKAURA']},
+      'accessibility3': {slug: 'accessibility/controls', i18n: 'Controls', color: '#BD10E0', domain: 0, parent: 'accessibility', types: ['WEAKAURA']},
 
       // dragonflight      
       'raidamirdrassil': {slug: 'pve/amirdrassil-the-dreams-hope', image: 'amirdrassil.png', color: '#3EC16A', i18n: 'warcraft:instances.1207', domain: 0, types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
@@ -921,24 +921,24 @@ class Categories {
       'wintergrasp': {slug: 'pvp/wintergrasp', i18n: 'Wintergrasp', domain: 0, parent: 'pvp', games: ['wotlk']},
       'tolbarad': {slug: 'pvp/tol-barad', i18n: 'Tol Barad', domain: 0, parent: 'pvp', games: ['cata']},
 
-      'prof1': {slug: 'professions/gathering', image: 'gathering.png', color: '#5E63B8', i18n: 'Gathering Professions', domain: 0, types: ['WEAKAURA', 'OPIE', 'WATCHTOWER']},
-      'prof2': {slug: 'professions/gathering/herbalism', i18n: 'warcraft:professions.182', domain: 0, parent: 'prof1', types: ['WEAKAURA', 'OPIE', 'WATCHTOWER']},
-      'prof3': {slug: 'professions/gathering/mining', i18n: 'warcraft:professions.186', domain: 0, parent: 'prof1', types: ['WEAKAURA', 'OPIE', 'WATCHTOWER']},
-      'prof4': {slug: 'professions/gathering/skinning', i18n: 'warcraft:professions.393', domain: 0, parent: 'prof1', types: ['WEAKAURA', 'OPIE', 'WATCHTOWER']},
-      'prof5': {slug: 'professions/crafting', image: 'crafting.png', color: '#B85E5F', i18n: 'Crafting Professions', domain: 0, types: ['WEAKAURA', 'OPIE', 'WATCHTOWER']},
-      'prof6': {slug: 'professions/crafting/alchemy', i18n: 'warcraft:professions.171', domain: 0, parent: 'prof5', types: ['WEAKAURA', 'OPIE', 'WATCHTOWER']},
-      'prof7': {slug: 'professions/crafting/blacksmithing', i18n: 'warcraft:professions.164', domain: 0, parent: 'prof5', types: ['WEAKAURA', 'OPIE', 'WATCHTOWER']},
-      'prof8': {slug: 'professions/crafting/enchanting', i18n: 'warcraft:professions.333', domain: 0, parent: 'prof5', types: ['WEAKAURA', 'OPIE', 'WATCHTOWER']},
-      'prof9': {slug: 'professions/crafting/engineering', i18n: 'warcraft:professions.202', domain: 0, parent: 'prof5', types: ['WEAKAURA', 'OPIE', 'WATCHTOWER']},
-      'prof10': {slug: 'professions/crafting/inscription', i18n: 'warcraft:professions.773', domain: 0, parent: 'prof5', types: ['WEAKAURA', 'OPIE', 'WATCHTOWER'], games: ['wotlk', 'cata', 'mop', 'wod', 'legion', 'bfa', 'sl', 'df', 'tww']},
-      'prof11': {slug: 'professions/crafting/jewelcrafting', i18n: 'warcraft:professions.755', domain: 0, parent: 'prof5', types: ['WEAKAURA', 'OPIE', 'WATCHTOWER'], games: ['tbc', 'wotlk', 'cata', 'mop', 'wod', 'legion', 'bfa', 'sl', 'df', 'tww', 'titan-wotlk']},
-      'prof12': {slug: 'professions/crafting/leatherworking', i18n: 'warcraft:professions.165', domain: 0, parent: 'prof5', types: ['WEAKAURA', 'OPIE', 'WATCHTOWER']},
-      'prof13': {slug: 'professions/crafting/tailoring', i18n: 'warcraft:professions.197', domain: 0, parent: 'prof5', types: ['WEAKAURA', 'OPIE', 'WATCHTOWER']},
-      'prof14': {slug: 'professions/secondary', image: 'secondaryprof.png', color: '#C4C4C4', i18n: 'Secondary Professions', domain: 0, types: ['WEAKAURA', 'OPIE', 'WATCHTOWER']},
-      'prof15': {slug: 'professions/secondary/archeology', i18n: 'warcraft:professions.794', domain: 0, parent: 'prof14', types: ['WEAKAURA', 'OPIE', 'WATCHTOWER'], games: ['legion', 'bfa', 'cata', 'mop', 'wod']},
-      'prof16': {slug: 'professions/secondary/cooking', i18n: 'warcraft:professions.185', domain: 0, parent: 'prof14', types: ['WEAKAURA', 'OPIE', 'WATCHTOWER']},
-      'prof17': {slug: 'professions/secondary/first-aid', i18n: 'warcraft:professions.firstaid', domain: 0, parent: 'prof14', types: ['WEAKAURA', 'OPIE', 'WATCHTOWER'], games: ['classic', 'tbc', 'wotlk', 'cata', 'mop', 'wod', 'legion', 'titan-wotlk']},
-      'prof18': {slug: 'professions/secondary/fishing', i18n: 'warcraft:professions.356', domain: 0, parent: 'prof14', types: ['WEAKAURA', 'OPIE', 'WATCHTOWER']},
+      'prof1': {slug: 'professions/gathering', image: 'gathering.png', color: '#5E63B8', i18n: 'Gathering Professions', domain: 0, types: ['WEAKAURA', 'OPIE']},
+      'prof2': {slug: 'professions/gathering/herbalism', i18n: 'warcraft:professions.182', domain: 0, parent: 'prof1', types: ['WEAKAURA', 'OPIE']},
+      'prof3': {slug: 'professions/gathering/mining', i18n: 'warcraft:professions.186', domain: 0, parent: 'prof1', types: ['WEAKAURA', 'OPIE']},
+      'prof4': {slug: 'professions/gathering/skinning', i18n: 'warcraft:professions.393', domain: 0, parent: 'prof1', types: ['WEAKAURA', 'OPIE']},
+      'prof5': {slug: 'professions/crafting', image: 'crafting.png', color: '#B85E5F', i18n: 'Crafting Professions', domain: 0, types: ['WEAKAURA', 'OPIE']},
+      'prof6': {slug: 'professions/crafting/alchemy', i18n: 'warcraft:professions.171', domain: 0, parent: 'prof5', types: ['WEAKAURA', 'OPIE']},
+      'prof7': {slug: 'professions/crafting/blacksmithing', i18n: 'warcraft:professions.164', domain: 0, parent: 'prof5', types: ['WEAKAURA', 'OPIE']},
+      'prof8': {slug: 'professions/crafting/enchanting', i18n: 'warcraft:professions.333', domain: 0, parent: 'prof5', types: ['WEAKAURA', 'OPIE']},
+      'prof9': {slug: 'professions/crafting/engineering', i18n: 'warcraft:professions.202', domain: 0, parent: 'prof5', types: ['WEAKAURA', 'OPIE']},
+      'prof10': {slug: 'professions/crafting/inscription', i18n: 'warcraft:professions.773', domain: 0, parent: 'prof5', types: ['WEAKAURA', 'OPIE'], games: ['wotlk', 'cata', 'mop', 'wod', 'legion', 'bfa', 'sl', 'df', 'tww']},
+      'prof11': {slug: 'professions/crafting/jewelcrafting', i18n: 'warcraft:professions.755', domain: 0, parent: 'prof5', types: ['WEAKAURA', 'OPIE'], games: ['tbc', 'wotlk', 'cata', 'mop', 'wod', 'legion', 'bfa', 'sl', 'df', 'tww', 'titan-wotlk']},
+      'prof12': {slug: 'professions/crafting/leatherworking', i18n: 'warcraft:professions.165', domain: 0, parent: 'prof5', types: ['WEAKAURA', 'OPIE']},
+      'prof13': {slug: 'professions/crafting/tailoring', i18n: 'warcraft:professions.197', domain: 0, parent: 'prof5', types: ['WEAKAURA', 'OPIE']},
+      'prof14': {slug: 'professions/secondary', image: 'secondaryprof.png', color: '#C4C4C4', i18n: 'Secondary Professions', domain: 0, types: ['WEAKAURA', 'OPIE']},
+      'prof15': {slug: 'professions/secondary/archeology', i18n: 'warcraft:professions.794', domain: 0, parent: 'prof14', types: ['WEAKAURA', 'OPIE'], games: ['legion', 'bfa', 'cata', 'mop', 'wod']},
+      'prof16': {slug: 'professions/secondary/cooking', i18n: 'warcraft:professions.185', domain: 0, parent: 'prof14', types: ['WEAKAURA', 'OPIE']},
+      'prof17': {slug: 'professions/secondary/first-aid', i18n: 'warcraft:professions.firstaid', domain: 0, parent: 'prof14', types: ['WEAKAURA', 'OPIE'], games: ['classic', 'tbc', 'wotlk', 'cata', 'mop', 'wod', 'legion', 'titan-wotlk']},
+      'prof18': {slug: 'professions/secondary/fishing', i18n: 'warcraft:professions.356', domain: 0, parent: 'prof14', types: ['WEAKAURA', 'OPIE']},
 
       'gen5': {slug: 'development', image: 'development.png', color: '#D27B61', i18n: 'Development', domain: 0, types: ['WEAKAURA']},
       'gen3': {slug: 'development/testing', i18n: 'Testing', domain: 0, parent: 'development', types: ['WEAKAURA']},
@@ -1125,41 +1125,47 @@ class Categories {
       'snip1': {slug: 'snippets/libraries', i18n: 'Libraries', domain: 0, parent: 'snip0', types: ['SNIPPET']},
       'snip2': {slug: 'snippets/tutorials', i18n: 'Tutorials', domain: 0, parent: 'snip0', types: ['SNIPPET']},
 
-      'opie1': {slug: 'group-buffs', image: 'opie.png', color: '#2595E6', i18n: 'Group Buffs', domain: 0, types: ['OPIE']},
-      'opie2': {slug: 'consumables', image: 'opie.png', color: '#2595E6', i18n: 'Consumables', domain: 0, types: ['OPIE']},
-      'opie3': {slug: 'vehicles', image: 'opie.png', color: '#2595E6', i18n: 'Vehicles', domain: 0, types: ['OPIE']},
-      'opie4': {slug: 'equipment', image: 'opie.png', color: '#2595E6', i18n: 'Equipment', domain: 0, types: ['OPIE']},
-      'opie5': {slug: 'equipment/trinkets', image: 'opie.png', color: '#2595E6', i18n: 'Trinkets', domain: 0, types: ['OPIE']},
-      'opie6': {slug: 'utility', image: 'opie.png', color: '#2595E6', i18n: 'Utility', domain: 0, types: ['OPIE']},
+      'opie0': {slug: 'group-buffs', image: 'opie.png', color: '#2595E6', i18n: 'OPie', domain: 0, types: ['OPIE']},
+      'opie1': {slug: 'group-buffs', image: 'opie.png', color: '#2595E6', parent: 'opie0', i18n: 'Group Buffs', domain: 0, types: ['OPIE']},
+      'opie2': {slug: 'consumables', image: 'opie.png', color: '#2595E6', parent: 'opie0', i18n: 'Consumables', domain: 0, types: ['OPIE']},
+      'opie3': {slug: 'vehicles', image: 'opie.png', color: '#2595E6', parent: 'opie0', i18n: 'Vehicles', domain: 0, types: ['OPIE']},
+      'opie4': {slug: 'equipment', image: 'opie.png', color: '#2595E6', parent: 'opie0', i18n: 'Equipment', domain: 0, types: ['OPIE']},
+      'opie5': {slug: 'equipment/trinkets', image: 'opie.png', color: '#2595E6', parent: 'opie0', i18n: 'Trinkets', domain: 0, types: ['OPIE']},
+      'opie6': {slug: 'utility', image: 'opie.png', color: '#2595E6', parent: 'opie0', i18n: 'Utility', domain: 0, types: ['OPIE']},
 
-      'macro0': {slug: 'utility', image: 'macro.png', color: '#BA25BF', i18n: 'Utility', domain: 0, types: ['MACRO']},
-      'macro1': {slug: 'utility/consumables', image: 'macro.png', color: '#BA25BF', i18n: 'Consumables', domain: 0, types: ['MACRO']},
-      'macro2': {slug: 'utility/vehicles', image: 'macro.png', color: '#BA25BF', i18n: 'Vehicles', domain: 0, types: ['MACRO']},
-      'macro3': {slug: 'utility/equipment', image: 'macro.png', color: '#BA25BF', i18n: 'Equipment', domain: 0, types: ['MACRO']},
-      'macro4': {slug: 'targeting', image: 'crosshair.png', color: '#E0EAB9', i18n: 'Targeting', domain: 0, types: ['MACRO']},
-      'macro5': {slug: 'targeting/raids', image: 'crosshair.png', color: '#E0EAB9', i18n: 'Raids', domain: 0, types: ['MACRO']},
-      'macro6': {slug: 'targeting/dungeons', image: 'crosshair.png', color: '#E0EAB9', i18n: 'Dungeons', domain: 0, types: ['MACRO']},
+      'macroutility': {slug: 'utility', image: 'macro.png', color: '#BA25BF', i18n: 'Utility', domain: 0, types: ['MACRO']},
+      'macro0': {slug: 'utility', image: 'macro.png', color: '#BA25BF', i18n: 'Utility', parent: 'macroutility', domain: 0, types: ['MACRO']},
+      'macro1': {slug: 'utility/consumables', image: 'macro.png', color: '#BA25BF', parent: 'macroutility', i18n: 'Consumables', domain: 0, types: ['MACRO']},
+      'macro2': {slug: 'utility/vehicles', image: 'macro.png', color: '#BA25BF', parent: 'macroutility', i18n: 'Vehicles', domain: 0, types: ['MACRO']},
+      'macro3': {slug: 'utility/equipment', image: 'macro.png', color: '#BA25BF', parent: 'macroutility', i18n: 'Equipment', domain: 0, types: ['MACRO']},
+      
+      'macrotargeting': {slug: 'targeting', image: 'macro.png', color: '#E0EAB9', i18n: 'Targeting', domain: 0, types: ['MACRO']},
+      'macro4': {slug: 'targeting', image: 'crosshair.png', color: '#E0EAB9', parent: 'macrotargeting', i18n: 'Targeting', domain: 0, types: ['MACRO']},
+      'macro5': {slug: 'targeting/raids', image: 'crosshair.png', color: '#E0EAB9', parent: 'macrotargeting', i18n: 'Raids', domain: 0, types: ['MACRO']},
+      'macro6': {slug: 'targeting/dungeons', image: 'crosshair.png', color: '#E0EAB9', parent: 'macrotargeting', i18n: 'Dungeons', domain: 0, types: ['MACRO']},
 
-      'plater1': {slug: 'plater-profiles', image: 'plater.png', color: '#FFC972', i18n: 'Plater Profiles', domain: 0, system: true, types: ['PLATER']},
-      'plater2': {slug: 'plater-scripts', image: 'plater.png', color: '#FFC972', i18n: 'Plater Scripts', domain: 0, system: true, types: ['PLATER']},
-      'plater3': {slug: 'plater-mods', image: 'plater.png', color: '#FFC972', i18n: 'Plater Mods', domain: 0, system: true, types: ['PLATER']},
-      'plater4': {slug: 'plater-animations', image: 'plater.png', color: '#FFC972', i18n: 'Plater Animations', domain: 0, system: true, types: ['PLATER']},
-      'plater5': {slug: 'plater-npc-colors', image: 'plater.png', color: '#FFC972', i18n: 'Plater NPC Colors', domain: 0, system: true, types: ['PLATER']},
-      'plater6': {slug: 'plater-cast-sounds', image: 'plater.png', color: '#FFC972', i18n: 'Plater Cast Sounds', domain: 0, system: true, types: ['PLATER']},
-      'plater7': {slug: 'plater-cast-colors', image: 'plater.png', color: '#FFC972', i18n: 'Plater Cast Colors', domain: 0, system: true, types: ['PLATER']},
-
-      'platerutilities': {slug: 'utilities', image: 'snippets.png', color: '#d18cf3', i18n: 'Utilities', domain: 0, types: ['PLATER']},
-      'platerdungeons': {slug: 'dungeons', image: 'snippets.png', color: '#d18cf3', i18n: 'Dungeons', domain: 0, types: ['PLATER']},
-      'platerraids': {slug: 'raids', image: 'snippets.png', color: '#d18cf3', i18n: 'Raids', domain: 0, types: ['PLATER']},
-      'platerpvp': {slug: 'pvp', image: 'snippets.png', color: '#d18cf3', i18n: 'PvP', domain: 0, types: ['PLATER']},
-      'platertorghast': {slug: 'torghast', image: 'snippets.png', color: '#d18cf3', i18n: 'warcraft:zones.Torghast', domain: 0, types: ['PLATER']},
-      'platernathria': {slug: 'castle-nathria', image: 'snippets.png', color: '#d18cf3', i18n: 'warcraft:instances.1190', domain: 0, types: ['PLATER']},
-      'platersanctumdominion': {slug: 'sanctum-of-dominion', image: 'snippets.png', color: '#d18cf3', i18n: 'warcraft:instances.1193', domain: 0, types: ['PLATER']},
-      'platerraidzuldazar': {slug: 'battle-of-zuldazar', image: 'snippets.png', color: '#d18cf3', i18n: 'warcraft:instances.1176', domain: 0, types: ['PLATER']},
-      'platerraidcrucible': {slug: 'crucible-of-storms', image: 'snippets.png', color: '#d18cf3', i18n: 'warcraft:instances.1177', domain: 0, types: ['PLATER']},
-      'platerraiduldir': {slug: 'uldir', image: 'snippets.png', color: '#d18cf3', i18n: 'warcraft:instances.1031', domain: 0, types: ['PLATER']},
-      'platerraideternalpalace': {slug: 'the-eternal-palace', image: 'snippets.png', color: '#d18cf3', i18n: 'warcraft:instances.1179', domain: 0, types: ['PLATER']},
-      'platerraidnyalotha': {slug: 'nyalotha', image: 'snippets.png', color: '#d18cf3', i18n: 'warcraft:instances.1180', domain: 0, types: ['PLATER']},
+      'platersys': {slug: 'plater-profiles', image: 'plater.png', color: '#FFC972', i18n: 'Plater', domain: 0, system: true, types: ['PLATER']},
+      'plater1': {slug: 'plater-profiles', image: 'plater.png', color: '#FFC972', i18n: 'Plater Profiles', parent: 'platersys', domain: 0, system: true, types: ['PLATER']},
+      'plater2': {slug: 'plater-scripts', image: 'plater.png', color: '#FFC972', i18n: 'Plater Scripts', parent: 'platersys', domain: 0, system: true, types: ['PLATER']},
+      'plater3': {slug: 'plater-mods', image: 'plater.png', color: '#FFC972', i18n: 'Plater Mods', domain: 0, parent: 'platersys', system: true, types: ['PLATER']},
+      'plater4': {slug: 'plater-animations', image: 'plater.png', color: '#FFC972', i18n: 'Plater Animations', parent: 'platersys', domain: 0, system: true, types: ['PLATER']},
+      'plater5': {slug: 'plater-npc-colors', image: 'plater.png', color: '#FFC972', i18n: 'Plater NPC Colors', parent: 'platersys', domain: 0, system: true, types: ['PLATER']},
+      'plater6': {slug: 'plater-cast-sounds', image: 'plater.png', color: '#FFC972', i18n: 'Plater Cast Sounds', parent: 'platersys', domain: 0, system: true, types: ['PLATER']},
+      'plater7': {slug: 'plater-cast-colors', image: 'plater.png', color: '#FFC972', i18n: 'Plater Cast Colors', parent: 'platersys', domain: 0, system: true, types: ['PLATER']},
+      
+      'platercontent': {slug: 'plater-profiles', image: 'snippets.png', color: '#d18cf3', i18n: 'Content', domain: 0, types: ['PLATER']},
+      'platerutilities': {slug: 'utilities', image: 'snippets.png', color: '#d18cf3', i18n: 'Utilities', parent: 'platercontent', domain: 0, types: ['PLATER']},
+      'platerdungeons': {slug: 'dungeons', image: 'snippets.png', color: '#d18cf3', i18n: 'Dungeons', parent: 'platercontent', domain: 0, types: ['PLATER']},
+      'platerraids': {slug: 'raids', image: 'snippets.png', color: '#d18cf3', i18n: 'Raids', parent: 'platercontent', domain: 0, types: ['PLATER']},
+      'platerpvp': {slug: 'pvp', image: 'snippets.png', color: '#d18cf3', i18n: 'PvP', parent: 'platercontent', domain: 0, types: ['PLATER']},
+      // 'platertorghast': {slug: 'torghast', image: 'snippets.png', color: '#d18cf3', i18n: 'warcraft:zones.Torghast', domain: 0, types: ['PLATER']},
+      // 'platernathria': {slug: 'castle-nathria', image: 'snippets.png', color: '#d18cf3', i18n: 'warcraft:instances.1190', domain: 0, types: ['PLATER']},
+      // 'platersanctumdominion': {slug: 'sanctum-of-dominion', image: 'snippets.png', color: '#d18cf3', i18n: 'warcraft:instances.1193', domain: 0, types: ['PLATER']},
+      // 'platerraidzuldazar': {slug: 'battle-of-zuldazar', image: 'snippets.png', color: '#d18cf3', i18n: 'warcraft:instances.1176', domain: 0, types: ['PLATER']},
+      // 'platerraidcrucible': {slug: 'crucible-of-storms', image: 'snippets.png', color: '#d18cf3', i18n: 'warcraft:instances.1177', domain: 0, types: ['PLATER']},
+      // 'platerraiduldir': {slug: 'uldir', image: 'snippets.png', color: '#d18cf3', i18n: 'warcraft:instances.1031', domain: 0, types: ['PLATER']},
+      // 'platerraideternalpalace': {slug: 'the-eternal-palace', image: 'snippets.png', color: '#d18cf3', i18n: 'warcraft:instances.1179', domain: 0, types: ['PLATER']},
+      // 'platerraidnyalotha': {slug: 'nyalotha', image: 'snippets.png', color: '#d18cf3', i18n: 'warcraft:instances.1180', domain: 0, types: ['PLATER']},
 
       'totalrp1': {slug: 'campaigns', image: 'trpcamp.png', color: '#C3793A', i18n: 'Campaigns', domain: 0, types: ['TOTALRP3']},
       'totalrp2': {slug: 'campaigns/alliance-campaigns', i18n: 'Alliance Campaigns', domain: 0, parent: 'totalrp1', types: ['TOTALRP3']},
@@ -1172,26 +1178,30 @@ class Categories {
       'totalrp10': {slug: 'items/normal-mode', i18n: 'Normal Mode', domain: 0, parent: 'totalrp4', types: ['TOTALRP3']},
       'totalrp11': {slug: 'items/miscellaneous', i18n: 'Miscellaneous', domain: 0, parent: 'totalrp4', types: ['TOTALRP3']},
       'totalrp12': {slug: 'items/toys', i18n: 'Toys', domain: 0, parent: 'totalrp4', types: ['TOTALRP3']},
-      'rplang1': {slug: 'english', image: 'lang.png', color: '#269C7D', i18n: 'English', domain: 0, types: ['TOTALRP3']},
-      'rplang2': {slug: 'french', image: 'lang.png', color: '#269C7D', i18n: 'French', domain: 0, types: ['TOTALRP3']},
-      'rplang3': {slug: 'spanish', image: 'lang.png', color: '#269C7D', i18n: 'Spanish', domain: 0, types: ['TOTALRP3']},
-      'rplang4': {slug: 'german', image: 'lang.png', color: '#269C7D', i18n: 'German', domain: 0, types: ['TOTALRP3']},
+      'rplang0': {slug: 'english', image: 'lang.png', color: '#269C7D', i18n: 'Language', domain: 0, types: ['TOTALRP3']},
+      'rplang1': {slug: 'english', image: 'lang.png', color: '#269C7D', i18n: 'English', parent: 'rplang0', domain: 0, types: ['TOTALRP3']},
+      'rplang2': {slug: 'french', image: 'lang.png', color: '#269C7D', i18n: 'French', parent: 'rplang0', domain: 0, types: ['TOTALRP3']},
+      'rplang3': {slug: 'spanish', image: 'lang.png', color: '#269C7D', i18n: 'Spanish', parent: 'rplang0', domain: 0, types: ['TOTALRP3']},
+      'rplang4': {slug: 'german', image: 'lang.png', color: '#269C7D', i18n: 'German', parent: 'rplang0', domain: 0, types: ['TOTALRP3']},
 
-      'vuhdo1': {slug: 'profiles', image: 'vuhdo.png', color: '#6BB85E', i18n: 'Vuhdo Profiles', domain: 0, system: true, types: ['VUHDO']},
-      'vuhdo2': {slug: 'bouquets', image: 'vuhdo.png', color: '#6BB85E', i18n: 'Vuhdo Bouquets', domain: 0, system: true, types: ['VUHDO']},
-      'vuhdo3': {slug: 'key-layouts', image: 'vuhdo.png', color: '#6BB85E', i18n: 'Vuhdo Key Layouts', domain: 0, system: true, types: ['VUHDO']},
+      'vuhdo0': {slug: 'profiles', image: 'vuhdo.png', color: '#6BB85E', i18n: 'Vuhdo', domain: 0, system: true, types: ['VUHDO']},
+      'vuhdo1': {slug: 'profiles', image: 'vuhdo.png', color: '#6BB85E', i18n: 'Vuhdo Profiles', parent: 'vuhdo0', domain: 0, system: true, types: ['VUHDO']},
+      'vuhdo2': {slug: 'bouquets', image: 'vuhdo.png', color: '#6BB85E', i18n: 'Vuhdo Bouquets', parent: 'vuhdo0', domain: 0, system: true, types: ['VUHDO']},
+      'vuhdo3': {slug: 'key-layouts', image: 'vuhdo.png', color: '#6BB85E', i18n: 'Vuhdo Key Layouts', parent: 'vuhdo0', domain: 0, system: true, types: ['VUHDO']},
 
-      'cell1': {slug: 'complete-profiles', image: 'cell.png', color: '#56E93E', i18n: 'Cell Profiles', domain: 0, system: true, types: ['CELL']},
-      'cell2': {slug: 'layouts', image: 'cell.png', color: '#56E93E', i18n: 'Cell Layouts', domain: 0, system: true, types: ['CELL']},
-      'cell3': {slug: 'indicators', image: 'cell.png', color: '#56E93E', i18n: 'Cell Indicators', domain: 0, system: true, types: ['CELL']},
-      'cell4': {slug: 'click-castings', image: 'cell.png', color: '#56E93E', i18n: 'Click Castings', domain: 0, system: true, types: ['CELL']},
-      'cell5': {slug: 'debuffs', image: 'cell.png', color: '#56E93E', i18n: 'Debuffs', domain: 0, system: true, types: ['CELL']},
-      'cell6': {slug: 'quick-assist', image: 'cell.png', color: '#56E93E', i18n: 'Quick Assist', domain: 0, system: true, types: ['CELL']},
+      'cell0': {slug: 'complete-profiles', image: 'cell.png', color: '#56E93E', i18n: 'Cell', domain: 0, system: true, types: ['CELL']},
+      'cell1': {slug: 'complete-profiles', image: 'cell.png', color: '#56E93E', i18n: 'Cell Profiles', parent: 'cell0', domain: 0, system: true, types: ['CELL']},
+      'cell2': {slug: 'layouts', image: 'cell.png', color: '#56E93E', i18n: 'Cell Layouts', domain: 0, parent: 'cell0', system: true, types: ['CELL']},
+      'cell3': {slug: 'indicators', image: 'cell.png', color: '#56E93E', i18n: 'Cell Indicators', domain: 0, parent: 'cell0', system: true, types: ['CELL']},
+      'cell4': {slug: 'click-castings', image: 'cell.png', color: '#56E93E', i18n: 'Click Castings', domain: 0, parent: 'cell0', system: true, types: ['CELL']},
+      'cell5': {slug: 'debuffs', image: 'cell.png', color: '#56E93E', i18n: 'Debuffs', domain: 0, parent: 'cell0', system: true, types: ['CELL']},
+      'cell6': {slug: 'quick-assist', image: 'cell.png', color: '#56E93E', i18n: 'Quick Assist', domain: 0, parent: 'cell0', system: true, types: ['CELL']},
       
-      'gse1': {slug: 'gse-sequences', image: 'gse.png', color: '#00CCCC', i18n: 'GSE Sequences', domain: 0, system: true, types: ['GSE']},
-      'gse2': {slug: 'gse-macros', image: 'gse.png', color: '#00CCCC', i18n: 'GSE Macros', domain: 0, system: true, types: ['GSE']},
-      'gse3': {slug: 'gse-variables', image: 'gse.png', color: '#00CCCC', i18n: 'GSE Variables', domain: 0, system: true, types: ['GSE']},
-      'gse4': {slug: 'gse-collections', image: 'gse.png', color: '#00CCCC', i18n: 'GSE Collections', domain: 0, system: true, types: ['GSE']},
+      'gse0': {slug: 'gse-sequences', image: 'gse.png', color: '#00CCCC', i18n: 'GSE', domain: 0, system: true, types: ['GSE']},
+      'gse1': {slug: 'gse-sequences', image: 'gse.png', color: '#00CCCC', i18n: 'GSE Sequences', parent: 'gse0', domain: 0, system: true, types: ['GSE']},
+      'gse2': {slug: 'gse-macros', image: 'gse.png', color: '#00CCCC', i18n: 'GSE Macros', parent: 'gse0', domain: 0, system: true, types: ['GSE']},
+      'gse3': {slug: 'gse-variables', image: 'gse.png', color: '#00CCCC', i18n: 'GSE Variables', parent: 'gse0', domain: 0, system: true, types: ['GSE']},
+      'gse4': {slug: 'gse-collections', image: 'gse.png', color: '#00CCCC', i18n: 'GSE Collections', parent: 'gse0', domain: 0, system: true, types: ['GSE']},
 
       ///////////////////////////////////////////////////////
       // FINAL FANTASY CATEGORIES
@@ -1267,9 +1277,28 @@ class Categories {
     }
   }
 
-  init (t) {
+  init (t, addons) {
     if (!t) {
       t = window.i18next.t
+    }
+    const addonDB = addons(t)
+    for (const addon of addonDB) {
+      if (!addon.categories?.length) continue
+
+      const type = addon.type ?? addon.slug?.toUpperCase()
+      if (!type) continue
+
+      for (const addonCategory of addon.categories) {
+        for (const [id, cat] of Object.entries(this.categories)) {
+          if (!cat.system && (addonCategory === id || addonCategory === cat.parent)) {
+            if (!cat.types?.includes(type)) {
+              const types = cat.types ?? []
+              types.push(type)
+              this.categories[id].types = types
+            }
+          }
+        }
+      }
     }
 
     let styles = ''

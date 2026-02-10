@@ -10,9 +10,8 @@ module.exports = {
     // test that string matches expected regex
     const v2Str = encodedString.match(/!PLATER:2!([a-zA-Z0-9+=\/]+)/)
     if (v2Str?.[1]) {
-      return blizzEncoding.standardDecode(v2Str[1])
+      return blizzEncoding.decode(v2Str[1])
     }
-
     if (!encodedString.match(/^[a-zA-Z0-9\(\)]*$/)) {
       return false
     }
@@ -35,28 +34,14 @@ module.exports = {
       let json = await exec(lua)
       return JSON.parse(json)
     }
-    catch {
+    catch (e){
+      console.log(e)
       return false
     }
   },
 
   encodeRaw: async (json, exec) => {
-    return '!PLATER:2!' + await blizzEncoding.standardEncode(json)
-    // const lua = `
-    // local t = JSON:decode("${json}")
-    // if not t then return "" end
-
-    // local serialized = Serializer:Serialize(t)
-    // local compressed = LibDeflate:CompressDeflate(serialized, {level = 9})
-    // local encoded = LibDeflate:EncodeForPrint(compressed)
-    // return encoded`
-    // try {
-    //   let encodedString = await exec(lua)
-    //   return encodedString
-    // }
-    // catch (e) {
-    //   return false
-    // }
+    return '!PLATER:2!' + await blizzEncoding.encode(json)
   },
 
   processMeta: (obj) => {

@@ -31,7 +31,7 @@ export default {
   methods: {
     createMDT (dungeonTable) {
       let week = 1
-      let game = this.game || 'df'
+      let game = this.game || 'midnight'
       let season = this.season
       // try {
       //   week = parseInt(this.$route.params.week.replace(/[^\d]/g, ''))
@@ -81,7 +81,9 @@ export default {
     }
   },
   created () {
-    const dungeons = categories.raidCategories(['tww-mdt-s2', 'tww-mdt-s1'], 'MDT')[0].bosses
+    // const dungeons = categories.raidCategories(['tww-mdt-s3', 'tww-mdt-s2', 'tww-mdt-s1'], 'MDT')[0].bosses
+    const dungeons = categories.raidCategories(['midnight-mdt-s1'], 'MDT')[0].bosses
+    console.log(dungeons)
     for (let i = 0; i < dungeons.length; i++) {
       if (dungeons[i].mdtID && dungeons[i].slug.match(this.$route.params.dungeon)) {
         this.mapID = dungeons[i].mdtID

@@ -1443,6 +1443,7 @@ import Codereview from '../UI/CodeReview.vue'
 import Search from '../core/Search.vue'
 import MonacoEditor from '../UI/MonacoEditor.vue'
 import semver from 'semver'
+import addons from '../libs/addons'
 
 import detectCustomCode from '../libs/detectCustomCode'
 const openCustomProtocol = require('../libs/customProtocolDetection')
@@ -1696,6 +1697,9 @@ export default {
   computed: {
     wago () {
       return this.$store.state.wago
+    },
+    addonDB: function() {
+        return addons(this.$t)
     },
     wagoExists () {
       if (this.$store.state.wago && this.$store.state.wago._id) {
@@ -1981,135 +1985,142 @@ export default {
           })
         }
 
-        switch (this.wago.type) {
-          case 'BLIZZHUD':
-            this.showPanel = 'description'
-            this.typeSlug = 'blizzhud/'
-            break
-          case 'COLLECTION':
-            this.showPanel = 'description'
-            this.typeSlug = 'collections/'
-            break
-          case 'MDT':
-            this.showPanel = 'builder'
-            this.typeSlug = 'mdt/'
-            this.wago.mdtAffixes = []
-            for (let cat of res.categories) {
-              if (cat.id && cat.id.match(/^mdtaffix\d+$/)) {
-                this.wago.mdtAffixes.push(cat.id)
+        const browseAddon = this.addonDB.find(x => x.slug?.toUpperCase() === this.wago.type)
+        if (browseAddon) {
+          this.showPanel = 'description'
+          this.typeSlug = `browse/${browseAddon.slug}/`
+        }
+        else {
+          switch (this.wago.type) {
+            case 'BLIZZHUD':
+              this.showPanel = 'description'
+              this.typeSlug = 'blizzhud/'
+              break
+            case 'COLLECTION':
+              this.showPanel = 'description'
+              this.typeSlug = 'collections/'
+              break
+            case 'MDT':
+              this.showPanel = 'builder'
+              this.typeSlug = 'mdt/'
+              this.wago.mdtAffixes = []
+              for (let cat of res.categories) {
+                if (cat.id && cat.id.match(/^mdtaffix\d+$/)) {
+                  this.wago.mdtAffixes.push(cat.id)
+                }
               }
-            }
-            break
-          case 'OPIE':
-            this.showPanel = this.wago.description.text ? 'description' : 'editor'
-            this.typeSlug = 'opie/'
-            break
-          case 'PLATER':
-            this.showPanel = this.wago.description.text ? 'description' : 'editor'
-            this.typeSlug = 'plater/'
-            break
-          case 'SNIPPET':
-            this.showPanel = 'editor'
-            this.typeSlug = 'snippets/'
-            break
-          case 'TOTALRP3':
-            this.showPanel = 'description'
-            this.typeSlug = 'totalrp/'
-            break
-          case 'MACRO':
-            this.showPanel = 'description'
-            this.typeSlug = 'macros/'
-            break
-          case 'WEAKAURA':
-          case 'CLASSIC-WEAKAURA':
-          case 'TBC-WEAKAURA':
-          case 'WOTLK-WEAKAURA':
-          case 'CATA-WEAKAURA':
-          case 'MOP-WEAKAURA':
-            this.showPanel = this.wago.description.text ? 'description' : 'editor'
-            if (this.wago.game === 'cata') {
-              this.wago.typePrefix = 'CATA'
-              this.typeSlug = 'cataclysm-weakauras/'
-            }
-            else if (this.wago.game === 'mop') {
-              this.wago.typePrefix = 'MOP'
-              this.typeSlug = 'mop-weakauras/'
-            }
-            else if (this.wago.game === 'wotlk') {
-              this.wago.typePrefix = 'WOTLK'
-              this.typeSlug = 'wotlk-weakauras/'
-            }
-            else if (this.wago.game === 'tbc') {
-              this.wago.typePrefix = 'TBC'
-              this.typeSlug = 'tbc-weakauras/'
-            }
-            else if (this.wago.game === 'classic') {
-              this.wago.typePrefix = 'CLASSIC'
-              this.typeSlug = 'classic-weakauras/'
-            }
-            else if (this.wago.game === 'legion') {
-              this.wago.typePrefix = 'LEGION'
-              this.typeSlug = 'legion-weakauras/'
-            }
-            else if (this.wago.game === 'bfa') {
-              this.wago.typePrefix = 'BFA'
-              this.typeSlug = 'bfa-weakauras/'
-            }
-            else if (this.wago.game === 'sl') {
-              this.wago.typePrefix = 'SL'
-              this.typeSlug = 'shadowlands-weakauras/'
-            }
-            else if (this.wago.game === 'df') {
-              this.wago.typePrefix = 'DF'
-              this.typeSlug = 'dragonflight-weakauras/'
-            }
-            else if (this.wago.game === 'tww') {
-              this.wago.typePrefix = 'TWW'
-              this.typeSlug = 'the-war-within-weakauras/'
-            }
-            else {
-              this.typeSlug = 'weakauras/'
-            }
-            break
-            
-          case 'MACRO':
-          case 'CLASSIC-MACRO':
-          case 'CATA-MACRO':
-          case 'MOP-MACRO':
-          case 'DF-MACRO':
-          case 'TWW-MACRO':
-            this.showPanel = this.wago.description.text ? 'description' : 'editor'
-            if (this.wago.game === 'cata') {
-              this.wago.typePrefix = 'CATA'
-              this.typeSlug = 'cataclysm-macros/'
-            }
-            else if (this.wago.game === 'mop') {
-              this.wago.typePrefix = 'MOP'
-              this.typeSlug = 'mop-macros/'
-            }
-            else if (this.wago.game === 'classic') {
-              this.wago.typePrefix = 'CLASSIC'
-              this.typeSlug = 'classic-macros/'
-            }
-            else if (this.wago.game === 'df') {
-              this.wago.typePrefix = 'DF'
-              this.typeSlug = 'dragonflight-macros/'
-            }
-            else if (this.wago.game === 'tww') {
-              this.wago.typePrefix = 'TWW'
-              this.typeSlug = 'tww-macros/'
-            }
-            else {
-              this.typeSlug = 'df-macros/'
-            }
-            break
-          case 'BLIZZHUD':
-            this.showPanel = this.wago.description.text ? 'description' : 'hudsettings'
-            break
-          default:
-            this.showPanel = 'description'
-            this.typeSlug = this.wago.type.toLowerCase() + '/'
-            break
+              break
+            case 'OPIE':
+              this.showPanel = this.wago.description.text ? 'description' : 'editor'
+              this.typeSlug = 'opie/'
+              break
+            case 'PLATER':
+              this.showPanel = this.wago.description.text ? 'description' : 'editor'
+              this.typeSlug = 'plater/'
+              break
+            case 'SNIPPET':
+              this.showPanel = 'editor'
+              this.typeSlug = 'snippets/'
+              break
+            case 'TOTALRP3':
+              this.showPanel = 'description'
+              this.typeSlug = 'totalrp/'
+              break
+            case 'MACRO':
+              this.showPanel = 'description'
+              this.typeSlug = 'macros/'
+              break
+            case 'WEAKAURA':
+            case 'CLASSIC-WEAKAURA':
+            case 'TBC-WEAKAURA':
+            case 'WOTLK-WEAKAURA':
+            case 'CATA-WEAKAURA':
+            case 'MOP-WEAKAURA':
+              this.showPanel = this.wago.description.text ? 'description' : 'editor'
+              if (this.wago.game === 'cata') {
+                this.wago.typePrefix = 'CATA'
+                this.typeSlug = 'cataclysm-weakauras/'
+              }
+              else if (this.wago.game === 'mop') {
+                this.wago.typePrefix = 'MOP'
+                this.typeSlug = 'mop-weakauras/'
+              }
+              else if (this.wago.game === 'wotlk') {
+                this.wago.typePrefix = 'WOTLK'
+                this.typeSlug = 'wotlk-weakauras/'
+              }
+              else if (this.wago.game === 'tbc') {
+                this.wago.typePrefix = 'TBC'
+                this.typeSlug = 'tbc-weakauras/'
+              }
+              else if (this.wago.game === 'classic') {
+                this.wago.typePrefix = 'CLASSIC'
+                this.typeSlug = 'classic-weakauras/'
+              }
+              else if (this.wago.game === 'legion') {
+                this.wago.typePrefix = 'LEGION'
+                this.typeSlug = 'legion-weakauras/'
+              }
+              else if (this.wago.game === 'bfa') {
+                this.wago.typePrefix = 'BFA'
+                this.typeSlug = 'bfa-weakauras/'
+              }
+              else if (this.wago.game === 'sl') {
+                this.wago.typePrefix = 'SL'
+                this.typeSlug = 'shadowlands-weakauras/'
+              }
+              else if (this.wago.game === 'df') {
+                this.wago.typePrefix = 'DF'
+                this.typeSlug = 'dragonflight-weakauras/'
+              }
+              else if (this.wago.game === 'tww') {
+                this.wago.typePrefix = 'TWW'
+                this.typeSlug = 'the-war-within-weakauras/'
+              }
+              else {
+                this.typeSlug = 'weakauras/'
+              }
+              break
+              
+            case 'MACRO':
+            case 'CLASSIC-MACRO':
+            case 'CATA-MACRO':
+            case 'MOP-MACRO':
+            case 'DF-MACRO':
+            case 'TWW-MACRO':
+              this.showPanel = this.wago.description.text ? 'description' : 'editor'
+              if (this.wago.game === 'cata') {
+                this.wago.typePrefix = 'CATA'
+                this.typeSlug = 'cataclysm-macros/'
+              }
+              else if (this.wago.game === 'mop') {
+                this.wago.typePrefix = 'MOP'
+                this.typeSlug = 'mop-macros/'
+              }
+              else if (this.wago.game === 'classic') {
+                this.wago.typePrefix = 'CLASSIC'
+                this.typeSlug = 'classic-macros/'
+              }
+              else if (this.wago.game === 'df') {
+                this.wago.typePrefix = 'DF'
+                this.typeSlug = 'dragonflight-macros/'
+              }
+              else if (this.wago.game === 'tww') {
+                this.wago.typePrefix = 'TWW'
+                this.typeSlug = 'tww-macros/'
+              }
+              else {
+                this.typeSlug = 'df-macros/'
+              }
+              break
+            case 'BLIZZHUD':
+              this.showPanel = this.wago.description.text ? 'description' : 'hudsettings'
+              break
+            default:
+              this.showPanel = 'description'
+              this.typeSlug = this.wago.type.toLowerCase() + '/'
+              break
+          }
         }
 
         window.preventScroll = true

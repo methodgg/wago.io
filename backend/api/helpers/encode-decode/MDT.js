@@ -83,7 +83,6 @@ module.exports = {
 
   processMeta: (obj) => {
     if (!obj || !obj.value || !obj.value.currentDungeonIdx) {
-        console.log(Object.keys(obj))
       return false
     }
 

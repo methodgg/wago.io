@@ -55,7 +55,7 @@ export default {
     getSprite (data) {
       var image = new Image()
 
-      if (data.type === 'door' || data.type === 'mapLink') {
+      if (data.type === 'door' || data.type === 'mapLink' || data.type === 'dungeonEntrance') {
         image.src = require('../../assets/mapPOI/DOOR.png')
         return {image, animation: data.direction || 0, animations: this.DOOR, x: (data.x * this.mdtScale) - 16, y: -(data.y * this.mdtScale) - 16}
       }
@@ -103,6 +103,9 @@ export default {
     mouseover: function (poi) {
       var text
       switch (poi.type) {
+        case 'dungeonEntrance':
+          text = 'Dungeon Entrance'
+          break
         case 'door':
           text = (poi.doorName + (poi.doorDescription ? `\n${poi.doorDescription}` : '') + (poi.lockpick ? '\n<span style="color:#32CD32">Locked</span>' : ''))
           break

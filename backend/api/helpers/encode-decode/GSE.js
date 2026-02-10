@@ -7,7 +7,7 @@ module.exports = {
     decode: async (rawString, exec) => {
         let v3Str = rawString.match(/!GSE3!([a-zA-Z0-9+=\/]+)/)
         if (v3Str?.[1]) {
-            return blizzEncoding.standardDecode(v3Str[1])
+            return blizzEncoding.decode(v3Str[1])
         }
 
         // test that string matches expected regex
@@ -45,7 +45,7 @@ module.exports = {
     },
   
     encodeRaw: async (json, exec) => {
-        return '!GSE3!' + await blizzEncoding.standardEncode(json)
+        return '!GSE3!' + await blizzEncoding.encode(json)
         // const lua = `
         // ${gseLua}
         // local t = JSON:decode("${json}")

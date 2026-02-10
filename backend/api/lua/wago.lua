@@ -33,9 +33,25 @@ local Compresser = LibStub:GetLibrary("LibCompress")
 local LibCompress = LibStub:GetLibrary("LibCompress")
 local Encoder = Compresser:GetAddonEncodeTable()
 local Serializer = LibStub:GetLibrary("AceSerializer-3.0")
+local AceSerializer = Serializer
 local LibDeflate = LibStub:GetLibrary("LibDeflate")
 local LibSerialize = LibStub("LibSerialize")
 local configForDeflate = {level = 7}
 errorMsg = ""
+
+local function fixNumberedIndexes(tbl)
+    local fixed = {}
+    for k, v in pairs(tbl) do
+        if type(v) == "table" then
+            v = fixNumberedIndexes(v)
+        end
+        if tonumber(k) and tonumber(k) > 0 then
+            fixed[tonumber(k)] = v
+        else
+            fixed[k] = v
+        end
+    end
+    return fixed
+end
 
 local JSON = (loadfile "./json.lua")()

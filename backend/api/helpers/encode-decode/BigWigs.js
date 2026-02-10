@@ -9,7 +9,7 @@ module.exports = {
       const content = encodedString.match(/^(BW2|BWIS1):([a-zA-Z0-9+=\/]+)$/)
       if (content?.[2]) {
           try {
-              const obj = await blizzEncoding.standardDecode(content[2])
+              const obj = await blizzEncoding.decode(content[2])
               return obj
           }
           catch (e){console.log(e)}
@@ -46,7 +46,7 @@ module.exports = {
       try {
           const obj = JSON.parse(json)
           const prefix = obj.zone ? 'BWIS1:' : 'BW2:'
-          return prefix + await blizzEncoding.standardEncode(obj)
+          return prefix + await blizzEncoding.encode(obj)
       }
       catch (e) {
         return false
