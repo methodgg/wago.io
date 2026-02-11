@@ -119,7 +119,7 @@ const addons = [{
         const prefix = obj.zone ? 'BWIS1:' : 'BW2:'
         return prefix + encodedStr
     },
-    addWagoData: (obj, wago) => {
+    addWagoData: (wago, code, obj) => {
         if (obj.zone < 0) {
             wago.categories_other = [`warcraft:UiMap.${obj.zone * -1}`]
         }
@@ -276,7 +276,7 @@ const addons = [{
             
         return meta
     },
-    addWagoData: (obj, wago, code) => {
+    addWagoData: (wago, code, obj) => {
         if (!obj.tocversion) {
             obj.tocversion = patchDates.dateToToc(wago.modified)
         }
@@ -348,6 +348,22 @@ const addons = [{
     customEncode: async (obj) => {
         const prefix = `WT1:${obj.type}:`
         return prefix + await blizzEncoding.encode(obj.data)
+    },
+    addWagoData: (wago, code, obj) => {
+        if (Array.isArray(obj.data.flags)) {
+            obj.data.flags = obj.data.flags.map(x => ({
+                ...x,
+                url: wago.url + '/' + code.version,
+                version: code.version,
+                semver: code.versionString
+            }))
+        }
+        else {
+            obj.data.url = wago.url + '/' + code.version
+            obj.data.version = code.version
+            obj.data.semver = code.versionString
+        }
+        code.json = JSON.stringify(obj)
     }
 },
 
@@ -491,7 +507,7 @@ async function toEncodedString(obj, type) {
 
         let encoded = ''
         if (addon.customEncode) {
-            encoded = addon.customEncode(obj)            
+            return addon.customEncode(obj)            
         }        
         else if (addon.useLuaEncoding) {
             encoded = await luaEncoding.encode(obj, {serialization: addon.serialization, compression: addon.compression, encoding: addon.encoding})
@@ -519,7 +535,7 @@ async function addWagoData(wago, code) {
             obj = JSON.parse(obj)
         }
 
-        addon.addWagoData(obj, wago, code)
+        addon.addWagoData(wago, code, obj)
         return true
     }
     catch (e) {console.log(e)}
