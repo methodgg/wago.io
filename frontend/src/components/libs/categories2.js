@@ -1139,7 +1139,7 @@ class Categories {
       'macro2': {slug: 'utility/vehicles', image: 'macro.png', color: '#BA25BF', parent: 'macroutility', i18n: 'Vehicles', domain: 0, types: ['MACRO']},
       'macro3': {slug: 'utility/equipment', image: 'macro.png', color: '#BA25BF', parent: 'macroutility', i18n: 'Equipment', domain: 0, types: ['MACRO']},
       
-      'macrotargeting': {slug: 'targeting', image: 'macro.png', color: '#E0EAB9', i18n: 'Targeting', domain: 0, types: ['MACRO']},
+      'macrotargeting': {slug: 'targeting', image: 'crosshair.png', color: '#E0EAB9', i18n: 'Targeting', domain: 0, types: ['MACRO']},
       'macro4': {slug: 'targeting', image: 'crosshair.png', color: '#E0EAB9', parent: 'macrotargeting', i18n: 'Targeting', domain: 0, types: ['MACRO']},
       'macro5': {slug: 'targeting/raids', image: 'crosshair.png', color: '#E0EAB9', parent: 'macrotargeting', i18n: 'Raids', domain: 0, types: ['MACRO']},
       'macro6': {slug: 'targeting/dungeons', image: 'crosshair.png', color: '#E0EAB9', parent: 'macrotargeting', i18n: 'Dungeons', domain: 0, types: ['MACRO']},
@@ -1202,6 +1202,34 @@ class Categories {
       'gse2': {slug: 'gse-macros', image: 'gse.png', color: '#00CCCC', i18n: 'GSE Macros', parent: 'gse0', domain: 0, system: true, types: ['GSE']},
       'gse3': {slug: 'gse-variables', image: 'gse.png', color: '#00CCCC', i18n: 'GSE Variables', parent: 'gse0', domain: 0, system: true, types: ['GSE']},
       'gse4': {slug: 'gse-collections', image: 'gse.png', color: '#00CCCC', i18n: 'GSE Collections', parent: 'gse0', domain: 0, system: true, types: ['GSE']},
+
+      'danders0': {slug: 'profile', image: 'danders.png', color: '#8354b5', i18n: 'Danders', parent: 'danders0', domain: 0, system: true},
+      'danders1': {slug: 'profile', image: 'danders.png', color: '#8354b5', i18n: 'Danders Profile', parent: 'danders0', domain: 0, system: true},
+      'danders2': {slug: 'clickcasting', image: 'danders.png', color: '#8354b5', i18n: 'Danders Click Casting', parent: 'danders0', domain: 0, system: true},
+      
+      'bbf0': {slug: 'profile', image: 'bbf.png', color: '#217DD3', i18n: 'Better Blizz Frames', domain: 0, system: true},
+      'bbf1': {slug: 'profile', image: 'bbf.png', color: '#217DD3', i18n: 'Profile', parent: 'bbf0', domain: 0, system: true},
+      'bbf2': {slug: 'whitelist', image: 'bbf.png', color: '#217DD3', i18n: 'Whitelist', parent: 'bbf0', domain: 0, system: true},
+      'bbf3': {slug: 'blacklist', image: 'bbf.png', color: '#217DD3', i18n: 'Blacklist', parent: 'bbf0', domain: 0, system: true},
+      
+      'bbp0': {slug: 'profile', image: 'bbp.png', color: '#217DD3', i18n: 'Better Blizz Plates', domain: 0, system: true},
+      'bbp1': {slug: 'profile', image: 'bbp.png', color: '#217DD3', i18n: 'Profile', parent: 'bbp0', domain: 0, system: true},
+      'bbp2': {slug: 'aura-whitelist', image: 'bbp.png', color: '#217DD3', i18n: 'Aura Whitelist', parent: 'bbp0', domain: 0, system: true},
+      'bbp3': {slug: 'aura-blacklist', image: 'bbp.png', color: '#217DD3', i18n: 'Aura Blacklist', parent: 'bbp0', domain: 0, system: true},
+      'bbp4': {slug: 'totem-indicators', image: 'bbp.png', color: '#217DD3', i18n: 'Totem Indicator List', parent: 'bbp0', domain: 0, system: true},
+      'bbp5': {slug: 'fade-npc-list', image: 'bbp.png', color: '#217DD3', i18n: 'Fade NPC List', parent: 'bbp0', domain: 0, system: true},
+      'bbp6': {slug: 'hide-npc-blacklist', image: 'bbp.png', color: '#217DD3', i18n: 'Hide NPC Blacklist', parent: 'bbp0', domain: 0, system: true},
+      'bbp7': {slug: 'hide-npc-whitelist', image: 'bbp.png', color: '#217DD3', i18n: 'Hide NPC Whitelist', parent: 'bbp0', domain: 0, system: true},
+      'bbp8': {slug: 'cast-emphasis-list', image: 'bbp.png', color: '#217DD3', i18n: 'Cast Emphasis List', parent: 'bbp0', domain: 0, system: true},
+      'bbp9': {slug: 'hide-castbar-blacklist', image: 'bbp.png', color: '#217DD3', i18n: 'Hide Castbar Blacklist', parent: 'bbp0', domain: 0, system: true},
+      'bbp10': {slug: 'hide-castbar-whitelist', image: 'bbp.png', color: '#217DD3', i18n: 'Hide Castbar Whitelist', parent: 'bbp0', domain: 0, system: true},
+      'bbp11': {slug: 'color-npc-list', image: 'bbp.png', color: '#217DD3', i18n: 'Color NPC List', parent: 'bbp0', domain: 0, system: true},
+      'bbp12': {slug: 'color-by-aura-list', image: 'bbp.png', color: '#217DD3', i18n: 'Color by Aura List', parent: 'bbp0', domain: 0, system: true},
+      
+      'enhanceqol0': {slug: 'profile', image: 'enhanceqol.png', color: '#e0d0b3', i18n: 'Enhance QoL', domain: 0, system: true},
+      'enhanceqol1': {slug: 'profile', image: 'enhanceqol.png', color: '#e0d0b3', i18n: 'Profile', parent: 'enhanceqol0', domain: 0, system: true},
+      'enhanceqol2': {slug: 'resource-bar', image: 'enhanceqol.png', color: '#e0d0b3', i18n: 'Resource Bar', parent: 'enhanceqol0', domain: 0, system: true},
+      'enhanceqol3': {slug: 'unit-frame', image: 'enhanceqol.png', color: '#e0d0b3', i18n: 'Unit Frame', parent: 'enhanceqol0', domain: 0, system: true},
 
       ///////////////////////////////////////////////////////
       // FINAL FANTASY CATEGORIES
@@ -1320,14 +1348,16 @@ class Categories {
       .multiselect .md-chip.${id} {background: ${color}; color: black!important}`
     }
 
-    const css = document.createElement('style')
-    if (css.styleSheet) {
-      css.styleSheet.cssText = styles
+    if (typeof document !== 'undefined' && document?.createElement) {
+      const css = document.createElement('style')
+      if (css.styleSheet) {
+        css.styleSheet.cssText = styles
+      }
+      else {
+        css.appendChild(document.createTextNode(styles))
+      }
+      document.getElementsByTagName('head')[0].appendChild(css)
     }
-    else {
-      css.appendChild(document.createTextNode(styles))
-    }
-    document.getElementsByTagName('head')[0].appendChild(css)
   }
 
   translate (t) {

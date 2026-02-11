@@ -1,9 +1,104 @@
 const blizzEncoding = require('./blizzEncoding')
-// const luaEncoding = require('./luaEncoding')
+const luaEncoding = require('./luaEncoding')
 const getCode = require('./code-detection/get-code')
 const patchDates = require('./patchDates')
 
 const addons = [{
+    type: 'BETTER-BLIZZ-FRAMES',
+    slug: 'better-blizz-frames',
+    stringPrefix: '!BBF',
+    stringSuffix: '!BBF',
+    buildMeta: (obj) => {
+        const meta = {categories:[]}
+        if (obj.dataType === 'fullProfile') {
+            meta.name = 'Better Blizz Frames Profile'
+            meta.categories.push('bbf1')
+        }
+        else if (obj.dataType === 'auraWhitelist') {
+            meta.name = 'Better Blizz Frames Aura Whitelist'
+            meta.categories.push('bbf2')
+        }
+        else if (obj.dataType === 'auraBlacklist') {
+            meta.name = 'Better Blizz Frames Aura Blacklist'
+            meta.categories.push('bbf3')
+        }
+        else {
+            meta.name = 'Better Blizz Frames Unknown Import'
+        }
+        return meta
+    },
+    useLuaEncoding: true,
+}, {
+    type: 'BETTER-BLIZZ-PLATES',
+    slug: 'better-blizz-plates',
+    stringPrefix: '!BBP',
+    stringSuffix: '!BBP',
+    buildMeta: (obj) => {
+        const meta = {categories:[]}
+        if (obj.dataType === 'fullProfile') {
+            meta.name = 'Better Blizz Plates Profile'
+            meta.categories.push('bbp1')
+        }
+        else if (obj.dataType === 'auraWhitelist') {
+            meta.name = 'Better Blizz Plates Aura Whitelist'
+            meta.categories.push('bbp2')
+        }
+        else if (obj.dataType === 'auraBlacklist') {
+            meta.name = 'Better Blizz Plates Aura Blacklist'
+            meta.categories.push('bbp3')
+        }
+        else if (obj.dataType === 'totemIndicatorNpcList') {
+            meta.name = 'Better Blizz Plates Totem Indicator List'
+            meta.categories.push('bbp4')
+        }
+        else if (obj.dataType === 'fadeOutNPCsList') {
+            meta.name = 'Better Blizz Plates Fade NPC List'
+            meta.categories.push('bbp5')
+        }
+        else if (obj.dataType === 'hideNPCsList') {
+            meta.name = 'Better Blizz Plates Hide NPC Blacklist'
+            meta.categories.push('bbp6')
+        }
+        else if (obj.dataType === 'hideNPCsWhitelist') {
+            meta.name = 'Better Blizz Plates Hide NPC Whitelist'
+            meta.categories.push('bbp7')
+        }
+        else if (obj.dataType === 'castEmphasisList') {
+            meta.name = 'Better Blizz Plates Cast Emphasis List'
+            meta.categories.push('bbp8')
+        }
+        else if (obj.dataType === 'hideCastbarList') {
+            meta.name = 'Better Blizz Plates Hide Castbar Blacklist'
+            meta.categories.push('bbp9')
+        }
+        else if (obj.dataType === 'hideCastbarWhitelist') {
+            meta.name = 'Better Blizz Plates Hide Castbar Whitelist'
+            meta.categories.push('bbp10')
+        }
+        else if (obj.dataType === 'colorNpcList') {
+            meta.name = 'Better Blizz Plates Color NPC List'
+            meta.categories.push('bbp11')
+        }
+        else if (obj.dataType === 'auraColorList') {
+            meta.name = 'Better Blizz Plates Color by Aura List'
+            meta.categories.push('bbp12')
+        }
+        else {
+            meta.name = 'Better Blizz Plates Unknown Import ' + obj.dataType
+        }
+        return meta
+    },
+    useLuaEncoding: true,
+}, {
+    type: 'BETTER-COOLDOWN-MANAGER',
+    slug: 'better-cdm',
+    stringPrefix: '!BCDM_',
+    buildMeta: (obj) => {
+        return {name: 'Better Cooldown Manager Profile'}
+    },
+    useLuaEncoding: true,
+    serialization: 'AceSerializer'
+}, {
     type: 'BIGWIGS',
     slug: 'bigwigs',
     stringRegex: /^(?:BW2|BWIS1):(.+)$/,
@@ -47,6 +142,41 @@ const addons = [{
         }
         return false
     },
+}, {
+    type: 'COOLDOWN-MANAGER-CENTERED',
+    slug: 'cooldown-manager-centered',
+    stringPrefix: 'CMC1:',
+    buildMeta: (obj) => {
+        const meta = {categories:[]}
+        meta.name = 'Cooldown Manager Centered Profile'
+        return meta
+    },
+    useLuaEncoding: true,
+}, {
+    type: 'DANDERS-FRAMES',
+    slug: 'danders-frames',
+    stringRegex: /^!DF(?:P1|C1)!([a-zA-Z0-9\(\)]+)$/,
+    buildMeta: (obj) => {
+        const meta = {categories:[]}
+        if (obj?.profile?.bindings) {
+            meta.name = 'Danders Click Casting: ' + obj.profileName
+            meta.categories.push('danders2')
+            const classCategory = autoCategory(obj.class)
+            if (classCategory) meta.categories.push(classCategory)
+        }
+        else if (obj.profileName) {
+            meta.name = 'Danders Profile: ' + obj.profileName
+            meta.categories.push('danders1')
+        }
+
+        return meta
+    },
+    customEncode: async (obj) => {
+        const encodedStr = await luaEncoding.encode(obj)
+        const prefix = obj.profile?.bindings ? '!DFC1!' : '!DFP1!'
+        return prefix + encodedStr
+    },
+    useLuaEncoding: true,
 }, {
     type: 'GSE',
     slug: 'gse',
@@ -158,19 +288,39 @@ const addons = [{
         code.customCode = getCode(json, wago.type)
     }
 }, {
-//     type: 'UNHALTED-UNIT-FRAMES',
-//     slug: 'unhalted-uf',
-//     stringPrefix: '!UUF_',
-//     buildMeta: (obj) => {
-//         const meta = {
-//             name: `Unhalted Unit Frame`
-//         }
-
-//         return meta
-//     },
-//     useLuaEncoding: true,
-//     serialization: 'AceSerializer'
-// }, {
+    type: 'SARENA-RELOADED',
+    slug: 'sarena-reloaded',
+    stringPrefix: '!sArena:',
+    stringSuffix: ':sArena!',
+    buildMeta: (obj) => {
+        const meta = {categories:[]}
+        if (obj.dataType === 'sArenaProfile') {
+            meta.name = 'sArena Profile'
+        }
+        else {
+            meta.name = 'sArena Unknown Import'
+        }
+        return meta
+    },
+    useLuaEncoding: true,
+}, {
+    type: 'UNHALTED-UNIT-FRAMES',
+    slug: 'unhalted-uf',
+    stringPrefix: '!UUF_',
+    buildMeta: (obj) => {
+        return {name: 'Unhalted Unit Frames Profile'}
+    },
+    useLuaEncoding: true,
+    serialization: 'AceSerializer'
+}, {
+    type: 'SENSEI-CLASS-RESOURCE-BAR',
+    slug: 'sensei-class-resource-bar',
+    stringPrefix: 'SenseiClassResourceBar:1:',
+    buildMeta: (obj) => {
+        return {name: 'Resource Bar Settings'}
+    },
+    useLuaEncoding: true,
+}, {
     type: 'WATCHTOWER',
     slug: 'watchtower',
     stringPrefix: 'WT1:',
@@ -201,7 +351,49 @@ const addons = [{
     }
 },
 
-// strings with no unique string identifier get checked last
+// strings with no unique string identifier get checked last, each will need to check a bunch of fields
+{
+    type: 'MPLUS-TIMER',
+    slug: 'mplus-timer',
+    stringRegex: /^([a-zA-Z0-9\(\)]+)$/,
+    buildMeta: (obj) => {
+        // string does not have a unique identifier so check a bunch of expected fields
+        if (obj?.PercentCount && obj.ChestTimer1 && obj.AffixIcons && obj.CurrentPullBar && obj.BossTimer && obj.ForcesCompletion) {
+            return {name: 'MPlus Timer Settings'}
+        }
+        return false
+    },
+    useLuaEncoding: true,
+    serialization: 'AceSerializer'
+}, {
+    type: 'ENHANCE-QOL',
+    slug: 'enhance-qol',
+    stringRegex: /^([a-zA-Z0-9\(\)]+)$/,
+    buildMeta: (obj) => {
+        const meta = {categories: []}
+        if (obj?.meta?.addon === 'EnhanceQoL' && obj?.meta?.kind === 'EQOL_PROFILE') {
+            meta.name = obj.meta.profile + ' Profile'
+            meta.categories.push('enhanceqol1')
+        }
+        else if (obj?.kind === 'EQOL_RESOURCE_BAR_PROFILE' && typeof obj?.enableResourceFrame === 'boolean') {
+            meta.name = 'Resource Bar Settings'
+            meta.categories.push('enhanceqol2')
+            const classCategory = autoCategory(obj.class)
+            if (classCategory) meta.categories.push(classCategory)
+        }
+        else if (obj.kind === 'EQOL_UF_PROFILE' && typeof obj.frames === 'object') {
+            meta.name = 'Unit Frame Settings'
+            meta.categories.push('enhanceqol3')
+        }
+        else {
+            meta.name = ''
+        }
+
+        return meta
+    },
+    useLuaEncoding: true,
+    serialization: 'AceSerializer'
+}, 
 {
     type: 'TARGETED-SPELLS',
     slug: 'targeted-spells',
@@ -209,7 +401,7 @@ const addons = [{
     stringRegex: /^([a-zA-Z0-9+=\/]+)$/,
     compression: 'none',
     buildMeta: (obj) => {
-        // no unique way to identify this import type so check for a bunch of fields
+        // string does not have a unique identifier so check a bunch of expected fields
         const valid = obj?.Self?.LoadConditionContentType?.length && typeof obj?.Self?.GlowImportant === 'boolean' && typeof obj?.Self?.ShowBorder === 'boolean' &&
                       obj?.Party?.LoadConditionContentType?.length && typeof obj?.Party?.GlowImportant === 'boolean' && typeof obj?.Party?.ShowBorder === 'boolean'
         
@@ -218,7 +410,7 @@ const addons = [{
         }
         return false
     },
-}]
+},]
 
 async function toDecodedObject(scan) {
     let importStr = ''
@@ -259,7 +451,7 @@ async function toDecodedObject(scan) {
                 obj = await addon.customDecode(originalStr)
             }
             else if (addon.useLuaEncoding) {
-                // obj = await luaEncoding.decode(importStr, {serialization: addon.serialization, compression: addon.compression, encoding: addon.encoding})
+                obj = await luaEncoding.decode(importStr, {serialization: addon.serialization, compression: addon.compression, encoding: addon.encoding})
             }
             else {
                 obj = await blizzEncoding.decode(importStr, {serialization: addon.serialization, compression: addon.compression, encoding: addon.encoding})
@@ -303,7 +495,7 @@ async function toEncodedString(obj, type) {
         
         let encoded = ''
         if (addon.useLuaEncoding) {
-            // encoded = await luaEncoding.decode(importStr, {serialization: addon.serialization, compression: addon.compression, encoding: addon.encoding})
+            encoded = await luaEncoding.encode(obj, {serialization: addon.serialization, compression: addon.compression, encoding: addon.encoding})
         }
         else {
             encoded = await blizzEncoding.encode(obj, {serialization: addon.serialization, compression: addon.compression, encoding: addon.encoding})
@@ -322,7 +514,6 @@ async function toEncodedString(obj, type) {
 async function addWagoData(wago, code) {
     const addon = addons.find(a => a.type === wago?.type?.toUpperCase())
     if (!addon?.addWagoData) return false
-
     try {
         let obj = code.json
         if (typeof obj === 'string') {
@@ -330,8 +521,10 @@ async function addWagoData(wago, code) {
         }
 
         addon.addWagoData(obj, wago, code)
+        return true
     }
     catch (e) {console.log(e)}
+    return false
 }
 
 module.exports = {
@@ -339,4 +532,22 @@ module.exports = {
     toDecodedObject,
     toEncodedString,
     addWagoData
+}
+
+function autoCategory(item) {
+    switch (item) {
+        case 'DEATHKNIGHT': return 'cl6'
+        case 'DEMONHUNTER': return 'cl12'
+        case 'DRUID': return 'cl11'
+        case 'EVOKER': return 'cl13'
+        case 'HUNTER': return 'cl3'
+        case 'MAGE': return 'cl8'
+        case 'MONK': return 'cl10'
+        case 'PALADIN': return 'cl2'
+        case 'PRIEST': return 'cl5'
+        case 'ROGUE': return 'cl4'
+        case 'SHAMAN': return 'cl7'
+        case 'WARLOCK': return 'cl9'
+        case 'WARRIOR': return 'cl1'
+    }
 }

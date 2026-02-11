@@ -155,6 +155,12 @@
               </div>
             </md-layout>
           </md-layout>
+          <div v-if="searchAddon?.links?.length" id="search-meta-links">
+            <template v-for="link in (searchAddon.links ?? [])">
+                <md-button v-if="link.url.match(/^\//)" @click="$router.push(link.url)">{{ link.name }}</md-button>
+                <md-button v-else :href="link.url" target="_blank" rel="noopener">{{ link.name }}</md-button>
+            </template>
+          </div>
           <p v-if="!results.total">{{ $t('No results found, try changing the search mode or query') }}</p>
         </div>
       </md-layout>
@@ -1080,6 +1086,11 @@ export default {
 .codeResult .searchText .ace_editor {border: 1px solid #77777733;}
 .codeResult .searchText .ace_scrollbar {display: none}
 .codeResult .searchText .ace_content .found-text {position: absolute; background: #FFFF0044}
+
+
+#search-meta-links {text-align:right; margin: 16px 0}
+#search-meta-links .md-button { background: #00000033; margin:8px 0 8px 16px;}
+#search-meta-links .md-button:hover { background: #77777733}
 
 #searchResults {
   width: 100%;

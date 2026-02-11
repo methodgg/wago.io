@@ -101,6 +101,7 @@ const startServer = async () => {
       global[model] = require('./api/models/' + model)
     })
     global.Categories = require('../frontend/src/components/libs/categories2')
+    global.Categories.init(()=>{}, require('../frontend/src/components/libs/addons'))
 
     const encodeDecodeAddons = await fs.readdir('./api/helpers/encode-decode')
     global.Addons = {}

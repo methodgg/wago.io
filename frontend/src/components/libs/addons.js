@@ -27,6 +27,17 @@ module.exports = ($t) => [
         {url: 'https://addons.wago.io/addons/baganator', name: $t('Download Baganator')},
         {url: 'https://discord.gg/TtSN6DxSky', name: $t('Join Baganator Discord')}
     ]},
+    {name: 'Better Blizz Frames', slug: 'better-blizz-frames', color: '217DD3', image: 'bbf.png', expansions: ['ALL'], group: 'ui', categories: ['%CLASSES%', 'bbf0'], links: [
+        {url: 'https://addons.wago.io/addons/betterblizzframes', name: $t('Download Better Blizz Frames')},
+        {url: 'https://discord.gg/cjqVaEMm25', name: $t('Join Better Blizz Frames Discord')}
+    ]},
+    {name: 'Better Blizz Plates', slug: 'better-blizz-plates', color: '217DD3', image: 'bbp.png', expansions: ['ALL'], group: 'ui', categories: ['%CLASSES%', 'bbp0'], links: [
+        {url: 'https://addons.wago.io/addons/betterblizzplates', name: $t('Download Better Blizz Plates')},
+        {url: 'https://discord.gg/cjqVaEMm25', name: $t('Join Better Blizz Plates Discord')}
+    ]},
+    {name: 'Better Cooldown Manager', slug: 'better-cdm', color: '1eeed8', image: 'bcm.png', expansions: ['midnight'], group: 'combat', links: [
+        {url: 'https://addons.wago.io/addons/bettercooldownmanager', name: $t('Download Better Cooldown Manager')},
+    ]},
     {name: 'BigWigs', slug: 'bigwigs', color: 'fe8937', image: 'bigwigs.png', expansions: ['ALL'], group: 'combat', links: [
         {url: 'https://addons.wago.io/addons/bigwigs', name: $t('Download BigWigs')},
         {url: 'https://discord.gg/jGveg85', name: $t('Join BigWigs Discord')}
@@ -35,8 +46,20 @@ module.exports = ($t) => [
         {url: 'https://addons.wago.io/addons/cell', name: $t('Download Cell')},
         {url: 'https://discord.gg/9PSe3fKQGJ', name: $t('Join Cell Discord')}
     ]},
+    {name: 'Cooldown Manager Centered', slug: 'cooldown-manager-centered', color: 'B39BF4', image: 'cdmcentered.png', expansions: ['ALL'], group: 'combat', links: [
+        {url: 'https://addons.wago.io/addons/cooldownmanagercentered', name: $t('Download Cooldown Manager Centered')},
+        {url: 'https://discord.gg/Vu9maq5Kn9', name: $t('Join Cooldown Manager Centered Discord')}
+    ]},
     {name: 'Deadly Boss Mods', slug: 'dbm', color: 'bcbcbc', image: 'dbm.png', expansions: ['ALL'], group: 'combat', links: [
-        {url: 'https://addons.wago.io/addons/deadly-boss-mods-dbm', name: $t('Download Deadly Boss Mods')}
+        {url: 'https://addons.wago.io/addons/deadly-boss-mods-dbm', name: $t('Download Deadly Boss Mods')},
+    ]},
+    {name: 'Enhance QoL', slug: 'enhance-qol', color: 'e0d0b3', image: 'enhanceqol.png', expansions: ['ALL'], categories: ['%CLASSES%', 'enhanceqol0'], group: 'ui', links: [
+        {url: 'https://addons.wago.io/addons/eqol', name: $t('Download Enhance QoL')},
+        {url: 'https://discord.gg/kqQfG9YhVn', name: $t('Join Enhance Qol Discord')}
+    ]},
+    {name: 'Danders Frames', slug: 'danders-frames', color: '8354b5', image: 'danders.png', expansions: ['midnight'], group: 'ui', links: [
+        {url: 'https://addons.wago.io/addons/deadly-boss-mods-dbm', name: $t('Download Danders Frames')},
+        {url: 'https://discord.gg/SDWtduCqnT', name: $t('Join Danders Discord')}
     ]},
     {name: 'GSE', slug: 'gse', color: '00CCCC', image: 'gse.png', expansions: ['ALL'], categories: ['%CLASSES%', 'gse0'], group: 'tools', links: [
         {url: 'https://addons.wago.io/addons/gse-advanced-macro-compiler', name: $t('Download GSE')},
@@ -48,10 +71,21 @@ module.exports = ($t) => [
     {name: 'Midnight Simple Unit Frames', slug: 'msuf', color: 'daa932', image: 'msuf.png', expansions: ['midnight'], group: 'ui', links: [
         {url: 'https://addons.wago.io/addons/midnightsimpleunitframes', name: $t('Download Midnight Simple Unit Frames')}
     ]},
+    {name: 'MPlus Timer', slug: 'mplus-timer', color: '7ED321', image: 'mplus.png', expansions: ['midnight'], group: 'combat', links: [
+        {url: 'https://addons.wago.io/addons/mplustimer', name: $t('Download GSE')},
+        {url: 'https://discord.gg/3B6QHURmBy', name: $t('Join MPlus Timer Discord')}
+    ]},
     {name: 'Mythic Dungeon Tools', url: '/mdt', searchSlug: 'mdt', color: 'f1dc11', image: 'mdt.png', expansions: ['midnight'], group: 'combat'},
     {name: 'OPie', slug: 'opie', color: '2595E6', image: 'opie.png', expansions: ['midnight'], categories: ['%CLASSES%', 'opie0', 'prof1', 'prof5', 'prof14'], group: 'ui'},
     {name: 'Platynator', slug: 'platynator', color: '00f300', image: 'platynator.png', expansions: ['ALL'], group: 'ui', links: [
         {url: 'https://addons.wago.io/addons/platynator', name: $t('Download Platynator')},
+    ]},
+    {name: 'sArena Reloaded', slug: 'sarena-reloaded', color: '6df4fe', image: 'sarenareloaded.jpg', expansions: ['ALL'], group: 'combat', links: [
+        {url: 'https://addons.wago.io/addons/sarena-reloaded', name: $t('sArena Reloaded')},
+        {url: 'https://discord.gg/cjqVaEMm25', name: $t('Join sArena Reloaded Discord')}
+    ]},
+    {name: 'Sensei Class Resource Bar', slug: 'sensei-class-resource-bar', color: 'fbcc91', image: 'senseiclassresourcebar.png', expansions: ['midnight'], group: 'combat', links: [
+        {url: 'https://addons.wago.io/addons/sensei-class-resource-bar', name: $t('Sensei Class Resource Bar')},
     ]},
     {name: 'Targeted Spells', slug: 'targeted-spells', color: 'afadac', image: 'targeted-spells.jpg', expansions: ['midnight'], group: 'combat', links: [
         {url: 'https://addons.wago.io/addons/targeted-spells', name: $t('Download Targeted Spells')},
@@ -60,6 +94,9 @@ module.exports = ($t) => [
         {url: 'https://addons.wago.io/addons/total-rp-3', name: $t('Download Total RP 3')},
         {url: 'https://addons.wago.io/addons/total-rp-3-extended', name: $t('Download Total RP 3 Extended')},
         {url: 'http://discord.totalrp3.info/', name: $t('Join Total RP Discord')}
+    ]},
+    {name: 'Unhalted Unit Frames', slug: 'unhalted-unit-frames', color: 'adadfd', image: 'unhalted.png', expansions: ['midnight'], group: 'ui', links: [
+        {url: 'https://addons.wago.io/addons/unhaltedunitframes', name: $t('Download Unhalted Unit Frames')},
     ]},
     {name: 'VuhDo', slug: 'vuhdo', color: '6BB85E', image: 'vuhdo.png', expansions: ['ALL'], categories: ['%CLASSES%', 'vuhdo0', 'role0'], group: 'ui', links: [
         {url: 'https://addons.wago.io/addons/vuhdo', name: $t('Download Vuhdo')},

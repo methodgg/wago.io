@@ -1,8 +1,7 @@
-const lua = require('./lua')
+const luajit = require('./lua')
 
 async function decode(encodedString, {serialization='LibSerialize', compression='LibDeflate', encoding='base64'}={}) {
-    try {        
-        await addon.decode(req.body.importString.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim(), lua.runLua)
+    try {
         const escapedString = encodedString.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim()
         const lua = [`local data = "${escapedString}"`]
         if (encoding === 'base64') {
@@ -19,17 +18,21 @@ async function decode(encodedString, {serialization='LibSerialize', compression=
             throw 'Unknown compression method'
         }
 
-        if (serialization === 'LibSerialize') {
-            lua.push(`_, data = LibSerialize:Deserialize(data)`)
+        if (serialization === 'LibSerialize' || serialization === 'AceSerializer') {
+            lua.push(`_, data = ${serialization}:Deserialize(data)`)
         }
         else {
-            throw 'Unknown serialization method'
+            throw 'Unknown serialization method ' + serialization
         }
 
-        lua.push(`return JSON:encode(data, {"forceTableToArray" = {"snippets" = true}}) or nil`)
-            
-        const jsonStr = await lua.runLua(lua.join('\n'))
-        return JSON.parse(jsonStr)
+        lua.push(`return JSON:encode(data, {forceTableToArray = {snippets = true}}) or ""`)
+        console.log('get json')
+        const jsonStr = await luajit.runLua(lua.join('\n'))
+        console.log(jsonStr.substring(0, 100))
+        if (jsonStr?.length > 20 && jsonStr.match(/^\s*\{/)) {
+            return JSON.parse(jsonStr)
+        }
+        return false
     }
     catch (e) {
       console.log('lua decode error', e)
@@ -43,17 +46,21 @@ async function encode(json, {serialization='LibSerialize', compression='LibDefla
             json = JSON.stringify(json)
         }
 
-        const lua = [`local data = JSON:decode("${json}")`, 'if not data then return "" end', 'data = fixNumberedIndexes(tbl, false)']
+        const lua = [
+            `local data = JSON:decode("${json.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim()}")`, 
+            'if not data then return "" end', 
+            'data = fixNumberedIndexes(data)'
+        ]
     
-        if (serialization === 'LibSerialize') {
-            lua.push(`_, data = LibSerialize:Serialize(tbl)`)
+        if (serialization === 'LibSerialize' || serialization === 'AceSerializer') {
+            lua.push(`data = ${serialization}:Serialize(data)`)
         }
         else {
             throw 'Unknown serialization method'
         }
 
         if (compression === 'LibDeflate') {
-            lua.push(`data = LibDeflate:CompressDeflate(serialized, {level = 9})`)
+            lua.push(`data = LibDeflate:CompressDeflate(data, {level = 9})`)
         }
         else {
             throw 'Unknown compression method'
@@ -66,9 +73,12 @@ async function encode(json, {serialization='LibSerialize', compression='LibDefla
             throw 'Unknown encoding method'
         }
 
-        lua.push('return data or nil')
-        const jsonStr = await lua.runLua(lua.join('\n'))
-        return JSON.parse(jsonStr)
+        lua.push('return data or ""')
+        const encodedStr = await luajit.runLua(lua.join('\n'))
+        if (encodedStr?.length > 20) {
+            return encodedStr
+        }
+        return false
     }
     catch (e) {
         console.log(e)
