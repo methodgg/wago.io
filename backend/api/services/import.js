@@ -756,9 +756,13 @@ module.exports = function (fastify, opts, next) {
     }
 
     if (req.domain === ENUM.DOMAIN.WOW) {
-      code.encoded = await wowAddons.toEncodedString(code.json, wago.type)
+      // one day things will be ported to typescript and we won't have mongoose nonsense coercing false -> 'false' string
+      const encoded = await wowAddons.toEncodedString(code.json, wago.type)
+      if (encoded) {
+        code.encoded = encoded
+      }
     }
-    
+
     if (!code.encoded) {
       for (const addon of Object.values(Addons)) {
         if (wago.type.match(addon.typeMatch) && wago.domain === addon.domain) {

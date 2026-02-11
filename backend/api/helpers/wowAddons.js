@@ -489,12 +489,11 @@ async function toEncodedString(obj, type) {
             obj = JSON.parse(obj)
         }
 
-        if (addon.customEncode) {
-            return addon.customEncode(obj)            
-        }
-        
         let encoded = ''
-        if (addon.useLuaEncoding) {
+        if (addon.customEncode) {
+            encoded = addon.customEncode(obj)            
+        }        
+        else if (addon.useLuaEncoding) {
             encoded = await luaEncoding.encode(obj, {serialization: addon.serialization, compression: addon.compression, encoding: addon.encoding})
         }
         else {
@@ -507,8 +506,8 @@ async function toEncodedString(obj, type) {
     }
     catch (e) {
         console.log(e)
-        return false
     }
+    return false
 }
 
 async function addWagoData(wago, code) {
