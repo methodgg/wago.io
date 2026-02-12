@@ -1,7 +1,17 @@
 <template>
   <div id="edit-common">
-    <div class="flex-container">
+    <div class="flex-container">      
       <div class="flex-col flex-left">
+        <md-input-container v-if="customCode?.length">
+          <label for="customfn" v-html="$t('Edit [-file-]', {file: editorFile})"></label>
+          <md-select name="customfn" id="customfn" v-model="customCodeIndex" md-menu-class="customFn">
+            <md-option :value="-1" >{{ $t("Table data") }}</md-option>
+            <template v-for="(fn, i) in customCode">
+              <md-option :value="i" class="code-select"><small>{{ fn.name.replace(/ - .*?$/, '') }}<span>:</span></small> {{ fn.name.replace(/^.* - /, '') }}</md-option>
+            </template>
+            <md-subheader v-if="!customCode || !customCode.length">{{ $t("No custom functions found") }}</md-subheader>
+          </md-select>
+        </md-input-container>
       </div>
       <div class="flex-col flex-right">    
         <md-button @click="exportChanges"><md-icon>open_in_new</md-icon> {{ $t("Export/Fork changes") }}</md-button>
@@ -30,8 +40,14 @@
         </md-dialog-actions>
       </md-dialog>
     </div>
-    
-    <monaco-editor v-model="editorContent" @input="setHasUnsavedChanges"></monaco-editor>
+
+    <div :key="customCodeIndex" v-if="customCode && customCode[customCodeIndex] && customCode[customCodeIndex]">
+      <codereview v-if="customCode[customCodeIndex].stabilityChecks && customCode[customCodeIndex].stabilityChecks.length" name="Code Review" :review="codeReview.stabilityChecks[customCodeIndex]" @setComment="setCodeReviewComment" :author="wago.user && User && wago.UID && wago.UID === User.UID"></codereview>
+      <codereview v-if="customCode[customCodeIndex].luacheck" name="Luacheck" :luacheck="true" :canMin="true" >{{customCode[customCodeIndex].luacheck}}</codereview>
+      <codereview v-if="customCode[customCodeIndex].metrics" :name="'Code Analysis - ' + customCode[customCodeIndex].name" :codeInfo="true" :json="customCode[customCodeIndex].metrics" :canMin="true"></codereview>
+    </div>
+
+    <monaco-editor v-model="editorContent" :lang="editorLang" @input="setHasUnsavedChanges"></monaco-editor>
     <export-modal :json="editorContent" :type="wago.type" :showExport="showExport" :wagoID="wago._id" :wagolib="wago.wagolib" @hideExport="hideExport"></export-modal>
   </div>
 </template>
@@ -41,6 +57,7 @@ const semver = require('semver')
 import ExportJSON from './ExportJSON.vue'
 import InputSemver from '../UI/Input-Semver.vue'
 import MonacoEditor from './MonacoEditor.vue'
+import CodeReview from './CodeReview'
 
 export default {
   name: 'edit-common',
@@ -54,12 +71,16 @@ export default {
       latestVersion: {semver: this.$store.state.wago.versions.versions[0].versionString},
       newImportVersion: {major: 1, minor: 0, patch: 1},
       newChangelog: {},
+      editorLang: 'json',
+      customCode: this.$store.state.wago.code.customCode,
+      customCodeIndex: -1,
     }
   },
   components: {
     'monaco-editor': MonacoEditor,
     'export-modal': ExportJSON,
-    'input-semver': InputSemver
+    'input-semver': InputSemver,
+    codereview: CodeReview
   },
   methods: {
     saveChanges: function () {
@@ -120,6 +141,40 @@ export default {
       this.$set(this.newImportVersion, 'major', semver.major(this.newImportVersion.semver))
       this.$set(this.newImportVersion, 'minor', semver.minor(this.newImportVersion.semver))
       this.$set(this.newImportVersion, 'patch', semver.patch(this.newImportVersion.semver))
+    }
+  },
+  watch: {
+    customCodeIndex: async function (newIndex, oldIndex) {
+      const unsavedTableState = this.unsavedTable
+      if (oldIndex === -1) {
+        let table = this.editorContent
+        this.$store.commit('setWagoJSON', table)
+        this.tableData = JSON.parse(table)
+      }
+      else if (this.customCode[oldIndex]) {
+        let updatedLua = this.editorContent
+        let safeLua = updatedLua.replace(/\\/g, '\\\\').replace(/\r\n|\n|\r/g, '\\n').replace(/"/g, '\\"')
+        this.$set(this.customCode[oldIndex], 'lua', updatedLua)
+        if (this.customCode[oldIndex].keypath.match(/^\w/)) {
+          eval(`this.tableData.${this.customCode[oldIndex].keypath} = "${safeLua}"`)
+        }
+        else {
+          eval(`this.tableData${this.customCode[oldIndex].keypath} = "${safeLua}"`)
+        }
+      }
+
+      await this.$nextTick()
+      if (newIndex === -1) {
+        this.editorContent = JSON.stringify(this.tableData, null, 2)
+        this.editorLang = 'json'
+      }
+      else if (this.customCode[newIndex]) {
+        this.editorContent = this.customCode[newIndex].lua
+        this.editorLang = 'lua'
+      }
+
+      await this.$nextTick()
+      this.setHasUnsavedChanges(unsavedTableState)
     }
   },
   computed: {

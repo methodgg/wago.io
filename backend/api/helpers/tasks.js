@@ -899,6 +899,9 @@ async function ProcessCode(data) {
   }
   code.encoded = null
   let hasAddedData = await wowAddons.addWagoData(doc, code)
+  if (hasAddedData && code.customCode?.length) {
+    code.customCode = await CodeReview(code.customCode, doc)
+  }
   const encoded = await wowAddons.toEncodedString(code.json, doc.type)
 
   if (encoded) {
@@ -1078,36 +1081,48 @@ async function ProcessAllCode() {
 }
 
 function sortJSON(obj) {
-  // if a regular array then its already sorted but still sort any child objects
-  if (Array.isArray(obj)) {
-    for (let i = 0; i < obj.length; i++) {
-      if (obj[i] && typeof obj[i] == 'object') {
-        obj[i] = sortJSON(obj[i])
+  try {
+    let type = typeof obj
+    if (type === 'string') {
+      obj = JSON.parse(obj)
+    }
+    // if a regular array then its already sorted but still sort any child objects
+    if (Array.isArray(obj)) {
+      for (let i = 0; i < obj.length; i++) {
+        if (obj[i] && typeof obj[i] == 'object') {
+          obj[i] = sortJSON(obj[i])
+        }
+      }
+      return obj
+    }
+
+    // sort object as expected
+    var sorted = {}
+    var keys
+    keys = Object.keys(obj)
+    keys.sort(function (key1, key2) {
+      if (key1 < key2) return -1
+      if (key1 > key2) return 1
+      return 0
+    })
+
+    for (var i in keys) {
+      var key = keys[i]
+      if (obj[key] && typeof obj[key] == 'object') {
+        sorted[key] = sortJSON(obj[key])
+      } else {
+        sorted[key] = obj[key]
       }
     }
+
+    if (type === 'string') {
+      return JSON.stringify(sorted)
+    }
+    return sorted
+  }
+  catch {
     return obj
   }
-
-  // sort object as expected
-  var sorted = {}
-  var keys
-  keys = Object.keys(obj)
-  keys.sort(function (key1, key2) {
-    if (key1 < key2) return -1
-    if (key1 > key2) return 1
-    return 0
-  })
-
-  for (var i in keys) {
-    var key = keys[i]
-    if (obj[key] && typeof obj[key] == 'object') {
-      sorted[key] = sortJSON(obj[key])
-    } else {
-      sorted[key] = obj[key]
-    }
-  }
-
-  return sorted
 }
 
 async function updateWAData(release, assets) {

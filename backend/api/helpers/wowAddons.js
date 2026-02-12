@@ -349,21 +349,29 @@ const addons = [{
         const prefix = `WT1:${obj.type}:`
         return prefix + await blizzEncoding.encode(obj.data)
     },
-    addWagoData: (wago, code, obj) => {
+    addWagoData: async (wago, code, obj) => {
+        const customCode = []
         if (Array.isArray(obj.data.flags)) {
-            obj.data.flags = obj.data.flags.map(x => ({
-                ...x,
-                url: wago.url + '/' + code.version,
-                version: code.version,
-                semver: code.versionString
-            }))
+            obj.data.flags = obj.data.flags.map((flag, i) => {
+                if (flag.trigger) {
+                    customCode.push({name: flag.title, keypath: `data.flags[${i}].trigger`, lua: flag.trigger})
+                }
+                return {
+                    ...flag,
+                    url: wago.url + '/' + code.version,
+                    version: code.version,
+                    semver: code.versionString
+                }
+            })
         }
         else {
             obj.data.url = wago.url + '/' + code.version
             obj.data.version = code.version
             obj.data.semver = code.versionString
+            customCode.push({name: obj.data.title, keypath: `data.trigger`, lua: obj.data.trigger})
         }
         code.json = JSON.stringify(obj)
+        code.customCode = customCode
     }
 },
 
@@ -527,15 +535,17 @@ async function toEncodedString(obj, type) {
 }
 
 async function addWagoData(wago, code) {
-    const addon = addons.find(a => a.type === wago?.type?.toUpperCase())
-    if (!addon?.addWagoData) return false
     try {
         let obj = code.json
         if (typeof obj === 'string') {
             obj = JSON.parse(obj)
         }
+        const addon = addons.find(a => a.type === wago?.type?.toUpperCase())
+        if (!addon?.addWagoData) {
+            return false
+        }
 
-        addon.addWagoData(wago, code, obj)
+        await addon.addWagoData(wago, code, obj)
         return true
     }
     catch (e) {console.log(e)}
@@ -565,4 +575,35 @@ function autoCategory(item) {
         case 'WARLOCK': return 'cl9'
         case 'WARRIOR': return 'cl1'
     }
+}
+
+function sortJSON(obj) {
+  if (Array.isArray(obj)) {
+    for (let i = 0; i < obj.length; i++) {
+      if (obj[i] && typeof obj[i] == 'object') {
+        obj[i] = sortJSON(obj[i])
+      }
+    }
+    return obj
+  }
+
+  var sorted = {}
+  var keys
+  keys = Object.keys(obj)
+  keys.sort(function (key1, key2) {
+    if (key1 < key2) return -1
+    if (key1 > key2) return 1
+    return 0
+  })
+
+  for (var i in keys) {
+    var key = keys[i]
+    if (obj[key] && typeof obj[key] == 'object') {
+      sorted[key] = sortJSON(obj[key])
+    } else {
+      sorted[key] = obj[key]
+    }
+  }
+
+  return sorted
 }
