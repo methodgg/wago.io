@@ -893,7 +893,7 @@ async function ProcessCode(data) {
   if (!data.id) return
   var doc = await WagoItem.lookup(data.id)
   var code = await WagoCode.lookup(data.id, data.version)
-  if (!doc || doc.type.match(/UNKNOWN/) || !code || !code._id || doc.encrypted) {
+  if (!doc || !code || !code._id || doc.encrypted) {
     console.log('no process', data.id)
     return
   }
