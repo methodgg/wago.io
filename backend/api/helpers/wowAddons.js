@@ -410,7 +410,7 @@ const addons = [{
             meta.categories.push('enhanceqol3')
         }
         else {
-            meta.name = ''
+            return false
         }
 
         return meta
