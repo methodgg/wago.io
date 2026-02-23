@@ -123,7 +123,9 @@ module.exports = {
       if t.load and t.load.herotalent and t.load.herotalent.multi then
         t.load.herotalent.multi = fixNumericIndexes(t.load.herotalent.multi)
       end
-
+      if t.load and t.load.instance_type and t.load.instance_type.multi then
+        t.load.instance_type.multi = fixNumericIndexes(t.load.instance_type.multi)
+      end
       if t.load and t.load.class_and_spec and t.load.class_and_spec.multi then
         t.load.class_and_spec.multi = fixNumericIndexes(t.load.class_and_spec.multi)
       end
