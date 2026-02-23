@@ -331,6 +331,9 @@ const addons = [{
         if (obj.type === 'flag') {
             meta.name += `: ${obj.data.title}`
         }
+        else if (obj.type !== 'group') {
+            return false
+        }
 
         return meta
     },
