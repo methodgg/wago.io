@@ -204,13 +204,13 @@ module.exports = function (fastify, opts, next) {
 
     await redis.set(`AUTH:${state}`, req.raw.ip, 'EX', 600)
     let host = 'https://wago.io'
-    let client_id = '9cc008ea-23d8-48e5-b93d-cad0cc395c42'
+    let client_id = 'a12a505c-3ecc-45ed-96cb-bc3f83207fbe'
     if (config.env === 'development') {
         host = 'http://localhost:8080'
     }
     else if (req.domain === 2) {
       host = 'https://fellowship.wago.io'
-      client_id = 'a00cb212-318f-4d0c-a95d-400ea770d6d8'
+      client_id = 'a12a50ae-b462-46ce-9f49-7615549fea1b'
     }
     res.redirect(`https://accounts.wago.io/oauth/authorize?client_id=${client_id}&redirect_uri=${host}%2Fauth%2Fwago&response_type=code&scope=&state=${state}`)
   })
