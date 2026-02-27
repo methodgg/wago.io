@@ -153,6 +153,16 @@ const addons = [{
     },
     useLuaEncoding: true,
 }, {
+    type: 'CLASS-UI-ENHANCED',
+    slug: 'class-ui-enhanced',
+    stringPrefix: '!CUE!',
+    buildMeta: (obj) => {
+        const meta = {categories:[]}
+        meta.name = 'Class UI Enhanced Profile'
+        meta.game = patchDates.gameVersion(obj.toc_version)
+        return meta
+    },
+}, {
     type: 'DANDERS-FRAMES',
     slug: 'danders-frames',
     stringRegex: /^!DF(?:P1|C1)!([a-zA-Z0-9\(\)]+)$/,

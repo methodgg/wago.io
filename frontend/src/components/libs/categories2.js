@@ -10,15 +10,15 @@ class Categories {
       // include root if category is top level
       // include [types] if category is restricted to certain import types
       // include [games] if category is restricted to certain games/expansions
-      'cl6': {slug: 'classes/death-knight', image: 'deathknight.png', color: '#C41F3B', i18n: 'warcraft:classes.6', domain: 0, games: ['wotlk', 'cata', 'mop', 'legion', 'bfa', 'sl', 'df', 'tww', 'titan-wotlk']},
-      'cl6-1': {slug: 'classes/death-knight/blood', i18n: 'warcraft:specs.250', domain: 0, parent: 'cl6', games: ['wotlk', 'cata', 'mop', 'legion', 'bfa', 'sl', 'df', 'tww', 'titan-wotlk']},
-      'cl6-2': {slug: 'classes/death-knight/frost', i18n: 'warcraft:specs.251', domain: 0, parent: 'cl6', games: ['wotlk', 'cata', 'mop', 'legion', 'bfa', 'sl', 'df', 'tww', 'titan-wotlk']},
-      'cl6-3': {slug: 'classes/death-knight/unholy', i18n: 'warcraft:specs.252', domain: 0, parent: 'cl6', games: ['wotlk', 'cata', 'mop', 'legion', 'bfa', 'sl', 'df', 'tww', 'titan-wotlk']},
+      'cl6': {slug: 'classes/death-knight', image: 'deathknight.png', color: '#C41F3B', i18n: 'warcraft:classes.6', domain: 0, games: ['wotlk', 'cata', 'mop', 'legion', 'bfa', 'sl', 'df', 'tww', 'midnight', 'titan-wotlk']},
+      'cl6-1': {slug: 'classes/death-knight/blood', i18n: 'warcraft:specs.250', domain: 0, parent: 'cl6', games: ['wotlk', 'cata', 'mop', 'legion', 'bfa', 'sl', 'df', 'tww', 'midnight', 'titan-wotlk']},
+      'cl6-2': {slug: 'classes/death-knight/frost', i18n: 'warcraft:specs.251', domain: 0, parent: 'cl6', games: ['wotlk', 'cata', 'mop', 'legion', 'bfa', 'sl', 'df', 'tww', 'midnight', 'titan-wotlk']},
+      'cl6-3': {slug: 'classes/death-knight/unholy', i18n: 'warcraft:specs.252', domain: 0, parent: 'cl6', games: ['wotlk', 'cata', 'mop', 'legion', 'bfa', 'sl', 'df', 'tww', 'midnight', 'titan-wotlk']},
 
-      'cl12': {slug: 'classes/demon-hunter', image: 'demonhunter.png', color: '#A330C9', i18n: 'warcraft:classes.12', domain: 0, games: ['legion', 'bfa', 'sl', 'df', 'tww']},
-      'cl12-1': {slug: 'classes/demon-hunter/havoc', cls:'cl-demonhunter', i18n: 'warcraft:specs.577', domain: 0, parent: 'cl12', games: ['legion', 'bfa', 'sl', 'df', 'tww']},
-      'cl12-2': {slug: 'classes/demon-hunter/vengeance', i18n: 'warcraft:specs.581', domain: 0, parent: 'cl12', games: ['legion', 'bfa', 'sl', 'df', 'tww']},
-      'cl12-3': {slug: 'classes/demon-hunter/devourer', i18n: 'warcraft:specs.1480', domain: 0, parent: 'cl12', games: ['legion', 'bfa', 'sl', 'df', 'tww', 'midnight']},
+      'cl12': {slug: 'classes/demon-hunter', image: 'demonhunter.png', color: '#A330C9', i18n: 'warcraft:classes.12', domain: 0, games: ['legion', 'bfa', 'sl', 'df', 'tww', 'midnight']},
+      'cl12-1': {slug: 'classes/demon-hunter/havoc', cls:'cl-demonhunter', i18n: 'warcraft:specs.577', domain: 0, parent: 'cl12', games: ['legion', 'bfa', 'sl', 'df', 'tww', 'midnight']},
+      'cl12-2': {slug: 'classes/demon-hunter/vengeance', i18n: 'warcraft:specs.581', domain: 0, parent: 'cl12', games: ['legion', 'bfa', 'sl', 'df', 'tww', 'midnight']},
+      'cl12-3': {slug: 'classes/demon-hunter/devourer', i18n: 'warcraft:specs.1480', domain: 0, parent: 'cl12', games: ['midnight']},
 
       'cl11': {slug: 'classes/druid', image: 'druid.png', color: '#FF7D0A', i18n: 'warcraft:classes.11', domain: 0},
       'cl11-1': {slug: 'classes/druid/balance', i18n: 'warcraft:specs.102', domain: 0, parent: 'cl11'},
@@ -26,10 +26,10 @@ class Categories {
       'cl11-3': {slug: 'classes/druid/guardian', i18n: 'warcraft:specs.104', domain: 0, parent: 'cl11', games: ['mop', 'legion', 'bfa', 'sl', 'df', 'tww']},
       'cl11-4': {slug: 'classes/druid/restoration', i18n: 'warcraft:specs.105', domain: 0, parent: 'cl11'},
 
-      'cl13': {slug: 'classes/evoker', image: 'evoker.png', color: '#33937F', i18n: 'warcraft:classes.13', domain: 0, games: ['df', 'tww']},
-      'cl13-1': {slug: 'classes/evoker/devastation', cls:'cl-demonhunter', i18n: 'warcraft:specs.1467', domain: 0, parent: 'cl13', games: ['df', 'tww']},
-      'cl13-2': {slug: 'classes/evoker/preservation', i18n: 'warcraft:specs.1468', domain: 0, parent: 'cl13', games: ['df', 'tww']},
-      'cl13-3': {slug: 'classes/evoker/augmentation', i18n: 'warcraft:specs.1473', domain: 0, parent: 'cl13', games: ['df', 'tww']},
+      'cl13': {slug: 'classes/evoker', image: 'evoker.png', color: '#33937F', i18n: 'warcraft:classes.13', domain: 0, games: ['df', 'tww', 'midnight']},
+      'cl13-1': {slug: 'classes/evoker/devastation', cls:'cl-demonhunter', i18n: 'warcraft:specs.1467', domain: 0, parent: 'cl13', games: ['df', 'tww', 'midnight']},
+      'cl13-2': {slug: 'classes/evoker/preservation', i18n: 'warcraft:specs.1468', domain: 0, parent: 'cl13', games: ['df', 'tww', 'midnight']},
+      'cl13-3': {slug: 'classes/evoker/augmentation', i18n: 'warcraft:specs.1473', domain: 0, parent: 'cl13', games: ['df', 'tww', 'midnight']},
 
       'cl3': {slug: 'classes/hunter', image: 'hunter.png', color: '#ABD473', i18n: 'warcraft:classes.3', domain: 0},
       'cl3-1': {slug: 'classes/hunter/beast-mastery', i18n: 'warcraft:specs.253', domain: 0, parent: 'cl3'},
@@ -41,10 +41,10 @@ class Categories {
       'cl8-2': {slug: 'classes/mage/fire', i18n: 'warcraft:specs.63', domain: 0, parent: 'cl8'},
       'cl8-3': {slug: 'classes/mage/frost', i18n: 'warcraft:specs.64', domain: 0, parent: 'cl8'},
 
-      'cl10': {slug: 'classes/monk', image: 'monk.png', color: '#00FF96', i18n: 'warcraft:classes.10', domain: 0, games: ['mop', 'legion', 'bfa', 'sl', 'df', 'tww']},
-      'cl10-1': {slug: 'classes/monk/brewmaster', i18n: 'warcraft:specs.268', domain: 0, parent: 'cl10', games: ['mop', 'legion', 'bfa', 'sl', 'df', 'tww']},
-      'cl10-2': {slug: 'classes/monk/mistweaver', i18n: 'warcraft:specs.270', domain: 0, parent: 'cl10', games: ['mop', 'legion', 'bfa', 'sl', 'df', 'tww']},
-      'cl10-3': {slug: 'classes/monk/windwalker', i18n: 'warcraft:specs.269', domain: 0, parent: 'cl10', games: ['mop', 'legion', 'bfa', 'sl', 'df', 'tww']},
+      'cl10': {slug: 'classes/monk', image: 'monk.png', color: '#00FF96', i18n: 'warcraft:classes.10', domain: 0, games: ['mop', 'legion', 'bfa', 'sl', 'df', 'tww', 'midnight']},
+      'cl10-1': {slug: 'classes/monk/brewmaster', i18n: 'warcraft:specs.268', domain: 0, parent: 'cl10', games: ['mop', 'legion', 'bfa', 'sl', 'df', 'tww', 'midnight']},
+      'cl10-2': {slug: 'classes/monk/mistweaver', i18n: 'warcraft:specs.270', domain: 0, parent: 'cl10', games: ['mop', 'legion', 'bfa', 'sl', 'df', 'tww', 'midnight']},
+      'cl10-3': {slug: 'classes/monk/windwalker', i18n: 'warcraft:specs.269', domain: 0, parent: 'cl10', games: ['mop', 'legion', 'bfa', 'sl', 'df', 'tww', 'midnight']},
 
       'cl2': {slug: 'classes/paladin', image: 'paladin.png', color: '#F58CBA', i18n: 'warcraft:classes.2', domain: 0},
       'cl2-1': {slug: 'classes/paladin/holy', i18n: 'warcraft:specs.65', domain: 0, parent: 'cl2'},
@@ -58,7 +58,7 @@ class Categories {
 
       'cl4': {slug: 'classes/rogue', image: 'rogue.png', color: '#FFF569', lightColor: '#E8D901', i18n: 'warcraft:classes.4', domain: 0},
       'cl4-1': {slug: 'classes/rogue/assassination', i18n: 'warcraft:specs.259', domain: 0, parent: 'cl4'},
-      'cl4-2': {slug: 'classes/rogue/outlaw', i18n: 'warcraft:specs.260', domain: 0, parent: 'cl4', games: ['legion', 'bfa', 'sl', 'df', 'tww']},
+      'cl4-2': {slug: 'classes/rogue/outlaw', i18n: 'warcraft:specs.260', domain: 0, parent: 'cl4', games: ['legion', 'bfa', 'sl', 'df', 'tww', 'midnight']},
       'cl4-2c': {slug: 'classes/rogue/combat', i18n: 'warcraft:classes.4-2c', domain: 0, parent: 'cl4', games: ['classic', 'tbc', 'wotlk', 'cata', 'mop', 'wod', 'titan-wotlk']},
       'cl4-3': {slug: 'classes/rogue/subtlety', i18n: 'warcraft:specs.261', domain: 0, parent: 'cl4'},
 
@@ -1386,7 +1386,9 @@ class Categories {
     if (!parent) return []
     let children = []
     for (const [id, cat] of Object.entries(this.categories)) {
-      if (cat.parent === parent && (!addon || !cat.types || cat.types.indexOf(addon) >= 0) && (!game || !cat.games || cat.games.indexOf(game) >= 0)) {
+      if (cat.parent === parent && 
+        (!addon || !cat.types || cat.types.indexOf(addon) >= 0) &&
+        (!game || !cat.games || (typeof game === 'string' && cat.games.indexOf(game) >= 0) || (Array.isArray(game) && game.some((g) => g === 'ALL' || cat.games.indexOf(g) >= 0)))) {
         cat.id = id
         children.push(cat)
       }
@@ -1464,9 +1466,14 @@ class Categories {
   classCategories (addon, game) {
     let classes = []
     for (const [id, cat] of Object.entries(this.categories)) {
-      if (!cat.parent && id.match(/^cl\d/) && (!addon || !cat.types || cat.types.indexOf(addon) >= 0) && (!game || !cat.games || cat.games.indexOf(game) >= 0)) {
+      if (!cat.parent && id.match(/^cl\d/) && 
+        (!addon || !cat.types || cat.types.indexOf(addon) >= 0) && 
+        (!game || !cat.games || (typeof game === 'string' && cat.games.indexOf(game) >= 0) || (Array.isArray(game) && game.some((g) => g === 'ALL' || cat.games.indexOf(g) >= 0)))) {
         cat.specs = this.matchChildren(id, addon, game)
         classes.push(cat)
+      }
+      else if (!cat.parent && id.match(/^cl\d/)) {
+        console.log('skipped', cat, game)
       }
     }
 
@@ -1514,7 +1521,9 @@ class Categories {
   rootCategories (addon, game, domain) {
     let roots = []
     for (const [id, cat] of Object.entries(this.categories)) {
-      if (!cat.parent && !cat.system && cat.domain === domain && (!addon || !cat.types || cat.types.indexOf(addon) >= 0) && (!game || !cat.games || cat.games.indexOf(game) >= 0)) {
+      if (!cat.parent && !cat.system && cat.domain === domain && 
+        (!addon || !cat.types || cat.types.indexOf(addon) >= 0) && 
+        (!game || !cat.games || (typeof game === 'string' && cat.games.indexOf(game) >= 0) || (Array.isArray(game) && game.some((g) => g === 'ALL' || cat.games.indexOf(g) >= 0)))) {
         cat.id = id
         roots.push(cat)
       }
@@ -1554,7 +1563,9 @@ class Categories {
     }
     for (const search of cats) {
       for (const [id, cat] of Object.entries(this.categories)) {
-        if (((search instanceof RegExp && id.match(search)) || search === id) && (!addon || !cat.types || cat.types.indexOf(addon) >= 0) && (!game || !cat.games || cat.games.indexOf(game) >= 0)) {
+        if (((search instanceof RegExp && id.match(search)) || search === id) && 
+          (!addon || !cat.types || cat.types.indexOf(addon) >= 0) && 
+          (!game || !cat.games || (typeof game === 'string' && cat.games.indexOf(game) >= 0) || (Array.isArray(game) && game.some((g) => g === 'ALL' || cat.games.indexOf(g) >= 0)))) {
           selected.push(cat)
         }
       }

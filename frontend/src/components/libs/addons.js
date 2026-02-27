@@ -46,6 +46,10 @@ module.exports = ($t) => [
         {url: 'https://addons.wago.io/addons/cell', name: $t('Download Cell')},
         {url: 'https://discord.gg/9PSe3fKQGJ', name: $t('Join Cell Discord')}
     ]},
+    {name: 'Class UI Enhanced', slug: 'class-ui-enhanced', color: 'e7727e', image: 'classui.png', expansions: ['midnight'], categories: ['%CLASSES%'], group: 'ui', links: [
+        {url: 'https://addons.wago.io/addons/classuienhanced', name: $t('Download Class UI Enhanced')},
+        {url: 'https://discord.gg/8dWuth44Dx', name: $t('Join Class UI Enhanced Discord')}
+    ]},
     {name: 'Cooldown Manager Centered', slug: 'cooldown-manager-centered', color: 'B39BF4', image: 'cdmcentered.png', expansions: ['ALL'], group: 'combat', links: [
         {url: 'https://addons.wago.io/addons/cooldownmanagercentered', name: $t('Download Cooldown Manager Centered')},
         {url: 'https://discord.gg/Vu9maq5Kn9', name: $t('Join Cooldown Manager Centered Discord')}
@@ -53,13 +57,13 @@ module.exports = ($t) => [
     {name: 'Deadly Boss Mods', slug: 'dbm', color: 'bcbcbc', image: 'dbm.png', expansions: ['ALL'], group: 'combat', links: [
         {url: 'https://addons.wago.io/addons/deadly-boss-mods-dbm', name: $t('Download Deadly Boss Mods')},
     ]},
-    {name: 'Enhance QoL', slug: 'enhance-qol', color: 'e0d0b3', image: 'enhanceqol.png', expansions: ['ALL'], categories: ['%CLASSES%', 'enhanceqol0'], group: 'ui', links: [
-        {url: 'https://addons.wago.io/addons/eqol', name: $t('Download Enhance QoL')},
-        {url: 'https://discord.gg/kqQfG9YhVn', name: $t('Join Enhance Qol Discord')}
-    ]},
-    {name: 'Danders Frames', slug: 'danders-frames', color: '8354b5', image: 'danders.png', expansions: ['midnight'], group: 'ui', links: [
+    {name: 'Danders Frames', slug: 'danders-frames', color: '8354b5', image: 'danders.png', expansions: ['ALL'], group: 'ui', links: [
         {url: 'https://addons.wago.io/addons/deadly-boss-mods-dbm', name: $t('Download Danders Frames')},
         {url: 'https://discord.gg/SDWtduCqnT', name: $t('Join Danders Discord')}
+    ]},
+    {name: 'Enhance QoL', slug: 'enhance-qol', color: 'e0d0b3', image: 'enhanceqol.png', expansions: ['midnight'], categories: ['%CLASSES%', 'enhanceqol0'], group: 'ui', links: [
+        {url: 'https://addons.wago.io/addons/eqol', name: $t('Download Enhance QoL')},
+        {url: 'https://discord.gg/kqQfG9YhVn', name: $t('Join Enhance Qol Discord')}
     ]},
     {name: 'GSE', slug: 'gse', color: '00CCCC', image: 'gse.png', expansions: ['ALL'], categories: ['%CLASSES%', 'gse0'], group: 'tools', links: [
         {url: 'https://addons.wago.io/addons/gse-advanced-macro-compiler', name: $t('Download GSE')},
@@ -76,7 +80,7 @@ module.exports = ($t) => [
         {url: 'https://discord.gg/3B6QHURmBy', name: $t('Join MPlus Timer Discord')}
     ]},
     {name: 'Mythic Dungeon Tools', url: '/mdt', searchSlug: 'mdt', color: 'f1dc11', image: 'mdt.png', expansions: ['midnight'], group: 'combat'},
-    {name: 'OPie', slug: 'opie', color: '2595E6', image: 'opie.png', expansions: ['midnight'], categories: ['%CLASSES%', 'opie0', 'prof1', 'prof5', 'prof14'], group: 'ui'},
+    {name: 'OPie', slug: 'opie', color: '2595E6', image: 'opie.png', expansions: ['ALL'], categories: ['%CLASSES%', 'opie0', 'prof1', 'prof5', 'prof14'], group: 'ui'},
     {name: 'Platynator', slug: 'platynator', color: '00f300', image: 'platynator.png', expansions: ['ALL'], group: 'ui', links: [
         {url: 'https://addons.wago.io/addons/platynator', name: $t('Download Platynator')},
     ]},
@@ -85,7 +89,7 @@ module.exports = ($t) => [
         {url: 'https://discord.gg/cjqVaEMm25', name: $t('Join sArena Reloaded Discord')}
     ]},
     {name: 'Sensei Class Resource Bar', slug: 'sensei-class-resource-bar', color: 'fbcc91', image: 'senseiclassresourcebar.png', expansions: ['midnight'], group: 'combat', links: [
-        {url: 'https://addons.wago.io/addons/sensei-class-resource-bar', name: $t('Sensei Class Resource Bar')},
+        {url: 'https://addons.wago.io/addons/sensei-class-resource-bar', name: $t('Download Sensei Class Resource Bar')},
     ]},
     {name: 'Targeted Spells', slug: 'targeted-spells', color: 'afadac', image: 'targeted-spells.jpg', expansions: ['midnight'], group: 'combat', links: [
         {url: 'https://addons.wago.io/addons/targeted-spells', name: $t('Download Targeted Spells')},
