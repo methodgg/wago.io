@@ -34,6 +34,7 @@ document.addEventListener('scroll', function() {
             <router-link to="/privacy-policy">{{ $t("Privacy Policy") }}</router-link>
             <div id="ncmp-consent-link"></div>
             <a href="https://accounts.wago.io/contact">{{ $t("Contact") }}</a>
+            <router-link to="/document/SecurityNotice-2026-02">{{ $t("Security Notice") }}</router-link>
         </div>
         <div id="footer-anchor"></div>
         <div id="footer-copyright">

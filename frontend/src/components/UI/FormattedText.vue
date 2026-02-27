@@ -80,8 +80,12 @@ export default {
       else if (this.text.format === 'markdown') {
         const markdown = require('markdown-it')({linkify: true, html: this.text.html})
         markdown.use(mdUnderline)
-        markdown.use(prism)
-        html = markdown.render(this.text.text)
+        // markdown.use(prism)
+        let content = this.text.text
+        if (content.startsWith('data:text/markdown;base64,')) {
+          content = atob(content.slice(26))
+        }
+        html = markdown.render(content)
         if (!this.enableLinks || this.truncate) {
           html = html.replace(/<\/?a(?:(?= )[^>]*)?>/g, '')
         }

@@ -2,6 +2,7 @@
     <div id="app">
       <notification-banner id="maintenance" v-if="isMaintenance" :preventClose="true">Our search engine is currently repopulating. Not all imports can be found until this completes. Approx ETA {{ maintenanceDate | moment('MMM Do LT') }}.</notification-banner>
       <notification-banner id="platynator-notice" v-if="isPlatynatorNew"><router-link to="/search/imports/wow/platynator">Platynator imports are now available on Wago.</router-link></notification-banner>
+      <Popover-alert></Popover-alert>
       <wago-header></wago-header>
 
       <div id="menu-underlay" @click="closeMenus()" v-if="userMenuOpen"></div>
@@ -15,10 +16,10 @@
         </md-snackbar>
   
         <div id="content-frame">
-          <advert ad="leaderboard-top" :patreonLink="true" :frame="false" />
+          <advert ad="leaderboard-top" :patreonLink="true" :frame="false" v-if="!adFreePage" />
           <div id="content" :class="{'with-sidebar': includeSidebar}">
             <router-view></router-view>
-            <div v-if="includeSidebar" :class="{'side-bar': true, 'with-stream': $store.state.streamEmbed !== '__none'}">
+            <div v-if="includeSidebar && !adFreePage" :class="{'side-bar': true, 'with-stream': $store.state.streamEmbed !== '__none'}">
               <advert ad="rectangle-sidebar" :patreonLink="true" />
               <div id="pwVideoContainer"></div>
               <stream-embed v-if="$store.state.streamEmbed && $store.state.streamEmbed !== '__none'" :stream="$store.state.streamEmbed" />
@@ -61,6 +62,7 @@
 
   import WagoHeader from './components/UI/WagoHeader.vue'
   import WagoFooter from './components/UI/WagoFooter.vue'
+  import PopoverAlert from './components/UI/PopoverAlert.vue'
   
   export default {
     name: 'app',
@@ -70,6 +72,7 @@
       'login-button': LoginButton,
       'view-embed': ViewEmbed,
       'notification-banner': NotificationBanner,
+      'Popover-alert': PopoverAlert,
       'advert': Advert,
       'stream-embed': StreamEmbed,
       'wago-header': WagoHeader,
@@ -333,6 +336,9 @@
       includeSidebar () {
         if (window.innerWidth <= 1024) return false
         return ((this.$store.state.user.UID || this.$store.state.user.guest) && !this.$store.state.user.hideAds) && !this.$store.state.isMaintenance && this.$store.state.pageInfo.layout !== 'MDT'
+      },
+      adFreePage: function () {
+        return this.$route.path === '/document/SecurityNotice-2026-02'
       }
     },
     watch: {

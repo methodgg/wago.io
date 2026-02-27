@@ -3,6 +3,7 @@ const Index = resolve => require(['@/components/Index.vue'], resolve)
 const Logout = resolve => require(['@/components/core/Logout.vue'], resolve)
 const Account = resolve => require(['@/components/core/Account.vue'], resolve)
 const Admin = resolve => require(['@/components/core/Admin.vue'], resolve)
+const Document = resolve => require(['@/components/UI/Document.vue'], resolve)
 
 const ViewAddon = resolve => require(['@/components/core/ViewAddon.vue'], resolve) 
 const BrowseAddons = resolve => require(['@/components/UI/BrowseAddons.vue'], resolve) 
@@ -117,6 +118,7 @@ module.exports = {
     { path: '/account', component: Account },
     { path: '/settings', component: Account },
     { path: '/admin', component: Admin },
+    { path: '/document/:file', component: Document, props: true },
 
     // menus/categories
     { path: '/browse/', component: BrowseAddons },
