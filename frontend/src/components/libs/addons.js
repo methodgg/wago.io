@@ -23,6 +23,9 @@ module.exports = ($t) => [
         {url: 'https://addons.wago.io/addons/plater-nameplates', name: $t('Download Plater')},
         {url: 'https://discord.gg/AGSzAZX', name: $t('Join Plater Discord')},
     ]},
+    {name: 'AyijeCDM', slug: 'ayije-cdm', color: 'fe9808', image: 'ayijecdm.png', expansions: ['midnight'], categories: ['%CLASSES%'], group: 'combat', links: [
+        {url: 'https://addons.wago.io/addons/ayijecdm', name: $t('Download AyijeCDM')},
+    ]},
     {name: 'Baganator', slug: 'baganator', color: '44d0fd', image: 'baganator.png', expansions: ['ALL'], group: 'ui', links: [
         {url: 'https://addons.wago.io/addons/baganator', name: $t('Download Baganator')},
         {url: 'https://discord.gg/TtSN6DxSky', name: $t('Join Baganator Discord')}
@@ -65,9 +68,15 @@ module.exports = ($t) => [
         {url: 'https://addons.wago.io/addons/eqol', name: $t('Download Enhance QoL')},
         {url: 'https://discord.gg/kqQfG9YhVn', name: $t('Join Enhance Qol Discord')}
     ]},
+    {name: 'Grid2', slug: 'grid2', color: '637a41', image: 'grid2.jpg', expansions: ['ALL'], categories: ['%CLASSES%', 'role0'], group: 'ui', links: [
+        {url: 'https://addons.wago.io/addons/grid2', name: $t('Download Grid2')},
+    ]},
     {name: 'GSE', slug: 'gse', color: '00CCCC', image: 'gse.png', expansions: ['ALL'], categories: ['%CLASSES%', 'gse0'], group: 'tools', links: [
         {url: 'https://addons.wago.io/addons/gse-advanced-macro-compiler', name: $t('Download GSE')},
         {url: 'https://discord.gg/yUS9R4ZXZA', name: $t('Join GSE Discord')}
+    ]},
+    {name: 'HenniAuras', slug: 'henni-auras', color: 'b86329', image: 'henni-auras.jpeg', expansions: ['midnight'], categories: ['%CLASSES%', 'role0', 'raidvoidspire', 'raiddreamrift', 'raidmarchqueldanas'], group: 'tools', links: [
+        {url: 'https://addons.wago.io/addons/henni-auras', name: $t('Download HenniAuras')},
     ]},
     {name: 'Macro', slug: 'macro', color: 'BA25BF', image: 'macro.png', expansions: ['ALL'], categories: ['%CLASSES%', 'macroutility', 'macrotargeting'], group: 'tools', links: [
         {url: 'https://warcraft.wiki.gg/wiki/Making_a_macro', name: $t('Macro guide on Warcraft Wiki')}
@@ -76,7 +85,7 @@ module.exports = ($t) => [
         {url: 'https://addons.wago.io/addons/midnightsimpleunitframes', name: $t('Download Midnight Simple Unit Frames')}
     ]},
     {name: 'MPlus Timer', slug: 'mplus-timer', color: '7ED321', image: 'mplus.png', expansions: ['midnight'], group: 'combat', links: [
-        {url: 'https://addons.wago.io/addons/mplustimer', name: $t('Download GSE')},
+        {url: 'https://addons.wago.io/addons/mplustimer', name: $t('Download MPlus Timer')},
         {url: 'https://discord.gg/3B6QHURmBy', name: $t('Join MPlus Timer Discord')}
     ]},
     {name: 'Mythic Dungeon Tools', url: '/mdt', searchSlug: 'mdt', color: 'f1dc11', image: 'mdt.png', expansions: ['midnight'], group: 'combat'},

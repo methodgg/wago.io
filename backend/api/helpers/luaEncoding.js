@@ -7,12 +7,18 @@ async function decode(encodedString, {serialization='LibSerialize', compression=
         if (encoding === 'base64') {
             lua.push(`data = LibDeflate:DecodeForPrint(data)`)
         }
+        else if (encoding === 'hex') {
+            lua.push(`data = HexDecode(data)`)
+        }
         else {
             throw 'Unknown serialization method'
         }
 
         if (compression === 'LibDeflate') {
             lua.push(`data = LibDeflate:DecompressDeflate(data)`)
+        }
+        else if (compression === 'LibCompress') {
+            lua.push(`data = LibCompress:Decompress(data)`)
         }
         else {
             throw 'Unknown compression method'
@@ -26,9 +32,10 @@ async function decode(encodedString, {serialization='LibSerialize', compression=
         }
 
         lua.push(`return JSON:encode(data, {forceTableToArray = {snippets = true}}) or ""`)
-        console.log('get json')
         const jsonStr = await luajit.runLua(lua.join('\n'))
-        console.log(jsonStr.substring(0, 100))
+        if (config.environment === 'development') {
+            console.log('lua decode result:', jsonStr.substring(0, 100))
+        }
         if (jsonStr?.length > 20 && jsonStr.match(/^\s*\{/)) {
             return JSON.parse(jsonStr)
         }
@@ -62,12 +69,18 @@ async function encode(json, {serialization='LibSerialize', compression='LibDefla
         if (compression === 'LibDeflate') {
             lua.push(`data = LibDeflate:CompressDeflate(data, {level = 9})`)
         }
+        else if (compression === 'LibCompress') {
+            lua.push(`data = LibCompress:CompressHuffman(data)`)
+        }
         else {
             throw 'Unknown compression method'
         }
 
         if (encoding === 'base64') {
             lua.push(`data = LibDeflate:EncodeForPrint(data)`)
+        }
+        else if (encoding === 'hex') {
+            lua.push(`data = HexEncode(data)`)
         }
         else {
             throw 'Unknown encoding method'

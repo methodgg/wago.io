@@ -71,7 +71,7 @@
     "13-2": "Préservation",
     "13-3": "Augmentation",
     "14-5": "Aventurier",
-    "12-3": "Dévoreur"
+    "12-3": "Dévoration"
   },
   "zones": {
     "6874": "Mine de la Masse-Sanglante",
@@ -1989,6 +1989,9 @@
     "71": "Armes",
     "72": "Fureur",
     "73": "Protection",
+    "74": "Férocité",
+    "79": "Ruse",
+    "81": "Ténacité",
     "102": "Équilibre",
     "103": "Farouche",
     "104": "Gardien",
@@ -2014,11 +2017,29 @@
     "268": "Maître brasseur",
     "269": "Marche-vent",
     "270": "Tisse-brume",
+    "535": "Férocité",
+    "536": "Ruse",
+    "537": "Ténacité",
     "577": "Dévastation",
     "581": "Vengeance",
+    "1444": "Initial",
+    "1446": "Initial",
+    "1447": "Initial",
+    "1448": "Initial",
+    "1449": "Initial",
+    "1450": "Initial",
+    "1451": "Initial",
+    "1452": "Initial",
+    "1453": "Initial",
+    "1454": "Initial",
+    "1455": "Initial",
+    "1456": "Initial",
+    "1465": "Primaire",
     "1467": "Dévastation",
     "1468": "Préservation",
-    "1473": "Augmentation"
+    "1473": "Augmentation",
+    "1478": "Aventurier",
+    "1480": "Dévoration"
   },
   "keystoneDungeons": {},
   "dungeons": {
@@ -4080,6 +4101,10 @@
     "170": {
       "name": "Fortification tyrannique",
       "desc": "Les boss ont 25 % de vie en plus. Les boss et leurs sbires infligent jusqu’à 15 % de dégâts supplémentaires. Les unités ennemies normales ont 20 % de vie en plus et infligent jusqu’à 20 % de dégâts supplémentaires."
+    },
+    "178": {
+      "name": "",
+      "desc": ""
     }
   },
   "Map": {
@@ -7162,7 +7187,7 @@
     "2573": "Arène de la Cicatrice du Vide",
     "2574": "Arène de la Cicatrice du Vide",
     "2575": "Golfe du Souvenir",
-    "2576": "Harandar_Tanière",
+    "2576": "La Tanière",
     "2577": "Calamité Universitaire",
     "2578": "Calamité Universitaire",
     "2579": "Cryptes de Watha’nan",

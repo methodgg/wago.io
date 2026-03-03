@@ -119,6 +119,23 @@ class Categories {
       'accessibility2': {slug: 'accessibility/visual', i18n: 'Visual', color: '#BD10E0', domain: 0, parent: 'accessibility', types: ['WEAKAURA']},
       'accessibility3': {slug: 'accessibility/controls', i18n: 'Controls', color: '#BD10E0', domain: 0, parent: 'accessibility', types: ['WEAKAURA']},
 
+      // midnight raids
+      'raidvoidspire': {slug: 'pve/voidspire', image: 'voidspire.png', color: '#9E71E8', i18n: 'warcraft:instances.1307', domain: 0, types: ['%ENCOUNTER%'], games: ['midnight']},
+      'raidvoidspire1': {slug: 'pve/voidspire/imperator-averzian', i18n: 'warcraft:encounters.2733', domain: 0, parent: 'raidvoidspire', types: ['%ENCOUNTER%'], games: ['midnight']},
+      'raidvoidspire2': {slug: 'pve/voidspire/vorasius', i18n: 'warcraft:encounters.2734', domain: 0, parent: 'raidvoidspire', types: ['%ENCOUNTER%'], games: ['midnight']},
+      'raidvoidspire3': {slug: 'pve/voidspire/fallen-king-salhadaar', i18n: 'warcraft:encounters.2736', domain: 0, parent: 'raidvoidspire', types: ['%ENCOUNTER%'], games: ['midnight']},
+      'raidvoidspire4': {slug: 'pve/voidspire/vaelgor-ezzorak', i18n: 'warcraft:encounters.2735', domain: 0, parent: 'raidvoidspire', types: ['%ENCOUNTER%'], games: ['midnight']},
+      'raidvoidspire5': {slug: 'pve/voidspire/lightblinded-vanguard', i18n: 'warcraft:encounters.2737', domain: 0, parent: 'raidvoidspire', types: ['%ENCOUNTER%'], games: ['midnight']},
+      'raidvoidspire6': {slug: 'pve/voidspire/crown-of-the-cosmos', i18n: 'warcraft:encounters.2738', domain: 0, parent: 'raidvoidspire', types: ['%ENCOUNTER%'], games: ['midnight']},
+      
+      'raiddreamrift': {slug: 'pve/dreamrift', image: 'dreamrift.png', color: '#71E89E', i18n: 'warcraft:instances.1314', domain: 0, types: ['%ENCOUNTER%'], games: ['midnight']},
+      'raiddreamrift1': {slug: 'pve/dreamrift/chimaerus-the-undremmt-god', i18n: 'warcraft:encounters.2795', domain: 0, parent: 'raiddreamrift', types: ['%ENCOUNTER%'], games: ['midnight']},
+      
+      'raidmarchqueldanas': {slug: 'pve/march-on-queldanas', image: 'marchqueldanas.png', color: '#E89771', i18n: 'warcraft:instances.1308', domain: 0, types: ['%ENCOUNTER%'], games: ['midnight']},
+      'raidmarchqueldanas1': {slug: 'pve/march-on-queldanas/beloren-child-of-alar', i18n: 'warcraft:encounters.2739', domain: 0, parent: 'raidmarchqueldanas', types: ['%ENCOUNTER%'], games: ['midnight']},
+      'raidmarchqueldanas2': {slug: 'pve/march-on-queldanas/midnight-falls', i18n: 'warcraft:encounters.2740', domain: 0, parent: 'raidmarchqueldanas', types: ['%ENCOUNTER%'], games: ['midnight']},
+      
+
       // dragonflight      
       'raidamirdrassil': {slug: 'pve/amirdrassil-the-dreams-hope', image: 'amirdrassil.png', color: '#3EC16A', i18n: 'warcraft:instances.1207', domain: 0, types: ['WEAKAURA', 'COLLECTION'], games: ['df']},
       'raidamirdrassil1': {slug: 'pve/amirdrassil-the-dreams-hope/gnarlroot', i18n: 'warcraft:encounters.2564', domain: 0, parent: 'raidamirdrassil', types: ['WEAKAURA', 'COLLECTION'], games: ['df']},

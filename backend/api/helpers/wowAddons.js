@@ -4,6 +4,16 @@ const getCode = require('./code-detection/get-code')
 const patchDates = require('./patchDates')
 
 const addons = [{
+    type: 'AYIJE-CDM',
+    slug: 'ayije-cdm',
+    stringPrefix: '!ACDM:',
+    buildMeta: (obj) => {
+        if (obj.addon !== 'Ayije_CDM') {
+            return false
+        }
+        return {name: 'Ayije Cooldown Manager Profile'}
+    },
+}, {
     type: 'BETTER-BLIZZ-FRAMES',
     slug: 'better-blizz-frames',
     stringPrefix: '!BBF',
@@ -188,6 +198,35 @@ const addons = [{
     },
     useLuaEncoding: true,
 }, {
+    type: 'GRID2',
+    slug: 'grid2',
+    stringRegex: /^(\[=== ([\w\s]+) ===\])\n([A-F0-9\n]+)\n\1$/,
+    customDecode: async (importStr) => {
+        const match = importStr.match(/^(\[=== ([\w\s]+) ===\])\n([A-F0-9\n]+)\n\1$/)
+        const payload = obj = await luaEncoding.decode(match[3].replace(/\s/g, ''), {serialization: 'AceSerializer', compression: 'LibCompress', encoding: 'hex'})
+        if (payload) {
+            return {
+                name: match[2],
+                data: payload
+            }
+        }
+        return false
+    },
+    customEncode: async (obj) => {
+        const profileIdent = `[=== ${obj.name.replace(/\s*profile\s*$/i, '')} profile ===]`
+        return`${profileIdent}${await luaEncoding.encode(obj.data, {serialization: 'AceSerializer', compression: 'LibCompress', encoding: 'hex'})}\n${profileIdent}`
+    },
+    buildMeta: (obj) => {
+        if (!obj.data.Grid2Layout) {
+            return false
+        }
+        const meta = {
+            name: obj.name || 'Grid2 Profile'
+        }
+
+        return meta
+    },
+}, {
     type: 'GSE',
     slug: 'gse',
     stringPrefix: '!GSE3!',
@@ -212,6 +251,19 @@ const addons = [{
         else {
             return false
         }
+        return meta
+    },
+}, {
+    type: 'HENNI-AURAS',
+    slug: 'henni-auras',
+    stringPrefix: 'HA:1:',
+    serialization: 'JSON',
+    compression: 'deflate',
+    buildMeta: (obj) => {
+        const meta = {
+            name: obj.node.name || 'HenniAura'
+        }
+
         return meta
     },
 }, {

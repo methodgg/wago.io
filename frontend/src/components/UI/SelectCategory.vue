@@ -15,6 +15,7 @@
 
 <script>
 import Multiselect from 'vue-multiselect'
+import addons from '../libs/addons'
 
 export default {
   components: {
@@ -44,6 +45,9 @@ export default {
         }
         return false
     },
+    addon: function () {
+        return addons(this.$t).find(x => x.slug?.toUpperCase() === this.type?.toUpperCase())
+    }
   },
   data: function () {
     return {
@@ -72,6 +76,8 @@ export default {
       else if (domain === 0) {
         type = 'WEAKAURA'
       }
+
+      console.log(window.Categories)
 
       this.selectText = this.$t('Select')
       if (values && values.length > 0) {

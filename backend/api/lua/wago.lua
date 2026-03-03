@@ -41,17 +41,62 @@ errorMsg = ""
 
 local function fixNumberedIndexes(tbl)
     local fixed = {}
+    
     for k, v in pairs(tbl) do
         if type(v) == "table" then
             v = fixNumberedIndexes(v)
         end
-        if tonumber(k) and tonumber(k) > 0 then
+        if tonumber(k) then
             fixed[tonumber(k)] = v
         else
             fixed[k] = v
         end
     end
     return fixed
+end
+
+
+local function HexEncode(s,title)
+	local hex= { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F" }
+	local b_rshift = bit.rshift
+	local b_and = bit.band
+	local byte= string.byte
+	local t= { }
+	local j= 0
+	for i=1,#s do
+		if j<=0 then
+			t[#t+1], j = "\n", 32
+		end		
+		j = j - 1
+		--
+		local b= byte(s,i)
+		t[#t+1]= hex[ b_and(b,15) + 1 ]
+		t[#t+1]= hex[ b_and(b_rshift(b,4),15) + 1 ]
+	end
+	return table.concat(t)
+end
+
+local function HexDecode(s)
+	-- remove header,footer and any non hex character
+	s= s:gsub("%[.-%]",""):gsub("[^0123456789ABCDEF]","")
+	if (#s==0) or (#s%2 ~= 0) then return false, "Invalid Hex string" end
+	-- lets go decoding
+	local b_lshift= bit.lshift
+	local byte= string.byte
+	local char= string.char
+	local t = {}
+	local bl,bh
+	local i = 1
+	repeat
+		bl = byte(s,i)
+		bl = bl>=65 and bl-55 or bl-48
+		i = i + 1
+		bh = byte(s,i)  
+		bh = bh>=65 and bh-55 or bh-48
+		i = i + 1
+		t[#t+1] = char( b_lshift(bh,4) + bl )
+	until i>=#s
+	return table.concat(t)
 end
 
 local JSON = (loadfile "./json.lua")()

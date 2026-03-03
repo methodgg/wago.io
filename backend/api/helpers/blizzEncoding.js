@@ -5,7 +5,7 @@ const borc = require('borc')
 function zlibDecompress(zipped, method) {
     return new Promise((resolve, reject) => {
         if (method === 'deflateRaw') method = 'inflateRaw'
-        else if (method === 'deflate') method = 'deflate'
+        else if (method === 'deflate') method = 'inflate'
         else if (method === 'gzip') method = 'gunzip'
 
         if (method === 'inflateRaw' || method === 'inflate' || method === 'gunzip') {

@@ -2228,6 +2228,9 @@
     "71": "Arms",
     "72": "Fury",
     "73": "Protection",
+    "74": "Ferocity",
+    "79": "Cunning",
+    "81": "Tenacity",
     "102": "Balance",
     "103": "Feral",
     "104": "Guardian",
@@ -2253,11 +2256,29 @@
     "268": "Brewmaster",
     "269": "Windwalker",
     "270": "Mistweaver",
+    "535": "Ferocity",
+    "536": "Cunning",
+    "537": "Tenacity",
     "577": "Havoc",
     "581": "Vengeance",
+    "1444": "Initial",
+    "1446": "Initial",
+    "1447": "Initial",
+    "1448": "Initial",
+    "1449": "Initial",
+    "1450": "Initial",
+    "1451": "Initial",
+    "1452": "Initial",
+    "1453": "Initial",
+    "1454": "Initial",
+    "1455": "Initial",
+    "1456": "Initial",
+    "1465": "Initial",
     "1467": "Devastation",
     "1468": "Preservation",
-    "1473": "Augmentation"
+    "1473": "Augmentation",
+    "1478": "Adventurer",
+    "1480": "Devourer"
   },
   "dungeons": {
     "1": "Wailing Caverns",
@@ -4318,6 +4339,10 @@
     "170": {
       "name": "Tyrannically Fortified",
       "desc": "Bosses have 25% more health. Bosses and their minions inflict up to 15% increased damage. Non-boss enemies have 20% more health and inflict up to 20% increased damage."
+    },
+    "178": {
+      "name": "",
+      "desc": ""
     }
   },
   "Map": {
@@ -7400,7 +7425,7 @@
     "2573": "Voidscar Arena",
     "2574": "Voidscar Arena",
     "2575": "Gulf of Memory",
-    "2576": "Rootlands_Den",
+    "2576": "The Den",
     "2577": "Collegiate Calamity",
     "2578": "Collegiate Calamity",
     "2579": "Wartha'nan Crypts",

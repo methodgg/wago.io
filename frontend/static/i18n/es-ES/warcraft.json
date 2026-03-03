@@ -1989,6 +1989,9 @@
     "71": "Armas",
     "72": "Furia",
     "73": "Protección",
+    "74": "Ferocidad",
+    "79": "Astucia",
+    "81": "Tenacidad",
     "102": "Equilibrio",
     "103": "Feral",
     "104": "Guardián",
@@ -2014,11 +2017,29 @@
     "268": "Maestro cervecero",
     "269": "Viajero del viento",
     "270": "Tejedor de niebla",
+    "535": "Ferocidad",
+    "536": "Astucia",
+    "537": "Tenacidad",
     "577": "Devastación",
     "581": "Venganza",
+    "1444": "Inicial",
+    "1446": "Inicial",
+    "1447": "Inicial",
+    "1448": "Inicial",
+    "1449": "Inicial",
+    "1450": "Inicial",
+    "1451": "Inicial",
+    "1452": "Inicial",
+    "1453": "Inicial",
+    "1454": "Inicial",
+    "1455": "Inicial",
+    "1456": "Inicial",
+    "1465": "Inicial",
     "1467": "Devastación",
     "1468": "Preservación",
-    "1473": "Aumento"
+    "1473": "Aumento",
+    "1478": "Aventurero",
+    "1480": "Devorador"
   },
   "keystoneDungeons": {},
   "dungeons": {
@@ -4080,6 +4101,10 @@
     "170": {
       "name": "Reforzada tiránica",
       "desc": "Los jefes tienen un 25% más de salud. Tanto ellos como sus esbirros infligen hasta un 15% más de daño. Los enemigos que no son jefes tienen un 20% más de salud e infligen hasta un 20% más de daño."
+    },
+    "178": {
+      "name": "",
+      "desc": ""
     }
   },
   "Map": {
@@ -7162,7 +7187,7 @@
     "2573": "Arena Lacravacua",
     "2574": "Arena Lacravacua",
     "2575": "Abismo del Recuerdo",
-    "2576": "Rootlands_Den",
+    "2576": "El Cubil",
     "2577": "Calamidad de Colegiado",
     "2578": "Calamidad de Colegiado",
     "2579": "Criptas de Watha'nan",

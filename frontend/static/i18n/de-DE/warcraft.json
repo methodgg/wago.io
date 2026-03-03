@@ -1989,6 +1989,9 @@
     "71": "Waffen",
     "72": "Furor",
     "73": "Schutz",
+    "74": "Wildheit",
+    "79": "Gerissenheit",
+    "81": "Hartnäckigkeit",
     "102": "Gleichgewicht",
     "103": "Wildheit",
     "104": "Wächter",
@@ -2014,11 +2017,29 @@
     "268": "Braumeister",
     "269": "Windläufer",
     "270": "Nebelwirker",
+    "535": "Wildheit",
+    "536": "Gerissenheit",
+    "537": "Hartnäckigkeit",
     "577": "Verwüstung",
     "581": "Rachsucht",
+    "1444": "Standard",
+    "1446": "Standard",
+    "1447": "Standard",
+    "1448": "Standard",
+    "1449": "Standard",
+    "1450": "Standard",
+    "1451": "Standard",
+    "1452": "Standard",
+    "1453": "Standard",
+    "1454": "Standard",
+    "1455": "Standard",
+    "1456": "Standard",
+    "1465": "Initiand",
     "1467": "Verheerung",
     "1468": "Bewahrung",
-    "1473": "Verstärkung"
+    "1473": "Verstärkung",
+    "1478": "Abenteurer",
+    "1480": "Verschlinger"
   },
   "keystoneDungeons": {},
   "dungeons": {
@@ -4080,6 +4101,10 @@
     "170": {
       "name": "Tyrannisch verstärkt",
       "desc": "Bosse haben 25% mehr Gesundheit. Bosse und ihre Diener verursachen bis zu 15% mehr Schaden. Normale Gegner haben 20% mehr Gesundheit und verursachen bis zu 20% mehr Schaden."
+    },
+    "178": {
+      "name": "",
+      "desc": ""
     }
   },
   "Map": {
@@ -7162,7 +7187,7 @@
     "2573": "Arena der Leerennarbe",
     "2574": "Arena der Leerennarbe",
     "2575": "Kluft der Erinnerung",
-    "2576": "Rootlands_Den",
+    "2576": "Die Höhle",
     "2577": "Akademischer Aufruhr",
     "2578": "Akademischer Aufruhr",
     "2579": "Gruften von Watha'nan",
