@@ -77,8 +77,6 @@ export default {
         type = 'WEAKAURA'
       }
 
-      console.log(window.Categories)
-
       this.selectText = this.$t('Select')
       if (values && values.length > 0) {
         this.selectText = ''

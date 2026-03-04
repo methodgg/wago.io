@@ -652,7 +652,7 @@ module.exports = function (fastify, opts, next) {
         code.text = scan.input
       }
     }
-    else if (wago.encrypted) {
+    else if (wago.encrypted || wago.type === 'OPIE') {
       code.encoded = scan.input
       code.json = scan.decoded
     }

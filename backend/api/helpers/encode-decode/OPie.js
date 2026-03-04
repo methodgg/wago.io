@@ -11,6 +11,7 @@ module.exports = {
       ${opieLua}
       local str = "${encodedString}"
       local ok, ret = pcall(Opie_unserialize, str, sSign, sReg)
+
       if ok and type(ret) == "table" and type(ret.name) == "string" and #ret > 0 then
         for i=1,#ret do
           local v = ret[i]
@@ -38,11 +39,11 @@ module.exports = {
       return false
     }
   },
-  encodeRaw: (str) => {
-    // bandaid since I can't figure out why this is no longer working
-    // no re-encoding right now
-    return str
-  },
+//   encodeRaw: (str) => {
+//     // bandaid since I can't figure out why this is no longer working
+//     // no re-encoding right now
+//     return str
+//   },
 
   xencode: async (json, exec) => {
     const lua = `
@@ -347,6 +348,40 @@ function Opie_unserialize(s)
     end
     ops.bind()
     return depth == 1 and stack[1]
+end
+local hash_ChatTypeInfoList = {}
+local hash_EmoteTokenList = {}
+local function slash_i18n(command, lead)
+    if lead == "!" then return "\\n!" .. command end
+    local key = command:upper()
+    if type(hash_ChatTypeInfoList[key]) == "string" and not hash_ChatTypeInfoList[key]:match("!") then
+        return "\\n!" .. hash_ChatTypeInfoList[key] .. "!" .. command
+    elseif type(hash_EmoteTokenList[key]) == "string" and not hash_EmoteTokenList[key]:match("!") then
+        return "\\n!" .. hash_EmoteTokenList[key] .. "!" .. command
+    end
+end
+local function slash_l10n(key, command)
+    if key == "" then return "\\n!" .. command end
+    local k2 = command:upper()
+    if hash_ChatTypeInfoList[k2] == key or hash_EmoteTokenList[k2] == key then
+    elseif _G["SLASH_" .. key .. 1] then
+        return "\\n" .. _G["SLASH_" .. key .. 1]
+    else
+        local i, v = 2, EMOTE1_TOKEN
+        while v do
+            if v == key then
+                return "\\n" .. _G["EMOTE" .. (i-1) .. "_CMD1"]
+            end
+            i, v = i + 1, _G["EMOTE" .. i .. "_TOKEN"]
+        end
+    end
+    return "\\n" .. command
+end
+function encodeMacro(m)
+    return ("\\n" .. m):gsub("\\n(([/!])%S*)", slash_i18n):sub(2)
+end
+function decodeMacro(m)
+    return ("\\n" .. m):gsub("\\n!(.-)!(%S*)", slash_l10n):sub(2)
 end
 
 local function genSliceTokenIndexMap(props)
