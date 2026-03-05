@@ -85,7 +85,7 @@ export default {
     },
     classCategories: function () {
         if (this.addon.categories?.includes('%CLASSES%')) {
-            const cats = window.Categories.classCategories()
+            const cats = window.Categories.classCategories(null, this.addon.expansions)
             const n = cats.length / 2
             return [[...cats.splice(0, Math.ceil(n))], [...cats]]
         }
@@ -96,6 +96,7 @@ export default {
             ?.filter(x => !x.includes('%'))
             .map(x => ({...window.Categories.match(x), children: window.Categories.matchChildren(x)}))
             .filter(x => !x.games || this.addon.expansions.includes('ALL') || x.games.find(g => this.addon.expansions.includes(g)))
+            .map(x => ({...x, slug: x.slug?.replace(/_$/, '')}))
             const n = cats.length / 2
             return [[...cats.splice(0, Math.ceil(n))], [...cats]]
     },

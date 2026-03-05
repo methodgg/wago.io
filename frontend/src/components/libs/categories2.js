@@ -1143,7 +1143,7 @@ class Categories {
       'snip1': {slug: 'snippets/libraries', i18n: 'Libraries', domain: 0, parent: 'snip0', types: ['SNIPPET']},
       'snip2': {slug: 'snippets/tutorials', i18n: 'Tutorials', domain: 0, parent: 'snip0', types: ['SNIPPET']},
 
-      'opie0': {slug: 'opie-group-buffs', image: 'opie.png', color: '#2595E6', i18n: 'OPie', domain: 0, types: ['OPIE']},
+      'opie0': {slug: 'opie-group-buffs_', image: 'opie.png', color: '#2595E6', i18n: 'OPie', domain: 0, types: ['OPIE']},
       'opie1': {slug: 'opie-group-buffs', image: 'opie.png', color: '#2595E6', parent: 'opie0', i18n: 'Group Buffs', domain: 0, types: ['OPIE']},
       'opie2': {slug: 'opie-consumables', image: 'opie.png', color: '#2595E6', parent: 'opie0', i18n: 'Consumables', domain: 0, types: ['OPIE']},
       'opie3': {slug: 'opie-vehicles', image: 'opie.png', color: '#2595E6', parent: 'opie0', i18n: 'Vehicles', domain: 0, types: ['OPIE']},
@@ -1151,18 +1151,18 @@ class Categories {
       'opie5': {slug: 'opie-equipment/trinkets', image: 'opie.png', color: '#2595E6', parent: 'opie0', i18n: 'Trinkets', domain: 0, types: ['OPIE']},
       'opie6': {slug: 'opie-utility', image: 'opie.png', color: '#2595E6', parent: 'opie0', i18n: 'Utility', domain: 0, types: ['OPIE']},
 
-      'macroutility': {slug: 'macro-utility', image: 'macro.png', color: '#BA25BF', i18n: 'Utility', domain: 0, types: ['MACRO']},
+      'macroutility': {slug: 'macro-utility_', image: 'macro.png', color: '#BA25BF', i18n: 'Utility', domain: 0, types: ['MACRO']},
       'macro0': {slug: 'macro-utility', image: 'macro.png', color: '#BA25BF', i18n: 'Utility', parent: 'macroutility', domain: 0, types: ['MACRO']},
       'macro1': {slug: 'macro-utility/consumables', image: 'macro.png', color: '#BA25BF', parent: 'macroutility', i18n: 'Consumables', domain: 0, types: ['MACRO']},
       'macro2': {slug: 'macro-utility/vehicles', image: 'macro.png', color: '#BA25BF', parent: 'macroutility', i18n: 'Vehicles', domain: 0, types: ['MACRO']},
       'macro3': {slug: 'macro-utility/equipment', image: 'macro.png', color: '#BA25BF', parent: 'macroutility', i18n: 'Equipment', domain: 0, types: ['MACRO']},
       
-      'macrotargeting': {slug: 'macro-targeting', image: 'crosshair.png', color: '#E0EAB9', i18n: 'Targeting', domain: 0, types: ['MACRO']},
+      'macrotargeting': {slug: 'macro-targeting_', image: 'crosshair.png', color: '#E0EAB9', i18n: 'Targeting', domain: 0, types: ['MACRO']},
       'macro4': {slug: 'macro-targeting', image: 'crosshair.png', color: '#E0EAB9', parent: 'macrotargeting', i18n: 'Targeting', domain: 0, types: ['MACRO']},
       'macro5': {slug: 'macro-targeting/raids', image: 'crosshair.png', color: '#E0EAB9', parent: 'macrotargeting', i18n: 'Raids', domain: 0, types: ['MACRO']},
       'macro6': {slug: 'macro-targeting/dungeons', image: 'crosshair.png', color: '#E0EAB9', parent: 'macrotargeting', i18n: 'Dungeons', domain: 0, types: ['MACRO']},
 
-      'platersys': {slug: 'plater-profiles', image: 'plater.png', color: '#FFC972', i18n: 'Plater', domain: 0, system: true, types: ['PLATER']},
+      'platersys': {slug: 'plater-profiles_', image: 'plater.png', color: '#FFC972', i18n: 'Plater', domain: 0, system: true, types: ['PLATER']},
       'plater1': {slug: 'plater-profiles', image: 'plater.png', color: '#FFC972', i18n: 'Plater Profiles', parent: 'platersys', domain: 0, system: true, types: ['PLATER']},
       'plater2': {slug: 'plater-scripts', image: 'plater.png', color: '#FFC972', i18n: 'Plater Scripts', parent: 'platersys', domain: 0, system: true, types: ['PLATER']},
       'plater3': {slug: 'plater-mods', image: 'plater.png', color: '#FFC972', i18n: 'Plater Mods', domain: 0, parent: 'platersys', system: true, types: ['PLATER']},
@@ -1202,12 +1202,12 @@ class Categories {
       'rplang3': {slug: 'totalrp-spanish', image: 'lang.png', color: '#269C7D', i18n: 'Spanish', parent: 'rplang0', domain: 0, types: ['TOTALRP3']},
       'rplang4': {slug: 'totalrp-german', image: 'lang.png', color: '#269C7D', i18n: 'German', parent: 'rplang0', domain: 0, types: ['TOTALRP3']},
 
-      'vuhdo0': {slug: 'vuhdo-profiles', image: 'vuhdo.png', color: '#6BB85E', i18n: 'Vuhdo', domain: 0, system: true, types: ['VUHDO']},
+      'vuhdo0': {slug: 'vuhdo-profiles_', image: 'vuhdo.png', color: '#6BB85E', i18n: 'Vuhdo', domain: 0, system: true, types: ['VUHDO']},
       'vuhdo1': {slug: 'vuhdo-profiles', image: 'vuhdo.png', color: '#6BB85E', i18n: 'Vuhdo Profiles', parent: 'vuhdo0', domain: 0, system: true, types: ['VUHDO']},
       'vuhdo2': {slug: 'vuhdo-bouquets', image: 'vuhdo.png', color: '#6BB85E', i18n: 'Vuhdo Bouquets', parent: 'vuhdo0', domain: 0, system: true, types: ['VUHDO']},
       'vuhdo3': {slug: 'vuhdo-key-layouts', image: 'vuhdo.png', color: '#6BB85E', i18n: 'Vuhdo Key Layouts', parent: 'vuhdo0', domain: 0, system: true, types: ['VUHDO']},
 
-      'cell0': {slug: 'cell-complete-profiles', image: 'cell.png', color: '#56E93E', i18n: 'Cell', domain: 0, system: true, types: ['CELL']},
+      'cell0': {slug: 'cell-complete-profiles_', image: 'cell.png', color: '#56E93E', i18n: 'Cell', domain: 0, system: true, types: ['CELL']},
       'cell1': {slug: 'cell-complete-profiles', image: 'cell.png', color: '#56E93E', i18n: 'Cell Profiles', parent: 'cell0', domain: 0, system: true, types: ['CELL']},
       'cell2': {slug: 'cell-layouts', image: 'cell.png', color: '#56E93E', i18n: 'Cell Layouts', domain: 0, parent: 'cell0', system: true, types: ['CELL']},
       'cell3': {slug: 'cell-indicators', image: 'cell.png', color: '#56E93E', i18n: 'Cell Indicators', domain: 0, parent: 'cell0', system: true, types: ['CELL']},
@@ -1215,22 +1215,22 @@ class Categories {
       'cell5': {slug: 'cell-debuffs', image: 'cell.png', color: '#56E93E', i18n: 'Debuffs', domain: 0, parent: 'cell0', system: true, types: ['CELL']},
       'cell6': {slug: 'cell-quick-assist', image: 'cell.png', color: '#56E93E', i18n: 'Quick Assist', domain: 0, parent: 'cell0', system: true, types: ['CELL']},
       
-      'gse0': {slug: 'gse-sequences', image: 'gse.png', color: '#00CCCC', i18n: 'GSE', domain: 0, system: true, types: ['GSE']},
+      'gse0': {slug: 'gse-sequences_', image: 'gse.png', color: '#00CCCC', i18n: 'GSE', domain: 0, system: true, types: ['GSE']},
       'gse1': {slug: 'gse-sequences', image: 'gse.png', color: '#00CCCC', i18n: 'GSE Sequences', parent: 'gse0', domain: 0, system: true, types: ['GSE']},
       'gse2': {slug: 'gse-macros', image: 'gse.png', color: '#00CCCC', i18n: 'GSE Macros', parent: 'gse0', domain: 0, system: true, types: ['GSE']},
       'gse3': {slug: 'gse-variables', image: 'gse.png', color: '#00CCCC', i18n: 'GSE Variables', parent: 'gse0', domain: 0, system: true, types: ['GSE']},
       'gse4': {slug: 'gse-collections', image: 'gse.png', color: '#00CCCC', i18n: 'GSE Collections', parent: 'gse0', domain: 0, system: true, types: ['GSE']},
 
-      'danders0': {slug: 'danders-profile', image: 'danders.png', color: '#8354b5', i18n: 'Danders', parent: 'danders0', domain: 0, system: true},
+      'danders0': {slug: 'danders-profile_', image: 'danders.png', color: '#8354b5', i18n: 'Danders', parent: 'danders0', domain: 0, system: true},
       'danders1': {slug: 'danders-profile', image: 'danders.png', color: '#8354b5', i18n: 'Danders Profile', parent: 'danders0', domain: 0, system: true},
       'danders2': {slug: 'clickcasting', image: 'danders.png', color: '#8354b5', i18n: 'Danders Click Casting', parent: 'danders0', domain: 0, system: true},
       
-      'bbf0': {slug: 'bbf-profile', image: 'bbf.png', color: '#217DD3', i18n: 'Better Blizz Frames', domain: 0, system: true},
+      'bbf0': {slug: 'bbf-profile_', image: 'bbf.png', color: '#217DD3', i18n: 'Better Blizz Frames', domain: 0, system: true},
       'bbf1': {slug: 'bbf-profile', image: 'bbf.png', color: '#217DD3', i18n: 'Profile', parent: 'bbf0', domain: 0, system: true},
       'bbf2': {slug: 'bbf-whitelist', image: 'bbf.png', color: '#217DD3', i18n: 'Whitelist', parent: 'bbf0', domain: 0, system: true},
       'bbf3': {slug: 'bbf-blacklist', image: 'bbf.png', color: '#217DD3', i18n: 'Blacklist', parent: 'bbf0', domain: 0, system: true},
       
-      'bbp0': {slug: 'bbp-profile', image: 'bbp.png', color: '#217DD3', i18n: 'Better Blizz Plates', domain: 0, system: true},
+      'bbp0': {slug: 'bbp-profile_', image: 'bbp.png', color: '#217DD3', i18n: 'Better Blizz Plates', domain: 0, system: true},
       'bbp1': {slug: 'bbp-profile', image: 'bbp.png', color: '#217DD3', i18n: 'Profile', parent: 'bbp0', domain: 0, system: true},
       'bbp2': {slug: 'bbp-aura-whitelist', image: 'bbp.png', color: '#217DD3', i18n: 'Aura Whitelist', parent: 'bbp0', domain: 0, system: true},
       'bbp3': {slug: 'bbp-aura-blacklist', image: 'bbp.png', color: '#217DD3', i18n: 'Aura Blacklist', parent: 'bbp0', domain: 0, system: true},
@@ -1244,7 +1244,7 @@ class Categories {
       'bbp11': {slug: 'bbp-color-npc-list', image: 'bbp.png', color: '#217DD3', i18n: 'Color NPC List', parent: 'bbp0', domain: 0, system: true},
       'bbp12': {slug: 'bbp-color-by-aura-list', image: 'bbp.png', color: '#217DD3', i18n: 'Color by Aura List', parent: 'bbp0', domain: 0, system: true},
       
-      'enhanceqol0': {slug: 'eqol-profile', image: 'enhanceqol.png', color: '#e0d0b3', i18n: 'Enhance QoL', domain: 0, system: true},
+      'enhanceqol0': {slug: 'eqol-profile_', image: 'enhanceqol.png', color: '#e0d0b3', i18n: 'Enhance QoL', domain: 0, system: true},
       'enhanceqol1': {slug: 'eqol-profile', image: 'enhanceqol.png', color: '#e0d0b3', i18n: 'Profile', parent: 'enhanceqol0', domain: 0, system: true},
       'enhanceqol2': {slug: 'eqol-resource-bar', image: 'enhanceqol.png', color: '#e0d0b3', i18n: 'Resource Bar', parent: 'enhanceqol0', domain: 0, system: true},
       'enhanceqol3': {slug: 'eqol-unit-frame', image: 'enhanceqol.png', color: '#e0d0b3', i18n: 'Unit Frame', parent: 'enhanceqol0', domain: 0, system: true},
