@@ -16,8 +16,6 @@ const wowAddons = require('./wowAddons')
 const categories = require('../../../frontend/src/components/libs/categories2')
 
 const ENUM = require('../../middlewares/enum')
-const logger = require('../../middlewares/matomo')
-const logError = require('../../middlewares/matomoErrors')
 
 const octokit = new Octokit({
   auth: config.github.token
@@ -87,7 +85,6 @@ module.exports = async (task, data) => {
   }
   catch (e) {
     console.error(e)
-    logError(e, 'Task ', task)
   }
 }
 
@@ -1139,7 +1136,6 @@ async function updateWAData(release, assets) {
     }
   }
   if (!axiosDownload.url) {
-    logError(e, 'Unable to find WeakAura download')
     return false
   }
 
@@ -1159,8 +1155,6 @@ async function updateWAData(release, assets) {
       return
     }
   }
-  // if we get here then internalVersion is not found or is not an integer
-  logError(e, 'Unable to find WeakAura internalVersion')
 }
 
 async function UpdateGameVersions() {

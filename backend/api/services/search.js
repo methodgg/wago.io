@@ -898,11 +898,6 @@ async function oldSearch(req, res) {
     Search.results = results
   }
 
-  req.tracking.search = {
-    query: Search.query.q.replace(/sort: \w+/, '').replace(/Expansion: \w+/, '').replace(/Relevance: \w+/, '').replace(/\s+/g, ' '),
-    count: Search.total
-  }
-
   // sanitize results
   Search.results = Search.results.filter((wago) => {
     // make sure we have no nulls (why do we need this?)

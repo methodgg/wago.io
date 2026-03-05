@@ -194,8 +194,6 @@ module.exports = function (fastify, opts, next) {
       doc.description_format = 'markdown'
     }
 
-    req.tracking.name = doc.name
-
     wago.name = doc.name
     wago.slug = doc.slug
     wago.url = doc.url

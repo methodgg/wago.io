@@ -49,8 +49,6 @@ fastify.register(require('fastify-websocket'), {
 
 // --- DECORATORS
 fastify.decorate('enum', require('./middlewares/enum'))
-fastify.decorateRequest('track', require('./middlewares/matomo'))
-fastify.decorateRequest('trackError', require('./middlewares/matomoErrors'))
 fastify.decorateReply('cache', require('./middlewares/cache'))
 fastify.setErrorHandler(require('./middlewares/errors'))
 
@@ -65,7 +63,6 @@ fastify.addHook('preValidation', require('./middlewares/rateLimit'))
 fastify.addHook('preValidation', require('./middlewares/cors'))
 fastify.addHook('preHandler', require('./middlewares/auth'))
 fastify.addHook('preHandler', require('./middlewares/setDefaults'))
-fastify.addHook('preHandler', require('./middlewares/analytics'))
 fastify.addHook('preHandler', require('./middlewares/getRegion'))
 
 // --- ROUTES

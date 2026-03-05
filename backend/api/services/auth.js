@@ -99,7 +99,6 @@ async function makeSession(req, res, token, user) {
     }
   }
   catch (e) {
-    req.trackError(e)
     return res.code(403).send({ error: "invalid_token" })
   }
 }
