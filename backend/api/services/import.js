@@ -788,6 +788,9 @@ module.exports = function (fastify, opts, next) {
         }
       }
     }
+    if (!code.encoded) {
+      code.encoded = scan.input
+    }
     wago.categories = [...new Set(wago.categories)]
     wago.modified = Date.now()
     
