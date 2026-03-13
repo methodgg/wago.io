@@ -200,9 +200,9 @@ const addons = [{
 }, {
     type: 'GRID2',
     slug: 'grid2',
-    stringRegex: /^(\[=== ([\w\s]+) ===\])\n([A-F0-9\n]+)\n\1$/,
+    stringRegex: /^(\[=== (.*?) ===\])\n([A-F0-9\n]+)\n\1$/,
     customDecode: async (importStr) => {
-        const match = importStr.match(/^(\[=== ([\w\s]+) ===\])\n([A-F0-9\n]+)\n\1$/)
+        const match = importStr.match(/^(\[=== (.*?) ===\])\n([A-F0-9\n]+)\n\1$/)
         const payload = obj = await luaEncoding.decode(match[3].replace(/\s/g, ''), {serialization: 'AceSerializer', compression: 'LibCompress', encoding: 'hex'})
         if (payload) {
             return {
