@@ -11,7 +11,7 @@ async function decode(encodedString, {serialization='LibSerialize', compression=
             lua.push(`data = HexDecode(data)`)
         }
         else {
-            throw 'Unknown serialization method'
+            throw 'Unknown serialization method ' + encoding
         }
 
         if (compression === 'LibDeflate') {
@@ -20,8 +20,8 @@ async function decode(encodedString, {serialization='LibSerialize', compression=
         else if (compression === 'LibCompress') {
             lua.push(`data = LibCompress:Decompress(data)`)
         }
-        else {
-            throw 'Unknown compression method'
+        else if (compression !== 'none') {
+            throw 'Unknown compression method ' + compression
         }
 
         if (serialization === 'LibSerialize' || serialization === 'AceSerializer') {

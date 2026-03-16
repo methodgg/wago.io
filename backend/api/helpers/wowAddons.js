@@ -138,6 +138,14 @@ const addons = [{
         }
     }
 }, {
+    type: 'BUFF-REMINDERS',
+    slug: 'buff-reminders',
+    stringPrefix: '!BR_',
+    buildMeta: (obj) => {
+        return {name: 'Buff Reminders Profile'}
+    },
+    compression: 'none'
+}, {
     type: 'COOLDOWN-MANAGER',
     slug: 'blizz-cooldown-manager',
     stringPrefix: '1|',

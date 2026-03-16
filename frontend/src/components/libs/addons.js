@@ -45,6 +45,10 @@ module.exports = ($t) => [
         {url: 'https://addons.wago.io/addons/bigwigs', name: $t('Download BigWigs')},
         {url: 'https://discord.gg/jGveg85', name: $t('Join BigWigs Discord')}
     ]},
+    {name: 'Buff Reminders', slug: 'buff-reminders', color: '95866b', image: 'buffreminders.png', expansions: ['ALL'], group: 'ui', links: [
+        {url: 'https://addons.wago.io/addons/buffreminders', name: $t('Download Buff Reminders')},
+        {url: 'https://discord.gg/qezQ2hXJJ7', name: $t('Join Buff Reminders Discord')}
+    ]},
     {name: 'Cell', slug: 'cell', color: '218a37', image: 'cell.png', expansions: ['ALL'], categories: ['%CLASSES%', 'cell0', 'role0'], group: 'ui', links: [
         {url: 'https://addons.wago.io/addons/cell', name: $t('Download Cell')},
         {url: 'https://discord.gg/9PSe3fKQGJ', name: $t('Join Cell Discord')}
