@@ -396,9 +396,9 @@ const addons = [{
     stringPrefix: '!TRBv2!',
     serialization: 'JSON',
     buildMeta: (obj) => {
-        const classname = Object.keys(obj)[0]
+        // const classes = Object.keys(obj)
         const meta = {
-            name: titleCase(classname) + ' Resource Bar',
+            name: 'Resource Bar',
             categories: [autoCategory(classname)]
         }
 
@@ -476,6 +476,21 @@ const addons = [{
     useLuaEncoding: true,
     serialization: 'AceSerializer'
 }, {
+//     type: 'NAOWH-QOL',
+//     slug: 'naowh-qol',
+//     stringRegex: /^([a-zA-Z0-9\(\)]+)$/,
+//     buildMeta: (obj) => {
+//         console.log('fsd')
+//         return {}
+//         // if (obj?.PercentCount && obj.ChestTimer1 && obj.AffixIcons && obj.CurrentPullBar && obj.BossTimer && obj.ForcesCompletion) {
+//         //     return {name: 'MPlus Timer Settings'}
+//         // }
+//         // return false
+//     },
+//     useLuaEncoding: true,
+//     serialization: 'AceSerializer',
+//     compression: 'none'
+// }, {
     type: 'ENHANCE-QOL',
     slug: 'enhance-qol',
     stringRegex: /^([a-zA-Z0-9\(\)]+)$/,
@@ -696,4 +711,4 @@ function sortJSON(obj) {
 
 function titleCase(str) {
     return str.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
-}
+} 
