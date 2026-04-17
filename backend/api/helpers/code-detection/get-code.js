@@ -2,7 +2,7 @@ const DetectCode_WeakAura = require('./get-code-wa')
 const DetectCode_Plater = require('./get-code-plater')
 
 module.exports = function(tbl, type) {
-  if (type.match(/WEAKAURA/i)) {
+  if (type.match(/WEAKAURA|M33KAURA/i)) {
     let codes = []
     if (tbl.d) {
       codes = codes.concat(DetectCode_WeakAura(tbl.d, 'd'))

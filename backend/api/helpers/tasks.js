@@ -606,6 +606,7 @@ async function updateMDT(branch='master', path='', fileMatch=/.lua$/) {
         return file.type === 'file' && file.path.match(fileMatch)
       }
     )
+    console.log(dungeonFiles)
     for (const f of dungeonFiles) {
       await updateMDTDungeon(f, branch)
     }
@@ -622,6 +623,7 @@ async function updateMDT(branch='master', path='', fileMatch=/.lua$/) {
 }
 
 async function updateMDTDungeon(file, branch) {
+  console.log('update mdt dungeon', file.path)
   const response = await octokit.repos.getContent({
     owner: 'Nnoggie',
     repo: 'MythicDungeonTools',
@@ -653,6 +655,7 @@ async function updateMDTDungeon(file, branch) {
   const mdtData = JSON.parse(json)
 
   if (!categories.findByMDT_ID(mdtData.dungeonIndex)) {
+    console.log('no category found', mdtData.dungeonIndex)
     return
   }
 
@@ -906,6 +909,9 @@ async function ProcessCode(data) {
     code.json = sortJSON(code.json)
   }
 
+  if (data.addon === 'M33KAURAS') {
+    data.addon = 'WEAKAURA'
+  }
   if (!code.encoded && data.addon && Addons[data.addon]) {
     const addon = Addons[data.addon]
     if (addon && addon.addWagoData) {
@@ -964,6 +970,7 @@ async function ProcessCode(data) {
         case 'TITAN-WOTLK-WEAKAURA':
         case 'CATA-WEAKAURA':
         case 'MOP-WEAKAURA':
+        case 'M33KAURAS':
         case 'PLATER':
           const json = JSON.parse(code.json)
 
@@ -1162,20 +1169,23 @@ async function UpdateGameVersions() {
   GameVersions
 }
 
-async function buildStaticMDTPortraits(json, mapID, teeming, faction) {
+async function buildStaticMDTPortraits(json, mapID, teeming) {
   // this is very finicky so only run it locally to generate the images
   if (config.env !== 'development') {
     return
   }
+  const suffix = '-midnight-s1'
+  let spriteSize = 112
+  if (mapID === 114 || mapID === 110) spriteSize = 78
   const puppeteer = require('puppeteer')
   if (teeming) teeming = '-Teeming'
   else teeming = ''
 
+  json.slug += suffix
+
   let imgName = `portraitMap-${json.slug}${teeming}`
 
-  if (faction) {
-    imgName = imgName + '-Faction' + faction
-  }
+  console.log(`https://media.wago.io/mdt/portraits-${json.slug}.png`, mapID, spriteSize)
 
   const html =`<!DOCTYPE html>
   <html>
@@ -1196,7 +1206,7 @@ async function buildStaticMDTPortraits(json, mapID, teeming, faction) {
     <div id="container"></div>
     <script>
       const multiplier = 5
-      const spriteSize = 78
+      const spriteSize = ${spriteSize}
 
       const stage = new Konva.Stage({
         container: 'container',
@@ -1210,8 +1220,6 @@ async function buildStaticMDTPortraits(json, mapID, teeming, faction) {
     //   enemyPortraits.crossOrigin = 'Anonymous'
       enemyPortraits.onload = () => { console.log(enemyPortraits.src, 'loaded') 
 
-      const scaleBase = 19/30
-      const scaleBoss = scaleBase * 2
       const json = ${JSON.stringify(json)}
 
       function getEnemyPortraitOffset(numCreatures, creatureIndex, size) {
@@ -1265,7 +1273,10 @@ async function buildStaticMDTPortraits(json, mapID, teeming, faction) {
 
 //   await fs.writeFile('../tmp-mdt.html', html, 'utf8')
   const browser = await puppeteer.launch({
+    executablePath: "/usr/bin/chromium",
     args: [
+      "--no-sandbox",
+      "--disable-setuid-sandbox",
       '--disable-web-security', // ignore cors errors
     ]
   })
