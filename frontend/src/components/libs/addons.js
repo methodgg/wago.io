@@ -82,6 +82,9 @@ module.exports = ($t) => [
     {name: 'HenniAuras', slug: 'henni-auras', color: 'b86329', image: 'henni-auras.jpeg', expansions: ['midnight'], categories: ['%CLASSES%', 'role0', 'raidvoidspire', 'raiddreamrift', 'raidmarchqueldanas'], group: 'tools', links: [
         {url: 'https://addons.wago.io/addons/henni-auras', name: $t('Download HenniAuras')},
     ]},
+    {name: 'M33kAuras', slug: 'm33kauras', color: 'f7dec4', image: 'm33kauras.jpg', expansions: ['midnight'], group: 'tools', links: [
+        {url: 'https://github.com/m33shoq/M33kAuras/releases', name: $t('Download M33kAuras')},
+    ]},
     {name: 'Macro', slug: 'macro', color: 'BA25BF', image: 'macro.png', expansions: ['ALL'], categories: ['%CLASSES%', 'macroutility', 'macrotargeting'], group: 'tools', links: [
         {url: 'https://warcraft.wiki.gg/wiki/Making_a_macro', name: $t('Macro guide on Warcraft Wiki')}
     ]},
@@ -111,6 +114,9 @@ module.exports = ($t) => [
         {url: 'https://addons.wago.io/addons/total-rp-3', name: $t('Download Total RP 3')},
         {url: 'https://addons.wago.io/addons/total-rp-3-extended', name: $t('Download Total RP 3 Extended')},
         {url: 'http://discord.totalrp3.info/', name: $t('Join Total RP Discord')}
+    ]},
+    {name: 'Twintop\'s Resource Bar', slug: 'twintops-resource-bar', color: 'ac78e9', image: 'twintop.png', expansions: ['midnight'], categories: ['%CLASSES%'], group: 'combat', links: [
+        {url: 'https://addons.wago.io/addons/twintopresourcebar', name: $t('Download Twintop\'s Resource Bar')},
     ]},
     {name: 'Unhalted Unit Frames', slug: 'unhalted-unit-frames', color: 'adadfd', image: 'unhalted.png', expansions: ['midnight'], group: 'ui', links: [
         {url: 'https://addons.wago.io/addons/unhaltedunitframes', name: $t('Download Unhalted Unit Frames')},

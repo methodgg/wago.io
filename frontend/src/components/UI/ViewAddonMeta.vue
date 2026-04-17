@@ -1,6 +1,6 @@
 <template>
     <md-layout md-row id="addon-meta">
-        <md-button @click="doSearch()">{{ $t('Search [-addon-] Imports', {addon: addon.name}) }}</md-button>
+        <md-button @click="doSearch()" v-html="$t('Search [-addon-] Imports', {addon: addon.name})"></md-button>
         <template v-for="link in (addon.links ?? [])">
             <md-button v-if="link.url.match(/^\//)" @click="$router.push(link.url)">{{ link.name }}</md-button>
             <md-button v-else :href="link.url" target="_blank" rel="noopener">{{ link.name }}</md-button>

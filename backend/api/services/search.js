@@ -14,6 +14,7 @@ function expansionIndex(exp) {
   else if (exp === 'sl') return 8
   else if (exp === 'df') return 9
   else if (exp === 'tww') return 10
+  else if (exp === 'midnight') return 11
   else if (exp === 'titan-wotlk') return 102
 
   else if (exp === 'all') return -1
@@ -86,6 +87,7 @@ async function searchElastic(req, res) {
   if (req.domain) {}
   else if (req.query.expansion === 'legacy') {
     filterExpansion = [
+      { term: { expansion: { value: expansionIndex('tww') } } },
       { term: { expansion: { value: expansionIndex('df') } } },
       { term: { expansion: { value: expansionIndex('sl') } } },
       { term: { expansion: { value: expansionIndex('bfa') } } },

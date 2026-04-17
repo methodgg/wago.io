@@ -391,6 +391,20 @@ const addons = [{
     },
     useLuaEncoding: true,
 }, {
+    type: 'TWINTOPS-RESOURCE-BAR',
+    slug: 'twintops-resource-bar',
+    stringPrefix: '!TRBv2!',
+    serialization: 'JSON',
+    buildMeta: (obj) => {
+        const classname = Object.keys(obj)[0]
+        const meta = {
+            name: titleCase(classname) + ' Resource Bar',
+            categories: [autoCategory(classname)]
+        }
+
+        return meta
+    },
+}, {
     type: 'WATCHTOWER',
     slug: 'watchtower',
     stringPrefix: 'WT1:',
@@ -454,7 +468,6 @@ const addons = [{
     slug: 'mplus-timer',
     stringRegex: /^([a-zA-Z0-9\(\)]+)$/,
     buildMeta: (obj) => {
-        // string does not have a unique identifier so check a bunch of expected fields
         if (obj?.PercentCount && obj.ChestTimer1 && obj.AffixIcons && obj.CurrentPullBar && obj.BossTimer && obj.ForcesCompletion) {
             return {name: 'MPlus Timer Settings'}
         }
@@ -633,7 +646,7 @@ module.exports = {
 }
 
 function autoCategory(item) {
-    switch (item) {
+    switch ((''+item).toUpperCase()) {
         case 'DEATHKNIGHT': return 'cl6'
         case 'DEMONHUNTER': return 'cl12'
         case 'DRUID': return 'cl11'
@@ -679,4 +692,8 @@ function sortJSON(obj) {
   }
 
   return sorted
+}
+
+function titleCase(str) {
+    return str.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
 }

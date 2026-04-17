@@ -172,6 +172,7 @@ module.exports = {
     else if (meta.game === 'titan-wotlk') meta.type = 'TITAN-WOTLK-WEAKAURA'
     else if (meta.game === 'cata') meta.type = 'CATA-WEAKAURA'
     else if (meta.game === 'mop') meta.type = 'MOP-WEAKAURA'
+    else if (meta.game === 'midnight') meta.type = 'M33KAURAS'
     else if (meta.game === 'unknown') meta.type = 'UNKNOWN-WEAKAURA'
 
     if (obj.wagoID) {
@@ -319,6 +320,7 @@ module.exports = {
       else if (wago.game === 'titan-wotlk') wago.type = 'TITAN-WOTLK-WEAKAURA'
       else if (wago.game === 'cata') wago.type = 'CATA-WEAKAURA'
       else if (wago.game === 'mop') wago.type = 'MOP-WEAKAURA'
+      else if (wago.game === 'midnight') wago.type = 'M33KAURAS'
       else if (wago.game === 'unknown') wago.type = 'UNKNOWN-WEAKAURA'
       else wago.type = 'WEAKAURA'
 
