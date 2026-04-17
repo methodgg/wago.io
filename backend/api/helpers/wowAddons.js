@@ -399,7 +399,7 @@ const addons = [{
         // const classes = Object.keys(obj)
         const meta = {
             name: 'Resource Bar',
-            categories: [autoCategory(classname)]
+            // categories: [autoCategory(classname)]
         }
 
         return meta
