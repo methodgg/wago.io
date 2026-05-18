@@ -21,7 +21,7 @@ module.exports = {
     },
   
     processMeta: (obj) => {
-      if (!obj || !Array.isArray(obj.categories) || !Array.isArray(obj.modifications) || !obj.version) {
+      if (!obj || (obj.addon !== 'Baganator' && (!Array.isArray(obj.categories) || !Array.isArray(obj.modifications) || !obj.version))) {
         return false
       }
       let meta = {}
