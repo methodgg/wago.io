@@ -107,6 +107,9 @@ module.exports = ($t) => [
     {name: 'Sensei Class Resource Bar', slug: 'sensei-class-resource-bar', color: 'fbcc91', image: 'senseiclassresourcebar.png', expansions: ['midnight'], group: 'combat', links: [
         {url: 'https://addons.wago.io/addons/sensei-class-resource-bar', name: $t('Download Sensei Class Resource Bar')},
     ]},
+    {name: 'SkironCooldownManager', slug: 'skiron-cooldown-manager', color: '398fac', image: 'skironcdm.png', expansions: ['midnight'], categories: ['%CLASSES%'], group: 'combat', links: [
+        {url: 'https://addons.wago.io/addons/skironcooldownmanager', name: $t('Download SkironCooldownManager')},
+    ]},   
     {name: 'Targeted Spells', slug: 'targeted-spells', color: 'afadac', image: 'targeted-spells.jpg', expansions: ['midnight'], group: 'combat', links: [
         {url: 'https://addons.wago.io/addons/targeted-spells', name: $t('Download Targeted Spells')},
     ]},

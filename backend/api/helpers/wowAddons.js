@@ -2,6 +2,7 @@ const blizzEncoding = require('./blizzEncoding')
 const luaEncoding = require('./luaEncoding')
 const getCode = require('./code-detection/get-code')
 const patchDates = require('./patchDates')
+const categories = require('../../../frontend/src/components/libs/categories2')
 
 const addons = [{
     type: 'AYIJE-CDM',
@@ -206,6 +207,16 @@ const addons = [{
     },
     useLuaEncoding: true,
 }, {
+    type: 'EXBOSS',
+    slug: 'exboss',
+    stringPrefix: 'EXBXC:',
+    useLuaEncoding: true,
+    buildMeta: (obj) => {
+        const meta = {categories:[]}
+        meta.name = 'EXBOSS Profile'
+        return meta
+    },
+}, {
     type: 'GRID2',
     slug: 'grid2',
     stringRegex: /^(\[=== (.*?) ===\])\n([A-F0-9\n]+)\n\1$/,
@@ -373,6 +384,44 @@ const addons = [{
         return meta
     },
     useLuaEncoding: true,
+}, {
+    type: 'SKIRONCOOLDOWNMANAGER',
+    slug: 'skiron-cooldown-manager',
+    stringPrefix: '!SCM:1:',
+    buildMeta: (obj) => {
+        const meta = {
+            name: `Skiron Profile`
+        }
+
+        if (parseInt(obj.exportType)) {
+            const classes = categories.classCategories()
+            const specs = []
+            classes.forEach(c => {
+                specs.push(...c.specs)
+            })
+            const spec = specs.find(x => x.i18n === `warcraft:specs.${obj.exportType}`)
+            if (spec) {
+                meta.categories = [spec.parent, spec.id]
+            }
+        }
+
+        return meta
+    },
+    customDecode: async (importStr) => {
+        const match = importStr.match(/^!SCM:1:(\d+)!([a-zA-Z0-9+=\/]+)$/)
+        const payload = await blizzEncoding.decode(match[2])
+        if (payload) {
+            return {
+                exportType: parseInt(match[1]),
+                data: payload
+            }
+        }
+        return false
+    },
+    customEncode: async (obj) => {
+        const prefix = `!SCM:1:${obj.exportType}!`
+        return prefix + await blizzEncoding.encode(obj.data)
+    },
 }, {
     type: 'UNHALTED-UNIT-FRAMES',
     slug: 'unhalted-uf',
