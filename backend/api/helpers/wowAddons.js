@@ -525,21 +525,18 @@ const addons = [{
     useLuaEncoding: true,
     serialization: 'AceSerializer'
 }, {
-//     type: 'NAOWH-QOL',
-//     slug: 'naowh-qol',
-//     stringRegex: /^([a-zA-Z0-9\(\)]+)$/,
-//     buildMeta: (obj) => {
-//         console.log('fsd')
-//         return {}
-//         // if (obj?.PercentCount && obj.ChestTimer1 && obj.AffixIcons && obj.CurrentPullBar && obj.BossTimer && obj.ForcesCompletion) {
-//         //     return {name: 'MPlus Timer Settings'}
-//         // }
-//         // return false
-//     },
-//     useLuaEncoding: true,
-//     serialization: 'AceSerializer',
-//     compression: 'none'
-// }, {
+    type: 'COOLDOWN-COMPANION',
+    slug: 'cooldown-companion',
+    stringRegex: /^([a-zA-Z0-9\(\)]+)$/,
+    buildMeta: (obj) => {
+        if (obj._cdcExportFormat && obj._cdcImportCheckpoint) {
+            return {name: obj.container?.name || 'Cooldown Companion'}
+        }
+        return false
+    },
+    useLuaEncoding: true,
+    serialization: 'AceSerializer',
+}, {
     type: 'ENHANCE-QOL',
     slug: 'enhance-qol',
     stringRegex: /^([a-zA-Z0-9\(\)]+)$/,

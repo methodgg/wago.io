@@ -57,7 +57,11 @@ module.exports = ($t) => [
         {url: 'https://addons.wago.io/addons/classuienhanced', name: $t('Download Class UI Enhanced')},
         {url: 'https://discord.gg/8dWuth44Dx', name: $t('Join Class UI Enhanced Discord')}
     ]},
-    {name: 'Cooldown Manager Centered', slug: 'cooldown-manager-centered', color: 'B39BF4', image: 'cdmcentered.png', expansions: ['ALL'], group: 'combat', links: [
+    {name: 'Cooldown Companion', slug: 'cooldown-companion', color: '01f6fe', image: 'cdcompanion.png', expansions: ['midnight'], categories: ['%CLASSES%'], group: 'combat', links: [
+        {url: 'https://addons.wago.io/addons/cooldownmanagercentered', name: $t('Download Cooldown Manager Centered')},
+        {url: 'https://discord.gg/Vu9maq5Kn9', name: $t('Join Cooldown Manager Centered Discord')}
+    ]},
+    {name: 'Cooldown Manager Centered', slug: 'cooldown-manager-centered', color: '9fe508', image: 'cdmcentered.png', expansions: ['ALL'], group: 'combat', links: [
         {url: 'https://addons.wago.io/addons/cooldownmanagercentered', name: $t('Download Cooldown Manager Centered')},
         {url: 'https://discord.gg/Vu9maq5Kn9', name: $t('Join Cooldown Manager Centered Discord')}
     ]},
