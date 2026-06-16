@@ -1,14 +1,18 @@
 const luajit = require('./lua')
 
-async function decode(encodedString, {serialization='LibSerialize', compression='LibDeflate', encoding='base64'}={}) {
+async function decode(encodedString, {serialization='LibSerialize', compression='LibDeflate', encoding='base64', customSerialize=null, customCompression=null, customEncoding=null}={}) {
     try {
         const escapedString = encodedString.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim()
         const lua = [`local data = "${escapedString}"`]
+        console.log('lua decode', serialization)
         if (encoding === 'base64') {
             lua.push(`data = LibDeflate:DecodeForPrint(data)`)
         }
         else if (encoding === 'hex') {
             lua.push(`data = HexDecode(data)`)
+        }
+        else if (encoding === 'custom' && customEncoding?.match(/data ?=/)) {
+            lua.push(customEncoding)
         }
         else {
             throw 'Unknown serialization method ' + encoding
@@ -20,12 +24,18 @@ async function decode(encodedString, {serialization='LibSerialize', compression=
         else if (compression === 'LibCompress') {
             lua.push(`data = LibCompress:Decompress(data)`)
         }
+        else if (compression === 'custom' && customCompression?.match(/data ?=/)) {
+            lua.push(customEncoding)
+        }
         else if (compression !== 'none') {
             throw 'Unknown compression method ' + compression
         }
 
         if (serialization === 'LibSerialize' || serialization === 'AceSerializer') {
             lua.push(`_, data = ${serialization}:Deserialize(data)`)
+        }
+        else if (serialization === 'custom' && customSerialize?.match(/data ?=/)) {
+            lua.push(customSerialize)
         }
         else {
             throw 'Unknown serialization method ' + serialization
@@ -47,7 +57,7 @@ async function decode(encodedString, {serialization='LibSerialize', compression=
     }
 }
 
-async function encode(json, {serialization='LibSerialize', compression='LibDeflate', encoding='base64'}={}) {
+async function encode(json, {serialization='LibSerialize', compression='LibDeflate', encoding='base64', customSerialize=null, customCompression=null, customEncoding=null}={}) {
     try {
         if (typeof json === 'object') {
             json = JSON.stringify(json)
@@ -62,6 +72,9 @@ async function encode(json, {serialization='LibSerialize', compression='LibDefla
         if (serialization === 'LibSerialize' || serialization === 'AceSerializer') {
             lua.push(`data = ${serialization}:Serialize(data)`)
         }
+        else if (serialization === 'custom' && customSerialize?.match(/data ?=/)) {
+            lua.push(customSerialize)
+        }
         else {
             throw 'Unknown serialization method'
         }
@@ -72,6 +85,9 @@ async function encode(json, {serialization='LibSerialize', compression='LibDefla
         else if (compression === 'LibCompress') {
             lua.push(`data = LibCompress:CompressHuffman(data)`)
         }
+        else if (compression === 'custom' && customCompression?.match(/data ?=/)) {
+            lua.push(customCompression)
+        }
         else {
             throw 'Unknown compression method'
         }
@@ -81,6 +97,9 @@ async function encode(json, {serialization='LibSerialize', compression='LibDefla
         }
         else if (encoding === 'hex') {
             lua.push(`data = HexEncode(data)`)
+        }
+        else if (encoding === 'custom' && customEncoding?.match(/data ?=/)) {
+            lua.push(customEncoding)
         }
         else {
             throw 'Unknown encoding method'
