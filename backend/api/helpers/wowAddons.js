@@ -207,6 +207,126 @@ const addons = [{
     },
     useLuaEncoding: true,
 }, {
+    type: 'ELLESMEREUI',
+    slug: 'ellesmereui',
+    stringPrefix: '!EUI_',
+    buildMeta: (obj) => {
+        const meta = {
+            name: 'EllesmereUI Profile',
+            categories:[]
+        }
+        
+        return meta
+    },
+    customDecode: async (importStr) => {
+        return luaEncoding.decode(importStr.substring(5), {serialization: 'custom', customSerialize: `
+            local function DeserializeValue(str, pos)
+                local tag = str:sub(pos, pos)
+                if tag == "s" then
+                    -- Find the colon after the length
+                    local colonPos = str:find(":", pos + 1, true)
+                    if not colonPos then return nil, pos end
+                    local len = tonumber(str:sub(pos + 1, colonPos - 1))
+                    if not len then return nil, pos end
+                    local val = str:sub(colonPos + 1, colonPos + len)
+                    return val, colonPos + len + 1
+                elseif tag == "n" then
+                    local semi = str:find(";", pos + 1, true)
+                    if not semi then return nil, pos end
+                    return tonumber(str:sub(pos + 1, semi - 1)), semi + 1
+                elseif tag == "T" then
+                    return true, pos + 1
+                elseif tag == "F" then
+                    return false, pos + 1
+                elseif tag == "N" then
+                    return nil, pos + 1
+                elseif tag == "{" then
+                    local tbl = {}
+                    local idx = 1
+                    local p = pos + 1
+                    while p <= #str do
+                        local c = str:sub(p, p)
+                        if c == "}" then
+                            return tbl, p + 1
+                        elseif c == "K" then
+                            -- Key-value pair
+                            local key, val
+                            key, p = DeserializeValue(str, p + 1)
+                            val, p = DeserializeValue(str, p)
+                            if key ~= nil then
+                                tbl[key] = val
+                            end
+                        else
+                            -- Array element
+                            local val
+                            val, p = DeserializeValue(str, p)
+                            tbl[idx] = val
+                            idx = idx + 1
+                        end
+                    end
+                    return tbl, p
+                end
+                return nil, pos + 1
+            end
+
+            local function Deserialize(str)
+                if not str or #str == 0 then return nil end
+                local val, _ = DeserializeValue(str, 1)
+                return val
+            end
+            data = Deserialize(data)
+        `})
+    },
+    customEncode: async (obj) => {
+        return `!EUI_${await luaEncoding.encode(obj.data, {serialization: 'custom', customSerialize: `
+            local function SerializeValue(v, parts)
+            local t = type(v)
+            if t == "string" then
+                parts[#parts + 1] = "s"
+                -- Length-prefixed to avoid delimiter issues
+                parts[#parts + 1] = #v
+                parts[#parts + 1] = ":"
+                parts[#parts + 1] = v
+            elseif t == "number" then
+                parts[#parts + 1] = "n"
+                parts[#parts + 1] = tostring(v)
+                parts[#parts + 1] = ";"
+            elseif t == "boolean" then
+                parts[#parts + 1] = v and "T" or "F"
+            elseif t == "nil" then
+                parts[#parts + 1] = "N"
+            elseif t == "table" then
+                parts[#parts + 1] = "{"
+                -- Serialize array part first (integer keys 1..n)
+                local n = #v
+                for i = 1, n do
+                    SerializeValue(v[i], parts)
+                end
+                -- Then hash part (non-integer keys, or integer keys > n)
+                for k, val in pairs(v) do
+                    local kt = type(k)
+                    if kt == "number" and k >= 1 and k <= n and k == math.floor(k) then
+                        -- Already serialized in array part
+                    else
+                        parts[#parts + 1] = "K"
+                        SerializeValue(k, parts)
+                        SerializeValue(val, parts)
+                    end
+                end
+                parts[#parts + 1] = "}"
+            end
+        end
+
+        local function Serialize(tbl)
+            local parts = {}
+            SerializeValue(tbl, parts)
+            return table.concat(parts)
+        end
+        data = Serialize(data)
+        `})}`
+    },
+    useLuaEncoding: true,
+}, {
     type: 'EXBOSS',
     slug: 'exboss',
     stringPrefix: 'EXBXC:',

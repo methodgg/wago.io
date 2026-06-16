@@ -58,8 +58,8 @@ module.exports = ($t) => [
         {url: 'https://discord.gg/8dWuth44Dx', name: $t('Join Class UI Enhanced Discord')}
     ]},
     {name: 'Cooldown Companion', slug: 'cooldown-companion', color: '01f6fe', image: 'cdcompanion.png', expansions: ['midnight'], categories: ['%CLASSES%'], group: 'combat', links: [
-        {url: 'https://addons.wago.io/addons/cooldownmanagercentered', name: $t('Download Cooldown Manager Centered')},
-        {url: 'https://discord.gg/Vu9maq5Kn9', name: $t('Join Cooldown Manager Centered Discord')}
+        {url: 'https://addons.wago.io/addons/cooldown-companion', name: $t('Download Cooldown Companion')},
+        {url: 'https://discord.gg/RQhW8FFuBY', name: $t('Join Cooldown Companion Discord')}
     ]},
     {name: 'Cooldown Manager Centered', slug: 'cooldown-manager-centered', color: '9fe508', image: 'cdmcentered.png', expansions: ['ALL'], group: 'combat', links: [
         {url: 'https://addons.wago.io/addons/cooldownmanagercentered', name: $t('Download Cooldown Manager Centered')},
@@ -72,9 +72,15 @@ module.exports = ($t) => [
         {url: 'https://addons.wago.io/addons/deadly-boss-mods-dbm', name: $t('Download Danders Frames')},
         {url: 'https://discord.gg/SDWtduCqnT', name: $t('Join Danders Discord')}
     ]},
+    {name: 'EllesmereUI', slug: 'ellesmere-ui', color: '2ff6bf', image: 'ellesmereui.png', expansions: ['ALL'], group: 'ui', links: [
+        {url: 'https://addons.wago.io/addons/ellesmereui', name: $t('Download EllesmereUI')},
+    ]},
     {name: 'Enhance QoL', slug: 'enhance-qol', color: 'e0d0b3', image: 'enhanceqol.png', expansions: ['midnight'], categories: ['%CLASSES%', 'enhanceqol0'], group: 'ui', links: [
         {url: 'https://addons.wago.io/addons/eqol', name: $t('Download Enhance QoL')},
         {url: 'https://discord.gg/kqQfG9YhVn', name: $t('Join Enhance Qol Discord')}
+    ]},
+    {name: 'EXBOSS', slug: 'exboss', color: 'f0f0f0', image: 'exboss.png', expansions: ['midnight'], group: 'combat', links: [
+        {url: 'https://addons.wago.io/addons/exboss', name: $t('Download EXBOSS')},
     ]},
     {name: 'Grid2', slug: 'grid2', color: '637a41', image: 'grid2.jpg', expansions: ['ALL'], categories: ['%CLASSES%', 'role0'], group: 'ui', links: [
         {url: 'https://addons.wago.io/addons/grid2', name: $t('Download Grid2')},
