@@ -208,7 +208,7 @@ const addons = [{
     useLuaEncoding: true,
 }, {
     type: 'ELLESMEREUI',
-    slug: 'ellesmereui',
+    slug: 'ellesmere-ui',
     stringPrefix: '!EUI_',
     buildMeta: (obj) => {
         const meta = {
