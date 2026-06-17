@@ -278,7 +278,7 @@ const addons = [{
         `})
     },
     customEncode: async (obj) => {
-        return `!EUI_${await luaEncoding.encode(obj.data, {serialization: 'custom', customSerialize: `
+        return `!EUI_${await luaEncoding.encode(obj, {serialization: 'custom', customSerialize: `
             local function SerializeValue(v, parts)
             local t = type(v)
             if t == "string" then
