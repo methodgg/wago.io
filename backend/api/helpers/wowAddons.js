@@ -15,6 +15,19 @@ const addons = [{
         return {name: 'Ayije Cooldown Manager Profile'}
     },
 }, {
+    type: 'BAGANATOR',
+    slug: 'baganator',
+    stringPrefix: 'BGR!1!',
+    useLegacyEncoding: Date.now() < 1787230800000, // until Aug 20 2026
+    buildMeta: (obj) => {
+        if (obj.addon !== 'Baganator') {
+            return false
+        }
+        const meta = {categories:[]}
+        meta.name = 'Baganator Categories'
+        return meta
+    },
+}, {
     type: 'BETTER-BLIZZ-FRAMES',
     slug: 'better-blizz-frames',
     stringPrefix: '!BBF',
@@ -489,6 +502,19 @@ const addons = [{
         code.customCode = getCode(json, wago.type)
     }
 }, {
+    type: 'PLATYNATOR',
+    slug: 'platynator',
+    stringPrefix: 'PLATY!1!',
+    useLegacyEncoding: Date.now() < 1787230800000, // until Aug 20 2026
+    buildMeta: (obj) => {
+        if (obj.addon !== 'Platynator') {
+            return false
+        }
+        const meta = {categories:[]}
+        meta.name = 'Platynator Design'
+        return meta
+    },
+}, {
     type: 'SARENA-RELOADED',
     slug: 'sarena-reloaded',
     stringPrefix: '!sArena:',
@@ -773,7 +799,7 @@ async function toDecodedObject(scan) {
 
 async function toEncodedString(obj, type) {
     const addon = addons.find(a => a.type === type.toUpperCase())
-    if (!addon) return false
+    if (!addon || addon.useLegacyEncoding) return false
 
     try {
         if (typeof obj === 'string') {
