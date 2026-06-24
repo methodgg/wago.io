@@ -1249,7 +1249,7 @@ class Categories {
       'enhanceqol2': {slug: 'eqol-resource-bar', image: 'enhanceqol.png', color: '#e0d0b3', i18n: 'Resource Bar', parent: 'enhanceqol0', domain: 0, system: true},
       'enhanceqol3': {slug: 'eqol-unit-frame', image: 'enhanceqol.png', color: '#e0d0b3', i18n: 'Unit Frame', parent: 'enhanceqol0', domain: 0, system: true},
       
-      'blueprint0': {slug: 'housing-blueprints', image: 'blizzard.png', color: '#009ae4', i18n: 'Blizzard Blueprints', domain: 0, system: true},
+      'blueprint0': {slug: 'housing-blueprints', image: 'blizzard.png', color: '#009ae4', i18n: 'Housing Blueprints', domain: 0, system: true},
       'blueprint1': {slug: 'housing-blueprints/full-layout', image: 'blizzard.png', color: '#009ae4', i18n: 'Full Layout', parent: 'blueprint0', domain: 0, system: true},
       'blueprint2': {slug: 'housing-blueprints/room', image: 'blizzard.png', color: '#009ae4', i18n: 'Single Room', parent: 'blueprint0', domain: 0, system: true},
       'blueprint3': {slug: 'housing-blueprints/interior', image: 'blizzard.png', color: '#009ae4', i18n: 'Interior', parent: 'blueprint0', domain: 0, system: true},

@@ -659,8 +659,8 @@ const addons = [{
 
 // strings with no unique string identifier get checked last, each will need to check a bunch of fields
 {
-    type: 'BLIZZ-BLUEPRINT',
-    slug: 'blizz-blueprint',
+    type: 'HOUSING-BLUEPRINTS',
+    slug: 'housing-blueprints',
     compression: 'deflate',
     stringRegex: /^([-A-Za-z0-9+/]*={0,3})$/,
     serialization: 'hex',
