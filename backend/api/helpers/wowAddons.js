@@ -659,6 +659,47 @@ const addons = [{
 
 // strings with no unique string identifier get checked last, each will need to check a bunch of fields
 {
+    type: 'BLIZZ-BLUEPRINT',
+    slug: 'blizz-blueprint',
+    compression: 'deflate',
+    stringRegex: /^([-A-Za-z0-9+/]*={0,3})$/,
+    serialization: 'hex',
+    compression: 'none',
+    customDecode: async (importStr) => {
+        const payload = await blizzEncoding.decode(importStr, {serialization: 'hex', compression: 'none', encoding: 'base64'})
+        if (payload?.length === 38 && payload.match(/^.....[1-4]/)) {
+            return {
+                meta: payload.substring(0, 6),
+                key: payload.substring(6)
+            }
+        }
+        return false
+    },
+    customEncode: async (obj) => {
+        return blizzEncoding.encode(obj.meta + obj.key, {serialization: 'hex', compression: 'none', encoding: 'base64'})
+    },
+    buildMeta: (obj) => {
+        if (obj) {
+            const importType = parseInt(obj.meta.substring(5))
+            const categories = ['blueprint0', `blueprint${importType}`]
+            let name
+            if (importType === 1) {
+                name = 'Full Layout Blueprint'
+            }
+            else if (importType === 2) {
+                name = 'Room Blueprint'
+            }
+            else if (importType === 3) {
+                name = 'Interior Blueprint'
+            }
+            else if (importType === 4) {
+                name = 'Exterior Blueprint'
+            }
+            return { name, categories }
+        }
+        return false
+    },
+}, {
     type: 'MPLUS-TIMER',
     slug: 'mplus-timer',
     stringRegex: /^([a-zA-Z0-9\(\)]+)$/,

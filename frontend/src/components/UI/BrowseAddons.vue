@@ -45,6 +45,16 @@ export default {
             </md-button-toggle>
         </md-layout>
         <div style="border-top:1px solid #333">
+            <template v-if="browseExpansion === 'midnight'">
+                <h3>{{ $t('Housing') }}</h3>
+                <div class="browse-addon-group">
+                    <template v-for="addon in addonDB" v-if="addon.group === 'housing' && (addon.expansions.includes(browseExpansion) || addon.expansions.includes('ALL'))">
+                        <router-link :to="addon.url ? addon.url : `/browse/${addon.slug}`" :class="addon.image && 'addon-list-category'" :style="`outline-color: #${addon.color}77; color:#${addon.color}; background-color:#${addon.color}0A; ${addon.image && `background-image:url('/static/image/menu/${addon.image}')`}`">
+                            <span>{{ addon.name}}</span>
+                        </router-link>
+                    </template>
+                </div>
+            </template>
             <h3>{{ $t('Customize Your Interface') }}</h3>
             <div class="browse-addon-group">
                 <template v-for="addon in addonDB" v-if="addon.group === 'ui' && (addon.expansions.includes(browseExpansion) || addon.expansions.includes('ALL'))">

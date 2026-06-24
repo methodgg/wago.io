@@ -107,7 +107,6 @@ async function decode(encodedString, {serialization='CBOR', compression='deflate
             console.error('Unknown encoding', encoding)
             return false
         }
-
         let decompressed
         if (compression !== 'none') {
             decompressed = await zlibDecompress(compressed, compression)
@@ -122,6 +121,12 @@ async function decode(encodedString, {serialization='CBOR', compression='deflate
         else if (serialization === 'CBOR') {
             const decodedMap = await borc.decodeFirst(decompressed)
             return mapToJSON(decodedMap)
+        }
+        else if (serialization === 'hex') {
+            return decompressed.toString('hex')
+        }
+        else if (serialization === 'none') {
+            return decompressed
         }
         else {
             console.error('Unknown serialization', serialization)
@@ -155,6 +160,9 @@ async function encode(json, {serialization='CBOR', compression='deflateRaw', enc
             }
             const objMap = JSONtoMap(obj)
             serialized = await borc.encode(objMap)
+        }
+        else if (serialization === 'hex') {
+            serialized = Buffer.from(json, 'hex')
         }
         else {
             console.error('Unknown serialization', serialization)

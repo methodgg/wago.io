@@ -144,7 +144,7 @@ module.exports = ($t) => [
     ]},
     {name: 'Blizzard Edit Mode', slug: 'blizzhud', color: '009ae4', image: 'blizzard.png', expansions: ['ALL'], categories: ['%CLASSES%', 'role0'], group: 'blizzard'},
     {name: 'Blizzard Cooldown Manager', slug: 'cooldown-manager', color: '009ae4', image: 'blizzard.png', expansions: ['midnight'], categories: ['%CLASSES%', 'role0'], group: 'blizzard'},
-    {name: 'Blizzard Housing (Coming soon)', url: '/', color: '009ae4', image: 'blizzard.png', expansions: ['midnight'], group: 'blizzard'},
+    {name: 'Housing Blueprints', slug: 'housing-blueprints', color: '009ae4', image: 'blizzard.png', expansions: ['midnight'], group: 'housing', categories: ['blueprint0']},
 ]
 
 function lookupColor(id) {
