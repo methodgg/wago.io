@@ -125,12 +125,15 @@ const addons = [{
 }, {
     type: 'BIGWIGS',
     slug: 'bigwigs',
-    stringRegex: /^(?:BW2|BWIS1):(.+)$/,
+    stringRegex: /^(?:BW2|BWIS1|BWB1):(.+)$/,
     buildMeta: (obj) => {
         const meta = {}
 
         if (obj.zone) {
             meta.name = 'BigWigs Instance Settings'
+        }
+        else if (obj.version === 'BWB1') {
+            meta.name = 'BigWigs Instances'
         }
         else {
             meta.name = 'BigWigs Profile'
@@ -140,8 +143,9 @@ const addons = [{
     },
     customEncode: async (obj) => {
         const encodedStr = await blizzEncoding.encode(obj)
-        const prefix = obj.zone ? 'BWIS1:' : 'BW2:'
-        return prefix + encodedStr
+        const prefix = obj.zone ? 'BWIS1' : 
+                       obj.version === 'BWB1' ? 'BWB1' : 'BW2'
+        return `${prefix}:${encodedStr}`
     },
     addWagoData: (wago, code, obj) => {
         if (obj.zone < 0) {
