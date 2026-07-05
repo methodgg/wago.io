@@ -7,7 +7,8 @@ const semver = require('semver')
 const crypto = require("crypto-js")
 const patchDates = require('../helpers/patchDates')
 const losslessJSON = require("lossless-json")
-
+const tmpDir = __dirname + '/../../run-tmp/'
+const s3 = require('../helpers/s3Client')
 const wowAddons = require('../helpers/wowAddons')
 
 module.exports = function (fastify, opts, next) {
@@ -635,6 +636,39 @@ module.exports = function (fastify, opts, next) {
       wago.relevancy = Categories.relevanceScores(wago.categories)
     }
 
+    if (scan.screenshot) {
+      const match = scan.screenshot.match(/^data:image\/(png|jpg|gif|jpeg);base64,/i)
+      if (match[1] === 'jpeg') {
+        match[1] = 'jpg'
+      }
+      // prepare image
+      var data = scan.screenshot.replace(/^data:image\/\w+;base64,/, "")
+      var buffer = Buffer.from(data, 'base64')
+      
+      // setup database entry
+      var screen = new Screenshot({auraID: wago._id, sort: 0})
+      screen.localFile = screen._id.toString() + '.' + match[1] // filename
+      
+      await fs.writeFile(tmpDir + screen.localFile, buffer)
+      
+      // upload to s3
+      try {
+        await s3.uploadFile({
+          localFile: tmpDir + screen.localFile,
+          s3Params: {
+            Bucket: 'wago-media',
+            Key: `screenshots/${wago._id}/${screen.localFile}`
+          }
+        })
+        fs.unlink(tmpDir + screen.localFile)
+        await screen.save()
+      }
+      catch (e) {
+        console.log(e)
+        fs.unlink(tmpDir + screen.localFile)
+      }
+    }
+
     // time to save!    
     if (req.body.importAs === 'User' && req.user) {
         await webhooks.onImport(req.user, wago)
@@ -1087,6 +1121,29 @@ module.exports = function (fastify, opts, next) {
     else {
       return res.code(400).send({ error: "Invalid data" })
     }
+  })
+  
+  fastify.post('/scan/screenshot', async function (req, res) {
+    if (!req.body?.scanID) {
+      return res.code(400).send({ error: 'invalid_import' })
+    }
+    const img = req.body.image
+    const match = img?.match(/^data:image\/(png|jpe?g|gif);base64,/i)
+    if (!img || !match) {
+      return res.code(400).send({error: "bad_input"})
+    }
+    
+    const scan = await ImportScan.findById(req.body.scanID)
+    if (!scan) {
+      return res.code(400).send({ error: 'scan_expired' })
+    }
+    
+    if (img.length > 15000000) {
+      return res.code(400).send({error: "too_large"})
+    }
+    scan.screenshot = img
+    await scan.save()
+    return res.send({success: true})
   })
 
   // imports json and creates a scan id

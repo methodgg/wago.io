@@ -147,7 +147,7 @@
         </md-layout>
 
         <div v-if="scanID && importType !== 'Lua Error' && importType !== 'DBM' && importType !== 'BIGWIGS' && importType !== 'MDT'">
-          <label id="categoryLabel">{{ $t("Categories") }}</label>
+          <label id="categoryLabel"><strong>{{ $t("Categories") }}</strong></label>
           <md-button class="md-icon-button md-raised" @click="numCategorySets++">
             <md-icon>add</md-icon>
           </md-button>
@@ -156,6 +156,17 @@
               <category-select :selectedCategories="setCategories[n-1]" @update="cat => {setCategories[n-1] = cat; onUpdateCategories()}" :type="(importType === 'WEAKAURAS2' ? 'WEAKAURA' : importType).toUpperCase()" :game="importGame"></category-select>
             </div>
           </div>
+        </div>
+        
+        <div v-if="scanID && importType !== 'Lua Error'">
+          <label id="categoryLabel">
+            <strong>{{ $t("Attach Screenshot") }}</strong>
+            <md-spinner v-if="uploadScreenshotInProgress"></md-spinner>
+            <md-icon v-else-if="uploadScreenshotSuccess">check</md-icon>
+          </label>          
+          <md-input-container>
+            <md-file accept="image/*" :placeholder="$t('Click to upload image')" @selected="uploadScreenshot($event)"></md-file>
+          </md-input-container>
         </div>
 
         <md-button class="md-raised" :disabled="disableSubmit || (visibility === 'Encrypted' && !cipherKey.length)" @click="submitImport()" style="margin-top:2em">{{ $t('Submit') }}</md-button>
@@ -564,6 +575,8 @@ export default {
       importDomain: 0,
       isScanning: false,
       scanID: '',
+      uploadScreenshotInProgress: false,
+      uploadScreenshotSuccess: false,
       disableSubmit: true,
       top10Lists: {},
       topLists: [],
@@ -691,6 +704,29 @@ export default {
           window.eventHub.$emit('showSnackBar', vue.$t('Import failed or expired please try again'))
         }
       })
+    },
+
+    async uploadScreenshot(file) {
+      var vue = this
+      file = file[0]
+      vue.uploadScreenshotInProgress = true
+      vue.uploadScreenshotSuccess = false
+
+      const image = new Promise((resolve, reject) => {
+        let fr = new FileReader()
+        fr.onload = () => resolve( fr.result)
+        fr.onerror = reject
+        fr.readAsDataURL( file)
+      })
+
+      vue.http.post('/import/scan/screenshot', {image: await image, scanID: vue.scanID})
+        .then((res) => {
+          vue.uploadScreenshotInProgress = false
+          vue.uploadScreenshotSuccess = true
+        })
+        .catch((err) => {
+          console.error('Error uploading image', err)
+        })
     },
 
     onUpdateCategories () {
