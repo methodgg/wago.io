@@ -169,7 +169,7 @@
           </md-input-container>
         </div>
 
-        <md-button class="md-raised" :disabled="disableSubmit || (visibility === 'Encrypted' && !cipherKey.length)" @click="submitImport()" style="margin-top:2em">{{ $t('Submit') }}</md-button>
+        <md-button class="md-raised" :disabled="disableSubmit || uploadScreenshotInProgress || (visibility === 'Encrypted' && !cipherKey.length)" @click="submitImport()" style="margin-top:2em">{{ $t('Submit') }}</md-button>
       </md-whiteframe>
     </md-layout>
 
