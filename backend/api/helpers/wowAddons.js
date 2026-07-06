@@ -156,6 +156,20 @@ const addons = [{
         }
     }
 }, {
+    type: 'BLIZZI-PARTY-TOOLS',
+    slug: 'blizzi-party-tools',
+    stringPrefix: '!BIT!',
+    buildMeta: (obj) => {
+        if (obj.profiles) {
+            return {name: 'Blizzi Party Tools: Full Bundle'}
+        }
+        else if (obj.categories) {
+            return {name: 'Blizzi Party Tools: Module Settings'}
+        }
+        return {name: 'Blizzi Party Tools: Profile'}
+    },
+    useLuaEncoding: true,
+}, {
     type: 'BUFF-REMINDERS',
     slug: 'buff-reminders',
     stringPrefix: '!BR_',

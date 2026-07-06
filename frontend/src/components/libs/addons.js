@@ -45,6 +45,9 @@ module.exports = ($t) => [
         {url: 'https://addons.wago.io/addons/bigwigs', name: $t('Download BigWigs')},
         {url: 'https://discord.gg/jGveg85', name: $t('Join BigWigs Discord')}
     ]},
+    {name: 'BliZzi Party Tools', slug: 'blizzi-party-tools', color: 'f90115', image: 'blizzipartytools.png', expansions: ['midnight'], group: 'combat', links: [
+        {url: 'https://addons.wago.io/addons/blizzi-party-tools', name: $t('Download BliZzi Party Tools')},
+    ]},
     {name: 'Buff Reminders', slug: 'buff-reminders', color: '95866b', image: 'buffreminders.png', expansions: ['ALL'], group: 'ui', links: [
         {url: 'https://addons.wago.io/addons/buffreminders', name: $t('Download Buff Reminders')},
         {url: 'https://discord.gg/qezQ2hXJJ7', name: $t('Join Buff Reminders Discord')}
