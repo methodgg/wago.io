@@ -115,7 +115,12 @@ export default {
     },
     
     hasChildren: function (id) {
-        return this.selectedCategories.filter(c => c.id !== id && c.id?.startsWith(id)).length > 0
+        if (Array.isArray(this.selectedCategories)) {
+          return this.selectedCategories.filter(c => c.id !== id && c.id?.startsWith(id)).length > 0
+        }
+        else {
+          return [this.selectedCategories].filter(c => c.id !== id && c.id?.startsWith(id)).length > 0
+        }
     }
   },
   mounted: function () {

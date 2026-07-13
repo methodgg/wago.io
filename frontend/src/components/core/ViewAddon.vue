@@ -80,7 +80,7 @@ export default {
     addon: function () {
         const addon = this.addonDB.find(a => a.slug === this.$route.params.addon)
         if (!addon) this.$router.replace('/')
-        if (!addon.categories) this.$router.replace('/search/imports/wow/' + addon.slug)
+        if (!addon.categories || (addon.categories.length === 1 && !addon.categories.includes('%CLASSES%'))) this.$router.replace('/search/imports/wow/' + addon.slug)
         return addon
     },
     classCategories: function () {
@@ -114,15 +114,15 @@ export default {
 <style lang="scss">
 #browse-addon {
     .addon-name {
-    .md-avatar {
-        margin: 16px;
-        border-radius: 4px;
-    }
+        .md-avatar {
+            margin: 16px;
+            border-radius: 4px;
+        }
 
-    h2 {
-        margin: 16px 0 0 0;
-        line-height: 40px
-    }
+        h2 {
+            margin: 16px 0 0 0;
+            line-height: 40px
+        }
     }
 
     h2 .faded {

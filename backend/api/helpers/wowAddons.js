@@ -604,6 +604,23 @@ const addons = [{
     },
     useLuaEncoding: true,
 }, {
+    type: 'SENTINEL-CDM',
+    slug: 'sentinel-cdm',
+    stringRegex: /^SCDM:3:(?:P|C):([-A-Za-z0-9+/]*={0,3})$/,
+    buildMeta: (obj) => {
+        const meta = {
+            name: obj.name
+        }
+        if (obj.className) {
+            meta.categories = [autoCategory(obj.className)]
+        }
+        return meta
+    },
+    customEncode: async (obj) => {
+        const prefix = `SCDM:3:${obj.kind}:`
+        return prefix + await blizzEncoding.encode(obj)
+    },
+}, {
     type: 'TWINTOPS-RESOURCE-BAR',
     slug: 'twintops-resource-bar',
     stringPrefix: '!TRBv2!',

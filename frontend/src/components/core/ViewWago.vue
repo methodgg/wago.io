@@ -425,9 +425,13 @@
               <ui-warning v-if="codeReview?.tbcAnniversaryWarning">
                 {{ $t('This WeakAura was created for the original TBC Classic and may not work as expected in the TBC Classic Anniversary.') }}
               </ui-warning>
-
-              <ui-warning v-if="wago.type === 'BLIZZHUD'" mode="alert">
-                Blizzard Hud is still early in development and not fully supported in-game nor on Wago.<br></br>If there are breaking changes in a future Alpha build, existing Blizz Hud imports may be deleted.
+              
+              <ui-warning v-if="User && wago.UID && wago.UID === User.UID && !wago.screens?.length && showPanel !== 'config'" mode="alert">
+                <span style="display: flex; flex-wrap: wrap; justify-content: space-between; width: 100%">
+                  {{ $t('Your import does not have a screenshot attached, upload one now') }}
+                  <label class="md-button" for="no-screenshot-upload" style="margin-left:1rem; color: #ccc">Select file</label>
+                  <input type="file" id="no-screenshot-upload" v-on:change="onUploadFile($event)" multiple accept="image/*" style="display:none" />
+                </span>
               </ui-warning>
 
               <ui-warning v-if="wago.expires" mode="info">
@@ -3235,6 +3239,7 @@ export default {
     },
 
     onUploadFile (files) {
+      if (files.target?.files) files = files.target.files
       var vue = this
       /* eslint-disable no-cond-assign */
       for (var i = 0, file; file = files[i]; i++) {
@@ -3243,6 +3248,7 @@ export default {
 
         vue.http.upload('/wago/upload/image/base64', file, {wagoID: vue.wago._id})
           .then((res) => {
+            if (!vue.wago.screens) vue.wago.screens = []
             vue.uploadFileProgress[uploadIndex] = 100
             vue.$set(vue.wago.screens, vue.wago.screens.length, res)
             vue.$nextTick(function () {

@@ -1,16 +1,16 @@
 const categories = require('./categories2')
 module.exports = ($t) => [
-    {name: 'Mists of Pandaria WeakAuras', url: '/mop-weakauras', color: 'cccccc', image: 'weakauras.png', expansions: ['mop'], group: 'tools'},
+    {name: 'Mists of Pandaria WeakAuras', url: '/mop-weakauras', serverType: 'MOP-WEAKAURA', color: 'cccccc', image: 'weakauras.png', expansions: ['mop'], group: 'tools'},
     {name: 'Dungeon WeakAuras', url: '/mop-weakauras/pve/mists-of-pandaria-dungeons', color: lookupColor('mopdungeon'), image: lookupIcon('mopdungeon'), expansions: ['mop'], group: 'tools'},
     {name: 'Throne of Thunder WeakAuras', url: '/mop-weakauras/pve/throne-of-thunder', color: lookupColor('raidthroneofthunder'), image: lookupIcon('raidthroneofthunder'), expansions: ['mop'], group: 'tools'},
 
-    {name: 'Titan Reforged WeakAuras', url: '/titan-reforged-wotlk-weakauras', color: 'cccccc', image: 'weakauras.png', expansions: ['titan-wotlk'], group: 'tools'},
+    {name: 'Titan Reforged WeakAuras', url: '/titan-reforged-wotlk-weakauras', serverType: 'TITAN-WOTLK-WEAKAURA', color: 'cccccc', image: 'weakauras.png', expansions: ['titan-wotlk'], group: 'tools'},
 
-    {name: 'The Burning Crusade WeakAuras', url: '/tbc-weakauras', color: 'cccccc', image: 'weakauras.png', expansions: ['tbc'], group: 'tools'},
+    {name: 'The Burning Crusade WeakAuras', url: '/tbc-weakauras', serverType: 'TBC-WEAKAURA', color: 'cccccc', image: 'weakauras.png', expansions: ['tbc'], group: 'tools'},
     {name: 'Dungeon WeakAuras', url: '/tbc-weakauras/pve/tbc-dungeons', color: lookupColor('tbcdungeon'), image: lookupIcon('tbcdungeon'), expansions: ['tbc'], group: 'tools'},
     {name: 'Karazhan WeakAuras', url: '/tbc-weakauras/pve/karazhan', color: lookupColor('raidkarazhan'), image: lookupIcon('raidkarazhan'), expansions: ['tbc'], group: 'tools'},
 
-    {name: 'Classic WeakAuras', url: '/classic-weakauras', color: 'cccccc', image: 'weakauras.png', expansions: ['classic'], group: 'tools'},
+    {name: 'Classic WeakAuras', url: '/classic-weakauras', serverType: 'CLASSIC-WEAKAURA', color: 'cccccc', image: 'weakauras.png', expansions: ['classic'], group: 'tools'},
     {name: 'Dungeon WeakAuras', url: '/classic-weakauras/pve/classic-dungeons', color: lookupColor('tbcdungeon'), image: lookupIcon('classicdungeon'), expansions: ['classic'], group: 'tools'},
     {name: 'Naxxramas WeakAuras', url: '/classic-weakauras/pve/naxxramas', color: lookupColor('raidnaxxramas'), image: lookupIcon('raidnaxxramas'), expansions: ['classic'], group: 'tools'},
     {name: 'WeakAuras', searchSlug: 'weakaura', image: 'weakauras.png'},
@@ -38,7 +38,7 @@ module.exports = ($t) => [
         {url: 'https://addons.wago.io/addons/betterblizzplates', name: $t('Download Better Blizz Plates')},
         {url: 'https://discord.gg/cjqVaEMm25', name: $t('Join Better Blizz Plates Discord')}
     ]},
-    {name: 'Better Cooldown Manager', slug: 'better-cdm', color: '1eeed8', image: 'bcm.png', expansions: ['midnight'], group: 'combat', links: [
+    {name: 'Better Cooldown Manager', slug: 'better-cdm', serverType: 'BETTER-COOLDOWN-MANAGER', color: '1eeed8', image: 'bcm.png', expansions: ['midnight'], group: 'combat', links: [
         {url: 'https://addons.wago.io/addons/bettercooldownmanager', name: $t('Download Better Cooldown Manager')},
     ]},
     {name: 'BigWigs', slug: 'bigwigs', color: 'fe8937', image: 'bigwigs.png', expansions: ['ALL'], group: 'combat', links: [
@@ -75,7 +75,7 @@ module.exports = ($t) => [
         {url: 'https://addons.wago.io/addons/deadly-boss-mods-dbm', name: $t('Download Danders Frames')},
         {url: 'https://discord.gg/SDWtduCqnT', name: $t('Join Danders Discord')}
     ]},
-    {name: 'EllesmereUI', slug: 'ellesmere-ui', color: '2ff6bf', image: 'ellesmereui.png', expansions: ['ALL'], group: 'ui', links: [
+    {name: 'EllesmereUI', slug: 'ellesmere-ui', serverType: 'ELLESMEREUI', color: '2ff6bf', image: 'ellesmereui.png', expansions: ['ALL'], group: 'ui', links: [
         {url: 'https://addons.wago.io/addons/ellesmereui', name: $t('Download EllesmereUI')},
     ]},
     {name: 'Enhance QoL', slug: 'enhance-qol', color: 'e0d0b3', image: 'enhanceqol.png', expansions: ['midnight'], categories: ['%CLASSES%', 'enhanceqol0'], group: 'ui', links: [
@@ -101,14 +101,14 @@ module.exports = ($t) => [
     {name: 'Macro', slug: 'macro', color: 'BA25BF', image: 'macro.png', expansions: ['ALL'], categories: ['%CLASSES%', 'macroutility', 'macrotargeting'], group: 'tools', links: [
         {url: 'https://warcraft.wiki.gg/wiki/Making_a_macro', name: $t('Macro guide on Warcraft Wiki')}
     ]},
-    {name: 'Midnight Simple Unit Frames', slug: 'msuf', color: '59d6ff', image: 'msuf.png', expansions: ['midnight'], group: 'ui', links: [
+    {name: 'Midnight Simple Unit Frames', slug: 'msuf', serverType: 'MIDNIGHT-SIMPLE-UNIT-FRAMES', color: '59d6ff', image: 'msuf.png', expansions: ['midnight'], group: 'ui', links: [
         {url: 'https://addons.wago.io/addons/midnightsimpleunitframes', name: $t('Download Midnight Simple Unit Frames')}
     ]},
     {name: 'MPlus Timer', slug: 'mplus-timer', color: '7ED321', image: 'mplus.png', expansions: ['midnight'], group: 'combat', links: [
         {url: 'https://addons.wago.io/addons/mplustimer', name: $t('Download MPlus Timer')},
         {url: 'https://discord.gg/3B6QHURmBy', name: $t('Join MPlus Timer Discord')}
     ]},
-    {name: 'Mythic Dungeon Tools', url: '/mdt', searchSlug: 'mdt', color: 'f1dc11', image: 'mdt.png', expansions: ['midnight'], group: 'combat'},
+    {name: 'Mythic Dungeon Tools', url: '/mdt', searchSlug: 'mdt', serverType: 'MDT', color: 'f1dc11', image: 'mdt.png', expansions: ['midnight'], group: 'combat'},
     {name: 'OPie', slug: 'opie', color: '2595E6', image: 'opie.png', expansions: ['ALL'], categories: ['%CLASSES%', 'opie0', 'prof1', 'prof5', 'prof14'], group: 'ui'},
     {name: 'Platynator', slug: 'platynator', color: '00f300', image: 'platynator.png', expansions: ['ALL'], group: 'ui', links: [
         {url: 'https://addons.wago.io/addons/platynator', name: $t('Download Platynator')},
@@ -120,7 +120,10 @@ module.exports = ($t) => [
     {name: 'Sensei Class Resource Bar', slug: 'sensei-class-resource-bar', color: 'fbcc91', image: 'senseiclassresourcebar.png', expansions: ['midnight'], group: 'combat', links: [
         {url: 'https://addons.wago.io/addons/sensei-class-resource-bar', name: $t('Download Sensei Class Resource Bar')},
     ]},
-    {name: 'SkironCooldownManager', slug: 'skiron-cooldown-manager', color: '398fac', image: 'skironcdm.png', expansions: ['midnight'], categories: ['%CLASSES%'], group: 'combat', links: [
+    {name: 'Sentinel CDM', slug: 'sentinel-cdm', color: '9d71cf', image: 'sentinelcdm.png', expansions: ['midnight'], categories: ['%CLASSES%'], group: 'combat', links: [
+        {url: 'https://addons.wago.io/addons/sentinel-cdm', name: $t('Download Sentinel CDM')},
+    ]},
+    {name: 'SkironCooldownManager', slug: 'skiron-cooldown-manager', serverType: 'SKIRONCOOLDOWNMANAGER', color: '398fac', image: 'skironcdm.png', expansions: ['midnight'], categories: ['%CLASSES%'], group: 'combat', links: [
         {url: 'https://addons.wago.io/addons/skironcooldownmanager', name: $t('Download SkironCooldownManager')},
     ]},   
     {name: 'Targeted Spells', slug: 'targeted-spells', color: 'afadac', image: 'targeted-spells.jpg', expansions: ['midnight'], group: 'combat', links: [
@@ -134,7 +137,7 @@ module.exports = ($t) => [
     {name: 'Twintop\'s Resource Bar', slug: 'twintops-resource-bar', color: 'ac78e9', image: 'twintop.png', expansions: ['midnight'], categories: ['%CLASSES%'], group: 'combat', links: [
         {url: 'https://addons.wago.io/addons/twintopresourcebar', name: $t('Download Twintop\'s Resource Bar')},
     ]},
-    {name: 'Unhalted Unit Frames', slug: 'unhalted-unit-frames', color: 'adadfd', image: 'unhalted.png', expansions: ['midnight'], group: 'ui', links: [
+    {name: 'Unhalted Unit Frames', slug: 'unhalted-unit-frames', serverType: 'UNHALTED-UNIT-FRAMES', color: 'adadfd', image: 'unhalted.png', expansions: ['midnight'], group: 'ui', links: [
         {url: 'https://addons.wago.io/addons/unhaltedunitframes', name: $t('Download Unhalted Unit Frames')},
     ]},
     {name: 'VuhDo', slug: 'vuhdo', color: '6BB85E', image: 'vuhdo.png', expansions: ['ALL'], categories: ['%CLASSES%', 'vuhdo0', 'role0'], group: 'ui', links: [
@@ -146,7 +149,7 @@ module.exports = ($t) => [
         {url: 'https://discord.gg/FwWZZ39kPX', name: $t('Join Watchtower Discord')}
     ]},
     {name: 'Blizzard Edit Mode', slug: 'blizzhud', color: '009ae4', image: 'blizzard.png', expansions: ['ALL'], categories: ['%CLASSES%', 'role0'], group: 'blizzard'},
-    {name: 'Blizzard Cooldown Manager', slug: 'cooldown-manager', color: '009ae4', image: 'blizzard.png', expansions: ['midnight'], categories: ['%CLASSES%', 'role0'], group: 'blizzard'},
+    {name: 'Blizzard Cooldown Manager', slug: 'cooldown-manager', serverType: 'COOLDOWN-MANAGER', color: '009ae4', image: 'blizzard.png', expansions: ['midnight'], categories: ['%CLASSES%', 'role0'], group: 'blizzard'},
     {name: 'Housing Blueprints', slug: 'housing-blueprints', color: '009ae4', image: 'blizzard.png', expansions: ['midnight'], group: 'housing', categories: ['blueprint0']},
 ]
 

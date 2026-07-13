@@ -135,7 +135,13 @@
         </div>
 
         <div v-if="isScanning"><md-spinner md-indeterminate></md-spinner></div>
-        <strong>{{ importType === 'WEAKAURAS2' ? 'WEAKAURA' : importType }}</strong><br>
+        <div v-if="importingAddon?.name" id="importing-addon" 
+          :style="`color:#${importingAddon.color}; background-color:#${importingAddon.color}11; background-image:url('/static/image/menu/${importingAddon.image}')`">
+          <span>{{ importingAddon.name }}</span>
+        </div>
+        <strong v-else>
+          {{ importType === 'WEAKAURAS2' ? 'WEAKAURA' : importType }}
+        </strong><br>
 
         <md-layout v-if="scanID">
           <md-layout>
@@ -305,6 +311,25 @@
 .field-group2 .md-input-container, .field-group2 strong { display: inline-block; max-width: 49%;}
 #signinanon { padding-left: 32px; }
 
+#importing-addon {
+  filter: brightness(1.1);
+  min-height: 54px;
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px 4px 4px;
+  font-size: 18px;
+  vertical-align: middle;
+  border-radius: 4px;
+  border-width: 0;
+  border-style: solid;
+  margin-bottom: 8px;
+  transition: transform .3s;
+  z-index: 5;
+  padding-left: 56px;
+  background-repeat: no-repeat;
+  background-size: 30px;
+  background-position: 12px 50%;
+}
 
 @media (min-width: 1281px) {
   #col1, #col2 { padding-top: 16px }
@@ -540,6 +565,7 @@ h3.spotlight-tab:hover, h3.spotlight-tab.selected {background-color: #333;}
 
 <script>
 import Categories from './libs/categories2'
+import addons from './libs/addons'
 import CategorySelect from './UI/SelectCategory.vue'
 import CategoryImage from './UI/CategoryImage.vue'
 import CTA_WagoAddons from './UI/CTAWagoAddons.vue'
@@ -639,6 +665,10 @@ export default {
     },
     isTest () {
       return false // this.$env === 'development' || document.getElementById('test-content')
+    },
+    importingAddon () {
+      if (!this.importType) return {}
+      return addons(this.$t).filter(x => x.slug || x.url).find(x => this.importType.toLowerCase()  === x.slug?.toLowerCase() || this.importType === x.serverType) || {}
     }
   },
   mounted: function () {
