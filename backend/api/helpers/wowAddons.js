@@ -358,6 +358,17 @@ const addons = [{
     },
     useLuaEncoding: true,
 }, {
+    type: 'ELVUI',
+    slug: 'elvui',
+    stringPrefix: '!E2!',
+    buildMeta: (obj) => {
+        const meta = {
+            name: 'ElvUI Profile',
+            categories: []
+        }
+        return meta
+    },
+}, {
     type: 'EXBOSS',
     slug: 'exboss',
     stringPrefix: 'EXBXC:',

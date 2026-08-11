@@ -5,7 +5,7 @@ module.exports = {
   decode: async (encodedString, exec) => {
     // test that string matches expected regex
     let stringVersion
-    if (encodedString.match(/^!E(\d+)![a-zA-Z0-9\(\)]+$/)) {
+    if (encodedString.match(/^!E1![a-zA-Z0-9\(\)]+$/)) {
       stringVersion = 2
     }
     else if (encodedString.match(/^[a-zA-Z0-9=\+\/]+$/)) {
