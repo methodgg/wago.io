@@ -713,10 +713,11 @@ const addons = [{
     compression: 'none',
     customDecode: async (importStr) => {
         const payload = await blizzEncoding.decode(importStr, {serialization: 'hex', compression: 'none', encoding: 'base64'})
-        if (payload?.length === 38 && payload.match(/^.....[1-4]/)) {
+        console.log(payload)
+        if (payload?.length === 36 && payload.match(/^[0-9]{4}[0-9abcdef]{32}$/)) {
             return {
-                meta: payload.substring(0, 6),
-                key: payload.substring(6)
+                meta: payload.substring(0, 4),
+                key: payload.substring(4)
             }
         }
         return false
@@ -726,7 +727,7 @@ const addons = [{
     },
     buildMeta: (obj) => {
         if (obj) {
-            const importType = parseInt(obj.meta.substring(5))
+            const importType = parseInt(obj.meta.substring(3))
             const categories = ['blueprint0', `blueprint${importType}`]
             let name
             if (importType === 1) {
