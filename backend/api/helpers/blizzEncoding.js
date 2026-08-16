@@ -114,7 +114,7 @@ async function decode(encodedString, {serialization='CBOR', compression='deflate
         else {
             decompressed = compressed
         }
-
+        
         if (serialization === 'JSON') {
             return JSON.parse(decompressed)
         }
@@ -197,5 +197,6 @@ module.exports = {
     mapToJSON,
     JSONtoMap,
     decode,
-    encode
+    encode,
+    borc
 }

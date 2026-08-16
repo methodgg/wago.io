@@ -361,6 +361,57 @@ const addons = [{
     type: 'ELVUI',
     slug: 'elvui',
     stringPrefix: '!E2!',
+
+    customDecode: async (importStr) => {
+        const compressed = Buffer.from(importStr.substring(4), 'base64')
+        const decompressed = await blizzEncoding.zlibDecompress(compressed, 'deflateRaw')
+        const separator = Buffer.from('::')
+        const firstSep = decompressed.indexOf(separator);
+        if (firstSep === -1) {
+            throw new Error('Could not find first :: separator');
+        }
+
+        const secondSep = decompressed.indexOf(separator, firstSep + separator.length);
+        if (secondSep === -1) {
+            throw new Error('Could not find second :: separator');
+        }
+
+        const cborData = decompressed.subarray(0, firstSep);
+        const profileType = decompressed
+            .subarray(firstSep + 2, secondSep)
+            .toString('utf8');
+
+        const profileKey = decompressed
+            .subarray(secondSep + 2)
+            .toString('utf8');
+            
+
+        const decodedMap = await blizzEncoding.borc.decodeFirst(cborData);
+
+        return {
+            data: blizzEncoding.mapToJSON(decodedMap),
+            profileType,
+            profileKey
+        }
+    },
+    customEncode: async (obj) => {
+        const {data, profileType, profileKey} = obj
+        const cborData = await blizzEncoding.borc.encode(blizzEncoding.JSONtoMap(data))
+
+        const separator = Buffer.from('::')
+        const payload = Buffer.concat([
+            cborData,
+            separator,
+            Buffer.from(profileType, 'utf8'),
+            separator,
+            profileKeyBuffer = Buffer.from(profileKey, 'utf8'),
+        ])
+
+        const compressed = await blizzEncoding.zlibCompress(payload, 'deflateRaw')
+        const encoded = compressed.toString('base64')
+        return '!E2!' + encoded
+    },
+
     buildMeta: (obj) => {
         const meta = {
             name: 'ElvUI Profile',
@@ -368,6 +419,7 @@ const addons = [{
         }
         return meta
     },
+    
 }, {
     type: 'EXBOSS',
     slug: 'exboss',
@@ -713,7 +765,6 @@ const addons = [{
     compression: 'none',
     customDecode: async (importStr) => {
         const payload = await blizzEncoding.decode(importStr, {serialization: 'hex', compression: 'none', encoding: 'base64'})
-        console.log(payload)
         if (payload?.length === 36 && payload.match(/^[0-9]{4}[0-9abcdef]{32}$/)) {
             return {
                 meta: payload.substring(0, 4),
