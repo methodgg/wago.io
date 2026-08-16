@@ -519,6 +519,20 @@ const addons = [{
         return meta
     },
 }, {
+    type: 'MYTHIC-DUNGEON-CASTS',
+    slug: 'mythic-dungeon-casts',
+    stringPrefix: '!mdc_',
+    useLuaEncoding: true,
+    serialization: 'AceSerializer',
+    buildMeta: (obj) => {
+        if (!obj.__mdc) {
+            return false
+        }
+        return {
+            name: obj.name
+        }
+    },
+}, {
     type: 'PLATER',
     slug: 'plater',
     stringPrefix: '!PLATER:2!',

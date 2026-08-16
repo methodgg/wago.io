@@ -108,6 +108,9 @@ module.exports = ($t) => [
         {url: 'https://addons.wago.io/addons/mplustimer', name: $t('Download MPlus Timer')},
         {url: 'https://discord.gg/3B6QHURmBy', name: $t('Join MPlus Timer Discord')}
     ]},
+    {name: 'Mythic Dungeon Casts', slug: 'mythic-dungeon-casts', color: '4c7b9c', image: 'mdc.png', expansions: ['midnight'], group: 'combat', links: [
+        {url: 'https://addons.wago.io/addons/mythic-dungeon-casts-cast-bars-targeted-spells', name: $t('Download Mythic Dungeon Casts')},
+    ]},
     {name: 'Mythic Dungeon Tools', url: '/mdt', searchSlug: 'mdt', serverType: 'MDT', color: 'f1dc11', image: 'mdt.png', expansions: ['midnight'], group: 'combat'},
     {name: 'OPie', slug: 'opie', color: '2595E6', image: 'opie.png', expansions: ['ALL'], categories: ['%CLASSES%', 'opie0', 'prof1', 'prof5', 'prof14'], group: 'ui'},
     {name: 'Platynator', slug: 'platynator', color: '00f300', image: 'platynator.png', expansions: ['ALL'], group: 'ui', links: [
@@ -150,7 +153,7 @@ module.exports = ($t) => [
     ]},
     {name: 'Blizzard Edit Mode', slug: 'blizzhud', color: '009ae4', image: 'blizzard.png', expansions: ['ALL'], categories: ['%CLASSES%', 'role0'], group: 'blizzard'},
     {name: 'Blizzard Cooldown Manager', slug: 'cooldown-manager', serverType: 'COOLDOWN-MANAGER', color: '009ae4', image: 'blizzard.png', expansions: ['midnight'], categories: ['%CLASSES%', 'role0'], group: 'blizzard'},
-    {name: 'Housing Blueprints', slug: 'housing-blueprints', color: '009ae4', image: 'blizzard.png', expansions: ['midnight'], group: 'housing', categories: ['blueprint0']},
+    {name: 'Housing Blueprints', slug: 'housing-blueprints', color: 'fad036', image: 'homestone.png', expansions: ['midnight'], group: 'housing', categories: ['blueprint0']},
 ]
 
 function lookupColor(id) {
