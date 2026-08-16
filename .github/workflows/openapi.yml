@@ -1,0 +1,22 @@
+name: OpenAPI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+
+permissions:
+  contents: read
+
+jobs:
+  drift:
+    name: Contract drift
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18.20.4
+      - name: Check generated contract
+        run: node backend/tools/generate-openapi.js --check
