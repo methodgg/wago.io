@@ -33,6 +33,29 @@ export default {
   computed: {
     bgSize: function () {
       switch (this.mapID) {
+        // midnight s2
+      // 'midnight-mdt-s2-8': {slug: 'pve/midnight-dungeons-s2/temple-of-sethraliss', i18n: 'warcraft:instances.1030', domain: 0, mdtID: 20, parent: 'midnight-mdt-s2', types: ['MDT'], games: ['tww']},
+
+        case 164: // algethar academy
+          return '1110%'
+          
+        case 160: // murder row
+          return '2105%'
+
+        case 161: // den of nalorakk
+        case 162: // blinding vale
+        case 163: // voidscar arena
+          return '1610%'
+
+        case 17: // magisters terrace
+          return '2010%'
+
+        case 42: // ruby life pools
+          return '1210%'
+
+        case 20: // temple of sethraliss
+          return '2310%'
+
         // midnight s1
         case 11: // seat of the triumvirate
           return '1110%'

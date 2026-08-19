@@ -475,7 +475,7 @@ export default {
     }
     // this.checkKonvaSize = setInterval(this.updateKonvaSize, 100)
 
-    const seasonSuffix = '-midnight-s1'
+    const seasonSuffix = '-midnight-s2'
 
     this.http.get('/data/mdtDungeonTable-' + (this.mapID - 1)).then((res) => {
       if (res && res.value) {
@@ -869,9 +869,6 @@ export default {
       }
       // setup preload images
       var preload = []
-      // var promises = []
-
-      let imgSuffix = '-midnight-s1'
 
       // enemy portraits
       this.enemyPortraits = new Image()

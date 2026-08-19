@@ -44,7 +44,7 @@
                 </md-select>
               </md-input-container>
             </div>
-            <md-button @click="createMDT()" class="md-raised" :disabled="!newAffix || !newDungeon">{{ $t("Build") }}</md-button>
+            <md-button @click="createMDT()" class="md-raised" :disabled="!newDungeon">{{ $t("Build") }}</md-button>
           </md-whiteframe>          
         </md-layout>
       </md-layout>
@@ -86,7 +86,6 @@
       return {
         searchString: 'Type: MDT ',
         newDungeon: '',
-        newAffix: 'mdtaffix-sl-s1-w' + this.$store.state.MDTWeek,
         wclURL: '',
         wclDungeons: [],
         wclDungeonIndex: -1,
@@ -103,13 +102,10 @@
           }, 150)
         }
       },
-      currentWeek: function (val) {
-        this.newAffix = 'mdtaffix-sl-s1-w' + val
-      },
     },
     computed: {
       dungeons: function () {
-        return categories.raidCategories(['midnight-mdt-s1'], 'MDT')
+        return categories.raidCategories(['midnight-mdt-s2'], 'MDT')
       }
     },
     mounted: async function () {

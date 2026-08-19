@@ -245,6 +245,16 @@ class Categories {
       'midnight-mdt-s1-7': {slug: 'pve/midnight-dungeons-s1/skyreach', i18n: 'warcraft:instances.476', domain: 0, mdtID: 151, parent: 'midnight-mdt-s1', types: ['MDT'], games: ['tww']},
       'midnight-mdt-s1-8': {slug: 'pve/midnight-dungeons-s1/windrunner-spire', i18n: 'warcraft:instances.1299', domain: 0, mdtID: 152, parent: 'midnight-mdt-s1', types: ['MDT'], games: ['tww']},
 
+      'midnight-mdt-s2': {slug: 'pve/midnight-dungeons-s2', image: 'dungeon.png', color: '#F5A623', i18n: 'Season 2 Dungeons', domain: 0, types: ['MDT'], games: ['tww']},
+      'midnight-mdt-s2-1': {slug: 'pve/midnight-dungeons-s2/alter-of-fangs', i18n: 'warcraft:instances.1322', domain: 0, parent: 'midnight-mdt-s2', mdtID: 164, types: ['MDT'], games: ['tww']},
+      'midnight-mdt-s2-2': {slug: 'pve/midnight-dungeons-s2/den-of-nalorakk', i18n: 'warcraft:instances.1311', domain: 0, parent: 'midnight-mdt-s2', mdtID: 161, types: ['MDT'], games: ['tww']},
+      'midnight-mdt-s2-3': {slug: 'pve/midnight-dungeons-s2/murder-row', i18n: 'warcraft:instances.1304', domain: 0, parent: 'midnight-mdt-s2', mdtID: 160, types: ['MDT'], games: ['tww']},
+      'midnight-mdt-s2-4': {slug: 'pve/midnight-dungeons-s2/the-blinding-vale', i18n: 'warcraft:instances.1309', domain: 0, parent: 'midnight-mdt-s2', mdtID: 162, types: ['MDT'], games: ['tww']},
+      'midnight-mdt-s2-5': {slug: 'pve/midnight-dungeons-s2/voidscar-arena', i18n: 'warcraft:instances.1313', domain: 0, parent: 'midnight-mdt-s2', mdtID: 163, types: ['MDT'], games: ['tww']},
+      'midnight-mdt-s2-6': {slug: 'pve/midnight-dungeons-s2/kings-rest', i18n: 'warcraft:instances.1041', domain: 0, parent: 'midnight-mdt-s2', mdtID: 17, types: ['MDT'], games: ['tww']},
+      'midnight-mdt-s2-7': {slug: 'pve/midnight-dungeons-s2/ruby-life-pools', i18n: 'warcraft:instances.1202', domain: 0, mdtID: 42, parent: 'midnight-mdt-s2', types: ['MDT'], games: ['tww']},
+      'midnight-mdt-s2-8': {slug: 'pve/midnight-dungeons-s2/temple-of-sethraliss', i18n: 'warcraft:instances.1030', domain: 0, mdtID: 20, parent: 'midnight-mdt-s2', types: ['MDT'], games: ['tww']},
+
 
       'tww-mdt-s1': {slug: 'pve/the-war-within-dungeons-s1', image: 'dungeon.png', color: '#F5A623', i18n: 'Season 1 Dungeons', domain: 0, types: ['MDT'], games: ['tww']},
       'tww-mdt-s1-1': {slug: 'pve/the-war-within-dungeons-s1/ara-kara-city-of-echoes', i18n: 'warcraft:instances.1271', domain: 0, parent: 'tww-mdt-s1', mdtID: 113, types: ['MDT'], games: ['tww']},
@@ -1249,11 +1259,11 @@ class Categories {
       'enhanceqol2': {slug: 'eqol-resource-bar', image: 'enhanceqol.png', color: '#e0d0b3', i18n: 'Resource Bar', parent: 'enhanceqol0', domain: 0, system: true},
       'enhanceqol3': {slug: 'eqol-unit-frame', image: 'enhanceqol.png', color: '#e0d0b3', i18n: 'Unit Frame', parent: 'enhanceqol0', domain: 0, system: true},
       
-      'blueprint0': {slug: 'housing-blueprints', image: 'blizzard.png', color: '#009ae4', i18n: 'Housing Blueprints', domain: 0, system: true},
-      'blueprint1': {slug: 'housing-blueprints/full-layout', image: 'blizzard.png', color: '#009ae4', i18n: 'Full Layout', parent: 'blueprint0', domain: 0, system: true},
-      'blueprint2': {slug: 'housing-blueprints/room', image: 'blizzard.png', color: '#009ae4', i18n: 'Single Room', parent: 'blueprint0', domain: 0, system: true},
-      'blueprint3': {slug: 'housing-blueprints/interior', image: 'blizzard.png', color: '#009ae4', i18n: 'Interior', parent: 'blueprint0', domain: 0, system: true},
-      'blueprint4': {slug: 'housing-blueprints/exterior', image: 'blizzard.png', color: '#009ae4', i18n: 'Exterior', parent: 'blueprint0', domain: 0, system: true},
+      'blueprint0': {slug: 'housing-blueprints', image: 'homestone.png', color: '#fad036', i18n: 'Housing Blueprints', domain: 0, system: true},
+      'blueprint1': {slug: 'housing-blueprints/full-layout', image: 'homestone.png', color: '#fad036', i18n: 'Full Layout', parent: 'blueprint0', domain: 0, system: true},
+      'blueprint2': {slug: 'housing-blueprints/room', image: 'homestone.png', color: '#fad036', i18n: 'Single Room', parent: 'blueprint0', domain: 0, system: true},
+      'blueprint3': {slug: 'housing-blueprints/interior', image: 'homestone.png', color: '#fad036', i18n: 'Interior', parent: 'blueprint0', domain: 0, system: true},
+      'blueprint4': {slug: 'housing-blueprints/exterior', image: 'homestone.png', color: '#fad036', i18n: 'Exterior', parent: 'blueprint0', domain: 0, system: true},
 
       ///////////////////////////////////////////////////////
       // FINAL FANTASY CATEGORIES

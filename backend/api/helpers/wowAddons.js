@@ -533,6 +533,18 @@ const addons = [{
         }
     },
 }, {
+    type: 'MDT',
+    slug: 'mdt',
+    stringPrefix: '!~MDT2~',
+    buildMeta: (obj) => {
+        const dungeon = categories.findByMDT_ID(obj.value.currentDungeonIdx)
+        console.log(obj.value.currentDungeonIdx, dungeon)
+        return {
+            name: obj.text && obj.text !== 'Default' ? obj.text : 'MDT Route',
+            categories: [categories.findByMDT_ID(obj.value.currentDungeonIdx) || `MDT-${obj.value.currentDungeonIdx}`]
+        }
+    },
+}, {
     type: 'PLATER',
     slug: 'plater',
     stringPrefix: '!PLATER:2!',
