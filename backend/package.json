@@ -66,6 +66,8 @@
   },
   "scripts": {
     "dev": "forever -w server.js",
+    "openapi": "node tools/generate-openapi.js",
+    "openapi:check": "node tools/generate-openapi.js --check",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Mark Bosley",

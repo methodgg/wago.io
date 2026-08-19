@@ -1,5 +1,7 @@
 // --- SETUP FASTIFY
 global.config = require('./config')
+const { openApiDocument, writeOpenApi } = require('./tools/generate-openapi')
+writeOpenApi()
 var fastifyOpt = {
   ignoreTrailingSlash: true,
   maxParamLength: 1048576,
@@ -66,6 +68,7 @@ fastify.addHook('preHandler', require('./middlewares/setDefaults'))
 fastify.addHook('preHandler', require('./middlewares/getRegion'))
 
 // --- ROUTES
+fastify.get('/openapi.json', (req, res) => { res.send(openApiDocument) })
 fastify.get('/ws', { websocket: true }, require('./api/services/websocket'))
 fastify.get('/logout', (req, res) => { res.redirect('/auth/logout') })
 fastify.get('/ping', (req, res) => { res.send({ pong: true, host: config.base_url, you: req.raw.ip }) })
