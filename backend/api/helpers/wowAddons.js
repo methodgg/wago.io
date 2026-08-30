@@ -18,7 +18,9 @@ const addons = [{
     type: 'BAGANATOR',
     slug: 'baganator',
     stringPrefix: 'BGR!1!',
-    useLegacyEncoding: Date.now() < 1787230800000, // until Aug 20 2026
+    mapOptions: {
+        forceStringKey: /^\.sections/
+    },
     buildMeta: (obj) => {
         if (obj.addon !== 'Baganator') {
             return false
@@ -979,7 +981,7 @@ async function toEncodedString(obj, type) {
             encoded = await luaEncoding.encode(obj, {serialization: addon.serialization, compression: addon.compression, encoding: addon.encoding})
         }
         else {
-            encoded = await blizzEncoding.encode(obj, {serialization: addon.serialization, compression: addon.compression, encoding: addon.encoding})
+            encoded = await blizzEncoding.encode(obj, {serialization: addon.serialization, compression: addon.compression, encoding: addon.encoding, mapOptions: addon.mapOptions})
         }
 
         if (encoded) {

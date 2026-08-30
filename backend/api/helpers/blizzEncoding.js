@@ -67,7 +67,7 @@ function mapToJSON(obj) {
     return obj; // primitives: number, boolean, etc.
 }
   
-function JSONtoMap(obj) {
+function JSONtoMap(obj, options = {}) {
     if (Array.isArray(obj)) {
       return obj.map(JSONtoMap);
     }
@@ -77,14 +77,14 @@ function JSONtoMap(obj) {
   
       for (const [key, value] of Object.entries(obj)) {
         let actualKey = key;
-  
+        const path = `${options.path ?? ''}.${key}`
         // Rule: convert numeric string keys back to numbers
-        if (/^-?\d+$/.test(key)) {
+        if (/^-?\d+$/.test(key) && (!options.forceStringKey?.test(path))) {
           const num = parseFloat(key, 10);
           if (!isNaN(num)) actualKey = num;
         }
   
-        result.set(actualKey, JSONtoMap(value));
+        result.set(actualKey, JSONtoMap(value, {...options, path}));
       }
   
       return result;
@@ -139,7 +139,7 @@ async function decode(encodedString, {serialization='CBOR', compression='deflate
     }
 }
 
-async function encode(json, {serialization='CBOR', compression='deflateRaw', encoding='base64'}={}) {
+async function encode(json, {serialization='CBOR', compression='deflateRaw', encoding='base64', mapOptions={}}={}) {
     try {
         let serialized
         if (serialization === 'JSON') {
@@ -158,7 +158,7 @@ async function encode(json, {serialization='CBOR', compression='deflateRaw', enc
             else {
                 obj = json
             }
-            const objMap = JSONtoMap(obj)
+            const objMap = JSONtoMap(obj, mapOptions)
             serialized = await borc.encode(objMap)
         }
         else if (serialization === 'hex') {
