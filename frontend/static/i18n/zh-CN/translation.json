@@ -1106,9 +1106,7 @@
     "Please consider adding Wago": {
         "io to your blocker allow-list or joining Patreon": "请考虑将 Wago.io 添加到你的广告拦截器允许列表或加入 Patreon"
     },
-    "Support Wago": {
-        "io": "支持 Wago.io"
-    },
+    "Support Wago": "支持 Wago",
     "Browse Blizz HUD imports": "浏览BlizzHUD导入",
     "Hud Settings": "Hud 设置",
     "Search BlizzHUD": "搜索BlizzHUD",

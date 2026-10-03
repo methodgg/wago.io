@@ -52,6 +52,7 @@ async function go () {
             data.pipe(csv())
             .on('data', (chrSpec) => {
               locales[this_i].json.classes[`${chrSpec.ClassID}-${(parseInt(chrSpec.OrderIndex)+1)}`] = chrSpec.Name_lang
+              locales[this_i].json.specs[`${chrSpec.ID}`] = chrSpec.Name_lang
             })
             .on('end', done)
           })

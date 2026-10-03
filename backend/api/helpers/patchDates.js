@@ -115,7 +115,10 @@ module.exports = {
     else if (tocversion >= 20501 && tocversion <= 29999) {
       return 'tbc'
     }
-    else if (tocversion >= 11403 && tocversion <= 19999) {
+    else if (tocversion >= 16000 && tocversion <= 19999) {
+      return 'forever'
+    }
+    else if (tocversion >= 11403 && tocversion <= 15999) {
       return 'classic'
     }
     else {

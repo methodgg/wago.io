@@ -2,7 +2,7 @@ const getCode = require('../code-detection/get-code')
 const patchDates = require('../patchDates')
 
 module.exports = {
-  typeMatch: /^(UNKNOWN-|CLASSIC-|TBC-|(TITAN-)?WOTLK-|CATA-|MOP-)?WEAKAURA|M33KAURAS$/i,
+  typeMatch: /^(UNKNOWN-|CLASSIC-|TBC-|(TITAN-)?WOTLK-|CATA-|MOP-)?WEAKAURA|(M33K|FOREVER)AURAS$/i,
   domain: ENUM.DOMAIN.WOW,
 
   decode: async (encodedString, exec) => {
@@ -173,6 +173,7 @@ module.exports = {
     else if (meta.game === 'cata') meta.type = 'CATA-WEAKAURA'
     else if (meta.game === 'mop') meta.type = 'MOP-WEAKAURA'
     else if (meta.game === 'midnight') meta.type = 'M33KAURAS'
+    else if (meta.game === 'forever') meta.type = 'FOREVERAURAS'
     else if (meta.game === 'unknown') meta.type = 'UNKNOWN-WEAKAURA'
 
     if (obj.wagoID) {

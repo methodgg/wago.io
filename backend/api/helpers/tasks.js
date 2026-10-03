@@ -606,7 +606,6 @@ async function updateMDT(branch='master', path='', fileMatch=/.lua$/) {
         return file.type === 'file' && file.path.match(fileMatch)
       }
     )
-    console.log(dungeonFiles)
     for (const f of dungeonFiles) {
       await updateMDTDungeon(f, branch)
     }
@@ -623,7 +622,6 @@ async function updateMDT(branch='master', path='', fileMatch=/.lua$/) {
 }
 
 async function updateMDTDungeon(file, branch) {
-  console.log('update mdt dungeon', file.path)
   const response = await octokit.repos.getContent({
     owner: 'Nnoggie',
     repo: 'MythicDungeonTools',
@@ -644,9 +642,10 @@ async function updateMDTDungeon(file, branch) {
     dungeonTotalCount={},
     mapPOIs={},
     scaleMultiplier={},
-    dungeonEnemies={}
+    dungeonEnemies={},
+    AddonName="MDT"
   }
-  ${contents}
+  ${contents.replace('local _, MDT', 'local _, _MDT')}
   MDT.dungeonIndex = dungeonIndex`
   .replace('= ...', '= "..."')
   .replace(/L\["([^"]+)"\]/g, 'L("$1")');
@@ -660,6 +659,11 @@ async function updateMDTDungeon(file, branch) {
   }
 
   const mapID = mdtData.dungeonIndex - 1
+  console.log(mapID, file.name, file.path)
+
+  const midnightS2 = [164,161,160,162,163,17,42,20]
+  if (!midnightS2.includes(mapID+1)) return
+
   const enemyHash = md5(JSON.stringify(mdtData.dungeonEnemies[mapID]))  
   const currentData = await SiteData.findById('mdtDungeonTable-' + mapID).exec()
 
@@ -909,7 +913,7 @@ async function ProcessCode(data) {
     code.json = sortJSON(code.json)
   }
 
-  if (data.addon === 'M33KAURAS') {
+  if (data.addon === 'M33KAURAS' || data.addon === 'FOREVERAURAS') {
     data.addon = 'WEAKAURA'
   }
   if (!code.encoded && data.addon && Addons[data.addon]) {
@@ -1174,8 +1178,8 @@ async function buildStaticMDTPortraits(json, mapID, teeming) {
   if (config.env !== 'development') {
     return
   }
-  const suffix = '-midnight-s1'
-  let spriteSize = 112
+  const suffix = '-midnight-s2'
+  let spriteSize = 115.2
   if (mapID === 114 || mapID === 110) spriteSize = 78
   const puppeteer = require('puppeteer')
   if (teeming) teeming = '-Teeming'
@@ -1271,7 +1275,7 @@ async function buildStaticMDTPortraits(json, mapID, teeming) {
   </body>
   </html>`
 
-//   await fs.writeFile('../tmp-mdt.html', html, 'utf8')
+  await fs.writeFile(`../tmp-mdt-${json.slug}.html`, html, 'utf8')
   const browser = await puppeteer.launch({
     executablePath: "/usr/bin/chromium",
     args: [

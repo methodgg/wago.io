@@ -1,6 +1,9 @@
 <template>
   <div id="index">
     <md-layout md-gutter="32" :md-column-small="true" v-if="!$store.state.isMaintenance">
+      <router-link v-if="importDomain === 0" to="/search/imports/wow/housing-blueprints" id="new-housing-announce">
+        <img src="/static/image/menu/homestone.png" /> Wago supports new housing exports!
+      </router-link>
       <md-whiteframe id="importform">
         <md-layout style="flex-wrap:nowrap">
           <md-input-container style="flex:1;" :class="{ 'md-input-invalid': importError }">
@@ -559,6 +562,24 @@ h3.spotlight-tab:hover, h3.spotlight-tab.selected {background-color: #333;}
         }
       }
     }
+  }
+}
+
+#new-housing-announce {
+  background: #C1272D;
+  background: linear-gradient(295deg, rgba(193, 39, 45, 1) 0%, rgba(176, 35, 40, 1) 20%, rgba(128, 24, 28, 1) 100%);
+  border-bottom: 1px solid #555;
+  color: white!important;
+  font-size: 18px;
+  font-weight: bold;
+  display: block;
+  padding: 8px 8px 6px;
+  width: 100%;
+  &:hover {
+    text-decoration: none;
+  }
+  img {
+    width: 32px;
   }
 }
 </style>

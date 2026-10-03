@@ -1106,9 +1106,7 @@
   "Please consider adding Wago": {
     "io to your blocker allow-list or joining Patreon": ""
   },
-  "Support Wago": {
-    "io": ""
-  },
+  "Support Wago": "",
   "Browse Blizz HUD imports": "",
   "Hud Settings": "",
   "Search BlizzHUD": "",
@@ -1513,5 +1511,42 @@
       "": ""
     }
   },
-  "Select Service": ""
+  "Select Service": "",
+  "Search Fellowship UI": "",
+  "Heroes": "",
+  "Hero Roles": "",
+  "Browse Fellowship UI imports": "",
+  "Browse By Hero": "",
+  "Titan Reforged Wrath of the Lich King Classic": "",
+  "Titan Reforged Raiding": "",
+  "Titan Reforged Dungeons": "",
+  "Titan Reforged Classic WotLK": "",
+  "Search Blizzard Cooldown Manager": "",
+  "Browse by Addon": "",
+  "Midnight": "",
+  "Titan Reforged": "",
+  "[-expansion-] WeakAuras": "",
+  "Browse More Addons": "",
+  "Titan Reforged WotLK Classic": "",
+  "WoW Classic": "",
+  "This WeakAura was created for the original TBC Classic and may not work as expected in the TBC Classic Anniversary": {
+    "": ""
+  },
+  "Midnight Mythic+": "",
+  "Search Imports by Addon": "",
+  "Customize Your Interface": "",
+  "Enhanced Tools": "",
+  "Combat Utility": "",
+  "Blizzard Settings": "",
+  "Search [-addon-] Imports": "",
+  "Search [-addon-]": "",
+  "All Imports": "",
+  "Browse by Class": "",
+  "Browse [-addon-] imports": "",
+  "Security Notice": "",
+  "Housing": "",
+  "Filter [-addon-]": "",
+  "Your import does not have a screenshot attached, upload one now": "",
+  "Attach Screenshot": "",
+  "Click to upload image": ""
 }

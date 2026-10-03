@@ -5,11 +5,34 @@
         <div id="searchData">
           <slot></slot>
           <md-layout md-row>
-            <p id="searchQuery">
-              <small v-if="queryOptions && !collection" v-html="queryOptions"></small>
-              <em v-if="queryHTML && !collection" v-html="queryHTML"></em>
-              <strong v-html="$t('Found [-count-] results', {count: new Intl.NumberFormat().format(results.total)})"></strong>
-            </p>
+            <md-layout md-column>
+              <p id="searchQuery">
+                <small v-if="queryOptions && !collection" v-html="queryOptions"></small>
+                <em v-if="queryHTML && !collection" v-html="queryHTML"></em>
+                <strong v-html="$t('Found [-count-] results', {count: new Intl.NumberFormat().format(results.total)})"></strong>
+              </p>
+              
+              <div v-if="filterByCategory" id="filter-by-category">
+                <md-layout id="categories-layout">
+                  <md-layout>
+                      <md-list class="md-double-line md-dense">
+                          <md-list-item :class="filterByCategory.id + ' md-inset'">
+                              <div class="menu-image"></div>
+                              <div class="md-list-text-container">
+                                  <h3>{{ $t('Filter [-addon-]', {addon: filterByCategory.text}) }}</h3>
+                                  <span>
+                                      <router-link v-for="option in filterByCategory.children" v-bind:key="option.id" :to="`/browse/${searchAddon.slug}/${option.slug}`">
+                                          {{ option.text.trim() }}
+                                      </router-link>
+                                  </span>
+                              </div>
+                          </md-list-item>
+                      </md-list>
+                  </md-layout>
+                </md-layout>
+              </div>
+              
+            </md-layout>
             <md-layout v-if="results && !collection" id="searchOptions">
               <div v-if="$store.state.gameDomain === 0 && (searchType === 'all' || searchType === 'weakaura') && searchMode !== 'comments'">
                 <div>
@@ -28,7 +51,7 @@
                     }}</small>
                 </div>
                 <md-button-toggle md-single class="md-accent md-warn select-search-mode">
-                  <md-button :class="{ 'md-toggle': !searchExpansion || searchExpansion === 'all' }" class="md-icon-button" @click="setExpansion('all')">
+                  <md-button :class="{ 'md-toggle': !searchExpansion || searchExpansion === 'all' }" class="md-icon-button" @click="setExpansion('')">
                     <img src="../../assets/game-wow.svg">
                     <md-tooltip md-direction="bottom" class="">{{ $t("All") }}</md-tooltip>
                   </md-button>
@@ -48,6 +71,10 @@
                     <img src="../../assets/tbc-toggle.svg">
                     <md-tooltip md-direction="bottom" class="">{{ $t("The Burning Crusade Classic") }}</md-tooltip>
                   </md-button>
+                  <md-button :class="{ 'md-toggle': searchExpansion === 'forever' }" class="md-icon-button" @click="setExpansion('forever')">
+                    <img src="../../assets/forever-toggle.svg">
+                    <md-tooltip md-direction="bottom" class="">{{ $t("Forever") }}</md-tooltip>
+                  </md-button>
                   <md-button :class="{ 'md-toggle': searchExpansion === 'classic' }" class="md-icon-button" @click="setExpansion('classic')">
                     <img src="../../assets/classic-toggle.svg">
                     <md-tooltip md-direction="bottom" class="">{{ $t("WoW Classic") }}</md-tooltip>
@@ -62,6 +89,7 @@
                   </div>
                 </md-button-toggle>
               </div>
+              
               <div v-if="$store.state.gameDomain === 0 && searchMode !== 'comments'">
                 <div>&nbsp;</div>               
                     <button id="addon-button" class="md-button md-icon-button md-theme-default">
@@ -84,8 +112,10 @@
                         <div @click="setType('collection')"><span class="addon-icon"><img src="../../assets/menu-collection.png"></span> {{ $t('Collections') }}</div>
                     </div>
               </div>
-              
+
               <div v-if="searchGame === 'wow' && searchMode !== 'comments'" id="toggle-spacer"></div>
+
+
               <div>
                 <div>
                   <label>{{ $t('Mode') }}</label>
@@ -368,6 +398,13 @@ export default {
     },
     searchAddon: function() {
       return this.addonDB.find(x => ((x.type && x.type === this.searchType?.toUpperCase()) || (x.slug && x.slug === this.searchType?.toLowerCase()) || (x.searchSlug && x.searchSlug === this.searchType?.toLowerCase())))
+    },
+    filterByCategory: function() {
+        if (this.searchAddon?.categories?.length !== 1 || this.searchAddon?.categories[0]?.match(/%/)) return false
+        return this.searchAddon.categories
+            .map(x => ({...window.Categories.match(x), children: window.Categories.matchChildren(x)}))
+            .filter(x => !x.games || this.searchAddon.expansions.includes('ALL') || x.games.find(g => this.searchAddon.expansions.includes(g)))
+            .map(x => ({...x, slug: x.slug?.replace(/_$/, '')}))[0]
     }
   },
   methods: {
@@ -1137,11 +1174,37 @@ export default {
   }
 }
 
-
-
 </style>
 
 <style>
+#filter-by-category {
+  h3 {
+    margin: 0 0 4px;
+    font-size: 16px;
+  }
+  ul.md-list {
+    background: none;
+  }
+  .md-list {
+    padding: 0;
+    &:after {
+      display: none;
+    }
+  }
+  .md-list-item-container {
+    padding-left: 0;
+    padding-right: 0;
+    span {
+      white-space: wrap;
+      overflow: default;
+      a {
+        display: inline-block;
+        margin-right: 8px;
+      }
+    }
+  }
+
+}
 #searchQuery {
     line-height:180%;
     > * {
