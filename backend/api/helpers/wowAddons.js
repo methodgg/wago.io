@@ -611,10 +611,42 @@ const addons = [{
         code.customCode = getCode(json, wago.type)
     }
 }, {
+    type: 'PLATER-UNIT-FRAMES',
+    slug: 'plater-unit-frames',
+    stringPrefix: '!PUFv1!',
+    buildMeta: (obj) => {
+        const meta = {
+            name: `Plater Unit Frames ${obj.type.charAt(0).toUpperCase() + obj.type.slice(1)}`
+        }
+
+        return meta
+    },
+    customDecode: async (importStr) => {
+        const match = importStr.match(/^!PUFv1!(profile|mod)!([a-zA-Z0-9+=\/]+)$/)
+        const payload = await blizzEncoding.decode(match[2])
+        if (payload) {
+            return {
+                type: match[1],
+                data: payload
+            }
+        }
+        return false
+    },
+    customEncode: async (obj) => {
+        const prefix = `!PUFv1!${obj.type}!`
+        return prefix + await blizzEncoding.encode(obj.data)
+    },
+    addWagoData: async (wago, code, obj) => {
+        obj.data.url = wago.url + '/' + code.version
+        obj.data.wago = {
+            version: code.version,
+            semver: code.versionString
+        }
+    }
+}, {
     type: 'PLATYNATOR',
     slug: 'platynator',
     stringPrefix: 'PLATY!1!',
-    useLegacyEncoding: Date.now() < 1787230800000, // until Aug 20 2026
     buildMeta: (obj) => {
         if (obj.addon !== 'Platynator') {
             return false
@@ -1006,6 +1038,7 @@ async function addWagoData(wago, code) {
         }
 
         await addon.addWagoData(wago, code, obj)
+        code.json = JSON.stringify(obj)
         return true
     }
     catch (e) {console.log(e)}
