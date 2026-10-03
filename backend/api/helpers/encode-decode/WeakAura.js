@@ -322,6 +322,7 @@ module.exports = {
       else if (wago.game === 'cata') wago.type = 'CATA-WEAKAURA'
       else if (wago.game === 'mop') wago.type = 'MOP-WEAKAURA'
       else if (wago.game === 'midnight') wago.type = 'M33KAURAS'
+      else if (wago.game === 'forever') wago.type = 'FOREVERAURAS'
       else if (wago.game === 'unknown') wago.type = 'UNKNOWN-WEAKAURA'
       else wago.type = 'WEAKAURA'
 
