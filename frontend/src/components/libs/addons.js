@@ -85,6 +85,9 @@ module.exports = ($t) => [
     {name: 'EXBOSS', slug: 'exboss', color: 'f0f0f0', image: 'exboss.png', expansions: ['midnight'], group: 'combat', links: [
         {url: 'https://addons.wago.io/addons/exboss', name: $t('Download EXBOSS')},
     ]},
+    {name: 'ForeverAuras', slug: 'foreverauras', color: '857348', image: 'foreverauras.png', expansions: ['forever'], group: 'tools', links: [
+        {url: 'https://github.com/neroxrw/foreverauras/releases', name: $t('Download ForeverAuras')},
+    ]},
     {name: 'Grid2', slug: 'grid2', color: '637a41', image: 'grid2.jpg', expansions: ['ALL'], categories: ['%CLASSES%', 'role0'], group: 'ui', links: [
         {url: 'https://addons.wago.io/addons/grid2', name: $t('Download Grid2')},
     ]},
