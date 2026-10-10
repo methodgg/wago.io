@@ -1,9 +1,9 @@
 <template>
   <div id="index">
     <md-layout md-gutter="32" :md-column-small="true" v-if="!$store.state.isMaintenance">
-      <router-link v-if="importDomain === 0" to="/search/imports/wow/housing-blueprints" id="new-housing-announce">
+      <!-- <router-link v-if="importDomain === 0" to="/search/imports/wow/housing-blueprints" id="new-housing-announce">
         <img src="/static/image/menu/homestone.png" /> Wago supports new housing exports!
-      </router-link>
+      </router-link> -->
       <md-whiteframe id="importform">
         <md-layout style="flex-wrap:nowrap">
           <md-input-container style="flex:1;" :class="{ 'md-input-invalid': importError }">

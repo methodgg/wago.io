@@ -2,7 +2,7 @@
     <div id="app">
       <notification-banner id="maintenance" v-if="isMaintenance" :preventClose="true">Our search engine is currently repopulating. Not all imports can be found until this completes. Approx ETA {{ maintenanceDate | moment('MMM Do LT') }}.</notification-banner>
       <notification-banner id="platynator-notice" v-if="isPlatynatorNew"><router-link to="/search/imports/wow/platynator">Platynator imports are now available on Wago.</router-link></notification-banner>
-      <Popover-alert></Popover-alert>
+      <!-- <Popover-alert></Popover-alert> Feb 27 security alert removed after 2 mo -->
       <wago-header></wago-header>
 
       <div id="menu-underlay" @click="closeMenus()" v-if="userMenuOpen"></div>
@@ -21,10 +21,14 @@
             <router-view></router-view>
             <div v-if="includeSidebar && !adFreePage" :class="{'side-bar': true, 'with-stream': $store.state.streamEmbed !== '__none'}">
               <advert ad="rectangle-sidebar" :patreonLink="true" />
-              <div id="pwVideoContainer"></div>
+              <div id="pwVideoContainer" style="min-height:250px"></div>              
               <stream-embed v-if="$store.state.streamEmbed && $store.state.streamEmbed !== '__none'" :stream="$store.state.streamEmbed" />
-              <div v-else style="margin-left:10px">
-                <a :href="appBanner.url" target="_blank"><img :src="appBanner.image" id="dl-app-image" alt="Download the Wago App"></a>
+              <div v-else style="margin-left:10px; text-align:center">
+                <!-- <a :href="appBanner.url" target="_blank"><img :src="appBanner.image" id="dl-app-image" alt="Download the Wago App"></a> -->
+                 <!-- <a href="https://shop.restedxp.com/ref/wago.io/" target="_blank" rel="sponsored nofollow" style="display:block"><img src="./assets/RestedXP_Midnight_WebBanner.png" id="ig-banner" alt="Rested XP" style="border-radius:2px; margin-top:10px; margin-bottom:12px"></a> -->
+                 <!-- <a href="https://bit.ly/InstantGamingWagoBanner" target="_blank" rel="sponsored nofollow" style="display:block"><img src="./assets/IG_WoW_Wago_Small.png" id="ig-banner" alt="Instant Gaming Banner" style="border-radius:2px"></a> -->
+                  <a href="https://go.expressvpn.com/c/6925314/3784872/16063" target="_blank" rel="sponsored nofollow" style="display:inline-block; border: 1px solid #da3940; max-width:300px"><img src="./assets/ExpressRegular_Method_Web_Mobile_v4.png" id="ig-banner" alt="Express VPN" style="border-radius:2px"></a>
+                  <!-- <a href="https://x.com/Wago_io/status/2087573994668986675" target="_blank" rel="sponsored nofollow" style="display:inline-block; border: 1px solid #da3940; max-width:300px"><img src="./assets/glorious-giveaway.png" id="ig-banner" alt="Glorious Giveaway" style="border-radius:2px"></a> -->
               </div>
             </div>
           </div>

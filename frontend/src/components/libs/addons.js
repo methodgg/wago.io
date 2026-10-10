@@ -1,19 +1,19 @@
 const categories = require('./categories2')
 module.exports = ($t) => [
     {name: 'Mists of Pandaria WeakAuras', url: '/mop-weakauras', serverType: 'MOP-WEAKAURA', color: 'cccccc', image: 'weakauras.png', expansions: ['mop'], group: 'tools'},
-    {name: 'Dungeon WeakAuras', url: '/mop-weakauras/pve/mists-of-pandaria-dungeons', color: lookupColor('mopdungeon'), image: lookupIcon('mopdungeon'), expansions: ['mop'], group: 'tools'},
+    {name: 'MoP Dungeon WeakAuras', url: '/mop-weakauras/pve/mists-of-pandaria-dungeons', color: lookupColor('mopdungeon'), image: lookupIcon('mopdungeon'), expansions: ['mop'], group: 'tools'},
     {name: 'Throne of Thunder WeakAuras', url: '/mop-weakauras/pve/throne-of-thunder', color: lookupColor('raidthroneofthunder'), image: lookupIcon('raidthroneofthunder'), expansions: ['mop'], group: 'tools'},
 
     {name: 'Titan Reforged WeakAuras', url: '/titan-reforged-wotlk-weakauras', serverType: 'TITAN-WOTLK-WEAKAURA', color: 'cccccc', image: 'weakauras.png', expansions: ['titan-wotlk'], group: 'tools'},
 
     {name: 'The Burning Crusade WeakAuras', url: '/tbc-weakauras', serverType: 'TBC-WEAKAURA', color: 'cccccc', image: 'weakauras.png', expansions: ['tbc'], group: 'tools'},
-    {name: 'Dungeon WeakAuras', url: '/tbc-weakauras/pve/tbc-dungeons', color: lookupColor('tbcdungeon'), image: lookupIcon('tbcdungeon'), expansions: ['tbc'], group: 'tools'},
+    {name: 'TBC Dungeon WeakAuras', url: '/tbc-weakauras/pve/tbc-dungeons', color: lookupColor('tbcdungeon'), image: lookupIcon('tbcdungeon'), expansions: ['tbc'], group: 'tools'},
     {name: 'Karazhan WeakAuras', url: '/tbc-weakauras/pve/karazhan', color: lookupColor('raidkarazhan'), image: lookupIcon('raidkarazhan'), expansions: ['tbc'], group: 'tools'},
 
     {name: 'Classic WeakAuras', url: '/classic-weakauras', serverType: 'CLASSIC-WEAKAURA', color: 'cccccc', image: 'weakauras.png', expansions: ['classic'], group: 'tools'},
-    {name: 'Dungeon WeakAuras', url: '/classic-weakauras/pve/classic-dungeons', color: lookupColor('tbcdungeon'), image: lookupIcon('classicdungeon'), expansions: ['classic'], group: 'tools'},
+    {name: 'Classic Dungeon WeakAuras', url: '/classic-weakauras/pve/classic-dungeons', color: lookupColor('tbcdungeon'), image: lookupIcon('classicdungeon'), expansions: ['classic'], group: 'tools'},
     {name: 'Naxxramas WeakAuras', url: '/classic-weakauras/pve/naxxramas', color: lookupColor('raidnaxxramas'), image: lookupIcon('raidnaxxramas'), expansions: ['classic'], group: 'tools'},
-    {name: 'WeakAuras', searchSlug: 'weakaura', image: 'weakauras.png'},
+    {name: 'WeakAuras', searchSlug: 'weakaura', image: 'weakauras.png', expansions: ['classic', 'tbc', 'mop', 'titan-wotlk', 'legacy']},
 
     {name: 'ElvUI', slug: 'elvui', color: 'fe7c00', image: 'tukui.png', expansions: ['ALL'], categories: ['%CLASSES%', 'role0'], group: 'ui', links: [
         {url: 'https://www.tukui.org/', name: $t('View ElvUI Website')},
@@ -85,7 +85,7 @@ module.exports = ($t) => [
     {name: 'EXBOSS', slug: 'exboss', color: 'f0f0f0', image: 'exboss.png', expansions: ['midnight'], group: 'combat', links: [
         {url: 'https://addons.wago.io/addons/exboss', name: $t('Download EXBOSS')},
     ]},
-    {name: 'ForeverAuras', slug: 'foreverauras', color: 'bf8430', image: 'foreverauras.png', expansions: ['forever'], group: 'tools', links: [
+    {name: 'ForeverAuras', slug: 'foreverauras', color: 'bf8430', image: 'foreverauras.png', expansions: ['forever'], categories: ['%CLASSES%', 'prof1', 'prof5', 'prof14', 'role0', 'gen0'], group: 'tools', links: [
         {url: 'https://github.com/neroxrw/foreverauras/releases', name: $t('Download ForeverAuras')},
     ]},
     {name: 'Grid2', slug: 'grid2', color: '637a41', image: 'grid2.jpg', expansions: ['ALL'], categories: ['%CLASSES%', 'role0'], group: 'ui', links: [

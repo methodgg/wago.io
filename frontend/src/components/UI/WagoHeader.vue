@@ -1,6 +1,10 @@
 <script>
 import SearchBar from './SearchBarv2.vue'
 import SelectLocale from './SelectLocale.vue'
+import eventbus from '../libs/eventbus'
+import expansionDB from '../libs/expansions'
+
+let expansionCooldown = 0
 
 export default {
     components: {
@@ -13,7 +17,9 @@ export default {
             mobileLangMenuOpen: false,
             mobileMenuOpen: false,
             isGSENew: new Date() < new Date('2024-09-20'),
-            twwAvailable: (new Date() <= new Date('2026-01-20T00:00:00Z'))
+            twwAvailable: (new Date() <= new Date('2026-01-20T00:00:00Z')),
+            browseExpansion: localStorage.getItem('browseExpansion') || 'forever',
+            expansionDB
         }
     },
     methods: {
@@ -30,6 +36,10 @@ export default {
         openURL: function (url) {
             // can't find why the link isn't working normally so using this hack
             window.open(url, '_top')
+        },
+        expansionToShortName: function (exp) {
+            const e = expansionDB.find(x => x.id === exp)
+            return e?.shortName ?? 'All'
         }
     },
     computed: {
@@ -45,9 +55,21 @@ export default {
             this.userMenuOpen = false
             this.mobileLangMenuOpen = false
             this.mobileMenuOpen = false
-        }
+        },
+        
+        browseExpansion: (val) => {
+            localStorage.setItem('browseExpansion', val)
+            if (expansionCooldown < Date.now()) {
+                eventbus.$emit('setExpansion', val)
+                expansionCooldown = Date.now() + 100
+            }
+        },
+    },
+    mounted: function() {
+        eventbus.$on('setExpansion', (val) => this.browseExpansion = val)
     }
 }
+
 </script>
 <template>
     <div :class="{'mobile-open': mobileMenuOpen}">
@@ -81,18 +103,21 @@ export default {
                         </a>
                     </template>
 
-                    <template v-if="(this.$store.state.user.UID || this.$store.state.user.guest) && !this.$store.state.user.hideAds">
+                    <div id="partner-btn-wrapper" v-if="(this.$store.state.user.UID || this.$store.state.user.guest) && !this.$store.state.user.hideAds">
                         <a id="patreon-btn" href="https://www.patreon.com/wagoio" target="_blank">
                             <svg aria-hidden="true" focusable="false" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M512 194.8c0 101.3-82.4 183.8-183.8 183.8-101.7 0-184.4-82.4-184.4-183.8 0-101.6 82.7-184.3 184.4-184.3C429.6 10.5 512 93.2 512 194.8zM0 501.5h90v-491H0v491z"></path></svg>
-                            {{ $t('Support Wago.io') }}
+                            {{ $t('Support Wago') }}
                         </a>
-                        <!--<a id="holy-btn" href='https://bit.ly/WagoHoly' target="_blank" >
-                            <img src="../../assets/holy-icon-green.png" /> Huge HOLY Discounts
-                        </a>-->
-                        <a id="instant-gaming-btn" href='https://bit.ly/InstantGamingWago' target="_blank" >
+                        <a id="expressvpn-btn" class="partner-btn" href='https://go.expressvpn.com/c/6925314/3784872/16063' target="_blank" rel="sponsored nofollow">
+                            <img src="../../assets/express-vpn-icon.png" /> Up to 84% Off VPN
+                        </a>
+                        <a id="holy-btn" class="partner-btn" href='https://bit.ly/WagoHoly' target="_blank" rel="sponsored nofollow">
+                            <img src="../../assets/holy-icon-green.png" /> HOLY Discounts
+                        </a>
+                        <!-- <a id="instant-gaming-btn" href='https://bit.ly/InstantGamingWago' target="_blank" rel="sponsored nofollow">
                             <img src="../../assets/instant-gaming-logo-icon.png" /> Huge Game Discounts
-                        </a>     
-                    </template>
+                        </a>      -->
+                    </div>
                 </div>
                 <!-- <div class="flex-spacer"></div> -->
                 <div id="header-user">
@@ -181,7 +206,24 @@ export default {
         </div>
         <div id="header-main-wrap">   
             <div id="header-main">
-                <router-link to="/" class="new-import">                    
+                <div v-if="$store.state.gameDomain === 0" class="menu-section">
+                    <span>
+                        {{ $t("Search [-game-] Imports", {game: expansionToShortName(browseExpansion)})}} 
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                        </svg>                          
+                    </span>
+                    <div class="sub-nav">
+                        <div class="dropdown-menu">
+                            <div class="menu-group">
+                                <a v-for="exp in expansionDB" @click="browseExpansion=exp.id"><span class="menu-icon"><img :src="exp.icon"></span> {{exp.name}}</a>
+                                <a @click="browseExpansion='legacy'"><span class="menu-icon"><img src="../../assets/legacy-toggle.svg"></span> {{ $t('Legacy') }}</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <router-link v-else to="/" class="new-import">                    
                     <img v-if="$store.state.gameDomain === 0" src="../../assets/wow-icon.svg" alt="WoW Logo" /> 
                     <img v-if="$store.state.gameDomain === 2" src="../../assets/fellowship-logo.svg" alt="Fellowship Logo" /> 
                     {{ $t("New Import") }}
@@ -312,17 +354,17 @@ export default {
         <div id="header-bottom-row-wrap" v-if="0 && (this.$store.state.user.UID || this.$store.state.user.guest) && !this.$store.state.user.hideAds">   
             <div id="header-bottom-row">
                 <span>{{ $t('Sponsors') }}</span>
-                <a id="holy-btn" href='https://bit.ly/WagoHoly' target="_blank" >
+                <a id="holy-btn" class="partner-btn" href='https://bit.ly/WagoHoly' target="_blank" >
                     <img src="../../assets/holy-icon-button.png" /> HOLY Energy Discounts
                 </a>   
-                <!-- <a id="steelseries-btn" href='https://bit.ly/SteelseriesLoU' target="_blank" >
+                <!-- <a id="steelseries-btn" class="partner-btn" href='https://bit.ly/SteelseriesLoU' target="_blank" >
                     <img src="../../assets/steelseries-logo.svg" /> ARCTIS NOVA PRO
                 </a> -->
-                <!-- <a id="dailyquest-btn" href='https://bit.ly/DailyQuestLoU' target="_blank" >
+                <!-- <a id="dailyquest-btn" class="partner-btn" href='https://bit.ly/DailyQuestLoU' target="_blank" >
                     <img src="../../assets/dailyquest-icon.png" /> WoW Games, Win Prizes
                 </a> -->
                 
-                <a id="raidshadowlegends-btn" href='https://pl.go-ga.me/eqafcbbp' target="_blank" >
+                <a id="raidshadowlegends-btn" class="partner-btn"    href='https://pl.go-ga.me/eqafcbbp' target="_blank" >
                     <img src="../../assets/raid-shadow-legends-icon.png" /> Huge RAID Rewards
                 </a>
                 
@@ -488,10 +530,18 @@ export default {
     }
 }
 
-#patreon-btn, #steelseries-btn, #dailyquest-btn, #holy-btn, #raidshadowlegends-btn, #instant-gaming-btn {
+#partner-btn-wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+#patreon-btn, .partner-btn {
     background: none;
     color: #E3E3E3;
-    padding: 12px!important;
+    padding: 10px!important;
+    font-size: 15px;
     font-weight: normal;
     margin: 0!important;
     border-radius: 8px;
@@ -499,7 +549,7 @@ export default {
     gap: 4px;
     img, svg {
         height: 16px;
-        margin-right: 4px;
+        margin-right: 2px;
     }
 }
 #steelseries-btn {
@@ -512,11 +562,28 @@ export default {
 }
 #holy-btn {
     color: #F3F3F3!important;
-    background: #252525;
-    border: 1px solid rgba(44,201,77,.75);
+    background: rgba(44, 201, 77, 0.1);
+    border: 1px solid rgb(43, 199, 76);
     &:hover, &:focus {
-        border-color: rgb(44, 201, 77);
-        background: #444;
+        border: 1px solid rgb(43, 199, 76);
+        background: rgba(44, 201, 77, 0.2);
+    }
+    img {
+        height: 26px;
+        margin-left: -4px;
+    }
+}
+#expressvpn-btn {
+    color: #F3F3F3!important;
+    background: rgba(218, 57, 64, 0.1);
+    border: 1px solid #DA3940;
+    &:hover, &:focus {
+        border-color: #DA3940;
+        background: rgba(218, 57, 64, 0.2);
+    }
+    img {
+        height: 26px;
+        margin-left: -4px;
     }
 }
 #instant-gaming-btn {
@@ -570,7 +637,7 @@ export default {
         position: relative; 
         z-index: 999;
         .user-name {
-            max-width: 215px;
+            max-width: 130px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -834,6 +901,10 @@ export default {
     #header-top-wrap, #header-main-wrap, #header-bottom-row-wrap {
         padding: 0 8px;
     }
+}
+
+@media (max-width: 1250px) {
+    #patreon-btn {display: none!important}
 }
 
 @media (max-width: 1150px) {

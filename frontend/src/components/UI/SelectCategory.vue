@@ -70,9 +70,6 @@ export default {
       if (this.type === 'COLLECTION') {
         game = game.replace(/legion|bfa/, 'df')
       }
-      else if (!this.type.match(/WEAKAURA/)) {
-        game = null
-      }
       else if (domain === 0) {
         type = 'WEAKAURA'
       }
@@ -81,7 +78,7 @@ export default {
       if (values && values.length > 0) {
         this.selectText = ''
         if (!values[0].parent) {
-          var children = window.Categories.matchChildren(values[0].id, type)
+          var children = window.Categories.matchChildren(values[0].id, type, game)
           this.categoryOptions = []
           // remove already selected categories
           for (var i = 0; i < children.length; i++) {

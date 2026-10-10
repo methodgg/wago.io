@@ -33,63 +33,7 @@
               </div>
               
             </md-layout>
-            <md-layout v-if="results && !collection" id="searchOptions">
-              <div v-if="$store.state.gameDomain === 0 && (searchType === 'all' || searchType === 'weakaura') && searchMode !== 'comments'">
-                <div>
-                  <label>{{ $t('Expansion') }}</label>
-                  <small id="selected-expansion">{{
-                    searchExpansion === 'classic' && $t('WoW Classic') ||
-                    searchExpansion === 'tbc' && $t('The Burning Crusade Classic') ||
-                    searchExpansion === 'titan-wotlk' && $t('Titan Reforged Classic WotLK') ||
-                    searchExpansion === 'cata' && $t('Cataclysm') ||
-                    searchExpansion === 'mop' && $t('Mists of Pandaria Classic') ||
-                    searchExpansion === 'df' && $t('Dragonflight') ||
-                    searchExpansion === 'tww' && $t('The War Within') ||
-                    searchExpansion === 'midnight' && $t('Midnight') ||
-                    (!searchExpansion || searchExpansion === 'all') && $t('All') ||
-                    $t('Legacy')
-                    }}</small>
-                </div>
-                <md-button-toggle md-single class="md-accent md-warn select-search-mode">
-                  <md-button :class="{ 'md-toggle': !searchExpansion || searchExpansion === 'all' }" class="md-icon-button" @click="setExpansion('')">
-                    <img src="../../assets/game-wow.svg">
-                    <md-tooltip md-direction="bottom" class="">{{ $t("All") }}</md-tooltip>
-                  </md-button>
-                  <md-button v-if="twwAvailable" :class="{ 'md-toggle': searchExpansion === 'tww' }" class="md-icon-button" @click="setExpansion('midnight')">
-                    <img src="../../assets/midnight-toggle.svg">
-                    <md-tooltip md-direction="bottom" class="">{{ $t("Midnight") }}</md-tooltip>
-                  </md-button>
-                  <md-button :class="{ 'md-toggle': searchExpansion === 'mop' }" class="md-icon-button" @click="setExpansion('mop')">
-                    <img src="../../assets/mop-toggle.svg">
-                    <md-tooltip md-direction="bottom" class="">{{ $t("Mists of Pandaria") }}</md-tooltip>
-                  </md-button>
-                  <md-button :class="{ 'md-toggle': searchExpansion === 'titan-wotlk' }" class="md-icon-button" @click="setExpansion('titan-wotlk')">
-                    <img src="../../assets/wotlk-toggle.svg">
-                    <md-tooltip md-direction="bottom" class="">{{ $t("Titan Reforged WotLK Classic") }}</md-tooltip>
-                  </md-button>
-                  <md-button :class="{ 'md-toggle': searchExpansion === 'classic' }" class="md-icon-button" @click="setExpansion('tbc')">
-                    <img src="../../assets/tbc-toggle.svg">
-                    <md-tooltip md-direction="bottom" class="">{{ $t("The Burning Crusade Classic") }}</md-tooltip>
-                  </md-button>
-                  <md-button :class="{ 'md-toggle': searchExpansion === 'forever' }" class="md-icon-button" @click="setExpansion('forever')">
-                    <img src="../../assets/forever-toggle.svg">
-                    <md-tooltip md-direction="bottom" class="">{{ $t("Forever") }}</md-tooltip>
-                  </md-button>
-                  <md-button :class="{ 'md-toggle': searchExpansion === 'classic' }" class="md-icon-button" @click="setExpansion('classic')">
-                    <img src="../../assets/classic-toggle.svg">
-                    <md-tooltip md-direction="bottom" class="">{{ $t("WoW Classic") }}</md-tooltip>
-                  </md-button>
-                  <md-button :class="{ 'md-toggle': searchExpansion && !searchExpansion.match(/tww|mop|classic|titan-wotlk/) }" class="md-icon-button" @click="setExpansion('legacy')">
-                    <img src="../../assets/legacy-toggle.svg">
-                    <md-tooltip md-direction="bottom" class="">{{ $t("Legacy") }}</md-tooltip>
-                  </md-button>
-                  <div class="md-button md-icon-button md-theme-default">
-                    <md-icon>help</md-icon>
-                    <md-tooltip md-direction="bottom" class="">{{ $t("Note that the expansion filter is only applied to WeakAura imports") }}</md-tooltip>
-                  </div>
-                </md-button-toggle>
-              </div>
-              
+            <md-layout v-if="results && !collection" id="searchOptions">              
               <div v-if="$store.state.gameDomain === 0 && searchMode !== 'comments'">
                 <div>&nbsp;</div>               
                     <button id="addon-button" class="md-button md-icon-button md-theme-default">
@@ -302,6 +246,7 @@ import FormattedText from '../UI/FormattedText.vue'
 import PlaceHolderImage from '../UI/PlaceHolderImage.vue'
 import CategoryImage from '../UI/CategoryImage.vue'
 import addons from '../libs/addons'
+import eventbus from '../libs/eventbus'
 
 export default {
   data: function () {
@@ -312,7 +257,7 @@ export default {
       searchSort: window.localStorage.getItem('searchSort') || 'bestmatchv3',
       searchMode: '',
       searchGame: '',
-      searchExpansion: '',
+      searchExpansion: window.localStorage.getItem('browseExpansion'),
       searchType: '',
       searchString: '',
       searchParams: {q: ''},
@@ -383,6 +328,13 @@ export default {
       this.execSearch()
     },
     searchExpansion (val) {
+      const type = this.addonDB.find(x => ((x.type && x.type === this.searchType?.toUpperCase()) || (x.slug && x.slug === this.searchType?.toLowerCase()) || (x.searchSlug && x.searchSlug === this.searchType?.toLowerCase())))
+      if (type) {
+        this.searchType = type.searchSlug ?? type.searchType ?? type.slug ?? 'all'
+      }
+      else {
+        this.searchType = 'all'
+      }
       this.execSearch()
     },
     searchType (val) {
@@ -394,7 +346,7 @@ export default {
       return this.$store.state.user && this.$store.state.user.unreadMentions && this.$store.state.user.unreadMentions.map(x => x._id)
     },
     addonDB: function() {
-        return addons(this.$t).filter(x => x.slug || x.searchSlug)
+        return addons(this.$t).filter(x => x.slug || x.searchSlug).filter(x => x.expansions?.includes('ALL') || x.expansions?.includes(this.searchExpansion))
     },
     searchAddon: function() {
       return this.addonDB.find(x => ((x.type && x.type === this.searchType?.toUpperCase()) || (x.slug && x.slug === this.searchType?.toLowerCase()) || (x.searchSlug && x.searchSlug === this.searchType?.toLowerCase())))
@@ -451,7 +403,6 @@ export default {
     setGame: function (game) {
       this.searchGame = game
       this.$store.commit('setSearchGame', {game})
-      this.searchExpansion = window.localStorage.getItem(`search.expansion.${this.searchGame}`) || ''
       this.searchType = window.localStorage.getItem(`search.type.${this.searchGame}`) || ''
 
       this.disableCode = game !== 'wow'
@@ -459,12 +410,6 @@ export default {
         this.setMode('imports')
         this.disableCode = true
       }
-      this.updateRoute()
-    },
-
-    setExpansion: function (exp) {
-      this.searchExpansion = exp
-      window.localStorage.setItem(`search.expansion.${this.searchGame}`, exp)
       this.updateRoute()
     },
 
@@ -739,8 +684,7 @@ export default {
         this.searchExpansion = 'fellowship'
         this.searchType = 'fellowship-ui'
       }
-      else if (this.context.expansion || this.context.type) {
-        this.searchExpansion = this.context.expansion || this.$store.state.searchExpansion || window.localStorage.getItem(`search.expansion.${this.searchGame}`) || 'all'        
+      else if (this.context.expansion || this.context.type) {   
         this.searchType = this.context.type || this.$store.state.searchType || window.localStorage.getItem(`search.type.${this.searchGame}`) || 'all'
       }
       else if (!this.context.expansionType) {
@@ -750,20 +694,16 @@ export default {
       else if (this.context.expansionType.match(/(classic|tbc|wotlk|cata|mop|wod|legion|bfa|sl|df|tww)-/)) {
         let s = this.context.expansionType.split('-')
         if (s[2]) {
-          this.searchExpansion = `${s[0]}-${s[1]}`
           this.searchType = s[2]
         }
         else {
-          this.searchExpansion = s[0]
           this.searchType = s[1]
         }
       }
       else if (this.context.expansionType.match(/^(classic|tbc|wotlk|cata|mop|wod|legion|bfa|sl|df|tww)$/)) {
-        this.searchExpansion = this.context.expansionType
         this.searchType = ''
       }
       else {
-        this.searchExpansion = ''
         this.searchType = this.context.expansionType
       }
  
@@ -773,7 +713,6 @@ export default {
        
       window.localStorage.setItem(`search.mode`, this.searchMode)
       window.localStorage.setItem(`search.game`, this.searchGame)
-      window.localStorage.setItem(`search.expansion.${this.searchGame}`, this.searchExpansion)
       window.localStorage.setItem(`search.type.${this.searchGame}`, this.searchType)
     },
 
@@ -797,7 +736,6 @@ export default {
     else {
       this.searchMode = this.$store.state.searchMode || window.localStorage.getItem(`search.mode`) || 'imports'
       this.searchGame = this.$store.state.searchGame || window.localStorage.getItem(`search.game`) || 'wow'
-      this.searchExpansion = this.$store.state.searchExpansion || window.localStorage.getItem(`search.expansion.${this.searchGame}`) || ''
       this.searchType = this.$store.state.searchType || window.localStorage.getItem(`search.type.${this.searchGame}`) || ''
     }
     this.$store.commit('setSearchText', this.searchString, true)
@@ -809,6 +747,10 @@ export default {
     if (this.$route.name === 'searchredirect') {
       this.updateRoute()
     }
+    eventbus.$on('setExpansion', (val) => {
+      this.searchExpansion = val
+      // this.runSearch()
+    })
   }
 }
 </script>

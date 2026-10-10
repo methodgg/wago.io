@@ -1,11 +1,16 @@
 <script>
 import addons from '../libs/addons'
+import eventbus from '../libs/eventbus'
+import expansionDB from '../libs/expansions'
+
+let expansionCooldown = 0
 
 export default {
     name: 'browse',
     data: function () {
         return {
-            browseExpansion: localStorage.getItem('browseExpansion') || 'midnight',
+            browseExpansion: localStorage.getItem('browseExpansion') || 'forever',
+            expansionDB
         }
     },
     computed: {
@@ -16,7 +21,14 @@ export default {
     watch: {
         browseExpansion: (val) => {
             localStorage.setItem('browseExpansion', val)
+            if (expansionCooldown < Date.now()) {
+                eventbus.$emit('setExpansion', val)
+                expansionCooldown = Date.now() + 100
+            }
         },
+    },
+    mounted: function() {
+        eventbus.$on('setExpansion', (val) => this.browseExpansion = val)
     }
 }
     
@@ -27,28 +39,16 @@ export default {
         <h2>{{ $t('Search Imports by Addon') }}</h2>
         <md-layout>
             <md-button-toggle md-single class="md-accent md-warn select-browse-mode">
-                <md-button :class="{ 'md-toggle': browseExpansion === 'midnight' }" @click="browseExpansion='midnight'">
-                    <img src="../../assets/midnight-toggle.svg"> {{ $t("Midnight") }}
-                </md-button>
-                <md-button :class="{ 'md-toggle': browseExpansion === 'mop' }" @click="browseExpansion='mop'">
-                    <img src="../../assets/mop-toggle.svg"> {{ $t("Mists of Pandaria") }}
-                </md-button>
-                <md-button :class="{ 'md-toggle': browseExpansion === 'titan-wotlk' }" @click="browseExpansion='titan-wotlk'">
-                    <img src="../../assets/wotlk-toggle.svg">{{ $t("Titan Reforged") }}
-                </md-button>
-                <md-button :class="{ 'md-toggle': browseExpansion === 'tbc' }" @click="browseExpansion='tbc'">
-                    <img src="../../assets/tbc-toggle.svg"> {{ $t("The Burning Crusade") }}
-                </md-button>
-                <md-button :class="{ 'md-toggle': browseExpansion === 'classic' }" @click="browseExpansion='classic'">
-                    <img src="../../assets/classic-toggle.svg"> {{ $t("Classic") }}
+                <md-button v-for="expansion in expansionDB" :class="{ 'md-toggle': browseExpansion === expansion.id }" @click="browseExpansion=expansion.id" :key="expansion.id">
+                    <img :src="expansion.icon"> {{ expansion.name }}
                 </md-button>
             </md-button-toggle>
         </md-layout>
         <div style="border-top:1px solid #333">
-            <template v-if="browseExpansion === 'midnight'">
+            <template v-if="browseExpansion === 'midnight' || browseExpansion === 'all'">
                 <h3>{{ $t('Housing') }}</h3>
                 <div class="browse-addon-group">
-                    <template v-for="addon in addonDB" v-if="addon.group === 'housing' && (addon.expansions.includes(browseExpansion) || addon.expansions.includes('ALL'))">
+                    <template v-for="addon in addonDB" v-if="addon.group === 'housing' && (addon.expansions.includes(browseExpansion) || addon.expansions.includes('ALL') || browseExpansion === 'all')">
                         <router-link :to="addon.url ? addon.url : `/browse/${addon.slug}`" :class="addon.image && 'addon-list-category'" :style="`outline-color: #${addon.color}77; color:#${addon.color}; background-color:#${addon.color}0A; ${addon.image && `background-image:url('/static/image/menu/${addon.image}')`}`">
                             <span>{{ addon.name}}</span>
                         </router-link>
@@ -57,7 +57,7 @@ export default {
             </template>
             <h3>{{ $t('Customize Your Interface') }}</h3>
             <div class="browse-addon-group">
-                <template v-for="addon in addonDB" v-if="addon.group === 'ui' && (addon.expansions.includes(browseExpansion) || addon.expansions.includes('ALL'))">
+                <template v-for="addon in addonDB" v-if="addon.group === 'ui' && (addon.expansions.includes(browseExpansion) || addon.expansions.includes('ALL') || browseExpansion === 'all')">
                     <router-link :to="addon.url ? addon.url : `/browse/${addon.slug}`" :class="addon.image && 'addon-list-category'" :style="`outline-color: #${addon.color}77; color:#${addon.color}; background-color:#${addon.color}0A; ${addon.image && `background-image:url('/static/image/menu/${addon.image}')`}`">
                         <span>{{ addon.name}}</span>
                     </router-link>
@@ -65,7 +65,7 @@ export default {
             </div>
             <h3>{{ $t('Enhanced Tools') }}</h3>
             <div class="browse-addon-group">
-                <template v-for="addon in addonDB" v-if="addon.group === 'tools' && (addon.expansions.includes(browseExpansion) || addon.expansions.includes('ALL'))">
+                <template v-for="addon in addonDB" v-if="addon.group === 'tools' && (addon.expansions.includes(browseExpansion) || addon.expansions.includes('ALL') || browseExpansion === 'all')">
                     <router-link :to="addon.url ? addon.url : `/browse/${addon.slug}`" :class="addon.image && 'addon-list-category'" :style="`outline-color: #${addon.color}77; color:#${addon.color}; background-color:#${addon.color}0A; ${addon.image && `background-image:url('/static/image/menu/${addon.image}')`}`">
                         <span>{{ addon.name}}</span>
                     </router-link>
@@ -73,7 +73,7 @@ export default {
             </div>
             <h3>{{ $t('Combat Utility') }}</h3>
             <div class="browse-addon-group">
-                <template v-for="addon in addonDB" v-if="addon.group === 'combat' && (addon.expansions.includes(browseExpansion) || addon.expansions.includes('ALL'))">
+                <template v-for="addon in addonDB" v-if="addon.group === 'combat' && (addon.expansions.includes(browseExpansion) || addon.expansions.includes('ALL') || browseExpansion === 'all')">
                     <router-link :to="addon.url ? addon.url : `/browse/${addon.slug}`" :class="addon.image && 'addon-list-category'" :style="`outline-color: #${addon.color}77; color:#${addon.color}; background-color:#${addon.color}0A; ${addon.image && `background-image:url('/static/image/menu/${addon.image}')`}`">
                         <span>{{ addon.name}}</span>
                     </router-link>
@@ -81,7 +81,7 @@ export default {
             </div>
             <h3>{{ $t('Blizzard Settings') }}</h3>
             <div class="browse-addon-group">
-                <template v-for="addon in addonDB" v-if="addon.group === 'blizzard' && (addon.expansions.includes(browseExpansion) || addon.expansions.includes('ALL'))">
+                <template v-for="addon in addonDB" v-if="addon.group === 'blizzard' && (addon.expansions.includes(browseExpansion) || addon.expansions.includes('ALL') || browseExpansion === 'all')">
                     <router-link :to="addon.url ? addon.url : `/browse/${addon.slug}`" :class="addon.image && 'addon-list-category'" :style="`outline-color: #${addon.color}77; color:#${addon.color}; background-color:#${addon.color}0A; ${addon.image && `background-image:url('/static/image/menu/${addon.image}')`}`">
                         <span>{{ addon.name}}</span>
                     </router-link>
@@ -89,7 +89,7 @@ export default {
             </div>
             <h3>{{ $t('Miscellaneous') }}</h3>
             <div class="browse-addon-group">
-                <template v-for="addon in addonDB" v-if="!addon.group && (addon.expansions.includes(browseExpansion) || addon.expansions.includes('ALL'))">
+                <template v-for="addon in addonDB" v-if="!addon.group && (addon.expansions.includes(browseExpansion) || addon.expansions.includes('ALL') || browseExpansion === 'all')">
                     <router-link :to="addon.url ? addon.url : `/browse/${addon.slug}`" :class="addon.image && 'addon-list-category'" :style="`outline-color: #${addon.color}77; color:#${addon.color}; background-color:#${addon.color}0A; ${addon.image && `background-image:url('/static/image/menu/${addon.image}')`}`">
                         <span>{{ addon.name}}</span>
                     </router-link>

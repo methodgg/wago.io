@@ -1,5 +1,6 @@
 
 const wowAddons = require('../helpers/wowAddons')
+const addonDB = require('../../../frontend/src/components/libs/addons')(()=>{})
 
 function expansionIndex(exp) {
   exp = (exp || '').toLowerCase()
@@ -16,9 +17,28 @@ function expansionIndex(exp) {
   else if (exp === 'tww') return 10
   else if (exp === 'midnight') return 11
   else if (exp === 'titan-wotlk') return 102
+  else if (exp === 'forever') return 200
 
   else if (exp === 'all') return -1
   return 10
+}
+function expansionKey(exp) {
+  if (exp === 0) return 'classic'
+  else if (exp === 1) return 'tbc'
+  else if (exp === 2) return 'wotlk'
+  else if (exp === 3) return 'cata'
+  else if (exp === 4) return 'mop'
+  else if (exp === 5) return 'wod'
+  else if (exp === 6) return 'legion'
+  else if (exp === 7) return 'bfa'
+  else if (exp === 8) return 'sl'
+  else if (exp === 9) return 'df'
+  else if (exp === 10) return 'tww'
+  else if (exp === 11) return 'midnight'
+  else if (exp === 102) return 'titan-wotlk'
+  else if (exp === 200) return 'forever'
+  
+  return -1
 }
 
 async function searchElastic(req, res) {
@@ -81,7 +101,6 @@ async function searchElastic(req, res) {
       })
     }
   }
-
   let filterExpansion = []
   let defaultFilterExpansion
   if (req.domain) {}
@@ -99,9 +118,22 @@ async function searchElastic(req, res) {
   }
   else if (parseInt(req.query.expansion) > -1) {
     filterExpansion = [{ term: { expansion: { value: parseInt(req.query.expansion) } } }]
+    
+    const expansionIdent = expansionKey(req.query.expansion)
+    addonDB.map(x => {
+      x.id = x.serverType ?? x.slug?.toUpperCase()
+      return x
+    }).filter(x => x?.id && (x.expansions?.includes(expansionIdent) || x.expansions?.includes('ALL'))
+    ).map( x => filterExpansion.push({ term: { type: x.id } }))
   }
-  else if (req.query.expansion && req.query.expansion !== 'all' && expansionIndex(req.query.expansion) > -1) {
-    filterExpansion = [{ term: { expansion: { value: expansionIndex(req.query.expansion) } } }]
+  else if (req.query.expansion && expansionIndex(req.query.expansion) > -1) {
+    const expansionIdent = req.query.expansion
+    filterExpansion = [{ term: { expansion: { value: expansionIndex(expansionIdent) } } }]
+    addonDB.map(x => {
+      x.id = x.serverType ?? x.slug?.toUpperCase()
+      return x
+    }).filter(x => x?.id && (x.expansions?.includes(expansionIdent) || x.expansions?.includes('ALL'))
+    ).map( x => filterExpansion.push({ term: { type: x.id } }))
   }
 
   // old search format
@@ -122,12 +154,26 @@ async function searchElastic(req, res) {
       defaultFilterExpansion.push({ term: { expansion: { value: -1 } } })
     }
   }
-
   let filterTypes = []
+  let enableLegacy = false
   if (req.query.type && req.query.type !== 'all') {
     const findByType = wowAddons.addons.find(x => x.slug === req.query.type)?.type || req.query.type.toUpperCase()
-    filterTypes.push( findByType )
-    esFilter.push(({ bool: { should: { term: { 'type': findByType } } } }))
+    if (findByType === 'LEGACY-WEAKAURA') {
+      filterTypes.push({ term: { 'type': 'TWW-WEAKAURA' } })
+      filterTypes.push({ term: { 'type': 'SL-WEAKAURA' } })
+      filterTypes.push({ term: { 'type': 'BFA-WEAKAURA' } })
+      filterTypes.push({ term: { 'type': 'WOD-WEAKAURA' } })
+      filterTypes.push({ term: { 'type': 'WOTLK-WEAKAURA' } })
+      filterTypes.push({ term: { 'type': 'UNKNOWN-WEAKAURA' } })
+      filterTypes.push({ term: { 'type': 'LEGACY-WEAKAURA' } })
+      filterTypes.push({ term: { 'type': 'WEAKAURA' } })
+      esFilter.push(({ bool: { should: filterTypes } }))
+      enableLegacy = true
+    }
+    else {
+      esFilter.push(({ bool: { should: { term: { 'type': findByType } } } }))
+    }
+    filterTypes = [findByType]
   }
   // old search format
   else if (query.match(/type:/)) {
@@ -143,7 +189,7 @@ async function searchElastic(req, res) {
   }
 
   if (filterExpansion.length) {
-    if (filterTypes.filter(x => !x?.match(/WEAKAURA/)).length) {
+    if (enableLegacy) {
         filterExpansion.push({ term: { expansion: { value: -1 } } }) // so that we dont exclude imports that are not expansion specific
     }
     esFilter.push(({ bool: { should: filterExpansion } }))
@@ -541,8 +587,8 @@ async function oldSearch(req, res) {
     }
   }
 
-  let filterExpansion = [{ term: { game: '' } }]
-  m = query.match(/expansion:\s?(tww|df|sl|bfa|legion|wod|(titan-)?wotlk|tbc|classic)/)
+  let filterExpansion = []
+  m = query.match(/expansion:\s?([\w-]+)/)
   while (m) {
     query = query.replace(m[0], '')
     filterExpansion.push({ term: { game: m[1] } })
@@ -557,7 +603,6 @@ async function oldSearch(req, res) {
   while (m) {
     filterTypes.push({ term: { 'type.keyword': m[1].toUpperCase() } })
     if (m[1].toUpperCase() === 'WEAKAURA') {
-      // temp until index is optimized
       filterTypes.push({ term: { 'type.keyword': 'MOP-WEAKAURA' } })
       filterTypes.push({ term: { 'type.keyword': 'CATA-WEAKAURA' } })
       filterTypes.push({ term: { 'type.keyword': 'WOTLK-WEAKAURA' } })
