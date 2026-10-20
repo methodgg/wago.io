@@ -23,6 +23,7 @@ function expansionIndex(exp) {
   return 10
 }
 function expansionKey(exp) {
+  exp = parseInt(exp)
   if (exp === 0) return 'classic'
   else if (exp === 1) return 'tbc'
   else if (exp === 2) return 'wotlk'
@@ -101,6 +102,7 @@ async function searchElastic(req, res) {
       })
     }
   }
+  let expansionIdent = 'all'
   let filterExpansion = []
   let defaultFilterExpansion
   if (req.domain) {}
@@ -119,7 +121,7 @@ async function searchElastic(req, res) {
   else if (parseInt(req.query.expansion) > -1) {
     filterExpansion = [{ term: { expansion: { value: parseInt(req.query.expansion) } } }]
     
-    const expansionIdent = expansionKey(req.query.expansion)
+    expansionIdent = expansionKey(req.query.expansion)
     addonDB.map(x => {
       x.id = x.serverType ?? x.slug?.toUpperCase()
       return x
@@ -127,7 +129,7 @@ async function searchElastic(req, res) {
     ).map( x => filterExpansion.push({ term: { type: x.id } }))
   }
   else if (req.query.expansion && expansionIndex(req.query.expansion) > -1) {
-    const expansionIdent = req.query.expansion
+    expansionIdent = req.query.expansion
     filterExpansion = [{ term: { expansion: { value: expansionIndex(expansionIdent) } } }]
     addonDB.map(x => {
       x.id = x.serverType ?? x.slug?.toUpperCase()
@@ -157,7 +159,7 @@ async function searchElastic(req, res) {
   let filterTypes = []
   let enableLegacy = false
   if (req.query.type && req.query.type !== 'all') {
-    const findByType = wowAddons.addons.find(x => x.slug === req.query.type)?.type || req.query.type.toUpperCase()
+    let findByType = wowAddons.addons.find(x => x.slug === req.query.type)?.type || req.query.type.toUpperCase()
     if (findByType === 'LEGACY-WEAKAURA') {
       filterTypes.push({ term: { 'type': 'TWW-WEAKAURA' } })
       filterTypes.push({ term: { 'type': 'SL-WEAKAURA' } })
@@ -171,6 +173,12 @@ async function searchElastic(req, res) {
       enableLegacy = true
     }
     else {
+      if (findByType.match(/WEAKAURA/) && expansionIdent === 'forever') {
+        findByType = 'FOREVERAURAS'
+      }
+      else if (findByType.match(/WEAKAURA/) && expansionIdent === 'midnight') {
+        findByType = 'M33KAURAS'
+      }
       esFilter.push(({ bool: { should: { term: { 'type': findByType } } } }))
     }
     filterTypes = [findByType]
