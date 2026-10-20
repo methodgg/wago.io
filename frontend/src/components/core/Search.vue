@@ -328,7 +328,8 @@ export default {
       this.execSearch()
     },
     searchExpansion (val) {
-      const type = this.addonDB.find(x => ((x.type && x.type === this.searchType?.toUpperCase()) || (x.slug && x.slug === this.searchType?.toLowerCase()) || (x.searchSlug && x.searchSlug === this.searchType?.toLowerCase())))
+      const type = this.addonDB.find(x => ((!x.expansions || x.expansions.includes(this.searchExpansion)) && (!x.type || x.type === 'all' || x.type === this.searchType?.toUpperCase() ||  x.slug === this.searchType?.toLowerCase() || x.searchSlug && x.searchSlug === this.searchType?.toLowerCase())))
+      console.log(type, this.searchExpansion)
       if (type) {
         this.searchType = type.searchSlug ?? type.searchType ?? type.slug ?? 'all'
       }
@@ -547,6 +548,7 @@ export default {
             sort: this.collection ? 'bestmatchv3' :this.searchSort
         }
       }
+      console.log('A', this.searchParams, this.searchExpansion, this.searchGame)
 
       if (query.match(/\b(?:alerts?|mentioned):\s*(1|true)\b/i)) {
         this.searchParams.includeRead = this.includeReadMentions
@@ -688,8 +690,9 @@ export default {
         this.searchType = this.context.type || this.$store.state.searchType || window.localStorage.getItem(`search.type.${this.searchGame}`) || 'all'
       }
       else if (!this.context.expansionType) {
-        this.searchExpansion = window.localStorage.getItem(`search.expansion.${this.searchGame}`) || 'all'
+        this.searchExpansion = window.localStorage.getItem('browseExpansion') || 'all'
         this.searchType = window.localStorage.getItem(`search.type.${this.searchGame}`) || 'all'
+        console.log('parse context', this.searchExpansion, this.searchType)
       }
       else if (this.context.expansionType.match(/(classic|tbc|wotlk|cata|mop|wod|legion|bfa|sl|df|tww)-/)) {
         let s = this.context.expansionType.split('-')
