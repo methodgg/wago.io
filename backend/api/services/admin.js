@@ -54,7 +54,7 @@ module.exports = (fastify, opts, next) => {
     if (!req.user || !req.user.isAdmin.access || !req.user.isAdmin.super) {
       return res.code(403).send({error: "forbidden", u: req.user})
     }
-    const ZSCORE = parseInt(global.dropletId) || 1
+    const ZSCORE = parseFloat(global.dropletId) || 1
     var data = {}
     data.connections = await redis2.zcount('allSiteVisitors', ZSCORE, ZSCORE)
     res.send(data)

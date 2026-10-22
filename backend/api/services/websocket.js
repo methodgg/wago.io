@@ -7,7 +7,7 @@ function Connection(conn, cid) {
   this.socket = conn.socket
   this.cid = cid
   this.alive = true
-  this.ZSCORE = parseInt(global.dropletId) || 1
+  this.ZSCORE = parseFloat(global.dropletId) || 1
   this.send = (obj) => {
     this.socket.send(JSON.stringify(obj))
   }
