@@ -7,7 +7,7 @@ function Connection(conn, cid) {
   this.socket = conn.socket
   this.cid = cid
   this.alive = true
-  this.ZSCORE = parseFloat(global.dropletId) || 1
+  this.ZSCORE = (parseFloat(global.dropletId) || 1) % 1000
   this.send = (obj) => {
     this.socket.send(JSON.stringify(obj))
   }
@@ -75,9 +75,10 @@ module.exports = async function (connection, req) {
     }
     connections[cid] = new Connection(connection, cid)
 
-    await redis2.zadd('allSiteVisitors', this.ZSCORE, cid)
+    const ZSCORE = (parseFloat(global.dropletId) || 1) % 1000
+    await redis2.zadd('allSiteVisitors', ZSCORE, cid)
     if (connections[cid].premiumUser) {
-      await redis2.zadd('allPremiumVisitors', this.ZSCORE, cid)
+      await redis2.zadd('allPremiumVisitors', ZSCORE, cid)
     }
     connections[cid].send({hello: cid})
     connections[cid].setupStream()
@@ -122,17 +123,19 @@ setInterval(async () => {
 
 // make sure redis and connection cids match up
 async function cleanCIDs() {
+  const ZSCORE = (parseFloat(global.dropletId) || 1) % 1000
+
   // find all CIDs
   let CIDs = [].concat(
-    await redis2.zrangebyscore('allSiteVisitors', this.ZSCORE, this.ZSCORE),
-    await redis2.zrangebyscore('allPremiumVisitors', this.ZSCORE, this.ZSCORE),
-    await redis2.zrangebyscore('allEmbeds:__streamspread', this.ZSCORE, this.ZSCORE),
-    await redis2.zrangebyscore('allEmbeds:__stale', this.ZSCORE, this.ZSCORE),
-    await redis2.zrangebyscore('allEmbeds:__none', this.ZSCORE, this.ZSCORE)
+    await redis2.zrangebyscore('allSiteVisitors', ZSCORE, ZSCORE),
+    await redis2.zrangebyscore('allPremiumVisitors', ZSCORE, ZSCORE),
+    await redis2.zrangebyscore('allEmbeds:__streamspread', ZSCORE, ZSCORE),
+    await redis2.zrangebyscore('allEmbeds:__stale', ZSCORE, ZSCORE),
+    await redis2.zrangebyscore('allEmbeds:__none', ZSCORE, ZSCORE)
   )
   const streams = await Streamers.find({online: {$gt: 0}})
   for (let i=0; i<streams.length; i++) {
-    CIDs = CIDs.concat(await redis2.zrangebyscore(`allEmbeds:${streams[i].name}`, this.ZSCORE, this.ZSCORE))
+    CIDs = CIDs.concat(await redis2.zrangebyscore(`allEmbeds:${streams[i].name}`, ZSCORE, ZSCORE))
   }
   CIDs = [...new Set(CIDs)]
 
