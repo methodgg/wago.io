@@ -113,9 +113,20 @@ const startServer = async () => {
 
     const profilerTasks = {}
 
+    if (config.env !== 'development') {
+      try {
+        const fetchDroplet = await fetch('http://169.254.169.254/metadata/v1/id')
+        global.dropletId = await fetchDroplet.text()
+      }
+      catch {
+        global.dropletId = 'nope'
+      }
+    }
+    const isPrimaryProcessingServer = (global.dropletId === '611641431')
+
     const runTask = require('./api/helpers/tasks')
     // runTask('ProcessAllCode')
-    if (config.env === 'processing' || config.env === 'development' || config.env === 'staging' || require('os').hostname().match(/wago-processing/)) {
+    if (config.env === 'processing' || config.env === 'development' || config.env === 'staging' || require('os').hostname().match(/wago-io-processing/)) {
       // setup queues and workers
       new QueueScheduler('taskQueue', { connection: RedisConnect })
       const worker = new Worker('taskQueue', async (job) => {
@@ -155,7 +166,7 @@ const startServer = async () => {
       })
     }
 
-    if (config.env === 'development' || config.env === 'staging' || require('os').hostname().match(/wago-processing-01$/)) {
+    if (config.env === 'development' || config.env === 'staging' || isPrimaryProcessingServer) {
       const cleanup = await taskQueue.getRepeatableJobs()
       for (let i = 0; i < cleanup.length; i++) {
         await taskQueue.removeRepeatableByKey(cleanup[i].key)
@@ -179,7 +190,7 @@ const startServer = async () => {
       await elastic.ensureIndexes(true)
       // await runTask('SyncElastic', { table: 'comments' })
 
-      if (config.env === 'development' || require('os').hostname().match(/wago-processing-01$/)) {
+      if (config.env === 'development' || isPrimaryProcessingServer) {
         global.discordBot = require('./discordBot')
         discordBot.start()
 

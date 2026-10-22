@@ -28,13 +28,14 @@
     "fastify-rate-limit": "^4.1.0",
     "fastify-websocket": "^3.2.0",
     "file-type": "^16.3.0",
+    "forever": "^4.0.3",
     "hash-file": "^3.0.0",
     "hcaptcha": "0.0.2",
     "i18next": "^19.9.2",
     "i18next-fs-backend": "^1.1.1",
     "js-video-url-parser": "^0.4.3",
     "json-bigint": "^1.0.0",
-    "jsonwebtoken": "^8.5.1",
+    "jsonwebtoken": "^9.0.3",
     "jszip": "^3.6.0",
     "locale": "^0.1.0",
     "lossless-json": "^4.2.0",
@@ -77,6 +78,6 @@
     "snowpack": "^3.3.7"
   },
   "volta": {
-    "node": "18.20.4"
+    "node": "26"
   }
 }

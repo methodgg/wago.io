@@ -1,13 +1,13 @@
 
 const advert = require('../helpers/advert')
 const Streamers = require("../models/Streamer")
-const ZSCORE = parseInt(require('os').hostname().replace(/[^\d]/g, '')) || 1
 const connections = {}
 
 function Connection(conn, cid) {
   this.socket = conn.socket
   this.cid = cid
   this.alive = true
+  this.ZSCORE = parseInt(global.dropletId) || 1
   this.send = (obj) => {
     this.socket.send(JSON.stringify(obj))
   }
@@ -21,13 +21,13 @@ function Connection(conn, cid) {
     if (this.alive && this.embedStream) {
       await redis2.zrem(`allEmbeds:${this.embedStream}`, this.cid)
       this.embedStream = '__stale'
-      await redis2.zadd(`allEmbeds:${this.embedStream}`, ZSCORE, this.cid)
+      await redis2.zadd(`allEmbeds:${this.embedStream}`, this.ZSCORE, this.cid)
       await redis2.set(`currentstream:${this.cid}`, this.embedStream)
     }
     else if (this.alive && this.embedStream !== '__streamspread') {
       await redis2.zrem(`allEmbeds:${this.embedStream}`, this.cid)
       this.embedStream = await advert.determineStream(this.cid, this.embedStream)
-      await redis2.zadd(`allEmbeds:${this.embedStream}`, ZSCORE, this.cid)
+      await redis2.zadd(`allEmbeds:${this.embedStream}`, this.ZSCORE, this.cid)
       await redis2.set(`currentstream:${this.cid}`, this.embedStream)
       this.send({setStream: this.embedStream})
       this.streamTimer = setTimeout(this.setupStream, 20*60*1000) // go stale after 20 min
@@ -75,9 +75,9 @@ module.exports = async function (connection, req) {
     }
     connections[cid] = new Connection(connection, cid)
 
-    await redis2.zadd('allSiteVisitors', ZSCORE, cid)
+    await redis2.zadd('allSiteVisitors', this.ZSCORE, cid)
     if (connections[cid].premiumUser) {
-      await redis2.zadd('allPremiumVisitors', ZSCORE, cid)
+      await redis2.zadd('allPremiumVisitors', this.ZSCORE, cid)
     }
     connections[cid].send({hello: cid})
     connections[cid].setupStream()
@@ -124,15 +124,15 @@ setInterval(async () => {
 async function cleanCIDs() {
   // find all CIDs
   let CIDs = [].concat(
-    await redis2.zrangebyscore('allSiteVisitors', ZSCORE, ZSCORE),
-    await redis2.zrangebyscore('allPremiumVisitors', ZSCORE, ZSCORE),
-    await redis2.zrangebyscore('allEmbeds:__streamspread', ZSCORE, ZSCORE),
-    await redis2.zrangebyscore('allEmbeds:__stale', ZSCORE, ZSCORE),
-    await redis2.zrangebyscore('allEmbeds:__none', ZSCORE, ZSCORE)
+    await redis2.zrangebyscore('allSiteVisitors', this.ZSCORE, this.ZSCORE),
+    await redis2.zrangebyscore('allPremiumVisitors', this.ZSCORE, this.ZSCORE),
+    await redis2.zrangebyscore('allEmbeds:__streamspread', this.ZSCORE, this.ZSCORE),
+    await redis2.zrangebyscore('allEmbeds:__stale', this.ZSCORE, this.ZSCORE),
+    await redis2.zrangebyscore('allEmbeds:__none', this.ZSCORE, this.ZSCORE)
   )
   const streams = await Streamers.find({online: {$gt: 0}})
   for (let i=0; i<streams.length; i++) {
-    CIDs = CIDs.concat(await redis2.zrangebyscore(`allEmbeds:${streams[i].name}`, ZSCORE, ZSCORE))
+    CIDs = CIDs.concat(await redis2.zrangebyscore(`allEmbeds:${streams[i].name}`, this.ZSCORE, this.ZSCORE))
   }
   CIDs = [...new Set(CIDs)]
 
