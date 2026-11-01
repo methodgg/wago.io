@@ -28,7 +28,7 @@ module.exports = ($t) => [
     ]},
     {name: 'Baganator', slug: 'baganator', color: '44d0fd', image: 'baganator.png', expansions: ['ALL'], group: 'ui', links: [
         {url: 'https://addons.wago.io/addons/baganator', name: $t('Download Baganator')},
-        {url: 'https://discord.gg/TtSN6DxSky', name: $t('Join Baganator Discord')}
+        {url: 'https://discord.gg/XDExNfPCa2', name: $t('Join Baganator Discord')}
     ]},
     {name: 'Better Blizz Frames', slug: 'better-blizz-frames', color: '217DD3', image: 'bbf.png', expansions: ['ALL'], group: 'ui', categories: ['%CLASSES%', 'bbf0'], links: [
         {url: 'https://addons.wago.io/addons/betterblizzframes', name: $t('Download Better Blizz Frames')},
