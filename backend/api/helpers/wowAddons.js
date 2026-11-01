@@ -19,7 +19,7 @@ const addons = [{
     slug: 'baganator',
     stringPrefix: 'BGR!1!',
     mapOptions: {
-        forceStringKey: /^\.sections/
+        forceStringKey: /^\.(sections|category_sections)/
     },
     buildMeta: (obj) => {
         if (obj.addon !== 'Baganator') {
