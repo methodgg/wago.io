@@ -20,9 +20,13 @@ module.exports = ($t) => [
         {url: 'https://discord.gg/xFWcfgE', name: $t('Join ElvUI Discord')}
     ]},
     {name: 'Plater Nameplates', slug: 'plater', color: 'fcc771', image: 'plater.png', expansions: ['ALL'], categories: ['%CLASSES%', 'platersys', 'platercontent', 'role0'], group: 'ui', links: [
-        {url: 'https://addons.wago.io/addons/plater-nameplates', name: $t('Download Plater')},
+        {url: 'https://addons.wago.io/addons/plater-nameplates', name: $t('Download Plater Nameplates')},
         {url: 'https://discord.gg/AGSzAZX', name: $t('Join Plater Discord')},
     ]},
+    {name: 'Plater Unit Frames', slug: 'plater-unit-frames', color: 'fcc771', image: 'plater-unitframes.png', expansions: ['ALL'], group: 'ui', links: [
+        {url: 'https://addons.wago.io/addons/plater-unit-frames', name: $t('Download Plater Unit Frames')},
+        {url: 'https://discord.gg/AGSzAZX', name: $t('Join Plater Discord')},
+    ]},    
     {name: 'AyijeCDM', slug: 'ayije-cdm', color: 'fe9808', image: 'ayijecdm.png', expansions: ['midnight'], categories: ['%CLASSES%'], group: 'combat', links: [
         {url: 'https://addons.wago.io/addons/ayijecdm', name: $t('Download AyijeCDM')},
     ]},
@@ -97,6 +101,9 @@ module.exports = ($t) => [
     ]},
     {name: 'HenniAuras', slug: 'henni-auras', color: 'b86329', image: 'henni-auras.jpeg', expansions: ['midnight'], categories: ['%CLASSES%', 'role0', 'raidvoidspire', 'raiddreamrift', 'raidmarchqueldanas'], group: 'tools', links: [
         {url: 'https://addons.wago.io/addons/henni-auras', name: $t('Download HenniAuras')},
+    ]},
+    {name: 'KiraUI Plugin', slug: 'kiraui-plugin', color: '867473', image: 'kiraui.png', expansions: ['midnight'], categories: ['kirauiplugin0'], group: 'ui', links: [
+        {url: 'https://addons.wago.io/addons/kiraui-plugin', name: $t('Download KiraUI Plugin')},
     ]},
     {name: 'M33kAuras', slug: 'm33kauras', color: 'f7dec4', image: 'm33kauras.jpg', expansions: ['midnight'], group: 'tools', links: [
         {url: 'https://github.com/m33shoq/M33kAuras/releases', name: $t('Download M33kAuras')},

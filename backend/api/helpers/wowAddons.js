@@ -502,6 +502,39 @@ const addons = [{
         return meta
     },
 }, {
+    type: 'KIRAUI-PLUGIN',
+    slug: 'kiraui-plugin',
+    stringRegex: /^!KiraUI(?:DR)?:1!(.+)$/,
+    useLuaEncoding: true,
+    customDecode: async (importStr) => {
+        const match = importStr.match(/^!KiraUI(DR)?:1!(.+)$/)
+        const payload = await luaEncoding.decode(match[2])
+        if (payload) {
+            return {
+                type: match[1],
+                data: payload
+            }
+        }
+        return false
+    },
+    customEncode: async (obj) => {
+        const prefix = `!KiraUI${obj.type || ''}:1!`
+        return prefix + await luaEncoding.encode(obj.data)
+    },
+    buildMeta: (obj) => {
+        const meta = {categories: ['kirauiplugin0']}
+        if (obj.type === 'DR') {
+            meta.name = 'KiraUI Reminders'
+            meta.categories.push('kirauiplugin2')
+        }
+        else {
+            meta.name = 'KiraUI Profile'
+            meta.categories.push('kirauiplugin1')
+        }
+
+        return meta
+    },
+}, {
     type: 'MIDNIGHT-SIMPLE-UNIT-FRAMES',
     slug: 'msuf',
     stringPrefix: 'MSUF3:',
@@ -540,7 +573,6 @@ const addons = [{
     stringPrefix: '!~MDT2~',
     buildMeta: (obj) => {
         const dungeon = categories.findByMDT_ID(obj.value.currentDungeonIdx)
-        console.log(obj.value.currentDungeonIdx, dungeon)
         return {
             name: obj.text && obj.text !== 'Default' ? obj.text : 'MDT Route',
             categories: [categories.findByMDT_ID(obj.value.currentDungeonIdx) || `MDT-${obj.value.currentDungeonIdx}`]

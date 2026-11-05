@@ -1265,6 +1265,10 @@ class Categories {
       'blueprint3': {slug: 'housing-blueprints/interior', image: 'homestone.png', color: '#fad036', i18n: 'Interior', parent: 'blueprint0', domain: 0, system: true},
       'blueprint4': {slug: 'housing-blueprints/exterior', image: 'homestone.png', color: '#fad036', i18n: 'Exterior', parent: 'blueprint0', domain: 0, system: true},
 
+      'kirauiplugin0': {slug: 'kiraui-plugin', image: 'kiraui.png', color: '#867473', i18n: 'KiraUI Plugin', domain: 0, system: true},
+      'kirauiplugin1': {slug: 'kiraui-plugin/profile', image: 'kiraui.png', color: '#867473', i18n: 'Profiles', parent: 'kirauiplugin0', domain: 0, system: true},
+      'kirauiplugin2': {slug: 'kiraui-plugin/reminders', image: 'kiraui.png', color: '#867473', i18n: 'Reminders', parent: 'kirauiplugin0', domain: 0, system: true},
+
       ///////////////////////////////////////////////////////
       // FINAL FANTASY CATEGORIES
       ///////////////////////////////////////////////////////
