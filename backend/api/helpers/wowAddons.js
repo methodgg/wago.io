@@ -535,6 +535,105 @@ const addons = [{
         return meta
     },
 }, {
+    type: 'MERTHYRAUI',
+    slug: 'merthyra-ui',
+    stringPrefix: 'MUI1:',
+    buildMeta: (obj) => {
+        const meta = {
+            name: 'MerthyraUI Profile',
+            categories:[]
+        }
+        
+        return meta
+    },
+    customDecode: async (importStr) => {
+        return luaEncoding.decode(importStr.substring(5), {serialization: 'custom', encoding: 'none', compression: 'none', customSerialize: `
+            local function decode(text)
+                local pos, nodes = 1, 0
+                local parse
+                local function token(delimiter)
+                    local last = text:find(delimiter, pos, true)
+                    if not last or last - pos > 24 then error("Malformed profile token.") end
+                    local result = text:sub(pos, last - 1); pos = last + 1
+                    return result
+                end
+                parse = function(depth)
+                    nodes = nodes + 1
+                    if depth > 12 or nodes > 10000 then error("Profile exceeds parser limits.") end
+                    local tag = text:sub(pos, pos); pos = pos + 1
+                    if tag == "b" then
+                        local bit = text:sub(pos, pos); pos = pos + 1
+                        if bit ~= "0" and bit ~= "1" then error("Malformed boolean.") end
+                        return bit == "1"
+                    elseif tag == "n" then
+                        local value = tonumber(token(";"))
+                        if not value or value ~= value or math.abs(value) == math.huge then error("Invalid number.") end
+                        return value
+                    elseif tag == "s" or tag == "t" then
+                        local raw = token(":")
+                        if not raw:match("^%d+$") then error("Invalid length.") end
+                        local length = tonumber(raw)
+                        if length > 100000 then error("Profile is too large.") end
+                        if tag == "s" then
+                            if pos + length - 1 > #text then error("Truncated profile.") end
+                            local value = text:sub(pos, pos + length - 1); pos = pos + length
+                            return value
+                        end
+                        if length > 2000 then error("Too many profile entries.") end
+                        local value = {}
+                        for _ = 1, length do
+                            local key = parse(depth + 1)
+                            if type(key) ~= "string" and type(key) ~= "number" then error("Invalid table key.") end
+                            if value[key] ~= nil then error("Duplicate profile key.") end
+                            value[key] = parse(depth + 1)
+                        end
+                        return value
+                    end
+                    error("Unknown profile token: "..tag)
+                end
+                local result = parse(0)
+                if pos ~= #text + 1 then error("Unexpected profile suffix.") end
+                return result
+            end
+            local hash, payload = data:match("^([%da-f]+):(.*)$")
+            data = decode(payload)
+        `})
+    },
+    customEncode: async (obj) => {
+        return `MUI1:${await luaEncoding.encode(obj, {serialization: 'custom', encoding: 'none', compression: 'none', customSerialize: `
+        local function checksum(text)
+            local a, b = 1, 0
+            for i = 1, #text do a = (a + text:byte(i)) % 65521; b = (b + a) % 65521 end
+            return string.format("%08x", b * 65536 + a)
+        end
+        local function encode(value, depth)
+            if depth > 12 then error("Profile is too deeply nested.") end
+            local t = type(value)
+            if t == "string" then return "s" .. #value .. ":" .. value end
+            if t == "boolean" then return value and "b1" or "b0" end
+            if t == "number" then
+                if value ~= value or math.abs(value) == math.huge then error("Invalid number.") end
+                return "n" .. string.format("%.17g", value) .. ";"
+            end
+            if t == "table" then
+                local keys = {}
+                for key in pairs(value) do
+                    if type(key) ~= "string" and type(key) ~= "number" then error("Unsupported profile key.") end
+                    keys[#keys + 1] = key
+                end
+                table.sort(keys, function(a, b) return type(a) == type(b) and a < b or type(a) < type(b) end)
+                local parts = { "t" .. #keys .. ":" }
+                for _, key in ipairs(keys) do parts[#parts + 1] = encode(key, depth + 1); parts[#parts + 1] = encode(value[key], depth + 1) end
+                return table.concat(parts)
+            end
+            error("Unsupported profile value.")
+        end
+        local payload = encode(data, 0)
+        data = checksum(payload) .. ":" .. payload
+        `})}`
+    },
+    useLuaEncoding: true
+}, {
     type: 'MIDNIGHT-SIMPLE-UNIT-FRAMES',
     slug: 'msuf',
     stringPrefix: 'MSUF3:',
@@ -1039,7 +1138,7 @@ async function toEncodedString(obj, type) {
 
         let encoded = ''
         if (addon.customEncode) {
-            return addon.customEncode(obj)            
+            return addon.customEncode(obj)
         }        
         else if (addon.useLuaEncoding) {
             encoded = await luaEncoding.encode(obj, {serialization: addon.serialization, compression: addon.compression, encoding: addon.encoding})

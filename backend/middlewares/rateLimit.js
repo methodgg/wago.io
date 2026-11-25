@@ -7,7 +7,7 @@ module.exports = async function (req, res) {
   var key, max, expire
   if (req.raw.url.match(/^\/auth\//)) {
     key = 'limit:auth:' + req.raw.ip
-    max = 30
+    max = config.env === 'development' ? 1000 : 30
     expire = 3600
   }
   else {
@@ -19,7 +19,7 @@ module.exports = async function (req, res) {
   let current = await redis2.llen(key)
   if (current > max) {
     let ttl = await redis2.ttl(key)
-    req.trackError({name: 'Rate Limit Exceeded', message: 'Rate Limit Exceeded', stack: `${key}; TTL=${ttl}; Hits=${current}`})
+    // req.trackError({name: 'Rate Limit Exceeded', message: 'Rate Limit Exceeded', stack: `${key}; TTL=${ttl}; Hits=${current}`})
     if (ttl > 0) {
       return res.code(429).send({error: "Rate limit exceeded"})
     }

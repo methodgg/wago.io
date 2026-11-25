@@ -111,9 +111,10 @@ module.exports = ($t) => [
     {name: 'Macro', slug: 'macro', color: 'BA25BF', image: 'macro.png', expansions: ['ALL'], categories: ['%CLASSES%', 'macroutility', 'macrotargeting'], group: 'tools', links: [
         {url: 'https://warcraft.wiki.gg/wiki/Making_a_macro', name: $t('Macro guide on Warcraft Wiki')}
     ]},
-    {name: 'Midnight Simple Unit Frames', slug: 'msuf', serverType: 'MIDNIGHT-SIMPLE-UNIT-FRAMES', color: '59d6ff', image: 'msuf.png', expansions: ['midnight', 'forever', 'classic', 'tbc', 'mop'], group: 'ui', links: [
-        {url: 'https://addons.wago.io/addons/midnightsimpleunitframes', name: $t('Download Midnight Simple Unit Frames')}
+    {name: 'Merthyra UI', slug: 'merthyra-ui', color: 'c28539', image: 'merthyra.png', expansions: ['forever'], group: 'ui', links: [
+        {url: 'https://addons.wago.io/addons/merthyraui', name: $t('Download Merthyra UI')}
     ]},
+    {name: 'Midnight Simple Unit Frames', slug: 'msuf', serverType: 'MIDNIGHT-SIMPLE-UNIT-FRAMES', color: '59d6ff', image: 'msuf.png', expansions: ['midnight', 'forever', 'classic', 'tbc', 'mop'], group: 'ui', links: [
     {name: 'MPlus Timer', slug: 'mplus-timer', color: '7ED321', image: 'mplus.png', expansions: ['midnight'], group: 'combat', links: [
         {url: 'https://addons.wago.io/addons/mplustimer', name: $t('Download MPlus Timer')},
         {url: 'https://discord.gg/3B6QHURmBy', name: $t('Join MPlus Timer Discord')}

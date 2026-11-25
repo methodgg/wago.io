@@ -330,11 +330,12 @@ module.exports = function (fastify, opts, next) {
         saveDoc = true
       }
       if (!doc.previewStatic && doc.previewImage && doc.previewImage.match(/\.gif$/)) {
-        const static = await image.gifToPng(doc.previewImage, doc._id)
-        if (static) {
-          doc.previewStatic = static
-          saveDoc = true
-        }
+        // temp disable for now since this has stopped working in some cases
+        // const static = await image.gifToPng(doc.previewImage, doc._id)
+        // if (static) {
+        //   doc.previewStatic = static
+        //   saveDoc = true
+        // }
       }
       wago.thumbnail = doc.previewStatic || doc.previewImage || null
       screens.forEach((screen) => {

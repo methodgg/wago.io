@@ -4,7 +4,7 @@ async function decode(encodedString, {serialization='LibSerialize', compression=
     try {
         const escapedString = encodedString.replace(/\\/g, '\\\\').replace(/"/g, '\\"').trim()
         const lua = [`local data = "${escapedString}"`]
-        console.log('lua decode', serialization)
+        console.log('lua decode', {serialization, compression, encoding})
         if (encoding === 'base64') {
             lua.push(`data = LibDeflate:DecodeForPrint(data)`)
         }
@@ -14,7 +14,7 @@ async function decode(encodedString, {serialization='LibSerialize', compression=
         else if (encoding === 'custom' && customEncoding?.match(/data ?=/)) {
             lua.push(customEncoding)
         }
-        else {
+        else if (encoding !== 'none') {
             throw 'Unknown serialization method ' + encoding
         }
 
@@ -37,7 +37,7 @@ async function decode(encodedString, {serialization='LibSerialize', compression=
         else if (serialization === 'custom' && customSerialize?.match(/data ?=/)) {
             lua.push(customSerialize)
         }
-        else {
+        else if (serialization !== 'none') {
             throw 'Unknown serialization method ' + serialization
         }
 
@@ -75,8 +75,8 @@ async function encode(json, {serialization='LibSerialize', compression='LibDefla
         else if (serialization === 'custom' && customSerialize?.match(/data ?=/)) {
             lua.push(customSerialize)
         }
-        else {
-            throw 'Unknown serialization method'
+        else if (serialization !== 'none') {
+            throw 'Unknown serialization method ' + serialization
         }
 
         if (compression === 'LibDeflate') {
@@ -88,8 +88,8 @@ async function encode(json, {serialization='LibSerialize', compression='LibDefla
         else if (compression === 'custom' && customCompression?.match(/data ?=/)) {
             lua.push(customCompression)
         }
-        else {
-            throw 'Unknown compression method'
+        else if (compression !== 'none') {
+            throw 'Unknown compression method ' + compression
         }
 
         if (encoding === 'base64') {
@@ -101,8 +101,8 @@ async function encode(json, {serialization='LibSerialize', compression='LibDefla
         else if (encoding === 'custom' && customEncoding?.match(/data ?=/)) {
             lua.push(customEncoding)
         }
-        else {
-            throw 'Unknown encoding method'
+        else if (encoding !== 'none') {
+            throw 'Unknown encoding method ' + encoding
         }
 
         lua.push('return data or ""')
