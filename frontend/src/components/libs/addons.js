@@ -111,6 +111,9 @@ module.exports = ($t) => [
     {name: 'Macro', slug: 'macro', color: 'BA25BF', image: 'macro.png', expansions: ['ALL'], categories: ['%CLASSES%', 'macroutility', 'macrotargeting'], group: 'tools', links: [
         {url: 'https://warcraft.wiki.gg/wiki/Making_a_macro', name: $t('Macro guide on Warcraft Wiki')}
     ]},
+    {name: 'Merthyra UI', slug: 'merthyra-ui', color: 'c28539', image: 'merthyra.png', expansions: ['forever'], group: 'ui', links: [
+        {url: 'https://addons.wago.io/addons/merthyraui', name: $t('Download Merthyra UI')}
+    ]},
     {name: 'Midnight Simple Unit Frames', slug: 'msuf', serverType: 'MIDNIGHT-SIMPLE-UNIT-FRAMES', color: '59d6ff', image: 'msuf.png', expansions: ['midnight'], group: 'ui', links: [
         {url: 'https://addons.wago.io/addons/midnightsimpleunitframes', name: $t('Download Midnight Simple Unit Frames')}
     ]},
