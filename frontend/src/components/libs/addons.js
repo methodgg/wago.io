@@ -82,7 +82,7 @@ module.exports = ($t) => [
     {name: 'EllesmereUI', slug: 'ellesmere-ui', serverType: 'ELLESMEREUI', color: '2ff6bf', image: 'ellesmereui.png', expansions: ['ALL'], group: 'ui', links: [
         {url: 'https://addons.wago.io/addons/ellesmereui', name: $t('Download EllesmereUI')},
     ]},
-    {name: 'Enhance QoL', slug: 'enhance-qol', color: 'e0d0b3', image: 'enhanceqol.png', expansions: ['midnight'], categories: ['%CLASSES%', 'enhanceqol0'], group: 'ui', links: [
+    {name: 'Enhance QoL', slug: 'enhance-qol', color: 'e0d0b3', image: 'enhanceqol.png', expansions: ['midnight', 'forever', 'tbc'], categories: ['%CLASSES%', 'enhanceqol0'], group: 'ui', links: [
         {url: 'https://addons.wago.io/addons/eqol', name: $t('Download Enhance QoL')},
         {url: 'https://discord.gg/kqQfG9YhVn', name: $t('Join Enhance Qol Discord')}
     ]},
