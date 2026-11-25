@@ -115,6 +115,8 @@ module.exports = ($t) => [
         {url: 'https://addons.wago.io/addons/merthyraui', name: $t('Download Merthyra UI')}
     ]},
     {name: 'Midnight Simple Unit Frames', slug: 'msuf', serverType: 'MIDNIGHT-SIMPLE-UNIT-FRAMES', color: '59d6ff', image: 'msuf.png', expansions: ['midnight', 'forever', 'classic', 'tbc', 'mop'], group: 'ui', links: [
+        {url: 'https://addons.wago.io/addons/midnightsimpleunitframes', name: $t('Download Midnight Simple Unit Frames')}
+    ]},
     {name: 'MPlus Timer', slug: 'mplus-timer', color: '7ED321', image: 'mplus.png', expansions: ['midnight'], group: 'combat', links: [
         {url: 'https://addons.wago.io/addons/mplustimer', name: $t('Download MPlus Timer')},
         {url: 'https://discord.gg/3B6QHURmBy', name: $t('Join MPlus Timer Discord')}
