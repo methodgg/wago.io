@@ -484,9 +484,8 @@ module.exports = function (fastify, opts, next) {
       res.send({success: true, _id: screen._id.toString(), src: screen.url})
     }
     catch (e) {
-      console.log(e)
       fs.unlink(tmpDir + screen.localFile)
-      res.send({success: false})
+      throw e
     }
   })
 
