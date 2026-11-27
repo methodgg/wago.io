@@ -160,7 +160,7 @@ module.exports = ($t) => [
         {url: 'https://addons.wago.io/addons/vuhdo', name: $t('Download Vuhdo')},
         {url: 'https://discord.gg/57en44E', name: $t('Join VuhDo Discord')},
     ]},
-    {name: 'Watchtower', slug: 'watchtower', color: 'cee2f3', image: 'watchtower.png', expansions: ['midnight'], categories: ['%CLASSES%', 'prof1', 'prof5', 'prof14', 'role0', 'gen0'], group: 'tools', links: [
+    {name: 'Watchtower', slug: 'watchtower', color: 'cee2f3', image: 'watchtower.png', expansions: ['midnight', 'forever'], categories: ['%CLASSES%', 'prof1', 'prof5', 'prof14', 'role0', 'gen0'], group: 'tools', links: [
         {url: 'https://addons.wago.io/addons/watchtower', name: $t('Download Watchtower')},
         {url: 'https://discord.gg/FwWZZ39kPX', name: $t('Join Watchtower Discord')}
     ]},
